@@ -75,7 +75,7 @@
       style() {
         const activeStyles = this.active
           ? {
-              backgroundColor: this.$themeColors.palette.grey.v_200,
+              backgroundColor: this.$themeColors.palette.grey.v_300,
               borderLeftColor: this.$themeTokens.video,
             }
           : {};
@@ -157,6 +157,10 @@
     white-space: nowrap;
     cursor: pointer;
     border-left: 4px solid transparent;
+
+    &.active {
+      font-weight: bold;
+    }
 
     .transcript-cue-time,
     .transcript-cue-text {
