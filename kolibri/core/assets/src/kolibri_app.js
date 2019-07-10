@@ -125,7 +125,7 @@ export default class KolibriApp extends KolibriModule {
           }
         });
       }
-      if (this.pluginModule.state.schema) {
+      if (this.pluginModule.state && this.pluginModule.state.schema) {
         registerSchema(this.pluginModule.state.schema);
       }
       forEach(this.pluginModule.modules, (module, name) => {
