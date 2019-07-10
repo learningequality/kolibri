@@ -1,20 +1,19 @@
 <template>
 
-  <CoreBase fullScreen>
+  <div>
     <SideNav class="nav" />
     <div class="content">
       <KPageContainer>
         <router-view />
       </KPageContainer>
     </div>
-  </CoreBase>
+  </div>
 
 </template>
 
 
 <script>
 
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import SideNav from './shell/SideNav';
 
@@ -22,7 +21,6 @@
     name: 'StyleGuideIndex',
     components: {
       SideNav,
-      CoreBase,
       KPageContainer,
     },
   };
