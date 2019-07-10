@@ -82,7 +82,7 @@
 
         return Object.assign(activeStyles, {
           ':hover': {
-            backgroundColor: this.$themeColors.palette.grey.v_100,
+            backgroundColor: this.$themeColors.palette.grey.v_200,
           },
           ':focus': this.$coreOutline,
         });
