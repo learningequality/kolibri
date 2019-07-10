@@ -231,5 +231,10 @@ export default {
       store.commit('SET_TRANSCRIPT', !store.state.transcript);
       store.dispatch('synchronizeTrackList');
     },
+
+    resetState(store) {
+      store.commit('SET_CUE_LIST', null);
+      store.commit('SET_ACTIVE_CUE_LIST', null);
+    },
   },
 };

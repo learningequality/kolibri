@@ -13,17 +13,16 @@ export default {
   getters: {},
   actions: {
     setPlayer(store, player) {
-      if (store.state.player) {
-        store.state.player.dispose();
-        store.commit('SET_PLAYER', null);
-      }
+      store.dispatch('resetState');
 
       player.one('loadstart', () => {
         store.dispatch('captions/setTrackList', player.textTracks());
 
-        player.on('texttrackchange', () => {
+        const onTrackChange = () => {
           store.dispatch('captions/updateTrackList', player.textTracks());
-        });
+        };
+        player.on('texttrackchange', onTrackChange);
+        player.on('dispose', () => player.off('texttrackchange', onTrackChange));
       });
 
       store.commit('SET_PLAYER', player);
@@ -31,6 +30,15 @@ export default {
 
     withPlayer(store, callback) {
       return callback(store.state.player);
+    },
+
+    resetState(store) {
+      if (store.state.player) {
+        store.state.player.dispose();
+        store.commit('SET_PLAYER', null);
+      }
+
+      store.dispatch('captions/resetState');
     },
   },
   modules: {

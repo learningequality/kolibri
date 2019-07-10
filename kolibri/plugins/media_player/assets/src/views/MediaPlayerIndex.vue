@@ -191,10 +191,10 @@
 
       this.$emit('stopTracking');
       window.removeEventListener('resize', this.throttledResizePlayer);
-      this.player.dispose();
+      this.resetState();
     },
     methods: {
-      ...mapActions('mediaPlayer', ['setPlayer']),
+      ...mapActions('mediaPlayer', ['setPlayer', 'resetState']),
       isDefaultTrack(langCode) {
         if (!this.captionLanguage) {
           return false;
