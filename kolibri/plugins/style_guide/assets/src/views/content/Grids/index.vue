@@ -1,6 +1,6 @@
 <template>
 
-  <PageTemplate title="Grid" :completed="false">
+  <PageTemplate :completed="false">
 
 
     <ComponentDocs :api="kGridApi" />

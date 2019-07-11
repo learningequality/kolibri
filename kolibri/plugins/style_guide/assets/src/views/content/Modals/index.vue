@@ -1,6 +1,6 @@
 <template>
 
-  <PageTemplate title="Modals" :completed="false">
+  <PageTemplate :completed="false">
 
 
     <ComponentDocs :api="KModalApi" />

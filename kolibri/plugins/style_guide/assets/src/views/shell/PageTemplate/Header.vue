@@ -1,6 +1,6 @@
 <template>
 
-  <div class="header" :style="{ left: `${navWidth-1}px` }">
+  <div class="header" :style="{ left: `${navWidth}px` }">
     <h1>
       {{ title }}
     </h1>

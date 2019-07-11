@@ -1,6 +1,6 @@
 <template>
 
-  <PageTemplate ref="root" :completed="true" title="Buttons and links">
+  <PageTemplate ref="root" :completed="true">
     <PageSection title="Test 2" anchor="test2">
       Another section
     </PageSection>

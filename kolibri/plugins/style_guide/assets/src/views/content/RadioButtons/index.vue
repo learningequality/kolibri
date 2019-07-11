@@ -1,6 +1,6 @@
 <template>
 
-  <PageTemplate title="Radio Buttons" :completed="false">
+  <PageTemplate :completed="false">
 
 
     <ComponentDocs :api="kRadioButtonApi" />

@@ -1,6 +1,6 @@
 <template>
 
-  <PageTemplate title="Dropdown Menus" :completed="false">
+  <PageTemplate :completed="false">
 
 
     <ComponentDocs :api="kDropdownMenuApi" />

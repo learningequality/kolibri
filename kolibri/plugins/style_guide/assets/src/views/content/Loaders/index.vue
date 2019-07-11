@@ -1,6 +1,6 @@
 <template>
 
-  <PageTemplate title="Loaders" :completed="false">
+  <PageTemplate :completed="false">
 
 
     <ComponentDocs :api="KCircularLoaderApi" />

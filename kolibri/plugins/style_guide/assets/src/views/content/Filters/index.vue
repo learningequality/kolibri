@@ -1,6 +1,6 @@
 <template>
 
-  <PageTemplate title="Filters" :completed="false">
+  <PageTemplate :completed="false">
 
 
     <ComponentDocs :api="KFilterTextboxApi" />

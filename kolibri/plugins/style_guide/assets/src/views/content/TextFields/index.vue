@@ -1,6 +1,6 @@
 <template>
 
-  <PageTemplate title="Text Fields" :completed="false">
+  <PageTemplate :completed="false">
 
 
     <ComponentDocs :api="kTextboxApi" />
