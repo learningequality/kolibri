@@ -1,9 +1,11 @@
 <template>
 
-  <div class="content">
+  <div>
     <SideNav />
-    <div :style="{ marginLeft: `${navWidth+32}px` }">
-      <router-view />
+    <div :style="{ marginLeft: `${navWidth}px` }" class="content">
+      <transition name="fade">
+        <router-view />
+      </transition>
     </div>
   </div>
 
@@ -30,8 +32,22 @@
 
 <style lang="scss" scoped>
 
-  .content {
+  .everything {
     background-color: white;
+  }
+
+  .content {
+    padding-left: 32px;
+    border-left: 1px solid #dedede;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.1s;
+  }
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
   }
 
 </style>
@@ -58,6 +74,10 @@
 
   *::selection {
     background: #f0e7ed;
+  }
+
+  body {
+    background-color: white;
   }
 
 </style>

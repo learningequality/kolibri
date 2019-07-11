@@ -11,7 +11,7 @@
       </router-link>
 
       <div v-for="(section, i) in navMenu" :key="i" class="section">
-        <KHorizontalRule :parentMargin="16" class="hr" />
+        <HorizontalRule />
 
         <div class="section-heading">
           {{ section.sectionName }}
@@ -37,12 +37,12 @@
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import { navMenu } from '../../routes.js';
   import navWidth from '../navWidth';
-  import KHorizontalRule from './KHorizontalRule';
+  import HorizontalRule from './HorizontalRule';
 
   export default {
     name: 'SideNav',
     components: {
-      KHorizontalRule,
+      HorizontalRule,
       CoreLogo,
     },
     created() {
@@ -74,7 +74,7 @@
 
   .bottom-gradient {
     position: absolute;
-    right: 0;
+    right: 16px;
     bottom: 0;
     left: 0;
     height: 100px;
@@ -95,17 +95,11 @@
     right: 0;
     bottom: 0;
     left: 0;
-    padding-right: 16px;
+    padding-right: 24px;
     padding-bottom: 150px;
     padding-left: 16px;
     overflow-y: auto;
     background: white;
-    border-right: 1px solid #dedede;
-  }
-
-  .hr {
-    margin-top: 16px;
-    margin-bottom: 16px;
   }
 
   .section-heading {
