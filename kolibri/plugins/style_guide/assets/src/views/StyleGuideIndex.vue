@@ -32,10 +32,6 @@
 
 <style lang="scss" scoped>
 
-  .everything {
-    background-color: white;
-  }
-
   .content {
     padding-left: 32px;
     border-left: 1px solid #dedede;
