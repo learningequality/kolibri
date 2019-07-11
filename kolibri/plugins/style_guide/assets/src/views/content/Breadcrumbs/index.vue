@@ -18,7 +18,7 @@
       <KBreadcrumbs :items="breadcrumbs" />
     </Show>
 
-    
+
     <ComponentDocs :api="kBreadcrumbsApi" />
 
     <h2>Code Example</h2>
