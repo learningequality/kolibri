@@ -18,7 +18,7 @@ const scrollBehavior = function(to, from, savedPosition) {
   if (to.hash) {
     const position = {};
     position.selector = to.hash;
-    position.offset = { y: 16 };
+    position.offset = { y: 128 };
     return position;
   }
   // otherwise default to the top
