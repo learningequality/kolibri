@@ -145,10 +145,16 @@
     computed: {
       ...mapGetters('manageContent', ['channelIsInstalled']),
       ...mapState('manageContent', ['taskList']),
-      ...mapGetters('manageContent/wizard', ['nodeTransferCounts']),
+      ...mapGetters('manageContent/wizard', [
+        'nodeTransferCounts',
+        'inPeerImportMode',
+        'inRemoteImportMode',
+      ]),
       ...mapState('manageContent/wizard', [
         'availableSpace',
         'currentTopicNode',
+        'selectedDrive',
+        'selectedPeer',
         'status',
         'transferType',
         'transferredChannel',
@@ -219,9 +225,18 @@
       if (this.wholePageError) {
         this.setAppBarTitle(this.$tr('pageLoadError'));
       } else {
-        this.setAppBarTitle(
-          this.$tr('selectContent', { channelName: this.transferredChannel.name })
-        );
+        // Set app bar labels based on what kind of import/export the user is engaged in.
+        if (this.mode === 'export') {
+          this.setAppBarTitle(this.$tr('exportContent', { drive: this.selectedDrive.name }));
+        } else if (this.mode === 'import') {
+          if (this.inRemoteImportMode) {
+            this.setAppBarTitle(this.$tr('kolibriStudioLabel'));
+          } else if (this.inPeerImportMode) {
+            this.setAppBarTitle(`${this.selectedPeer.device_name} (${this.selectedPeer.base_url})`);
+          } else {
+            this.setAppBarTitle(`${this.selectedDrive.name}`);
+          }
+        }
       }
     },
     beforeDestroy() {
@@ -280,6 +295,8 @@
       problemTransferringContents: 'There was a problem transferring the selected contents',
       selectContent: "Select content from '{channelName}'",
       update: 'Update',
+      exportContent: 'Export to {drive}',
+      kolibriStudioLabel: 'Kolibri Studio',
     },
   };
 

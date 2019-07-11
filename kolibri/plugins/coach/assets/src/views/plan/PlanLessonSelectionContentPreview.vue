@@ -4,7 +4,8 @@
     :immersivePage="true"
     immersivePageIcon="arrow_back"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="coachCommon$tr('manageResourcesAction')"
+    :immersivePagePrimary="true"
+    :appBarTitle="lessonNameLabel"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
@@ -62,12 +63,18 @@
         );
       },
       ...mapState('lessonSummary', ['workingResources']),
-      ...mapState('lessonSummary/resources', ['currentContentNode', 'preview']),
+      ...mapState('lessonSummary/resources', ['currentContentNode', 'preview', 'ancestors']),
       isSelected() {
         if (this.workingResources && this.currentContentNode && this.currentContentNode.id) {
           return this.workingResources.includes(this.currentContentNode.id);
         }
         return false;
+      },
+      lessonNameLabel() {
+        const ancestorLength = this.ancestors ? this.ancestors.length : 0;
+        const label =
+          ancestorLength > 0 ? this.ancestors[ancestorLength - 1].title : this.$tr('lessonLabel');
+        return label;
       },
     },
     beforeDestroy() {
@@ -87,6 +94,7 @@
       },
     },
     $trs: {
+      lessonLabel: 'Lesson',
       resourcesAddedSnackbarText:
         'Added {count, number, integer} {count, plural, one {resource} other {resources}} to lesson',
       resourcesRemovedSnackbarText:
