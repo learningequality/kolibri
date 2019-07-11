@@ -5,11 +5,11 @@
     :class="{ fixed: scrolled}"
     :style="{ left: `${navWidth}px` }"
   >
-    <h1>
+    <h1 class="header-text">
       {{ title }}
     </h1>
-    <ul>
-      <li v-for="(section, i) in sections" :key="i">
+    <ul v-if="sections.length" class="nav">
+      <li v-for="(section, i) in sections" :key="i" class="nav-item">
         <!-- eslint-disable --><!-- Don't let this wrap -->
         <router-link :to="'#'+section.anchor">{{ section.title }}</router-link>
         <!-- eslint-enable -->
@@ -23,10 +23,12 @@
 <script>
 
   import { throttle } from 'frame-throttle';
+  import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import navWidth from '../../navWidth';
 
   export default {
     name: 'Header',
+    mixins: [ResponsiveElement],
     props: {
       sections: {
         type: Array,
@@ -45,6 +47,11 @@
     computed: {
       throttledHandleScroll() {
         return throttle(this.handleScroll);
+      },
+    },
+    watch: {
+      elementHeight() {
+        this.$emit('heightChange', this.elementHeight);
       },
     },
     created() {
@@ -69,12 +76,12 @@
 <style lang="scss" scoped>
 
   .header {
-    position: relative;
     position: fixed;
     top: 0;
     right: 0;
     z-index: 999999;
-    padding-bottom: 8px;
+    padding-top: 16px;
+    padding-bottom: 16px;
     padding-left: 32px;
     background-color: white;
     border-bottom: 1px solid white;
@@ -86,24 +93,25 @@
     border-bottom: 1px solid #dedede;
   }
 
-  ul {
+  .nav {
     padding: 0;
     margin: 0;
+    margin-top: 8px;
     list-style: none;
   }
 
-  li {
+  .nav-item {
     display: inline-block;
   }
 
-  li + li {
-    padding-left: 8px;
-    margin-left: 8px;
-    border-left: 1px solid #dedede;
+  .nav-item:not(:last-child) {
+    padding-right: 8px;
+    margin-right: 8px;
+    border-right: 1px solid #dedede;
   }
 
-  h1 {
-    margin-top: 16px;
+  .header-text {
+    margin: 0;
   }
 
 </style>
