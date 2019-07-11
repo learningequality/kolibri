@@ -1,8 +1,10 @@
 <template>
 
-  <PageTemplate :completed="true">
+  <PageTemplate ref="root" :completed="true" title="Buttons and links">
+    <PageSection title="Test 2" anchor="test2">
+      Another section
+    </PageSection>
 
-    <h1>Buttons and links</h1>
 
     <p>
       Buttons use the <code>&lt;button&gt;</code> HTML tag and trigger an action on the current
@@ -80,6 +82,12 @@
 
     <h2>APIs</h2>
 
+    <PageSection title="Test" anchor="test">
+      hello
+    </PageSection>
+
+
+
     <p>There are three components that all look the same, but are used for different purposes:</p>
     <ul>
       <li>
@@ -130,6 +138,7 @@
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
+  import PageSection from '../../shell/PageTemplate/PageSection';
   import Show from '../../shell/Show';
 
   /* eslint-disable import/no-duplicates */
@@ -145,6 +154,7 @@
     name: 'Buttons',
     components: {
       PageTemplate,
+      PageSection,
       ComponentDocs,
       VueExample,
       Show,
