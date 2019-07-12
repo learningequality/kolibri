@@ -1,28 +1,33 @@
 <template>
 
-  <PageTemplate :completed="true">
+  <PageTemplate>
+    <PageSection>
 
-    <h1>Topic tree breadcrumbs</h1>
 
-    <p>
-      Breadcrumbs should be used to aid navigation across channels, topic trees, and resources.
-      Place it directly above the content to be navigated through.
-    </p>
+      <p>
+        Breadcrumbs should be used to aid navigation across channels, topic trees, and resources.
+        Place it directly above the content to be navigated through.
+      </p>
 
-    <p>
-      The last item should be the current item, which will not be linked.
-      This text might be redundant with the same name in an adjacent header, which is ok.
-    </p>
+      <p>
+        The last item should be the current item, which will not be linked.
+        This text might be redundant with the same name in an adjacent header, which is ok.
+      </p>
 
-    <Show>
-      <KBreadcrumbs :items="breadcrumbs" />
-    </Show>
+      <Show>
+        <KBreadcrumbs :items="breadcrumbs" />
+      </Show>
+    </PageSection>
 
-    <h2>API</h2>
-    <ComponentDocs :api="kBreadcrumbsApi" />
+    <PageSection title="API" anchor="#api">
+      <ComponentDocs :api="kBreadcrumbsApi" />
+    </PageSection>
 
-    <h2>Code Example</h2>
-    <VueExample :code="example" />
+    <PageSection title="Code example" anchor="#example" fullwidth>
+      <VueExample :code="exampleCode">
+        <Example />
+      </VueExample>
+    </PageSection>
 
   </PageTemplate>
 
@@ -31,30 +36,34 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
+  import PageSection from '../../shell/PageTemplate/PageSection';
   import Show from '../../shell/Show';
 
-  import example from 'raw-loader!./example.html';
-  import kBreadcrumbsApi from '!vue-doc!kolibri.coreVue.components.KBreadcrumbs';
+  /* eslint-disable import/no-duplicates */
+  import Example from './Example.vue';
+  import exampleCode from '!!raw-loader!./Example.vue';
+  /* eslint-enable import/no-duplicates */
 
-  FullVue.component('k-breadcrumbs', KBreadcrumbs);
+  import kBreadcrumbsApi from '!vue-doc!kolibri.coreVue.components.KBreadcrumbs';
 
   export default {
     name: 'Breadcrumbs',
     components: {
       PageTemplate,
+      PageSection,
       ComponentDocs,
       VueExample,
       KBreadcrumbs,
       Show,
+      Example,
     },
     data: () => ({
       kBreadcrumbsApi,
-      example,
+      exampleCode,
     }),
     computed: {
       breadcrumbs() {

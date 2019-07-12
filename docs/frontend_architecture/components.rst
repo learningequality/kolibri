@@ -9,19 +9,28 @@ Components allow us to define new custom tags that encapsulate a piece of self-c
 
 Read through the :doc:`./conventions` for further guidelines on writing components.
 
-Style guide
------------
 
-Our `style guide <http://kolibridemo.learningequality.org/style_guide>`__ contains reusable components that should be used whenever possible to maintain UI consistency. Adding components to the style guide depends on whether the component is currently used in multiple locations and will likely be used in more locations in the future, matches style guide style, is prop-driven, is properly named.
+Design system
+-------------
+
+Our `design system <http://kolibribeta.learningequality.org/design>`__ contains reusable patterns and components that should be used whenever possible to maintain UI consistency and avoid duplication of effort.
+
 
 SVG Icons
 ---------
 
-`Material Design Icon <https://material.io/tools/icons/>`__ SVGs or local SVGs can be inlined using the `svg-icon-inline-loader <https://github.com/learningequality/svg-icon-inline-loader>`__
+Most icons in Kolibri should be accessed through the ``<KIcon>`` component.
+
+However if the desired icon is not available, we provide a mechanism to embed SVGs in components. Specifically, `Material Design Icon <https://material.io/tools/icons/>`__ SVGs or local SVGs can be inlined using the `svg-icon-inline-loader <https://github.com/learningequality/svg-icon-inline-loader>`__
 
 .. code-block:: html
 
+  <!--
+    embed https://material.io/tools/icons/?search=fullscreen&icon=fullscreen&style=baseline
+  -->
   <mat-svg category="navigation" name="fullscreen_exit"/>
+
+  <!-- embed a file in the same folder as the vue component -->
   <file-svg src="./icon.svg"/>
 
 Inlining an SVG allows it to be inserted directly into the outputted HTML. This allows aspects of the icon (e.g. fill) to be styled using CSS.

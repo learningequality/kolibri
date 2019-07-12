@@ -10,7 +10,6 @@
         ref="button"
         :text="text"
         :appearance="appearance"
-        :primary="primary"
         :disabled="disabled"
         :hasDropdown="true"
       />
@@ -62,21 +61,13 @@
         required: true,
       },
       /**
-       * Button appearance: 'raised-button', 'flat-button', or 'basic-link'
+       * Button appearance: 'raised-button' or 'flat-button'
        */
       appearance: {
         type: String,
         required: false,
         default: 'raised-button',
         validator,
-      },
-      /**
-       * For 'raised-button' and 'flat-button' appearances: show as primary or secondary style
-       */
-      primary: {
-        type: Boolean,
-        required: false,
-        default: false,
       },
       /**
        * Whether or not button is disabled

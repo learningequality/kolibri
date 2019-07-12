@@ -1,32 +1,29 @@
 <template>
 
   <div>
-    <k-textbox
+    <KTextbox
       v-model="model1"
       label="Sample text field"
       :disabled="false"
       :required="true"
       :invalid="isInvalid"
-      invalid-text="The input is invalid"
+      invalidText="The input is invalid"
       :maxlength="15"
       autocomplete="off"
       type="text"
-    >
-    </k-textbox>
+    />
 
-    <k-textbox
+    <KTextbox
       v-model="model2"
       label="Disabled sample text field"
       :disabled="true"
       :maxlength="15"
-    >
-    </k-textbox>
-    <k-textbox
+    />
+    <KTextbox
       v-model="model3"
       label="Text area"
-      :text-area="true"
-    >
-    </k-textbox>
+      :textArea="true"
+    />
   </div>
 
 </template>
@@ -34,7 +31,11 @@
 
 <script>
 
-  module.exports = {
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+
+  export default {
+    name: 'Example',
+    components: { KTextbox },
     data: () => ({
       model1: '',
       model2: 'disabled',
@@ -43,7 +44,7 @@
     computed: {
       isInvalid() {
         return this.model1 === 'invalid';
-      }
+      },
     },
   };
 

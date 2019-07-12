@@ -1,34 +1,87 @@
-import Vue from 'kolibri.lib.vue';
 import router from 'kolibri.coreVue.router';
-import Vuep from 'vuep';
+import urls from 'kolibri.urls';
+import debounce from 'lodash/debounce';
 import RootVue from './views/StyleGuideIndex';
-import { navMenuRoutes } from './views/shell/nav-menu';
-import KolibriModule from 'kolibri_module';
+import { navMenuRoutes, titleForRoute } from './routes';
+import pluginModule from './modules/pluginModule';
+import KolibriApp from 'kolibri_app';
 
-Vue.use(Vuep, { lineNumbers: false });
+import 'prismjs';
+import 'prismjs/themes/prism.css';
 
-class StyleGuideModule extends KolibriModule {
+const scrollBehavior = function(to, from, savedPosition) {
+  if (savedPosition) {
+    // savedPosition is only available for popstate navigations
+    return savedPosition;
+  }
+  // scroll to anchor by returning the selector
+  if (to.hash) {
+    const position = {};
+    position.selector = to.hash;
+    position.offset = { y: 128 };
+    return position;
+  }
+
+  // it seems we just cleared the hash due to scrolling, so don't scroll to the top
+  if (clearingHash) {
+    clearingHash = false;
+    return;
+  }
+
+  // otherwise default to the top
+  return { x: 0, y: 0 };
+};
+
+// two state variables to help with scrolling and anchor link positions
+let lastScrollTime = null;
+let clearingHash = false;
+
+class StyleGuideModule extends KolibriApp {
+  get routes() {
+    return navMenuRoutes;
+  }
+  get RootVue() {
+    return RootVue;
+  }
+  get pluginModule() {
+    return pluginModule;
+  }
   ready() {
-    document.title = 'Kolibri Style Guide';
-    this.rootvue = new Vue({
-      el: 'rootvue',
-      name: 'StyleGuideRoot',
-      render: createElement => createElement(RootVue),
-      router: router.init(navMenuRoutes, {
-        // Enable the anchor scrolling behavior (which requires the vue-router
-        // to use the HTML5 History API).
-        mode: 'history',
-        scrollBehavior(to, from, savedPosition) {
-          if (to.hash) {
-            return { selector: to.hash };
-          } else if (savedPosition) {
-            return savedPosition;
-          }
-
-          return { x: 0, y: 0 };
-        },
-      }),
+    // make a router that lets us use anchor links (hash IDs)
+    router.initRouter({
+      mode: 'history',
+      base: urls['style_guide'](),
+      scrollBehavior,
     });
+
+    router.afterEach(to => {
+      document.title = titleForRoute(to) + ' - Kolibri Design System';
+    });
+
+    // clear the URL hash when you scroll away so you can click back to the section again!
+    window.addEventListener(
+      'scroll',
+      debounce(
+        () => {
+          // no hash, no worries
+          if (!window.location.hash) return;
+          // if it's been a while since we scrolled, nothing to do
+          const time = new Date().getTime();
+          if (lastScrollTime === null || time - lastScrollTime > 1000) {
+            lastScrollTime = time;
+            return;
+          }
+          // if we're actively scrolling, get rid of the hash
+          clearingHash = true;
+          router.replace('');
+        },
+        100,
+        { leading: true }
+      )
+    );
+
+    // people get ready
+    return super.ready();
   }
 }
 
