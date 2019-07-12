@@ -11,7 +11,7 @@
     <ul v-if="sections.length" class="nav">
       <li v-for="(section, i) in sections" :key="i" class="nav-item">
         <!-- eslint-disable --><!-- Don't let this wrap -->
-        <router-link :to="'#'+section.anchor">{{ section.title }}</router-link>
+        <router-link :to="section.anchor">{{ section.title }}</router-link>
         <!-- eslint-enable -->
       </li>
     </ul>

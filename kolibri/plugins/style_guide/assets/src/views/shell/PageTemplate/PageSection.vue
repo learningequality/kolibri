@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h2 v-if="title" :id="anchor" :name="anchor">
+    <h2 v-if="title" :id="anchorId" :name="anchorId">
       {{ title }}
       <SectionLink v-if="anchor" :anchor="anchor" />
     </h2>
@@ -28,6 +28,11 @@
       anchor: {
         type: String,
         required: false,
+      },
+    },
+    computed: {
+      anchorId() {
+        return this.anchor.replace('#', '');
       },
     },
   };

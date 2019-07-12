@@ -1,6 +1,6 @@
 <template>
 
-  <a :href="'#' + anchor">
+  <router-link :to="anchor">
     <svg
       class="icon-link"
       version="1.1"
@@ -15,7 +15,7 @@
       <!-- eslint-enable -->
     </svg>
     <span class="visuallyhidden">link to section</span>
-  </a>
+  </router-link>
 
 </template>
 
@@ -27,7 +27,7 @@
     props: {
       anchor: {
         type: String,
-        required: true,
+        default: '',
       },
     },
   };
@@ -40,8 +40,8 @@
   .icon-link {
     position: relative;
     top: 2px;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     margin-right: 8px;
     margin-left: 8px;
   }

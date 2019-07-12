@@ -63,8 +63,17 @@
   a {
     color: #368d74;
     transition: all 0.25s ease;
+
+    svg {
+      fill: #368d74;
+      transition: fill 0.25s ease;
+    }
+
     &:hover {
       color: #26614d;
+      svg {
+        fill: #26614d;
+      }
     }
   }
 
