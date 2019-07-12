@@ -154,9 +154,8 @@ class ExamStatusSerializer(KolibriModelSerializer):
             .aggregate(Sum("correct"))
             .get("correct__sum")
         )
-    
+
     def get_num_answered(self, exam_log):
-        #import pdb; pdb.set_trace()
         return (
             exam_log.attemptlogs.values_list("item")
                 .order_by("completion_timestamp")
