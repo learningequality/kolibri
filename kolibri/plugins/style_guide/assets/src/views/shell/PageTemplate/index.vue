@@ -14,7 +14,7 @@
 
 <script>
 
-  import { navMenu } from '../../../routes.js';
+  import { titleForRoute } from '../../../routes.js';
   import Header from './Header';
   import PageSection from './PageSection';
 
@@ -30,14 +30,7 @@
     },
     computed: {
       header() {
-        for (let i = 0; i < navMenu.length; i++) {
-          for (let j = 0; j < navMenu[i].sectionItems.length; j++) {
-            if (this.$route.path === navMenu[i].sectionItems[j].itemRoute.path) {
-              return navMenu[i].sectionItems[j].itemName;
-            }
-          }
-        }
-        return 'Home';
+        return titleForRoute(this.$route);
       },
       sections() {
         return this.$slots.default

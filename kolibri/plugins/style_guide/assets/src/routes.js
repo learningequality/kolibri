@@ -151,4 +151,15 @@ const navMenuRoutes = flatten(
   homeRoute.concat(navMenu.map(menuSection => menuSection.sectionItems.map(link => link.itemRoute)))
 );
 
-export { navMenu, navMenuRoutes };
+function titleForRoute(route) {
+  for (let i = 0; i < navMenu.length; i++) {
+    for (let j = 0; j < navMenu[i].sectionItems.length; j++) {
+      if (route.path === navMenu[i].sectionItems[j].itemRoute.path) {
+        return navMenu[i].sectionItems[j].itemName;
+      }
+    }
+  }
+  return 'Home';
+}
+
+export { navMenu, navMenuRoutes, titleForRoute };

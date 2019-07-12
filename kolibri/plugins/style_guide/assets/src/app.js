@@ -2,7 +2,7 @@ import router from 'kolibri.coreVue.router';
 import urls from 'kolibri.urls';
 import debounce from 'lodash/debounce';
 import RootVue from './views/StyleGuideIndex';
-import { navMenuRoutes } from './routes';
+import { navMenuRoutes, titleForRoute } from './routes';
 import pluginModule from './modules/pluginModule';
 import KolibriApp from 'kolibri_app';
 
@@ -52,6 +52,10 @@ class StyleGuideModule extends KolibriApp {
       mode: 'history',
       base: urls['style_guide'](),
       scrollBehavior,
+    });
+
+    router.afterEach(to => {
+      document.title = titleForRoute(to) + ' - Kolibri Design System';
     });
 
     // clear the URL hash when you scroll away so you can click back to the section again!
