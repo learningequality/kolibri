@@ -6,11 +6,9 @@
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-
       <ReportsQuizHeader />
 
       <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
@@ -41,14 +39,21 @@
               </KLabeledIcon>
             </td>
             <td>
-              <StatusSimple 
-                :status="tableRow.statusObj.status" 
-                :answeredQuestionsCount="numAnswered(tableRow.statusObj)" 
-                :totalQuestionsCount="exam.question_count" 
+              <StatusSimple
+                v-if="tableRow.statusObj.status !== STATUSES.started"
+                :status="tableRow.statusObj.status"
               />
+              <KLabeledIcon v-else>
+                <KIcon slot="icon" :color="$themeTokens.progress" inProgress />
+                {{ $tr('questionsCompletedRatioLabel', {count: tableRow.statusObj.num_answered || 0, total: exam.question_count}) }}
+              </KLabeledIcon>
             </td>
-            <td><Score :value="score(tableRow.statusObj)" /></td>
-            <td><TruncatedItemList :items="tableRow.groups" /></td>
+            <td>
+              <Score v-if="tableRow.statusObj.status === STATUSES.completed" :value="tableRow.statusObj.score || 0.0" />
+            </td>
+            <td>
+              <TruncatedItemList :items="tableRow.groups" />
+            </td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -61,6 +66,9 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import commonCoach from '../common';
   import ReportsQuizHeader from './ReportsQuizHeader';
 
@@ -68,8 +76,10 @@
     name: 'ReportsQuizLearnerListPage',
     components: {
       ReportsQuizHeader,
+      KIcon,
+      KLabeledIcon,
     },
-    mixins: [commonCoach, commonCoreStrings],
+    mixins: [commonCoach, commonCoreStrings, themeMixin],
     data() {
       return {
         filter: 'allQuizzes',
@@ -120,11 +130,15 @@
           ? statusObj.score || 0.0 // Ensures score will show 0% when null
           : null;
       },
-      numAnswered(statusObj) {
-        return statusObj.status === this.STATUSES.started ? statusObj.num_answered : null;
-      },
     },
-    $trs: {},
+    $trs: {
+      averageScore: 'Average score: {score, number, percent}',
+      allQuizzes: 'All quizzes',
+      activeQuizzes: 'Active quizzes',
+      inactiveQuizzes: 'Inactive quizzes',
+      questionsCompletedRatioLabel:
+        '{count, number, integer} of {total, number, integer} {count, plural, other {completed}}',
+    },
   };
 
 </script>
