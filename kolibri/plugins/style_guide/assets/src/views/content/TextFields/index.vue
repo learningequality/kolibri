@@ -67,7 +67,7 @@
         &lt;textarea&gt; component will need to be defined.
       </p>
 
-      <h3>Validation & error handling</h3>
+      <h3>Validation &amp; error handling</h3>
       <p>
         Real time validation helps users avoid submitting data with errors.
         Validation covers the following scenarios:
