@@ -32,6 +32,9 @@
     },
     computed: {
       anchorId() {
+        if (!this.anchor) {
+          return null;
+        }
         return this.anchor.replace('#', '');
       },
     },

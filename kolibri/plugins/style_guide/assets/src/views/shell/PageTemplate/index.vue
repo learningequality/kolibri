@@ -41,7 +41,12 @@
       },
       sections() {
         return this.$slots.default
-          .filter(node => node.componentOptions && node.componentOptions.tag === PageSection.name)
+          .filter(
+            node =>
+              node.componentOptions &&
+              node.componentOptions.tag === PageSection.name &&
+              node.componentOptions.propsData.anchor
+          )
           .map(node => node.componentOptions.propsData);
       },
     },
