@@ -4,7 +4,7 @@
 
     <PageSection>
       <p>
-        In general, we follow <a href="https://material.io/archive/guidelines/style/writing.html">Material Design's writing guidelines</a>. Our slightly adapted version is below.
+        In general, we follow <ExternalLink href="https://material.io/archive/guidelines/style/writing.html" text="Material Design's writing guidelines" />. Our slightly adapted version is below.
       </p>
     </PageSection>
     <PageSection title="Language &amp; tone" anchor="#language">
@@ -12,7 +12,7 @@
 
       <ul>
         <li>Address the user as 'you', and avoid using 'we'</li>
-        <li>Use the <a href="https://en.wikipedia.org/wiki/Singular_they">gender-neutral singular</a> 'they'</li>
+        <li>Use the <ExternalLink href="https://en.wikipedia.org/wiki/Singular_they" text="gender-neutral singular" /> 'they'</li>
         <li>Be concise</li>
         <li>Write in the present tense</li>
         <li>Write simply and directly</li>
@@ -61,12 +61,14 @@
 
   import PageTemplate from '../shell/PageTemplate';
   import PageSection from '../shell/PageTemplate/PageSection';
+  import ExternalLink from '../shell/ExternalLink';
 
   export default {
     name: 'Writing',
     components: {
       PageTemplate,
       PageSection,
+      ExternalLink,
     },
   };
 

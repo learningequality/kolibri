@@ -26,7 +26,7 @@
         (Remember that a button component can visually look like a link,
         and a link component can visually look like a button.)
         Each appearance maps to a different level of
-        <a href="https://en.wikipedia.org/wiki/Visual_hierarchy">visual hierarchy</a>:
+        <ExternalLink href="https://en.wikipedia.org/wiki/Visual_hierarchy" text="visual hierarchy" />:
       </p>
       <ul>
         <li><strong>Raised buttons:</strong> button-like appearance for more prominent actions</li>
@@ -146,6 +146,7 @@
   import PageTemplate from '../../shell/PageTemplate';
   import PageSection from '../../shell/PageTemplate/PageSection';
   import Show from '../../shell/Show';
+  import ExternalLink from '../../shell/ExternalLink';
 
   /* eslint-disable import/no-duplicates */
   import exampleCode from '!!raw-loader!./Example.vue';
@@ -166,6 +167,7 @@
       Show,
       KButton,
       Example,
+      ExternalLink,
     },
     data() {
       return {

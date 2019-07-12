@@ -4,7 +4,8 @@
     <PageSection>
       <p>
         At Learning Equality, one of our
-        <a href="https://learningequality.org/about/values/">core values</a> is to
+        <ExternalLink href="https://learningequality.org/about/values/" text="core values" />
+        is to
         "design for everyone". Kolibri should be accessible to the widest possible
         audience, in the broadest sense of the word 'accessible'. It should run on
         wide variety of devices, render correctly on a wide variety of screen sizes
@@ -82,8 +83,7 @@
         Like with keyboard navigation, using the built-in components is a good way to
         ensure compatibility with screen readers. However, it's also critical to test
         all new functionality. See this
-        <a href="https://github.com/learningequality/kolibri/wiki/Accessibility-Resources-(Tools)">
-          comprehensive list of A11y testing tools</a>.
+        <ExternalLink href="https://github.com/learningequality/kolibri/wiki/Accessibility-Resources-(Tools)" text="comprehensive list of A11y testing tools" />.
       </p>
 
       <p>
@@ -117,9 +117,9 @@
         All user-facing text and iconography needs to be internationalized. For text
         strings, numbers, dates, and times, this means "wrapping" the messages such
         that they can be mapped to messages in other languages using the
-        <a href="https://formatjs.io/guides/message-syntax/">ICU message syntax</a>.
-        See our <a href="https://kolibri-dev.readthedocs.io/en/develop/references/i18n.html">
-          developer docs</a> for more information.
+        <ExternalLink href="https://formatjs.io/guides/message-syntax/" text="ICU message syntax" />.
+        See our <ExternalLink href="https://kolibri-dev.readthedocs.io/en/develop/i18n.html" text="developer docs" />
+        for more information.
       </p>
 
       <p>
@@ -131,15 +131,14 @@
         The built-in components in this guide support right-to-left languages out of
         the box. If you design or build custom components, these need to be fully
         tested using an RTL language. We use a
-        <a href="https://www.npmjs.com/package/webpack-rtl-plugin">webpack plugin</a>
+        <ExternalLink href="https://www.npmjs.com/package/webpack-rtl-plugin" text="webpack plugin" />
         to automatically flip most of the CSS, and the global <code>isRtl</code>
         attribute on all Vue components can be used to customize behavior if
         necessary.
       </p>
 
       <p>
-        A <a href="https://material.io/guidelines/usability/bidirectionality.html#bidirectionality-rtl-mirroring-guidelines">
-          subset of icons</a> need to be flipped in RTL languages.
+        A <ExternalLink href="https://material.io/guidelines/usability/bidirectionality.html#bidirectionality-rtl-mirroring-guidelines" text="subset of icons" /> need to be flipped in RTL languages.
       </p>
 
     </PageSection>
@@ -152,12 +151,14 @@
 
   import PageTemplate from '../shell/PageTemplate';
   import PageSection from '../shell/PageTemplate/PageSection';
+  import ExternalLink from '../shell/ExternalLink';
 
   export default {
     name: 'Inclusive',
     components: {
       PageTemplate,
       PageSection,
+      ExternalLink,
     },
   };
 
