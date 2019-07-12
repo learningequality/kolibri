@@ -38,8 +38,6 @@
 <style lang="scss" scoped>
 
   .icon-link {
-    position: relative;
-    top: 2px;
     width: 14px;
     height: 14px;
     margin-right: 8px;
