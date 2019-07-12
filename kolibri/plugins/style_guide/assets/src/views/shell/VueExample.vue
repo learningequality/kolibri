@@ -5,7 +5,9 @@
       <Prism language="html" :code="code" />
     </KGridItem>
     <KGridItem :sizes="[100, 100, alwaysStack ? 100 : 50]" percentage>
-      <slot></slot>
+      <Show class="show">
+        <slot></slot>
+      </Show>
     </KGridItem>
   </KGrid>
 
@@ -16,8 +18,8 @@
 
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-
   import Prism from 'vue-prism-component';
+  import Show from './Show';
 
   export default {
     name: 'VueExample',
@@ -25,6 +27,7 @@
       KGrid,
       KGridItem,
       Prism,
+      Show,
     },
     props: {
       code: {
@@ -41,4 +44,11 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .show {
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+</style>
