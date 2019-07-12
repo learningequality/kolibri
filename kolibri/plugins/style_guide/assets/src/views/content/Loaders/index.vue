@@ -2,24 +2,25 @@
 
   <PageTemplate :completed="false">
 
-
-    <ComponentDocs :api="KCircularLoaderApi" />
-    <h3>Code Example</h3>
-    <VueExample :code="KCircularLoaderExampleCode">
-      <KCircularLoaderExample />
-    </VueExample>
-
-
-
-    <ComponentDocs :api="KLinearLoaderApi" />
-    <h3>Code Example</h3>
-    <VueExample :code="KLinearLoaderExampleCode">
-      <KLinearLoaderExample />
-    </VueExample>
+    <PageSection>
+      <ComponentDocs :api="KCircularLoaderApi" />
+      <h3>Code Example</h3>
+      <VueExample :code="KCircularLoaderExampleCode">
+        <KCircularLoaderExample />
+      </VueExample>
 
 
-    <h3>Guidelines</h3>
-    <p>TODO</p>
+
+      <ComponentDocs :api="KLinearLoaderApi" />
+      <h3>Code Example</h3>
+      <VueExample :code="KLinearLoaderExampleCode">
+        <KLinearLoaderExample />
+      </VueExample>
+
+
+      <h3>Guidelines</h3>
+      <p>TODO</p>
+    </PageSection>
 
   </PageTemplate>
 
@@ -29,6 +30,7 @@
 <script>
 
   import PageTemplate from '../../shell/PageTemplate';
+  import PageSection from '../../shell/PageTemplate/PageSection';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
 
@@ -46,6 +48,7 @@
     name: 'Loaders',
     components: {
       PageTemplate,
+      PageSection,
       ComponentDocs,
       VueExample,
       KLinearLoaderExample,

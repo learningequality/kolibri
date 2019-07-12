@@ -12,7 +12,6 @@
         text="Actions"
         :options="options"
         appearance="flat-button"
-        :primary="true"
       />
     </p>
   </div>
@@ -27,13 +26,15 @@
   export default {
     name: 'Example',
     components: { KDropdownMenu },
-    data: () => ({
-      options: [
-        { label: 'fly', value: 'fly' },
-        { label: 'walk', value: 'walk' },
-        { label: 'chill', value: 'chill' },
-      ],
-    }),
+    data() {
+      return {
+        options: [
+          { label: 'fly', value: 'fly' },
+          { label: 'walk', value: 'walk' },
+          { label: 'chill', value: 'chill' },
+        ],
+      };
+    },
   };
 
 </script>

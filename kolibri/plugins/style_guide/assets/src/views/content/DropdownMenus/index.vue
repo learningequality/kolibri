@@ -2,15 +2,15 @@
 
   <PageTemplate :completed="false">
 
+    <PageSection title="API" anchor="#api">
+      <ComponentDocs :api="kDropdownMenuApi" />
+    </PageSection>
 
-    <ComponentDocs :api="kDropdownMenuApi" />
-
-    <h2>Code Example</h2>
-    <VueExample :code="exampleCode">
-      <Example />
-    </VueExample>
-
-    <h2>Guidelines</h2>
+    <PageSection title="Code example" anchor="#example" fullwidth>
+      <VueExample :code="exampleCode">
+        <Example />
+      </VueExample>
+    </PageSection>
 
   </PageTemplate>
 
@@ -22,6 +22,7 @@
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
+  import PageSection from '../../shell/PageTemplate/PageSection';
 
   /* eslint-disable import/no-duplicates */
   import Example from './Example.vue';
@@ -34,6 +35,7 @@
     name: 'DropdownMenus',
     components: {
       PageTemplate,
+      PageSection,
       ComponentDocs,
       VueExample,
       Example,

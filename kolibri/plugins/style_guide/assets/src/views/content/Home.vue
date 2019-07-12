@@ -2,8 +2,7 @@
 
   <PageTemplate>
 
-    <PageSection>
-      <h2>A shared vocabulary for developers and designers</h2>
+    <PageSection title="A shared vocabulary" anchor="#vocabulary">
       <p>
         This guide is meant to provide patterns and components that
         provide a 'default' way to design and build new functionality in
@@ -21,7 +20,8 @@
         in here as minimal as possible to give ourselves the flexibility
         to deal with unexpected situations.
       </p>
-      <h2>Exceptions to the rules</h2>
+    </PageSection>
+    <PageSection title="Exceptions to the rules" anchor="#exceptions">
       <p>
         Violating the style guide comes with some costs:
       </p>
@@ -36,7 +36,8 @@
         guide in order to improve the user experience, and this is OK.
         Deviations from the guide should be intentional and explicit.
       </p>
-      <h2>Changes to the guide</h2>
+    </PageSection>
+    <PageSection title="Changes to the guide" anchor="#changes">
       <p>
         This is intended to be a <em>living</em> style guide. The guide should match
         the <em>current state</em> of Kolibri, not what we aspire it to be.
@@ -57,7 +58,7 @@
 <script>
 
   import PageTemplate from '../shell/PageTemplate';
-  import PageSection from '../shell/PageTemplate/PageSection.vue';
+  import PageSection from '../shell/PageTemplate/PageSection';
 
   export default {
     name: 'Home',
