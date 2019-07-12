@@ -1,12 +1,20 @@
 {% load i18n staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{% trans 'OpenID Provider Authorization' %}</title>
+</head>
 
+<body>
 {% block content %}
 
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
         <h2>{% trans 'Request for Permission' %}</h2>
         <p class="lead">Client <i>{{ client.name }}</i> would like to access this information of you.</p>
-        <form method="post" action="{% url 'kolibri:oidcprovider:oidc_provider:authorize' %}">
+        <form method="post" action="{% url 'oidc_provider:authorize' %}">
             {% csrf_token %}
             {{ hidden_inputs }}
             <ul>
@@ -22,3 +30,5 @@
 </div>
 
 {% endblock %}
+</body>
+</html>
