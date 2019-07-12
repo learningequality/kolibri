@@ -3,7 +3,7 @@
   <div
     class="header"
     :class="{ fixed: scrolled}"
-    :style="{ left: `${navWidth}px` }"
+    :style="style"
   >
     <h1 class="header-text">
       {{ title }}
@@ -47,6 +47,13 @@
     computed: {
       throttledHandleScroll() {
         return throttle(this.handleScroll);
+      },
+      style() {
+        return {
+          left: `${navWidth}px`,
+          // Pos fixed inline style necessary for responsive-element compatibility
+          position: 'fixed',
+        };
       },
     },
     watch: {
