@@ -199,7 +199,7 @@
 
   .progress-bar-wrapper {
     position: absolute;
-    bottom: -12px;
+    bottom: 0;
     width: 100%;
     height: 5px;
     opacity: 0.9;
