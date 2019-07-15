@@ -163,6 +163,8 @@
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
+    // Add an extra border to contain the progress bar and not have it overlap the image
+    border-bottom: solid transparent 5px;
   }
 
   .type-icon {
@@ -199,7 +201,7 @@
 
   .progress-bar-wrapper {
     position: absolute;
-    bottom: -12px;
+    bottom: -5px;
     width: 100%;
     height: 5px;
     opacity: 0.9;
