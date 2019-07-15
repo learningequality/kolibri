@@ -280,6 +280,7 @@ def exist_exam_notification(user_id, exam_id):
         notification_event=NotificationEventType.Started,
     ).exists()
 
+
 @memoize
 def exist_examattempt_notification(user_id, exam_id):
     return LearnerProgressNotification.objects.filter(
@@ -287,6 +288,7 @@ def exist_examattempt_notification(user_id, exam_id):
         quiz_id=exam_id,
         notification_event=NotificationEventType.Answered,
     ).exists()
+
 
 def num_correct(examlog):
     return (
@@ -297,21 +299,16 @@ def num_correct(examlog):
         .get("correct__sum")
     )
 
+
 def num_answered(exam_log):
-        return (
-            exam_log.attemptlogs.values_list("item")
-                .order_by("completion_timestamp")
-                .distinct()
-                .aggregate(
-                    complete__sum=Count(
-                        Case(
-                            When(complete=True, then=1),
-                            default=0
-                        )
-                    )
-                )
-                .get("complete__sum")
-        )
+    return (
+        exam_log.attemptlogs.values_list("item")
+        .order_by("completion_timestamp")
+        .distinct()
+        .aggregate(complete__sum=Count(Case(When(complete=True, then=1), default=0)))
+        .get("complete__sum")
+    )
+
 
 def created_quiz_notification(examlog, event_type, timestamp):
     user_classrooms = examlog.user.memberships.all()
@@ -359,6 +356,7 @@ def parse_examlog(examlog, timestamp):
     event_type = NotificationEventType.Completed
     created_quiz_notification(examlog, event_type, timestamp)
 
+
 def create_examattemptslog(examlog, timestamp):
     """
     Method called by the ContentSummaryLogSerializer when the
@@ -367,10 +365,11 @@ def create_examattemptslog(examlog, timestamp):
     """
     # Checks to add an 'Answered' event
     if exist_examattempt_notification(examlog.user_id, examlog.exam_id):
-        return # the event has already been triggered
+        return  # the event has already been triggered
     event_type = NotificationEventType.Answered
     exist_exam_notification.cache_clear()
     created_quiz_notification(examlog, event_type, timestamp)
+
 
 def parse_attemptslog(attemptlog):
     """

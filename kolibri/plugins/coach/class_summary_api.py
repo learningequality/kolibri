@@ -158,22 +158,24 @@ class ExamStatusSerializer(KolibriModelSerializer):
     def get_num_answered(self, exam_log):
         return (
             exam_log.attemptlogs.values_list("item")
-                .order_by("completion_timestamp")
-                .distinct()
-                .aggregate(
-                    complete__sum=Count(
-                        Case(
-                            When(complete=True, then=1),
-                            default=0
-                        )
-                    )
-                )
-                .get("complete__sum")
+            .order_by("completion_timestamp")
+            .distinct()
+            .aggregate(
+                complete__sum=Count(Case(When(complete=True, then=1), default=0))
+            )
+            .get("complete__sum")
         )
 
     class Meta:
         model = logger_models.ExamLog
-        fields = ("exam_id", "learner_id", "status", "last_activity", "num_correct", "num_answered")
+        fields = (
+            "exam_id",
+            "learner_id",
+            "status",
+            "last_activity",
+            "num_correct",
+            "num_answered",
+        )
 
 
 class GroupSerializer(KolibriModelSerializer):
