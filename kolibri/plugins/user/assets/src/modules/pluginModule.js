@@ -1,4 +1,4 @@
-import { pageNameToModuleMap } from '../constants';
+import { PageNames, pageNameToModuleMap } from '../constants';
 import profile from './profile';
 import signIn from './signIn';
 import signUp from './signUp';
@@ -19,8 +19,11 @@ export default {
         return store.dispatch('getFacilityConfig');
       });
     },
-    resetModuleState(store, { fromRoute }) {
+    resetModuleState(store, { toRoute, fromRoute }) {
       const moduleName = pageNameToModuleMap[fromRoute.name];
+      if (toRoute.name === PageNames.SIGN_UP && fromRoute.name === PageNames.SIGN_UP) {
+        return;
+      }
       if (moduleName) {
         store.commit(`${moduleName}/RESET_STATE`);
       }

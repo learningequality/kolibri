@@ -1,9 +1,7 @@
 <template>
 
   <CoreBase
-    :immersivePage="pageName === PageNames.SIGN_UP"
-    immersivePagePrimary
-    :immersivePageRoute="{ name: PageNames.SIGN_IN }"
+    v-bind="immersiveProperties"
     :appBarTitle="appBarTitle"
     :fullScreen="pageName === PageNames.SIGN_IN"
   >
@@ -35,11 +33,35 @@
     },
     computed: {
       ...mapState(['pageName']),
+      immersiveProperties() {
+        if (this.pageName === PageNames.SIGN_UP) {
+          if (!this.$route.query.step) {
+            return {
+              immersivePage: true,
+              immersivePageRoute: this.$router.getRoute(PageNames.SIGN_IN),
+              immersivePagePrimary: false,
+              immersivePageIcon: 'close',
+            };
+          }
+          return {
+            immersivePage: true,
+            immersivePageRoute: { query: {} },
+            immersivePagePrimary: false,
+            immersivePageIcon: 'arrow_back',
+          };
+        }
+        return {
+          immersivePage: false,
+        };
+      },
       appBarTitle() {
         if (this.pageName === PageNames.PROFILE) {
           return this.$tr('userProfileTitle');
         } else if (this.pageName === PageNames.SIGN_UP) {
-          return this.$tr('createAccount');
+          if (!this.$route.query.step) {
+            return 'Step 1 of 2';
+          }
+          return 'Step 2 of 2';
         }
         return this.$tr('userSignInTitle');
       },

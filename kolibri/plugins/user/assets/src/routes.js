@@ -31,12 +31,12 @@ export default [
   {
     name: PageNames.SIGN_UP,
     path: '/create_account',
-    handler: () => {
+    handler: (toRoute, fromRoute) => {
       if (store.getters.isUserLoggedIn) {
         router.replace({ name: PageNames.PROFILE });
         return Promise.resolve();
       } else {
-        return showSignUpPage(store);
+        return showSignUpPage(store, fromRoute);
       }
     },
   },

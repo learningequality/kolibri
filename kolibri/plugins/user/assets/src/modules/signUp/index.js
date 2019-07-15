@@ -1,3 +1,5 @@
+import every from 'lodash/every';
+import isString from 'lodash/isString';
 import * as actions from './actions';
 
 function defaultState() {
@@ -20,12 +22,7 @@ export default {
       default: [],
       type: Array,
       validator: function(value) {
-        return value.reduce((acc, val) => {
-          if (!(val instanceof String)) {
-            return false;
-          }
-          return acc;
-        }, true);
+        return every(value, isString);
       },
     },
     unrecognizedError: {
