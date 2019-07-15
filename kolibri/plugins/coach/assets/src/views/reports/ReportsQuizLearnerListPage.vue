@@ -45,11 +45,17 @@
               />
               <KLabeledIcon v-else>
                 <KIcon slot="icon" :color="$themeTokens.progress" inProgress />
-                {{ $tr('questionsCompletedRatioLabel', {count: tableRow.statusObj.num_answered || 0, total: exam.question_count}) }}
+                {{
+                  $tr('questionsCompletedRatioLabel',
+                      {count: tableRow.statusObj.num_answered || 0, total: exam.question_count})
+                }}
               </KLabeledIcon>
             </td>
             <td>
-              <Score v-if="tableRow.statusObj.status === STATUSES.completed" :value="tableRow.statusObj.score || 0.0" />
+              <Score
+                v-if="tableRow.statusObj.status === STATUSES.completed"
+                :value="tableRow.statusObj.score || 0.0"
+              />
             </td>
             <td>
               <TruncatedItemList :items="tableRow.groups" />
@@ -123,13 +129,6 @@
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
-    },
-    methods: {
-      score(statusObj) {
-        return statusObj.status === this.STATUSES.completed
-          ? statusObj.score || 0.0 // Ensures score will show 0% when null
-          : null;
-      },
     },
     $trs: {
       averageScore: 'Average score: {score, number, percent}',
