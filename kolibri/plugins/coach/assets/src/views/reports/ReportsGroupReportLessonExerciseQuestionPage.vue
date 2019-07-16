@@ -2,8 +2,10 @@
 
   <CoreBase
     :immersivePage="true"
+    :immersivePagePrimary="true"
+    immersivePageIcon="arrow_back"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="title"
+    :appBarTitle="exercise.title"
     :pageTitle="title"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
@@ -30,6 +32,7 @@
     mixins: [commonCoach],
     computed: {
       ...mapState('questionDetail', ['title']),
+      ...mapState('exerciseDetail', ['exercise']),
       toolbarRoute() {
         return this.classRoute('ReportsGroupReportLessonExerciseQuestionListPage', {});
       },

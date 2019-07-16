@@ -3,9 +3,9 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="close"
-    immersivePagePrimary
+    :immersivePagePrimary="false"
     :immersivePageRoute="exitButtonRoute"
-    :appBarTitle="coachCommon$tr('manageResourcesAction')"
+    :appBarTitle="$tr('manageResourcesAction')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :pageTitle="pageTitle"
@@ -419,6 +419,7 @@
       saveBeforeExitSnackbarText: 'Saving your changes…',
       // only shown on search page
       exitSearchButtonLabel: 'Exit search',
+      manageResourcesAction: 'Manage lesson resources',
     },
   };
 

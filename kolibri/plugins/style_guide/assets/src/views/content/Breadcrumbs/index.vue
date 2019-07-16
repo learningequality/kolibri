@@ -1,30 +1,33 @@
 <template>
 
-  <PageTemplate :completed="true">
+  <PageTemplate>
+    <PageSection>
 
-    <h1>Topic tree breadcrumbs</h1>
 
-    <p>
-      Breadcrumbs should be used to aid navigation across channels, topic trees, and resources.
-      Place it directly above the content to be navigated through.
-    </p>
+      <p>
+        Breadcrumbs should be used to aid navigation across channels, topic trees, and resources.
+        Place it directly above the content to be navigated through.
+      </p>
 
-    <p>
-      The last item should be the current item, which will not be linked.
-      This text might be redundant with the same name in an adjacent header, which is ok.
-    </p>
+      <p>
+        The last item should be the current item, which will not be linked.
+        This text might be redundant with the same name in an adjacent header, which is ok.
+      </p>
 
-    <Show>
-      <KBreadcrumbs :items="breadcrumbs" />
-    </Show>
+      <Show>
+        <KBreadcrumbs :items="breadcrumbs" />
+      </Show>
+    </PageSection>
 
-    
-    <ComponentDocs :api="kBreadcrumbsApi" />
+    <PageSection title="API" anchor="#api">
+      <ComponentDocs :api="kBreadcrumbsApi" />
+    </PageSection>
 
-    <h2>Code Example</h2>
-    <VueExample :code="exampleCode">
-      <Example />
-    </VueExample>
+    <PageSection title="Code example" anchor="#example" fullwidth>
+      <VueExample :code="exampleCode">
+        <Example />
+      </VueExample>
+    </PageSection>
 
   </PageTemplate>
 
@@ -37,6 +40,7 @@
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
+  import PageSection from '../../shell/PageTemplate/PageSection';
   import Show from '../../shell/Show';
 
   /* eslint-disable import/no-duplicates */
@@ -50,6 +54,7 @@
     name: 'Breadcrumbs',
     components: {
       PageTemplate,
+      PageSection,
       ComponentDocs,
       VueExample,
       KBreadcrumbs,

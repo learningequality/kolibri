@@ -202,6 +202,7 @@
     },
     beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
+      this.setQuery(this.$route.query);
       if (this.status) {
         this.setAppBarTitle(this.$tr('pageLoadError'));
       } else {
@@ -211,6 +212,7 @@
     methods: {
       ...mapMutations('coreBase', {
         setAppBarTitle: 'SET_APP_BAR_TITLE',
+        setQuery: 'SET_QUERY',
       }),
       toolbarTitle(transferType) {
         switch (transferType) {

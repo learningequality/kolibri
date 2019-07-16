@@ -8,16 +8,16 @@ import WritingPage from './views/content/Writing';
 
 import ButtonsPage from './views/content/Buttons';
 import BreadcrumbsPage from './views/content/Breadcrumbs';
-import NavbarPage from './views/content/Navbar';
+// import NavbarPage from './views/content/Navbar';
 import CheckboxesPage from './views/content/Checkboxes';
-import RadioButtonsPage from './views/content/RadioButtons';
-import TextFieldsPage from './views/content/TextFields';
-import FiltersPage from './views/content/Filters';
-import DropdownMenusPage from './views/content/DropdownMenus';
-import LoadersPage from './views/content/Loaders';
-import ModalsPage from './views/content/Modals';
-import GridsPage from './views/content/Grids';
-import TooltipsPage from './views/content/Tooltips';
+// import RadioButtonsPage from './views/content/RadioButtons';
+// import TextFieldsPage from './views/content/TextFields';
+// import FiltersPage from './views/content/Filters';
+// import DropdownMenusPage from './views/content/DropdownMenus';
+// import LoadersPage from './views/content/Loaders';
+// import ModalsPage from './views/content/Modals';
+// import GridsPage from './views/content/Grids';
+// import TooltipsPage from './views/content/Tooltips';
 
 function sortSectionItems(items) {
   return sortBy(items, [item => item.itemName]);
@@ -65,19 +65,19 @@ const navMenu = [
         },
       },
       {
-        itemName: 'Topic tree breadcrumbs',
+        itemName: 'Breadcrumbs',
         itemRoute: {
           path: `/components/breadcrumbs`,
           component: BreadcrumbsPage,
         },
       },
-      {
-        itemName: 'Horizontal navbar',
-        itemRoute: {
-          path: `/components/navbar`,
-          component: NavbarPage,
-        },
-      },
+      // {
+      //   itemName: 'Horizontal navbar',
+      //   itemRoute: {
+      //     path: `/components/navbar`,
+      //     component: NavbarPage,
+      //   },
+      // },
       {
         itemName: 'Checkboxes',
         itemRoute: {
@@ -85,62 +85,62 @@ const navMenu = [
           component: CheckboxesPage,
         },
       },
-      {
-        itemName: 'Radio Buttons',
-        itemRoute: {
-          path: `/components/radio-buttons`,
-          component: RadioButtonsPage,
-        },
-      },
-      {
-        itemName: 'Text Fields',
-        itemRoute: {
-          path: `/components/text-fields`,
-          component: TextFieldsPage,
-        },
-      },
-      {
-        itemName: 'Filters',
-        itemRoute: {
-          path: `/components/filters`,
-          component: FiltersPage,
-        },
-      },
-      {
-        itemName: 'Dropdown menus',
-        itemRoute: {
-          path: `/components/dropdown-menus`,
-          component: DropdownMenusPage,
-        },
-      },
-      {
-        itemName: 'Loaders',
-        itemRoute: {
-          path: `/components/loaders`,
-          component: LoadersPage,
-        },
-      },
-      {
-        itemName: 'Modals',
-        itemRoute: {
-          path: `/components/modals`,
-          component: ModalsPage,
-        },
-      },
-      {
-        itemName: 'Grids',
-        itemRoute: {
-          path: `/components/grids`,
-          component: GridsPage,
-        },
-      },
-      {
-        itemName: 'Tooltips',
-        itemRoute: {
-          path: `/components/tooltips`,
-          component: TooltipsPage,
-        },
-      },
+      // {
+      //   itemName: 'Radio Buttons',
+      //   itemRoute: {
+      //     path: `/components/radio-buttons`,
+      //     component: RadioButtonsPage,
+      //   },
+      // },
+      // {
+      //   itemName: 'Text Fields',
+      //   itemRoute: {
+      //     path: `/components/text-fields`,
+      //     component: TextFieldsPage,
+      //   },
+      // },
+      // {
+      //   itemName: 'Filters',
+      //   itemRoute: {
+      //     path: `/components/filters`,
+      //     component: FiltersPage,
+      //   },
+      // },
+      // {
+      //   itemName: 'Dropdown menus',
+      //   itemRoute: {
+      //     path: `/components/dropdown-menus`,
+      //     component: DropdownMenusPage,
+      //   },
+      // },
+      // {
+      //   itemName: 'Loaders',
+      //   itemRoute: {
+      //     path: `/components/loaders`,
+      //     component: LoadersPage,
+      //   },
+      // },
+      // {
+      //   itemName: 'Modals',
+      //   itemRoute: {
+      //     path: `/components/modals`,
+      //     component: ModalsPage,
+      //   },
+      // },
+      // {
+      //   itemName: 'Grids',
+      //   itemRoute: {
+      //     path: `/components/grids`,
+      //     component: GridsPage,
+      //   },
+      // },
+      // {
+      //   itemName: 'Tooltips',
+      //   itemRoute: {
+      //     path: `/components/tooltips`,
+      //     component: TooltipsPage,
+      //   },
+      // },
     ]),
   },
 ];
@@ -151,4 +151,15 @@ const navMenuRoutes = flatten(
   homeRoute.concat(navMenu.map(menuSection => menuSection.sectionItems.map(link => link.itemRoute)))
 );
 
-export { navMenu, navMenuRoutes };
+function titleForRoute(route) {
+  for (let i = 0; i < navMenu.length; i++) {
+    for (let j = 0; j < navMenu[i].sectionItems.length; j++) {
+      if (route.path === navMenu[i].sectionItems[j].itemRoute.path) {
+        return navMenu[i].sectionItems[j].itemName;
+      }
+    }
+  }
+  return 'Home';
+}
+
+export { navMenu, navMenuRoutes, titleForRoute };

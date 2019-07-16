@@ -1,29 +1,29 @@
 <template>
 
-  <CoreBase fullScreen>
-    <SideNav class="nav" />
-    <div class="content">
-      <KPageContainer>
+  <div>
+    <SideNav />
+    <div :style="{ marginLeft: `${navWidth}px` }" class="content">
+      <transition name="fade">
         <router-view />
-      </KPageContainer>
+      </transition>
     </div>
-  </CoreBase>
+  </div>
 
 </template>
 
 
 <script>
 
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import SideNav from './shell/SideNav';
+  import navWidth from './navWidth';
 
   export default {
     name: 'StyleGuideIndex',
     components: {
       SideNav,
-      CoreBase,
-      KPageContainer,
+    },
+    created() {
+      this.navWidth = navWidth;
     },
   };
 
@@ -32,23 +32,18 @@
 
 <style lang="scss" scoped>
 
-  $nav-width: 220px;
-
-  .nav {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: $nav-width;
-    overflow-y: auto;
+  .content {
+    padding-left: 32px;
+    border-left: 1px solid #dedede;
   }
 
-  .content {
-    min-width: 350px;
-    padding-right: 32px;
-    margin-top: 24px;
-    margin-right: auto;
-    margin-left: $nav-width + 32;
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.1s;
+  }
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
   }
 
 </style>
@@ -56,20 +51,38 @@
 
 <style lang="scss">
 
-  // NOT SCOPED  - match Prism font family
+  /* NOT SCOPED */
+
+  // match Prism font family
   code {
     font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
     font-size: smaller;
     white-space: nowrap;
   }
 
-  // Duplicate kolibri colors here.
-  // Quick hack that can easily be removed by using external link components where appropriate.
   a {
-    color: #996189;
-    &:hover {
-      color: #72486f;
+    color: #368d74;
+    transition: all 0.25s ease;
+
+    svg {
+      fill: #368d74;
+      transition: fill 0.25s ease;
     }
+
+    &:hover {
+      color: #26614d;
+      svg {
+        fill: #26614d;
+      }
+    }
+  }
+
+  *::selection {
+    background: #f0e7ed;
+  }
+
+  body {
+    background-color: white;
   }
 
 </style>

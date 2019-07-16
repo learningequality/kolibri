@@ -1,6 +1,6 @@
 
 
-Kolibri Developer Documentation
+Kolibri developer documentation
 ===============================
 
 These docs are for software developers wishing to contribute to Kolibri. If you are looking for help installing, configuring and using Kolibri, please refer to the `User Guide <https://kolibri.readthedocs.io/>`__.
