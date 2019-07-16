@@ -326,23 +326,4 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 1200
 
 
-if conf.OPTIONS["Debug"]["SENTRY_BACKEND_DSN"]:
-    import sentry_sdk
-    from kolibri.utils.server import installation_type
-    from sentry_sdk.integrations.django import DjangoIntegration
-
-    sentry_sdk.init(
-        dsn=conf.OPTIONS["Debug"]["SENTRY_BACKEND_DSN"],
-        environment=conf.OPTIONS["Debug"]["SENTRY_ENVIRONMENT"],
-        integrations=[DjangoIntegration()],
-        release=kolibri.__version__,
-    )
-
-    with sentry_sdk.configure_scope() as scope:
-        scope.set_tag("mode", conf.OPTIONS["Deployment"]["RUN_MODE"])
-        scope.set_tag("installer", installation_type())
-
-    print("Sentry backend error logging is enabled")
-
-
 apply_settings(sys.modules[__name__])
