@@ -44,6 +44,8 @@ matrix:
     - python: "3.5"
       env:
         - TOX_ENV=docs
+      script:
+       - tox -e $TOX_ENV
     - python: "3.4"
       env:
         - TOX_ENV=py3.4
