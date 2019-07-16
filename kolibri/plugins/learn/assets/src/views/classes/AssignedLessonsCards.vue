@@ -28,15 +28,16 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ContentCard from '../ContentCard';
   import { lessonPlaylistLink } from './classPageLinks';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'AssignedLessonsCards',
     components: {
       ContentCard,
     },
+    mixins: [commonCoreStrings],
     props: {
       lessons: {
         type: Array,
@@ -47,7 +48,6 @@
         required: true,
       },
     },
-    mixins: [commonCoreStrings],
     computed: {
       LESSON: () => ContentNodeKinds.LESSON,
     },

@@ -287,7 +287,9 @@
         return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
       },
       logoText() {
-        return this.$theme.signIn.title ? this.$theme.signIn.title : this.coreString('kolibriLabel');
+        return this.$theme.signIn.title
+          ? this.$theme.signIn.title
+          : this.coreString('kolibriLabel');
       },
       guestURL() {
         return urls['kolibri:core:guest']();

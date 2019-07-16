@@ -17,11 +17,11 @@
 
   import { mapState } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import SignInPage from './SignInPage';
   import SignUpPage from './SignUpPage';
   import ProfilePage from './ProfilePage';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const pageNameComponentMap = {
     [PageNames.SIGN_IN]: SignInPage,

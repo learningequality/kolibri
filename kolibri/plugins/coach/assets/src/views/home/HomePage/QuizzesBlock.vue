@@ -33,11 +33,11 @@
 <script>
 
   import orderBy from 'lodash/orderBy';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import Block from './Block';
   import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const MAX_QUIZZES = 3;
 

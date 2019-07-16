@@ -132,8 +132,8 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import { ClassesPageNames } from '../../constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ClassesPageNames } from '../../constants';
   import AnswerHistory from './AnswerHistory';
 
   export default {

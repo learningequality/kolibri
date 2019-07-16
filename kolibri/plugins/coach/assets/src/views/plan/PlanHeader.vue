@@ -32,9 +32,9 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { LessonsPageNames } from '../../constants/lessonsConstants';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'PlanHeader',

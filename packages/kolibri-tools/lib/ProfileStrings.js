@@ -13,11 +13,10 @@ const logging = require('./logging');
 const PROFILES_FOLDER = 'profiles';
 
 const COMMON_NAMESPACES = {
-  'coachString': 'CommonCoachStrings',
-  'coreString': 'CommonCoreStrings',
-  'learnString': 'CommonLearnStrings',
+  coachString: 'CommonCoachStrings',
+  coreString: 'CommonCoreStrings',
+  learnString: 'CommonLearnStrings',
 };
-
 
 function ProfileStrings(localePath, moduleName) {
   this.localePath = localePath;
@@ -147,9 +146,9 @@ function getStringDefinitions(localeBasePath, moduleName) {
     fileContents = JSON.parse(fs.readFileSync(localeFilePath));
     // If we aren't processing default_frontend, ensure we include definitions
     // there that are in the CommonCoreStrings namespace.
-    if(moduleName !== 'default_frontend') {
+    if (moduleName !== 'default_frontend') {
       const coreContents = JSON.parse(fs.readFileSync(coreStringsFilePath));
-      fileContents = {...fileContents, ...coreContents}
+      fileContents = { ...fileContents, ...coreContents };
     }
   } catch (e) {
     // Not all modules have messages files - return null and we'll bail.
@@ -358,11 +357,16 @@ function profileVueScript(profile, ast, pathname) {
               }
 
               if (isCommonFn(node.callee.property.name)) {
-                key = keyFromArguments(node.arguments, COMMON_NAMESPACES[node.callee.property.name]);
+                key = keyFromArguments(
+                  node.arguments,
+                  COMMON_NAMESPACES[node.callee.property.name]
+                );
                 common = true;
               }
 
-              let currentNamespace = common ? COMMON_NAMESPACES[node.callee.property.name] : namespace;
+              let currentNamespace = common
+                ? COMMON_NAMESPACES[node.callee.property.name]
+                : namespace;
 
               if (key && currentNamespace) {
                 let $tring = getStringFromNamespaceKey(profile, currentNamespace, key);

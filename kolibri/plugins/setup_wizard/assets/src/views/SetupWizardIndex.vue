@@ -91,7 +91,9 @@
         return this.onboardingStep === this.totalOnboardingSteps;
       },
       submitText() {
-        return this.isLastStep ? this.coreString('finishAction') : this.coreString('continueAction');
+        return this.isLastStep
+          ? this.coreString('finishAction')
+          : this.coreString('continueAction');
       },
     },
     methods: {

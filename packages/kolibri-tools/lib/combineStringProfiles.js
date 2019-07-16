@@ -48,7 +48,10 @@ glob(basePath + '/*.json', {}, (err, files) => {
 
     Object.keys(json).forEach(str => {
       if (fullProfile.hasOwnProperty(str)) {
-        fullProfile[str].definitions = uniqWith([...fullProfile[str].definitions, ...json[str].definitions], isEqual);
+        fullProfile[str].definitions = uniqWith(
+          [...fullProfile[str].definitions, ...json[str].definitions],
+          isEqual
+        );
         fullProfile[str].uses = [...fullProfile[str].uses, ...json[str].uses];
       } else {
         fullProfile[str] = json[str];

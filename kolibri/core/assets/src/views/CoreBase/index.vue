@@ -126,6 +126,7 @@
   import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
   import coreBannerContent from 'kolibri.utils.coreBannerContent';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AppError from '../AppError';
   import GlobalSnackbar from '../GlobalSnackbar';
   import ImmersiveToolbar from '../ImmersiveToolbar';
@@ -133,7 +134,6 @@
   import LanguageSwitcherModal from '../language-switcher/LanguageSwitcherModal';
   import CoreBanner from '../CoreBanner';
   import ScrollingHeader from './ScrollingHeader';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const scrollPositions = {
     _scrollPositions: {},

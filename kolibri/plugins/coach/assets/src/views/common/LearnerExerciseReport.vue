@@ -92,8 +92,8 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import commonCoach from '../common';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoach from '../common';
 
   export default {
     name: 'LearnerExerciseReport',
