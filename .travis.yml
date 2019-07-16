@@ -114,6 +114,8 @@ script:
   # Ensures that we can compile all source code files in this Python 3+ version
   # This behavior is disabled in the 'include' matrix above for Python 2.7
   - make staticdeps-compileall
+  # Remove staticdeps again, so they are not part of tox
+  - make clean-staticdeps
   - tox -e $TOX_ENV
 
 after_success:
