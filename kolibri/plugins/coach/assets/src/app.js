@@ -37,7 +37,7 @@ class CoachToolsModule extends KolibriApp {
     router.afterEach((toRoute, fromRoute) => {
       this.store.dispatch('resetModuleState', { toRoute, fromRoute });
     });
-    return super.ready();
+    super.ready();
   }
 }
 

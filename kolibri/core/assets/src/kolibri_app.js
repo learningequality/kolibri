@@ -136,7 +136,7 @@ export default class KolibriApp extends KolibriModule {
       /* eslint-enable */
     }
 
-    return heartbeat.startPolling().then(() => {
+    heartbeat.startPolling().then(() => {
       this.store.dispatch('getNotifications');
       return Promise.all([
         // Invoke each of the state setters before initializing the app.

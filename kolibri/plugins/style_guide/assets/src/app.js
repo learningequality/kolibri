@@ -24,7 +24,7 @@ class StyleGuideModule extends KolibriApp {
     router.afterEach(() => {
       store.dispatch('notLoading');
     });
-    return super.ready();
+    super.ready();
   }
 }
 
