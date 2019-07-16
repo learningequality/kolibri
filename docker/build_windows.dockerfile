@@ -24,9 +24,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 VOLUME /kolibridist/
 
-CMD git clone https://github.com/learningequality/kolibri-installer-windows.git && \
-    cd kolibri-installer-windows/windows && \
+CMD git clone https://github.com/mrpau/kolibri-installer-windows.git && \
+    cd kolibri-installer-windows/ && \
     git checkout $KOLIBRI_WINDOWS_INSTALLER_VERSION && \
+    cd src/ && \
     cp /kolibridist/kolibri-$KOLIBRI_VERSION*.whl . && \
     export KOLIBRI_BUILD_VERSION=$KOLIBRI_VERSION && \
     make && \
