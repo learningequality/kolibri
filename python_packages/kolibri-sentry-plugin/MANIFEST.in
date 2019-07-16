@@ -1,0 +1,12 @@
+include AUTHORS.rst
+include CONTRIBUTING.rst
+include CHANGELOG.rst
+include LICENSE
+include README.rst
+include requirements.txt
+recursive-exclude kolibri_sentry_plugin/* *pyc
+recursive-include kolibri_sentry_plugin/static *.*
+
+recursive-include kolibri_sentry_plugin/build *.json
+recursive-exclude kolibri_sentry_plugin/assets *
+

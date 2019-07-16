@@ -1,0 +1,69 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+.cache
+.eggs
+*.egg
+*.egg-info
+dist
+dist-packages-temp
+dist-packages-cache
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+
+# Installer logs
+pip-log.txt
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+.venv
+.idea
+
+# Complexity
+output/*.html
+output/*/index.html
+
+# Sphinx
+docs/_build
+
+# node
+node_modules
+npm-debug.log
+
+# webpack built files
+**/build/*
+**/static/*
+
+# swap files
+*.swp
+
+# editor files
+*.sublime-project
+*.sublime-workspace
+
+# virtual environment
+venv/
+
+# ignore strange OSX icon files. (Note there are special characters after 'Icon')
+# see http://stackoverflow.com/a/30755378
+Icon
+
+#ignore added files with DS_Store
+.DS_Store
+/crowdin.yaml
