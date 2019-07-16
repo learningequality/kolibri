@@ -77,6 +77,11 @@ class WebpackBundleHook(hooks.KolibriHook):
     # : for this be inlined?
     inline = False
 
+    # : A mapping of key to JSON serializable value.
+    # : This context will be bootstrapped into the window object
+    # : with a key of the unique_slug as a Javascript object
+    context = {}
+
     def __init__(self, *args, **kwargs):
         super(WebpackBundleHook, self).__init__(*args, **kwargs)
 
@@ -272,6 +277,17 @@ class WebpackBundleHook(hooks.KolibriHook):
         else:
             return []
 
+    def context_tag(self):
+        if self.context:
+            return [
+                '<script>window.{bundle} = JSON.parse("{context}");</script>'.format(
+                    bundle=self.unique_slug,
+                    context=json.dumps(self.context),
+                )
+            ]
+        else:
+            return []
+
     def get_basename(self, url):
         """
         Takes full path to a static file (eg. "/static/css/style.css") and
@@ -344,7 +360,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         :param bundle_data: The data returned from
         :return: HTML of script tags for insertion into a page.
         """
-        tags = self.frontend_message_tag() + list(self.js_and_css_tags())
+        tags = self.context_tag() + self.frontend_message_tag() + list(self.js_and_css_tags())
 
         return mark_safe("\n".join(tags))
 
@@ -364,7 +380,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: HTML of a script tag to insert into a page.
         """
         urls = [chunk["url"] for chunk in self.sorted_chunks()]
-        tags = self.frontend_message_tag() + [
+        tags = self.context_tag() + self.frontend_message_tag() + [
             '<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
                 kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
                 bundle=self.bundle_id,
