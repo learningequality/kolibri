@@ -19,6 +19,7 @@ module.exports = function() {
   data.push(require('vue-intl/locale-data/ff.js'));
   data.push(require('vue-intl/locale-data/gu.js'));
   data.push(require('vue-intl/locale-data/hi.js'));
+  data.push(require('vue-intl/locale-data/ko.js'));
   data.push(require('vue-intl/locale-data/mr.js'));
   data.push(require('vue-intl/locale-data/my.js'));
   data.push(require('vue-intl/locale-data/nyn.js'));
