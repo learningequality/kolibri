@@ -16,7 +16,7 @@ Feature: Super admin searches for users
     When I click the left arrow (previous page) button
     Then I am back on the first page of the list of facility users
     When I keep clicking the right arrow to find a user
-    Then see the numbers of pages correctly increasing in increments of 10
+    Then I see the numbers of pages correctly increasing in increments of 10
 
   Scenario: Search for and find user using the search field
     When I click or tab into the search field

@@ -27,7 +27,8 @@ Feature: Super admin exports content to local drive
         And I see the *Export* button is active
         And I see the values for *Content selected* increase
       When I uncheck the *Select all* checkbox
-      Then I see the *Export* button is inactive
+      Then I see the checkboxes for all the topics are unchecked
+        And I see the *Export* button is inactive
         And I see the values for *Content selected* is 0
       # Select/deselect one full topic    
       When I check the <topic> topic checkbox
@@ -38,9 +39,9 @@ Feature: Super admin exports content to local drive
         And I see the values for *Content selected* is 0
       # Select and import just one resource from a subtopic of a topic
       When I click the <topic> topic
-      Then see the list of subtopics for the <topic> topic
+      Then I see the list of subtopics for the <topic> topic
       When I click the <subtopic> subtopic
-      Then see the list of resources for the <subtopic> subtopic
+      Then I see the list of resources for the <subtopic> subtopic
       When I check the <resource> resource checkbox
       Then I see the *Export* button is active 
         And I see the *1 resource selected* flag for the <resource> resource
