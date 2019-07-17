@@ -20,6 +20,10 @@
       </ul>
       <p>{{ $tr('kolibriUsersP5') }}</p>
       <p>{{ $tr('kolibriUsersP6') }}</p>
+      <template v-if="true">
+        <h3>{{ $tr('openIdH1') }}</h3>
+        <p>{{ $tr('openIdP1') }}</p>
+      </template>
     </section>
     <section v-if="!hideOwnersSection">
       <h2>{{ $tr('kolibriOwnersTitle') }}</h2>
@@ -109,6 +113,9 @@
         'Unlike many online web services that are similarly accessed through a web browser, there are thousands of independent Kolibri installations around the world – including this one. Each Kolibri installation is managed and controlled by the owner of the device that it is installed on.',
       kolibriAboutP4:
         'In order to improve the quality of Kolibri and the content on it, Learning Equality might collect anonymized usage information when Kolibri has access to the internet. This may include IP addresses associated with the server, device details such as the operating system and time zone, and aggregate statistics about the users and content.',
+      openIdH1: 'Signing in to third-party applications using Kolibri',
+      openIdP1:
+        'It is possible to use Kolibri to register or sign in to third-party applications. If you do this, the other application will have access to your Kolibri username, unique user ID, and full name.',
     },
   };
 

@@ -26,6 +26,10 @@
             >
               {{ logoText }}
             </h1>
+            <h2 v-if="false">
+              <!-- TODO -->
+              {{ $tr('poweredByKolibri') }}
+            </h2>
             <form ref="form" class="login-form" @submit.prevent="signIn">
               <UiAlert
                 v-if="invalidCredentials"
@@ -457,6 +461,12 @@
     },
     $trs: {
       kolibri: 'Kolibri',
+      poweredByKolibri: 'Powered by Kolibri',
+      whatsThis: "What's this?",
+      oidcGenericExplanation:
+        'Kolibri is an e-learning platform. You can also use your Kolibri account to log in to some third-party applications.',
+      oidcSpecificExplanation:
+        "You were sent here from the application '{app_name}'. Kolibri is an e-learning platform, and you can also use your Kolibri account to access '{app_name}'.",
       signIn: 'Sign in',
       username: 'Username',
       password: 'Password',
