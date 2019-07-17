@@ -1,48 +1,109 @@
 <template>
 
-  <KPageContainer class="content">
+  <KPageContainer>
 
-    <section>
-      <h2>{{ $tr('points') }}</h2>
-      <PointsIcon class="points-icon" />
-      <span class="points-num" :style="{ color: $themeTokens.correct }">
-        {{ $formatNumber(totalPoints) }}
-      </span>
-    </section>
+    <KGrid>
+      <KGridItem sizes="100, 75, 75" percentage>
+        <h1>{{ $tr('detailsHeader') }}</h1>
+      </KGridItem>
+      <KGridItem sizes="100, 25, 25" percentage alignment="right">
+        <KButton
+          :text="$tr('editAction')"
+          :primary="true"
+        />
+      </KGridItem>
+    </KGrid>
 
-    <section>
-      <h2>{{ $tr('userType') }}</h2>
-      <UserTypeDisplay :distinguishCoachTypes="false" :userType="getUserKind" />
-    </section>
+    <table>
+      <tr>
+        <th>{{ $tr('points') }}</th>
+        <td>
+          <PointsIcon class="points-icon" />
+          <span :style="{ color: $themeTokens.correct }">
+            {{ $formatNumber(totalPoints) }}
+          </span>
+        </td>
+      </tr>
 
-    <section v-if="facilityName">
-      <h2>{{ $tr('facility') }}</h2>
-      <p>{{ facilityName }}</p>
-    </section>
+      <tr>
+        <th>{{ $tr('userType') }}</th>
 
+        <td>
+          <UserTypeDisplay
+            :distinguishCoachTypes="false"
+            :userType="getUserKind"
+          />
+        </td>
+      </tr>
 
-    <section v-if="userHasPermissions">
-      <h2>{{ $tr('devicePermissions') }}</h2>
-      <p>
-        <KLabeledIcon>
-          <PermissionsIcon slot="icon" :permissionType="permissionType" class="permissions-icon" />
-          {{ permissionTypeText }}
-        </KLabeledIcon>
-      </p>
-      <p>
-        {{ $tr('youCan') }}
-        <ul class="permissions-list">
-          <li v-if="isSuperuser">
-            {{ $tr('manageDevicePermissions') }}
-          </li>
-          <li v-for="(value, key) in userPermissions" :key="key">
-            {{ getPermissionString(key) }}
-          </li>
-        </ul>
-      </p>
-    </section>
+      <tr v-if="facilityName">
+        <th>{{ $tr('facility') }}</th>
+        <td>{{ facilityName }}</td>
+      </tr>
 
-    <form @submit.prevent="submitEdits">
+      <tr v-if="userHasPermissions">
+        <th style="vertical-align: top">
+          {{ $tr('devicePermissions') }}
+        </th>
+        <td>
+          <KLabeledIcon>
+            <PermissionsIcon
+              slot="icon"
+              :permissionType="permissionType"
+              class="permissions-icon"
+            />
+            {{ permissionTypeText }}
+          </KLabeledIcon>
+          <p>
+            {{ $tr('youCan') }}
+            <ul class="permissions-list">
+              <li v-if="isSuperuser">
+                {{ $tr('manageDevicePermissions') }}
+              </li>
+              <li v-for="(value, key) in userPermissions" :key="key">
+                {{ getPermissionString(key) }}
+              </li>
+            </ul>
+          </p>
+        </td>
+      </tr>
+
+      <tr>
+        <th>{{ $tr('name') }}</th>
+        <td>{{ name }}</td>
+      </tr>
+
+      <tr>
+        <th>{{ $tr('username') }}</th>
+        <td>{{ session.username }}</td>
+      </tr>
+
+      <tr>
+        <th>{{ DemographicInfoStrings.$tr('genderLabel') }}</th>
+        <td>Gender</td>
+      </tr>
+
+      <tr>
+        <th>{{ DemographicInfoStrings.$tr('birthYearLabel') }}</th>
+        <td>Birth year</td>
+      </tr>
+
+      <tr>
+        <th>{{ $tr('changePasswordHeader') }}</th>
+        <td>
+          <KButton
+            v-if="canEditPassword"
+            appearance="basic-link"
+            :text="$tr('changePasswordPrompt')"
+            :disabled="busy"
+            class="change-password"
+            @click="setPasswordModalVisible(true)"
+          />
+        </td>
+      </tr>
+    </table>
+
+    <!-- <form @submit.prevent="submitEdits">
       <UiAlert
         v-if="success"
         type="success"
@@ -106,7 +167,7 @@
       :disabled="busy"
       class="change-password"
       @click="setPasswordModalVisible(true)"
-    />
+    /> -->
 
     <ChangeUserPasswordModal
       v-if="passwordModalVisible"
@@ -128,6 +189,8 @@
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
@@ -135,6 +198,7 @@
   import UiAlert from 'keen-ui/src/UiAlert';
   import { PermissionTypes, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
+  import DemographicInfoStrings from './demographicInfoStrings';
 
   export default {
     name: 'ProfilePage',
@@ -146,6 +210,8 @@
     components: {
       KButton,
       KTextbox,
+      KGrid,
+      KGridItem,
       KLabeledIcon,
       KPageContainer,
       UiAlert,
@@ -163,6 +229,7 @@
         usernameBlurred: false,
         nameBlurred: false,
         formSubmitted: false,
+        DemographicInfoStrings,
       };
     },
     computed: {
@@ -311,11 +378,14 @@
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       required: 'This field is required',
       limitedPermissions: 'Limited permissions',
-      youCan: 'You can',
+      youCan: 'You can:',
       changePasswordPrompt: 'Change password',
       usernameAlreadyExists: 'An account with that username already exists',
       documentTitle: 'User Profile',
       facility: 'Facility',
+      detailsHeader: 'Details',
+      editAction: 'Edit',
+      changePasswordHeader: 'Password',
     },
   };
 
@@ -324,20 +394,25 @@
 
 <style lang="scss" scoped>
 
-  .content {
-    max-width: 500px;
-    margin-right: auto;
-    margin-left: auto;
-  }
-
   .points-icon,
   .points-num {
     display: inline-block;
   }
 
-  .points-icon {
-    width: 2em;
+  th {
+    text-align: left;
+  }
+
+  th,
+  td {
     height: 2em;
+    padding-top: 24px;
+    padding-right: 24px;
+  }
+
+  .points-icon {
+    width: 1em;
+    height: 1em;
   }
 
   .points-num {
