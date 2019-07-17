@@ -34,7 +34,6 @@
       <SelectBirthYear
         class="select"
         :value.sync="birthYear"
-        :showTooltip="false"
         :disabled="busy"
       />
 

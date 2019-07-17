@@ -11,7 +11,6 @@
       @change="$emit('update:value', String($event.value))"
     />
     <CoreInfoIcon
-      v-if="showTooltip"
       class="info-icon"
       :tooltipText="$tr('birthYearTooltip')"
       :iconAriaLabel="$tr('birthyearAriaLabel')"
@@ -48,10 +47,6 @@
     props: {
       value: {
         type: String,
-      },
-      showTooltip: {
-        type: Boolean,
-        default: true,
       },
     },
     computed: {

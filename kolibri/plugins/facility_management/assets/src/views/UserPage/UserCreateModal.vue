@@ -11,22 +11,20 @@
     <section>
       <KTextbox
         ref="name"
-        v-model.trim="fullName"
-        type="text"
+        v-model="fullName"
         :label="$tr('name')"
         :autofocus="true"
         :maxlength="120"
-        :invalid="nameIsInvalid"
+        :invalid="Boolean(nameIsInvalidText)"
         :invalidText="nameIsInvalidText"
         @blur="nameBlurred = true"
       />
       <KTextbox
         ref="username"
         v-model="username"
-        type="text"
         :label="$tr('username')"
         :maxlength="30"
-        :invalid="usernameIsInvalid"
+        :invalid="Boolean(usernameIsInvalidText)"
         :invalidText="usernameIsInvalidText"
         @blur="usernameBlurred = true"
       />
@@ -35,7 +33,7 @@
         v-model="password"
         type="password"
         :label="$tr('password')"
-        :invalid="passwordIsInvalid"
+        :invalid="Boolean(passwordIsInvalidText)"
         :invalidText="passwordIsInvalidText"
         @blur="passwordBlurred = true"
       />
@@ -44,13 +42,14 @@
         v-model="confirmedPassword"
         type="password"
         :label="$tr('reEnterPassword')"
-        :invalid="confirmedPasswordIsInvalid"
+        :invalid="Boolean(confirmedPasswordIsInvalidText)"
         :invalidText="confirmedPasswordIsInvalidText"
         @blur="confirmedPasswordBlurred = true"
       />
 
       <KSelect
         v-model="kind"
+        class="select"
         :label="$tr('userType')"
         :options="userKindDropdownOptions"
       />
@@ -69,6 +68,23 @@
           :value="false"
         />
       </fieldset>
+
+      <div>
+        <KTextbox
+          v-model="identificationNumber"
+          :label="$tr('identificationNumberLabel')"
+        />
+      </div>
+
+      <SelectBirthYear
+        class="select"
+        :value.sync="birthYear"
+      />
+      <SelectGender
+        class="select"
+        :value.sync="gender"
+      />
+
     </section>
   </KModal>
 
@@ -77,6 +93,7 @@
 
 <script>
 
+  import some from 'lodash/some';
   import { mapActions, mapState, mapGetters } from 'vuex';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
@@ -85,6 +102,8 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KSelect from 'kolibri.coreVue.components.KSelect';
+  import SelectGender from 'kolibri.coreVue.components.SelectGender';
+  import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
 
   export default {
     name: 'UserCreateModal',
@@ -93,6 +112,8 @@
       KModal,
       KTextbox,
       KSelect,
+      SelectGender,
+      SelectBirthYear,
     },
     data() {
       return {
@@ -112,6 +133,9 @@
         passwordBlurred: false,
         confirmedPasswordBlurred: false,
         formSubmitted: false,
+        gender: null,
+        birthYear: null,
+        identificationNumber: '',
       };
     },
     computed: {
@@ -138,9 +162,6 @@
         }
         return '';
       },
-      nameIsInvalid() {
-        return Boolean(this.nameIsInvalidText);
-      },
       usernameAlreadyExists() {
         return this.facilityUsers.find(
           ({ username }) => username.toLowerCase() === this.username.toLowerCase()
@@ -160,9 +181,6 @@
         }
         return '';
       },
-      usernameIsInvalid() {
-        return Boolean(this.usernameIsInvalidText);
-      },
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
           if (this.password === '') {
@@ -170,9 +188,6 @@
           }
         }
         return '';
-      },
-      passwordIsInvalid() {
-        return Boolean(this.passwordIsInvalidText);
       },
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.formSubmitted) {
@@ -185,15 +200,15 @@
         }
         return '';
       },
-      confirmedPasswordIsInvalid() {
-        return Boolean(this.confirmedPasswordIsInvalidText);
-      },
       formIsValid() {
-        return (
-          !this.nameIsInvalid &&
-          !this.usernameIsInvalid &&
-          !this.passwordIsInvalid &&
-          !this.confirmedPasswordIsInvalid
+        return !some(
+          [
+            this.nameIsInvalidText,
+            this.usernameIsInvalidText,
+            this.passwordIsInvalidText,
+            this.confirmedPasswordIsInvalidText,
+          ],
+          Boolean
         );
       },
       userKindDropdownOptions() {
@@ -250,15 +265,17 @@
         }
       },
       focusOnInvalidField() {
-        if (this.nameIsInvalid) {
-          this.$refs.name.focus();
-        } else if (this.usernameIsInvalid) {
-          this.$refs.username.focus();
-        } else if (this.passwordIsInvalid) {
-          this.$refs.password.focus();
-        } else if (this.confirmedPasswordIsInvalid) {
-          this.$refs.confirmedPassword.focus();
-        }
+        this.$nextTick().then(() => {
+          if (this.nameIsInvalidText) {
+            this.$refs.name.focus();
+          } else if (this.usernameIsInvalidText) {
+            this.$refs.username.focus();
+          } else if (this.passwordIsInvalidText) {
+            this.$refs.password.focus();
+          } else if (this.confirmedPasswordIsInvalidText) {
+            this.$refs.confirmedPassword.focus();
+          }
+        });
       },
     },
     $trs: {
@@ -273,7 +290,6 @@
       learner: 'Learner',
       coach: 'Coach',
       admin: 'Admin',
-      coachSelectorHeader: 'Coach type',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachLabel: 'Facility coach',
@@ -281,9 +297,8 @@
       usernameAlreadyExists: 'Username already exists',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       pwMismatchError: 'Passwords do not match',
-      unknownError: 'Whoops, something went wrong. Try again',
-      loadingConfirmation: 'Loading...',
       required: 'This field is required',
+      identificationNumberLabel: 'Identification number (optional)',
     },
   };
 
@@ -301,6 +316,10 @@
     margin: 0;
     margin-bottom: 3em;
     border: 0;
+  }
+
+  .select {
+    margin: 18px 0 36px;
   }
 
 </style>

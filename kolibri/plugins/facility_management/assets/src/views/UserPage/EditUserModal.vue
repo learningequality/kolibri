@@ -52,6 +52,7 @@
     <template v-else>
       <KSelect
         v-model="typeSelected"
+        class="select"
         :label="$tr('userType')"
         :options="userTypeOptions"
       />
@@ -72,6 +73,22 @@
       </fieldset>
     </template>
 
+    <div>
+      <KTextbox
+        v-model="identificationNumber"
+        :label="$tr('identificationNumberLabel')"
+      />
+    </div>
+
+    <SelectBirthYear
+      class="select"
+      :value.sync="birthYear"
+    />
+    <SelectGender
+      class="select"
+      :value.sync="gender"
+    />
+
   </KModal>
 
 </template>
@@ -89,6 +106,8 @@
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import SelectGender from 'kolibri.coreVue.components.SelectGender';
+  import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
 
   // IDEA use UserTypeDisplay for strings in options
   export default {
@@ -100,6 +119,8 @@
       KRadioButton,
       KExternalLink,
       UserTypeDisplay,
+      SelectGender,
+      SelectBirthYear,
     },
     props: {
       id: {
@@ -127,6 +148,9 @@
         typeSelected: null, // see beforeMount
         nameBlurred: false,
         usernameBlurred: false,
+        gender: null,
+        birthYear: null,
+        identificationNumber: '',
       };
     },
     computed: {
@@ -294,6 +318,7 @@
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachLabel: 'Facility coach',
       facilityCoachDescription: 'Can instruct all classes in your facility',
+      identificationNumberLabel: 'Identification number (optional)',
     },
   };
 
@@ -325,6 +350,10 @@
 
   .user-type.header {
     font-size: 16px;
+  }
+
+  .select {
+    margin: 18px 0 36px;
   }
 
 </style>
