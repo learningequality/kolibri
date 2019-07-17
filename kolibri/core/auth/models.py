@@ -1073,8 +1073,6 @@ class Membership(AbstractFacilityDataModel):
     def infer_dataset(self, *args, **kwargs):
         user_dataset_id = self.cached_related_dataset_lookup("user")
         collection_dataset_id = self.cached_related_dataset_lookup("collection")
-        # user_dataset_id = self.user.dataset_id
-        # collection_dataset_id = self.collection.dataset_id
         if user_dataset_id != collection_dataset_id:
             raise KolibriValidationError(
                 "Collection and user for a Membership object must be in same dataset."
