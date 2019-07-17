@@ -5,6 +5,7 @@
     :label="$tr('label')"
     :placeholder="$tr('placeholder')"
     :options="options"
+    :disabled="$attrs.disabled"
     @change="$emit('update:value', $event.value)"
   />
 

@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="wrapper">
     <file-svg v-if="active" src="./icons/leaf.svg" />
     <file-svg v-else src="./icons/grey-leaf.svg" />
   </div>
@@ -21,3 +21,11 @@
   };
 
 </script>
+
+<style lang="scss" scoped>
+
+  .wrapper {
+    vertical-align: inherit;
+  }
+
+</style>

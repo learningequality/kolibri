@@ -19,11 +19,13 @@
   import SignInPage from './SignInPage';
   import SignUpPage from './SignUpPage';
   import ProfilePage from './ProfilePage';
+  import ProfileEditPage from './ProfileEditPage';
 
   const pageNameComponentMap = {
     [PageNames.SIGN_IN]: SignInPage,
     [PageNames.SIGN_UP]: SignUpPage,
     [PageNames.PROFILE]: ProfilePage,
+    [PageNames.PROFILE_EDIT]: ProfileEditPage,
   };
 
   export default {
@@ -50,19 +52,30 @@
             immersivePageIcon: 'arrow_back',
           };
         }
+        if (this.pageName === PageNames.PROFILE_EDIT) {
+          return {
+            immersivePage: true,
+            immersivePageRoute: this.$router.getRoute(PageNames.PROFILE),
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
+          };
+        }
         return {
           immersivePage: false,
         };
       },
       appBarTitle() {
-        if (this.pageName === PageNames.PROFILE) {
+        if (this.pageName === PageNames.PROFILE || this.pageName == PageNames.PROFILE_EDIT) {
           return this.$tr('userProfileTitle');
-        } else if (this.pageName === PageNames.SIGN_UP) {
-          if (!this.$route.query.step) {
-            return 'Step 1 of 2';
-          }
-          return 'Step 2 of 2';
         }
+
+        if (this.pageName === PageNames.SIGN_UP) {
+          if (!this.$route.query.step) {
+            return this.$tr('signUpStep1Title');
+          }
+          return this.$tr('signUpStep2Title');
+        }
+
         return this.$tr('userSignInTitle');
       },
       currentPage() {
@@ -76,6 +89,8 @@
       userProfileTitle: 'Profile',
       userSignInTitle: 'Sign in',
       createAccount: 'Create an account',
+      signUpStep1Title: 'Step 1 of 2',
+      signUpStep2Title: 'Step 2 of 2',
     },
   };
 

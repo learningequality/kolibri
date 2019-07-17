@@ -52,6 +52,17 @@ export default [
     },
   },
   {
+    name: PageNames.PROFILE_EDIT,
+    path: '/profile/edit',
+    handler: () => {
+      if (!store.getters.isUserLoggedIn) {
+        router.replace({ name: PageNames.SIGN_IN });
+      } else {
+        store.dispatch('resetAndSetPageName', { pageName: PageNames.PROFILE_EDIT });
+      }
+    },
+  },
+  {
     path: '*',
     redirect: '/',
   },
