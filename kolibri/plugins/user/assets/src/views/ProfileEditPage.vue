@@ -70,8 +70,8 @@
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import SelectGender from './SignUpPage/SelectGender';
-  import SelectBirthYear from './SignUpPage/SelectBirthYear';
+  import SelectGender from 'kolibri.coreVue.components.SelectGender';
+  import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
 
   export default {
     name: 'ProfileEditPage',

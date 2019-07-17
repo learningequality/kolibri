@@ -87,6 +87,8 @@ import KPageContainer from '../views/KPageContainer';
 import KIcon from '../views/icons/KIcon';
 import KLabeledIcon from '../views/icons/KLabeledIcon';
 import KBottomAppBar from '../views/KBottomAppBar';
+import SelectGender from '../views/Demographics/SelectGender';
+import SelectBirthYear from '../views/Demographics/SelectBirthYear';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -191,6 +193,8 @@ export default {
       KIcon,
       KLabeledIcon,
       KBottomAppBar,
+      SelectGender,
+      SelectBirthYear,
     },
     router,
     mixins: {

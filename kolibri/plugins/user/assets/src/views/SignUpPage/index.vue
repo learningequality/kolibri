@@ -131,9 +131,9 @@
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import SelectGender from 'kolibri.coreVue.components.SelectGender';
+  import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
-  import SelectGender from './SelectGender';
-  import SelectBirthYear from './SelectBirthYear';
 
   export default {
     name: 'SignUpPage',
