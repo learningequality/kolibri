@@ -11,11 +11,10 @@
     <KTextbox
       ref="name"
       v-model="newName"
-      type="text"
       :label="$tr('fullName')"
       :autofocus="true"
       :maxlength="120"
-      :invalid="nameIsInvalid"
+      :invalid="Boolean(nameIsInvalidText)"
       :invalidText="nameIsInvalidText"
       @blur="nameBlurred = true"
     />
@@ -23,10 +22,9 @@
     <KTextbox
       ref="username"
       v-model="newUsername"
-      type="text"
       :label="$tr('username')"
       :maxlength="30"
-      :invalid="usernameIsInvalid"
+      :invalid="Boolean(usernameIsInvalidText)"
       :invalidText="usernameIsInvalidText"
       @blur="usernameBlurred = true"
       @input="setError(null)"
@@ -161,9 +159,6 @@
         }
         return '';
       },
-      nameIsInvalid() {
-        return Boolean(this.nameIsInvalidText);
-      },
       usernameAlreadyExists() {
         // Just return if it's the same username with a different case
         if (this.username.toLowerCase() === this.newUsername.toLowerCase()) {
@@ -194,11 +189,8 @@
         }
         return '';
       },
-      usernameIsInvalid() {
-        return Boolean(this.usernameIsInvalidText);
-      },
       formIsInvalid() {
-        return this.nameIsInvalid || this.usernameIsInvalid;
+        return this.nameIsInvalidText || this.usernameIsInvalidText;
       },
       editingSelf() {
         return this.currentUserId === this.id;
@@ -246,13 +238,7 @@
       ...mapActions(['kolibriLogout']),
       submitForm() {
         if (this.formIsInvalid) {
-          if (this.nameIsInvalid) {
-            this.$refs.name.focus();
-          } else if (this.usernameIsInvalid) {
-            this.$refs.username.focus();
-          }
-
-          return;
+          return this.focusOnInvalidField();
         }
 
         const updates = {
@@ -277,6 +263,15 @@
             this.kolibriLogout();
           }
           this.$emit('cancel');
+        });
+      },
+      focusOnInvalidField() {
+        this.$nextTick().then(() => {
+          if (this.nameIsInvalidText) {
+            this.$refs.name.focus();
+          } else if (this.usernameIsInvalidText) {
+            this.$refs.username.focus();
+          }
         });
       },
     },
