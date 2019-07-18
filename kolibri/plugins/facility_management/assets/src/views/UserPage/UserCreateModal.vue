@@ -18,6 +18,7 @@
       />
       <TextboxUsername
         ref="textboxUsername"
+        :disabled="busy"
         :value.sync="username"
         :isValid.sync="usernameValid"
         :shouldValidate="formSubmitted"

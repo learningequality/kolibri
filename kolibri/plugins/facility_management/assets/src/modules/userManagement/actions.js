@@ -63,32 +63,22 @@ export function updateUser(store, { userId, updates, original }) {
   // const origUserState = store.state.facilityUsers.find(user => user.id === userId);
   const facilityRoleHasChanged = updates.role && original.kind !== updates.role.kind;
 
-  return updateFacilityUser(store, { userId, updates, original })
-    .then(updatedUser => {
-      const update = userData => store.commit('UPDATE_USER', _userState(userData));
-      if (facilityRoleHasChanged) {
-        if (store.rootGetters.currentUserId === userId && store.rootGetters.isSuperuser) {
-          // maintain superuser if updating self.
-          store.commit('UPDATE_CURRENT_USER_KIND', [UserKinds.SUPERUSER, updates.role.kind], {
-            root: true,
-          });
-        }
-        return setUserRole(updatedUser, updates.role).then(userWithRole => {
-          update(userWithRole);
+  return updateFacilityUser(store, { userId, updates, original }).then(updatedUser => {
+    const update = userData => store.commit('UPDATE_USER', _userState(userData));
+    if (facilityRoleHasChanged) {
+      if (store.rootGetters.currentUserId === userId && store.rootGetters.isSuperuser) {
+        // maintain superuser if updating self.
+        store.commit('UPDATE_CURRENT_USER_KIND', [UserKinds.SUPERUSER, updates.role.kind], {
+          root: true,
         });
-      } else {
-        update(updatedUser);
       }
-    })
-    .catch(error => {
-      store.commit('SET_BUSY', false);
-      const errorsCaught = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
-      if (errorsCaught) {
-        setError(store, errorsCaught);
-      } else {
-        store.dispatch('handleApiError', error, { root: true });
-      }
-    });
+      return setUserRole(updatedUser, updates.role).then(userWithRole => {
+        update(userWithRole);
+      });
+    } else {
+      update(updatedUser);
+    }
+  });
 }
 
 export function setError(store, error) {

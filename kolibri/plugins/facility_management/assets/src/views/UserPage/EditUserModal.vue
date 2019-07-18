@@ -14,16 +14,14 @@
       @blur="nameBlurred = true"
     />
 
-    <KTextbox
-      ref="username"
-      v-model="username"
+    <TextboxUsername
+      ref="textboxUsername"
       :disabled="busy"
-      :label="$tr('username')"
-      :maxlength="30"
-      :invalid="Boolean(usernameIsInvalidText)"
-      :invalidText="usernameIsInvalidText"
-      @blur="usernameBlurred = true"
-      @input="setError(null)"
+      :value.sync="username"
+      :isValid.sync="usernameValid"
+      :shouldValidate="formSubmitted"
+      :isUniqueValidator="usernameIsUnique"
+      :errors.sync="caughtErrors"
     />
 
     <template v-if="editingSuperAdmin">
@@ -117,7 +115,7 @@
   import { mapActions, mapState, mapGetters } from 'vuex';
   import urls from 'kolibri.urls';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import { validateUsername } from 'kolibri.utils.validators';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
@@ -126,6 +124,7 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import SelectGender from 'kolibri.coreVue.components.SelectGender';
   import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
+  import TextboxUsername from '../UserCreatePage/TextboxUsername';
 
   // IDEA use UserTypeDisplay for strings in options
   export default {
@@ -139,27 +138,30 @@
       UserTypeDisplay,
       SelectGender,
       SelectBirthYear,
+      TextboxUsername,
     },
     data() {
       return {
         name: '',
         username: '',
+        usernameValid: true,
         kind: '',
         loading: true,
         busy: false,
+        formSubmitted: false,
         classCoachIsSelected: true,
         typeSelected: null, // see beforeMount
         nameBlurred: false,
-        usernameBlurred: false,
         gender: null,
         birthYear: null,
         identificationNumber: '',
         userCopy: {},
+        caughtErrors: [],
       };
     },
     computed: {
       ...mapGetters(['currentFacilityId', 'currentUserId']),
-      ...mapState('userManagement', ['facilityUsers', 'error']),
+      ...mapState('userManagement', ['facilityUsers']),
       coachIsSelected() {
         return this.typeSelected && this.typeSelected.value === UserKinds.COACH;
       },
@@ -190,39 +192,8 @@
         }
         return '';
       },
-      usernameAlreadyExists() {
-        if (this.error) {
-          if (this.error.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
-            return true;
-          }
-        }
-
-        const match = this.facilityUsers.find(
-          ({ username }) => username.toLowerCase() === this.username.toLowerCase()
-        );
-
-        // Just return if it's the same username with a different case
-        if (match && match.username.toLowerCase() === this.userCopy.username.toLowerCase()) {
-          return false;
-        }
-        return Boolean(match);
-      },
-      usernameIsInvalidText() {
-        if (this.usernameBlurred) {
-          if (this.username === '') {
-            return this.$tr('required');
-          }
-          if (this.usernameAlreadyExists) {
-            return this.$tr('usernameAlreadyExists');
-          }
-          if (!validateUsername(this.username)) {
-            return this.$tr('usernameNotAlphaNumUnderscore');
-          }
-        }
-        return '';
-      },
       formIsInvalid() {
-        return this.nameIsInvalidText || this.usernameIsInvalidText;
+        return this.nameIsInvalidText || !this.usernameValid;
       },
       editingSelf() {
         return this.currentUserId === this.userId;
@@ -265,7 +236,7 @@
       });
     },
     methods: {
-      ...mapActions('userManagement', ['updateUser', 'setError']),
+      ...mapActions('userManagement', ['updateUser']),
       ...mapActions(['kolibriLogout']),
       setKind(user) {
         this.kind = UserType(user);
@@ -290,7 +261,17 @@
       goToUserManagementPage() {
         this.$router.push(this.$router.getRoute('USER_MGMT_PAGE'));
       },
+      usernameIsUnique(value) {
+        const match = this.facilityUsers.find(
+          ({ username }) => username.toLowerCase() === value.toLowerCase()
+        );
+        if (match && match.username.toLowerCase() === this.userCopy.username.toLowerCase()) {
+          return true;
+        }
+        return !match;
+      },
       submitForm() {
+        this.formSubmitted = true;
         if (this.formIsInvalid) {
           return this.focusOnInvalidField();
         }
@@ -312,23 +293,33 @@
           userId: this.userId,
           updates,
           original: { ...this.userCopy },
-        }).then(() => {
-          // newType is falsey if Super Admin, since that's not a facility role
-          if (this.editingSelf && this.newType && this.newType !== UserKinds.ADMIN) {
-            // user has demoted themselves
-            this.kolibriLogout();
-          } else {
-            this.busy = false;
-            this.$store.dispatch('createSnackbar', this.$tr('userUpdateNotification'));
-          }
-        });
+        })
+          .then(() => {
+            // newType is falsey if Super Admin, since that's not a facility role
+            if (this.editingSelf && this.newType && this.newType !== UserKinds.ADMIN) {
+              // user has demoted themselves
+              this.kolibriLogout();
+            } else {
+              this.busy = false;
+              this.$store.dispatch('createSnackbar', this.$tr('userUpdateNotification'));
+            }
+          })
+          .catch(error => {
+            this.caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
+            if (this.caughtErrors.length > 0) {
+              this.busy = false;
+              this.focusOnInvalidField();
+            } else {
+              this.$store.dispatch('handleApiError', error);
+            }
+          });
       },
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (this.nameIsInvalidText) {
             this.$refs.name.focus();
-          } else if (this.usernameIsInvalidText) {
-            this.$refs.username.focus();
+          } else if (!this.usernameValid) {
+            this.$refs.textboxUsername.focus();
           }
         });
       },
