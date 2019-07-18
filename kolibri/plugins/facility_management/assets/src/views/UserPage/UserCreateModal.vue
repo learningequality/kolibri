@@ -8,24 +8,21 @@
       <KTextbox
         ref="name"
         v-model="fullName"
+        :autofocus="true"
         :disabled="busy"
         :label="$tr('name')"
-        :autofocus="true"
         :maxlength="120"
         :invalid="Boolean(nameIsInvalidText)"
         :invalidText="nameIsInvalidText"
         @blur="nameBlurred = true"
       />
-      <KTextbox
-        ref="username"
-        v-model="username"
-        :disabled="busy"
-        :label="$tr('username')"
-        :maxlength="30"
-        :invalid="Boolean(usernameIsInvalidText)"
-        :invalidText="usernameIsInvalidText"
-        @blur="usernameBlurred = true"
-        @input="handleInputUsername"
+      <TextboxUsername
+        ref="textboxUsername"
+        :value.sync="username"
+        :isValid.sync="usernameValid"
+        :shouldValidate="formSubmitted"
+        :isUniqueValidator="usernameIsUnique"
+        :errors.sync="caughtErrors"
       />
       <KTextbox
         ref="password"
@@ -115,9 +112,8 @@
 <script>
 
   import some from 'lodash/some';
-  import { mapActions, mapState, mapGetters } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import { validateUsername } from 'kolibri.utils.validators';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -125,6 +121,7 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import SelectGender from 'kolibri.coreVue.components.SelectGender';
   import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
+  import TextboxUsername from '../UserCreatePage/TextboxUsername';
 
   export default {
     name: 'UserCreateModal',
@@ -135,11 +132,13 @@
       KSelect,
       SelectGender,
       SelectBirthYear,
+      TextboxUsername,
     },
     data() {
       return {
         fullName: '',
         username: '',
+        usernameValid: true,
         password: '',
         confirmedPassword: '',
         kind: {
@@ -149,7 +148,6 @@
         classCoach: true,
         busy: false,
         nameBlurred: false,
-        usernameBlurred: false,
         passwordBlurred: false,
         confirmedPasswordBlurred: false,
         formSubmitted: false,
@@ -180,28 +178,6 @@
         }
         return '';
       },
-      usernameAlreadyExistsOnServer() {
-        return this.caughtErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
-      },
-      usernameAlreadyExists() {
-        return this.facilityUsers.find(
-          ({ username }) => username.toLowerCase() === this.username.toLowerCase()
-        );
-      },
-      usernameIsInvalidText() {
-        if (this.usernameBlurred || this.formSubmitted) {
-          if (this.username === '') {
-            return this.$tr('required');
-          }
-          if (!validateUsername(this.username)) {
-            return this.$tr('usernameNotAlphaNumUnderscore');
-          }
-          if (this.usernameAlreadyExists || this.usernameAlreadyExistsOnServer) {
-            return this.$tr('usernameAlreadyExists');
-          }
-        }
-        return '';
-      },
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
           if (this.password === '') {
@@ -225,7 +201,7 @@
         return !some(
           [
             this.nameIsInvalidText,
-            this.usernameIsInvalidText,
+            !this.usernameValid,
             this.passwordIsInvalidText,
             this.confirmedPasswordIsInvalidText,
           ],
@@ -250,14 +226,11 @@
       },
     },
     methods: {
-      ...mapActions(['handleApiError']),
       goToUserManagementPage() {
         this.$router.push(this.$router.getRoute('USER_MGMT_PAGE'));
       },
-      handleInputUsername() {
-        if (this.caughtErrors.length > 0) {
-          this.caughtErrors = [];
-        }
+      usernameIsUnique(value) {
+        !this.facilityUsers.find(({ username }) => username.toLowerCase() === value.toLowerCase());
       },
       createNewUser() {
         this.formSubmitted = true;
@@ -283,7 +256,7 @@
                   this.busy = false;
                   this.focusOnInvalidField();
                 } else {
-                  this.handleApiError(error);
+                  this.$store.dispatch('handleApiError', error);
                 }
               }
             );
@@ -295,8 +268,8 @@
         this.$nextTick().then(() => {
           if (this.nameIsInvalidText) {
             this.$refs.name.focus();
-          } else if (this.usernameIsInvalidText) {
-            this.$refs.username.focus();
+          } else if (!this.usernameValid) {
+            this.$refs.textboxUsername.focus();
           } else if (this.passwordIsInvalidText) {
             this.$refs.password.focus();
           } else if (this.confirmedPasswordIsInvalidText) {
