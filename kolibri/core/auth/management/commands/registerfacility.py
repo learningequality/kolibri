@@ -3,7 +3,7 @@ import sys
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
-from morango.certificates import Certificate
+from morango.models import Certificate
 from requests import exceptions
 
 from kolibri.core import error_constants
