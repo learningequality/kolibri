@@ -38,8 +38,15 @@ const warnUnusedStrings = (vueTemplate, filePath) => {
     uses = [...uses, ...templateUses];
   }
 
+  // Filter out unused strings that may be assigned to an Array,
+  // or an object mapping property's value. This would only happen
+  // in the <script> section's AST.
+  const dynamicUses = getDynamicUses(scriptAST, definitions);
+
   // Compare uses vs definitions
-  const unusedStrings = definitions.filter(str => !uses.includes(str));
+  const unusedStrings = definitions.filter(
+    str => !uses.includes(str) && !dynamicUses.includes(str)
+  );
   unusedStrings.forEach(str => {
     logging.warn(`Unused string "${str}" in ${filePath}.`);
   });
@@ -105,6 +112,39 @@ const getStringUsesFromTemplate = ast => {
     },
   });
   return uses.length > 0 ? uses : null;
+};
+
+const getDynamicUses = (ast, definitions) => {
+  // Storing uses which are defined in an array or an object, which
+  // means they may be used in a mapping or iterator.
+  let dynamicUses = [];
+  traverse(ast, {
+    pre: node => {
+      // Check for Object expressions where a translation key is mapped
+      // to an object and, possibly, called in a $tr() by referring
+      // to the object mapping.
+      if (node.type === 'ObjectExpression') {
+        if (node.properties) {
+          node.properties.forEach(prop => {
+            if (prop.value && definitions.includes(prop.value.value)) {
+              dynamicUses.push(prop.value.value);
+            }
+          });
+        }
+      }
+
+      // Check for Arrays where the uses are included in them - which
+      // is a fair indicator that the string is used in an iterator.
+      if (node.type === 'ArrayExpression') {
+        node.elements.forEach(elem => {
+          if (definitions.includes(elem.value)) {
+            dynamicUses.push(elem.value);
+          }
+        });
+      }
+    },
+  });
+  return dynamicUses;
 };
 
 // Given a node's array of arguments, extract and return the key... or null no dice.
