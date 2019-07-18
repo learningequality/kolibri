@@ -232,12 +232,8 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
               vueComponent.template.content
             );
             vueComponent = compiler.parseComponent(formatted);
+            // Warn user about unused string definitions
             warnUnusedStrings(vueComponent, file);
-            // Pass vueComponent to my function
-            // It is { template: { type: <script | template> }}
-            // Parse the script bit - get defined strings and all calls to strings
-            // Parse the template, get all calls to strings
-            // Bail on anything not a string.
           }
 
           // Now run htmlhint on the whole vue component
