@@ -232,7 +232,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
               vueComponent.template.content
             );
             vueComponent = compiler.parseComponent(formatted);
-            warnUnusedStrings(vueComponent);
+            warnUnusedStrings(vueComponent, file);
             // Pass vueComponent to my function
             // It is { template: { type: <script | template> }}
             // Parse the script bit - get defined strings and all calls to strings

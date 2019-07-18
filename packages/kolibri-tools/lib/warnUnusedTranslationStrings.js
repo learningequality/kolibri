@@ -3,9 +3,7 @@ const traverse = require('ast-traverse');
 const vueCompiler = require('vue-template-compiler');
 const logging = require('./logging');
 
-const warnUnusedStrings = vueTemplate => {
-
-
+const warnUnusedStrings = (vueTemplate, filePath) => {
   const scriptAST = espree.parse(vueTemplate.script.content, {
     sourceType: 'module',
     ecmaVersion: 2018,
@@ -27,28 +25,99 @@ const warnUnusedStrings = vueTemplate => {
     return;
   }
 
-  const usedDefinitions = [];
+  let uses = [];
   // Check for uses in the <script> portion of the Vue file.
+  const scriptUses = getStringUsesFromScript(scriptAST);
+  if (scriptUses) {
+    uses = [...uses, ...scriptUses];
+  }
 
   // Check for uses in the <template> portion of the Vue file.
+  const templateUses = getStringUsesFromTemplate(templateAST);
+  if (templateUses) {
+    uses = [...uses, ...templateUses];
+  }
+
+  // Compare uses vs definitions
+  const unusedStrings = definitions.filter(str => !uses.includes(str));
+  unusedStrings.forEach(str => {
+    logging.warn(`Unused string "${str}" in ${filePath}.`);
+  });
 };
 
 const getDefinedStrings = ast => {
   let definitions = [];
   traverse(ast, {
     pre: node => {
-      if(node.type === 'Property') {
-        if(node.key.name === '$trs') {
+      if (node.type === 'Property') {
+        if (node.key.name === '$trs') {
           const nodeDefs = node.value.properties.reduce((defs, prop) => {
             defs.push(prop.key.name);
             return defs;
           }, []);
-          definitions = [...definitions, ...nodeDefs]
+          definitions = [...definitions, ...nodeDefs];
         }
       }
     },
   });
   return definitions.length > 0 ? definitions : null;
+};
+
+const getStringUsesFromScript = ast => {
+  let uses = [];
+  traverse(ast, {
+    pre: node => {
+      // The CallExpressions will find all potential $tr and commont$tr calls.
+      if (node.type === 'CallExpression') {
+        if (node.callee.property) {
+          if (node.callee.property.type === 'Identifier') {
+            // Check for a call to a function *$tr
+            if (node.callee.property.name.includes('$tr')) {
+              const key = keyFromArguments(node.arguments);
+              if (key) {
+                uses.push(key);
+              }
+            }
+          }
+        }
+      }
+    },
+  });
+  return uses.length > 0 ? uses : null;
+};
+
+const getStringUsesFromTemplate = ast => {
+  let uses = [];
+  traverse(ast, {
+    pre: node => {
+      // The CallExpressions will find all potential $tr and commont$tr calls.
+      if (node.type === 'CallExpression') {
+        if (node.callee.type === 'Identifier') {
+          // Check for a call to a function *$tr
+          if (node.callee.name.includes('$tr')) {
+            const key = keyFromArguments(node.arguments);
+            if (key) {
+              uses.push(key);
+            }
+          }
+        }
+      }
+    },
+  });
+  return uses.length > 0 ? uses : null;
+};
+
+// Given a node's array of arguments, extract and return the key... or null no dice.
+const keyFromArguments = args => {
+  let key = null;
+  if (args && Array.isArray(args)) {
+    if (args.length > 0) {
+      if (args[0].type === 'Literal') {
+        key = args[0].value;
+      }
+    }
+  }
+  return key;
 };
 
 module.exports = warnUnusedStrings;
