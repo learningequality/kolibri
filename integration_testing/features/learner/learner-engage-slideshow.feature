@@ -25,12 +25,12 @@ Feature: Learner engages with content of the slideshow kind
       When I view a slide that has caption text
       Then I see the caption text beneath the slide image
       When I am viewing the first slide
-      Then I the left-most pagination dot is filled in with color and the rest of them are white
+      Then the left-most pagination dot is filled in with color and the rest of them are white
         And the left arrow button is disabled
         And tapping the left key on my keyboard does nothing
         And swiping the image to the right does nothing
       When I am viewing the last slide
-      Then I the right-most pagination dot is filled in with color and the rest of them are white
+      Then the right-most pagination dot is filled in with color and the rest of them are white
         And the right arrow button is disabled
         And tapping the right key on my keyboard does nothing
         And swiping the image to the left does nothing
@@ -49,7 +49,7 @@ Feature: Learner engages with content of the slideshow kind
         And I see left and right arrow buttons on the left and right sides of the screen
         And I see the exit full screen button in the top right corner of the screen
         And I can navigate the content by keyboard, swiping or clicking the left and right arrow buttons
-      When I am viewing in full screen mode and click the exit full screen button or hit ESC
+      When I click the exit full screen button or hit ESC
       Then I am returned to the normal content renderer in the browser
         And I maintain my position in the slideshow
 
