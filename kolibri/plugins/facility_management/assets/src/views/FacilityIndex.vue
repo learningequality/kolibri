@@ -36,6 +36,7 @@
   import ManageClassPage from './ManageClassPage';
   import FacilityTopNav from './FacilityTopNav';
   import UserPage from './UserPage';
+  import UserCreatePage from './UserCreatePage';
 
   const classEnrollmentPages = [PageNames.CLASS_ENROLL_LEARNER, PageNames.CLASS_ASSIGN_COACH];
 
@@ -47,6 +48,8 @@
     [PageNames.DATA_EXPORT_PAGE]: DataPage,
     [PageNames.FACILITY_CONFIG_PAGE]: FacilitiesConfigPage,
     [PageNames.USER_MGMT_PAGE]: UserPage,
+    [PageNames.USER_CREATE_PAGE]: UserCreatePage,
+    [PageNames.USER_EDIT_PAGE]: UserPage,
   };
 
   export default {

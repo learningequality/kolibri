@@ -10,7 +10,7 @@
           :text="$tr('newUserButtonLabel')"
           :primary="true"
           class="move-down"
-          @click="displayModal(Modals.CREATE_USER)"
+          @click="$router.push($router.getRoute('USER_CREATE_PAGE'))"
         />
       </KGridItem>
       <KGridItem sizes="3, 3, 3">
@@ -70,7 +70,6 @@
     </nav>
 
     <!-- Modals -->
-    <UserCreateModal v-if="modalShown===Modals.CREATE_USER" @cancel="closeModal" />
 
     <EditUserModal
       v-if="modalShown===Modals.EDIT_USER"
@@ -114,7 +113,6 @@
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
-  import UserCreateModal from './UserCreateModal';
   import EditUserModal from './EditUserModal';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
   import DeleteUserModal from './DeleteUserModal';
@@ -129,7 +127,6 @@
       };
     },
     components: {
-      UserCreateModal,
       EditUserModal,
       ResetUserPasswordModal,
       DeleteUserModal,

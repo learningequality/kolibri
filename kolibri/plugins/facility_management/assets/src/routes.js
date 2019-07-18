@@ -46,6 +46,25 @@ export default [
     },
   },
   {
+    name: PageNames.USER_CREATE_PAGE,
+    path: '/users/new',
+    handler: () => {
+      store.dispatch('preparePage', {
+        name: PageNames.USER_CREATE_PAGE,
+        isAsync: false,
+      });
+    },
+  },
+  {
+    name: PageNames.USER_EDIT_PAGE,
+    path: '/users/:id',
+    handler: () => {
+      store.dispatch('preparePage', {
+        name: PageNames.USER_CREATE_PAGE,
+      });
+    },
+  },
+  {
     name: PageNames.DATA_EXPORT_PAGE,
     path: '/data',
     handler: () => {

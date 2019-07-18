@@ -1,17 +1,14 @@
 <template>
 
-  <KModal
-    :title="$tr('createNewUserHeader')"
-    :submitText="$tr('saveUserButtonLabel')"
-    :cancelText="$tr('cancel')"
-    :submitDisabled="submitting"
-    @submit="createNewUser"
-    @cancel="$emit('cancel')"
-  >
+  <form @submit.prevent="createNewUser">
+    <h1>
+      {{ $tr('createNewUserHeader') }}
+    </h1>
     <section>
       <KTextbox
         ref="name"
         v-model="fullName"
+        :disabled="busy"
         :label="$tr('name')"
         :autofocus="true"
         :maxlength="120"
@@ -22,6 +19,7 @@
       <KTextbox
         ref="username"
         v-model="username"
+        :disabled="busy"
         :label="$tr('username')"
         :maxlength="30"
         :invalid="Boolean(usernameIsInvalidText)"
@@ -32,6 +30,7 @@
         ref="password"
         v-model="password"
         type="password"
+        :disabled="busy"
         :label="$tr('password')"
         :invalid="Boolean(passwordIsInvalidText)"
         :invalidText="passwordIsInvalidText"
@@ -41,6 +40,7 @@
         ref="confirmedPassword"
         v-model="confirmedPassword"
         type="password"
+        :disabled="busy"
         :label="$tr('reEnterPassword')"
         :invalid="Boolean(confirmedPasswordIsInvalidText)"
         :invalidText="confirmedPasswordIsInvalidText"
@@ -50,6 +50,7 @@
       <KSelect
         v-model="kind"
         class="select"
+        :disabled="busy"
         :label="$tr('userType')"
         :options="userKindDropdownOptions"
       />
@@ -57,12 +58,14 @@
       <fieldset v-if="coachIsSelected" class="coach-selector">
         <KRadioButton
           v-model="classCoach"
+          :disabled="busy"
           :label="$tr('classCoachLabel')"
           :description="$tr('classCoachDescription')"
           :value="true"
         />
         <KRadioButton
           v-model="classCoach"
+          :disabled="busy"
           :label="$tr('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
           :value="false"
@@ -72,21 +75,38 @@
       <div>
         <KTextbox
           v-model="identificationNumber"
+          :disabled="busy"
+          :maxlength="30"
           :label="$tr('identificationNumberLabel')"
         />
       </div>
 
       <SelectBirthYear
+        :disabled="busy"
         class="select"
         :value.sync="birthYear"
       />
       <SelectGender
+        :disabled="busy"
         class="select"
         :value.sync="gender"
       />
 
     </section>
-  </KModal>
+    <div class="buttons">
+      <KButton
+        :disabled="busy"
+        :text="$tr('saveAction')"
+        type="submit"
+        :primary="true"
+      />
+      <KButton
+        :disabled="busy"
+        :text="$tr('cancelAction')"
+        @click="goToUserManagementPage"
+      />
+    </div>
+  </form>
 
 </template>
 
@@ -99,7 +119,7 @@
   import { validateUsername } from 'kolibri.utils.validators';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import KModal from 'kolibri.coreVue.components.KModal';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import SelectGender from 'kolibri.coreVue.components.SelectGender';
@@ -109,7 +129,7 @@
     name: 'UserCreateModal',
     components: {
       KRadioButton,
-      KModal,
+      KButton,
       KTextbox,
       KSelect,
       SelectGender,
@@ -127,7 +147,7 @@
         },
         classCoach: true,
         usernameAlreadyExistsOnServer: false,
-        submitting: false,
+        busy: false,
         nameBlurred: false,
         usernameBlurred: false,
         passwordBlurred: false,
@@ -143,10 +163,7 @@
       ...mapState('userManagement', ['facilityUsers']),
       newUserRole() {
         if (this.coachIsSelected) {
-          if (this.classCoach) {
-            return UserKinds.ASSIGNABLE_COACH;
-          }
-          return UserKinds.COACH;
+          return this.classCoach ? UserKinds.ASSIGNABLE_COACH : UserKinds.COACH;
         }
         // Admin or Learner
         return this.kind.value;
@@ -231,11 +248,14 @@
     methods: {
       ...mapActions('userManagement', ['createUser']),
       ...mapActions(['handleApiError']),
+      goToUserManagementPage() {
+        this.$router.push(this.$router.getRoute('USER_MGMT_PAGE'));
+      },
       createNewUser() {
         this.usernameAlreadyExistsOnServer = false;
         this.formSubmitted = true;
         if (this.formIsValid) {
-          this.submitting = true;
+          this.busy = true;
           this.createUser({
             username: this.username,
             full_name: this.fullName,
@@ -246,14 +266,14 @@
             password: this.password,
           }).then(
             () => {
-              this.$emit('cancel');
+              this.goToUserManagementPage();
             },
             error => {
               const usernameAlreadyExistsError = CatchErrors(error, [
                 ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS,
               ]);
               if (usernameAlreadyExistsError) {
-                this.submitting = false;
+                this.busy = false;
                 this.usernameAlreadyExistsOnServer = true;
               } else {
                 this.handleApiError(error);
@@ -280,13 +300,13 @@
     },
     $trs: {
       createNewUserHeader: 'Create new user',
-      cancel: 'Cancel',
+      cancelAction: 'Cancel',
       name: 'Full name',
       username: 'Username',
       password: 'Password',
       reEnterPassword: 'Re-enter password',
       userType: 'User type',
-      saveUserButtonLabel: 'Save',
+      saveAction: 'Save',
       learner: 'Learner',
       coach: 'Coach',
       admin: 'Admin',
@@ -320,6 +340,12 @@
 
   .select {
     margin: 18px 0 36px;
+  }
+
+  .buttons {
+    button:first-of-type {
+      margin-left: 0;
+    }
   }
 
 </style>
