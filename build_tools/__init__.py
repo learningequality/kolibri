@@ -35,6 +35,4 @@ This environment variable is used in the customize_requirements.py script.
 For BUILD_TIME_PLUGINS, RUN_TIME_PLUGINS, and EXTRA_REQUIREMENTS if the environment variable
 specifies a URL, the scripts will attempt to download a text file from that URL and then use
 that file.
-
-BACKGROUND_IMAGE, an image to display on the Kolibri login page.
 """
