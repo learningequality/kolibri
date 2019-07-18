@@ -57,13 +57,13 @@ export function createUser(store, stateUserData) {
  * @param {string} userId
  * @param {object} updates Optional Changes: full_name, username, password, and kind(role)
  */
-export function updateUser(store, { userId, updates }) {
+export function updateUser(store, { userId, updates, original }) {
   setError(store, null);
   store.commit('SET_BUSY', true);
-  const origUserState = store.state.facilityUsers.find(user => user.id === userId);
-  const facilityRoleHasChanged = updates.role && origUserState.kind !== updates.role.kind;
+  // const origUserState = store.state.facilityUsers.find(user => user.id === userId);
+  const facilityRoleHasChanged = updates.role && original.kind !== updates.role.kind;
 
-  return updateFacilityUser(store, { userId, updates })
+  return updateFacilityUser(store, { userId, updates, original })
     .then(updatedUser => {
       const update = userData => store.commit('UPDATE_USER', _userState(userData));
       if (facilityRoleHasChanged) {
@@ -97,19 +97,21 @@ export function setError(store, error) {
 
 // Update fields on the FacilityUser model
 // updates :: { full_name, username, password }
-export function updateFacilityUser(store, { userId, updates }) {
-  const origUserState = store.state.facilityUsers.find(user => user.id === userId);
+export function updateFacilityUser(store, { userId, updates, original }) {
+  if (!original) {
+    original = store.state.facilityUsers.find(user => user.id === userId);
+  }
   const changedValues = pickBy(
     updates,
-    (value, key) => updates[key] && updates[key] !== origUserState[key]
+    (value, key) => updates[key] && updates[key] !== original[key]
   );
   const facilityUserHasChanged = Object.keys(changedValues).length > 0;
   if (facilityUserHasChanged) {
     return FacilityUserResource.saveModel({ id: userId, data: changedValues });
   }
   return Promise.resolve({
-    ...origUserState,
-    facility: origUserState.facility_id,
+    ...original,
+    facility: original.facility_id,
   });
 }
 

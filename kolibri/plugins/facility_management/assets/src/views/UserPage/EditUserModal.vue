@@ -1,16 +1,11 @@
 <template>
 
-  <KModal
-    :title="$tr('editUserDetailsHeader')"
-    :submitText="$tr('save')"
-    :cancelText="$tr('cancel')"
-    :submitDisabled="isBusy"
-    @submit="submitForm"
-    @cancel="$emit('cancel')"
-  >
+  <form v-if="!loading" @submit.prevent="submitForm">
+    <h1>{{ $tr('editUserDetailsHeader') }}</h1>
     <KTextbox
       ref="name"
-      v-model="newName"
+      v-model="name"
+      :disabled="busy"
       :label="$tr('fullName')"
       :autofocus="true"
       :maxlength="120"
@@ -21,7 +16,8 @@
 
     <KTextbox
       ref="username"
-      v-model="newUsername"
+      v-model="username"
+      :disabled="busy"
       :label="$tr('username')"
       :maxlength="30"
       :invalid="Boolean(usernameIsInvalidText)"
@@ -52,6 +48,7 @@
     <template v-else>
       <KSelect
         v-model="typeSelected"
+        :disabled="busy"
         class="select"
         :label="$tr('userType')"
         :options="userTypeOptions"
@@ -60,12 +57,14 @@
       <fieldset v-if="coachIsSelected" class="coach-selector">
         <KRadioButton
           v-model="classCoachIsSelected"
+          :disabled="busy"
           :label="$tr('classCoachLabel')"
           :description="$tr('classCoachDescription')"
           :value="true"
         />
         <KRadioButton
           v-model="classCoachIsSelected"
+          :disabled="busy"
           :label="$tr('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
           :value="false"
@@ -76,36 +75,55 @@
     <div>
       <KTextbox
         v-model="identificationNumber"
+        :disabled="busy"
         :label="$tr('identificationNumberLabel')"
       />
     </div>
 
     <SelectBirthYear
       class="select"
+      :disabled="busy"
       :value.sync="birthYear"
     />
     <SelectGender
       class="select"
+      :disabled="busy"
       :value.sync="gender"
     />
 
-  </KModal>
+    <div class="buttons">
+      <KButton
+        :disabled="busy"
+        :text="$tr('saveAction')"
+        type="submit"
+        :primary="true"
+      />
+      <KButton
+        :disabled="busy"
+        :text="$tr('cancelAction')"
+        @click="goToUserManagementPage"
+      />
+    </div>
+
+  </form>
 
 </template>
 
 
 <script>
 
+  import UserType from 'kolibri.utils.UserType';
+  import { FacilityUserResource } from 'kolibri.resources';
   import { mapActions, mapState, mapGetters } from 'vuex';
   import urls from 'kolibri.urls';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
-  import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import SelectGender from 'kolibri.coreVue.components.SelectGender';
   import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
 
@@ -113,7 +131,7 @@
   export default {
     name: 'EditUserModal',
     components: {
-      KModal,
+      KButton,
       KTextbox,
       KSelect,
       KRadioButton,
@@ -122,28 +140,13 @@
       SelectGender,
       SelectBirthYear,
     },
-    props: {
-      id: {
-        type: String,
-        required: true,
-      },
-      name: {
-        type: String,
-        required: true,
-      },
-      username: {
-        type: String,
-        required: true,
-      },
-      kind: {
-        type: String,
-        required: true,
-      },
-    },
     data() {
       return {
-        newName: this.name,
-        newUsername: this.username,
+        name: '',
+        username: '',
+        kind: '',
+        loading: true,
+        busy: false,
         classCoachIsSelected: true,
         typeSelected: null, // see beforeMount
         nameBlurred: false,
@@ -151,13 +154,17 @@
         gender: null,
         birthYear: null,
         identificationNumber: '',
+        userCopy: {},
       };
     },
     computed: {
       ...mapGetters(['currentFacilityId', 'currentUserId']),
-      ...mapState('userManagement', ['facilityUsers', 'error', 'isBusy']),
+      ...mapState('userManagement', ['facilityUsers', 'error']),
       coachIsSelected() {
-        return this.typeSelected.value === UserKinds.COACH;
+        return this.typeSelected && this.typeSelected.value === UserKinds.COACH;
+      },
+      userId() {
+        return this.$route.params.id;
       },
       userTypeOptions() {
         return [
@@ -184,30 +191,31 @@
         return '';
       },
       usernameAlreadyExists() {
-        // Just return if it's the same username with a different case
-        if (this.username.toLowerCase() === this.newUsername.toLowerCase()) {
-          return false;
-        }
-
         if (this.error) {
           if (this.error.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
             return true;
           }
         }
 
-        return this.facilityUsers.find(
-          ({ username }) => username.toLowerCase() === this.newUsername.toLowerCase()
+        const match = this.facilityUsers.find(
+          ({ username }) => username.toLowerCase() === this.username.toLowerCase()
         );
+
+        // Just return if it's the same username with a different case
+        if (match && match.username.toLowerCase() === this.userCopy.username.toLowerCase()) {
+          return false;
+        }
+        return Boolean(match);
       },
       usernameIsInvalidText() {
         if (this.usernameBlurred) {
-          if (this.newUsername === '') {
+          if (this.username === '') {
             return this.$tr('required');
           }
           if (this.usernameAlreadyExists) {
             return this.$tr('usernameAlreadyExists');
           }
-          if (!validateUsername(this.newUsername)) {
+          if (!validateUsername(this.username)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
           }
         }
@@ -217,7 +225,7 @@
         return this.nameIsInvalidText || this.usernameIsInvalidText;
       },
       editingSelf() {
-        return this.currentUserId === this.id;
+        return this.currentUserId === this.userId;
       },
       editingSuperAdmin() {
         return this.kind === UserKinds.SUPERUSER;
@@ -225,7 +233,7 @@
       devicePermissionsPageLink() {
         const devicePageUrl = urls['kolibri:devicemanagementplugin:device_management'];
         if (devicePageUrl) {
-          return `${devicePageUrl()}#/permissions/${this.id}`;
+          return `${devicePageUrl()}#/permissions/${this.userId}`;
         }
 
         return '';
@@ -245,29 +253,51 @@
         return this.typeSelected.value;
       },
     },
-    beforeMount() {
-      const coachOption = this.userTypeOptions[1];
-      if (this.kind === UserKinds.ASSIGNABLE_COACH) {
-        this.typeSelected = coachOption;
-        this.classCoachIsSelected = true;
-      } else if (this.kind === UserKinds.COACH) {
-        this.typeSelected = coachOption;
-        this.classCoachIsSelected = false;
-      } else {
-        this.typeSelected = this.userTypeOptions.find(kind => kind.value === this.kind) || {};
-      }
+    mounted() {
+      FacilityUserResource.fetchModel({
+        id: this.$route.params.id,
+      }).then(user => {
+        this.username = user.username;
+        this.name = user.full_name;
+        this.setKind(user);
+        this.makeCopyOfUser();
+        this.loading = false;
+      });
     },
     methods: {
       ...mapActions('userManagement', ['updateUser', 'setError']),
       ...mapActions(['kolibriLogout']),
+      setKind(user) {
+        this.kind = UserType(user);
+        const coachOption = this.userTypeOptions[1];
+        if (this.kind === UserKinds.ASSIGNABLE_COACH) {
+          this.typeSelected = coachOption;
+          this.classCoachIsSelected = true;
+        } else if (this.kind === UserKinds.COACH) {
+          this.typeSelected = coachOption;
+          this.classCoachIsSelected = false;
+        } else {
+          this.typeSelected = this.userTypeOptions.find(kind => kind.value === this.kind) || {};
+        }
+      },
+      makeCopyOfUser() {
+        this.userCopy = {
+          full_name: this.name,
+          username: this.username,
+          kind: this.kind,
+        };
+      },
+      goToUserManagementPage() {
+        this.$router.push(this.$router.getRoute('USER_MGMT_PAGE'));
+      },
       submitForm() {
         if (this.formIsInvalid) {
           return this.focusOnInvalidField();
         }
 
         const updates = {
-          username: this.newUsername,
-          full_name: this.newName,
+          username: this.username,
+          full_name: this.name,
         };
 
         if (this.newType) {
@@ -277,16 +307,20 @@
           };
         }
 
+        this.busy = true;
         this.updateUser({
-          userId: this.id,
+          userId: this.userId,
           updates,
+          original: { ...this.userCopy },
         }).then(() => {
           // newType is falsey if Super Admin, since that's not a facility role
           if (this.editingSelf && this.newType && this.newType !== UserKinds.ADMIN) {
             // user has demoted themselves
             this.kolibriLogout();
+          } else {
+            this.busy = false;
+            this.$store.dispatch('createSnackbar', this.$tr('userUpdateNotification'));
           }
-          this.$emit('cancel');
         });
       },
       focusOnInvalidField() {
@@ -319,6 +353,9 @@
       facilityCoachLabel: 'Facility coach',
       facilityCoachDescription: 'Can instruct all classes in your facility',
       identificationNumberLabel: 'Identification number (optional)',
+      cancelAction: 'Cancel',
+      saveAction: 'Save',
+      userUpdateNotification: 'Changes saved',
     },
   };
 
@@ -354,6 +391,12 @@
 
   .select {
     margin: 18px 0 36px;
+  }
+
+  .buttons {
+    button:first-of-type {
+      margin-left: 0;
+    }
   }
 
 </style>

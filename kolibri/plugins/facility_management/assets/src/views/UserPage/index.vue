@@ -71,15 +71,6 @@
 
     <!-- Modals -->
 
-    <EditUserModal
-      v-if="modalShown===Modals.EDIT_USER"
-      :id="selectedUser.id"
-      :name="selectedUser.full_name"
-      :username="selectedUser.username"
-      :kind="selectedUser.kind"
-      @cancel="closeModal"
-    />
-
     <ResetUserPasswordModal
       v-if="modalShown===Modals.RESET_USER_PASSWORD"
       :id="selectedUser.id"
@@ -113,7 +104,6 @@
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
-  import EditUserModal from './EditUserModal';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
   import DeleteUserModal from './DeleteUserModal';
 
@@ -127,7 +117,6 @@
       };
     },
     components: {
-      EditUserModal,
       ResetUserPasswordModal,
       DeleteUserModal,
       KButton,
@@ -240,8 +229,16 @@
         this.pageNum = page;
       },
       handleManageUserSelection(selection, user) {
-        this.selectedUser = user;
-        this.displayModal(selection.value);
+        if (selection.value === Modals.EDIT_USER) {
+          this.$router.push(
+            this.$router.getRoute('USER_EDIT_PAGE', {
+              id: user.id,
+            })
+          );
+        } else {
+          this.selectedUser = user;
+          this.displayModal(selection.value);
+        }
       },
       userCanBeEdited(user) {
         // If logged-in user is a superuser, then they can edit anybody (including other SUs).

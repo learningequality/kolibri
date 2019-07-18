@@ -60,7 +60,8 @@ export default [
     path: '/users/:id',
     handler: () => {
       store.dispatch('preparePage', {
-        name: PageNames.USER_CREATE_PAGE,
+        name: PageNames.USER_EDIT_PAGE,
+        isAsync: false,
       });
     },
   },
