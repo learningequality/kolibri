@@ -25,6 +25,7 @@
         :invalid="Boolean(usernameIsInvalidText)"
         :invalidText="usernameIsInvalidText"
         @blur="usernameBlurred = true"
+        @input="handleInputUsername"
       />
       <KTextbox
         ref="password"
@@ -146,7 +147,6 @@
           value: UserKinds.LEARNER,
         },
         classCoach: true,
-        usernameAlreadyExistsOnServer: false,
         busy: false,
         nameBlurred: false,
         usernameBlurred: false,
@@ -156,6 +156,7 @@
         gender: null,
         birthYear: null,
         identificationNumber: '',
+        caughtErrors: [],
       };
     },
     computed: {
@@ -179,6 +180,9 @@
         }
         return '';
       },
+      usernameAlreadyExistsOnServer() {
+        return this.caughtErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
+      },
       usernameAlreadyExists() {
         return this.facilityUsers.find(
           ({ username }) => username.toLowerCase() === this.username.toLowerCase()
@@ -192,7 +196,7 @@
           if (!validateUsername(this.username)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
           }
-          if (this.usernameAlreadyExists || this.usernameAlreadyExistsError) {
+          if (this.usernameAlreadyExists || this.usernameAlreadyExistsOnServer) {
             return this.$tr('usernameAlreadyExists');
           }
         }
@@ -246,40 +250,43 @@
       },
     },
     methods: {
-      ...mapActions('userManagement', ['createUser']),
       ...mapActions(['handleApiError']),
       goToUserManagementPage() {
         this.$router.push(this.$router.getRoute('USER_MGMT_PAGE'));
       },
+      handleInputUsername() {
+        if (this.caughtErrors.length > 0) {
+          this.caughtErrors = [];
+        }
+      },
       createNewUser() {
-        this.usernameAlreadyExistsOnServer = false;
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.busy = true;
-          this.createUser({
-            username: this.username,
-            full_name: this.fullName,
-            role: {
-              kind: this.newUserRole,
-              collection: this.currentFacilityId,
-            },
-            password: this.password,
-          }).then(
-            () => {
-              this.goToUserManagementPage();
-            },
-            error => {
-              const usernameAlreadyExistsError = CatchErrors(error, [
-                ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS,
-              ]);
-              if (usernameAlreadyExistsError) {
-                this.busy = false;
-                this.usernameAlreadyExistsOnServer = true;
-              } else {
-                this.handleApiError(error);
+          this.$store
+            .dispatch('userManagement/createUser', {
+              username: this.username,
+              full_name: this.fullName,
+              role: {
+                kind: this.newUserRole,
+                collection: this.currentFacilityId,
+              },
+              password: this.password,
+            })
+            .then(
+              () => {
+                this.goToUserManagementPage();
+              },
+              error => {
+                this.caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
+                if (this.caughtErrors.length > 0) {
+                  this.busy = false;
+                  this.focusOnInvalidField();
+                } else {
+                  this.handleApiError(error);
+                }
               }
-            }
-          );
+            );
         } else {
           this.focusOnInvalidField();
         }

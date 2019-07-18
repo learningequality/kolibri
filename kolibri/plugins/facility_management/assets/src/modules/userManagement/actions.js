@@ -34,23 +34,21 @@ export function createUser(store, stateUserData) {
       full_name: stateUserData.full_name,
       password: stateUserData.password,
     },
-  })
-    .then(userModel => {
-      function dispatchUser(newUser) {
-        const userState = _userState(newUser);
-        store.commit('ADD_USER', userState);
-        store.dispatch('displayModal', false);
-        return userState;
-      }
-      // only runs if there's a role to be assigned
-      if (stateUserData.role.kind !== UserKinds.LEARNER) {
-        return setUserRole(userModel, stateUserData.role).then(user => dispatchUser(user));
-      } else {
-        // no role to assigned
-        return dispatchUser(userModel);
-      }
-    })
-    .catch(error => store.dispatch('handleApiError', error, { root: true }));
+  }).then(userModel => {
+    function dispatchUser(newUser) {
+      const userState = _userState(newUser);
+      store.commit('ADD_USER', userState);
+      store.dispatch('displayModal', false);
+      return userState;
+    }
+    // only runs if there's a role to be assigned
+    if (stateUserData.role.kind !== UserKinds.LEARNER) {
+      return setUserRole(userModel, stateUserData.role).then(user => dispatchUser(user));
+    } else {
+      // no role to assigned
+      return dispatchUser(userModel);
+    }
+  });
 }
 
 /**
