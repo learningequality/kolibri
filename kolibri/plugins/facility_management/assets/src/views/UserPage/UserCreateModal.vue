@@ -226,11 +226,13 @@
       },
     },
     methods: {
-      goToUserManagementPage() {
-        this.$router.push(this.$router.getRoute('USER_MGMT_PAGE'));
+      goToUserManagementPage(onComplete) {
+        this.$router.push(this.$router.getRoute('USER_MGMT_PAGE'), onComplete);
       },
       usernameIsUnique(value) {
-        !this.facilityUsers.find(({ username }) => username.toLowerCase() === value.toLowerCase());
+        return !this.facilityUsers.find(
+          ({ username }) => username.toLowerCase() === value.toLowerCase()
+        );
       },
       createNewUser() {
         this.formSubmitted = true;
@@ -248,7 +250,12 @@
             })
             .then(
               () => {
-                this.goToUserManagementPage();
+                this.goToUserManagementPage(() => {
+                  this.$store.dispatch(
+                    'createSnackbar',
+                    this.$tr('userCreatedNotification', { username: this.username })
+                  );
+                });
               },
               error => {
                 this.caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
@@ -299,6 +306,7 @@
       pwMismatchError: 'Passwords do not match',
       required: 'This field is required',
       identificationNumberLabel: 'Identification number (optional)',
+      userCreatedNotification: "User account for '{username}' was created",
     },
   };
 
