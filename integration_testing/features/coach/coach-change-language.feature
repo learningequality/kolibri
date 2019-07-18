@@ -4,6 +4,20 @@ Feature: Coach changes user interface language
   Background:
     Given I am signed in to Kolibri as coach user
 
+  Scenario: Coach has changed language from <device_language> to <language> prior to logging in
+    When I log in
+    Then Kolibri UI is in <language>
+    When I log out
+    Then I am redirected to the sign in page and Kolibri UI is in <language>
+    When I open a new tab and open Kolibri
+    Then Kolibri UI is shown in <language>
+    When I refresh the page
+    Then Kolibri UI is shown in <language>
+    When I navigate between and within Coach and Learn sections of Kolibri
+    Then Kolibri UI remains in <language>
+    When I close my browser altogether and go to Kolibri's root server URL
+    Then Kolibri UI is shown in <device_language>
+
   Scenario: Change language from the user menu
     When I open the user menu
       And I click *Change language*
@@ -14,6 +28,5 @@ Feature: Coach changes user interface language
       And I see Kolibri UI in <language> language
 
 Examples:
-  | language  |
-  | Kiswahili |
-  
+  | language  | device_language |
+  | Kiswahili | English         |
