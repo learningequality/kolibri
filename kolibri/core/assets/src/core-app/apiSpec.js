@@ -87,8 +87,10 @@ import KPageContainer from '../views/KPageContainer';
 import KIcon from '../views/icons/KIcon';
 import KLabeledIcon from '../views/icons/KLabeledIcon';
 import KBottomAppBar from '../views/KBottomAppBar';
-import SelectGender from '../views/Demographics/SelectGender';
-import SelectBirthYear from '../views/Demographics/SelectBirthYear';
+import SelectGender from '../views/userAccounts/SelectGender';
+import SelectBirthYear from '../views/userAccounts/SelectBirthYear';
+import TextboxFullName from '../views/userAccounts/TextboxFullName';
+import TextboxUsername from '../views/userAccounts/TextboxUsername';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -195,6 +197,8 @@ export default {
       KBottomAppBar,
       SelectGender,
       SelectBirthYear,
+      TextboxFullName,
+      TextboxUsername,
     },
     router,
     mixins: {

@@ -122,8 +122,8 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import SelectGender from 'kolibri.coreVue.components.SelectGender';
   import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
-  import TextboxUsername from '../UserCreatePage/TextboxUsername';
-  import TextboxFullName from '../UserCreatePage/TextboxFullName';
+  import TextboxFullName from 'kolibri.coreVue.components.TextboxFullName';
+  import TextboxUsername from 'kolibri.coreVue.components.TextboxUsername';
 
   // IDEA use UserTypeDisplay for strings in options
   export default {

@@ -121,7 +121,8 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import SelectGender from 'kolibri.coreVue.components.SelectGender';
   import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
-  import TextboxUsername from '../UserCreatePage/TextboxUsername';
+  import TextboxFullName from 'kolibri.coreVue.components.TextboxFullName';
+  import TextboxUsername from 'kolibri.coreVue.components.TextboxUsername';
 
   export default {
     name: 'UserCreateModal',
@@ -133,6 +134,7 @@
       SelectGender,
       SelectBirthYear,
       TextboxUsername,
+      TextboxFullName,
     },
     data() {
       return {
@@ -280,8 +282,6 @@
     $trs: {
       createNewUserHeader: 'Create new user',
       cancelAction: 'Cancel',
-      name: 'Full name',
-      username: 'Username',
       password: 'Password',
       reEnterPassword: 'Re-enter password',
       userType: 'User type',

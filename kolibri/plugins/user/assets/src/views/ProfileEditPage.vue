@@ -3,27 +3,23 @@
   <KPageContainer class="narrow-container">
     <form class="form" @submit.prevent="handleSubmit">
       <h1>{{ $tr('editProfileHeader') }}</h1>
-      <KTextbox
-        ref="name"
-        v-model="name"
+
+      <TextboxFullName
+        ref="textboxFullName"
         :autofocus="true"
-        :label="$tr('name')"
         :disabled="!canEditName || busy"
-        :maxlength="120"
-        :invalid="Boolean(nameIsInvalidText)"
-        :invalidText="nameIsInvalidText"
-        @blur="nameBlurred = true"
+        :value.sync="fullName"
+        :isValid.sync="fullNameValid"
+        :shouldValidate="formSubmitted"
       />
-      <KTextbox
-        ref="username"
-        v-model="username"
-        :label="$tr('username')"
+
+      <TextboxUsername
+        ref="textboxUsername"
         :disabled="!canEditUsername || busy"
-        :maxlength="30"
-        :invalid="Boolean(usernameIsInvalidText)"
-        :invalidText="usernameIsInvalidText"
-        @blur="usernameBlurred = true"
-        @input="handleInputUsername"
+        :value.sync="username"
+        :isValid.sync="usernameValid"
+        :shouldValidate="formSubmitted"
+        :errors.sync="caughtErrors"
       />
 
       <SelectGender
@@ -31,6 +27,7 @@
         :value.sync="gender"
         :disabled="busy"
       />
+
       <SelectBirthYear
         class="select"
         :value.sync="birthYear"
@@ -63,14 +60,14 @@
 
   import some from 'lodash/some';
   import { mapGetters } from 'vuex';
-  import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import SelectGender from 'kolibri.coreVue.components.SelectGender';
   import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
+  import TextboxFullName from 'kolibri.coreVue.components.TextboxFullName';
+  import TextboxUsername from 'kolibri.coreVue.components.TextboxUsername';
 
   export default {
     name: 'ProfileEditPage',
@@ -82,18 +79,19 @@
     components: {
       KButton,
       KPageContainer,
-      KTextbox,
       SelectGender,
       SelectBirthYear,
+      TextboxFullName,
+      TextboxUsername,
     },
     props: {},
     data() {
       const { username, full_name } = this.$store.state.core.session;
       return {
-        name: full_name,
-        nameBlurred: false,
-        username,
-        usernameBlurred: false,
+        fullName: full_name,
+        fullNameValid: true,
+        username: username,
+        usernameValid: true,
         birthYear: null,
         gender: null,
         busy: false,
@@ -115,33 +113,8 @@
         }
         return true;
       },
-      nameIsInvalidText() {
-        if (this.nameBlurred || this.formSubmitted) {
-          if (this.name === '') {
-            return this.$tr('required');
-          }
-        }
-        return '';
-      },
-      usernameAlreadyExists() {
-        return this.caughtErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
-      },
-      usernameIsInvalidText() {
-        if (this.usernameBlurred || this.formSubmitted) {
-          if (this.username === '') {
-            return this.$tr('required');
-          }
-          if (!validateUsername(this.username)) {
-            return this.$tr('usernameAlphaNumError');
-          }
-          if (this.usernameAlreadyExists) {
-            return this.$tr('usernameAlreadyExistsError');
-          }
-        }
-        return '';
-      },
       formIsValid() {
-        return !some([this.nameIsInvalidText, this.usernameIsInvalidText], Boolean);
+        return !some([!this.fullNameValid, this.usernameIsInvalidText], Boolean);
       },
     },
     methods: {
@@ -153,7 +126,7 @@
             .dispatch('profile/updateUserProfile', {
               edits: {
                 username: this.username,
-                full_name: this.name,
+                full_name: this.fullName,
                 // gender: this.gender,
                 // birth_year: this.birthYear,
               },
@@ -179,29 +152,19 @@
       },
       focusOnInvalidField() {
         this.$nextTick().then(() => {
-          if (this.nameIsInvalidText) {
-            this.$refs.name.focus();
-          } else if (this.usernameIsInvalidText) {
-            this.$refs.username.focus();
+          if (!this.fullNameValid) {
+            this.$refs.textboxFullName.focus();
+          } else if (!this.usernameValid) {
+            this.$refs.textboxUsername.focus();
           }
         });
-      },
-      handleInputUsername() {
-        if (this.caughtErrors.length > 0) {
-          this.caughtErrors = [];
-        }
       },
     },
     $trs: {
       cancelAction: 'Cancel',
       editProfileHeader: 'Edit profile',
-      name: 'Full name',
-      required: 'This field is required',
       saveAction: 'Save',
       updateSuccessNotification: 'Profile details updated',
-      username: 'Username',
-      usernameAlreadyExistsError: 'An account with that username already exists',
-      usernameAlphaNumError: 'Username can only contain letters, numbers, and underscores',
     },
   };
 

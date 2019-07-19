@@ -10,7 +10,7 @@
     :invalid="Boolean(invalidText)"
     :invalidText="invalidText"
     @blur="blurred = true"
-    @input="handleInput"
+    @input="$emit('update:value', $event)"
   />
 
 </template>
