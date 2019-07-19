@@ -209,19 +209,12 @@
 
         return '';
       },
-      newType() {
-        // never got the chance to even change it
-        if (this.editingSuperAdmin) {
-          return '';
+      newUserKind() {
+        const { value } = this.typeSelected;
+        if (value === UserKinds.COACH && this.classCoachIsSelected) {
+          return UserKinds.ASSIGNABLE_COACH;
         }
-        if (this.typeSelected.value === UserKinds.COACH) {
-          if (this.classCoachIsSelected) {
-            return UserKinds.ASSIGNABLE_COACH;
-          }
-
-          return UserKinds.COACH;
-        }
-        return this.typeSelected.value;
+        return value;
       },
     },
     mounted() {
@@ -281,10 +274,10 @@
           full_name: this.name,
         };
 
-        if (this.newType) {
+        if (!this.editingSuperAdmin) {
           updates.role = {
             collection: this.currentFacilityId,
-            kind: this.newType,
+            kind: this.newUserKind,
           };
         }
 
@@ -295,8 +288,8 @@
           original: { ...this.userCopy },
         })
           .then(() => {
-            // newType is falsey if Super Admin, since that's not a facility role
-            if (this.editingSelf && this.newType && this.newType !== UserKinds.ADMIN) {
+            // newUserKind is falsey if Super Admin, since that's not a facility role
+            if (this.editingSelf && this.newUserKind && this.newUserKind !== UserKinds.ADMIN) {
               // user has demoted themselves
               this.kolibriLogout();
             } else {
