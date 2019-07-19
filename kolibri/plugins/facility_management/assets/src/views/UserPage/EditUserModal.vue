@@ -70,7 +70,7 @@
 
     <div>
       <KTextbox
-        v-model="identificationNumber"
+        v-model="idNumber"
         :disabled="busy"
         :label="$tr('identificationNumberLabel')"
       />
@@ -154,7 +154,7 @@
         typeSelected: null, // see beforeMount
         gender: null,
         birthYear: null,
-        identificationNumber: '',
+        idNumber: '',
         userCopy: {},
         caughtErrors: [],
       };
@@ -215,13 +215,15 @@
       }).then(user => {
         this.username = user.username;
         this.fullName = user.full_name;
+        this.idNumber = user.id_number;
+        this.gender = user.gender;
+        this.birthYear = user.birth_year;
         this.setKind(user);
         this.makeCopyOfUser();
         this.loading = false;
       });
     },
     methods: {
-      ...mapActions('userManagement', ['updateUser']),
       ...mapActions(['kolibriLogout']),
       setKind(user) {
         this.kind = UserType(user);
@@ -241,6 +243,9 @@
           full_name: this.fullName,
           username: this.username,
           kind: this.kind,
+          id_number: this.idNumber,
+          gender: this.gender,
+          birth_year: this.birthYear,
         };
       },
       goToUserManagementPage() {
@@ -264,6 +269,9 @@
         const updates = {
           username: this.username,
           full_name: this.fullName,
+          id_number: this.idNumber,
+          gender: this.gender,
+          birth_year: this.birthYear,
         };
 
         if (!this.editingSuperAdmin) {
@@ -274,11 +282,12 @@
         }
 
         this.busy = true;
-        this.updateUser({
-          userId: this.userId,
-          updates,
-          original: { ...this.userCopy },
-        })
+        this.$store
+          .dispatch('userManagement/updateUser', {
+            userId: this.userId,
+            updates,
+            original: { ...this.userCopy },
+          })
           .then(() => {
             // newUserKind is falsey if Super Admin, since that's not a facility role
             if (this.editingSelf && this.newUserKind && this.newUserKind !== UserKinds.ADMIN) {

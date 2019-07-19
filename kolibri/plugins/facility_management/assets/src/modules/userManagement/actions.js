@@ -1,7 +1,6 @@
-import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import pickBy from 'lodash/pickBy';
 import { FacilityUserResource } from 'kolibri.resources';
-import CatchErrors from 'kolibri.utils.CatchErrors';
 import { _userState } from '../mappers';
 import { updateFacilityLevelRoles } from './utils';
 
@@ -60,7 +59,6 @@ export function createUser(store, stateUserData) {
 export function updateUser(store, { userId, updates, original }) {
   setError(store, null);
   store.commit('SET_BUSY', true);
-  // const origUserState = store.state.facilityUsers.find(user => user.id === userId);
   const facilityRoleHasChanged = updates.role && original.kind !== updates.role.kind;
 
   return updateFacilityUser(store, { userId, updates, original }).then(updatedUser => {
