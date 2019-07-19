@@ -33,6 +33,22 @@
           <th v-if="$scopedSlots.info">
             {{ infoDescriptor }}
           </th>
+          <template v-if="showDemographicInfo">
+            <th>
+              <span>{{ $tr('idNumberHeader') }}</span>
+              <CoreInfoIcon
+                class="tooltip"
+                :iconAriaLabel="$tr('idNumberAriaLabel')"
+                :tooltipText="$tr('idNumberTooltipText')"
+              />
+            </th>
+            <th>
+              {{ $tr('genderHeader') }}
+            </th>
+            <th>
+              {{ $tr('birthYearHeader') }}
+            </th>
+          </template>
           <th v-if="$scopedSlots.action" class="user-action-button">
             <span class="visuallyhidden">
               {{ $tr('userActionsColumnHeader') }}
@@ -55,7 +71,10 @@
             />
           </td>
           <td>
-            <KLabeledIcon :icon="isCoach ? 'coach' : 'person'" :label="user.full_name" />
+            <KLabeledIcon
+              :icon="isCoach ? 'coach' : 'person'"
+              :label="user.full_name"
+            />
             <UserTypeDisplay
               aria-hidden="true"
               :userType="user.kind"
@@ -75,6 +94,17 @@
               {{ user.username }}
             </span>
           </td>
+          <template v-if="showDemographicInfo">
+            <td>
+              {{ user.id_number || 'id_number' }}
+            </td>
+            <td>
+              {{ user.gender || 'gender' }}
+            </td>
+            <td>
+              {{ user.birth_year || 'birth_year' }}
+            </td>
+          </template>
           <td v-if="$scopedSlots.info">
             <slot name="info" :user="user"></slot>
           </td>
@@ -105,10 +135,12 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import difference from 'lodash/difference';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
 
   export default {
     name: 'UserTable',
     components: {
+      CoreInfoIcon,
       CoreTable,
       KCheckbox,
       UserTypeDisplay,
@@ -183,6 +215,11 @@
       noUsersExist: 'No users in this class',
       userCheckboxLabel: 'Select user',
       selectAllLabel: 'Select all on page',
+      idNumberHeader: 'Identification number',
+      idNumberTooltipText: 'If the user has an identification number used in other systems',
+      idNumberAriaLabel: 'About the identification number',
+      genderHeader: 'Gender',
+      birthYearHeader: 'Birth year',
     },
   };
 
@@ -225,6 +262,10 @@
     position: absolute;
     top: 8px;
     white-space: nowrap;
+  }
+
+  .tooltip {
+    margin-left: 2px;
   }
 
 </style>

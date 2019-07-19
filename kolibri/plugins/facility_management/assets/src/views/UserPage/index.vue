@@ -31,7 +31,12 @@
       </KGridItem>
     </KGrid>
 
-    <UserTable class="user-roster move-down" :users="visibleUsers" :emptyMessage="emptyMessage">
+    <UserTable
+      class="user-roster move-down"
+      :users="visibleUsers"
+      :emptyMessage="emptyMessage"
+      :showDemographicInfo="true"
+    >
       <template slot="action" slot-scope="userRow">
         <KDropdownMenu
           :text="$tr('optionsButtonLabel')"
