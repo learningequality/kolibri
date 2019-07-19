@@ -4,19 +4,19 @@ Feature: Learner change language
   Background:
     Given that I am signed in to Kolibri as a learner user
 
-  Scenario: Learner has changed language from |device_language| to |language| prior to logging in
+  Scenario: Learner has changed language from <device_language> to <language> prior to logging in
     When I log in
-    Then Kolibri is in |language|
+    Then Kolibri is in <language>
     When I log out
-    Then I am redirected to the sign in page and Kolibri is in |language|
+    Then I am redirected to the sign in page and Kolibri is in <language>
     When I open a new tab and open Kolibri
-    Then Kolibri is shown in |language|
+    Then Kolibri is shown in <language>
     When I refresh the page
-    Then Kolibri is shown in |language|
+    Then Kolibri is shown in <language>
     When I navigate the Kolibri UI
-    Then Kolibri remains in |language|
+    Then Kolibri remains in <language>
     When I close my browser altogether and go to Kolibri's root server URL
-    Then Kolibri is shown in |device_language|
+    Then Kolibri is shown in <device_language>
 
   Scenario: Change language from the user menu
     When I open the user menu
