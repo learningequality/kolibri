@@ -81,12 +81,12 @@
       </tr>
 
       <tr>
-        <th>{{ DemographicInfoStrings.$tr('genderLabel') }}</th>
+        <th>{{ UserAccountsStrings.$tr('genderLabel') }}</th>
         <td>Gender</td>
       </tr>
 
       <tr>
-        <th>{{ DemographicInfoStrings.$tr('birthYearLabel') }}</th>
+        <th>{{ UserAccountsStrings.$tr('birthYearLabel') }}</th>
         <td>Birth year</td>
       </tr>
 
@@ -130,8 +130,8 @@
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import UserAccountsStrings from 'kolibri.strings.userAccounts';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
-  import DemographicInfoStrings from './demographicInfoStrings';
 
   export default {
     name: 'ProfilePage',
@@ -153,12 +153,10 @@
       UserTypeDisplay,
     },
     mixins: [responsiveWindow, themeMixin],
-    data() {
-      return {
-        DemographicInfoStrings,
-      };
-    },
     computed: {
+      UserAccountsStrings() {
+        return UserAccountsStrings;
+      },
       ...mapGetters([
         'facilityConfig',
         'getUserKind',

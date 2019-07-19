@@ -92,6 +92,7 @@ import SelectBirthYear from '../views/userAccounts/SelectBirthYear';
 import TextboxFullName from '../views/userAccounts/TextboxFullName';
 import TextboxUsername from '../views/userAccounts/TextboxUsername';
 import TextboxPassword from '../views/userAccounts/TextboxPassword';
+import userAccounts from '../views/userAccounts/strings';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -209,6 +210,9 @@ export default {
       contentRendererMixin,
       themeMixin,
     },
+  },
+  strings: {
+    userAccounts,
   },
   resources,
   styles: {

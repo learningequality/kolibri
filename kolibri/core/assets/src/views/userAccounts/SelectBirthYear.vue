@@ -4,7 +4,7 @@
     <KSelect
       class="select"
       :value="selected"
-      :label="$tr('label')"
+      :label="UserAccountsStrings.$tr('birthYearLabel')"
       :placeholder="$tr('placeholder')"
       :options="options"
       :disabled="$attrs.disabled"
@@ -28,6 +28,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import UserAccountsStrings from './strings';
 
   // Take the last-known year to be the later of the copyright year,
   // or the year of the server date
@@ -50,6 +51,9 @@
       },
     },
     computed: {
+      UserAccountsStrings() {
+        return UserAccountsStrings;
+      },
       selected() {
         return this.options.find(o => o.value === this.value) || {};
       },
@@ -57,22 +61,21 @@
         return [
           {
             value: 'DECLINE',
-            label: this.$tr('optionDecline'),
+            label: this.UserAccountsStrings.$tr('preferNotToSayOption'),
           },
           ...yearOptions,
         ];
       },
     },
     $trs: {
-      label: 'Birth year',
       placeholder: 'Select year',
-      optionDecline: 'Prefer not to say',
       birthYearTooltip: 'If birth year is unknown, provide your best guess',
       birthyearAriaLabel: 'About providing your birth year',
     },
   };
 
 </script>
+
 
 <style lang="scss" scoped>
 

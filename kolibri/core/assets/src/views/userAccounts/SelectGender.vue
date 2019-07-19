@@ -2,7 +2,7 @@
 
   <KSelect
     :value="selected"
-    :label="$tr('label')"
+    :label="UserAccountsStrings.$tr('genderLabel')"
     :placeholder="$tr('placeholder')"
     :options="options"
     :disabled="$attrs.disabled"
@@ -15,6 +15,7 @@
 <script>
 
   import KSelect from 'kolibri.coreVue.components.KSelect';
+  import UserAccountsStrings from './strings';
 
   export default {
     name: 'SelectGender',
@@ -27,6 +28,9 @@
       },
     },
     computed: {
+      UserAccountsStrings() {
+        return UserAccountsStrings;
+      },
       selected() {
         return this.options.find(o => o.value === this.value) || {};
       },
@@ -34,30 +38,25 @@
         return [
           {
             value: 'MALE',
-            label: this.$tr('optionMale'),
+            label: this.UserAccountsStrings.$tr('genderOptionMale'),
           },
           {
             value: 'FEMALE',
-            label: this.$tr('optionFemale'),
+            label: this.UserAccountsStrings.$tr('genderOptionFemale'),
           },
           {
             value: 'OTHER',
-            label: this.$tr('optionOther'),
+            label: this.UserAccountsStrings.$tr('genderOptionOther'),
           },
           {
             value: 'DECLINE',
-            label: this.$tr('optionDecline'),
+            label: this.UserAccountsStrings.$tr('preferNotToSayOption'),
           },
         ];
       },
     },
     $trs: {
-      label: 'Gender',
       placeholder: 'Select gender',
-      optionMale: 'Male',
-      optionFemale: 'Female',
-      optionOther: 'Other',
-      optionDecline: 'Prefer not to say',
     },
   };
 

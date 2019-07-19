@@ -35,7 +35,7 @@
           </th>
           <template v-if="showDemographicInfo">
             <th>
-              <span>{{ $tr('idNumberHeader') }}</span>
+              <span>{{ UserAccountsStrings.$tr('idNumberLabel') }}</span>
               <CoreInfoIcon
                 class="tooltip"
                 :iconAriaLabel="$tr('idNumberAriaLabel')"
@@ -43,10 +43,10 @@
               />
             </th>
             <th>
-              {{ $tr('genderHeader') }}
+              {{ UserAccountsStrings.$tr('genderLabel') }}
             </th>
             <th>
-              {{ $tr('birthYearHeader') }}
+              {{ UserAccountsStrings.$tr('birthYearLabel') }}
             </th>
           </template>
           <th v-if="$scopedSlots.action" class="user-action-button">
@@ -136,6 +136,7 @@
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import difference from 'lodash/difference';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import UserAccountsStrings from 'kolibri.strings.userAccounts';
 
   export default {
     name: 'UserTable',
@@ -179,6 +180,9 @@
       },
     },
     computed: {
+      UserAccountsStrings() {
+        return UserAccountsStrings;
+      },
       allAreSelected() {
         return Boolean(this.users.length) && this.users.every(user => this.value.includes(user.id));
       },
