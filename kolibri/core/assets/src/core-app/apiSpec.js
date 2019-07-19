@@ -91,6 +91,7 @@ import SelectGender from '../views/userAccounts/SelectGender';
 import SelectBirthYear from '../views/userAccounts/SelectBirthYear';
 import TextboxFullName from '../views/userAccounts/TextboxFullName';
 import TextboxUsername from '../views/userAccounts/TextboxUsername';
+import TextboxPassword from '../views/userAccounts/TextboxPassword';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -199,6 +200,7 @@ export default {
       SelectBirthYear,
       TextboxFullName,
       TextboxUsername,
+      TextboxPassword,
     },
     router,
     mixins: {

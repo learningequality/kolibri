@@ -23,25 +23,12 @@
         :isUniqueValidator="usernameIsUnique"
         :errors.sync="caughtErrors"
       />
-      <KTextbox
-        ref="password"
-        v-model="password"
-        type="password"
+
+      <TextboxPassword
+        ref="textboxPassword"
         :disabled="busy"
-        :label="$tr('password')"
-        :invalid="Boolean(passwordIsInvalidText)"
-        :invalidText="passwordIsInvalidText"
-        @blur="passwordBlurred = true"
-      />
-      <KTextbox
-        ref="confirmedPassword"
-        v-model="confirmedPassword"
-        type="password"
-        :disabled="busy"
-        :label="$tr('reEnterPassword')"
-        :invalid="Boolean(confirmedPasswordIsInvalidText)"
-        :invalidText="confirmedPasswordIsInvalidText"
-        @blur="confirmedPasswordBlurred = true"
+        :value.sync="password"
+        :isValid.sync="passwordValid"
       />
 
       <KSelect
@@ -101,7 +88,7 @@
       <KButton
         :disabled="busy"
         :text="$tr('cancelAction')"
-        @click="goToUserManagementPage"
+        @click="goToUserManagementPage()"
       />
     </div>
   </form>
@@ -123,6 +110,7 @@
   import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
   import TextboxFullName from 'kolibri.coreVue.components.TextboxFullName';
   import TextboxUsername from 'kolibri.coreVue.components.TextboxUsername';
+  import TextboxPassword from 'kolibri.coreVue.components.TextboxPassword';
 
   export default {
     name: 'UserCreateModal',
@@ -135,6 +123,7 @@
       SelectBirthYear,
       TextboxUsername,
       TextboxFullName,
+      TextboxPassword,
     },
     data() {
       return {
@@ -143,15 +132,13 @@
         username: '',
         usernameValid: true,
         password: '',
-        confirmedPassword: '',
+        passwordValid: true,
         kind: {
           label: this.$tr('learner'),
           value: UserKinds.LEARNER,
         },
         classCoach: true,
         busy: false,
-        passwordBlurred: false,
-        confirmedPasswordBlurred: false,
         formSubmitted: false,
         gender: null,
         birthYear: null,
@@ -172,35 +159,8 @@
       coachIsSelected() {
         return this.kind.value === UserKinds.COACH;
       },
-      passwordIsInvalidText() {
-        if (this.passwordBlurred || this.formSubmitted) {
-          if (this.password === '') {
-            return this.$tr('required');
-          }
-        }
-        return '';
-      },
-      confirmedPasswordIsInvalidText() {
-        if (this.confirmedPasswordBlurred || this.formSubmitted) {
-          if (this.confirmedPassword === '') {
-            return this.$tr('required');
-          }
-          if (this.confirmedPassword !== this.password) {
-            return this.$tr('pwMismatchError');
-          }
-        }
-        return '';
-      },
       formIsValid() {
-        return !some(
-          [
-            !this.fullNameValid,
-            !this.usernameValid,
-            this.passwordIsInvalidText,
-            this.confirmedPasswordIsInvalidText,
-          ],
-          Boolean
-        );
+        return !some([!this.fullNameValid, !this.usernameValid, !this.passwordValid], Boolean);
       },
       userKindDropdownOptions() {
         return [
@@ -271,10 +231,8 @@
             this.$refs.textboxFullName.focus();
           } else if (!this.usernameValid) {
             this.$refs.textboxUsername.focus();
-          } else if (this.passwordIsInvalidText) {
-            this.$refs.password.focus();
-          } else if (this.confirmedPasswordIsInvalidText) {
-            this.$refs.confirmedPassword.focus();
+          } else if (!this.passwordValid) {
+            this.$refs.textboxPassword.focus();
           }
         });
       },
@@ -282,8 +240,6 @@
     $trs: {
       createNewUserHeader: 'Create new user',
       cancelAction: 'Cancel',
-      password: 'Password',
-      reEnterPassword: 'Re-enter password',
       userType: 'User type',
       saveAction: 'Save',
       learner: 'Learner',
@@ -293,8 +249,6 @@
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachLabel: 'Facility coach',
       facilityCoachDescription: 'Can instruct all classes in your facility',
-      pwMismatchError: 'Passwords do not match',
-      required: 'This field is required',
       identificationNumberLabel: 'Identification number (optional)',
       userCreatedNotification: "User account for '{username}' was created",
     },
