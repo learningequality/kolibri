@@ -10,7 +10,7 @@
             class="core-table-checkbox-col select-all"
           >
             <KCheckbox
-              :label="selectAllLabel"
+              :label="$tr('selectAllLabel')"
               :showLabel="true"
               :checked="allAreSelected"
               class="overflow-label"
@@ -48,7 +48,7 @@
         >
           <td v-if="selectable" class="core-table-checkbox-col">
             <KCheckbox
-              :label="userCheckboxLabel"
+              :label="$tr('userCheckboxLabel')"
               :showLabel="false"
               :checked="userIsSelected(user.id)"
               @change="selectUser(user.id, $event)"
@@ -127,14 +127,6 @@
         type: Boolean,
         default: false,
       },
-      // TODO bring string into this component after stringfreeze
-      selectAllLabel: {
-        type: String,
-      },
-      // TODO bring string into this component after stringfreeze
-      userCheckboxLabel: {
-        type: String,
-      },
       // used for optional checkboxes
       value: {
         type: Array,
@@ -147,6 +139,11 @@
       infoDescriptor: {
         type: String,
         default: '',
+      },
+      // If true, shows ID number, gender, and birth year columns
+      showDemographicInfo: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {
@@ -184,6 +181,8 @@
       userActionsColumnHeader: 'Actions',
       remove: 'Remove',
       noUsersExist: 'No users in this class',
+      userCheckboxLabel: 'Select user',
+      selectAllLabel: 'Select all on page',
     },
   };
 
