@@ -3,7 +3,10 @@ This module is intended to allow easier build time configuration of Kolibri.
 This is currently implemented by allowing additional build configuration options to be configured
 through environment variables.
 In order for these environment variables to propagate through to our docker build environment
-we explicitly list them in the env.list file in the root of the repository.
+we dynamically add them to the env.list file in the root of the repository.
+All the environment variables should be prefixed with KOLIBRI_BUILD_ in the current environment,
+and will be passed into the docker environment without the prefix by running the
+customize_docker_envlist.py script.
 The following environment variables are supported:
 
 BUILD_TIME_PLUGINS, a txt file containing an explicit list of all Kolibri plugins that should

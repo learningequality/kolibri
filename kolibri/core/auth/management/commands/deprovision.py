@@ -2,8 +2,8 @@ import logging
 import sys
 
 from django.db.models.signals import post_delete
-from morango.certificates import Certificate
 from morango.models import Buffer
+from morango.models import Certificate
 from morango.models import DatabaseIDModel
 from morango.models import DeletedModels
 from morango.models import Store

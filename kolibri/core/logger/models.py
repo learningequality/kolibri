@@ -21,7 +21,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 from jsonfield import JSONField
-from morango.query import SyncableModelQuerySet
+from morango.models import SyncableModelQuerySet
 
 from .permissions import AnyoneCanWriteAnonymousLogs
 from kolibri.core.auth.constants import role_kinds
