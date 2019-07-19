@@ -6,7 +6,7 @@
     :disabled="$attrs.disabled"
     :label="$tr('label')"
     :autofocus="$attrs.autofocus"
-    :maxlength="30"
+    :maxlength="120"
     :invalid="Boolean(invalidText)"
     :invalidText="invalidText"
     @blur="blurred = true"
@@ -19,11 +19,9 @@
 <script>
 
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import { validateUsername } from 'kolibri.utils.validators';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
 
   export default {
-    name: 'TextboxUsername',
+    name: 'TextboxFullName',
     components: {
       KTextbox,
     },
@@ -34,14 +32,6 @@
       shouldValidate: {
         type: Boolean,
       },
-      isUniqueValidator: {
-        type: Function,
-        required: false,
-      },
-      // Pass in errors to make the component reactive to them
-      errors: {
-        type: Array,
-      },
     },
     data() {
       return {
@@ -51,17 +41,8 @@
     computed: {
       invalidText() {
         if (this.blurred || this.shouldValidate) {
-          if (this.errors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
-            return this.$tr('errorNotUnique');
-          }
-          if (!this.isUniqueValidator(this.value)) {
-            return this.$tr('errorNotUnique');
-          }
           if (this.value === '') {
             return this.$tr('errorEmptyString');
-          }
-          if (!validateUsername(this.value)) {
-            return this.$tr('errorInvalidString');
           }
         }
         return '';
@@ -80,18 +61,10 @@
       focus() {
         return this.$refs.textbox.focus();
       },
-      handleInput($event) {
-        if (this.errors.length > 0) {
-          this.$emit('update:errors', []);
-        }
-        this.$emit('update:value', $event);
-      },
     },
     $trs: {
-      label: 'Username',
+      label: 'Full name',
       errorEmptyString: 'This field is required',
-      errorInvalidString: 'Username can only contain letters, numbers, and underscores',
-      errorNotUnique: 'Username already exists',
     },
   };
 

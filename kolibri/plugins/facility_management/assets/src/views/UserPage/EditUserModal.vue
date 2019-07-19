@@ -2,16 +2,14 @@
 
   <form v-if="!loading" @submit.prevent="submitForm">
     <h1>{{ $tr('editUserDetailsHeader') }}</h1>
-    <KTextbox
-      ref="name"
-      v-model="name"
-      :disabled="busy"
-      :label="$tr('fullName')"
+
+    <TextboxFullName
+      ref="textboxFullName"
       :autofocus="true"
-      :maxlength="120"
-      :invalid="Boolean(nameIsInvalidText)"
-      :invalidText="nameIsInvalidText"
-      @blur="nameBlurred = true"
+      :disabled="busy"
+      :value.sync="fullName"
+      :isValid.sync="fullNameValid"
+      :shouldValidate="formSubmitted"
     />
 
     <TextboxUsername
@@ -125,6 +123,7 @@
   import SelectGender from 'kolibri.coreVue.components.SelectGender';
   import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
   import TextboxUsername from '../UserCreatePage/TextboxUsername';
+  import TextboxFullName from '../UserCreatePage/TextboxFullName';
 
   // IDEA use UserTypeDisplay for strings in options
   export default {
@@ -139,10 +138,12 @@
       SelectGender,
       SelectBirthYear,
       TextboxUsername,
+      TextboxFullName,
     },
     data() {
       return {
-        name: '',
+        fullName: '',
+        fullNameValid: true,
         username: '',
         usernameValid: true,
         kind: '',
@@ -151,7 +152,6 @@
         formSubmitted: false,
         classCoachIsSelected: true,
         typeSelected: null, // see beforeMount
-        nameBlurred: false,
         gender: null,
         birthYear: null,
         identificationNumber: '',
@@ -184,16 +184,8 @@
           },
         ];
       },
-      nameIsInvalidText() {
-        if (this.nameBlurred) {
-          if (this.newName === '') {
-            return this.$tr('required');
-          }
-        }
-        return '';
-      },
       formIsInvalid() {
-        return this.nameIsInvalidText || !this.usernameValid;
+        return !this.fullNameValid || !this.usernameValid;
       },
       editingSelf() {
         return this.currentUserId === this.userId;
@@ -222,7 +214,7 @@
         id: this.$route.params.id,
       }).then(user => {
         this.username = user.username;
-        this.name = user.full_name;
+        this.fullName = user.full_name;
         this.setKind(user);
         this.makeCopyOfUser();
         this.loading = false;
@@ -246,7 +238,7 @@
       },
       makeCopyOfUser() {
         this.userCopy = {
-          full_name: this.name,
+          full_name: this.fullName,
           username: this.username,
           kind: this.kind,
         };
@@ -271,7 +263,7 @@
 
         const updates = {
           username: this.username,
-          full_name: this.name,
+          full_name: this.fullName,
         };
 
         if (!this.editingSuperAdmin) {
@@ -309,8 +301,8 @@
       },
       focusOnInvalidField() {
         this.$nextTick().then(() => {
-          if (this.nameIsInvalidText) {
-            this.$refs.name.focus();
+          if (!this.fullNameValid) {
+            this.$refs.textboxFullName.focus();
           } else if (!this.usernameValid) {
             this.$refs.textboxUsername.focus();
           }
@@ -328,10 +320,8 @@
       save: 'Save',
       cancel: 'Cancel',
       required: 'This field is required',
-      usernameAlreadyExists: 'Username already exists',
       changeInDeviceTabPrompt: 'Go to Device permissions to change this',
       viewInDeviceTabPrompt: 'View details in Device permissions',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachLabel: 'Facility coach',

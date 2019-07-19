@@ -5,17 +5,15 @@
       {{ $tr('createNewUserHeader') }}
     </h1>
     <section>
-      <KTextbox
-        ref="name"
-        v-model="fullName"
+      <TextboxFullName
+        ref="textboxFullName"
         :autofocus="true"
         :disabled="busy"
-        :label="$tr('name')"
-        :maxlength="120"
-        :invalid="Boolean(nameIsInvalidText)"
-        :invalidText="nameIsInvalidText"
-        @blur="nameBlurred = true"
+        :value.sync="fullName"
+        :isValid.sync="fullNameValid"
+        :shouldValidate="formSubmitted"
       />
+
       <TextboxUsername
         ref="textboxUsername"
         :disabled="busy"
@@ -139,6 +137,7 @@
     data() {
       return {
         fullName: '',
+        fullNameValid: true,
         username: '',
         usernameValid: true,
         password: '',
@@ -149,7 +148,6 @@
         },
         classCoach: true,
         busy: false,
-        nameBlurred: false,
         passwordBlurred: false,
         confirmedPasswordBlurred: false,
         formSubmitted: false,
@@ -171,14 +169,6 @@
       },
       coachIsSelected() {
         return this.kind.value === UserKinds.COACH;
-      },
-      nameIsInvalidText() {
-        if (this.nameBlurred || this.formSubmitted) {
-          if (this.fullName === '') {
-            return this.$tr('required');
-          }
-        }
-        return '';
       },
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
@@ -202,7 +192,7 @@
       formIsValid() {
         return !some(
           [
-            this.nameIsInvalidText,
+            !this.fullNameValid,
             !this.usernameValid,
             this.passwordIsInvalidText,
             this.confirmedPasswordIsInvalidText,
@@ -275,8 +265,8 @@
       },
       focusOnInvalidField() {
         this.$nextTick().then(() => {
-          if (this.nameIsInvalidText) {
-            this.$refs.name.focus();
+          if (!this.fullNameValid) {
+            this.$refs.textboxFullName.focus();
           } else if (!this.usernameValid) {
             this.$refs.textboxUsername.focus();
           } else if (this.passwordIsInvalidText) {
@@ -303,8 +293,6 @@
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachLabel: 'Facility coach',
       facilityCoachDescription: 'Can instruct all classes in your facility',
-      usernameAlreadyExists: 'Username already exists',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       pwMismatchError: 'Passwords do not match',
       required: 'This field is required',
       identificationNumberLabel: 'Identification number (optional)',
