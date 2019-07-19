@@ -29,6 +29,7 @@
         :disabled="busy"
         :value.sync="password"
         :isValid.sync="passwordValid"
+        :shouldValidate="formSubmitted"
       />
 
       <KSelect

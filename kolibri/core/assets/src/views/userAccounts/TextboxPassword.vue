@@ -4,6 +4,7 @@
     <KTextbox
       ref="password"
       :value="value"
+      :autofocus="$attrs.autofocus"
       type="password"
       :disabled="$attrs.disabled"
       :label="$tr('passwordLabel')"
