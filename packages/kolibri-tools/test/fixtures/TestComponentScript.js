@@ -26,7 +26,7 @@ export default {
   mixins: [commonCoach, commonCoreStrings],
   computed: {
     ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
-  ...mapState(['classList']),
+    ...mapState(['classList']),
     // Message that shows up when state.classList is empty
     emptyStateDetails() {
       if (this.isClassCoach) {

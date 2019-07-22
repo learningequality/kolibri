@@ -93,7 +93,6 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';

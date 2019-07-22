@@ -235,7 +235,6 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            console.log(this.coreString('requiredFieldLabel'));
             return this.coreString('requiredFieldLabel');
           } else if (!validateUsername(this.username)) {
             return this.coreString('usernameNotAlphaNumError');
@@ -299,9 +298,7 @@
         if (this.$theme.signIn.background) {
           return {
             backgroundColor: this.$themeTokens.primary,
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${
-              this.$theme.signIn.background
-            })`,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${this.$theme.signIn.background})`,
           };
         }
         return { backgroundColor: this.$themeColors.brand.primary.v_900 };

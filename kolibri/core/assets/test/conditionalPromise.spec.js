@@ -25,9 +25,11 @@ describe('ConditionalPromise', () => {
       const promise = new ConditionalPromise(resolve => {
         resolve();
       });
-      return promise.only(() => false, fn1).then(() => {
-        expect(fn1).not.toHaveBeenCalled();
-      });
+      return promise
+        .only(() => false, fn1)
+        .then(() => {
+          expect(fn1).not.toHaveBeenCalled();
+        });
     });
     it('should execute a subsequent then if a previous only check fails', () => {
       const fn1 = jest.fn();

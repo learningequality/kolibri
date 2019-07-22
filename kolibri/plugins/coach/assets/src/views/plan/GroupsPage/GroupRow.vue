@@ -31,7 +31,6 @@
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
 

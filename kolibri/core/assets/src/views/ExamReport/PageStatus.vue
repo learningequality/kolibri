@@ -56,7 +56,6 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {

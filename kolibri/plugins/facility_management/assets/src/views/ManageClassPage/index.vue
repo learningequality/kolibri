@@ -109,7 +109,6 @@
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
   import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { Modals, PageNames } from '../../constants';
   import ClassCreateModal from './ClassCreateModal';
