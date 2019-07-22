@@ -16,7 +16,7 @@ Feature: Guest changes language
     Then the modal closes
       And I see Kolibri UI in <language> language
 
-  Scenario: Guest has changed language from <device_language> to <language> prior to logging in
+  Scenario: Guest has changed their own language from <device_language> to <language> prior to logging in
     When I log in
     Then Kolibri UI is in <language>
     When I open a new tab and open Kolibri
