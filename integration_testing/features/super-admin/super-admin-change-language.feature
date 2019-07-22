@@ -24,7 +24,7 @@ Feature: Super admin change user interface language
     Then Kolibri is shown in <language>
     When I navigate between and within Coach, Learn, Device and Facility sections of Kolibri
     Then Kolibri remains in <language>
-    When I close my browser altogether and go to Kolibri's root server URL
+    When I open a fresh Incognito or Private Browsing window and go to Kolibri's root server URL
     Then Kolibri is shown in <device_language>
 
 Examples:

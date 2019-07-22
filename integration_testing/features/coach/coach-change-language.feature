@@ -24,7 +24,7 @@ Feature: Coach changes user interface language
     Then Kolibri UI is shown in <language>
     When I navigate between and within Coach and Learn sections of Kolibri
     Then Kolibri UI remains in <language>
-    When I close my browser altogether and go to Kolibri's root server URL
+    When I open a fresh Incognito or Private Browsing window and go to Kolibri's root server URL
     Then Kolibri UI is shown in <device_language>
 
 Examples:

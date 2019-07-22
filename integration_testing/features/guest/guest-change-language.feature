@@ -27,7 +27,7 @@ Feature: Guest changes language
     Then Kolibri UI remains in <language>
     When I return to the sign in page and sign into any account
     Then Kolibri UI is shown in <language>
-    When I close my browser altogether and go to Kolibri's root server URL
+    When I open a fresh Incognito or Private Browsing window and go to Kolibri's root server URL
     Then Kolibri UI is shown in <device_language>
 
   Scenario: Change language from the user menu
