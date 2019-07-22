@@ -180,6 +180,7 @@
 
   .form {
     max-width: 400px;
+    min-height: 600px;
     margin: auto;
   }
 

@@ -54,7 +54,7 @@
           if (this.errors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
             return this.$tr('errorNotUnique');
           }
-          if (!this.isUniqueValidator(this.value)) {
+          if (this.isUniqueValidator && !this.isUniqueValidator(this.value)) {
             return this.$tr('errorNotUnique');
           }
           if (this.value === '') {

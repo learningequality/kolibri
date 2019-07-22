@@ -60,7 +60,7 @@ export function prepareLearnApp(store) {
     });
 }
 
-export function setProfileNeedsUpdate(store) {
+export function checkIfProfileNeedsUpdate(store) {
   return FacilityUserResource.fetchModel({ id: store.state.core.session.user_id }).then(
     facilityUser => {
       // If a FacilityUser model has been migrated from a pre 0.13 installation, it will
@@ -69,4 +69,12 @@ export function setProfileNeedsUpdate(store) {
       return facilityUser.gender === '';
     }
   );
+}
+
+// Sets FacilityUser.gender to 'DEFER'. See checkIfProfileNeedsUpdate above.
+export function deferProfileUpdates(store) {
+  return FacilityUserResource.saveModel({
+    id: store.state.core.session.user_id,
+    data: { gender: 'DEFER' },
+  });
 }

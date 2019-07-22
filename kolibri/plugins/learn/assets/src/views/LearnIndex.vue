@@ -22,8 +22,8 @@
 
     <UpdateYourProfileModal
       v-if="profileNeedsUpdate"
-      @cancel="() => {}"
-      @submit="() => {}"
+      @cancel="handleCancelUpdateYourProfileModal"
+      @submit="handleSubmitUpdateYourProfileModal"
     />
 
 
@@ -35,6 +35,8 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import urls from 'kolibri.urls';
+  import { redirectBrowser } from 'kolibri.utils.browser';
   import lastItem from 'lodash/last';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
@@ -259,6 +261,16 @@
           this.profileNeedsUpdate = needsUpdate;
         })
         .catch(() => {});
+    },
+    methods: {
+      handleCancelUpdateYourProfileModal() {
+        this.$store.dispatch('deferProfileUpdates');
+        this.profileNeedsUpdate = false;
+      },
+      handleSubmitUpdateYourProfileModal() {
+        const redirect = () => redirectBrowser(`${urls['kolibri:user:user']()}#/profile/edit`);
+        this.$store.dispatch('deferProfileUpdates').then(redirect, redirect);
+      },
     },
     $trs: {
       learnTitle: 'Learn',
