@@ -235,6 +235,7 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
+            console.log(this.coreString('requiredFieldLabel'));
             return this.coreString('requiredFieldLabel');
           } else if (!validateUsername(this.username)) {
             return this.coreString('usernameNotAlphaNumError');

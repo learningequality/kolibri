@@ -61,8 +61,7 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import TechnicalTextBlock from 'kolibri.coreVue.components.TechnicalTextBlock';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
-
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'DeviceInfoPage',

@@ -152,7 +152,7 @@ function getStringDefinitions(localeBasePath, moduleName) {
     }
   } catch (e) {
     // Not all modules have messages files - return null and we'll bail.
-    if(!fileContents) {
+    if (!fileContents) {
       return null;
     }
   }
