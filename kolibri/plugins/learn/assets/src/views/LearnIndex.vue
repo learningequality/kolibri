@@ -255,12 +255,14 @@
       },
     },
     mounted() {
-      this.$store
-        .dispatch('checkIfProfileNeedsUpdate')
-        .then(needsUpdate => {
-          this.profileNeedsUpdate = needsUpdate;
-        })
-        .catch(() => {});
+      if (this.isUserLoggedIn) {
+        this.$store
+          .dispatch('checkIfProfileNeedsUpdate')
+          .then(needsUpdate => {
+            this.profileNeedsUpdate = needsUpdate;
+          })
+          .catch(() => {});
+      }
     },
     methods: {
       handleCancelUpdateYourProfileModal() {

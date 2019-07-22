@@ -90,13 +90,7 @@
       <tr>
         <th>{{ UserAccountsStrings.$tr('birthYearLabel') }}</th>
         <td>
-          <span v-if="facilityUser.birth_year === 'DECLINE'">
-            {{ UserAccountsStrings.$tr('preferNotToSayOption') }}
-          </span>
-          <span v-else-if="facilityUser.birth_year">
-            {{ facilityUser.birth_year }}
-          </span>
-          <KEmptyPlaceholder v-else />
+          <DisplayBirthYear :birthYear="facilityUser.birth_year" />
         </td>
       </tr>
 
@@ -138,12 +132,12 @@
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
-  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import UserAccountsStrings from 'kolibri.strings.userAccounts';
   import { FacilityUserResource } from 'kolibri.resources';
   import GenderTypeDisplay from 'kolibri.coreVue.components.GenderTypeDisplay';
+  import DisplayBirthYear from 'kolibri.coreVue.components.DisplayBirthYear';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
 
   export default {
@@ -164,8 +158,8 @@
       PermissionsIcon,
       ChangeUserPasswordModal,
       UserTypeDisplay,
-      KEmptyPlaceholder,
       GenderTypeDisplay,
+      DisplayBirthYear,
     },
     mixins: [responsiveWindow, themeMixin],
     data() {
