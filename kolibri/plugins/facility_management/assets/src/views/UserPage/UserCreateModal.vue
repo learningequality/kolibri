@@ -59,7 +59,7 @@
 
       <div>
         <KTextbox
-          v-model="identificationNumber"
+          v-model="idNumber"
           :disabled="busy"
           :maxlength="30"
           :label="$tr('identificationNumberLabel')"
@@ -141,9 +141,9 @@
         classCoach: true,
         busy: false,
         formSubmitted: false,
-        gender: null,
-        birthYear: null,
-        identificationNumber: '',
+        gender: '',
+        birthYear: '',
+        idNumber: '',
         caughtErrors: [],
       };
     },
@@ -197,6 +197,9 @@
             .dispatch('userManagement/createUser', {
               username: this.username,
               full_name: this.fullName,
+              id_number: this.idNumber,
+              gender: this.gender,
+              birth_year: this.birthYear,
               role: {
                 kind: this.newUserRole,
                 collection: this.currentFacilityId,

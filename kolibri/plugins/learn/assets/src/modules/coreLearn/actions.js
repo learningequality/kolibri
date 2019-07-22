@@ -66,7 +66,7 @@ export function checkIfProfileNeedsUpdate(store) {
       // If a FacilityUser model has been migrated from a pre 0.13 installation, it will
       // have gender and birth_year set to ''. After dismissing the UpdateYourProfileModal,
       // gender will be set to 'DEFER', and will not pass this check in subsequent logins.
-      return facilityUser.gender === '';
+      return facilityUser.gender === '' || facilityUser.birth_year === '';
     }
   );
 }
@@ -75,6 +75,9 @@ export function checkIfProfileNeedsUpdate(store) {
 export function deferProfileUpdates(store) {
   return FacilityUserResource.saveModel({
     id: store.state.core.session.user_id,
-    data: { gender: 'DEFER' },
+    data: {
+      gender: 'DEFER',
+      birth_year: 'DEFER',
+    },
   });
 }

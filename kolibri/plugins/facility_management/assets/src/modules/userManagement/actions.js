@@ -24,29 +24,17 @@ function setUserRole(user, role) {
  * @param {object} stateUserData
  *  Needed: username, full_name, facility, role, password
  */
-export function createUser(store, stateUserData) {
-  // resolves with user object
+export function createUser(store, payload) {
   return FacilityUserResource.saveModel({
     data: {
       facility: store.rootState.core.session.facility_id,
-      username: stateUserData.username,
-      full_name: stateUserData.full_name,
-      password: stateUserData.password,
+      username: payload.username,
+      full_name: payload.full_name,
+      password: payload.password,
+      id_number: payload.id_number,
+      gender: payload.gender,
+      birth_year: payload.birth_year,
     },
-  }).then(userModel => {
-    function dispatchUser(newUser) {
-      const userState = _userState(newUser);
-      store.commit('ADD_USER', userState);
-      store.dispatch('displayModal', false);
-      return userState;
-    }
-    // only runs if there's a role to be assigned
-    if (stateUserData.role.kind !== UserKinds.LEARNER) {
-      return setUserRole(userModel, stateUserData.role).then(user => dispatchUser(user));
-    } else {
-      // no role to assigned
-      return dispatchUser(userModel);
-    }
   });
 }
 
