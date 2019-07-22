@@ -68,6 +68,7 @@
   import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
   import TextboxFullName from 'kolibri.coreVue.components.TextboxFullName';
   import TextboxUsername from 'kolibri.coreVue.components.TextboxUsername';
+  import { FacilityUserResource } from 'kolibri.resources';
 
   export default {
     name: 'ProfileEditPage',
@@ -92,8 +93,8 @@
         fullNameValid: true,
         username: username,
         usernameValid: true,
-        birthYear: null,
-        gender: null,
+        birthYear: '',
+        gender: '',
         busy: false,
         caughtErrors: [],
         formSubmitted: false,
@@ -117,6 +118,14 @@
         return !some([!this.fullNameValid, this.usernameIsInvalidText], Boolean);
       },
     },
+    mounted() {
+      FacilityUserResource.fetchModel({ id: this.$store.state.core.session.user_id }).then(
+        facilityUser => {
+          this.birthYear = facilityUser.birth_year;
+          this.gender = facilityUser.gender;
+        }
+      );
+    },
     methods: {
       handleSubmit() {
         this.formSubmitted = true;
@@ -127,8 +136,8 @@
               edits: {
                 username: this.username,
                 full_name: this.fullName,
-                // gender: this.gender,
-                // birth_year: this.birthYear,
+                gender: this.gender,
+                birth_year: this.birthYear,
               },
               session: this.$store.state.core.session,
             })

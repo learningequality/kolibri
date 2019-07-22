@@ -92,6 +92,7 @@ import SelectBirthYear from '../views/userAccounts/SelectBirthYear';
 import TextboxFullName from '../views/userAccounts/TextboxFullName';
 import TextboxUsername from '../views/userAccounts/TextboxUsername';
 import TextboxPassword from '../views/userAccounts/TextboxPassword';
+import GenderTypeDisplay from '../views/userAccounts/GenderTypeDisplay';
 import userAccounts from '../views/userAccounts/strings';
 
 // webpack optimization
@@ -198,6 +199,7 @@ export default {
       KLabeledIcon,
       KBottomAppBar,
       SelectGender,
+      GenderTypeDisplay,
       SelectBirthYear,
       TextboxFullName,
       TextboxUsername,

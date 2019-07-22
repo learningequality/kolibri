@@ -8,6 +8,14 @@ const snackbarTranslator = createTranslator('UserProfilePageSnackbars', {
 export function updateUserProfile(store, { edits, session }) {
   const changedValues = {};
 
+  if (edits.birth_year) {
+    changedValues.birth_year = edits.birth_year;
+  }
+
+  if (edits.gender) {
+    changedValues.gender = edits.gender;
+  }
+
   if (edits.full_name && edits.full_name !== session.full_name) {
     changedValues.full_name = edits.full_name;
   }
