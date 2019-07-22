@@ -81,10 +81,4 @@
     margin-right: $gutters;
     margin-bottom: $gutters;
   }
-
-  .content-grid {
-    padding-top: 21px !important;
-    padding-left: 8% !important;
-  }
-
 </style>
