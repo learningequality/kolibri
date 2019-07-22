@@ -586,7 +586,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
 def validate_birth_year(value):
     error = ""
 
-    if value == "DECLINE" or value == "DEFER":
+    if value == "DECLINE":
         return
 
     try:

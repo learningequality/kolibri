@@ -1,4 +1,4 @@
-import { ContentNodeResource, MembershipResource } from 'kolibri.resources';
+import { ContentNodeResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { PageNames, pageNameToModuleMap } from '../../constants';
 
@@ -58,4 +58,15 @@ export function prepareLearnApp(store) {
     .catch(err => {
       store.commit('CORE_SET_ERROR', err);
     });
+}
+
+export function setProfileNeedsUpdate(store) {
+  return FacilityUserResource.fetchModel({ id: store.state.core.session.user_id }).then(
+    facilityUser => {
+      // If a FacilityUser model has been migrated from a pre 0.13 installation, it will
+      // have gender and birth_year set to ''. After dismissing the UpdateYourProfileModal,
+      // gender will be set to 'DEFER', and will not pass this check in subsequent logins.
+      return facilityUser.gender === '';
+    }
+  );
 }

@@ -20,6 +20,13 @@
       <component :is="currentPage" />
     </div>
 
+    <UpdateYourProfileModal
+      v-if="profileNeedsUpdate"
+      @cancel="() => {}"
+      @submit="() => {}"
+    />
+
+
   </CoreBase>
 
 </template>
@@ -51,6 +58,7 @@
   import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
+  import UpdateYourProfileModal from './UpdateYourProfileModal';
 
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: ChannelsPage,
@@ -77,11 +85,13 @@
       LearnTopNav,
       TotalPoints,
       KPageContainer,
+      UpdateYourProfileModal,
     },
     mixins: [responsiveWindow],
     data() {
       return {
         lastRoute: null,
+        profileNeedsUpdate: false,
       };
     },
     computed: {
@@ -241,6 +251,14 @@
           params: oldRoute.params,
         };
       },
+    },
+    mounted() {
+      this.$store
+        .dispatch('checkIfProfileNeedsUpdate')
+        .then(needsUpdate => {
+          this.profileNeedsUpdate = needsUpdate;
+        })
+        .catch(() => {});
     },
     $trs: {
       learnTitle: 'Learn',
