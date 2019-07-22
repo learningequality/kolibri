@@ -69,7 +69,7 @@
     },
     $trs: {
       placeholder: 'Select year',
-      birthYearTooltip: 'If birth year is unknown, provide your best guess',
+      birthYearTooltip: 'Provide an estimate if you are unsure',
       birthyearAriaLabel: 'About providing your birth year',
     },
   };

@@ -4,13 +4,13 @@
     <KModal
       v-if="!privacyModalVisible"
       :title="$tr('title')"
-      :cancelText="$tr('cancelLabel')"
-      :submitText="$tr('submitLabel')"
+      :cancelText="$tr('skipUpdateProfileAction')"
+      :submitText="$tr('updateProfileAction')"
       @cancel="$emit('cancel')"
       @submit="$emit('submit')"
     >
       <p>
-        {{ $tr('missingInformationExplanation') }}
+        {{ $tr('updateProfileExplanation') }}
       </p>
       <p>
         <KButton
@@ -50,10 +50,11 @@
     },
     $trs: {
       title: 'Update your profile',
-      missingInformationExplanation: 'You have missing information in your profile',
-      cancelLabel: 'Later',
-      submitLabel: 'View Profile',
-      usageAndPrivacyLabel: 'Usage and privacy in Kolibri',
+      updateProfileExplanation:
+        'Some information is missing from your profile. Would you like to update it?',
+      skipUpdateProfileAction: 'Skip',
+      updateProfileAction: 'Update',
+      usageAndPrivacyLabel: 'Usage and privacy',
     },
   };
 
