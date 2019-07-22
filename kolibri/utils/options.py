@@ -139,6 +139,13 @@ option_spec = {
             "envvars": ("KOLIBRI_DEBUG_SENTRY_FRONTEND_DSN", ),
         },
     },
+    "Session":{
+        "SESSION_COOKIE_AGE":{
+            "type":"integer",
+            "default":600,
+            "envvars":("KOLIBRI_SESSION_TIMEOUT",),
+        },
+    },
 }
 
 
