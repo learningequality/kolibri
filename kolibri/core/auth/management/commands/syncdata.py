@@ -34,6 +34,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        self.stderr.write(
+            "`syncdata` command is deprecated and will be removed in 0.13.0 in favor of `sync`. Type `kolibri manage sync --help` for available options."
+        )
 
         self.stdout.write("Uploading database to central server...\n")
 
