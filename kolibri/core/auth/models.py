@@ -586,7 +586,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
 def validate_birth_year(value):
     error = ""
 
-    if value == "DECLINE":
+    if value == "DECLINE" or value == 'DEFER':
         return
 
     try:
@@ -646,13 +646,13 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         ("DEFER", "Defers for later"),
     ]
 
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default="")
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default="", blank=True)
 
     birth_year = models.CharField(
-        max_length=10, default="", validators=[validate_birth_year]
+        max_length=10, default="", validators=[validate_birth_year], blank=True
     )
 
-    id_number = models.CharField(max_length=64, default="")
+    id_number = models.CharField(max_length=64, default="", blank=True)
 
     def calculate_partition(self):
         return "{dataset_id}:user-ro:{user_id}".format(
