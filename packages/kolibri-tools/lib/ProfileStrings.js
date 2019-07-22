@@ -152,7 +152,9 @@ function getStringDefinitions(localeBasePath, moduleName) {
     }
   } catch (e) {
     // Not all modules have messages files - return null and we'll bail.
-    return null;
+    if(!fileContents) {
+      return null;
+    }
   }
 
   Object.keys(fileContents).forEach(nsKeyPair => {
@@ -316,7 +318,7 @@ function namespaceFromPath(path) {
 
 // Returns true if the string given is a *Common$tr
 function isCommonFn(string) {
-  return /Common\$tr/.test(string);
+  return Object.keys(COMMON_NAMESPACES).includes(string);
 }
 
 /* Profiling Functions */
