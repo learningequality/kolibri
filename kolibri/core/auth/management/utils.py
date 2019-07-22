@@ -1,7 +1,21 @@
-from django.core.management.base import CommandError
-from django.utils.six.moves import input
+"""
+Utility methods for syncing.
+"""
+import getpass
 
+import requests
+from django.core.management.base import CommandError
+from django.urls import reverse
+from django.utils.six.moves import input
+from morango.models import Certificate
+from six.moves.urllib.parse import urljoin
+
+from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.utils import device_provisioned
 
 
 def _interactive_facility_selection():
@@ -55,3 +69,96 @@ def get_facility(facility_id=None, noninteractive=False):
                 facility = _interactive_facility_selection()
 
     return facility
+
+
+def get_dataset_id(baseurl, identifier=None):
+    # get list of facilities and if more than 1, display all choices to user
+    facility_url = urljoin(baseurl, reverse("kolibri:core:publicfacility-list"))
+    response = requests.get(facility_url)
+    response.raise_for_status()
+    facilities = response.json()
+    # if provided, look up identifier in list of dataset and facility ids
+    if identifier:
+        for obj in facilities:
+            if identifier == obj["dataset"] or identifier == obj.get("id"):
+                return obj["dataset"]
+        raise CommandError(
+            "Facility with ID {} does not exist on server".format(identifier)
+        )
+
+    # allow user to select facility for syncing
+    if len(facilities) > 1:
+        message = "Please choose a facility to sync with:\n"
+        for idx, f in enumerate(facilities):
+            message += "{}. {}\n".format(idx + 1, f["name"])
+        idx = input(message)
+        return facilities[int(idx) - 1]["dataset"]
+    else:
+        return facilities[0]["dataset"]
+
+
+def get_client_and_server_certs(username, password, dataset_id, nc):
+    # get servers certificates which server has a private key for
+    server_certs = nc.get_remote_certificates(dataset_id, scope_def_id=FULL_FACILITY)
+    if not server_certs:
+        raise CommandError(
+            "Server does not have any certificates for dataset_id: {}".format(
+                dataset_id
+            )
+        )
+    server_cert = server_certs[0]
+
+    # check for the certs we own for the specific facility
+    owned_certs = (
+        Certificate.objects.filter(id=dataset_id)
+        .get_descendants(include_self=True)
+        .filter(scope_definition_id=FULL_FACILITY)
+        .exclude(_private_key=None)
+    )
+
+    # if we don't own any certs, do a csr request
+    if not owned_certs:
+
+        # prompt user for creds if not already specified
+        if not username or not password:
+            username = input("Please enter username: ")
+            password = getpass.getpass("Please enter password: ")
+        client_cert = nc.certificate_signing_request(
+            server_cert,
+            FULL_FACILITY,
+            {"dataset_id": dataset_id},
+            userargs=username,
+            password=password,
+        )
+    else:
+        client_cert = owned_certs[0]
+
+    return client_cert, server_cert, username
+
+
+def create_superuser_and_provision_device(username, dataset_id):
+    # Prompt user to pick a superuser if one does not currently exist
+    while not DevicePermissions.objects.filter(is_superuser=True).exists():
+        # specify username of account that will become a superuser
+        if not username:
+            username = input(
+                "Please enter username of account that will become the superuser on this device: "
+            )
+        if not FacilityUser.objects.filter(username=username).exists():
+            print("User with username {} does not exist".format(username))
+            username = None
+            continue
+
+        # make the user with the given credentials, a superuser for this device
+        user = FacilityUser.objects.get(username=username, dataset_id=dataset_id)
+
+        # create permissions for the authorized user
+        DevicePermissions.objects.update_or_create(
+            user=user, defaults={"is_superuser": True, "can_manage_content": True}
+        )
+
+    # if device has not been provisioned, set it up
+    if not device_provisioned():
+        device_settings, created = DeviceSettings.objects.get_or_create()
+        device_settings.is_provisioned = True
+        device_settings.save()
