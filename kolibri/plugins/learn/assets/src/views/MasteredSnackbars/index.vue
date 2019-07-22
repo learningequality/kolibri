@@ -89,7 +89,6 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import Snackbar from './Snackbar';
 
   const SNACKBARS = { POINTS: 'POINTS', NEXT_RESOURCE: 'NEXT_RESOURCE' };
@@ -104,7 +103,7 @@
       Snackbar,
       UiAlert,
     },
-    mixins: [themeMixin, commonCoreStrings],
+    mixins: [themeMixin],
     props: {
       nextContent: {
         type: Object,
