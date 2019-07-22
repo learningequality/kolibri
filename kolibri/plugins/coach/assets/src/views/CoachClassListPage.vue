@@ -31,6 +31,7 @@
             <th>{{ $tr('classNameLabel') }}</th>
             <th>{{ coachStrings.$tr('coachesLabel') }}</th>
             <th>{{ coachStrings.$tr('learnersLabel') }}</th>
+            <th>{{ $tr('channelsLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -50,9 +51,25 @@
             <td>
               {{ coachStrings.$tr('integer', { value: classObj.learner_count }) }}
             </td>
+            <td>
+              <div class="button">
+                <KButton
+                  :primary="false"
+                  :text="$tr('subscribeChannelsButton')"
+                  @click="openSubscribeModal(classObj)"
+                />
+              </div>
+            </td>
           </tr>
         </transition-group>
       </CoreTable>
+
+      <SubscribeModal
+        v-if="subscriptionModalShown===Modals.CHOOSE_CLASS_SUBSCRIPTIONS"
+        :collectionId="currentClass.id"
+        :collectionName="currentClass.name"
+      />
+
     </KPageContainer>
 
   </CoreBase>
@@ -62,20 +79,30 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapGetters, mapState, mapActions } from 'vuex';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import urls from 'kolibri.urls';
+  import { SubscriptionModals } from '../constants/subscriptionsConstants';
   import commonCoach from './common';
+  import SubscribeModal from './SubscribeModal';
 
   export default {
     name: 'CoachClassListPage',
     components: {
+      SubscribeModal,
       KExternalLink,
     },
     mixins: [commonCoach],
+    data() {
+      return {
+        currentClass: null,
+      };
+    },
     computed: {
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
       ...mapState(['classList']),
+      ...mapState('subscriptions', ['subscriptionModalShown', 'selectedSubscriptions']),
+      Modals: () => SubscriptionModals,
       // Message that shows up when state.classList is empty
       emptyStateDetails() {
         if (this.isClassCoach) {
@@ -95,6 +122,13 @@
         }
       },
     },
+    methods: {
+      ...mapActions('subscriptions', ['displaySubscriptionModal']),
+      openSubscribeModal(classModel) {
+        this.currentClass = classModel;
+        this.displaySubscriptionModal(SubscriptionModals.CHOOSE_CLASS_SUBSCRIPTIONS);
+      },
+    },
     $trs: {
       classPageSubheader: 'View learner progress and class performance',
       classNameLabel: 'Class name',
@@ -104,6 +138,8 @@
       noClassesDetailsForAdmin: 'Create a class and enroll learners',
       noClassesDetailsForFacilityCoach: 'Please consult your Kolibri administrator',
       noClassesInFacility: 'There are no classes yet',
+      subscribeChannelsButton: 'SUBSCRIBE CHANNELS',
+      channelsLabel: 'Channels',
     },
   };
 
