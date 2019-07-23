@@ -4,12 +4,12 @@
     :header="$tr('adminAccountCreationHeader')"
     :description="$tr('adminAccountCreationDescription')"
     :submitText="submitText"
-    @submit="submitSuperuserCredentials"
+    @submit="submitForm"
   >
     <FullNameTextbox
       ref="fullNameTextbox"
-      :value.sync="name"
-      :isValid.sync="nameValid"
+      :value.sync="fullName"
+      :isValid.sync="fullNameValid"
       :shouldValidate="formSubmitted"
       :autofocus="true"
       autocomplete="name"
@@ -28,6 +28,16 @@
       :isValid.sync="passwordValid"
       :shouldValidate="formSubmitted"
       autocomplete="new-password"
+    />
+
+    <BirthYearSelect
+      :value.sync="birthYear"
+      class="select"
+    />
+
+    <GenderSelect
+      :value.sync="gender"
+      class="select"
     />
 
     <div slot="footer" class="reminder">
@@ -50,6 +60,8 @@
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
+  import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
+  import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import OnboardingForm from './OnboardingForm';
 
   export default {
@@ -59,6 +71,8 @@
       FullNameTextbox,
       UsernameTextbox,
       PasswordTextbox,
+      BirthYearSelect,
+      GenderSelect,
     },
     props: {
       submitText: {
@@ -69,18 +83,20 @@
     data() {
       const { superuser } = this.$store.state.onboardingData;
       return {
-        name: superuser.full_name,
-        nameValid: true,
+        fullName: superuser.full_name,
+        fullNameValid: true,
         username: superuser.username,
         usernameValid: true,
         password: superuser.password,
         passwordValid: true,
+        birthYear: superuser.birth_year,
+        gender: superuser.gender,
         formSubmitted: false,
       };
     },
     computed: {
       formIsValid() {
-        return every([this.usernameValid, this.nameValid, this.passwordValid]);
+        return every([this.usernameValid, this.fullNameValid, this.passwordValid]);
       },
     },
     beforeDestroy() {
@@ -93,23 +109,35 @@
       }),
       saveSuperuserCredentials() {
         this.setSuperuser({
-          name: this.name,
+          full_name: this.fullName,
           username: this.username,
           password: this.password,
+          birth_year: this.birthYear,
+          gender: this.gender,
         });
       },
-      submitSuperuserCredentials() {
+      submitForm() {
         this.formSubmitted = true;
-        if (this.formIsValid) {
-          this.saveSuperuserCredentials();
-          this.$emit('submit');
-        } else if (!this.nameValid) {
-          this.$refs.fullNameTextbox.focus();
-        } else if (!this.usernameValid) {
-          this.$refs.usernameTextbox.focus();
-        } else if (!this.passwordValid) {
-          this.$refs.passwordTextbox.focus();
-        }
+        // Have to wait a tick to let inputs react to this.formSubmitted
+        this.$nextTick().then(() => {
+          if (this.formIsValid) {
+            this.saveSuperuserCredentials();
+            this.$emit('submit');
+          } else {
+            this.focusOnInvalidField();
+          }
+        });
+      },
+      focusOnInvalidField() {
+        this.$nextTick().then(() => {
+          if (!this.fullNameValid) {
+            this.$refs.fullNameTextbox.focus();
+          } else if (!this.usernameValid) {
+            this.$refs.usernameTextbox.focus();
+          } else if (!this.passwordValid) {
+            this.$refs.passwordTextbox.focus();
+          }
+        });
       },
     },
     $trs: {
@@ -143,6 +171,11 @@
       width: 90%;
       vertical-align: top;
     }
+  }
+
+  .select {
+    width: 400px;
+    margin: 18px 0 36px;
   }
 
 </style>
