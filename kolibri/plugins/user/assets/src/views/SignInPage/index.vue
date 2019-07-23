@@ -275,6 +275,9 @@
         return this.facilityConfig.learner_can_sign_up;
       },
       signUpPage() {
+        if (this.nextParam) {
+          return { name: PageNames.SIGN_UP, query: { next: this.nextParam } };
+        }
         return { name: PageNames.SIGN_UP };
       },
       versionMsg() {
