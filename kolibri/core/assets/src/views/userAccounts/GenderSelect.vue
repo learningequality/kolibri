@@ -18,7 +18,7 @@
   import UserAccountsStrings from './strings';
 
   export default {
-    name: 'SelectGender',
+    name: 'GenderSelect',
     components: {
       KSelect,
     },

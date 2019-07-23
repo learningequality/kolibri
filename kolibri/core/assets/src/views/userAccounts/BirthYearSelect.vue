@@ -40,7 +40,7 @@
   }));
 
   export default {
-    name: 'SelectBirthYear',
+    name: 'BirthYearSelect',
     components: {
       CoreInfoIcon,
       KSelect,

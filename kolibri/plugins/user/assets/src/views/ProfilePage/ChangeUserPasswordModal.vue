@@ -9,8 +9,8 @@
     @submit="submitForm"
     @cancel="$emit('cancel')"
   >
-    <TextboxPassword
-      ref="textboxPassword"
+    <PasswordTextbox
+      ref="PasswordTextbox"
       :autofocus="true"
       :disabled="isBusy"
       :value.sync="password"
@@ -26,13 +26,13 @@
 
   import { mapState } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import TextboxPassword from 'kolibri.coreVue.components.TextboxPassword';
+  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
 
   export default {
     name: 'ChangeUserPasswordModal',
     components: {
       KModal,
-      TextboxPassword,
+      PasswordTextbox,
     },
     data() {
       return {
@@ -56,7 +56,7 @@
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (!this.passwordValid) {
-            this.$refs.textboxPassword.focus();
+            this.$refs.PasswordTextbox.focus();
           }
         });
       },

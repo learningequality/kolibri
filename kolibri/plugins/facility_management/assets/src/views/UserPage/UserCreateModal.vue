@@ -5,8 +5,8 @@
       {{ $tr('createNewUserHeader') }}
     </h1>
     <section>
-      <TextboxFullName
-        ref="textboxFullName"
+      <FullNameTextbox
+        ref="FullNameTextbox"
         :autofocus="true"
         :disabled="busy"
         :value.sync="fullName"
@@ -14,8 +14,8 @@
         :shouldValidate="formSubmitted"
       />
 
-      <TextboxUsername
-        ref="textboxUsername"
+      <UsernameTextbox
+        ref="UsernameTextbox"
         :disabled="busy"
         :value.sync="username"
         :isValid.sync="usernameValid"
@@ -24,8 +24,8 @@
         :errors.sync="caughtErrors"
       />
 
-      <TextboxPassword
-        ref="textboxPassword"
+      <PasswordTextbox
+        ref="PasswordTextbox"
         :disabled="busy"
         :value.sync="password"
         :isValid.sync="passwordValid"
@@ -66,12 +66,12 @@
         />
       </div>
 
-      <SelectBirthYear
+      <BirthYearSelect
         :disabled="busy"
         class="select"
         :value.sync="birthYear"
       />
-      <SelectGender
+      <GenderSelect
         :disabled="busy"
         class="select"
         :value.sync="gender"
@@ -107,11 +107,11 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import SelectGender from 'kolibri.coreVue.components.SelectGender';
-  import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
-  import TextboxFullName from 'kolibri.coreVue.components.TextboxFullName';
-  import TextboxUsername from 'kolibri.coreVue.components.TextboxUsername';
-  import TextboxPassword from 'kolibri.coreVue.components.TextboxPassword';
+  import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
+  import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
+  import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
+  import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
+  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import UserAccountsStrings from 'kolibri.strings.userAccounts';
 
   export default {
@@ -121,11 +121,11 @@
       KButton,
       KTextbox,
       KSelect,
-      SelectGender,
-      SelectBirthYear,
-      TextboxUsername,
-      TextboxFullName,
-      TextboxPassword,
+      GenderSelect,
+      BirthYearSelect,
+      UsernameTextbox,
+      FullNameTextbox,
+      PasswordTextbox,
     },
     data() {
       return {
@@ -236,11 +236,11 @@
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (!this.fullNameValid) {
-            this.$refs.textboxFullName.focus();
+            this.$refs.FullNameTextbox.focus();
           } else if (!this.usernameValid) {
-            this.$refs.textboxUsername.focus();
+            this.$refs.UsernameTextbox.focus();
           } else if (!this.passwordValid) {
-            this.$refs.textboxPassword.focus();
+            this.$refs.PasswordTextbox.focus();
           }
         });
       },

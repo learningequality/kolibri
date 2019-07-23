@@ -14,7 +14,7 @@
   import strings from './strings';
 
   export default {
-    name: 'GenderTypeDisplay',
+    name: 'GenderDisplayText',
     components: {
       KEmptyPlaceholder,
     },

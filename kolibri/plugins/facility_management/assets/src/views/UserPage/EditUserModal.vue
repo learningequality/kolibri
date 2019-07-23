@@ -3,8 +3,8 @@
   <form v-if="!loading" @submit.prevent="submitForm">
     <h1>{{ $tr('editUserDetailsHeader') }}</h1>
 
-    <TextboxFullName
-      ref="textboxFullName"
+    <FullNameTextbox
+      ref="FullNameTextbox"
       :autofocus="true"
       :disabled="busy"
       :value.sync="fullName"
@@ -12,8 +12,8 @@
       :shouldValidate="formSubmitted"
     />
 
-    <TextboxUsername
-      ref="textboxUsername"
+    <UsernameTextbox
+      ref="UsernameTextbox"
       :disabled="busy"
       :value.sync="username"
       :isValid.sync="usernameValid"
@@ -77,12 +77,12 @@
       />
     </div>
 
-    <SelectBirthYear
+    <BirthYearSelect
       class="select"
       :disabled="busy"
       :value.sync="birthYear"
     />
-    <SelectGender
+    <GenderSelect
       class="select"
       :disabled="busy"
       :value.sync="gender"
@@ -121,10 +121,10 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import SelectGender from 'kolibri.coreVue.components.SelectGender';
-  import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
-  import TextboxFullName from 'kolibri.coreVue.components.TextboxFullName';
-  import TextboxUsername from 'kolibri.coreVue.components.TextboxUsername';
+  import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
+  import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
+  import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
+  import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import UserAccountsStrings from 'kolibri.strings.userAccounts';
 
   // IDEA use UserTypeDisplay for strings in options
@@ -137,10 +137,10 @@
       KRadioButton,
       KExternalLink,
       UserTypeDisplay,
-      SelectGender,
-      SelectBirthYear,
-      TextboxUsername,
-      TextboxFullName,
+      GenderSelect,
+      BirthYearSelect,
+      UsernameTextbox,
+      FullNameTextbox,
     },
     data() {
       return {
@@ -316,9 +316,9 @@
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (!this.fullNameValid) {
-            this.$refs.textboxFullName.focus();
+            this.$refs.FullNameTextbox.focus();
           } else if (!this.usernameValid) {
-            this.$refs.textboxUsername.focus();
+            this.$refs.UsernameTextbox.focus();
           }
         });
       },

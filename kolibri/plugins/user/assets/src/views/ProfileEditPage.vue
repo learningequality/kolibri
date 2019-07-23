@@ -4,8 +4,8 @@
     <form class="form" @submit.prevent="handleSubmit">
       <h1>{{ $tr('editProfileHeader') }}</h1>
 
-      <TextboxFullName
-        ref="textboxFullName"
+      <FullNameTextbox
+        ref="FullNameTextbox"
         :autofocus="true"
         :disabled="!canEditName || busy"
         :value.sync="fullName"
@@ -13,8 +13,8 @@
         :shouldValidate="formSubmitted"
       />
 
-      <TextboxUsername
-        ref="textboxUsername"
+      <UsernameTextbox
+        ref="UsernameTextbox"
         :disabled="!canEditUsername || busy"
         :value.sync="username"
         :isValid.sync="usernameValid"
@@ -22,13 +22,13 @@
         :errors.sync="caughtErrors"
       />
 
-      <SelectGender
+      <GenderSelect
         class="select"
         :value.sync="gender"
         :disabled="busy"
       />
 
-      <SelectBirthYear
+      <BirthYearSelect
         class="select"
         :value.sync="birthYear"
         :disabled="busy"
@@ -64,10 +64,10 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import SelectGender from 'kolibri.coreVue.components.SelectGender';
-  import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
-  import TextboxFullName from 'kolibri.coreVue.components.TextboxFullName';
-  import TextboxUsername from 'kolibri.coreVue.components.TextboxUsername';
+  import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
+  import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
+  import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
+  import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import { FacilityUserResource } from 'kolibri.resources';
 
   export default {
@@ -80,10 +80,10 @@
     components: {
       KButton,
       KPageContainer,
-      SelectGender,
-      SelectBirthYear,
-      TextboxFullName,
-      TextboxUsername,
+      GenderSelect,
+      BirthYearSelect,
+      FullNameTextbox,
+      UsernameTextbox,
     },
     props: {},
     data() {
@@ -162,9 +162,9 @@
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (!this.fullNameValid) {
-            this.$refs.textboxFullName.focus();
+            this.$refs.FullNameTextbox.focus();
           } else if (!this.usernameValid) {
-            this.$refs.textboxUsername.focus();
+            this.$refs.UsernameTextbox.focus();
           }
         });
       },

@@ -83,14 +83,14 @@
       <tr>
         <th>{{ UserAccountsStrings.$tr('genderLabel') }}</th>
         <td>
-          <GenderTypeDisplay :gender="facilityUser.gender" />
+          <GenderDisplayText :gender="facilityUser.gender" />
         </td>
       </tr>
 
       <tr>
         <th>{{ UserAccountsStrings.$tr('birthYearLabel') }}</th>
         <td>
-          <DisplayBirthYear :birthYear="facilityUser.birth_year" />
+          <BirthYearDisplayText :birthYear="facilityUser.birth_year" />
         </td>
       </tr>
 
@@ -136,8 +136,8 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import UserAccountsStrings from 'kolibri.strings.userAccounts';
   import { FacilityUserResource } from 'kolibri.resources';
-  import GenderTypeDisplay from 'kolibri.coreVue.components.GenderTypeDisplay';
-  import DisplayBirthYear from 'kolibri.coreVue.components.DisplayBirthYear';
+  import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
+  import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
 
   export default {
@@ -158,8 +158,8 @@
       PermissionsIcon,
       ChangeUserPasswordModal,
       UserTypeDisplay,
-      GenderTypeDisplay,
-      DisplayBirthYear,
+      GenderDisplayText,
+      BirthYearDisplayText,
     },
     mixins: [responsiveWindow, themeMixin],
     data() {

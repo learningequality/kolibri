@@ -102,10 +102,10 @@
               <KEmptyPlaceholder v-else />
             </td>
             <td>
-              <GenderTypeDisplay :gender="user.gender" />
+              <GenderDisplayText :gender="user.gender" />
             </td>
             <td>
-              <DisplayBirthYear :birthYear="user.birth_year" />
+              <BirthYearDisplayText :birthYear="user.birth_year" />
             </td>
           </template>
           <td v-if="$scopedSlots.info">
@@ -140,9 +140,9 @@
   import difference from 'lodash/difference';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import UserAccountsStrings from 'kolibri.strings.userAccounts';
-  import GenderTypeDisplay from 'kolibri.coreVue.components.GenderTypeDisplay';
+  import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
   import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
-  import DisplayBirthYear from 'kolibri.coreVue.components.DisplayBirthYear';
+  import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
 
   export default {
     name: 'UserTable',
@@ -152,8 +152,8 @@
       KCheckbox,
       UserTypeDisplay,
       KLabeledIcon,
-      GenderTypeDisplay,
-      DisplayBirthYear,
+      GenderDisplayText,
+      BirthYearDisplayText,
       KEmptyPlaceholder,
     },
     mixins: [themeMixin],

@@ -87,13 +87,13 @@ import KPageContainer from '../views/KPageContainer';
 import KIcon from '../views/icons/KIcon';
 import KLabeledIcon from '../views/icons/KLabeledIcon';
 import KBottomAppBar from '../views/KBottomAppBar';
-import SelectGender from '../views/userAccounts/SelectGender';
-import SelectBirthYear from '../views/userAccounts/SelectBirthYear';
-import TextboxFullName from '../views/userAccounts/TextboxFullName';
-import TextboxUsername from '../views/userAccounts/TextboxUsername';
-import TextboxPassword from '../views/userAccounts/TextboxPassword';
-import GenderTypeDisplay from '../views/userAccounts/GenderTypeDisplay';
-import DisplayBirthYear from '../views/userAccounts/DisplayBirthYear';
+import GenderSelect from '../views/userAccounts/GenderSelect';
+import BirthYearSelect from '../views/userAccounts/BirthYearSelect';
+import FullNameTextbox from '../views/userAccounts/FullNameTextbox';
+import UsernameTextbox from '../views/userAccounts/UsernameTextbox';
+import PasswordTextbox from '../views/userAccounts/PasswordTextbox';
+import GenderDisplayText from '../views/userAccounts/GenderDisplayText';
+import BirthYearDisplayText from '../views/userAccounts/BirthYearDisplayText';
 import userAccounts from '../views/userAccounts/strings';
 
 // webpack optimization
@@ -199,13 +199,13 @@ export default {
       KIcon,
       KLabeledIcon,
       KBottomAppBar,
-      SelectGender,
-      GenderTypeDisplay,
-      SelectBirthYear,
-      TextboxFullName,
-      TextboxUsername,
-      TextboxPassword,
-      DisplayBirthYear,
+      GenderSelect,
+      GenderDisplayText,
+      BirthYearSelect,
+      FullNameTextbox,
+      UsernameTextbox,
+      PasswordTextbox,
+      BirthYearDisplayText,
     },
     router,
     mixins: {

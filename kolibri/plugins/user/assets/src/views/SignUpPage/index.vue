@@ -78,8 +78,8 @@
           <p>
             {{ $tr('demographicInfoExplanation') }}
           </p>
-          <SelectGender class="select" :value.sync="gender" />
-          <SelectBirthYear class="select" :value.sync="birthYear" />
+          <GenderSelect class="select" :value.sync="gender" />
+          <BirthYearSelect class="select" :value.sync="birthYear" />
         </div>
 
         <p class="privacy-link">
@@ -131,8 +131,8 @@
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import SelectGender from 'kolibri.coreVue.components.SelectGender';
-  import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
+  import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
+  import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
 
   export default {
@@ -149,8 +149,8 @@
       KPageContainer,
       LanguageSwitcherFooter,
       PrivacyInfoModal,
-      SelectGender,
-      SelectBirthYear,
+      GenderSelect,
+      BirthYearSelect,
     },
     data() {
       return {

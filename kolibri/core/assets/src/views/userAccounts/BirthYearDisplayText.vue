@@ -14,7 +14,7 @@
   import strings from './strings';
 
   export default {
-    name: 'DisplayBirthYear',
+    name: 'BirthYearDisplayText',
     components: {
       KEmptyPlaceholder,
     },

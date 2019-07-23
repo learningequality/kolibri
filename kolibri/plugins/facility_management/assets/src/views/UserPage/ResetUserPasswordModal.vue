@@ -10,7 +10,7 @@
   >
     <p>{{ $tr('username') }}<strong>{{ username }}</strong></p>
 
-    <TextboxPassword
+    <PasswordTextbox
       :autofocus="true"
       :disabled="isBusy"
       :value.sync="password"
@@ -26,13 +26,13 @@
 
   import { mapState, mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import TextboxPassword from 'kolibri.coreVue.components.TextboxPassword';
+  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
 
   export default {
     name: 'ResetUserPasswordModal',
     components: {
       KModal,
-      TextboxPassword,
+      PasswordTextbox,
     },
     props: {
       id: {
@@ -71,7 +71,7 @@
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (!this.passwordValid) {
-            this.$refs.textboxPassword.focus();
+            this.$refs.PasswordTextbox.focus();
           }
         });
       },
