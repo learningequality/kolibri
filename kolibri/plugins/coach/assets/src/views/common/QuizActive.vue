@@ -36,9 +36,13 @@
     },
     computed: {
       label() {
-        return this.active ? this.coachString('activeLabel') : this.coachString('inactiveLabel');
+        return this.active ? this.$tr('activeQuizLabel') : this.$tr('inactiveQuizLabel');
       },
     },
+    $trs: {
+      activeQuizLabel: "Active",
+      inactiveQuizLabel: "Inactive",
+    }
   };
 
 </script>
