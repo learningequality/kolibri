@@ -6,6 +6,8 @@
       :title="$tr('title')"
       :cancelText="$tr('skipUpdateProfileAction')"
       :submitText="$tr('updateProfileAction')"
+      :cancelDisabled="$attrs.disabled"
+      :submitDisabled="$attrs.disabled"
       @cancel="$emit('cancel')"
       @submit="$emit('submit')"
     >

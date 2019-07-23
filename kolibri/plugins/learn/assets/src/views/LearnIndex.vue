@@ -22,6 +22,7 @@
 
     <UpdateYourProfileModal
       v-if="profileNeedsUpdate"
+      :disabled="demographicInfo === null"
       @cancel="handleCancelUpdateYourProfileModal"
       @submit="handleSubmitUpdateYourProfileModal"
     />
@@ -93,7 +94,7 @@
     data() {
       return {
         lastRoute: null,
-        profileNeedsUpdate: false,
+        demographicInfo: null,
       };
     },
     computed: {
@@ -235,6 +236,12 @@
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? ASSESSMENT_FOOTER : 0;
       },
+      profileNeedsUpdate() {
+        return (
+          this.demographicInfo &&
+          (this.demographicInfo.gender === '' || this.demographicInfo.birth_year === '')
+        );
+      },
     },
     watch: {
       $route: function(newRoute, oldRoute) {
@@ -257,21 +264,21 @@
     mounted() {
       if (this.isUserLoggedIn) {
         this.$store
-          .dispatch('checkIfProfileNeedsUpdate')
-          .then(needsUpdate => {
-            this.profileNeedsUpdate = needsUpdate;
+          .dispatch('getDemographicInfo')
+          .then(info => {
+            this.demographicInfo = { ...info };
           })
           .catch(() => {});
       }
     },
     methods: {
       handleCancelUpdateYourProfileModal() {
-        this.$store.dispatch('deferProfileUpdates');
-        this.profileNeedsUpdate = false;
+        this.$store.dispatch('deferProfileUpdates', this.demographicInfo);
+        this.demographicInfo = null;
       },
       handleSubmitUpdateYourProfileModal() {
         const redirect = () => redirectBrowser(`${urls['kolibri:user:user']()}#/profile/edit`);
-        this.$store.dispatch('deferProfileUpdates').then(redirect, redirect);
+        this.$store.dispatch('deferProfileUpdates', this.demographicInfo).then(redirect, redirect);
       },
     },
     $trs: {

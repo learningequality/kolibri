@@ -60,24 +60,24 @@ export function prepareLearnApp(store) {
     });
 }
 
-export function checkIfProfileNeedsUpdate(store) {
+export function getDemographicInfo(store) {
   return FacilityUserResource.fetchModel({ id: store.state.core.session.user_id }).then(
     facilityUser => {
-      // If a FacilityUser model has been migrated from a pre 0.13 installation, it will
-      // have gender and birth_year set to ''. After dismissing the UpdateYourProfileModal,
-      // gender will be set to 'DEFER', and will not pass this check in subsequent logins.
-      return facilityUser.gender === '' || facilityUser.birth_year === '';
+      return {
+        gender: facilityUser.gender,
+        birth_year: facilityUser.birth_year,
+      };
     }
   );
 }
 
-// Sets FacilityUser.gender to 'DEFER'. See checkIfProfileNeedsUpdate above.
-export function deferProfileUpdates(store) {
+// Sets FacilityUser.gender to 'DEFER'. See getDemographicInfo above.
+export function deferProfileUpdates(store, demographicInfo) {
   return FacilityUserResource.saveModel({
     id: store.state.core.session.user_id,
     data: {
-      gender: 'DEFER',
-      birth_year: 'DEFER',
+      gender: demographicInfo.gender || 'DEFER',
+      birth_year: demographicInfo.birth_year || 'DEFER',
     },
   });
 }
