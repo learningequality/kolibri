@@ -1,9 +1,7 @@
 import json
 
-from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.core.validators import URLValidator
 from morango.models import Filter
 from morango.models import InstanceIDModel
 from morango.models import ScopeDefinition
@@ -14,6 +12,8 @@ from ..utils import get_client_and_server_certs
 from ..utils import get_dataset_id
 from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.management.utils import get_facility
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import URLParseError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
 
@@ -71,12 +71,15 @@ class Command(AsyncCommand):
         PORTAL_SYNC = baseurl == DATA_PORTAL_SYNCING_BASE_URL
 
         # validate url that is passed in
-        try:
-            URLValidator()((baseurl))
-        except ValidationError:
-            raise CommandError(
-                "Base URL is not valid. Please retry command and enter a valid URL."
-            )
+        if not PORTAL_SYNC:
+            try:
+                baseurl = NetworkClient(address=baseurl).base_url
+            except URLParseError:
+                raise CommandError(
+                    "Base URL/IP: {} is not valid. Please retry command and enter a valid URL/IP.".format(
+                        baseurl
+                    )
+                )
 
         # call this in case user directly syncs without migrating database
         if not ScopeDefinition.objects.filter():
