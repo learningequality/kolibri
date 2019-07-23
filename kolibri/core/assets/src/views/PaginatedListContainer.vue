@@ -2,12 +2,12 @@
 
   <div>
     <KGrid>
-      <KGridItem sizes="3, 3, 3">
+      <KGridItem sizes="4, 8, 3">
         <slot name="otherFilter"></slot>
       </KGridItem>
-      <KGridItem sizes="9, 9, 9" align="right" class="text-filter">
+      <KGridItem sizes="4, 8, 9" alignments="left, left, right" class="text-filter">
         <KFilterTextbox
-          v-model.trim="filterInput"
+          v-model="filterInput"
           :placeholder="filterPlaceholder"
           @input="pageNum = 1"
         />
@@ -87,7 +87,7 @@
       return {
         filterInput: '',
         pageNum: 1,
-        perPage: 10,
+        perPage: 30,
       };
     },
     computed: {
