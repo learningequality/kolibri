@@ -5,7 +5,7 @@
     @sort="handleDrag"
   >
     <p v-if="resources.length === 0">
-      {{ $tr('noResources') }}
+      {{ coachString('noResourcesInLessonLabel') }}
     </p>
     <transition-group
       v-else
@@ -52,7 +52,7 @@
             </KGridItem>
             <KGridItem size="3" alignment="right">
               <KButton
-                :text="$tr('resourceRemovalButtonLabel')"
+                :text="coreString('removeAction')"
                 appearance="flat-button"
                 @click="removeResource(resource)"
               />
@@ -79,6 +79,8 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   // This is a simplified version of ResourceListTable that is supposed to work
   // outside of the LessonSummaryPage workflow.
@@ -95,7 +97,7 @@
       KGridItem,
       ContentIcon,
     },
-    mixins: [themeMixin],
+    mixins: [coachStringsMixin, commonCoreStrings, themeMixin],
     props: {
       // Array<{ contentnode_id, content_id, channel_id }>
       resources: {
@@ -195,15 +197,7 @@
       },
     },
     $trs: {
-      noResources: 'No resources in this lesson',
       undoActionPrompt: 'Undo',
-      resourceReorderColumnHeaderForTable:
-        'Use buttons in this column to re-order resources in the lesson',
-      resourceTypeColumnHeaderForTable: 'Resource type',
-      lessonTitleColumnHeaderForTable: 'Title',
-      resourceRemovalColumnHeaderForTable:
-        'Use buttons in this column to remove resources from the lesson',
-      resourceRemovalButtonLabel: 'Remove',
       singleResourceRemovalConfirmationMessage: `Removed '{resourceTitle}'`,
       multipleResourceRemovalsConfirmationMessage: 'Removed { numberOfRemovals } resources',
       moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',

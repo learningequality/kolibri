@@ -3,7 +3,7 @@
   <KNavbar>
     <KNavbarLink
       v-if="canManageContent"
-      :title="$tr('channelsTabLabel')"
+      :title="coreString('channelsLabel')"
       :link="$router.getRoute('MANAGE_CONTENT_PAGE')"
     >
       <mat-svg name="apps" category="navigation" />
@@ -37,6 +37,7 @@
   import { mapGetters } from 'vuex';
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'DeviceTopNav',
@@ -44,11 +45,11 @@
       KNavbar,
       KNavbarLink,
     },
+    mixins: [commonCoreStrings],
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
     },
     $trs: {
-      channelsTabLabel: 'Channels',
       permissionsLabel: 'Permissions',
       infoLabel: 'Info',
       settingsLabel: 'Settings',

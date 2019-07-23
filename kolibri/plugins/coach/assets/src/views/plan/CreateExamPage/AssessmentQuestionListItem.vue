@@ -83,7 +83,7 @@
         if (this.questionNumberOfExercise === undefined) {
           return this.exerciseName;
         }
-        return this.$tr('nthExerciseName', {
+        return this.coachString('nthExerciseName', {
           name: this.exerciseName,
           number: this.questionNumberOfExercise,
         });
@@ -104,10 +104,6 @@
       },
     },
     $trs: {
-      questionNum: 'Question {number, number, integer}:',
-      questionNumShort: '{number, number, integer}.',
-      preview: 'Preview',
-      view: 'View',
       moveExerciseUp: 'Move this exercise up by one position',
       moveExerciseDown: 'Move this exercise down by one position',
     },

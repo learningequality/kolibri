@@ -5,27 +5,27 @@
       <BackLink
         v-if="classListPageEnabled"
         :to="$router.getRoute('HomePage')"
-        :text="this.$tr('home')"
+        :text="$tr('home')"
       />
     </p>
-    <h1>{{ coachCommon$tr('reportsLabel') }}</h1>
+    <h1>{{ coachString('reportsLabel') }}</h1>
     <p>{{ $tr('description') }}</p>
     <HeaderTabs>
 
       <HeaderTab
-        :text="coachCommon$tr('lessonsLabel')"
+        :text="coreString('lessonsLabel')"
         :to="classRoute('ReportsLessonListPage')"
       />
       <HeaderTab
-        :text="coachCommon$tr('quizzesLabel')"
+        :text="coreString('quizzesLabel')"
         :to="classRoute('ReportsQuizListPage')"
       />
       <HeaderTab
-        :text="coachCommon$tr('groupsLabel')"
+        :text="coachString('groupsLabel')"
         :to="classRoute('ReportsGroupListPage')"
       />
       <HeaderTab
-        :text="coachCommon$tr('learnersLabel')"
+        :text="coreString('learnersLabel')"
         :to="classRoute('ReportsLearnerListPage')"
       />
     </HeaderTabs>
@@ -37,17 +37,17 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
 
   export default {
     name: 'ReportsHeader',
     components: {},
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       ...mapGetters(['classListPageEnabled']),
     },
     $trs: {
-      back: 'All classes',
       home: 'Class Home',
       description: 'View reports for your learners and class materials',
     },

@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('resetPassword')"
-    :submitText="$tr('save')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreString('saveAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="isBusy"
     @submit="submitForm"
     @cancel="$emit('cancel')"
@@ -39,6 +39,7 @@
   import { mapState, mapActions } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KModal from 'kolibri.coreVue.components.KModal';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ResetUserPasswordModal',
@@ -46,6 +47,7 @@
       KModal,
       KTextbox,
     },
+    mixins: [commonCoreStrings],
     props: {
       id: {
         type: String,
@@ -70,7 +72,7 @@
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.submittedForm) {
           if (this.password === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -81,10 +83,10 @@
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.submittedForm) {
           if (this.confirmedPassword === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.confirmedPassword !== this.password) {
-            return this.$tr('passwordMatchError');
+            return this.coreString('passwordsMismatchError');
           }
         }
         return '';
@@ -120,10 +122,6 @@
       username: 'Username: ',
       newPassword: 'New password',
       confirmNewPassword: 'Confirm new password',
-      passwordMatchError: 'Passwords do not match',
-      required: 'This field is required',
-      cancel: 'cancel',
-      save: 'Save',
     },
   };
 

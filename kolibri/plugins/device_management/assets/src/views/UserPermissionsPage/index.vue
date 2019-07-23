@@ -17,14 +17,14 @@
         <table>
           <tr>
             <th scope="row">
-              {{ $tr('usernameLabel') }}
+              {{ coreString('usernameLabel') }}
             </th>
             <td>{{ user.username }}</td>
           </tr>
 
           <tr>
             <th scope="row">
-              {{ $tr('userTypeLabel') }}
+              {{ coreString('userTypeLabel') }}
             </th>
             <td>
               <UserTypeDisplay :userType="UserType(user)" />
@@ -33,7 +33,7 @@
 
           <tr>
             <th scope="row">
-              {{ $tr('facilityLabel') }}
+              {{ coreString('facilityLabel') }}
             </th>
             <td dir="auto">
               {{ facilityName }}
@@ -65,7 +65,7 @@
       </div>
 
       <div class="section">
-        <h2>{{ $tr('devicePermissions') }}</h2>
+        <h2>{{ coreString('devicePermissionsLabel') }}</h2>
         <KCheckbox
           :disabled="devicePermissionsDisabled"
           :label="$tr('devicePermissionsDetails')"
@@ -85,7 +85,7 @@
         />
         <KButton
           :disabled="uiBlocked"
-          :text="$tr('cancelButton')"
+          :text="coreString('cancelAction')"
           :primary="false"
           appearance="flat-button"
           @click="goBack()"
@@ -108,6 +108,7 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserType from 'kolibri.utils.UserType';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -135,7 +136,7 @@
       UserTypeDisplay,
       KLabeledIcon,
     },
-    mixins: [themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     data() {
       return {
         devicePermissionsChecked: undefined,
@@ -226,8 +227,6 @@
       UserType,
     },
     $trs: {
-      cancelButton: 'Cancel',
-      devicePermissions: 'Device permissions',
       devicePermissionsDetails: 'Can manage content on this device',
       documentTitle: "{ name }'s Device Permissions",
       makeSuperAdmin: 'Make super admin',
@@ -237,9 +236,6 @@
       saveInProgressNotification: 'Saving...',
       saveSuccessfulNotification: 'Changes saved!',
       userDoesNotExist: 'User does not exist',
-      usernameLabel: 'Username',
-      userTypeLabel: 'User type',
-      facilityLabel: 'Facility',
       superAdminExplanation1:
         'Has all device permissions and can manage device permissions of other users',
       superAdminExplanation2: 'Has admin permissions for all facilities on this device',

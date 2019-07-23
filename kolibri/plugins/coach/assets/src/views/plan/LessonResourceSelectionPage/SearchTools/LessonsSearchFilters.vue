@@ -71,6 +71,7 @@
   import find from 'lodash/find';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const kindFilterToLabelMap = {
     [ContentNodeKinds.TOPIC]: 'topics',
@@ -86,6 +87,7 @@
     components: {
       KSelect,
     },
+    mixins: [commonCoreStrings],
     props: {
       searchResults: {
         type: Object,
@@ -119,7 +121,7 @@
         return this.$tr(msg, { searchTerm: this.searchTerm });
       },
       allFilter() {
-        return { label: this.$tr('all'), value: null };
+        return { label: this.coreString('allLabel'), value: null };
       },
       contentKindValue() {
         return find(this.contentKindFilterOptions, { value: this.value.kind }) || {};
@@ -137,10 +139,12 @@
       },
       channelFilterOptions() {
         const channelIds = this.searchResults.channel_ids;
-        const options = channelIds.map(id => find(this.channels, { id })).map(channel => ({
-          label: channel.title,
-          value: channel.id,
-        }));
+        const options = channelIds
+          .map(id => find(this.channels, { id }))
+          .map(channel => ({
+            label: channel.title,
+            value: channel.id,
+          }));
         return [this.allFilter, ...options];
       },
       roleValue() {
@@ -152,7 +156,7 @@
       roleFilterOptions() {
         return [
           // 'Show' is synonymous with 'All'
-          { label: this.$tr('showAction'), value: null },
+          { label: this.coreString('showAction'), value: null },
           { label: this.$tr('hideAction'), value: 'nonCoach' },
         ];
       },
@@ -166,7 +170,6 @@
       },
     },
     $trs: {
-      all: 'All',
       audio: 'Audio',
       channelFilterLabel: 'Channel:',
       contentKindFilterLabel: 'Type:',
@@ -176,7 +179,6 @@
       coachResourcesLabel: 'Coach resources:',
       topics: 'Topics',
       videos: 'Videos',
-      showAction: 'Show',
       hideAction: 'Hide',
       searchResultsMessage: `Results for '{searchTerm}'`,
       noSearchResultsMessage: `No results for '{searchTerm}'`,

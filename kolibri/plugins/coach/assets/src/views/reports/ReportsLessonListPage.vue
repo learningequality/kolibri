@@ -12,17 +12,17 @@
       <ReportsHeader />
       <KSelect
         v-model="filter"
-        :label="$tr('show')"
+        :label="coreString('showAction')"
         :options="filterOptions"
         :inline="true"
       />
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('titleLabel') }}</th>
-            <th>{{ coachCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('recipientsLabel') }}</th>
-            <th>{{ coachCommon$tr('statusLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
+            <th>{{ coachString('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -59,6 +59,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -67,7 +68,7 @@
     components: {
       ReportsHeader,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         filter: 'allLessons',
@@ -76,7 +77,7 @@
     computed: {
       emptyMessage() {
         if (this.filter.value === 'allLessons') {
-          return this.coachCommon$tr('lessonListEmptyState');
+          return this.coachString('lessonListEmptyState');
         }
         if (this.filter.value === 'activeLessons') {
           return this.$tr('noActiveLessons');
@@ -90,7 +91,7 @@
       filterOptions() {
         return [
           {
-            label: this.$tr('allLessons'),
+            label: this.coreString('allLessonsLabel'),
             value: 'allLessons',
           },
           {
@@ -131,8 +132,6 @@
       this.filter = this.filterOptions[0];
     },
     $trs: {
-      show: 'Show',
-      allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
       noActiveLessons: 'No active lessons',

@@ -30,7 +30,7 @@
           :style="{ backgroundColor: $themeTokens.surface }"
         >
           <KCheckbox
-            :label="coachCommon$tr('showCorrectAnswerLabel')"
+            :label="coreString('showCorrectAnswerLabel')"
             :checked="showCorrectAnswer"
             @change="toggleShowCorrectAnswer"
           />
@@ -70,6 +70,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import QuestionDetailLearnerList from './QuestionDetailLearnerList';
 
@@ -83,7 +84,7 @@
       MultiPaneLayout,
       CoachContentLabel,
     },
-    mixins: [commonCoach, themeMixin],
+    mixins: [commonCoach, commonCoreStrings, themeMixin],
     data() {
       return {
         showCorrectAnswer: false,

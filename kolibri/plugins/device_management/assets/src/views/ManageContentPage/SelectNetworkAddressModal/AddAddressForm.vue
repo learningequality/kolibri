@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('header')"
     :submitText="$tr('submitButtonLabel')"
-    :cancelText="$tr('cancelButtonLabel')"
+    :cancelText="coreString('cancelAction')"
     size="medium"
     :submitDisabled="attemptingToConnect"
     @submit="handleSubmit"
@@ -29,7 +29,7 @@
         :label="$tr('nameLabel')"
         :placeholder="$tr('namePlaceholder')"
         :invalid="nameIsInvalid"
-        :invalidText="$tr('fieldIsRequired')"
+        :invalidText="coreString('requiredFieldLabel')"
         :maxlength="40"
         :disabled="attemptingToConnect"
         @blur="nameBlurred = true"
@@ -53,6 +53,7 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { createAddress } from './api';
 
@@ -68,6 +69,7 @@
       KTextbox,
       UiAlert,
     },
+    mixins: [commonCoreStrings],
     props: {},
     data() {
       return {
@@ -88,7 +90,7 @@
           return this.$tr('errorCouldNotConnect');
         }
         if (this.address === '') {
-          return this.$tr('fieldIsRequired');
+          return this.coreString('requiredFieldLabel');
         }
         return '';
       },
@@ -141,11 +143,9 @@
         "The network address can be an IP and port like '192.168.0.100:8080' or a URL like 'example.com':",
       addressLabel: 'Full network address',
       addressPlaceholder: 'e.g. 192.168.0.100:8080',
-      cancelButtonLabel: 'Cancel',
       errorCouldNotConnect: 'Could not connect to this network address',
       errorInvalidAddress: 'Please enter a valid IP address, URL, or hostname',
       header: 'New address',
-      fieldIsRequired: 'This field is required',
       nameDesc: 'Choose a name for this address so you can remember it later:',
       nameLabel: 'Network name',
       namePlaceholder: 'e.g. House network',

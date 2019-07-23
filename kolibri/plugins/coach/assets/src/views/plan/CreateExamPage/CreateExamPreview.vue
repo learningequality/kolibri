@@ -13,13 +13,13 @@
 
     <KPageContainer>
       <h1>{{ $tr('preview') }}</h1>
-      <h2>{{ coachCommon$tr('detailsLabel') }}</h2>
+      <h2>{{ coachString('detailsLabel') }}</h2>
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
           <KTextbox
             ref="title"
             v-model.trim="examTitle"
-            :label="$tr('examStringsTitle')"
+            :label="coachString('titleLabel')"
             :autofocus="true"
             :maxlength="100"
             :invalid="Boolean(showError && titleIsInvalidText)"
@@ -77,25 +77,25 @@
         />
       </div>
       <h2 class="header-margin">
-        {{ $tr('questionOrder') }}
+        {{ coachString('questionOrderLabel') }}
       </h2>
       <div>
         <KRadioButton
           v-model="fixedOrder"
-          :label="coachCommon$tr('orderRandomLabel')"
-          :description="coachCommon$tr('orderRandomDescription')"
+          :label="coachString('orderRandomLabel')"
+          :description="coachString('orderRandomDescription')"
           :value="false"
         />
         <KRadioButton
           v-model="fixedOrder"
-          :label="coachCommon$tr('orderFixedLabel')"
-          :description="coachCommon$tr('orderFixedDescription')"
+          :label="coachString('orderFixedLabel')"
+          :description="coachString('orderFixedDescription')"
           :value="true"
         />
       </div>
 
       <h2 class="header-margin">
-        {{ $tr('questions') }}
+        {{ $tr('questionsLabel') }}
       </h2>
 
       <QuestionListPreview
@@ -108,11 +108,11 @@
       <KBottomAppBar>
         <KRouterLink
           appearance="flat-button"
-          :text="coachCommon$tr('goBackAction')"
+          :text="coreString('goBackAction')"
           :to="toolbarRoute"
         />
         <KButton
-          :text="coachCommon$tr('finishAction')"
+          :text="coreString('finishAction')"
           :disabled="loadingNewQuestions"
           primary
           @click="submit"
@@ -140,6 +140,7 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import QuestionListPreview from './QuestionListPreview';
@@ -162,7 +163,7 @@
       KTextbox,
       QuestionListPreview,
     },
-    mixins: [responsiveWindow, commonCoach],
+    mixins: [responsiveWindow, commonCoach, commonCoreStrings],
     data() {
       return {
         showError: false,
@@ -209,10 +210,10 @@
       },
       titleIsInvalidText() {
         if (this.examTitle === '') {
-          return this.$tr('examRequiresTitle');
+          return this.coreString('requiredFieldLabel');
         }
         if (this.showTitleError) {
-          return this.coachCommon$tr('quizDuplicateTitleError');
+          return this.coachString('quizDuplicateTitleError');
         }
         return null;
       },
@@ -267,15 +268,11 @@
       appBarLabel: 'Select exercises',
       exercise: 'Exercise { num }',
       randomize: 'Choose a different set of questions',
-      questionOrder: 'Question order',
-      questions: 'Questions',
-      newQuestions: 'New question set created',
+      questionsLabel: 'Questions',
       preview: 'Preview quiz',
-      examRequiresTitle: 'This field is required',
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
-      examStringsTitle: 'Title',
       numQuestions: 'Number of questions',
     },
   };

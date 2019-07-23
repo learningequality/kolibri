@@ -48,7 +48,7 @@
 
     <div class="footer">
       <KButton
-        :text="$tr('confirmSelectionButtonLabel')"
+        :text="coreString('confirmAction')"
         :primary="true"
         type="submit"
         :disabled="selectedUsers.length === 0"
@@ -68,6 +68,7 @@
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import KIcon from 'kolibri.coreVue.components.KIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
   import UserTable from './UserTable';
 
@@ -80,7 +81,7 @@
       KFilterTextbox,
       UserTable,
     },
-    mixins: [responsiveWindow],
+    mixins: [commonCoreStrings, responsiveWindow],
     props: {
       facilityUsers: {
         type: Array,
@@ -131,7 +132,7 @@
       },
       emptyMessage() {
         if (this.facilityUsers.length === 0) {
-          return this.$tr('noUsersExist');
+          return this.coreString('noUsersExistLabel');
         }
         if (this.usersNotInClass.length === 0) {
           return this.$tr('allUsersAlready');
@@ -150,22 +151,14 @@
       },
     },
     $trs: {
-      confirmSelectionButtonLabel: 'Confirm',
       searchForUser: 'Search for a user',
-      userIconColumnHeader: 'User Icon',
-      name: 'Full name',
-      username: 'Username',
       userTableLabel: 'User List',
-      role: 'Role',
       // TODO clarify empty state messages after string freeze
-      noUsersExist: 'No users exist',
-      noUsersSelected: 'No users are selected',
       noUsersMatch: 'No users match',
       previousResults: 'Previous results',
       nextResults: 'Next results',
       selectAllOnPage: 'Select all on page',
       allUsersAlready: 'All users are already enrolled in this class',
-      search: 'Search',
       selectUser: 'Select user',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',

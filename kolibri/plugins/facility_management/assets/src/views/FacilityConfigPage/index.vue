@@ -14,7 +14,7 @@
 
     <template v-if="settings!==null">
       <div class="mb">
-        <h2>{{ $tr('currentFacilityHeader') }}</h2>
+        <h2>{{ coreString('facilityLabel') }}</h2>
         <p class="current-facility-name">
           {{ facilityName }}
         </p>
@@ -44,7 +44,7 @@
           <KButton
             :primary="true"
             appearance="raised-button"
-            :text="$tr('saveChanges')"
+            :text="coreString('saveChangesAction')"
             name="save-settings"
             :disabled="!settingsHaveChanged"
             @click="saveConfig()"
@@ -71,6 +71,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KButton from 'kolibri.coreVue.components.KButton';
   import isEqual from 'lodash/isEqual';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ConfirmResetModal from './ConfirmResetModal';
   import Notifications from './ConfigPageNotifications';
 
@@ -98,6 +99,7 @@
       KCheckbox,
       KButton,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         showModal: false,
@@ -141,7 +143,6 @@
       },
     },
     $trs: {
-      currentFacilityHeader: 'Facility',
       learnerCanEditName: 'Allow learners and coaches to edit their full name',
       learnerCanEditPassword: 'Allow learners and coaches to change their password when signed in',
       learnerCanEditUsername: 'Allow learners and coaches to edit their username',
@@ -152,7 +153,6 @@
       pageDescription: 'Configure various settings',
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to defaults',
-      saveChanges: 'Save changes',
       documentTitle: 'Configure Facility',
     },
   };

@@ -26,9 +26,8 @@ export function contentState(node, next_content = [], ancestors = []) {
 }
 
 export function _collectionState(data) {
-  return data.map(
-    item =>
-      item.kind === ContentNodeKinds.TOPICS ? normalizeContentNode(item) : contentState(item)
+  return data.map(item =>
+    item.kind === ContentNodeKinds.TOPICS ? normalizeContentNode(item) : contentState(item)
   );
 }
 

@@ -13,18 +13,18 @@
       <ReportsHeader />
       <KSelect
         v-model="filter"
-        :label="$tr('show')"
+        :label="coreString('showAction')"
         :options="filterOptions"
         :inline="true"
       />
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('titleLabel') }}</th>
-            <th>{{ coachCommon$tr('avgScoreLabel') }}</th>
-            <th>{{ coachCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('recipientsLabel') }}</th>
-            <th>{{ coachCommon$tr('statusLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coachString('avgScoreLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
+            <th>{{ coachString('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -66,6 +66,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -74,7 +75,7 @@
     components: {
       ReportsHeader,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         filter: 'allQuizzes',
@@ -83,7 +84,7 @@
     computed: {
       emptyMessage() {
         if (this.filter.value === 'allQuizzes') {
-          return this.coachCommon$tr('quizListEmptyState');
+          return this.coachString('quizListEmptyState');
         }
         if (this.filter.value === 'activeQuizzes') {
           return this.$tr('noActiveExams');
@@ -97,17 +98,17 @@
       filterOptions() {
         return [
           {
-            label: this.$tr('allQuizzes'),
+            label: this.coachString('allQuizzesLabel'),
             value: 'allQuizzes',
             noActiveExams: 'No active quizzes',
             noInactiveExams: 'No inactive quizzes',
           },
           {
-            label: this.$tr('activeQuizzes'),
+            label: this.coachString('activeQuizzesLabel'),
             value: 'activeQuizzes',
           },
           {
-            label: this.$tr('inactiveQuizzes'),
+            label: this.coachString('inactiveQuizzesLabel'),
             value: 'inactiveQuizzes',
           },
         ];
@@ -141,10 +142,6 @@
       this.filter = this.filterOptions[0];
     },
     $trs: {
-      show: 'Show',
-      allQuizzes: 'All quizzes',
-      activeQuizzes: 'Active quizzes',
-      inactiveQuizzes: 'Inactive quizzes',
       noActiveExams: 'No active quizzes',
       noInactiveExams: 'No inactive quizzes',
     },

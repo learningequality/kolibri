@@ -13,14 +13,15 @@
 
   import { mapState, mapGetters } from 'vuex';
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames, PageModes } from '../constants';
-  import { learnStringsMixin } from './commonLearnStrings';
   import classesBreadcrumbItems from './classes/classesBreadcrumbItems';
+  import commonLearnStrings from './commonLearnStrings';
 
   export default {
     name: 'Breadcrumbs',
     components: { KBreadcrumbs },
-    mixins: [classesBreadcrumbItems, learnStringsMixin],
+    mixins: [classesBreadcrumbItems, commonCoreStrings, commonLearnStrings],
     computed: {
       ...mapGetters(['pageMode']),
       ...mapState(['pageName']),
@@ -41,7 +42,7 @@
       learnBreadcrumbs() {
         return [
           {
-            text: this.coachCommon$tr('recommendedLabel'),
+            text: this.learnString('recommendedLabel'),
             link: { name: PageNames.RECOMMENDED },
           },
           { text: this.contentTitle },
@@ -89,7 +90,7 @@
         return [
           // All Channels Link
           {
-            text: this.coachCommon$tr('channelsLabel'),
+            text: this.coreString('channelsLabel'),
             link: { name: PageNames.TOPICS_ROOT },
           },
           ...this.middleTopicBreadcrumbs,

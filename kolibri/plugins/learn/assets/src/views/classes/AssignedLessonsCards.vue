@@ -3,7 +3,7 @@
   <div>
     <div class="header">
       <h2>
-        {{ $tr('lessonsHeader') }}
+        {{ coreString('lessonsLabel') }}
       </h2>
       <p v-if="lessons.length===0">
         {{ $tr('noLessonsMessage') }}
@@ -28,6 +28,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ContentCard from '../ContentCard';
   import { lessonPlaylistLink } from './classPageLinks';
 
@@ -36,6 +37,7 @@
     components: {
       ContentCard,
     },
+    mixins: [commonCoreStrings],
     props: {
       lessons: {
         type: Array,
@@ -58,7 +60,6 @@
       lessonPlaylistLink,
     },
     $trs: {
-      lessonsHeader: 'Lessons',
       noLessonsMessage: 'You have no lessons assigned',
     },
   };

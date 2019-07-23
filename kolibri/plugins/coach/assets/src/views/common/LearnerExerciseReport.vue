@@ -22,7 +22,7 @@
         <HeaderTable>
           <HeaderTableRow>
             <template slot="key">
-              {{ coachCommon$tr('masteryModelLabel') }}
+              {{ coachString('masteryModelLabel') }}
             </template>
             <template slot="value">
               <MasteryModel />
@@ -30,7 +30,7 @@
           </HeaderTableRow>
           <HeaderTableRow>
             <template slot="key">
-              {{ coachCommon$tr('statusLabel') }}
+              {{ coachString('statusLabel') }}
             </template>
             <template slot="value">
               <StatusSimple :status="status" />
@@ -51,7 +51,7 @@
           :style="{ backgroundColor: $themeTokens.surface }"
         >
           <KCheckbox
-            :label="coachCommon$tr('showCorrectAnswerLabel')"
+            :label="coreString('showCorrectAnswerLabel')"
             :checked="showCorrectAnswer"
             @change="toggleShowCorrectAnswer"
           />
@@ -92,6 +92,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
 
   export default {
@@ -104,7 +105,7 @@
       MultiPaneLayout,
       CoachContentLabel,
     },
-    mixins: [commonCoach, themeMixin],
+    mixins: [commonCoach, commonCoreStrings, themeMixin],
     data() {
       return {
         showCorrectAnswer: false,

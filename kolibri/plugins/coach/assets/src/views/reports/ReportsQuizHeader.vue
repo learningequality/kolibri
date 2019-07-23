@@ -5,7 +5,7 @@
       <BackLink
         slot="backlink"
         :to="classRoute('ReportsQuizListPage')"
-        :text="$tr('back')"
+        :text="coachString('allQuizzesLabel')"
       />
       <QuizOptionsDropdownMenu
         slot="options"
@@ -19,35 +19,35 @@
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
+      <HeaderTableRow :keyText="coachString('statusLabel')">
         <QuizActive
           slot="value"
           :active="exam.active"
         />
       </HeaderTableRow>
-      <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
+      <HeaderTableRow :keyText="coachString('recipientsLabel')">
         <Recipients
           slot="value"
           :groupNames="getGroupNames(exam.groups)"
           :hasAssignments="exam.assignments.length > 0"
         />
       </HeaderTableRow>
-      <HeaderTableRow :keyText="coachCommon$tr('avgScoreLabel')">
+      <HeaderTableRow :keyText="coachString('avgScoreLabel')">
         <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
       <HeaderTableRow
-        :keyText="coachCommon$tr('questionOrderLabel')"
+        :keyText="coachString('questionOrderLabel')"
         :valueText="orderDescriptionString"
       />
     </HeaderTable>
 
     <HeaderTabs>
       <HeaderTab
-        :text="coachCommon$tr('reportLabel')"
+        :text="coachString('reportLabel')"
         :to="classRoute('ReportsQuizLearnerListPage')"
       />
       <HeaderTab
-        :text="coachCommon$tr('difficultQuestionsLabel')"
+        :text="coachString('difficultQuestionsLabel')"
         :to="classRoute('ReportsQuizQuestionListPage')"
       />
     </HeaderTabs>
@@ -82,8 +82,8 @@
       },
       orderDescriptionString() {
         return this.exam.learners_see_fixed_order
-          ? this.coachCommon$tr('orderFixedLabel')
-          : this.coachCommon$tr('orderRandomLabel');
+          ? this.coachString('orderFixedLabel')
+          : this.coachString('orderRandomLabel');
       },
     },
     methods: {
@@ -96,9 +96,7 @@
         }
       },
     },
-    $trs: {
-      back: 'All quizzes',
-    },
+    $trs: {},
   };
 
 </script>

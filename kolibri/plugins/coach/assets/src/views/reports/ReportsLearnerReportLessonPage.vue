@@ -24,7 +24,7 @@
       <HeaderTable>
         <HeaderTableRow>
           <template slot="key">
-            {{ coachCommon$tr('statusLabel') }}
+            {{ coachString('statusLabel') }}
           </template>
           <template slot="value">
             <LessonActive :active="lesson.active" />
@@ -32,11 +32,11 @@
         </HeaderTableRow>
         <HeaderTableRow>
           <template slot="key">
-            {{ coachCommon$tr('descriptionLabel') }}
+            {{ coachString('descriptionLabel') }}
           </template>
           <template slot="value">
             <span dir="auto">
-              {{ lesson.description || coachCommon$tr('descriptionMissingLabel') }}
+              {{ lesson.description || coachString('descriptionMissingLabel') }}
             </span>
           </template>
         </HeaderTableRow>
@@ -45,9 +45,9 @@
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('titleLabel') }}</th>
-            <th>{{ coachCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('timeSpentLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('timeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -86,14 +86,15 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
 
   export default {
     name: 'ReportsLearnerReportLessonPage',
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       emptyMessage() {
-        return this.$tr('noResourcesInLesson');
+        return this.coachString('noResourcesInLessonLabel');
       },
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -127,10 +128,7 @@
         return undefined;
       },
     },
-    $trs: {
-      lessonProgressLabel: "'{lesson}' progress",
-      noResourcesInLesson: 'No resources in this lesson',
-    },
+    $trs: {},
   };
 
 </script>

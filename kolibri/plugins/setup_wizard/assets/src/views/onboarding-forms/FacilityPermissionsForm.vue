@@ -131,7 +131,6 @@
       facilityPermissionsSetupFormHeader: 'What kind of facility are you installing Kolibri in?',
       facilityPermissionsSetupFormDescription:
         'A facility is the location where you are installing Kolibri, such as a school, training center, or a home.',
-      facilityPermissionsPresetDetailsLink: 'More information about these settings',
       adminManagedSetupTitle: 'Formal',
       adminManagedSetupDescription: 'Schools and other formal learning contexts',
       selfManagedSetupTitle: 'Non-formal',

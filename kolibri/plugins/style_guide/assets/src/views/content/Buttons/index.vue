@@ -149,8 +149,8 @@
   import ExternalLink from '../../shell/ExternalLink';
 
   /* eslint-disable import/no-duplicates */
-  import exampleCode from '!!raw-loader!./Example.vue';
   import Example from './Example';
+  import exampleCode from '!!raw-loader!./Example.vue';
   /* eslint-enable import/no-duplicates */
 
   import KButtonApi from '!vue-doc!kolibri.coreVue.components.KButton';

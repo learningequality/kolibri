@@ -13,7 +13,7 @@
     <HeaderTable>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachCommon$tr('usernameLabel') }}
+          {{ coreString('usernameLabel') }}
         </template>
         <template slot="value">
           {{ learner.username }}
@@ -21,42 +21,42 @@
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachCommon$tr('groupsLabel') }}
+          {{ coachString('groupsLabel') }}
         </template>
         <TruncatedItemList slot="value" :items="getGroupNamesForLearner(learner.id)" />
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachCommon$tr('avgQuizScoreLabel') }}
+          {{ coachString('avgQuizScoreLabel') }}
         </template>
         <template slot="value">
-          {{ coachCommon$tr('percentage', {value: avgScore}) }}
+          {{ coachString('percentage', {value: avgScore}) }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachCommon$tr('exercisesCompletedLabel') }}
+          {{ coachString('exercisesCompletedLabel') }}
         </template>
         <template slot="value">
-          {{ coachCommon$tr('integer', {value: exercisesCompleted}) }}
+          {{ coachString('integer', {value: exercisesCompleted}) }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachCommon$tr('resourcesViewedLabel') }}
+          {{ coachString('resourcesViewedLabel') }}
         </template>
         <template slot="value">
-          {{ coachCommon$tr('integer', {value: resourcesViewed}) }}
+          {{ coachString('integer', {value: resourcesViewed}) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>
     <HeaderTabs>
       <HeaderTab
-        :text="coachCommon$tr('reportsLabel')"
+        :text="coachString('reportsLabel')"
         :to="classRoute('ReportsLearnerReportPage', {})"
       />
       <HeaderTab
-        :text="coachCommon$tr('activityLabel')"
+        :text="coachString('activityLabel')"
         :to="classRoute('ReportsLearnerActivityPage', {})"
       />
     </HeaderTabs>
@@ -67,12 +67,13 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
 
   export default {
     name: 'ReportsLearnerHeader',
     components: {},
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       learner() {
         return this.learnerMap[this.$route.params.learnerId];

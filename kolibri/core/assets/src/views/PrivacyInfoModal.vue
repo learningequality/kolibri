@@ -2,12 +2,12 @@
 
   <KModal
     size="large"
-    :cancelText="$tr('cancelButtonLabel')"
-    :title="$tr('privacyModalHeader')"
+    :cancelText="coreString('closeAction')"
+    :title="coreString('usageAndPrivacyLabel')"
     @cancel="$emit('cancel')"
   >
     <section v-if="!hideUsersSection">
-      <h2>{{ $tr('kolibriUsersTitle') }}</h2>
+      <h2>{{ coreString('usersLabel') }}</h2>
       <p>{{ $tr('kolibriUsersP1') }}</p>
       <p>{{ $tr('kolibriUsersP2') }}</p>
       <p>{{ $tr('kolibriUsersP3') }}</p>
@@ -50,6 +50,7 @@
 
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import KModal from 'kolibri.coreVue.components.KModal';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'PrivacyInfoModal',
@@ -57,6 +58,7 @@
       KExternalLink,
       KModal,
     },
+    mixins: [commonCoreStrings],
     props: {
       hideUsersSection: {
         type: Boolean,
@@ -72,9 +74,6 @@
       },
     },
     $trs: {
-      privacyModalHeader: 'Usage and privacy',
-      cancelButtonLabel: 'Close',
-      kolibriUsersTitle: 'Users',
       kolibriUsersP1:
         'You should use Kolibri in compliance with all applicable laws. This may mean obtaining permission from your parent, guardian, or teacher.',
       kolibriUsersP2:

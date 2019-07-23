@@ -7,7 +7,7 @@
       class="signup-form"
       @submit.prevent="signUp"
     >
-      <h1>{{ $tr('createAccount') }}</h1>
+      <h1>{{ $tr('createAccountAction') }}</h1>
 
       <KTextbox
         id="name"
@@ -15,7 +15,7 @@
         v-model="name"
         type="text"
         autocomplete="name"
-        :label="$tr('name')"
+        :label="coreString('fullNameLabel')"
         :maxlength="120"
         :autofocus="true"
         :invalid="nameIsInvalid"
@@ -29,7 +29,7 @@
         v-model="username"
         type="text"
         autocomplete="username"
-        :label="$tr('username')"
+        :label="coreString('usernameLabel')"
         :maxlength="30"
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
@@ -43,7 +43,7 @@
         v-model="password"
         type="password"
         autocomplete="new-password"
-        :label="$tr('password')"
+        :label="coreString('passwordLabel')"
         :invalid="passwordIsInvalid"
         :invalidText="passwordIsInvalidText"
         @blur="passwordBlurred = true"
@@ -63,7 +63,7 @@
 
       <KSelect
         v-model="selectedFacility"
-        :label="$tr('facility')"
+        :label="coreString('facilityLabel')"
         :options="facilityList"
         :invalid="facilityIsInvalid"
         :invalidText="facilityIsInvalidText"
@@ -83,7 +83,7 @@
         <KButton
           :disabled="busy"
           :primary="true"
-          :text="$tr('finish')"
+          :text="coreString('finishAction')"
           type="submit"
           class="submit"
         />
@@ -115,6 +115,7 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
 
   export default {
@@ -131,6 +132,7 @@
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
+    mixins: [commonCoreStrings],
     data: () => ({
       name: '',
       username: '',
@@ -157,7 +159,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -174,10 +176,10 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
           if (!validateUsername(this.username) || this.errors.includes(ERROR_CONSTANTS.INVALID)) {
-            return this.$tr('usernameAlphaNumError');
+            return this.coreString('usernameNotAlphaNumError');
           }
           if (!this.usernameDoesNotExistYet) {
             return this.$tr('usernameAlreadyExistsError');
@@ -191,7 +193,7 @@
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
           if (this.password === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -202,10 +204,10 @@
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.formSubmitted) {
           if (this.confirmedPassword === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.confirmedPassword !== this.password) {
-            return this.$tr('passwordMatchError');
+            return this.coreString('passwordsMismatchError');
           }
         }
         return '';
@@ -219,7 +221,7 @@
       facilityIsInvalidText() {
         if (this.facilityBlurred || this.formSubmitted) {
           if (this.noFacilitySelected) {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -274,21 +276,10 @@
       },
     },
     $trs: {
-      createAccount: 'Create an account',
-      name: 'Full name',
-      username: 'Username',
-      password: 'Password',
+      createAccountAction: 'Create an account',
       reEnterPassword: 'Re-enter password',
-      passwordMatchError: 'Passwords do not match',
-      genericError: 'Something went wrong during account creation',
-      usernameAlphaNumError: 'Username can only contain letters, numbers, and underscores',
       usernameAlreadyExistsError: 'An account with that username already exists',
-      logIn: 'Sign in',
-      kolibri: 'Kolibri',
-      finish: 'Finish',
-      facility: 'Facility',
-      required: 'This field is required',
-      documentTitle: 'Create account',
+      documentTitle: 'User Sign Up',
       privacyLink: 'Usage and privacy in Kolibri',
     },
   };

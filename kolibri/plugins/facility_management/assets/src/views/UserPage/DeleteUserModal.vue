@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('deleteUser')"
-    :submitText="$tr('delete')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreString('deleteAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="submitting"
     @submit="handleDeleteUser"
     @cancel="$emit('cancel')"
@@ -19,12 +19,14 @@
 
   import { mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'DeleteUserModal',
     components: {
       KModal,
     },
+    mixins: [commonCoreStrings],
     props: {
       id: {
         type: String,
@@ -51,8 +53,6 @@
       deleteUser: 'Delete user',
       confirmation: "Are you sure you want to delete the user '{ username }'?",
       warning: 'All data and logs for this user will be lost.',
-      cancel: 'Cancel',
-      delete: 'Delete',
     },
   };
 

@@ -5,9 +5,6 @@ import { createExam } from '../examShared/exams';
 const snackbarTranslator = createTranslator('ExamReportSnackbarTexts', {
   changesToExamSaved: 'Changes to quiz saved',
   copiedExamToClass: 'Copied quiz to { className }',
-  examDeleted: 'Quiz deleted',
-  examIsNowActive: 'Quiz is now active',
-  examIsNowInactive: 'Quiz is now inactive',
 });
 
 function showSnackbar(store, string) {

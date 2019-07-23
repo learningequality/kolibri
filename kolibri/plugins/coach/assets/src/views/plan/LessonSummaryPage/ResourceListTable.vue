@@ -47,7 +47,7 @@
             </KGridItem>
             <KGridItem size="3" alignment="right">
               <KButton
-                :text="$tr('resourceRemovalButtonLabel')"
+                :text="coreString('removeAction')"
                 appearance="flat-button"
                 @click="removeResource(resourceId)"
               />
@@ -75,6 +75,7 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const removalSnackbarTime = 5000;
 
@@ -92,7 +93,7 @@
       KGridItem,
       ContentIcon,
     },
-    mixins: [themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     data() {
       const workingResourcesIds = this.$store.state.lessonSummary.workingResources;
       const resourceContentNodes = this.$store.state.lessonSummary.resourceCache;
@@ -222,13 +223,6 @@
     $trs: {
       resourceReorderConfirmationMessage: 'New lesson order saved',
       undoActionPrompt: 'Undo',
-      resourceReorderColumnHeaderForTable:
-        'Use buttons in this column to re-order resources in the lesson',
-      resourceTypeColumnHeaderForTable: 'Resource type',
-      lessonTitleColumnHeaderForTable: 'Title',
-      resourceRemovalColumnHeaderForTable:
-        'Use buttons in this column to remove resources from the lesson',
-      resourceRemovalButtonLabel: 'Remove',
       singleResourceRemovalConfirmationMessage: 'Removed { resourceTitle }',
       multipleResourceRemovalsConfirmationMessage: 'Removed { numberOfRemovals } resources',
       moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',

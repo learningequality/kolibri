@@ -20,7 +20,7 @@
       <KButton
         v-if="showViewMore && (textIsTruncated || viewAllText)"
         appearance="basic-link"
-        :text="viewAllText ? $tr('viewLessButtonPrompt') : $tr('viewMoreButtonPrompt')"
+        :text="viewAllText ? $tr('viewLessButtonPrompt') : coreString('viewMoreAction')"
         @click.stop.prevent="viewAllText = !viewAllText"
       />
     </div>
@@ -36,6 +36,7 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'TextTruncator',
@@ -43,7 +44,7 @@
       KButton,
       KTooltip,
     },
-    mixins: [responsiveElement],
+    mixins: [commonCoreStrings, responsiveElement],
     props: {
       text: {
         type: String,
@@ -108,7 +109,6 @@
       },
     },
     $trs: {
-      viewMoreButtonPrompt: 'View more',
       viewLessButtonPrompt: 'View less',
     },
   };

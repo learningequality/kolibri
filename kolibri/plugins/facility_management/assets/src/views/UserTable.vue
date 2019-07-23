@@ -21,7 +21,7 @@
           <th>
             <!-- "Full name" header visually hidden if checkbox is on -->
             <span :class="{visuallyhidden: selectable}">
-              {{ $tr('fullName') }}
+              {{ coreString('fullNameLabel') }}
             </span>
           </th>
           <th>
@@ -29,7 +29,7 @@
               {{ $tr('role') }}
             </span>
           </th>
-          <th>{{ $tr('username') }}</th>
+          <th>{{ coreString('usernameLabel') }}</th>
           <th v-if="$scopedSlots.info">
             {{ infoDescriptor }}
           </th>
@@ -105,6 +105,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import difference from 'lodash/difference';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UserTable',
@@ -114,7 +115,7 @@
       UserTypeDisplay,
       KLabeledIcon,
     },
-    mixins: [themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     props: {
       users: {
         type: Array,
@@ -175,15 +176,8 @@
       },
     },
     $trs: {
-      coachTableTitle: 'Coaches',
-      learnerTableTitle: 'Learners',
-      fullName: 'Full name',
-      username: 'Username',
       role: 'Role',
-      userIconColumnHeader: 'User icon',
       userActionsColumnHeader: 'Actions',
-      remove: 'Remove',
-      noUsersExist: 'No users in this class',
     },
   };
 

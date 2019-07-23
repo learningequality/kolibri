@@ -3,8 +3,8 @@
   <KModal
     :title="$tr('renameLearnerGroup')"
     size="small"
-    :submitText="$tr('save')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreString('saveAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="submitting"
     @submit="callRenameGroup"
     @cancel="$emit('cancel')"
@@ -13,7 +13,7 @@
       ref="name"
       v-model.trim="name"
       type="text"
-      :label="$tr('learnerGroupName')"
+      :label="coachString('groupNameLabel')"
       :autofocus="true"
       :invalid="nameIsInvalid"
       :invalidText="nameIsInvalidText"
@@ -30,6 +30,8 @@
   import { mapActions } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KModal from 'kolibri.coreVue.components.KModal';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'RenameGroupModal',
@@ -37,6 +39,7 @@
       KModal,
       KTextbox,
     },
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       groupName: {
         type: String,
@@ -76,7 +79,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.duplicateName) {
             return this.$tr('duplicateName');
@@ -108,11 +111,7 @@
     },
     $trs: {
       renameLearnerGroup: 'Rename group',
-      learnerGroupName: 'Group name',
-      cancel: 'Cancel',
-      save: 'Save',
       duplicateName: 'A group with that name already exists',
-      required: 'This field is required',
     },
   };
 

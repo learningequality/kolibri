@@ -1,7 +1,7 @@
 <template>
 
   <KDropdownMenu
-    :text="coachCommon$tr('optionsLabel')"
+    :text="coreString('optionsLabel')"
     :options="options"
     appearance="raised-button"
     :primary="false"
@@ -14,6 +14,7 @@
 <script>
 
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
@@ -21,7 +22,7 @@
     components: {
       KDropdownMenu,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       // Should be either 'report' or 'plan',
       optionsFor: {
@@ -32,7 +33,7 @@
     computed: {
       options() {
         const editDetails = {
-          label: this.coachCommon$tr('editDetailsAction'),
+          label: this.coreString('editDetailsAction'),
           value: 'EDIT_DETAILS',
         };
         if (this.optionsFor === 'plan') {
@@ -42,12 +43,12 @@
               label: this.$tr('copyQuizAction'),
               value: 'COPY',
             },
-            { label: this.coachCommon$tr('deleteAction'), value: 'DELETE' },
+            { label: this.coreString('deleteAction'), value: 'DELETE' },
           ];
         }
         return [
           {
-            label: this.coachCommon$tr('previewAction'),
+            label: this.coachString('previewAction'),
             value: 'PREVIEW',
           },
           editDetails,

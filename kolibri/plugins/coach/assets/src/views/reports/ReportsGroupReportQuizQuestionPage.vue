@@ -49,10 +49,7 @@
         });
       },
     },
-    $trs: {
-      summary:
-        '{count, number, integer} {count, plural, one {learner} other {learners}} got this question incorrect',
-    },
+    $trs: {},
   };
 
 </script>

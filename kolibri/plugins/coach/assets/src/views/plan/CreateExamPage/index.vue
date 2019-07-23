@@ -5,16 +5,16 @@
     immersivePageIcon="close"
     :immersivePagePrimary="false"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="$tr('newExam')"
+    :appBarTitle="$tr('createNewExamLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :pageTitle="$tr('documentTitle')"
+    :pageTitle="$tr('createNewExamLabel')"
     :marginBottom="72"
   >
 
     <KPageContainer>
 
-      <h1>{{ $tr('createNewExam') }}</h1>
+      <h1>{{ $tr('createNewExamLabel') }}</h1>
 
       <UiAlert
         v-if="showError && !inSearchMode"
@@ -24,14 +24,14 @@
         {{ selectionIsInvalidText }}
       </UiAlert>
 
-      <h2>{{ coachCommon$tr('detailsLabel') }}</h2>
+      <h2>{{ coachString('detailsLabel') }}</h2>
 
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
           <KTextbox
             ref="title"
             v-model.trim="examTitle"
-            :label="$tr('title')"
+            :label="coachString('titleLabel')"
             :autofocus="true"
             :maxlength="100"
           />
@@ -120,11 +120,11 @@
       <KBottomAppBar v-else>
         <KRouterLink
           appearance="flat-button"
-          :text="coachCommon$tr('goBackAction')"
+          :text="coreString('goBackAction')"
           :to="toolbarRoute"
         />
         <KButton
-          :text="coachCommon$tr('continueAction')"
+          :text="coreString('continueAction')"
           primary
           @click="continueProcess"
         />
@@ -152,6 +152,7 @@
   import pickBy from 'lodash/pickBy';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
@@ -177,7 +178,7 @@
       UiIconButton,
       KBottomAppBar,
     },
-    mixins: [responsiveWindow, commonCoach],
+    mixins: [commonCoreStrings, commonCoach, responsiveWindow],
     data() {
       return {
         showError: false,
@@ -492,23 +493,17 @@
       },
     },
     $trs: {
-      newExam: 'New quiz',
-      createNewExam: 'Create new quiz',
+      createNewExamLabel: 'Create new quiz',
       chooseExercises: 'Select topics or exercises',
-      title: 'Title',
       numQuestions: 'Number of questions',
-      examRequiresTitle: 'This field is required',
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
-      numQuestionsNotMet:
-        'Add more exercises to reach 40 questions. Alternately, lower the number of quiz questions.',
       noneSelected: 'No exercises are selected',
       // TODO: Interpolate strings correctly
       added: "Added '{item}'",
       removed: "Removed '{item}'",
       selected: '{count, number, integer} total selected',
-      documentTitle: 'Create new quiz',
       exitSearchButtonLabel: 'Exit search',
       // TODO: Handle singular/plural
       selectionInformation:

@@ -37,7 +37,7 @@
           <span
             class="side-nav-header-name"
             :style="{ color: $themeTokens.textInverted }"
-          >{{ $tr('kolibri') }}</span>
+          >{{ coreString('kolibriLabel') }}</span>
         </div>
 
         <div
@@ -74,7 +74,7 @@
               <p>
                 <KButton
                   ref="privacyLink"
-                  :text="$tr('privacyLink')"
+                  :text="coreString('usageAndPrivacyLabel')"
                   class="privacy-link"
                   appearance="basic-link"
                   @click="handleClickPrivacyLink"
@@ -107,6 +107,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -140,7 +141,13 @@
       KButton,
       PrivacyInfoModal,
     },
-    mixins: [responsiveWindow, responsiveElement, navComponentsMixin, themeMixin],
+    mixins: [
+      commonCoreStrings,
+      responsiveWindow,
+      responsiveElement,
+      navComponentsMixin,
+      themeMixin,
+    ],
     props: {
       navShown: {
         type: Boolean,
@@ -230,11 +237,9 @@
       },
     },
     $trs: {
-      kolibri: 'Kolibri',
-      navigationLabel: 'Main user navigation menu',
-      closeNav: 'Close navigation menu',
+      navigationLabel: 'Main user navigation',
+      closeNav: 'Close navigation',
       poweredBy: 'Kolibri {version}',
-      privacyLink: 'Usage and privacy',
     },
   };
 

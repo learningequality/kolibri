@@ -63,6 +63,7 @@
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import { fullscreenApiIsSupported } from 'kolibri.utils.browser';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import audioIconPoster from './audio-icon-poster.svg';
 
@@ -75,7 +76,7 @@
 
     components: { KCircularLoader, CoreFullscreen },
 
-    mixins: [ResponsiveElement, contentRendererMixin, themeMixin],
+    mixins: [commonCoreStrings, ResponsiveElement, contentRendererMixin, themeMixin],
 
     data: () => ({
       dummyTime: 0,
@@ -198,7 +199,7 @@
               'Current Time': this.$tr('currentTime'),
               'Duration Time': this.$tr('durationTime'),
               Loaded: this.$tr('loaded'),
-              Progress: this.$tr('progress'),
+              Progress: this.coreString('progressLabel'),
               'Progress Bar': this.$tr('progressBar'),
               Fullscreen: this.$tr('fullscreen'),
               'Non-Fullscreen': this.$tr('nonFullscreen'),
@@ -422,7 +423,6 @@
       currentTime: 'Current time',
       durationTime: 'Duration time',
       loaded: 'Loaded',
-      progress: 'Progress',
       progressBar: 'Progress bar',
       fullscreen: 'Fullscreen',
       nonFullscreen: 'Non-fullscreen',

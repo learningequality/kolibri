@@ -11,18 +11,18 @@
     </section>
 
     <section>
-      <h2>{{ $tr('userType') }}</h2>
+      <h2>{{ coreString('userTypeLabel') }}</h2>
       <UserTypeDisplay :distinguishCoachTypes="false" :userType="getUserKind" />
     </section>
 
     <section v-if="facilityName">
-      <h2>{{ $tr('facility') }}</h2>
+      <h2>{{ coreString('facilityLabel') }}</h2>
       <p>{{ facilityName }}</p>
     </section>
 
 
     <section v-if="userHasPermissions">
-      <h2>{{ $tr('devicePermissions') }}</h2>
+      <h2>{{ coreString('devicePermissionsLabel') }}</h2>
       <p>
         <KLabeledIcon>
           <PermissionsIcon slot="icon" :permissionType="permissionType" class="permissions-icon" />
@@ -58,14 +58,14 @@
         type="text"
         autocomplete="name"
         :autofocus="false"
-        :label="$tr('name')"
+        :label="coreString('fullNameLabel')"
         :disabled="busy"
         :maxlength="120"
         :invalid="nameIsInvalid"
         :invalidText="nameIsInvalidText"
       />
       <template v-else>
-        <h2>{{ $tr('name') }}</h2>
+        <h2>{{ coreString('fullNameLabel') }}</h2>
         <p>{{ name }}</p>
       </template>
 
@@ -75,7 +75,7 @@
         v-model="username"
         type="text"
         autocomplete="username"
-        :label="$tr('username')"
+        :label="coreString('usernameLabel')"
         :disabled="busy"
         :maxlength="30"
         :invalid="usernameIsInvalid"
@@ -84,7 +84,7 @@
         @input="resetProfileState"
       />
       <template v-else>
-        <h2>{{ $tr('username') }}</h2>
+        <h2>{{ coreString('usernameLabel') }}</h2>
         <p>{{ session.username }}</p>
       </template>
 
@@ -92,7 +92,7 @@
         v-if="canEditUsername || canEditName"
         type="submit"
         class="submit"
-        :text="$tr('updateProfile')"
+        :text="coreString('saveChangesAction')"
         :primary="true"
         :disabled="busy"
       />
@@ -125,6 +125,7 @@
   import pickBy from 'lodash/pickBy';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
@@ -154,7 +155,7 @@
       ChangeUserPasswordModal,
       UserTypeDisplay,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [responsiveWindow, themeMixin, commonCoreStrings],
     data() {
       const { username, full_name } = this.$store.state.core.session;
       return {
@@ -229,7 +230,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -240,10 +241,10 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
           if (!validateUsername(this.username)) {
-            return this.$tr('usernameNotAlphaNumUnderscore');
+            return this.coreString('usernameNotAlphaNumError');
           }
           if (this.usernameAlreadyExists) {
             return this.$tr('usernameAlreadyExists');
@@ -299,23 +300,15 @@
     },
     $trs: {
       success: 'Profile details updated',
-      username: 'Username',
-      name: 'Full name',
-      updateProfile: 'Save changes',
       isSuperuser: 'Super admin permissions ',
       manageContent: 'Manage content',
       manageDevicePermissions: 'Manage device permissions',
       points: 'Points',
-      userType: 'User type',
-      devicePermissions: 'Device permissions',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
-      required: 'This field is required',
       limitedPermissions: 'Limited permissions',
       youCan: 'You can',
       changePasswordPrompt: 'Change password',
       usernameAlreadyExists: 'An account with that username already exists',
       documentTitle: 'User Profile',
-      facility: 'Facility',
     },
   };
 

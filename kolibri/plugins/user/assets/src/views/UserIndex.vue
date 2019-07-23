@@ -17,6 +17,7 @@
 
   import { mapState } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import SignInPage from './SignInPage';
   import SignUpPage from './SignUpPage';
@@ -33,15 +34,16 @@
     components: {
       CoreBase,
     },
+    mixins: [commonCoreStrings],
     computed: {
       ...mapState(['pageName']),
       appBarTitle() {
         if (this.pageName === PageNames.PROFILE) {
           return this.$tr('userProfileTitle');
         } else if (this.pageName === PageNames.SIGN_UP) {
-          return this.$tr('createAccount');
+          return this.$tr('createAccountHeading');
         }
-        return this.$tr('userSignInTitle');
+        return this.coreString('signInLabel');
       },
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
@@ -52,8 +54,7 @@
     },
     $trs: {
       userProfileTitle: 'Profile',
-      userSignInTitle: 'Sign in',
-      createAccount: 'Create an account',
+      createAccountHeading: 'Create an account',
     },
   };
 
