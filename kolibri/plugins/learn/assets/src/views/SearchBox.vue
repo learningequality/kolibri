@@ -13,7 +13,7 @@
         fontSize: '16px',
       }"
     >
-      <label class="visuallyhidden" for="searchfield">{{ coachCommon$tr('searchLabel') }}</label>
+      <label class="visuallyhidden" for="searchfield">{{ coreString('searchLabel') }}</label>
       <input
         id="searchfield"
         ref="searchInput"
@@ -22,7 +22,7 @@
         class="search-input"
         :class="$computedClass(searchInputStyle)"
         dir="auto"
-        :placeholder="coachCommon$tr('searchLabel')"
+        :placeholder="coreString('searchLabel')"
       >
       <div class="search-buttons-wrapper">
         <UiIconButton
@@ -99,7 +99,7 @@
         />
         <KSelect
           ref="channelFilter"
-          :label="coachCommon$tr('channelsLabel')"
+          :label="coreString('channelsLabel')"
           :options="channelFilterOptions"
           :inline="true"
           :disabled="!channelFilterOptions.length"
@@ -123,8 +123,8 @@
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import KSelect from 'kolibri.coreVue.components.KSelect';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
-  import { learnStringsMixin } from './commonLearnStrings';
 
   const ALL_FILTER = null;
 
@@ -143,7 +143,7 @@
       UiIconButton,
       KSelect,
     },
-    mixins: [themeMixin, learnStringsMixin],
+    mixins: [themeMixin, commonCoreStrings],
     props: {
       icon: {
         type: String,
@@ -186,7 +186,7 @@
         };
       },
       allFilter() {
-        return { label: this.$tr('all'), value: ALL_FILTER };
+        return { label: this.coreString('allLabel'), value: ALL_FILTER };
       },
       contentKindFilterOptions() {
         if (this.content_kinds.length) {
@@ -284,7 +284,6 @@
       clearButtonLabel: 'Clear',
       startSearchButtonLabel: 'Start search',
       resourceType: 'Type',
-      all: 'All',
       topics: 'Topics',
       exercises: 'Exercises',
       videos: 'Videos',

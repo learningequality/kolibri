@@ -3,7 +3,7 @@
   <div>
     <KGrid>
       <KGridItem sizes="100, 50, 50" percentage>
-        <h1>{{ $tr('users') }}</h1>
+        <h1>{{ coreString('usersLabel') }}</h1>
       </KGridItem>
       <KGridItem sizes="100, 50, 50" percentage align="right">
         <KButton
@@ -16,7 +16,7 @@
       <KGridItem sizes="3, 3, 3">
         <KSelect
           v-model="roleFilter"
-          :label="$tr('filterUserType')"
+          :label="coreString('userTypeLabel')"
           :options="userKinds"
           :inline="true"
           class="type-filter"
@@ -39,7 +39,7 @@
     >
       <template slot="action" slot-scope="userRow">
         <KDropdownMenu
-          :text="$tr('optionsButtonLabel')"
+          :text="coreString('optionsLabel')"
           :options="manageUserOptions(userRow.user.id)"
           :disabled="!userCanBeEdited(userRow.user)"
           appearance="flat-button"
@@ -106,6 +106,7 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KIcon from 'kolibri.coreVue.components.KIcon';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
@@ -118,7 +119,7 @@
     name: 'UserPage',
     metaInfo() {
       return {
-        title: this.$tr('userPageTitle'),
+        title: this.coreString('usersLabel'),
       };
     },
     components: {
@@ -134,6 +135,7 @@
       UserTable,
       UiIconButton,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         searchFilter: '',
@@ -149,9 +151,9 @@
       Modals: () => Modals,
       userKinds() {
         return [
-          { label: this.$tr('allUsers'), value: ALL_FILTER },
-          { label: this.$tr('learners'), value: UserKinds.LEARNER },
-          { label: this.$tr('coaches'), value: UserKinds.COACH },
+          { label: this.coreString('allLabel'), value: ALL_FILTER },
+          { label: this.coreString('learnersLabel'), value: UserKinds.LEARNER },
+          { label: this.coreString('coachesLabel'), value: UserKinds.COACH },
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
         ];
       },
@@ -166,7 +168,7 @@
       },
       emptyMessage() {
         if (this.facilityUsers.length === 0) {
-          return this.$tr('noUsersExist');
+          return this.coreString('noUsersExistLabel');
         } else if (this.visibleUsers.length === 0) {
           return this.$tr('allUsersFilteredOut');
         }
@@ -221,10 +223,10 @@
       },
       manageUserOptions(userId) {
         return [
-          { label: this.$tr('editUser'), value: Modals.EDIT_USER },
+          { label: this.coreString('editDetailsAction'), value: Modals.EDIT_USER },
           { label: this.$tr('resetUserPassword'), value: Modals.RESET_USER_PASSWORD },
           {
-            label: this.$tr('deleteUser'),
+            label: this.coreString('deleteAction'),
             value: Modals.DELETE_USER,
             disabled: userId === this.currentUserId,
           },
@@ -252,25 +254,11 @@
       },
     },
     $trs: {
-      filterUserType: 'User type',
       searchText: 'Search for a user…',
-      allUsers: 'All',
       admins: 'Admins',
-      coaches: 'Coaches',
-      learners: 'Learners',
       newUserButtonLabel: 'New User',
-      userCountLabel: '{userCount} users',
-      fullName: 'Full name',
-      users: 'Users',
-      role: 'Role',
-      username: 'Username',
-      edit: 'Edit',
-      noUsersExist: 'No users exist',
       allUsersFilteredOut: 'No users match the filter',
-      optionsButtonLabel: 'Options',
-      editUser: 'Edit details',
       resetUserPassword: 'Reset password',
-      deleteUser: 'Delete',
       userActions: 'User management actions',
       userPageTitle: 'Users',
       pagination:

@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('title')"
-    :submitText="$tr('confirmButtonLabel')"
-    :cancelText="$tr('cancelButtonLabel')"
+    :submitText="coreString('deleteAction')"
+    :cancelText="coreString('cancelAction')"
     @submit="$emit('submit')"
     @cancel="$emit('cancel')"
   >
@@ -16,12 +16,14 @@
 <script>
 
   import KModal from 'kolibri.coreVue.components.KModal';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'DeleteChannelModal',
     components: {
       KModal,
     },
+    mixins: [commonCoreStrings],
     props: {
       channelTitle: {
         type: String,
@@ -31,8 +33,6 @@
     $trs: {
       confirmationQuestion: `Are you sure you want to delete '{ channelTitle }' from your device?`,
       title: 'Delete channel',
-      cancelButtonLabel: 'Cancel',
-      confirmButtonLabel: 'Delete',
     },
   };
 

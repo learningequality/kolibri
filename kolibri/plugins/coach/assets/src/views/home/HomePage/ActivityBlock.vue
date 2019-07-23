@@ -1,11 +1,11 @@
 <template>
 
   <Block
-    :allLinkText="$tr('viewAll')"
+    :allLinkText="coachString('viewAllAction')"
     :allLinkRoute="$router.getRoute('HomeActivityPage')"
   >
     <template slot="title">
-      {{ $tr('classActivity') }}
+      {{ $tr('classActivityLabel') }}
     </template>
 
     <ContentIcon slot="icon" :kind="ContentNodeKinds.ACTIVITY" />
@@ -21,7 +21,7 @@
       </BlockItem>
     </transition-group>
     <div v-if="notifications.length === 0">
-      {{ $tr('noActivity') }}
+      {{ $tr('noActivityLabel') }}
     </div>
   </Block>
 
@@ -80,11 +80,8 @@
       },
     },
     $trs: {
-      classActivity: 'Class activity',
-      recentActivity: 'Recent activity',
-      recentClassActivity: 'Recent Class activity',
-      noActivity: 'No activity in your class',
-      viewAll: 'View all',
+      classActivityLabel: 'Class activity',
+      noActivityLabel: 'No activity in your class',
     },
   };
 

@@ -55,6 +55,7 @@ import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
 import contentRendererMixin from '../mixins/contentRenderer';
+import commonCoreStrings from '../mixins/commonCoreStrings';
 import CoreFullscreen from '../views/CoreFullscreen';
 import definitions from '../styles/definitions.scss';
 import keenVars from '../keen-config/variables.scss';
@@ -213,6 +214,7 @@ export default {
       responsiveElement,
       contentRendererMixin,
       themeMixin,
+      commonCoreStrings,
     },
   },
   strings: {

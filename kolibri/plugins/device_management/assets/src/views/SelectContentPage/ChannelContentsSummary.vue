@@ -29,7 +29,7 @@
     <table class="channel-statistics">
       <tr class="headers">
         <th></th>
-        <th>{{ $tr('resourcesCol') }}</th>
+        <th>{{ coreString('resourcesLabel') }}</th>
         <th>{{ $tr('sizeCol') }}</th>
       </tr>
       <tr>
@@ -53,6 +53,7 @@
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ChannelContentsSummary',
@@ -60,6 +61,7 @@
       UiIcon,
       KLabeledIcon,
     },
+    mixins: [commonCoreStrings],
     props: {
       channel: {
         type: Object,
@@ -85,7 +87,6 @@
     },
     $trs: {
       onDeviceRow: 'On your device',
-      resourcesCol: 'Resources',
       resourceCount: '{count, number, useGrouping}',
       sizeCol: 'Size',
       totalSizeRow: 'Total size',

@@ -27,6 +27,7 @@
   import { mapState } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ChangeUserPasswordModal',
@@ -34,6 +35,7 @@
       KModal,
       PasswordTextbox,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         password: '',

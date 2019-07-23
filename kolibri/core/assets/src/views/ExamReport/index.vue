@@ -23,10 +23,10 @@
       class="exercise-container"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
-      <h3>{{ $tr('question', {questionNumber: questionNumber + 1}) }}</h3>
+      <h3>{{ coreString('questionNumberLabel', {questionNumber: questionNumber + 1}) }}</h3>
 
       <KCheckbox
-        :label="$tr('showCorrectAnswerLabel')"
+        :label="coreString('showCorrectAnswerLabel')"
         :checked="showCorrectAnswer"
         @change="toggleShowCorrectAnswer"
       />
@@ -68,6 +68,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PageStatus from './PageStatus';
 
   export default {
@@ -80,7 +81,7 @@
       KCheckbox,
       MultiPaneLayout,
     },
-    mixins: [themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     props: {
       examAttempts: {
         type: Array,
@@ -187,12 +188,7 @@
       },
     },
     $trs: {
-      backTo: 'Back to quiz report for { title }',
-      correctAnswer: 'Correct answer',
       yourAnswer: 'Your answer',
-      correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
-      question: 'Question { questionNumber, number }',
-      showCorrectAnswerLabel: 'Show correct answer',
       noItemId: 'This question has an error, please move on to the next question',
     },
   };

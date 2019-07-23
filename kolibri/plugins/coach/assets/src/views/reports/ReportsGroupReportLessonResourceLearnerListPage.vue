@@ -13,7 +13,7 @@
       <p>
         <BackLink
           :to="classRoute('ReportsGroupReportLessonPage', {})"
-          :text="$tr('back', { lesson: lesson.title })"
+          :text="coachString('backToLessonLabel', { lesson: lesson.title })"
         />
       </p>
       <h1>
@@ -21,13 +21,13 @@
       </h1>
 
       <!-- TODO COACH
-      <KButton :text="coachCommon$tr('previewAction')" />
+      <KButton :text="coachString('previewAction')" />
       -->
 
       <HeaderTable>
         <HeaderTableRow>
           <template slot="key">
-            {{ coachCommon$tr('avgTimeSpentLabel') }}
+            {{ coachString('avgTimeSpentLabel') }}
           </template>
           <template slot="value">
             <TimeDuration :seconds="360" />
@@ -38,14 +38,14 @@
       <p>
         <StatusSummary :tally="tally" />
       </p>
-      <CoreTable :emptyMessage="coachCommon$tr('activityListEmptyState')">
+      <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('nameLabel') }}</th>
-            <th>{{ coachCommon$tr('statusLabel') }}</th>
-            <th>{{ coachCommon$tr('timeSpentLabel') }}</th>
-            <th>{{ coachCommon$tr('groupsLabel') }}</th>
-            <th>{{ coachCommon$tr('lastActivityLabel') }}</th>
+            <th>{{ coachString('nameLabel') }}</th>
+            <th>{{ coachString('statusLabel') }}</th>
+            <th>{{ coachString('timeSpentLabel') }}</th>
+            <th>{{ coachString('groupsLabel') }}</th>
+            <th>{{ coachString('lastActivityLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -111,10 +111,7 @@
         });
       },
     },
-    $trs: {
-      back: "Back to '{lesson}'",
-      avgNumViews: 'Average number of views',
-    },
+    $trs: {},
   };
 
 </script>

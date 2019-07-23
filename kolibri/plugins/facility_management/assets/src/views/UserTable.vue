@@ -21,7 +21,7 @@
           <th>
             <!-- "Full name" header visually hidden if checkbox is on -->
             <span :class="{visuallyhidden: selectable}">
-              {{ $tr('fullName') }}
+              {{ coreString('fullNameLabel') }}
             </span>
           </th>
           <th>
@@ -29,7 +29,7 @@
               {{ $tr('role') }}
             </span>
           </th>
-          <th>{{ $tr('username') }}</th>
+          <th>{{ coreString('usernameLabel') }}</th>
           <th v-if="$scopedSlots.info">
             {{ infoDescriptor }}
           </th>
@@ -143,6 +143,7 @@
   import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
   import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
   import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UserTable',
@@ -156,7 +157,7 @@
       BirthYearDisplayText,
       KEmptyPlaceholder,
     },
-    mixins: [themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     props: {
       users: {
         type: Array,
@@ -217,23 +218,8 @@
       },
     },
     $trs: {
-      coachTableTitle: 'Coaches',
-      learnerTableTitle: 'Learners',
-      fullName: 'Full name',
-      username: 'Username',
       role: 'Role',
-      userIconColumnHeader: 'User icon',
       userActionsColumnHeader: 'Actions',
-      remove: 'Remove',
-      noUsersExist: 'No users in this class',
-      userCheckboxLabel: 'Select user',
-      selectAllLabel: 'Select all on page',
-      idNumberHeader: 'Identification number',
-      idNumberTooltipText:
-        'This could be a student ID number or an existing user identification number outside of Kolibri, for example.',
-      idNumberAriaLabel: 'About the identification number',
-      genderHeader: 'Gender',
-      birthYearHeader: 'Birth year',
     },
   };
 

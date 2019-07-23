@@ -16,7 +16,7 @@
       <ActivityList
         :notificationParams="notificationParams"
         embeddedPageName="ReportsGroupActivityPage"
-        :noActivityString="coachCommon$tr('activityListEmptyState')"
+        :noActivityString="coachString('activityListEmptyState')"
       />
 
     </KPageContainer>

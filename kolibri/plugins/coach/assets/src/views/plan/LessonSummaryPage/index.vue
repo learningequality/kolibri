@@ -14,7 +14,7 @@
         <BackLink
           slot="backlink"
           :to="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
-          :text="$tr('back')"
+          :text="coreString('allLessonsLabel')"
         />
         <LessonOptionsDropdownMenu
           slot="options"
@@ -31,10 +31,10 @@
           </h1>
 
           <HeaderTable>
-            <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
+            <HeaderTableRow :keyText="coachString('statusLabel')">
               <LessonActive slot="value" :active="currentLesson.is_active" />
             </HeaderTableRow>
-            <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
+            <HeaderTableRow :keyText="coachString('recipientsLabel')">
               <template slot="value">
                 <Recipients
                   :groupNames="groupNames"
@@ -43,8 +43,8 @@
               </template>
             </HeaderTableRow>
             <HeaderTableRow
-              :keyText="coachCommon$tr('descriptionLabel')"
-              :valueText="currentLesson.description || coachCommon$tr('descriptionMissingLabel')"
+              :keyText="coachString('descriptionLabel')"
+              :valueText="currentLesson.description || coachString('descriptionMissingLabel')"
             />
           </HeaderTable>
         </div>
@@ -54,13 +54,13 @@
             <div class="resource-list-header">
               <div class="resource-list-header-title-block">
                 <h2 class="resource-list-header-title">
-                  {{ $tr('resources') }}
+                  {{ coreString('resourcesLabel') }}
                 </h2>
               </div>
               <div class="resource-list-header-add-resource-button">
                 <KRouterLink
                   :to="lessonSelectionRootPage"
-                  :text="$tr('manageResourcesButton')"
+                  :text="coachString('manageResourcesAction')"
                   :primary="true"
                   appearance="raised-button"
                 />
@@ -71,7 +71,7 @@
           <ResourceListTable v-if="workingResources.length" />
 
           <p v-else class="no-resources-message">
-            {{ $tr('noResourcesInLesson') }}
+            {{ coachString('noResourcesInLessonLabel') }}
           </p>
 
           <ManageLessonModals
@@ -94,6 +94,7 @@
   import { mapState } from 'vuex';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
   import HeaderTable from '../../common/HeaderTable';
@@ -124,7 +125,7 @@
       KRouterLink,
       LessonOptionsDropdownMenu,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         currentAction: '',
@@ -162,13 +163,7 @@
         }
       },
     },
-    $trs: {
-      noResourcesInLesson: 'No resources in this lesson',
-      resources: 'Resources',
-      manageResourcesButton: 'Manage resources',
-      noOne: 'No one',
-      back: 'All lessons',
-    },
+    $trs: {},
   };
 
 </script>

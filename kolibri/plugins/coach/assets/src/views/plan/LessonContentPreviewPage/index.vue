@@ -75,6 +75,7 @@
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
   import markdownIt from 'markdown-it';
   import QuestionList from './QuestionList';
@@ -99,6 +100,7 @@
       KGridItem,
       MultiPaneLayout,
     },
+    mixins: [commonCoreStrings],
     props: {
       currentContentNode: {
         type: Object,
@@ -179,13 +181,11 @@
           return '';
         }
         const questionNumber = questionIndex + 1;
-        return this.$tr('questionLabel', { questionNumber });
+        return this.coreString('questionNumberLabel', { questionNumber });
       },
     },
     $trs: {
-      questionLabel: 'Question { questionNumber, number }',
       completionRequirements: 'Completion: {correct, number} out of {total, number} correct',
-      descriptionDataHeader: 'Description',
       authorDataHeader: 'Author',
       licenseDataHeader: 'License',
       copyrightHolderDataHeader: 'Copyright holder',

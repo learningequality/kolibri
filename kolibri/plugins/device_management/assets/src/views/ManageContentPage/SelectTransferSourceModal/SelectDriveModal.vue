@@ -3,8 +3,8 @@
   <KModal
     :title="title"
     size="medium"
-    :submitText="$tr('continue')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreString('continueAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="selectedDriveId===''"
     @submit="goForward"
     @cancel="resetContentWizardState"
@@ -44,6 +44,7 @@
   import { mapActions, mapState, mapGetters, mapMutations } from 'vuex';
   import UiAlert from 'keen-ui/src/UiAlert';
   import KModal from 'kolibri.coreVue.components.KModal';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TransferTypes } from '../../../constants';
   import DriveList from './DriveList';
 
@@ -54,6 +55,7 @@
       UiAlert,
       KModal,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         driveStatus: '',
@@ -109,8 +111,6 @@
       },
     },
     $trs: {
-      cancel: 'Cancel',
-      continue: 'Continue',
       findingLocalDrives: 'Finding local drives…',
       problemFindingLocalDrives: 'There was a problem finding local drives.',
       selectDrive: 'Select a drive',

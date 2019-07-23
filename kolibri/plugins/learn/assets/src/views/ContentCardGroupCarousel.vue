@@ -252,7 +252,7 @@
         this.panBackwards = true;
       },
     },
-    $trs: { viewAllButtonLabel: 'View all' },
+    $trs: {},
   };
 
 </script>

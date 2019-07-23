@@ -1,0 +1,79 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: la\n"
+"X-Crowdin-File: /release-v0.12.x/django.po\n"
+"Project-Id-Version: kolibri\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Last-Translator: learningequality\n"
+"Language-Team: Spanish, Latin America\n"
+"Language: es_LA\n"
+"PO-Revision-Date: 2019-07-09 22:00\n"
+
+#: kolibri/core/auth/constants/collection_kinds.py:14
+msgid "Facility"
+msgstr "Centro educativo"
+
+#: kolibri/core/auth/constants/collection_kinds.py:15
+msgid "Classroom"
+msgstr "Salón de clase"
+
+#: kolibri/core/auth/constants/collection_kinds.py:16
+msgid "Learner group"
+msgstr "Equipo de estudiantes"
+
+#: kolibri/core/content/api.py:138
+msgid "Content"
+msgstr "Contenido"
+
+#: kolibri/core/content/api.py:836
+msgid "The requested channel does not exist on the content server"
+msgstr "El canal solicitado no existe en el servidor de contenidos"
+
+#: kolibri/core/content/models.py:296
+msgid "Unknown format"
+msgstr "Formato desconocido"
+
+#: kolibri/core/device/serializers.py:50
+msgid "Language is not supported by Kolibri"
+msgstr "Kolibri todavía no está disponible en este idioma"
+
+#: kolibri/core/tasks/api.py:33
+msgid "There was a network error."
+msgstr "Hubo un error de red."
+
+#: kolibri/core/tasks/api.py:35
+msgid "There was a disk access error."
+msgstr "Hubo un error de acceso a disco."
+
+#: kolibri/core/tasks/api.py:37
+msgid "There was an unknown error."
+msgstr "Se ha producido un error desconocido."
+
+#: kolibri/core/templates/kolibri/base.html:13
+#: kolibri/core/templates/kolibri/unsupported_browser.html:13
+msgid "Kolibri"
+msgstr "Kolibri"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:42
+msgid "Unsupported browser"
+msgstr "Navegador no compatible"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:43
+msgid "Sorry, your browser version is not supported."
+msgstr "La versión del navegador no está soportada."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:44
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "Para utilizar el Kolibri, recomendamos usar Firefox o Chrome."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:45
+msgid "You can also try updating your current browser."
+msgstr "También puedes actualizar tu navegador actual."
+
+#: kolibri/core/views.py:184
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "Fue imposible redirigir página correctamente. Es probable que Kolibri está mal configurado"
+

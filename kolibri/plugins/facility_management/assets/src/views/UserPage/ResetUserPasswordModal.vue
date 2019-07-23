@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('resetPassword')"
-    :submitText="$tr('save')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreString('saveAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="isBusy"
     @submit="submitForm"
     @cancel="$emit('cancel')"
@@ -27,6 +27,7 @@
   import { mapState, mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ResetUserPasswordModal',
@@ -34,6 +35,7 @@
       KModal,
       PasswordTextbox,
     },
+    mixins: [commonCoreStrings],
     props: {
       id: {
         type: String,
@@ -79,8 +81,6 @@
     $trs: {
       resetPassword: 'Reset user password',
       username: 'Username: ',
-      cancel: 'cancel',
-      save: 'Save',
     },
   };
 

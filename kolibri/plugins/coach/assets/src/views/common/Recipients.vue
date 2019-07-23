@@ -5,7 +5,7 @@
       <TruncatedItemList :items="groupNames" />
     </template>
     <template v-else-if="hasAssignments">
-      {{ $tr('assignmentClass') }}
+      {{ coachString('entireClassLabel') }}
     </template>
     <template v-else>
       {{ $tr('noOne') }}
@@ -18,12 +18,14 @@
 <script>
 
   import TruncatedItemList from './TruncatedItemList';
+  import { coachStringsMixin } from './commonCoachStrings';
 
   export default {
     name: 'Recipients',
     components: {
       TruncatedItemList,
     },
+    mixins: [coachStringsMixin],
     props: {
       groupNames: {
         type: Array,
@@ -35,7 +37,6 @@
       },
     },
     $trs: {
-      assignmentClass: 'Entire class',
       noOne: 'No one',
     },
   };

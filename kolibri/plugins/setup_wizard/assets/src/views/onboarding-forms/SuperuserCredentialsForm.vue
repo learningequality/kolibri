@@ -62,6 +62,7 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import OnboardingForm from './OnboardingForm';
 
   export default {
@@ -74,6 +75,7 @@
       BirthYearSelect,
       GenderSelect,
     },
+    mixins: [commonCoreStrings],
     props: {
       submitText: {
         type: String,

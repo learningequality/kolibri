@@ -15,6 +15,7 @@
 
   import { mapState } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import SignInPage from './SignInPage';
   import SignUpPage from './SignUpPage';
@@ -33,6 +34,7 @@
     components: {
       CoreBase,
     },
+    mixins: [commonCoreStrings],
     computed: {
       ...mapState(['pageName']),
       immersiveProperties() {
@@ -76,7 +78,7 @@
           return this.$tr('signUpStep2Title');
         }
 
-        return this.$tr('userSignInTitle');
+        return this.coreString('signInLabel');
       },
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
@@ -87,7 +89,6 @@
     },
     $trs: {
       userProfileTitle: 'Profile',
-      userSignInTitle: 'Sign in',
       createAccount: 'Create an account',
       signUpStep1Title: 'Step 1 of 2',
       signUpStep2Title: 'Step 2 of 2',

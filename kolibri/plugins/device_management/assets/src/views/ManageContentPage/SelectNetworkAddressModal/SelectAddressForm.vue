@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('header')"
-    :submitText="$tr('submitButtonLabel')"
-    :cancelText="$tr('cancelButtonLabel')"
+    :submitText="coreString('continueAction')"
+    :cancelText="coreString('cancelAction')"
     size="medium"
     :submitDisabled="submitDisabled"
     @submit="handleSubmit"
@@ -64,6 +64,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { deleteAddress, fetchAddresses } from './api';
 
   const Stages = {
@@ -83,6 +84,7 @@
       KRadioButton,
       UiAlert,
     },
+    mixins: [commonCoreStrings],
     props: {},
     data() {
       return {
@@ -197,7 +199,6 @@
       },
     },
     $trs: {
-      cancelButtonLabel: 'Cancel',
       deletingFailedText: 'There was a problem removing this address',
       fetchingAddressesText: 'Looking for available addresses…',
       fetchingFailedText: 'There was a problem getting the available addresses',
@@ -206,7 +207,6 @@
       newAddressButtonLabel: 'Add new address',
       noAddressText: 'There are no addresses yet',
       refreshAddressesButtonLabel: 'Refresh addresses',
-      submitButtonLabel: 'Continue',
     },
   };
 

@@ -8,10 +8,10 @@ import uuid
 
 import requests
 from django.test import TestCase
-from morango.controller import MorangoProfileController
 from morango.models import InstanceIDModel
 from morango.models import Store
-from morango.utils.register_models import _profile_models
+from morango.models import syncable_models
+from morango.sync.controller import MorangoProfileController
 from rest_framework import status
 from six.moves.urllib.parse import urljoin
 
@@ -127,16 +127,16 @@ class EcosystemTestCase(TestCase):
         return resp
 
     def assertServerQuerysetEqual(self, s1, s2, dataset_id):
-        syncable_models = list(_profile_models["facilitydata"].values())
-        syncable_models.pop(
+        models = syncable_models.get_models("facilitydata")
+        models.pop(
             0
         )  # remove FacilityDataset because __str__() does not point to correct db alias
-        for klass in syncable_models:
+        for model in models:
             self.assertQuerysetEqual(
-                klass.objects.using(s1.db_alias).filter(dataset_id=dataset_id),
+                model.objects.using(s1.db_alias).filter(dataset_id=dataset_id),
                 [
                     repr(u)
-                    for u in klass.objects.using(s2.db_alias).filter(
+                    for u in model.objects.using(s2.db_alias).filter(
                         dataset_id=dataset_id
                     )
                 ],

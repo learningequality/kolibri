@@ -28,7 +28,7 @@
       </tr>
 
       <tr>
-        <th>{{ $tr('userType') }}</th>
+        <th>{{ coreString('userTypeLabel') }}</th>
 
         <td>
           <UserTypeDisplay
@@ -39,13 +39,13 @@
       </tr>
 
       <tr v-if="facilityName">
-        <th>{{ $tr('facility') }}</th>
+        <th>{{ coreString('facilityLabel') }}</th>
         <td>{{ facilityName }}</td>
       </tr>
 
       <tr v-if="userHasPermissions">
         <th style="vertical-align: top">
-          {{ $tr('devicePermissions') }}
+          {{ coreString('devicePermissionsLabel') }}
         </th>
         <td>
           <KLabeledIcon>
@@ -125,6 +125,7 @@
   import pickBy from 'lodash/pickBy';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
@@ -161,7 +162,7 @@
       GenderDisplayText,
       BirthYearDisplayText,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [responsiveWindow, themeMixin, commonCoreStrings],
     data() {
       return {
         facilityUser: {},
@@ -236,22 +237,14 @@
     },
     $trs: {
       success: 'Profile details updated',
-      username: 'Username',
-      name: 'Full name',
       isSuperuser: 'Super admin permissions ',
       manageContent: 'Manage content',
       manageDevicePermissions: 'Manage device permissions',
       points: 'Points',
-      userType: 'User type',
-      devicePermissions: 'Device permissions',
       limitedPermissions: 'Limited permissions',
       youCan: 'You can:',
       changePasswordPrompt: 'Change password',
       documentTitle: 'User Profile',
-      facility: 'Facility',
-      detailsHeader: 'Details',
-      editAction: 'Edit',
-      changePasswordHeader: 'Password',
     },
   };
 

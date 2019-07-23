@@ -36,11 +36,11 @@ from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
-from morango.certificates import Certificate
-from morango.manager import SyncableModelManager
+from morango.models import Certificate
+from morango.models import MorangoMPTTModel
+from morango.models import MorangoMPTTTreeManager
 from morango.models import SyncableModel
-from morango.utils.morango_mptt import MorangoMPTTModel
-from morango.utils.morango_mptt import MorangoMPTTTreeManager
+from morango.models import SyncableModelManager
 from mptt.models import TreeForeignKey
 
 from .constants import collection_kinds
@@ -1114,8 +1114,6 @@ class Membership(AbstractFacilityDataModel):
     def infer_dataset(self, *args, **kwargs):
         user_dataset_id = self.cached_related_dataset_lookup("user")
         collection_dataset_id = self.cached_related_dataset_lookup("collection")
-        # user_dataset_id = self.user.dataset_id
-        # collection_dataset_id = self.collection.dataset_id
         if user_dataset_id != collection_dataset_id:
             raise KolibriValidationError(
                 "Collection and user for a Membership object must be in same dataset."

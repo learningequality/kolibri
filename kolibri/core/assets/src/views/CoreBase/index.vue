@@ -126,6 +126,7 @@
   import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
   import coreBannerContent from 'kolibri.utils.coreBannerContent';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AppError from '../AppError';
   import GlobalSnackbar from '../GlobalSnackbar';
   import ImmersiveToolbar from '../ImmersiveToolbar';
@@ -166,7 +167,7 @@
           }
           if (!title) {
             // If no child component sets title, it reads 'Kolibri'
-            return this.$tr('kolibriMessage');
+            return this.coreString('kolibriLabel');
           }
           // If child component sets title, it reads 'Child Title - Kolibri'
           return this.$tr('kolibriTitleMessage', { title });
@@ -188,7 +189,7 @@
       UpdateNotification,
       LanguageSwitcherModal,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [responsiveWindow, themeMixin, commonCoreStrings],
     props: {
       appBarTitle: {
         type: String,
@@ -433,7 +434,6 @@
       },
     },
     $trs: {
-      kolibriMessage: 'Kolibri',
       kolibriTitleMessage: '{ title } - Kolibri',
       errorPageTitle: 'Error',
     },

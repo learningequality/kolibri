@@ -21,21 +21,21 @@
       </h1>
       <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
       <HeaderTable>
-        <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
+        <HeaderTableRow :keyText="coachString('statusLabel')">
           <LessonActive slot="value" :active="lesson.active" />
         </HeaderTableRow>
         <HeaderTableRow
-          :keyText="coachCommon$tr('descriptionLabel')"
-          :valueText="lesson.description || coachCommon$tr('descriptionMissingLabel')"
+          :keyText="coachString('descriptionLabel')"
+          :valueText="lesson.description || coachString('descriptionMissingLabel')"
         />
       </HeaderTable>
 
-      <CoreTable :emptyMessage="coachCommon$tr('lessonListEmptyState')">
+      <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('titleLabel') }}</th>
-            <th>{{ coachCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('avgTimeSpentLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('avgTimeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -80,12 +80,13 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
 
   export default {
     name: 'ReportsGroupReportLessonPage',
     components: {},
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];

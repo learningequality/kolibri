@@ -25,7 +25,7 @@
           slot="resourceTable"
         >
           <h2 class="resource-header">
-            {{ $tr('resourceTableHeader') }}
+            {{ coreString('resourcesLabel') }}
           </h2>
           <ResourceListTable
             v-show="!disabled"
@@ -47,6 +47,7 @@
   import isEmpty from 'lodash/isEmpty';
   import { LessonResource } from 'kolibri.resources';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { CoachCoreBase } from '../../common';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
@@ -60,7 +61,7 @@
       KPageContainer,
       ResourceListTable,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       showResourcesTable: {
         type: Boolean,
@@ -174,7 +175,6 @@
       pageTitle: `Edit lesson details for '{title}'`,
       appBarTitle: 'Edit lesson details',
       submitErrorMessage: 'There was a problem saving your changes',
-      resourceTableHeader: 'Resources',
     },
   };
 

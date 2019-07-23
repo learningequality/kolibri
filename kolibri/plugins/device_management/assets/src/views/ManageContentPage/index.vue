@@ -14,7 +14,7 @@
 
         <KGrid>
           <KGridItem sizes="100, 50, 50" percentage>
-            <h1>{{ $tr('title') }}</h1>
+            <h1>{{ coreString('channelsLabel') }}</h1>
           </KGridItem>
           <KGridItem
             v-if="!activeTaskList.length"
@@ -58,6 +58,7 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import ChannelsGrid from './ChannelsGrid';
   import TaskProgress from './TaskProgress';
@@ -79,6 +80,7 @@
       SelectTransferSourceModal,
       TaskProgress,
     },
+    mixins: [commonCoreStrings],
     computed: {
       ...mapGetters(['canManageContent']),
       ...mapGetters('manageContent', ['activeTaskList']),
@@ -113,7 +115,6 @@
       },
     },
     $trs: {
-      title: 'Channels',
       import: 'Import',
       export: 'Export',
       noAccessDetails:

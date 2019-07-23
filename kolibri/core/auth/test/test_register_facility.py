@@ -4,7 +4,7 @@ import mock
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
-from morango.certificates import Certificate
+from morango.models import Certificate
 
 from kolibri.core.auth.test.test_api import FacilityFactory
 

@@ -33,7 +33,7 @@
         >
           <KButton
             class="close-button"
-            :text="$tr('closeButton')"
+            :text="coreString('closeAction')"
             appearance="flat-button"
             :primary="true"
             @click="toggleBanner"
@@ -49,6 +49,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
@@ -56,7 +57,7 @@
   export default {
     name: 'CoreBanner',
     components: { KButton, KGrid, KGridItem },
-    mixins: [themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     data() {
       return {
         bannerClosed: false,
@@ -69,7 +70,6 @@
     },
     $trs: {
       openButton: 'More Info',
-      closeButton: 'Close',
     },
   };
 

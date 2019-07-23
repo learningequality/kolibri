@@ -23,6 +23,7 @@
   import { mapState, mapGetters } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import ClassEditPage from './ClassEditPage';
   import CoachClassAssignmentPage from './CoachClassAssignmentPage';
@@ -54,6 +55,7 @@
       FacilityTopNav,
       KPageContainer,
     },
+    mixins: [commonCoreStrings],
     computed: {
       ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState(['pageName']),
@@ -89,7 +91,7 @@
         }
         return {
           immersivePage: false,
-          appBarTitle: this.$tr('facilityTitle'),
+          appBarTitle: this.coreString('facilityLabel'),
         };
       },
       currentPage() {
@@ -100,7 +102,6 @@
       },
     },
     $trs: {
-      facilityTitle: 'Facility',
       adminOrSuperuser: 'You must be signed in as an admin or super admin to view this page',
       usersLabel: 'Users',
     },

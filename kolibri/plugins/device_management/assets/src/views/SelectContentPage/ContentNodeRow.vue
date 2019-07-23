@@ -93,9 +93,7 @@
         return !this.disabled && this.node.kind === ContentNodeKinds.TOPIC;
       },
     },
-    $trs: {
-      select: 'Select',
-    },
+    $trs: {},
   };
 
 </script>

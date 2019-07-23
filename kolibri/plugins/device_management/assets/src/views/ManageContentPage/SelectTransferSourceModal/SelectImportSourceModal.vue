@@ -3,8 +3,8 @@
   <KModal
     :title="$tr('selectLocalRemoteSourceTitle')"
     size="medium"
-    :submitText="$tr('continue')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreString('continueAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="formIsDisabled"
     @submit="goForward"
     @cancel="resetContentWizardState"
@@ -54,6 +54,7 @@
   import { RemoteChannelResource } from 'kolibri.resources';
   import KModal from 'kolibri.coreVue.components.KModal';
   import UiAlert from 'keen-ui/src/UiAlert';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentSources } from '../../../constants';
 
   export default {
@@ -63,6 +64,7 @@
       KModal,
       UiAlert,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         source: ContentSources.KOLIBRI_STUDIO,
@@ -96,8 +98,6 @@
       },
     },
     $trs: {
-      cancel: 'Cancel',
-      continue: 'Continue',
       network: 'Kolibri Studio (online)',
       localNetworkOrInternet: 'Local network or internet',
       localDrives: 'Attached drive or memory card',

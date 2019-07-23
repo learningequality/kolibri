@@ -3,8 +3,8 @@
   <KModal
     :title="$tr('modalTitle')"
     size="small"
-    :submitText="$tr('saveButtonLabel')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreString('saveAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="submitting"
     @submit="updateName"
     @cancel="$emit('cancel')"
@@ -13,7 +13,7 @@
       ref="name"
       v-model.trim="name"
       type="text"
-      :label="$tr('classname')"
+      :label="coreString('classNameLabel')"
       :autofocus="true"
       :invalid="nameIsInvalid"
       :invalidText="nameIsInvalidText"
@@ -30,6 +30,7 @@
   import { mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ClassRenameModal',
@@ -37,6 +38,7 @@
       KModal,
       KTextbox,
     },
+    mixins: [commonCoreStrings],
     props: {
       classname: {
         type: String,
@@ -76,7 +78,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.duplicateName) {
             return this.$tr('duplicateName');
@@ -105,11 +107,7 @@
     },
     $trs: {
       modalTitle: 'Rename class',
-      classname: 'Class name',
-      cancel: 'Cancel',
-      saveButtonLabel: 'Save',
       duplicateName: 'A class with that name already exists',
-      required: 'This field is required',
     },
   };
 

@@ -85,7 +85,7 @@
 
         <div class="footer">
           <KButton
-            :text="$tr('confirmSelectionButtonLabel')"
+            :text="coreString('confirmAction')"
             :primary="true"
             type="submit"
             :disabled="selectedUsers.length === 0"
@@ -108,6 +108,7 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import {
     userMatchesFilter,
@@ -123,7 +124,7 @@
       KFilterTextbox,
       UserTable,
     },
-    mixins: [responsiveWindow, commonCoach],
+    mixins: [responsiveWindow, commonCoach, commonCoreStrings],
     data() {
       return {
         filterInput: '',
@@ -178,7 +179,7 @@
       },
       emptyMessage() {
         if (this.classUsers.length === 0) {
-          return this.$tr('noUsersExist');
+          return this.coreString('noUsersExistLabel');
         }
         if (this.usersNotInClass.length === 0) {
           return this.$tr('allUsersAlready');
@@ -200,7 +201,7 @@
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
-            this.createSnackbar(this.coachCommon$tr('updatedNotification'));
+            this.createSnackbar(this.coachString('updatedNotification'));
           });
         });
       },
@@ -213,15 +214,12 @@
     },
     $trs: {
       pageHeader: "Enroll learners into '{className}'",
-      confirmSelectionButtonLabel: 'Confirm',
       searchForUser: 'Search for a user',
       userTableLabel: 'User List',
-      noUsersExist: 'No users exist',
       noUsersMatch: 'No users match',
       previousResults: 'Previous results',
       nextResults: 'Next results',
       allUsersAlready: 'All users are already enrolled in this class',
-      classGroups: 'Groups',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
       learnerGroups: 'Current groups',

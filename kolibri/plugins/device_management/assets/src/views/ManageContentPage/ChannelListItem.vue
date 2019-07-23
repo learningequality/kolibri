@@ -72,7 +72,7 @@
       />
       <KDropdownMenu
         v-if="inManageMode"
-        :text="$tr('manageChannelOptions')"
+        :text="coreString('optionsLabel')"
         :disabled="tasksInQueue"
         :options="manageChannelActions"
         @select="handleManageChannelAction($event.value)"
@@ -93,6 +93,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { selectContentPageLink } from './manageContentLinks';
   import ChannelListItemLarge from './ChannelListItemLarge';
   import ChannelListItemSmall from './ChannelListItemSmall';
@@ -116,7 +117,7 @@
       KRouterLink,
       UiIcon,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [commonCoreStrings, responsiveWindow, themeMixin],
     props: {
       channel: {
         type: Object,
@@ -143,7 +144,7 @@
             value: ChannelActions.IMPORT_MORE_FROM_CHANNEL,
           },
           {
-            label: this.$tr('deleteChannel'),
+            label: this.coreString('deleteAction'),
             value: ChannelActions.DELETE_CHANNEL,
           },
         ];
@@ -209,9 +210,7 @@
     },
     $trs: {
       defaultDescription: '(No description)',
-      deleteChannel: 'Delete',
       importMoreFromChannel: 'Import more',
-      manageChannelOptions: 'Options',
       onYourDevice: 'On your device',
       selectButton: 'Select',
       version: 'Version {version}',

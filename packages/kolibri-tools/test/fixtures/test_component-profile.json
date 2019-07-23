@@ -92,7 +92,7 @@
   "Coach": {
     "definitions": [
       {
-        "namespace": "CommonCoachStrings",
+        "namespace": "CommonCoreStrings",
         "key": "coachLabel"
       }
     ],

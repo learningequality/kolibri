@@ -3,8 +3,8 @@ import sys
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from morango.certificates import Filter
-from morango.controller import MorangoProfileController
+from morango.models import Filter
+from morango.sync.controller import MorangoProfileController
 from requests.exceptions import ConnectionError
 
 from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY

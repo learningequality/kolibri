@@ -13,13 +13,13 @@
 
       <ReportsQuizHeader />
 
-      <CoreTable :emptyMessage="coachCommon$tr('learnerListEmptyState')">
+      <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('nameLabel') }}</th>
-            <th>{{ coachCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('scoreLabel') }}</th>
-            <th>{{ coachCommon$tr('groupsLabel') }}</th>
+            <th>{{ coachString('nameLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('scoreLabel') }}</th>
+            <th>{{ coachString('groupsLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -56,6 +56,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import ReportsQuizHeader from './ReportsQuizHeader';
 
@@ -64,7 +65,7 @@
     components: {
       ReportsQuizHeader,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         filter: 'allQuizzes',
@@ -74,15 +75,15 @@
       filterOptions() {
         return [
           {
-            label: this.$tr('allQuizzes'),
+            label: this.coachString('allQuizzesLabel'),
             value: 'allQuizzes',
           },
           {
-            label: this.$tr('activeQuizzes'),
+            label: this.coachString('activeQuizzesLabel'),
             value: 'activeQuizzes',
           },
           {
-            label: this.$tr('inactiveQuizzes'),
+            label: this.coachString('inactiveQuizzesLabel'),
             value: 'inactiveQuizzes',
           },
         ];
@@ -109,12 +110,7 @@
     beforeMount() {
       this.filter = this.filterOptions[0];
     },
-    $trs: {
-      averageScore: 'Average score: {score, number, percent}',
-      allQuizzes: 'All quizzes',
-      activeQuizzes: 'Active quizzes',
-      inactiveQuizzes: 'Inactive quizzes',
-    },
+    $trs: {},
   };
 
 </script>

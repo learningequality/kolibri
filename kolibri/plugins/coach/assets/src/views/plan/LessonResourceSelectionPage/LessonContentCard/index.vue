@@ -39,7 +39,7 @@
       <p class="ancestors">
         <KRouterLink
           v-if="!isTopic"
-          :text="$tr('previewButtonLabel')"
+          :text="$tr('viewLabel')"
           :to="link"
         />
       </p>
@@ -111,11 +111,10 @@
     },
     $trs: {
       // These strings are not used yet
-      resourcesInTopic: '{count} {count, plural, one {resource} other {resources}}',
-      selectedResourcesInTopic: '{selected} of {total} selected',
-      previewButtonLabel: 'View',
-      topic: 'Topic:',
-      channel: 'Channel:',
+      viewLabel: 'View',
+      // Commented because unused above and not deleted for a reason - topic unused.
+      // topic: 'Topic:',
+      // channel: 'Channel:',
     },
   };
 

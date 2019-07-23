@@ -15,11 +15,11 @@
           <BackLink
             slot="backlink"
             :to="classRoute('ReportsLessonReportPage', {})"
-            :text="$tr('back', { lesson: lesson.title })"
+            :text="coachString('backToLessonLabel', { lesson: lesson.title })"
           />
           <KButton
             slot="options"
-            :text="coachCommon$tr('previewAction')"
+            :text="coachString('previewAction')"
             @click="onPreviewClick"
           />
         </BackLinkWithOptions>
@@ -29,7 +29,7 @@
       </section>
 
       <KCheckbox
-        :label="coachCommon$tr('viewByGroupsLabel')"
+        :label="coachString('viewByGroupsLabel')"
         :checked="viewByGroups"
         @change="toggleGroupsView"
       />
@@ -75,7 +75,7 @@
             class="group-title"
             data-test="group-title"
           >
-            {{ coachCommon$tr('ungroupedLearnersLabel') }}
+            {{ coachString('ungroupedLearnersLabel') }}
           </h2>
 
           <ReportsResourceLearners
@@ -224,10 +224,7 @@
         );
       },
     },
-    $trs: {
-      back: "Back to '{lesson}'",
-      avgNumViews: 'Average number of views',
-    },
+    $trs: {},
   };
 
 </script>

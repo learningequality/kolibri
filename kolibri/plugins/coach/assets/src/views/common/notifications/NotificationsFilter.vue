@@ -23,6 +23,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import {
     NotificationEvents,
     NotificationObjects,
@@ -31,7 +32,7 @@
 
   export default {
     name: 'NotificationsFilter',
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     props: {
       enabledFilters: {
         type: Object,
@@ -48,21 +49,21 @@
       progressTypeOptions() {
         return [
           {
-            label: this.$tr('allLabel'),
+            label: this.coreString('allLabel'),
             value: 'all',
           },
           {
-            label: this.coachCommon$tr('helpNeededLabel'),
+            label: this.coachString('helpNeededLabel'),
             value: NotificationEvents.HELP_NEEDED,
             disabled: this.progressIsDisabled(NotificationEvents.HELP_NEEDED),
           },
           {
-            label: this.coachCommon$tr('startedLabel'),
+            label: this.coachString('startedLabel'),
             value: NotificationEvents.STARTED,
             disabled: this.progressIsDisabled(NotificationEvents.STARTED),
           },
           {
-            label: this.coachCommon$tr('completedLabel'),
+            label: this.coreString('completedLabel'),
             value: NotificationEvents.COMPLETED,
             disabled: this.progressIsDisabled(NotificationEvents.COMPLETED),
           },
@@ -71,16 +72,16 @@
       resourceTypeOptions() {
         return [
           {
-            label: this.$tr('allLabel'),
+            label: this.coreString('allLabel'),
             value: 'all',
           },
           {
-            label: this.coachCommon$tr('lessonsLabel'),
+            label: this.coreString('lessonsLabel'),
             value: ContentNodeKinds.LESSON,
             disabled: this.resourceIsDisabled(NotificationObjects.LESSON),
           },
           {
-            label: this.coachCommon$tr('quizzesLabel'),
+            label: this.coreString('quizzesLabel'),
             value: 'quiz',
             disabled: this.resourceIsDisabled(NotificationObjects.QUIZ),
           },
@@ -125,7 +126,6 @@
       },
     },
     $trs: {
-      allLabel: 'All',
       appsLabel: 'Apps',
       audioLabel: 'Audio',
       bookLabel: 'Book',
@@ -136,7 +136,6 @@
       needsHelpOnlyToggle: "Show only 'Needs help'",
       progressTypeLabel: 'Progress type',
       resourceTypeLabel: 'Resource type',
-      typeLabel: 'Type',
       videosLabel: 'Videos',
     },
   };

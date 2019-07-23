@@ -36,7 +36,7 @@
         <template v-else>
           <KButton
             v-if="moreResults"
-            :text="coachCommon$tr('showMoreAction')"
+            :text="coachString('showMoreAction')"
             @click="fetchNotifications"
           />
         </template>

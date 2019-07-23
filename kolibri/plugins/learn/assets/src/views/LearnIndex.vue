@@ -39,10 +39,12 @@
   import urls from 'kolibri.urls';
   import { redirectBrowser } from 'kolibri.utils.browser';
   import lastItem from 'lodash/last';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
+  import commonLearnStrings from './commonLearnStrings';
   import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
   import ContentPage from './ContentPage';
@@ -90,7 +92,7 @@
       KPageContainer,
       UpdateYourProfileModal,
     },
-    mixins: [responsiveWindow],
+    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindow],
     data() {
       return {
         lastRoute: null,
@@ -155,7 +157,7 @@
         }
         if (this.pageName === PageNames.SEARCH) {
           return {
-            appBarTitle: this.$tr('learnTitle'),
+            appBarTitle: this.coreString('searchLabel'),
             immersivePage: true,
             // Default to the Learn root page if there is no lastRoute to return to.
             immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
@@ -205,7 +207,7 @@
         }
 
         return {
-          appBarTitle: this.$tr('learnTitle'),
+          appBarTitle: this.learnString('learnLabel'),
           immersivePage: false,
         };
       },
@@ -282,9 +284,7 @@
       },
     },
     $trs: {
-      learnTitle: 'Learn',
       examReportTitle: '{examTitle} report',
-      searchTitle: 'Search',
       recommended: 'Recommended',
       documentTitleForPopular: 'Popular',
       documentTitleForResume: 'Resume',

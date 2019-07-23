@@ -2,8 +2,8 @@ import json
 
 import requests
 from morango.api.serializers import CertificateSerializer
-from morango.certificates import Certificate
 from morango.constants.api_urls import NONCE
+from morango.models import Certificate
 from six.moves.urllib.parse import urljoin
 
 from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
