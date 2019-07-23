@@ -9,7 +9,7 @@
 
 <script>
 
-  import UserCreateForm from '../UserPage/UserCreateModal';
+  import UserCreateForm from './UserCreateForm';
 
   export default {
     name: 'UserCreatePage',

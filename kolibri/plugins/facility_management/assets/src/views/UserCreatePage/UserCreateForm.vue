@@ -63,14 +63,14 @@
       />
 
       <BirthYearSelect
+        :value.sync="birthYear"
         :disabled="busy"
         class="select"
-        :value.sync="birthYear"
       />
       <GenderSelect
+        :value.sync="gender"
         :disabled="busy"
         class="select"
-        :value.sync="gender"
       />
 
     </section>
@@ -95,7 +95,7 @@
 
 <script>
 
-  import some from 'lodash/some';
+  import every from 'lodash/every';
   import { mapState, mapGetters } from 'vuex';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
@@ -107,10 +107,10 @@
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
-  import IdentifierTextbox from './IdentifierTextbox';
+  import IdentifierTextbox from '../IdentifierTextbox';
 
   export default {
-    name: 'UserCreateModal',
+    name: 'UserCreateForm',
     metaInfo() {
       return {
         title: this.$tr('createNewUserHeader'),
@@ -135,6 +135,9 @@
         usernameValid: true,
         password: '',
         passwordValid: true,
+        gender: '',
+        birthYear: '',
+        idNumber: '',
         kind: {
           label: this.$tr('learner'),
           value: UserKinds.LEARNER,
@@ -142,9 +145,6 @@
         classCoach: true,
         busy: false,
         formSubmitted: false,
-        gender: '',
-        birthYear: '',
-        idNumber: '',
         caughtErrors: [],
       };
     },
@@ -162,7 +162,7 @@
         return this.kind.value === UserKinds.COACH;
       },
       formIsValid() {
-        return !some([!this.fullNameValid, !this.usernameValid, !this.passwordValid], Boolean);
+        return every([this.fullNameValid, this.usernameValid, this.passwordValid]);
       },
       userKindDropdownOptions() {
         return [
@@ -254,7 +254,6 @@
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachLabel: 'Facility coach',
       facilityCoachDescription: 'Can instruct all classes in your facility',
-      identificationNumberLabel: 'Identification number (optional)',
       userCreatedNotification: "User account for '{username}' was created",
     },
   };

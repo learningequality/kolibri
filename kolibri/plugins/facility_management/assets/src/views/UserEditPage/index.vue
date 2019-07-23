@@ -9,18 +9,12 @@
 
 <script>
 
-  import UserEditForm from '../UserPage/EditUserModal';
+  import UserEditForm from './UserEditForm';
 
   export default {
     name: 'UserEditPage',
     components: {
       UserEditForm,
-    },
-    props: {},
-    computed: {},
-    methods: {},
-    $trs: {
-      createNewUserHeader: 'Create new user',
     },
   };
 

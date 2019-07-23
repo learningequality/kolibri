@@ -120,11 +120,10 @@
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
-  import IdentifierTextbox from './IdentifierTextbox';
+  import IdentifierTextbox from '../IdentifierTextbox';
 
-  // IDEA use UserTypeDisplay for strings in options
   export default {
-    name: 'EditUserModal',
+    name: 'UserEditForm',
     metaInfo() {
       return {
         title: this.$tr('editUserDetailsHeader'),
