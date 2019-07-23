@@ -18,7 +18,7 @@ from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import device_provisioned
 
 
-def _interactive_facility_selection():
+def _interactive_client_facility_selection():
     facilities = Facility.objects.all()
     message = "Please choose a facility to sync:\n"
     for idx, facility in enumerate(facilities):
@@ -35,6 +35,23 @@ def _interactive_facility_selection():
             )
         )
     return facility
+
+
+def _interactive_server_facility_selection(facilities):
+    message = "Please choose a facility to sync with:\n"
+    for idx, f in enumerate(facilities):
+        message += "{}. {}\n".format(idx + 1, f["name"])
+    idx = input(message)
+    try:
+        return facilities[int(idx) - 1]["dataset"]
+    except IndexError:
+        raise CommandError(
+            (
+                "{idx} is not in the range of (1, {range})".format(
+                    idx=idx, range=len(facilities)
+                )
+            )
+        )
 
 
 def get_facility(facility_id=None, noninteractive=False):
@@ -61,17 +78,17 @@ def get_facility(facility_id=None, noninteractive=False):
                 raise CommandError(
                     (
                         "There are multiple facilities on this device. "
-                        "Please pass in a facility ID by passing in --facility={ID} after the command."
+                        "Please pass in a facility ID by passing in --facility {ID} after the command."
                     )
                 )
             else:
                 # in interactive mode, allow user to select facility
-                facility = _interactive_facility_selection()
+                facility = _interactive_client_facility_selection()
 
     return facility
 
 
-def get_dataset_id(baseurl, identifier=None):
+def get_dataset_id(baseurl, identifier=None, noninteractive=False):
     # get list of facilities and if more than 1, display all choices to user
     facility_url = urljoin(baseurl, reverse("kolibri:core:publicfacility-list"))
     response = requests.get(facility_url)
@@ -86,18 +103,24 @@ def get_dataset_id(baseurl, identifier=None):
             "Facility with ID {} does not exist on server".format(identifier)
         )
 
-    # allow user to select facility for syncing
-    if len(facilities) > 1:
-        message = "Please choose a facility to sync with:\n"
-        for idx, f in enumerate(facilities):
-            message += "{}. {}\n".format(idx + 1, f["name"])
-        idx = input(message)
-        return facilities[int(idx) - 1]["dataset"]
+    if noninteractive and len(facilities) > 1:
+        raise CommandError(
+            (
+                "There are multiple facilities on the server. "
+                "Please pass in a facility ID by passing in --facility {ID} after the command."
+            )
+        )
     else:
-        return facilities[0]["dataset"]
+        return (
+            _interactive_server_facility_selection(facilities)
+            if len(facilities) > 1
+            else facilities[0]["dataset"]
+        )
 
 
-def get_client_and_server_certs(username, password, dataset_id, nc):
+def get_client_and_server_certs(
+    username, password, dataset_id, nc, noninteractive=False
+):
     # get servers certificates which server has a private key for
     server_certs = nc.get_remote_certificates(dataset_id, scope_def_id=FULL_FACILITY)
     if not server_certs:
@@ -121,8 +144,12 @@ def get_client_and_server_certs(username, password, dataset_id, nc):
 
         # prompt user for creds if not already specified
         if not username or not password:
-            username = input("Please enter username: ")
-            password = getpass.getpass("Please enter password: ")
+            if noninteractive:
+                raise CommandError("Server username and/or password not specified")
+            else:
+                username = input("Please enter username: ")
+                password = getpass.getpass("Please enter password: ")
+
         client_cert = nc.certificate_signing_request(
             server_cert,
             FULL_FACILITY,
@@ -136,16 +163,41 @@ def get_client_and_server_certs(username, password, dataset_id, nc):
     return client_cert, server_cert, username
 
 
-def create_superuser_and_provision_device(username, dataset_id):
+def create_superuser_and_provision_device(username, dataset_id, noninteractive=False):
+    facility = Facility.objects.get(dataset_id=dataset_id)
+    # if device has not been provisioned, set it up
+    if not device_provisioned():
+        device_settings, created = DeviceSettings.objects.get_or_create()
+        device_settings.is_provisioned = True
+        device_settings.default_facility = facility
+        device_settings.save()
+
     # Prompt user to pick a superuser if one does not currently exist
     while not DevicePermissions.objects.filter(is_superuser=True).exists():
         # specify username of account that will become a superuser
         if not username:
+            if (
+                noninteractive
+            ):  # we don't want to setup a device without a superuser, so create a temporary one
+                superuser = FacilityUser.objects.create(
+                    username="superuser", facility=facility
+                )
+                superuser.set_password("password")
+                superuser.save()
+                DevicePermissions.objects.create(
+                    user=superuser, is_superuser=True, can_manage_content=True
+                )
+                print(
+                    "Temporary superuser with username: `superuser` and password: `password` created"
+                )
+                return
             username = input(
                 "Please enter username of account that will become the superuser on this device: "
             )
         if not FacilityUser.objects.filter(username=username).exists():
-            print("User with username {} does not exist".format(username))
+            print(
+                "User with username `{}` does not exist on this device".format(username)
+            )
             username = None
             continue
 
@@ -156,9 +208,3 @@ def create_superuser_and_provision_device(username, dataset_id):
         DevicePermissions.objects.update_or_create(
             user=user, defaults={"is_superuser": True, "can_manage_content": True}
         )
-
-    # if device has not been provisioned, set it up
-    if not device_provisioned():
-        device_settings, created = DeviceSettings.objects.get_or_create()
-        device_settings.is_provisioned = True
-        device_settings.save()

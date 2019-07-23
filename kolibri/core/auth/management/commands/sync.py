@@ -122,10 +122,16 @@ class Command(AsyncCommand):
             )
             dataset_id = scope_params["dataset_id"]
         else:  # do P2P setup
-            dataset_id = get_dataset_id(baseurl, identifier=facility_id)
+            dataset_id = get_dataset_id(
+                baseurl, identifier=facility_id, noninteractive=noninteractive
+            )
 
             client_cert, server_cert, username = get_client_and_server_certs(
-                username, password, dataset_id, network_connection
+                username,
+                password,
+                dataset_id,
+                network_connection,
+                noninteractive=noninteractive,
             )
 
         self.stdout.write("Syncing has been initiated (this may take a while)...")
@@ -140,7 +146,9 @@ class Command(AsyncCommand):
         if not no_push:
             sync_client.initiate_push(Filter(dataset_id))
 
-        create_superuser_and_provision_device(username, dataset_id)
+        create_superuser_and_provision_device(
+            username, dataset_id, noninteractive=noninteractive
+        )
 
         sync_client.close_sync_session()
         self.stdout.write("Syncing has been completed.")
