@@ -16,14 +16,8 @@
     components: {
       UserCreateForm,
     },
-    props: {},
-    computed: {},
     mounted() {
       this.$store.dispatch('notLoading');
-    },
-    methods: {},
-    $trs: {
-      createNewUserHeader: 'Create new user',
     },
   };
 

@@ -111,6 +111,11 @@
 
   export default {
     name: 'UserCreateModal',
+    metaInfo() {
+      return {
+        title: this.$tr('createNewUserHeader'),
+      };
+    },
     components: {
       KRadioButton,
       KButton,

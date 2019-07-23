@@ -1,14 +1,10 @@
 <template>
 
   <CoreBase
-    :appBarTitle="appBarTitle"
-    :immersivePage="isImmersive"
-    immersivePageIcon="arrow_back"
-    :immersivePageRoute="appBarBackLink"
-    :immersivePagePrimary="true"
     :authorized="userIsAuthorized"
     :authorizationErrorDetails="$tr('adminOrSuperuser')"
-    :showSubNav="userIsAuthorized && !isEnrollmentPage"
+    :showSubNav="userIsAuthorized && !immersivePageProps.immersivePage"
+    v-bind="immersivePageProps"
   >
     <FacilityTopNav slot="sub-nav" />
 
@@ -39,8 +35,6 @@
   import UserCreatePage from './UserCreatePage';
   import UserEditPage from './UserEditPage';
 
-  const classEnrollmentPages = [PageNames.CLASS_ENROLL_LEARNER, PageNames.CLASS_ASSIGN_COACH];
-
   const pageNameComponentMap = {
     [PageNames.CLASS_EDIT_MGMT_PAGE]: ClassEditPage,
     [PageNames.CLASS_MGMT_PAGE]: ManageClassPage,
@@ -64,8 +58,39 @@
       ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState(['pageName']),
       ...mapState('classAssignMembers', ['class']),
-      isEnrollmentPage() {
-        return classEnrollmentPages.includes(this.pageName);
+      immersivePageProps() {
+        let immersivePageRoute;
+        let appBarTitle = '';
+        if (
+          this.pageName === PageNames.CLASS_ENROLL_LEARNER ||
+          this.pageName === PageNames.CLASS_ASSIGN_COACH
+        ) {
+          immersivePageRoute = this.$router.getRoute(PageNames.CLASS_EDIT_MGMT_PAGE);
+          if (this.class) {
+            appBarTitle = this.class.name || '';
+          }
+        }
+        if (
+          this.pageName === PageNames.USER_EDIT_PAGE ||
+          this.pageName === PageNames.USER_CREATE_PAGE
+        ) {
+          immersivePageRoute = this.$router.getRoute(PageNames.USER_MGMT_PAGE);
+          appBarTitle = this.$tr('usersLabel');
+        }
+
+        if (immersivePageRoute) {
+          return {
+            immersivePage: true,
+            immersivePageIcon: 'arrow_back',
+            immersivePageRoute: immersivePageRoute,
+            immersivePagePrimary: true,
+            appBarTitle,
+          };
+        }
+        return {
+          immersivePage: false,
+          appBarTitle: this.$tr('facilityTitle'),
+        };
       },
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
@@ -73,31 +98,11 @@
       userIsAuthorized() {
         return this.isAdmin || this.isSuperuser;
       },
-      appBarTitle() {
-        if (this.isEnrollmentPage) {
-          if (this.class) {
-            return this.class.name || '';
-          }
-        }
-        return this.$tr('facilityTitle');
-      },
-      appBarBackLink() {
-        if (this.isEnrollmentPage) {
-          return {
-            name: PageNames.CLASS_EDIT_MGMT_PAGE,
-          };
-        }
-        return null;
-      },
-      isImmersive() {
-        return this.isEnrollmentPage;
-      },
     },
     $trs: {
       facilityTitle: 'Facility',
       adminOrSuperuser: 'You must be signed in as an admin or super admin to view this page',
-      // here because going to use immersive-page
-      detailPageReturnPrompt: 'Class details',
+      usersLabel: 'Users',
     },
   };
 

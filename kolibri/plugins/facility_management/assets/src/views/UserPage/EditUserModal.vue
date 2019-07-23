@@ -125,6 +125,11 @@
   // IDEA use UserTypeDisplay for strings in options
   export default {
     name: 'EditUserModal',
+    metaInfo() {
+      return {
+        title: this.$tr('editUserDetailsHeader'),
+      };
+    },
     components: {
       KButton,
       KSelect,
@@ -332,7 +337,6 @@
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachLabel: 'Facility coach',
       facilityCoachDescription: 'Can instruct all classes in your facility',
-      identificationNumberLabel: 'Identification number (optional)',
       cancelAction: 'Cancel',
       saveAction: 'Save',
       userUpdateNotification: 'Changes saved',
