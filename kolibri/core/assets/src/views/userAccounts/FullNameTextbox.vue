@@ -9,6 +9,7 @@
     :maxlength="120"
     :invalid="Boolean(invalidText)"
     :invalidText="invalidText"
+    :autocomplete="$attrs.autocomplete"
     @blur="blurred = true"
     @input="$emit('update:value', $event)"
   />

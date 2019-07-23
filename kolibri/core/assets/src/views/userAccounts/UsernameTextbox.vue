@@ -28,6 +28,7 @@
       KTextbox,
     },
     props: {
+      // NOTE: 'value', 'errors', and 'isValid' must be .sync'ed with parent
       value: {
         type: String,
       },
@@ -59,6 +60,9 @@
           }
           if (this.value === '') {
             return this.$tr('errorEmptyString');
+          }
+          if (this.errors.includes(ERROR_CONSTANTS.INVALID)) {
+            return this.$tr('errorInvalidString');
           }
           if (!validateUsername(this.value)) {
             return this.$tr('errorInvalidString');

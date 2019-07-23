@@ -11,56 +11,31 @@
         <h1>{{ $tr('createAccount') }}</h1>
 
         <div v-show="atFirstStep">
-          <KTextbox
-            id="name"
-            ref="name"
-            v-model="name"
-            type="text"
-            autocomplete="name"
-            :label="$tr('name')"
-            :maxlength="120"
+          <FullNameTextbox
+            ref="fullNameTextbox"
+            :value.sync="name"
+            :isValid.sync="nameValid"
             :autofocus="true"
-            :invalid="Boolean(nameIsInvalidText)"
-            :invalidText="nameIsInvalidText"
-            @blur="nameBlurred = true"
+            :shouldValidate="false"
+            autocomplete="name"
+            :disabled="busy"
           />
 
-          <KTextbox
-            id="username"
-            ref="username"
-            v-model="username"
-            type="text"
-            autocomplete="username"
-            :label="$tr('username')"
-            :maxlength="30"
-            :invalid="Boolean(usernameIsInvalidText)"
-            :invalidText="usernameIsInvalidText"
-            @blur="usernameBlurred = true"
-            @input="resetSignUpState"
+          <UsernameTextbox
+            ref="usernameTextbox"
+            :value.sync="username"
+            :isValid.sync="usernameValid"
+            :shouldValidate="formSubmitted"
+            :errors.sync="caughtErrors"
+            :disabled="busy"
           />
 
-          <KTextbox
-            id="password"
-            ref="password"
-            v-model="password"
-            type="password"
-            autocomplete="new-password"
-            :label="$tr('password')"
-            :invalid="Boolean(passwordIsInvalidText)"
-            :invalidText="passwordIsInvalidText"
-            @blur="passwordBlurred = true"
-          />
-
-          <KTextbox
-            id="confirmed-password"
-            ref="confirmedPassword"
-            v-model="confirmedPassword"
-            type="password"
-            autocomplete="new-password"
-            :label="$tr('reEnterPassword')"
-            :invalid="Boolean(confirmedPasswordIsInvalidText)"
-            :invalidText="confirmedPasswordIsInvalidText"
-            @blur="confirmedPasswordBlurred = true"
+          <PasswordTextbox
+            ref="passwordTextbox"
+            :value.sync="password"
+            :isValid.sync="passwordValid"
+            :shouldValidate="formSubmitted"
+            :disabled="busy"
           />
 
           <KSelect
@@ -69,7 +44,7 @@
             :options="facilityList"
             :invalid="Boolean(facilityIsInvalidText)"
             :invalidText="facilityIsInvalidText"
-            :disabled="facilityList.length === 1"
+            :disabled="busy || facilityList.length === 1"
             @blur="facilityBlurred = true"
           />
         </div>
@@ -78,8 +53,16 @@
           <p>
             {{ $tr('demographicInfoExplanation') }}
           </p>
-          <GenderSelect class="select" :value.sync="gender" />
-          <BirthYearSelect class="select" :value.sync="birthYear" />
+          <GenderSelect
+            class="select"
+            :value.sync="gender"
+            :disabled="busy"
+          />
+          <BirthYearSelect
+            class="select"
+            :value.sync="birthYear"
+            :disabled="busy"
+          />
         </div>
 
         <p class="privacy-link">
@@ -120,19 +103,22 @@
 
 <script>
 
-  import { mapState, mapGetters, mapMutations } from 'vuex';
-  import some from 'lodash/some';
+  import { mapGetters } from 'vuex';
+  import every from 'lodash/every';
   import find from 'lodash/find';
-  import { FacilityUsernameResource } from 'kolibri.resources';
-  import { validateUsername } from 'kolibri.utils.validators';
+  import { FacilityUsernameResource, SignUpResource } from 'kolibri.resources';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
+  import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
+  import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
+  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
+  import { redirectBrowser } from 'kolibri.utils.browser';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
 
   export default {
@@ -144,35 +130,36 @@
     },
     components: {
       KButton,
-      KTextbox,
       KSelect,
       KPageContainer,
       LanguageSwitcherFooter,
       PrivacyInfoModal,
       GenderSelect,
       BirthYearSelect,
+      FullNameTextbox,
+      PasswordTextbox,
+      UsernameTextbox,
     },
     data() {
       return {
         name: '',
+        nameValid: true,
         username: '',
+        usernameValid: true,
         password: '',
-        confirmedPassword: '',
+        passwordValid: true,
         selectedFacility: {},
-        nameBlurred: false,
-        usernameBlurred: false,
-        passwordBlurred: false,
-        confirmedPasswordBlurred: false,
         facilityBlurred: false,
         formSubmitted: false,
         privacyModalVisible: false,
-        gender: null,
-        birthYear: null,
+        gender: '',
+        birthYear: '',
+        caughtErrors: [],
+        busy: false,
       };
     },
     computed: {
       ...mapGetters(['facilities']),
-      ...mapState('signUp', ['errors', 'busy']),
       atFirstStep() {
         return !this.$route.query.step;
       },
@@ -181,50 +168,6 @@
           label: name,
           value: id,
         }));
-      },
-      nameIsInvalidText() {
-        if (this.nameBlurred || this.formSubmitted) {
-          if (this.name === '') {
-            return this.$tr('required');
-          }
-        }
-        return '';
-      },
-      usernameAlreadyExists() {
-        return this.errors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
-      },
-      usernameIsInvalidText() {
-        if (this.usernameBlurred || this.formSubmitted) {
-          if (this.username === '') {
-            return this.$tr('required');
-          }
-          if (!validateUsername(this.username) || this.errors.includes(ERROR_CONSTANTS.INVALID)) {
-            return this.$tr('usernameAlphaNumError');
-          }
-          if (this.usernameAlreadyExists) {
-            return this.$tr('usernameAlreadyExistsError');
-          }
-        }
-        return '';
-      },
-      passwordIsInvalidText() {
-        if (this.passwordBlurred || this.formSubmitted) {
-          if (this.password === '') {
-            return this.$tr('required');
-          }
-        }
-        return '';
-      },
-      confirmedPasswordIsInvalidText() {
-        if (this.confirmedPasswordBlurred || this.formSubmitted) {
-          if (this.confirmedPassword === '') {
-            return this.$tr('required');
-          }
-          if (this.confirmedPassword !== this.password) {
-            return this.$tr('passwordMatchError');
-          }
-        }
-        return '';
       },
       facilityIsInvalidText() {
         if (this.facilityBlurred || this.formSubmitted) {
@@ -235,34 +178,24 @@
         return '';
       },
       firstStepIsValid() {
-        return !some(
-          [
-            this.nameIsInvalidText,
-            this.usernameIsInvalidText,
-            this.passwordIsInvalidText,
-            this.confirmedPasswordIsInvalidText,
-            this.facilityIsInvalidText,
-          ],
-          Boolean
-        );
+        return every([
+          this.nameValid,
+          this.usernameValid,
+          this.passwordValid,
+          !this.facilityIsInvalidText,
+        ]);
       },
     },
     beforeMount() {
       // If no user input is in memory, reset the wizard
       if (!this.username) {
-        this.$router.replace({ query: {} });
+        this.goToFirstStep();
       }
       if (this.facilityList.length === 1) {
         this.selectedFacility = this.facilityList[0];
       }
     },
     methods: {
-      ...mapMutations('signUp', {
-        resetSignUpState: 'RESET_STATE',
-      }),
-      goToFirstStep() {
-        this.$router.replace({ query: {} });
-      },
       checkForDuplicateUsername(username) {
         if (!username) {
           return Promise.resolve();
@@ -279,9 +212,7 @@
         })
           .then(results => {
             if (find(results, { username })) {
-              this.$store.commit('signUp/SET_SIGN_UP_ERRORS', [
-                ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS,
-              ]);
+              this.caughtErrors.push(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
             }
           })
           .catch(() => {
@@ -294,6 +225,9 @@
         } else {
           this.submitNewFacilityUser();
         }
+      },
+      goToFirstStep() {
+        this.$router.replace({ query: {} });
       },
       goToSecondStep() {
         if (this.firstStepIsValid) {
@@ -312,49 +246,55 @@
         this.formSubmitted = true;
         const canSubmit = this.firstStepIsValid && !this.busy;
         if (canSubmit) {
-          this.$store
-            .dispatch('signUp/signUpNewUser', {
+          this.busy = true;
+          SignUpResource.saveModel({
+            data: {
               facility: this.selectedFacility.value,
               full_name: this.name,
               username: this.username,
               password: this.password,
-              // gender: this.gender,
-              // birth_year: this.birthYear,
-            })
+              // If user skips this part, these fields are marked as 'DEFER'
+              // so they don't see a notification after logging in.
+              gender: this.gender || 'DEFER',
+              birth_year: this.birthYear || 'DEFER',
+            },
+          })
             .then(() => {
-              // Catch the superusername edge case
-              if (this.usernameAlreadyExists) {
+              redirectBrowser();
+            })
+            .catch(error => {
+              this.busy = false;
+              this.caughtErrors = CatchErrors(error, [
+                ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS,
+                ERROR_CONSTANTS.INVALID,
+              ]);
+              if (this.caughtErrors.length > 0) {
                 this.goToFirstStep();
-                this.$nextTick().then(() => this.focusOnInvalidField());
+                this.focusOnInvalidField();
+              } else {
+                this.$store.dispatch('handleApiError', error);
               }
             });
         } else {
+          this.busy = false;
           this.goToFirstStep();
-          this.$nextTick().then(() => this.focusOnInvalidField());
+          this.focusOnInvalidField();
         }
       },
       focusOnInvalidField() {
-        if (this.nameIsInvalidText) {
-          this.$refs.name.focus();
-        } else if (this.usernameIsInvalidText) {
-          this.$refs.username.focus();
-        } else if (this.passwordIsInvalidText) {
-          this.$refs.password.focus();
-        } else if (this.confirmedPasswordIsInvalidText) {
-          this.$refs.confirmedPassword.focus();
-        }
+        this.$nextTick().then(() => {
+          if (!this.nameValid) {
+            this.$refs.fullNameTextbox.focus();
+          } else if (!this.usernameValid) {
+            this.$refs.usernameTextbox.focus();
+          } else if (!this.passwordValid) {
+            this.$refs.passwordTextbox.focus();
+          }
+        });
       },
     },
     $trs: {
       createAccount: 'Create an account',
-      name: 'Full name',
-      username: 'Username',
-      password: 'Password',
-      reEnterPassword: 'Re-enter password',
-      passwordMatchError: 'Passwords do not match',
-      genericError: 'Something went wrong during account creation',
-      usernameAlphaNumError: 'Username can only contain letters, numbers, and underscores',
-      usernameAlreadyExistsError: 'An account with that username already exists',
       logIn: 'Sign in',
       kolibri: 'Kolibri',
       continue: 'Continue',
@@ -364,7 +304,7 @@
       documentTitle: 'Create account',
       privacyLink: 'Usage and privacy in Kolibri',
       demographicInfoExplanation:
-        'This information is helpful to administrators on Kolibri and is optional to provide',
+        'This information is optional. It is used to help with user administration.',
     },
   };
 
@@ -384,6 +324,7 @@
   // Form
   .signup-form {
     max-width: 400px;
+    min-height: 500px;
     margin-right: auto;
     margin-left: auto;
   }

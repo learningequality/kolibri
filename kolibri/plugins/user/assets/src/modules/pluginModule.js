@@ -1,7 +1,6 @@
 import { PageNames, pageNameToModuleMap } from '../constants';
 import profile from './profile';
 import signIn from './signIn';
-import signUp from './signUp';
 
 export default {
   state: {
@@ -40,6 +39,5 @@ export default {
   modules: {
     profile,
     signIn,
-    signUp,
   },
 };

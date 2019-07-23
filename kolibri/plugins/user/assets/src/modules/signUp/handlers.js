@@ -12,7 +12,6 @@ export function showSignUpPage(store, fromRoute) {
       store.dispatch('resetAndSetPageName', {
         pageName: PageNames.SIGN_UP,
       });
-      store.commit('signUp/RESET_STATE');
     })
     .catch(error => store.dispatch('handleApiError', error));
 }
