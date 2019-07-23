@@ -3,12 +3,19 @@ import { redirectBrowser } from 'kolibri.utils.browser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
 
-export function signUpNewUser(store, signUpCreds) {
+export function signUpNewUser(store, payload) {
   store.commit('RESET_STATE');
   store.commit('SET_SIGN_UP_BUSY', true);
-  return SignUpResource.saveModel({ data: signUpCreds })
+  return SignUpResource.saveModel({ data: payload })
     .then(() => {
-      redirectBrowser();
+      // OIDC redirect
+      if (payload.next) {
+        redirectBrowser(payload.next);
+      }
+      // Normal redirect on login
+      else {
+        redirectBrowser();
+      }
     })
     .catch(error => {
       const errors = CatchErrors(error, [
