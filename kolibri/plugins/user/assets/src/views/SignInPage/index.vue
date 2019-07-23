@@ -20,16 +20,26 @@
               :style="$theme.signIn.topLogo.style"
             />
             <h1
+              v-if="$theme.signIn.showTitle"
               class="kolibri-title"
               :class="$computedClass({color: $themeTokens.logoText})"
               :style="$theme.signIn.titleStyle"
             >
               {{ logoText }}
             </h1>
-            <h2 v-if="false">
-              <!-- TODO -->
-              {{ $tr('poweredByKolibri') }}
-            </h2>
+            <p
+              v-if="$theme.signIn.showPoweredBy"
+              :style="$theme.signIn.poweredByStyle"
+              class="small-text"
+            >
+              <KExternalLink
+                :text="$tr('poweredByKolibri')"
+                :primary="true"
+                href="https://learningequality.org/r/powered_by_kolibri"
+                target="_blank"
+                appearance="basic-link"
+              />
+            </p>
             <form ref="form" class="login-form" @submit.prevent="signIn">
               <UiAlert
                 v-if="invalidCredentials"
