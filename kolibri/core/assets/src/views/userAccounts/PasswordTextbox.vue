@@ -10,6 +10,7 @@
       :label="$tr('passwordLabel')"
       :invalid="Boolean(pwInvalidText)"
       :invalidText="pwInvalidText"
+      :autocomplete="$attrs.autocomplete"
       @blur="pwBlurred = true"
       @input="$emit('update:value', $event)"
     />
@@ -22,6 +23,7 @@
       :label="$tr('confirmPasswordLabel')"
       :invalid="Boolean(confirmInvalidText)"
       :invalidText="confirmInvalidText"
+      :autocomplete="$attrs.autocomplete"
       @blur="confirmBlurred = true"
     />
   </div>

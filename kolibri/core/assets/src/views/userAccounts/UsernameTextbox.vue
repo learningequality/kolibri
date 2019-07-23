@@ -42,6 +42,9 @@
       // Pass in errors to make the component reactive to them
       errors: {
         type: Array,
+        default() {
+          return [];
+        },
       },
     },
     data() {
