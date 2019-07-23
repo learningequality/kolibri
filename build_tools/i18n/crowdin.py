@@ -88,13 +88,13 @@ ADD_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="add-file",
-    params="&branch={branch}&json",
+    params="&branch={branch}&first_line_contains_header&json",
 )
 UPDATE_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="update-file",
-    params="&branch={branch}&json",
+    params="&branch={branch}&first_line_contains_header&json",
 )
 DELETE_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
@@ -173,7 +173,7 @@ def _format_json_files():
 
 
 def _is_string_file(file_name):
-    return file_name.endswith(".json") or file_name.endswith(".po")
+    return file_name.endswith(".po") or file_name.endswith('-messages.csv')
 
 
 """
