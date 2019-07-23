@@ -116,14 +116,26 @@ class Command(AsyncCommand):
                     )
                 )
 
-            # push certificate up to portal server
+            # get primary partition
             scope_params = json.loads(client_cert.scope_params)
-            server_cert = network_connection.push_signed_client_certificate_chain(
-                local_parent_cert=client_cert,
-                scope_definition_id=FULL_FACILITY,
-                scope_params=scope_params,
-            )
             dataset_id = scope_params["dataset_id"]
+
+            # check if the server already has a cert for this facility
+            server_certs = network_connection.get_remote_certificates(
+                dataset_id, scope_def_id=FULL_FACILITY
+            )
+
+            # if necessary, push a cert up to the server
+            server_cert = (
+                server_certs[0]
+                if server_certs
+                else network_connection.push_signed_client_certificate_chain(
+                    local_parent_cert=client_cert,
+                    scope_definition_id=FULL_FACILITY,
+                    scope_params=scope_params,
+                )
+            )
+
         else:  # do P2P setup
             dataset_id = get_dataset_id(
                 baseurl, identifier=facility_id, noninteractive=noninteractive
