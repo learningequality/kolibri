@@ -29,7 +29,7 @@
         :label="$tr('nameLabel')"
         :placeholder="$tr('namePlaceholder')"
         :invalid="nameIsInvalid"
-        :invalidText="coreString('requiredFieldLabel')"
+        :invalidText="coreString('requiredFieldError')"
         :maxlength="40"
         :disabled="attemptingToConnect"
         @blur="nameBlurred = true"
@@ -90,7 +90,7 @@
           return this.$tr('errorCouldNotConnect');
         }
         if (this.address === '') {
-          return this.coreString('requiredFieldLabel');
+          return this.coreString('requiredFieldError');
         }
         return '';
       },

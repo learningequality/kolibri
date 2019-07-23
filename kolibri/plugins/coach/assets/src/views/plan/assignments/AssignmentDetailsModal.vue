@@ -185,7 +185,7 @@
         // submission is handled because "blur" event happens on submit
         if (!this.disabled && this.titleIsVisited) {
           if (this.title === '') {
-            return this.coreString('requiredFieldLabel');
+            return this.coreString('requiredFieldError');
           }
           if (this.assignmentIsQuiz) {
             if (

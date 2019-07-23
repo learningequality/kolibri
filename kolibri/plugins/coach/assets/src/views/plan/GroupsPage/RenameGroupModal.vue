@@ -79,7 +79,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.coreString('requiredFieldLabel');
+            return this.coreString('requiredFieldError');
           }
           if (this.duplicateName) {
             return this.$tr('duplicateName');

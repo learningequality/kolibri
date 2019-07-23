@@ -50,9 +50,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   viewMoreAction: 'View more',
 
   // notifications
-  passwordsMismatchError: 'Passwords do not match',
-  requiredFieldLabel: 'This field is required',
-  usernameNotAlphaNumError: 'Username can only contain letters, numbers, and underscores',
+  requiredFieldError: 'This field is required',
 
   // empty states
 

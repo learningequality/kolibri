@@ -4,7 +4,7 @@
     ref="textbox"
     :value="value"
     :disabled="$attrs.disabled"
-    :label="$tr('label')"
+    :label="coreString('usernameLabel')"
     :autofocus="$attrs.autofocus"
     :maxlength="30"
     :invalid="Boolean(invalidText)"
@@ -21,12 +21,14 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UsernameTextbox',
     components: {
       KTextbox,
     },
+    mixins: [commonCoreStrings],
     props: {
       // NOTE: 'value', 'errors', and 'isValid' must be .sync'ed with parent
       value: {
@@ -62,7 +64,7 @@
             return this.$tr('errorNotUnique');
           }
           if (this.value === '') {
-            return this.$tr('errorEmptyString');
+            return this.coreString('requiredFieldError');
           }
           if (this.errors.includes(ERROR_CONSTANTS.INVALID)) {
             return this.$tr('errorInvalidString');

@@ -210,7 +210,7 @@
       },
       titleIsInvalidText() {
         if (this.examTitle === '') {
-          return this.coreString('requiredFieldLabel');
+          return this.coreString('requiredFieldError');
         }
         if (this.showTitleError) {
           return this.coachString('quizDuplicateTitleError');

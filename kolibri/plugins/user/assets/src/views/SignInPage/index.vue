@@ -235,7 +235,7 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.coreString('requiredFieldLabel');
+            return this.coreString('requiredFieldError');
           } else if (!validateUsername(this.username)) {
             return this.coreString('usernameNotAlphaNumError');
           }
@@ -250,7 +250,7 @@
           if (this.simpleSignIn && this.password === '') {
             return this.$tr('requiredForCoachesAdmins');
           } else if (this.password === '') {
-            return this.coreString('requiredFieldLabel');
+            return this.coreString('requiredFieldError');
           }
         }
         return '';
@@ -298,7 +298,9 @@
         if (this.$theme.signIn.background) {
           return {
             backgroundColor: this.$themeTokens.primary,
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${this.$theme.signIn.background})`,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${
+              this.$theme.signIn.background
+            })`,
           };
         }
         return { backgroundColor: this.$themeColors.brand.primary.v_900 };

@@ -7,7 +7,7 @@
       :autofocus="$attrs.autofocus"
       type="password"
       :disabled="$attrs.disabled"
-      :label="$tr('passwordLabel')"
+      :label="coreString('passwordLabel')"
       :invalid="Boolean(pwInvalidText)"
       :invalidText="pwInvalidText"
       :autocomplete="$attrs.autocomplete"
@@ -34,12 +34,14 @@
 <script>
 
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'PasswordTextbox',
     components: {
       KTextbox,
     },
+    mixins: [commonCoreStrings],
     props: {
       // NOTE: 'value', and 'isValid' must be .sync'd with parent
       value: {
@@ -60,7 +62,7 @@
       pwInvalidText() {
         if (this.pwBlurred || this.shouldValidate) {
           if (this.value === '') {
-            return this.$tr('errorEmptyString');
+            return this.coreString('requiredFieldError');
           }
         }
         return '';
@@ -68,7 +70,7 @@
       confirmInvalidText() {
         if (this.confirmBlurred || this.shouldValidate) {
           if (this.confirmValue === '') {
-            return this.$tr('errorEmptyString');
+            return this.coreString('requiredFieldError');
           }
           if (this.confirmValue !== this.value) {
             return this.$tr('errorNotMatching');
@@ -98,7 +100,6 @@
     $trs: {
       passwordLabel: 'Password',
       confirmPasswordLabel: 'Re-enter password',
-      errorEmptyString: 'This field is required',
       errorNotMatching: 'Passwords do not match',
     },
   };

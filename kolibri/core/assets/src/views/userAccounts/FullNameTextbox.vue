@@ -5,6 +5,7 @@
     :value="value"
     :disabled="$attrs.disabled"
     :label="$tr('label')"
+    :label="coreString('fullNameLabel')"
     :autofocus="$attrs.autofocus"
     :maxlength="120"
     :invalid="Boolean(invalidText)"
@@ -20,12 +21,14 @@
 <script>
 
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'FullNameTextbox',
     components: {
       KTextbox,
     },
+    mixins: [commonCoreStrings],
     props: {
       value: {
         type: String,
@@ -43,7 +46,7 @@
       invalidText() {
         if (this.blurred || this.shouldValidate) {
           if (this.value === '') {
-            return this.$tr('errorEmptyString');
+            return this.coreString('requiredFieldError');
           }
         }
         return '';
@@ -62,10 +65,6 @@
       focus() {
         return this.$refs.textbox.focus();
       },
-    },
-    $trs: {
-      label: 'Full name',
-      errorEmptyString: 'This field is required',
     },
   };
 
