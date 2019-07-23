@@ -1,100 +1,105 @@
 <template>
 
   <form v-if="!loading" @submit.prevent="submitForm">
-    <h1>{{ $tr('editUserDetailsHeader') }}</h1>
+    <h1>
+      {{ $tr('editUserDetailsHeader') }}
+    </h1>
 
-    <FullNameTextbox
-      ref="fullNameTextbox"
-      :autofocus="true"
-      :disabled="busy"
-      :value.sync="fullName"
-      :isValid.sync="fullNameValid"
-      :shouldValidate="formSubmitted"
-    />
-
-    <UsernameTextbox
-      ref="usernameTextbox"
-      :disabled="busy"
-      :value.sync="username"
-      :isValid.sync="usernameValid"
-      :shouldValidate="formSubmitted"
-      :isUniqueValidator="usernameIsUnique"
-      :errors.sync="caughtErrors"
-    />
-
-    <template v-if="editingSuperAdmin">
-      <h2 class="user-type header">
-        {{ $tr('userType') }}
-      </h2>
-
-      <UserTypeDisplay
-        :userType="kind"
-        class="user-type"
+    <section>
+      <FullNameTextbox
+        ref="fullNameTextbox"
+        :autofocus="true"
+        :disabled="busy"
+        :value.sync="fullName"
+        :isValid.sync="fullNameValid"
+        :shouldValidate="formSubmitted"
       />
 
-      <KExternalLink
-        v-if="devicePermissionsPageLink"
-        class="super-admin-description"
-        :text="editingSelf ? $tr('viewInDeviceTabPrompt') : $tr('changeInDeviceTabPrompt')"
-        :href="devicePermissionsPageLink"
+      <UsernameTextbox
+        ref="usernameTextbox"
+        :disabled="busy"
+        :value.sync="username"
+        :isValid.sync="usernameValid"
+        :shouldValidate="formSubmitted"
+        :isUniqueValidator="usernameIsUnique"
+        :errors.sync="caughtErrors"
       />
 
-    </template>
+      <template v-if="editingSuperAdmin">
+        <h2 class="user-type header">
+          {{ $tr('userType') }}
+        </h2>
 
-    <template v-else>
-      <KSelect
-        v-model="typeSelected"
+        <UserTypeDisplay
+          :userType="kind"
+          class="user-type"
+        />
+
+        <KExternalLink
+          v-if="devicePermissionsPageLink"
+          class="super-admin-description"
+          :text="editingSelf ? $tr('viewInDeviceTabPrompt') : $tr('changeInDeviceTabPrompt')"
+          :href="devicePermissionsPageLink"
+        />
+
+      </template>
+
+      <template v-else>
+        <KSelect
+          v-model="typeSelected"
+          class="select"
+          :disabled="busy"
+          :label="$tr('userType')"
+          :options="userTypeOptions"
+        />
+
+        <fieldset v-if="coachIsSelected" class="coach-selector">
+          <KRadioButton
+            v-model="classCoachIsSelected"
+            :disabled="busy"
+            :label="$tr('classCoachLabel')"
+            :description="$tr('classCoachDescription')"
+            :value="true"
+          />
+          <KRadioButton
+            v-model="classCoachIsSelected"
+            :disabled="busy"
+            :label="$tr('facilityCoachLabel')"
+            :description="$tr('facilityCoachDescription')"
+            :value="false"
+          />
+        </fieldset>
+      </template>
+
+      <IdentifierTextbox
+        :value.sync="idNumber"
+        :disabled="busy"
+      />
+
+      <BirthYearSelect
+        :value.sync="birthYear"
         :disabled="busy"
         class="select"
-        :label="$tr('userType')"
-        :options="userTypeOptions"
       />
 
-      <fieldset v-if="coachIsSelected" class="coach-selector">
-        <KRadioButton
-          v-model="classCoachIsSelected"
-          :disabled="busy"
-          :label="$tr('classCoachLabel')"
-          :description="$tr('classCoachDescription')"
-          :value="true"
-        />
-        <KRadioButton
-          v-model="classCoachIsSelected"
-          :disabled="busy"
-          :label="$tr('facilityCoachLabel')"
-          :description="$tr('facilityCoachDescription')"
-          :value="false"
-        />
-      </fieldset>
-    </template>
-
-    <IdentifierTextbox
-      :value.sync="idNumber"
-      :disabled="busy"
-    />
-
-    <BirthYearSelect
-      class="select"
-      :disabled="busy"
-      :value.sync="birthYear"
-    />
-    <GenderSelect
-      class="select"
-      :disabled="busy"
-      :value.sync="gender"
-    />
+      <GenderSelect
+        :value.sync="gender"
+        :disabled="busy"
+        class="select"
+      />
+    </section>
 
     <div class="buttons">
       <KButton
-        :disabled="busy"
-        :text="$tr('saveAction')"
         type="submit"
+        :text="$tr('saveAction')"
+        :disabled="busy"
         :primary="true"
       />
       <KButton
-        :disabled="busy"
         :text="$tr('cancelAction')"
-        @click="goToUserManagementPage"
+        :disabled="busy"
+        @click="goToUserManagementPage()"
       />
     </div>
 
@@ -105,9 +110,10 @@
 
 <script>
 
+  import every from 'lodash/every';
   import UserType from 'kolibri.utils.UserType';
   import { FacilityUserResource } from 'kolibri.resources';
-  import { mapActions, mapState, mapGetters } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import urls from 'kolibri.urls';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
@@ -185,8 +191,8 @@
           },
         ];
       },
-      formIsInvalid() {
-        return !this.fullNameValid || !this.usernameValid;
+      formIsValid() {
+        return every([this.fullNameValid, this.usernameValid]);
       },
       editingSelf() {
         return this.currentUserId === this.userId;
@@ -225,7 +231,6 @@
       });
     },
     methods: {
-      ...mapActions(['kolibriLogout']),
       setKind(user) {
         this.kind = UserType(user);
         const coachOption = this.userTypeOptions[1];
@@ -263,9 +268,10 @@
       },
       submitForm() {
         this.formSubmitted = true;
-        if (this.formIsInvalid) {
+        if (!this.formIsValid) {
           return this.focusOnInvalidField();
         }
+        this.busy = true;
 
         const updates = {
           username: this.username,
@@ -282,7 +288,6 @@
           };
         }
 
-        this.busy = true;
         this.$store
           .dispatch('userManagement/updateUser', {
             userId: this.userId,
@@ -290,24 +295,30 @@
             original: { ...this.userCopy },
           })
           .then(() => {
-            // newUserKind is falsey if Super Admin, since that's not a facility role
-            if (this.editingSelf && this.newUserKind && this.newUserKind !== UserKinds.ADMIN) {
-              // user has demoted themselves
-              this.kolibriLogout();
-            } else {
-              this.busy = false;
-              this.$store.dispatch('createSnackbar', this.$tr('userUpdateNotification'));
-            }
+            this.handleSubmitSuccess();
           })
           .catch(error => {
-            this.caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
-            if (this.caughtErrors.length > 0) {
-              this.busy = false;
-              this.focusOnInvalidField();
-            } else {
-              this.$store.dispatch('handleApiError', error);
-            }
+            this.handleSubmitFailure(error);
           });
+      },
+      handleSubmitSuccess() {
+        this.busy = false;
+        // newUserKind is falsey if Super Admin, since that's not a facility role
+        if (this.editingSelf && this.newUserKind && this.newUserKind !== UserKinds.ADMIN) {
+          // Log out of Facility Page if and Admin demotes themselves to non-Admin
+          this.$store.dispatch('kolibriLogout');
+        } else {
+          this.$store.dispatch('createSnackbar', this.$tr('userUpdateNotification'));
+        }
+      },
+      handleSubmitFailure(error) {
+        this.caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
+        this.busy = false;
+        if (this.caughtErrors.length > 0) {
+          this.focusOnInvalidField();
+        } else {
+          this.$store.dispatch('handleApiError', error);
+        }
       },
       focusOnInvalidField() {
         this.$nextTick().then(() => {
@@ -350,12 +361,7 @@
   .coach-selector {
     padding: 0;
     margin: 0;
-    margin-bottom: 3em;
     border: 0;
-  }
-
-  .edit-user-form {
-    min-height: 350px;
   }
 
   .super-admin-description,

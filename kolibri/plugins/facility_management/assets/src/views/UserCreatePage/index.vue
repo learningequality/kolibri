@@ -35,6 +35,7 @@
     max-width: 400px;
     min-height: 950px;
     margin-right: auto;
+    margin-bottom: 100px;
     margin-left: auto;
   }
 

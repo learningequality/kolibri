@@ -1,9 +1,10 @@
 <template>
 
-  <form @submit.prevent="createNewUser">
+  <form @submit.prevent="submitForm">
     <h1>
       {{ $tr('createNewUserHeader') }}
     </h1>
+
     <section>
       <FullNameTextbox
         ref="fullNameTextbox"
@@ -37,19 +38,19 @@
         class="select"
         :disabled="busy"
         :label="$tr('userType')"
-        :options="userKindDropdownOptions"
+        :options="userTypeOptions"
       />
 
       <fieldset v-if="coachIsSelected" class="coach-selector">
         <KRadioButton
-          v-model="classCoach"
+          v-model="classCoachIsSelected"
           :disabled="busy"
           :label="$tr('classCoachLabel')"
           :description="$tr('classCoachDescription')"
           :value="true"
         />
         <KRadioButton
-          v-model="classCoach"
+          v-model="classCoachIsSelected"
           :disabled="busy"
           :label="$tr('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
@@ -67,6 +68,7 @@
         :disabled="busy"
         class="select"
       />
+
       <GenderSelect
         :value.sync="gender"
         :disabled="busy"
@@ -77,17 +79,18 @@
 
     <div class="buttons">
       <KButton
-        :disabled="busy"
-        :text="$tr('saveAction')"
         type="submit"
+        :text="$tr('saveAction')"
+        :disabled="busy"
         :primary="true"
       />
       <KButton
-        :disabled="busy"
         :text="$tr('cancelAction')"
+        :disabled="busy"
         @click="goToUserManagementPage()"
       />
     </div>
+
   </form>
 
 </template>
@@ -142,7 +145,7 @@
           label: this.$tr('learner'),
           value: UserKinds.LEARNER,
         },
-        classCoach: true,
+        classCoachIsSelected: true,
         busy: false,
         formSubmitted: false,
         caughtErrors: [],
@@ -153,7 +156,7 @@
       ...mapState('userManagement', ['facilityUsers']),
       newUserRole() {
         if (this.coachIsSelected) {
-          return this.classCoach ? UserKinds.ASSIGNABLE_COACH : UserKinds.COACH;
+          return this.classCoachIsSelected ? UserKinds.ASSIGNABLE_COACH : UserKinds.COACH;
         }
         // Admin or Learner
         return this.kind.value;
@@ -164,7 +167,7 @@
       formIsValid() {
         return every([this.fullNameValid, this.usernameValid, this.passwordValid]);
       },
-      userKindDropdownOptions() {
+      userTypeOptions() {
         return [
           {
             label: this.$tr('learner'),
@@ -190,44 +193,47 @@
           ({ username }) => username.toLowerCase() === value.toLowerCase()
         );
       },
-      createNewUser() {
+      submitForm() {
         this.formSubmitted = true;
-        if (this.formIsValid) {
-          this.busy = true;
-          this.$store
-            .dispatch('userManagement/createUser', {
-              username: this.username,
-              full_name: this.fullName,
-              id_number: this.idNumber,
-              gender: this.gender,
-              birth_year: this.birthYear,
-              role: {
-                kind: this.newUserRole,
-                collection: this.currentFacilityId,
-              },
-              password: this.password,
-            })
-            .then(
-              () => {
-                this.goToUserManagementPage(() => {
-                  this.$store.dispatch(
-                    'createSnackbar',
-                    this.$tr('userCreatedNotification', { username: this.username })
-                  );
-                });
-              },
-              error => {
-                this.caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
-                if (this.caughtErrors.length > 0) {
-                  this.busy = false;
-                  this.focusOnInvalidField();
-                } else {
-                  this.$store.dispatch('handleApiError', error);
-                }
-              }
-            );
-        } else {
+        if (!this.formIsValid) {
+          return this.focusOnInvalidField();
+        }
+        this.busy = true;
+        this.$store
+          .dispatch('userManagement/createUser', {
+            username: this.username,
+            full_name: this.fullName,
+            id_number: this.idNumber,
+            gender: this.gender,
+            birth_year: this.birthYear,
+            role: {
+              kind: this.newUserRole,
+              collection: this.currentFacilityId,
+            },
+            password: this.password,
+          })
+          .then(() => {
+            this.handleSubmitSuccess();
+          })
+          .catch(error => {
+            this.handleSubmitFailure(error);
+          });
+      },
+      handleSubmitSuccess() {
+        this.goToUserManagementPage(() => {
+          this.$store.dispatch(
+            'createSnackbar',
+            this.$tr('userCreatedNotification', { username: this.username })
+          );
+        });
+      },
+      handleSubmitFailure(error) {
+        this.caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
+        this.busy = false;
+        if (this.caughtErrors.length > 0) {
           this.focusOnInvalidField();
+        } else {
+          this.$store.dispatch('handleApiError', error);
         }
       },
       focusOnInvalidField() {
@@ -263,14 +269,9 @@
 
 <style lang="scss" scoped>
 
-  .user-create-form {
-    min-height: 500px;
-  }
-
   .coach-selector {
     padding: 0;
     margin: 0;
-    margin-bottom: 3em;
     border: 0;
   }
 
@@ -282,6 +283,10 @@
     button:first-of-type {
       margin-left: 0;
     }
+  }
+
+  .form {
+    margin-bottom: 20px;
   }
 
 </style>

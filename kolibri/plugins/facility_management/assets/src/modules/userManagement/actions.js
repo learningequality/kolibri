@@ -35,6 +35,10 @@ export function createUser(store, payload) {
       gender: payload.gender,
       birth_year: payload.birth_year,
     },
+  }).then(facilityUser => {
+    if (payload.role.kind !== UserKinds.LEARNER) {
+      return setUserRole(facilityUser, payload.role);
+    }
   });
 }
 
