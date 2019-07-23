@@ -129,6 +129,16 @@
                 appearance="basic-link"
               />
             </p>
+            <p
+              v-if="oidcProviderFlow"
+              class="guest small-text"
+            >
+              <KButton
+                :text="$tr('whatsThis')"
+                appearance="basic-link"
+                @click="whatsThisModalVisible = true"
+              />
+            </p>
           </div>
         </div>
       </div>
@@ -156,6 +166,15 @@
       @cancel="privacyModalVisible = false"
     />
 
+    <KModal
+      v-if="whatsThisModalVisible"
+      :title="$tr('whatsThis')"
+      :submitText="closeString"
+      @submit="whatsThisModalVisible = false"
+    >
+      {{ $tr('oidcGenericExplanation') }}
+    </KModal>
+
   </div>
 
 </template>
@@ -171,6 +190,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KModal from 'kolibri.coreVue.components.KModal';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import { validateUsername } from 'kolibri.utils.validators';
   import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
@@ -178,9 +198,12 @@
   import UiAlert from 'keen-ui/src/UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import urls from 'kolibri.urls';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
   import FacilityModal from './FacilityModal';
+
+  const closeString = crossComponentTranslator(FacilityModal).$tr('close');
 
   // https://davidwalsh.name/query-string-javascript
   function getUrlParameter(name) {
@@ -202,6 +225,7 @@
       KRouterLink,
       KExternalLink,
       KTextbox,
+      KModal,
       FacilityModal,
       CoreLogo,
       UiAutocompleteSuggestion,
@@ -224,6 +248,7 @@
         formSubmitted: false,
         autoFilledByChromeAndNotEdited: false,
         privacyModalVisible: false,
+        whatsThisModalVisible: false,
       };
     },
     computed: {
@@ -329,6 +354,9 @@
         }
         // query is before hash
         return getUrlParameter('next');
+      },
+      closeString() {
+        return closeString;
       },
     },
     watch: {
