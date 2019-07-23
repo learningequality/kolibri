@@ -6,7 +6,7 @@
     </h1>
     <section>
       <FullNameTextbox
-        ref="FullNameTextbox"
+        ref="fullNameTextbox"
         :autofocus="true"
         :disabled="busy"
         :value.sync="fullName"
@@ -15,7 +15,7 @@
       />
 
       <UsernameTextbox
-        ref="UsernameTextbox"
+        ref="usernameTextbox"
         :disabled="busy"
         :value.sync="username"
         :isValid.sync="usernameValid"
@@ -25,7 +25,7 @@
       />
 
       <PasswordTextbox
-        ref="PasswordTextbox"
+        ref="passwordTextbox"
         :disabled="busy"
         :value.sync="password"
         :isValid.sync="passwordValid"
@@ -57,14 +57,10 @@
         />
       </fieldset>
 
-      <div>
-        <KTextbox
-          v-model="idNumber"
-          :disabled="busy"
-          :maxlength="64"
-          :label="UserAccountsStrings.$tr('identifierOptionalLabel')"
-        />
-      </div>
+      <IdentifierTextbox
+        :value.sync="idNumber"
+        :disabled="busy"
+      />
 
       <BirthYearSelect
         :disabled="busy"
@@ -105,27 +101,26 @@
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
-  import UserAccountsStrings from 'kolibri.strings.userAccounts';
+  import IdentifierTextbox from './IdentifierTextbox';
 
   export default {
     name: 'UserCreateModal',
     components: {
       KRadioButton,
       KButton,
-      KTextbox,
       KSelect,
       GenderSelect,
       BirthYearSelect,
       UsernameTextbox,
       FullNameTextbox,
       PasswordTextbox,
+      IdentifierTextbox,
     },
     data() {
       return {
@@ -151,9 +146,6 @@
     computed: {
       ...mapGetters(['currentFacilityId']),
       ...mapState('userManagement', ['facilityUsers']),
-      UserAccountsStrings() {
-        return UserAccountsStrings;
-      },
       newUserRole() {
         if (this.coachIsSelected) {
           return this.classCoach ? UserKinds.ASSIGNABLE_COACH : UserKinds.COACH;
@@ -236,11 +228,11 @@
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (!this.fullNameValid) {
-            this.$refs.FullNameTextbox.focus();
+            this.$refs.fullNameTextbox.focus();
           } else if (!this.usernameValid) {
-            this.$refs.UsernameTextbox.focus();
+            this.$refs.usernameTextbox.focus();
           } else if (!this.passwordValid) {
-            this.$refs.PasswordTextbox.focus();
+            this.$refs.passwordTextbox.focus();
           }
         });
       },

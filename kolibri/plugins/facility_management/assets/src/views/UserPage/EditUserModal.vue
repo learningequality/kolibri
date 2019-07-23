@@ -4,7 +4,7 @@
     <h1>{{ $tr('editUserDetailsHeader') }}</h1>
 
     <FullNameTextbox
-      ref="FullNameTextbox"
+      ref="fullNameTextbox"
       :autofocus="true"
       :disabled="busy"
       :value.sync="fullName"
@@ -13,7 +13,7 @@
     />
 
     <UsernameTextbox
-      ref="UsernameTextbox"
+      ref="usernameTextbox"
       :disabled="busy"
       :value.sync="username"
       :isValid.sync="usernameValid"
@@ -68,14 +68,10 @@
       </fieldset>
     </template>
 
-    <div>
-      <KTextbox
-        v-model="idNumber"
-        :disabled="busy"
-        :label="UserAccountsStrings.$tr('identifierOptionalLabel')"
-        :maxlength="64"
-      />
-    </div>
+    <IdentifierTextbox
+      :value.sync="idNumber"
+      :disabled="busy"
+    />
 
     <BirthYearSelect
       class="select"
@@ -115,7 +111,6 @@
   import urls from 'kolibri.urls';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import KSelect from 'kolibri.coreVue.components.KSelect';
@@ -125,14 +120,13 @@
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
-  import UserAccountsStrings from 'kolibri.strings.userAccounts';
+  import IdentifierTextbox from './IdentifierTextbox';
 
   // IDEA use UserTypeDisplay for strings in options
   export default {
     name: 'EditUserModal',
     components: {
       KButton,
-      KTextbox,
       KSelect,
       KRadioButton,
       KExternalLink,
@@ -141,6 +135,7 @@
       BirthYearSelect,
       UsernameTextbox,
       FullNameTextbox,
+      IdentifierTextbox,
     },
     data() {
       return {
@@ -154,8 +149,8 @@
         formSubmitted: false,
         classCoachIsSelected: true,
         typeSelected: null, // see beforeMount
-        gender: null,
-        birthYear: null,
+        gender: '',
+        birthYear: '',
         idNumber: '',
         userCopy: {},
         caughtErrors: [],
@@ -164,9 +159,6 @@
     computed: {
       ...mapGetters(['currentFacilityId', 'currentUserId']),
       ...mapState('userManagement', ['facilityUsers']),
-      UserAccountsStrings() {
-        return UserAccountsStrings;
-      },
       coachIsSelected() {
         return this.typeSelected && this.typeSelected.value === UserKinds.COACH;
       },
@@ -316,9 +308,9 @@
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (!this.fullNameValid) {
-            this.$refs.FullNameTextbox.focus();
+            this.$refs.fullNameTextbox.focus();
           } else if (!this.usernameValid) {
-            this.$refs.UsernameTextbox.focus();
+            this.$refs.usernameTextbox.focus();
           }
         });
       },
