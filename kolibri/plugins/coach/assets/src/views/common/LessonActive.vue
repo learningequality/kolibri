@@ -36,8 +36,12 @@
     },
     computed: {
       label() {
-        return this.active ? this.coachString('activeLabel') : this.coachString('inactiveLabel');
+        return this.active ? this.$tr('lessonActiveLabel') : this.$tr('lessonInactiveLabel');
       },
+    },
+    $trs: {
+      lessonActiveLabel: 'Active',
+      lessonInactiveLabel: 'Inactive',
     },
   };
 
