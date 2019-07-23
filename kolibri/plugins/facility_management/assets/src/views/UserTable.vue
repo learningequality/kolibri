@@ -95,14 +95,17 @@
             </span>
           </td>
           <template v-if="showDemographicInfo">
-            <td>
-              {{ user.id_number || 'id_number' }}
+            <td class="id-col">
+              <span v-if="user.id_number">
+                {{ user.id_number }}
+              </span>
+              <KEmptyPlaceholder v-else />
             </td>
             <td>
-              {{ user.gender || 'gender' }}
+              <GenderTypeDisplay :gender="user.gender" />
             </td>
             <td>
-              {{ user.birth_year || 'birth_year' }}
+              <DisplayBirthYear :birthYear="user.birth_year" />
             </td>
           </template>
           <td v-if="$scopedSlots.info">
@@ -137,6 +140,9 @@
   import difference from 'lodash/difference';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import UserAccountsStrings from 'kolibri.strings.userAccounts';
+  import GenderTypeDisplay from 'kolibri.coreVue.components.GenderTypeDisplay';
+  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
+  import DisplayBirthYear from 'kolibri.coreVue.components.DisplayBirthYear';
 
   export default {
     name: 'UserTable',
@@ -146,6 +152,9 @@
       KCheckbox,
       UserTypeDisplay,
       KLabeledIcon,
+      GenderTypeDisplay,
+      DisplayBirthYear,
+      KEmptyPlaceholder,
     },
     mixins: [themeMixin],
     props: {
@@ -220,7 +229,8 @@
       userCheckboxLabel: 'Select user',
       selectAllLabel: 'Select all on page',
       idNumberHeader: 'Identification number',
-      idNumberTooltipText: 'If the user has an identification number used in other systems',
+      idNumberTooltipText:
+        'This could be a student ID number or an existing user identification number outside of Kolibri, for example.',
       idNumberAriaLabel: 'About the identification number',
       genderHeader: 'Gender',
       birthYearHeader: 'Birth year',
@@ -270,6 +280,10 @@
 
   .tooltip {
     margin-left: 2px;
+  }
+
+  td.id-col {
+    max-width: 120px;
   }
 
 </style>

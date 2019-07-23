@@ -9,5 +9,6 @@ export default createTranslator('UserAccountsStrings', {
   fullNameLabel: 'Full name',
   usernameLabel: 'Username',
   preferNotToSayOption: 'Prefer not to say',
-  idNumberLabel: 'Identification number',
+  idNumberLabel: 'Identifier',
+  identifierOptionalLabel: 'Identifier (Optional)',
 });

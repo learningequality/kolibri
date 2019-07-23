@@ -72,7 +72,8 @@
       <KTextbox
         v-model="idNumber"
         :disabled="busy"
-        :label="$tr('identificationNumberLabel')"
+        :label="UserAccountsStrings.$tr('identifierOptionalLabel')"
+        :maxlength="64"
       />
     </div>
 
@@ -124,6 +125,7 @@
   import SelectBirthYear from 'kolibri.coreVue.components.SelectBirthYear';
   import TextboxFullName from 'kolibri.coreVue.components.TextboxFullName';
   import TextboxUsername from 'kolibri.coreVue.components.TextboxUsername';
+  import UserAccountsStrings from 'kolibri.strings.userAccounts';
 
   // IDEA use UserTypeDisplay for strings in options
   export default {
@@ -162,6 +164,9 @@
     computed: {
       ...mapGetters(['currentFacilityId', 'currentUserId']),
       ...mapState('userManagement', ['facilityUsers']),
+      UserAccountsStrings() {
+        return UserAccountsStrings;
+      },
       coachIsSelected() {
         return this.typeSelected && this.typeSelected.value === UserKinds.COACH;
       },

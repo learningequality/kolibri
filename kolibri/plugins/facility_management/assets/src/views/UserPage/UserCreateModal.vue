@@ -61,8 +61,8 @@
         <KTextbox
           v-model="idNumber"
           :disabled="busy"
-          :maxlength="30"
-          :label="$tr('identificationNumberLabel')"
+          :maxlength="64"
+          :label="UserAccountsStrings.$tr('identifierOptionalLabel')"
         />
       </div>
 
@@ -112,6 +112,7 @@
   import TextboxFullName from 'kolibri.coreVue.components.TextboxFullName';
   import TextboxUsername from 'kolibri.coreVue.components.TextboxUsername';
   import TextboxPassword from 'kolibri.coreVue.components.TextboxPassword';
+  import UserAccountsStrings from 'kolibri.strings.userAccounts';
 
   export default {
     name: 'UserCreateModal',
@@ -150,6 +151,9 @@
     computed: {
       ...mapGetters(['currentFacilityId']),
       ...mapState('userManagement', ['facilityUsers']),
+      UserAccountsStrings() {
+        return UserAccountsStrings;
+      },
       newUserRole() {
         if (this.coachIsSelected) {
           return this.classCoach ? UserKinds.ASSIGNABLE_COACH : UserKinds.COACH;
