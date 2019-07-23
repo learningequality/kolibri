@@ -40,9 +40,9 @@
       },
     },
     $trs: {
-      activeQuizLabel: "Active",
-      inactiveQuizLabel: "Inactive",
-    }
+      activeQuizLabel: 'Active',
+      inactiveQuizLabel: 'Inactive',
+    },
   };
 
 </script>

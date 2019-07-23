@@ -229,19 +229,17 @@ describe('HeartBeat', function() {
       // Rather it is the status code that our request client library returns
       // when the connection is refused by the host, or is otherwise unable to connect.
       // What happens for a zero code is tested later in this file.
-      disconnectionErrorCodes
-        .filter(code => code !== 0)
-        .forEach(errorCode => {
-          it('should call monitorDisconnect if it receives error code ' + errorCode, function() {
-            const monitorStub = jest.spyOn(heartBeat, 'monitorDisconnect');
-            const http = require('http');
-            http.__setCode(errorCode);
-            http.__setHeaders({ 'Content-Type': 'application/json' });
-            return heartBeat._checkSession().finally(() => {
-              expect(monitorStub).toHaveBeenCalledTimes(1);
-            });
+      disconnectionErrorCodes.filter(code => code !== 0).forEach(errorCode => {
+        it('should call monitorDisconnect if it receives error code ' + errorCode, function() {
+          const monitorStub = jest.spyOn(heartBeat, 'monitorDisconnect');
+          const http = require('http');
+          http.__setCode(errorCode);
+          http.__setHeaders({ 'Content-Type': 'application/json' });
+          return heartBeat._checkSession().finally(() => {
+            expect(monitorStub).toHaveBeenCalledTimes(1);
           });
         });
+      });
     });
     describe('when not connected', function() {
       beforeEach(function() {

@@ -139,12 +139,10 @@
       },
       channelFilterOptions() {
         const channelIds = this.searchResults.channel_ids;
-        const options = channelIds
-          .map(id => find(this.channels, { id }))
-          .map(channel => ({
-            label: channel.title,
-            value: channel.id,
-          }));
+        const options = channelIds.map(id => find(this.channels, { id })).map(channel => ({
+          label: channel.title,
+          value: channel.id,
+        }));
         return [this.allFilter, ...options];
       },
       roleValue() {
