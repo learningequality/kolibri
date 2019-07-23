@@ -4,6 +4,8 @@ var url = require('url');
 var espree = require('espree');
 var escodegen = require('escodegen');
 var mkdirp = require('mkdirp');
+var sortBy = require('lodash/sortBy');
+var createCsvWriter = require('csv-writer').createObjectCsvWriter;
 var logging = require('./logging');
 var coreAliases = require('./apiSpecExportTools').coreAliases;
 
@@ -332,12 +334,37 @@ ExtractStrings.prototype.apply = function(compiler) {
 ExtractStrings.prototype.writeOutput = function(messageExport) {
   // Make sure the directory we are using exists.
   mkdirp.sync(this.messageDir);
+  // Write out the data to CSV.
+  toCSV(`${this.messageDir}/${this.messagesName}-messages.csv`, messageExport);
   // Write out the data to JSON.
+  /*
   fs.writeFileSync(
     path.join(this.messageDir, this.messagesName + '-messages.json'),
     // pretty print and sort keys
     JSON.stringify(messageExport, Object.keys(messageExport).sort(), 2)
   );
+  */
 };
+
+function toCSV(path, messages) {
+  const csvWriter = createCsvWriter({
+    path,
+    header: [
+      { id: 'identifier', title: 'Identifier' },
+      { id: 'sourceString', title: 'Source String' },
+      { id: 'context', title: 'Context' },
+    ],
+  });
+
+  const csvData = Object.keys(messages).map(key => {
+    return {
+      identifier: key,
+      sourceString: messages[key],
+      context: '',
+    };
+  });
+
+  csvWriter.writeRecords(sortBy(csvData, 'identifier')).then(() => logging.log('Wrote file!'));
+}
 
 module.exports = ExtractStrings;
