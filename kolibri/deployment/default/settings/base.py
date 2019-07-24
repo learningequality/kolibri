@@ -400,7 +400,7 @@ if not os.path.exists(SESSION_FILE_PATH):
         raise RuntimeError("The KOLIBRI_HOME dir does not exist")
     os.mkdir(SESSION_FILE_PATH)
 
-SESSION_COOKIE_NAME = "kolibri"
+SESSION_COOKIE_NAME = "kolibri_client"
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
