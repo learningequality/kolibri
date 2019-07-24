@@ -95,7 +95,6 @@ import UsernameTextbox from '../views/userAccounts/UsernameTextbox';
 import PasswordTextbox from '../views/userAccounts/PasswordTextbox';
 import GenderDisplayText from '../views/userAccounts/GenderDisplayText';
 import BirthYearDisplayText from '../views/userAccounts/BirthYearDisplayText';
-import userAccounts from '../views/userAccounts/strings';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -216,9 +215,6 @@ export default {
       themeMixin,
       commonCoreStrings,
     },
-  },
-  strings: {
-    userAccounts,
   },
   resources,
   styles: {

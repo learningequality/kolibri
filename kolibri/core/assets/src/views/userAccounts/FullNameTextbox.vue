@@ -4,7 +4,6 @@
     ref="textbox"
     :value="value"
     :disabled="$attrs.disabled"
-    :label="$tr('label')"
     :label="coreString('fullNameLabel')"
     :autofocus="$attrs.autofocus"
     :maxlength="120"

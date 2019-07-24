@@ -71,24 +71,24 @@
       </tr>
 
       <tr>
-        <th>{{ $tr('name') }}</th>
+        <th>{{ coreString$tr('fullNameLabel') }}</th>
         <td>{{ session.full_name }}</td>
       </tr>
 
       <tr>
-        <th>{{ $tr('username') }}</th>
+        <th>{{ coreString('usernameLabel') }}</th>
         <td>{{ session.username }}</td>
       </tr>
 
       <tr>
-        <th>{{ UserAccountsStrings.$tr('genderLabel') }}</th>
+        <th>{{ coreString('genderLabel') }}</th>
         <td>
           <GenderDisplayText :gender="facilityUser.gender" />
         </td>
       </tr>
 
       <tr>
-        <th>{{ UserAccountsStrings.$tr('birthYearLabel') }}</th>
+        <th>{{ coreString('birthYearLabel') }}</th>
         <td>
           <BirthYearDisplayText :birthYear="facilityUser.birth_year" />
         </td>
@@ -135,7 +135,6 @@
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import UserAccountsStrings from 'kolibri.strings.userAccounts';
   import { FacilityUserResource } from 'kolibri.resources';
   import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
   import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
@@ -169,9 +168,6 @@
       };
     },
     computed: {
-      UserAccountsStrings() {
-        return UserAccountsStrings;
-      },
       ...mapGetters([
         'facilityConfig',
         'getUserKind',

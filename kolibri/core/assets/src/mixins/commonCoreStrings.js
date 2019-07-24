@@ -52,6 +52,15 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // notifications
   requiredFieldError: 'This field is required',
 
+  // demographic info
+  genderLabel: 'Gender',
+  genderOptionMale: 'Male',
+  genderOptionFemale: 'Female',
+  genderOptionOther: 'Other',
+  birthYearLabel: 'Birth year',
+  preferNotToSayOption: 'Prefer not to say',
+  idNumberLabel: 'Identifier',
+
   // empty states
 
   // toggles

@@ -11,13 +11,14 @@
 <script>
 
   import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
-  import strings from './strings';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'BirthYearDisplayText',
     components: {
       KEmptyPlaceholder,
     },
+    mixins: [commonCoreStrings],
     props: {
       birthYear: {
         type: String,
@@ -26,7 +27,7 @@
     computed: {
       displayText() {
         if (this.birthYear === 'DECLINE') {
-          return strings.$tr('preferNotToSayOption');
+          return this.coreString('preferNotToSayOption');
         } else if (this.birthYear) {
           return this.birthYear;
         } else {

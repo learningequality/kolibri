@@ -11,13 +11,14 @@
 <script>
 
   import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
-  import strings from './strings';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'GenderDisplayText',
     components: {
       KEmptyPlaceholder,
     },
+    mixins: [commonCoreStrings],
     props: {
       gender: {
         type: String,
@@ -26,13 +27,13 @@
     computed: {
       displayText() {
         if (this.gender === 'DECLINE') {
-          return strings.$tr('preferNotToSayOption');
+          return this.coreString('preferNotToSayOption');
         } else if (this.gender === 'MALE') {
-          return strings.$tr('genderOptionMale');
+          return this.coreString('genderOptionMale');
         } else if (this.gender === 'FEMALE') {
-          return strings.$tr('genderOptionFemale');
+          return this.coreString('genderOptionFemale');
         } else if (this.gender === 'OTHER') {
-          return strings.$tr('genderOptionOther');
+          return this.coreString('genderOptionOther');
         } else {
           return '';
         }
