@@ -11,6 +11,7 @@
     <p>{{ $tr('username') }}<strong>{{ username }}</strong></p>
 
     <PasswordTextbox
+      ref="passwordTextbox"
       :autofocus="true"
       :disabled="isBusy"
       :value.sync="password"
@@ -49,7 +50,7 @@
     data() {
       return {
         password: '',
-        passwordValid: true,
+        passwordValid: false,
         formSubmitted: false,
       };
     },
@@ -73,7 +74,7 @@
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (!this.passwordValid) {
-            this.$refs.PasswordTextbox.focus();
+            this.$refs.passwordTextbox.focus();
           }
         });
       },

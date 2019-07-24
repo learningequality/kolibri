@@ -5,7 +5,7 @@
       <h1>{{ $tr('editProfileHeader') }}</h1>
 
       <FullNameTextbox
-        ref="FullNameTextbox"
+        ref="fullNameTextbox"
         :autofocus="true"
         :disabled="!canEditName || busy"
         :value.sync="fullName"
@@ -14,7 +14,7 @@
       />
 
       <UsernameTextbox
-        ref="UsernameTextbox"
+        ref="usernameTextbox"
         :disabled="!canEditUsername || busy"
         :value.sync="username"
         :isValid.sync="usernameValid"
@@ -90,9 +90,9 @@
       const { username, full_name } = this.$store.state.core.session;
       return {
         fullName: full_name,
-        fullNameValid: true,
+        fullNameValid: false,
         username: username,
-        usernameValid: true,
+        usernameValid: false,
         birthYear: '',
         gender: '',
         busy: false,
@@ -162,9 +162,9 @@
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (!this.fullNameValid) {
-            this.$refs.FullNameTextbox.focus();
+            this.$refs.fullNameTextbox.focus();
           } else if (!this.usernameValid) {
-            this.$refs.UsernameTextbox.focus();
+            this.$refs.usernameTextbox.focus();
           }
         });
       },

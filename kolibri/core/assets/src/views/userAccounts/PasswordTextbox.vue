@@ -8,23 +8,23 @@
       type="password"
       :disabled="$attrs.disabled"
       :label="coreString('passwordLabel')"
-      :invalid="Boolean(pwInvalidText)"
-      :invalidText="pwInvalidText"
+      :invalid="Boolean(shownPasswordInvalidText)"
+      :invalidText="shownPasswordInvalidText"
       :autocomplete="$attrs.autocomplete"
-      @blur="pwBlurred = true"
+      @blur="passwordBlurred = true"
       @input="$emit('update:value', $event)"
     />
 
     <KTextbox
       ref="confirm"
-      v-model="confirmValue"
+      v-model="confirmation"
       type="password"
       :disabled="$attrs.disabled"
       :label="$tr('confirmPasswordLabel')"
-      :invalid="Boolean(confirmInvalidText)"
-      :invalidText="confirmInvalidText"
+      :invalid="Boolean(shownConfirmationInvalidText)"
+      :invalidText="shownConfirmationInvalidText"
       :autocomplete="$attrs.autocomplete"
-      @blur="confirmBlurred = true"
+      @blur="confirmationBlurred = true"
     />
   </div>
 
@@ -53,46 +53,57 @@
     },
     data() {
       return {
-        pwBlurred: false,
-        confirmValue: '',
-        confirmBlurred: false,
+        passwordBlurred: false,
+        confirmation: '',
+        confirmationBlurred: false,
       };
     },
     computed: {
-      pwInvalidText() {
-        if (this.pwBlurred || this.shouldValidate) {
-          if (this.value === '') {
-            return this.coreString('requiredFieldError');
-          }
+      passwordInvalidText() {
+        if (this.value === '') {
+          return this.coreString('requiredFieldError');
         }
         return '';
       },
-      confirmInvalidText() {
-        if (this.confirmBlurred || this.shouldValidate) {
-          if (this.confirmValue === '') {
-            return this.coreString('requiredFieldError');
-          }
-          if (this.confirmValue !== this.value) {
-            return this.$tr('errorNotMatching');
-          }
+      confirmationInvalidText() {
+        if (this.confirmation === '') {
+          return this.coreString('requiredFieldError');
+        }
+        if (this.value !== this.confirmation) {
+          return this.$tr('errorNotMatching');
         }
         return '';
       },
-      isValid() {
-        return !(this.pwInvalidText || this.confirmInvalidText);
+      shownPasswordInvalidText() {
+        if (this.passwordBlurred || this.shouldValidate) {
+          return this.passwordInvalidText;
+        }
+        return '';
+      },
+      shownConfirmationInvalidText() {
+        if (this.confirmationBlurred || this.shouldValidate) {
+          return this.confirmationInvalidText;
+        }
+        return '';
+      },
+      valid() {
+        return this.confirmationInvalidText === '' && this.passwordInvalidText === '';
       },
     },
     watch: {
-      isValid(value) {
-        this.$emit('update:isValid', value);
+      valid: {
+        handler(value) {
+          this.$emit('update:isValid', value);
+        },
+        immediate: true,
       },
     },
     methods: {
       // @public
       focus() {
-        if (this.pwInvalidText) {
+        if (this.shownPasswordInvalidText) {
           this.$refs.password.focus();
-        } else if (this.confirmInvalidText) {
+        } else if (this.shownConfirmationInvalidText) {
           this.$refs.confirm.focus();
         }
       },

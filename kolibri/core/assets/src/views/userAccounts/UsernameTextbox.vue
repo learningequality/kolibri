@@ -7,8 +7,8 @@
     :label="coreString('usernameLabel')"
     :autofocus="$attrs.autofocus"
     :maxlength="30"
-    :invalid="Boolean(invalidText)"
-    :invalidText="invalidText"
+    :invalid="Boolean(shownInvalidText)"
+    :invalidText="shownInvalidText"
     @blur="blurred = true"
     @input="handleInput"
   />
@@ -56,32 +56,39 @@
     },
     computed: {
       invalidText() {
-        if (this.blurred || this.shouldValidate) {
-          if (this.errors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
-            return this.$tr('errorNotUnique');
-          }
-          if (this.isUniqueValidator && !this.isUniqueValidator(this.value)) {
-            return this.$tr('errorNotUnique');
-          }
-          if (this.value === '') {
-            return this.coreString('requiredFieldError');
-          }
-          if (this.errors.includes(ERROR_CONSTANTS.INVALID)) {
-            return this.$tr('errorInvalidString');
-          }
-          if (!validateUsername(this.value)) {
-            return this.$tr('errorInvalidString');
-          }
+        if (this.errors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
+          return this.$tr('errorNotUnique');
+        }
+        if (this.isUniqueValidator && !this.isUniqueValidator(this.value)) {
+          return this.$tr('errorNotUnique');
+        }
+        if (this.value === '') {
+          return this.coreString('requiredFieldError');
+        }
+        if (this.errors.includes(ERROR_CONSTANTS.INVALID)) {
+          return this.$tr('errorInvalidString');
+        }
+        if (!validateUsername(this.value)) {
+          return this.$tr('errorInvalidString');
         }
         return '';
       },
-      isValid() {
+      shownInvalidText() {
+        if (this.blurred || this.shouldValidate) {
+          return this.invalidText;
+        }
+        return '';
+      },
+      valid() {
         return this.invalidText === '';
       },
     },
     watch: {
-      isValid(value) {
-        this.$emit('update:isValid', value);
+      valid: {
+        handler(value) {
+          this.$emit('update:isValid', value);
+        },
+        immediate: true,
       },
     },
     methods: {

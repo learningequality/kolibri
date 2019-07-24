@@ -86,11 +86,11 @@
       const { superuser } = this.$store.state.onboardingData;
       return {
         fullName: superuser.full_name,
-        fullNameValid: true,
+        fullNameValid: false,
         username: superuser.username,
-        usernameValid: true,
+        usernameValid: false,
         password: superuser.password,
-        passwordValid: true,
+        passwordValid: false,
         birthYear: superuser.birth_year,
         gender: superuser.gender,
         formSubmitted: false,

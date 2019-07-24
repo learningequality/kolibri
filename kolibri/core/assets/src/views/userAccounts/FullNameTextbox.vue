@@ -7,8 +7,8 @@
     :label="coreString('fullNameLabel')"
     :autofocus="$attrs.autofocus"
     :maxlength="120"
-    :invalid="Boolean(invalidText)"
-    :invalidText="invalidText"
+    :invalid="Boolean(shownInvalidText)"
+    :invalidText="shownInvalidText"
     :autocomplete="$attrs.autocomplete"
     @blur="blurred = true"
     @input="$emit('update:value', $event)"
@@ -28,6 +28,7 @@
       KTextbox,
     },
     mixins: [commonCoreStrings],
+    // NOTE: 'value' and 'isValid' must be .sync'd with parent
     props: {
       value: {
         type: String,
@@ -43,20 +44,27 @@
     },
     computed: {
       invalidText() {
-        if (this.blurred || this.shouldValidate) {
-          if (this.value === '') {
-            return this.coreString('requiredFieldError');
-          }
+        if (this.value === '') {
+          return this.coreString('requiredFieldError');
         }
         return '';
       },
-      isValid() {
+      shownInvalidText() {
+        if (this.blurred || this.shouldValidate) {
+          return this.invalidText;
+        }
+        return '';
+      },
+      valid() {
         return this.invalidText === '';
       },
     },
     watch: {
-      isValid(value) {
-        this.$emit('update:isValid', value);
+      valid: {
+        handler(value) {
+          this.$emit('update:isValid', value);
+        },
+        immediate: true,
       },
     },
     methods: {

@@ -133,11 +133,11 @@
     data() {
       return {
         fullName: '',
-        fullNameValid: true,
+        fullNameValid: false,
         username: '',
-        usernameValid: true,
+        usernameValid: false,
         password: '',
-        passwordValid: true,
+        passwordValid: false,
         gender: '',
         birthYear: '',
         idNumber: '',
