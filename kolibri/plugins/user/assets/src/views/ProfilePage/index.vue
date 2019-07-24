@@ -225,7 +225,7 @@
         FacilityUserResource.fetchModel({ id: this.session.user_id }).then(facilityUser => {
           this.facilityUser = { ...facilityUser };
         });
-      }
+      },
     },
     $trs: {
       detailsHeader: 'Details',

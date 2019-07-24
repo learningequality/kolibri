@@ -8,24 +8,38 @@ import kolibri.core.auth.models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('kolibriauth', '0013_auto_20180917_1213'),
-    ]
+    dependencies = [("kolibriauth", "0013_auto_20180917_1213")]
 
     operations = [
         migrations.AddField(
-            model_name='facilityuser',
-            name='birth_year',
-            field=models.CharField(blank=True, default='', max_length=10, validators=[kolibri.core.auth.models.validate_birth_year]),
+            model_name="facilityuser",
+            name="birth_year",
+            field=models.CharField(
+                blank=True,
+                default="",
+                max_length=10,
+                validators=[kolibri.core.auth.models.validate_birth_year],
+            ),
         ),
         migrations.AddField(
-            model_name='facilityuser',
-            name='gender',
-            field=models.CharField(blank=True, choices=[('MALE', 'Male'), ('FEMALE', 'Female'), ('OTHER', 'Other'), ('DECLINE', 'Prefers not to say'), ('DEFER', 'Defers for later')], default='', max_length=10),
+            model_name="facilityuser",
+            name="gender",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("MALE", "Male"),
+                    ("FEMALE", "Female"),
+                    ("OTHER", "Other"),
+                    ("DECLINE", "Prefers not to say"),
+                    ("DEFER", "Defers for later"),
+                ],
+                default="",
+                max_length=10,
+            ),
         ),
         migrations.AddField(
-            model_name='facilityuser',
-            name='id_number',
-            field=models.CharField(blank=True, default='', max_length=64),
+            model_name="facilityuser",
+            name="id_number",
+            field=models.CharField(blank=True, default="", max_length=64),
         ),
     ]

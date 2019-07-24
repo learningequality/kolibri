@@ -4,7 +4,7 @@ import ProfilePage from '../../src/views/ProfilePage';
 import makeStore from '../makeStore';
 
 ProfilePage.methods.fetchPoints = () => {};
-ProfilePage.methods.fetchFacilityUser = () => {}
+ProfilePage.methods.fetchFacilityUser = () => {};
 
 const router = new VueRouter();
 router.getRoute = () => {};
@@ -15,8 +15,8 @@ function makeWrapper() {
     store,
     router,
     stubs: {
-      RouterLink: RouterLinkStub
-    }
+      RouterLink: RouterLinkStub,
+    },
   });
 }
 
