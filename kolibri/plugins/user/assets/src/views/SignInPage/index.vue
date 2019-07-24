@@ -32,7 +32,14 @@
               :style="$theme.signIn.poweredByStyle"
               class="small-text"
             >
+              <KButton
+                v-if="oidcProviderFlow"
+                :text="$tr('poweredByKolibri')"
+                appearance="basic-link"
+                @click="whatsThisModalVisible = true"
+              />
               <KExternalLink
+                v-else
                 :text="$tr('poweredByKolibri')"
                 :primary="true"
                 href="https://learningequality.org/r/powered_by_kolibri"
@@ -129,16 +136,6 @@
                 appearance="basic-link"
               />
             </p>
-            <p
-              v-if="oidcProviderFlow"
-              class="guest small-text"
-            >
-              <KButton
-                :text="$tr('whatsThis')"
-                appearance="basic-link"
-                @click="whatsThisModalVisible = true"
-              />
-            </p>
           </div>
         </div>
       </div>
@@ -172,8 +169,18 @@
       :title="$tr('whatsThis')"
       :submitText="closeString"
       @submit="whatsThisModalVisible = false"
+      @cancel="whatsThisModalVisible = false"
     >
-      {{ $tr('oidcGenericExplanation') }}
+      <p>{{ $tr('oidcGenericExplanation') }}</p>
+      <p>
+        <KExternalLink
+          text="https://learningequality.org/kolibri"
+          :primary="true"
+          href="https://learningequality.org/r/powered_by_kolibri"
+          target="_blank"
+          appearance="basic-link"
+        />
+      </p>
     </KModal>
 
   </div>
