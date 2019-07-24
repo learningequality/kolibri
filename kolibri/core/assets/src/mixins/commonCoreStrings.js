@@ -60,6 +60,9 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   birthYearLabel: 'Birth year',
   preferNotToSayOption: 'Prefer not to say',
   idNumberLabel: 'Identifier',
+  identifierTooltip:
+    'This could be a student ID number or an existing user identification number outside of Kolibri, for example.',
+  identifierAriaLabel: 'About providing an identifier or ID number',
 
   // empty states
 

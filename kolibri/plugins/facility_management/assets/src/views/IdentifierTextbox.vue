@@ -10,8 +10,8 @@
     />
     <CoreInfoIcon
       class="info-icon"
-      :tooltipText="$tr('identifierTooltip')"
-      :iconAriaLabel="$tr('identifierAriaLabel')"
+      :tooltipText="coreString('identifierTooltip')"
+      :iconAriaLabel="coreString('identifierAriaLabel')"
     />
   </div>
 
@@ -22,6 +22,7 @@
 
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'IdentifierTextbox',
@@ -29,6 +30,7 @@
       CoreInfoIcon,
       KTextbox,
     },
+    mixins: [commonCoreStrings],
     props: {
       value: {
         type: String,
@@ -36,9 +38,6 @@
     },
     $trs: {
       label: 'Identifier (Optional)',
-      identifierTooltip:
-        'This could be a student ID number or an existing user identification number outside of Kolibri, for example.',
-      identifierAriaLabel: 'About providing an identifier or ID number',
     },
   };
 

@@ -38,8 +38,8 @@
               <span>{{ coreString('idNumberLabel') }}</span>
               <CoreInfoIcon
                 class="tooltip"
-                :iconAriaLabel="$tr('idNumberAriaLabel')"
-                :tooltipText="$tr('idNumberTooltipText')"
+                :iconAriaLabel="coreString('identifierAriaLabel')"
+                :tooltipText="coreString('identifierTooltip')"
               />
             </th>
             <th>
