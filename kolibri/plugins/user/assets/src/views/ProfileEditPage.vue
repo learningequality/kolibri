@@ -59,6 +59,7 @@
 <script>
 
   import every from 'lodash/every';
+  import pickBy from 'lodash/pickBy';
   import { mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
@@ -99,6 +100,7 @@
         caughtErrors: [],
         formSubmitted: false,
         status: '',
+        userCopy: {},
       };
     },
     computed: {
@@ -137,6 +139,20 @@
           facilityUser => {
             this.birthYear = facilityUser.birth_year;
             this.gender = facilityUser.gender;
+            this.userCopy = { ...facilityUser };
+          }
+        );
+      },
+      getUpdates() {
+        return pickBy(
+          {
+            birth_year: this.birthYear,
+            full_name: this.fullName,
+            gender: this.gender,
+            username: this.username,
+          },
+          (value, key) => {
+            return value !== this.userCopy[key];
           }
         );
       },
@@ -146,13 +162,7 @@
           this.status = 'BUSY';
           this.$store
             .dispatch('profile/updateUserProfile', {
-              edits: {
-                username: this.username,
-                full_name: this.fullName,
-                gender: this.gender,
-                birth_year: this.birthYear,
-              },
-              session: this.$store.state.core.session,
+              updates: this.getUpdates(),
             })
             .then(() => {
               this.status = 'SUCCESS';

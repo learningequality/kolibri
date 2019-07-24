@@ -14,6 +14,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   saveAction: 'Save',
   saveChangesAction: 'Save changes',
   showAction: 'Show',
+  updateAction: 'Update',
 
   // labels, phrases, titles, headers...
   adminLabel: 'Admin',

@@ -2,17 +2,18 @@
 
   <KModal
     :title="$tr('passwordChangeFormHeader')"
-    size="small"
-    :submitText="$tr('updateButtonLabel')"
-    :cancelText="$tr('cancelButtonLabel')"
-    :submitDisabled="isBusy"
+    size="medium"
+    :submitText="coreString('updateAction')"
+    :cancelText="coreString('cancelAction')"
+    :submitDisabled="busy"
+    :cancelDisabled="busy"
     @submit="submitForm"
     @cancel="$emit('cancel')"
   >
     <PasswordTextbox
       ref="PasswordTextbox"
       :autofocus="true"
-      :disabled="isBusy"
+      :disabled="busy"
       :value.sync="password"
       :isValid.sync="passwordValid"
       :shouldValidate="formSubmitted"
@@ -24,7 +25,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -41,19 +41,28 @@
         password: '',
         passwordValid: true,
         formSubmitted: false,
+        busy: false,
       };
-    },
-    computed: {
-      ...mapState('profile', ['isBusy']),
     },
     methods: {
       submitForm() {
         this.formSubmitted = true;
-        if (this.passwordValid) {
-          this.$store.dispatch('profile/updateUserProfilePassword', this.password);
-        } else {
-          this.focusOnInvalidField();
+
+        if (!this.passwordValid) {
+          return this.focusOnInvalidField();
         }
+
+        this.busy = true;
+        this.$store
+          .dispatch('profile/updateUserProfilePassword', this.password)
+          .then(() => {
+            this.busy = false;
+            this.$emit('cancel');
+            this.$store.dispatch('createSnackbar', this.$tr('passwordChangedNotification'));
+          })
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+          });
       },
       focusOnInvalidField() {
         this.$nextTick().then(() => {
@@ -65,8 +74,7 @@
     },
     $trs: {
       passwordChangeFormHeader: 'Change Password',
-      cancelButtonLabel: 'cancel',
-      updateButtonLabel: 'update',
+      passwordChangedNotification: 'Your password has been changed.',
     },
   };
 

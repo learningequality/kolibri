@@ -8,7 +8,7 @@
       :placeholder="$tr('placeholder')"
       :options="options"
       :disabled="$attrs.disabled"
-      @change="$emit('update:value', String($event.value))"
+      @change="$emit('update:value', $event.value)"
     />
     <CoreInfoIcon
       class="info-icon"

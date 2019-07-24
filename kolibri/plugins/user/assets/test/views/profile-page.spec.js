@@ -6,11 +6,6 @@ ProfilePage.methods.fetchPoints = () => {};
 
 function makeWrapper() {
   const store = makeStore();
-  store.commit('profile/SET_STATE', {
-    passwordState: {
-      modal: false,
-    },
-  });
   return mount(ProfilePage, {
     store,
   });

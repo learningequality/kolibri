@@ -8,5 +8,4 @@ export const PageNames = {
 
 export const pageNameToModuleMap = {
   [PageNames.SIGN_IN]: 'signIn',
-  [PageNames.PROFILE]: 'profile',
 };

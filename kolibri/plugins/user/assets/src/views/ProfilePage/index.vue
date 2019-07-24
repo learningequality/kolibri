@@ -100,17 +100,16 @@
           <KButton
             appearance="basic-link"
             :text="$tr('changePasswordPrompt')"
-            :disabled="busy"
             class="change-password"
-            @click="setPasswordModalVisible(true)"
+            @click="showPasswordModal = true"
           />
         </td>
       </tr>
     </table>
 
     <ChangeUserPasswordModal
-      v-if="passwordModalVisible"
-      @cancel="setPasswordModalVisible(false)"
+      v-if="showPasswordModal"
+      @cancel="showPasswordModal = false"
     />
   </KPageContainer>
 
@@ -119,7 +118,7 @@
 
 <script>
 
-  import { mapState, mapGetters, mapMutations } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
@@ -165,6 +164,7 @@
     data() {
       return {
         facilityUser: {},
+        showPasswordModal: false,
       };
     },
     computed: {
@@ -179,7 +179,6 @@
       ...mapState({
         session: state => state.core.session,
       }),
-      ...mapState('profile', ['busy', 'passwordState']),
       userPermissions() {
         return pickBy(this.getUserPermissions);
       },
@@ -188,9 +187,6 @@
           id: this.$store.getters.currentFacilityId,
         });
         return match ? match.name : '';
-      },
-      passwordModalVisible() {
-        return this.passwordState.modal;
       },
       permissionType() {
         if (this.isSuperuser) {
@@ -221,9 +217,6 @@
       });
     },
     methods: {
-      ...mapMutations('profile', {
-        setPasswordModalVisible: 'SET_PROFILE_PASSWORD_MODAL',
-      }),
       getPermissionString(permission) {
         if (permission === 'can_manage_content') {
           return this.$tr('manageContent');

@@ -5,7 +5,7 @@
       v-if="!privacyModalVisible"
       :title="$tr('title')"
       :cancelText="$tr('skipUpdateProfileAction')"
-      :submitText="$tr('updateProfileAction')"
+      :submitText="coreString('updateAction')"
       :cancelDisabled="$attrs.disabled"
       :submitDisabled="$attrs.disabled"
       @cancel="$emit('cancel')"
@@ -16,7 +16,7 @@
       </p>
       <p>
         <KButton
-          :text="$tr('usageAndPrivacyLabel')"
+          :text="coreString('usageAndPrivacyLabel')"
           appearance="basic-link"
           @click="privacyModalVisible = true"
         />
@@ -37,6 +37,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KButton from 'kolibri.coreVue.components.KButton';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UpdateYourProfileModal',
@@ -45,6 +46,7 @@
       KModal,
       PrivacyInfoModal,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         privacyModalVisible: false,
@@ -55,8 +57,6 @@
       updateProfileExplanation:
         'Some information is missing from your profile. Would you like to update it?',
       skipUpdateProfileAction: 'Skip',
-      updateProfileAction: 'Update',
-      usageAndPrivacyLabel: 'Usage and privacy',
     },
   };
 
