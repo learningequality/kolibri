@@ -28,7 +28,7 @@
       displayText() {
         if (this.birthYear === 'DECLINE') {
           return this.coreString('preferNotToSayOption');
-        } else if (this.birthYear) {
+        } else if (this.birthYear !== 'DEFER') {
           return this.birthYear;
         } else {
           return '';

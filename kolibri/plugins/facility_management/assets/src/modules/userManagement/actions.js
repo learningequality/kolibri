@@ -1,3 +1,4 @@
+import isEmpty from 'lodash/isEmpty';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import { FacilityUserResource } from 'kolibri.resources';
 import { updateFacilityLevelRoles } from './utils';
@@ -42,14 +43,14 @@ export function createFacilityUser(store, payload) {
 
 export function updateFacilityUserDetails(store, { userId, updates }) {
   const { facilityUserUpdates, roleUpdates } = updates;
+  if (isEmpty(facilityUserUpdates) && !roleUpdates) {
+    return Promise.resolve();
+  }
   return FacilityUserResource.saveModel({ id: userId, data: { ...facilityUserUpdates } }).then(
     user => {
       if (roleUpdates) {
-        return updateFacilityLevelRoles(user, roleUpdates.kind).then(() => {
-          return user;
-        });
+        return updateFacilityLevelRoles(user, roleUpdates.kind);
       }
-      return user;
     }
   );
 }

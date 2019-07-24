@@ -89,6 +89,9 @@
       />
     </section>
 
+    <p v-if="willBeLoggedOut">
+      {{ $tr('forceLogoutWarning') }}
+    </p>
     <div class="buttons">
       <KButton
         type="submit"
@@ -226,6 +229,9 @@
         }
         return value;
       },
+      willBeLoggedOut() {
+        return this.editingSelf && this.newUserKind && this.newUserKind !== UserKinds.ADMIN;
+      },
     },
     mounted() {
       FacilityUserResource.fetchModel({
@@ -330,7 +336,7 @@
       handleSubmitSuccess() {
         this.status = 'SUCCESS';
         // newUserKind is falsey if Super Admin, since that's not a facility role
-        if (this.editingSelf && this.newUserKind && this.newUserKind !== UserKinds.ADMIN) {
+        if (this.willBeLoggedOut) {
           // Log out of Facility Page if and Admin demotes themselves to non-Admin
           this.$store.dispatch('kolibriLogout');
         } else {
@@ -364,6 +370,8 @@
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachDescription: 'Can instruct all classes in your facility',
       userUpdateNotification: 'Changes saved',
+      forceLogoutWarning:
+        'Warning: By making your self a non-admin, you will be logged out after clicking "Save".',
     },
   };
 
