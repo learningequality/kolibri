@@ -111,6 +111,7 @@
 <script>
 
   import every from 'lodash/every';
+  import pickBy from 'lodash/pickBy';
   import UserType from 'kolibri.utils.UserType';
   import { FacilityUserResource } from 'kolibri.resources';
   import { mapState, mapGetters } from 'vuex';
@@ -236,7 +237,7 @@
         this.gender = user.gender;
         this.birthYear = user.birth_year;
         this.setKind(user);
-        this.makeCopyOfUser();
+        this.makeCopyOfUser(user);
         this.loading = false;
       });
     },
@@ -254,14 +255,14 @@
           this.typeSelected = this.userTypeOptions.find(kind => kind.value === this.kind) || {};
         }
       },
-      makeCopyOfUser() {
+      makeCopyOfUser(user) {
         this.userCopy = {
-          full_name: this.fullName,
-          username: this.username,
-          kind: this.kind,
-          id_number: this.idNumber,
-          gender: this.gender,
           birth_year: this.birthYear,
+          full_name: this.fullName,
+          gender: this.gender,
+          id_number: this.idNumber,
+          username: this.username,
+          kind: UserType(user),
         };
       },
       goToUserManagementPage() {
@@ -276,33 +277,48 @@
         }
         return !match;
       },
-      submitForm() {
-        this.formSubmitted = true;
-        if (!this.formIsValid) {
-          return this.focusOnInvalidField();
-        }
-        this.status = 'BUSY';
+      // Returns the subset of the FacilityUserModel that has been changed
+      getUpdates() {
+        let roleUpdates;
+        const facilityUserUpdates = pickBy(
+          {
+            birth_year: this.birthYear,
+            full_name: this.fullName,
+            gender: this.gender,
+            id_number: this.idNumber,
+            username: this.username,
+          },
+          (value, key) => {
+            return value !== this.userCopy[key];
+          }
+        );
 
-        const updates = {
-          username: this.username,
-          full_name: this.fullName,
-          id_number: this.idNumber,
-          gender: this.gender,
-          birth_year: this.birthYear,
-        };
-
-        if (!this.editingSuperAdmin) {
-          updates.role = {
+        // Roles are update via a different API than FacilityUsers, so pass
+        // their update separately
+        if (!this.editingSuperAdmin && this.newUserKind !== this.userCopy.kind) {
+          roleUpdates = {
             collection: this.currentFacilityId,
             kind: this.newUserKind,
           };
         }
+        return {
+          facilityUserUpdates,
+          roleUpdates,
+        };
+      },
+      submitForm() {
+        this.formSubmitted = true;
+
+        if (!this.formIsValid) {
+          return this.focusOnInvalidField();
+        }
+
+        this.status = 'BUSY';
 
         this.$store
-          .dispatch('userManagement/updateUser', {
+          .dispatch('userManagement/updateFacilityUserDetails', {
             userId: this.userId,
-            updates,
-            original: { ...this.userCopy },
+            updates: this.getUpdates(),
           })
           .then(() => {
             this.handleSubmitSuccess();
@@ -322,8 +338,8 @@
         }
       },
       handleSubmitFailure(error) {
-        this.caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
         this.status = 'FAILURE';
+        this.caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
         if (this.caughtErrors.length > 0) {
           this.focusOnInvalidField();
         } else {

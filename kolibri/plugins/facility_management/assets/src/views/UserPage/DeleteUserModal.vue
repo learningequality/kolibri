@@ -17,7 +17,6 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
@@ -43,22 +42,28 @@
       };
     },
     methods: {
-      ...mapActions('userManagement', ['deleteUser']),
       handleDeleteUser() {
         this.submitting = true;
-        this.deleteUser(this.id).then(() => {
-          this.$store.dispatch(
-            'createSnackbar',
-            this.$tr('userDeletedNotification', { username: this.username })
-          );
-        });
+        this.$store
+          .dispatch('userManagement/deleteFacilityUser', { userId: this.id })
+          .then(() => {
+            this.$store.commit('userManagement/DELETE_USER', this.id);
+            this.$emit('cancel');
+            this.$store.dispatch(
+              'createSnackbar',
+              this.$tr('userDeletedNotification', { username: this.username })
+            );
+          })
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+          });
       },
     },
     $trs: {
       deleteUser: 'Delete user',
       confirmation: "Are you sure you want to delete the user '{ username }'?",
       warning: 'All data and logs for this user will be lost.',
-      userDeletedNotification: "Account for '{username}' was deleted",
+      userDeletedNotification: "User account for '{username}' was deleted",
     },
   };
 

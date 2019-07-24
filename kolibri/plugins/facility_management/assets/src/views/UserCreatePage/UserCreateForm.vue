@@ -200,7 +200,7 @@
         }
         this.busy = true;
         this.$store
-          .dispatch('userManagement/createUser', {
+          .dispatch('userManagement/createFacilityUser', {
             username: this.username,
             full_name: this.fullName,
             id_number: this.idNumber,

@@ -25,7 +25,7 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -58,13 +58,15 @@
       ...mapState('userManagement', ['isBusy']),
     },
     methods: {
-      ...mapActions(['handleApiError']),
-      ...mapActions('userManagement', ['updateFacilityUser']),
       submitForm() {
         this.formSubmitted = true;
         if (this.passwordValid) {
           // TODO handle the error within this modal (needs new strings)
-          this.updateFacilityUser({ userId: this.id, updates: { password: this.password } })
+          this.$store
+            .dispatch('userManagement/updateFacilityUserPassword', {
+              userId: this.id,
+              password: this.password,
+            })
             .then(() => {
               this.$emit('cancel');
               this.$store.dispatch(
@@ -72,7 +74,7 @@
                 this.$tr('passwordChangedNotification', { username: this.username })
               );
             })
-            .catch(error => this.handleApiError(error));
+            .catch(error => this.$store.dispatch('handleApiError', error));
         } else {
           this.focusOnInvalidField();
         }
