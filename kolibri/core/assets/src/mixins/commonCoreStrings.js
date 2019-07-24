@@ -20,16 +20,19 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   adminLabel: 'Admin',
   allLabel: 'All',
   allLessonsLabel: 'All lessons',
+  birthYearLabel: 'Birth year',
   channelsLabel: 'Channels',
-  classesLabel: 'Classes',
   classNameLabel: 'Class name',
-  coachesLabel: 'Coaches',
+  classesLabel: 'Classes',
   coachLabel: 'Coach',
+  coachesLabel: 'Coaches',
   completedLabel: 'Completed',
   devicePermissionsLabel: 'Device permissions',
   facilityCoachLabel: 'Facility coach',
   facilityLabel: 'Facility',
   fullNameLabel: 'Full name',
+  genderLabel: 'Gender',
+  identifierLabel: 'Identifier',
   kolibriLabel: 'Kolibri',
   learnerLabel: 'Learner',
   learnersLabel: 'Learners',
@@ -45,33 +48,23 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   showCorrectAnswerLabel: 'Show correct answer',
   signInLabel: 'Sign in',
   usageAndPrivacyLabel: 'Usage and privacy',
+  userTypeLabel: 'User type',
   usernameLabel: 'Username',
   usersLabel: 'Users',
-  userTypeLabel: 'User type',
   viewMoreAction: 'View more',
 
-  // notifications
+  // Errors
   requiredFieldError: 'This field is required',
+  usernameNotAlphaNumError: 'Username can only contain letters, numbers, and underscores',
 
-  // demographic info
-  genderLabel: 'Gender',
+  // Demographic-specific strings
   genderOptionMale: 'Male',
   genderOptionFemale: 'Female',
   genderOptionOther: 'Other',
-  birthYearLabel: 'Birth year',
   preferNotToSayOption: 'Prefer not to say',
-  idNumberLabel: 'Identifier',
   identifierTooltip:
     'This could be a student ID number or an existing user identification number outside of Kolibri, for example.',
   identifierAriaLabel: 'About providing an identifier or ID number',
-
-  // empty states
-
-  // toggles
-
-  // formatted values
-
-  // Errors
 });
 
 export default {

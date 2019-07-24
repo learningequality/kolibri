@@ -66,10 +66,10 @@
           return this.coreString('requiredFieldError');
         }
         if (this.errors.includes(ERROR_CONSTANTS.INVALID)) {
-          return this.$tr('errorInvalidString');
+          return this.coreString('usernameNotAlphaNumError');
         }
         if (!validateUsername(this.value)) {
-          return this.$tr('errorInvalidString');
+          return this.coreString('usernameNotAlphaNumError');
         }
         return '';
       },
@@ -104,9 +104,6 @@
       },
     },
     $trs: {
-      label: 'Username',
-      errorEmptyString: 'This field is required',
-      errorInvalidString: 'Username can only contain letters, numbers, and underscores',
       errorNotUnique: 'Username already exists',
     },
   };

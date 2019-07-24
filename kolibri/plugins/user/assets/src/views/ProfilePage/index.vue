@@ -212,9 +212,7 @@
       this.$store.dispatch('fetchPoints');
     },
     mounted() {
-      FacilityUserResource.fetchModel({ id: this.session.user_id }).then(facilityUser => {
-        this.facilityUser = { ...facilityUser };
-      });
+      this.fetchFacilityUser();
     },
     methods: {
       getPermissionString(permission) {
@@ -223,6 +221,11 @@
         }
         return permission;
       },
+      fetchFacilityUser() {
+        FacilityUserResource.fetchModel({ id: this.session.user_id }).then(facilityUser => {
+          this.facilityUser = { ...facilityUser };
+        });
+      }
     },
     $trs: {
       detailsHeader: 'Details',

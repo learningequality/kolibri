@@ -9,6 +9,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   previewAction: 'Preview',
   renameAction: 'Rename',
   viewAllAction: 'View all',
+  showMoreAction: 'Show more',
 
   // labels, phrases, titles, headers...
   activeLabel: 'Active',

@@ -35,7 +35,7 @@
           </th>
           <template v-if="showDemographicInfo">
             <th>
-              <span>{{ coreString('idNumberLabel') }}</span>
+              <span>{{ coreString('identifierLabel') }}</span>
               <CoreInfoIcon
                 class="tooltip"
                 :iconAriaLabel="coreString('identifierAriaLabel')"
