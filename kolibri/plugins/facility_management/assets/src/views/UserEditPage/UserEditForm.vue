@@ -57,7 +57,7 @@
           <KRadioButton
             v-model="classCoachIsSelected"
             :disabled="formDisabled"
-            :label="$tr('classCoachLabel')"
+            :label="coreString('classCoachLabel')"
             :description="$tr('classCoachDescription')"
             :value="true"
           />
@@ -366,7 +366,6 @@
       editUserDetailsHeader: 'Edit user details',
       changeInDeviceTabPrompt: 'Go to Device permissions to change this',
       viewInDeviceTabPrompt: 'View details in Device permissions',
-      classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachDescription: 'Can instruct all classes in your facility',
       userUpdateNotification: 'Changes saved',

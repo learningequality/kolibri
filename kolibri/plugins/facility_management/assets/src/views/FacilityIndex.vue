@@ -77,7 +77,7 @@
           this.pageName === PageNames.USER_CREATE_PAGE
         ) {
           immersivePageRoute = this.$router.getRoute(PageNames.USER_MGMT_PAGE);
-          appBarTitle = this.$tr('usersLabel');
+          appBarTitle = this.coreString('usersLabel');
         }
 
         if (immersivePageRoute) {
@@ -103,7 +103,6 @@
     },
     $trs: {
       adminOrSuperuser: 'You must be signed in as an admin or super admin to view this page',
-      usersLabel: 'Users',
     },
   };
 

@@ -37,7 +37,7 @@
         v-model="kind"
         class="select"
         :disabled="busy"
-        :label="$tr('userType')"
+        :label="coreString('userTypeLabel')"
         :options="userTypeOptions"
       />
 
@@ -45,14 +45,14 @@
         <KRadioButton
           v-model="classCoachIsSelected"
           :disabled="busy"
-          :label="$tr('classCoachLabel')"
+          :label="coreString('classCoachLabel')"
           :description="$tr('classCoachDescription')"
           :value="true"
         />
         <KRadioButton
           v-model="classCoachIsSelected"
           :disabled="busy"
-          :label="$tr('facilityCoachLabel')"
+          :label="coreString('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
           :value="false"
         />
@@ -80,12 +80,12 @@
     <div class="buttons">
       <KButton
         type="submit"
-        :text="$tr('saveAction')"
+        :text="coreString('saveAction')"
         :disabled="busy"
         :primary="true"
       />
       <KButton
-        :text="$tr('cancelAction')"
+        :text="coreString('cancelAction')"
         :disabled="busy"
         @click="goToUserManagementPage()"
       />
@@ -142,7 +142,7 @@
         birthYear: '',
         idNumber: '',
         kind: {
-          label: this.$tr('learner'),
+          label: this.coreString('learnerLabel'),
           value: UserKinds.LEARNER,
         },
         classCoachIsSelected: true,
@@ -170,15 +170,15 @@
       userTypeOptions() {
         return [
           {
-            label: this.$tr('learner'),
+            label: this.coreString('learnerLabel'),
             value: UserKinds.LEARNER,
           },
           {
-            label: this.$tr('coach'),
+            label: this.coreString('coachLabel'),
             value: UserKinds.COACH,
           },
           {
-            label: this.$tr('admin'),
+            label: this.coreString('adminLabel'),
             value: UserKinds.ADMIN,
           },
         ];
@@ -250,15 +250,7 @@
     },
     $trs: {
       createNewUserHeader: 'Create new user',
-      cancelAction: 'Cancel',
-      userType: 'User type',
-      saveAction: 'Save',
-      learner: 'Learner',
-      coach: 'Coach',
-      admin: 'Admin',
-      classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
-      facilityCoachLabel: 'Facility coach',
       facilityCoachDescription: 'Can instruct all classes in your facility',
       userCreatedNotification: "User account for '{username}' was created",
     },
