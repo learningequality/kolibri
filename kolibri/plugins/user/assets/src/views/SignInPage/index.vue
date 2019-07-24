@@ -209,17 +209,10 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
+  import getUrlParameter from '../getUrlParameter';
   import FacilityModal from './FacilityModal';
 
   const closeString = crossComponentTranslator(FacilityModal).$tr('close');
-
-  // https://davidwalsh.name/query-string-javascript
-  function getUrlParameter(name) {
-    name = name.replace(/[[]/, '[').replace(/[\]]/, '\\]');
-    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-    var results = regex.exec(location.search);
-    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-  }
 
   export default {
     name: 'SignInPage',
