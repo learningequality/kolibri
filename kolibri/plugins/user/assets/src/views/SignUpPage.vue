@@ -119,7 +119,7 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import { redirectBrowser } from 'kolibri.utils.browser';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
+  import LanguageSwitcherFooter from './LanguageSwitcherFooter';
 
   export default {
     name: 'SignUpPage',
