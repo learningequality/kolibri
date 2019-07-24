@@ -36,15 +36,15 @@ steps:
 
   - wait
 
+  - block: "Create integration testing worksheet?"
+  - label: Create integration testing
+    command: .buildkite/build_worksheet.sh
+
   - block: "Sign Windows installer?"
   - label: Sign Windows installer
     command: .buildkite/sign_windows_installer.bat
     agents:
       queue: "windows-sign"
-
-  - block: "Create integration testing worksheet?"
-  - label: Create integration testing
-    command: .buildkite/build_worksheet.sh
 
   - block: "Build release APK?"
   - label: "Build Release APK"
