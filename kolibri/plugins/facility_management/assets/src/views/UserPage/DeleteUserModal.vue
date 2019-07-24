@@ -46,13 +46,19 @@
       ...mapActions('userManagement', ['deleteUser']),
       handleDeleteUser() {
         this.submitting = true;
-        this.deleteUser(this.id);
+        this.deleteUser(this.id).then(() => {
+          this.$store.dispatch(
+            'createSnackbar',
+            this.$tr('userDeletedNotification', { username: this.username })
+          );
+        });
       },
     },
     $trs: {
       deleteUser: 'Delete user',
       confirmation: "Are you sure you want to delete the user '{ username }'?",
       warning: 'All data and logs for this user will be lost.',
+      userDeletedNotification: "Account for '{username}' was deleted",
     },
   };
 

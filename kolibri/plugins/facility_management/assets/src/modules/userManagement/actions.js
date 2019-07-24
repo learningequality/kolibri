@@ -100,11 +100,7 @@ export function updateFacilityUser(store, { userId, updates, original }) {
  * @param {string or Integer} id
  */
 export function deleteUser(store, id) {
-  if (!id) {
-    // if no id passed, abort the function
-    return;
-  }
-  FacilityUserResource.deleteModel({ id }).then(
+  return FacilityUserResource.deleteModel({ id }).then(
     () => {
       store.commit('DELETE_USER', id);
       store.dispatch('displayModal', false);
