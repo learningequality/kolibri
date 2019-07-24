@@ -1,112 +1,114 @@
 <template>
 
-  <form v-if="!loading" @submit.prevent="submitForm">
-    <h1>
-      {{ $tr('editUserDetailsHeader') }}
-    </h1>
+  <div class="narrow-container">
+    <form v-if="!loading" class="form" @submit.prevent="submitForm">
+      <h1>
+        {{ $tr('editUserDetailsHeader') }}
+      </h1>
 
-    <section>
-      <FullNameTextbox
-        ref="fullNameTextbox"
-        :autofocus="true"
-        :disabled="formDisabled"
-        :value.sync="fullName"
-        :isValid.sync="fullNameValid"
-        :shouldValidate="formSubmitted"
-      />
-
-      <UsernameTextbox
-        ref="usernameTextbox"
-        :disabled="formDisabled"
-        :value.sync="username"
-        :isValid.sync="usernameValid"
-        :shouldValidate="formSubmitted"
-        :isUniqueValidator="usernameIsUnique"
-        :errors.sync="caughtErrors"
-      />
-
-      <template v-if="editingSuperAdmin">
-        <h2 class="user-type header">
-          {{ coreString('userTypeLabel') }}
-        </h2>
-
-        <UserTypeDisplay
-          :userType="kind"
-          class="user-type"
-        />
-
-        <KExternalLink
-          v-if="devicePermissionsPageLink"
-          class="super-admin-description"
-          :text="editingSelf ? $tr('viewInDeviceTabPrompt') : $tr('changeInDeviceTabPrompt')"
-          :href="devicePermissionsPageLink"
-        />
-
-      </template>
-
-      <template v-else>
-        <KSelect
-          v-model="typeSelected"
-          class="select"
+      <section>
+        <FullNameTextbox
+          ref="fullNameTextbox"
+          :autofocus="true"
           :disabled="formDisabled"
-          :label="coreString('userTypeLabel')"
-          :options="userTypeOptions"
+          :value.sync="fullName"
+          :isValid.sync="fullNameValid"
+          :shouldValidate="formSubmitted"
         />
 
-        <fieldset v-if="coachIsSelected" class="coach-selector">
-          <KRadioButton
-            v-model="classCoachIsSelected"
-            :disabled="formDisabled"
-            :label="coreString('classCoachLabel')"
-            :description="$tr('classCoachDescription')"
-            :value="true"
+        <UsernameTextbox
+          ref="usernameTextbox"
+          :disabled="formDisabled"
+          :value.sync="username"
+          :isValid.sync="usernameValid"
+          :shouldValidate="formSubmitted"
+          :isUniqueValidator="usernameIsUnique"
+          :errors.sync="caughtErrors"
+        />
+
+        <template v-if="editingSuperAdmin">
+          <h2 class="user-type header">
+            {{ coreString('userTypeLabel') }}
+          </h2>
+
+          <UserTypeDisplay
+            :userType="kind"
+            class="user-type"
           />
-          <KRadioButton
-            v-model="classCoachIsSelected"
-            :disabled="formDisabled"
-            :label="coreString('facilityCoachLabel')"
-            :description="$tr('facilityCoachDescription')"
-            :value="false"
+
+          <KExternalLink
+            v-if="devicePermissionsPageLink"
+            class="super-admin-description"
+            :text="editingSelf ? $tr('viewInDeviceTabPrompt') : $tr('changeInDeviceTabPrompt')"
+            :href="devicePermissionsPageLink"
           />
-        </fieldset>
-      </template>
 
-      <IdentifierTextbox
-        :value.sync="idNumber"
-        :disabled="formDisabled"
-      />
+        </template>
 
-      <BirthYearSelect
-        :value.sync="birthYear"
-        :disabled="formDisabled"
-        class="select"
-      />
+        <template v-else>
+          <KSelect
+            v-model="typeSelected"
+            class="select"
+            :disabled="formDisabled"
+            :label="coreString('userTypeLabel')"
+            :options="userTypeOptions"
+          />
 
-      <GenderSelect
-        :value.sync="gender"
-        :disabled="formDisabled"
-        class="select"
-      />
-    </section>
+          <fieldset v-if="coachIsSelected" class="coach-selector">
+            <KRadioButton
+              v-model="classCoachIsSelected"
+              :disabled="formDisabled"
+              :label="coreString('classCoachLabel')"
+              :description="$tr('classCoachDescription')"
+              :value="true"
+            />
+            <KRadioButton
+              v-model="classCoachIsSelected"
+              :disabled="formDisabled"
+              :label="coreString('facilityCoachLabel')"
+              :description="$tr('facilityCoachDescription')"
+              :value="false"
+            />
+          </fieldset>
+        </template>
 
-    <p v-if="willBeLoggedOut">
-      {{ $tr('forceLogoutWarning') }}
-    </p>
-    <div class="buttons">
-      <KButton
-        type="submit"
-        :text="coreString('saveAction')"
-        :disabled="formDisabled"
-        :primary="true"
-      />
-      <KButton
-        :text="cancelButtonText"
-        :disabled="formDisabled"
-        @click="goToUserManagementPage()"
-      />
-    </div>
+        <IdentifierTextbox
+          :value.sync="idNumber"
+          :disabled="formDisabled"
+        />
 
-  </form>
+        <BirthYearSelect
+          :value.sync="birthYear"
+          :disabled="formDisabled"
+          class="select"
+        />
+
+        <GenderSelect
+          :value.sync="gender"
+          :disabled="formDisabled"
+          class="select"
+        />
+      </section>
+
+      <p v-if="willBeLoggedOut">
+        {{ $tr('forceLogoutWarning') }}
+      </p>
+      <div class="buttons">
+        <KButton
+          type="submit"
+          :text="coreString('saveAction')"
+          :disabled="formDisabled"
+          :primary="true"
+        />
+        <KButton
+          :text="cancelButtonText"
+          :disabled="formDisabled"
+          @click="goToUserManagementPage()"
+        />
+      </div>
+
+    </form>
+  </div>
 
 </template>
 
@@ -131,10 +133,10 @@
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import IdentifierTextbox from '../IdentifierTextbox';
+  import IdentifierTextbox from './IdentifierTextbox';
 
   export default {
-    name: 'UserEditForm',
+    name: 'UserEditPage',
     metaInfo() {
       return {
         title: this.$tr('editUserDetailsHeader'),
@@ -407,6 +409,19 @@
     button:first-of-type {
       margin-left: 0;
     }
+  }
+
+  .narrow-container {
+    width: 500px;
+    margin: auto;
+  }
+
+  .form {
+    max-width: 400px;
+    min-height: 950px;
+    margin-right: auto;
+    margin-bottom: 20px;
+    margin-left: auto;
   }
 
 </style>

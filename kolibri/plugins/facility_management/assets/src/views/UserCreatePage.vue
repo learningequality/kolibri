@@ -1,97 +1,100 @@
 <template>
 
-  <form @submit.prevent="submitForm">
-    <h1>
-      {{ $tr('createNewUserHeader') }}
-    </h1>
+  <div class="narrow-container">
 
-    <section>
-      <FullNameTextbox
-        ref="fullNameTextbox"
-        :autofocus="true"
-        :disabled="busy"
-        :value.sync="fullName"
-        :isValid.sync="fullNameValid"
-        :shouldValidate="formSubmitted"
-      />
+    <form class="form" @submit.prevent="submitForm">
+      <h1>
+        {{ $tr('createNewUserHeader') }}
+      </h1>
 
-      <UsernameTextbox
-        ref="usernameTextbox"
-        :disabled="busy"
-        :value.sync="username"
-        :isValid.sync="usernameValid"
-        :shouldValidate="formSubmitted"
-        :isUniqueValidator="usernameIsUnique"
-        :errors.sync="caughtErrors"
-      />
-
-      <PasswordTextbox
-        ref="passwordTextbox"
-        :disabled="busy"
-        :value.sync="password"
-        :isValid.sync="passwordValid"
-        :shouldValidate="formSubmitted"
-      />
-
-      <KSelect
-        v-model="kind"
-        class="select"
-        :disabled="busy"
-        :label="coreString('userTypeLabel')"
-        :options="userTypeOptions"
-      />
-
-      <fieldset v-if="coachIsSelected" class="coach-selector">
-        <KRadioButton
-          v-model="classCoachIsSelected"
+      <section>
+        <FullNameTextbox
+          ref="fullNameTextbox"
+          :autofocus="true"
           :disabled="busy"
-          :label="coreString('classCoachLabel')"
-          :description="$tr('classCoachDescription')"
-          :value="true"
+          :value.sync="fullName"
+          :isValid.sync="fullNameValid"
+          :shouldValidate="formSubmitted"
         />
-        <KRadioButton
-          v-model="classCoachIsSelected"
+
+        <UsernameTextbox
+          ref="usernameTextbox"
           :disabled="busy"
-          :label="coreString('facilityCoachLabel')"
-          :description="$tr('facilityCoachDescription')"
-          :value="false"
+          :value.sync="username"
+          :isValid.sync="usernameValid"
+          :shouldValidate="formSubmitted"
+          :isUniqueValidator="usernameIsUnique"
+          :errors.sync="caughtErrors"
         />
-      </fieldset>
 
-      <IdentifierTextbox
-        :value.sync="idNumber"
-        :disabled="busy"
-      />
+        <PasswordTextbox
+          ref="passwordTextbox"
+          :disabled="busy"
+          :value.sync="password"
+          :isValid.sync="passwordValid"
+          :shouldValidate="formSubmitted"
+        />
 
-      <BirthYearSelect
-        :value.sync="birthYear"
-        :disabled="busy"
-        class="select"
-      />
+        <KSelect
+          v-model="kind"
+          class="select"
+          :disabled="busy"
+          :label="coreString('userTypeLabel')"
+          :options="userTypeOptions"
+        />
 
-      <GenderSelect
-        :value.sync="gender"
-        :disabled="busy"
-        class="select"
-      />
+        <fieldset v-if="coachIsSelected" class="coach-selector">
+          <KRadioButton
+            v-model="classCoachIsSelected"
+            :disabled="busy"
+            :label="coreString('classCoachLabel')"
+            :description="$tr('classCoachDescription')"
+            :value="true"
+          />
+          <KRadioButton
+            v-model="classCoachIsSelected"
+            :disabled="busy"
+            :label="coreString('facilityCoachLabel')"
+            :description="$tr('facilityCoachDescription')"
+            :value="false"
+          />
+        </fieldset>
 
-    </section>
+        <IdentifierTextbox
+          :value.sync="idNumber"
+          :disabled="busy"
+        />
 
-    <div class="buttons">
-      <KButton
-        type="submit"
-        :text="coreString('saveAction')"
-        :disabled="busy"
-        :primary="true"
-      />
-      <KButton
-        :text="coreString('cancelAction')"
-        :disabled="busy"
-        @click="goToUserManagementPage()"
-      />
-    </div>
+        <BirthYearSelect
+          :value.sync="birthYear"
+          :disabled="busy"
+          class="select"
+        />
 
-  </form>
+        <GenderSelect
+          :value.sync="gender"
+          :disabled="busy"
+          class="select"
+        />
+
+      </section>
+
+      <div class="buttons">
+        <KButton
+          type="submit"
+          :text="coreString('saveAction')"
+          :disabled="busy"
+          :primary="true"
+        />
+        <KButton
+          :text="coreString('cancelAction')"
+          :disabled="busy"
+          @click="goToUserManagementPage()"
+        />
+      </div>
+
+    </form>
+  </div>
 
 </template>
 
@@ -111,10 +114,10 @@
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import IdentifierTextbox from '../IdentifierTextbox';
+  import IdentifierTextbox from './IdentifierTextbox';
 
   export default {
-    name: 'UserCreateForm',
+    name: 'UserCreatePage',
     metaInfo() {
       return {
         title: this.$tr('createNewUserHeader'),
@@ -185,6 +188,9 @@
           },
         ];
       },
+    },
+    mounted() {
+      this.$store.dispatch('notLoading');
     },
     methods: {
       goToUserManagementPage(onComplete) {
@@ -279,8 +285,17 @@
     }
   }
 
+  .narrow-container {
+    width: 500px;
+    margin: auto;
+  }
+
   .form {
-    margin-bottom: 20px;
+    max-width: 400px;
+    min-height: 950px;
+    margin-right: auto;
+    margin-bottom: 100px;
+    margin-left: auto;
   }
 
 </style>
