@@ -114,8 +114,8 @@
           full_name: this.fullName,
           username: this.username,
           password: this.password,
-          birth_year: this.birthYear,
-          gender: this.gender,
+          birth_year: this.birthYear || 'DEFER',
+          gender: this.gender || 'DEFER',
         });
       },
       submitForm() {
