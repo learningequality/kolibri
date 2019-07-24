@@ -7,7 +7,7 @@
       <FullNameTextbox
         ref="fullNameTextbox"
         :autofocus="true"
-        :disabled="!canEditName || busy"
+        :disabled="!canEditName || formDisabled"
         :value.sync="fullName"
         :isValid.sync="fullNameValid"
         :shouldValidate="formSubmitted"
@@ -15,7 +15,7 @@
 
       <UsernameTextbox
         ref="usernameTextbox"
-        :disabled="!canEditUsername || busy"
+        :disabled="!canEditUsername || formDisabled"
         :value.sync="username"
         :isValid.sync="usernameValid"
         :shouldValidate="formSubmitted"
@@ -25,26 +25,26 @@
       <GenderSelect
         class="select"
         :value.sync="gender"
-        :disabled="busy"
+        :disabled="formDisabled"
       />
 
       <BirthYearSelect
         class="select"
         :value.sync="birthYear"
-        :disabled="busy"
+        :disabled="formDisabled"
       />
 
       <div class="buttons">
         <KButton
           class="no-margin"
-          :text="$tr('saveAction')"
-          :disabled="busy"
+          :text="coreString('saveAction')"
+          :disabled="formDisabled"
           type="submit"
           primary
         />
         <KButton
-          :text="$tr('cancelAction')"
-          :disabled="busy"
+          :text="cancelButtonText"
+          :disabled="formDisabled"
           appearance="raised-button"
           :primary="false"
           @click="$router.push($router.getRoute('PROFILE'))"
@@ -58,7 +58,7 @@
 
 <script>
 
-  import some from 'lodash/some';
+  import every from 'lodash/every';
   import { mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
@@ -69,6 +69,7 @@
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import { FacilityUserResource } from 'kolibri.resources';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ProfileEditPage',
@@ -85,7 +86,7 @@
       FullNameTextbox,
       UsernameTextbox,
     },
-    props: {},
+    mixins: [commonCoreStrings],
     data() {
       const { username, full_name } = this.$store.state.core.session;
       return {
@@ -95,13 +96,16 @@
         usernameValid: false,
         birthYear: '',
         gender: '',
-        busy: false,
         caughtErrors: [],
         formSubmitted: false,
+        status: '',
       };
     },
     computed: {
       ...mapGetters(['facilityConfig', 'isCoach', 'isLearner']),
+      formDisabled() {
+        return this.status === 'BUSY';
+      },
       canEditName() {
         if (this.isLearner || this.isCoach) {
           return this.facilityConfig.learner_can_edit_name;
@@ -114,23 +118,32 @@
         }
         return true;
       },
+      cancelButtonText() {
+        return this.status === 'SUCCESS'
+          ? this.coreString('closeAction')
+          : this.coreString('cancelAction');
+      },
       formIsValid() {
-        return !some([!this.fullNameValid, this.usernameIsInvalidText], Boolean);
+        return every([this.fullNameValid, this.usernameValid]);
       },
     },
     mounted() {
-      FacilityUserResource.fetchModel({ id: this.$store.state.core.session.user_id }).then(
-        facilityUser => {
-          this.birthYear = facilityUser.birth_year;
-          this.gender = facilityUser.gender;
-        }
-      );
+      this.setFacilityUser();
     },
     methods: {
+      // Have to query FacilityUser again since we don't put demographic info on the session
+      setFacilityUser() {
+        FacilityUserResource.fetchModel({ id: this.$store.state.core.session.user_id }).then(
+          facilityUser => {
+            this.birthYear = facilityUser.birth_year;
+            this.gender = facilityUser.gender;
+          }
+        );
+      },
       handleSubmit() {
         this.formSubmitted = true;
         if (this.formIsValid) {
-          this.busy = true;
+          this.status = 'BUSY';
           this.$store
             .dispatch('profile/updateUserProfile', {
               edits: {
@@ -142,17 +155,16 @@
               session: this.$store.state.core.session,
             })
             .then(() => {
-              this.busy = false;
+              this.status = 'SUCCESS';
               this.$store.dispatch('createSnackbar', this.$tr('updateSuccessNotification'));
             })
             .catch(error => {
-              this.busy = false;
-              const caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
-              if (caughtErrors.length === 0) {
-                this.$store.dispatch('handleApiError', error, { root: true });
-              } else {
-                this.caughtErrors = caughtErrors;
+              this.status = 'FAILURE';
+              this.caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
+              if (this.caughtErrors.length > 0) {
                 this.focusOnInvalidField();
+              } else {
+                this.$store.dispatch('handleApiError', error);
               }
             });
         } else {
@@ -170,9 +182,7 @@
       },
     },
     $trs: {
-      cancelAction: 'Cancel',
       editProfileHeader: 'Edit profile',
-      saveAction: 'Save',
       updateSuccessNotification: 'Profile details updated',
     },
   };

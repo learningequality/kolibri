@@ -71,7 +71,7 @@
       </tr>
 
       <tr>
-        <th>{{ coreString$tr('fullNameLabel') }}</th>
+        <th>{{ coreString('fullNameLabel') }}</th>
         <td>{{ session.full_name }}</td>
       </tr>
 
@@ -95,7 +95,7 @@
       </tr>
 
       <tr v-if="canEditPassword">
-        <th>{{ $tr('changePasswordHeader') }}</th>
+        <th>{{ coreString('passwordLabel') }}</th>
         <td>
           <KButton
             appearance="basic-link"
@@ -232,6 +232,8 @@
       },
     },
     $trs: {
+      detailsHeader: 'Details',
+      editAction: 'Edit',
       success: 'Profile details updated',
       isSuperuser: 'Super admin permissions ',
       manageContent: 'Manage content',

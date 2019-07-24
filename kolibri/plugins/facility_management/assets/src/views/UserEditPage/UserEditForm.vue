@@ -9,7 +9,7 @@
       <FullNameTextbox
         ref="fullNameTextbox"
         :autofocus="true"
-        :disabled="busy"
+        :disabled="formDisabled"
         :value.sync="fullName"
         :isValid.sync="fullNameValid"
         :shouldValidate="formSubmitted"
@@ -17,7 +17,7 @@
 
       <UsernameTextbox
         ref="usernameTextbox"
-        :disabled="busy"
+        :disabled="formDisabled"
         :value.sync="username"
         :isValid.sync="usernameValid"
         :shouldValidate="formSubmitted"
@@ -27,7 +27,7 @@
 
       <template v-if="editingSuperAdmin">
         <h2 class="user-type header">
-          {{ $tr('userType') }}
+          {{ coreString('userTypeLabel') }}
         </h2>
 
         <UserTypeDisplay
@@ -48,23 +48,23 @@
         <KSelect
           v-model="typeSelected"
           class="select"
-          :disabled="busy"
-          :label="$tr('userType')"
+          :disabled="formDisabled"
+          :label="coreString('userTypeLabel')"
           :options="userTypeOptions"
         />
 
         <fieldset v-if="coachIsSelected" class="coach-selector">
           <KRadioButton
             v-model="classCoachIsSelected"
-            :disabled="busy"
+            :disabled="formDisabled"
             :label="$tr('classCoachLabel')"
             :description="$tr('classCoachDescription')"
             :value="true"
           />
           <KRadioButton
             v-model="classCoachIsSelected"
-            :disabled="busy"
-            :label="$tr('facilityCoachLabel')"
+            :disabled="formDisabled"
+            :label="coreString('facilityCoachLabel')"
             :description="$tr('facilityCoachDescription')"
             :value="false"
           />
@@ -73,18 +73,18 @@
 
       <IdentifierTextbox
         :value.sync="idNumber"
-        :disabled="busy"
+        :disabled="formDisabled"
       />
 
       <BirthYearSelect
         :value.sync="birthYear"
-        :disabled="busy"
+        :disabled="formDisabled"
         class="select"
       />
 
       <GenderSelect
         :value.sync="gender"
-        :disabled="busy"
+        :disabled="formDisabled"
         class="select"
       />
     </section>
@@ -92,13 +92,13 @@
     <div class="buttons">
       <KButton
         type="submit"
-        :text="$tr('saveAction')"
-        :disabled="busy"
+        :text="coreString('saveAction')"
+        :disabled="formDisabled"
         :primary="true"
       />
       <KButton
-        :text="$tr('cancelAction')"
-        :disabled="busy"
+        :text="cancelButtonText"
+        :disabled="formDisabled"
         @click="goToUserManagementPage()"
       />
     </div>
@@ -126,6 +126,7 @@
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import IdentifierTextbox from '../IdentifierTextbox';
 
   export default {
@@ -147,6 +148,7 @@
       FullNameTextbox,
       IdentifierTextbox,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         fullName: '',
@@ -155,7 +157,6 @@
         usernameValid: true,
         kind: '',
         loading: true,
-        busy: false,
         formSubmitted: false,
         classCoachIsSelected: true,
         typeSelected: null, // see beforeMount
@@ -164,11 +165,20 @@
         idNumber: '',
         userCopy: {},
         caughtErrors: [],
+        status: '',
       };
     },
     computed: {
       ...mapGetters(['currentFacilityId', 'currentUserId']),
       ...mapState('userManagement', ['facilityUsers']),
+      formDisabled() {
+        return this.status === 'BUSY';
+      },
+      cancelButtonText() {
+        return this.status === 'SUCCESS'
+          ? this.coreString('closeAction')
+          : this.coreString('cancelAction');
+      },
       coachIsSelected() {
         return this.typeSelected && this.typeSelected.value === UserKinds.COACH;
       },
@@ -178,15 +188,15 @@
       userTypeOptions() {
         return [
           {
-            label: this.$tr('learner'),
+            label: this.coreString('learnerLabel'),
             value: UserKinds.LEARNER,
           },
           {
-            label: this.$tr('coach'),
+            label: this.coreString('coachLabel'),
             value: UserKinds.COACH,
           },
           {
-            label: this.$tr('admin'),
+            label: this.coreString('adminLabel'),
             value: UserKinds.ADMIN,
           },
         ];
@@ -271,7 +281,7 @@
         if (!this.formIsValid) {
           return this.focusOnInvalidField();
         }
-        this.busy = true;
+        this.status = 'BUSY';
 
         const updates = {
           username: this.username,
@@ -302,7 +312,7 @@
           });
       },
       handleSubmitSuccess() {
-        this.busy = false;
+        this.status = 'SUCCESS';
         // newUserKind is falsey if Super Admin, since that's not a facility role
         if (this.editingSelf && this.newUserKind && this.newUserKind !== UserKinds.ADMIN) {
           // Log out of Facility Page if and Admin demotes themselves to non-Admin
@@ -313,7 +323,7 @@
       },
       handleSubmitFailure(error) {
         this.caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
-        this.busy = false;
+        this.status = 'FAILURE';
         if (this.caughtErrors.length > 0) {
           this.focusOnInvalidField();
         } else {
@@ -332,23 +342,11 @@
     },
     $trs: {
       editUserDetailsHeader: 'Edit user details',
-      fullName: 'Full name',
-      username: 'Username',
-      userType: 'User type',
-      admin: 'Admin',
-      coach: 'Coach',
-      learner: 'Learner',
-      save: 'Save',
-      cancel: 'Cancel',
-      required: 'This field is required',
       changeInDeviceTabPrompt: 'Go to Device permissions to change this',
       viewInDeviceTabPrompt: 'View details in Device permissions',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
-      facilityCoachLabel: 'Facility coach',
       facilityCoachDescription: 'Can instruct all classes in your facility',
-      cancelAction: 'Cancel',
-      saveAction: 'Save',
       userUpdateNotification: 'Changes saved',
     },
   };
