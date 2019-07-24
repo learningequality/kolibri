@@ -156,7 +156,7 @@ class Command(AsyncCommand):
         )
 
         # pull from server and push our own data to server
-        if not no_pull and not PORTAL_SYNC:  # can't pull from portal server
+        if not no_pull:
             sync_client.initiate_pull(Filter(dataset_id))
         if not no_push:
             sync_client.initiate_push(Filter(dataset_id))
