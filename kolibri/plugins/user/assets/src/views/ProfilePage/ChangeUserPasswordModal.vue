@@ -11,7 +11,7 @@
     @cancel="$emit('cancel')"
   >
     <PasswordTextbox
-      ref="PasswordTextbox"
+      ref="passwordTextbox"
       :autofocus="true"
       :disabled="busy"
       :value.sync="password"
@@ -67,7 +67,7 @@
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (!this.passwordValid) {
-            this.$refs.PasswordTextbox.focus();
+            this.$refs.passwordTextbox.focus();
           }
         });
       },

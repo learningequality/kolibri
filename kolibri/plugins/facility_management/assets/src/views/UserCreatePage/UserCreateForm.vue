@@ -110,6 +110,7 @@
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import IdentifierTextbox from '../IdentifierTextbox';
 
   export default {
@@ -130,6 +131,7 @@
       PasswordTextbox,
       IdentifierTextbox,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         fullName: '',

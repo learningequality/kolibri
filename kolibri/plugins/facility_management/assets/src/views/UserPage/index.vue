@@ -96,7 +96,7 @@
 
 <script>
 
-  import { mapActions, mapState, mapGetters } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
@@ -143,11 +143,12 @@
         selectedUser: null,
         perPage: 10,
         pageNum: 1,
+        modalShown: '',
       };
     },
     computed: {
       ...mapGetters(['currentUserId', 'isSuperuser']),
-      ...mapState('userManagement', ['facilityUsers', 'modalShown']),
+      ...mapState('userManagement', ['facilityUsers']),
       Modals: () => Modals,
       userKinds() {
         return [
@@ -204,9 +205,8 @@
       this.roleFilter = this.userKinds[0];
     },
     methods: {
-      ...mapActions('userManagement', ['displayModal']),
       closeModal() {
-        this.displayModal(false);
+        this.modalShown = '';
       },
       userMatchesRole(user) {
         const { value: filterKind } = this.roleFilter;
@@ -244,7 +244,7 @@
           );
         } else {
           this.selectedUser = user;
-          this.displayModal(selection.value);
+          this.modalShown = selection.value;
         }
       },
       userCanBeEdited(user) {

@@ -61,20 +61,18 @@ export function prepareLearnApp(store) {
 }
 
 export function getDemographicInfo(store) {
-  return FacilityUserResource.fetchModel({ id: store.state.core.session.user_id }).then(
-    facilityUser => {
-      return {
-        gender: facilityUser.gender,
-        birth_year: facilityUser.birth_year,
-      };
-    }
-  );
+  return FacilityUserResource.fetchModel({ id: store.getters.currentUserId }).then(facilityUser => {
+    return {
+      gender: facilityUser.gender,
+      birth_year: facilityUser.birth_year,
+    };
+  });
 }
 
 // Sets FacilityUser.gender to 'DEFER'. See getDemographicInfo above.
 export function deferProfileUpdates(store, demographicInfo) {
   return FacilityUserResource.saveModel({
-    id: store.state.core.session.user_id,
+    id: store.getters.currentUserId,
     data: {
       gender: demographicInfo.gender || 'DEFER',
       birth_year: demographicInfo.birth_year || 'DEFER',

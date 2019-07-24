@@ -4,7 +4,8 @@
     :title="$tr('resetPassword')"
     :submitText="coreString('saveAction')"
     :cancelText="coreString('cancelAction')"
-    :submitDisabled="isBusy"
+    :submitDisabled="busy"
+    :cancelDisabled="busy"
     @submit="submitForm"
     @cancel="$emit('cancel')"
   >
@@ -13,7 +14,7 @@
     <PasswordTextbox
       ref="passwordTextbox"
       :autofocus="true"
-      :disabled="isBusy"
+      :disabled="busy"
       :value.sync="password"
       :isValid.sync="passwordValid"
       :shouldValidate="formSubmitted"
@@ -25,7 +26,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -52,32 +52,32 @@
         password: '',
         passwordValid: false,
         formSubmitted: false,
+        busy: false,
       };
-    },
-    computed: {
-      ...mapState('userManagement', ['isBusy']),
     },
     methods: {
       submitForm() {
         this.formSubmitted = true;
-        if (this.passwordValid) {
-          // TODO handle the error within this modal (needs new strings)
-          this.$store
-            .dispatch('userManagement/updateFacilityUserPassword', {
-              userId: this.id,
-              password: this.password,
-            })
-            .then(() => {
-              this.$emit('cancel');
-              this.$store.dispatch(
-                'createSnackbar',
-                this.$tr('passwordChangedNotification', { username: this.username })
-              );
-            })
-            .catch(error => this.$store.dispatch('handleApiError', error));
-        } else {
-          this.focusOnInvalidField();
+
+        if (!this.passwordValid) {
+          return this.focusOnInvalidField();
         }
+
+        this.busy = true;
+        this.$store
+          .dispatch('userManagement/updateFacilityUserPassword', {
+            userId: this.id,
+            password: this.password,
+          })
+          .then(() => {
+            this.busy = false;
+            this.$emit('cancel');
+            this.$store.dispatch(
+              'createSnackbar',
+              this.$tr('passwordChangedNotification', { username: this.username })
+            );
+          })
+          .catch(error => this.$store.dispatch('handleApiError', error));
       },
       focusOnInvalidField() {
         this.$nextTick().then(() => {
