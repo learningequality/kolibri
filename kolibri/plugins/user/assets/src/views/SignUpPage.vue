@@ -115,6 +115,7 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import getUrlParameter from './getUrlParameter';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
 
   export default {
@@ -236,6 +237,14 @@
           !this.facilityIsInvalid
         );
       },
+      nextParam() {
+        // query is after hash
+        if (this.$route.query.next) {
+          return this.$route.query.next;
+        }
+        // query is before hash
+        return getUrlParameter('next');
+      },
     },
     beforeMount() {
       if (this.facilityList.length === 1) {
@@ -251,12 +260,16 @@
         this.formSubmitted = true;
         const canSubmit = this.formIsValid && !this.busy;
         if (canSubmit) {
-          this.signUpNewUser({
+          const payload = {
             facility: this.selectedFacility.value,
             full_name: this.name,
             username: this.username,
             password: this.password,
-          });
+          };
+          if (global.oidcProviderEnabled) {
+            payload['next'] = this.nextParam;
+          }
+          this.signUpNewUser(payload);
         } else {
           this.focusOnInvalidField();
         }

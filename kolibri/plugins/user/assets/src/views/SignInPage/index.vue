@@ -20,12 +20,33 @@
               :style="$theme.signIn.topLogo.style"
             />
             <h1
+              v-if="$theme.signIn.showTitle"
               class="kolibri-title"
               :class="$computedClass({color: $themeTokens.logoText})"
               :style="$theme.signIn.titleStyle"
             >
               {{ logoText }}
             </h1>
+            <p
+              v-if="$theme.signIn.showPoweredBy"
+              :style="$theme.signIn.poweredByStyle"
+              class="small-text"
+            >
+              <KButton
+                v-if="oidcProviderFlow"
+                :text="$tr('poweredByKolibri')"
+                appearance="basic-link"
+                @click="whatsThisModalVisible = true"
+              />
+              <KExternalLink
+                v-else
+                :text="$tr('poweredByKolibri')"
+                :primary="true"
+                href="https://learningequality.org/r/powered_by_kolibri"
+                target="_blank"
+                appearance="basic-link"
+              />
+            </p>
             <form ref="form" class="login-form" @submit.prevent="signIn">
               <UiAlert
                 v-if="invalidCredentials"
@@ -139,8 +160,28 @@
 
     <PrivacyInfoModal
       v-if="privacyModalVisible"
+      @submit="privacyModalVisible = false"
       @cancel="privacyModalVisible = false"
     />
+
+    <KModal
+      v-if="whatsThisModalVisible"
+      :title="$tr('whatsThis')"
+      :submitText="closeString"
+      @submit="whatsThisModalVisible = false"
+      @cancel="whatsThisModalVisible = false"
+    >
+      <p>{{ $tr('oidcGenericExplanation') }}</p>
+      <p>
+        <KExternalLink
+          text="https://learningequality.org/kolibri"
+          :primary="true"
+          href="https://learningequality.org/r/powered_by_kolibri"
+          target="_blank"
+          appearance="basic-link"
+        />
+      </p>
+    </KModal>
 
   </div>
 
@@ -157,6 +198,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KModal from 'kolibri.coreVue.components.KModal';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import { validateUsername } from 'kolibri.utils.validators';
   import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
@@ -164,17 +206,13 @@
   import UiAlert from 'keen-ui/src/UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import urls from 'kolibri.urls';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
+  import getUrlParameter from '../getUrlParameter';
   import FacilityModal from './FacilityModal';
 
-  // https://davidwalsh.name/query-string-javascript
-  function getUrlParameter(name) {
-    name = name.replace(/[[]/, '[').replace(/[\]]/, '\\]');
-    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-    var results = regex.exec(location.search);
-    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-  }
+  const closeString = crossComponentTranslator(FacilityModal).$tr('close');
 
   export default {
     name: 'SignInPage',
@@ -188,6 +226,7 @@
       KRouterLink,
       KExternalLink,
       KTextbox,
+      KModal,
       FacilityModal,
       CoreLogo,
       UiAutocompleteSuggestion,
@@ -210,6 +249,7 @@
         formSubmitted: false,
         autoFilledByChromeAndNotEdited: false,
         privacyModalVisible: false,
+        whatsThisModalVisible: false,
       };
     },
     computed: {
@@ -271,6 +311,9 @@
         return this.facilityConfig.learner_can_sign_up;
       },
       signUpPage() {
+        if (this.nextParam) {
+          return { name: PageNames.SIGN_UP, query: { next: this.nextParam } };
+        }
         return { name: PageNames.SIGN_UP };
       },
       versionMsg() {
@@ -312,6 +355,9 @@
         }
         // query is before hash
         return getUrlParameter('next');
+      },
+      closeString() {
+        return closeString;
       },
     },
     watch: {
@@ -457,6 +503,12 @@
     },
     $trs: {
       kolibri: 'Kolibri',
+      poweredByKolibri: 'Powered by Kolibri',
+      whatsThis: "What's this?",
+      oidcGenericExplanation:
+        'Kolibri is an e-learning platform. You can also use your Kolibri account to log in to some third-party applications.',
+      oidcSpecificExplanation:
+        "You were sent here from the application '{app_name}'. Kolibri is an e-learning platform, and you can also use your Kolibri account to access '{app_name}'.",
       signIn: 'Sign in',
       username: 'Username',
       password: 'Password',
