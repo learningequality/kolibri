@@ -163,6 +163,7 @@
 
     <PrivacyInfoModal
       v-if="privacyModalVisible"
+      @submit="privacyModalVisible = false"
       @cancel="privacyModalVisible = false"
     />
 

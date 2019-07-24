@@ -2,9 +2,10 @@
 
   <KModal
     size="large"
-    :cancelText="$tr('cancelButtonLabel')"
+    :submitText="$tr('cancelButtonLabel')"
     :title="$tr('privacyModalHeader')"
     @cancel="$emit('cancel')"
+    @submit="$emit('submit')"
   >
     <section v-if="!hideUsersSection">
       <h2>{{ $tr('kolibriUsersTitle') }}</h2>
@@ -20,7 +21,7 @@
       </ul>
       <p>{{ $tr('kolibriUsersP5') }}</p>
       <p>{{ $tr('kolibriUsersP6') }}</p>
-      <template v-if="true">
+      <template v-if="oidcProviderEnabled">
         <h3>{{ $tr('openIdH1') }}</h3>
         <p>{{ $tr('openIdP1') }}</p>
       </template>
@@ -73,6 +74,11 @@
       hideAboutSection: {
         type: Boolean,
         default: false,
+      },
+    },
+    computed: {
+      oidcProviderEnabled() {
+        return global.oidcProviderEnabled;
       },
     },
     $trs: {
