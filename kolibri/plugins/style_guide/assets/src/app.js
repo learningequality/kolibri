@@ -81,7 +81,7 @@ class StyleGuideModule extends KolibriApp {
     );
 
     // people get ready
-    return super.ready();
+    super.ready();
   }
 }
 
