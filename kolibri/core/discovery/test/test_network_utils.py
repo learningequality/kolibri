@@ -17,6 +17,8 @@ class TestURLParsing(TestCase):
                 "http://192.168.0.1:8080/",
                 "http://192.168.0.1/",
                 "http://192.168.0.1:8008/",
+                "http://192.168.0.1:8000/",
+                "http://192.168.0.1:5000/",
                 "https://192.168.0.1/",
             ],
         )
@@ -29,6 +31,8 @@ class TestURLParsing(TestCase):
                 "http://[2001:0db8:85a3:0000:0000:8a2e:0370:7334]:8080/",
                 "http://[2001:0db8:85a3:0000:0000:8a2e:0370:7334]/",
                 "http://[2001:0db8:85a3:0000:0000:8a2e:0370:7334]:8008/",
+                "http://[2001:0db8:85a3:0000:0000:8a2e:0370:7334]:8000/",
+                "http://[2001:0db8:85a3:0000:0000:8a2e:0370:7334]:5000/",
                 "https://[2001:0db8:85a3:0000:0000:8a2e:0370:7334]/",
             ],
         )
@@ -41,6 +45,8 @@ class TestURLParsing(TestCase):
                 "http://www.nomansland.com:8080/",
                 "http://www.nomansland.com/",
                 "http://www.nomansland.com:8008/",
+                "http://www.nomansland.com:8000/",
+                "http://www.nomansland.com:5000/",
                 "https://www.nomansland.com/",
             ],
         )
@@ -54,6 +60,8 @@ class TestURLParsing(TestCase):
                 "http://www.nomansland.com:8080/",
                 "http://www.nomansland.com/",
                 "http://www.nomansland.com:8008/",
+                "http://www.nomansland.com:8000/",
+                "http://www.nomansland.com:5000/",
                 "https://www.nomansland.com:7007/",
                 "https://www.nomansland.com/",
             ],
@@ -67,10 +75,14 @@ class TestURLParsing(TestCase):
                 "http://www.nomansland.com:8080/mapath/",
                 "http://www.nomansland.com/mapath/",
                 "http://www.nomansland.com:8008/mapath/",
+                "http://www.nomansland.com:8000/mapath/",
+                "http://www.nomansland.com:5000/mapath/",
                 "https://www.nomansland.com/mapath/",
                 "http://www.nomansland.com:8080/",
                 "http://www.nomansland.com/",
                 "http://www.nomansland.com:8008/",
+                "http://www.nomansland.com:8000/",
+                "http://www.nomansland.com:5000/",
                 "https://www.nomansland.com/",
             ],
         )
@@ -83,6 +95,8 @@ class TestURLParsing(TestCase):
                 "http://www.nomansland.com:8080/",
                 "http://www.nomansland.com/",
                 "http://www.nomansland.com:8008/",
+                "http://www.nomansland.com:8000/",
+                "http://www.nomansland.com:5000/",
                 "https://www.nomansland.com/",
             ],
         )
@@ -96,6 +110,8 @@ class TestURLParsing(TestCase):
                 "http://www.nomansland.com:8080/",
                 "http://www.nomansland.com/",
                 "http://www.nomansland.com:8008/",
+                "http://www.nomansland.com:8000/",
+                "http://www.nomansland.com:5000/",
             ],
         )
 
