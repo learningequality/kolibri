@@ -259,9 +259,7 @@ class ZipContentView(View):
             ):
                 response = get_h5p(zf, embedded_filepath)
             else:
-                response = get_embedded_file(
-                    zf, zipped_filename, embedded_filepath
-                )
+                response = get_embedded_file(zf, zipped_filename, embedded_filepath)
 
         # ensure the browser knows not to try byte-range requests, as we don't support them here
         response["Accept-Ranges"] = "none"
