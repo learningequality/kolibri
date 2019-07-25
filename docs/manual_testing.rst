@@ -113,7 +113,7 @@ The Sentry SDK Python package is not distributed with Kolibri. In order to use S
 
     pip install sentry-sdk  # might need to run with sudo
 
-If you're running Kolibri using a pex file, you'll need to make sure that the pex inherits the Python path. To do this, ensure that an environment variable ``PEX_INHERIT_PATH`` is set to ``1``.
+If you're running Kolibri using a pex file, you'll need to make sure that the pex inherits a Python path with `sentry_sdk` available. To do this without inheriting the full system path, run the pex from an active virtual environment with `PEX_INHERIT_PATH=1 python kolibri.pex`.
 
 To set up error reporting, you'll need a `Sentry DSN <https://docs.sentry.io/error-reporting/quickstart>`__. These are available from your project settings at ``https://sentry.io/settings/[org_name]/[project_name]/keys/``
 
