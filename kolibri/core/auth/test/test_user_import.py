@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import csv
 import tempfile
 
 from django.core.management import call_command
@@ -134,36 +135,110 @@ class UserImportCommandTestCase(TestCase):
     def test_setup_headers_no_username(self):
         setup_device()
         with open(self.csvpath, "w") as f:
-            f.write("class,facility")
+            writer = csv.writer(f)
+            writer.writerow(["class", "facility"])
         with self.assertRaisesRegexp(CommandError, "No usernames specified"):
             call_command("importusers", self.csvpath)
 
     def test_setup_headers_invalid_header(self):
         setup_device()
         with open(self.csvpath, "w") as f:
-            f.write("class,username,dogfood")
+            writer = csv.writer(f)
+            writer.writerow(["class", "facility", "dogfood"])
         with self.assertRaisesRegexp(CommandError, "Mix of valid and invalid header"):
             call_command("importusers", self.csvpath)
 
     def test_setup_headers_make_user(self):
         setup_device()
         with open(self.csvpath, "w") as f:
-            f.write("username\n")
-            f.write("testuser")
+            writer = csv.writer(f)
+            writer.writerow(["username"])
+            writer.writerow(["testuser"])
         call_command("importusers", self.csvpath)
         self.assertTrue(FacilityUser.objects.filter(username="testuser").exists())
 
     def test_setup_no_headers_make_user(self):
         setup_device()
         with open(self.csvpath, "w") as f:
-            f.write("Test User,testuser")
+            writer = csv.writer(f)
+            writer.writerow(["Test user", "testuser"])
         call_command("importusers", self.csvpath)
         self.assertTrue(FacilityUser.objects.filter(username="testuser").exists())
 
     def test_setup_no_headers_bad_user_good_user(self):
         setup_device()
         with open(self.csvpath, "w") as f:
-            f.write("Test User,testuser\nOther User,te$tuser")
+            writer = csv.writer(f)
+            writer.writerow(["Test user", "testuser"])
+            writer.writerow(["Other user", "te$tuser"])
         call_command("importusers", self.csvpath)
         self.assertTrue(FacilityUser.objects.filter(username="testuser").exists())
         self.assertFalse(FacilityUser.objects.filter(username="te$tuser").exists())
+
+    def test_update_valid_demographic_info_succeeds(self):
+        facility, superuser = setup_device()
+        FacilityUser.objects.create(
+            username="alice",
+            birth_year="1990",
+            gender="FEMALE",
+            password="password",
+            facility=facility,
+        )
+        with open(self.csvpath, "w") as f:
+            writer = csv.writer(f)
+            writer.writerow(["username", "birth_year", "gender"])
+            writer.writerow(["alice", "", "OTHER"])
+            writer.writerow(["bob", "1970", "MALE"])
+
+        call_command("importusers", self.csvpath)
+        alice = FacilityUser.objects.get(username="alice")
+        bob = FacilityUser.objects.get(username="bob")
+        self.assertEqual(alice.birth_year, "")
+        self.assertEqual(alice.gender, "OTHER")
+        self.assertEqual(bob.birth_year, "1970")
+        self.assertEqual(bob.gender, "MALE")
+
+    def test_update_with_invalid_demographic_info_fails(self):
+        facility, superuser = setup_device()
+        FacilityUser.objects.create(
+            username="alice",
+            birth_year="DECLINE",
+            password="password",
+            facility=facility,
+        )
+        with open(self.csvpath, "w") as f:
+            writer = csv.writer(f)
+            writer.writerow(["username", "birth_year", "gender"])
+            writer.writerow(["alice", "BLAH", "FEMALE"])
+            writer.writerow(["bob", "1970", "man"])
+
+        call_command("importusers", self.csvpath)
+        # The entire update operation fails
+        alice = FacilityUser.objects.get(username="alice")
+        bob = FacilityUser.objects.get(username="bob")
+        self.assertEqual(alice.birth_year, "DECLINE")
+        self.assertEqual(alice.gender, "")
+        self.assertEqual(bob.birth_year, "")
+        self.assertEqual(bob.gender, "")
+
+    def test_update_with_missing_columns(self):
+        facility, superuser = setup_device()
+        FacilityUser.objects.create(
+            username="alice",
+            birth_year="1990",
+            gender="FEMALE",
+            id_number="ALICE",
+            password="password",
+            facility=facility,
+        )
+        with open(self.csvpath, "w") as f:
+            writer = csv.writer(f)
+            # CSV is missing column for gender, so it should not be updated
+            writer.writerow(["username", "birth_year", "id_number"])
+            writer.writerow(["alice", "2000", ""])
+
+        call_command("importusers", self.csvpath)
+        alice = FacilityUser.objects.get(username="alice")
+        self.assertEqual(alice.gender, "FEMALE")
+        self.assertEqual(alice.birth_year, "2000")
+        self.assertEqual(alice.id_number, "")
