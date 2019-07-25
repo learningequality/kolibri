@@ -22,6 +22,7 @@
   "AssignmentDetailsModal.activeQuizzesExplanation": "يمكن للمتعلمين رؤية الاختبارات القصيرة المُفعّلة فقط",
   "AssignmentDetailsModal.fieldRequiredError": "هذا الحقل مطلوب",
   "AssignmentDetailsModal.titlePlaceholder": "العنوان",
+  "AssignmentSummary.noOne": "لا أحد",
   "CoachClassListPage.classNameLabel": "اسم الصفّ الدراسي",
   "CoachClassListPage.classPageSubheader": "عرض تقدّم المتعلم وأداء الصفّ الدراسي",
   "CoachClassListPage.noAssignedClassesDetails": "يرجى الرجوع لمشرف كوليبري في مرفقك التعليمي ليتم تعيين صف دراسي خاص بك على المنصة",

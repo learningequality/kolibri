@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: learningequality\n"
 "Language-Team: Hindi\n"
 "Language: hi_IN\n"
-"PO-Revision-Date: 2019-07-09 21:58\n"
+"PO-Revision-Date: 2019-07-25 00:48\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -24,15 +24,15 @@ msgstr "कक्षा"
 msgid "Learner group"
 msgstr "पाठक समूह"
 
-#: kolibri/core/content/api.py:138
+#: kolibri/core/content/api.py:141
 msgid "Content"
 msgstr "सामग्री"
 
-#: kolibri/core/content/api.py:836
+#: kolibri/core/content/api.py:842
 msgid "The requested channel does not exist on the content server"
 msgstr "अनुरोध किए गए चैनल सामग्री सर्वर पर मौजूद नहीं हैं"
 
-#: kolibri/core/content/models.py:296
+#: kolibri/core/content/models.py:316
 msgid "Unknown format"
 msgstr "अज्ञात स्वरूप"
 
@@ -40,15 +40,15 @@ msgstr "अज्ञात स्वरूप"
 msgid "Language is not supported by Kolibri"
 msgstr "भाषा कोलिब्री द्वारा समर्थित नहीं है"
 
-#: kolibri/core/tasks/api.py:33
+#: kolibri/core/tasks/api.py:34
 msgid "There was a network error."
 msgstr "नेटवर्क में कोई त्रुटि थी ।"
 
-#: kolibri/core/tasks/api.py:35
+#: kolibri/core/tasks/api.py:36
 msgid "There was a disk access error."
 msgstr "डिस्क तक पहुंचने में त्रुटि थी ।"
 
-#: kolibri/core/tasks/api.py:37
+#: kolibri/core/tasks/api.py:38
 msgid "There was an unknown error."
 msgstr "कोई अज्ञात त्रुटि थी ।"
 
@@ -73,7 +73,15 @@ msgstr "कोलिब्री उपयोग करने के लिए, 
 msgid "You can also try updating your current browser."
 msgstr "आप अपने वर्तमान ब्राउज़र को अपडेट करने का प्रयास भी कर सकते हैं ।"
 
-#: kolibri/core/views.py:184
+#: kolibri/core/views.py:185
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "कोई उपयुक्त रीडायरेक्ट पृष्ठ नहीं मिले । संभावना है कि कोलिब्री की व्यवस्था ठीक से नहीं की गई है"
+
+#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
+msgid "OpenID Provider Authorization"
+msgstr "ओपन आईडी प्रदाता प्राधिकरण"
+
+#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
+msgid "Request for Permission"
+msgstr "अनुमति का अनुरोध करें"
 
