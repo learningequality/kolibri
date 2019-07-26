@@ -56,6 +56,8 @@ class DefaultThemeHook(theme_hook.ThemeHook):
                     theme_hook.IMG_STYLE: "padding-left: 64px; padding-right: 64px; margin-bottom: 8px; margin-top: 8px",
                     theme_hook.IMG_ALT: None,
                 },
+                theme_hook.SHOW_POWERED_BY: False,
+                theme_hook.SHOW_TITLE: True,
                 theme_hook.SHOW_K_FOOTER_LOGO: False,
             },
             # side-nav config

@@ -42,7 +42,10 @@ TOP_LOGO = "topLogo"
 IMG_SRC = "src"
 IMG_STYLE = "style"
 IMG_ALT = "alt"
+SHOW_TITLE = "showTitle"
 SHOW_K_FOOTER_LOGO = "showKolibriFooterLogo"
+SHOW_POWERED_BY = "showPoweredBy"
+POWERED_BY_STYLE = "poweredByStyle"
 
 # This is the image file name that will be used when customizing the sign-in background
 # image using the 'kolibri manage background' command. It does not attempt to use a file
