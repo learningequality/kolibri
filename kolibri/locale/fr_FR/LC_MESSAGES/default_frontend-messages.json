@@ -105,6 +105,8 @@
   "PrivacyInfoModal.kolibriUsersP5": "Lorsque vous utilisez Kolibri en tant qu'un utilisateur connecté, des informations telles que votre nom, nom d’utilisateur et le contenu que vous consultez, vos performances sur les devoirs peuvent être mis à disposition des administrateurs et de certains éducateurs dans votre établissement.",
   "PrivacyInfoModal.kolibriUsersP6": "Lorsque vous utilisez Kolibri en tant qu’invité, des informations agrégées sur le contenu que vous et d'autres utilisateurs invités peuvent être disponibles aux administrateurs et certains éducateurs.",
   "PrivacyInfoModal.kolibriUsersTitle": "Utilisateurs",
+  "PrivacyInfoModal.openIdH1": "Se connecter à des applications tierces à l'aide de Kolibri",
+  "PrivacyInfoModal.openIdP1": "Il est possible d'utiliser Kolibri pour enregistrer ou se connecter à des applications tierces. Si vous faites cela, l'autre application aura accès à votre nom d'utilisateur Kolibri, votre ID d'utilisateur unique et votre nom complet.",
   "PrivacyInfoModal.privacyModalHeader": "Utilisation et confidentialité",
   "ProgressBar.label": "Progression",
   "ProgressBar.pct": "{0, number, percent}",

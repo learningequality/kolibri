@@ -338,7 +338,10 @@ def parse_attemptslog(attemptlog):
     It more than 3 failed attempts exists, it creates a NeededHelp notification
     for the user & resource
     """
-    # This Event should not be triggered when a Learner is interacting with an Exercise outside of a Lesson:
+    # This event should not be triggered when an anonymous Learner is interacting with an Exercise:
+    if not attemptlog.masterylog:
+        return
+    # This event should not be triggered when a Learner is interacting with an Exercise outside of a Lesson:
     lessons = get_assignments(
         attemptlog.user, attemptlog.masterylog.summarylog, attempt=True
     )

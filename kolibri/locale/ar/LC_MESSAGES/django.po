@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: learningequality\n"
 "Language-Team: Arabic\n"
 "Language: ar_SA\n"
-"PO-Revision-Date: 2019-07-09 21:56\n"
+"PO-Revision-Date: 2019-07-25 03:15\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -24,15 +24,15 @@ msgstr "الصف الدراسي"
 msgid "Learner group"
 msgstr "مجموعة المتعلّمين"
 
-#: kolibri/core/content/api.py:138
+#: kolibri/core/content/api.py:141
 msgid "Content"
 msgstr "المحتوى"
 
-#: kolibri/core/content/api.py:836
+#: kolibri/core/content/api.py:842
 msgid "The requested channel does not exist on the content server"
 msgstr "القناة التعليمية المطلوبة غير موجودة على خادم المحتوى"
 
-#: kolibri/core/content/models.py:296
+#: kolibri/core/content/models.py:316
 msgid "Unknown format"
 msgstr "صيغة غير معروفة"
 
@@ -40,15 +40,15 @@ msgstr "صيغة غير معروفة"
 msgid "Language is not supported by Kolibri"
 msgstr "هذه اللغة غير معتمدة في كوليبري"
 
-#: kolibri/core/tasks/api.py:33
+#: kolibri/core/tasks/api.py:34
 msgid "There was a network error."
 msgstr "وقع خطأ ما في الشبكة."
 
-#: kolibri/core/tasks/api.py:35
+#: kolibri/core/tasks/api.py:36
 msgid "There was a disk access error."
 msgstr "وقع خطأ ما أثناء محاولة الوصول إلى القرص التخزيني."
 
-#: kolibri/core/tasks/api.py:37
+#: kolibri/core/tasks/api.py:38
 msgid "There was an unknown error."
 msgstr "وقع خطأ غير معروف."
 
@@ -73,7 +73,15 @@ msgstr "لاستخدام كوليبري، ننصح باستخدام متصفح �
 msgid "You can also try updating your current browser."
 msgstr "يمكنك أيضاً محاولة تحديث متصفحك الحالي."
 
-#: kolibri/core/views.py:184
+#: kolibri/core/views.py:185
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "لم يتم العثور على صفحات. يبدو أنّ عملية تهيئة منصة كوليبري لم تتم بالشكل الصحيح"
+
+#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
+msgid "OpenID Provider Authorization"
+msgstr "ترخيص مزود معرف الدخول"
+
+#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
+msgid "Request for Permission"
+msgstr "طلب تصريح"
 

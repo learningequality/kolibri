@@ -22,6 +22,7 @@
   "AssignmentDetailsModal.activeQuizzesExplanation": "Les apprenants peuvent uniquement voir des quiz actifs",
   "AssignmentDetailsModal.fieldRequiredError": "Ce champ est requis",
   "AssignmentDetailsModal.titlePlaceholder": "Titre",
+  "AssignmentSummary.noOne": "Personne",
   "CoachClassListPage.classNameLabel": "Nom de la classe",
   "CoachClassListPage.classPageSubheader": "Voir les progrès de l'apprenant et la performance de la classe",
   "CoachClassListPage.noAssignedClassesDetails": "Merci de contacter votre administrateur Kolibri pour être assigné à une classe",

@@ -119,6 +119,11 @@ class Command(AsyncCommand):
             device_settings.save()
 
     def handle_async(self, *args, **options):
+        self.stderr.write(
+            "`fullfacilitysync` command is deprecated and will be removed in 0.13.0 in favor of `sync`, which accepts the same options."
+            " Use `sync` command instead."
+        )
+
         # validate url that is passed in
         try:
             URLValidator()((options["base_url"]))
