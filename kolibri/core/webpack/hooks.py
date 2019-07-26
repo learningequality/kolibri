@@ -281,8 +281,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         if self.context:
             return [
                 '<script>window.{bundle} = JSON.parse("{context}");</script>'.format(
-                    bundle=self.unique_slug,
-                    context=json.dumps(self.context),
+                    bundle=self.unique_slug, context=json.dumps(self.context)
                 )
             ]
         else:
@@ -360,7 +359,11 @@ class WebpackBundleHook(hooks.KolibriHook):
         :param bundle_data: The data returned from
         :return: HTML of script tags for insertion into a page.
         """
-        tags = self.context_tag() + self.frontend_message_tag() + list(self.js_and_css_tags())
+        tags = (
+            self.context_tag()
+            + self.frontend_message_tag()
+            + list(self.js_and_css_tags())
+        )
 
         return mark_safe("\n".join(tags))
 
@@ -380,13 +383,17 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: HTML of a script tag to insert into a page.
         """
         urls = [chunk["url"] for chunk in self.sorted_chunks()]
-        tags = self.context_tag() + self.frontend_message_tag() + [
-            '<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
-                kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
-                bundle=self.bundle_id,
-                urls='","'.join(urls),
-            )
-        ]
+        tags = (
+            self.context_tag()
+            + self.frontend_message_tag()
+            + [
+                '<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
+                    kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
+                    bundle=self.bundle_id,
+                    urls='","'.join(urls),
+                )
+            ]
+        )
         return mark_safe("\n".join(tags))
 
     class Meta:
