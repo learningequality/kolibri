@@ -9,6 +9,59 @@ import KolibriModule from 'kolibri_module';
 
 export const logging = logger.getLogger(__filename);
 
+function _registerSchema(schema, moduleName, subPaths = []) {
+  forEach(schema, (subSchema, propertyName) => {
+    // Must be a plain object to be a valid schema spec
+    // And have at least a default key, and one of type or validator
+    if (isPlainObject(subSchema)) {
+      if (
+        typeof subSchema.default !== 'undefined' &&
+        (subSchema.type || (subSchema.validator && subSchema.validator instanceof Function))
+      ) {
+        /* eslint-disable no-inner-declarations */
+        function getter(state) {
+          if (moduleName) {
+            state = state[moduleName];
+          }
+          subPaths.forEach(path => {
+            state = state[path];
+          });
+          return state[propertyName];
+        }
+        function callback(newValue) {
+          let fail = false;
+          if (subSchema.type) {
+            if (subSchema.type === Object) {
+              if (!isPlainObject(newValue)) {
+                fail = true;
+              }
+            } else {
+              fail = !(newValue instanceof subSchema.type);
+            }
+          }
+          if (subSchema.validator) {
+            if (!subSchema.validator(newValue)) {
+              fail = true;
+            }
+          }
+          if (fail) {
+            logging.error(
+              `Validation failed for property: ${[...subPaths, propertyName]} in module ${
+                moduleName ? moduleName : 'root'
+              }`
+            );
+          }
+        }
+        /* eslint-enable */
+        store.watch(getter, callback);
+      } else {
+        // Otherwise assume it is just a nested object structure
+        _registerSchema(subSchema, moduleName, [...subPaths, propertyName]);
+      }
+    }
+  });
+}
+
 /*
  * A class for single page apps that control routing and vuex state.
  * Override the routes, mutations, initialState, and RootVue getters.
@@ -73,70 +126,18 @@ export default class KolibriApp extends KolibriModule {
     });
 
     if (process.env.NODE_ENV !== 'production') {
-      /* eslint-disable no-inner-declarations */
       // Register any schemas we have defined for vuex state
-      function registerSchema(schema, moduleName, subPaths = []) {
-        forEach(schema, (subSchema, propertyName) => {
-          // Must be a plain object to be a valid schema spec
-          // And have at least a default key, and one of type or validator
-          if (isPlainObject(subSchema)) {
-            if (
-              typeof subSchema.default !== 'undefined' &&
-              (subSchema.type || (subSchema.validator && subSchema.validator instanceof Function))
-            ) {
-              function getter(state) {
-                if (moduleName) {
-                  state = state[moduleName];
-                }
-                subPaths.forEach(path => {
-                  state = state[path];
-                });
-                return state[propertyName];
-              }
-              function callback(newValue) {
-                let fail = false;
-                if (subSchema.type) {
-                  if (subSchema.type === Object) {
-                    if (!isPlainObject(newValue)) {
-                      fail = true;
-                    }
-                  } else {
-                    fail = !(newValue instanceof subSchema.type);
-                  }
-                }
-                if (subSchema.validator) {
-                  if (!subSchema.validator(newValue)) {
-                    fail = true;
-                  }
-                }
-                if (fail) {
-                  logging.error(
-                    `Validation failed for property: ${[...subPaths, propertyName]} in module ${
-                      moduleName ? moduleName : 'root'
-                    }`
-                  );
-                }
-              }
-              store.watch(getter, callback);
-            } else {
-              // Otherwise assume it is just a nested object structure
-              registerSchema(subSchema, moduleName, [...subPaths, propertyName]);
-            }
-          }
-        });
-      }
-      if (this.pluginModule.state.schema) {
-        registerSchema(this.pluginModule.state.schema);
+      if (this.pluginModule.state && this.pluginModule.state.schema) {
+        _registerSchema(this.pluginModule.state.schema);
       }
       forEach(this.pluginModule.modules, (module, name) => {
         if (module.schema) {
-          registerSchema(module.schema, name);
+          _registerSchema(module.schema, name);
         }
       });
-      /* eslint-enable */
     }
 
-    return heartbeat.startPolling().then(() => {
+    heartbeat.startPolling().then(() => {
       this.store.dispatch('getNotifications');
       return Promise.all([
         // Invoke each of the state setters before initializing the app.
@@ -147,7 +148,7 @@ export default class KolibriApp extends KolibriModule {
             {
               el: 'rootvue',
               store: store,
-              router: router.init(this.routes),
+              router: router.initRoutes(this.routes),
             },
             this.RootVue
           )

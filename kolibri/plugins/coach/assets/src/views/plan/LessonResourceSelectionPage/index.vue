@@ -3,9 +3,9 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="close"
-    immersivePagePrimary
+    :immersivePagePrimary="false"
     :immersivePageRoute="exitButtonRoute"
-    :appBarTitle="coachCommon$tr('manageResourcesAction')"
+    :appBarTitle="$tr('manageResourcesAction')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :pageTitle="pageTitle"
@@ -69,7 +69,7 @@
 
     <KBottomAppBar>
       <KRouterLink
-        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coachCommon$tr('finishAction')"
+        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coreString('finishAction')"
         :primary="true"
         appearance="raised-button"
         :to="exitButtonRoute"
@@ -94,6 +94,7 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
@@ -119,7 +120,7 @@
       ResourceSelectionBreadcrumbs,
       KBottomAppBar,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         // null corresponds to 'All' filter value
@@ -402,15 +403,12 @@
       },
     },
     $trs: {
-      // TODO semantic string names
-      save: 'Save',
       // TODO: Handle singular/plural
       selectionInformation:
         '{count, number, integer} of {total, number, integer} resources selected',
       totalResourcesSelected:
         '{total, number, integer} {total, plural, one {resource} other {resources}} in this lesson',
       documentTitle: `Manage resources in '{lessonName}'`,
-      selectAllCheckboxLabel: 'Select all',
       resourcesAddedSnackbarText:
         'Added {count, number, integer} {count, plural, one {resource} other {resources}} to lesson',
       resourcesRemovedSnackbarText:
@@ -419,6 +417,7 @@
       saveBeforeExitSnackbarText: 'Saving your changes…',
       // only shown on search page
       exitSearchButtonLabel: 'Exit search',
+      manageResourcesAction: 'Manage lesson resources',
     },
   };
 

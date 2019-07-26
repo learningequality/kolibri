@@ -3,7 +3,7 @@
   <div>
     <KRadioButton
       :value="true"
-      :label="$tr('entireClass')"
+      :label="coachString('entireClassLabel')"
       :currentValue="entireClassIsSelected"
       :disabled="disabled"
       @change="selectEntireClass()"
@@ -26,6 +26,7 @@
   import isEqual from 'lodash/isEqual';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'RecipientSelector',
@@ -33,6 +34,7 @@
       KCheckbox,
       KRadioButton,
     },
+    mixins: [coachStringsMixin],
     props: {
       // Needs to equal [classId] if entire class is selected
       // Otherwise, [groupId_1, groupId_2] for individual Learner Groups
@@ -91,9 +93,7 @@
         }
       },
     },
-    $trs: {
-      entireClass: 'Entire class',
-    },
+    $trs: {},
   };
 
 </script>

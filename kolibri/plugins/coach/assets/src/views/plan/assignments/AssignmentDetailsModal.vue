@@ -14,7 +14,7 @@
         <KTextbox
           ref="titleField"
           v-model="title"
-          :label="$tr('titlePlaceholder')"
+          :label="coachString('titleLabel')"
           :maxlength="50"
           :autofocus="true"
           :invalid="titleIsInvalid"
@@ -28,7 +28,7 @@
         <KTextbox
           v-if="showDescriptionField"
           v-model="description"
-          :label="coachCommon$tr('descriptionLabel')"
+          :label="coachString('descriptionLabel')"
           :maxlength="200"
           :disabled="disabled || formIsSubmitted"
           :textArea="true"
@@ -37,7 +37,7 @@
 
       <fieldset v-if="assignmentType !== 'new_lesson'">
         <legend>
-          {{ coachCommon$tr('statusLabel') }}
+          {{ coachString('statusLabel') }}
         </legend>
         <p>
           {{ assignmentStrings.statusExplanation }}
@@ -58,7 +58,7 @@
 
       <fieldset>
         <legend>
-          {{ coachCommon$tr('recipientsLabel') }}
+          {{ coachString('recipientsLabel') }}
         </legend>
         <RecipientSelector
           v-model="selectedCollectionIds"
@@ -73,14 +73,14 @@
 
     <KBottomAppBar v-if="assignmentType !== 'new_lesson'">
       <KButton
-        :text="coachCommon$tr('cancelAction')"
+        :text="coreString('cancelAction')"
         appearance="flat-button"
         :primary="false"
         :disabled="disabled"
         @click="$emit('cancel')"
       />
       <KButton
-        :text="coachCommon$tr('saveChangesAction')"
+        :text="coreString('saveChangesAction')"
         :primary="true"
         :disabled="disabled"
         @click="submitData"
@@ -99,6 +99,7 @@
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
 
@@ -112,7 +113,7 @@
       RecipientSelector,
       UiAlert,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       modalTitleErrorMessage: {
         type: String,
@@ -184,7 +185,7 @@
         // submission is handled because "blur" event happens on submit
         if (!this.disabled && this.titleIsVisited) {
           if (this.title === '') {
-            return this.$tr('fieldRequiredError');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.assignmentIsQuiz) {
             if (
@@ -193,7 +194,7 @@
                 excludeId: this.$route.params.quizId,
               })
             ) {
-              return this.coachCommon$tr('quizDuplicateTitleError');
+              return this.coachString('quizDuplicateTitleError');
             }
           } else {
             if (
@@ -202,7 +203,7 @@
                 excludeId: this.$route.params.lessonId,
               })
             ) {
-              return this.coachCommon$tr('lessonDuplicateTitleError');
+              return this.coachString('lessonDuplicateTitleError');
             }
           }
           if (this.showTitleError) {
@@ -217,14 +218,14 @@
       assignmentStrings() {
         if (this.assignmentIsQuiz) {
           return {
-            activeStatus: this.coachCommon$tr('quizActiveLabel'),
-            inactiveStatus: this.coachCommon$tr('quizInactiveLabel'),
+            activeStatus: this.coachString('activeLabel'),
+            inactiveStatus: this.coachString('inactiveLabel'),
             statusExplanation: this.$tr('activeQuizzesExplanation'),
           };
         }
         return {
-          activeStatus: this.coachCommon$tr('lessonActiveLabel'),
-          inactiveStatus: this.coachCommon$tr('lessonInactiveLabel'),
+          activeStatus: this.coachString('activeLabel'),
+          inactiveStatus: this.coachString('inactiveLabel'),
           statusExplanation: this.$tr('activeLessonsExplanation'),
         };
       },
@@ -288,8 +289,6 @@
       },
     },
     $trs: {
-      fieldRequiredError: 'This field is required',
-      titlePlaceholder: 'Title',
       activeQuizzesExplanation: 'Learners can only see active quizzes',
       activeLessonsExplanation: 'Learners can only see active lessons',
     },

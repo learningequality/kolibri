@@ -36,10 +36,12 @@
     },
     computed: {
       label() {
-        return this.active
-          ? this.coachCommon$tr('lessonActiveLabel')
-          : this.coachCommon$tr('lessonInactiveLabel');
+        return this.active ? this.$tr('lessonActiveLabel') : this.$tr('lessonInactiveLabel');
       },
+    },
+    $trs: {
+      lessonActiveLabel: 'Active',
+      lessonInactiveLabel: 'Inactive',
     },
   };
 

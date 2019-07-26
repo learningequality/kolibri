@@ -3,6 +3,7 @@ import logging
 import os
 
 from django.core.management.base import BaseCommand
+from django.db import IntegrityError
 from oidc_provider.models import Client
 from oidc_provider.models import ResponseType
 
@@ -38,12 +39,21 @@ class Command(BaseCommand):
             required=True,
             help="Path to redirect to on successful login",
         )
+        parser.add_argument(
+            "--clientsecret",
+            action="store",
+            dest="client_secret",
+            required=False,
+            help="Secret phrase to check the client in a secure channel",
+        )
 
     def handle(self, *args, **options):
         client_id = (
             options["name"] if not options["client_id"] else options["client_id"]
         )
-        client_secret = binascii.hexlify(os.urandom(16))
+        client_secret = options["client_secret"]
+        if not client_secret:
+            client_secret = binascii.hexlify(os.urandom(16))
         allowed_responses = ("code", "id_token", "id_token token")
         response_codes = ResponseType.objects.filter(value__in=allowed_responses)
 
@@ -65,6 +75,12 @@ class Command(BaseCommand):
             logger.warn(
                 "Client {id} created with client secret {secret}".format(
                     id=client_id, secret=client_secret
+                )
+            )
+        except IntegrityError:
+            logger.error(
+                "Client {id} could not be created. A client with the same id already exists in the database".format(
+                    id=client_id
                 )
             )
         except Exception as e:

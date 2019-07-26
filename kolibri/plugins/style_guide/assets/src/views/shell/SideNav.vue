@@ -1,39 +1,53 @@
 <template>
 
-  <nav class="sidenav">
-    <router-link :to="'/'" class="sidenav-heading">
-      Kolibri Style Guide
-    </router-link>
+  <div class="nav-wrapper" :style="{width: `${navWidth}px`}">
+    <nav class="sidenav">
+      <h1>
+        <CoreLogo slot="icon" class="logo" alt="Kolibri" />
+        Design System
+      </h1>
+      <router-link :to="'/'" exact>
+        Home
+      </router-link>
 
-    <div>
-      <template v-for="section in navMenu">
-        <div :key="`${section.sectionName}-heading`" class="section-heading">
+      <div v-for="(section, i) in navMenu" :key="i" class="section">
+        <HorizontalRule />
+
+        <div class="section-heading">
           {{ section.sectionName }}
         </div>
-        <ul :key="`${section.sectionName}-ul`">
-          <li v-for="sectionItem in section.sectionItems" :key="sectionItem.itemName">
-            <router-link :to="sectionItem.itemRoute" class="link">
+        <ul>
+          <li v-for="(sectionItem, j) in section.sectionItems" :key="j">
+            <router-link :to="sectionItem.itemRoute">
               {{ sectionItem.itemName }}
             </router-link>
           </li>
         </ul>
-      </template>
-    </div>
-  </nav>
+      </div>
+
+    </nav>
+    <div class="bottom-gradient"></div>
+  </div>
 
 </template>
 
 
 <script>
 
-  import { navMenu } from './nav-menu.js';
+  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
+  import { navMenu } from '../../routes.js';
+  import navWidth from '../navWidth';
+  import HorizontalRule from './HorizontalRule';
 
   export default {
     name: 'SideNav',
-    data() {
-      return {
-        navMenu,
-      };
+    components: {
+      HorizontalRule,
+      CoreLogo,
+    },
+    created() {
+      this.navMenu = navMenu;
+      this.navWidth = navWidth;
     },
   };
 
@@ -42,32 +56,56 @@
 
 <style lang="scss" scoped>
 
-  @import '../../styles/style-guide';
+  @import '~kolibri.styles.definitions';
 
-  .sidenav {
+  h1 {
+    margin-bottom: 32px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #918daf;
+  }
+
+  .logo {
+    position: relative;
+    width: 55px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  .bottom-gradient {
+    position: absolute;
+    right: 16px;
+    bottom: 0;
+    left: 0;
+    height: 100px;
+    pointer-events: none;
+    background-image: linear-gradient(to bottom, transparent, white);
+  }
+
+  .nav-wrapper {
     position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
-    width: $sidenav-width;
-    overflow-y: auto;
-    background: #f7f7f7;
-    border-right: 1px solid #e0e0e0;
   }
 
-  .sidenav-heading {
-    display: block;
-    padding: 32px 24px;
-    font-size: 1.25em;
-    text-decoration: none;
+  .sidenav {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding-right: 24px;
+    padding-bottom: 150px;
+    padding-left: 16px;
+    overflow-y: auto;
+    background: white;
   }
 
   .section-heading {
-    margin-top: 24px;
-    margin-right: 24px;
-    margin-bottom: 12px;
-    margin-left: 24px;
-    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: smaller;
+    color: #777777;
   }
 
   ul {
@@ -76,14 +114,25 @@
     list-style-type: none;
   }
 
-  .link {
+  a {
     display: block;
-    padding: 12px 24px;
+    padding: 8px;
+    margin-right: -8px;
+    margin-bottom: 2px;
+    margin-left: -8px;
+    color: #368d74;
     text-decoration: none;
+    border-radius: 4px;
+    outline-offset: 3px;
+
+    &:hover {
+      color: #26614d;
+      background-color: #efefef;
+    }
 
     &.router-link-active {
-      font-weight: bold;
-      background-color: #e0e0e0;
+      color: black;
+      background-color: #dedede;
     }
   }
 

@@ -14,6 +14,7 @@
 
 import { mapGetters, mapState } from 'vuex';
 import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
+import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 import urls from 'kolibri.urls';
 import commonCoach from './common';
 
@@ -22,7 +23,7 @@ export default {
   components: {
     KExternalLink,
   },
-  mixins: [commonCoach],
+  mixins: [commonCoach, commonCoreStrings],
   computed: {
     ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
     ...mapState(['classList']),
@@ -38,7 +39,7 @@ export default {
         return this.$tr('noClassesDetailsForFacilityCoach');
       }
       if (true) {
-        return this.coachCommon$tr('coachLabel');
+        return this.coreString('coachLabel');
       }
 
       return '';

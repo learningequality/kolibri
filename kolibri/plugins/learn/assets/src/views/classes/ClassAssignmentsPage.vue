@@ -39,12 +39,33 @@
       KLabeledIcon,
     },
     mixins: [responsiveWindow],
+    data() {
+      return {
+        pollTimeoutId: null,
+      };
+    },
     computed: {
       ...mapState('classAssignments', {
         classroomName: state => state.currentClassroom.name,
         exams: state => state.currentClassroom.assignments.exams,
         lessons: state => state.currentClassroom.assignments.lessons,
       }),
+    },
+    mounted() {
+      this.schedulePoll();
+    },
+    beforeDestroy() {
+      clearTimeout(this.pollTimeoutId);
+    },
+    methods: {
+      schedulePoll() {
+        this.pollTimeoutId = setTimeout(this.pollForUpdates, 30000);
+      },
+      pollForUpdates() {
+        this.$store.dispatch('classAssignments/updateWithChanges').then(() => {
+          this.schedulePoll();
+        });
+      },
     },
     $trs: {
       documentTitle: 'Class assignments',

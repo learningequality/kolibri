@@ -1,6 +1,6 @@
 <template>
 
-  <div class="show-wrapper">
+  <div class="show">
     <slot></slot>
   </div>
 
@@ -18,9 +18,13 @@
 
 <style lang="scss" scoped>
 
-  .show-wrapper {
-    padding: 8px;
-    border: 1px solid #eeeeee;
+  .show {
+    padding-right: 8px;
+    padding-left: 8px;
+    margin-right: -8px;
+    margin-left: -8px;
+    border: 1px solid #dedede;
+    border-radius: 4px;
   }
 
 </style>

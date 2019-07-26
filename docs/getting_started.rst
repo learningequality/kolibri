@@ -373,6 +373,12 @@ You can initialize the server using:
 Development workflows
 ---------------------
 
+Design system
+~~~~~~~~~~~~~
+
+We have a large number of reusable patterns, conventions, and components built into the application. Review the `Kolibri Design System <http://kolibribeta.learningequality.org/design>`__ to get a sense for the tools at your disposal, and to ensure that new changes stay consistent with established UI patterns.
+
+
 Linting and auto-formatting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -41,7 +41,7 @@
                   v-model="username"
                   autocomplete="username"
                   :autofocus="!hasMultipleFacilities"
-                  :label="$tr('username')"
+                  :label="coreString('usernameLabel')"
                   :invalid="usernameIsInvalid"
                   :invalidText="usernameIsInvalidText"
                   @blur="handleUsernameBlur"
@@ -75,7 +75,7 @@
                   v-model="password"
                   type="password"
                   autocomplete="current-password"
-                  :label="$tr('password')"
+                  :label="coreString('passwordLabel')"
                   :autofocus="simpleSignIn"
                   :invalid="passwordIsInvalid"
                   :invalidText="passwordIsInvalidText"
@@ -88,7 +88,7 @@
                 <KButton
                   class="login-btn"
                   type="submit"
-                  :text="$tr('signIn')"
+                  :text="coreString('signInLabel')"
                   :primary="true"
                   :disabled="busy"
                 />
@@ -98,7 +98,7 @@
             <p class="create">
               <KRouterLink
                 v-if="canSignUp"
-                :text="$tr('createAccount')"
+                :text="$tr('createAccountAction')"
                 :to="signUpPage"
                 :primary="true"
                 appearance="flat-button"
@@ -128,7 +128,7 @@
             <CoreLogo v-if="this.$theme.signIn.showKolibriFooterLogo" class="footer-logo" />
             <span v-else> • </span>
             <KButton
-              :text="$tr('privacyLink')"
+              :text="coreString('usageAndPrivacyLabel')"
               appearance="basic-link"
               @click="privacyModalVisible = true"
             />
@@ -152,6 +152,7 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { FacilityUsernameResource } from 'kolibri.resources';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
@@ -195,7 +196,7 @@
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [responsiveWindow, themeMixin, commonCoreStrings],
     data() {
       return {
         username: '',
@@ -234,9 +235,9 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           } else if (!validateUsername(this.username)) {
-            return this.$tr('usernameNotAlphaNumUnderscore');
+            return this.coreString('usernameNotAlphaNumError');
           }
         }
         return '';
@@ -249,7 +250,7 @@
           if (this.simpleSignIn && this.password === '') {
             return this.$tr('requiredForCoachesAdmins');
           } else if (this.password === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -286,7 +287,9 @@
         return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
       },
       logoText() {
-        return this.$theme.signIn.title ? this.$theme.signIn.title : this.$tr('kolibri');
+        return this.$theme.signIn.title
+          ? this.$theme.signIn.title
+          : this.coreString('kolibriLabel');
       },
       guestURL() {
         return urls['kolibri:core:guest']();
@@ -295,9 +298,7 @@
         if (this.$theme.signIn.background) {
           return {
             backgroundColor: this.$themeTokens.primary,
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${
-              this.$theme.signIn.background
-            })`,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${this.$theme.signIn.background})`,
           };
         }
         return { backgroundColor: this.$themeColors.brand.primary.v_900 };
@@ -456,20 +457,12 @@
       },
     },
     $trs: {
-      kolibri: 'Kolibri',
-      signIn: 'Sign in',
-      username: 'Username',
-      password: 'Password',
-      enterPassword: 'Enter password',
-      createAccount: 'Create an account',
+      createAccountAction: 'Create an account',
       accessAsGuest: 'Explore without account',
       signInError: 'Incorrect username or password',
       poweredBy: 'Kolibri {version}',
-      required: 'This field is required',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       documentTitle: 'User Sign In',
-      privacyLink: 'Usage and privacy',
     },
   };
 

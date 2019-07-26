@@ -6,10 +6,10 @@
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
+      <HeaderTableRow :keyText="coachString('statusLabel')">
         <LessonActive slot="value" :active="active" />
       </HeaderTableRow>
-      <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
+      <HeaderTableRow :keyText="coachString('recipientsLabel')">
         <template slot="value">
           <Recipients
             :groupNames="groupNames"
@@ -18,8 +18,8 @@
         </template>
       </HeaderTableRow>
       <HeaderTableRow
-        :keyText="coachCommon$tr('descriptionLabel')"
-        :valueText="description || coachCommon$tr('descriptionMissingLabel')"
+        :keyText="coachString('descriptionLabel')"
+        :valueText="description || coachString('descriptionMissingLabel')"
       />
     </HeaderTable>
 
@@ -84,9 +84,7 @@
         return names;
       },
     },
-    $trs: {
-      noOne: 'No one',
-    },
+    $trs: {},
   };
 
 </script>

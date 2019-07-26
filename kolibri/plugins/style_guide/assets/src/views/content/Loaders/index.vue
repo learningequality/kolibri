@@ -1,21 +1,26 @@
 <template>
 
-  <PageTemplate title="Loaders" :completed="false">
+  <PageTemplate :completed="false">
 
-    <h3><code>{{ kCircularLoaderApi.name }}</code> API</h3>
-    <ComponentDocs :api="kCircularLoaderApi" />
-    <h3>Code Example</h3>
-    <VueExample :code="kCircularLoaderExample" />
-
-
-    <h3><code>{{ kLinearLoaderApi.name }}</code> API</h3>
-    <ComponentDocs :api="kLinearLoaderApi" />
-    <h3>Code Example</h3>
-    <VueExample :code="kLinearLoaderExample" />
+    <PageSection>
+      <ComponentDocs :api="KCircularLoaderApi" />
+      <h3>Code Example</h3>
+      <VueExample :code="KCircularLoaderExampleCode">
+        <KCircularLoaderExample />
+      </VueExample>
 
 
-    <h3>Guidelines</h3>
-    <p>TODO</p>
+
+      <ComponentDocs :api="KLinearLoaderApi" />
+      <h3>Code Example</h3>
+      <VueExample :code="KLinearLoaderExampleCode">
+        <KLinearLoaderExample />
+      </VueExample>
+
+
+      <h3>Guidelines</h3>
+      <p>TODO</p>
+    </PageSection>
 
   </PageTemplate>
 
@@ -24,35 +29,36 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
   import PageTemplate from '../../shell/PageTemplate';
+  import PageSection from '../../shell/PageTemplate/PageSection';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
 
-  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  /* eslint-disable import/no-duplicates */
+  import KLinearLoaderExample from './KLinearLoaderExample';
+  import KCircularLoaderExample from './KCircularLoaderExample';
+  import KLinearLoaderExampleCode from '!!raw-loader!./KLinearLoaderExample';
+  import KCircularLoaderExampleCode from '!!raw-loader!./KCircularLoaderExample';
 
-  import kLinearLoaderExample from 'raw-loader!./k-linear-loader-example.html';
-  import kCircularLoaderExample from 'raw-loader!./k-circular-loader-example.html';
-
-  import kLinearLoaderApi from '!vue-doc!kolibri.coreVue.components.KLinearLoader';
-  import kCircularLoaderApi from '!vue-doc!kolibri.coreVue.components.KCircularLoader';
-
-  FullVue.component('k-linear-loader', KLinearLoader);
-  FullVue.component('k-circular-loader', KCircularLoader);
+  import KLinearLoaderApi from '!vue-doc!kolibri.coreVue.components.KLinearLoader';
+  import KCircularLoaderApi from '!vue-doc!kolibri.coreVue.components.KCircularLoader';
+  /* eslint-enable import/no-duplicates */
 
   export default {
     name: 'Loaders',
     components: {
       PageTemplate,
+      PageSection,
       ComponentDocs,
       VueExample,
+      KLinearLoaderExample,
+      KCircularLoaderExample,
     },
     data: () => ({
-      kCircularLoaderExample,
-      kLinearLoaderExample,
-      kCircularLoaderApi,
-      kLinearLoaderApi,
+      KCircularLoaderExampleCode,
+      KLinearLoaderExampleCode,
+      KCircularLoaderApi,
+      KLinearLoaderApi,
     }),
   };
 

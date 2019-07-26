@@ -6,8 +6,8 @@
     :immersivePagePrimary="false"
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
-    :appBarTitle="$tr('appBarTitle', { title: quiz.title })"
-    :pageTitle="$tr('appBarTitle', { title: quiz.title })"
+    :appBarTitle="$tr('appBarTitle')"
+    :pageTitle="$tr('pageTitle', { title: quiz.title })"
     :showSubNav="false"
     :immersivePageRoute="previousPageRoute"
   >
@@ -130,7 +130,8 @@
       },
     },
     $trs: {
-      appBarTitle: `Edit quiz details for '{title}'`,
+      pageTitle: `Edit quiz details for '{title}'`,
+      appBarTitle: `Edit quiz details`,
       submitErrorMessage: 'There was a problem saving your changes',
     },
   };

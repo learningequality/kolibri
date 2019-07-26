@@ -39,7 +39,7 @@
     <template>
       <KButton
         v-if="showButton"
-        :text="$tr('viewMoreButtonLabel')"
+        :text="coreString('viewMoreAction')"
         :primary="false"
         @click="$emit('moreresults')"
       />
@@ -63,6 +63,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
@@ -76,6 +77,7 @@
       KCircularLoader,
       LessonContentCard,
     },
+    mixins: [commonCoreStrings],
     props: {
       showSelectAll: {
         type: Boolean,
@@ -141,7 +143,6 @@
     },
     $trs: {
       selectAllCheckboxLabel: 'Select all',
-      viewMoreButtonLabel: 'View more',
       // noMoreResults: 'No more results',
       // moreResultsError: 'Failed to get more results',
     },

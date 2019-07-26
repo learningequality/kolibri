@@ -29,10 +29,12 @@
 
   import { mapGetters, mapState } from 'vuex';
   import lastItem from 'lodash/last';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
+  import commonLearnStrings from './commonLearnStrings';
   import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
   import ContentPage from './ContentPage';
@@ -78,7 +80,7 @@
       TotalPoints,
       KPageContainer,
     },
-    mixins: [responsiveWindow],
+    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindow],
     data() {
       return {
         lastRoute: null,
@@ -89,6 +91,9 @@
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
         currentLesson: 'currentLesson',
+      }),
+      ...mapState('classAssignments', {
+        classroomName: state => state.currentClassroom.name,
       }),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
@@ -108,11 +113,11 @@
       immersivePageProps() {
         if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
           return {
-            appBarTitle: this.$store.state.examViewer.exam.title || '',
+            appBarTitle: this.classroomName || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
@@ -120,8 +125,8 @@
             appBarTitle: this.currentLesson.title || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
         if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
@@ -139,12 +144,12 @@
         }
         if (this.pageName === PageNames.SEARCH) {
           return {
-            appBarTitle: this.$tr('searchTitle'),
+            appBarTitle: this.coreString('searchLabel'),
             immersivePage: true,
             // Default to the Learn root page if there is no lastRoute to return to.
             immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
 
@@ -183,13 +188,13 @@
             appBarTitle,
             immersivePage: true,
             immersivePageRoute,
-            immersivePagePrimary: false,
+            immersivePagePrimary: true,
             immersivePageIcon: 'arrow_back',
           };
         }
 
         return {
-          appBarTitle: this.$tr('learnTitle'),
+          appBarTitle: this.learnString('learnLabel'),
           immersivePage: false,
         };
       },
@@ -240,9 +245,7 @@
       },
     },
     $trs: {
-      learnTitle: 'Learn',
       examReportTitle: '{examTitle} report',
-      searchTitle: 'Search',
       recommended: 'Recommended',
       documentTitleForPopular: 'Popular',
       documentTitleForResume: 'Resume',

@@ -2,7 +2,7 @@
 
   <div :style="{ backgroundColor: $themeTokens.surface }">
     <h3 class="header">
-      {{ $tr('header') }}
+      {{ $tr('answerHistoryLabel') }}
     </h3>
 
     <ul ref="attemptList" class="history-list">
@@ -52,7 +52,12 @@
               name="lightbulb_outline"
             />
             <p class="item">
-              {{ $tr('question', {questionNumber: attemptLog.questionNumber}) }}
+              {{ 
+                coreString(
+                  'questionNumberLabel', 
+                  {questionNumber: attemptLog.questionNumber}
+                ) 
+              }}
             </p>
           </div>
           <CoachContentLabel
@@ -71,6 +76,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
 
   export default {
@@ -78,7 +84,7 @@
     components: {
       CoachContentLabel,
     },
-    mixins: [themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     props: {
       attemptLogs: {
         type: Array,
@@ -112,11 +118,7 @@
       },
     },
     $trs: {
-      header: 'Answer history',
-      today: 'Today',
-      yesterday: 'Yesterday',
-      daysAgo: '{ daysElapsed } days ago',
-      question: 'Question { questionNumber, number }',
+      answerHistoryLabel: 'Answer history',
     },
   };
 

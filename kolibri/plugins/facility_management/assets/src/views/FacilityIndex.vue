@@ -27,6 +27,7 @@
   import { mapState, mapGetters } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import ClassEditPage from './ClassEditPage';
   import CoachClassAssignmentPage from './CoachClassAssignmentPage';
@@ -56,9 +57,11 @@
       FacilityTopNav,
       KPageContainer,
     },
+    mixins: [commonCoreStrings],
     computed: {
       ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState(['pageName']),
+      ...mapState('classAssignMembers', ['class']),
       isEnrollmentPage() {
         return classEnrollmentPages.includes(this.pageName);
       },
@@ -70,9 +73,11 @@
       },
       appBarTitle() {
         if (this.isEnrollmentPage) {
-          return this.$tr('detailPageReturnPrompt');
+          if (this.class) {
+            return this.class.name || '';
+          }
         }
-        return this.$tr('facilityTitle');
+        return this.coreString('facilityLabel');
       },
       appBarBackLink() {
         if (this.isEnrollmentPage) {
@@ -87,7 +92,6 @@
       },
     },
     $trs: {
-      facilityTitle: 'Facility',
       adminOrSuperuser: 'You must be signed in as an admin or super admin to view this page',
       // here because going to use immersive-page
       detailPageReturnPrompt: 'Class details',

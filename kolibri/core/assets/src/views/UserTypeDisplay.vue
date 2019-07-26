@@ -13,9 +13,11 @@
 <script>
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UserTypeDisplay',
+    mixins: [commonCoreStrings],
     props: {
       userType: {
         type: String,
@@ -36,12 +38,12 @@
       typeDisplayMap() {
         return {
           [UserKinds.SUPERUSER]: this.$tr('superUserLabel'),
-          [UserKinds.ADMIN]: this.$tr('adminLabel'),
+          [UserKinds.ADMIN]: this.coreString('adminLabel'),
           [UserKinds.COACH]: this.distinguishCoachTypes
-            ? this.$tr('facilityCoachLabel')
-            : this.$tr('coachLabel'),
-          [UserKinds.ASSIGNABLE_COACH]: this.$tr('coachLabel'),
-          [UserKinds.LEARNER]: this.omitLearner ? '' : this.$tr('learnerLabel'),
+            ? this.coreString('facilityCoachLabel')
+            : this.coreString('coachLabel'),
+          [UserKinds.ASSIGNABLE_COACH]: this.coreString('coachLabel'),
+          [UserKinds.LEARNER]: this.omitLearner ? '' : this.coreString('learnerLabel'),
         };
       },
       typeDisplay() {
@@ -53,10 +55,7 @@
     },
     $trs: {
       superUserLabel: 'Super admin',
-      adminLabel: 'Admin',
       facilityCoachLabel: 'Facility coach',
-      coachLabel: 'Coach',
-      learnerLabel: 'Learner',
     },
   };
 

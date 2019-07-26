@@ -36,7 +36,7 @@
 
     <KGrid>
       <KGridItem sizes="100, 50, 50" percentage>
-        <h2>{{ $tr('coachTableTitle') }}</h2>
+        <h2>{{ coreString('coachesLabel') }}</h2>
       </KGridItem>
       <KGridItem sizes="100, 50, 50" alignment="right" percentage>
         <KRouterLink
@@ -55,7 +55,7 @@
       <!-- Don't need template in Vue 2.5+ -->
       <template slot="action" slot-scope="userRow">
         <KButton
-          :text="$tr('remove')"
+          :text="coreString('removeAction')"
           appearance="flat-button"
           @click="confirmRemoval(userRow.user, removeClassCoach)"
         />
@@ -64,7 +64,7 @@
 
     <KGrid class="top-margin">
       <KGridItem sizes="100, 50, 50" percentage>
-        <h2>{{ $tr('learnerTableTitle') }}</h2>
+        <h2>{{ coreString('learnersLabel') }}</h2>
       </KGridItem>
       <KGridItem sizes="100, 50, 50" alignment="right" percentage>
         <KRouterLink
@@ -82,7 +82,7 @@
     >
       <template slot="action" slot-scope="userRow">
         <KButton
-          :text="$tr('remove')"
+          :text="coreString('removeAction')"
           appearance="flat-button"
           @click="confirmRemoval(userRow.user, removeClassLearner)"
         />
@@ -101,6 +101,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserTable from '../UserTable';
   import { PageNames, Modals } from '../../constants';
   import ClassRenameModal from './ClassRenameModal';
@@ -123,6 +124,7 @@
       KButton,
       KLabeledIcon,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         userToBeRemoved: null,
@@ -170,12 +172,8 @@
       enrollLearnerButtonLabel: 'Enroll learners',
       assignCoachesButtonLabel: 'Assign coaches',
       coachEnrollmentPageTitle: 'Manage class coaches and learners',
-      coachTableTitle: 'Coaches',
-      learnerTableTitle: 'Learners',
       noCoachesInClassMessge: "You don't have any assigned coaches",
       noLearnersInClassMessage: "You don't have any enrolled learners",
-      remove: 'Remove',
-      noUsersExist: 'No users in this class',
       edit: 'Edit class name',
       documentTitle: 'Edit Class',
       renameButtonLabel: 'Edit',

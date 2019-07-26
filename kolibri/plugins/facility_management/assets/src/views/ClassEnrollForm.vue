@@ -21,7 +21,7 @@
 
     <div class="footer">
       <KButton
-        :text="$tr('confirmSelectionButtonLabel')"
+        :text="coreString('confirmAction')"
         :primary="true"
         type="submit"
         :disabled="selectedUsers.length === 0"
@@ -38,6 +38,7 @@
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
   import UserTable from './UserTable';
@@ -49,7 +50,7 @@
       PaginatedListContainer,
       UserTable,
     },
-    mixins: [responsiveWindow],
+    mixins: [commonCoreStrings, responsiveWindow],
     props: {
       facilityUsers: {
         type: Array,
@@ -76,33 +77,25 @@
       },
       emptyMessageForItems(items, filterInput) {
         if (this.facilityUsers.length === 0) {
-          return this.$tr('noUsersExist');
+          return this.coreString('noUsersExistLabel');
         }
         if (this.usersNotInClass.length === 0) {
           return this.$tr('allUsersAlready');
         }
         if (items.length === 0 && filterInput !== '') {
-          return this.$tr('noUsersExist', { filterText: filterInput });
+          return this.$tr('noUsersMatch', { filterText: filterInput });
         }
 
         return '';
       },
     },
     $trs: {
-      confirmSelectionButtonLabel: 'Confirm',
       searchForUser: 'Search for a user',
-      userIconColumnHeader: 'User Icon',
-      name: 'Full name',
-      username: 'Username',
       userTableLabel: 'User List',
-      role: 'Role',
       // TODO clarify empty state messages after string freeze
-      noUsersExist: 'No users exist',
-      noUsersSelected: 'No users are selected',
       noUsersMatch: 'No users match the filter: "{filterText}"',
       selectAllOnPage: 'Select all on page',
       allUsersAlready: 'All users are already enrolled in this class',
-      search: 'Search',
       selectUser: 'Select user',
     },
   };

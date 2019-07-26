@@ -6,7 +6,7 @@
 
     <div v-else>
       <div class="description">
-        <h1>{{ $tr('devicePermissionsHeader') }}</h1>
+        <h1>{{ coreString('devicePermissionsLabel') }}</h1>
         <p>{{ $tr('devicePermissionsDescription') }}</p>
       </div>
 
@@ -35,6 +35,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import UserGrid from './UserGrid';
@@ -51,6 +52,7 @@
       PaginatedListContainer,
       UserGrid,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         searchFilterText: '',
@@ -69,7 +71,6 @@
       },
     },
     $trs: {
-      devicePermissionsHeader: 'Device permissions',
       devicePermissionsDescription: 'Make changes to what users can manage on your device',
       searchPlaceholder: 'Search for a user…',
       documentTitle: 'Manage Device Permissions',

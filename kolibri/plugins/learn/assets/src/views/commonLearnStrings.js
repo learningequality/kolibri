@@ -1,19 +1,15 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
-const learnStrings = createTranslator('CommonLearnStrings', {
+export const learnStrings = createTranslator('CommonLearnStrings', {
   // Labels
-  classesLabel: 'Classes',
-  channelsLabel: 'Channels',
+  learnLabel: 'Learn',
   recommendedLabel: 'Recommended',
-  searchLabel: 'Search',
 });
 
-const learnStringsMixin = {
+export default {
   methods: {
-    coachCommon$tr(key, args) {
+    learnString(key, args) {
       return learnStrings.$tr(key, args);
     },
   },
 };
-
-export { learnStrings, learnStringsMixin };

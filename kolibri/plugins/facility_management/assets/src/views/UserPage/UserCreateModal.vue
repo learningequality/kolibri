@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('createNewUserHeader')"
-    :submitText="$tr('saveUserButtonLabel')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreString('saveAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="submitting"
     @submit="createNewUser"
     @cancel="$emit('cancel')"
@@ -13,7 +13,7 @@
         ref="name"
         v-model.trim="fullName"
         type="text"
-        :label="$tr('name')"
+        :label="coreString('fullNameLabel')"
         :autofocus="true"
         :maxlength="120"
         :invalid="nameIsInvalid"
@@ -24,7 +24,7 @@
         ref="username"
         v-model="username"
         type="text"
-        :label="$tr('username')"
+        :label="coreString('usernameLabel')"
         :maxlength="30"
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
@@ -34,7 +34,7 @@
         ref="password"
         v-model="password"
         type="password"
-        :label="$tr('password')"
+        :label="coreString('passwordLabel')"
         :invalid="passwordIsInvalid"
         :invalidText="passwordIsInvalidText"
         @blur="passwordBlurred = true"
@@ -51,7 +51,7 @@
 
       <KSelect
         v-model="kind"
-        :label="$tr('userType')"
+        :label="coreString('userTypeLabel')"
         :options="userKindDropdownOptions"
       />
 
@@ -64,7 +64,7 @@
         />
         <KRadioButton
           v-model="classCoach"
-          :label="$tr('facilityCoachLabel')"
+          :label="coreString('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
           :value="false"
         />
@@ -81,6 +81,7 @@
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import CatchErrors from 'kolibri.utils.CatchErrors';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
@@ -94,6 +95,7 @@
       KTextbox,
       KSelect,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         fullName: '',
@@ -101,7 +103,7 @@
         password: '',
         confirmedPassword: '',
         kind: {
-          label: this.$tr('learner'),
+          label: this.coreString('learnerLabel'),
           value: UserKinds.LEARNER,
         },
         classCoach: true,
@@ -133,7 +135,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.fullName === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -149,10 +151,10 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
           if (!validateUsername(this.username)) {
-            return this.$tr('usernameNotAlphaNumUnderscore');
+            return this.coreString('usernameNotAlphaNumError');
           }
           if (this.usernameAlreadyExists || this.usernameAlreadyExistsError) {
             return this.$tr('usernameAlreadyExists');
@@ -166,7 +168,7 @@
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
           if (this.password === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -177,10 +179,10 @@
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.formSubmitted) {
           if (this.confirmedPassword === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.confirmedPassword !== this.password) {
-            return this.$tr('pwMismatchError');
+            return this.coreString('passwordsMismatchError');
           }
         }
         return '';
@@ -199,15 +201,15 @@
       userKindDropdownOptions() {
         return [
           {
-            label: this.$tr('learner'),
+            label: this.coreString('learnerLabel'),
             value: UserKinds.LEARNER,
           },
           {
-            label: this.$tr('coach'),
+            label: this.coreString('coachLabel'),
             value: UserKinds.COACH,
           },
           {
-            label: this.$tr('admin'),
+            label: this.coreString('adminLabel'),
             value: UserKinds.ADMIN,
           },
         ];
@@ -263,27 +265,12 @@
     },
     $trs: {
       createNewUserHeader: 'Create new user',
-      cancel: 'Cancel',
-      name: 'Full name',
-      username: 'Username',
-      password: 'Password',
       reEnterPassword: 'Re-enter password',
-      userType: 'User type',
-      saveUserButtonLabel: 'Save',
-      learner: 'Learner',
-      coach: 'Coach',
-      admin: 'Admin',
-      coachSelectorHeader: 'Coach type',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachLabel: 'Facility coach',
       facilityCoachDescription: 'Can instruct all classes in your facility',
       usernameAlreadyExists: 'Username already exists',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
-      pwMismatchError: 'Passwords do not match',
-      unknownError: 'Whoops, something went wrong. Try again',
-      loadingConfirmation: 'Loading...',
-      required: 'This field is required',
     },
   };
 

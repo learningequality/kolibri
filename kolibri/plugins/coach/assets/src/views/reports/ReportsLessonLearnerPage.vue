@@ -20,12 +20,12 @@
         <KLabeledIcon icon="person" :label="learner.name" />
       </h1>
 
-      <CoreTable :emptyMessage="coachCommon$tr('activityListEmptyState')">
+      <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('titleLabel') }}</th>
-            <th>{{ coachCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('timeSpentLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('timeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -61,13 +61,14 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsLessonLearnerPage',
     components: {},
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -104,9 +105,7 @@
         return undefined;
       },
     },
-    $trs: {
-      lessonProgressLabel: "'{lesson}' progress",
-    },
+    $trs: {},
   };
 
 </script>

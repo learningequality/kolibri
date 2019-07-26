@@ -1,19 +1,22 @@
 <template>
 
-  <PageTemplate title="Grid" :completed="false">
+  <PageTemplate :completed="false">
+    <PageSection>
 
-    <h2><code>{{ kGridApi.name }}</code> API</h2>
-    <ComponentDocs :api="kGridApi" />
+      <ComponentDocs :api="kGridApi" />
 
-    <h2><code>{{ kGridItemApi.name }}</code> API</h2>
-    <ComponentDocs :api="kGridItemApi" />
 
-    <h2>Code Example</h2>
-    <VueExample :code="example" />
+      <ComponentDocs :api="kGridItemApi" />
 
-    <h2>Guidelines</h2>
-    <p>use em!</p>
+      <h2>Code Example</h2>
+      <VueExample :code="exampleCode">
+        <Example />
+      </VueExample>
 
+      <h2>Guidelines</h2>
+      <p>use em!</p>
+
+    </PageSection>
   </PageTemplate>
 
 </template>
@@ -21,31 +24,32 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
+  import PageSection from '../../shell/PageTemplate/PageSection';
 
-  import example from 'raw-loader!./example.html';
+  /* eslint-disable import/no-duplicates */
+  import Example from './Example.vue';
+  import exampleCode from '!!raw-loader!./Example.vue';
+  /* eslint-enable import/no-duplicates */
+
   import kGridApi from '!vue-doc!kolibri.coreVue.components.KGrid';
   import kGridItemApi from '!vue-doc!kolibri.coreVue.components.KGridItem';
-
-  FullVue.component('k-grid', KGrid);
-  FullVue.component('k-grid-item', KGridItem);
 
   export default {
     name: 'Grids',
     components: {
       PageTemplate,
+      PageSection,
       ComponentDocs,
       VueExample,
+      Example,
     },
     data: () => ({
       kGridApi,
       kGridItemApi,
-      example,
+      exampleCode,
     }),
   };
 

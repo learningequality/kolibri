@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <title>authorizing...</title>
+</head>
+
+<body style="display:none">
+    <div>
+        <div>
+        <form method="post" action="{% url 'oidc_provider:authorize' %}" id="auth_form">
+            {% csrf_token %}
+            {{ hidden_inputs }}
+        </form>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    const form = document.getElementById("auth_form")
+    const allowInput = document.createElement("input");
+    allowInput.type = "hidden";
+    allowInput.name = "allow";
+    form.appendChild(allowInput);
+    allowInput.value = "Authorize"
+    form.submit()
+
+</script>
+
+</body>
+</html>

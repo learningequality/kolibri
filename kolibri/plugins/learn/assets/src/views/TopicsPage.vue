@@ -89,7 +89,6 @@
     },
     $trs: {
       topics: 'Topics',
-      navigate: 'Navigate content using headings',
       documentTitleForChannel: 'Topics - { channelTitle }',
       documentTitleForTopic: '{ topicTitle } - { channelTitle }',
     },

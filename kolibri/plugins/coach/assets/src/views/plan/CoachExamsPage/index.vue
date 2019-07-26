@@ -14,7 +14,7 @@
       <div class="filter-and-button">
         <KSelect
           v-model="statusSelected"
-          :label="coachCommon$tr('showAction')"
+          :label="coreString('showAction')"
           :options="statusOptions"
           :inline="true"
         />
@@ -22,16 +22,16 @@
           :primary="true"
           appearance="raised-button"
           :to="newExamRoute"
-          :text="coachCommon$tr('newQuizAction')"
+          :text="coachString('newQuizAction')"
         />
       </div>
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('titleLabel') }}</th>
-            <th>{{ coachCommon$tr('recipientsLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
             <th>
-              {{ coachCommon$tr('statusLabel') }}
+              {{ coachString('statusLabel') }}
             </th>
           </tr>
         </thead>
@@ -68,10 +68,16 @@
       <p v-if="!exams.length">
         {{ $tr('noExams') }}
       </p>
-      <p v-else-if="statusSelected.value === $tr('activeExams') && !activeExams.length">
+      <p
+        v-else-if="statusSelected.value === coachString('activeQuizzesLabel') &&
+          !activeExams.length"
+      >
         {{ $tr('noActiveExams') }}
       </p>
-      <p v-else-if=" statusSelected.value === $tr('inactiveExams') && !inactiveExams.length">
+      <p
+        v-else-if=" statusSelected.value === coachString('inactiveQuizzesLabel') &&
+          !inactiveExams.length"
+      >
         {{ $tr('noInactiveExams') }}
       </p>
     </KPageContainer>
@@ -87,6 +93,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
@@ -96,7 +103,7 @@
     name: 'CoachExamsPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.coreString('quizzesLabel'),
       };
     },
     components: {
@@ -107,10 +114,13 @@
       QuizActive,
       KLabeledIcon,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
-        statusSelected: { label: this.$tr('allExams'), value: this.$tr('allExams') },
+        statusSelected: {
+          label: this.coachString('allQuizzesLabel'),
+          value: this.coachString('allQuizzesLabel'),
+        },
       };
     },
     computed: {
@@ -119,9 +129,18 @@
       },
       statusOptions() {
         return [
-          { label: this.$tr('allExams'), value: this.$tr('allExams') },
-          { label: this.$tr('activeExams'), value: this.$tr('activeExams') },
-          { label: this.$tr('inactiveExams'), value: this.$tr('inactiveExams') },
+          {
+            label: this.coachString('allQuizzesLabel'),
+            value: this.coachString('allQuizzesLabel'),
+          },
+          {
+            label: this.coachString('activeQuizzesLabel'),
+            value: this.coachString('activeQuizzesLabel'),
+          },
+          {
+            label: this.coachString('inactiveQuizzesLabel'),
+            value: this.coachString('inactiveQuizzesLabel'),
+          },
         ];
       },
       activeExams() {
@@ -132,9 +151,9 @@
       },
       filteredExams() {
         const filter = this.statusSelected.label;
-        if (filter === this.$tr('activeExams')) {
+        if (filter === this.coachString('activeQuizzesLabel')) {
           return this.activeExams;
-        } else if (filter === this.$tr('inactiveExams')) {
+        } else if (filter === this.coachString('inactiveQuizzesLabel')) {
           return this.inactiveExams;
         }
         return this.sortedExams;
@@ -144,13 +163,9 @@
       },
     },
     $trs: {
-      allExams: 'All quizzes',
-      activeExams: 'Active quizzes',
-      inactiveExams: 'Inactive quizzes',
       noExams: 'You do not have any quizzes',
       noActiveExams: 'No active quizzes',
       noInactiveExams: 'No inactive quizzes',
-      documentTitle: 'Quizzes',
     },
   };
 

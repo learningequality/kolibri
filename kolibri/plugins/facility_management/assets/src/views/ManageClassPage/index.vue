@@ -4,7 +4,7 @@
 
     <KGrid>
       <KGridItem sizes="100, 75, 75" percentage>
-        <h1>{{ $tr('adminClassPageHeader') }}</h1>
+        <h1>{{ coreString('classesLabel') }}</h1>
         <p>{{ $tr('adminClassPageSubheader') }}</p>
       </KGridItem>
       <KGridItem sizes="100, 25, 25" percentage alignment="right">
@@ -23,9 +23,9 @@
       </caption>
       <thead slot="thead">
         <tr>
-          <th>{{ $tr('className') }}</th>
-          <th>{{ $tr('coachesColumnHeader') }}</th>
-          <th>{{ $tr('learnersColumnHeader') }}</th>
+          <th>{{ coreString('classNameLabel') }}</th>
+          <th>{{ coreString('coachesLabel') }}</th>
+          <th>{{ coreString('learnersLabel') }}</th>
           <th>
             <span class="visuallyhidden">
               {{ $tr('actions') }}
@@ -109,6 +109,7 @@
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
   import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { Modals, PageNames } from '../../constants';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
@@ -124,7 +125,7 @@
     name: 'ManageClassPage',
     metaInfo() {
       return {
-        title: this.$tr('adminClassPageHeader'),
+        title: this.coreString('classesLabel'),
       };
     },
     components: {
@@ -139,6 +140,7 @@
       KTooltip,
       KEmptyPlaceholder,
     },
+    mixins: [commonCoreStrings],
     data: () => ({ currentClassDelete: null }),
     computed: {
       ...mapState('classManagement', ['modalShown', 'classes']),
@@ -191,14 +193,10 @@
       },
     },
     $trs: {
-      adminClassPageHeader: 'Classes',
       adminClassPageSubheader: 'View and manage your classes',
       addNew: 'New class',
       deleteClass: 'Delete class',
-      className: 'Class name',
       tableCaption: 'List of classes',
-      learnersColumnHeader: 'Learners',
-      coachesColumnHeader: 'Coaches',
       twoCoachNames: '{name1}, {name2}',
       manyCoachNames: '{name1}, {name2}… (+{numRemaining, number})',
       actions: 'Actions',

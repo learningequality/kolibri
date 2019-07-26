@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('copies')"
-    :submitText="$tr('close')"
+    :submitText="coreString('closeAction')"
     @submit="$emit('submit')"
   >
     <transition mode="out-in">
@@ -48,6 +48,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import sortBy from 'lodash/sortBy';
   import { PageNames } from '../constants';
 
@@ -58,6 +59,7 @@
       KCircularLoader,
       KRouterLink,
     },
+    mixins: [commonCoreStrings],
     props: {
       uniqueId: {
         type: String,
@@ -98,7 +100,6 @@
     },
     $trs: {
       copies: 'Locations',
-      close: 'Close',
     },
   };
 

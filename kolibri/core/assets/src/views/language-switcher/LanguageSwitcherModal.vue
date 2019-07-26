@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('changeLanguageModalHeader')"
-    :submitText="$tr('confirmButtonText')"
-    :cancelText="$tr('cancelButtonText')"
+    :submitText="coreString('confirmAction')"
+    :cancelText="coreString('cancelAction')"
     @cancel="$emit('cancel')"
     @submit="setLang"
   >
@@ -41,6 +41,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import languageSwitcherMixin from './mixin';
 
   export default {
@@ -51,7 +52,7 @@
       KGridItem,
       KRadioButton,
     },
-    mixins: [languageSwitcherMixin, responsiveWindow],
+    mixins: [commonCoreStrings, languageSwitcherMixin, responsiveWindow],
     data() {
       return {
         selectedLanguage: currentLanguage,
@@ -72,8 +73,6 @@
     },
     $trs: {
       changeLanguageModalHeader: 'Change language',
-      cancelButtonText: 'Cancel',
-      confirmButtonText: 'Confirm',
     },
   };
 

@@ -5,8 +5,15 @@
     @submit.prevent="search"
     @keydown.esc.prevent="handleEscKey"
   >
-    <div class="search-box-row" :style="{ backgroundColor: $themeTokens.surface }">
-      <label class="visuallyhidden" for="searchfield">{{ coachCommon$tr('searchLabel') }}</label>
+    <div
+      class="search-box-row"
+      :style="{
+        backgroundColor: $themeTokens.surface,
+        borderColor: $themeColors.palette.grey.v_300,
+        fontSize: '16px',
+      }"
+    >
+      <label class="visuallyhidden" for="searchfield">{{ coreString('searchLabel') }}</label>
       <input
         id="searchfield"
         ref="searchInput"
@@ -15,7 +22,7 @@
         class="search-input"
         :class="$computedClass(searchInputStyle)"
         dir="auto"
-        :placeholder="coachCommon$tr('searchLabel')"
+        :placeholder="coreString('searchLabel')"
       >
       <div class="search-buttons-wrapper">
         <UiIconButton
@@ -25,7 +32,7 @@
           :class="searchQuery === '' ? '' : 'search-clear-button-visible'"
           :style="{ color: $themeTokens.text }"
           :ariaLabel="$tr('clearButtonLabel')"
-          @click="searchQuery = ''"
+          @click="handleClickClear"
         >
           <mat-svg
             name="clear"
@@ -92,12 +99,13 @@
         />
         <KSelect
           ref="channelFilter"
-          :label="coachCommon$tr('channelsLabel')"
+          :label="coreString('channelsLabel')"
           :options="channelFilterOptions"
           :inline="true"
           :disabled="!channelFilterOptions.length"
           :value="channelFilterSelection"
           class="filter"
+          :style="channelFilterStyle"
           @change="updateFilter"
         />
       </div>
@@ -109,13 +117,14 @@
 
 <script>
 
+  import maxBy from 'lodash/maxBy';
   import { mapGetters, mapState } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import KSelect from 'kolibri.coreVue.components.KSelect';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
-  import { learnStringsMixin } from './commonLearnStrings';
 
   const ALL_FILTER = null;
 
@@ -134,7 +143,7 @@
       UiIconButton,
       KSelect,
     },
-    mixins: [themeMixin, learnStringsMixin],
+    mixins: [themeMixin, commonCoreStrings],
     props: {
       icon: {
         type: String,
@@ -166,8 +175,18 @@
         'kindFilter',
         'channelFilter',
       ]),
+      channelFilterStyle() {
+        const longestChannelName = maxBy(
+          this.channelFilterOptions,
+          channel => channel.label.length
+        );
+        // Adjust the width based on the longest channel name
+        return {
+          width: `${longestChannelName.label.length * 10}px`,
+        };
+      },
       allFilter() {
-        return { label: this.$tr('all'), value: ALL_FILTER };
+        return { label: this.coreString('allLabel'), value: ALL_FILTER };
       },
       contentKindFilterOptions() {
         if (this.content_kinds.length) {
@@ -234,6 +253,10 @@
           this.searchQuery = '';
         }
       },
+      handleClickClear() {
+        this.searchQuery = '';
+        this.$refs.searchInput.focus();
+      },
       updateFilter() {
         this.search(true);
       },
@@ -261,7 +284,6 @@
       clearButtonLabel: 'Clear',
       startSearchButtonLabel: 'Start search',
       resourceType: 'Type',
-      all: 'All',
       topics: 'Topics',
       exercises: 'Exercises',
       videos: 'Videos',
@@ -276,6 +298,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .search-box {
     margin-right: 8px;
   }
@@ -288,6 +312,9 @@
     display: table;
     width: 100%;
     max-width: 450px;
+    overflow: hidden;
+    border: solid 1px;
+    border-radius: $radius;
   }
 
   .search-input {

@@ -5,8 +5,8 @@
     <CoreTable :emptyMessage="emptyMessage">
       <thead slot="thead">
         <tr>
-          <th>{{ $tr('fullName') }}</th>
-          <th>{{ $tr('username') }}</th>
+          <th>{{ coreString('fullNameLabel') }}</th>
+          <th>{{ coreString('usernameLabel') }}</th>
           <th></th>
         </tr>
       </thead>
@@ -55,6 +55,7 @@
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UserGrid',
@@ -64,6 +65,7 @@
       CoreTable,
       KLabeledIcon,
     },
+    mixins: [commonCoreStrings],
     props: {
       filterText: {
         type: String,
@@ -111,8 +113,6 @@
     $trs: {
       viewPermissions: 'View Permissions',
       editPermissions: 'Edit Permissions',
-      fullName: 'Full name',
-      username: 'Username',
       noUsersMatching: 'No users matching "{searchFilter}"',
       you: 'You',
     },

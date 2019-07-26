@@ -12,7 +12,7 @@
         <div class="close-container cell">
           <UiIconButton
             size="small"
-            :ariaLabel="$tr('close')"
+            :ariaLabel="coreString('closeAction')"
             @click="$emit('close')"
           >
             <mat-svg name="close" category="navigation" />
@@ -29,6 +29,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
@@ -36,10 +37,8 @@
     components: {
       UiIconButton,
     },
-    mixins: [themeMixin],
-    $trs: {
-      close: 'Close',
-    },
+    mixins: [commonCoreStrings, themeMixin],
+    $trs: {},
   };
 
 </script>

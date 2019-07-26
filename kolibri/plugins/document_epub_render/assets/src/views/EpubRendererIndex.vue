@@ -14,7 +14,7 @@
 
     <div
       class="epub-renderer-content"
-      :dir="dir"
+      :dir="contentDirection"
       @mousedown.stop="handleMouseDown"
       @keyup.esc="closeSideBar"
     >
@@ -102,8 +102,8 @@
           <PreviousButton
             v-show="!isAtStart"
             :color="navigationButtonColor"
+            :isRtl="contentIsRtl"
             :style="{backgroundColor}"
-            :isRtl="isRtl"
             @goToPreviousPage="goToPreviousPage"
           />
         </div>
@@ -119,8 +119,8 @@
           <NextButton
             v-show="!isAtEnd"
             :color="navigationButtonColor"
+            :isRtl="contentIsRtl"
             :style="{backgroundColor}"
-            :isRtl="isRtl"
             @goToNextPage="goToNextPage"
           />
         </div>
@@ -156,7 +156,6 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
-  import { getContentLangDir } from 'kolibri.utils.i18n';
   import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
   import LoadingError from './LoadingError';
@@ -335,12 +334,6 @@
         const seconds = (numberOfWords * 60) / WORDS_PER_MINUTE;
         return seconds;
       },
-      dir() {
-        return getContentLangDir(this.lang);
-      },
-      isRtl() {
-        return this.dir === 'rtl';
-      },
     },
     watch: {
       sideBarOpen(newSideBar, oldSideBar) {
@@ -374,7 +367,7 @@
     },
     created() {
       // Try to load the appropriate directional CSS for the particular content
-      this.cssPromise = this.$options.contentModule.loadDirectionalCSS(this.dir);
+      this.cssPromise = this.$options.contentModule.loadDirectionalCSS(this.contentDirection);
     },
     beforeMount() {
       global.ePub = Epub;

@@ -3,7 +3,7 @@
   <div>
     <KGrid>
       <KGridItem sizes="100, 50, 50" percentage>
-        <h1>{{ $tr('users') }}</h1>
+        <h1>{{ coreString('usersLabel') }}</h1>
       </KGridItem>
       <KGridItem sizes="100, 50, 50" percentage align="right">
         <KButton
@@ -24,7 +24,7 @@
       <template v-slot:otherFilter>
         <KSelect
           v-model="roleFilter"
-          :label="$tr('filterUserType')"
+          :label="coreString('userTypeLabel')"
           :options="userKinds"
           :inline="true"
           class="type-filter"
@@ -89,6 +89,7 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
@@ -104,7 +105,7 @@
     name: 'UserPage',
     metaInfo() {
       return {
-        title: this.$tr('userPageTitle'),
+        title: this.coreString('usersLabel'),
       };
     },
     components: {
@@ -120,6 +121,7 @@
       UserTable,
       PaginatedListContainer,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         roleFilter: null,
@@ -132,9 +134,9 @@
       Modals: () => Modals,
       userKinds() {
         return [
-          { label: this.$tr('allUsers'), value: ALL_FILTER },
-          { label: this.$tr('learners'), value: UserKinds.LEARNER },
-          { label: this.$tr('coaches'), value: UserKinds.COACH },
+          { label: this.coreString('allLabel'), value: ALL_FILTER },
+          { label: this.coreString('learnersLabel'), value: UserKinds.LEARNER },
+          { label: this.coreString('coachesLabel'), value: UserKinds.COACH },
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
         ];
       },
@@ -176,10 +178,10 @@
       },
       manageUserOptions(userId) {
         return [
-          { label: this.$tr('editUser'), value: Modals.EDIT_USER },
+          { label: this.coreString('editDetailsAction'), value: Modals.EDIT_USER },
           { label: this.$tr('resetUserPassword'), value: Modals.RESET_USER_PASSWORD },
           {
-            label: this.$tr('deleteUser'),
+            label: this.coreString('deleteAction'),
             value: Modals.DELETE_USER,
             disabled: userId === this.currentUserId,
           },
@@ -196,27 +198,13 @@
       },
     },
     $trs: {
-      filterUserType: 'User type',
       searchText: 'Search for a user…',
-      allUsers: 'All',
       admins: 'Admins',
-      coaches: 'Coaches',
-      learners: 'Learners',
       newUserButtonLabel: 'New User',
-      userCountLabel: '{userCount} users',
-      fullName: 'Full name',
-      users: 'Users',
-      role: 'Role',
-      username: 'Username',
-      edit: 'Edit',
       noUsersExist: 'No users exist',
       allUsersFilteredOut: "No users match the filter: '{filterText}'",
       optionsButtonLabel: 'Options',
-      editUser: 'Edit details',
       resetUserPassword: 'Reset password',
-      deleteUser: 'Delete',
-      userActions: 'User management actions',
-      userPageTitle: 'Users',
     },
   };
 

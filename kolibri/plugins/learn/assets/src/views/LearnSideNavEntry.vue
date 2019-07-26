@@ -1,7 +1,7 @@
 <template>
 
   <CoreMenuOption
-    :label="$tr('learn')"
+    :label="learnString('learnLabel')"
     :link="url"
   >
     <mat-svg
@@ -19,15 +19,15 @@
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
+  import commonLearnStrings from './commonLearnStrings';
 
   const component = {
     name: 'LearnSideNavEntry',
+    mixins: [commonLearnStrings],
     components: {
       CoreMenuOption,
     },
-    $trs: {
-      learn: 'Learn',
-    },
+    $trs: {},
     computed: {
       url() {
         return urls['kolibri:learn:learn']();

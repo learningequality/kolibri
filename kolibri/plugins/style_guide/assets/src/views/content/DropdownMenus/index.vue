@@ -1,14 +1,16 @@
 <template>
 
-  <PageTemplate title="Dropdown Menus" :completed="false">
+  <PageTemplate :completed="false">
 
-    <h2><code>{{ kDropdownMenuApi.name }}</code> API</h2>
-    <ComponentDocs :api="kDropdownMenuApi" />
+    <PageSection title="API" anchor="#api">
+      <ComponentDocs :api="kDropdownMenuApi" />
+    </PageSection>
 
-    <h2>Code Example</h2>
-    <VueExample :code="example" />
-
-    <h2>Guidelines</h2>
+    <PageSection title="Code example" anchor="#example" fullwidth>
+      <VueExample :code="exampleCode">
+        <Example />
+      </VueExample>
+    </PageSection>
 
   </PageTemplate>
 
@@ -17,27 +19,30 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
+  import PageSection from '../../shell/PageTemplate/PageSection';
 
-  import example from 'raw-loader!./example.html';
+  /* eslint-disable import/no-duplicates */
+  import Example from './Example.vue';
+  import exampleCode from '!!raw-loader!./Example.vue';
+  /* eslint-enable import/no-duplicates */
+
   import kDropdownMenuApi from '!vue-doc!kolibri.coreVue.components.KDropdownMenu';
-
-  FullVue.component('k-dropdown-menu', KDropdownMenu);
 
   export default {
     name: 'DropdownMenus',
     components: {
       PageTemplate,
+      PageSection,
       ComponentDocs,
       VueExample,
+      Example,
     },
     data: () => ({
       kDropdownMenuApi,
-      example,
+      exampleCode,
     }),
   };
 

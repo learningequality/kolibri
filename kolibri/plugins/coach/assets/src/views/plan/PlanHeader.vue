@@ -12,15 +12,15 @@
     <p>{{ $tr('planYourClassDescription') }}</p>
     <HeaderTabs>
       <HeaderTab
-        :text="coachCommon$tr('lessonsLabel')"
+        :text="coreString('lessonsLabel')"
         :to="classRoute(LessonsPageNames.PLAN_LESSONS_ROOT)"
       />
       <HeaderTab
-        :text="coachCommon$tr('quizzesLabel')"
+        :text="coreString('quizzesLabel')"
         :to="classRoute(PageNames.EXAMS)"
       />
       <HeaderTab
-        :text="coachCommon$tr('groupsLabel')"
+        :text="coachString('groupsLabel')"
         :to="classRoute('GroupsPage')"
       />
     </HeaderTabs>
@@ -32,13 +32,14 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { LessonsPageNames } from '../../constants/lessonsConstants';
 
   export default {
     name: 'PlanHeader',
     components: {},
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       ...mapGetters(['classListPageEnabled']),
       LessonsPageNames() {
@@ -46,7 +47,6 @@
       },
     },
     $trs: {
-      back: 'All classes',
       planYourClassLabel: 'Plan your class',
       planYourClassDescription: 'Create and manage your lessons, quizzes, and groups',
       home: 'Class Home',

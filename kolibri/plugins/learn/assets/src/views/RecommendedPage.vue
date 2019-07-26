@@ -3,7 +3,7 @@
   <div>
 
     <h1 class="visuallyhidden">
-      {{ $tr('recommended') }}
+      {{ learnString('recommendedLabel') }}
     </h1>
 
     <template v-if="popular.length">
@@ -44,7 +44,7 @@
 
     <template v-if="resume.length">
       <ContentCardGroupHeader
-        :header="$tr('resumeSectionHeader')"
+        :header="learnString('recommendedLabel')"
         :viewMorePageLink="resumePageLink"
         :showViewMore="resume.length > trimmedResume.length"
       />
@@ -71,6 +71,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
+  import commonLearnStrings from './commonLearnStrings';
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import ContentCardGroupHeader from './ContentCardGroupHeader';
@@ -82,7 +83,7 @@
     name: 'RecommendedPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.learnString('learnLabel'),
       };
     },
     components: {
@@ -90,7 +91,7 @@
       ContentCardGroupGrid,
       ContentCardGroupHeader,
     },
-    mixins: [responsiveWindow],
+    mixins: [commonLearnStrings, responsiveWindow],
     computed: {
       ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       carouselLimit() {
@@ -133,11 +134,8 @@
       },
     },
     $trs: {
-      recommended: 'Recommended',
       popularSectionHeader: 'Most popular',
       suggestedNextStepsSectionHeader: 'Next steps',
-      resumeSectionHeader: 'Resume',
-      documentTitle: 'Learn',
     },
   };
 

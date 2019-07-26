@@ -21,7 +21,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 from jsonfield import JSONField
-from morango.query import SyncableModelQuerySet
+from morango.models import SyncableModelQuerySet
 
 from .permissions import AnyoneCanWriteAnonymousLogs
 from kolibri.core.auth.constants import role_kinds
@@ -278,7 +278,7 @@ class AttemptLog(BaseAttemptLog):
     sessionlog = models.ForeignKey(ContentSessionLog, related_name="attemptlogs")
 
     def infer_dataset(self, *args, **kwargs):
-        return self.sessionlog.dataset_id
+        return self.cached_related_dataset_lookup("sessionlog")
 
 
 class ExamLog(BaseLogModel):
@@ -321,7 +321,7 @@ class ExamAttemptLog(BaseAttemptLog):
     content_id = UUIDField()
 
     def infer_dataset(self, *args, **kwargs):
-        return self.examlog.dataset_id
+        return self.cached_related_dataset_lookup("examlog")
 
     def calculate_partition(self):
         return self.dataset_id

@@ -10,7 +10,7 @@
     <KTextbox
       ref="name"
       v-model="name"
-      :label="$tr('adminNameFieldLabel')"
+      :label="coreString('fullNameLabel')"
       :autofocus="true"
       autocomplete="name"
       :maxlength="120"
@@ -21,7 +21,7 @@
     <KTextbox
       ref="username"
       v-model="username"
-      :label="$tr('adminUsernameFieldLabel')"
+      :label="coreString('usernameLabel')"
       type="username"
       autocomplete="username"
       :maxlength="30"
@@ -32,7 +32,7 @@
     <KTextbox
       ref="password"
       v-model="password"
-      :label="$tr('adminPasswordFieldLabel')"
+      :label="coreString('passwordLabel')"
       type="password"
       autocomplete="new-password"
       :invalid="passwordIsInvalid"
@@ -67,6 +67,7 @@
   import { mapMutations } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import OnboardingForm from './OnboardingForm';
 
   export default {
@@ -75,6 +76,7 @@
       OnboardingForm,
       KTextbox,
     },
+    mixins: [commonCoreStrings],
     props: {
       submitText: {
         type: String,
@@ -107,7 +109,7 @@
           return this.$tr('usernameFieldEmptyErrorMessage');
         }
         if (!validateUsername(this.username)) {
-          return this.$tr('usernameCharacterErrorMessage');
+          return this.coreString('usernameNotAlphaNumError');
         }
         return '';
       },
@@ -122,7 +124,7 @@
           return this.$tr('passwordFieldEmptyErrorMessage');
         }
         if (this.passwordConfirm !== this.password) {
-          return this.$tr('passwordsMismatchErrorMessage');
+          return this.coreString('passwordsMismatchError');
         }
         return '';
       },
@@ -179,20 +181,13 @@
       adminAccountCreationHeader: 'Create super admin account',
       adminAccountCreationDescription:
         'This account allows you to manage the facility, content, and user accounts on this device',
-      adminNameFieldLabel: 'Full name',
-      adminUsernameFieldLabel: 'Username',
-      adminPasswordFieldLabel: 'Password',
       adminPasswordConfirmationFieldLabel: 'Enter password again',
       rememberThisAccountInformation:
         'Important: please remember this account information. Write it down if needed',
       // error messages
       nameFieldEmptyErrorMessage: 'Full name cannot be empty',
       usernameFieldEmptyErrorMessage: 'Username cannot be empty',
-      usernameCharacterErrorMessage: 'Username can only contain letters, numbers, and underscores',
       passwordFieldEmptyErrorMessage: 'Password cannot be empty',
-      passwordsMismatchErrorMessage: 'Passwords do not match',
-      facilityFieldEmptyErrorMessage: 'Facility cannot be empty',
-      setupProgressFeedback: 'Setting up your device...',
     },
   };
 

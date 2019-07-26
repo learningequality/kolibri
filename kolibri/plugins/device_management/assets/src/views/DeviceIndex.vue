@@ -3,7 +3,7 @@
   <CoreBase
     :appBarTitle="currentPageAppBarTitle"
     :immersivePage="currentPageIsImmersive"
-    :immersivePagePrimary="true"
+    :immersivePagePrimary="immersivePagePrimary"
     :immersivePageRoute="immersivePageRoute"
     :immersivePageIcon="immersivePageIcon"
     :toolbarTitle="currentPageAppBarTitle"
@@ -74,7 +74,19 @@
         return pageNameComponentMap[this.pageName];
       },
       currentPageAppBarTitle() {
-        return this.appBarTitle || this.$tr('deviceManagementTitle');
+        if (this.pageName === PageNames.USER_PERMISSIONS_PAGE) {
+          return this.$tr('permissionsLabel');
+        } else {
+          return this.appBarTitle || this.$tr('deviceManagementTitle');
+        }
+      },
+      immersivePagePrimary() {
+        // When the icon is an arrow, it should true for Primary with one
+        // exception: The SELECT_CONTENT page.
+        return (
+          this.immersivePageIcon === 'arrow_back' &&
+          this.pageName !== ContentWizardPages.SELECT_CONTENT
+        );
       },
     },
     watch: {
@@ -111,9 +123,9 @@
       },
     },
     $trs: {
-      availableChannelsTitle: 'Available Channels',
       deviceManagementTitle: 'Device',
       selectContentTitle: 'Select Content',
+      permissionsLabel: 'Permissions',
     },
   };
 

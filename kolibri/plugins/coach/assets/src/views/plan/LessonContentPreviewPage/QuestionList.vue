@@ -65,7 +65,6 @@
     },
     $trs: {
       questionListHeader: '{numOfQuestions, number} Questions',
-      questionLabel: 'Question { questionNumber, number }',
     },
   };
 

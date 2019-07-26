@@ -1,13 +1,16 @@
 <template>
 
   <Block
-    :allLinkText="$tr('viewAll')"
+    :allLinkText="coachString('viewAllAction')"
     :allLinkRoute="classRoute('ReportsLessonListPage', {})"
   >
-    <KLabeledIcon slot="title" icon="lesson" :label="coachCommon$tr('lessonsLabel')" />
+    <KLabeledIcon slot="title">
+      <KIcon slot="icon" lesson />
+      {{ coreString('lessonsLabel') }}
+    </KLabeledIcon>
 
     <p v-if="table.length === 0">
-      {{ coachCommon$tr('lessonListEmptyState') }}
+      {{ coachString('lessonListEmptyState') }}
     </p>
 
     <BlockItem
@@ -31,6 +34,7 @@
 <script>
 
   import orderBy from 'lodash/orderBy';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import Block from './Block';
   import BlockItem from './BlockItem';
@@ -45,7 +49,7 @@
       Block,
       BlockItem,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       table() {
         const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);
@@ -77,10 +81,7 @@
         return last;
       },
     },
-    $trs: {
-      viewAllLessons: 'All lessons',
-      viewAll: 'View all',
-    },
+    $trs: {},
   };
 
 </script>

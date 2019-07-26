@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('editUserDetailsHeader')"
-    :submitText="$tr('save')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreString('saveAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="isBusy"
     @submit="submitForm"
     @cancel="$emit('cancel')"
@@ -12,7 +12,7 @@
       ref="name"
       v-model="newName"
       type="text"
-      :label="$tr('fullName')"
+      :label="coreString('fullNameLabel')"
       :autofocus="true"
       :maxlength="120"
       :invalid="nameIsInvalid"
@@ -24,7 +24,7 @@
       ref="username"
       v-model="newUsername"
       type="text"
-      :label="$tr('username')"
+      :label="coreString('usernameLabel')"
       :maxlength="30"
       :invalid="usernameIsInvalid"
       :invalidText="usernameIsInvalidText"
@@ -34,7 +34,7 @@
 
     <template v-if="editingSuperAdmin">
       <h2 class="user-type header">
-        {{ $tr('userType') }}
+        {{ coreString('userTypeLabel') }}
       </h2>
 
       <UserTypeDisplay
@@ -54,7 +54,7 @@
     <template v-else>
       <KSelect
         v-model="typeSelected"
-        :label="$tr('userType')"
+        :label="coreString('userTypeLabel')"
         :options="userTypeOptions"
       />
 
@@ -67,7 +67,7 @@
         />
         <KRadioButton
           v-model="classCoachIsSelected"
-          :label="$tr('facilityCoachLabel')"
+          :label="coreString('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
           :value="false"
         />
@@ -85,6 +85,7 @@
   import urls from 'kolibri.urls';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
@@ -103,6 +104,7 @@
       KExternalLink,
       UserTypeDisplay,
     },
+    mixins: [commonCoreStrings],
     props: {
       id: {
         type: String,
@@ -140,15 +142,15 @@
       userTypeOptions() {
         return [
           {
-            label: this.$tr('learner'),
+            label: this.coreString('learnerLabel'),
             value: UserKinds.LEARNER,
           },
           {
-            label: this.$tr('coach'),
+            label: this.coreString('coachLabel'),
             value: UserKinds.COACH,
           },
           {
-            label: this.$tr('admin'),
+            label: this.coreString('adminLabel'),
             value: UserKinds.ADMIN,
           },
         ];
@@ -156,7 +158,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred) {
           if (this.newName === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -183,13 +185,13 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred) {
           if (this.newUsername === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.usernameAlreadyExists) {
             return this.$tr('usernameAlreadyExists');
           }
           if (!validateUsername(this.newUsername)) {
-            return this.$tr('usernameNotAlphaNumUnderscore');
+            return this.coreString('usernameNotAlphaNumError');
           }
         }
         return '';
@@ -282,19 +284,9 @@
     },
     $trs: {
       editUserDetailsHeader: 'Edit user details',
-      fullName: 'Full name',
-      username: 'Username',
-      userType: 'User type',
-      admin: 'Admin',
-      coach: 'Coach',
-      learner: 'Learner',
-      save: 'Save',
-      cancel: 'Cancel',
-      required: 'This field is required',
       usernameAlreadyExists: 'Username already exists',
       changeInDeviceTabPrompt: 'Go to Device permissions to change this',
       viewInDeviceTabPrompt: 'View details in Device permissions',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachLabel: 'Facility coach',

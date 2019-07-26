@@ -9,7 +9,7 @@
     <h1 v-if="status === ''" class="spec-ref-title">
       <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
       <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
-      <span v-else>{{ $tr('channels') }}</span>
+      <span v-else>{{ coreString('channelsLabel') }}</span>
     </h1>
 
     <KGrid v-if="channelsAreAvailable" class="top-matter">
@@ -65,7 +65,7 @@
     <!-- Similar code in channels-grid -->
     <div v-if="channelsAreAvailable">
       <div class="channel-list-header" :style="{ color: $themeTokens.annotation }">
-        {{ $tr('channelHeader') }}
+        {{ coreString('channelsLabel') }}
       </div>
 
       <div class="channels-list">
@@ -101,6 +101,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import uniqBy from 'lodash/uniqBy';
   import ChannelListItem from '../ManageContentPage/ChannelListItem';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
@@ -128,7 +129,7 @@
       KLinearLoader,
       KSelect,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [commonCoreStrings, responsiveWindow, themeMixin],
     data() {
       return {
         languageFilter: {},
@@ -202,6 +203,7 @@
     },
     beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
+      this.setQuery(this.$route.query);
       if (this.status) {
         this.setAppBarTitle(this.$tr('pageLoadError'));
       } else {
@@ -211,6 +213,7 @@
     methods: {
       ...mapMutations('coreBase', {
         setAppBarTitle: 'SET_APP_BAR_TITLE',
+        setQuery: 'SET_QUERY',
       }),
       toolbarTitle(transferType) {
         switch (transferType) {
@@ -263,8 +266,6 @@
       allLanguages: 'All languages',
       channelsAvailable:
         '{channels, number, integer} {channels, plural, one {channel} other {channels} } available',
-      channelHeader: 'Channels',
-      channels: 'Channels',
       exportToDisk: 'Export to {driveName}',
       importFromDisk: 'Import from {driveName}',
       importFromPeer: 'Import from {deviceName} ({address})',
