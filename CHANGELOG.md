@@ -2,12 +2,13 @@
 
 List of the most important changes for each release.
 
-## 0.12.6
+## 0.12.7
 
-### Changed or Fixed
+(Note: 0.12.6 contained a regression and was superseded by 0.12.7)
+
+### Changed or fixed
 
 - Facility user table is now paginated to improve performance for facilities with large numbers of users.
-- Fixed an issue where images in exercises would occasionally not be displayed.
 - Various usability and visual improvements, including improved layout when using a RTL language
 - On Windows, `kolibri.exe` is automatically added to the path in the command prompt
 - Improved system clean-up when uninstalling on Windows
@@ -16,6 +17,8 @@ List of the most important changes for each release.
 ### Internationalization and localization
 
 - Added Latin American Spanish (ES-419)
+
+([0.12.7 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.7))
 
 ([0.12.6 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.6))
 
