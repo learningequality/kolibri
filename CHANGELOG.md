@@ -2,6 +2,10 @@
 
 List of the most important changes for each release.
 
+## 0.12.7
+
+- Backed out change related to images in exercises due to regression
+
 ## 0.12.6
 
 ### Changed or Fixed
