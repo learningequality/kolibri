@@ -97,6 +97,7 @@
     <PrivacyInfoModal
       v-if="privacyModalVisible"
       @cancel="privacyModalVisible = false"
+      @submit="privacyModalVisible = false"
     />
 
   </div>
