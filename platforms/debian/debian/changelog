@@ -1,3 +1,33 @@
+kolibri-source (0.12.7-0ubuntu1) trusty; urgency=medium
+
+  * Kolibri v0.12.7 is released! Read the changes here: https://github.com/learningequality/kolibri/blob/v0.12.7/CHANGELOG.md#0127
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Mon, 29 Jul 2019 12:44:36 -0400
+
+kolibri-source (0.12.6-0ubuntu1) trusty; urgency=medium
+
+  * Kolibri v0.12.6 is released! Read the changes here: https://github.com/learningequality/kolibri/blob/v0.12.6/CHANGELOG.md#0126
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Fri, 26 Jul 2019 18:57:00 -0400
+
+kolibri-source (0.12.5-0ubuntu2) trusty; urgency=medium
+
+  * debian/rules: remove morango python 2 syntax file 
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Fri, 21 Jun 2019 12:55:53 -0400
+
+kolibri-source (0.12.5-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Thu, 20 Jun 2019 23:27:49 -0400
+
+kolibri-source (0.12.4-0ubuntu1) bionic; urgency=low
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 12 Jun 2019 20:25:59 +0200
+
 kolibri-source (0.12.4~b7-0ubuntu2) bionic; urgency=medium
 
   * New upstream pre-release
