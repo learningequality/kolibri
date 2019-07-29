@@ -4,13 +4,11 @@
     <KTextbox
       ref="password"
       :value="value"
-      :autofocus="$attrs.autofocus"
       type="password"
-      :disabled="$attrs.disabled"
       :label="coreString('passwordLabel')"
       :invalid="Boolean(shownPasswordInvalidText)"
       :invalidText="shownPasswordInvalidText"
-      :autocomplete="$attrs.autocomplete"
+      v-bind="$attrs"
       @blur="passwordBlurred = true"
       @input="$emit('update:value', $event)"
     />

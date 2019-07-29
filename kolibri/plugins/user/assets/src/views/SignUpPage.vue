@@ -13,16 +13,17 @@
         <div v-show="atFirstStep">
           <FullNameTextbox
             ref="fullNameTextbox"
+            autocomplete="name"
             :value.sync="name"
             :isValid.sync="nameValid"
             :autofocus="true"
-            :shouldValidate="false"
-            autocomplete="name"
+            :shouldValidate="formSubmitted"
             :disabled="busy"
           />
 
           <UsernameTextbox
             ref="usernameTextbox"
+            autocomplete="username"
             :value.sync="username"
             :isValid.sync="usernameValid"
             :shouldValidate="formSubmitted"
@@ -32,6 +33,7 @@
 
           <PasswordTextbox
             ref="passwordTextbox"
+            autocomplete="new-password"
             :value.sync="password"
             :isValid.sync="passwordValid"
             :shouldValidate="formSubmitted"
