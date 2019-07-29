@@ -6,6 +6,7 @@ import zipfile
 from bs4 import BeautifulSoup
 from django.test import Client
 from django.test import TestCase
+from le_utils.constants import exercises
 from mock import patch
 
 from ..models import LocalFile
@@ -42,6 +43,10 @@ class ZipContentTestCase(TestCase):
     test_str_1 = "This is a test!"
     test_name_2 = "testfile2.txt"
     test_str_2 = "And another test..."
+    test_name_3 = "testfile3.json"
+    test_str_3 = "A test of image placeholder replacement ${placeholder}".format(
+        placeholder=exercises.IMG_PLACEHOLDER
+    )
 
     def setUp(self):
 
@@ -66,6 +71,7 @@ class ZipContentTestCase(TestCase):
             zf.writestr(self.empty_html_name, self.empty_html_str)
             zf.writestr(self.test_name_1, self.test_str_1)
             zf.writestr(self.test_name_2, self.test_str_2)
+            zf.writestr(self.test_name_3, self.test_str_3)
 
         self.zip_file_obj = LocalFile(
             id=self.hash, extension=self.extension, available=True
@@ -159,6 +165,30 @@ class ZipContentTestCase(TestCase):
             HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval,
         )
         self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
+
+    def test_json_image_replacement_http_referer_header(self, filename_patch):
+        server_name = "http://testserver"
+        response = self.client.get(
+            self.zip_file_base_url + self.test_name_3, HTTP_REFERER=server_name
+        )
+        self.assertEqual(
+            response.content.decode("utf-8"),
+            self.test_str_3.replace(
+                "$" + exercises.IMG_PLACEHOLDER,
+                (server_name.replace("http:", "") + self.zip_file_base_url),
+            ).strip("/"),
+        )
+
+    def test_json_image_replacement_no_http_referer_header(self, filename_patch):
+        server_name = "http://testserver"
+        response = self.client.get(self.zip_file_base_url + self.test_name_3)
+        self.assertEqual(
+            response.content.decode("utf-8"),
+            self.test_str_3.replace(
+                "$" + exercises.IMG_PLACEHOLDER,
+                (server_name.replace("http:", "") + self.zip_file_base_url),
+            ).strip("/"),
+        )
 
     def test_request_for_html_no_head_return_hashi_modified_html(self, filename_patch):
         response = self.client.get(self.zip_file_base_url)
