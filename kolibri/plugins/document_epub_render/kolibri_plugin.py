@@ -12,5 +12,4 @@ class DocumentEPUBRenderPlugin(KolibriPluginBase):
 
 class DocumentEPUBRenderAsset(content_hooks.ContentRendererHook):
     unique_slug = "document_epub_render_module"
-    src_file = "assets/src/module.js"
     content_types_file = "content_types.json"

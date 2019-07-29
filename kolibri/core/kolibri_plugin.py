@@ -9,12 +9,10 @@ from kolibri.core.webpack.hooks import WebpackBundleHook
 
 class FrontEndCoreAppAssetHook(FrontEndCoreAssetHook):
     unique_slug = "default_frontend"
-    src_file = "assets/src/core-app"
 
 
 class FrontEndUserAgentAssetHook(WebpackBundleHook):
     unique_slug = "user_agent"
-    src_file = "assets/src/userAgentCheck.js"
     inline = True
 
 

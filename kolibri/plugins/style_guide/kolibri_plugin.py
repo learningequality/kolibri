@@ -13,7 +13,6 @@ class StyleGuide(KolibriPluginBase):
 
 class StyleGuideAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "style_guide_module"
-    src_file = "assets/src/app.js"
 
 
 class StyleGuideInclusionHook(hooks.StyleGuideSyncHook):

@@ -20,7 +20,6 @@ class DeviceManagementPlugin(KolibriPluginBase):
 
 class DeviceManagementAsset(WebpackBundleHook):
     unique_slug = "device_management_module"
-    src_file = "assets/src/app.js"
 
 
 class DeviceManagementInclusionHook(DeviceManagementSyncHook):
@@ -40,4 +39,3 @@ class DeviceFirstTimeRedirect(RoleBasedRedirectHook):
 
 class DeviceManagementNavItem(NavigationHook, WebpackBundleHook):
     unique_slug = "device_management_side_nav"
-    src_file = "assets/src/views/DeviceManagementSideNavEntry.vue"

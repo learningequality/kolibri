@@ -5,6 +5,42 @@ const temp = require('temp').track();
 
 const webpack_json = path.resolve(path.dirname(__filename), './webpack_json.py');
 
+function parseConfig(webpackConfig, pythonData) {
+  // Set the main entry for this module, set the name based on the data.name and the path to the
+  // entry file from the data.src_file
+  const uniqueSlug = webpackConfig.unique_slug;
+  const pluginPath = pythonData.plugin_path;
+  delete webpackConfig.unique_slug;
+  if (typeof webpackConfig.entry === 'string') {
+    webpackConfig.entry = {
+      [uniqueSlug]: path.join(pluginPath, webpackConfig.entry),
+    };
+  } else {
+    Object.keys(webpackConfig.entry).forEach(key => {
+      function makePathAbsolute(entryPath) {
+        if (entryPath.startsWith('./') || entryPath.startsWith('../')) {
+          return path.join(pluginPath, entryPath);
+        }
+        return entryPath;
+      }
+      if (Array.isArray(webpackConfig.entry[key])) {
+        webpackConfig.entry[key] = webpackConfig.entry[key].map(makePathAbsolute);
+      } else {
+        webpackConfig.entry[key] = makePathAbsolute(webpackConfig.entry[key]);
+      }
+    });
+  }
+  return {
+    name: uniqueSlug,
+    static_dir: path.join(pluginPath, 'static'),
+    stats_file: path.join(pluginPath, 'build', `${uniqueSlug}_stats.json`),
+    locale_data_folder: pythonData.locale_data_folder,
+    plugin_path: pluginPath,
+    version: pythonData.version,
+    config: webpackConfig,
+  };
+}
+
 module.exports = function({ pluginFile, plugins, pluginPaths }) {
   // the temporary path where the webpack_json json is stored
   const webpack_json_tempfile = temp.openSync({ suffix: '.json' }).path;
@@ -48,7 +84,19 @@ module.exports = function({ pluginFile, plugins, pluginPaths }) {
   if (result.length > 0) {
     // The above script prints JSON to stdout, here we parse that JSON and use it
     // as input to our webpack configuration builder.
-    return JSON.parse(result);
+    const parsedResult = JSON.parse(result);
+    const output = [];
+    parsedResult.forEach(pythonData => {
+      const webpackConfig = require(path.join(pythonData.plugin_path, 'webpack.config.js'));
+      if (Array.isArray(webpackConfig)) {
+        webpackConfig.forEach(configObj => {
+          output.push(parseConfig(configObj, pythonData));
+        });
+      } else {
+        output.push(parseConfig(webpackConfig, pythonData));
+      }
+    });
+    return output;
   }
 
   return [];

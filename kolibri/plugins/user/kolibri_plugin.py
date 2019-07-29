@@ -16,7 +16,6 @@ class User(KolibriPluginBase):
 
 class UserAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "user_module"
-    src_file = "assets/src/app.js"
 
 
 class UserInclusionHook(hooks.UserSyncHook):
@@ -33,9 +32,7 @@ class LogInRedirect(RoleBasedRedirectHook):
 
 class LogInNavAction(NavigationHook, webpack_hooks.WebpackBundleHook):
     unique_slug = "user_module_login_nav_side_nav"
-    src_file = "assets/src/views/LoginSideNavEntry.vue"
 
 
 class ProfileNavAction(NavigationHook, webpack_hooks.WebpackBundleHook):
     unique_slug = "user_module_user_profile_nav_side_nav"
-    src_file = "assets/src/views/UserProfileSideNavEntry.vue"

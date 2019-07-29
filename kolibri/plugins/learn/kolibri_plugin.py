@@ -28,12 +28,10 @@ class LearnRedirect(RoleBasedRedirectHook):
 
 class LearnNavItem(NavigationHook, webpack_hooks.WebpackBundleHook):
     unique_slug = "learn_module_side_nav"
-    src_file = "assets/src/views/LearnSideNavEntry.vue"
 
 
 class LearnAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "learn_module"
-    src_file = "assets/src/app.js"
 
 
 class LearnInclusionHook(hooks.LearnSyncHook):

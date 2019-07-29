@@ -17,7 +17,6 @@ class SetupWizardPlugin(KolibriPluginBase):
 
 class SetupWizardAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "setup_wizard"
-    src_file = "assets/src/app.js"
 
 
 class SetupWizardInclusionHook(hooks.SetupWizardSyncHook):

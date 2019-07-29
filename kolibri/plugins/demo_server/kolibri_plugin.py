@@ -13,7 +13,6 @@ class DemoServer(KolibriPluginBase):
 
 class DemoServerAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "demo_server_module"
-    src_file = "assets/src/module.js"
 
 
 class DemoServerInclusionHook(hooks.UserSyncHook):

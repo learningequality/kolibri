@@ -72,13 +72,6 @@ class WebpackBundleHook(hooks.KolibriHook):
     # : You should set a unique human readable name
     unique_slug = ""
 
-    # : Relative path to js source file for webpack to use as entry point
-    # : For instance: "kolibri/core/assets/src/kolibri_core_app.js"
-    src_file = ""
-
-    # : Kolibri version for build hashes
-    version = kolibri.__version__
-
     # : When being included for synchronous loading, should the source files
     # : for this be inlined?
     inline = False
@@ -92,8 +85,6 @@ class WebpackBundleHook(hooks.KolibriHook):
             len([x for x in self.registered_hooks if x.unique_slug == self.unique_slug])
             <= 1
         ), "Non-unique slug found: '{}'".format(self.unique_slug)
-        if not self._meta.abstract:
-            assert self.src_file, "No source JS defined"
 
     @hooks.abstract_method
     def get_by_slug(self, slug):
@@ -175,52 +166,6 @@ class WebpackBundleHook(hooks.KolibriHook):
             yield f
 
     @property
-    @hooks.registered_method
-    def webpack_bundle_data(self):
-        """
-        This is the main interface to the NPM Webpack building util. It is
-        used by the webpack_json management command. Inheritors may wish to
-        customize this.
-
-        :returns: A dict with information expected by webpack parsing process,
-            or None if the src_file does not exist.
-
-        """
-        if os.path.exists(
-            os.path.join(os.path.dirname(self._build_path), self.src_file)
-        ):
-            return {
-                "name": self.unique_slug,
-                "src_file": self.src_file,
-                "static_dir": self._static_dir,
-                "plugin_path": self._module_file_path,
-                "stats_file": self._stats_file,
-                "locale_data_folder": self.locale_data_folder,
-                "version": self.version,
-            }
-        else:
-            logger.warn(
-                "{src_file} not found for plugin {name}.".format(
-                    src_file=self.src_file, name=self.unique_slug
-                )
-            )
-
-    @property
-    def locale_data_folder(self):
-        if self._module_path.startswith("kolibri."):
-            return os.path.join(
-                os.path.dirname(kolibri.__file__), "locale", "en", "LC_MESSAGES"
-            )
-        # Is an external plugin, do otherwise!
-        else:
-            return os.path.join(
-                os.path.dirname(self._build_path),
-                getattr(self, "locale_path", "locale"),
-                "en",
-                "LC_MESSAGES",
-            )
-
-    @property
     def _module_path(self):
         return ".".join(self.__module__.split(".")[:-1])
 
@@ -231,10 +176,6 @@ class WebpackBundleHook(hooks.KolibriHook):
         containing information about the built bundles.
         """
         return resource_filename(self._module_path, "build")
-
-    @property
-    def _static_dir(self):
-        return resource_filename(self._module_path, "static")
 
     @property
     def _stats_file(self):

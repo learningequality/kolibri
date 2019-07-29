@@ -12,5 +12,4 @@ class DocumentPDFRenderPlugin(KolibriPluginBase):
 
 class DocumentPDFRenderAsset(content_hooks.ContentRendererHook):
     unique_slug = "document_pdf_render_module"
-    src_file = "assets/src/module.js"
     content_types_file = "content_types.json"
