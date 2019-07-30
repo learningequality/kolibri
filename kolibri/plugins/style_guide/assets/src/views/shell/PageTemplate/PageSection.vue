@@ -56,4 +56,9 @@
     margin-right: auto;
   }
 
+  .section-wrapper:not(:first-child) {
+    margin-top: 32px;
+    border-top: 1px solid #dedede;
+  }
+
 </style>
