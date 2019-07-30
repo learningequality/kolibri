@@ -13,7 +13,9 @@ def test_filter_old_version():
 
     filtered = VersionUpgrade(old_version="<1.1.1", upgrade=filtered_mock)
     not_filtered = VersionUpgrade(upgrade=unfiltered_mock)
-    with patch("kolibri.core.upgrade.get_upgrades", return_value=[not_filtered, filtered]):
+    with patch(
+        "kolibri.core.upgrade.get_upgrades", return_value=[not_filtered, filtered]
+    ):
         run_upgrades("1.1.1", "1.1.2")
         filtered_mock.assert_not_called()
         unfiltered_mock.assert_called_once()
@@ -44,8 +46,12 @@ def test_order_new_version():
 def test_order_old_and_new_version():
     function = Mock()
 
-    first = VersionUpgrade(old_version="<0.10.1", new_version=">0.11.1", upgrade=lambda: function(0))
-    second = VersionUpgrade(old_version="<0.10.1", new_version=">0.11.2", upgrade=lambda: function(1))
+    first = VersionUpgrade(
+        old_version="<0.10.1", new_version=">0.11.1", upgrade=lambda: function(0)
+    )
+    second = VersionUpgrade(
+        old_version="<0.10.1", new_version=">0.11.2", upgrade=lambda: function(1)
+    )
 
     with patch("kolibri.core.upgrade.get_upgrades", return_value=[second, first]):
         run_upgrades("0.10.0", "1.1.2")
@@ -59,7 +65,9 @@ def test_filter_new_version():
     filtered = VersionUpgrade(new_version=">1.1.1", upgrade=filtered_mock)
     not_filtered = VersionUpgrade(upgrade=unfiltered_mock)
 
-    with patch("kolibri.core.upgrade.get_upgrades", return_value=[not_filtered, filtered]):
+    with patch(
+        "kolibri.core.upgrade.get_upgrades", return_value=[not_filtered, filtered]
+    ):
         run_upgrades("1.0.1", "1.1.0")
         filtered_mock.assert_not_called()
         unfiltered_mock.assert_called_once()

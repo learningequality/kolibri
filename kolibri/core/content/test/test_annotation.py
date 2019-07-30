@@ -24,7 +24,6 @@ from kolibri.core.content.utils.annotation import (
     set_leaf_node_availability_from_local_file_availability,
 )
 from kolibri.core.content.utils.annotation import set_local_file_availability_from_disk
-from kolibri.core.content.utils.annotation import update_num_coach_contents
 
 
 def get_engine(connection_string):

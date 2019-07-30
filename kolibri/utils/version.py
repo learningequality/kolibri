@@ -432,6 +432,7 @@ def version_matches_range(version, version_range):
     # Import semver here to allow other functions in the module to be imported in a lower
     # dependency environment.
     import semver
+
     # if no version range is provided, assume we don't have opinions about the version
     if not version_range or version_range == "*":
         return True

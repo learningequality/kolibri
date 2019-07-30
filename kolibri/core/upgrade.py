@@ -16,7 +16,8 @@ class VersionUpgrade(object):
     """
     Class for version upgrade operations
     """
-    __slots__ = ['OLD_VERSION', 'NEW_VERSION', 'upgrade']
+
+    __slots__ = ["OLD_VERSION", "NEW_VERSION", "upgrade"]
 
     def __init__(self, old_version=None, new_version=None, upgrade=None):
         # Semver version range specification for the previous version
@@ -26,7 +27,9 @@ class VersionUpgrade(object):
         try:
             assert self._old
         except AssertionError:
-            raise TypeError("Unparseable semver version or range passed to upgrade object for old_version")
+            raise TypeError(
+                "Unparseable semver version or range passed to upgrade object for old_version"
+            )
         # Semver version range specification for the new version
         # of Kolibri when this should be applied.
         # If None - should be applied to all.
@@ -34,7 +37,9 @@ class VersionUpgrade(object):
         try:
             assert self._new
         except AssertionError:
-            raise TypeError("Unparseable semver version or range passed to upgrade object for new_version")
+            raise TypeError(
+                "Unparseable semver version or range passed to upgrade object for new_version"
+            )
         if not callable(upgrade):
             raise TypeError("Upgrade argument must be a function or other callable")
         self.upgrade = upgrade
@@ -49,16 +54,16 @@ class VersionUpgrade(object):
         return self.__class__ != other.__class__
 
     def __lt__(self, other):
-        return ((self._old, self._new) < (other._old, other._new))
+        return (self._old, self._new) < (other._old, other._new)
 
     def __le__(self, other):
-        return ((self._old, self._new) <= (other._old, other._new))
+        return (self._old, self._new) <= (other._old, other._new)
 
     def __gt__(self, other):
-        return ((self._old, self._new) > (other._old, other._new))
+        return (self._old, self._new) > (other._old, other._new)
 
     def __ge__(self, other):
-        return ((self._old, self._new) >= (other._old, other._new))
+        return (self._old, self._new) >= (other._old, other._new)
 
     @property
     def _old(self):
@@ -92,7 +97,9 @@ def version_upgrade(old_version=None, new_version=None):
     """
 
     def wrapper(upgrade):
-        return VersionUpgrade(old_version=old_version, new_version=new_version, upgrade=upgrade)
+        return VersionUpgrade(
+            old_version=old_version, new_version=new_version, upgrade=upgrade
+        )
 
     return wrapper
 
@@ -124,7 +131,6 @@ def get_upgrades():
 
 
 def run_upgrades(old_version, new_version):
-
     def filter_upgrade(upgrade):
         return (
             # Only import upgrades that match the old version
@@ -134,5 +140,6 @@ def run_upgrades(old_version, new_version):
             # that is being upgraded to
             and matches_version(new_version, upgrade.NEW_VERSION)
         )
+
     for version_upgrade in sorted(filter(filter_upgrade, get_upgrades())):
         version_upgrade()

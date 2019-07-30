@@ -51,8 +51,6 @@ def conf():
     conf.config.set_defaults()
     yield conf
     conf.conf_file = old_config_file
-    conf.set_defaults()
-    conf.save()
 
 
 def test_bogus_plugin_autoremove(conf):
@@ -234,15 +232,11 @@ def test_version_updated():
     assert not cli.should_back_up("0.10.0-dev0", "0.10.0-dev0")
 
 
-THIS_VERSION = "TEST"
-
-
 @pytest.mark.django_db
-@patch("kolibri.utils.cli.kolibri.__version__", THIS_VERSION)
-@patch("kolibri.utils.cli.get_version", return_value=THIS_VERSION)
+@patch("kolibri.utils.cli.get_version", return_value=kolibri.__version__)
 @patch("kolibri.utils.cli.update")
 @patch("kolibri.core.deviceadmin.utils.dbbackup")
-def test_update_no_version_change(dbbackup, update, old_version, new_version):
+def test_update_no_version_change(dbbackup, update, get_version):
     """
     Tests that when the version doesn't change, we are not doing things we
     shouldn't
