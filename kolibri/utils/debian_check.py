@@ -4,12 +4,18 @@ import sys
 
 from builtins import input
 
+from .conf import KOLIBRI_HOME
+from .server import installation_type
 
-def check_debian_user():
-    # Check whether the current user is the kolibri user when running kolibri
-    # that is installed from .deb package.
-    # The code is mainly from https://github.com/learningequality/ka-lite/blob/master/bin/kalite#L53
-    if not os.name == "posix" or not os.path.isfile("/etc/kolibri/username"):
+
+def check_debian_user(noninteractive=False):
+    if noninteractive:
+        return
+
+    # Check if Kolibri is installed through the Kolibri Debian package or kolibri-server
+    # Debian package
+    install_type = installation_type()
+    if install_type not in ["dpkg", "apt"] or not install_type.startswith("kolibri"):
         return
 
     with open("/etc/kolibri/username", "r") as f:
@@ -17,11 +23,15 @@ def check_debian_user():
 
     current_user = getpass.getuser()
 
+    # If kolibri user does not exist or is the same as the current user, then do not
+    # prompt the user with the warning.
     if not kolibri_user or kolibri_user == current_user:
         return
 
-    kolibri_home = os.path.expanduser(os.environ.get("KOLIBRI_HOME", "~/.kolibri"))
-    if os.path.exists(kolibri_home) and os.listdir(kolibri_home):
+    # If the database file exists in the KOLIBRI_HOME directory, then kolibri was
+    # started with the current user before. There is no need to prompt the user
+    # with the warning.
+    if os.path.exists(os.path.join(KOLIBRI_HOME, "db.sqlite3")):
         return
 
     sys.stderr.write(
