@@ -49,7 +49,7 @@ help:
 	@echo "i18n-install-font name=<noto-font>: Downloads and installs a new or updated font"
 
 
-clean: clean-build clean-pyc clean-assets
+clean: clean-build clean-pyc clean-assets clean-staticdeps
 
 clean-assets:
 	yarn run clean
@@ -127,11 +127,13 @@ test-namespaced-packages:
 	# https://github.com/learningequality/kolibri/pull/2972
 	! find kolibri/dist -mindepth 1 -maxdepth 1 -type d -not -name __pycache__ -not -name cext -not -name py2only -exec ls {}/__init__.py \; 2>&1 | grep  "No such file"
 
-staticdeps:
-	test "${SKIP_PY_CHECK}" = "1" || python --version 2>&1 | grep -q 2.7 || ( echo "Only intended to run on Python 2.7" && exit 1 )
+clean-staticdeps:
 	rm -rf kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
-	pip install -t kolibri/dist -r "requirements.txt"
+
+staticdeps: clean-staticdeps
+	test "${SKIP_PY_CHECK}" = "1" || python --version 2>&1 | grep -q 2.7 || ( echo "Only intended to run on Python 2.7" && exit 1 )
+	pip2 install -t kolibri/dist -r "requirements.txt"
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	rm -r kolibri/dist/man kolibri/dist/bin || true # remove the two folders introduced by pip 10
 	# Remove unnecessary python2-syntax'ed file
@@ -147,6 +149,11 @@ staticdeps-cext:
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	rm -rf kolibri/dist/cext/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	make test-namespaced-packages
+
+staticdeps-compileall:
+	bash -c 'python --version'
+	# Seems like the compileall module does not return a non-zero exit code when failing
+	bash -c 'if ( python -m compileall -x py2only kolibri -q | grep SyntaxError ) ; then echo "Failed to compile kolibri/dist/" ; exit 1 ; else exit 0 ; fi'
 
 writeversion:
 	python -c "import kolibri; print(kolibri.__version__)" > kolibri/VERSION

@@ -18,7 +18,7 @@ const scrollBehavior = function(to, from, savedPosition) {
   if (to.hash) {
     const position = {};
     position.selector = to.hash;
-    position.offset = { y: 128 };
+    position.offset = { y: 108 };
     return position;
   }
 
@@ -81,7 +81,7 @@ class StyleGuideModule extends KolibriApp {
     );
 
     // people get ready
-    return super.ready();
+    super.ready();
   }
 }
 

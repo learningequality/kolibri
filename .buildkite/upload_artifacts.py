@@ -118,7 +118,7 @@ def create_status_report_html(artifacts):
             if artifact["category"] != current_heading:
                 current_heading = artifact["category"]
                 html += "<h2>{heading}</h2>\n".format(heading=current_heading)
-            html += "<p>{description}: <a href='{media_url}'>{name}</a></p>\n".format(
+            html += "<p>{description}: <a href='{media_url}'>{name}</a> ({size_mb} MB)</p>\n".format(
                 **artifact
             )
     html += "</body>\n</html>"
@@ -203,7 +203,12 @@ def upload_artifacts():
             )
         blob.upload_from_filename(filename=file_data.get("file_location"))
         blob.make_public()
-        file_data.update({"media_url": blob.media_link})
+        file_data.update(
+            {
+                "size_mb": os.path.getsize(file_data.get("file_location")) / 1048576.0,
+                "media_url": blob.media_link,
+            }
+        )
 
     html = create_status_report_html(artifacts)
 

@@ -97,7 +97,7 @@
   "DeviceTopNav.settingsLabel": "Configurações",
   "DriveList.drivesFound": "Unidades encontradas",
   "DriveList.noDriveWithSelectedChannelError": "Nenhuma unidade com o canal selecionado está conectada ao servidor",
-  "DriveList.noExportableDrives": "Nenhuma unidade que pode ser gravada está conectada ao servidor",
+  "DriveList.noExportableDrives": "Não foi possível encontrar um dispositivo gravável conectado ao servidor",
   "DriveList.noImportableDrives": "Nenhuma unidades com conteúdos de Kolibri está conectada ao servidor",
   "ManageContentPage.documentTitle": "Organizar os Canais do Dispositivo",
   "ManageContentPage.export": "Exportar",

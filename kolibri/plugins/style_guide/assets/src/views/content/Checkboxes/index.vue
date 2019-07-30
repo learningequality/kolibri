@@ -4,7 +4,7 @@
 
     <PageSection title="Usage guidelines" anchor="#usage">
 
-      <p>This is a standard 'checkbox' component:</p>
+      <p>This is a standard checkbox component:</p>
 
       <Show>
         <KCheckbox
@@ -13,31 +13,37 @@
         />
       </Show>
 
-
-      <h3>Layout</h3>
+      <p>Layout and usage:</p>
       <ul>
-        <li>Always left-aligned, with the checkbox to the left of the label</li>
-        <li>When in a group, always vertically stacked</li>
-      </ul>
-
-      <h3>Language</h3>
-      <p>The labels should be short and concise. They should not be sentences.</p>
-
-      <h3>Other notes</h3>
-      <ul>
-        <li>Should denote positives (yes/select)</li>
+        <li>Always left-aligned</li>
+        <li>When used in a group, checkboxes should always be vertically stacked</li>
         <li>Should not be used to filter tables or lists</li>
         <li>Should not be nested</li>
       </ul>
 
+      <p>Language:</p>
+      <ul>
+        <li>The labels should be short and concise. They should not be sentences</li>
+        <li>Should represent positive values</li>
+      </ul>
 
+    </PageSection>
+    <PageSection title="API" anchor="#api">
       <ComponentDocs :api="kCheckboxApi" />
-
     </PageSection>
     <PageSection title="Code example" anchor="#example" fullwidth>
       <VueExample :code="exampleCode">
         <Example />
       </VueExample>
+    </PageSection>
+    <PageSection title="Exceptions" anchor="#exceptions">
+      <ul>
+        <li>
+          In the Facility Settings section, the checkbox labels are more verbose than in other
+          places. They are generally of the form "Allow learners to sign in with no password",
+          and are meant to be as explicit as possible to fully communicate complex ideas
+        </li>
+      </ul>
     </PageSection>
 
   </PageTemplate>

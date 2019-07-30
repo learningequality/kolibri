@@ -120,7 +120,7 @@ class EcosystemTestCase(TestCase):
         # build up url and send request
         if lookup:
             lookup = lookup + "/"
-        url = urljoin(urljoin(server.base_url, "api/auth/" + endpoint + "/"), lookup)
+        url = urljoin(urljoin(server.baseurl, "api/auth/" + endpoint + "/"), lookup)
         auth = ("superuser", "password")
         resp = requests.request(method, url, json=data, params=params, auth=auth)
         resp.raise_for_status()
@@ -159,24 +159,18 @@ class EcosystemTestCase(TestCase):
         servers_len = len(servers)
         self.maxDiff = None
         s0_alias = servers[0].db_alias
-        s0_url = servers[0].base_url
+        s0_url = servers[0].baseurl
         s1_alias = servers[1].db_alias
-        s1_url = servers[1].base_url
+        s1_url = servers[1].baseurl
         s2_alias = servers[2].db_alias
-        s2_url = servers[2].base_url
+        s2_url = servers[2].baseurl
         servers[0].manage("loaddata", "content_test")
         servers[0].manage("generateuserdata", no_onboarding=True, num_content_items=1)
         servers[1].manage(
-            "fullfacilitysync",
-            base_url=s0_url,
-            username="superuser",
-            password="password",
+            "sync", baseurl=s0_url, username="superuser", password="password"
         )
         servers[2].manage(
-            "fullfacilitysync",
-            base_url=s1_url,
-            username="superuser",
-            password="password",
+            "sync", baseurl=s1_url, username="superuser", password="password"
         )
 
         # assert that all kolibri instances start off equal
@@ -194,10 +188,7 @@ class EcosystemTestCase(TestCase):
             facility=Facility.objects.using(s0_alias).first(),
         ).save(using=s0_alias)
         servers[1].manage(
-            "fullfacilitysync",
-            base_url=s0_url,
-            username="superuser",
-            password="password",
+            "sync", baseurl=s0_url, username="superuser", password="password"
         )
         self.assertTrue(
             FacilityUser.objects.using(s1_alias).filter(username="user").exists()
@@ -214,10 +205,7 @@ class EcosystemTestCase(TestCase):
         self.request_server(servers[0], "facilityuser", method="DELETE", lookup=user.id)
         # role object that is synced will try to do FK lookup on deleted user
         servers[0].manage(
-            "fullfacilitysync",
-            base_url=s1_url,
-            username="superuser",
-            password="password",
+            "sync", baseurl=s1_url, username="superuser", password="password"
         )
 
         # create user with same username on two servers and check they both exist
@@ -232,10 +220,7 @@ class EcosystemTestCase(TestCase):
             facility=Facility.objects.using(s1_alias).first(),
         ).save(using=s1_alias)
         servers[1].manage(
-            "fullfacilitysync",
-            base_url=s0_url,
-            username="superuser",
-            password="password",
+            "sync", baseurl=s0_url, username="superuser", password="password"
         )
         self.assertEqual(
             FacilityUser.objects.using(s0_alias).filter(username="copycat").count(), 2
@@ -253,10 +238,7 @@ class EcosystemTestCase(TestCase):
             ),
         )
         servers[1].manage(
-            "fullfacilitysync",
-            base_url=s0_url,
-            username="superuser",
-            password="password",
+            "sync", baseurl=s0_url, username="superuser", password="password"
         )
         self.assertTrue(
             Classroom.objects.using(s1_alias).filter(name="classroom").exists()
@@ -271,10 +253,7 @@ class EcosystemTestCase(TestCase):
             ),
         )
         servers[1].manage(
-            "fullfacilitysync",
-            base_url=s0_url,
-            username="superuser",
-            password="password",
+            "sync", baseurl=s0_url, username="superuser", password="password"
         )
         self.assertTrue(
             LearnerGroup.objects.using(s1_alias).filter(name="learnergroup").exists()
@@ -294,10 +273,7 @@ class EcosystemTestCase(TestCase):
             data=self._data(collection=fac.id, user=alk_user.id, kind="admin"),
         )
         servers[1].manage(
-            "fullfacilitysync",
-            base_url=s0_url,
-            username="superuser",
-            password="password",
+            "sync", baseurl=s0_url, username="superuser", password="password"
         )
         role = Role.objects.using(s1_alias).get(user=alk_user)
         admin_role = Store.objects.using(s1_alias).get(id=role.id)
@@ -308,10 +284,7 @@ class EcosystemTestCase(TestCase):
             servers[0], "facilityuser", method="DELETE", lookup=alk_user.id
         )
         servers[1].manage(
-            "fullfacilitysync",
-            base_url=s0_url,
-            username="superuser",
-            password="password",
+            "sync", baseurl=s0_url, username="superuser", password="password"
         )
         self.assertFalse(
             FacilityUser.objects.using(s1_alias)
@@ -329,10 +302,7 @@ class EcosystemTestCase(TestCase):
             data=self._data(collection=fac.id, user=alto_user.id, kind="admin"),
         )
         servers[1].manage(
-            "fullfacilitysync",
-            base_url=s2_url,
-            username="superuser",
-            password="password",
+            "sync", baseurl=s2_url, username="superuser", password="password"
         )
 
         self.assertEqual(
@@ -348,10 +318,7 @@ class EcosystemTestCase(TestCase):
             servers[2], "role", method="DELETE", lookup=resp.json()["id"]
         )
         servers[1].manage(
-            "fullfacilitysync",
-            base_url=s2_url,
-            username="superuser",
-            password="password",
+            "sync", baseurl=s2_url, username="superuser", password="password"
         )
         # create admin role and sync
         resp = self.request_server(
@@ -360,10 +327,7 @@ class EcosystemTestCase(TestCase):
             data=self._data(collection=fac.id, user=alto_user.id, kind="admin"),
         )
         servers[1].manage(
-            "fullfacilitysync",
-            base_url=s2_url,
-            username="superuser",
-            password="password",
+            "sync", baseurl=s2_url, username="superuser", password="password"
         )
 
         self.assertFalse(
@@ -379,10 +343,7 @@ class EcosystemTestCase(TestCase):
             data=self._data(password="syncing"),
         )
         servers[1].manage(
-            "fullfacilitysync",
-            base_url=s0_url,
-            username="superuser",
-            password="password",
+            "sync", baseurl=s0_url, username="superuser", password="password"
         )
         resp = self.request_server(
             servers[0],
@@ -397,8 +358,8 @@ class EcosystemTestCase(TestCase):
         for i in range(2):
             for j in range(servers_len):
                 servers[j].manage(
-                    "fullfacilitysync",
-                    base_url=servers[(j + 1) % servers_len].base_url,
+                    "sync",
+                    baseurl=servers[(j + 1) % servers_len].baseurl,
                     username="superuser",
                     password="password",
                 )
@@ -419,8 +380,8 @@ class EcosystemTestCase(TestCase):
         servers[0].manage("generateuserdata", no_onboarding=True)
         for i in range(servers_len - 1):
             servers[i + 1].manage(
-                "fullfacilitysync",
-                base_url=servers[0].base_url,
+                "sync",
+                baseurl=servers[0].baseurl,
                 username="superuser",
                 password="password",
             )
@@ -433,8 +394,8 @@ class EcosystemTestCase(TestCase):
                 self._create_objects(servers[4])
 
             servers[2].manage(
-                "fullfacilitysync",
-                base_url=servers[4].base_url,
+                "sync",
+                baseurl=servers[4].baseurl,
                 username="superuser",
                 password="password",
             )
@@ -443,8 +404,8 @@ class EcosystemTestCase(TestCase):
         for i in range(2):
             for j in range(servers_len):
                 servers[j].manage(
-                    "fullfacilitysync",
-                    base_url=servers[(j + 1) % servers_len].base_url,
+                    "sync",
+                    baseurl=servers[(j + 1) % servers_len].baseurl,
                     username="superuser",
                     password="password",
                 )
