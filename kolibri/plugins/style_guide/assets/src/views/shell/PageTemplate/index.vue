@@ -6,7 +6,9 @@
       :sections="sections"
       @heightChange="newHeight => headerHeight = newHeight"
     />
-    <slot></slot>
+    <div>
+      <slot></slot>
+    </div>
   </div>
 
 </template>

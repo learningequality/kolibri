@@ -1,8 +1,7 @@
 <template>
 
   <PageTemplate>
-    <PageSection>
-
+    <PageSection title="Usage guidelines" anchor="#usage">
 
       <p>
         Breadcrumbs should be used to aid navigation across channels, topic trees, and resources.
