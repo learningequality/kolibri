@@ -20,8 +20,8 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
-    "buble": "0.19.3",
-    "buble-loader": "0.5.0",
+    "buble": "0.19.8",
+    "buble-loader": "0.5.1",
     "check-node-version": "^3.3.0",
     "chokidar": "^2.0.4",
     "colors": "^1.1.2",
@@ -74,6 +74,7 @@
     "vue-jest": "^3.0.0",
     "vue-loader": "^15.7.0",
     "vue-style-loader": "^3.0.3",
+    "vue-template-compiler": "~2.6.10",
     "webpack": "^4.6.0",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-bundle-tracker": "https://github.com/learningequality/webpack-bundle-tracker",
@@ -84,16 +85,12 @@
     "webpack-merge": "^4.1.0",
     "webpack-rtl-plugin": "^2.0.0"
   },
-  "peerDependencies": {
-    "vue-template-compiler": "^2.x"
-  },
   "engines": {
     "node": "10.x",
     "npm": ">= 3"
   },
   "devDependencies": {
-    "readline-sync": "^1.4.9",
-    "vue-template-compiler": "^2.x"
+    "readline-sync": "^1.4.9"
   },
   "optionalDependencies": {
     "kolibri": "0.12.0-beta.3.2"
