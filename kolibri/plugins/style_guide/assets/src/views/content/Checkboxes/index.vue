@@ -38,7 +38,11 @@
     </PageSection>
     <PageSection title="Exceptions" anchor="#exceptions">
       <ul>
-        <li>In the Facility Settings section, the checkbox labels are more verbose than in other places. They are generally of the form "Allow learners to sign in with no password", and are meant to be as explicit as possible to fully communicate complex ideas</li>
+        <li>
+          In the Facility Settings section, the checkbox labels are more verbose than in other
+          places. They are generally of the form "Allow learners to sign in with no password",
+          and are meant to be as explicit as possible to fully communicate complex ideas
+        </li>
       </ul>
     </PageSection>
 
