@@ -394,6 +394,7 @@
   }
 
   .super-admin-description {
+    margin-bottom: 16px;
     font-size: 12px;
   }
 
