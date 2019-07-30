@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.urls import reverse
 
-from . import hooks
 from kolibri.core.auth.constants.user_kinds import LEARNER
 from kolibri.core.content.hooks import ContentNodeDisplayHook
 from kolibri.core.hooks import NavigationHook
@@ -32,10 +31,6 @@ class LearnNavItem(NavigationHook, webpack_hooks.WebpackBundleHook):
 
 class LearnAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "learn_module"
-
-
-class LearnInclusionHook(hooks.LearnSyncHook):
-    bundle_class = LearnAsset
 
 
 class LearnContentNodeHook(ContentNodeDisplayHook):

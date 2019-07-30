@@ -1,6 +1,5 @@
 {% extends "kolibri/base.html" %}
-{% load coach_tags %}
+{% load webpack_tags %}
 {% block content %}
-  {% coach_async_assets %}
-  {% coach_assets %}
+  {% webpack_asset 'coach_module' %}
 {% endblock %}

@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from .hooks import FacilityManagementSyncHook
 from kolibri.core.auth.constants.user_kinds import ADMIN
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
@@ -19,10 +18,6 @@ class FacilityManagementPlugin(KolibriPluginBase):
 
 class FacilityManagementAsset(WebpackBundleHook):
     unique_slug = "facility_management_module"
-
-
-class FacilityManagementInclusionHook(FacilityManagementSyncHook):
-    bundle_class = FacilityManagementAsset
 
 
 class FacilityRedirect(RoleBasedRedirectHook):

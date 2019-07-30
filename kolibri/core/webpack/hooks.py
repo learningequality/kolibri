@@ -14,10 +14,11 @@ import io
 import json
 import logging
 import os
+import re
 import time
 from functools import partial
 
-from django.conf import settings as django_settings
+from django.conf import settings
 from django.contrib.staticfiles.finders import find as find_staticfiles
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import caches
@@ -30,8 +31,6 @@ from django.utils.translation import to_locale
 from pkg_resources import resource_filename
 from six import text_type
 
-import kolibri
-from . import settings
 from kolibri.plugins import hooks
 from kolibri.utils import conf
 
@@ -40,6 +39,8 @@ from kolibri.utils import conf
 # to allow this file to be imported without initiating
 # Django settings configuration.
 CACHE_NAMESPACE = "built_files"
+
+IGNORE_PATTERNS = (re.compile(I) for I in [r".+\.hot-update.js", r".+\.map"])
 
 
 class BundleNotFound(Exception):
@@ -106,12 +107,10 @@ class WebpackBundleHook(hooks.KolibriHook):
         cache_key = "json_stats_file_cache_{slug}".format(slug=self.unique_slug)
         try:
             stats_file_content = caches[CACHE_NAMESPACE].get(cache_key)
-            if not stats_file_content or getattr(
-                django_settings, "DEVELOPER_MODE", False
-            ):
+            if not stats_file_content or getattr(settings, "DEVELOPER_MODE", False):
                 with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
                     stats = json.load(f)
-                if getattr(django_settings, "DEVELOPER_MODE", False):
+                if getattr(settings, "DEVELOPER_MODE", False):
                     timeout = 0
                     while stats["status"] == "compiling":
                         time.sleep(0.1)
@@ -150,13 +149,11 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         for f in self._stats_file_content["files"]:
             filename = f["name"]
-            if not getattr(django_settings, "DEVELOPER_MODE", False):
-                if any(
-                    list(regex.match(filename) for regex in settings.IGNORE_PATTERNS)
-                ):
+            if not getattr(settings, "DEVELOPER_MODE", False):
+                if any(list(regex.match(filename) for regex in IGNORE_PATTERNS)):
                     continue
             relpath = "{0}/{1}".format(self.unique_slug, filename)
-            if getattr(django_settings, "DEVELOPER_MODE", False):
+            if getattr(settings, "DEVELOPER_MODE", False):
                 try:
                     f["url"] = f["publicPath"]
                 except KeyError:
@@ -196,7 +193,7 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     def frontend_message_file(self, lang_code):
         message_file_name = "{name}-messages.json".format(name=self.unique_slug)
-        for path in getattr(django_settings, "LOCALE_PATHS", []):
+        for path in getattr(settings, "LOCALE_PATHS", []):
             file_path = os.path.join(
                 path, to_locale(lang_code), "LC_MESSAGES", message_file_name
             )
@@ -209,9 +206,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             slug=self.unique_slug, lang=lang_code
         )
         message_file_content = caches[CACHE_NAMESPACE].get(cache_key)
-        if not message_file_content or getattr(
-            django_settings, "DEVELOPER_MODE", False
-        ):
+        if not message_file_content or getattr(settings, "DEVELOPER_MODE", False):
             frontend_message_file = self.frontend_message_file(lang_code)
             if frontend_message_file:
                 with io.open(frontend_message_file, mode="r", encoding="utf-8") as f:
@@ -307,7 +302,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         # First try finding the file using the storage class.
         # This is skipped in DEVELOPER_MODE mode as files might be outdated
         # Or may not even be on disk.
-        if not getattr(django_settings, "DEVELOPER_MODE", False):
+        if not getattr(settings, "DEVELOPER_MODE", False):
             filename = staticfiles_storage.path(basename)
             if not staticfiles_storage.exists(basename):
                 filename = None
@@ -448,27 +443,6 @@ class FrontEndCoreAssetHook(WebpackBundleHook):
         tags += list(self.js_and_css_tags())
 
         return mark_safe("\n".join(tags))
-
-    class Meta:
-        abstract = True
-
-
-class FrontEndCoreHook(WebpackInclusionHook):
-    """
-    A hook that asserts its only applied once, namely to load the core. This
-    should only be inherited once which is also an enforced property for now.
-
-    This is loaded before everything else.
-    """
-
-    bundle = FrontEndCoreAssetHook
-
-    def __init__(self, *args, **kwargs):
-        super(FrontEndCoreHook, self).__init__(*args, **kwargs)
-        assert len(list(self.registered_hooks)) <= 1, "Only one core asset allowed"
-        assert isinstance(
-            self.bundle, FrontEndCoreAssetHook
-        ), "Only allows a FrontEndCoreAssetHook instance as bundle"
 
     class Meta:
         abstract = True

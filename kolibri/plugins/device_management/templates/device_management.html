@@ -1,6 +1,6 @@
 {% extends "kolibri/base.html" %}
-{% load device_management_tags %}
+{% load webpack_tags %}
 
 {% block content %}
-  {% device_management_assets %}
+  {% webpack_asset 'device_management_module' %}
 {% endblock %}

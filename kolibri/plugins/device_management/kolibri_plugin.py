@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from .hooks import DeviceManagementSyncHook
 from kolibri.core.auth.constants.user_kinds import SUPERUSER
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
@@ -20,10 +19,6 @@ class DeviceManagementPlugin(KolibriPluginBase):
 
 class DeviceManagementAsset(WebpackBundleHook):
     unique_slug = "device_management_module"
-
-
-class DeviceManagementInclusionHook(DeviceManagementSyncHook):
-    bundle_class = DeviceManagementAsset
 
 
 class DeviceFirstTimeRedirect(RoleBasedRedirectHook):
