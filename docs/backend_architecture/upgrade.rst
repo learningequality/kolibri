@@ -18,7 +18,31 @@ and create a backup before doing so.
 
 .. note:: Always upgrade **as often as possible**. If you are responsible for
   deployments at different sites, you should consider a strategy for keeping
-  software and contents updated. 
+  software and contents updated.
+
+As well as database migrations, there are also sometimes additional fixes that
+are put into Kolibri in order to facilitate moving between versions. This may be
+for bug fixing or efficiency purposes. These are sometimes carried out outside of
+migrations in order to leverage the full Kolibri code base, which can be restricted
+inside the contexts of Django data migrations.
+
+In order to implement these upgrades, a decorator is available in ``kolibri.core.upgrade``,
+``version_upgrade``. An toy example is shown below.
+
+.. code-block:: python
+
+  import logging
+  from kolibri.core.upgrade import version_upgrade
+
+  logger = logging.getLogger(__name__)
+
+  @version_upgrade(old_version="<0.6.4", new_version=">=1.0.0")
+  def big_leap_upgrade():
+      logger.warn("You've just upgraded from a very old version to a very new version!")
+
+If placed into a file named ``upgrade.py`` either in a core app that is part of the ``INSTALLED_APPS``
+Django setting, or is in an activated Kolibri plugin, this upgrade will be picked up and run any time
+an upgrade happens from a version older than ``0.6.4`` to a version equal to or newer than ``1.0.0``.
 
 .. _downgrading:
 
@@ -68,4 +92,3 @@ line::
 To restore from a specific backup file::
 
     $ kolibri manage dbrestore /path/to/db-backup.dump
-
