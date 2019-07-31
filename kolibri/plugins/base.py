@@ -197,11 +197,6 @@ class KolibriPluginBase(object):
         """
         if self.root_view_urls:
             module = self._return_module(self.root_view_urls)
-            logger.warning(
-                "Setting up root URLs which is not recommended!\n plugin module: {}".format(
-                    self
-                )
-            )
             if module is None:
                 logging.warn(
                     "{plugin} defined {urls} root view urls but the module was not found".format(
