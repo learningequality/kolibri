@@ -109,11 +109,6 @@ def start(port=8080, run_cherrypy=True):
     # Write the new PID
     _write_pid_file(PID_FILE, port=port)
 
-    # This should be run every time the server is started for now.
-    # Events to trigger it are hard, because of copying a content folder into
-    # ~/.kolibri, or deleting a channel DB on disk
-    call_command("scanforcontent")
-
     atexit.register(_rm_pid_file)
 
     logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
