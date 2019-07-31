@@ -11,7 +11,7 @@
     <div class="wrapper-table">
       <div class="table-row main-row" :style="backgroundImageStyle">
         <div class="table-cell main-cell">
-          <div class="box" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
+          <div class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
             <CoreLogo
               v-if="$theme.signIn.topLogo"
               class="logo"
@@ -344,7 +344,7 @@
             backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${this.$theme.signIn.background})`,
           };
         }
-        return { backgroundColor: this.$themeColors.brand.primary.v_900 };
+        return { backgroundColor: this.$themeBrand.primary.v_900 };
       },
       oidcProviderFlow() {
         return global.oidcProviderEnabled && this.nextParam;
@@ -498,7 +498,7 @@
       },
       suggestionStyle(i) {
         return {
-          backgroundColor: this.highlightedIndex === i ? this.$themeColors.palette.grey.v_200 : '',
+          backgroundColor: this.highlightedIndex === i ? this.$themePalette.grey.v_200 : '',
         };
       },
     },

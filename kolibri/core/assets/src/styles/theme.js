@@ -102,8 +102,11 @@ export default {
   $themeTokens() {
     return tokens;
   },
-  $themeColors() {
-    return staticState.colors;
+  $themeBrand() {
+    return staticState.colors.brand;
+  },
+  $themePalette() {
+    return staticState.colors.palette;
   },
   $theme() {
     return global.kolibriTheme;

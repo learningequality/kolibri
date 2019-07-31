@@ -55,8 +55,7 @@
       },
       liStyle(index) {
         return {
-          backgroundColor:
-            this.questionNumber === index ? this.$themeColors.palette.grey.v_200 : '',
+          backgroundColor: this.questionNumber === index ? this.$themePalette.grey.v_200 : '',
         };
       },
     },

@@ -1,6 +1,6 @@
 <template>
 
-  <div class="top-bar" :style="{ backgroundColor: $themeColors.palette.grey.v_200 }">
+  <div class="top-bar" :style="{ backgroundColor: $themePalette.grey.v_200 }">
     <KGrid>
       <KGridItem
         sizes="25, 25, 25"

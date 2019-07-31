@@ -3,7 +3,7 @@
   <component
     :is="componentTemplate"
     class="channel-list-item"
-    :style="[verticalPadding, { borderTop: `1px solid ${$themeColors.palette.grey.v_200}` } ]"
+    :style="[verticalPadding, { borderTop: `1px solid ${$themePalette.grey.v_200}` } ]"
   >
     <template slot="thumbnail">
       <div class="thumbnail-container" data-test="thumbnail">
@@ -15,7 +15,7 @@
         <div
           v-else
           class="default-icon"
-          :style="{ backgroundColor: $themeColors.palette.grey.v_200 }"
+          :style="{ backgroundColor: $themePalette.grey.v_200 }"
         >
           <mat-svg category="navigation" name="apps" />
         </div>

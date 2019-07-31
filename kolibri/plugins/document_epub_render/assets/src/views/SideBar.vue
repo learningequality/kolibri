@@ -1,6 +1,6 @@
 <template>
 
-  <div class="side-bar" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
+  <div class="side-bar" :style="{ backgroundColor: $themePalette.grey.v_100 }">
     <slot></slot>
   </div>
 
