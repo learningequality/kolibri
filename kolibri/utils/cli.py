@@ -81,11 +81,116 @@ def get_version():
         return ""
 
 
-def get_root_params():
+def validate_module(ctx, param, value):
+    if value:
+        try:
+            importlib.import_module(value)
+        except ImportError:
+            raise click.BadParameter(
+                u"{param} must be a valid python module import path"
+            )
+    return value
+
+
+debug_option = click.Option(
+    param_decls=["--debug"],
+    default=False,
+    is_flag=True,
+    help=u"Output debug messages (for development)",
+)
+settings_option = click.Option(
+    param_decls=["--settings"],
+    callback=validate_module,
+    help=u"Django settings module path",
+)
+
+pythonpath_option = click.Option(
+    param_decls=["--pythonpath"],
+    type=click.Path(exists=True, file_okay=False),
+    help=u"Add a path to the Python path",
+)
+
+skipupdate_option = click.Option(
+    param_decls=["--skipupdate"],
+    default=False,
+    is_flag=True,
+    help=u"Don't run update logic - useful if running two kolibri commands in parallel.",
+)
+
+
+def get_debug_param():
     try:
-        return click.get_current_context().find_root().params
+        return click.get_current_context().params["debug"]
+    except (KeyError, RuntimeError):
+        return debug_option.default
+
+
+initialize_params = [
+    debug_option,
+    settings_option,
+    pythonpath_option,
+    skipupdate_option,
+]
+
+
+def get_initialize_params():
+    try:
+        return click.get_current_context().params
     except RuntimeError:
-        return {param.name: param.default for param in main.params}
+        return {param.name: param.default for param in initialize_params}
+
+
+class KolibriCommand(click.Command):
+    """
+    A command class for basic Kolibri commands that do not require
+    the django stack. By default adds a debug param for logging purposes
+    also invokes setup_logging before invoking the command.
+    """
+
+    allow_extra_args = True
+
+    def __init__(self, *args, **kwargs):
+        kwargs["params"] = [debug_option] + (
+            kwargs["params"] if "params" in kwargs else []
+        )
+        super(KolibriCommand, self).__init__(*args, **kwargs)
+
+    def invoke(self, ctx):
+        setup_logging(debug=get_debug_param())
+        ctx.params.pop("debug")
+        return super(KolibriCommand, self).invoke(ctx)
+
+
+class KolibriDjangoCommand(click.Command):
+    """
+    A command class for Kolibri commands that do require
+    the django stack. By default adds all params needed for
+    the initialize function, calls the initialize function and
+    also invokes setup_logging before invoking the command.
+    """
+
+    allow_extra_args = True
+
+    def __init__(self, *args, **kwargs):
+        kwargs["params"] = initialize_params + (
+            kwargs["params"] if "params" in kwargs else []
+        )
+        super(KolibriDjangoCommand, self).__init__(*args, **kwargs)
+
+    def invoke(self, ctx):
+        setup_logging(debug=get_debug_param())
+        initialize()
+        for param in initialize_params:
+            ctx.params.pop(param.name)
+        return super(KolibriDjangoCommand, self).invoke(ctx)
+
+
+class DefaultDjangoOptions(object):
+    __slots__ = ["settings", "pythonpath"]
+
+    def __init__(self, settings, pythonpath):
+        self.settings = settings
+        self.pythonpath = pythonpath
 
 
 def initialize(skipupdate=False):
@@ -95,7 +200,7 @@ def initialize(skipupdate=False):
 
     :param: debug: Tells initialization to setup logging etc.
     """
-    params = get_root_params()
+    params = get_initialize_params()
 
     debug = params["debug"]
     skipupdate = skipupdate or params["skipupdate"]
@@ -202,55 +307,16 @@ def update(old_version, new_version):
     cache.clear()
 
 
-def validate_module(ctx, param, value):
-    if value:
-        try:
-            importlib.import_module(value)
-        except ImportError:
-            raise click.BadParameter(
-                u"{param} must be a valid python module import path"
-            )
-    return value
-
-
-class DefaultDjangoOptions(object):
-    __slots__ = ["settings", "pythonpath"]
-
-    def __init__(self, settings, pythonpath):
-        self.settings = settings
-        self.pythonpath = pythonpath
-
-
 @click.group()
-@click.option(
-    "--debug",
-    default=False,
-    is_flag=True,
-    help=u"Output debug messages (for development)",
-)
 @click.version_option(version=kolibri.__version__)
-@click.option(
-    "--settings", callback=validate_module, help=u"Django settings module path"
-)
-@click.option(
-    "--pythonpath",
-    type=click.Path(exists=True, file_okay=False),
-    help=u"Add a path to the Python path",
-)
-@click.option(
-    "--skipupdate",
-    default=False,
-    is_flag=True,
-    help=u"Don't run update logic - useful if running two kolibri commands in parallel.",
-)
-def main(debug, settings, pythonpath, skipupdate):
+def main():
     """
     Kolibri's main function.
+    \f
     Utility functions should be callable for unit testing purposes, but remember
     to use main() for integration tests in order to test the argument API.
     """
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    setup_logging(debug=debug)
 
 
 def create_startup_lock(port):
@@ -260,7 +326,7 @@ def create_startup_lock(port):
         logger.warn(u"Impossible to create file lock to communicate starting process")
 
 
-@main.command()
+@main.command(cls=KolibriDjangoCommand)
 @click.option(
     "--port",
     default=OPTIONS["Deployment"]["HTTP_PORT"],
@@ -278,8 +344,6 @@ def start(port, daemon):
     :param: port: Port number (default: 8080)
     :param: daemon: Fork to background process (default: True)
     """
-
-    initialize()
 
     create_startup_lock(port)
 
@@ -343,7 +407,7 @@ def start(port, daemon):
     server.start(port=port, run_cherrypy=run_cherrypy)
 
 
-@main.command()
+@main.command(cls=KolibriCommand)
 def stop():
     """
     Stop Kolibri
@@ -379,7 +443,7 @@ def stop():
         sys.exit(0)
 
 
-@main.command()
+@main.command(cls=KolibriCommand)
 def status():
     """
     How is Kolibri doing?
@@ -428,7 +492,7 @@ status.codes = {
 }
 
 
-@main.command()
+@main.command(cls=KolibriDjangoCommand)
 @click.option(
     "--daemon/--foreground",
     default=True,
@@ -440,8 +504,6 @@ def services(daemon):
     \f
     :param: daemon: Fork to background process (default: True)
     """
-
-    initialize()
 
     create_startup_lock(None)
 
@@ -484,7 +546,10 @@ def setup_logging(debug=False):
     logging.config.dictConfig(LOGGING)
 
 
-@main.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
+@main.command(
+    cls=KolibriDjangoCommand,
+    context_settings=dict(ignore_unknown_options=True, allow_extra_args=True),
+)
 @click.pass_context
 def manage(ctx):
     """
@@ -493,16 +558,18 @@ def manage(ctx):
     :param: cmd: The command to invoke, for instance "runserver"
     :param: args: arguments for the command
     """
-    initialize()
     if ctx.args:
         logger.info(u"Invoking command {}".format(" ".join(ctx.args)))
     execute_from_command_line(["kolibri manage"] + ctx.args)
 
 
-@main.command()
+@main.command(cls=KolibriDjangoCommand)
 @click.pass_context
 def shell(ctx):
-    initialize()
+    """
+    Display a Django shell
+    \f
+    """
     execute_from_command_line(["kolibri manage", "shell"] + ctx.args)
 
 
@@ -510,7 +577,7 @@ ENABLE = "enable"
 DISABLE = "disable"
 
 
-@main.command()
+@main.command(cls=KolibriCommand)
 @click.argument("plugin_name", nargs=1)
 @click.argument("command", type=click.Choice([ENABLE, DISABLE]))
 def plugin(plugin_name, command):
