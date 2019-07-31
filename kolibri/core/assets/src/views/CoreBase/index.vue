@@ -87,7 +87,7 @@
         <AppError />
       </KPageContainer>
 
-      <div v-else id="main" role="main" tabindex="-1">
+      <div v-else id="main" role="main" tabindex="-1" class="main">
         <slot></slot>
       </div>
     </div>
@@ -448,8 +448,13 @@
 
   @import '~kolibri.styles.definitions';
 
-  #main {
+  .main {
     height: 100%;
+    // Don't put focus outline on the main div even if still in
+    // keyboard modality
+    &:focus {
+      outline-style: none !important;
+    }
   }
 
   .scrolling-pane {
