@@ -1,9 +1,9 @@
 import argparse
-import glob
 import importlib
 import json
 import logging
 import os
+import sys
 import tempfile
 
 from pkg_resources import DistributionNotFound
@@ -129,6 +129,12 @@ def main():
         default=None,
     )
     parser.add_argument(
+        "--plugin_path",
+        help="provide a path to add to the Python path to enable import of the plugins",
+        type=str,
+        default=os.getcwd(),
+    )
+    parser.add_argument(
         "-o", "--output_file", type=str, default=None, dest="output_file"
     )
     parser.add_argument("-v", "--verbose", default=False, action="store_true")
@@ -137,6 +143,11 @@ def main():
 
     if args.verbose:
         logger.setLevel(logging.DEBUG)
+
+    plugin_path = os.path.realpath(args.plugin_path)
+
+    # Add our plugin_path to the path
+    sys.path.append(plugin_path)
 
     # Put environment variable setting first to allow customized builds within buildkite through env vars
     if "BUILD_TIME_PLUGINS" in os.environ and os.environ["BUILD_TIME_PLUGINS"]:
@@ -157,6 +168,9 @@ def main():
     else:
         logger.info("No output file argument; writing webpack_json output to stdout.")
         logger.info(json.dumps(result))
+
+    # Remove the plugin_path from the path to clean up
+    sys.path.remove(plugin_path)
 
 
 if __name__ == "__main__":
