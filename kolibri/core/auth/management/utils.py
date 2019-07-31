@@ -16,6 +16,9 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import device_provisioned
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
+from kolibri.core.discovery.utils.network.errors import URLParseError
 
 
 def _interactive_client_facility_selection():
@@ -94,6 +97,8 @@ def get_dataset_id(baseurl, identifier=None, noninteractive=False):
     response = requests.get(facility_url)
     response.raise_for_status()
     facilities = response.json()
+    if not facilities:
+        raise CommandError("There are no facilities available at: {}".format(baseurl))
     # if provided, look up identifier in list of dataset and facility ids
     if identifier:
         for obj in facilities:
@@ -116,6 +121,19 @@ def get_dataset_id(baseurl, identifier=None, noninteractive=False):
             if len(facilities) > 1
             else facilities[0]["dataset"]
         )
+
+
+def get_baseurl(baseurl):
+    try:
+        return NetworkClient(address=baseurl).base_url
+    except URLParseError:
+        raise CommandError(
+            "Base URL/IP: {} is not valid. Please retry command and enter a valid URL/IP.".format(
+                baseurl
+            )
+        )
+    except NetworkLocationNotFound:
+        raise CommandError("Unable to connect to: {}".format(baseurl))
 
 
 def get_client_and_server_certs(
