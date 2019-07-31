@@ -2,7 +2,7 @@
 
   <PageTemplate>
 
-    <PageSection>
+    <PageSection title="Overview" anchor="#overview">
       <p>
         In general, we follow <ExternalLink href="https://material.io/archive/guidelines/style/writing.html" text="Material Design's writing guidelines" />. Our slightly adapted version is below.
       </p>
