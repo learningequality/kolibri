@@ -108,6 +108,7 @@
     top: 0;
     bottom: 0;
     left: 0;
+    z-index: 100;
   }
 
   .sidenav {

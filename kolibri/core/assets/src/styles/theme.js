@@ -97,6 +97,9 @@ export default {
   $themeTokens() {
     return tokens;
   },
+  $themeTokenMapping() {
+    return staticState.tokenMapping;
+  },
   $themeBrand() {
     return staticState.colors.brand;
   },

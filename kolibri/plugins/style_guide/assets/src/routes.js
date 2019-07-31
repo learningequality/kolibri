@@ -5,6 +5,7 @@ import Home from './views/content/Home';
 
 import InclusivePage from './views/content/Inclusive';
 import WritingPage from './views/content/Writing';
+import ColorsPage from './views/content/Colors';
 
 import ButtonsPage from './views/content/Buttons';
 import BreadcrumbsPage from './views/content/Breadcrumbs';
@@ -50,6 +51,13 @@ const navMenu = [
         itemRoute: {
           path: `/patterns/writing`,
           component: WritingPage,
+        },
+      },
+      {
+        itemName: 'Colors',
+        itemRoute: {
+          path: `/patterns/colors`,
+          component: ColorsPage,
         },
       },
     ],
