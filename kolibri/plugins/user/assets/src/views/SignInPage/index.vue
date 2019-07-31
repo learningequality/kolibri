@@ -22,7 +22,7 @@
             <h1
               v-if="$theme.signIn.showTitle"
               class="kolibri-title"
-              :class="$computedClass({color: $themeTokens.logoText})"
+              :class="$computedClass({color: $themeBrand.primary.v_300})"
               :style="$theme.signIn.titleStyle"
             >
               {{ logoText }}

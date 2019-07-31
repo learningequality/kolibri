@@ -15,12 +15,7 @@ const staticState = {
     {
       // brand shortcuts
       primary: 'brand.primary.v_400',
-      primaryLight: 'brand.primary.v_100',
       primaryDark: 'brand.primary.v_700',
-      secondary: 'brand.secondary.v_400',
-      secondaryLight: 'brand.secondary.v_100',
-      secondaryDark: 'brand.secondary.v_700',
-      logoText: 'brand.primary.v_300',
 
       // UI colors
       text: 'palette.grey.v_900',
