@@ -35,6 +35,7 @@ from .sanity_checks import check_log_file_location  # noqa
 from .system import become_daemon  # noqa
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
 from kolibri.core.upgrade import run_upgrades  # noqa
+from kolibri.core.upgrade import matches_version  # noqa
 from kolibri.plugins.utils import disable_plugin  # noqa
 from kolibri.plugins.utils import enable_plugin  # noqa
 from kolibri.utils.conf import config  # noqa
@@ -471,6 +472,11 @@ def setup_logging(debug=False):
     Configures logging in cases where a Django environment is not supposed
     to be configured.
     """
+    # Would be ideal to use the upgrade logic for this, but that is currently
+    # only designed for post-Django initialization tasks. If there are more cases
+    # for pre-django initialization upgrade tasks, we can generalize the logic here
+    if matches_version(get_version(), "<0.12.4"):
+        check_log_file_location()
     LOGGING = get_base_logging_config(LOG_ROOT)
     if debug:
         LOGGING["handlers"]["console"]["level"] = "DEBUG"
