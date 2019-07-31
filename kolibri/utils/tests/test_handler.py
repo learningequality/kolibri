@@ -16,12 +16,12 @@ class KolibriTimedRotatingFileHandlerTestCase(TestCase):
         settings.LOGGING["handlers"]["file"]["when"] = "s"
         # make sure that kolibri will be running for more than one second
         try:
-            cli.main(["--skipupdate", "manage", "help"])
+            cli.main(["manage", "--skipupdate", "help"])
         except SystemExit:
             pass
         sleep(1)
         try:
-            cli.main(["--skipupdate", "manage", "help"])
+            cli.main(["manage", "--skipupdate", "help"])
         except SystemExit:
             pass
         # change back to the original rotation time
