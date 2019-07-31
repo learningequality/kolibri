@@ -1,27 +1,25 @@
+"""
+We do not import unicode_literals here as it causes Click to
+give some very aggressive ewarning errors about subtle bugs
+so, to avoid these errors and these subtle bugs, we use
+explicit unicode literals in the following.
+"""
 from __future__ import absolute_import
 from __future__ import print_function
-from __future__ import unicode_literals
 
-import logging
 import importlib
+import logging
 import os
 import signal
 import sys
-from collections import defaultdict
 from sqlite3 import DatabaseError as SQLite3DatabaseError
 
 import click
 import django
 from django.core.management import call_command
-from django.core.management import get_commands
-from django.core.management import load_command_class
-from django.core.management import ManagementUtility
-from django.core.management.base import BaseCommand
-from django.core.management.base import CommandError
+from django.core.management import execute_from_command_line
 from django.core.management.base import handle_default_options
-from django.core.management.color import color_style
 from django.db.utils import DatabaseError
-from six import iteritems
 
 import kolibri
 from .debian_check import check_debian_user
@@ -120,17 +118,17 @@ def initialize(skipupdate=False):
     try:
         django.setup()
         if debug:
-            from djang.conf import settings
+            from django.conf import settings
 
             settings.DEBUG = True
 
     except (DatabaseError, SQLite3DatabaseError) as e:
         if "malformed" in str(e):
             logger.error(
-                "Your database appears to be corrupted. If you encounter this,"
-                "please immediately back up all files in the .kolibri folder that"
-                "end in .sqlite3, .sqlite3-shm, .sqlite3-wal, or .log and then"
-                "contact Learning Equality. Thank you!"
+                u"Your database appears to be corrupted. If you encounter this,"
+                u"please immediately back up all files in the .kolibri folder that"
+                u"end in .sqlite3, .sqlite3-shm, .sqlite3-wal, or .log and then"
+                u"contact Learning Equality. Thank you!"
             )
         raise
 
@@ -143,15 +141,15 @@ def initialize(skipupdate=False):
 
             try:
                 backup = dbbackup(version)
-                logger.info("Backed up database to: {path}".format(path=backup))
+                logger.info(u"Backed up database to: {path}".format(path=backup))
             except IncompatibleDatabase:
                 logger.warning(
-                    "Skipped automatic database backup, not compatible with "
-                    "this DB engine."
+                    u"Skipped automatic database backup, not compatible with "
+                    u"this DB engine."
                 )
 
         logger.info(
-            "Version was {old}, new version: {new}".format(
+            u"Version was {old}, new version: {new}".format(
                 old=version, new=kolibri.__version__
             )
         )
@@ -179,7 +177,7 @@ def update(old_version, new_version):
     TODO: We should look at version numbers of external plugins, too!
     """
 
-    logger.info("Running update routines for new version...")
+    logger.info(u"Running update routines for new version...")
 
     # Need to do this here, before we run any Django management commands that
     # import settings. Otherwise the updated configuration will not be used
@@ -209,7 +207,7 @@ def validate_module(ctx, param, value):
             importlib.import_module(value)
         except ImportError:
             raise click.BadParameter(
-                "{param} must be a valid python module import path"
+                u"{param} must be a valid python module import path"
             )
     return value
 
@@ -223,21 +221,26 @@ class DefaultDjangoOptions(object):
 
 
 @click.group()
-@click.option("--debug", default=False, help="Output debug messages (for development)")
+@click.option(
+    "--debug",
+    default=False,
+    is_flag=True,
+    help=u"Output debug messages (for development)",
+)
 @click.version_option(version=kolibri.__version__)
 @click.option(
-    "--settings", callback=validate_module, help="Django settings module path"
+    "--settings", callback=validate_module, help=u"Django settings module path"
 )
 @click.option(
     "--pythonpath",
     type=click.Path(exists=True, file_okay=False),
-    help="Add a path to the Python path",
+    help=u"Add a path to the Python path",
 )
 @click.option(
     "--skipupdate",
     default=False,
     is_flag=True,
-    help="Don't run update logic - useful if running two kolibri commands in parallel.",
+    help=u"Don't run update logic - useful if running two kolibri commands in parallel.",
 )
 def main(debug, settings, pythonpath, skipupdate):
     """
@@ -253,7 +256,7 @@ def create_startup_lock(port):
     try:
         server._write_pid_file(server.STARTUP_LOCK, port)
     except (IOError, OSError):
-        logger.warn("Impossible to create file lock to communicate starting process")
+        logger.warn(u"Impossible to create file lock to communicate starting process")
 
 
 @main.command()
@@ -261,10 +264,10 @@ def create_startup_lock(port):
     "--port",
     default=OPTIONS["Deployment"]["HTTP_PORT"],
     type=int,
-    help="Port on which to run Kolibri",
+    help=u"Port on which to run Kolibri",
 )
 @click.option(
-    "--daemon/--foreground", default=True, help="Run Kolibri as a background daemon"
+    "--daemon/--foreground", default=True, help=u"Run Kolibri as a background daemon"
 )
 def start(port, daemon):
     """
@@ -296,28 +299,28 @@ def start(port, daemon):
     run_cherrypy = OPTIONS["Server"]["CHERRYPY_START"]
 
     if not daemon:
-        logger.info("Running 'kolibri start' in foreground...")
+        logger.info(u"Running 'kolibri start' in foreground...")
 
     else:
-        logger.info("Running 'kolibri start' as daemon (system service)")
+        logger.info(u"Running 'kolibri start' as daemon (system service)")
 
     if run_cherrypy:
         __, urls = server.get_urls(listen_port=port)
         if not urls:
             logger.error(
-                "Could not detect an IP address that Kolibri binds to, but try "
-                "opening up the following addresses:\n"
+                u"Could not detect an IP address that Kolibri binds to, but try "
+                u"opening up the following addresses:\n"
             )
             urls = [
                 "http://{}:{}".format(ip, port) for ip in ("localhost", "127.0.0.1")
             ]
         else:
-            logger.info("Kolibri running on:\n")
+            logger.info(u"Kolibri running on:\n")
         for addr in urls:
             sys.stderr.write("\t{}\n".format(addr))
         sys.stderr.write("\n")
     else:
-        logger.info("Starting Kolibri background services")
+        logger.info(u"Starting Kolibri background services")
 
     # Daemonize at this point, no more user output is needed
     if daemon:
@@ -325,7 +328,7 @@ def start(port, daemon):
         from django.conf import settings
 
         kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
-        logger.info("Going to daemon mode, logging to {0}".format(kolibri_log))
+        logger.info(u"Going to daemon mode, logging to {0}".format(kolibri_log))
 
         kwargs = {}
         # Truncate the file
@@ -356,24 +359,24 @@ def stop():
         server.stop(pid=pid)
         stopped = True
         if OPTIONS["Server"]["CHERRYPY_START"]:
-            logger.info("Kolibri server has successfully been stopped.")
+            logger.info(u"Kolibri server has successfully been stopped.")
         else:
-            logger.info("Kolibri background services have successfully been stopped.")
+            logger.info(u"Kolibri background services have successfully been stopped.")
     except server.NotRunning as e:
         verbose_status = "{msg:s} ({code:d})".format(
             code=e.status_code, msg=status.codes[e.status_code]
         )
         if e.status_code == server.STATUS_STOPPED:
-            logger.info("Already stopped: {}".format(verbose_status))
+            logger.info(u"Already stopped: {}".format(verbose_status))
             stopped = True
         elif e.status_code == server.STATUS_STARTING_UP:
-            logger.error("Not stopped: {}".format(verbose_status))
+            logger.error(u"Not stopped: {}".format(verbose_status))
             sys.exit(e.status_code)
         else:
             logger.error(
-                "During graceful shutdown, server says: {}".format(verbose_status)
+                u"During graceful shutdown, server says: {}".format(verbose_status)
             )
-            logger.error("Not responding, killing with force")
+            logger.error(u"Not responding, killing with force")
             server.stop(force=True)
             stopped = True
 
@@ -403,9 +406,9 @@ def status():
     status_code, urls = server.get_urls()
 
     if status_code == server.STATUS_RUNNING:
-        sys.stderr.write("{msg:s} (0)\n".format(msg=status.codes[0]))
+        sys.stderr.write(u"{msg:s} (0)\n".format(msg=status.codes[0]))
         if urls:
-            sys.stderr.write("Kolibri running on:\n\n")
+            sys.stderr.write(u"Kolibri running on:\n\n")
             for addr in urls:
                 sys.stderr.write("\t{}\n".format(addr))
     else:
@@ -417,19 +420,19 @@ def status():
 
 
 status.codes = {
-    server.STATUS_RUNNING: "OK, running",
-    server.STATUS_STOPPED: "Stopped",
-    server.STATUS_STARTING_UP: "Starting up",
-    server.STATUS_NOT_RESPONDING: "Not responding",
-    server.STATUS_FAILED_TO_START: "Failed to start (check log file: {0})".format(
+    server.STATUS_RUNNING: u"OK, running",
+    server.STATUS_STOPPED: u"Stopped",
+    server.STATUS_STARTING_UP: u"Starting up",
+    server.STATUS_NOT_RESPONDING: u"Not responding",
+    server.STATUS_FAILED_TO_START: u"Failed to start (check log file: {0})".format(
         server.DAEMON_LOG
     ),
-    server.STATUS_UNCLEAN_SHUTDOWN: "Unclean shutdown",
-    server.STATUS_UNKNOWN_INSTANCE: "Unknown Kolibri running on port",
-    server.STATUS_SERVER_CONFIGURATION_ERROR: "Kolibri server configuration error",
-    server.STATUS_PID_FILE_READ_ERROR: "Could not read PID file",
-    server.STATUS_PID_FILE_INVALID: "Invalid PID file",
-    server.STATUS_UNKNOWN: "Could not determine status",
+    server.STATUS_UNCLEAN_SHUTDOWN: u"Unclean shutdown",
+    server.STATUS_UNKNOWN_INSTANCE: u"Unknown Kolibri running on port",
+    server.STATUS_SERVER_CONFIGURATION_ERROR: u"Kolibri server configuration error",
+    server.STATUS_PID_FILE_READ_ERROR: u"Could not read PID file",
+    server.STATUS_PID_FILE_INVALID: u"Invalid PID file",
+    server.STATUS_UNKNOWN: u"Could not determine status",
 }
 
 
@@ -437,7 +440,7 @@ status.codes = {
 @click.option(
     "--daemon/--foreground",
     default=True,
-    help="Run Kolibri services as a background task",
+    help=u"Run Kolibri services as a background task",
 )
 def services(daemon):
     """
@@ -450,7 +453,7 @@ def services(daemon):
 
     create_startup_lock(None)
 
-    logger.info("Starting Kolibri background services")
+    logger.info(u"Starting Kolibri background services")
 
     # Daemonize at this point, no more user output is needed
     if daemon:
@@ -458,7 +461,7 @@ def services(daemon):
         from django.conf import settings
 
         kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
-        logger.info("Going to daemon mode, logging to {0}".format(kolibri_log))
+        logger.info(u"Going to daemon mode, logging to {0}".format(kolibri_log))
 
         kwargs = {}
         # Truncate the file
@@ -487,134 +490,9 @@ def setup_logging(debug=False):
     logging.config.dictConfig(LOGGING)
 
 
-def make_param(django_param):
-    choices = click.Choice(django_param.choices) if django_param.choices else None
-    multiple = False
-    nargs = 1
-    if django_param.nargs:
-        if django_param.nargs == "*":
-            multiple = True
-        if type(django_param.nargs) is int:
-            nargs = django_param.nargs
-    if django_param.option_strings:
-        return click.Option(
-            param_decls=django_param.option_strings,
-            nargs=nargs,
-            multiple=multiple,
-            required=django_param.required,
-            default=django_param.default,
-            type=choices or django_param.type,
-            metavar=django_param.metavar,
-        )
-    else:
-        return click.Argument(
-            param_decls=[django_param.dest],
-            nargs=nargs,
-            required=django_param.required,
-            default=django_param.default,
-            type=choices or django_param.type,
-            metavar=django_param.metavar,
-        )
-
-
-def _format_kwarg_for_logging(kwarg):
-    return "--{} {}".format(str(kwarg[0]), str(kwarg[1]))
-
-
-class ManageGroup(click.MultiCommand):
-
-    ignore_unknown_options = True
-
-    def list_commands(self, ctx):
-        initialize(skipupdate=True)
-        commands = get_commands()
-        return commands
-
-    def format_commands(self, ctx, formatter):
-        """Extra format methods for multi methods that adds all the commands
-        after the options.
-        """
-        limit = formatter.width
-        commands_dict = defaultdict(lambda: [])
-        for subcommand, app in iteritems(self.list_commands(ctx)):
-            if app == "django.core":
-                app = "django"
-            else:
-                app = app.rpartition(".")[-1]
-            cmd = self.get_command(ctx, subcommand)
-            # What is this, the tool lied about a command.  Ignore it
-            if cmd is None:
-                continue
-            if cmd.hidden:
-                continue
-            commands_dict[app].append((subcommand, cmd))
-            limit = max(limit, formatter.width - 6 - len(subcommand))
-        style = color_style()
-
-        for app in sorted(commands_dict):
-            commands = commands_dict[app]
-            # allow for 3 times the default spacing
-            if len(commands):
-                rows = []
-                for subcommand, cmd in sorted(commands):
-                    help = cmd.get_short_help_str(limit)
-                    rows.append((subcommand, help))
-
-                if rows:
-                    with formatter.section(style.NOTICE("[%s]" % app)):
-                        formatter.write_dl(rows)
-
-    def get_command(self, ctx, command_name):
-        try:
-
-            def f(*args, **kwargs):
-                logger.info(
-                    "Invoking command {name} {args} {kwargs}".format(
-                        name=command_name,
-                        args=" ".join(map(str, args)),
-                        kwargs=" ".join(
-                            map(_format_kwarg_for_logging, kwargs.iteritems())
-                        ),
-                    )
-                )
-                call_command(command_name, *args, **kwargs)
-
-            # Have to initialize Django before we do this,
-            # to ensure we get a full list of valid management
-            # commands
-            initialize(skipupdate=True)
-            # Load the command object by name.
-            try:
-                app_name = get_commands()[command_name]
-            except KeyError:
-                raise CommandError("Unknown command: %r" % command_name)
-
-            if isinstance(app_name, BaseCommand):
-                # If the command is already loaded, use it directly.
-                command = app_name
-            else:
-                command = load_command_class(app_name, command_name)
-
-            parser = command.create_parser("", command_name)
-            params = list(map(make_param, parser._actions))
-            help_text = command.help
-        except (AttributeError, ImportError):
-            command_name = "help"
-
-            def f(*args, **kwargs):
-                util = ManagementUtility()
-                util.main_help_text()
-
-            params = []
-            help_text = None
-        command = click.Command(
-            name=command_name, params=params, callback=f, help=help_text
-        )
-        return command
-
-
-@main.command(cls=ManageGroup)
-def manage():
+@main.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
+@click.pass_context
+def manage(ctx):
     """
     Invokes a django management command
     \f
@@ -622,12 +500,16 @@ def manage():
     :param: args: arguments for the command
     """
     initialize()
+    if ctx.args:
+        logger.info(u"Invoking command {}".format(" ".join(ctx.args)))
+    execute_from_command_line(["kolibri manage"] + ctx.args)
 
 
 @main.command()
 @click.pass_context
 def shell(ctx):
-    ctx.forward(manage.get_command(ctx, "shell"))
+    initialize()
+    execute_from_command_line(["kolibri manage", "shell"] + ctx.args)
 
 
 ENABLE = "enable"
@@ -645,11 +527,11 @@ def plugin(plugin_name, command):
     setup_logging(debug=debug)
 
     if command == ENABLE:
-        logger.info("Enabling Kolibri plugin {}.".format(plugin_name))
+        logger.info(u"Enabling Kolibri plugin {}.".format(plugin_name))
         enable_plugin(plugin_name)
 
     if command == DISABLE:
-        logger.info("Disabling Kolibri plugin {}.".format(plugin_name))
+        logger.info(u"Disabling Kolibri plugin {}.".format(plugin_name))
         disable_plugin(plugin_name)
 
     config.save()
