@@ -39,7 +39,9 @@ from kolibri.plugins.utils import disable_plugin  # noqa
 from kolibri.plugins.utils import enable_plugin  # noqa
 from kolibri.utils.conf import config  # noqa
 from kolibri.utils.conf import KOLIBRI_HOME  # noqa
+from kolibri.utils.conf import LOG_ROOT  # noqa
 from kolibri.utils.conf import OPTIONS  # noqa
+from kolibri.utils.logger import get_base_logging_config  # noqa
 
 logger = logging.getLogger(__name__)
 
@@ -131,8 +133,6 @@ def initialize(skipupdate=False):
                 u"contact Learning Equality. Thank you!"
             )
         raise
-
-    setup_logging(debug=debug)
 
     if version_updated(kolibri.__version__, version) and not skipupdate:
         if should_back_up(kolibri.__version__, version):
@@ -248,8 +248,8 @@ def main(debug, settings, pythonpath, skipupdate):
     Utility functions should be callable for unit testing purposes, but remember
     to use main() for integration tests in order to test the argument API.
     """
-
     signal.signal(signal.SIGINT, signal.SIG_DFL)
+    setup_logging(debug=debug)
 
 
 def create_startup_lock(port):
@@ -349,12 +349,6 @@ def stop():
     Stops the server unless it isn't running
     """
     try:
-        debug = click.get_current_context().find_root().params["debug"]
-    except RuntimeError:
-        debug = False
-
-    setup_logging(debug=debug)
-    try:
         pid, __, __ = server.get_status()
         server.stop(pid=pid)
         stopped = True
@@ -400,9 +394,6 @@ def status():
 
     :returns: status_code, key has description in status.codes
     """
-    debug = click.get_current_context().find_root().params["debug"]
-    setup_logging(debug=debug)
-
     status_code, urls = server.get_urls()
 
     if status_code == server.STATUS_RUNNING:
@@ -480,10 +471,7 @@ def setup_logging(debug=False):
     Configures logging in cases where a Django environment is not supposed
     to be configured.
     """
-    try:
-        from django.settings import LOGGING
-    except ImportError:
-        from kolibri.deployment.default.settings.base import LOGGING
+    LOGGING = get_base_logging_config(LOG_ROOT)
     if debug:
         LOGGING["handlers"]["console"]["level"] = "DEBUG"
         LOGGING["loggers"]["kolibri"]["level"] = "DEBUG"
@@ -523,9 +511,6 @@ def plugin(plugin_name, command):
     """
     Allows a Kolibri plugin to be either enabled or disabled.
     """
-    debug = get_root_params()["debug"]
-    setup_logging(debug=debug)
-
     if command == ENABLE:
         logger.info(u"Enabling Kolibri plugin {}.".format(plugin_name))
         enable_plugin(plugin_name)
