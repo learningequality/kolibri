@@ -1,6 +1,9 @@
 <template>
 
   <div :style="{ backgroundColor: $themeTokens.primary }">
+
+    <SkipNavigationLink />
+
     <UiToolbar
       :title="title"
       type="clear"
@@ -124,6 +127,7 @@
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
+  import SkipNavigationLink from './SkipNavigationLink';
 
   export default {
     name: 'AppBar',
@@ -135,6 +139,7 @@
       CoreMenuOption,
       LogoutSideNavEntry,
       UserTypeDisplay,
+      SkipNavigationLink,
     },
     mixins: [commonCoreStrings, navComponentsMixin, themeMixin],
     props: {
