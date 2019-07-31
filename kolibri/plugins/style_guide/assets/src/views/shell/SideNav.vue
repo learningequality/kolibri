@@ -29,7 +29,7 @@
         </div>
       </div>
     </nav>
-    <div class="bottom-gradient"></div>
+    <div v-show="!closed" class="bottom-gradient"></div>
   </div>
 
 </template>

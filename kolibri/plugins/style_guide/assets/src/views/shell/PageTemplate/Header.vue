@@ -105,6 +105,13 @@
     border-bottom: 1px solid #dedede;
   }
 
+  @media print {
+    .header {
+      position: absolute !important;
+      border-bottom: none;
+    }
+  }
+
   .nav {
     padding: 0;
     margin: 0;

@@ -63,6 +63,7 @@
   }
 
   a {
+    display: inline-block; // prevents trailing spaces
     color: #368d74;
     transition: all 0.25s ease;
 
