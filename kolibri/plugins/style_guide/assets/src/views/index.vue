@@ -14,16 +14,18 @@
 
 <script>
 
+  import state from '../state';
   import SideNav from './shell/SideNav';
-  import navWidth from './navWidth';
 
   export default {
     name: 'StyleGuideIndex',
     components: {
       SideNav,
     },
-    created() {
-      this.navWidth = navWidth;
+    computed: {
+      navWidth() {
+        return state.navWidth;
+      },
     },
   };
 

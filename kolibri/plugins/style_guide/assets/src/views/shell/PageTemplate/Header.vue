@@ -2,7 +2,7 @@
 
   <div
     class="header"
-    :class="{ fixed: scrolled}"
+    :class="{ fixed: scrolled }"
     :style="style"
   >
     <h1 class="header-text">
@@ -24,7 +24,7 @@
 
   import { throttle } from 'frame-throttle';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import navWidth from '../../navWidth';
+  import state from '../../../state';
   import SectionLink from './SectionLink';
 
   export default {
@@ -52,19 +52,19 @@
       },
       style() {
         return {
-          left: `${navWidth}px`,
+          left: `${this.navWidth}px`,
           // Pos fixed inline style necessary for responsive-element compatibility
           position: 'fixed',
         };
+      },
+      navWidth() {
+        return state.navWidth;
       },
     },
     watch: {
       elementHeight() {
         this.$emit('heightChange', this.elementHeight);
       },
-    },
-    created() {
-      this.navWidth = navWidth;
     },
     mounted() {
       window.addEventListener('scroll', this.throttledHandleScroll);

@@ -2,29 +2,32 @@
 
   <div class="nav-wrapper" :style="{width: `${navWidth}px`}">
     <nav class="sidenav">
-      <h1>
-        <CoreLogo slot="icon" class="logo" alt="Kolibri" />
-        Design System
-      </h1>
-      <router-link :to="'/'" exact>
-        Home
-      </router-link>
+      <a class="header" @click="closed = !closed">
+        <h1>
+          <CoreLogo class="logo" alt="Kolibri" />
+          <span v-show="!closed">Design System</span>
+        </h1>
+      </a>
+      <div v-show="!closed" class="nav-links">
+        <router-link :to="'/'" exact>
+          Home
+        </router-link>
 
-      <div v-for="(section, i) in navMenu" :key="i" class="section">
-        <HorizontalRule />
+        <div v-for="(section, i) in navMenu" :key="i" class="section">
+          <HorizontalRule />
 
-        <div class="section-heading">
-          {{ section.sectionName }}
+          <div class="section-heading">
+            {{ section.sectionName }}
+          </div>
+          <ul>
+            <li v-for="(sectionItem, j) in section.sectionItems" :key="j">
+              <router-link :to="sectionItem.itemRoute">
+                {{ sectionItem.itemName }}
+              </router-link>
+            </li>
+          </ul>
         </div>
-        <ul>
-          <li v-for="(sectionItem, j) in section.sectionItems" :key="j">
-            <router-link :to="sectionItem.itemRoute">
-              {{ sectionItem.itemName }}
-            </router-link>
-          </li>
-        </ul>
       </div>
-
     </nav>
     <div class="bottom-gradient"></div>
   </div>
@@ -36,7 +39,7 @@
 
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import { navMenu } from '../../routes.js';
-  import navWidth from '../navWidth';
+  import state from '../../state';
   import HorizontalRule from './HorizontalRule';
 
   export default {
@@ -45,9 +48,23 @@
       HorizontalRule,
       CoreLogo,
     },
+    data() {
+      return {
+        closed: false,
+      };
+    },
+    computed: {
+      navWidth() {
+        return state.navWidth;
+      },
+    },
+    watch: {
+      closed(val) {
+        state.navWidth = val ? 84 : 260;
+      },
+    },
     created() {
       this.navMenu = navMenu;
-      this.navWidth = navWidth;
     },
   };
 
@@ -58,18 +75,22 @@
 
   @import '~kolibri.styles.definitions';
 
-  h1 {
-    margin-bottom: 32px;
-    font-size: 20px;
-    font-weight: bold;
-    color: #918daf;
-  }
+  .header {
+    cursor: pointer;
 
-  .logo {
-    position: relative;
-    width: 55px;
-    margin-right: 4px;
-    vertical-align: middle;
+    h1 {
+      margin-bottom: 32px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #918daf;
+    }
+
+    .logo {
+      position: relative;
+      width: 55px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
   }
 
   .bottom-gradient {
@@ -114,25 +135,27 @@
     list-style-type: none;
   }
 
-  a {
-    display: block;
-    padding: 8px;
-    margin-right: -8px;
-    margin-bottom: 2px;
-    margin-left: -8px;
-    color: #368d74;
-    text-decoration: none;
-    border-radius: 4px;
-    outline-offset: 3px;
+  .nav-links {
+    a {
+      display: block;
+      padding: 8px;
+      margin-right: -8px;
+      margin-bottom: 2px;
+      margin-left: -8px;
+      color: #368d74;
+      text-decoration: none;
+      border-radius: 4px;
+      outline-offset: 3px;
 
-    &:hover {
-      color: #26614d;
-      background-color: #efefef;
-    }
+      &:hover {
+        color: #26614d;
+        background-color: #efefef;
+      }
 
-    &.router-link-active {
-      color: black;
-      background-color: #dedede;
+      &.router-link-active {
+        color: black;
+        background-color: #dedede;
+      }
     }
   }
 
