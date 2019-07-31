@@ -7,6 +7,7 @@ This set of functions interacts with the crowdin API as documented here:
     https://support.crowdin.com/api/api-integration-setup/
 """
 import argparse
+import csv
 import io
 import json
 import logging
@@ -66,6 +67,15 @@ CROWDIN_API_URL = "https://api.crowdin.com/api/project/{proj}/{cmd}?key={key}{pa
 DETAILS_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT, key=CROWDIN_API_KEY, cmd="info", params="&json"
 )
+CROWDIN_LANG_CODES = "identifier,source_phrase,context," + ",".join(
+    [
+        lang["crowdin_code"]
+        for lang in utils.supported_languages(
+            include_english=True
+        )
+    ]
+)
+
 LANG_STATUS_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
@@ -88,13 +98,13 @@ ADD_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="add-file",
-    params="&branch={branch}&first_line_contains_header&json",
+    params="&branch={branch}&first_line_contains_header&scheme={langs}&json",
 )
 UPDATE_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="update-file",
-    params="&branch={branch}&first_line_contains_header&json",
+    params="&branch={branch}&first_line_contains_header&scheme={langs}&json",
 )
 DELETE_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
@@ -126,6 +136,7 @@ UPLOAD_TRANSLATION_URL = CROWDIN_API_URL.format(
 )
 
 PERSEUS_FILE = "exercise_perseus_render_module-messages.json"
+PERSEUS_CSV = "exercise_perseus_render_module-messages.csv"
 
 """
 Shared helpers
@@ -163,17 +174,41 @@ def _format_json_files():
         locale_paths.append(utils.local_locale_path(lang_object))
         locale_paths.append(utils.local_perseus_locale_path(lang_object))
     for locale_path in locale_paths:
-        for file_name in os.listdir(locale_path):
-            if not file_name.endswith(".json"):
+        for file_name in os.listdir(utils.local_locale_csv_path()):
+            if not file_name.endswith(".csv"):
                 continue
-            file_path = os.path.join(locale_path, file_name)
+            file_path = os.path.join(utils.local_locale_csv_path(), file_name)
             with io.open(file_path, mode="r", encoding="utf-8") as f:
-                data = json.load(f)
-            utils.json_dump_formatted(data, file_path)
+                json_data = _locale_data_from_csv(f, locale_path)
+                data = json.dumps(json_data)
+            utils.json_dump_formatted(
+                json.loads(data), locale_path, file_name.replace("csv", "json")
+            )
+
+
+def _locale_data_from_csv(file_data, locale_path):
+    csv_reader = csv.reader(file_data)
+    headers = csv_reader.__next__()
+    locale = locale_path.split("/")[-2]
+    json = dict()
+
+    try:
+        locale_index = headers.index(locale)
+    except:
+        # If there is no locale in the headers of the file, then there
+        # certainly aren't any translations. So just return empty dict
+        return json
+
+    for row in csv_reader:
+        if(len(row) == 0):
+            return json
+        json[row[0]] = row[locale_index]
+
+    return json
 
 
 def _is_string_file(file_name):
-    return file_name.endswith(".po") or file_name.endswith('-messages.csv')
+    return file_name.endswith(".po") or file_name.endswith("-messages.csv")
 
 
 """
@@ -314,18 +349,24 @@ def command_download(branch):
         r = requests.get(url)
         r.raise_for_status()
         z = zipfile.ZipFile(io.BytesIO(r.content))
-        target = utils.local_locale_path(lang_object)
+        target = utils.local_locale_csv_path()
         logging.info("\tExtracting {} to {}".format(code, target))
         z.extractall(target)
 
         # hack for perseus
-        perseus_target = utils.local_perseus_locale_path(lang_object)
+        perseus_target = utils.local_perseus_locale_csv_path()
+        ## TODO - Update this to work with perseus properly - likely to need to update
+        ## the kolibri-exercise-perseus-plugin repo directly to produce a CSV for its
+        ## translations.
         if not os.path.exists(perseus_target):
             os.makedirs(perseus_target)
-        shutil.move(
-            os.path.join(target, PERSEUS_FILE),
-            os.path.join(perseus_target, PERSEUS_FILE),
-        )
+        try:
+            shutil.move(
+                os.path.join(target, PERSEUS_CSV),
+                os.path.join(perseus_target, PERSEUS_CSV),
+            )
+        except:
+            pass
 
     _format_json_files()  # clean them up to make git diffs more meaningful
     logging.info("Crowdin: download succeeded!")
@@ -334,7 +375,6 @@ def command_download(branch):
 """
 Upload command
 """
-
 
 def _source_upload_ref(file_name):
     if file_name == PERSEUS_FILE:  # hack for perseus, assumes the same file name
@@ -389,10 +429,12 @@ def command_upload_sources(branch):
 
     if to_add:
         logging.info("\tAdd in '{}': {}".format(branch, ", ".join(to_add)))
-        _modify(ADD_SOURCE_URL.format(branch=branch), to_add)
+        _modify(ADD_SOURCE_URL.format(branch=branch, langs=CROWDIN_LANG_CODES), to_add)
     if to_update:
         logging.info("\tUpdate in '{}': {}".format(branch, ", ".join(to_update)))
-        _modify(UPDATE_SOURCE_URL.format(branch=branch), to_update)
+        _modify(
+            UPDATE_SOURCE_URL.format(branch=branch, langs=CROWDIN_LANG_CODES), to_update
+        )
 
     logging.info("Crowdin: upload succeeded!")
 

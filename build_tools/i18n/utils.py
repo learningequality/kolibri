@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import sys
+from pathlib import Path
 
 import kolibri_exercise_perseus_plugin
 
@@ -88,6 +89,11 @@ def local_locale_path(lang_object):
         LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
     )
 
+@memoize
+def local_locale_csv_path():
+    return os.path.join(
+        LOCALE_PATH, 'CSV_FILES'
+    )
 
 @memoize
 def local_perseus_locale_path(lang_object):
@@ -95,15 +101,28 @@ def local_perseus_locale_path(lang_object):
         PERSEUS_LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
     )
 
+@memoize
+def local_perseus_locale_csv_path():
+    return os.path.join(
+        PERSEUS_LOCALE_PATH, "CSV_FILES"
+    )
 
-def json_dump_formatted(data, file_path):
+def json_dump_formatted(data, file_path, file_name):
     """
     dump json in a way that plays nicely with source control and our precommit hooks:
     - prevents trailing whitespace
     - sorted keys
     - make sure it's utf-8
     """
-    with io.open(file_path, mode="w", encoding="utf-8") as file_object:
+    # Ensure that the directory exists for the file to be opened inside of.
+    dir_path = Path(file_path)
+    dir_path.mkdir(exist_ok=True, parents=True)
+
+    # Join the filename to the path which we now know exists for sure.
+    file_path = os.path.join(file_path, file_name)
+
+    # Format and write the JSON file
+    with io.open(file_path, mode="w+", encoding="utf-8") as file_object:
         json.dump(
             data,
             file_object,
