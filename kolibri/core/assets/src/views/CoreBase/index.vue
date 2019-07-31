@@ -87,7 +87,9 @@
         <AppError />
       </KPageContainer>
 
-      <slot v-else></slot>
+      <div v-else id="main" role="main" tabindex="-1">
+        <slot></slot>
+      </div>
     </div>
 
     <GlobalSnackbar />
@@ -445,6 +447,10 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+
+  #main {
+    height: 100%;
+  }
 
   .scrolling-pane {
     position: absolute;

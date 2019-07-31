@@ -73,7 +73,7 @@
     padding: 8px 16px;
     font-size: 14px;
     background-color: white;
-    border-radius: $radius;
+    outline-offset: 0 !important;
 
     &:focus {
       top: 8px;
