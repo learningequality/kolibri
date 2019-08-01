@@ -108,7 +108,7 @@
   @media print {
     .header {
       position: absolute !important;
-      border-bottom: none;
+      border-bottom-width: 0;
     }
   }
 
