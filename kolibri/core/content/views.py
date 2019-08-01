@@ -25,7 +25,6 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import etag
 from django.views.generic.base import View
-from le_utils.constants import exercises
 from six.moves.urllib.parse import urlunparse
 
 from .api import cache_forever
@@ -234,18 +233,10 @@ def get_embedded_file(request, zf, zipped_filename, embedded_filepath):
         html = parse_html(content)
         response = HttpResponse(html, content_type=content_type)
         file_size = len(response.content)
-    elif not os.path.splitext(embedded_filepath)[1] == ".json":
+    else:
         # generate a streaming response object, pulling data from within the zip  file
         response = FileResponse(zf.open(info), content_type=content_type)
         file_size = info.file_size
-    else:
-        image_prefix_url = generate_image_prefix_url(request, zipped_filename)
-        # load the stream from json file into memory, replace the path_place_holder.
-        content = zf.open(info).read()
-        str_to_be_replaced = ("$" + exercises.IMG_PLACEHOLDER).encode()
-        content_with_path = content.replace(str_to_be_replaced, image_prefix_url)
-        response = HttpResponse(content_with_path, content_type=content_type)
-        file_size = len(response.content)
 
     # set the content-length header to the size of the embedded file
     if file_size:
