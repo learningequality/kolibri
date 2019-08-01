@@ -9,7 +9,6 @@
         <KFilterTextbox
           v-model="filterInput"
           :placeholder="filterPlaceholder"
-          @input="pageNum = 1"
         />
       </KGridItem>
     </KGrid>
@@ -78,10 +77,6 @@
         type: String,
         required: true,
       },
-      otherFilters: {
-        type: Object,
-        required: false,
-      },
     },
     data() {
       return {
@@ -93,7 +88,7 @@
     computed: {
       filteredItems() {
         if (this.filterFunction) {
-          return this.filterFunction(this.items, this.filterInput, this.otherFilters);
+          return this.filterFunction(this.items, this.filterInput);
         }
         return this.items;
       },
@@ -120,11 +115,10 @@
       },
     },
     watch: {
-      otherFilters: {
+      filteredItems: {
         handler() {
           this.pageNum = 1;
         },
-        deep: true,
       },
     },
     methods: {

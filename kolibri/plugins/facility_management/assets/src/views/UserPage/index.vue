@@ -18,7 +18,6 @@
     <PaginatedListContainer
       :items="facilityUsers"
       :filterFunction="filterUsers"
-      :otherFilters="{roleFilter}"
       :filterPlaceholder="$tr('searchText')"
     >
       <template v-slot:otherFilter>
@@ -154,10 +153,10 @@
         }
         return '';
       },
-      filterUsers(users, filterText, { roleFilter }) {
+      filterUsers(users, filterText) {
         return filterAndSortUsers(
           users,
-          user => userMatchesFilter(user, filterText) && this.userMatchesRole(user, roleFilter)
+          user => userMatchesFilter(user, filterText) && this.userMatchesRole(user, this.roleFilter)
         );
       },
       closeModal() {
