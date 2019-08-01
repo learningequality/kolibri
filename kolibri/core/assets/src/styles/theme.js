@@ -21,10 +21,10 @@ const staticState = {
       text: 'palette.grey.v_900',
       textDisabled: 'palette.grey.v_300',
       annotation: 'palette.grey.v_700',
-      textInverted: 'white',
+      textInverted: 'palette.white',
       loading: 'brand.secondary.v_200',
       focusOutline: 'brand.secondary.v_200',
-      surface: 'white',
+      surface: 'palette.white',
       fineLine: '#dedede',
 
       // general semantic colors

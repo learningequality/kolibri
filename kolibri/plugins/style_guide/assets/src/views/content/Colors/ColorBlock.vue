@@ -3,10 +3,11 @@
   <div class="block-wrapper">
     <div class="color-block" :style="{backgroundColor: value}"></div>
     <div class="code name">
-      <code>{{ displayName }}</code>
+      <code>{{ name }}</code>
     </div>
     <div class="code value">
-      <code>{{ value }}<span v-if="tokenSource"> ({{ tokenSource }})</span></code>
+      <code v-if="tokenSource">{{ tokenSource }}</code>
+      <code v-else>{{ value }}</code>
     </div>
     <p v-if="$slots.default" class="description">
       <slot></slot>
@@ -20,9 +21,7 @@
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
-  const TOKENS = '$themeTokens.';
-  const BRAND = '$themeBrand.';
-  const PALETTE = '$themePalette.';
+  const TOKENS = 'tokens.';
 
   export default {
     name: 'ColorBlock',
@@ -34,14 +33,12 @@
       },
     },
     computed: {
-      displayName() {
-        return this.name
-          .replace(TOKENS, 'tokens.')
-          .replace(BRAND, 'brand.')
-          .replace(PALETTE, 'palette.');
-      },
       value() {
-        return eval(`this.${this.name}`);
+        const code = this.name
+          .replace(TOKENS, '$themeTokens.')
+          .replace('brand.', '$themeBrand.')
+          .replace('palette.', '$themePalette.');
+        return eval(`this.${code}`);
       },
       tokenSource() {
         if (!this.name.startsWith(TOKENS)) {

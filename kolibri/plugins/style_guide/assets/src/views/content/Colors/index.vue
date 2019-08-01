@@ -15,12 +15,12 @@
       <p>
         Some examples of named colors in the Kolibri design system include:
       </p>
-      <ColorBlock name="$themeTokens.text" />
-      <ColorBlock name="$themeTokens.error" />
-      <ColorBlock name="$themeTokens.primary" />
-      <ColorBlock name="$themeBrand.primary.v_900" />
-      <ColorBlock name="$themeBrand.secondary.v_200" />
-      <ColorBlock name="$themePalette.grey.v_400" />
+      <ColorBlock name="tokens.text" />
+      <ColorBlock name="tokens.error" />
+      <ColorBlock name="tokens.primary" />
+      <ColorBlock name="brand.primary.v_900" />
+      <ColorBlock name="brand.secondary.v_200" />
+      <ColorBlock name="palette.grey.v_400" />
 
       <p>
         Care must be taken as we adjust the colors in the application. There are a number of considerations to take into account, including:
@@ -58,74 +58,74 @@
       </p>
 
       <h3>Brand shortcuts</h3>
-      <ColorBlock name="$themeTokens.primary">
+      <ColorBlock name="tokens.primary">
         Default primary brand color. Commonly used for interactive elements
       </ColorBlock>
-      <ColorBlock name="$themeTokens.primaryDark">
+      <ColorBlock name="tokens.primaryDark">
         Default dark variant of the primary brand color. Commonly used for the hover state of interactive elements
       </ColorBlock>
 
       <h3>UI Colors</h3>
-      <ColorBlock name="$themeTokens.surface">
+      <ColorBlock name="tokens.surface">
         Default background color
       </ColorBlock>
-      <ColorBlock name="$themeTokens.text">
+      <ColorBlock name="tokens.text">
         Normal text color. (Typically used on top of the <code>$themeTokens.surface</code> color)
       </ColorBlock>
-      <ColorBlock name="$themeTokens.annotation">
+      <ColorBlock name="tokens.annotation">
         Text color with lower visual weight. (Typically used on top of the <code>$themeTokens.surface</code> color)
       </ColorBlock>
-      <ColorBlock name="$themeTokens.textDisabled">
+      <ColorBlock name="tokens.textDisabled">
         Text color with lowest visual weight. (Typically used on top of the <code>$themeTokens.surface</code> color)
       </ColorBlock>
-      <ColorBlock name="$themeTokens.textInverted">
+      <ColorBlock name="tokens.textInverted">
         Text color for creating sufficient contrast when used on dark backgrounds (such as <code>$themeTokens.primary</code>)
       </ColorBlock>
-      <ColorBlock name="$themeTokens.loading">
+      <ColorBlock name="tokens.loading">
         Color for loaders, spinners, and other progress indicators
       </ColorBlock>
-      <ColorBlock name="$themeTokens.focusOutline">
+      <ColorBlock name="tokens.focusOutline">
         Used to indicate keyboard focus
       </ColorBlock>
-      <ColorBlock name="$themeTokens.fineLine">
+      <ColorBlock name="tokens.fineLine">
         Used for divider lines and rules
       </ColorBlock>
-      <ColorBlock name="$themeTokens.error">
+      <ColorBlock name="tokens.error">
         Indicates an application or validation error
       </ColorBlock>
-      <ColorBlock name="$themeTokens.success">
+      <ColorBlock name="tokens.success">
         Indicates the successful completion of an action in the application
       </ColorBlock>
 
       <h3>Learner activity</h3>
-      <ColorBlock name="$themeTokens.progress">
+      <ColorBlock name="tokens.progress">
         Indicates "in-progress" learner activity
       </ColorBlock>
-      <ColorBlock name="$themeTokens.mastered">
+      <ColorBlock name="tokens.mastered">
         Indicates learner mastery or completion
       </ColorBlock>
-      <ColorBlock name="$themeTokens.correct">
+      <ColorBlock name="tokens.correct">
         Indicates a correct response by a learner
       </ColorBlock>
-      <ColorBlock name="$themeTokens.incorrect">
+      <ColorBlock name="tokens.incorrect">
         Indicates an incorrect response by a learner
       </ColorBlock>
 
       <h3>User-related labels</h3>
-      <ColorBlock name="$themeTokens.coachContent">
+      <ColorBlock name="tokens.coachContent">
         Used for coloring coach content icons
       </ColorBlock>
-      <ColorBlock name="$themeTokens.superAdmin">
+      <ColorBlock name="tokens.superAdmin">
         Used for coloring super admin permission key icons
       </ColorBlock>
 
       <h3>Content-related labels</h3>
-      <ColorBlock name="$themeTokens.exercise" />
-      <ColorBlock name="$themeTokens.video" />
-      <ColorBlock name="$themeTokens.audio" />
-      <ColorBlock name="$themeTokens.document" />
-      <ColorBlock name="$themeTokens.html5" />
-      <ColorBlock name="$themeTokens.topic" />
+      <ColorBlock name="tokens.exercise" />
+      <ColorBlock name="tokens.video" />
+      <ColorBlock name="tokens.audio" />
+      <ColorBlock name="tokens.document" />
+      <ColorBlock name="tokens.html5" />
+      <ColorBlock name="tokens.topic" />
 
     </PageSection>
 
@@ -133,14 +133,14 @@
       <p>
         A color scale – sometimes called a color ramp – is an evenly-spaced ramp of shades for a particular color hue. In Kolibri, we follow <ExternalLink text="Google's Material convention" href="https://material.io/archive/guidelines/style/color.html" /> and segment colors into ten brightness levels, named <code>v_50</code>, <code>v_100</code>, <code>v_20</code>, … <code>v_800</code>, <code>v_900</code>:
       </p>
-      <ColorBlock name="$themePalette.blue.v_50" />
-      <ColorBlock name="$themePalette.blue.v_100" />
-      <ColorBlock name="$themePalette.blue.v_200" />
+      <ColorBlock name="palette.blue.v_50" />
+      <ColorBlock name="palette.blue.v_100" />
+      <ColorBlock name="palette.blue.v_200" />
       <p style="margin-left: 60px">
         …
       </p>
-      <ColorBlock name="$themePalette.blue.v_800" />
-      <ColorBlock name="$themePalette.blue.v_900" />
+      <ColorBlock name="palette.blue.v_800" />
+      <ColorBlock name="palette.blue.v_900" />
       <p>
         Due to the inconsistent way that humans perceive color and light, computing these scales is <ExternalLink text="both art and science" href="https://uxplanet.org/designing-systematic-colors-b5d2605b15c" />. It should not be done by simply sliding a "brightness" setting. We used <ExternalLink text="materialpalettes.com" href="https://materialpalettes.com/" /> to generate the scales for our primary and secondary brand colors. The same should be done for new themes.
       </p>
@@ -156,28 +156,28 @@
       <table>
         <tr>
           <td>
-            <ColorBlock name="$themeBrand.primary.v_50" />
-            <ColorBlock name="$themeBrand.primary.v_100" />
-            <ColorBlock name="$themeBrand.primary.v_200" />
-            <ColorBlock name="$themeBrand.primary.v_300" />
-            <ColorBlock name="$themeBrand.primary.v_400" />
-            <ColorBlock name="$themeBrand.primary.v_500" />
-            <ColorBlock name="$themeBrand.primary.v_600" />
-            <ColorBlock name="$themeBrand.primary.v_700" />
-            <ColorBlock name="$themeBrand.primary.v_800" />
-            <ColorBlock name="$themeBrand.primary.v_900" />
+            <ColorBlock name="brand.primary.v_50" />
+            <ColorBlock name="brand.primary.v_100" />
+            <ColorBlock name="brand.primary.v_200" />
+            <ColorBlock name="brand.primary.v_300" />
+            <ColorBlock name="brand.primary.v_400" />
+            <ColorBlock name="brand.primary.v_500" />
+            <ColorBlock name="brand.primary.v_600" />
+            <ColorBlock name="brand.primary.v_700" />
+            <ColorBlock name="brand.primary.v_800" />
+            <ColorBlock name="brand.primary.v_900" />
           </td>
           <td>
-            <ColorBlock name="$themeBrand.secondary.v_50" />
-            <ColorBlock name="$themeBrand.secondary.v_100" />
-            <ColorBlock name="$themeBrand.secondary.v_200" />
-            <ColorBlock name="$themeBrand.secondary.v_300" />
-            <ColorBlock name="$themeBrand.secondary.v_400" />
-            <ColorBlock name="$themeBrand.secondary.v_500" />
-            <ColorBlock name="$themeBrand.secondary.v_600" />
-            <ColorBlock name="$themeBrand.secondary.v_700" />
-            <ColorBlock name="$themeBrand.secondary.v_800" />
-            <ColorBlock name="$themeBrand.secondary.v_900" />
+            <ColorBlock name="brand.secondary.v_50" />
+            <ColorBlock name="brand.secondary.v_100" />
+            <ColorBlock name="brand.secondary.v_200" />
+            <ColorBlock name="brand.secondary.v_300" />
+            <ColorBlock name="brand.secondary.v_400" />
+            <ColorBlock name="brand.secondary.v_500" />
+            <ColorBlock name="brand.secondary.v_600" />
+            <ColorBlock name="brand.secondary.v_700" />
+            <ColorBlock name="brand.secondary.v_800" />
+            <ColorBlock name="brand.secondary.v_900" />
           </td>
         </tr>
       </table>
@@ -197,18 +197,18 @@
 
       <h3>Grey values</h3>
       <p>A scale of standard greys</p>
-      <ColorBlock name="$themePalette.white" />
-      <ColorBlock name="$themePalette.black" />
-      <ColorBlock name="$themePalette.grey.v_50" />
-      <ColorBlock name="$themePalette.grey.v_100" />
-      <ColorBlock name="$themePalette.grey.v_200" />
-      <ColorBlock name="$themePalette.grey.v_300" />
-      <ColorBlock name="$themePalette.grey.v_400" />
-      <ColorBlock name="$themePalette.grey.v_500" />
-      <ColorBlock name="$themePalette.grey.v_600" />
-      <ColorBlock name="$themePalette.grey.v_700" />
-      <ColorBlock name="$themePalette.grey.v_800" />
-      <ColorBlock name="$themePalette.grey.v_900" />
+      <ColorBlock name="palette.white" />
+      <ColorBlock name="palette.black" />
+      <ColorBlock name="palette.grey.v_50" />
+      <ColorBlock name="palette.grey.v_100" />
+      <ColorBlock name="palette.grey.v_200" />
+      <ColorBlock name="palette.grey.v_300" />
+      <ColorBlock name="palette.grey.v_400" />
+      <ColorBlock name="palette.grey.v_500" />
+      <ColorBlock name="palette.grey.v_600" />
+      <ColorBlock name="palette.grey.v_700" />
+      <ColorBlock name="palette.grey.v_800" />
+      <ColorBlock name="palette.grey.v_900" />
 
 
       <h3>Full palette</h3>
@@ -216,236 +216,236 @@
       <table>
         <tr>
           <td>
-            <ColorBlock name="$themePalette.bluegrey.v_50" />
-            <ColorBlock name="$themePalette.bluegrey.v_100" />
-            <ColorBlock name="$themePalette.bluegrey.v_200" />
-            <ColorBlock name="$themePalette.bluegrey.v_300" />
-            <ColorBlock name="$themePalette.bluegrey.v_400" />
-            <ColorBlock name="$themePalette.bluegrey.v_500" />
-            <ColorBlock name="$themePalette.bluegrey.v_600" />
-            <ColorBlock name="$themePalette.bluegrey.v_700" />
-            <ColorBlock name="$themePalette.bluegrey.v_800" />
-            <ColorBlock name="$themePalette.bluegrey.v_900" />
+            <ColorBlock name="palette.bluegrey.v_50" />
+            <ColorBlock name="palette.bluegrey.v_100" />
+            <ColorBlock name="palette.bluegrey.v_200" />
+            <ColorBlock name="palette.bluegrey.v_300" />
+            <ColorBlock name="palette.bluegrey.v_400" />
+            <ColorBlock name="palette.bluegrey.v_500" />
+            <ColorBlock name="palette.bluegrey.v_600" />
+            <ColorBlock name="palette.bluegrey.v_700" />
+            <ColorBlock name="palette.bluegrey.v_800" />
+            <ColorBlock name="palette.bluegrey.v_900" />
           </td>
           <td>
-            <ColorBlock name="$themePalette.red.v_50" />
-            <ColorBlock name="$themePalette.red.v_100" />
-            <ColorBlock name="$themePalette.red.v_200" />
-            <ColorBlock name="$themePalette.red.v_300" />
-            <ColorBlock name="$themePalette.red.v_400" />
-            <ColorBlock name="$themePalette.red.v_500" />
-            <ColorBlock name="$themePalette.red.v_600" />
-            <ColorBlock name="$themePalette.red.v_700" />
-            <ColorBlock name="$themePalette.red.v_800" />
-            <ColorBlock name="$themePalette.red.v_900" />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <ColorBlock name="$themePalette.pink.v_50" />
-            <ColorBlock name="$themePalette.pink.v_100" />
-            <ColorBlock name="$themePalette.pink.v_200" />
-            <ColorBlock name="$themePalette.pink.v_300" />
-            <ColorBlock name="$themePalette.pink.v_400" />
-            <ColorBlock name="$themePalette.pink.v_500" />
-            <ColorBlock name="$themePalette.pink.v_600" />
-            <ColorBlock name="$themePalette.pink.v_700" />
-            <ColorBlock name="$themePalette.pink.v_800" />
-            <ColorBlock name="$themePalette.pink.v_900" />
-          </td>
-          <td>
-            <ColorBlock name="$themePalette.purple.v_50" />
-            <ColorBlock name="$themePalette.purple.v_100" />
-            <ColorBlock name="$themePalette.purple.v_200" />
-            <ColorBlock name="$themePalette.purple.v_300" />
-            <ColorBlock name="$themePalette.purple.v_400" />
-            <ColorBlock name="$themePalette.purple.v_500" />
-            <ColorBlock name="$themePalette.purple.v_600" />
-            <ColorBlock name="$themePalette.purple.v_700" />
-            <ColorBlock name="$themePalette.purple.v_800" />
-            <ColorBlock name="$themePalette.purple.v_900" />
+            <ColorBlock name="palette.red.v_50" />
+            <ColorBlock name="palette.red.v_100" />
+            <ColorBlock name="palette.red.v_200" />
+            <ColorBlock name="palette.red.v_300" />
+            <ColorBlock name="palette.red.v_400" />
+            <ColorBlock name="palette.red.v_500" />
+            <ColorBlock name="palette.red.v_600" />
+            <ColorBlock name="palette.red.v_700" />
+            <ColorBlock name="palette.red.v_800" />
+            <ColorBlock name="palette.red.v_900" />
           </td>
         </tr>
         <tr>
           <td>
-            <ColorBlock name="$themePalette.deeppurple.v_50" />
-            <ColorBlock name="$themePalette.deeppurple.v_100" />
-            <ColorBlock name="$themePalette.deeppurple.v_200" />
-            <ColorBlock name="$themePalette.deeppurple.v_300" />
-            <ColorBlock name="$themePalette.deeppurple.v_400" />
-            <ColorBlock name="$themePalette.deeppurple.v_500" />
-            <ColorBlock name="$themePalette.deeppurple.v_600" />
-            <ColorBlock name="$themePalette.deeppurple.v_700" />
-            <ColorBlock name="$themePalette.deeppurple.v_800" />
-            <ColorBlock name="$themePalette.deeppurple.v_900" />
+            <ColorBlock name="palette.pink.v_50" />
+            <ColorBlock name="palette.pink.v_100" />
+            <ColorBlock name="palette.pink.v_200" />
+            <ColorBlock name="palette.pink.v_300" />
+            <ColorBlock name="palette.pink.v_400" />
+            <ColorBlock name="palette.pink.v_500" />
+            <ColorBlock name="palette.pink.v_600" />
+            <ColorBlock name="palette.pink.v_700" />
+            <ColorBlock name="palette.pink.v_800" />
+            <ColorBlock name="palette.pink.v_900" />
           </td>
           <td>
-            <ColorBlock name="$themePalette.indigo.v_50" />
-            <ColorBlock name="$themePalette.indigo.v_100" />
-            <ColorBlock name="$themePalette.indigo.v_200" />
-            <ColorBlock name="$themePalette.indigo.v_300" />
-            <ColorBlock name="$themePalette.indigo.v_400" />
-            <ColorBlock name="$themePalette.indigo.v_500" />
-            <ColorBlock name="$themePalette.indigo.v_600" />
-            <ColorBlock name="$themePalette.indigo.v_700" />
-            <ColorBlock name="$themePalette.indigo.v_800" />
-            <ColorBlock name="$themePalette.indigo.v_900" />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <ColorBlock name="$themePalette.blue.v_50" />
-            <ColorBlock name="$themePalette.blue.v_100" />
-            <ColorBlock name="$themePalette.blue.v_200" />
-            <ColorBlock name="$themePalette.blue.v_300" />
-            <ColorBlock name="$themePalette.blue.v_400" />
-            <ColorBlock name="$themePalette.blue.v_500" />
-            <ColorBlock name="$themePalette.blue.v_600" />
-            <ColorBlock name="$themePalette.blue.v_700" />
-            <ColorBlock name="$themePalette.blue.v_800" />
-            <ColorBlock name="$themePalette.blue.v_900" />
-          </td>
-          <td>
-            <ColorBlock name="$themePalette.lightblue.v_50" />
-            <ColorBlock name="$themePalette.lightblue.v_100" />
-            <ColorBlock name="$themePalette.lightblue.v_200" />
-            <ColorBlock name="$themePalette.lightblue.v_300" />
-            <ColorBlock name="$themePalette.lightblue.v_400" />
-            <ColorBlock name="$themePalette.lightblue.v_500" />
-            <ColorBlock name="$themePalette.lightblue.v_600" />
-            <ColorBlock name="$themePalette.lightblue.v_700" />
-            <ColorBlock name="$themePalette.lightblue.v_800" />
-            <ColorBlock name="$themePalette.lightblue.v_900" />
+            <ColorBlock name="palette.purple.v_50" />
+            <ColorBlock name="palette.purple.v_100" />
+            <ColorBlock name="palette.purple.v_200" />
+            <ColorBlock name="palette.purple.v_300" />
+            <ColorBlock name="palette.purple.v_400" />
+            <ColorBlock name="palette.purple.v_500" />
+            <ColorBlock name="palette.purple.v_600" />
+            <ColorBlock name="palette.purple.v_700" />
+            <ColorBlock name="palette.purple.v_800" />
+            <ColorBlock name="palette.purple.v_900" />
           </td>
         </tr>
         <tr>
           <td>
-            <ColorBlock name="$themePalette.cyan.v_50" />
-            <ColorBlock name="$themePalette.cyan.v_100" />
-            <ColorBlock name="$themePalette.cyan.v_200" />
-            <ColorBlock name="$themePalette.cyan.v_300" />
-            <ColorBlock name="$themePalette.cyan.v_400" />
-            <ColorBlock name="$themePalette.cyan.v_500" />
-            <ColorBlock name="$themePalette.cyan.v_600" />
-            <ColorBlock name="$themePalette.cyan.v_700" />
-            <ColorBlock name="$themePalette.cyan.v_800" />
-            <ColorBlock name="$themePalette.cyan.v_900" />
+            <ColorBlock name="palette.deeppurple.v_50" />
+            <ColorBlock name="palette.deeppurple.v_100" />
+            <ColorBlock name="palette.deeppurple.v_200" />
+            <ColorBlock name="palette.deeppurple.v_300" />
+            <ColorBlock name="palette.deeppurple.v_400" />
+            <ColorBlock name="palette.deeppurple.v_500" />
+            <ColorBlock name="palette.deeppurple.v_600" />
+            <ColorBlock name="palette.deeppurple.v_700" />
+            <ColorBlock name="palette.deeppurple.v_800" />
+            <ColorBlock name="palette.deeppurple.v_900" />
           </td>
           <td>
-            <ColorBlock name="$themePalette.teal.v_50" />
-            <ColorBlock name="$themePalette.teal.v_100" />
-            <ColorBlock name="$themePalette.teal.v_200" />
-            <ColorBlock name="$themePalette.teal.v_300" />
-            <ColorBlock name="$themePalette.teal.v_400" />
-            <ColorBlock name="$themePalette.teal.v_500" />
-            <ColorBlock name="$themePalette.teal.v_600" />
-            <ColorBlock name="$themePalette.teal.v_700" />
-            <ColorBlock name="$themePalette.teal.v_800" />
-            <ColorBlock name="$themePalette.teal.v_900" />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <ColorBlock name="$themePalette.green.v_50" />
-            <ColorBlock name="$themePalette.green.v_100" />
-            <ColorBlock name="$themePalette.green.v_200" />
-            <ColorBlock name="$themePalette.green.v_300" />
-            <ColorBlock name="$themePalette.green.v_400" />
-            <ColorBlock name="$themePalette.green.v_500" />
-            <ColorBlock name="$themePalette.green.v_600" />
-            <ColorBlock name="$themePalette.green.v_700" />
-            <ColorBlock name="$themePalette.green.v_800" />
-            <ColorBlock name="$themePalette.green.v_900" />
-          </td>
-          <td>
-            <ColorBlock name="$themePalette.lightgreen.v_50" />
-            <ColorBlock name="$themePalette.lightgreen.v_100" />
-            <ColorBlock name="$themePalette.lightgreen.v_200" />
-            <ColorBlock name="$themePalette.lightgreen.v_300" />
-            <ColorBlock name="$themePalette.lightgreen.v_400" />
-            <ColorBlock name="$themePalette.lightgreen.v_500" />
-            <ColorBlock name="$themePalette.lightgreen.v_600" />
-            <ColorBlock name="$themePalette.lightgreen.v_700" />
-            <ColorBlock name="$themePalette.lightgreen.v_800" />
-            <ColorBlock name="$themePalette.lightgreen.v_900" />
+            <ColorBlock name="palette.indigo.v_50" />
+            <ColorBlock name="palette.indigo.v_100" />
+            <ColorBlock name="palette.indigo.v_200" />
+            <ColorBlock name="palette.indigo.v_300" />
+            <ColorBlock name="palette.indigo.v_400" />
+            <ColorBlock name="palette.indigo.v_500" />
+            <ColorBlock name="palette.indigo.v_600" />
+            <ColorBlock name="palette.indigo.v_700" />
+            <ColorBlock name="palette.indigo.v_800" />
+            <ColorBlock name="palette.indigo.v_900" />
           </td>
         </tr>
         <tr>
           <td>
-            <ColorBlock name="$themePalette.lime.v_50" />
-            <ColorBlock name="$themePalette.lime.v_100" />
-            <ColorBlock name="$themePalette.lime.v_200" />
-            <ColorBlock name="$themePalette.lime.v_300" />
-            <ColorBlock name="$themePalette.lime.v_400" />
-            <ColorBlock name="$themePalette.lime.v_500" />
-            <ColorBlock name="$themePalette.lime.v_600" />
-            <ColorBlock name="$themePalette.lime.v_700" />
-            <ColorBlock name="$themePalette.lime.v_800" />
-            <ColorBlock name="$themePalette.lime.v_900" />
+            <ColorBlock name="palette.blue.v_50" />
+            <ColorBlock name="palette.blue.v_100" />
+            <ColorBlock name="palette.blue.v_200" />
+            <ColorBlock name="palette.blue.v_300" />
+            <ColorBlock name="palette.blue.v_400" />
+            <ColorBlock name="palette.blue.v_500" />
+            <ColorBlock name="palette.blue.v_600" />
+            <ColorBlock name="palette.blue.v_700" />
+            <ColorBlock name="palette.blue.v_800" />
+            <ColorBlock name="palette.blue.v_900" />
           </td>
           <td>
-            <ColorBlock name="$themePalette.yellow.v_50" />
-            <ColorBlock name="$themePalette.yellow.v_100" />
-            <ColorBlock name="$themePalette.yellow.v_200" />
-            <ColorBlock name="$themePalette.yellow.v_300" />
-            <ColorBlock name="$themePalette.yellow.v_400" />
-            <ColorBlock name="$themePalette.yellow.v_500" />
-            <ColorBlock name="$themePalette.yellow.v_600" />
-            <ColorBlock name="$themePalette.yellow.v_700" />
-            <ColorBlock name="$themePalette.yellow.v_800" />
-            <ColorBlock name="$themePalette.yellow.v_900" />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <ColorBlock name="$themePalette.amber.v_50" />
-            <ColorBlock name="$themePalette.amber.v_100" />
-            <ColorBlock name="$themePalette.amber.v_200" />
-            <ColorBlock name="$themePalette.amber.v_300" />
-            <ColorBlock name="$themePalette.amber.v_400" />
-            <ColorBlock name="$themePalette.amber.v_500" />
-            <ColorBlock name="$themePalette.amber.v_600" />
-            <ColorBlock name="$themePalette.amber.v_700" />
-            <ColorBlock name="$themePalette.amber.v_800" />
-            <ColorBlock name="$themePalette.amber.v_900" />
-          </td>
-          <td>
-            <ColorBlock name="$themePalette.orange.v_50" />
-            <ColorBlock name="$themePalette.orange.v_100" />
-            <ColorBlock name="$themePalette.orange.v_200" />
-            <ColorBlock name="$themePalette.orange.v_300" />
-            <ColorBlock name="$themePalette.orange.v_400" />
-            <ColorBlock name="$themePalette.orange.v_500" />
-            <ColorBlock name="$themePalette.orange.v_600" />
-            <ColorBlock name="$themePalette.orange.v_700" />
-            <ColorBlock name="$themePalette.orange.v_800" />
-            <ColorBlock name="$themePalette.orange.v_900" />
+            <ColorBlock name="palette.lightblue.v_50" />
+            <ColorBlock name="palette.lightblue.v_100" />
+            <ColorBlock name="palette.lightblue.v_200" />
+            <ColorBlock name="palette.lightblue.v_300" />
+            <ColorBlock name="palette.lightblue.v_400" />
+            <ColorBlock name="palette.lightblue.v_500" />
+            <ColorBlock name="palette.lightblue.v_600" />
+            <ColorBlock name="palette.lightblue.v_700" />
+            <ColorBlock name="palette.lightblue.v_800" />
+            <ColorBlock name="palette.lightblue.v_900" />
           </td>
         </tr>
         <tr>
           <td>
-            <ColorBlock name="$themePalette.deeporange.v_50" />
-            <ColorBlock name="$themePalette.deeporange.v_100" />
-            <ColorBlock name="$themePalette.deeporange.v_200" />
-            <ColorBlock name="$themePalette.deeporange.v_300" />
-            <ColorBlock name="$themePalette.deeporange.v_400" />
-            <ColorBlock name="$themePalette.deeporange.v_500" />
-            <ColorBlock name="$themePalette.deeporange.v_600" />
-            <ColorBlock name="$themePalette.deeporange.v_700" />
-            <ColorBlock name="$themePalette.deeporange.v_800" />
-            <ColorBlock name="$themePalette.deeporange.v_900" />
+            <ColorBlock name="palette.cyan.v_50" />
+            <ColorBlock name="palette.cyan.v_100" />
+            <ColorBlock name="palette.cyan.v_200" />
+            <ColorBlock name="palette.cyan.v_300" />
+            <ColorBlock name="palette.cyan.v_400" />
+            <ColorBlock name="palette.cyan.v_500" />
+            <ColorBlock name="palette.cyan.v_600" />
+            <ColorBlock name="palette.cyan.v_700" />
+            <ColorBlock name="palette.cyan.v_800" />
+            <ColorBlock name="palette.cyan.v_900" />
           </td>
           <td>
-            <ColorBlock name="$themePalette.brown.v_50" />
-            <ColorBlock name="$themePalette.brown.v_100" />
-            <ColorBlock name="$themePalette.brown.v_200" />
-            <ColorBlock name="$themePalette.brown.v_300" />
-            <ColorBlock name="$themePalette.brown.v_400" />
-            <ColorBlock name="$themePalette.brown.v_500" />
-            <ColorBlock name="$themePalette.brown.v_600" />
-            <ColorBlock name="$themePalette.brown.v_700" />
-            <ColorBlock name="$themePalette.brown.v_800" />
-            <ColorBlock name="$themePalette.brown.v_900" />
+            <ColorBlock name="palette.teal.v_50" />
+            <ColorBlock name="palette.teal.v_100" />
+            <ColorBlock name="palette.teal.v_200" />
+            <ColorBlock name="palette.teal.v_300" />
+            <ColorBlock name="palette.teal.v_400" />
+            <ColorBlock name="palette.teal.v_500" />
+            <ColorBlock name="palette.teal.v_600" />
+            <ColorBlock name="palette.teal.v_700" />
+            <ColorBlock name="palette.teal.v_800" />
+            <ColorBlock name="palette.teal.v_900" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <ColorBlock name="palette.green.v_50" />
+            <ColorBlock name="palette.green.v_100" />
+            <ColorBlock name="palette.green.v_200" />
+            <ColorBlock name="palette.green.v_300" />
+            <ColorBlock name="palette.green.v_400" />
+            <ColorBlock name="palette.green.v_500" />
+            <ColorBlock name="palette.green.v_600" />
+            <ColorBlock name="palette.green.v_700" />
+            <ColorBlock name="palette.green.v_800" />
+            <ColorBlock name="palette.green.v_900" />
+          </td>
+          <td>
+            <ColorBlock name="palette.lightgreen.v_50" />
+            <ColorBlock name="palette.lightgreen.v_100" />
+            <ColorBlock name="palette.lightgreen.v_200" />
+            <ColorBlock name="palette.lightgreen.v_300" />
+            <ColorBlock name="palette.lightgreen.v_400" />
+            <ColorBlock name="palette.lightgreen.v_500" />
+            <ColorBlock name="palette.lightgreen.v_600" />
+            <ColorBlock name="palette.lightgreen.v_700" />
+            <ColorBlock name="palette.lightgreen.v_800" />
+            <ColorBlock name="palette.lightgreen.v_900" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <ColorBlock name="palette.lime.v_50" />
+            <ColorBlock name="palette.lime.v_100" />
+            <ColorBlock name="palette.lime.v_200" />
+            <ColorBlock name="palette.lime.v_300" />
+            <ColorBlock name="palette.lime.v_400" />
+            <ColorBlock name="palette.lime.v_500" />
+            <ColorBlock name="palette.lime.v_600" />
+            <ColorBlock name="palette.lime.v_700" />
+            <ColorBlock name="palette.lime.v_800" />
+            <ColorBlock name="palette.lime.v_900" />
+          </td>
+          <td>
+            <ColorBlock name="palette.yellow.v_50" />
+            <ColorBlock name="palette.yellow.v_100" />
+            <ColorBlock name="palette.yellow.v_200" />
+            <ColorBlock name="palette.yellow.v_300" />
+            <ColorBlock name="palette.yellow.v_400" />
+            <ColorBlock name="palette.yellow.v_500" />
+            <ColorBlock name="palette.yellow.v_600" />
+            <ColorBlock name="palette.yellow.v_700" />
+            <ColorBlock name="palette.yellow.v_800" />
+            <ColorBlock name="palette.yellow.v_900" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <ColorBlock name="palette.amber.v_50" />
+            <ColorBlock name="palette.amber.v_100" />
+            <ColorBlock name="palette.amber.v_200" />
+            <ColorBlock name="palette.amber.v_300" />
+            <ColorBlock name="palette.amber.v_400" />
+            <ColorBlock name="palette.amber.v_500" />
+            <ColorBlock name="palette.amber.v_600" />
+            <ColorBlock name="palette.amber.v_700" />
+            <ColorBlock name="palette.amber.v_800" />
+            <ColorBlock name="palette.amber.v_900" />
+          </td>
+          <td>
+            <ColorBlock name="palette.orange.v_50" />
+            <ColorBlock name="palette.orange.v_100" />
+            <ColorBlock name="palette.orange.v_200" />
+            <ColorBlock name="palette.orange.v_300" />
+            <ColorBlock name="palette.orange.v_400" />
+            <ColorBlock name="palette.orange.v_500" />
+            <ColorBlock name="palette.orange.v_600" />
+            <ColorBlock name="palette.orange.v_700" />
+            <ColorBlock name="palette.orange.v_800" />
+            <ColorBlock name="palette.orange.v_900" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <ColorBlock name="palette.deeporange.v_50" />
+            <ColorBlock name="palette.deeporange.v_100" />
+            <ColorBlock name="palette.deeporange.v_200" />
+            <ColorBlock name="palette.deeporange.v_300" />
+            <ColorBlock name="palette.deeporange.v_400" />
+            <ColorBlock name="palette.deeporange.v_500" />
+            <ColorBlock name="palette.deeporange.v_600" />
+            <ColorBlock name="palette.deeporange.v_700" />
+            <ColorBlock name="palette.deeporange.v_800" />
+            <ColorBlock name="palette.deeporange.v_900" />
+          </td>
+          <td>
+            <ColorBlock name="palette.brown.v_50" />
+            <ColorBlock name="palette.brown.v_100" />
+            <ColorBlock name="palette.brown.v_200" />
+            <ColorBlock name="palette.brown.v_300" />
+            <ColorBlock name="palette.brown.v_400" />
+            <ColorBlock name="palette.brown.v_500" />
+            <ColorBlock name="palette.brown.v_600" />
+            <ColorBlock name="palette.brown.v_700" />
+            <ColorBlock name="palette.brown.v_800" />
+            <ColorBlock name="palette.brown.v_900" />
           </td>
         </tr>
       </table>
