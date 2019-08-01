@@ -38,6 +38,7 @@ const WebpackMessages = require('./webpackMessages');
 module.exports = (data, { mode = 'development', hot = false } = {}) => {
   if (
     typeof data.name === 'undefined' ||
+    typeof data.config === 'undefined' ||
     typeof data.static_dir === 'undefined' ||
     typeof data.stats_file === 'undefined' ||
     typeof data.locale_data_folder === 'undefined' ||
