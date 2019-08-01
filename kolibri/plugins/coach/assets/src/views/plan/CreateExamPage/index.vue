@@ -193,7 +193,7 @@
       };
     },
     computed: {
-      ...mapState(['pageName', 'toolbarRoute']),
+      ...mapState(['toolbarRoute']),
       ...mapGetters('examCreation', ['numRemainingSearchResults']),
       ...mapState('examCreation', [
         'numberOfQuestions',
@@ -203,6 +203,9 @@
         'searchResults',
         'ancestors',
       ]),
+      pageName() {
+        return this.$route.name;
+      },
       maxQs() {
         return MAX_QUESTIONS;
       },

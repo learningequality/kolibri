@@ -4,10 +4,7 @@
     :allLinkText="coachString('viewAllAction')"
     :allLinkRoute="classRoute('ReportsLessonListPage', {})"
   >
-    <KLabeledIcon slot="title">
-      <KIcon slot="icon" lesson />
-      {{ coreString('lessonsLabel') }}
-    </KLabeledIcon>
+    <KLabeledIcon slot="title" icon="lesson" :label="coreString('lessonsLabel')" />
 
     <p v-if="table.length === 0">
       {{ coachString('lessonListEmptyState') }}
