@@ -35,7 +35,7 @@ KOLIBRI_USER_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"
 DAEMON_HOME="$KOLIBRI_USER_HOME/.kolibri"
 
 DAEMON_UWSGI_ARGS="--ini /etc/kolibri/dist/uwsgi.ini --uid=$KOLIBRI_USER \
-	--env=KOLIBRI_HOME=$DAEMON_HOME --daemonize=$DAEMON_HOME/uwsgi.log --pidfile=$PIDFILE_UWSGI"
+  --env=KOLIBRI_HOME=$DAEMON_HOME --daemonize=$DAEMON_HOME/uwsgi.log --pidfile=$PIDFILE_UWSGI"
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
@@ -47,24 +47,24 @@ DAEMON_UWSGI_ARGS="--ini /etc/kolibri/dist/uwsgi.ini --uid=$KOLIBRI_USER \
 
 do_start()
 {
-	# Return
-	#   0 if daemon has been started
-	#   1 if daemon was already running
-	#   2 if daemon could not be started
-	# upgrade nginx and kolibri configurations:
-	su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py"
-	# ensure kolibri application is running:
-	service kolibri start
-	do_check_nginx
-	mkdir -p /var/run/$NAME
-	chown "$KOLIBRI_USER" /var/run/$NAME
-	sleep 15 # ugly hack to avoid race condition when kolibri does vacuum
-	start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI --test -- $DAEMON_UWSGI_ARGS > /dev/null \
-		|| return 1
-	start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI -- \
-		$DAEMON_UWSGI_ARGS \
-		|| return 2
-	return 0
+  # Return
+  #   0 if daemon has been started
+  #   1 if daemon was already running
+  #   2 if daemon could not be started
+  # upgrade nginx and kolibri configurations:
+  su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py"
+  # ensure kolibri application is running:
+  service kolibri start
+  do_check_nginx
+  mkdir -p /var/run/$NAME
+  chown "$KOLIBRI_USER" /var/run/$NAME
+  sleep 15 # ugly hack to avoid race condition when kolibri does vacuum
+  start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI --test -- $DAEMON_UWSGI_ARGS > /dev/null \
+    || return 1
+  start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI -- \
+    $DAEMON_UWSGI_ARGS \
+    || return 2
+  return 0
 }
 
 #
@@ -72,99 +72,99 @@ do_start()
 #
 do_stop_uwsgi()
 {
-	# Return
-	#   0 if daemon has been stopped
-	#   1 if daemon was already stopped
-	#   2 if daemon could not be stopped
-	#   other if a failure occurred
-	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE_UWSGI --name uwsgi
-	RETVAL="$?"
-	[ "$RETVAL" = 2 ] && return 2
-	# Many daemons don't delete their pidfiles when they exit.
-	rm -f $PIDFILE_UWSGI
-        return 0
+  # Return
+  #   0 if daemon has been stopped
+  #   1 if daemon was already stopped
+  #   2 if daemon could not be stopped
+  #   other if a failure occurred
+  start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE_UWSGI --name uwsgi
+  RETVAL="$?"
+  [ "$RETVAL" = 2 ] && return 2
+  # Many daemons don't delete their pidfiles when they exit.
+  rm -f $PIDFILE_UWSGI
+  return 0
 }
 
 
 do_check_nginx()
 {
-	systemctl is-active --quiet nginx
-	retval=$?
-	if [ $retval -ne 0  ]; then
-		service kolibri restart
-		service nginx start
-	else
-		service nginx reload
-	fi
+  systemctl is-active --quiet nginx
+  retval=$?
+  if [ $retval -ne 0  ]; then
+    service kolibri restart
+    service nginx start
+  else
+    service nginx reload
+  fi
 }
 
 do_stop() {
-    do_stop_uwsgi
-	service kolibri stop
+  do_stop_uwsgi
+  service kolibri stop
 
-    retval=$?
+  retval=$?
 
-    [ $retval -eq 0 ]
-    return $retval
+  [ $retval -eq 0 ]
+  return $retval
 }
 
 
 case "$1" in
   start)
+    if [ -s "$CONFIG_FILE" ]; then
+      [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+      do_start
+      case "$?" in
+        0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+        2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+      esac
+      service nginx reload
+    else
+      [ "$VERBOSE" != no ] && log_warning_msg "$NAME daemon not configured, not starting... (run $SETUP)"
+    fi
+  ;;
+  stop)
+    [ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+    do_stop
+    case "$?" in
+      0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+      2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+    esac
+  ;;
+  status)
+    status_of_proc "$DAEMON_UWSGI" "uwsgi" && exit 0 || exit $?
+  ;;
+
+  restart|force-reload)
+    #
+    # If the "reload" option is implemented then remove the
+    # 'force-reload' alias
+    #
+    log_daemon_msg "Restarting $DESC" "$NAME"
+    #do_stop
+    case "$?" in
+      0|1)
         if [ -s "$CONFIG_FILE" ]; then
-            [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
-            do_start
-            case "$?" in
-                    0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
-                    2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
-            esac
-			service nginx reload
+        do_start
+        case "$?" in
+          0) log_end_msg 0 ;;
+          1) log_end_msg 1 ;; # Old process is still running
+          *) log_end_msg 1 ;; # Failed to start
+        esac
         else
             [ "$VERBOSE" != no ] && log_warning_msg "$NAME daemon not configured, not starting... (run $SETUP)"
         fi
-	;;
-  stop)
-	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
-	do_stop
-	case "$?" in
-		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
-		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
-	esac
-	;;
-  status)
-	status_of_proc "$DAEMON_UWSGI" "uwsgi" && exit 0 || exit $?
-	;;
-
-  restart|force-reload)
-	#
-	# If the "reload" option is implemented then remove the
-	# 'force-reload' alias
-	#
-	log_daemon_msg "Restarting $DESC" "$NAME"
-	#do_stop
-	case "$?" in
-	  0|1)
-            if [ -s "$CONFIG_FILE" ]; then
-		do_start
-		case "$?" in
-			0) log_end_msg 0 ;;
-			1) log_end_msg 1 ;; # Old process is still running
-			*) log_end_msg 1 ;; # Failed to start
-		esac
-            else
-                [ "$VERBOSE" != no ] && log_warning_msg "$NAME daemon not configured, not starting... (run $SETUP)"
-            fi
-	    ;;
-	  *)
-		# Failed to stop
-		log_end_msg 1
-		;;
-	esac
-	;;
+    ;;
+    *)
+      # Failed to stop
+      log_end_msg 1
+    ;;
+    esac
+  ;;
   *)
-	echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
-	exit 3
-	;;
+    echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
+    exit 3
+  ;;
 esac
 
 :
