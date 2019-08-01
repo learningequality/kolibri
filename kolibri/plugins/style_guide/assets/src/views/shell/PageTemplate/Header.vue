@@ -6,7 +6,11 @@
     :style="style"
   >
     <h1 class="header-text">
-      {{ title }} <SectionLink @click.native="scrollToTop" />
+      {{ title }}
+      <a href="#" @click.native="scrollToTop">
+        <file-svg class="icon-link" src="./link.svg" />
+        <span class="visuallyhidden">link to current page</span>
+      </a>
     </h1>
     <ul v-if="sections.length" class="nav">
       <li v-for="(section, i) in sections" :key="i" class="nav-item">
@@ -25,11 +29,9 @@
   import { throttle } from 'frame-throttle';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import state from '../../../state';
-  import SectionLink from './SectionLink';
 
   export default {
     name: 'Header',
-    components: { SectionLink },
     mixins: [ResponsiveElement],
     props: {
       sections: {
@@ -131,6 +133,13 @@
 
   .header-text {
     margin: 0;
+  }
+
+  .icon-link {
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    margin-left: 8px;
   }
 
 </style>

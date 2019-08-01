@@ -3,10 +3,13 @@
   <div class="block-wrapper">
     <div class="color-block" :style="{backgroundColor: value}"></div>
     <div class="code name">
-      <code>{{ name }}</code>
+      <code>{{ name }}</code><SectionLink v-if="definition" :to="anchor" />
     </div>
     <div class="code value">
-      <code v-if="tokenSource">{{ tokenSource }}</code>
+      <router-link v-if="isToken && showTokenCrossLink" :to="tokenAnchor">
+        <code>{{ tokenSource }}</code>
+      </router-link>
+      <code v-else-if="isToken">{{ tokenSource }}</code>
       <code v-else>{{ value }}</code>
     </div>
     <p v-if="$slots.default" class="description">
@@ -20,32 +23,57 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import SectionLink from '../../shell/PageTemplate/SectionLink';
 
   const TOKENS = 'tokens.';
+  const BRAND = 'brand.';
+  const PALETTE = 'palette.';
+
+  function dotsToDashes(value) {
+    return value.replace(/\./g, '-');
+  }
 
   export default {
     name: 'ColorBlock',
+    components: {
+      SectionLink,
+    },
     mixins: [themeMixin],
     props: {
       name: {
         type: String,
         required: true,
       },
+      definition: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       value() {
         const code = this.name
           .replace(TOKENS, '$themeTokens.')
-          .replace('brand.', '$themeBrand.')
-          .replace('palette.', '$themePalette.');
+          .replace(BRAND, '$themeBrand.')
+          .replace(PALETTE, '$themePalette.');
         return eval(`this.${code}`);
       },
+      anchor() {
+        return this.definition ? '#' + dotsToDashes(this.name) : null;
+      },
       tokenSource() {
-        if (!this.name.startsWith(TOKENS)) {
-          return null;
-        }
         const token = this.name.replace(TOKENS, '');
         return this.$themeTokenMapping[token];
+      },
+      tokenAnchor() {
+        return '#' + dotsToDashes(this.tokenSource);
+      },
+      isToken() {
+        return this.name.startsWith(TOKENS);
+      },
+      showTokenCrossLink() {
+        const sourceDef =
+          this.tokenSource.startsWith(BRAND) || this.tokenSource.startsWith(PALETTE);
+        return sourceDef && this.$route.name === 'Colors'; // brittle
       },
     },
   };
@@ -76,6 +104,10 @@
     code {
       background-color: white;
     }
+  }
+
+  .code.value {
+    margin-left: 58px;
   }
 
   .name {

@@ -67,6 +67,11 @@
     color: #368d74;
     transition: all 0.25s ease;
 
+    // hack to override some prism behavior
+    code[class*='language-'] {
+      color: #368d74;
+    }
+
     svg {
       fill: #368d74;
       transition: fill 0.25s ease;
