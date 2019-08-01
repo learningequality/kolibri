@@ -17,7 +17,7 @@ futures==3.1.1  # Temporarily pinning this until we can do a Python 2/3 compatib
 porter2stemmer==1.0
 unicodecsv==0.14.1
 metafone==0.5
-le-utils==0.1.15
+le-utils==0.1.17
 kolibri_exercise_perseus_plugin==1.2.0
 jsonfield==2.0.2
 morango==0.4.9

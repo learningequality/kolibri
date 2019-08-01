@@ -142,6 +142,8 @@
             return { fill: this.$themeTokens.document };
           case ContentNodeKinds.HTML5:
             return { fill: this.$themeTokens.html5 };
+          case ContentNodeKinds.SLIDESHOW:
+            return { fill: this.$themeTokens.slideshow };
           default:
             return { fill: this.$themeTokens.topic };
         }

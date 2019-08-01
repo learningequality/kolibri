@@ -24,6 +24,7 @@
   <mat-svg v-else-if="icon ==='exercise'" name="assignment" category="action" :style="style" />
   <mat-svg v-else-if="icon ==='topic'" name="folder" category="file" :style="style" />
   <mat-svg v-else-if="icon ==='video'" name="ondemand_video" category="notification" :style="style" />
+  <mat-svg v-else-if="icon === 'slideshow'" name="photo_library" category="image" :style="style" />
   <!-- users -->
   <mat-svg v-else-if="icon ==='classroom'" name="business" category="communication" :style="style" />
   <mat-svg v-else-if="icon ==='group'" category="action" name="group_work" :style="style" />

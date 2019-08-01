@@ -51,6 +51,7 @@ const staticState = {
       document: 'palette.deeporange.v_600',
       html5: 'palette.yellow.v_800',
       topic: 'palette.grey.v_800',
+      slideshow: 'palette.green.v_400',
     },
     global.kolibriTheme.tokenMapping
   ),
