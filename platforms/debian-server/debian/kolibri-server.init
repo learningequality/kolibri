@@ -88,7 +88,10 @@ do_stop_uwsgi()
 
 do_check_nginx()
 {
-  systemctl is-active --quiet nginx
+  # Check with "service" command, works on systemd and sysVinit
+  # See: https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
+  # Silence output
+  service nginx status 1>/dev/null 2>&1
   retval=$?
   if [ $retval -ne 0  ]; then
     service kolibri restart
