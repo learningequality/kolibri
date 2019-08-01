@@ -1,7 +1,7 @@
 import router from 'kolibri.coreVue.router';
 import urls from 'kolibri.urls';
 import debounce from 'lodash/debounce';
-import RootVue from './views';
+import RootVue from './views/StyleGuideIndex';
 import { navMenuRoutes, titleForRoute } from './routes';
 import pluginModule from './modules/pluginModule';
 import KolibriApp from 'kolibri_app';
