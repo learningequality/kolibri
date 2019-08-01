@@ -189,12 +189,8 @@
         A color palette is a set of generic base colors that cover a wide range of the color spectrum. We use the <ExternalLink text="2014 Material Design color palette" href="https://material.io/archive/guidelines/style/color.html#color-color-tool" />, which has many colors to choose from.
       </p>
       <p>
-        In our design system, colors from the palette have names like <code>pink</code>, <code>grey</code>, and <code>amber</code>:
+        In our design system, colors from the palette have names like <code>pink</code>, <code>grey</code>, and <code>amber</code>.
       </p>
-      <ColorBlock name="$themePalette.pink.v_600" />
-      <ColorBlock name="$themePalette.grey.v_600" />
-      <ColorBlock name="$themePalette.amber.v_600" />
-
       <p>
         With the exception of grey values, choosing arbitrary colors from the palette is only slightly better than choosing arbitrary hex values from the full color spectrum. No consistency or meaning is ensured, and they should generally be avoided in favor of specific color tokens and brand colors.
       </p>
