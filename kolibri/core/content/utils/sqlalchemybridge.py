@@ -226,25 +226,44 @@ class Bridge(object):
             self.connection_string = get_default_db_string()
             self.schema_version = schema_version or CURRENT_SCHEMA_VERSION
         else:
-            # Otherwise, we are accessing an external content database.
-            # So we try each of our historical database schema in order to see
-            # which glass slipper fits! If none do, just turn into a pumpkin.
+            # Otherwise, we are accessing an external database.
             self.connection_string = sqlite_connection_string(sqlite_file_path)
-            for version in CONTENT_DB_SCHEMA_VERSIONS:
-                self.schema_version = version
-                self.session, self.engine = make_session(self.connection_string)
-                try:
-                    db_matches_schema(BASES[self.schema_version], self.session)
-                    break
-                except DBSchemaError as e:
-                    logging.debug(e)
+            # If the schema_version is defined, then use the schema_version that was
+            # set.
+            if schema_version is not None:
+                self.schema_version = schema_version
             else:
-                raise SchemaNotFoundError("No matching schema found for this database")
+                # If not, we are probably looking at an imported content db
+                # So we try each of our historical database schema in order to see
+                # which glass slipper fits! If none do, just turn into a pumpkin.
+                for version in CONTENT_DB_SCHEMA_VERSIONS:
+                    self.schema_version = version
+                    self.session, self.engine = make_session(self.connection_string)
+                    try:
+                        db_matches_schema(BASES[self.schema_version], self.session)
+                        break
+                    except DBSchemaError as e:
+                        logging.debug(e)
+                else:
+                    raise SchemaNotFoundError(
+                        "No matching schema found for this database"
+                    )
 
         self.Base = BASES[self.schema_version]
         # We are using scoped sessions, so should always return the same session
         # in the same thread
         self.session, self.engine = make_session(self.connection_string)
+
+        if schema_version is not None and sqlite_file_path is not None:
+            # In this case we are not using the default database, nor have
+            # we inferred the schema version from the schema of the database,
+            # so we cannot be sure that the database has the schema properly
+            # setup, so we do that here explicitly. If this DB has already
+            # had its schema put in place, SQLAlchemy is smart enough for this
+            # to be idempotent.
+            # Note, that this will not migrate databases if there has been a
+            # change in the schema beyond creating tables.
+            self.Base.metadata.create_all(self.engine)
 
         self.connections = []
 

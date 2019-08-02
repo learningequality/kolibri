@@ -103,7 +103,9 @@ class ChannelImport(object):
         File: {"per_row": {"available": "default_to_not_available"}},
     }
 
-    def __init__(self, channel_id, channel_version=None, cancel_check=None):
+    def __init__(
+        self, channel_id, channel_version=None, cancel_check=None, destination=None
+    ):
         self.channel_id = channel_id
         self.channel_version = channel_version
 
@@ -115,9 +117,19 @@ class ChannelImport(object):
 
         # Explicitly set the destination schema version to our latest published schema version
         # Not the current schema of the DB, as we do our mapping to the published versions.
-        self.destination = Bridge(
-            schema_version=CONTENT_SCHEMA_VERSION, app_name=CONTENT_APP_NAME
-        )
+        if destination is None:
+            # If no destination is set then we are targeting the default database
+            self.destination = Bridge(
+                schema_version=CONTENT_SCHEMA_VERSION, app_name=CONTENT_APP_NAME
+            )
+        else:
+            # If a destination is set then pass that explicitly. At the moment, this only supports
+            # importing to an arbitrary SQLite file path.
+            self.destination = Bridge(
+                sqlite_file_path=destination,
+                schema_version=CONTENT_SCHEMA_VERSION,
+                app_name=CONTENT_APP_NAME,
+            )
 
         content_app = apps.get_app_config(CONTENT_APP_NAME)
 
@@ -438,10 +450,10 @@ class ChannelImport(object):
         self.destination.session.merge(RowEntry)
 
     def check_and_delete_existing_channel(self):
-        try:
-            existing_channel = ChannelMetadata.objects.get(id=self.channel_id)
-        except ChannelMetadata.DoesNotExist:
-            existing_channel = None
+        ChannelMetadataClass = self.destination.get_class(ChannelMetadata)
+        existing_channel = self.destination.session.query(ChannelMetadataClass).get(
+            self.channel_id
+        )
 
         if existing_channel:
 
