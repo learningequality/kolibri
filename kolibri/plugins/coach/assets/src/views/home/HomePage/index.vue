@@ -9,12 +9,12 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <KGrid :gutter="16">
+    <KGrid gutter="16">
       <KGridItem percentage="100">
         <OverviewBlock />
       </KGridItem>
       <KGridItem percentages="100, 100, 50">
-        <KGrid :gutter="16">
+        <KGrid gutter="16">
           <KGridItem percentage="100">
             <QuizzesBlock />
           </KGridItem>

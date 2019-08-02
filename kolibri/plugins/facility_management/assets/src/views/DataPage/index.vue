@@ -1,6 +1,6 @@
 <template>
 
-  <KGrid :gutter="48">
+  <KGrid gutter="48">
 
     <KGridItem percentage="100">
       <h1>{{ $tr('pageHeading') }}</h1>
