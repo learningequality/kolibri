@@ -22,6 +22,7 @@ from django.db import models
 from django.utils import timezone
 from jsonfield import JSONField
 from morango.models import SyncableModelQuerySet
+from morango.models import UUIDField
 
 from .permissions import AnyoneCanWriteAnonymousLogs
 from kolibri.core.auth.constants import role_kinds
@@ -30,7 +31,6 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.permissions.general import IsOwn
-from kolibri.core.content.models import UUIDField
 from kolibri.core.exams.models import Exam
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time_utils import local_now

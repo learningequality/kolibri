@@ -12,19 +12,19 @@ from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge
 from .sqlalchemybridge import ClassNotFoundError
 from kolibri.core.content.apps import KolibriContentConfig
+from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
+from kolibri.core.content.constants.schema_versions import NO_VERSION
+from kolibri.core.content.constants.schema_versions import V020BETA1
+from kolibri.core.content.constants.schema_versions import V040BETA3
+from kolibri.core.content.constants.schema_versions import VERSION_1
+from kolibri.core.content.constants.schema_versions import VERSION_2
 from kolibri.core.content.legacy_models import License
 from kolibri.core.content.models import ChannelMetadata
-from kolibri.core.content.models import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentTag
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.models import NO_VERSION
-from kolibri.core.content.models import V020BETA1
-from kolibri.core.content.models import V040BETA3
-from kolibri.core.content.models import VERSION_1
-from kolibri.core.content.models import VERSION_2
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)

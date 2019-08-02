@@ -12,8 +12,8 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from morango.models import UUIDField
 
-from kolibri.core.content.models import UUIDField
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time_utils import local_now
 

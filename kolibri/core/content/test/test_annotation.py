@@ -9,6 +9,7 @@ from le_utils.constants import content_kinds
 from mock import patch
 
 from .sqlalchemytesting import django_connection_engine
+from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File

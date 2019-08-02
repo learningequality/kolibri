@@ -5,11 +5,11 @@ from __future__ import unicode_literals
 import django.db.models.deletion
 import django.db.models.manager
 import jsonfield.fields
+import morango.models
 import mptt.fields
 from django.db import migrations
 from django.db import models
 
-import kolibri.core.content.models
 import kolibri.core.fields
 
 
@@ -21,12 +21,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AssessmentMetaData",
             fields=[
-                (
-                    "id",
-                    kolibri.core.content.models.UUIDField(
-                        primary_key=True, serialize=False
-                    ),
-                ),
+                ("id", morango.models.UUIDField(primary_key=True, serialize=False)),
                 ("assessment_item_ids", jsonfield.fields.JSONField(default=[])),
                 ("number_of_assessments", models.IntegerField()),
                 ("mastery_model", jsonfield.fields.JSONField(default={})),
@@ -37,12 +32,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ChannelMetadata",
             fields=[
-                (
-                    "id",
-                    kolibri.core.content.models.UUIDField(
-                        primary_key=True, serialize=False
-                    ),
-                ),
+                ("id", morango.models.UUIDField(primary_key=True, serialize=False)),
                 ("name", models.CharField(max_length=200)),
                 ("description", models.CharField(blank=True, max_length=400)),
                 ("author", models.CharField(blank=True, max_length=400)),
@@ -55,15 +45,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ContentNode",
             fields=[
-                (
-                    "id",
-                    kolibri.core.content.models.UUIDField(
-                        primary_key=True, serialize=False
-                    ),
-                ),
+                ("id", morango.models.UUIDField(primary_key=True, serialize=False)),
                 ("title", models.CharField(max_length=200)),
-                ("content_id", kolibri.core.content.models.UUIDField(db_index=True)),
-                ("channel_id", kolibri.core.content.models.UUIDField(db_index=True)),
+                ("content_id", morango.models.UUIDField(db_index=True)),
+                ("channel_id", morango.models.UUIDField(db_index=True)),
                 (
                     "description",
                     models.CharField(blank=True, max_length=400, null=True),
@@ -117,24 +102,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ContentTag",
             fields=[
-                (
-                    "id",
-                    kolibri.core.content.models.UUIDField(
-                        primary_key=True, serialize=False
-                    ),
-                ),
+                ("id", morango.models.UUIDField(primary_key=True, serialize=False)),
                 ("tag_name", models.CharField(blank=True, max_length=30)),
             ],
         ),
         migrations.CreateModel(
             name="File",
             fields=[
-                (
-                    "id",
-                    kolibri.core.content.models.UUIDField(
-                        primary_key=True, serialize=False
-                    ),
-                ),
+                ("id", morango.models.UUIDField(primary_key=True, serialize=False)),
                 ("available", models.BooleanField(default=False)),
                 (
                     "preset",

@@ -16,8 +16,8 @@ from sqlalchemy.pool import NullPool
 
 from .check_schema_db import db_matches_schema
 from .check_schema_db import DBSchemaError
-from kolibri.core.content.models import CONTENT_DB_SCHEMA_VERSIONS
-from kolibri.core.content.models import CURRENT_SCHEMA_VERSION
+from kolibri.core.content.constants.schema_versions import CONTENT_DB_SCHEMA_VERSIONS
+from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
