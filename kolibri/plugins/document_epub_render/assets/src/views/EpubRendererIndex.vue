@@ -301,7 +301,7 @@
       epubRendererStyle() {
         return {
           backgroundColor: this.$themeTokens.surface,
-          borderColor: this.$themeColors.palette.grey.v_300,
+          borderColor: this.$themePalette.grey.v_300,
         };
       },
       navigationButtonColor() {

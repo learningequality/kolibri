@@ -14,16 +14,18 @@
 
 <script>
 
+  import state from '../state';
   import SideNav from './shell/SideNav';
-  import navWidth from './navWidth';
 
   export default {
     name: 'StyleGuideIndex',
     components: {
       SideNav,
     },
-    created() {
-      this.navWidth = navWidth;
+    computed: {
+      navWidth() {
+        return state.navWidth;
+      },
     },
   };
 
@@ -61,8 +63,14 @@
   }
 
   a {
+    display: inline-block; // prevents trailing spaces
     color: #368d74;
     transition: all 0.25s ease;
+
+    // hack to override some prism behavior
+    code[class*='language-'] {
+      color: #368d74;
+    }
 
     svg {
       fill: #368d74;

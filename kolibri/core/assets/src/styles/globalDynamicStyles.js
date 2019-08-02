@@ -17,7 +17,7 @@ const { StyleSheet, css } = baseStyleSheet.extend([globalExtension]);
 function generateGlobalStyles() {
   const htmlBodyStyles = {
     color: theme.$themeTokens().text,
-    backgroundColor: theme.$themeColors().palette.grey.v_100,
+    backgroundColor: theme.$themePalette().grey.v_100,
   };
 
   const globalStyles = StyleSheet.create({
@@ -29,7 +29,7 @@ function generateGlobalStyles() {
         borderTop: `1px solid ${theme.$themeTokens().textDisabled}`,
       },
       '*::selection': {
-        background: theme.$themeColors().brand.secondary.v_100,
+        background: theme.$themeBrand().secondary.v_100,
       },
     },
   });

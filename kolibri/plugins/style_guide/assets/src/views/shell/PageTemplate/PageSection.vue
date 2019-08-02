@@ -1,9 +1,9 @@
 <template>
 
   <section :style="style" class="section-wrapper">
-    <h2 v-if="title" :id="anchorId" :name="anchorId">
+    <h2 v-if="title">
       {{ title }}
-      <SectionLink v-if="anchor" :anchor="anchor" />
+      <SectionLink v-if="anchor" :to="anchor" />
     </h2>
     <slot></slot>
   </section>
@@ -35,12 +35,6 @@
       },
     },
     computed: {
-      anchorId() {
-        if (!this.anchor) {
-          return null;
-        }
-        return this.anchor.replace('#', '');
-      },
       style() {
         return this.fullwidth ? {} : { maxWidth: '700px' };
       },

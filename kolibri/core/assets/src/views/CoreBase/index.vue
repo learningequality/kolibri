@@ -314,7 +314,7 @@
         return {
           top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
           bottom: `${this.marginBottom}px`,
-          backgroundColor: this.$themeColors.palette.grey.v_100,
+          backgroundColor: this.$themePalette.grey.v_100,
         };
       },
       contentStyles() {

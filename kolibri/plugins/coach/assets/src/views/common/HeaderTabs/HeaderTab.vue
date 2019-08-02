@@ -42,7 +42,7 @@
         return this.$computedClass({
           ':focus': this.$coreOutline,
           ':hover': {
-            backgroundColor: this.$themeColors.palette.grey.v_300,
+            backgroundColor: this.$themePalette.grey.v_300,
           },
         });
       },
