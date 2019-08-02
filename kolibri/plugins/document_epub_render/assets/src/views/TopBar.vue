@@ -2,21 +2,13 @@
 
   <div class="top-bar" :style="{ backgroundColor: $themePalette.grey.v_200 }">
     <KGrid>
-      <KGridItem
-        sizes="25, 25, 25"
-        :percentage="true"
-        alignment="left"
-      >
+      <KGridItem sizes="25, 25, 25" alignment="left">
         <TocButton
           ref="tocButton"
           @click="$emit('tableOfContentsButtonClicked')"
         />
       </KGridItem>
-      <KGridItem
-        sizes="25, 50, 50"
-        :percentage="true"
-        alignment="center"
-      >
+      <KGridItem sizes="25, 50, 50" alignment="center">
         <h2
           v-if="title"
           class="top-bar-title"
@@ -24,11 +16,7 @@
           {{ title }}
         </h2>
       </KGridItem>
-      <KGridItem
-        sizes="50, 25, 25"
-        :percentage="true"
-        alignment="right"
-      >
+      <KGridItem sizes="50, 25, 25" alignment="right">
         <SettingsButton
           ref="settingsButton"
           @click="$emit('settingsButtonClicked')"

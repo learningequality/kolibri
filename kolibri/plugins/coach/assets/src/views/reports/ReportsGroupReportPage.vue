@@ -14,7 +14,7 @@
       <ReportsGroupHeader />
 
       <KGrid>
-        <KGridItem :sizes="[100, 100, 50]">
+        <KGridItem sizes="100, 100, 50">
           <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="lesson in lessonsList" :key="lesson.id">
@@ -30,7 +30,7 @@
             {{ coachString('lessonListEmptyState') }}
           </p>
         </KGridItem>
-        <KGridItem :sizes="[100, 100, 50]">
+        <KGridItem sizes="100, 100, 50">
           <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="exam in examsList" :key="exam.id">

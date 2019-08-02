@@ -3,14 +3,8 @@
   <SideBar>
     <div class="o-f-h">
       <h3>{{ $tr('textSize') }}</h3>
-      <KGrid
-        :cols="12"
-        :gutter="8"
-      >
-        <KGridItem
-          size="6"
-          :percentage="false"
-        >
+      <KGrid cols="12" gutter="8">
+        <KGridItem span="6">
           <KButton
             ref="decreaseFontSizeButton"
             :class="['settings-button', $computedClass(settingsButtonFocus)]"
@@ -26,10 +20,7 @@
             </div>
           </KButton>
         </KGridItem>
-        <KGridItem
-          size="6"
-          :percentage="false"
-        >
+        <KGridItem span="6">
           <KButton
             ref="increaseFontSizeButton"
             :disabled="increaseFontSizeDisabled"
@@ -50,15 +41,11 @@
 
     <div class="o-f-h">
       <h3>{{ $tr('theme') }}</h3>
-      <KGrid
-        :cols="12"
-        :gutter="8"
-      >
+      <KGrid cols="12" gutter="8">
         <KGridItem
           v-for="(value, key) in themes"
           :key="key"
-          :size="3"
-          :percentage="false"
+          span="3"
         >
           <KButton
             class="settings-button theme-button"
