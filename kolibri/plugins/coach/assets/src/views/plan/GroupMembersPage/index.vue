@@ -30,11 +30,10 @@
           <KGridItem
             class="number-learners"
             :size="50"
-            percentage
           >
             {{ coachString('numberOfLearners', { value: currentGroup.users.length }) }}
           </KGridItem>
-          <KGridItem :size="50" percentage alignment="right">
+          <KGridItem :size="50" alignment="right">
             <KRouterLink
               :primary="true"
               appearance="raised-button"

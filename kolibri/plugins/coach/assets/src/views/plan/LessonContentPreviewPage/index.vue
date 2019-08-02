@@ -3,12 +3,12 @@
   <MultiPaneLayout>
     <div slot="header">
       <KGrid>
-        <KGridItem sizes="100, 50, 50" percentage>
+        <KGridItem sizes="100, 50, 50">
           <h1>
             <KLabeledIcon :icon="content.kind" :label="content.title" />
           </h1>
         </KGridItem>
-        <KGridItem sizes="100, 50, 50" percentage alignment="right">
+        <KGridItem sizes="100, 50, 50" alignment="right">
           <SelectOptions
             v-if="displaySelectOptions"
             class="select-options ib"

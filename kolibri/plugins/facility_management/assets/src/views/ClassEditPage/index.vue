@@ -35,10 +35,10 @@
     <!-- /Modals -->
 
     <KGrid>
-      <KGridItem sizes="100, 50, 50" percentage>
+      <KGridItem sizes="100, 50, 50">
         <h2>{{ coreString('coachesLabel') }}</h2>
       </KGridItem>
-      <KGridItem sizes="100, 50, 50" alignment="right" percentage>
+      <KGridItem sizes="100, 50, 50" alignment="right">
         <KRouterLink
           :text="$tr('assignCoachesButtonLabel')"
           :to="coachAssignmentLink"
@@ -63,10 +63,10 @@
     </UserTable>
 
     <KGrid class="top-margin">
-      <KGridItem sizes="100, 50, 50" percentage>
+      <KGridItem sizes="100, 50, 50">
         <h2>{{ coreString('learnersLabel') }}</h2>
       </KGridItem>
-      <KGridItem sizes="100, 50, 50" alignment="right" percentage>
+      <KGridItem sizes="100, 50, 50" alignment="right">
         <KRouterLink
           :text="$tr('enrollLearnerButtonLabel')"
           :to="learnerEnrollmentLink"

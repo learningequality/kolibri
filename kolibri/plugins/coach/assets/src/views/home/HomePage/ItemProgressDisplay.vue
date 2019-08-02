@@ -2,13 +2,13 @@
 
   <router-link class="link" :style="{color: $themeTokens.text}" :to="to">
     <KGrid class="wrapper">
-      <KGridItem size="75" percentage>
+      <KGridItem size="75">
         <h3 class="title">
           {{ name }}
         </h3>
       </KGridItem>
 
-      <KGridItem size="25" percentage alignment="right">
+      <KGridItem size="25" alignment="right">
         <div class="context">
           <Recipients
             :groupNames="groupNames"
@@ -17,14 +17,14 @@
         </div>
       </KGridItem>
 
-      <KGridItem size="100" percentage>
+      <KGridItem size="100">
         <ProgressSummaryBar
           :tally="tally"
           class="dashboard-bar"
         />
       </KGridItem>
 
-      <KGridItem size="100" percentage>
+      <KGridItem size="100">
         <StatusSummary
           :tally="tally"
         />

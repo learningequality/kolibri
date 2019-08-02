@@ -1,7 +1,7 @@
 <template>
 
   <KGrid>
-    <KGridItem sizes="100, 75, 75" percentage>
+    <KGridItem sizes="100, 75, 75">
       <h3 v-if="isInImportMode" class="choose-message">
         {{ $tr('chooseContentToImport') }}
       </h3>
@@ -15,7 +15,7 @@
         {{ fileSizeText }}
       </p>
     </KGridItem>
-    <KGridItem sizes="100, 25, 25" percentage alignments="left, right, right">
+    <KGridItem sizes="100, 25, 25" alignments="left, right, right">
       <KButton
         class="confirm-button"
         :text="buttonText"
@@ -25,7 +25,7 @@
         @click="$emit('clickconfirm')"
       />
     </KGridItem>
-    <KGridItem size="100" percentage>
+    <KGridItem size="100">
       <UiAlert
         v-if="remainingSpaceAfterTransfer <= 0"
         type="error"
