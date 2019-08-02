@@ -205,7 +205,7 @@ In the first terminal you can start the django development server with this comm
 
 .. code-block:: bash
 
-  kolibri --debug manage runserver --settings=kolibri.deployment.default.settings.dev "0.0.0.0:8000"
+  kolibri manage --debug runserver --settings=kolibri.deployment.default.settings.dev "0.0.0.0:8000"
 
 In the second terminal you can start the webpack build process for frontend assets in 'watch' mode – meaning they will be automatically rebuilt if you modify them – with this command:
 
@@ -220,7 +220,7 @@ If you need to make the development server available through the LAN, you need t
   # first build the assets
   yarn run build
   # now, run the Django devserver
-  kolibri --debug manage runserver -- 0.0.0.0:8000
+  kolibri manage --debug runserver -- 0.0.0.0:8000
 
 Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
 
