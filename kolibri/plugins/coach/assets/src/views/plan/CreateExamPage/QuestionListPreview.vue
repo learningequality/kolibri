@@ -57,7 +57,7 @@
         </ul>
       </transition>
     </KGridItem>
-    <KGridItem sizes="4, 4, 7">
+    <KGridItem spans="4, 4, 7">
       <h3 class="question-title">
         {{ currentQuestion.title }}
       </h3>

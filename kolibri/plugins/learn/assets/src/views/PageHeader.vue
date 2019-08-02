@@ -1,12 +1,12 @@
 <template>
 
   <KGrid>
-    <KGridItem sizes="3, 7, 11">
+    <KGridItem spans="3, 7, 11">
       <h1>
         <KLabeledIcon :icon="contentType" :label="title" />
       </h1>
     </KGridItem>
-    <KGridItem sizes="1, 1, 1" alignment="right">
+    <KGridItem spans="1, 1, 1" alignment="right">
       <ProgressIcon class="progress-icon" :progress="progress" />
     </KGridItem>
   </KGrid>

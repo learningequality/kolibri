@@ -13,12 +13,12 @@
     </h1>
 
     <KGrid v-if="channelsAreAvailable" class="top-matter">
-      <KGridItem sizes="4, 8, 4">
+      <KGridItem spans="4, 8, 4">
         <p :class="{ 'text-offset': windowIsLarge }" class="spec-ref-available">
           {{ $tr('channelsAvailable', { channels: availableChannels.length }) }}
         </p>
       </KGridItem>
-      <KGridItem sizes="4, 3, 3" alignments="left, left, right">
+      <KGridItem spans="4, 3, 3" alignments="left, left, right">
         <KSelect
           v-model="languageFilter"
           class="align-left"
@@ -27,7 +27,7 @@
           :inline="true"
         />
       </KGridItem>
-      <KGridItem sizes="4, 5, 5">
+      <KGridItem spans="4, 5, 5">
         <KFilterTextbox
           v-model="titleFilter"
           :class="{ 'search-box-offset': !windowIsSmall }"

@@ -9,7 +9,7 @@
       {{ context }}
     </p>
     <KGrid>
-      <KGridItem :sizes="mainColSizes">
+      <KGridItem :spans="mainColSizes">
         <div class="icon-spacer">
           <ContentIcon
             slot="icon"
@@ -30,7 +30,7 @@
 
       <KGridItem
         v-if="time"
-        :sizes="[1, 2, 3]"
+        :spans="[1, 2, 3]"
         alignment="right"
       >
         <ElapsedTime :date="parseDate(time)" />

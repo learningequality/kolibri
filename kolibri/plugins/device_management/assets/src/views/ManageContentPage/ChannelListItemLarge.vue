@@ -1,23 +1,23 @@
 <template>
 
   <KGrid cols="12">
-    <KGridItem size="2">
+    <KGridItem span="2">
       <slot name="thumbnail"></slot>
     </KGridItem>
-    <KGridItem size="8">
+    <KGridItem span="8">
       <KGrid cols="8">
-        <KGridItem size="5">
+        <KGridItem span="5">
           <slot name="header"></slot>
         </KGridItem>
-        <KGridItem size="3" alignment="right">
+        <KGridItem span="3" alignment="right">
           <slot name="meta"></slot>
         </KGridItem>
-        <KGridItem size="8">
+        <KGridItem span="8">
           <slot name="description"></slot>
         </KGridItem>
       </KGrid>
     </KGridItem>
-    <KGridItem size="2" alignment="right" class="raise-button">
+    <KGridItem span="2" alignment="right" class="raise-button">
       <slot name="buttons"></slot>
     </KGridItem>
   </KGrid>

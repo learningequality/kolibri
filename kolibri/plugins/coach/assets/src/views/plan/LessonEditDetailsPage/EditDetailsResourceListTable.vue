@@ -23,7 +23,7 @@
             :style="{ backgroundColor: $themeTokens.surface }"
             cols="8"
           >
-            <KGridItem size="1" class="relative">
+            <KGridItem span="1" class="relative">
               <div class="move-handle">
                 <KDragSortWidget
                   :moveUpText="$tr('moveResourceUpButtonDescription')"
@@ -35,7 +35,7 @@
                 />
               </div>
             </KGridItem>
-            <KGridItem size="4">
+            <KGridItem span="4">
               <div class="resource-title">
                 <ContentIcon :kind="resource.kind" />
                 <KRouterLink
@@ -50,7 +50,7 @@
                 </p>
               </div>
             </KGridItem>
-            <KGridItem size="3" alignment="right">
+            <KGridItem span="3" alignment="right">
               <KButton
                 :text="coreString('removeAction')"
                 appearance="flat-button"

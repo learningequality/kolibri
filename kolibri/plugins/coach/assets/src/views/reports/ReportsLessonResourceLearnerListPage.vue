@@ -49,14 +49,14 @@
           </h2>
 
           <KGrid cols="2">
-            <KGridItem size="1">
+            <KGridItem span="1">
               <StatusSummary
                 :tally="getGroupTally(group.id)"
                 :showNeedsHelp="false"
                 :verbose="false"
               />
             </KGridItem>
-            <KGridItem size="1">
+            <KGridItem span="1">
               <ReportsResourcesStats :avgTime="getGroupRecipientsAvgTime(group.id)" />
             </KGridItem>
           </KGrid>

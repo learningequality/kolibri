@@ -7,14 +7,14 @@
     <div class="banner-inner">
       <KGrid>
         <!-- Grid Content -->
-        <KGridItem :sizes="bannerClosed ? [4, 6, 10] : [4, 8, 12]">
+        <KGridItem :spans="bannerClosed ? [4, 6, 10] : [4, 8, 12]">
           <slot :bannerClosed="bannerClosed"></slot>
         </KGridItem>
 
         <!-- Grid Buttons -->
         <KGridItem
           v-if="bannerClosed"
-          sizes="4, 2, 2"
+          spans="4, 2, 2"
           alignment="right"
         >
           <KButton
