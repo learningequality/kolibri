@@ -32,7 +32,7 @@
         </tr>
       </table>
     </KGridItem>
-    <KGridItem size="25" align="right">
+    <KGridItem size="25" alignment="right">
       <div>
         <ProgressIcon class="svg-icon" :progress="progress" />
         <strong>
