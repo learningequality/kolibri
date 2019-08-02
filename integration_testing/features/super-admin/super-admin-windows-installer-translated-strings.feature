@@ -5,7 +5,7 @@ Feature: Super admin can see the Windows installer translated strings
       Given that I have the Kolibri Windows installer
         And I am using a Windows environment
 
-Scenario: See translated strings during Kolibri Windows setup installation
+Scenario: See translated strings during Kolibri Windows installation
     When I double click the Kolibri Windows installer
       And I select a <language>
       And I see the setup message box that Python is required to install
@@ -15,11 +15,11 @@ Scenario: See translated strings during Kolibri Windows setup installation
       And I continue the Kolibri installation
     Then I see that the Kolibri setup strings are translated with the <language>
 
-Scenario: See translated strings during Kolibri uninstallation
+Scenario: See translated strings during Kolibri Windows uninstallation
     When I click the "Uninstall Kolibri"
     Then I see the setup message box with a translated strings of <language>
       And I continue the Kolibri uninstallation
-    Then I see that Kolibri successfully uninstall
+    Then I see that Kolibri successfully uninstalled
 
 Examples:
 | language |
