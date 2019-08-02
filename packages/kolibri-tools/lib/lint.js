@@ -8,7 +8,6 @@ const esLintFormatter = require('eslint/lib/formatters/stylish');
 const stylelint = require('stylelint');
 const colors = require('colors');
 const stylelintFormatter = require('stylelint').formatters.string;
-const warnUnusedStrings = require('./warnUnusedTranslationStrings');
 
 require('./htmlhint_custom');
 
@@ -232,8 +231,6 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
               vueComponent.template.content
             );
             vueComponent = compiler.parseComponent(formatted);
-            // Warn user about unused string definitions
-            warnUnusedStrings(vueComponent, file);
           }
 
           // Now run htmlhint on the whole vue component
