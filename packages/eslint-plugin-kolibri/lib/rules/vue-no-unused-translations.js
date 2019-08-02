@@ -30,7 +30,7 @@ const create = context => {
     {
       'CallExpression[callee.type="MemberExpression"]'(node) {
         if ($TR_FUNCTIONS.includes(node.callee.property.name) && node.arguments.length) {
-          node.arguments.forEach(arg => Boolean(arg) && usedStrings.push(arg));
+          node.arguments.forEach(arg => usedStrings.push(arg));
         }
       },
     },
