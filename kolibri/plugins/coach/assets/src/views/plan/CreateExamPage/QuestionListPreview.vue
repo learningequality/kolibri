@@ -1,7 +1,7 @@
 <template>
 
   <KGrid>
-    <KGridItem sizes="4, 4, 5" class="list-wrapper">
+    <KGridItem spans="4, 4, 5" class="list-wrapper">
       <KDragContainer
         v-if="fixedOrder && !readOnly"
         :items="annotatedQuestions"

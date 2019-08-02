@@ -2,7 +2,7 @@
 
   <div>
     <KGrid :gridStyle="gridStyle">
-      <KGridItem v-if="windowIsLarge" size="4" class="column-pane">
+      <KGridItem v-if="windowIsLarge" span="4" class="column-pane">
         <div class="column-contents-wrapper">
           <KPageContainer>
             <AnswerHistory
@@ -12,7 +12,7 @@
           </KPageContainer>
         </div>
       </KGridItem>
-      <KGridItem sizes="4, 8, 8" class="column-pane">
+      <KGridItem spans="4, 8, 8" class="column-pane">
         <div :class="{'column-contents-wrapper' : !windowIsSmall}">
           <KPageContainer>
             <h1>
