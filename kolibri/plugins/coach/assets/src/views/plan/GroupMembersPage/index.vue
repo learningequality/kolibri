@@ -27,10 +27,10 @@
         </h1>
 
         <KGrid>
-          <KGridItem class="number-learners" size="50">
+          <KGridItem class="number-learners" percentage="50">
             {{ coachString('numberOfLearners', { value: currentGroup.users.length }) }}
           </KGridItem>
-          <KGridItem size="50" alignment="right">
+          <KGridItem percentage="50" alignment="right">
             <KRouterLink
               :primary="true"
               appearance="raised-button"

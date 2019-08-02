@@ -1,7 +1,7 @@
 <template>
 
   <KGrid class="page-status" :style="{ backgroundColor: $themeTokens.surface }">
-    <KGridItem size="75">
+    <KGridItem percentage="75">
       <div>
         <h1 class="title">
           <KLabeledIcon icon="person" :label="userName" />
@@ -32,7 +32,7 @@
         </tr>
       </table>
     </KGridItem>
-    <KGridItem size="25" alignment="right">
+    <KGridItem percentage="25" alignment="right">
       <div>
         <ProgressIcon class="svg-icon" :progress="progress" />
         <strong>

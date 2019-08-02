@@ -2,10 +2,10 @@
 
   <div>
     <KGrid>
-      <KGridItem sizes="100, 50, 50">
+      <KGridItem percentages="100, 50, 50">
         <h1>{{ coreString('usersLabel') }}</h1>
       </KGridItem>
-      <KGridItem sizes="100, 50, 50" alignment="right">
+      <KGridItem percentages="100, 50, 50" alignment="right">
         <KButton
           :text="$tr('newUserButtonLabel')"
           :primary="true"

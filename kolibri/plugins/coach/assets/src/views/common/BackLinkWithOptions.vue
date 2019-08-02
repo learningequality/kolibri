@@ -1,12 +1,12 @@
 <template>
 
   <KGrid>
-    <KGridItem sizes="100, 50, 50">
+    <KGridItem percentages="100, 50, 50">
       <p>
         <slot name="backlink"></slot>
       </p>
     </KGridItem>
-    <KGridItem sizes="100, 50, 50" alignment="right" class="pad-button">
+    <KGridItem percentages="100, 50, 50" alignment="right" class="pad-button">
       <slot name="options"></slot>
     </KGridItem>
   </KGrid>

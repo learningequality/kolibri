@@ -17,11 +17,11 @@
       </h1>
 
       <KGrid>
-        <KGridItem sizes="100, 100, 50">
+        <KGridItem percentages="100, 100, 50">
           <LessonsSearchBox @searchterm="handleSearchTerm" />
         </KGridItem>
 
-        <KGridItem sizes="100, 100, 50" alignments="left, left, right">
+        <KGridItem percentages="100, 100, 50" alignments="left, left, right">
           <p>
             {{ $tr('totalResourcesSelected', { total: workingResources.length }) }}
           </p>

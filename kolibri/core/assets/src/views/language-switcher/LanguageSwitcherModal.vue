@@ -12,7 +12,7 @@
         v-for="(languageCol, index) in splitLanguageOptions"
         :key="index"
         :class="{ 'offset-col': windowIsSmall && index === 1 }"
-        sizes="100, 50, 50"
+        percentages="100, 50, 50"
         alignment="left"
       >
         <KRadioButton

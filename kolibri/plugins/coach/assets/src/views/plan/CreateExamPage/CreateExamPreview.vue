@@ -15,7 +15,7 @@
       <h1>{{ $tr('preview') }}</h1>
       <h2>{{ coachString('detailsLabel') }}</h2>
       <KGrid>
-        <KGridItem sizes="100, 100, 50">
+        <KGridItem percentages="100, 100, 50">
           <KTextbox
             ref="title"
             v-model.trim="examTitle"
@@ -27,7 +27,7 @@
             @input="showTitleError = false"
           />
         </KGridItem>
-        <KGridItem sizes="100, 100, 50" class="number-input-grid-item">
+        <KGridItem percentages="100, 100, 50" class="number-input-grid-item">
           <KTextbox
             ref="numQuest"
             v-model.trim.number="numQuestions"

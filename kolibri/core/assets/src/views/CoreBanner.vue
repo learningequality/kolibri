@@ -27,7 +27,7 @@
         </KGridItem>
         <KGridItem
           v-else
-          size="100"
+          percentage="100"
           alignment="right"
         >
           <KButton

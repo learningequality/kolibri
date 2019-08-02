@@ -2,12 +2,12 @@
 
   <KPageContainer class="block">
     <KGrid>
-      <KGridItem sizes="100, 50, 50">
+      <KGridItem percentages="100, 50, 50">
         <h2>
           <slot name="title"></slot>
         </h2>
       </KGridItem>
-      <KGridItem sizes="100, 50, 50" alignment="right">
+      <KGridItem percentages="100, 50, 50" alignment="right">
         <KRouterLink
           appearance="flat-button"
           :text="allLinkText"
