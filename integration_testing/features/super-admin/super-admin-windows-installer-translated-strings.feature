@@ -5,6 +5,11 @@ Feature: Super admin can see the Windows installer translated strings
       Given that I have the Kolibri Windows installer
         And I am using a Windows environment
 
+Scenario: Set the Windows environment language into other languages
+    When I double click the Kolibri Windows installer
+      And I see the select setup language
+    Then I see that the strings are properly displayed at the select setup language page
+
 Scenario: See translated strings during Kolibri Windows installation
     When I double click the Kolibri Windows installer
       And I select a <language>
