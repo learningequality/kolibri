@@ -39,7 +39,15 @@
         // as a convenience (in case main div is still loading).
         const mainEl = document.getElementById('main');
         if (mainEl) {
-          mainEl.focus();
+          // If it exists, actually target and focus on the main header
+          const header = mainEl.querySelector('h1');
+          if (header) {
+            // HACK: Need to set its tabindex attribute on the fly to get tab behavior
+            header.setAttribute('tabindex', -1);
+            header.focus();
+          } else {
+            mainEl.focus();
+          }
         } else {
           // NOTE: the button retains focus, but loses :focus styling after hitting "Enter"
           // TODO: look into vuexModality.js to see if we can get consistent

@@ -450,11 +450,11 @@
 
   .main {
     height: 100%;
-    // Don't put focus outline on the main div even if still in
-    // keyboard modality
-    &:focus {
-      outline-style: none !important;
-    }
+  }
+
+  // When focused by SkipNavigationLink, don't outline non-buttons/links
+  /deep/ [tabindex='-1'] {
+    outline-style: none !important;
   }
 
   .scrolling-pane {
