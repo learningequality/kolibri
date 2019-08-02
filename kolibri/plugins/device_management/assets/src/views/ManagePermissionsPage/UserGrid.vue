@@ -2,7 +2,7 @@
 
   <div>
 
-    <CoreTable>
+    <CoreTable :emptyMessage="emptyMessage">
       <thead slot="thead">
         <tr>
           <th>{{ coreString('fullNameLabel') }}</th>
@@ -11,8 +11,8 @@
         </tr>
       </thead>
 
-      <transition-group slot="tbody" tag="tbody" name="list">
-        <tr v-for="user in visibleUsers" :key="user.id">
+      <tbody slot="tbody">
+        <tr v-for="user in facilityUsers" :key="user.id">
           <td>
             <KLabeledIcon>
               <PermissionsIcon
@@ -39,12 +39,8 @@
             />
           </td>
         </tr>
-      </transition-group>
+      </tbody>
     </CoreTable>
-
-    <p v-if="!visibleUsers.length">
-      {{ $tr('noUsersMatching', { searchFilter }) }}
-    </p>
 
   </div>
 
@@ -60,7 +56,6 @@
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
 
   export default {
     name: 'UserGrid',
@@ -72,22 +67,22 @@
     },
     mixins: [commonCoreStrings],
     props: {
-      searchFilter: {
+      filterText: {
         type: String,
+      },
+      facilityUsers: {
+        type: Array,
+      },
+      userPermissions: {
+        type: Function,
       },
     },
     computed: {
       ...mapState({
         isCurrentUser: state => username => state.core.session.username === username,
       }),
-      ...mapState('managePermissions', {
-        facilityUsers: state => state.facilityUsers,
-        userPermissions: state => userid => state.permissions[userid],
-      }),
-      visibleUsers() {
-        return filterAndSortUsers(this.facilityUsers, user =>
-          userMatchesFilter(user, this.searchFilter)
-        );
+      emptyMessage() {
+        return this.$tr('noUsersMatching', { searchFilter: this.filterText });
       },
     },
     methods: {
@@ -99,7 +94,8 @@
       },
       goToUserPermissionsPage(userId) {
         this.$router.push({
-          path: `/permissions/${userId}`,
+          name: 'USER_PERMISSIONS_PAGE',
+          params: { userId },
         });
       },
       getPermissionType(userId) {

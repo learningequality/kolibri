@@ -10,14 +10,20 @@
         <p>{{ $tr('devicePermissionsDescription') }}</p>
       </div>
 
-      <div class="filter-box">
-        <KFilterTextbox
-          v-model="searchFilterText"
-          :placeholder="$tr('searchPlaceholder')"
-        />
-      </div>
-
-      <UserGrid :searchFilter="searchFilterText" />
+      <PaginatedListContainer
+        :items="facilityUsers"
+        :filterFunction="filterUsers"
+        :filterPlaceholder="$tr('searchPlaceholder')"
+      >
+        <template v-slot:default="{items, filterInput}">
+          <UserGrid
+            :searchFilter="searchFilterText"
+            :facilityUsers="items"
+            :userPermissions="userPermissions"
+            :filterText="filterInput"
+          />
+        </template>
+      </PaginatedListContainer>
     </div>
 
   </div>
@@ -27,10 +33,11 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import UserGrid from './UserGrid';
 
   export default {
@@ -42,7 +49,7 @@
     },
     components: {
       AuthMessage,
-      KFilterTextbox,
+      PaginatedListContainer,
       UserGrid,
     },
     mixins: [commonCoreStrings],
@@ -53,10 +60,19 @@
     },
     computed: {
       ...mapGetters(['isSuperuser']),
+      ...mapState('managePermissions', {
+        facilityUsers: state => state.facilityUsers,
+        userPermissions: state => userid => state.permissions[userid],
+      }),
+    },
+    methods: {
+      filterUsers(users, filterText) {
+        return filterAndSortUsers(users, user => userMatchesFilter(user, filterText));
+      },
     },
     $trs: {
       devicePermissionsDescription: 'Make changes to what users can manage on your device',
-      searchPlaceholder: 'Search for a user...',
+      searchPlaceholder: 'Search for a user…',
       documentTitle: 'Manage Device Permissions',
     },
   };
@@ -68,11 +84,6 @@
 
   .description {
     margin-bottom: 2em;
-  }
-
-  .filter-box {
-    margin-bottom: 1em;
-    text-align: right;
   }
 
 </style>
