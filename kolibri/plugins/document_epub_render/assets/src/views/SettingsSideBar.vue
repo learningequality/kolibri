@@ -3,8 +3,8 @@
   <SideBar>
     <div class="o-f-h">
       <h3>{{ $tr('textSize') }}</h3>
-      <KGrid cols="12" gutter="8">
-        <KGridItem span="6">
+      <KFixedGrid numCols="2" gutter="8">
+        <KFixedGridItem span="1">
           <KButton
             ref="decreaseFontSizeButton"
             :class="['settings-button', $computedClass(settingsButtonFocus)]"
@@ -19,8 +19,8 @@
               {{ $tr('decrease') }}
             </div>
           </KButton>
-        </KGridItem>
-        <KGridItem span="6">
+        </KFixedGridItem>
+        <KFixedGridItem span="1">
           <KButton
             ref="increaseFontSizeButton"
             :disabled="increaseFontSizeDisabled"
@@ -35,17 +35,17 @@
               {{ $tr('increase') }}
             </div>
           </KButton>
-        </KGridItem>
-      </KGrid>
+        </KFixedGridItem>
+      </KFixedGrid>
     </div>
 
     <div class="o-f-h">
       <h3>{{ $tr('theme') }}</h3>
-      <KGrid cols="12" gutter="8">
-        <KGridItem
+      <KFixedGrid numCols="4" gutter="8">
+        <KFixedGridItem
           v-for="(value, key) in themes"
           :key="key"
-          span="3"
+          span="1"
         >
           <KButton
             class="settings-button theme-button"
@@ -61,8 +61,8 @@
             />
           </KButton>
 
-        </KGridItem>
-      </KGrid>
+        </KFixedGridItem>
+      </KFixedGrid>
     </div>
   </SideBar>
 
@@ -73,8 +73,8 @@
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KFixedGrid from 'kolibri.coreVue.components.KFixedGrid';
+  import KFixedGridItem from 'kolibri.coreVue.components.KFixedGridItem';
   import KButton from 'kolibri.coreVue.components.KButton';
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
@@ -83,8 +83,8 @@
     name: 'SettingsSideBar',
     components: {
       SideBar,
-      KGrid,
-      KGridItem,
+      KFixedGrid,
+      KFixedGridItem,
       KButton,
     },
     mixins: [themeMixin],

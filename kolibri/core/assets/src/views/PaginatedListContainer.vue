@@ -2,10 +2,13 @@
 
   <div>
     <KGrid>
-      <KGridItem spans="4, 8, 3">
+      <KGridItem :layout12="{ span: 3 }">
         <slot name="otherFilter"></slot>
       </KGridItem>
-      <KGridItem spans="4, 8, 9" alignments="left, left, right" class="text-filter">
+      <KGridItem
+        :layout12="{ span: 9, alignment: 'right' }"
+        class="text-filter"
+      >
         <KFilterTextbox
           v-model="filterInput"
           :placeholder="filterPlaceholder"

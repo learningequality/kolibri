@@ -26,19 +26,19 @@
           <KLabeledIcon icon="group" :label="currentGroup.name" />
         </h1>
 
-        <KGrid>
-          <KGridItem class="number-learners" percentage="50">
+        <KFixedGrid numCols="2">
+          <KFixedGridItem span="1" class="number-learners">
             {{ coachString('numberOfLearners', { value: currentGroup.users.length }) }}
-          </KGridItem>
-          <KGridItem percentage="50" alignment="right">
+          </KFixedGridItem>
+          <KFixedGridItem span="1" alignment="right">
             <KRouterLink
               :primary="true"
               appearance="raised-button"
               :text="$tr('enrollButton')"
               :to="$router.getRoute('GroupEnrollPage')"
             />
-          </KGridItem>
-        </KGrid>
+          </KFixedGridItem>
+        </KFixedGrid>
 
         <CoreTable>
           <thead slot="thead">

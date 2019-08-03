@@ -1,40 +1,40 @@
 <template>
 
-  <KGrid cols="4">
-    <KGridItem span="1">
+  <KFixedGrid numCols="4">
+    <KFixedGridItem span="1">
       <slot name="thumbnail"></slot>
-    </KGridItem>
-    <KGridItem span="3">
-      <KGrid cols="3">
-        <KGridItem span="2">
+    </KFixedGridItem>
+    <KFixedGridItem span="3">
+      <KFixedGrid numCols="3">
+        <KFixedGridItem span="2">
           <slot name="header"></slot>
-        </KGridItem>
-        <KGridItem span="1" alignment="right" class="raise-button">
+        </KFixedGridItem>
+        <KFixedGridItem span="1" alignment="right" class="raise-button">
           <slot name="buttons"></slot>
-        </KGridItem>
-        <KGridItem span="3" alignment="right">
+        </KFixedGridItem>
+        <KFixedGridItem span="3" alignment="right">
           <slot name="meta"></slot>
-        </KGridItem>
-        <KGridItem span="3">
+        </KFixedGridItem>
+        <KFixedGridItem span="3">
           <slot name="description"></slot>
-        </KGridItem>
-      </KGrid>
-    </KGridItem>
-  </KGrid>
+        </KFixedGridItem>
+      </KFixedGrid>
+    </KFixedGridItem>
+  </KFixedGrid>
 
 </template>
 
 
 <script>
 
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KFixedGrid from 'kolibri.coreVue.components.KFixedGrid';
+  import KFixedGridItem from 'kolibri.coreVue.components.KFixedGridItem';
 
   export default {
     name: 'ChannelListItemSmall',
     components: {
-      KGrid,
-      KGridItem,
+      KFixedGrid,
+      KFixedGridItem,
     },
   };
 

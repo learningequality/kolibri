@@ -7,6 +7,8 @@ import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
 import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
 import KGrid from 'kolibri.coreVue.components.KGrid';
 import KGridItem from 'kolibri.coreVue.components.KGridItem';
+import KFixedGrid from 'kolibri.coreVue.components.KFixedGrid';
+import KFixedGridItem from 'kolibri.coreVue.components.KFixedGridItem';
 import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 import KSelect from 'kolibri.coreVue.components.KSelect';
@@ -127,6 +129,8 @@ export default {
     KDropdownMenu,
     KGrid,
     KGridItem,
+    KFixedGrid,
+    KFixedGridItem,
     KRouterLink,
     KSelect,
     KIcon,

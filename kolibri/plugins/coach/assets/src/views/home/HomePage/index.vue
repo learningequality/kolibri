@@ -10,20 +10,20 @@
     <TopNavbar slot="sub-nav" />
 
     <KGrid gutter="16">
-      <KGridItem percentage="100">
+      <KGridItem>
         <OverviewBlock />
       </KGridItem>
-      <KGridItem percentages="100, 100, 50">
+      <KGridItem :layout12="{ span: 6 }">
         <KGrid gutter="16">
-          <KGridItem percentage="100">
+          <KGridItem>
             <QuizzesBlock />
           </KGridItem>
-          <KGridItem percentage="100">
+          <KGridItem>
             <LessonsBlock />
           </KGridItem>
         </KGrid>
       </KGridItem>
-      <KGridItem percentages="100, 100, 50">
+      <KGridItem :layout12="{ span: 6 }">
         <ActivityBlock />
       </KGridItem>
     </KGrid>

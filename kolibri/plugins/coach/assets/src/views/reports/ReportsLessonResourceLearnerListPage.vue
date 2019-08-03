@@ -48,18 +48,18 @@
             <KLabeledIcon icon="group" :label="group.name" />
           </h2>
 
-          <KGrid cols="2">
-            <KGridItem span="1">
+          <KFixedGrid numCols="2">
+            <KFixedGridItem span="1">
               <StatusSummary
                 :tally="getGroupTally(group.id)"
                 :showNeedsHelp="false"
                 :verbose="false"
               />
-            </KGridItem>
-            <KGridItem span="1">
+            </KFixedGridItem>
+            <KFixedGridItem span="1">
               <ReportsResourcesStats :avgTime="getGroupRecipientsAvgTime(group.id)" />
-            </KGridItem>
-          </KGrid>
+            </KFixedGridItem>
+          </KFixedGrid>
 
           <ReportsResourceLearners
             :entries="getGroupEntries(group.id)"

@@ -2,10 +2,17 @@
 
   <div>
     <KGrid>
-      <KGridItem percentages="100, 50, 50">
+      <KGridItem
+        :layout8="{ span: 4 }"
+        :layout12="{ span: 6 }"
+      >
         <h1>{{ coreString('usersLabel') }}</h1>
       </KGridItem>
-      <KGridItem percentages="100, 50, 50" alignment="right">
+      <KGridItem
+        :layout="{ alignment: 'right' }"
+        :layout8="{ span: 4 }"
+        :layout12="{ span: 6 }"
+      >
         <KButton
           :text="$tr('newUserButtonLabel')"
           :primary="true"

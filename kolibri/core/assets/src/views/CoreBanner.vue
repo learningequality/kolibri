@@ -7,15 +7,19 @@
     <div class="banner-inner">
       <KGrid>
         <!-- Grid Content -->
-        <KGridItem :spans="bannerClosed ? [4, 6, 10] : [4, 8, 12]">
+        <KGridItem
+          :layout8="{ span: bannerClosed ? 6 : 8 }"
+          :layout12="{ span: bannerClosed ? 10 : 12 }"
+        >
           <slot :bannerClosed="bannerClosed"></slot>
         </KGridItem>
 
         <!-- Grid Buttons -->
         <KGridItem
           v-if="bannerClosed"
-          spans="4, 2, 2"
-          alignment="right"
+          :layout="{ alignment: 'right' }"
+          :layout8="{ span: 2 }"
+          :layout12="{ span: 2 }"
         >
           <KButton
             class="open-button"
@@ -25,11 +29,7 @@
             @click="toggleBanner"
           />
         </KGridItem>
-        <KGridItem
-          v-else
-          percentage="100"
-          alignment="right"
-        >
+        <KGridItem v-else :layout="{ alignment: 'right' }">
           <KButton
             class="close-button"
             :text="coreString('closeAction')"

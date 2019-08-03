@@ -2,15 +2,15 @@
 
   <KGrid gutter="48">
 
-    <KGridItem percentage="100">
+    <KGridItem>
       <h1>{{ $tr('pageHeading') }}</h1>
     </KGridItem>
 
-    <KGridItem percentage="100">
+    <KGridItem>
       <p>{{ $tr('pageSubHeading') }}</p>
     </KGridItem>
 
-    <KGridItem percentages="100, 50, 50">
+    <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }">
       <h2>{{ $tr('detailsHeading') }}</h2>
       <p>{{ $tr('detailsSubHeading') }}</p>
       <p>
@@ -41,7 +41,7 @@
       </p>
     </KGridItem>
 
-    <KGridItem percentages="100, 50, 50">
+    <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }">
       <h2>{{ $tr('summaryHeading') }}</h2>
       <p>{{ $tr('summarySubHeading') }}</p>
       <p>

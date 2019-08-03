@@ -1,35 +1,27 @@
 <template>
 
   <router-link class="link" :style="{color: $themeTokens.text}" :to="to">
-    <KGrid class="wrapper">
-      <KGridItem percentage="75">
+    <KFixedGrid numCols="4" class="wrapper">
+      <KFixedGridItem span="3">
         <h3 class="title">
           {{ name }}
         </h3>
-      </KGridItem>
-
-      <KGridItem percentage="25" alignment="right">
+      </KFixedGridItem>
+      <KFixedGridItem span="1" alignment="right">
         <div class="context">
           <Recipients
             :groupNames="groupNames"
             :hasAssignments="hasAssignments"
           />
         </div>
-      </KGridItem>
-
-      <KGridItem percentage="100">
-        <ProgressSummaryBar
-          :tally="tally"
-          class="dashboard-bar"
-        />
-      </KGridItem>
-
-      <KGridItem percentage="100">
-        <StatusSummary
-          :tally="tally"
-        />
-      </KGridItem>
-    </KGrid>
+      </KFixedGridItem>
+      <KFixedGridItem>
+        <ProgressSummaryBar :tally="tally" class="dashboard-bar" />
+      </KFixedGridItem>
+      <KFixedGridItem>
+        <StatusSummary :tally="tally" />
+      </KFixedGridItem>
+    </KFixedGrid>
   </router-link>
 
 </template>

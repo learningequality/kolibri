@@ -3,11 +3,18 @@
   <div>
 
     <KGrid>
-      <KGridItem percentages="100, 75, 75">
+      <KGridItem
+        :layout8="{ span: 6 }"
+        :layout12="{ span: 9 }"
+      >
         <h1>{{ coreString('classesLabel') }}</h1>
         <p>{{ $tr('adminClassPageSubheader') }}</p>
       </KGridItem>
-      <KGridItem percentages="100, 25, 25" alignment="right">
+      <KGridItem
+        :layout="{ alignment: 'right' }"
+        :layout8="{ span: 2 }"
+        :layout12="{ span: 3 }"
+      >
         <KButton
           :text="$tr('addNew')"
           :primary="true"

@@ -1,10 +1,10 @@
 <template>
 
   <KGrid>
-    <KGridItem :percentages="[100, 100, alwaysStack ? 100 : 50]">
+    <KGridItem :layout12="{ span: alwaysStack ? 12 : 6 }">
       <Prism language="html" :code="code" />
     </KGridItem>
-    <KGridItem :percentages="[100, 100, alwaysStack ? 100 : 50]">
+    <KGridItem :layout12="{ span: alwaysStack ? 12 : 6 }">
       <Show class="show">
         <slot></slot>
       </Show>

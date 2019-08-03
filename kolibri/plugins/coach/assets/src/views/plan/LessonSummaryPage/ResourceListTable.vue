@@ -10,12 +10,12 @@
         :key="resourceId"
       >
         <KDragHandle>
-          <KGrid
+          <KFixedGrid
             class="row"
             :style="{ backgroundColor: $themeTokens.surface }"
-            cols="8"
+            numCols="8"
           >
-            <KGridItem span="1" class="relative">
+            <KFixedGridItem span="1" class="relative">
               <div class="move-handle">
                 <KDragSortWidget
                   :moveUpText="$tr('moveResourceUpButtonDescription')"
@@ -26,8 +26,8 @@
                   @moveDown="moveDownOne(index)"
                 />
               </div>
-            </KGridItem>
-            <KGridItem span="4">
+            </KFixedGridItem>
+            <KFixedGridItem span="4">
               <div class="resource-title">
                 <ContentIcon :kind="resourceKind(resourceId)" />
                 <KRouterLink
@@ -44,15 +44,15 @@
                 :value="getCachedResource(resourceId).num_coach_contents"
                 :isTopic="false"
               />
-            </KGridItem>
-            <KGridItem span="3" alignment="right">
+            </KFixedGridItem>
+            <KFixedGridItem span="3" alignment="right">
               <KButton
                 :text="coreString('removeAction')"
                 appearance="flat-button"
                 @click="removeResource(resourceId)"
               />
-            </KGridItem>
-          </KGrid>
+            </KFixedGridItem>
+          </KFixedGrid>
         </KDragHandle>
       </KDraggable>
     </transition-group>
@@ -70,9 +70,9 @@
   import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
   import KDraggable from 'kolibri.coreVue.components.KDraggable';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KFixedGrid from 'kolibri.coreVue.components.KFixedGrid';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KFixedGridItem from 'kolibri.coreVue.components.KFixedGridItem';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -89,8 +89,8 @@
       KRouterLink,
       CoachContentLabel,
       KButton,
-      KGrid,
-      KGridItem,
+      KFixedGrid,
+      KFixedGridItem,
       ContentIcon,
     },
     mixins: [commonCoreStrings, themeMixin],
