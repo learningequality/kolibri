@@ -112,6 +112,7 @@
 
   .name {
     margin-top: 2px;
+    font-size: 12px;
     font-weight: bold;
   }
 

@@ -1,8 +1,8 @@
 <template>
 
   <KGrid>
-    <KGridItem :layout12="{ span: alwaysStack ? 12 : 6 }">
-      <Prism language="html" :code="code" />
+    <KGridItem class="prism-wrapper" :layout12="{ span: alwaysStack ? 12 : 6 }">
+      <CodeBlock language="html" :code="code" />
     </KGridItem>
     <KGridItem :layout12="{ span: alwaysStack ? 12 : 6 }">
       <Show class="show">
@@ -18,7 +18,7 @@
 
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import Prism from 'vue-prism-component';
+  import CodeBlock from './CodeBlock';
   import Show from './Show';
 
   export default {
@@ -26,7 +26,7 @@
     components: {
       KGrid,
       KGridItem,
-      Prism,
+      CodeBlock,
       Show,
     },
     props: {

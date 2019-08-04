@@ -39,6 +39,7 @@
 
       </div>
     </nav>
+    <!-- used to help indicate that there is more to see if one scrolls down -->
     <div v-show="!closed" class="bottom-gradient"></div>
   </div>
 
@@ -94,13 +95,13 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import './globals.scss';
 
   .header {
     margin-bottom: 32px;
     font-size: 20px;
     font-weight: bold;
-    color: #918daf;
+    color: $header-color;
   }
 
   .header-logo {
@@ -108,10 +109,6 @@
     top: 2px;
     width: 55px;
     vertical-align: middle;
-    transition: transform 2s ease-out;
-    &:hover {
-      transform: scale(1.15);
-    }
   }
 
   .header-text {
@@ -169,19 +166,23 @@
       margin-right: -8px;
       margin-bottom: 2px;
       margin-left: -8px;
-      color: #368d74;
+      color: $link-color;
       text-decoration: none;
       border-radius: 4px;
       outline-offset: 3px;
 
       &:hover {
-        color: #26614d;
+        color: $link-hover-color;
         background-color: #efefef;
+
+        code {
+          color: $link-hover-color;
+        }
       }
 
       &.router-link-active {
         color: black;
-        background-color: #dedede;
+        background-color: $border-color;
       }
     }
   }

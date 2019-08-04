@@ -34,9 +34,11 @@
 
 <style lang="scss" scoped>
 
+  @import './shell/globals';
+
   .content {
     padding-left: 32px;
-    border-left: 1px solid #dedede;
+    border-left: 1px solid $border-color;
   }
 
   .fade-enter-active,
@@ -53,40 +55,42 @@
 
 <style lang="scss">
 
-  /* NOT SCOPED */
+  @import './shell/globals';
 
   // match Prism font family
   code {
-    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-    font-size: smaller;
+    font-family: $code-font-stack;
+    color: $code-color;
     white-space: nowrap;
+  }
+
+  a code {
+    color: $link-color;
+    &:hover {
+      color: $link-hover-color;
+    }
   }
 
   a {
     display: inline-block; // prevents trailing spaces
-    color: #368d74;
-    transition: color 0.25s ease;
-
-    // hack to override some prism behavior
-    code[class*='language-'] {
-      color: #368d74;
-    }
+    color: $link-color;
+    transition: $basic-transition;
 
     svg {
-      fill: #368d74;
-      transition: fill 0.25s ease;
+      fill: $link-color;
+      transition: $basic-transition;
     }
 
     &:hover {
-      color: #26614d;
+      color: $link-hover-color;
       svg {
-        fill: #26614d;
+        fill: $link-hover-color;
       }
     }
   }
 
   *::selection {
-    background: #f0e7ed;
+    background: $selection-color;
   }
 
   body {

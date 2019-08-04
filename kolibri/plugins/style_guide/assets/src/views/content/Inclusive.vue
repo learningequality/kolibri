@@ -96,7 +96,7 @@
           when using semantically correct HTML is not possible.)
         </li>
         <li>
-          Nest header tags properly: <code>H1</code>, <code>H2</code>,
+          Nest header tags properly: <code>h1</code>, <code>h2</code>, <code>h3</code>, etc.
         </li>
         <li><code>alt</code> text on images</li>
       </ul>

@@ -6,9 +6,6 @@ import { allRoutes } from './routes';
 import pluginModule from './modules/pluginModule';
 import KolibriApp from 'kolibri_app';
 
-import 'prismjs';
-import 'prismjs/themes/prism.css';
-
 class StyleGuideModule extends KolibriApp {
   get routes() {
     return allRoutes;
@@ -29,8 +26,10 @@ class StyleGuideModule extends KolibriApp {
 
     router.afterEach(to => {
       const name = 'Kolibri Design System';
-      if (to.meta) {
+      if (to.meta && to.meta.title) {
         document.title = `${to.meta.title} - ${name}`;
+      } else if (to.meta && to.meta.componentAPI) {
+        document.title = `${to.meta.componentAPI.name} - ${name}`;
       } else {
         document.title = name;
       }
