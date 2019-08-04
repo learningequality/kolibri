@@ -153,34 +153,25 @@
       <p>
         Kolibri has what we call "Kolibri Purple" as its primary and "Kolibri Teal" as its secondary, available across the full brightness scale:
       </p>
-      <table>
-        <tr>
-          <td>
-            <ColorBlock name="brand.primary.v_50" definition />
-            <ColorBlock name="brand.primary.v_100" definition />
-            <ColorBlock name="brand.primary.v_200" definition />
-            <ColorBlock name="brand.primary.v_300" definition />
-            <ColorBlock name="brand.primary.v_400" definition />
-            <ColorBlock name="brand.primary.v_500" definition />
-            <ColorBlock name="brand.primary.v_600" definition />
-            <ColorBlock name="brand.primary.v_700" definition />
-            <ColorBlock name="brand.primary.v_800" definition />
-            <ColorBlock name="brand.primary.v_900" definition />
-          </td>
-          <td>
-            <ColorBlock name="brand.secondary.v_50" definition />
-            <ColorBlock name="brand.secondary.v_100" definition />
-            <ColorBlock name="brand.secondary.v_200" definition />
-            <ColorBlock name="brand.secondary.v_300" definition />
-            <ColorBlock name="brand.secondary.v_400" definition />
-            <ColorBlock name="brand.secondary.v_500" definition />
-            <ColorBlock name="brand.secondary.v_600" definition />
-            <ColorBlock name="brand.secondary.v_700" definition />
-            <ColorBlock name="brand.secondary.v_800" definition />
-            <ColorBlock name="brand.secondary.v_900" definition />
-          </td>
-        </tr>
-      </table>
+
+      <div>
+        <div class="palette-block">
+          <ColorBlock
+            v-for="(hex, variant) in $themeBrand.primary"
+            :key="variant"
+            :name="`brand.primary.${variant}`"
+            definition
+          />
+        </div>
+        <div class="palette-block">
+          <ColorBlock
+            v-for="(hex, variant) in $themeBrand.secondary"
+            :key="variant"
+            :name="`brand.secondary.${variant}`"
+            definition
+          />
+        </div>
+      </div>
 
     </PageSection>
 
@@ -199,256 +190,30 @@
       <p>A scale of standard greys</p>
       <ColorBlock name="palette.white" definition />
       <ColorBlock name="palette.black" definition />
-      <ColorBlock name="palette.grey.v_50" definition />
-      <ColorBlock name="palette.grey.v_100" definition />
-      <ColorBlock name="palette.grey.v_200" definition />
-      <ColorBlock name="palette.grey.v_300" definition />
-      <ColorBlock name="palette.grey.v_400" definition />
-      <ColorBlock name="palette.grey.v_500" definition />
-      <ColorBlock name="palette.grey.v_600" definition />
-      <ColorBlock name="palette.grey.v_700" definition />
-      <ColorBlock name="palette.grey.v_800" definition />
-      <ColorBlock name="palette.grey.v_900" definition />
-
+      <ColorBlock
+        v-for="(hex, variant) in $themePalette.grey"
+        :key="variant"
+        :name="`palette.grey.${variant}`"
+        definition
+      />
 
       <h3>Full palette</h3>
       <p>The complete set of colors available in the palette</p>
-      <table>
-        <tr>
-          <td>
-            <ColorBlock name="palette.bluegrey.v_50" definition />
-            <ColorBlock name="palette.bluegrey.v_100" definition />
-            <ColorBlock name="palette.bluegrey.v_200" definition />
-            <ColorBlock name="palette.bluegrey.v_300" definition />
-            <ColorBlock name="palette.bluegrey.v_400" definition />
-            <ColorBlock name="palette.bluegrey.v_500" definition />
-            <ColorBlock name="palette.bluegrey.v_600" definition />
-            <ColorBlock name="palette.bluegrey.v_700" definition />
-            <ColorBlock name="palette.bluegrey.v_800" definition />
-            <ColorBlock name="palette.bluegrey.v_900" definition />
-          </td>
-          <td>
-            <ColorBlock name="palette.red.v_50" definition />
-            <ColorBlock name="palette.red.v_100" definition />
-            <ColorBlock name="palette.red.v_200" definition />
-            <ColorBlock name="palette.red.v_300" definition />
-            <ColorBlock name="palette.red.v_400" definition />
-            <ColorBlock name="palette.red.v_500" definition />
-            <ColorBlock name="palette.red.v_600" definition />
-            <ColorBlock name="palette.red.v_700" definition />
-            <ColorBlock name="palette.red.v_800" definition />
-            <ColorBlock name="palette.red.v_900" definition />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <ColorBlock name="palette.pink.v_50" definition />
-            <ColorBlock name="palette.pink.v_100" definition />
-            <ColorBlock name="palette.pink.v_200" definition />
-            <ColorBlock name="palette.pink.v_300" definition />
-            <ColorBlock name="palette.pink.v_400" definition />
-            <ColorBlock name="palette.pink.v_500" definition />
-            <ColorBlock name="palette.pink.v_600" definition />
-            <ColorBlock name="palette.pink.v_700" definition />
-            <ColorBlock name="palette.pink.v_800" definition />
-            <ColorBlock name="palette.pink.v_900" definition />
-          </td>
-          <td>
-            <ColorBlock name="palette.purple.v_50" definition />
-            <ColorBlock name="palette.purple.v_100" definition />
-            <ColorBlock name="palette.purple.v_200" definition />
-            <ColorBlock name="palette.purple.v_300" definition />
-            <ColorBlock name="palette.purple.v_400" definition />
-            <ColorBlock name="palette.purple.v_500" definition />
-            <ColorBlock name="palette.purple.v_600" definition />
-            <ColorBlock name="palette.purple.v_700" definition />
-            <ColorBlock name="palette.purple.v_800" definition />
-            <ColorBlock name="palette.purple.v_900" definition />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <ColorBlock name="palette.deeppurple.v_50" definition />
-            <ColorBlock name="palette.deeppurple.v_100" definition />
-            <ColorBlock name="palette.deeppurple.v_200" definition />
-            <ColorBlock name="palette.deeppurple.v_300" definition />
-            <ColorBlock name="palette.deeppurple.v_400" definition />
-            <ColorBlock name="palette.deeppurple.v_500" definition />
-            <ColorBlock name="palette.deeppurple.v_600" definition />
-            <ColorBlock name="palette.deeppurple.v_700" definition />
-            <ColorBlock name="palette.deeppurple.v_800" definition />
-            <ColorBlock name="palette.deeppurple.v_900" definition />
-          </td>
-          <td>
-            <ColorBlock name="palette.indigo.v_50" definition />
-            <ColorBlock name="palette.indigo.v_100" definition />
-            <ColorBlock name="palette.indigo.v_200" definition />
-            <ColorBlock name="palette.indigo.v_300" definition />
-            <ColorBlock name="palette.indigo.v_400" definition />
-            <ColorBlock name="palette.indigo.v_500" definition />
-            <ColorBlock name="palette.indigo.v_600" definition />
-            <ColorBlock name="palette.indigo.v_700" definition />
-            <ColorBlock name="palette.indigo.v_800" definition />
-            <ColorBlock name="palette.indigo.v_900" definition />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <ColorBlock name="palette.blue.v_50" definition />
-            <ColorBlock name="palette.blue.v_100" definition />
-            <ColorBlock name="palette.blue.v_200" definition />
-            <ColorBlock name="palette.blue.v_300" definition />
-            <ColorBlock name="palette.blue.v_400" definition />
-            <ColorBlock name="palette.blue.v_500" definition />
-            <ColorBlock name="palette.blue.v_600" definition />
-            <ColorBlock name="palette.blue.v_700" definition />
-            <ColorBlock name="palette.blue.v_800" definition />
-            <ColorBlock name="palette.blue.v_900" definition />
-          </td>
-          <td>
-            <ColorBlock name="palette.lightblue.v_50" definition />
-            <ColorBlock name="palette.lightblue.v_100" definition />
-            <ColorBlock name="palette.lightblue.v_200" definition />
-            <ColorBlock name="palette.lightblue.v_300" definition />
-            <ColorBlock name="palette.lightblue.v_400" definition />
-            <ColorBlock name="palette.lightblue.v_500" definition />
-            <ColorBlock name="palette.lightblue.v_600" definition />
-            <ColorBlock name="palette.lightblue.v_700" definition />
-            <ColorBlock name="palette.lightblue.v_800" definition />
-            <ColorBlock name="palette.lightblue.v_900" definition />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <ColorBlock name="palette.cyan.v_50" definition />
-            <ColorBlock name="palette.cyan.v_100" definition />
-            <ColorBlock name="palette.cyan.v_200" definition />
-            <ColorBlock name="palette.cyan.v_300" definition />
-            <ColorBlock name="palette.cyan.v_400" definition />
-            <ColorBlock name="palette.cyan.v_500" definition />
-            <ColorBlock name="palette.cyan.v_600" definition />
-            <ColorBlock name="palette.cyan.v_700" definition />
-            <ColorBlock name="palette.cyan.v_800" definition />
-            <ColorBlock name="palette.cyan.v_900" definition />
-          </td>
-          <td>
-            <ColorBlock name="palette.teal.v_50" definition />
-            <ColorBlock name="palette.teal.v_100" definition />
-            <ColorBlock name="palette.teal.v_200" definition />
-            <ColorBlock name="palette.teal.v_300" definition />
-            <ColorBlock name="palette.teal.v_400" definition />
-            <ColorBlock name="palette.teal.v_500" definition />
-            <ColorBlock name="palette.teal.v_600" definition />
-            <ColorBlock name="palette.teal.v_700" definition />
-            <ColorBlock name="palette.teal.v_800" definition />
-            <ColorBlock name="palette.teal.v_900" definition />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <ColorBlock name="palette.green.v_50" definition />
-            <ColorBlock name="palette.green.v_100" definition />
-            <ColorBlock name="palette.green.v_200" definition />
-            <ColorBlock name="palette.green.v_300" definition />
-            <ColorBlock name="palette.green.v_400" definition />
-            <ColorBlock name="palette.green.v_500" definition />
-            <ColorBlock name="palette.green.v_600" definition />
-            <ColorBlock name="palette.green.v_700" definition />
-            <ColorBlock name="palette.green.v_800" definition />
-            <ColorBlock name="palette.green.v_900" definition />
-          </td>
-          <td>
-            <ColorBlock name="palette.lightgreen.v_50" definition />
-            <ColorBlock name="palette.lightgreen.v_100" definition />
-            <ColorBlock name="palette.lightgreen.v_200" definition />
-            <ColorBlock name="palette.lightgreen.v_300" definition />
-            <ColorBlock name="palette.lightgreen.v_400" definition />
-            <ColorBlock name="palette.lightgreen.v_500" definition />
-            <ColorBlock name="palette.lightgreen.v_600" definition />
-            <ColorBlock name="palette.lightgreen.v_700" definition />
-            <ColorBlock name="palette.lightgreen.v_800" definition />
-            <ColorBlock name="palette.lightgreen.v_900" definition />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <ColorBlock name="palette.lime.v_50" definition />
-            <ColorBlock name="palette.lime.v_100" definition />
-            <ColorBlock name="palette.lime.v_200" definition />
-            <ColorBlock name="palette.lime.v_300" definition />
-            <ColorBlock name="palette.lime.v_400" definition />
-            <ColorBlock name="palette.lime.v_500" definition />
-            <ColorBlock name="palette.lime.v_600" definition />
-            <ColorBlock name="palette.lime.v_700" definition />
-            <ColorBlock name="palette.lime.v_800" definition />
-            <ColorBlock name="palette.lime.v_900" definition />
-          </td>
-          <td>
-            <ColorBlock name="palette.yellow.v_50" definition />
-            <ColorBlock name="palette.yellow.v_100" definition />
-            <ColorBlock name="palette.yellow.v_200" definition />
-            <ColorBlock name="palette.yellow.v_300" definition />
-            <ColorBlock name="palette.yellow.v_400" definition />
-            <ColorBlock name="palette.yellow.v_500" definition />
-            <ColorBlock name="palette.yellow.v_600" definition />
-            <ColorBlock name="palette.yellow.v_700" definition />
-            <ColorBlock name="palette.yellow.v_800" definition />
-            <ColorBlock name="palette.yellow.v_900" definition />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <ColorBlock name="palette.amber.v_50" definition />
-            <ColorBlock name="palette.amber.v_100" definition />
-            <ColorBlock name="palette.amber.v_200" definition />
-            <ColorBlock name="palette.amber.v_300" definition />
-            <ColorBlock name="palette.amber.v_400" definition />
-            <ColorBlock name="palette.amber.v_500" definition />
-            <ColorBlock name="palette.amber.v_600" definition />
-            <ColorBlock name="palette.amber.v_700" definition />
-            <ColorBlock name="palette.amber.v_800" definition />
-            <ColorBlock name="palette.amber.v_900" definition />
-          </td>
-          <td>
-            <ColorBlock name="palette.orange.v_50" definition />
-            <ColorBlock name="palette.orange.v_100" definition />
-            <ColorBlock name="palette.orange.v_200" definition />
-            <ColorBlock name="palette.orange.v_300" definition />
-            <ColorBlock name="palette.orange.v_400" definition />
-            <ColorBlock name="palette.orange.v_500" definition />
-            <ColorBlock name="palette.orange.v_600" definition />
-            <ColorBlock name="palette.orange.v_700" definition />
-            <ColorBlock name="palette.orange.v_800" definition />
-            <ColorBlock name="palette.orange.v_900" definition />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <ColorBlock name="palette.deeporange.v_50" definition />
-            <ColorBlock name="palette.deeporange.v_100" definition />
-            <ColorBlock name="palette.deeporange.v_200" definition />
-            <ColorBlock name="palette.deeporange.v_300" definition />
-            <ColorBlock name="palette.deeporange.v_400" definition />
-            <ColorBlock name="palette.deeporange.v_500" definition />
-            <ColorBlock name="palette.deeporange.v_600" definition />
-            <ColorBlock name="palette.deeporange.v_700" definition />
-            <ColorBlock name="palette.deeporange.v_800" definition />
-            <ColorBlock name="palette.deeporange.v_900" definition />
-          </td>
-          <td>
-            <ColorBlock name="palette.brown.v_50" definition />
-            <ColorBlock name="palette.brown.v_100" definition />
-            <ColorBlock name="palette.brown.v_200" definition />
-            <ColorBlock name="palette.brown.v_300" definition />
-            <ColorBlock name="palette.brown.v_400" definition />
-            <ColorBlock name="palette.brown.v_500" definition />
-            <ColorBlock name="palette.brown.v_600" definition />
-            <ColorBlock name="palette.brown.v_700" definition />
-            <ColorBlock name="palette.brown.v_800" definition />
-            <ColorBlock name="palette.brown.v_900" definition />
-          </td>
-        </tr>
-      </table>
+      <div>
+        <div
+          v-for="(colorGroup, i) in palette"
+          :key="i"
+          class="palette-block"
+        >
+          <ColorBlock
+            v-for="(identifier, j) in colorGroup"
+            :key="j"
+            :name="identifier"
+            definition
+          />
+        </div>
+      </div>
+
     </PageSection>
 
     <PageSection title="Themes" anchor="#themes">
@@ -492,6 +257,19 @@
       ColorBlock,
     },
     mixins: [themeMixin],
+    computed: {
+      palette() {
+        const palette = [];
+        for (const color in this.$themePalette) {
+          if (color !== 'grey' && typeof this.$themePalette[color] === 'object') {
+            palette.push(
+              Object.keys(this.$themePalette[color]).map(variant => `palette.${color}.${variant}`)
+            );
+          }
+        }
+        return palette;
+      },
+    },
   };
 
 </script>
@@ -499,8 +277,9 @@
 
 <style lang="scss" scoped>
 
-  table {
-    width: 100%;
+  .palette-block {
+    display: inline-block;
+    width: 350px;
   }
 
 </style>
