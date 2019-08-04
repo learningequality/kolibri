@@ -2,12 +2,12 @@
 
   <div class="nav-wrapper" :style="{width: `${navWidth}px`}">
     <nav class="sidenav">
-      <a class="header" @click="closed = !closed">
-        <h1>
-          <CoreLogo class="logo" alt="Kolibri" />
-          <span v-show="!closed">Design System</span>
-        </h1>
-      </a>
+      <h1 class="header">
+        <a href="#" class="header-logo" @click="toggle">
+          <CoreLogo alt="Kolibri" />
+        </a>
+        <span v-show="!closed" class="header-text">Design System</span>
+      </h1>
       <div v-show="!closed" class="nav-links">
         <router-link :to="'/'" exact>
           Home
@@ -48,9 +48,12 @@
 <script>
 
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
+  import lockr from 'lockr';
   import { patternRoutes, componentRoutes } from '../../routes.js';
   import state from '../../state';
   import HorizontalRule from './HorizontalRule';
+
+  const NAV_CLOSED_COOKIE = 'nav-closed';
 
   export default {
     name: 'SideNav',
@@ -74,8 +77,15 @@
       },
     },
     created() {
+      this.closed = lockr.get(NAV_CLOSED_COOKIE, false);
       this.patternRoutes = patternRoutes;
       this.componentRoutes = componentRoutes;
+    },
+    methods: {
+      toggle() {
+        this.closed = !this.closed;
+        lockr.set(NAV_CLOSED_COOKIE, this.closed);
+      },
     },
   };
 
@@ -87,21 +97,26 @@
   @import '~kolibri.styles.definitions';
 
   .header {
-    cursor: pointer;
+    margin-bottom: 32px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #918daf;
+  }
 
-    h1 {
-      margin-bottom: 32px;
-      font-size: 20px;
-      font-weight: bold;
-      color: #918daf;
+  .header-logo {
+    position: relative;
+    top: 2px;
+    width: 55px;
+    vertical-align: middle;
+    transition: transform 2s ease-out;
+    &:hover {
+      transform: scale(1.15);
     }
+  }
 
-    .logo {
-      position: relative;
-      width: 55px;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
+  .header-text {
+    display: inline-block;
+    margin-left: 8px;
   }
 
   .bottom-gradient {

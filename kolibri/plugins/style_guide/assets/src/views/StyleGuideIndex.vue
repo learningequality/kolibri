@@ -65,7 +65,7 @@
   a {
     display: inline-block; // prevents trailing spaces
     color: #368d74;
-    transition: all 0.25s ease;
+    transition: color 0.25s ease;
 
     // hack to override some prism behavior
     code[class*='language-'] {
