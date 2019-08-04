@@ -20,8 +20,6 @@
     this.windowIsSmall      // boolean for small range (level < 2)
     this.windowIsMedium     // boolean for medium range (level = 2)
     this.windowIsLarge      // boolean for large range (level > 2)
-    this.windowGridColumns  // number of grid columns for the current level
-    this.windowGutter       // gutter width for the current window size
 
   The breakpoint levels are numbers following Material guidelinse:
     https://material.io/guidelines/layout/responsive-ui.html#responsive-ui-breakpoints
@@ -117,24 +115,16 @@ export default {
       windowHeight: undefined,
 
       /*
-        Implementing these as data controlled by watchers to work around
-        optimization issue: https://github.com/vuejs/vue/issues/8540
-
+        Implementing breakpoint as data controlled by watchers to work around
+        optimization issue: https://github.com/vuejs/vue/issues/10344
         If that issue ever gets addressed, we should make them computed props.
       */
       windowBreakpoint: undefined,
-      windowGutter: 16,
-      windowIsShort: false,
     };
   },
   watch: {
     windowWidth() {
       this._updateBreakpoint();
-      this._updateGutter();
-    },
-    windowHeight() {
-      this._updateGutter();
-      this.windowIsShort = this.windowHeight < 600;
     },
   },
   computed: {
@@ -149,16 +139,6 @@ export default {
     },
     windowIsSmall() {
       return this.windowBreakpoint < 2;
-    },
-    windowGridColumns() {
-      if (this.windowIsSmall) {
-        return 4;
-      }
-      if (this.windowIsMedium) {
-        return 8;
-      }
-      // windowIsLarge
-      return 12;
     },
   },
   methods: {
@@ -184,16 +164,6 @@ export default {
         this.windowBreakpoint = 6;
       } else {
         this.windowBreakpoint = 7;
-      }
-    },
-    _updateGutter() {
-      if (this.windowIsSmall) {
-        this.windowGutter = 16;
-      } else if (this.windowBreakpoint < 4 && Math.min(this.windowWidth, this.windowHeight) < 600) {
-        // 16px when the smallest dimension of the window is < 600
-        this.windowGutter = 16;
-      } else {
-        this.windowGutter = 24;
       }
     },
   },

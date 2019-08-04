@@ -19,78 +19,70 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import logger from 'kolibri.lib.logging';
   import Overlay from './Overlay';
+  import { validateGutter } from './common';
 
   const logging = logger.getLogger(__filename);
 
   /**
-   * Grid layouts. By default have responsive number of columns and gutter sizes.
+   * Grid layout with a fixed number of columns
    */
   export default {
-    name: 'KGrid',
+    name: 'KFixedGrid',
     components: { Overlay },
     mixins: [responsiveWindow],
     props: {
       /**
-       * Set a fixed number of columns, bypassing default responsive behavior.
-       * This can be useful for nesting grids.
+       * The number of columns. Can be an integer between 2 and 12
        */
-      cols: {
+      numCols: {
         type: [Number, String],
-        required: false,
+        required: true,
         validator(value) {
           if (value < 2 || value > 12) {
-            logging.error(`Number of columns (${value}) is not between 2 and 12`);
+            logging.error(`Number of columns (${value}) must be between 2 and 12`);
             return false;
           }
           return true;
         },
       },
       /**
-       * Size of gutter in pixels, bypassing default responsive behavior.
+       * Set the size of gutter in pixels. If not provided, the gutter is set tp 16px
+       * if either window dimension is less than 600px, and set to 24px otherwise.
        */
       gutter: {
         type: [Number, String],
         required: false,
-        validator(value) {
-          if (isNaN(value)) {
-            logging.error(`Gutter (${value}) is not a number`);
-            return false;
-          }
-          const size = parseInt(value);
-          if (size !== Number(value)) {
-            logging.error(`Gutter (${value}) is not an integer`);
-            return false;
-          }
-          if (size % 2) {
-            logging.error(`Gutter (${value}) must be divisible by 2`);
-            return false;
-          }
-          return true;
-        },
+        validator: validateGutter,
       },
       /**
-       * Extra styles to attach to the grid DOM node
+       * EXPERIMENTAL: Extra styles to attach to the internal grid DOM node
        */
       gridStyle: {
         type: Object,
         default: () => ({}),
       },
       /**
-       * Show gridlines
+       * EXPERIMENTAL: Show gridlines for debugging purposes
        */
       debug: {
         type: Boolean,
         default: false,
       },
     },
+    data() {
+      /*
+        Implemented as data controlled by watchers to work around optimization issue:
+          https://github.com/vuejs/vue/issues/10344
+        If that issue ever gets addressed, we should make this a computed prop
+      */
+      return {
+        windowGutter: 16,
+        windowIsShort: false,
+      };
+    },
     computed: {
       actualNumCols() {
-        // if cols is set as a prop, use that
-        if (this.cols !== undefined) {
-          return parseInt(this.cols);
-        }
-        // otherwise, use responsive behaviors
-        return this.windowGridColumns;
+        return parseInt(this.numCols);
       },
       actualGutterSize() {
         if (this.gutter !== undefined) {
@@ -130,6 +122,30 @@
         get: () => this.debug,
       });
       return { gridMetrics };
+    },
+    watch: {
+      windowWidth() {
+        this._updateGutter();
+      },
+      windowHeight() {
+        this.windowIsShort = this.windowHeight < 600;
+        this._updateGutter();
+      },
+    },
+    methods: {
+      _updateGutter() {
+        if (this.windowIsSmall) {
+          this.windowGutter = 16;
+        } else if (
+          this.windowBreakpoint < 4 &&
+          Math.min(this.windowWidth, this.windowHeight) < 600
+        ) {
+          // 16px when the smallest dimension of the window is < 600
+          this.windowGutter = 16;
+        } else {
+          this.windowGutter = 24;
+        }
+      },
     },
   };
 
