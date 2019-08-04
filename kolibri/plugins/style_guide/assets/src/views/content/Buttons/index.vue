@@ -85,7 +85,7 @@
       </ul>
 
     </PageSection>
-    <PageSection title="Usage" anchor="#usage">
+    <PageSection title="Usage" anchor="#usage" fullwidth>
 
       <p>There are three components that all look the same, but are used for different purposes:</p>
       <ul>
@@ -131,7 +131,7 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
-  import PageSection from '../../shell/PageTemplate/PageSection';
+  import PageSection from '../../shell/PageSection';
   import Show from '../../shell/Show';
   import ExternalLink from '../../shell/ExternalLink';
 

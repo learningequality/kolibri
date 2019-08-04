@@ -23,7 +23,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import SectionLink from '../../shell/PageTemplate/SectionLink';
+  import SectionLink from './SectionLink';
 
   const TOKENS = 'tokens.';
   const BRAND = 'brand.';

@@ -131,7 +131,7 @@
   import escodegen from 'escodegen';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import PageTemplate from './PageTemplate';
-  import PageSection from './PageTemplate/PageSection';
+  import PageSection from './PageSection';
 
   export default {
     name: 'ComponentDocs',

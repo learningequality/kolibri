@@ -132,7 +132,7 @@
   /* eslint-disable import/no-duplicates */
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
-  import PageSection from '../../shell/PageTemplate/PageSection';
+  import PageSection from '../../shell/PageSection';
   import KFilterTextboxExample from './KFilterTextboxExample';
   import KSelectExample from './KSelectExample';
   import KFilterTextboxExampleCode from '!!raw-loader!./KFilterTextboxExample';

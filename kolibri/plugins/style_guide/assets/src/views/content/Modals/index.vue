@@ -173,7 +173,7 @@
 
   /* eslint-disable import/no-duplicates */
   import PageTemplate from '../../shell/PageTemplate';
-  import PageSection from '../../shell/PageTemplate/PageSection';
+  import PageSection from '../../shell/PageSection';
   import VueExample from '../../shell/VueExample';
   import Example from './Example.vue';
   import ExampleCode from '!!raw-loader!./Example.vue';

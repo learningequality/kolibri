@@ -8,7 +8,7 @@
     <h1 class="header-text">
       <slot></slot>
       <a href="#" @click.native="scrollToTop">
-        <file-svg class="icon-link" src="./link.svg" />
+        <file-svg class="icon-link" src="../SectionLink/link.svg" />
         <span class="visuallyhidden">link to current page</span>
       </a>
     </h1>

@@ -18,8 +18,8 @@
 
 <script>
 
+  import PageSection from '../PageSection';
   import Header from './Header';
-  import PageSection from './PageSection';
 
   export default {
     name: 'PageTemplate',
