@@ -3,6 +3,9 @@
   <div>
 
     <h3>Description</h3>
+    <p>
+      <code>{{ api.name }}</code>
+    </p>
     <p v-if="api.description">
       {{ api.description }}
     </p>
@@ -146,14 +149,13 @@
           return 'null';
         }
         if (propType.type === 'ArrayExpression') {
-          let arrayDescription = '[';
+          let arrayDescription = '';
           propType.elements.forEach((element, index) => {
             if (index !== 0) {
               arrayDescription += ', ';
             }
             arrayDescription += propType.elements[index].name;
           });
-          arrayDescription += ']';
           return arrayDescription;
         }
         return propType;
@@ -169,7 +171,7 @@
       },
       parsePropDefault(propType, propDefault) {
         if (propDefault && propDefault.type === 'ArrowFunctionExpression') {
-          return escodegen.generate(propDefault);
+          return escodegen.generate(propDefault.body);
         }
         const stringfiedDefault = JSON.stringify(propDefault);
         if (stringfiedDefault) {

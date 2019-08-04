@@ -104,13 +104,8 @@
         </li>
       </ul>
 
-      <h3>KButton</h3>
       <ComponentDocs :api="KButtonApi" />
-
-      <h3>KRouterLink</h3>
       <ComponentDocs :api="KRouterLinkApi" />
-
-      <h3>KExternalLink</h3>
       <ComponentDocs :api="KExternalLinkApi" />
 
     </PageSection>
