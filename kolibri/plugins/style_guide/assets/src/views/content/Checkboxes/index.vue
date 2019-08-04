@@ -28,10 +28,7 @@
       </ul>
 
     </PageSection>
-    <PageSection title="API" anchor="#api">
-      <ComponentDocs :api="kCheckboxApi" />
-    </PageSection>
-    <PageSection title="Code example" anchor="#example" fullwidth>
+    <PageSection title="Usage" anchor="#usage" fullwidth>
       <VueExample :code="exampleCode">
         <Example />
       </VueExample>
@@ -54,7 +51,6 @@
 <script>
 
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
   import PageSection from '../../shell/PageTemplate/PageSection';
@@ -72,7 +68,6 @@
     components: {
       PageTemplate,
       PageSection,
-      ComponentDocs,
       VueExample,
       KCheckbox,
       Show,

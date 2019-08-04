@@ -13,20 +13,30 @@
           Home
         </router-link>
 
-        <div v-for="(section, i) in navMenu" :key="i" class="section">
-          <HorizontalRule />
-
-          <div class="section-heading">
-            {{ section.sectionName }}
-          </div>
-          <ul>
-            <li v-for="(sectionItem, j) in section.sectionItems" :key="j">
-              <router-link :to="sectionItem.itemRoute">
-                {{ sectionItem.itemName }}
-              </router-link>
-            </li>
-          </ul>
+        <HorizontalRule />
+        <div class="section-heading">
+          Patterns
         </div>
+        <ul>
+          <li v-for="(route, i) in patternRoutes" :key="i">
+            <router-link :to="route">
+              {{ route.meta.title }}
+            </router-link>
+          </li>
+        </ul>
+
+        <HorizontalRule />
+        <div class="section-heading">
+          Kolibri Components
+        </div>
+        <ul>
+          <li v-for="(route, i) in componentRoutes" :key="i">
+            <router-link :to="route">
+              <code>{{ route.meta.componentAPI.name }}</code>
+            </router-link>
+          </li>
+        </ul>
+
       </div>
     </nav>
     <div v-show="!closed" class="bottom-gradient"></div>
@@ -38,7 +48,7 @@
 <script>
 
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
-  import { navMenu } from '../../routes.js';
+  import { patternRoutes, componentRoutes } from '../../routes.js';
   import state from '../../state';
   import HorizontalRule from './HorizontalRule';
 
@@ -64,7 +74,8 @@
       },
     },
     created() {
-      this.navMenu = navMenu;
+      this.patternRoutes = patternRoutes;
+      this.componentRoutes = componentRoutes;
     },
   };
 

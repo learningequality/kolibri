@@ -2,10 +2,12 @@
 
   <div class="content-wrapper" :style="{paddingTop: `${headerHeight}px`}">
     <Header
-      :title="header"
       :sections="sections"
       @heightChange="newHeight => headerHeight = newHeight"
-    />
+    >
+      <code v-if="componentName">{{ componentName }}</code>
+      <span v-else>{{ routeTitle }}</span>
+    </Header>
     <div>
       <slot></slot>
     </div>
@@ -16,7 +18,6 @@
 
 <script>
 
-  import { titleForRoute } from '../../../routes.js';
   import Header from './Header';
   import PageSection from './PageSection';
 
@@ -25,14 +26,20 @@
     components: {
       Header,
     },
+    props: {
+      componentName: {
+        type: String,
+        required: false,
+      },
+    },
     data() {
       return {
         headerHeight: 0,
       };
     },
     computed: {
-      header() {
-        return titleForRoute(this.$route);
+      routeTitle() {
+        return this.$route.meta ? this.$route.meta.title : null;
       },
       sections() {
         return this.$slots.default

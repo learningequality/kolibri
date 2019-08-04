@@ -1,173 +1,113 @@
-import sortBy from 'lodash/sortBy';
-import flatten from 'lodash/flatten';
-
 import Home from './views/content/Home';
+import Inclusive from './views/content/Inclusive';
+import Writing from './views/content/Writing';
+import Colors from './views/content/Colors';
+import Buttons from './views/content/Buttons';
 
-import InclusivePage from './views/content/Inclusive';
-import WritingPage from './views/content/Writing';
-import ColorsPage from './views/content/Colors';
+// import Breadcrumbs from './views/content/Breadcrumbs';
+// import Navbar from './views/content/Navbar';
+import Checkboxes from './views/content/Checkboxes';
+// import RadioButtons from './views/content/RadioButtons';
+// import TextFields from './views/content/TextFields';
+// import Filters from './views/content/Filters';
+// import DropdownMenus from './views/content/DropdownMenus';
+// import Loaders from './views/content/Loaders';
+// import Modals from './views/content/Modals';
+// import Grids from './views/content/Grids';
+// import Tooltips from './views/content/Tooltips';
 
-import ButtonsPage from './views/content/Buttons';
-import BreadcrumbsPage from './views/content/Breadcrumbs';
-// import NavbarPage from './views/content/Navbar';
-import CheckboxesPage from './views/content/Checkboxes';
-// import RadioButtonsPage from './views/content/RadioButtons';
-// import TextFieldsPage from './views/content/TextFields';
-// import FiltersPage from './views/content/Filters';
-// import DropdownMenusPage from './views/content/DropdownMenus';
-// import LoadersPage from './views/content/Loaders';
-// import ModalsPage from './views/content/Modals';
-// import GridsPage from './views/content/Grids';
-// import TooltipsPage from './views/content/Tooltips';
+import ComponentDocs from './views/shell/ComponentDocs';
 
-function sortSectionItems(items) {
-  return sortBy(items, [item => item.itemName]);
-}
+import KBreadcrumbs from '!vue-doc!kolibri.coreVue.components.KBreadcrumbs';
 
 const homeRoute = [
   {
     path: `/`,
     component: Home,
+    meta: { title: 'Home' },
   },
 ];
 
-// This data structure contains the navigational links pointing to all the
-// content pages in the style guide.
-// Notes: This is view-agnostic; it doesn't make assumption on how it will be
-// rendered (whether it's a side-nav or a horizontal menu).
-const navMenu = [
+const patternRoutes = [
   {
-    sectionName: 'Patterns',
-    sectionItems: [
-      {
-        itemName: 'Inclusive design',
-        itemRoute: {
-          path: `/patterns/inclusive`,
-          component: InclusivePage,
-        },
-      },
-      {
-        itemName: 'Writing style',
-        itemRoute: {
-          path: `/patterns/writing`,
-          component: WritingPage,
-        },
-      },
-      {
-        itemName: 'Colors',
-        itemRoute: {
-          path: `/patterns/colors`,
-          component: ColorsPage,
-        },
-      },
-    ],
+    path: `/patterns/inclusive`,
+    component: Inclusive,
+    meta: { title: 'Inclusive design' },
   },
   {
-    sectionName: 'Components',
-    sectionItems: sortSectionItems([
-      {
-        itemName: 'Buttons and links',
-        itemRoute: {
-          path: `/components/buttons`,
-          component: ButtonsPage,
-        },
-      },
-      {
-        itemName: 'Breadcrumbs',
-        itemRoute: {
-          path: `/components/breadcrumbs`,
-          component: BreadcrumbsPage,
-        },
-      },
-      // {
-      //   itemName: 'Horizontal navbar',
-      //   itemRoute: {
-      //     path: `/components/navbar`,
-      //     component: NavbarPage,
-      //   },
-      // },
-      {
-        itemName: 'Checkboxes',
-        itemRoute: {
-          path: `/components/checkboxes`,
-          component: CheckboxesPage,
-        },
-      },
-      // {
-      //   itemName: 'Radio Buttons',
-      //   itemRoute: {
-      //     path: `/components/radio-buttons`,
-      //     component: RadioButtonsPage,
-      //   },
-      // },
-      // {
-      //   itemName: 'Text Fields',
-      //   itemRoute: {
-      //     path: `/components/text-fields`,
-      //     component: TextFieldsPage,
-      //   },
-      // },
-      // {
-      //   itemName: 'Filters',
-      //   itemRoute: {
-      //     path: `/components/filters`,
-      //     component: FiltersPage,
-      //   },
-      // },
-      // {
-      //   itemName: 'Dropdown menus',
-      //   itemRoute: {
-      //     path: `/components/dropdown-menus`,
-      //     component: DropdownMenusPage,
-      //   },
-      // },
-      // {
-      //   itemName: 'Loaders',
-      //   itemRoute: {
-      //     path: `/components/loaders`,
-      //     component: LoadersPage,
-      //   },
-      // },
-      // {
-      //   itemName: 'Modals',
-      //   itemRoute: {
-      //     path: `/components/modals`,
-      //     component: ModalsPage,
-      //   },
-      // },
-      // {
-      //   itemName: 'Grids',
-      //   itemRoute: {
-      //     path: `/components/grids`,
-      //     component: GridsPage,
-      //   },
-      // },
-      // {
-      //   itemName: 'Tooltips',
-      //   itemRoute: {
-      //     path: `/components/tooltips`,
-      //     component: TooltipsPage,
-      //   },
-      // },
-    ]),
+    path: `/patterns/writing`,
+    component: Writing,
+    meta: { title: 'Writing style' },
+  },
+  {
+    path: `/patterns/colors`,
+    component: Colors,
+    meta: { title: 'Colors' },
+  },
+  {
+    path: `/patterns/buttons`,
+    component: Buttons,
+    meta: { title: 'Buttons and links' },
+  },
+  {
+    path: `/patterns/checkboxes`,
+    component: Checkboxes,
+    meta: { title: 'Checkboxes and radio buttons' },
   },
 ];
 
-// Extract the routes from the sideNavMenu so they can be added to VueRouter.
-// Add in the path to the home page.
-const navMenuRoutes = flatten(
-  homeRoute.concat(navMenu.map(menuSection => menuSection.sectionItems.map(link => link.itemRoute)))
-);
+const componentRoutes = [
+  {
+    path: `/api/KBreadcrumbs`,
+    component: ComponentDocs,
+    meta: { componentAPI: KBreadcrumbs },
+  },
+  // {
+  //   path: `/components/navbar`,
+  //   component: Navbar,
+  //   meta: { title: 'Horizontal navbar' },
+  // },
+  // {
+  //   path: `/components/radio-buttons`,
+  //   component: RadioButtons,
+  //   meta: { title: 'Radio Buttons' },
+  // },
+  // {
+  //   path: `/components/text-fields`,
+  //   component: TextFields,
+  //   meta: { title: 'Text Fields' },
+  // },
+  // {
+  //   path: `/components/filters`,
+  //   component: Filters,
+  //   meta: { title: 'Filters' },
+  // },
+  // {
+  //   path: `/components/dropdown-menus`,
+  //   component: DropdownMenus,
+  //   meta: { title: 'Dropdown menus' },
+  // },
+  // {
+  //   path: `/components/loaders`,
+  //   component: Loaders,
+  //   meta: { title: 'Loaders' },
+  // },
+  // {
+  //   path: `/components/modals`,
+  //   component: Modals,
+  //   meta: { title: 'Modals' },
+  // },
+  // {
+  //   path: `/components/grids`,
+  //   component: Grids,
+  //   meta: { title: 'Grids' },
+  // },
+  // {
+  //   path: `/components/tooltips`,
+  //   component: Tooltips,
+  //   meta: { title: 'Tooltips' },
+  // },
+];
 
-function titleForRoute(route) {
-  for (let i = 0; i < navMenu.length; i++) {
-    for (let j = 0; j < navMenu[i].sectionItems.length; j++) {
-      if (route.path === navMenu[i].sectionItems[j].itemRoute.path) {
-        return navMenu[i].sectionItems[j].itemName;
-      }
-    }
-  }
-  return 'Home';
-}
-
-export { navMenu, navMenuRoutes, titleForRoute };
+const allRoutes = homeRoute.concat(patternRoutes).concat(componentRoutes);
+export { allRoutes, patternRoutes, componentRoutes };

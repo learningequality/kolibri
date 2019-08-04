@@ -43,14 +43,6 @@
 
       <p>Text for navbar items should ideally be a single, short word.</p>
 
-      <h2>Component APIs</h2>
-
-      <h3>Navbar</h3>
-      <ComponentDocs :api="kNavbarApi" />
-
-      <h3>Navbar Link</h3>
-      <ComponentDocs :api="kNavbarLinkApi" />
-
       <h2>Code Example</h2>
       <VueExample :code="exampleCode" alwaysStack>
         <Example />
@@ -66,7 +58,6 @@
 
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
-  import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
   import PageSection from '../../shell/PageTemplate/PageSection';
@@ -84,7 +75,6 @@
     components: {
       PageTemplate,
       PageSection,
-      ComponentDocs,
       VueExample,
       KNavbarLink,
       KNavbar,

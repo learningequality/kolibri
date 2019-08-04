@@ -3,7 +3,6 @@
   <PageTemplate :completed="false">
 
     <PageSection>
-      <ComponentDocs :api="KCircularLoaderApi" />
       <h3>Code Example</h3>
       <VueExample :code="KCircularLoaderExampleCode">
         <KCircularLoaderExample />
@@ -11,7 +10,6 @@
 
 
 
-      <ComponentDocs :api="KLinearLoaderApi" />
       <h3>Code Example</h3>
       <VueExample :code="KLinearLoaderExampleCode">
         <KLinearLoaderExample />
@@ -31,7 +29,6 @@
 
   import PageTemplate from '../../shell/PageTemplate';
   import PageSection from '../../shell/PageTemplate/PageSection';
-  import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
 
   /* eslint-disable import/no-duplicates */
@@ -49,7 +46,6 @@
     components: {
       PageTemplate,
       PageSection,
-      ComponentDocs,
       VueExample,
       KLinearLoaderExample,
       KCircularLoaderExample,

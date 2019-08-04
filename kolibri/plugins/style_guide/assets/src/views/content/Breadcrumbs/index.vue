@@ -18,10 +18,6 @@
       </Show>
     </PageSection>
 
-    <PageSection title="API" anchor="#api">
-      <ComponentDocs :api="kBreadcrumbsApi" />
-    </PageSection>
-
     <PageSection title="Code example" anchor="#example" fullwidth>
       <VueExample :code="exampleCode">
         <Example />
@@ -36,7 +32,6 @@
 <script>
 
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
-  import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
   import PageSection from '../../shell/PageTemplate/PageSection';
@@ -54,7 +49,6 @@
     components: {
       PageTemplate,
       PageSection,
-      ComponentDocs,
       VueExample,
       KBreadcrumbs,
       Show,

@@ -6,7 +6,7 @@
     :style="style"
   >
     <h1 class="header-text">
-      {{ title }}
+      <slot></slot>
       <a href="#" @click.native="scrollToTop">
         <file-svg class="icon-link" src="./link.svg" />
         <span class="visuallyhidden">link to current page</span>
@@ -36,10 +36,6 @@
     props: {
       sections: {
         type: Array,
-        required: true,
-      },
-      title: {
-        type: String,
         required: true,
       },
     },

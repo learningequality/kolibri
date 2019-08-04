@@ -3,7 +3,6 @@
   <PageTemplate :completed="false">
 
     <PageSection>
-      <ComponentDocs :api="KFilterTextboxApi" />
 
       <h3>Code Example</h3>
       <VueExample :code="KFilterTextboxExampleCode">
@@ -131,7 +130,6 @@
 <script>
 
   /* eslint-disable import/no-duplicates */
-  import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
   import PageSection from '../../shell/PageTemplate/PageSection';
@@ -148,7 +146,6 @@
     components: {
       PageTemplate,
       PageSection,
-      ComponentDocs,
       VueExample,
       KFilterTextboxExample,
       KSelectExample,

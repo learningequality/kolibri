@@ -3,7 +3,6 @@
   <PageTemplate :completed="false">
 
     <PageSection>
-      <ComponentDocs :api="KModalApi" />
       <h3>Code Example</h3>
       <VueExample :code="ExampleCode">
         <Example />
@@ -175,7 +174,6 @@
   /* eslint-disable import/no-duplicates */
   import PageTemplate from '../../shell/PageTemplate';
   import PageSection from '../../shell/PageTemplate/PageSection';
-  import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import Example from './Example.vue';
   import ExampleCode from '!!raw-loader!./Example.vue';
@@ -187,7 +185,6 @@
     components: {
       PageTemplate,
       PageSection,
-      ComponentDocs,
       VueExample,
       Example,
     },

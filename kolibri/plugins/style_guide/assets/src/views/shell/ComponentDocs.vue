@@ -1,17 +1,21 @@
 <template>
 
-  <div>
+  <PageTemplate :componentName="api.name">
+    <PageSection
+      v-if="api.description"
+      title="Description"
+      anchor="#description"
+    >
+      <p v-if="api.description">
+        {{ api.description }}
+      </p>
+    </PageSection>
 
-    <h3>Description</h3>
-    <p>
-      <code>{{ api.name }}</code>
-    </p>
-    <p v-if="api.description">
-      {{ api.description }}
-    </p>
-
-    <template v-if="api.props.length">
-      <h3>Props</h3>
+    <PageSection
+      v-if="api.props.length"
+      title="Props"
+      anchor="#props"
+    >
       <CoreTable>
         <thead slot="thead">
           <tr>
@@ -46,10 +50,13 @@
           </tr>
         </tbody>
       </CoreTable>
-    </template>
+    </PageSection>
 
-    <template v-if="api.events.length" hideTop>
-      <h3>Events</h3>
+    <PageSection
+      v-if="api.events.length"
+      title="Events"
+      anchor="#events"
+    >
       <CoreTable>
         <thead slot="thead">
           <tr>
@@ -66,10 +73,13 @@
           </tr>
         </tbody>
       </CoreTable>
-    </template>
+    </PageSection>
 
-    <template v-if="api.slots.length" hideTop>
-      <h3>Slots</h3>
+    <PageSection
+      v-if="api.slots.length"
+      title="Slots"
+      anchor="#slots"
+    >
       <CoreTable>
         <thead slot="thead">
           <tr>
@@ -86,10 +96,13 @@
           </tr>
         </tbody>
       </CoreTable>
-    </template>
+    </PageSection>
 
-    <template v-if="api.methods.length" hideTop>
-      <h3>Methods</h3>
+    <PageSection
+      v-if="api.methods.length"
+      title="Methods"
+      anchor="#methods"
+    >
       <CoreTable>
         <thead slot="thead">
           <tr>
@@ -106,9 +119,9 @@
           </tr>
         </tbody>
       </CoreTable>
-    </template>
+    </PageSection>
 
-  </div>
+  </PageTemplate>
 
 </template>
 
@@ -116,31 +129,20 @@
 <script>
 
   import escodegen from 'escodegen';
-  import logger from 'kolibri.lib.logging';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-
-  const logging = logger.getLogger(__filename);
+  import PageTemplate from './PageTemplate';
+  import PageSection from './PageTemplate/PageSection';
 
   export default {
     name: 'ComponentDocs',
     components: {
       CoreTable,
+      PageSection,
+      PageTemplate,
     },
-    props: {
-      api: {
-        type: Object,
-        required: true,
-        validator(component) {
-          if (!component.name) {
-            logging.debug('Component does not have a name');
-            return false;
-          }
-          if (!component.description) {
-            logging.debug('Component does not have a description');
-            return false;
-          }
-          return true;
-        },
+    computed: {
+      api() {
+        return this.$route.meta.componentAPI;
       },
     },
     methods: {

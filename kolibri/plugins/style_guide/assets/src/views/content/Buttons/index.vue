@@ -1,6 +1,6 @@
 <template>
 
-  <PageTemplate ref="root">
+  <PageTemplate>
 
     <PageSection title="Overview" anchor="#overview">
       <p>
@@ -85,7 +85,7 @@
       </ul>
 
     </PageSection>
-    <PageSection title="APIs" anchor="#apis">
+    <PageSection title="Usage" anchor="#usage">
 
       <p>There are three components that all look the same, but are used for different purposes:</p>
       <ul>
@@ -103,13 +103,6 @@
           <code>href</code> attribute.
         </li>
       </ul>
-
-      <ComponentDocs :api="KButtonApi" />
-      <ComponentDocs :api="KRouterLinkApi" />
-      <ComponentDocs :api="KExternalLinkApi" />
-
-    </PageSection>
-    <PageSection title="Code example" anchor="#example" fullwidth>
 
       <VueExample :code="exampleCode">
         <Example />
@@ -136,7 +129,6 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
-  import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
   import PageSection from '../../shell/PageTemplate/PageSection';
@@ -157,7 +149,6 @@
     components: {
       PageTemplate,
       PageSection,
-      ComponentDocs,
       VueExample,
       Show,
       KButton,
