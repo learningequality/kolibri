@@ -20,16 +20,13 @@ from django.http.response import FileResponse
 from django.http.response import HttpResponseNotModified
 from django.template import loader
 from django.templatetags.static import static
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import etag
 from django.views.generic.base import View
-from six.moves.urllib.parse import urlunparse
 
 from .api import cache_forever
 from .decorators import add_security_headers
-from .decorators import get_referrer_url
 from .models import ContentNode
 from .utils.paths import get_content_storage_file_path
 from kolibri import __version__ as kolibri_version
@@ -53,19 +50,6 @@ def get_hashi_filename():
         ) as f:
             HASHI_FILENAME = f.read().strip()
     return HASHI_FILENAME
-
-
-def generate_image_prefix_url(request, zipped_filename):
-    parsed_referrer_url = get_referrer_url(request)
-    # Remove trailing slash
-    zipcontent = reverse(
-        "kolibri:core:zipcontent",
-        kwargs={"zipped_filename": zipped_filename, "embedded_filepath": ""},
-    )[:-1]
-    if parsed_referrer_url:
-        # Reconstruct the parsed URL using a blank scheme and host + port(1)
-        zipcontent = urlunparse(("", parsed_referrer_url[1], zipcontent, "", "", ""))
-    return zipcontent.encode()
 
 
 def calculate_zip_content_etag(request, *args, **kwargs):
