@@ -89,6 +89,10 @@
     }
   }
 
+  *:focus {
+    outline-color: #757575;
+  }
+
   *::selection {
     background: $selection-color;
   }
