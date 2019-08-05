@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 import time
 
 from django.contrib.auth import authenticate
-from django.contrib.auth import get_user
 from django.contrib.auth import login
 from django.contrib.auth import logout
 from django.contrib.auth import update_session_auth_hash
@@ -253,7 +252,7 @@ class ClassroomFilter(FilterSet):
     parent = ModelChoiceFilter(queryset=Facility.objects.all())
 
     def filter_has_role_for(self, queryset, name, value):
-        requesting_user = get_user(self.request)
+        requesting_user = self.request.user
         if requesting_user.is_superuser:
             return queryset
 
@@ -370,54 +369,21 @@ class SessionViewSet(viewsets.ViewSet):
         return Response(self.get_session(request))
 
     def get_session(self, request):
-        user = get_user(request)
+        user = request.user
         session_key = "current"
         server_time = now()
+        session = user.session_data
+        session.update({"id": session_key, "server_time": server_time})
         if isinstance(user, AnonymousUser):
-            return {
-                "id": session_key,
-                "username": "",
-                "full_name": "",
-                "user_id": None,
-                "facility_id": getattr(Facility.get_default_facility(), "id", None),
-                "kind": ["anonymous"],
-                "error": "200",
-                "server_time": server_time,
-            }
+            return session
         # Set last activity on session to the current time to prevent session timeout
         # Only do this for logged in users, as anonymous users cannot get logged out!
         request.session["last_session_request"] = int(time.time())
         # Default to active, only assume not active when explicitly set.
         active = True if request.GET.get("active", "true") == "true" else False
 
-        session = {
-            "id": session_key,
-            "username": user.username,
-            "full_name": user.full_name,
-            "user_id": user.id,
-            "can_manage_content": user.can_manage_content,
-            "server_time": server_time,
-        }
-
-        roles = list(
-            Role.objects.filter(user_id=user.id)
-            .values_list("kind", flat=True)
-            .distinct()
-        )
-
-        if roles:
-            session.update(
-                {"facility_id": user.facility_id, "kind": roles, "error": "200"}
-            )
-        else:
-            session.update(
-                {"facility_id": user.facility_id, "kind": ["learner"], "error": "200"}
-            )
-
-        if user.is_superuser:
-            session["kind"].insert(0, "superuser")
-
-        if active:
+        # Can only record user session log data for FacilityUsers.
+        if active and isinstance(user, FacilityUser):
             UserSessionLog.update_log(user)
 
         return session
