@@ -12,7 +12,7 @@
   import KCircularLoader from 'kolibri.shared.KCircularLoader';
 
   export default {
-    name: 'KCircularLoaderExample',
+    name: 'Example',
     components: { KCircularLoader },
   };
 

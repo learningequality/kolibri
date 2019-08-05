@@ -64,7 +64,7 @@
   import kCheckboxApi from '!vue-doc!kolibri.shared.KCheckbox';
 
   export default {
-    name: 'Checkboxes',
+    name: 'KCheckbox',
     components: {
       PageTemplate,
       PageSection,

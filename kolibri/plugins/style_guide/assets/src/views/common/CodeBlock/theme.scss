@@ -4,7 +4,7 @@
  * @author Lea Verou
  */
 
-@import '../globals.scss';
+@import '../globals';
 
 code[class*='language-'],
 pre[class*='language-'] {
@@ -20,14 +20,6 @@ pre[class*='language-'] {
   white-space: pre;
   background: none;
   word-spacing: normal;
-}
-
-pre[class*='language-']::-moz-selection,
-pre[class*='language-'] ::-moz-selection,
-code[class*='language-']::-moz-selection,
-code[class*='language-'] ::-moz-selection {
-  text-shadow: none;
-  background: #b3d4fc;
 }
 
 pre[class*='language-']::selection,

@@ -45,7 +45,7 @@
   import kBreadcrumbsApi from '!vue-doc!kolibri.shared.KBreadcrumbs';
 
   export default {
-    name: 'Breadcrumbs',
+    name: 'KBreadcrumbs',
     components: {
       PageTemplate,
       PageSection,

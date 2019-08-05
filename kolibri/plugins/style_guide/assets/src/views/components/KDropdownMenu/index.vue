@@ -27,7 +27,7 @@
   import kDropdownMenuApi from '!vue-doc!kolibri.shared.KDropdownMenu';
 
   export default {
-    name: 'DropdownMenus',
+    name: 'KDropdownMenu',
     components: {
       PageTemplate,
       PageSection,

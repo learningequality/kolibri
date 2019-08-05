@@ -4,17 +4,9 @@
 
     <PageSection>
       <h3>Code Example</h3>
-      <VueExample :code="KCircularLoaderExampleCode">
-        <KCircularLoaderExample />
+      <VueExample :code="ExampleCode">
+        <Example />
       </VueExample>
-
-
-
-      <h3>Code Example</h3>
-      <VueExample :code="KLinearLoaderExampleCode">
-        <KLinearLoaderExample />
-      </VueExample>
-
 
       <h3>Guidelines</h3>
       <p>TODO</p>
@@ -32,29 +24,23 @@
   import VueExample from '../../common/VueExample';
 
   /* eslint-disable import/no-duplicates */
-  import KLinearLoaderExample from './KLinearLoaderExample';
-  import KCircularLoaderExample from './KCircularLoaderExample';
-  import KLinearLoaderExampleCode from '!!raw-loader!./KLinearLoaderExample';
-  import KCircularLoaderExampleCode from '!!raw-loader!./KCircularLoaderExample';
+  import Example from './Example';
+  import ExampleCode from '!!raw-loader!./Example';
 
-  import KLinearLoaderApi from '!vue-doc!kolibri.shared.KLinearLoader';
   import KCircularLoaderApi from '!vue-doc!kolibri.shared.KCircularLoader';
   /* eslint-enable import/no-duplicates */
 
   export default {
-    name: 'Loaders',
+    name: 'KCircularLoader',
     components: {
       PageTemplate,
       PageSection,
       VueExample,
-      KLinearLoaderExample,
-      KCircularLoaderExample,
+      Example,
     },
     data: () => ({
-      KCircularLoaderExampleCode,
-      KLinearLoaderExampleCode,
+      ExampleCode,
       KCircularLoaderApi,
-      KLinearLoaderApi,
     }),
   };
 

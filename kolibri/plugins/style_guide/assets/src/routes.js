@@ -9,19 +9,6 @@ import Buttons from './views/patterns/Buttons';
 // import KCheckboxesAPI from '!vue-doc!kolibri.shared.KCheckbox';
 // import KBreadcrumbsAPI from '!vue-doc!kolibri.shared.KBreadcrumbs';
 
-function apiLoaderString(componentName) {
-  return `!vue-doc!kolibri.shared.${componentName}`;
-}
-
-const componentNames = ['KCheckbox'];
-const loaderStrings = componentNames.map(apiLoaderString());
-
-require.ensure(loaderStrings, function(require) {
-  for (const loader in loaderStrings) {
-    console.log(require(loader));
-  }
-});
-
 const homeRoute = [
   {
     path: `/`,

@@ -34,7 +34,7 @@
   import KTooltipApi from '!vue-doc!kolibri.shared.KTooltip';
 
   export default {
-    name: 'Tooltips',
+    name: 'KTooltips',
     components: {
       PageTemplate,
       PageSection,

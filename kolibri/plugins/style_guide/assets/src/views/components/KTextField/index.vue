@@ -142,7 +142,7 @@
   import kTextboxApi from '!vue-doc!kolibri.shared.KTextbox';
 
   export default {
-    name: 'TextFields',
+    name: 'KTextField',
     components: {
       PageTemplate,
       PageSection,

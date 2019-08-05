@@ -49,7 +49,7 @@
   import kRadioButtonApi from '!vue-doc!kolibri.shared.KRadioButton';
 
   export default {
-    name: 'RadioButtons',
+    name: 'KRadioButton',
     components: {
       PageTemplate,
       PageSection,
