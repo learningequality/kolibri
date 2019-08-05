@@ -11,7 +11,7 @@ const constants = require('../constants');
 
 const { GROUP_$TRS } = constants;
 
-const $TR_FUNCTIONS = ['$tr', 'coachString', 'coreString', 'learnString'];
+const $TR_FUNCTION = '$tr';
 
 const create = context => {
   let definitionNodes = [];
@@ -29,8 +29,8 @@ const create = context => {
     {},
     {
       'CallExpression[callee.type="MemberExpression"]'(node) {
-        if ($TR_FUNCTIONS.includes(node.callee.property.name) && node.arguments.length) {
-          node.arguments.forEach(arg => usedStrings.push(arg));
+        if (node.callee.property.name == $TR_FUNCTION && node.arguments.length) {
+          node.arguments.forEach(arg => usedStrings.push(arg.value));
         }
       },
     },
@@ -45,7 +45,7 @@ const create = context => {
     {},
     {
       'CallExpression[callee.type="Identifier"]'(node) {
-        if ($TR_FUNCTIONS.includes(node.callee.name) && node.arguments.length) {
+        if (node.callee.name == $TR_FUNCTION && node.arguments.length) {
           node.arguments.forEach(arg => Boolean(arg.value) && usedStrings.push(arg.value));
         }
       },
