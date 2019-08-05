@@ -48,8 +48,10 @@ import KBreadcrumbs from '../views/KBreadcrumbs';
 import KCheckbox from '../views/KCheckbox';
 import KRadioButton from '../views/KRadioButton';
 import KFilterTextbox from '../views/KFilterTextbox';
-import KGrid from '../views/KGrid';
-import KGridItem from '../views/KGrid/KGridItem';
+import KGrid from '../views/grids/KGrid';
+import KGridItem from '../views/grids/KGridItem';
+import KFixedGrid from '../views/grids/KFixedGrid';
+import KFixedGridItem from '../views/grids/KFixedGridItem';
 import KSelect from '../views/KSelect';
 import router from '../router';
 import responsiveWindow from '../mixins/responsive-window';
@@ -160,6 +162,8 @@ export default {
       KFilterTextbox,
       KGrid,
       KGridItem,
+      KFixedGrid,
+      KFixedGridItem,
       KSelect,
       AppBar,
       CoreSnackbar,

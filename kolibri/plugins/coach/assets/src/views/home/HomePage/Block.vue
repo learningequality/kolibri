@@ -2,12 +2,19 @@
 
   <KPageContainer class="block">
     <KGrid>
-      <KGridItem sizes="100, 50, 50" percentage>
+      <KGridItem
+        :layout8="{ span: 4 }"
+        :layout12="{ span: 6 }"
+      >
         <h2>
           <slot name="title"></slot>
         </h2>
       </KGridItem>
-      <KGridItem sizes="100, 50, 50" percentage alignment="right">
+      <KGridItem
+        :layout="{ alignment: 'right' }"
+        :layout8="{ span: 4 }"
+        :layout12="{ span: 6 }"
+      >
         <KRouterLink
           appearance="flat-button"
           :text="allLinkText"

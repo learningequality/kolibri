@@ -14,7 +14,7 @@
       <ReportsLearnerHeader />
 
       <KGrid>
-        <KGridItem :sizes="[100, 100, 50]" percentage>
+        <KGridItem :layout12="{ span: 6 }">
           <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
           <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
             <thead slot="thead">
@@ -40,7 +40,7 @@
             </transition-group>
           </CoreTable>
         </KGridItem>
-        <KGridItem :sizes="[100, 100, 50]" percentage>
+        <KGridItem :layout12="{ span: 6 }">
           <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
           <CoreTable :emptyMessage="coachString('quizListEmptyState')">
             <thead slot="thead">

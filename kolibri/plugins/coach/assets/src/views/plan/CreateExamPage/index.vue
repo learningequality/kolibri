@@ -27,7 +27,7 @@
       <h2>{{ coachString('detailsLabel') }}</h2>
 
       <KGrid>
-        <KGridItem sizes="100, 100, 50" percentage>
+        <KGridItem :layout12="{ span: 6 }">
           <KTextbox
             ref="title"
             v-model.trim="examTitle"
@@ -36,7 +36,7 @@
             :maxlength="100"
           />
         </KGridItem>
-        <KGridItem sizes="100, 100, 50" percentage>
+        <KGridItem :layout12="{ span: 6 }">
           <KTextbox
             ref="questionsInput"
             v-model.trim.number="numQuestions"

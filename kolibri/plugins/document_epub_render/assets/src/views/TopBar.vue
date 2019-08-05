@@ -3,9 +3,9 @@
   <div class="top-bar" :style="{ backgroundColor: $themePalette.grey.v_200 }">
     <KGrid>
       <KGridItem
-        sizes="25, 25, 25"
-        :percentage="true"
-        alignment="left"
+        :layout4="{ span: 1 }"
+        :layout8="{ span: 2 }"
+        :layout12="{ span: 3 }"
       >
         <TocButton
           ref="tocButton"
@@ -13,9 +13,10 @@
         />
       </KGridItem>
       <KGridItem
-        sizes="25, 50, 50"
-        :percentage="true"
-        alignment="center"
+        :layout="{ alignment: 'center' }"
+        :layout4="{ span: 1 }"
+        :layout8="{ span: 4 }"
+        :layout12="{ span: 6 }"
       >
         <h2
           v-if="title"
@@ -25,9 +26,10 @@
         </h2>
       </KGridItem>
       <KGridItem
-        sizes="50, 25, 25"
-        :percentage="true"
-        alignment="right"
+        :layout="{ alignment: 'right' }"
+        :layout4="{ span: 2 }"
+        :layout8="{ span: 2 }"
+        :layout12="{ span: 3 }"
       >
         <SettingsButton
           ref="settingsButton"
