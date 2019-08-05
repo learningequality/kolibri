@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import KGrid from '../../src/views/KGrid';
+import KGrid from '../KGrid';
 
 function makeWrapper(options) {
   return shallowMount(KGrid, options);

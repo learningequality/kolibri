@@ -1,7 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import range from 'lodash/range';
-import KGridItem from '../../src/views/KGrid/KGridItem';
-import allowableUnits from './k-grid-units';
+import KGridItem from '../KGridItem';
+import allowableUnits from './units';
 
 function isAllowed(cls) {
   return allowableUnits.includes(cls);
