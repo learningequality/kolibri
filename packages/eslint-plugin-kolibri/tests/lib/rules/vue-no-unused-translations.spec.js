@@ -100,6 +100,66 @@ tester.run('vue-no-unused-translations', rule, {
       </script>
       `,
     },
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+        export default {
+          computed: {
+            tooltipText() {
+              const kindToLabeLMap = {
+                [ContentNodeKinds.TOPIC]: 'topic',
+                [ContentNodeKinds.CHANNEL]: 'channel',
+                [ContentNodeKinds.EXERCISE]: 'exercise',
+                [ContentNodeKinds.VIDEO]: 'video',
+                [ContentNodeKinds.AUDIO]: 'audio',
+                [ContentNodeKinds.DOCUMENT]: 'document',
+                [ContentNodeKinds.HTML5]: 'html5',
+                [ContentNodeKinds.EXAM]: 'exam',
+                [ContentNodeKinds.LESSON]: 'lesson',
+                [ContentNodeKinds.SLIDESHOW]: 'slideshow',
+                [USER]: 'user',
+              };
+              const label = kindToLabeLMap[this.kind];
+              return label ? this.$tr(label) : '';
+            },
+          },
+          $trs: {
+            topic: 'Topic',
+            channel: 'Channel',
+            exercise: 'Exercise',
+            video: 'Video',
+            audio: 'Audio',
+            document: 'Document',
+            html5: 'App',
+            exam: 'Quiz',
+            lesson: 'Lesson',
+            user: 'User',
+            slideshow: 'Slideshow',
+          },
+        }
+      </script>
+      `,
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+        export default {
+          computed: {
+            contentTypesAsLabels() {
+              return ['topic', 'channel', 'exercise'].map(f => $tr(f) + ":");
+            },
+          },
+          $trs: {
+            topic: 'Topic',
+            channel: 'Channel',
+            exercise: 'Exercise',
+          },
+        }
+      </script>
+      `,
+    },
   ],
   invalid: [
     {
@@ -122,8 +182,8 @@ tester.run('vue-no-unused-translations', rule, {
       errors: [
         {
           message: 'Unused translation defined for helloWorld',
-        }
-      ]
+        },
+      ],
     },
     {
       filename: 'test.vue',
@@ -146,8 +206,8 @@ tester.run('vue-no-unused-translations', rule, {
       errors: [
         {
           message: 'Unused translation defined for testString',
-        }
-      ]
+        },
+      ],
     },
     {
       filename: 'test.vue',
@@ -176,8 +236,8 @@ tester.run('vue-no-unused-translations', rule, {
       errors: [
         {
           message: 'Unused translation defined for unusedLabel',
-        }
-      ]
+        },
+      ],
     },
     {
       filename: 'test.vue',
@@ -205,8 +265,8 @@ tester.run('vue-no-unused-translations', rule, {
           // Despite `coachLabel` being used in `coachString` - the definition
           // in this component would be going unused.
           message: 'Unused translation defined for coachLabel',
-        }
-      ]
+        },
+      ],
     },
     {
       filename: 'test.vue',
@@ -235,8 +295,8 @@ tester.run('vue-no-unused-translations', rule, {
       errors: [
         {
           message: 'Unused translation defined for unusedLabel',
-        }
-      ]
+        },
+      ],
     },
     {
       filename: 'test.vue',
@@ -272,7 +332,81 @@ tester.run('vue-no-unused-translations', rule, {
         {
           message: 'Unused translation defined for unusedLabel',
         },
-      ]
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+        export default {
+          computed: {
+            tooltipText() {
+              const kindToLabeLMap = {
+                [ContentNodeKinds.TOPIC]: 'topic',
+                [ContentNodeKinds.CHANNEL]: 'channel',
+                [ContentNodeKinds.EXERCISE]: 'exercise',
+                [ContentNodeKinds.VIDEO]: 'video',
+                [ContentNodeKinds.AUDIO]: 'audio',
+                [ContentNodeKinds.DOCUMENT]: 'document',
+                [ContentNodeKinds.HTML5]: 'html5',
+                [ContentNodeKinds.EXAM]: 'exam',
+                [USER]: 'user',
+              };
+              const label = kindToLabeLMap[this.kind];
+              return label ? this.$tr(label) : '';
+            },
+          },
+          $trs: {
+            topic: 'Topic',
+            channel: 'Channel',
+            exercise: 'Exercise',
+            video: 'Video',
+            audio: 'Audio',
+            document: 'Document',
+            html5: 'App',
+            exam: 'Quiz',
+            lesson: 'Lesson',
+            user: 'User',
+            slideshow: 'Slideshow',
+          },
+        }
+      </script>
+      `,
+      errors: [
+        {
+          message: 'Unused translation defined for lesson',
+        },
+        {
+          message: 'Unused translation defined for slideshow',
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+        export default {
+          computed: {
+            contentTypesAsLabels() {
+              return ['topic'].map(f => $tr(f) + ":");
+            },
+          },
+          $trs: {
+            topic: 'Topic',
+            channel: 'Channel',
+            exercise: 'Exercise',
+          },
+        }
+      </script>
+      `,
+      errors: [
+        {
+          message: 'Unused translation defined for channel',
+        },
+        {
+          message: 'Unused translation defined for exercise',
+        },
+      ],
     },
   ],
 });
