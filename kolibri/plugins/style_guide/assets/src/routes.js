@@ -1,22 +1,22 @@
-import Home from './views/content/Home';
-import Inclusive from './views/content/Inclusive';
-import Writing from './views/content/Writing';
-import Colors from './views/content/Colors';
-import Buttons from './views/content/Buttons';
+import Home from './views/Home';
+import Inclusive from './views/patterns/Inclusive';
+import Writing from './views/patterns/Writing';
+import Colors from './views/patterns/Colors';
+import Buttons from './views/patterns/Buttons';
 
-// import Breadcrumbs from './views/content/Breadcrumbs';
-// import Navbar from './views/content/Navbar';
-import Checkboxes from './views/content/Checkboxes';
-// import RadioButtons from './views/content/RadioButtons';
-// import TextFields from './views/content/TextFields';
-// import Filters from './views/content/Filters';
-// import DropdownMenus from './views/content/DropdownMenus';
-// import Loaders from './views/content/Loaders';
-// import Modals from './views/content/Modals';
-// import Grids from './views/content/Grids';
-// import Tooltips from './views/content/Tooltips';
+// import Breadcrumbs from './views/components/KBreadcrumb';
+// import Navbar from './views/components/KNavba';
+import Checkboxes from './views/components/KCheckbox';
+// import RadioButtons from './views/components/KRadioButton';
+// import TextFields from './views/components/KTextField';
+// import Filters from './views/components/KFilter';
+// import DropdownMenus from './views/components/KDropdownMenu';
+// import Loaders from './views/components/KLoader';
+// import Modals from './views/components/KModal';
+// import Grids from './views/components/KGrid';
+// import Tooltips from './views/components/KTooltip';
 
-import ComponentDocs from './views/shell/ComponentDocs';
+import ComponentDocs from './views/common/ComponentDocs';
 
 import KBreadcrumbs from '!vue-doc!kolibri.coreVue.components.KBreadcrumbs';
 

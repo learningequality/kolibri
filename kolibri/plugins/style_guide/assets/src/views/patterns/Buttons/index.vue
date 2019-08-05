@@ -129,11 +129,11 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
-  import VueExample from '../../shell/VueExample';
-  import PageTemplate from '../../shell/PageTemplate';
-  import PageSection from '../../shell/PageSection';
-  import Show from '../../shell/Show';
-  import ExternalLink from '../../shell/ExternalLink';
+  import VueExample from '../../common/VueExample';
+  import PageTemplate from '../../common/PageTemplate';
+  import PageSection from '../../common/PageSection';
+  import Show from '../../common/Show';
+  import ExternalLink from '../../common/ExternalLink';
 
   /* eslint-disable import/no-duplicates */
   import Example from './Example';

@@ -15,7 +15,7 @@
 <script>
 
   import state from '../state';
-  import SideNav from './shell/SideNav';
+  import SideNav from './common/SideNav';
 
   export default {
     name: 'StyleGuideIndex',
@@ -34,7 +34,7 @@
 
 <style lang="scss" scoped>
 
-  @import './shell/globals';
+  @import './common/globals';
 
   .content {
     padding-left: 32px;
@@ -55,7 +55,7 @@
 
 <style lang="scss">
 
-  @import './shell/globals';
+  @import './common/globals';
 
   // match Prism font family
   code {

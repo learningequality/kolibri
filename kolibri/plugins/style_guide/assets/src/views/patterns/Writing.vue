@@ -59,9 +59,9 @@
 
 <script>
 
-  import PageTemplate from '../shell/PageTemplate';
-  import PageSection from '../shell/PageSection';
-  import ExternalLink from '../shell/ExternalLink';
+  import PageTemplate from '../common/PageTemplate';
+  import PageSection from '../common/PageSection';
+  import ExternalLink from '../common/ExternalLink';
 
   export default {
     name: 'Writing',

@@ -27,9 +27,9 @@
 
 <script>
 
-  import PageTemplate from '../../shell/PageTemplate';
-  import PageSection from '../../shell/PageSection';
-  import VueExample from '../../shell/VueExample';
+  import PageTemplate from '../../common/PageTemplate';
+  import PageSection from '../../common/PageSection';
+  import VueExample from '../../common/VueExample';
 
   /* eslint-disable import/no-duplicates */
   import KLinearLoaderExample from './KLinearLoaderExample';

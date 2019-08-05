@@ -32,10 +32,10 @@
 <script>
 
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
-  import VueExample from '../../shell/VueExample';
-  import PageTemplate from '../../shell/PageTemplate';
-  import PageSection from '../../shell/PageSection';
-  import Show from '../../shell/Show';
+  import VueExample from '../../common/VueExample';
+  import PageTemplate from '../../common/PageTemplate';
+  import PageSection from '../../common/PageSection';
+  import Show from '../../common/Show';
 
   /* eslint-disable import/no-duplicates */
   import Example from './Example.vue';

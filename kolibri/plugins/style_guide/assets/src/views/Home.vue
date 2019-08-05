@@ -57,8 +57,8 @@
 
 <script>
 
-  import PageTemplate from '../shell/PageTemplate';
-  import PageSection from '../shell/PageSection';
+  import PageTemplate from './common/PageTemplate';
+  import PageSection from './common/PageSection';
 
   export default {
     name: 'Home',

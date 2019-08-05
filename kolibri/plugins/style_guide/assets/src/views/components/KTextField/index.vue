@@ -130,9 +130,9 @@
 
 <script>
 
-  import VueExample from '../../shell/VueExample';
-  import PageTemplate from '../../shell/PageTemplate';
-  import PageSection from '../../shell/PageSection';
+  import VueExample from '../../common/VueExample';
+  import PageTemplate from '../../common/PageTemplate';
+  import PageSection from '../../common/PageSection';
 
   /* eslint-disable import/no-duplicates */
   import Example from './Example.vue';

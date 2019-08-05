@@ -172,9 +172,9 @@
 <script>
 
   /* eslint-disable import/no-duplicates */
-  import PageTemplate from '../../shell/PageTemplate';
-  import PageSection from '../../shell/PageSection';
-  import VueExample from '../../shell/VueExample';
+  import PageTemplate from '../../common/PageTemplate';
+  import PageSection from '../../common/PageSection';
+  import VueExample from '../../common/VueExample';
   import Example from './Example.vue';
   import ExampleCode from '!!raw-loader!./Example.vue';
   import KModalApi from '!vue-doc!kolibri.coreVue.components.KModal';

@@ -1,19 +1,16 @@
 <template>
 
   <PageTemplate :completed="false">
-
     <PageSection>
-      <h1>Tooltips</h1>
-
-
-      <h2>Usage guidelines</h2>
-
-
 
       <h2>Code Example</h2>
       <VueExample :code="exampleCode">
         <Example />
       </VueExample>
+
+      <h2>Guidelines</h2>
+      <p>use em!</p>
+
     </PageSection>
   </PageTemplate>
 
@@ -22,19 +19,20 @@
 
 <script>
 
-  import VueExample from '../../shell/VueExample';
-  import PageTemplate from '../../shell/PageTemplate';
-  import PageSection from '../../shell/PageSection';
+  import VueExample from '../../common/VueExample';
+  import PageTemplate from '../../common/PageTemplate';
+  import PageSection from '../../common/PageSection';
 
   /* eslint-disable import/no-duplicates */
   import Example from './Example.vue';
   import exampleCode from '!!raw-loader!./Example.vue';
   /* eslint-enable import/no-duplicates */
 
-  import KTooltipApi from '!vue-doc!kolibri.coreVue.components.KTooltip';
+  import kGridApi from '!vue-doc!kolibri.coreVue.components.KGrid';
+  import kGridItemApi from '!vue-doc!kolibri.coreVue.components.KGridItem';
 
   export default {
-    name: 'Tooltips',
+    name: 'Grids',
     components: {
       PageTemplate,
       PageSection,
@@ -42,7 +40,8 @@
       Example,
     },
     data: () => ({
-      KTooltipApi,
+      kGridApi,
+      kGridItemApi,
       exampleCode,
     }),
   };

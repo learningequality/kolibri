@@ -243,10 +243,10 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import ExternalLink from '../../shell/ExternalLink';
-  import PageTemplate from '../../shell/PageTemplate';
-  import PageSection from '../../shell/PageSection';
-  import ColorBlock from '../../shell/ColorBlock';
+  import ExternalLink from '../../common/ExternalLink';
+  import PageTemplate from '../../common/PageTemplate';
+  import PageSection from '../../common/PageSection';
+  import ColorBlock from '../../common/ColorBlock';
 
   export default {
     name: 'Colors',
