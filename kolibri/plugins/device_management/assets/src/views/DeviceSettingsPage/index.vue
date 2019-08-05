@@ -58,8 +58,8 @@
 
   import mapValues from 'lodash/map';
   import find from 'lodash/find';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
+  import KButton from 'kolibri.shared.KButton';
+  import KSelect from 'kolibri.shared.KSelect';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { availableLanguages } from 'kolibri.utils.i18n';

@@ -14,7 +14,7 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
-    name: 'KBottomAppBar',
+    name: 'BottomAppBar',
     mixins: [themeMixin],
     props: {
       maxWidth: {

@@ -11,7 +11,7 @@
   import { SORTABLE_CLASS, HANDLE_CLASS } from './classDefinitions';
 
   export default {
-    name: 'KDragContainer',
+    name: 'DragContainer',
     components: {},
     props: {
       items: {

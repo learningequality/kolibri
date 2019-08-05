@@ -30,7 +30,7 @@
 
   import { mapGetters } from 'vuex';
   import { ExamResource } from 'kolibri.resources';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import KPageContainer from 'kolibri.shared.KPageContainer';
   import { CoachCoreBase } from '../common';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import AssignmentDetailsModal from './assignments/AssignmentDetailsModal';

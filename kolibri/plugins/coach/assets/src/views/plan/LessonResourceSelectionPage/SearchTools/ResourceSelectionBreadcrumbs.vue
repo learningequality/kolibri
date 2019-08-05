@@ -7,7 +7,7 @@
 
 <script>
 
-  import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
+  import KBreadcrumbs from 'kolibri.shared.KBreadcrumbs';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {

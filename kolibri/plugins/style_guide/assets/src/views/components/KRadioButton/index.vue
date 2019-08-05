@@ -46,7 +46,7 @@
   import exampleCode from '!!raw-loader!./Example.vue';
   /* eslint-enable import/no-duplicates */
 
-  import kRadioButtonApi from '!vue-doc!kolibri.coreVue.components.KRadioButton';
+  import kRadioButtonApi from '!vue-doc!kolibri.shared.KRadioButton';
 
   export default {
     name: 'RadioButtons',

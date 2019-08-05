@@ -122,7 +122,7 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
+  import KSelect from 'kolibri.shared.KSelect';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
 

@@ -24,8 +24,8 @@
 <script>
 
   import { mapGetters, mapActions, mapMutations } from 'vuex';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import KModal from 'kolibri.shared.KModal';
+  import KRadioButton from 'kolibri.shared.KRadioButton';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {

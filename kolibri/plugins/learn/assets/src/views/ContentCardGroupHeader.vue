@@ -22,7 +22,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KRouterLink from 'kolibri.shared.KRouterLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {

@@ -68,8 +68,8 @@
 
   import { mapState } from 'vuex';
   import camelCase from 'lodash/camelCase';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KCheckbox from 'kolibri.shared.KCheckbox';
+  import KButton from 'kolibri.shared.KButton';
   import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ConfirmResetModal from './ConfirmResetModal';

@@ -15,7 +15,7 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KButton from 'kolibri.shared.KButton';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {

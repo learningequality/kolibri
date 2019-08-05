@@ -25,7 +25,7 @@
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import KTooltip from 'kolibri.coreVue.components.KTooltip';
+  import KTooltip from 'kolibri.shared.KTooltip';
 
   export default {
     name: 'CoreInfoIcon',

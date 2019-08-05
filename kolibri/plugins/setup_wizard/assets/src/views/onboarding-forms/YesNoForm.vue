@@ -36,7 +36,7 @@
 
 <script>
 
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import KRadioButton from 'kolibri.shared.KRadioButton';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import OnboardingForm from './OnboardingForm';
 

@@ -82,8 +82,8 @@
   import { mapState } from 'vuex';
   import fromPairs from 'lodash/fromPairs';
   import find from 'lodash/find';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KPageContainer from 'kolibri.shared.KPageContainer';
+  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';

@@ -15,7 +15,7 @@
 
 <script>
 
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  import KCircularLoader from 'kolibri.shared.KCircularLoader';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {

@@ -16,8 +16,8 @@
 
 <script>
 
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KGrid from 'kolibri.shared.KGrid';
+  import KGridItem from 'kolibri.shared.KGridItem';
   import CodeBlock from './CodeBlock';
   import Show from './Show';
 

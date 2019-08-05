@@ -30,7 +30,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KRouterLink from 'kolibri.shared.KRouterLink';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {

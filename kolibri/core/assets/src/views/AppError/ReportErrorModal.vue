@@ -48,8 +48,8 @@
 <script>
 
   import { mapState } from 'vuex';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import KModal from 'kolibri.coreVue.components.KModal';
+  import KExternalLink from 'kolibri.shared.KExternalLink';
+  import KModal from 'kolibri.shared.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import TechnicalTextBlock from './TechnicalTextBlock';
 

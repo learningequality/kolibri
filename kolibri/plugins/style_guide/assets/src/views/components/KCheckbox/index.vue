@@ -50,7 +50,7 @@
 
 <script>
 
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import KCheckbox from 'kolibri.shared.KCheckbox';
   import VueExample from '../../common/VueExample';
   import PageTemplate from '../../common/PageTemplate';
   import PageSection from '../../common/PageSection';
@@ -61,7 +61,7 @@
   import exampleCode from '!!raw-loader!./Example.vue';
   /* eslint-enable import/no-duplicates */
 
-  import kCheckboxApi from '!vue-doc!kolibri.coreVue.components.KCheckbox';
+  import kCheckboxApi from '!vue-doc!kolibri.shared.KCheckbox';
 
   export default {
     name: 'Checkboxes',

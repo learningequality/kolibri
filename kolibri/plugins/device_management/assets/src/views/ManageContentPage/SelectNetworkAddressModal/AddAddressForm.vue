@@ -49,8 +49,8 @@
 
 <script>
 
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KModal from 'kolibri.shared.KModal';
+  import KTextbox from 'kolibri.shared.KTextbox';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';

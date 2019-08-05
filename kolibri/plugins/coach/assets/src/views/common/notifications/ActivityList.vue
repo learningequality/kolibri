@@ -55,8 +55,8 @@
   import uniq from 'lodash/uniq';
   import map from 'lodash/map';
   import { mapState } from 'vuex';
-  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KLinearLoader from 'kolibri.shared.KLinearLoader';
+  import KButton from 'kolibri.shared.KButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { cardTextForNotification } from '../notifications/notificationStrings';

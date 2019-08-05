@@ -48,8 +48,8 @@
   import sortBy from 'lodash/sortBy';
   import find from 'lodash/find';
   import { error as logError } from 'kolibri.lib.logging';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import KModal from 'kolibri.shared.KModal';
+  import KRadioButton from 'kolibri.shared.KRadioButton';
   import { LearnerGroupResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';

@@ -20,8 +20,8 @@
 
 <script>
 
-  import KTooltip from 'kolibri.coreVue.components.KTooltip';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KTooltip from 'kolibri.shared.KTooltip';
+  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import { coachStringsMixin } from '../commonCoachStrings';
   import CoachStatusIcon from './CoachStatusIcon';
   import { statusStringsMixin, isValidVerb } from './statusStrings';

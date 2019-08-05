@@ -1,6 +1,6 @@
 <template>
 
-  <KDragContainer
+  <DragContainer
     :items="resources"
     @sort="handleDrag"
   >
@@ -13,11 +13,11 @@
       name="list"
       class="wrapper"
     >
-      <KDraggable
+      <Draggable
         v-for="(resource, index) in resourceListItems"
         :key="resource.id"
       >
-        <KDragHandle>
+        <DragHandle>
           <KFixedGrid
             class="row"
             :style="{ backgroundColor: $themeTokens.surface }"
@@ -25,7 +25,7 @@
           >
             <KFixedGridItem span="1" class="relative">
               <div class="move-handle">
-                <KDragSortWidget
+                <DragSortWidget
                   :moveUpText="$tr('moveResourceUpButtonDescription')"
                   :moveDownText="$tr('moveResourceDownButtonDescription')"
                   :isFirst="index === 0"
@@ -58,10 +58,10 @@
               />
             </KFixedGridItem>
           </KFixedGrid>
-        </KDragHandle>
-      </KDraggable>
+        </DragHandle>
+      </Draggable>
     </transition-group>
-  </KDragContainer>
+  </DragContainer>
 
 </template>
 
@@ -70,14 +70,14 @@
 
   import { mapActions, mapState } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KDragSortWidget from 'kolibri.coreVue.components.KDragSortWidget';
-  import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
-  import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KDraggable from 'kolibri.coreVue.components.KDraggable';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KFixedGrid from 'kolibri.coreVue.components.KFixedGrid';
-  import KFixedGridItem from 'kolibri.coreVue.components.KFixedGridItem';
+  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
+  import DragContainer from 'kolibri.coreVue.components.DragContainer';
+  import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  import KRouterLink from 'kolibri.shared.KRouterLink';
+  import Draggable from 'kolibri.coreVue.components.Draggable';
+  import KButton from 'kolibri.shared.KButton';
+  import KFixedGrid from 'kolibri.shared.KFixedGrid';
+  import KFixedGridItem from 'kolibri.shared.KFixedGridItem';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
@@ -87,10 +87,10 @@
   export default {
     name: 'EditDetailsResourceListTable',
     components: {
-      KDraggable,
-      KDragContainer,
-      KDragHandle,
-      KDragSortWidget,
+      Draggable,
+      DragContainer,
+      DragHandle,
+      DragSortWidget,
       KRouterLink,
       KButton,
       KFixedGrid,

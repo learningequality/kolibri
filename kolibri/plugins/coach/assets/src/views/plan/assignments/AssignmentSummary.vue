@@ -30,7 +30,7 @@
 
 <script>
 
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import HeaderTable from '../../common/HeaderTable';
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
   import Recipients from '../../common/Recipients';

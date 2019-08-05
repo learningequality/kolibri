@@ -90,9 +90,9 @@
 <script>
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KRouterLink from 'kolibri.shared.KRouterLink';
+  import KSelect from 'kolibri.shared.KSelect';
+  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';

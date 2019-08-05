@@ -32,7 +32,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import KPageContainer from 'kolibri.shared.KPageContainer';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelsPage from './ChannelsPage';

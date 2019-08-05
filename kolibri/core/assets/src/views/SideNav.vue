@@ -114,7 +114,7 @@
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KButton from 'kolibri.shared.KButton';
   import navComponents from 'kolibri.utils.navComponents';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import navComponentsMixin from '../mixins/nav-components';

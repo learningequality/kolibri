@@ -16,8 +16,8 @@
 
 <script>
 
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
+  import KIcon from 'kolibri.shared.KIcon';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { coachStringsMixin } from './commonCoachStrings';
 

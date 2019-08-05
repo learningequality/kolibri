@@ -47,9 +47,9 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KButton from 'kolibri.shared.KButton';
+  import KGrid from 'kolibri.shared.KGrid';
+  import KGridItem from 'kolibri.shared.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiAlert from 'keen-ui/src/UiAlert';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';

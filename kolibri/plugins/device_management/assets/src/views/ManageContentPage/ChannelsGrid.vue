@@ -48,7 +48,7 @@
 
   import { mapActions, mapGetters, mapState } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
+  import KLinearLoader from 'kolibri.shared.KLinearLoader';
   import DeleteChannelModal from './DeleteChannelModal';
   import ChannelListItem from './ChannelListItem';
 

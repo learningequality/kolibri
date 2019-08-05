@@ -14,8 +14,8 @@
 
 <script>
 
-  import KFixedGrid from 'kolibri.coreVue.components.KFixedGrid';
-  import KFixedGridItem from 'kolibri.coreVue.components.KFixedGridItem';
+  import KFixedGrid from 'kolibri.shared.KFixedGrid';
+  import KFixedGridItem from 'kolibri.shared.KFixedGridItem';
 
   export default {
     name: 'Example',

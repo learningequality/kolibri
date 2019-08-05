@@ -21,9 +21,9 @@
 <script>
 
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
+  import KGrid from 'kolibri.shared.KGrid';
+  import KGridItem from 'kolibri.shared.KGridItem';
 
   export default {
     name: 'PageHeader',

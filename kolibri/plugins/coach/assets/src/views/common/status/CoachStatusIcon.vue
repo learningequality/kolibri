@@ -7,7 +7,7 @@
 
 <script>
 
-  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import KIcon from 'kolibri.shared.KIcon';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { ICONS } from './constants';
 

@@ -60,14 +60,14 @@
 
     </KPageContainer>
 
-    <KBottomAppBar>
+    <BottomAppBar>
       <KRouterLink
         :text="inSearchMode ? $tr('exitSearchButtonLabel') : coreString('finishAction')"
         :primary="true"
         appearance="raised-button"
         :to="exitButtonRoute"
       />
-    </KBottomAppBar>
+    </BottomAppBar>
 
   </CoreBase>
 
@@ -82,11 +82,11 @@
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
   import xor from 'lodash/xor';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KRouterLink from 'kolibri.shared.KRouterLink';
+  import KGrid from 'kolibri.shared.KGrid';
+  import KGridItem from 'kolibri.shared.KGridItem';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
@@ -111,7 +111,7 @@
       LessonsSearchFilters,
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
-      KBottomAppBar,
+      BottomAppBar,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {

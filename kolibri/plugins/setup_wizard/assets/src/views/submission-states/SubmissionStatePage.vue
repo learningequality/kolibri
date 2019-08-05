@@ -22,7 +22,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  import KCircularLoader from 'kolibri.shared.KCircularLoader';
 
   export default {
     name: 'SubmissionStatePage',

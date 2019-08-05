@@ -41,9 +41,9 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
+  import KButton from 'kolibri.shared.KButton';
+  import KRouterLink from 'kolibri.shared.KRouterLink';
+  import KExternalLink from 'kolibri.shared.KExternalLink';
 
   export default {
     name: 'Example',

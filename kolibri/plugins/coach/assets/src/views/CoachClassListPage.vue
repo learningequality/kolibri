@@ -62,7 +62,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
+  import KExternalLink from 'kolibri.shared.KExternalLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
   import commonCoach from './common';

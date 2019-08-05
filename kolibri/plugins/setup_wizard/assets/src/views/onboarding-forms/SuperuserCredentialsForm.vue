@@ -65,7 +65,7 @@
 <script>
 
   import { mapMutations } from 'vuex';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KTextbox from 'kolibri.shared.KTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import OnboardingForm from './OnboardingForm';

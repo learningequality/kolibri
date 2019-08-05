@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import store from 'kolibri.coreVue.vuex.store';
-import KButton from 'kolibri.coreVue.components.KButton';
+import KButton from 'kolibri.shared.KButton';
 import UiAlert from 'keen-ui/src/UiAlert';
 import SelectedResourcesSize from '../../src/views/SelectContentPage/SelectedResourcesSize';
 

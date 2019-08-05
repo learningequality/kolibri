@@ -47,8 +47,8 @@
 
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  import KButton from 'kolibri.shared.KButton';
+  import KCircularLoader from 'kolibri.shared.KCircularLoader';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';

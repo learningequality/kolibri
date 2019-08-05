@@ -101,7 +101,7 @@
 
   import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KButton from 'kolibri.shared.KButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';

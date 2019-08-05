@@ -52,7 +52,7 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KButton from 'kolibri.shared.KButton';
   import ReportErrorModal from './ReportErrorModal';
 
   export default {

@@ -88,8 +88,8 @@
   import { mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+  import KRouterLink from 'kolibri.shared.KRouterLink';
+  import KDropdownMenu from 'kolibri.shared.KDropdownMenu';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';

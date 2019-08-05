@@ -32,10 +32,10 @@
   import UiIcon from 'keen-ui/src/UiIcon';
 
   /**
-   Links for use inside the KNavbar
+   Links for use inside the Navbar
    */
   export default {
-    name: 'KNavbarLink',
+    name: 'NavbarLink',
     components: { UiIcon },
     mixins: [themeMixin],
     props: {

@@ -76,7 +76,7 @@
   import UiIcon from 'keen-ui/src/UiIcon';
   import UiPopover from 'keen-ui/src/UiPopover';
   import UiTooltip from 'keen-ui/src/UiTooltip';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  import KCircularLoader from 'kolibri.shared.KCircularLoader';
 
   export default {
     name: 'KeenUiIconButton',

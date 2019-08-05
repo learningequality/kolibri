@@ -45,9 +45,9 @@
 
   import toArray from 'lodash/toArray';
   import { mapActions } from 'vuex';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KModal from 'kolibri.shared.KModal';
+  import KCircularLoader from 'kolibri.shared.KCircularLoader';
+  import KRouterLink from 'kolibri.shared.KRouterLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import sortBy from 'lodash/sortBy';
   import { PageNames } from '../constants';

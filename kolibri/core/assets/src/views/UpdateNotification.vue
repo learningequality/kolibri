@@ -32,9 +32,9 @@
 
 <script>
 
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import KExternalLink from 'kolibri.shared.KExternalLink';
+  import KModal from 'kolibri.shared.KModal';
+  import KCheckbox from 'kolibri.shared.KCheckbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { mapGetters, mapActions, mapMutations } from 'vuex';
 

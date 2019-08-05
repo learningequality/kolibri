@@ -87,7 +87,7 @@
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KRouterLink from 'kolibri.shared.KRouterLink';
   import UiAlert from 'keen-ui/src/UiAlert';
   import Snackbar from './Snackbar';
 

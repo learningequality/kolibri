@@ -64,7 +64,7 @@
 <script>
 
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import KIcon from 'kolibri.shared.KIcon';
   import lockr from 'lockr';
   import { patternRoutes, componentRoutes } from '../../../routes.js';
   import state from '../../../state';

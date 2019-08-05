@@ -44,7 +44,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KTooltip from 'kolibri.coreVue.components.KTooltip';
+  import KTooltip from 'kolibri.shared.KTooltip';
 
   export default {
     name: 'AnswerIcon',

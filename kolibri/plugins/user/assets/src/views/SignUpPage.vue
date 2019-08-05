@@ -110,9 +110,9 @@
 
   import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
   import { validateUsername } from 'kolibri.utils.validators';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
+  import KButton from 'kolibri.shared.KButton';
+  import KTextbox from 'kolibri.shared.KTextbox';
+  import KSelect from 'kolibri.shared.KSelect';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';

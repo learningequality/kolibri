@@ -18,7 +18,7 @@
 
 <script>
 
-  import KModal from 'kolibri.coreVue.components.KModal';
+  import KModal from 'kolibri.shared.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {

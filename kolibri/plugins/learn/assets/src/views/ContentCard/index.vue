@@ -54,7 +54,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KButton from 'kolibri.shared.KButton';
   import CardThumbnail from './CardThumbnail';
 
   export default {

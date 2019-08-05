@@ -27,7 +27,7 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KButton from 'kolibri.shared.KButton';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import OnboardingForm from './OnboardingForm';
 

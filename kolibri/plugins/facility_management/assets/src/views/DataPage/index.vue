@@ -82,9 +82,9 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { isAndroidWebView } from 'kolibri.utils.browser';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KGrid from 'kolibri.shared.KGrid';
+  import KGridItem from 'kolibri.shared.KGridItem';
+  import KButton from 'kolibri.shared.KButton';
   import urls from 'kolibri.urls';
   import { PageNames } from '../../constants';
   import GeneratedElapsedTime from './GeneratedElapsedTime';

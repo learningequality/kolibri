@@ -37,7 +37,7 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KButton from 'kolibri.shared.KButton';
   import UiPopover from 'keen-ui/src/UiPopover';
   import UiMenu from 'keen-ui/src/UiMenu';
   import { validator } from './buttons-and-links/appearances';

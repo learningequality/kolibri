@@ -13,7 +13,7 @@
 
 <script>
 
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+  import KDropdownMenu from 'kolibri.shared.KDropdownMenu';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 

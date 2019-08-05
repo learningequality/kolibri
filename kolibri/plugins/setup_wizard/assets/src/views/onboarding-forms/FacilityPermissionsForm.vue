@@ -50,7 +50,7 @@
 <script>
 
   import { mapMutations } from 'vuex';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import KRadioButton from 'kolibri.shared.KRadioButton';
   import OnboardingForm from './OnboardingForm';
   import FacilityNameTextbox from './FacilityNameTextbox';
 

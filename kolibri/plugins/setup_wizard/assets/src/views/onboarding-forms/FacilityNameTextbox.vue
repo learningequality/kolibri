@@ -17,7 +17,7 @@
 
 <script>
 
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KTextbox from 'kolibri.shared.KTextbox';
 
   export default {
     name: 'FacilityNameTextbox',

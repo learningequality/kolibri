@@ -9,7 +9,7 @@
         :layout12="{ span: 9, alignment: 'right' }"
         class="text-filter"
       >
-        <KFilterTextbox
+        <FilterTextbox
           v-model="filterInput"
           :placeholder="filterPlaceholder"
         />
@@ -53,17 +53,17 @@
 <script>
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
+  import KIcon from 'kolibri.shared.KIcon';
+  import KGrid from 'kolibri.shared.KGrid';
+  import KGridItem from 'kolibri.shared.KGridItem';
 
   export default {
     name: 'PaginatedListContainer',
     components: {
       KIcon,
       UiIconButton,
-      KFilterTextbox,
+      FilterTextbox,
       KGrid,
       KGridItem,
     },

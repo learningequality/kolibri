@@ -30,7 +30,7 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import KPageContainer from 'kolibri.shared.KPageContainer';
   import { ContentWizardPages, PageNames } from '../constants';
   import DeviceTopNav from './DeviceTopNav';
   import ManageContentPage from './ManageContentPage';

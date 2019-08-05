@@ -28,8 +28,8 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KModal from 'kolibri.coreVue.components.KModal';
+  import KTextbox from 'kolibri.shared.KTextbox';
+  import KModal from 'kolibri.shared.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 

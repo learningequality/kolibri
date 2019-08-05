@@ -11,7 +11,7 @@
 
 <script>
 
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+  import KDropdownMenu from 'kolibri.shared.KDropdownMenu';
   import { getFilePresetString } from './filePresetStrings';
 
   export default {

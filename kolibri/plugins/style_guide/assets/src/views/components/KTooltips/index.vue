@@ -31,7 +31,7 @@
   import exampleCode from '!!raw-loader!./Example.vue';
   /* eslint-enable import/no-duplicates */
 
-  import KTooltipApi from '!vue-doc!kolibri.coreVue.components.KTooltip';
+  import KTooltipApi from '!vue-doc!kolibri.shared.KTooltip';
 
   export default {
     name: 'Tooltips',

@@ -31,7 +31,7 @@
 
 <script>
 
-  import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
+  import KBreadcrumbs from 'kolibri.shared.KBreadcrumbs';
   import VueExample from '../../common/VueExample';
   import PageTemplate from '../../common/PageTemplate';
   import PageSection from '../../common/PageSection';
@@ -42,7 +42,7 @@
   import exampleCode from '!!raw-loader!./Example.vue';
   /* eslint-enable import/no-duplicates */
 
-  import kBreadcrumbsApi from '!vue-doc!kolibri.coreVue.components.KBreadcrumbs';
+  import kBreadcrumbsApi from '!vue-doc!kolibri.shared.KBreadcrumbs';
 
   export default {
     name: 'Breadcrumbs',

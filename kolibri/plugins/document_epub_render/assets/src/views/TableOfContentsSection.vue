@@ -33,7 +33,7 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KButton from 'kolibri.shared.KButton';
 
   export default {
     name: 'TableOfContentsSection',

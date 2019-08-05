@@ -13,7 +13,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
+  import KExternalLink from 'kolibri.shared.KExternalLink';
   import urls from 'kolibri.urls';
 
   export default {

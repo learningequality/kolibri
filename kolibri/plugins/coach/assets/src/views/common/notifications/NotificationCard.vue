@@ -40,9 +40,9 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import KFixedGrid from 'kolibri.coreVue.components.KFixedGrid';
-  import KFixedGridItem from 'kolibri.coreVue.components.KFixedGridItem';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KFixedGrid from 'kolibri.shared.KFixedGrid';
+  import KFixedGridItem from 'kolibri.shared.KFixedGridItem';
+  import KRouterLink from 'kolibri.shared.KRouterLink';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import CoachStatusIcon from '../status/CoachStatusIcon';
   import {

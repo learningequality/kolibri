@@ -36,7 +36,7 @@
 
 <script>
 
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
+  import KExternalLink from 'kolibri.shared.KExternalLink';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {

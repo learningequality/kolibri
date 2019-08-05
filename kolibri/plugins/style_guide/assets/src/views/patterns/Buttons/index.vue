@@ -128,7 +128,7 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KButton from 'kolibri.shared.KButton';
   import VueExample from '../../common/VueExample';
   import PageTemplate from '../../common/PageTemplate';
   import PageSection from '../../common/PageSection';
@@ -139,10 +139,6 @@
   import Example from './Example';
   import exampleCode from '!!raw-loader!./Example.vue';
   /* eslint-enable import/no-duplicates */
-
-  import KButtonApi from '!vue-doc!kolibri.coreVue.components.KButton';
-  import KRouterLinkApi from '!vue-doc!kolibri.coreVue.components.KRouterLink';
-  import KExternalLinkApi from '!vue-doc!kolibri.coreVue.components.KExternalLink';
 
   export default {
     name: 'Buttons',
@@ -157,9 +153,6 @@
     },
     data() {
       return {
-        KButtonApi,
-        KRouterLinkApi,
-        KExternalLinkApi,
         exampleCode,
       };
     },

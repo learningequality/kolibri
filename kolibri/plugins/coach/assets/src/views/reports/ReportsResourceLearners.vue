@@ -40,7 +40,7 @@
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSimple from '../common/status/StatusSimple';
   import TimeDuration from '../common/TimeDuration';

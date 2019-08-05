@@ -47,7 +47,7 @@
    * Used to filter items via text input
    */
   export default {
-    name: 'KFilterTextbox',
+    name: 'FilterTextbox',
     components: {
       UiIcon,
       UiIconButton,

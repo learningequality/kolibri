@@ -26,7 +26,7 @@
 
   import { mapState, mapGetters } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import KPageContainer from 'kolibri.shared.KPageContainer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import ClassEditPage from './ClassEditPage';

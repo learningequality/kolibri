@@ -9,7 +9,7 @@
 
 <script>
 
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  import KCircularLoader from 'kolibri.shared.KCircularLoader';
 
   export default {
     name: 'KCircularLoaderExample',

@@ -120,16 +120,16 @@
 <script>
 
   import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { validateUsername } from 'kolibri.utils.validators';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import KButton from 'kolibri.shared.KButton';
+  import KTextbox from 'kolibri.shared.KTextbox';
+  import KPageContainer from 'kolibri.shared.KPageContainer';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';

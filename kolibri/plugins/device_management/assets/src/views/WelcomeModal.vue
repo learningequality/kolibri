@@ -19,7 +19,7 @@
 
 <script>
 
-  import KModal from 'kolibri.coreVue.components.KModal';
+  import KModal from 'kolibri.shared.KModal';
 
   export default {
     name: 'WelcomeModal',

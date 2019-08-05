@@ -28,7 +28,7 @@
 
 <script>
 
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import KRadioButton from 'kolibri.shared.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
 
   export default {

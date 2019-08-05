@@ -184,7 +184,7 @@
   import startswith from 'lodash/startsWith';
   import sortby from 'lodash/sortBy';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  import KCircularLoader from 'kolibri.shared.KCircularLoader';
 
   import { looseIndexOf, looseEqual } from 'keen-ui/src/helpers/util';
   import { scrollIntoView, resetScroll } from 'keen-ui/src/helpers/element-scroll';

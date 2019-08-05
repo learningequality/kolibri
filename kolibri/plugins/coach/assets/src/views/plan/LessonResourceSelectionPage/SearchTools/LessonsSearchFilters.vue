@@ -69,7 +69,7 @@
 
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
+  import KSelect from 'kolibri.shared.KSelect';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 

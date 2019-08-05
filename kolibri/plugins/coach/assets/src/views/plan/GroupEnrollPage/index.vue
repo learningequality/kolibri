@@ -16,7 +16,7 @@
       </h1>
       <form @submit.prevent="addSelectedUsersToGroup">
         <div class="actions-header">
-          <KFilterTextbox
+          <FilterTextbox
             v-model.trim="filterInput"
             :placeholder="$tr('searchForUser')"
             @input="pageNum = 1"
@@ -107,9 +107,9 @@
   import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KButton from 'kolibri.shared.KButton';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import {
@@ -123,7 +123,7 @@
     components: {
       KButton,
       UiIconButton,
-      KFilterTextbox,
+      FilterTextbox,
       UserTable,
     },
     mixins: [responsiveWindow, commonCoach, commonCoreStrings],

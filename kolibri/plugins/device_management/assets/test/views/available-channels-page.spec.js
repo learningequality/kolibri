@@ -28,7 +28,7 @@ function getElements(wrapper) {
     filters: () => wrapper.find('.filters'),
     languageFilter: () => wrapper.find({ name: 'KSelect' }),
     titleText: () => wrapper.find('.spec-ref-title').text().trim(),
-    titleFilter: () => wrapper.find({ name: 'KFilterTextbox' }),
+    titleFilter: () => wrapper.find({ name: 'FilterTextbox' }),
     unlistedChannelsSection: () => wrapper.findAll('section.unlisted-channels'),
   }
 }

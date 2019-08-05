@@ -22,7 +22,7 @@
 
   import { mapState } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import AssignedExamsCards from './AssignedExamsCards';
   import AssignedLessonsCards from './AssignedLessonsCards';
 

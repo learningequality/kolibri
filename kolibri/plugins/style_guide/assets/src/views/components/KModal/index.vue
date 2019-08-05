@@ -177,7 +177,7 @@
   import VueExample from '../../common/VueExample';
   import Example from './Example.vue';
   import ExampleCode from '!!raw-loader!./Example.vue';
-  import KModalApi from '!vue-doc!kolibri.coreVue.components.KModal';
+  import KModalApi from '!vue-doc!kolibri.shared.KModal';
   /* eslint-enable import/no-duplicates */
 
   export default {

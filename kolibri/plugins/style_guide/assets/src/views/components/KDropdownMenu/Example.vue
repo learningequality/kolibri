@@ -21,7 +21,7 @@
 
 <script>
 
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+  import KDropdownMenu from 'kolibri.shared.KDropdownMenu';
 
   export default {
     name: 'Example',

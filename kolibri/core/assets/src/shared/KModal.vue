@@ -96,7 +96,7 @@
   import logger from 'kolibri.lib.logging';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import debounce from 'lodash/debounce';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KButton from 'kolibri.shared.KButton';
 
   const logging = logger.getLogger(__filename);
 

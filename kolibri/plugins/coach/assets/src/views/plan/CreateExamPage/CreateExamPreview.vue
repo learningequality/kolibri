@@ -105,7 +105,7 @@
         :selectedExercises="selectedExercises"
       />
 
-      <KBottomAppBar>
+      <BottomAppBar>
         <KRouterLink
           appearance="flat-button"
           :text="coreString('goBackAction')"
@@ -117,7 +117,7 @@
           primary
           @click="submit"
         />
-      </KBottomAppBar>
+      </BottomAppBar>
     </KPageContainer>
 
   </CoreBase>
@@ -130,14 +130,14 @@
   import { mapState } from 'vuex';
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import KButton from 'kolibri.shared.KButton';
+  import KRouterLink from 'kolibri.shared.KRouterLink';
+  import KRadioButton from 'kolibri.shared.KRadioButton';
+  import KGrid from 'kolibri.shared.KGrid';
+  import KGridItem from 'kolibri.shared.KGridItem';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KTextbox from 'kolibri.shared.KTextbox';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -159,7 +159,7 @@
       KRadioButton,
       KGrid,
       KGridItem,
-      KBottomAppBar,
+      BottomAppBar,
       KTextbox,
       QuestionListPreview,
     },

@@ -73,9 +73,9 @@
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
-  import KFixedGrid from 'kolibri.coreVue.components.KFixedGrid';
-  import KFixedGridItem from 'kolibri.coreVue.components.KFixedGridItem';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KFixedGrid from 'kolibri.shared.KFixedGrid';
+  import KFixedGridItem from 'kolibri.shared.KFixedGridItem';
+  import KButton from 'kolibri.shared.KButton';
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
 

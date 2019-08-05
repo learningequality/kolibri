@@ -43,7 +43,7 @@
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
-    name: 'KDragSortWidget',
+    name: 'DragSortWidget',
     components: {
       UiIconButton,
     },

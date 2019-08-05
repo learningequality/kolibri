@@ -40,7 +40,7 @@ oriented data synchronization.
       />
     </div>
 
-    <KBottomAppBar
+    <BottomAppBar
       class="attempts-container"
       :class="{ 'mobile': windowIsSmall }"
     >
@@ -99,7 +99,7 @@ oriented data synchronization.
           </div>
         </div>
       </div>
-    </KBottomAppBar>
+    </BottomAppBar>
   </div>
 
 </template>
@@ -114,10 +114,10 @@ oriented data synchronization.
   import shuffled from 'kolibri.utils.shuffled';
   import { now } from 'kolibri.utils.serverClock';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import KButton from 'kolibri.shared.KButton';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
   import ExerciseAttempts from './ExerciseAttempts';
 
@@ -128,7 +128,7 @@ oriented data synchronization.
       ContentRenderer,
       KButton,
       UiAlert,
-      KBottomAppBar,
+      BottomAppBar,
     },
     mixins: [commonCoreStrings, themeMixin, responsiveWindow],
     props: {

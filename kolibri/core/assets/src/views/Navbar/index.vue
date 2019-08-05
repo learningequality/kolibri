@@ -26,7 +26,7 @@
         tabindex="-1"
         :style="{ maxWidth: `${ maxWidth }px` }"
       >
-        <!-- Contains KNavbarLink components -->
+        <!-- Contains NavbarLink components -->
         <slot></slot>
       </ul>
 
@@ -60,7 +60,7 @@
    * Used for navigation between sub-pages of a top-level Kolibri section
    */
   export default {
-    name: 'KNavbar',
+    name: 'Navbar',
     mixins: [responsiveElement, themeMixin],
     data() {
       return {

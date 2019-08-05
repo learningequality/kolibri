@@ -109,15 +109,15 @@
         @moreresults="handleMoreResults"
       />
 
-      <KBottomAppBar v-if="inSearchMode">
+      <BottomAppBar v-if="inSearchMode">
         <KRouterLink
           appearance="raised-button"
           :text="$tr('exitSearchButtonLabel')"
           primary
           :to="toolbarRoute"
         />
-      </KBottomAppBar>
-      <KBottomAppBar v-else>
+      </BottomAppBar>
+      <BottomAppBar v-else>
         <KRouterLink
           appearance="flat-button"
           :text="coreString('goBackAction')"
@@ -128,7 +128,7 @@
           primary
           @click="continueProcess"
         />
-      </KBottomAppBar>
+      </BottomAppBar>
 
     </KPageContainer>
 
@@ -142,16 +142,16 @@
   import { mapState, mapActions, mapGetters } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KButton from 'kolibri.shared.KButton';
+  import KTextbox from 'kolibri.shared.KTextbox';
+  import KRouterLink from 'kolibri.shared.KRouterLink';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KGrid from 'kolibri.shared.KGrid';
+  import KGridItem from 'kolibri.shared.KGridItem';
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
@@ -176,7 +176,7 @@
       KGrid,
       KGridItem,
       UiIconButton,
-      KBottomAppBar,
+      BottomAppBar,
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindow],
     data() {

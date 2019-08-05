@@ -102,8 +102,8 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KCheckbox from 'kolibri.shared.KCheckbox';
+  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import difference from 'lodash/difference';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 

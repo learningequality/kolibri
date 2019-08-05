@@ -37,8 +37,8 @@
   import KLinearLoaderExampleCode from '!!raw-loader!./KLinearLoaderExample';
   import KCircularLoaderExampleCode from '!!raw-loader!./KCircularLoaderExample';
 
-  import KLinearLoaderApi from '!vue-doc!kolibri.coreVue.components.KLinearLoader';
-  import KCircularLoaderApi from '!vue-doc!kolibri.coreVue.components.KCircularLoader';
+  import KLinearLoaderApi from '!vue-doc!kolibri.shared.KLinearLoader';
+  import KCircularLoaderApi from '!vue-doc!kolibri.shared.KCircularLoader';
   /* eslint-enable import/no-duplicates */
 
   export default {

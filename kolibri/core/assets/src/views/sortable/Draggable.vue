@@ -1,9 +1,9 @@
 <script>
 
-  import { HANDLE_CLASS } from './classDefinitions';
+  import { SORTABLE_CLASS } from './classDefinitions';
 
   export default {
-    name: 'KDragHandle',
+    name: 'Draggable',
     mounted() {
       this.setClass();
     },
@@ -13,8 +13,8 @@
     },
     methods: {
       setClass() {
-        if (!this.$el.classList.contains(HANDLE_CLASS)) {
-          this.$el.classList.add(HANDLE_CLASS);
+        if (!this.$el.classList.contains(SORTABLE_CLASS)) {
+          this.$el.classList.add(SORTABLE_CLASS);
         }
       },
     },

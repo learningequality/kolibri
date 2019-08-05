@@ -34,8 +34,8 @@
   import shave from 'shave';
   import debounce from 'lodash/debounce';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KTooltip from 'kolibri.coreVue.components.KTooltip';
+  import KButton from 'kolibri.shared.KButton';
+  import KTooltip from 'kolibri.shared.KTooltip';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {

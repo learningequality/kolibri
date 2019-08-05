@@ -10,7 +10,7 @@
 
 <script>
 
-  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
+  import KEmptyPlaceholder from 'kolibri.shared.KEmptyPlaceholder';
   import { coachStringsMixin } from './commonCoachStrings';
 
   export default {

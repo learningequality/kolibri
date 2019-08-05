@@ -28,7 +28,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
-  import KTooltip from 'kolibri.coreVue.components.KTooltip';
+  import KTooltip from 'kolibri.shared.KTooltip';
 
   export default {
     name: 'TotalPoints',

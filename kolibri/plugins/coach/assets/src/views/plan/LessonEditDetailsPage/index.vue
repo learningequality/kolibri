@@ -46,7 +46,7 @@
   import isEqual from 'lodash/isEqual';
   import isEmpty from 'lodash/isEmpty';
   import { LessonResource } from 'kolibri.resources';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import KPageContainer from 'kolibri.shared.KPageContainer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { CoachCoreBase } from '../../common';
   import { coachStringsMixin } from '../../common/commonCoachStrings';

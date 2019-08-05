@@ -28,8 +28,8 @@
   import exampleCode from '!!raw-loader!./Example.vue';
   /* eslint-enable import/no-duplicates */
 
-  import kGridApi from '!vue-doc!kolibri.coreVue.components.KGrid';
-  import kGridItemApi from '!vue-doc!kolibri.coreVue.components.KGridItem';
+  import kGridApi from '!vue-doc!kolibri.shared.KGrid';
+  import kGridItemApi from '!vue-doc!kolibri.shared.KGridItem';
 
   export default {
     name: 'Grids',

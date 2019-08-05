@@ -8,7 +8,7 @@
 
 <script>
 
-  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
+  import KEmptyPlaceholder from 'kolibri.shared.KEmptyPlaceholder';
 
   const MINUTE = 60;
   const HOUR = MINUTE * 60;

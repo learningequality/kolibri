@@ -50,9 +50,9 @@
 <script>
 
   import { mapActions, mapMutations } from 'vuex';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import KRadioButton from 'kolibri.shared.KRadioButton';
   import { RemoteChannelResource } from 'kolibri.resources';
-  import KModal from 'kolibri.coreVue.components.KModal';
+  import KModal from 'kolibri.shared.KModal';
   import UiAlert from 'keen-ui/src/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentSources } from '../../../constants';

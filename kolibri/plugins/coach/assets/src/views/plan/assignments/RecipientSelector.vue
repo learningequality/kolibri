@@ -24,8 +24,8 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import KCheckbox from 'kolibri.shared.KCheckbox';
+  import KRadioButton from 'kolibri.shared.KRadioButton';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
