@@ -333,11 +333,18 @@ def create_startup_lock(port):
         logger.warn(u"Impossible to create file lock to communicate starting process")
 
 
-@main.command(
-    cls=KolibriDjangoCommand,
-    help=u"Start the Kolibri process",
-    context_settings=dict(ignore_unknown_options=True, allow_extra_args=True),
-)
+def get_deprecated_daemon_arg(background):
+    try:
+        params = click.get_current_context().params
+        if "daemon" in params:
+            logger.warning(u"'--daemon' is deprecated in favor of '--background'")
+            return params["daemon"]
+    except RuntimeError:
+        pass
+    return background
+
+
+@main.command(cls=KolibriDjangoCommand, help=u"Start the Kolibri process")
 @click.option(
     "--port",
     default=OPTIONS["Deployment"]["HTTP_PORT"],
@@ -349,15 +356,10 @@ def create_startup_lock(port):
     default=True,
     help=u"Run Kolibri as a background process",
 )
-@click.pass_context
-def start(context, port, background):
+def start(port, background):
     """
     Start the server on given port.
     """
-
-    if "--daemon" in context.args:
-        logger.warning(u"'--daemon' is deprecated in favor of '--background'")
-        background = True
 
     create_startup_lock(port)
 
@@ -505,27 +507,18 @@ status.codes = {
 }
 
 
-@main.command(
-    cls=KolibriDjangoCommand,
-    help=u"Start worker processes",
-    context_settings=dict(ignore_unknown_options=True, allow_extra_args=True),
-)
+@main.command(cls=KolibriDjangoCommand, help=u"Start worker processes")
 @click.option(
     "--background/--foreground",
     default=True,
     help=u"Run Kolibri services as a background task",
 )
-@click.pass_context
-def services(context, background):
+def services(background):
     """
     Start the kolibri background services.
     """
 
     create_startup_lock(None)
-
-    if "--daemon" in context.args:
-        logger.warning(u"'--daemon' is deprecated in favor of '--background'")
-        background = True
 
     logger.info(u"Starting Kolibri background services")
 
