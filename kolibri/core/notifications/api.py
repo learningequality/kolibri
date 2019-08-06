@@ -292,7 +292,7 @@ def exist_examattempt_notification(user_id, exam_id):
 
 def num_correct(examlog):
     return (
-        examlog.attemptlogs.values_list("item")
+        examlog.attemptlogs.values_list("item", "content_id")
         .order_by("completion_timestamp")
         .distinct()
         .aggregate(Sum("correct"))
@@ -300,9 +300,9 @@ def num_correct(examlog):
     )
 
 
-def num_answered(exam_log):
+def num_answered(examlog):
     return (
-        exam_log.attemptlogs.values_list("item")
+        examlog.attemptlogs.values_list("item", "content_id")
         .order_by("completion_timestamp")
         .distinct()
         .aggregate(complete__sum=Count(Case(When(complete=True, then=1), default=0)))
