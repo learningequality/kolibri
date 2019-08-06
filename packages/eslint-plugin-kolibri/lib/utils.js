@@ -225,4 +225,19 @@ module.exports = {
       });
     });
   },
+
+  /**
+   * Report uses of undefined strings
+   */
+  reportUseOfUndefinedTranslation(context, definitions, uses) {
+    const definedStrings = definitions.map(prop => prop.name);
+    const badAttempts = uses.filter(prop => !definedStrings.includes(prop.value));
+
+    badAttempts.forEach(node => {
+      context.report({
+        node,
+        message: `Attempt to use undefined string ${node.value}`,
+      });
+    });
+  },
 };
