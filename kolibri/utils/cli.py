@@ -304,6 +304,7 @@ def update(old_version, new_version):
     cache = caches["built_files"]
     cache.clear()
 
+
 main_help = u"""Kolibri management commands
 
 For more information, see:
