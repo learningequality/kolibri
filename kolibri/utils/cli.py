@@ -304,8 +304,16 @@ def update(old_version, new_version):
     cache = caches["built_files"]
     cache.clear()
 
+main_help = u"""Kolibri management commands
 
-@click.group(help=u"Kolibri management commands")
+For more information, see:
+https://kolibri.readthedocs.io/en/latest/advanced.html
+
+You can also run: kolibri COMMAND --help
+"""
+
+
+@click.group(help=main_help)
 @click.version_option(version=kolibri.__version__)
 def main():
     """
