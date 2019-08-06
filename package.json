@@ -17,7 +17,7 @@
     "combineprofiles": "node ./packages/kolibri-tools/lib/combineStringProfiles.js ./kolibri/locale/en/LC_MESSAGES/profiles/",
     "watch": "kolibri-tools build dev --file ./build_tools/build_plugins.txt",
     "watch-hot": "yarn run watch --hot",
-    "django-devserver": "kolibri --debug manage runserver --settings=kolibri.deployment.default.settings.dev \"0.0.0.0:8000\" ",
+    "django-devserver": "kolibri manage --debug runserver --settings=kolibri.deployment.default.settings.dev \"0.0.0.0:8000\" ",
     "services": "kolibri services --foreground --skipupdate",
     "devserver": "npm-run-all --parallel django-devserver lint-frontend:watch:format hashi-dev watch services",
     "devserver-warn": "npm-run-all --parallel django-devserver lint-frontend:watch hashi-dev watch services",

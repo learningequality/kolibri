@@ -61,16 +61,9 @@ class Registry(list):
         for app in apps:
             try:
 
-                # Handle AppConfig INSTALLED_APPS string
-                if ".apps." in app:
-                    # remove .apps.Config line in string
-                    import_string = app.split(".apps.")[0]
-                else:
-                    import_string = app
+                if app not in self.apps:
 
-                if import_string not in self.apps:
-
-                    plugin_module_string = import_string + ".kolibri_plugin"
+                    plugin_module_string = app + ".kolibri_plugin"
                     plugin_module = importlib.import_module(plugin_module_string)
 
                     logger.debug("Loaded kolibri plugin: {}".format(app))
@@ -103,7 +96,7 @@ class Registry(list):
                             "Initializing plugin: {}".format(PluginClass.__name__)
                         )
                         self.append(PluginClass())
-                    self.apps.add(import_string)
+                    self.apps.add(app)
             except ImportError:
                 pass
 
