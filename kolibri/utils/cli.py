@@ -1,7 +1,7 @@
 """
 We do not import unicode_literals here as it causes Click to
-give some very aggressive ewarning errors about subtle bugs
-so, to avoid these errors and these subtle bugs, we use
+give some very aggressive warning errors about subtle bugs.
+So, to avoid these errors and these subtle bugs, we use
 explicit unicode literals in the following.
 """
 from __future__ import absolute_import
@@ -110,11 +110,11 @@ pythonpath_option = click.Option(
     help=u"Add a path to the Python path",
 )
 
-skipupdate_option = click.Option(
-    param_decls=["--skipupdate"],
+skip_update_option = click.Option(
+    param_decls=["--skip-update"],
     default=False,
     is_flag=True,
-    help=u"Don't run update logic - useful if running two kolibri commands in parallel.",
+    help=u"Do not run update logic. (Useful when running multiple Kolibri commands in parallel)",
 )
 
 
@@ -129,7 +129,7 @@ initialize_params = [
     debug_option,
     settings_option,
     pythonpath_option,
-    skipupdate_option,
+    skip_update_option,
 ]
 
 
@@ -193,17 +193,15 @@ class DefaultDjangoOptions(object):
         self.pythonpath = pythonpath
 
 
-def initialize(skipupdate=False):
+def initialize(skip_update=False):
     """
     Currently, always called before running commands. This may change in case
     commands that conflict with this behavior show up.
-
-    :param: debug: Tells initialization to setup logging etc.
     """
     params = get_initialize_params()
 
     debug = params["debug"]
-    skipupdate = skipupdate or params["skipupdate"]
+    skip_update = skip_update or params["skip_update"]
     settings = params["settings"]
     pythonpath = params["pythonpath"]
 
@@ -240,7 +238,7 @@ def initialize(skipupdate=False):
             )
         raise
 
-    if version_updated(kolibri.__version__, version) and not skipupdate:
+    if version_updated(kolibri.__version__, version) and not skip_update:
         if should_back_up(kolibri.__version__, version):
             # Non-dev version change, make a backup no matter what.
             from kolibri.core.deviceadmin.utils import dbbackup
@@ -307,12 +305,12 @@ def update(old_version, new_version):
     cache.clear()
 
 
-@click.group()
+@click.group(help=u"Kolibri management commands")
 @click.version_option(version=kolibri.__version__)
 def main():
     """
     Kolibri's main function.
-    \f
+
     Utility functions should be callable for unit testing purposes, but remember
     to use main() for integration tests in order to test the argument API.
     """
@@ -326,7 +324,11 @@ def create_startup_lock(port):
         logger.warn(u"Impossible to create file lock to communicate starting process")
 
 
-@main.command(cls=KolibriDjangoCommand)
+@main.command(
+    cls=KolibriDjangoCommand,
+    help=u"Start the Kolibri process",
+    context_settings=dict(ignore_unknown_options=True, allow_extra_args=True),
+)
 @click.option(
     "--port",
     default=OPTIONS["Deployment"]["HTTP_PORT"],
@@ -334,16 +336,19 @@ def create_startup_lock(port):
     help=u"Port on which to run Kolibri",
 )
 @click.option(
-    "--daemon/--foreground", default=True, help=u"Run Kolibri as a background daemon"
+    "--background/--foreground",
+    default=True,
+    help=u"Run Kolibri as a background process",
 )
-def start(port, daemon):
+@click.pass_context
+def start(context, port, background):
     """
-    Start Kolibri
     Start the server on given port.
-    \f
-    :param: port: Port number (default: 8080)
-    :param: daemon: Fork to background process (default: True)
     """
+
+    if "--daemon" in context.args:
+        logger.warning(u"'--daemon' is deprecated in favor of '--background'")
+        background = True
 
     create_startup_lock(port)
 
@@ -359,15 +364,15 @@ def start(port, daemon):
     # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
     # a better fix. See https://github.com/learningequality/kolibri/issues/4821
     if sys.platform == "darwin":
-        daemon = False
+        background = False
 
     run_cherrypy = OPTIONS["Server"]["CHERRYPY_START"]
 
-    if not daemon:
-        logger.info(u"Running 'kolibri start' in foreground...")
+    if not background:
+        logger.info(u"Running Kolibri")
 
     else:
-        logger.info(u"Running 'kolibri start' as daemon (system service)")
+        logger.info(u"Running Kolibri as background process")
 
     if run_cherrypy:
         __, urls = server.get_urls(listen_port=port)
@@ -385,15 +390,15 @@ def start(port, daemon):
             sys.stderr.write("\t{}\n".format(addr))
         sys.stderr.write("\n")
     else:
-        logger.info(u"Starting Kolibri background services")
+        logger.info(u"Starting Kolibri background workers")
 
     # Daemonize at this point, no more user output is needed
-    if daemon:
+    if background:
 
         from django.conf import settings
 
         kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
-        logger.info(u"Going to daemon mode, logging to {0}".format(kolibri_log))
+        logger.info(u"Going to background mode, logging to {0}".format(kolibri_log))
 
         kwargs = {}
         # Truncate the file
@@ -407,10 +412,9 @@ def start(port, daemon):
     server.start(port=port, run_cherrypy=run_cherrypy)
 
 
-@main.command(cls=KolibriCommand)
+@main.command(cls=KolibriCommand, help=u"Stop the Kolibri process")
 def stop():
     """
-    Stop Kolibri
     Stops the server unless it isn't running
     """
     try:
@@ -443,7 +447,7 @@ def stop():
         sys.exit(0)
 
 
-@main.command(cls=KolibriCommand)
+@main.command(cls=KolibriCommand, help=u"Show the status of the Kolibri process")
 def status():
     """
     How is Kolibri doing?
@@ -457,7 +461,7 @@ def status():
     TODO: We can't guarantee the above behavior because of the django stack
     being loaded regardless
 
-    :returns: status_code, key has description in status.codes
+    Exits with status_code, key has description in status.codes
     """
     status_code, urls = server.get_urls()
 
@@ -492,30 +496,37 @@ status.codes = {
 }
 
 
-@main.command(cls=KolibriDjangoCommand)
+@main.command(
+    cls=KolibriDjangoCommand,
+    help=u"Start worker processes",
+    context_settings=dict(ignore_unknown_options=True, allow_extra_args=True),
+)
 @click.option(
-    "--daemon/--foreground",
+    "--background/--foreground",
     default=True,
     help=u"Run Kolibri services as a background task",
 )
-def services(daemon):
+@click.pass_context
+def services(context, background):
     """
     Start the kolibri background services.
-    \f
-    :param: daemon: Fork to background process (default: True)
     """
 
     create_startup_lock(None)
 
+    if "--daemon" in context.args:
+        logger.warning(u"'--daemon' is deprecated in favor of '--background'")
+        background = True
+
     logger.info(u"Starting Kolibri background services")
 
     # Daemonize at this point, no more user output is needed
-    if daemon:
+    if background:
 
         from django.conf import settings
 
         kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
-        logger.info(u"Going to daemon mode, logging to {0}".format(kolibri_log))
+        logger.info(u"Going to background mode, logging to {0}".format(kolibri_log))
 
         kwargs = {}
         # Truncate the file
@@ -549,27 +560,18 @@ def setup_logging(debug=False):
 @main.command(
     cls=KolibriDjangoCommand,
     context_settings=dict(ignore_unknown_options=True, allow_extra_args=True),
+    help=u"Invoke a Django management command",
 )
 @click.pass_context
 def manage(ctx):
-    """
-    Invokes a django management command
-    \f
-    :param: cmd: The command to invoke, for instance "runserver"
-    :param: args: arguments for the command
-    """
     if ctx.args:
         logger.info(u"Invoking command {}".format(" ".join(ctx.args)))
     execute_from_command_line(["kolibri manage"] + ctx.args)
 
 
-@main.command(cls=KolibriDjangoCommand)
+@main.command(cls=KolibriDjangoCommand, help=u"Launch a Django shell")
 @click.pass_context
 def shell(ctx):
-    """
-    Display a Django shell
-    \f
-    """
     execute_from_command_line(["kolibri manage", "shell"] + ctx.args)
 
 
@@ -577,7 +579,7 @@ ENABLE = "enable"
 DISABLE = "disable"
 
 
-@main.command(cls=KolibriCommand)
+@main.command(cls=KolibriCommand, help=u"Manage Kolibri plugins")
 @click.argument("plugin_name", nargs=1)
 @click.argument("command", type=click.Choice([ENABLE, DISABLE]))
 def plugin(plugin_name, command):
@@ -585,11 +587,11 @@ def plugin(plugin_name, command):
     Allows a Kolibri plugin to be either enabled or disabled.
     """
     if command == ENABLE:
-        logger.info(u"Enabling Kolibri plugin {}.".format(plugin_name))
+        logger.info(u"Enabling plugin '{}'".format(plugin_name))
         enable_plugin(plugin_name)
 
     if command == DISABLE:
-        logger.info(u"Disabling Kolibri plugin {}.".format(plugin_name))
+        logger.info(u"Disabling plugin '{}'".format(plugin_name))
         disable_plugin(plugin_name)
 
     config.save()
