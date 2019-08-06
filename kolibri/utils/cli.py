@@ -333,17 +333,6 @@ def create_startup_lock(port):
         logger.warn(u"Impossible to create file lock to communicate starting process")
 
 
-def get_deprecated_daemon_arg(background):
-    try:
-        params = click.get_current_context().params
-        if "daemon" in params:
-            logger.warning(u"'--daemon' is deprecated in favor of '--background'")
-            return params["daemon"]
-    except RuntimeError:
-        pass
-    return background
-
-
 @main.command(cls=KolibriDjangoCommand, help=u"Start the Kolibri process")
 @click.option(
     "--port",
