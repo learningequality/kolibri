@@ -1,3 +1,4 @@
 view-all-content-types.feature
 appbar-scroll.feature
 appbar-user-type.feature
+skip-navigation-link.feature

@@ -167,7 +167,7 @@
     <KModal
       v-if="whatsThisModalVisible"
       :title="$tr('whatsThis')"
-      :submitText="closeString"
+      :submitText="coreString('closeAction')"
       @submit="whatsThisModalVisible = false"
       @cancel="whatsThisModalVisible = false"
     >
@@ -207,13 +207,10 @@
   import UiAlert from 'keen-ui/src/UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import urls from 'kolibri.urls';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
   import getUrlParameter from '../getUrlParameter';
   import FacilityModal from './FacilityModal';
-
-  const closeString = crossComponentTranslator(FacilityModal).$tr('close');
 
   export default {
     name: 'SignInPage',
@@ -356,9 +353,6 @@
         }
         // query is before hash
         return getUrlParameter('next');
-      },
-      closeString() {
-        return closeString;
       },
     },
     watch: {

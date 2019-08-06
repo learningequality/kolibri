@@ -1,16 +1,17 @@
 import { mapState } from 'vuex';
+import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 import { ClassesPageNames } from '../../constants';
-import { learnStrings } from '../commonLearnStrings';
 import { classAssignmentsLink, lessonPlaylistLink } from './classPageLinks';
 
 // A mixin intended for use inside of learn plugin breadcrumbs
 export default {
+  mixins: [commonCoreStrings],
   computed: {
     classesBreadcrumbs() {
       const defaultCrumbs = [
         // Link to All Classes Page
         {
-          text: learnStrings.$tr('classesLabel'),
+          text: this.coreString('classesLabel'),
           link: {
             name: ClassesPageNames.ALL_CLASSES,
           },
