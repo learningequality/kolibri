@@ -103,6 +103,7 @@
   }
 
   .link {
+    display: block;
     text-decoration: none;
   }
 
