@@ -1,16 +1,14 @@
-var fs = require('fs');
-var path = require('path');
-var url = require('url');
-var espree = require('espree');
-var escodegen = require('escodegen');
-var mkdirp = require('mkdirp');
-var sortBy = require('lodash/sortBy');
-var createCsvWriter = require('csv-writer').createObjectCsvWriter;
-var logging = require('./logging');
-var coreAliases = require('./apiSpecExportTools').coreAliases;
+const url = require('url');
+const espree = require('espree');
+const escodegen = require('escodegen');
+const mkdirp = require('mkdirp');
+const sortBy = require('lodash/sortBy');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const logging = require('./logging');
+const coreAliases = require('./apiSpecExportTools').coreAliases;
 
 // Find alias for i18n utils, do this so that we don't have to hard code it here
-var i18nAlias = Object.keys(coreAliases()).find(key => key.includes('i18n'));
+const i18nAlias = Object.keys(coreAliases()).find(key => key.includes('i18n'));
 
 function isCamelCase(str) {
   return /^[a-z][a-zA-Z0-9]*$/.test(str);
@@ -165,14 +163,42 @@ ExtractStrings.prototype.apply = function(compiler) {
                             `$trs id "${message.key.name}" should be in camelCase. Found in ${module.resource}`
                           );
                         }
-                        // Check that the value is valid, and not an expression
-                        if (!message.value.value) {
-                          logging.error(
-                            `The value for $trs "${message.key.name}", is not valid. Make sure it is not an expression. Found in ${module.resource}.`
-                          );
+                        // First, check if the value is an object
+                        // and extract the string and context.
+                        if (message.value.type === 'ObjectExpression') {
+                          const stringNode = message.value.properties.filter(
+                            prop => prop.key.name === 'string'
+                          )[0];
+                          const contextNode = message.value.properties.filter(
+                            prop => prop.key.name === 'context'
+                          )[0];
+
+                          const string =
+                            stringNode && stringNode.value ? stringNode.value.value : null;
+                          const context =
+                            contextNode && contextNode.value ? contextNode.value.value : '';
+
+                          // Ensure that there is a value for the string key passed.
+                          if (!string) {
+                            logging.error(
+                              `The value for $trs ${message.key.name} is not valid. Make sure it is a
+                              string or an object including a key 'string'. Found in ${module.resource}`
+                            );
+                          }
+                          messages[message.key.name] = { string, context };
                         } else {
-                          messages[message.key.name] = message.value.value;
+                          // If the value is not an object,
+                          // ensure a value is passed in the first place.
+                          if (!message.value.value) {
+                            logging.error(
+                              `The value for $trs ${message.key.name} is not valid. Make sure it is a
+                              string or an object including a key 'string'. Found in ${module.resource}`
+                            );
+                          } else {
+                            messages[message.key.name] = message.value.value;
+                          }
                         }
+                        // Check that the value is valid, and not an expression
                       });
                       // We also want to take a note of the name space
                       // these messages have been put in too!
@@ -356,11 +382,21 @@ function toCSV(path, messages) {
     ],
   });
 
-  const csvData = Object.keys(messages).map(key => {
+  const csvData = Object.keys(messages).map(identifier => {
+    let sourceString,
+      context = '';
+
+    if (typeof messages[identifier] === 'object') {
+      sourceString = messages[identifier]['string'];
+      context = messages[identifier]['context'];
+    } else {
+      sourceString = messages[identifier];
+    }
+
     return {
-      identifier: key,
-      sourceString: messages[key],
-      context: '',
+      identifier,
+      sourceString,
+      context,
     };
   });
 
