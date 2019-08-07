@@ -22,20 +22,15 @@ from django.core.management.base import handle_default_options
 from django.db.utils import DatabaseError
 
 import kolibri
-from .debian_check import check_debian_user
-
-# Check if the current user is the kolibri user when running kolibri from .deb.
-# Putting it here because importing server module creates KOLIBRI_HOME directory.
-check_debian_user()
-
 from . import server  # noqa
+from .debian_check import check_debian_user
 from .sanity_checks import check_content_directory_exists_and_writable  # noqa
-from .sanity_checks import check_other_kolibri_running  # noqa
 from .sanity_checks import check_log_file_location  # noqa
+from .sanity_checks import check_other_kolibri_running  # noqa
 from .system import become_daemon  # noqa
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
-from kolibri.core.upgrade import run_upgrades  # noqa
 from kolibri.core.upgrade import matches_version  # noqa
+from kolibri.core.upgrade import run_upgrades  # noqa
 from kolibri.plugins.utils import disable_plugin  # noqa
 from kolibri.plugins.utils import enable_plugin  # noqa
 from kolibri.utils.conf import config  # noqa
@@ -98,6 +93,7 @@ debug_option = click.Option(
     is_flag=True,
     help=u"Output debug messages (for development)",
 )
+
 settings_option = click.Option(
     param_decls=["--settings"],
     callback=validate_module,
@@ -117,6 +113,13 @@ skip_update_option = click.Option(
     help=u"Do not run update logic. (Useful when running multiple Kolibri commands in parallel)",
 )
 
+noinput_option = click.Option(
+    param_decls=["--no-input"],
+    default=False,
+    is_flag=True,
+    help=u"Suppress user prompts",
+)
+
 
 def get_debug_param():
     try:
@@ -130,6 +133,7 @@ initialize_params = [
     settings_option,
     pythonpath_option,
     skip_update_option,
+    noinput_option,
 ]
 
 
@@ -178,6 +182,9 @@ class KolibriDjangoCommand(click.Command):
         super(KolibriDjangoCommand, self).__init__(*args, **kwargs)
 
     def invoke(self, ctx):
+        # Check if the current user is the kolibri user when running kolibri from Debian installer.
+        check_debian_user(ctx.params.pop("no_input", None))
+
         setup_logging(debug=get_debug_param())
         initialize()
         for param in initialize_params:
@@ -375,6 +382,9 @@ def start(port, background):
         logger.info(u"Running Kolibri as background process")
 
     if run_cherrypy:
+        # Check if the port is occupied
+        check_other_kolibri_running(port)
+
         __, urls = server.get_urls(listen_port=port)
         if not urls:
             logger.error(

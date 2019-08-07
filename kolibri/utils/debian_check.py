@@ -8,8 +8,15 @@ from .conf import KOLIBRI_HOME
 from .server import installation_type
 
 
-def check_debian_user(noninteractive=False):
-    if noninteractive:
+def check_debian_user(noinput=False):
+    """
+    A user account is selected to run the system service during the initial setup
+    of the Debian package installation. This function checks whether the current
+    user who tries to run Kolibri is the user account set in the configuration.
+    Users are free to choose whether they want to continue as the current user even
+    if it is not the user defined in the configuration.
+    """
+    if noinput:
         return
 
     # Check if Kolibri is installed through the Kolibri Debian package or kolibri-server
@@ -53,4 +60,6 @@ def check_debian_user(noninteractive=False):
         "run the command as '{}'? [y/N] ".format(current_user)
     )
     if not cont.strip().lower() == "y":
+        # Remove the previously created KOLIBRI_HOME directory
+        os.rmdir(KOLIBRI_HOME)
         sys.exit(0)
