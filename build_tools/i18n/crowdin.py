@@ -165,48 +165,6 @@ def _crowdin_files(branch, details):
     )
 
 
-def _format_json_files():
-    """
-    re-print all json files to ensure consistent diffs with ordered keys
-    """
-    locale_paths = []
-    for lang_object in utils.supported_languages(include_in_context=True):
-        locale_paths.append(utils.local_locale_path(lang_object))
-        locale_paths.append(utils.local_perseus_locale_path(lang_object))
-    for locale_path in locale_paths:
-        for file_name in os.listdir(utils.local_locale_csv_path()):
-            if not file_name.endswith(".csv"):
-                continue
-            file_path = os.path.join(utils.local_locale_csv_path(), file_name)
-            with io.open(file_path, mode="r", encoding="utf-8") as f:
-                json_data = _locale_data_from_csv(f, locale_path)
-                data = json.dumps(json_data)
-            utils.json_dump_formatted(
-                json.loads(data), locale_path, file_name.replace("csv", "json")
-            )
-
-
-def _locale_data_from_csv(file_data, locale_path):
-    csv_reader = csv.reader(file_data)
-    headers = csv_reader.__next__()
-    locale = locale_path.split("/")[-2]
-    json = dict()
-
-    try:
-        locale_index = headers.index(locale)
-    except:
-        # If there is no locale in the headers of the file, then there
-        # certainly aren't any translations. So just return empty dict
-        return json
-
-    for row in csv_reader:
-        if(len(row) == 0):
-            return json
-        json[row[0]] = row[locale_index]
-
-    return json
-
-
 def _is_string_file(file_name):
     return file_name.endswith(".po") or file_name.endswith("-messages.csv")
 
@@ -322,6 +280,57 @@ def command_upload_translations(branch):
 
 
 """
+Convert CSV to JSON command
+"""
+
+def _format_json_files():
+    """
+    re-print all json files to ensure consistent diffs with ordered keys
+    """
+    locale_paths = []
+    for lang_object in utils.supported_languages(include_in_context=True):
+        locale_paths.append(utils.local_locale_path(lang_object))
+        locale_paths.append(utils.local_perseus_locale_path(lang_object))
+    for locale_path in locale_paths:
+        for file_name in os.listdir(utils.local_locale_csv_path()):
+            if not file_name.endswith(".csv"):
+                continue
+            file_path = os.path.join(utils.local_locale_csv_path(), file_name)
+            with io.open(file_path, mode="r", encoding="utf-8") as f:
+                json_data = _locale_data_from_csv(f, locale_path)
+                data = json.dumps(json_data)
+            utils.json_dump_formatted(
+                json.loads(data), locale_path, file_name.replace("csv", "json")
+            )
+
+
+def _locale_data_from_csv(file_data, locale_path):
+    csv_reader = csv.reader(file_data)
+    headers = csv_reader.__next__()
+    locale = locale_path.split("/")[-2]
+    json = dict()
+
+    try:
+        locale_index = headers.index(locale)
+    except:
+        # If there is no locale in the headers of the file, then there
+        # certainly aren't any translations. So just return empty dict
+        return json
+
+    for row in csv_reader:
+        if(len(row) == 0):
+            return json
+        json[row[0]] = row[locale_index]
+
+    return json
+
+
+def command_convert():
+    _format_json_files()
+    logging.info("Kolibri: CSV to JSON conversion succeeded!")
+
+
+"""
 Download command
 """
 
@@ -368,6 +377,7 @@ def command_download(branch):
         except:
             pass
 
+    ## TODO Don't need to format here... going to do this in the new command.
     _format_json_files()  # clean them up to make git diffs more meaningful
     logging.info("Crowdin: download succeeded!")
 
@@ -563,6 +573,9 @@ def main():
         "download", help="Download translations from Crowdin"
     )
     parser_download.add_argument("branch", help="Branch name", type=str)
+    parser_convert = subparsers.add_parser(
+        "convert", help="Convert downloaded CSVs to JSON files"
+    )
     parser_upload = subparsers.add_parser(
         "upload-sources", help="Upload English sources to Crowdin"
     )
@@ -604,6 +617,8 @@ def main():
         command_stats(args.branch)
     elif args.command == "upload-translations":
         command_upload_translations(args.branch)
+    elif args.command == "convert":
+        command_convert()
     else:
         logging.warning("Unknown command\n")
         parser.print_help(sys.stderr)

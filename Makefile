@@ -201,11 +201,15 @@ i18n-pretranslate:
 i18n-pretranslate-approve-all:
 	python build_tools/i18n/crowdin.py pretranslate ${branch} --approve-all
 
+i18n-convert:
+	python build_tools/i18n/crowdin.py convert
+
 i18n-download:
 	python build_tools/i18n/crowdin.py rebuild ${branch}
 	python build_tools/i18n/crowdin.py download ${branch}
 	node build_tools/i18n/intl_code_gen.js
 	$(MAKE) i18n-django-compilemessages
+	python build_tools/i18n/crowdin.py convert
 
 i18n-download-source-fonts:
 	python build_tools/i18n/fonts.py download-source-fonts
