@@ -128,12 +128,12 @@ def get_debug_param():
         return debug_option.default
 
 
-initialize_params = [
-    debug_option,
+base_params = [debug_option, noinput_option]
+
+initialize_params = base_params + [
     settings_option,
     pythonpath_option,
     skip_update_option,
-    noinput_option,
 ]
 
 
@@ -154,14 +154,17 @@ class KolibriCommand(click.Command):
     allow_extra_args = True
 
     def __init__(self, *args, **kwargs):
-        kwargs["params"] = [debug_option] + (
+        kwargs["params"] = base_params + (
             kwargs["params"] if "params" in kwargs else []
         )
         super(KolibriCommand, self).__init__(*args, **kwargs)
 
     def invoke(self, ctx):
+        # Check if the current user is the kolibri user when running kolibri from Debian installer.
+        check_debian_user(ctx.params.get("no_input"))
         setup_logging(debug=get_debug_param())
-        ctx.params.pop("debug")
+        for param in base_params:
+            ctx.params.pop(param.name)
         return super(KolibriCommand, self).invoke(ctx)
 
 
@@ -183,8 +186,7 @@ class KolibriDjangoCommand(click.Command):
 
     def invoke(self, ctx):
         # Check if the current user is the kolibri user when running kolibri from Debian installer.
-        check_debian_user(ctx.params.pop("no_input", None))
-
+        check_debian_user(ctx.params.get("no_input"))
         setup_logging(debug=get_debug_param())
         initialize()
         for param in initialize_params:
