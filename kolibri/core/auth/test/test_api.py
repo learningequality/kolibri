@@ -7,7 +7,6 @@ import sys
 from importlib import import_module
 
 import factory
-import mock
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from rest_framework import status
