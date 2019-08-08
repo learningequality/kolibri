@@ -296,7 +296,9 @@ class SignUpViewSet(viewsets.ViewSet):
             "username": request.data.get("username", ""),
             "full_name": request.data.get("full_name", ""),
             "password": request.data.get("password", ""),
-            "facility": Facility.get_default_facility().id,
+            "facility": request.data.get(
+                "facility", Facility.get_default_facility().id
+            ),
         }
 
     def create(self, request):
