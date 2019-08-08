@@ -6,6 +6,7 @@
 
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
+const get = require('lodash/get');
 const utils = require('../utils');
 const constants = require('../constants');
 
@@ -33,7 +34,11 @@ const create = context => {
     {
       'CallExpression[callee.type="MemberExpression"]'(node) {
         if (node.callee.property.name == $TR_FUNCTION && node.arguments.length) {
-          node.arguments.forEach(arg => usedStrings.push(arg.value));
+          node.arguments.forEach(arg => {
+            if (get(arg, ['value'])) {
+              usedStrings.push(arg.value);
+            }
+          });
         }
       },
     },
@@ -43,7 +48,7 @@ const create = context => {
     {
       ObjectExpression(node) {
         node.properties.forEach(prop => {
-          if (prop.value.value) {
+          if (get(prop, ['value', 'value'])) {
             usedStrings.push(prop.value.value);
           }
         });
@@ -52,7 +57,7 @@ const create = context => {
     {
       ArrayExpression(node) {
         node.elements.forEach(elem => {
-          if (elem.value) {
+          if (get(elem, ['value'])) {
             usedStrings.push(elem.value);
           }
         });
@@ -74,7 +79,11 @@ const create = context => {
     {
       'CallExpression[callee.type="Identifier"]'(node) {
         if (node.callee.name == $TR_FUNCTION && node.arguments.length) {
-          node.arguments.forEach(arg => Boolean(arg.value) && usedStrings.push(arg.value));
+          node.arguments.forEach(arg => {
+            if (get(arg, ['value'])) {
+              usedStrings.push(arg.value);
+            }
+          });
         }
       },
     },
