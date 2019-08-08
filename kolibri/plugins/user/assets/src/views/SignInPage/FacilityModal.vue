@@ -3,9 +3,7 @@
   <KModal
     :title="$tr('facilitySelectionModalHeader')"
     :submitText="$tr('submitFacilitySelectionButtonPrompt')"
-    :cancelText="$tr('close')"
     @submit="submitAndClose"
-    @cancel="$emit('cancel')"
   >
     {{ $tr('facilitySelectionPrompt') }}
 
@@ -34,9 +32,10 @@
       KRadioButton,
     },
     data() {
+      const facilityId = this.$store.state.facilityId || this.$store.getters.facilities[0].id;
       return {
         // currentFacilityId uses session, with is anonymous in sign-in-page
-        selectedFacility: this.$store.state.facilityId,
+        selectedFacility: facilityId,
       };
     },
     computed: {
