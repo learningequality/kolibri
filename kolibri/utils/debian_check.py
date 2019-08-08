@@ -1,6 +1,7 @@
 import getpass
 import os
 import sys
+from shutil import rmtree
 
 from builtins import input
 
@@ -22,7 +23,7 @@ def check_debian_user(noinput=False):
     # Check if Kolibri is installed through the Kolibri Debian package or kolibri-server
     # Debian package
     install_type = installation_type()
-    if install_type not in ["dpkg", "apt"] or not install_type.startswith("kolibri"):
+    if install_type not in ["dpkg", "apt"] and not install_type.startswith("kolibri"):
         return
 
     with open("/etc/kolibri/username", "r") as f:
@@ -61,5 +62,5 @@ def check_debian_user(noinput=False):
     )
     if not cont.strip().lower() == "y":
         # Remove the previously created KOLIBRI_HOME directory
-        os.rmdir(KOLIBRI_HOME)
+        rmtree(KOLIBRI_HOME)
         sys.exit(0)
