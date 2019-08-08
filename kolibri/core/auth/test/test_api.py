@@ -612,72 +612,69 @@ class AnonSignUpTestCase(APITestCase):
         self.facility = FacilityFactory.create()
         provision_device()
 
+    def post_to_sign_up(self, data):
+        return self.client.post(reverse("kolibri:core:signup-list"), data=data)
+
     def test_anon_sign_up_creates_user(self):
-        response = self.client.post(
-            reverse("kolibri:core:signup-list"),
-            data={"username": "user", "password": DUMMY_PASSWORD},
+        response = self.post_to_sign_up(
+            {"username": "user", "password": DUMMY_PASSWORD}
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(models.FacilityUser.objects.all())
 
     def test_anon_sign_up_returns_user(self):
         full_name = "Bob Lee"
-        response = self.client.post(
-            reverse("kolibri:core:signup-list"),
-            data={
-                "full_name": full_name,
-                "username": "user",
-                "password": DUMMY_PASSWORD,
-            },
+        response = self.post_to_sign_up(
+            {"full_name": full_name, "username": "user", "password": DUMMY_PASSWORD}
         )
         self.assertEqual(response.data["username"], "user")
         self.assertEqual(response.data["full_name"], full_name)
 
     def test_create_user_with_same_username_case_insensitive_fails(self):
         FacilityUserFactory.create(username="bob", facility=self.facility)
-        response = self.client.post(
-            reverse("kolibri:core:signup-list"),
-            data={"username": "BOB", "password": DUMMY_PASSWORD},
-        )
+        response = self.post_to_sign_up({"username": "BOB", "password": DUMMY_PASSWORD})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(len(models.FacilityUser.objects.all()), 1)
 
     def test_create_user_with_same_username_other_facility(self):
         user = FacilityUserFactory.create(username="bob")
         other_facility = models.Facility.objects.exclude(id=user.facility.id)[0]
-        with mock.patch(
-            "kolibri.core.auth.models.Facility.get_default_facility",
-            return_value=other_facility,
-        ):
-            response = self.client.post(
-                reverse("kolibri:core:signup-list"),
-                data={"username": "bob", "password": DUMMY_PASSWORD},
-            )
+        response = self.post_to_sign_up(
+            {
+                "username": "bob",
+                "password": DUMMY_PASSWORD,
+                "facility": other_facility.id,
+            }
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(len(models.FacilityUser.objects.all()), 2)
+        self.assertEqual(
+            len(models.FacilityUser.objects.filter(facility=self.facility.id)), 1
+        )
+        self.assertEqual(
+            len(models.FacilityUser.objects.filter(facility=other_facility.id)), 1
+        )
+        self.assertEqual(
+            models.FacilityUser.objects.get(id=response.data["id"]).facility.id,
+            other_facility.id,
+        )
 
     def test_create_bad_username_fails(self):
-        response = self.client.post(
-            reverse("kolibri:core:signup-list"),
-            data={"username": "(***)", "password": DUMMY_PASSWORD},
+        response = self.post_to_sign_up(
+            {"username": "(***)", "password": DUMMY_PASSWORD}
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(models.FacilityUser.objects.all())
 
     def test_sign_up_also_logs_in_user(self):
         session_key = self.client.session.session_key
-        self.client.post(
-            reverse("kolibri:core:signup-list"),
-            data={"username": "user", "password": DUMMY_PASSWORD},
-        )
+        self.post_to_sign_up({"username": "user", "password": DUMMY_PASSWORD})
         self.assertNotEqual(session_key, self.client.session.session_key)
 
     def test_sign_up_able_no_guest_access(self):
         self.facility.dataset.allow_guest_access = False
         self.facility.dataset.save()
-        response = self.client.post(
-            reverse("kolibri:core:signup-list"),
-            data={"username": "user", "password": DUMMY_PASSWORD},
+        response = self.post_to_sign_up(
+            {"username": "user", "password": DUMMY_PASSWORD}
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(models.FacilityUser.objects.all())
