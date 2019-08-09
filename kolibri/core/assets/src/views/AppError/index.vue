@@ -3,33 +3,31 @@
   <div role="alert" class="app-error">
 
     <img src="./app-error-bird.png">
-    <!-- Header message -->
+
     <h1>
-      {{ $tr('defaultErrorHeader') }}
+      {{ headerText }}
     </h1>
 
-    <p>
-      {{ $tr('defaultErrorMessage') }}
-    </p>
-
-    <p>
-      {{ $tr('defaultErrorResolution') }}
+    <p v-for="(paragraph, idx) in paragraphTexts" :key="idx">
+      {{ paragraph }}
     </p>
 
     <p>
       <KButton
+        v-if="!isPageNotFound"
         :text="$tr('pageReloadPrompt')"
         :primary="true"
         @click="reloadPage"
       />
       <KButton
-        :primary="false"
+        :primary="isPageNotFound"
         appearance="raised-button"
-        :text="$tr('defaultErrorExitPrompt')"
+        :text="exitButtonLabel"
         @click="handleClickBackToHome"
       />
     </p>
-    <p>
+
+    <p v-if="!isPageNotFound">
       <!-- link button to open reporting modal -->
       <KButton
         appearance="basic-link"
@@ -51,8 +49,29 @@
 
 <script>
 
+  import get from 'lodash/get';
+  import urls from 'kolibri.urls';
   import { mapActions } from 'vuex';
   import ReportErrorModal from './ReportErrorModal';
+
+  // Inspects URL and returns an enum of the plugin (enum values are "learn", "coach", etc.)
+  function getCurrentKolibriPlugin() {
+    const url = window.location.href;
+
+    if (url.includes(urls['kolibri:learn:learn']())) {
+      return 'LEARN';
+    } else if (url.includes(urls['kolibri:coach:coach']())) {
+      return 'COACH';
+    } else if (url.includes(urls['kolibri:devicemanagementplugin:device_management']())) {
+      return 'DEVICE';
+    } else if (url.includes(urls['kolibri:facilitymanagementplugin:facility_management']())) {
+      return 'FACILITY';
+    } else if (url.includes(urls['kolibri:user:user']())) {
+      // Probably won't be used, since Anonymous users are re-directed when
+      // trying to go to Profile page
+      return 'USER';
+    }
+  }
 
   export default {
     name: 'AppError',
@@ -63,6 +82,53 @@
       return {
         showDetailsModal: false,
       };
+    },
+    computed: {
+      headerText() {
+        if (this.isPageNotFound) {
+          return this.$tr('pageNotFoundHeader');
+        }
+        return this.$tr('defaultErrorHeader');
+      },
+      paragraphTexts() {
+        if (this.isPageNotFound) {
+          return [this.$tr('pageNotFoundMessage')];
+        }
+        return [this.$tr('defaultErrorMessage'), this.$tr('defaultErrorResolution')];
+      },
+      // HACK since the error is stored as a string, we have to re-parse it to get the error code
+      errorObject() {
+        if (this.$store.state.core.error) {
+          try {
+            return JSON.parse(this.$store.state.core.error);
+          } catch (err) {
+            return null;
+          }
+        }
+        return null;
+      },
+      isPageNotFound() {
+        // Returns 'true' only if method is 'GET' and code is '404'.
+        // Doesn't handle case where 'DELETE' or 'PATCH' request returns '404'.
+        return (
+          get(this.errorObject, 'status.code') === 404 &&
+          get(this.errorObject, 'request.method') === 'GET'
+        );
+      },
+      exitButtonLabel() {
+        let stringId;
+        if (this.isPageNotFound) {
+          stringId = {
+            LEARN: 'backToLearnLabel',
+            COACH: 'backToCoachLabel',
+            DEVICE: 'backToDeviceLabel',
+            FACILITY: 'backToFacilityLabel',
+          }[getCurrentKolibriPlugin()];
+        } else {
+          stringId = 'defaultErrorExitPrompt';
+        }
+        return this.$tr(stringId);
+      },
     },
     methods: {
       ...mapActions(['handleError']),
@@ -89,6 +155,12 @@
         'We care about your experience on Kolibri and are working hard to fix this issue.',
       defaultErrorResolution: 'Try refreshing this page or going back to the home page.',
       defaultErrorReportPrompt: 'Help us by reporting this error',
+      pageNotFoundHeader: 'Page not found',
+      pageNotFoundMessage: "Sorry, we can't seem to find the page you're looking for.",
+      backToCoachLabel: 'Back to Coach',
+      backToDeviceLabel: 'Back to Device',
+      backToFacilityLabel: 'Back to Facility',
+      backToLearnLabel: 'Back to Learn',
     },
   };
 
