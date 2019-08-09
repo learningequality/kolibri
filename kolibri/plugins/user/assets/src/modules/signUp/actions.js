@@ -1,7 +1,7 @@
-import { SignUpResource } from 'kolibri.resources';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+import { SignUpResource } from '../../apiResource';
 
 export function signUpNewUser(store, payload) {
   store.commit('RESET_STATE');
