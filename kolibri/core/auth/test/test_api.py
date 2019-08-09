@@ -647,15 +647,26 @@ class AnonSignUpTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
-            len(models.FacilityUser.objects.filter(facility=self.facility.id)), 1
+            models.FacilityUser.objects.filter(facility=self.facility.id).count(), 1
         )
         self.assertEqual(
-            len(models.FacilityUser.objects.filter(facility=other_facility.id)), 1
+            models.FacilityUser.objects.filter(facility=other_facility.id).count(), 1
         )
+
+    def test_create_user_for_specific_facility(self):
+        other_facility = FacilityFactory.create()
+        response = self.post_to_sign_up(
+            {
+                "username": "bob",
+                "password": DUMMY_PASSWORD,
+                "facility": other_facility.id,
+            }
+        )
+        user_id = response.data["id"]
         self.assertEqual(
-            models.FacilityUser.objects.get(id=response.data["id"]).facility.id,
-            other_facility.id,
+            models.FacilityUser.objects.get(id=user_id).facility.id, other_facility.id
         )
+        self.assertTrue(other_facility.get_members().filter(id=user_id).exists())
 
     def test_create_bad_username_fails(self):
         response = self.post_to_sign_up(
