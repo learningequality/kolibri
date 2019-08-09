@@ -104,7 +104,7 @@ def initialize_plugins(build_list):
     for build_item in build_list:
         if "*" in build_item:
             plugins += expand_glob(build_item)
-        else:
+        elif build_item:
             # No '*' in the module path, so just add it naively
             plugin = plugin_data(build_item)
             if plugin is not None:
