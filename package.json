@@ -18,7 +18,7 @@
     "watch": "kolibri-tools build dev --file ./build_tools/build_plugins.txt",
     "watch-hot": "yarn run watch --hot",
     "django-devserver": "kolibri manage --debug runserver --settings=kolibri.deployment.default.settings.dev \"0.0.0.0:8000\" ",
-    "services": "kolibri services --foreground --skipupdate",
+    "services": "kolibri services --foreground --skip-update",
     "devserver": "npm-run-all --parallel django-devserver lint-frontend:watch:format hashi-dev watch services",
     "devserver-warn": "npm-run-all --parallel django-devserver lint-frontend:watch hashi-dev watch services",
     "devserver-hot": "npm-run-all --parallel django-devserver lint-frontend:watch:format hashi-dev watch-hot services",
