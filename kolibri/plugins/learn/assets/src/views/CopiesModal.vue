@@ -45,20 +45,12 @@
 
   import toArray from 'lodash/toArray';
   import { mapActions } from 'vuex';
-  import KModal from 'kolibri.shared.KModal';
-  import KCircularLoader from 'kolibri.shared.KCircularLoader';
-  import KRouterLink from 'kolibri.shared.KRouterLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import sortBy from 'lodash/sortBy';
   import { PageNames } from '../constants';
 
   export default {
     name: 'CopiesModal',
-    components: {
-      KModal,
-      KCircularLoader,
-      KRouterLink,
-    },
     mixins: [commonCoreStrings],
     props: {
       uniqueId: {

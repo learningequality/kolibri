@@ -41,17 +41,8 @@
 
 <script>
 
-  import KButton from 'kolibri.shared.KButton';
-  import KRouterLink from 'kolibri.shared.KRouterLink';
-  import KExternalLink from 'kolibri.shared.KExternalLink';
-
   export default {
     name: 'Example',
-    components: {
-      KButton,
-      KRouterLink,
-      KExternalLink,
-    },
   };
 
 </script>

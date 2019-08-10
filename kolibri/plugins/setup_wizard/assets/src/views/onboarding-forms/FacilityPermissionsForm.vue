@@ -50,7 +50,6 @@
 <script>
 
   import { mapMutations } from 'vuex';
-  import KRadioButton from 'kolibri.shared.KRadioButton';
   import OnboardingForm from './OnboardingForm';
   import FacilityNameTextbox from './FacilityNameTextbox';
 
@@ -59,7 +58,6 @@
     components: {
       FacilityNameTextbox,
       OnboardingForm,
-      KRadioButton,
     },
     props: {
       submitText: {

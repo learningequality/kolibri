@@ -50,9 +50,7 @@
 <script>
 
   import { mapActions, mapMutations } from 'vuex';
-  import KRadioButton from 'kolibri.shared.KRadioButton';
   import { RemoteChannelResource } from 'kolibri.resources';
-  import KModal from 'kolibri.shared.KModal';
   import UiAlert from 'keen-ui/src/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentSources } from '../../../constants';
@@ -60,8 +58,6 @@
   export default {
     name: 'SelectImportSourceModal',
     components: {
-      KRadioButton,
-      KModal,
       UiAlert,
     },
     mixins: [commonCoreStrings],

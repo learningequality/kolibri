@@ -20,8 +20,6 @@
 
 <script>
 
-  import KTooltip from 'kolibri.shared.KTooltip';
-  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import { coachStringsMixin } from '../commonCoachStrings';
   import CoachStatusIcon from './CoachStatusIcon';
   import { statusStringsMixin, isValidVerb } from './statusStrings';
@@ -30,8 +28,6 @@
     name: 'LearnerProgressRatio',
     components: {
       CoachStatusIcon,
-      KLabeledIcon,
-      KTooltip,
     },
     mixins: [statusStringsMixin, coachStringsMixin],
     props: {

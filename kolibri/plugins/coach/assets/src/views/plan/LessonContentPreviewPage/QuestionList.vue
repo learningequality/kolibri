@@ -32,13 +32,9 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KButton from 'kolibri.shared.KButton';
 
   export default {
     name: 'QuestionList',
-    components: {
-      KButton,
-    },
     mixins: [themeMixin],
     props: {
       questions: {

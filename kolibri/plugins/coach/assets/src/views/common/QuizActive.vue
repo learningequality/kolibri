@@ -16,17 +16,11 @@
 
 <script>
 
-  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
-  import KIcon from 'kolibri.shared.KIcon';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { coachStringsMixin } from './commonCoachStrings';
 
   export default {
     name: 'QuizActive',
-    components: {
-      KLabeledIcon,
-      KIcon,
-    },
     mixins: [themeMixin, coachStringsMixin],
     props: {
       active: {

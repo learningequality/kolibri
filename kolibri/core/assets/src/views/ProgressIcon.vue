@@ -35,13 +35,11 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import KTooltip from 'kolibri.shared.KTooltip';
 
   export default {
     name: 'ProgressIcon',
     components: {
       UiIcon,
-      KTooltip,
     },
     mixins: [commonCoreStrings, themeMixin],
     props: {

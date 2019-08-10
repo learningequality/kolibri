@@ -8,17 +8,12 @@
 
 <script>
 
-  import KEmptyPlaceholder from 'kolibri.shared.KEmptyPlaceholder';
-
   const MINUTE = 60;
   const HOUR = MINUTE * 60;
   const DAY = HOUR * 24;
 
   export default {
     name: 'TimeDuration',
-    components: {
-      KEmptyPlaceholder,
-    },
     props: {
       seconds: {
         type: Number,

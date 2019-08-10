@@ -53,16 +53,10 @@
 
 <script>
 
-  import KExternalLink from 'kolibri.shared.KExternalLink';
-  import KModal from 'kolibri.shared.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'PrivacyInfoModal',
-    components: {
-      KExternalLink,
-      KModal,
-    },
     mixins: [commonCoreStrings],
     props: {
       hideUsersSection: {

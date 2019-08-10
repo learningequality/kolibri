@@ -15,14 +15,10 @@
 
 <script>
 
-  import KCircularLoader from 'kolibri.shared.KCircularLoader';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'LoadingScreen',
-    components: {
-      KCircularLoader,
-    },
     mixins: [themeMixin],
     computed: {
       backgroundStyle() {

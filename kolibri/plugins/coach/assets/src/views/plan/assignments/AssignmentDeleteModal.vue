@@ -18,15 +18,11 @@
 
 <script>
 
-  import KModal from 'kolibri.shared.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'AssignmentDeleteModal',
-    components: {
-      KModal,
-    },
     mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       modalTitle: {

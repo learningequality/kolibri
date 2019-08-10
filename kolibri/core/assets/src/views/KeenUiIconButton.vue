@@ -76,7 +76,6 @@
   import UiIcon from 'keen-ui/src/UiIcon';
   import UiPopover from 'keen-ui/src/UiPopover';
   import UiTooltip from 'keen-ui/src/UiTooltip';
-  import KCircularLoader from 'kolibri.shared.KCircularLoader';
 
   export default {
     name: 'KeenUiIconButton',
@@ -84,7 +83,6 @@
     components: {
       UiIcon,
       UiPopover,
-      KCircularLoader,
       UiTooltip,
     },
     mixins: [themeMixin],

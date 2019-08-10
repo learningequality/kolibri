@@ -13,7 +13,6 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import KExternalLink from 'kolibri.shared.KExternalLink';
   import urls from 'kolibri.urls';
 
   export default {
@@ -22,9 +21,6 @@
       return {
         title: this.$tr('documentTitle'),
       };
-    },
-    components: {
-      KExternalLink,
     },
     computed: {
       ...mapGetters(['canManageContent']),

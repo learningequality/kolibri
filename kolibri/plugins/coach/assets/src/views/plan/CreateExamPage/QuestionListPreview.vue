@@ -90,8 +90,6 @@
 <script>
 
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
-  import KGrid from 'kolibri.shared.KGrid';
-  import KGridItem from 'kolibri.shared.KGridItem';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
@@ -102,8 +100,6 @@
     components: {
       ContentRenderer,
       AssessmentQuestionListItem,
-      KGrid,
-      KGridItem,
       Draggable,
       DragContainer,
       DragHandle,

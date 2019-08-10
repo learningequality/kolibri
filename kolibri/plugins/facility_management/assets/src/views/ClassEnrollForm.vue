@@ -37,7 +37,6 @@
 
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KButton from 'kolibri.shared.KButton';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
@@ -46,7 +45,6 @@
   export default {
     name: 'ClassEnrollForm',
     components: {
-      KButton,
       PaginatedListContainer,
       UserTable,
     },

@@ -80,7 +80,6 @@
 
   import { mapState, mapActions } from 'vuex';
   import orderBy from 'lodash/orderBy';
-  import KButton from 'kolibri.shared.KButton';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
@@ -96,7 +95,6 @@
     components: {
       CoreTable,
       PlanHeader,
-      KButton,
       GroupRowTr,
       CreateGroupModal,
       RenameGroupModal,

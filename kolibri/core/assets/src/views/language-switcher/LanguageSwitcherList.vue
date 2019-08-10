@@ -46,7 +46,6 @@
 <script>
 
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
-  import KButton from 'kolibri.shared.KButton';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import languageSwitcherMixin from './mixin';
@@ -55,7 +54,6 @@
   export default {
     name: 'LanguageSwitcherList',
     components: {
-      KButton,
       LanguageSwitcherModal,
       UiIconButton,
     },

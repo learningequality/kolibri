@@ -43,7 +43,6 @@
 
   import { mapActions, mapState, mapGetters, mapMutations } from 'vuex';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import KModal from 'kolibri.shared.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TransferTypes } from '../../../constants';
   import DriveList from './DriveList';
@@ -53,7 +52,6 @@
     components: {
       DriveList,
       UiAlert,
-      KModal,
     },
     mixins: [commonCoreStrings],
     data() {

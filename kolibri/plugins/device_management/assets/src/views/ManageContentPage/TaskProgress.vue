@@ -60,9 +60,6 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KLinearLoader from 'kolibri.shared.KLinearLoader';
-  import KCircularLoader from 'kolibri.shared.KCircularLoader';
-  import KButton from 'kolibri.shared.KButton';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskTypes, TaskStatuses } from '../../constants';
 
@@ -73,11 +70,6 @@
 
   export default {
     name: 'TaskProgress',
-    components: {
-      KLinearLoader,
-      KCircularLoader,
-      KButton,
-    },
     mixins: [commonCoreStrings, themeMixin],
     props: {
       type: RequiredString,

@@ -1,26 +1,13 @@
 import { mapState, mapGetters } from 'vuex';
 import CoreBase from 'kolibri.coreVue.components.CoreBase';
 import CoreTable from 'kolibri.coreVue.components.CoreTable';
-import KModal from 'kolibri.shared.KModal';
-import KButton from 'kolibri.shared.KButton';
-import KCheckbox from 'kolibri.shared.KCheckbox';
-import KDropdownMenu from 'kolibri.shared.KDropdownMenu';
-import KGrid from 'kolibri.shared.KGrid';
-import KGridItem from 'kolibri.shared.KGridItem';
-import KFixedGrid from 'kolibri.shared.KFixedGrid';
-import KFixedGridItem from 'kolibri.shared.KFixedGridItem';
-import KRouterLink from 'kolibri.shared.KRouterLink';
 import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
-import KSelect from 'kolibri.shared.KSelect';
-import KIcon from 'kolibri.shared.KIcon';
-import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
 import router from 'kolibri.coreVue.router';
 import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import meanBy from 'lodash/meanBy';
 import maxBy from 'lodash/maxBy';
 import map from 'lodash/map';
 import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-import KPageContainer from 'kolibri.shared.KPageContainer';
 import filter from 'lodash/filter';
 import sortBy from 'lodash/sortBy';
 import { PageNames } from '../constants';
@@ -123,18 +110,6 @@ export default {
     CoreTable,
     ContentIcon,
     TopNavbar,
-    KModal,
-    KButton,
-    KCheckbox,
-    KDropdownMenu,
-    KGrid,
-    KGridItem,
-    KFixedGrid,
-    KFixedGridItem,
-    KRouterLink,
-    KSelect,
-    KIcon,
-    KLabeledIcon,
     Answer,
     BackLink,
     TruncatedItemList,
@@ -146,7 +121,6 @@ export default {
     QuizActive,
     HeaderTable,
     ElapsedTime,
-    KPageContainer,
     HeaderTableRow,
     HeaderTabs,
     HeaderTab,

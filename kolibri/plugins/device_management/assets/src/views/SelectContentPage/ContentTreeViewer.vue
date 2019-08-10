@@ -58,8 +58,6 @@
 
   import { mapState, mapActions, mapGetters } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import KCheckbox from 'kolibri.shared.KCheckbox';
-  import KBreadcrumbs from 'kolibri.shared.KBreadcrumbs';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import every from 'lodash/every';
   import omit from 'lodash/omit';
@@ -77,8 +75,6 @@
     name: 'ContentTreeViewer',
     components: {
       ContentNodeRow,
-      KBreadcrumbs,
-      KCheckbox,
       CoreTable,
     },
     data() {

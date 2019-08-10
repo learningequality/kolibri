@@ -34,23 +34,13 @@
 
 <script>
 
-  import KModal from 'kolibri.shared.KModal';
-  import KRadioButton from 'kolibri.shared.KRadioButton';
   import { currentLanguage } from 'kolibri.utils.i18n';
-  import KGrid from 'kolibri.shared.KGrid';
-  import KGridItem from 'kolibri.shared.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import languageSwitcherMixin from './mixin';
 
   export default {
     name: 'LanguageSwitcherModal',
-    components: {
-      KModal,
-      KGrid,
-      KGridItem,
-      KRadioButton,
-    },
     mixins: [commonCoreStrings, languageSwitcherMixin, responsiveWindow],
     data() {
       return {

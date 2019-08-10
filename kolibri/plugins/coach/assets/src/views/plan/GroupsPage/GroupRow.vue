@@ -28,19 +28,11 @@
 <script>
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KDropdownMenu from 'kolibri.shared.KDropdownMenu';
-  import KRouterLink from 'kolibri.shared.KRouterLink';
-  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
 
   export default {
     name: 'GroupRow',
-    components: {
-      KDropdownMenu,
-      KRouterLink,
-      KLabeledIcon,
-    },
     mixins: [commonCoach, commonCoreStrings, responsiveWindow],
     props: {
       group: {

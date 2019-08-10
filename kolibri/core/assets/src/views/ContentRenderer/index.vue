@@ -49,7 +49,6 @@
 
   import logger from 'kolibri.lib.logging';
   import heartbeat from 'kolibri.heartbeat';
-  import KCircularLoader from 'kolibri.shared.KCircularLoader';
 
   import UiAlert from 'keen-ui/src/UiAlert';
   import { defaultLanguage, languageValidator } from 'kolibri.utils.i18n';
@@ -59,7 +58,6 @@
   export default {
     name: 'ContentRenderer',
     components: {
-      KCircularLoader,
       UiAlert,
     },
     props: {

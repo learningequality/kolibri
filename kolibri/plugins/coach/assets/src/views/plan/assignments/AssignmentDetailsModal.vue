@@ -94,9 +94,6 @@
 <script>
 
   import xor from 'lodash/xor';
-  import KTextbox from 'kolibri.shared.KTextbox';
-  import KButton from 'kolibri.shared.KButton';
-  import KRadioButton from 'kolibri.shared.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -107,9 +104,6 @@
     name: 'AssignmentDetailsModal',
     components: {
       BottomAppBar,
-      KButton,
-      KRadioButton,
-      KTextbox,
       RecipientSelector,
       UiAlert,
     },

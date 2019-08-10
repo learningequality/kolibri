@@ -7,14 +7,10 @@
 
 <script>
 
-  import KBreadcrumbs from 'kolibri.shared.KBreadcrumbs';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ResourceSelectionBreadcrumbs',
-    components: {
-      KBreadcrumbs,
-    },
     mixins: [commonCoreStrings],
     props: {
       ancestors: {

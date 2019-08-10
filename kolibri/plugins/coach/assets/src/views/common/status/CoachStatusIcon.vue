@@ -7,15 +7,11 @@
 
 <script>
 
-  import KIcon from 'kolibri.shared.KIcon';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { ICONS } from './constants';
 
   export default {
     name: 'CoachStatusIcon',
-    components: {
-      KIcon,
-    },
     mixins: [themeMixin],
     props: {
       icon: {

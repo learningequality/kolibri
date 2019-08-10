@@ -18,14 +18,10 @@
 
 <script>
 
-  import KModal from 'kolibri.shared.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ConfirmResetModal',
-    components: {
-      KModal,
-    },
     mixins: [commonCoreStrings],
     $trs: {
       confirmationQuestion: 'Are you sure you want to reset your settings?',

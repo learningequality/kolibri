@@ -128,7 +128,6 @@
 
 <script>
 
-  import KButton from 'kolibri.shared.KButton';
   import VueExample from '../../common/VueExample';
   import PageTemplate from '../../common/PageTemplate';
   import PageSection from '../../common/PageSection';
@@ -147,7 +146,6 @@
       PageSection,
       VueExample,
       Show,
-      KButton,
       Example,
       ExternalLink,
     },

@@ -21,16 +21,10 @@
 <script>
 
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
-  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
-  import KGrid from 'kolibri.shared.KGrid';
-  import KGridItem from 'kolibri.shared.KGridItem';
 
   export default {
     name: 'PageHeader',
     components: {
-      KGridItem,
-      KGrid,
-      KLabeledIcon,
       ProgressIcon,
     },
     props: {

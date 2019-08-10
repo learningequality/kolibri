@@ -16,13 +16,8 @@
 
 <script>
 
-  import KTooltip from 'kolibri.shared.KTooltip';
-
   export default {
     name: 'Example',
-    components: {
-      KTooltip,
-    },
   };
 
 </script>

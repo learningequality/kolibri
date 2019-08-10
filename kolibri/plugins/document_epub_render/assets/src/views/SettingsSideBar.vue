@@ -73,9 +73,6 @@
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
-  import KFixedGrid from 'kolibri.shared.KFixedGrid';
-  import KFixedGridItem from 'kolibri.shared.KFixedGridItem';
-  import KButton from 'kolibri.shared.KButton';
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
 
@@ -83,9 +80,6 @@
     name: 'SettingsSideBar',
     components: {
       SideBar,
-      KFixedGrid,
-      KFixedGridItem,
-      KButton,
     },
     mixins: [themeMixin],
     props: {

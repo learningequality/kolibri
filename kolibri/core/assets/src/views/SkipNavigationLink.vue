@@ -15,14 +15,10 @@
 
 <script>
 
-  import KButton from 'kolibri.shared.KButton';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'SkipNavigationLink',
-    components: {
-      KButton,
-    },
     mixins: [themeMixin],
     computed: {
       linkStyles() {

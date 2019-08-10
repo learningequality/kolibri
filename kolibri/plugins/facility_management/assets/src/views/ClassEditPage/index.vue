@@ -110,11 +110,6 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import KRouterLink from 'kolibri.shared.KRouterLink';
-  import KButton from 'kolibri.shared.KButton';
-  import KGrid from 'kolibri.shared.KGrid';
-  import KGridItem from 'kolibri.shared.KGridItem';
-  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserTable from '../UserTable';
   import { PageNames, Modals } from '../../constants';
@@ -132,11 +127,6 @@
       UserTable,
       ClassRenameModal,
       UserRemoveConfirmationModal,
-      KGrid,
-      KGridItem,
-      KRouterLink,
-      KButton,
-      KLabeledIcon,
     },
     mixins: [commonCoreStrings],
     data() {

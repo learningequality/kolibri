@@ -36,7 +36,6 @@
 
 <script>
 
-  import KRadioButton from 'kolibri.shared.KRadioButton';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import OnboardingForm from './OnboardingForm';
 
@@ -44,7 +43,6 @@
     name: 'YesNoForm',
     components: {
       CoreInfoIcon,
-      KRadioButton,
       OnboardingForm,
     },
     props: {

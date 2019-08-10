@@ -11,13 +11,9 @@
 <script>
 
   import { now } from 'kolibri.utils.serverClock';
-  import KEmptyPlaceholder from 'kolibri.shared.KEmptyPlaceholder';
 
   export default {
     name: 'ElapsedTime',
-    components: {
-      KEmptyPlaceholder,
-    },
     props: {
       date: {
         type: Date,

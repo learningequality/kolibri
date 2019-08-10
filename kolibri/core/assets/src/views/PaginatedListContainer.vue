@@ -54,18 +54,12 @@
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import KIcon from 'kolibri.shared.KIcon';
-  import KGrid from 'kolibri.shared.KGrid';
-  import KGridItem from 'kolibri.shared.KGridItem';
 
   export default {
     name: 'PaginatedListContainer',
     components: {
-      KIcon,
       UiIconButton,
       FilterTextbox,
-      KGrid,
-      KGridItem,
     },
     props: {
       // The entire list of items

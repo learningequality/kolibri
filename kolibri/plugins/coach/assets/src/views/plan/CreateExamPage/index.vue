@@ -142,12 +142,7 @@
   import { mapState, mapActions, mapGetters } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KButton from 'kolibri.shared.KButton';
-  import KTextbox from 'kolibri.shared.KTextbox';
-  import KRouterLink from 'kolibri.shared.KRouterLink';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import KGrid from 'kolibri.shared.KGrid';
-  import KGridItem from 'kolibri.shared.KGridItem';
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
@@ -165,16 +160,11 @@
     // TODO: Rename this to 'ExamCreationPage'
     name: 'CreateExamPage',
     components: {
-      KTextbox,
-      KRouterLink,
-      KButton,
       UiAlert,
       LessonsSearchBox,
       LessonsSearchFilters,
       ResourceSelectionBreadcrumbs,
       ContentCardList,
-      KGrid,
-      KGridItem,
       UiIconButton,
       BottomAppBar,
     },

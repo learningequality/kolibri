@@ -92,8 +92,6 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KButton from 'kolibri.shared.KButton';
-  import KCircularLoader from 'kolibri.shared.KCircularLoader';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import Mark from 'mark.js';
   import SideBar from './SideBar';
@@ -144,8 +142,6 @@
   export default {
     name: 'SearchSideBar',
     components: {
-      KButton,
-      KCircularLoader,
       SideBar,
       UiIconButton,
     },

@@ -33,15 +33,8 @@
 
 <script>
 
-  import KFixedGrid from 'kolibri.shared.KFixedGrid';
-  import KFixedGridItem from 'kolibri.shared.KFixedGridItem';
-
   export default {
     name: 'ChannelListItemLarge',
-    components: {
-      KFixedGrid,
-      KFixedGridItem,
-    },
   };
 
 </script>

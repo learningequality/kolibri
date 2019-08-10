@@ -37,16 +37,10 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import KTextbox from 'kolibri.shared.KTextbox';
-  import KModal from 'kolibri.shared.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ResetUserPasswordModal',
-    components: {
-      KModal,
-      KTextbox,
-    },
     mixins: [commonCoreStrings],
     props: {
       id: {

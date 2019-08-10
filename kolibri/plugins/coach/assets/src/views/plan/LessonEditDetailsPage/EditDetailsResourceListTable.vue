@@ -73,11 +73,7 @@
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  import KRouterLink from 'kolibri.shared.KRouterLink';
   import Draggable from 'kolibri.coreVue.components.Draggable';
-  import KButton from 'kolibri.shared.KButton';
-  import KFixedGrid from 'kolibri.shared.KFixedGrid';
-  import KFixedGridItem from 'kolibri.shared.KFixedGridItem';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
@@ -91,10 +87,6 @@
       DragContainer,
       DragHandle,
       DragSortWidget,
-      KRouterLink,
-      KButton,
-      KFixedGrid,
-      KFixedGridItem,
       ContentIcon,
     },
     mixins: [coachStringsMixin, commonCoreStrings, themeMixin],

@@ -16,16 +16,12 @@
 
 <script>
 
-  import KGrid from 'kolibri.shared.KGrid';
-  import KGridItem from 'kolibri.shared.KGridItem';
   import CodeBlock from './CodeBlock';
   import Show from './Show';
 
   export default {
     name: 'VueExample',
     components: {
-      KGrid,
-      KGridItem,
       CodeBlock,
       Show,
     },

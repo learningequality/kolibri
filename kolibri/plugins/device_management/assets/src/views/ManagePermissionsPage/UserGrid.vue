@@ -50,9 +50,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import KButton from 'kolibri.shared.KButton';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
-  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -60,10 +58,8 @@
   export default {
     name: 'UserGrid',
     components: {
-      KButton,
       PermissionsIcon,
       CoreTable,
-      KLabeledIcon,
     },
     mixins: [commonCoreStrings],
     props: {

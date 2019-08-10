@@ -37,13 +37,11 @@
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import KTooltip from 'kolibri.shared.KTooltip';
 
   export default {
     name: 'CoachContentLabel',
     components: {
       UiIcon,
-      KTooltip,
     },
     mixins: [themeMixin],
     props: {

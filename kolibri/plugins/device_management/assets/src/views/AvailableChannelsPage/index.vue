@@ -94,12 +94,7 @@
 
   import { mapState, mapMutations, mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KLinearLoader from 'kolibri.shared.KLinearLoader';
-  import KSelect from 'kolibri.shared.KSelect';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import KButton from 'kolibri.shared.KButton';
-  import KGrid from 'kolibri.shared.KGrid';
-  import KGridItem from 'kolibri.shared.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import uniqBy from 'lodash/uniqBy';
@@ -122,12 +117,7 @@
       ChannelListItem,
       ChannelTokenModal,
       ContentWizardUiAlert,
-      KButton,
       FilterTextbox,
-      KGrid,
-      KGridItem,
-      KLinearLoader,
-      KSelect,
     },
     mixins: [commonCoreStrings, responsiveWindow, themeMixin],
     data() {

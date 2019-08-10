@@ -109,13 +109,6 @@
   import { mapState, mapActions } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import orderBy from 'lodash/orderBy';
-  import KButton from 'kolibri.shared.KButton';
-  import KRouterLink from 'kolibri.shared.KRouterLink';
-  import KGrid from 'kolibri.shared.KGrid';
-  import KGridItem from 'kolibri.shared.KGridItem';
-  import KTooltip from 'kolibri.shared.KTooltip';
-  import KEmptyPlaceholder from 'kolibri.shared.KEmptyPlaceholder';
-  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { Modals, PageNames } from '../../constants';
   import ClassCreateModal from './ClassCreateModal';
@@ -139,13 +132,6 @@
       CoreTable,
       ClassCreateModal,
       ClassDeleteModal,
-      KButton,
-      KRouterLink,
-      KGrid,
-      KGridItem,
-      KLabeledIcon,
-      KTooltip,
-      KEmptyPlaceholder,
     },
     mixins: [commonCoreStrings],
     data: () => ({ currentClassDelete: null }),

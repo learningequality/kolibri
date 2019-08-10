@@ -31,7 +31,6 @@
 
 <script>
 
-  import KBreadcrumbs from 'kolibri.shared.KBreadcrumbs';
   import VueExample from '../../common/VueExample';
   import PageTemplate from '../../common/PageTemplate';
   import PageSection from '../../common/PageSection';
@@ -50,7 +49,6 @@
       PageTemplate,
       PageSection,
       VueExample,
-      KBreadcrumbs,
       Show,
       Example,
     },

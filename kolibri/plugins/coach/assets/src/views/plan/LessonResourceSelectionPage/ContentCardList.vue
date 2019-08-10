@@ -64,17 +64,11 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import KButton from 'kolibri.shared.KButton';
-  import KCheckbox from 'kolibri.shared.KCheckbox';
-  import KCircularLoader from 'kolibri.shared.KCircularLoader';
   import LessonContentCard from './LessonContentCard';
 
   export default {
     name: 'ContentCardList',
     components: {
-      KButton,
-      KCheckbox,
-      KCircularLoader,
       LessonContentCard,
     },
     mixins: [commonCoreStrings],

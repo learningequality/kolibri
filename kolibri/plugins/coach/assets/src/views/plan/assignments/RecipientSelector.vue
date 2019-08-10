@@ -24,16 +24,10 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import KCheckbox from 'kolibri.shared.KCheckbox';
-  import KRadioButton from 'kolibri.shared.KRadioButton';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'RecipientSelector',
-    components: {
-      KCheckbox,
-      KRadioButton,
-    },
     mixins: [coachStringsMixin],
     props: {
       // Needs to equal [classId] if entire class is selected

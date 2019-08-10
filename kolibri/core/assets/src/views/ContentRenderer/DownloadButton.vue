@@ -11,14 +11,10 @@
 
 <script>
 
-  import KDropdownMenu from 'kolibri.shared.KDropdownMenu';
   import { getFilePresetString } from './filePresetStrings';
 
   export default {
     name: 'DownloadButton',
-    components: {
-      KDropdownMenu,
-    },
     props: {
       files: {
         type: Array,

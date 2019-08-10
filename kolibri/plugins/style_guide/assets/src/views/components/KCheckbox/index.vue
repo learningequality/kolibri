@@ -50,7 +50,6 @@
 
 <script>
 
-  import KCheckbox from 'kolibri.shared.KCheckbox';
   import VueExample from '../../common/VueExample';
   import PageTemplate from '../../common/PageTemplate';
   import PageSection from '../../common/PageSection';
@@ -69,7 +68,6 @@
       PageTemplate,
       PageSection,
       VueExample,
-      KCheckbox,
       Show,
       Example,
     },

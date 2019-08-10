@@ -52,13 +52,11 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import KButton from 'kolibri.shared.KButton';
   import ReportErrorModal from './ReportErrorModal';
 
   export default {
     name: 'AppError',
     components: {
-      KButton,
       ReportErrorModal,
     },
     data() {

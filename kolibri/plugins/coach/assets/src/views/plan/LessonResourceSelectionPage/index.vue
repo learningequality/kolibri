@@ -82,9 +82,6 @@
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
   import xor from 'lodash/xor';
-  import KRouterLink from 'kolibri.shared.KRouterLink';
-  import KGrid from 'kolibri.shared.KGrid';
-  import KGridItem from 'kolibri.shared.KGridItem';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -105,9 +102,6 @@
     },
     components: {
       ContentCardList,
-      KRouterLink,
-      KGrid,
-      KGridItem,
       LessonsSearchFilters,
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,

@@ -65,7 +65,6 @@
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
-  import KCheckbox from 'kolibri.shared.KCheckbox';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -78,7 +77,6 @@
       PageStatus,
       AttemptLogList,
       InteractionList,
-      KCheckbox,
       MultiPaneLayout,
     },
     mixins: [commonCoreStrings, themeMixin],

@@ -2,12 +2,55 @@ import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
+
+import KBreadcrumbs from 'kolibri.shared.KBreadcrumbs';
+import KButton from 'kolibri.shared.KButton';
+import KCheckbox from 'kolibri.shared.KCheckbox';
+import KCircularLoader from 'kolibri.shared.KCircularLoader';
+import KDropdownMenu from 'kolibri.shared.KDropdownMenu';
+import KEmptyPlaceholder from 'kolibri.shared.KEmptyPlaceholder';
+import KExternalLink from 'kolibri.shared.KExternalLink';
+import KFixedGrid from 'kolibri.shared.KFixedGrid';
+import KFixedGridItem from 'kolibri.shared.KFixedGridItem';
+import KGrid from 'kolibri.shared.KGrid';
+import KGridItem from 'kolibri.shared.KGridItem';
+import KIcon from 'kolibri.shared.KIcon';
+import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
+import KLinearLoader from 'kolibri.shared.KLinearLoader';
+import KModal from 'kolibri.shared.KModal';
+import KPageContainer from 'kolibri.shared.KPageContainer';
+import KRadioButton from 'kolibri.shared.KRadioButton';
+import KRouterLink from 'kolibri.shared.KRouterLink';
+import KSelect from 'kolibri.shared.KSelect';
+import KTextbox from 'kolibri.shared.KTextbox';
+import KTooltip from 'kolibri.shared.KTooltip';
 import VueAphrodite from './vueAphrodite';
 
-// Register Vue plugins
+// Register Vue plugins and components
 Vue.use(Vuex);
 Vue.use(VueRouter);
 Vue.use(VueMeta);
 Vue.use(VueAphrodite);
+Vue.component('KBreadcrumbs', KBreadcrumbs);
+Vue.component('KButton', KButton);
+Vue.component('KCheckbox', KCheckbox);
+Vue.component('KCircularLoader', KCircularLoader);
+Vue.component('KDropdownMenu', KDropdownMenu);
+Vue.component('KEmptyPlaceholder', KEmptyPlaceholder);
+Vue.component('KExternalLink', KExternalLink);
+Vue.component('KFixedGrid', KFixedGrid);
+Vue.component('KFixedGridItem', KFixedGridItem);
+Vue.component('KGrid', KGrid);
+Vue.component('KGridItem', KGridItem);
+Vue.component('KIcon', KIcon);
+Vue.component('KLabeledIcon', KLabeledIcon);
+Vue.component('KLinearLoader', KLinearLoader);
+Vue.component('KModal', KModal);
+Vue.component('KPageContainer', KPageContainer);
+Vue.component('KRadioButton', KRadioButton);
+Vue.component('KRouterLink', KRouterLink);
+Vue.component('KSelect', KSelect);
+Vue.component('KTextbox', KTextbox);
+Vue.component('KTooltip', KTooltip);
 
 export default Vue;

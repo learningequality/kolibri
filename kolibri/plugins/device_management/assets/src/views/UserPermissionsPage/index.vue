@@ -110,9 +110,6 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserType from 'kolibri.utils.UserType';
-  import KButton from 'kolibri.shared.KButton';
-  import KCheckbox from 'kolibri.shared.KCheckbox';
-  import KLabeledIcon from 'kolibri.shared.KLabeledIcon';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
@@ -130,11 +127,8 @@
     },
     components: {
       AuthMessage,
-      KButton,
-      KCheckbox,
       PermissionsIcon,
       UserTypeDisplay,
-      KLabeledIcon,
     },
     mixins: [commonCoreStrings, themeMixin],
     data() {

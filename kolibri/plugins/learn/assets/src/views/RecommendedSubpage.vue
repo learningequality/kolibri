@@ -15,7 +15,6 @@
 <script>
 
   import { mapState } from 'vuex';
-  import KBreadcrumbs from 'kolibri.shared.KBreadcrumbs';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
@@ -30,7 +29,6 @@
     },
     components: {
       ContentCardGroupGrid,
-      KBreadcrumbs,
     },
     mixins: [commonLearnStrings],
     computed: {

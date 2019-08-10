@@ -114,7 +114,6 @@ oriented data synchronization.
   import shuffled from 'kolibri.utils.shuffled';
   import { now } from 'kolibri.utils.serverClock';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
-  import KButton from 'kolibri.shared.KButton';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
@@ -126,7 +125,6 @@ oriented data synchronization.
     components: {
       ExerciseAttempts,
       ContentRenderer,
-      KButton,
       UiAlert,
       BottomAppBar,
     },

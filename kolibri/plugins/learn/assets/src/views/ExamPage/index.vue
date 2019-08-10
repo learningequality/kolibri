@@ -122,14 +122,8 @@
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
   import debounce from 'lodash/debounce';
-  import KPageContainer from 'kolibri.shared.KPageContainer';
-  import KGrid from 'kolibri.shared.KGrid';
-  import KGridItem from 'kolibri.shared.KGridItem';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import KIcon from 'kolibri.shared.KIcon';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
-  import KButton from 'kolibri.shared.KButton';
-  import KModal from 'kolibri.shared.KModal';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -145,14 +139,8 @@
     },
     components: {
       ContentRenderer,
-      KButton,
-      KPageContainer,
       AnswerHistory,
-      KIcon,
-      KModal,
       UiAlert,
-      KGrid,
-      KGridItem,
       BottomAppBar,
     },
     mixins: [themeMixin, responsiveWindow, commonCoreStrings],
