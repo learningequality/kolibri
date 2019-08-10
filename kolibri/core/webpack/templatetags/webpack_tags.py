@@ -28,22 +28,22 @@ register = template.Library()
 
 
 @register.simple_tag()
-def webpack_asset(unique_slug):
+def webpack_asset(bundle_id):
     """
     Return statically loaded ('sync' loaded) assets for a specific asset.
 
     You need to define the asset by means of inheriting from WebpackBundleHook.
 
-    :param unique_slug: The slug defined for the bundle in its FrontEndSyncHook
+    :param bundle_id: The slug defined for the bundle in its FrontEndSyncHook
 
     :return: Inline Javascript as HTML for insertion into the DOM.
     """
-    hook = hooks.WebpackBundleHook().get_by_slug(unique_slug)
+    hook = hooks.WebpackBundleHook().get_by_slug(bundle_id)
     return hook.render_to_page_load_sync_html()
 
 
 @register.simple_tag()
-def webpack_async_asset(unique_slug):
+def webpack_async_asset(bundle_id):
     """
     This template tag returns inline Javascript (wrapped in a script tag) that
     registers the events that a KolibriModule listens to, and a list of JS and
@@ -53,11 +53,11 @@ def webpack_async_asset(unique_slug):
 
     You need to define the asset by means of inheriting from WebpackBundleHook.
 
-    :param unique_slug: The slug defined for the bundle in its FrontEndSyncHook
+    :param bundle_id: The slug defined for the bundle in its FrontEndSyncHook
 
     :return: Inline Javascript as HTML for insertion into the DOM.
     """
-    hook = hooks.WebpackBundleHook().get_by_slug(unique_slug)
+    hook = hooks.WebpackBundleHook().get_by_slug(bundle_id)
     return hook.render_to_page_load_async_html()
 
 

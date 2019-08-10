@@ -71,7 +71,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     """
 
     # : You should set a unique human readable name
-    unique_slug = ""
+    bundle_id = ""
 
     # : When being included for synchronous loading, should the source files
     # : for this be inlined?
@@ -83,9 +83,9 @@ class WebpackBundleHook(hooks.KolibriHook):
         # Verify the uniqueness of the slug
         # It can be '0' in the parent class constructor
         assert (
-            len([x for x in self.registered_hooks if x.unique_slug == self.unique_slug])
+            len([x for x in self.registered_hooks if x.bundle_id == self.bundle_id])
             <= 1
-        ), "Non-unique slug found: '{}'".format(self.unique_slug)
+        ), "Non-unique slug found: '{}'".format(self.bundle_id)
 
     @hooks.abstract_method
     def get_by_slug(self, slug):
@@ -93,7 +93,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         Fetch a registered hook instance by its unique slug
         """
         for hook in self.registered_hooks:
-            if hook.unique_slug == slug:
+            if hook.bundle_id == slug:
                 return hook
         raise BundleNotFound("No bundle with that name is loaded: {}".format(slug))
 
@@ -104,7 +104,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: A dict of the data contained in the JSON files which are
           written by Webpack.
         """
-        cache_key = "json_stats_file_cache_{slug}".format(slug=self.unique_slug)
+        cache_key = "json_stats_file_cache_{slug}".format(slug=self.bundle_id)
         try:
             stats_file_content = caches[CACHE_NAMESPACE].get(cache_key)
             if not stats_file_content or getattr(settings, "DEVELOPER_MODE", False):
@@ -122,7 +122,7 @@ class WebpackBundleHook(hooks.KolibriHook):
                     if stats["status"] == "error":
                         raise WebpackError("Webpack compilation has errored")
                 stats_file_content = {
-                    "files": stats.get("chunks", {}).get(self.unique_slug, []),
+                    "files": stats.get("chunks", {}).get(self.bundle_id, []),
                     "hasMessages": stats.get("messages", False),
                 }
                 # Don't invalidate during runtime.
@@ -152,7 +152,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             if not getattr(settings, "DEVELOPER_MODE", False):
                 if any(list(regex.match(filename) for regex in IGNORE_PATTERNS)):
                     continue
-            relpath = "{0}/{1}".format(self.unique_slug, filename)
+            relpath = "{0}/{1}".format(self.bundle_id, filename)
             if getattr(settings, "DEVELOPER_MODE", False):
                 try:
                     f["url"] = f["publicPath"]
@@ -181,7 +181,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         containing information about the built bundles.
         """
         return os.path.join(
-            self._build_path, "{plugin}_stats.json".format(plugin=self.unique_slug)
+            self._build_path, "{plugin}_stats.json".format(plugin=self.bundle_id)
         )
 
     @property
@@ -192,7 +192,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         return os.path.dirname(self._build_path)
 
     def frontend_message_file(self, lang_code):
-        message_file_name = "{name}-messages.json".format(name=self.unique_slug)
+        message_file_name = "{name}-messages.json".format(name=self.bundle_id)
         for path in getattr(settings, "LOCALE_PATHS", []):
             file_path = os.path.join(
                 path, to_locale(lang_code), "LC_MESSAGES", message_file_name
@@ -203,7 +203,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     def frontend_messages(self):
         lang_code = get_language()
         cache_key = "json_stats_file_cache_{slug}_{lang}".format(
-            slug=self.unique_slug, lang=lang_code
+            slug=self.bundle_id, lang=lang_code
         )
         message_file_content = caches[CACHE_NAMESPACE].get(cache_key)
         if not message_file_content or getattr(settings, "DEVELOPER_MODE", False):
@@ -264,7 +264,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             return [
                 '<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", {messages});</script>'.format(
                     kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
-                    bundle=self.unique_slug,
+                    bundle=self.bundle_id,
                     lang_code=get_language(),
                     messages=self.frontend_messages(),
                 )
@@ -367,7 +367,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         tags = self.frontend_message_tag() + [
             '<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
                 kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
-                bundle=self.unique_slug,
+                bundle=self.bundle_id,
                 urls='","'.join(urls),
             )
         ]

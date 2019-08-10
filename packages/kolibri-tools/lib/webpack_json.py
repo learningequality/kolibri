@@ -16,6 +16,8 @@ from pkg_resources import resource_listdir
 logger = logging.getLogger("webpack_json")
 logger.setLevel(level=logging.INFO)
 
+BUILD_CONFIG = "buildConfig.js"
+
 
 def load_plugins_from_file(file_path):
     try:
@@ -69,10 +71,8 @@ def expand_glob(build_item):
 
 def plugin_data(module_path):
     try:
-        if resource_exists(module_path, "webpack.config.js"):
-            plugin_path = os.path.dirname(
-                resource_filename(module_path, "webpack.config.js")
-            )
+        if resource_exists(module_path, BUILD_CONFIG):
+            plugin_path = os.path.dirname(resource_filename(module_path, BUILD_CONFIG))
             try:
                 version = get_distribution(module_path).version
             except (DistributionNotFound, AttributeError):

@@ -175,7 +175,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
       filename: '[name]-' + data.version + '.js',
       // Need to define this in order for chunks to be named
       // Without this chunks from different bundles will likely have colliding names
-      chunkFilename: '[name]-' + data.version + '.js',
+      chunkFilename: data.name + '-[name]-' + data.version + '.js',
     },
     resolve: {
       extensions: ['.js', '.vue', '.scss'],

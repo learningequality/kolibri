@@ -7,9 +7,9 @@ from kolibri.core.webpack.hooks import WebpackBundleHook
 
 
 class FrontEndCoreAppAssetHook(FrontEndCoreAssetHook):
-    unique_slug = "default_frontend"
+    bundle_id = "default_frontend"
 
 
 class FrontEndUserAgentAssetHook(WebpackBundleHook):
-    unique_slug = "user_agent"
+    bundle_id = "user_agent"
     inline = True

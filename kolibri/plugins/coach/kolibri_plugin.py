@@ -23,8 +23,8 @@ class CoachRedirect(RoleBasedRedirectHook):
 
 
 class CoachNavItem(NavigationHook, webpack_hooks.WebpackBundleHook):
-    unique_slug = "coach_side_nav"
+    bundle_id = "coach_side_nav"
 
 
 class CoachAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "coach_module"
+    bundle_id = "coach_module"

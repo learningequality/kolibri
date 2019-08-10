@@ -18,7 +18,7 @@ class DeviceManagementPlugin(KolibriPluginBase):
 
 
 class DeviceManagementAsset(WebpackBundleHook):
-    unique_slug = "device_management_module"
+    bundle_id = "device_management_module"
 
 
 class DeviceFirstTimeRedirect(RoleBasedRedirectHook):
@@ -33,4 +33,4 @@ class DeviceFirstTimeRedirect(RoleBasedRedirectHook):
 
 
 class DeviceManagementNavItem(NavigationHook, WebpackBundleHook):
-    unique_slug = "device_management_side_nav"
+    bundle_id = "device_management_side_nav"

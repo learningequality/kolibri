@@ -14,7 +14,7 @@ class User(KolibriPluginBase):
 
 
 class UserAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "user_module"
+    bundle_id = "user_module"
 
 
 class LogInRedirect(RoleBasedRedirectHook):
@@ -26,8 +26,8 @@ class LogInRedirect(RoleBasedRedirectHook):
 
 
 class LogInNavAction(NavigationHook, webpack_hooks.WebpackBundleHook):
-    unique_slug = "user_module_login_nav_side_nav"
+    bundle_id = "user_module_login_nav_side_nav"
 
 
 class ProfileNavAction(NavigationHook, webpack_hooks.WebpackBundleHook):
-    unique_slug = "user_module_user_profile_nav_side_nav"
+    bundle_id = "user_module_user_profile_nav_side_nav"

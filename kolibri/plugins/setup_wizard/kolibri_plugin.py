@@ -15,7 +15,7 @@ class SetupWizardPlugin(KolibriPluginBase):
 
 
 class SetupWizardAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "setup_wizard"
+    bundle_id = "setup_wizard"
 
 
 class SetupWizardHook(SetupHook):

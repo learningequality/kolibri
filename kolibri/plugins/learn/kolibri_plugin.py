@@ -26,11 +26,11 @@ class LearnRedirect(RoleBasedRedirectHook):
 
 
 class LearnNavItem(NavigationHook, webpack_hooks.WebpackBundleHook):
-    unique_slug = "learn_module_side_nav"
+    bundle_id = "learn_module_side_nav"
 
 
 class LearnAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "learn_module"
+    bundle_id = "learn_module"
 
 
 class LearnContentNodeHook(ContentNodeDisplayHook):

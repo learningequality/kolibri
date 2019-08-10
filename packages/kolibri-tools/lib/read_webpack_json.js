@@ -5,15 +5,15 @@ const temp = require('temp').track();
 
 const webpack_json = path.resolve(path.dirname(__filename), './webpack_json.py');
 
-function parseConfig(webpackConfig, pythonData) {
+function parseConfig(buildConfig, pythonData) {
   // Set the main entry for this module, set the name based on the data.name and the path to the
   // entry file from the data.src_file
-  const uniqueSlug = webpackConfig.unique_slug;
+  const bundleId = buildConfig.bundle_id;
+  const webpackConfig = buildConfig.webpack_config;
   const pluginPath = pythonData.plugin_path;
-  delete webpackConfig.unique_slug;
   if (typeof webpackConfig.entry === 'string') {
     webpackConfig.entry = {
-      [uniqueSlug]: path.join(pluginPath, webpackConfig.entry),
+      [bundleId]: path.join(pluginPath, webpackConfig.entry),
     };
   } else {
     Object.keys(webpackConfig.entry).forEach(key => {
@@ -31,9 +31,9 @@ function parseConfig(webpackConfig, pythonData) {
     });
   }
   return {
-    name: uniqueSlug,
+    name: bundleId,
     static_dir: path.join(pluginPath, 'static'),
-    stats_file: path.join(pluginPath, 'build', `${uniqueSlug}_stats.json`),
+    stats_file: path.join(pluginPath, 'build', `${bundleId}_stats.json`),
     locale_data_folder: pythonData.locale_data_folder,
     plugin_path: pluginPath,
     version: pythonData.version,
@@ -84,13 +84,13 @@ module.exports = function({ pluginFile, plugins, pluginPath }) {
     const parsedResult = JSON.parse(result);
     const output = [];
     parsedResult.forEach(pythonData => {
-      const webpackConfig = require(path.join(pythonData.plugin_path, 'webpack.config.js'));
-      if (Array.isArray(webpackConfig)) {
-        webpackConfig.forEach(configObj => {
+      const buildConfig = require(path.join(pythonData.plugin_path, 'buildConfig.js'));
+      if (Array.isArray(buildConfig)) {
+        buildConfig.forEach(configObj => {
           output.push(parseConfig(configObj, pythonData));
         });
       } else {
-        output.push(parseConfig(webpackConfig, pythonData));
+        output.push(parseConfig(buildConfig, pythonData));
       }
     });
     return output;
