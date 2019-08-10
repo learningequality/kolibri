@@ -469,7 +469,12 @@ class ChannelImport(object):
                         new_channel_version=self.channel_version,
                     )
                 )
-                self.delete_old_channel_data(existing_channel.root.tree_id)
+
+                root_node = self.destination.session.query(
+                    self.destination.get_class(ContentNode)
+                ).get(existing_channel.root_id)
+
+                self.delete_old_channel_data(root_node.tree_id)
             else:
                 # We have previously loaded this channel, with the same or newer version, so our work here is done
                 logger.warn(
