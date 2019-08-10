@@ -57,7 +57,9 @@ def expand_glob(build_item):
             if resource_isdir(parent_module_path, file):
                 try:
                     child_module_path = parent_module_path + "." + file
-                    plugins.append(plugin_data(child_module_path))
+                    plugin = plugin_data(child_module_path)
+                    if plugin is not None:
+                        plugins.append(plugin)
                 except ImportError:
                     continue
     except OSError:
@@ -66,36 +68,41 @@ def expand_glob(build_item):
 
 
 def plugin_data(module_path):
-    if resource_exists(module_path, "webpack.config.js"):
-        plugin_path = os.path.dirname(
-            resource_filename(module_path, "webpack.config.js")
-        )
-        try:
-            version = get_distribution(module_path).version
-        except (DistributionNotFound, AttributeError):
+    try:
+        if resource_exists(module_path, "webpack.config.js"):
+            plugin_path = os.path.dirname(
+                resource_filename(module_path, "webpack.config.js")
+            )
             try:
-                module = importlib.import_module(module_path)
-                version = module.__version__
-            except (ImportError, AttributeError):
+                version = get_distribution(module_path).version
+            except (DistributionNotFound, AttributeError):
+                try:
+                    module = importlib.import_module(module_path)
+                    version = module.__version__
+                except (ImportError, AttributeError):
+                    import kolibri
+
+                    version = kolibri.__version__
+            if module_path.startswith("kolibri."):
                 import kolibri
 
-                version = kolibri.__version__
-        if module_path.startswith("kolibri."):
-            import kolibri
-
-            locale_data_folder = os.path.join(
-                os.path.dirname(kolibri.__file__), "locale", "en", "LC_MESSAGES"
-            )
-        # Is an external plugin, do otherwise!
-        else:
-            locale_data_folder = os.path.join(
-                plugin_path, "locale", "en", "LC_MESSAGES"
-            )
-        return {
-            "locale_data_folder": locale_data_folder,
-            "plugin_path": plugin_path,
-            "version": version,
-        }
+                locale_data_folder = os.path.join(
+                    os.path.dirname(kolibri.__file__), "locale", "en", "LC_MESSAGES"
+                )
+            # Is an external plugin, do otherwise!
+            else:
+                locale_data_folder = os.path.join(
+                    plugin_path, "locale", "en", "LC_MESSAGES"
+                )
+            return {
+                "locale_data_folder": locale_data_folder,
+                "plugin_path": plugin_path,
+                "version": version,
+            }
+    # Python 3.{4,5,6} raises a NotImplementedError for an empty directory
+    # Python 3.7 raises a TypeError for an empty directory
+    except (NotImplementedError, TypeError):
+        pass
     raise ImportError("No frontend build assets")
 
 
