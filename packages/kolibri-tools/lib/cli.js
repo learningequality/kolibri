@@ -67,10 +67,10 @@ program
     []
   )
   .option(
-    '--pluginPaths <pluginPaths...>',
-    'An explicit comma separated list of explicit file paths to plugins',
-    list,
-    []
+    '--pluginPath <pluginPath>',
+    'A system path to the plugin or module that should be added to the Python path so that it can be imported during build time',
+    String,
+    ''
   )
   .option('-s, --single', 'Run using a single core to reduce CPU burden', false)
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
@@ -132,7 +132,7 @@ program
     const bundleData = readWebpackJson({
       pluginFile: options.file,
       plugins: options.plugins,
-      pluginPaths: options.pluginPaths,
+      pluginPath: options.pluginPath,
     });
     if (!bundleData.length) {
       cliLogging.error('No valid bundle data was returned from the plugins specified');

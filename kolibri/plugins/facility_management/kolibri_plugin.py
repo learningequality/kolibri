@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from .hooks import FacilityManagementSyncHook
 from kolibri.core.auth.constants.user_kinds import ADMIN
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
@@ -18,12 +17,7 @@ class FacilityManagementPlugin(KolibriPluginBase):
 
 
 class FacilityManagementAsset(WebpackBundleHook):
-    unique_slug = "facility_management_module"
-    src_file = "assets/src/app.js"
-
-
-class FacilityManagementInclusionHook(FacilityManagementSyncHook):
-    bundle_class = FacilityManagementAsset
+    bundle_id = "facility_management_module"
 
 
 class FacilityRedirect(RoleBasedRedirectHook):
@@ -35,5 +29,4 @@ class FacilityRedirect(RoleBasedRedirectHook):
 
 
 class FacilityManagementNavItem(NavigationHook, WebpackBundleHook):
-    unique_slug = "facility_management_side_nav"
-    src_file = "assets/src/views/FacilityManagementSideNavEntry.vue"
+    bundle_id = "facility_management_side_nav"

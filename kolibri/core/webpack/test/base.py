@@ -38,14 +38,14 @@ class TestHookMixin(object):
     def _stats_file(self):
         self.TEST_STATS_FILE = tempfile.NamedTemporaryFile(mode="w+", delete=False)
         self.TEST_STATS_FILE_DATA = copy.deepcopy(TEST_STATS_FILE_DATA)
-        self.TEST_STATS_FILE_DATA["chunks"][
-            self.unique_slug
-        ] = self.TEST_STATS_FILE_DATA["chunks"].pop("untitled")
+        self.TEST_STATS_FILE_DATA["chunks"][self.bundle_id] = self.TEST_STATS_FILE_DATA[
+            "chunks"
+        ].pop("untitled")
         json.dump(self.TEST_STATS_FILE_DATA, self.TEST_STATS_FILE)
         self.TEST_STATS_FILE.close()
-        print(self.unique_slug)
+        print(self.bundle_id)
         return self.TEST_STATS_FILE.name
 
 
 class TestHook(TestHookMixin, WebpackBundleHook):
-    unique_slug = "non_default_frontend"
+    bundle_id = "non_default_frontend"

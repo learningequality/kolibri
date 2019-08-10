@@ -11,6 +11,5 @@ class MediaPlayerPlugin(KolibriPluginBase):
 
 
 class MediaPlayerAsset(content_hooks.ContentRendererHook):
-    unique_slug = "media_player_module"
-    src_file = "assets/src/module.js"
+    bundle_id = "media_player_module"
     content_types_file = "content_types.json"

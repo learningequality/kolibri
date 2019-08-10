@@ -26,7 +26,7 @@ class KolibriTagNavigationTestCase(TestCase):
         c = Context({})
         self.test_hook._stats_file
         self.assertIn(
-            self.test_hook.TEST_STATS_FILE_DATA["chunks"][TestHook.unique_slug][0][
+            self.test_hook.TEST_STATS_FILE_DATA["chunks"][TestHook.bundle_id][0][
                 "name"
             ],
             t.render(c),

@@ -1,6 +1,6 @@
 {% extends "kolibri/base.html" %}
-{% load facility_management_tags %}
+{% load webpack_tags %}
 
 {% block content %}
-  {% facility_management_assets %}
+  {% webpack_asset 'facility_management_module' %}
 {% endblock %}

@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from . import hooks
 from kolibri.core.device.hooks import SetupHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins.base import KolibriPluginBase
@@ -16,12 +15,7 @@ class SetupWizardPlugin(KolibriPluginBase):
 
 
 class SetupWizardAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "setup_wizard"
-    src_file = "assets/src/app.js"
-
-
-class SetupWizardInclusionHook(hooks.SetupWizardSyncHook):
-    bundle_class = SetupWizardAsset
+    bundle_id = "setup_wizard"
 
 
 class SetupWizardHook(SetupHook):
