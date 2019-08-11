@@ -45,11 +45,11 @@
           :style="{ top: `${headerHeight}px`, width: `${width}px` }"
         >
           <img
-            v-if="$theme.sideNav.topLogo"
+            v-if="$kolibriTheme.sideNav.topLogo"
             class="logo"
-            :src="$theme.sideNav.topLogo.src"
-            :alt="$theme.sideNav.topLogo.alt"
-            :style="$theme.sideNav.topLogo.style"
+            :src="$kolibriTheme.sideNav.topLogo.src"
+            :alt="$kolibriTheme.sideNav.topLogo.alt"
+            :style="$kolibriTheme.sideNav.topLogo.style"
           >
           <CoreMenu
             role="navigation"
@@ -64,7 +64,7 @@
 
           <div class="side-nav-scrollable-area-footer" :style="{ color: $themeTokens.annotation }">
             <CoreLogo
-              v-if="$theme.sideNav.showKolibriFooterLogo"
+              v-if="$kolibriTheme.sideNav.showKolibriFooterLogo"
               class="side-nav-scrollable-area-footer-logo"
             />
             <div class="side-nav-scrollable-area-footer-info">
@@ -195,6 +195,9 @@
           }
         });
       },
+    },
+    created() {
+      this.$kolibriTheme = global.kolibriTheme;
     },
     methods: {
       toggleNav() {

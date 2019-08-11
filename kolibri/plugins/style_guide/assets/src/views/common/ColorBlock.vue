@@ -22,6 +22,7 @@
 
 <script>
 
+  import globalThemeState from 'kolibri-components/src/styles/globalThemeState';
   import SectionLink from './SectionLink';
 
   const TOKENS = 'tokens.';
@@ -60,7 +61,7 @@
       },
       tokenSource() {
         const token = this.name.replace(TOKENS, '');
-        return this.$themeTokenMapping[token];
+        return globalThemeState.tokenMapping[token];
       },
       tokenAnchor() {
         return '#' + dotsToDashes(this.tokenSource);

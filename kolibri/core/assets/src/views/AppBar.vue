@@ -27,11 +27,11 @@
       </UiIconButton>
 
       <img
-        v-if="$theme.appBar.topLogo"
+        v-if="$kolibriTheme.appBar.topLogo"
         slot="brand"
-        :src="$theme.appBar.topLogo.src"
-        :alt="$theme.appBar.topLogo.alt"
-        :style="$theme.appBar.topLogo.style"
+        :src="$kolibriTheme.appBar.topLogo.src"
+        :alt="$kolibriTheme.appBar.topLogo.alt"
+        :style="$kolibriTheme.appBar.topLogo.style"
         class="brand-logo"
       >
 
@@ -169,6 +169,7 @@
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
+      this.$kolibriTheme = global.kolibriTheme;
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);

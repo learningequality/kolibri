@@ -6,7 +6,7 @@
  */
 
 import logger from 'kolibri.lib.logging';
-import globalState from './globalState';
+import globalThemeState from './globalThemeState';
 
 const logging = logger.getLogger(__filename);
 
@@ -98,7 +98,7 @@ function setUpEventHandlers() {
     'focus',
     e => {
       if (hadKeyboardEvent || focusTriggersKeyboardModality(e.target)) {
-        globalState.inputModality = 'keyboard';
+        globalThemeState.inputModality = 'keyboard';
       }
     },
     true
@@ -107,7 +107,7 @@ function setUpEventHandlers() {
   document.body.addEventListener(
     'blur',
     () => {
-      globalState.inputModality = null;
+      globalThemeState.inputModality = null;
     },
     true
   );

@@ -1,12 +1,13 @@
 import { StyleSheet as baseStyleSheet } from 'aphrodite/no-important';
-import store from 'kolibri.coreVue.vuex.store';
 import { themeTokens, themePalette, themeBrand, themeOutlineStyle } from './theme';
+
+// include global styles
+import 'purecss/build/base-min.css';
 
 const globalSelectorHandler = (selector, _, generateSubtreeStyles) => {
   if (selector[0] !== '*') {
     return null;
   }
-
   return generateSubtreeStyles(selector.slice(1));
 };
 
@@ -15,7 +16,7 @@ const globalExtension = { selectorHandler: globalSelectorHandler };
 const { StyleSheet, css } = baseStyleSheet.extend([globalExtension]);
 
 // generate a minimal set of global, unscoped styles using theme variables
-function generateGlobalStyles() {
+export default function generateGlobalStyles() {
   const htmlBodyStyles = {
     color: themeTokens().text,
     backgroundColor: themePalette().grey.v_100,
@@ -37,5 +38,3 @@ function generateGlobalStyles() {
   // Aphrodite is doing internally.
   return css(globalStyles.globals);
 }
-
-store.watch(generateGlobalStyles, generateGlobalStyles);
