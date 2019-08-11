@@ -56,14 +56,11 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   /**
    * Used to display all options
    */
   export default {
     name: 'KRadioButton',
-    mixins: [KThemeMixin],
     model: {
       prop: 'currentValue',
     },

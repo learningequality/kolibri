@@ -107,7 +107,6 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserType from 'kolibri.utils.UserType';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
@@ -130,7 +129,7 @@
       PermissionsIcon,
       UserTypeDisplay,
     },
-    mixins: [commonCoreStrings, KThemeMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         devicePermissionsChecked: undefined,

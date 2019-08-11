@@ -21,12 +21,11 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ContentCardGroupHeader',
-    mixins: [commonCoreStrings, KThemeMixin],
+    mixins: [commonCoreStrings],
     props: {
       header: { type: String },
       viewMorePageLink: { type: Object },

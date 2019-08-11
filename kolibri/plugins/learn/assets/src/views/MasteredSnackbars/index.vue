@@ -82,7 +82,6 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import { MaxPointsPerContent, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
@@ -101,7 +100,6 @@
       Snackbar,
       UiAlert,
     },
-    mixins: [KThemeMixin],
     props: {
       nextContent: {
         type: Object,

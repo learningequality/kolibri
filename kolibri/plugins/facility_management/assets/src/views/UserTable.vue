@@ -99,7 +99,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import difference from 'lodash/difference';
@@ -111,7 +110,7 @@
       CoreTable,
       UserTypeDisplay,
     },
-    mixins: [commonCoreStrings, KThemeMixin],
+    mixins: [commonCoreStrings],
     props: {
       users: {
         type: Array,

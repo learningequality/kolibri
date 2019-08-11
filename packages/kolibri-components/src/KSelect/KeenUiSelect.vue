@@ -179,7 +179,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import fuzzysearch from 'fuzzysearch';
   import startswith from 'lodash/startsWith';
   import sortby from 'lodash/sortBy';
@@ -197,7 +196,6 @@
       UiIcon,
       KeenUiSelectOption,
     },
-    mixins: [KThemeMixin],
     props: {
       name: String,
       value: {

@@ -51,8 +51,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   const iconTypes = [
     // tracking
     'correct',
@@ -100,7 +98,6 @@
 
   export default {
     name: 'KIcon',
-    mixins: [KThemeMixin],
     props: {
       icon: {
         type: String,

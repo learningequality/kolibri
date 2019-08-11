@@ -37,7 +37,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
 
@@ -46,7 +45,6 @@
     components: {
       UserTypeDisplay,
     },
-    mixins: [KThemeMixin],
     props: {
       permissionType: {
         type: String,

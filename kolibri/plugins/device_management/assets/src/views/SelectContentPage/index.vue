@@ -100,7 +100,6 @@
 <script>
 
   import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import UiAlert from 'keen-ui/src/UiAlert';
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
@@ -129,7 +128,7 @@
       TaskProgress,
       UiAlert,
     },
-    mixins: [KResponsiveWindowMixin, KThemeMixin],
+    mixins: [KResponsiveWindowMixin],
     data() {
       return {
         showUpdateProgressBar: false,

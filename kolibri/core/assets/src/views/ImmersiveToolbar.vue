@@ -72,7 +72,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { validateLinkObject } from 'kolibri.utils.validators';
@@ -83,7 +82,6 @@
       UiToolbar,
       UiIconButton,
     },
-    mixins: [KThemeMixin],
     props: {
       appBarTitle: {
         type: String,

@@ -25,13 +25,11 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import SubmissionStatePage from './SubmissionStatePage';
 
   export default {
     name: 'ErrorPage',
     components: { SubmissionStatePage },
-    mixins: [KThemeMixin],
     methods: {
       refreshPage() {
         global.location.reload(true);

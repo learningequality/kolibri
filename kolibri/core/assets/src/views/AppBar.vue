@@ -115,7 +115,6 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
@@ -141,7 +140,7 @@
       UserTypeDisplay,
       SkipNavigationLink,
     },
-    mixins: [commonCoreStrings, navComponentsMixin, KThemeMixin],
+    mixins: [commonCoreStrings, navComponentsMixin],
     props: {
       title: {
         type: String,

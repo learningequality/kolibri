@@ -25,11 +25,8 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   export default {
     name: 'PdfPage',
-    mixins: [KThemeMixin],
     props: {
       pageNum: {
         type: Number,

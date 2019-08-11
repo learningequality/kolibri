@@ -39,7 +39,6 @@
 <script>
 
   import { mapActions, mapState, mapMutations } from 'vuex';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import LoadingPage from './submission-states/LoadingPage';
@@ -76,7 +75,7 @@
       LoadingPage,
       ErrorPage,
     },
-    mixins: [commonCoreStrings, KResponsiveWindowMixin, KThemeMixin],
+    mixins: [commonCoreStrings, KResponsiveWindowMixin],
     data() {
       return {
         totalOnboardingSteps: 7,

@@ -9,11 +9,8 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   export default {
     name: 'SideBar',
-    mixins: [KThemeMixin],
   };
 
 </script>

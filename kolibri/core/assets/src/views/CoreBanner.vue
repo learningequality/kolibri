@@ -47,12 +47,11 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'CoreBanner',
-    mixins: [commonCoreStrings, KThemeMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         bannerClosed: false,

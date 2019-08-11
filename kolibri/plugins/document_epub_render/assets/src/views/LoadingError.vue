@@ -19,14 +19,12 @@
 <script>
 
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
 
   export default {
     name: 'LoadingError',
     components: {
       UiAlert,
     },
-    mixins: [KThemeMixin],
     props: {
       loaded: {
         type: Boolean,

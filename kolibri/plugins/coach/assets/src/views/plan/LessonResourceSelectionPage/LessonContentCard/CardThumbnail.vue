@@ -21,7 +21,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
   import CornerIcon from './CornerIcon';
@@ -32,7 +31,6 @@
       ContentIcon,
       CornerIcon,
     },
-    mixins: [KThemeMixin],
     props: {
       thumbnail: {
         type: String,

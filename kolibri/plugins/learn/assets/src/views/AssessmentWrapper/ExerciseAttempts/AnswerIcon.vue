@@ -43,11 +43,8 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   export default {
     name: 'AnswerIcon',
-    mixins: [KThemeMixin],
     props: {
       answer: {
         type: String,

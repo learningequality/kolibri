@@ -122,7 +122,6 @@
   import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { validateUsername } from 'kolibri.utils.validators';
@@ -147,7 +146,7 @@
       ChangeUserPasswordModal,
       UserTypeDisplay,
     },
-    mixins: [KResponsiveWindowMixin, KThemeMixin, commonCoreStrings],
+    mixins: [KResponsiveWindowMixin, commonCoreStrings],
     data() {
       const { username, full_name } = this.$store.state.core.session;
       return {

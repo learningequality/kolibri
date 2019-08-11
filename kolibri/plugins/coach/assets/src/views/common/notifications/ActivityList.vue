@@ -56,7 +56,6 @@
   import map from 'lodash/map';
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import { cardTextForNotification } from '../notifications/notificationStrings';
   import notificationsResource from '../../../apiResources/notifications';
   import { NotificationObjects } from '../../../constants/notificationsConstants';
@@ -75,7 +74,7 @@
       NotificationsFilter,
       NotificationCard,
     },
-    mixins: [coachStringsMixin, KThemeMixin],
+    mixins: [coachStringsMixin],
     props: {
       // getParams for NotificationsResource.fetchCollection
       notificationParams: {

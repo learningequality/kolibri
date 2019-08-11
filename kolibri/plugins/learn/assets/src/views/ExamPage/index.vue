@@ -117,7 +117,6 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
@@ -143,7 +142,7 @@
       UiAlert,
       BottomAppBar,
     },
-    mixins: [KThemeMixin, KResponsiveWindowMixin, commonCoreStrings],
+    mixins: [KResponsiveWindowMixin, commonCoreStrings],
     data() {
       return {
         submitModalOpen: false,

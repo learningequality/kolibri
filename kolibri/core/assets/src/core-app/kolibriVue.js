@@ -24,13 +24,13 @@ import KRouterLink from 'kolibri-components/src/buttons-and-links/KRouterLink';
 import KSelect from 'kolibri-components/src/KSelect';
 import KTextbox from 'kolibri-components/src/KTextbox';
 import KTooltip from 'kolibri-components/src/KTooltip';
-import VueAphrodite from 'kolibri-components/src/styles/vueAphrodite.js';
+import KThemePlugin from 'kolibri-components/src/styles/KThemePlugin';
 
 // Register Vue plugins and components
 Vue.use(Vuex);
 Vue.use(VueRouter);
 Vue.use(VueMeta);
-Vue.use(VueAphrodite);
+Vue.use(KThemePlugin);
 Vue.component('KBreadcrumbs', KBreadcrumbs);
 Vue.component('KButton', KButton);
 Vue.component('KCheckbox', KCheckbox);

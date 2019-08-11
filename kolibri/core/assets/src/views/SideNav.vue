@@ -106,7 +106,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
@@ -144,7 +143,6 @@
       KResponsiveWindowMixin,
       KResponsiveElementMixin,
       navComponentsMixin,
-      KThemeMixin,
     ],
     props: {
       navShown: {

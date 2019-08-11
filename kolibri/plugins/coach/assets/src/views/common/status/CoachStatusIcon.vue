@@ -7,12 +7,10 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import { ICONS } from './constants';
 
   export default {
     name: 'CoachStatusIcon',
-    mixins: [KThemeMixin],
     props: {
       icon: {
         type: String,

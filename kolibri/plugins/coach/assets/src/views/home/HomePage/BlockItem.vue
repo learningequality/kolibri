@@ -14,11 +14,10 @@
 <script>
 
   import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
 
   export default {
     name: 'BlockItem',
-    mixins: [KResponsiveWindowMixin, KThemeMixin],
+    mixins: [KResponsiveWindowMixin],
   };
 
 </script>

@@ -1,17 +1,16 @@
+/**
+ * Attempt to track whether the user is currently navigating with the keyboard or not
+ *
+ * Adapted from https://github.com/alice/modality
+ * Version: 1.0.2
+ */
+
 import logger from 'kolibri.lib.logging';
-import { dynamicState } from './kTheme';
+import globalState from './globalState';
 
 const logging = logger.getLogger(__filename);
 
-/**
- * Adapted from https://github.com/alice/modality
- * Version: 1.0.2
- *
- * For Kolibri, this mirrors in Vuex the DOM updates done by modality.js in Keen-UI,
- * which gives the code in theme.js easier access to the current modality.
- */
-
-document.addEventListener('DOMContentLoaded', () => {
+function setUpEventHandlers() {
   let hadKeyboardEvent = false;
   const keyboardModalityWhitelist = [
     'input:not([type])',
@@ -99,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'focus',
     e => {
       if (hadKeyboardEvent || focusTriggersKeyboardModality(e.target)) {
-        dynamicState.modality = 'keyboard';
+        globalState.inputModality = 'keyboard';
       }
     },
     true
@@ -108,8 +107,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.addEventListener(
     'blur',
     () => {
-      dynamicState.modality = null;
+      globalState.inputModality = null;
     },
     true
   );
-});
+}
+
+export default function trackInputModality() {
+  document.addEventListener('DOMContentLoaded', setUpEventHandlers);
+}

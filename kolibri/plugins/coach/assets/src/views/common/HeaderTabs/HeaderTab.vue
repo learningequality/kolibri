@@ -18,11 +18,8 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   export default {
     name: 'HeaderTab',
-    mixins: [KThemeMixin],
     props: {
       text: {
         type: String,

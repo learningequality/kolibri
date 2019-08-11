@@ -49,7 +49,6 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
@@ -63,7 +62,6 @@
       CoachContentLabel,
       TextTruncator,
     },
-    mixins: [KThemeMixin],
     props: {
       title: {
         type: String,

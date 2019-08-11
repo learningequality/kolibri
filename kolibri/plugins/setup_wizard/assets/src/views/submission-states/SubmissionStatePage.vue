@@ -21,11 +21,8 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   export default {
     name: 'SubmissionStatePage',
-    mixins: [KThemeMixin],
     props: {
       header: {
         type: String,

@@ -40,7 +40,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   /**
@@ -52,7 +51,6 @@
       UiIcon,
       UiIconButton,
     },
-    mixins: [KThemeMixin],
     props: {
       /**
        * v-model

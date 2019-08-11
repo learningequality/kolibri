@@ -1,4 +1,3 @@
-import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
 import merge from 'lodash/merge';
 import { FLAT_BUTTON, RAISED_BUTTON, BASIC_LINK, validator } from './appearances.js';
 
@@ -13,7 +12,6 @@ const disabledStyle = {
 };
 
 export default {
-  mixins: [KThemeMixin],
   props: {
     /**
      * Button label text

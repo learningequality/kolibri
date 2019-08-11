@@ -1,6 +1,6 @@
 import { StyleSheet as baseStyleSheet } from 'aphrodite/no-important';
 import store from 'kolibri.coreVue.vuex.store';
-import theme from './kTheme';
+import { themeTokens, themePalette, themeBrand, themeOutlineStyle } from './theme';
 
 const globalSelectorHandler = (selector, _, generateSubtreeStyles) => {
   if (selector[0] !== '*') {
@@ -17,16 +17,16 @@ const { StyleSheet, css } = baseStyleSheet.extend([globalExtension]);
 // generate a minimal set of global, unscoped styles using theme variables
 function generateGlobalStyles() {
   const htmlBodyStyles = {
-    color: theme.$themeTokens().text,
-    backgroundColor: theme.$themePalette().grey.v_100,
+    color: themeTokens().text,
+    backgroundColor: themePalette().grey.v_100,
   };
   const globalStyles = StyleSheet.create({
     globals: {
       '*html': htmlBodyStyles,
       '*body': htmlBodyStyles,
-      '*:focus': theme.$coreOutline(),
+      '*:focus': themeOutlineStyle(),
       '*::selection': {
-        background: theme.$themeBrand().secondary.v_100,
+        background: themeBrand().secondary.v_100,
       },
     },
   });

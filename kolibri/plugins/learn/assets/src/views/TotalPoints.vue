@@ -26,7 +26,6 @@
 
   import { mapGetters, mapActions } from 'vuex';
   import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
 
   export default {
@@ -34,7 +33,7 @@
     components: {
       PointsIcon,
     },
-    mixins: [KResponsiveWindowMixin, KThemeMixin],
+    mixins: [KResponsiveWindowMixin],
     computed: {
       ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),
     },

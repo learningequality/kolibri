@@ -192,7 +192,6 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { FacilityUsernameResource } from 'kolibri.resources';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
@@ -222,7 +221,7 @@
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
-    mixins: [KResponsiveWindowMixin, KThemeMixin, commonCoreStrings],
+    mixins: [KResponsiveWindowMixin, commonCoreStrings],
     data() {
       return {
         username: '',

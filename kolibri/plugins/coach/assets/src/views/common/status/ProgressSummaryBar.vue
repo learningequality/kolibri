@@ -14,12 +14,11 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import tallyMixin from './tallyMixin';
 
   export default {
     name: 'ProgressSummaryBar',
-    mixins: [tallyMixin, KThemeMixin],
+    mixins: [tallyMixin],
     computed: {
       barStyleCompleted() {
         return {

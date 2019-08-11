@@ -72,7 +72,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
   import UiPopover from 'keen-ui/src/UiPopover';
   import UiTooltip from 'keen-ui/src/UiTooltip';
@@ -85,7 +84,6 @@
       UiPopover,
       UiTooltip,
     },
-    mixins: [KThemeMixin],
 
     props: {
       type: {

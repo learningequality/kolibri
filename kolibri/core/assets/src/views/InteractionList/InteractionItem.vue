@@ -41,11 +41,8 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   export default {
     name: 'InteractionItem',
-    mixins: [KThemeMixin],
     props: {
       interaction: {
         type: Object,

@@ -59,7 +59,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskTypes, TaskStatuses } from '../../constants';
 
@@ -70,7 +69,7 @@
 
   export default {
     name: 'TaskProgress',
-    mixins: [commonCoreStrings, KThemeMixin],
+    mixins: [commonCoreStrings],
     props: {
       type: RequiredString,
       status: RequiredString,

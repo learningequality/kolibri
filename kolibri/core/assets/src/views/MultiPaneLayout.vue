@@ -47,11 +47,10 @@
 
   import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
 
   export default {
     name: 'MultiPaneLayout',
-    mixins: [KResponsiveWindowMixin, KResponsiveElementMixin, KThemeMixin],
+    mixins: [KResponsiveWindowMixin, KResponsiveElementMixin],
     computed: {
       maxHeight() {
         const APP_BAR_HEIGHT = this.windowIsSmall ? 56 : 64;

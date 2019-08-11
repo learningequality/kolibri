@@ -57,7 +57,6 @@
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
@@ -75,7 +74,7 @@
 
     components: { CoreFullscreen },
 
-    mixins: [commonCoreStrings, KResponsiveElementMixin, contentRendererMixin, KThemeMixin],
+    mixins: [commonCoreStrings, KResponsiveElementMixin, contentRendererMixin],
 
     data: () => ({
       dummyTime: 0,

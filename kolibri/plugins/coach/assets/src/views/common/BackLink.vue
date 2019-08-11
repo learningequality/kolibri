@@ -29,7 +29,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
@@ -37,7 +36,6 @@
     components: {
       UiIconButton,
     },
-    mixins: [KThemeMixin],
     props: {
       text: {
         type: String,

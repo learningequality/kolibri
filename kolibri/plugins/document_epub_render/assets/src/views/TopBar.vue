@@ -68,7 +68,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import TocButton from './TocButton';
   import SettingsButton from './SettingsButton';
@@ -82,7 +81,6 @@
       SettingsButton,
       SearchButton,
     },
-    mixins: [KThemeMixin],
     props: {
       title: {
         type: String,

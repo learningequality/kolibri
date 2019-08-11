@@ -108,7 +108,6 @@ oriented data synchronization.
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import shuffled from 'kolibri.utils.shuffled';
@@ -128,7 +127,7 @@ oriented data synchronization.
       UiAlert,
       BottomAppBar,
     },
-    mixins: [commonCoreStrings, KThemeMixin, KResponsiveWindowMixin],
+    mixins: [commonCoreStrings, KResponsiveWindowMixin],
     props: {
       id: {
         type: String,

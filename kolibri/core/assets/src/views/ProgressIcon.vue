@@ -32,7 +32,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiIcon from 'keen-ui/src/UiIcon';
 
@@ -41,7 +40,7 @@
     components: {
       UiIcon,
     },
-    mixins: [commonCoreStrings, KThemeMixin],
+    mixins: [commonCoreStrings],
     props: {
       progress: {
         type: Number,

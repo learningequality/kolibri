@@ -71,8 +71,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
 
@@ -81,7 +79,6 @@
     components: {
       SideBar,
     },
-    mixins: [KThemeMixin],
     props: {
       theme: {
         type: Object,

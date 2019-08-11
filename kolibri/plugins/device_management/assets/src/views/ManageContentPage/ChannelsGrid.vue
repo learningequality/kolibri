@@ -47,7 +47,6 @@
 <script>
 
   import { mapActions, mapGetters, mapState } from 'vuex';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import DeleteChannelModal from './DeleteChannelModal';
   import ChannelListItem from './ChannelListItem';
 
@@ -57,7 +56,6 @@
       ChannelListItem,
       DeleteChannelModal,
     },
-    mixins: [KThemeMixin],
     data() {
       return {
         selectedChannelId: null,

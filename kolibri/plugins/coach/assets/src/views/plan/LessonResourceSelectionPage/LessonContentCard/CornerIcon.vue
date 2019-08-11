@@ -27,7 +27,6 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
@@ -35,7 +34,6 @@
     components: {
       ContentIcon,
     },
-    mixins: [KThemeMixin],
     props: {
       kind: {
         type: String,

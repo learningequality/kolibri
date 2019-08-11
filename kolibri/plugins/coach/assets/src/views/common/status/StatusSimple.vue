@@ -13,7 +13,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import { STATUSES } from '../../../modules/classSummary/constants';
   import { VERBS, ICONS } from './constants';
   import LearnerProgressLabel from './LearnerProgressLabel';
@@ -37,7 +36,6 @@
     components: {
       LearnerProgressLabel,
     },
-    mixins: [KThemeMixin],
     props: {
       verbose: {
         type: Boolean,

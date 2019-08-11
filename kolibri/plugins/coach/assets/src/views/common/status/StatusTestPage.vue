@@ -73,7 +73,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import commonCoach from '../../common';
   import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
   import StatusSummary from '../../common/status/StatusSummary';
@@ -84,7 +83,7 @@
       StatusSummary,
       ProgressSummaryBar,
     },
-    mixins: [commonCoach, KThemeMixin],
+    mixins: [commonCoach],
     data() {
       return {
         testSummaries: [

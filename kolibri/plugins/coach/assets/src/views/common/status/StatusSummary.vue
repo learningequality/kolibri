@@ -139,7 +139,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import { VERBS, ICONS } from './constants';
   import LearnerProgressCount from './LearnerProgressCount';
   import LearnerProgressRatio from './LearnerProgressRatio';
@@ -152,7 +151,7 @@
       // eslint-disable-next-line vue/no-unused-components
       LearnerProgressRatio, // it is used, it's just referenced dynamically
     },
-    mixins: [tallyMixin, KThemeMixin],
+    mixins: [tallyMixin],
     props: {
       verbose: {
         type: Boolean,

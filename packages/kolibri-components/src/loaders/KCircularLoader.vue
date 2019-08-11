@@ -80,14 +80,11 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   /**
    * Used to show indeterminate loading
    */
   export default {
     name: 'KCircularLoader',
-    mixins: [KThemeMixin],
     props: {
       /**
        * Whether there should be a delay before the loader displays

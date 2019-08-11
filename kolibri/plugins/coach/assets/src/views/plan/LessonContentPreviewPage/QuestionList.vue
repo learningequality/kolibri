@@ -31,11 +31,8 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   export default {
     name: 'QuestionList',
-    mixins: [KThemeMixin],
     props: {
       questions: {
         type: Array,

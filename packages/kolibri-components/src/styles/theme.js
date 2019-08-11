@@ -1,7 +1,6 @@
-import Vue from 'vue';
 import logger from 'kolibri.lib.logging';
-
-import materialColors from './materialColors.js';
+import globalState from './globalState';
+import materialColors from './materialColors';
 
 const logging = logger.getLogger(__filename);
 
@@ -92,37 +91,37 @@ function getTokens() {
 
 const tokens = getTokens();
 
-export const dynamicState = Vue.observable({ modality: null });
+export function themeTokens() {
+  return tokens;
+}
 
-export default {
-  $themeTokens() {
-    return tokens;
-  },
-  $themeTokenMapping() {
-    return staticState.tokenMapping;
-  },
-  $themeBrand() {
-    return staticState.colors.brand;
-  },
-  $themePalette() {
-    return staticState.colors.palette;
-  },
-  $theme() {
-    return global.kolibriTheme;
-  },
-  // Should only use these styles to outline stuff that will be focused
-  // on keyboard-tab-focus
-  $coreOutline() {
-    if (dynamicState.modality !== 'keyboard') {
-      return {
-        outline: 'none',
-      };
-    }
+export function themeTokenMapping() {
+  return staticState.tokenMapping;
+}
+
+export function themeBrand() {
+  return staticState.colors.brand;
+}
+
+export function themePalette() {
+  return staticState.colors.palette;
+}
+
+export function theme() {
+  return global.kolibriTheme;
+}
+
+// outline for keyboard-modality tab-focus
+export function themeOutlineStyle() {
+  if (globalState.inputModality !== 'keyboard') {
     return {
-      outlineColor: getTokens().focusOutline,
-      outlineStyle: 'solid',
-      outlineWidth: '3px',
-      outlineOffset: '4px',
+      outline: 'none',
     };
-  },
-};
+  }
+  return {
+    outlineColor: getTokens().focusOutline,
+    outlineStyle: 'solid',
+    outlineWidth: '3px',
+    outlineOffset: '4px',
+  };
+}

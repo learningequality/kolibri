@@ -35,7 +35,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
@@ -43,7 +42,6 @@
     components: {
       UiIcon,
     },
-    mixins: [KThemeMixin],
     props: {
       value: {
         type: Number,

@@ -46,14 +46,11 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   /**
    * Used to show determinate or indeterminate loading
    */
   export default {
     name: 'KLinearLoader',
-    mixins: [KThemeMixin],
     props: {
       /**
        * Whether there should be a delay before the loader displays

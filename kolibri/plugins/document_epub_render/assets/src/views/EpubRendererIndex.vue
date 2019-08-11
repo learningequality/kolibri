@@ -151,7 +151,6 @@
   import Lockr from 'lockr';
   import FocusLock from 'vue-focus-lock';
   import { mapGetters } from 'vuex';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
   import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
@@ -204,7 +203,7 @@
       SearchButton,
       LoadingError,
     },
-    mixins: [KResponsiveWindowMixin, KResponsiveElementMixin, contentRendererMixin, KThemeMixin],
+    mixins: [KResponsiveWindowMixin, KResponsiveElementMixin, contentRendererMixin],
     data() {
       return {
         book: null,

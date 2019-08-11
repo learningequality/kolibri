@@ -36,7 +36,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
@@ -47,7 +46,7 @@
       CoachContentLabel,
       DragSortWidget,
     },
-    mixins: [KThemeMixin, coachStringsMixin],
+    mixins: [coachStringsMixin],
     props: {
       draggable: {
         type: Boolean,

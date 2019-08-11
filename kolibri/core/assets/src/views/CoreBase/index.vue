@@ -117,7 +117,6 @@
 
   import { mapState, mapGetters } from 'vuex';
   import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import AppBar from 'kolibri.coreVue.components.AppBar';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
@@ -187,7 +186,7 @@
       UpdateNotification,
       LanguageSwitcherModal,
     },
-    mixins: [KResponsiveWindowMixin, KThemeMixin, commonCoreStrings],
+    mixins: [KResponsiveWindowMixin, commonCoreStrings],
     props: {
       appBarTitle: {
         type: String,

@@ -10,11 +10,8 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   export default {
     name: 'Placeholder',
-    mixins: [KThemeMixin],
     props: {
       ready: {
         type: Boolean,

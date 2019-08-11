@@ -54,7 +54,6 @@
   import objectFitImages from 'object-fit-images';
   import client from 'kolibri.client';
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
   import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
@@ -83,7 +82,7 @@
       HooperPagination,
       HooperNavigation,
     },
-    mixins: [contentRendererMixin, KThemeMixin, KResponsiveElementMixin, KResponsiveWindowMixin],
+    mixins: [contentRendererMixin, KResponsiveElementMixin, KResponsiveWindowMixin],
     props: {
       defaultFile: {
         type: Object,

@@ -1,4 +1,7 @@
-// From Angular Material via https://stackoverflow.com/a/39199702
+$radius: 4px;
+$core-time: 0.25s;
+
+// dropshadows from Angular Material via https://stackoverflow.com/a/39199702
 
 %dropshadow-1dp {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),

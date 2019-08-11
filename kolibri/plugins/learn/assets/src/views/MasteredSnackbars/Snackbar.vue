@@ -28,7 +28,6 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
@@ -37,7 +36,7 @@
     components: {
       UiIconButton,
     },
-    mixins: [commonCoreStrings, KThemeMixin],
+    mixins: [commonCoreStrings],
     $trs: {},
   };
 

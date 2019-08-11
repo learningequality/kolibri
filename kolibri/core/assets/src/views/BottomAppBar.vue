@@ -11,11 +11,8 @@
 
 <script>
 
-  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-
   export default {
     name: 'BottomAppBar',
-    mixins: [KThemeMixin],
     props: {
       maxWidth: {
         type: Number,
