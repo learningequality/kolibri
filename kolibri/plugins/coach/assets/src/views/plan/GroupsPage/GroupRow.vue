@@ -27,13 +27,13 @@
 
 <script>
 
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
 
   export default {
     name: 'GroupRow',
-    mixins: [commonCoach, commonCoreStrings, responsiveWindow],
+    mixins: [commonCoach, commonCoreStrings, KResponsiveWindowMixin],
     props: {
       group: {
         type: Object,

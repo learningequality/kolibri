@@ -16,7 +16,7 @@
 
 <script>
 
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import logger from 'kolibri.lib.logging';
   import Overlay from './Overlay';
   import { validateGutter } from './common';
@@ -29,7 +29,7 @@
   export default {
     name: 'KFixedGrid',
     components: { Overlay },
-    mixins: [responsiveWindow],
+    mixins: [KResponsiveWindowMixin],
     props: {
       /**
        * The number of columns. Can be an integer between 2 and 12

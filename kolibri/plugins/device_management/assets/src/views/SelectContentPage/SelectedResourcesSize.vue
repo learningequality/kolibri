@@ -47,7 +47,7 @@
 
 <script>
 
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import UiAlert from 'keen-ui/src/UiAlert';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
@@ -58,7 +58,7 @@
     components: {
       UiAlert,
     },
-    mixins: [responsiveWindow],
+    mixins: [KResponsiveWindowMixin],
     props: {
       mode: {
         type: String,

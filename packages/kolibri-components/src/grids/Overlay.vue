@@ -25,12 +25,12 @@
 
 <script>
 
-  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
 
   export default {
     name: 'Overlay',
-    mixins: [responsiveElement, responsiveWindow],
+    mixins: [KResponsiveElementMixin, KResponsiveWindowMixin],
     props: {
       cols: {
         type: Number,

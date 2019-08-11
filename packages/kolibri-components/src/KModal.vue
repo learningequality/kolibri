@@ -94,7 +94,7 @@
 
   import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import logger from 'kolibri.lib.logging';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import debounce from 'lodash/debounce';
 
   const logging = logger.getLogger(__filename);
@@ -104,7 +104,7 @@
    */
   export default {
     name: 'KModal',
-    mixins: [responsiveWindow, KThemeMixin],
+    mixins: [KResponsiveWindowMixin, KThemeMixin],
     props: {
       /**
        * The title of the modal

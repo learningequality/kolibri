@@ -16,8 +16,6 @@ import vuex from 'vuex';
 import UiAlert from 'keen-ui/src/UiAlert';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
-import responsiveWindow from 'kolibri-components/src/KResponsiveWindowMixin';
-import responsiveElement from 'kolibri-components/src/KResponsiveElementMixin';
 import logging from '../logging';
 import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';

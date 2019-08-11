@@ -14,7 +14,7 @@
 
 <script>
 
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import KFixedGrid from './KFixedGrid';
   import { validateGutter } from './common';
 
@@ -28,7 +28,7 @@
   export default {
     name: 'KGrid',
     components: { KFixedGrid },
-    mixins: [responsiveWindow],
+    mixins: [KResponsiveWindowMixin],
     props: {
       /**
        * Set the size of gutter in pixels. If not provided, the gutter is set tp 16px

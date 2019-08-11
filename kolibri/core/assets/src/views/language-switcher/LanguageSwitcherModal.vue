@@ -35,13 +35,13 @@
 <script>
 
   import { currentLanguage } from 'kolibri.utils.i18n';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import languageSwitcherMixin from './mixin';
 
   export default {
     name: 'LanguageSwitcherModal',
-    mixins: [commonCoreStrings, languageSwitcherMixin, responsiveWindow],
+    mixins: [commonCoreStrings, languageSwitcherMixin, KResponsiveWindowMixin],
     data() {
       return {
         selectedLanguage: currentLanguage,

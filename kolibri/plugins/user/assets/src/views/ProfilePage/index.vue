@@ -123,7 +123,7 @@
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
   import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { validateUsername } from 'kolibri.utils.validators';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
@@ -147,7 +147,7 @@
       ChangeUserPasswordModal,
       UserTypeDisplay,
     },
-    mixins: [responsiveWindow, KThemeMixin, commonCoreStrings],
+    mixins: [KResponsiveWindowMixin, KThemeMixin, commonCoreStrings],
     data() {
       const { username, full_name } = this.$store.state.core.session;
       return {

@@ -131,7 +131,7 @@
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -151,7 +151,7 @@
       BottomAppBar,
       QuestionListPreview,
     },
-    mixins: [responsiveWindow, commonCoach, commonCoreStrings],
+    mixins: [KResponsiveWindowMixin, commonCoach, commonCoreStrings],
     data() {
       return {
         showError: false,

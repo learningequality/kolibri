@@ -11,7 +11,7 @@
 
 <script>
 
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import logger from 'kolibri.lib.logging';
   import { validateAlignment, validateSpan } from './common';
 
@@ -22,7 +22,7 @@
    */
   export default {
     name: 'KFixedGridItem',
-    mixins: [responsiveWindow],
+    mixins: [KResponsiveWindowMixin],
     props: {
       /**
        * Number of grid columns that the item should span.

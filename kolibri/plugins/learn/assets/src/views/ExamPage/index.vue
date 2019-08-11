@@ -125,7 +125,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames } from '../../constants';
   import AnswerHistory from './AnswerHistory';
@@ -143,7 +143,7 @@
       UiAlert,
       BottomAppBar,
     },
-    mixins: [KThemeMixin, responsiveWindow, commonCoreStrings],
+    mixins: [KThemeMixin, KResponsiveWindowMixin, commonCoreStrings],
     data() {
       return {
         submitModalOpen: false,

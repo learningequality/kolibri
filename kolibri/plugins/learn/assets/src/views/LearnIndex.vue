@@ -30,7 +30,7 @@
   import { mapGetters, mapState } from 'vuex';
   import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
@@ -78,7 +78,7 @@
       LearnTopNav,
       TotalPoints,
     },
-    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindow],
+    mixins: [commonCoreStrings, commonLearnStrings, KResponsiveWindowMixin],
     data() {
       return {
         lastRoute: null,

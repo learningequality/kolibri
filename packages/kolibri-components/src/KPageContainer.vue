@@ -13,12 +13,12 @@
 
 <script>
 
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
 
   export default {
     name: 'KPageContainer',
-    mixins: [responsiveWindow, KThemeMixin],
+    mixins: [KResponsiveWindowMixin, KThemeMixin],
     props: {
       // If true, removes the padding inside the container
       noPadding: {

@@ -106,7 +106,7 @@
 
   import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -124,7 +124,7 @@
       FilterTextbox,
       UserTable,
     },
-    mixins: [responsiveWindow, commonCoach, commonCoreStrings],
+    mixins: [KResponsiveWindowMixin, commonCoach, commonCoreStrings],
     data() {
       return {
         filterInput: '',

@@ -91,7 +91,7 @@
 <script>
 
   import ResizeSensor from 'css-element-queries/src/ResizeSensor';
-  import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import filter from 'lodash/filter';
   import startsWith from 'lodash/startsWith';
@@ -108,7 +108,7 @@
   export default {
     name: 'KBreadcrumbs',
     components: { UiIconButton },
-    mixins: [ResponsiveElement],
+    mixins: [KResponsiveElementMixin],
     props: {
       /**
        * An array of objects, each with a 'text' attribute (String) and a

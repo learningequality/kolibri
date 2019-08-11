@@ -9,7 +9,7 @@
 
 <script>
 
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import logger from 'kolibri.lib.logging';
   import KFixedGridItem from './KFixedGridItem';
   import { validateAlignment, validateSpan } from './common';
@@ -52,7 +52,7 @@
   export default {
     name: 'KGridItem',
     components: { KFixedGridItem },
-    mixins: [responsiveWindow],
+    mixins: [KResponsiveWindowMixin],
     props: {
       /**
        * Default layout object, for all grid sizes

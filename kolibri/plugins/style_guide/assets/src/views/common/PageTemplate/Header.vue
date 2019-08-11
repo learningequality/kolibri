@@ -27,12 +27,12 @@
 <script>
 
   import { throttle } from 'frame-throttle';
-  import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
   import state from '../../../state';
 
   export default {
     name: 'Header',
-    mixins: [ResponsiveElement],
+    mixins: [KResponsiveElementMixin],
     props: {
       sections: {
         type: Array,

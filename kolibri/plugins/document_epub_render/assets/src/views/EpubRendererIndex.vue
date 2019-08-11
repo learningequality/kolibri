@@ -153,8 +153,8 @@
   import { mapGetters } from 'vuex';
   import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
-  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
@@ -204,7 +204,7 @@
       SearchButton,
       LoadingError,
     },
-    mixins: [responsiveWindow, responsiveElement, contentRendererMixin, KThemeMixin],
+    mixins: [KResponsiveWindowMixin, KResponsiveElementMixin, contentRendererMixin, KThemeMixin],
     data() {
       return {
         book: null,
