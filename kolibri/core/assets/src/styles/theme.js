@@ -125,14 +125,4 @@ export default {
       outlineOffset: '4px',
     };
   },
-  // Should use this when the outline needs to be applied regardless
-  // of modality
-  $coreOutlineAnyModality() {
-    return {
-      outlineColor: getTokens().focusOutline,
-      outlineStyle: 'solid',
-      outlineWidth: '3px',
-      outlineOffset: '4px',
-    };
-  },
 };

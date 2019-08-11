@@ -34,7 +34,6 @@
         v-show="!enoughSpace"
         class="scroll-button"
         aria-hidden="true"
-        :class="$computedClass(scrollButton)"
         @click="handleClickNext"
       >
         <mat-svg
@@ -77,11 +76,6 @@
         }
 
         return [];
-      },
-      scrollButton() {
-        return {
-          ':hover': this.$coreOutlineAnyModality,
-        };
       },
     },
     mounted() {

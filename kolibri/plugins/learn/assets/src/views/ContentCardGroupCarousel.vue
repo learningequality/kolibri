@@ -262,6 +262,19 @@
 
   @import '~kolibri.styles.definitions';
 
+  // from http://nicolasgallagher.com/micro-clearfix-hack/
+  @mixin clearfix() {
+    zoom: 1;
+    &::after,
+    &::before {
+      display: table;
+      content: '';
+    }
+    &::after {
+      clear: both;
+    }
+  }
+
   // width of card + gutter
   $card-height: 210px;
   $control-hit-height: 100px;
