@@ -23,7 +23,7 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import isArray from 'lodash/isArray';
   import Popper from './Popper';
 
@@ -35,7 +35,7 @@
     components: {
       Popper,
     },
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       /**
        * String of ref which tooltip will be positioned relative to.

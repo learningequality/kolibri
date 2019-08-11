@@ -14,7 +14,7 @@
 
 <script>
 
-  import KLinearLoader from 'kolibri.shared.KLinearLoader';
+  import KLinearLoader from 'kolibri-components/src/loaders/KLinearLoader';
 
   export default {
     name: 'Example',

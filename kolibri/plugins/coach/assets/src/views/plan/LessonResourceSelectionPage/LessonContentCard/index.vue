@@ -52,7 +52,7 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
@@ -66,7 +66,7 @@
       TextTruncator,
       CoachContentLabel,
     },
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       title: {
         type: String,

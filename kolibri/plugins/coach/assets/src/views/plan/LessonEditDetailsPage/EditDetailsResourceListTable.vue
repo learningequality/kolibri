@@ -69,7 +69,7 @@
 <script>
 
   import { mapActions, mapState } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
@@ -89,7 +89,7 @@
       DragSortWidget,
       ContentIcon,
     },
-    mixins: [coachStringsMixin, commonCoreStrings, themeMixin],
+    mixins: [coachStringsMixin, commonCoreStrings, KThemeMixin],
     props: {
       // Array<{ contentnode_id, content_id, channel_id }>
       resources: {

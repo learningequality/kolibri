@@ -93,7 +93,7 @@
 <script>
 
   import { mapState, mapMutations, mapGetters } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -119,7 +119,7 @@
       ContentWizardUiAlert,
       FilterTextbox,
     },
-    mixins: [commonCoreStrings, responsiveWindow, themeMixin],
+    mixins: [commonCoreStrings, responsiveWindow, KThemeMixin],
     data() {
       return {
         languageFilter: {},

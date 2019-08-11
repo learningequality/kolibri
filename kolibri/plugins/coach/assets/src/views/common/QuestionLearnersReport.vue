@@ -64,7 +64,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
@@ -82,7 +82,7 @@
       MultiPaneLayout,
       CoachContentLabel,
     },
-    mixins: [commonCoach, commonCoreStrings, themeMixin],
+    mixins: [commonCoach, commonCoreStrings, KThemeMixin],
     data() {
       return {
         showCorrectAnswer: false,

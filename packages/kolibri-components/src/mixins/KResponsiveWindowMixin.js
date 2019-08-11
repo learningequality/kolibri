@@ -1,18 +1,7 @@
 /*
   Apply this mixin to your vue components to get reactive information about window sizes.
 
-  For example:
-
-    <script>
-
-      import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-
-      export default {
-        mixins: [responsiveWindow],
-        props: {
-    ...
-
-  This adds a few new reactive properties to your vue model:
+  Adds a few new reactive properties to your vue model:
 
     this.windowHeight       // height in pixels
     this.windowWidth        // width in pixels

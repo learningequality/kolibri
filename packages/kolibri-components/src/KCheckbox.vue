@@ -62,14 +62,14 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
 
   /**
    * Used for toggling boolean user input
    */
   export default {
     name: 'KCheckbox',
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       /**
        * Label

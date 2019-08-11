@@ -47,16 +47,16 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import KButton from 'kolibri.shared.KButton';
-  import KGrid from 'kolibri.shared.KGrid';
-  import KGridItem from 'kolibri.shared.KGridItem';
+  import KButton from 'kolibri-components/src/buttons-and-links/KButton';
+  import KGrid from 'kolibri-components/src/grids/KGrid';
+  import KGridItem from 'kolibri-components/src/grids/KGridItem';
 
   export default {
     name: 'CoreBanner',
     components: { KButton, KGrid, KGridItem },
-    mixins: [commonCoreStrings, themeMixin],
+    mixins: [commonCoreStrings, KThemeMixin],
     data() {
       return {
         bannerClosed: false,

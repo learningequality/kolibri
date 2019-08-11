@@ -22,7 +22,7 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import SectionLink from './SectionLink';
 
   const TOKENS = 'tokens.';
@@ -38,7 +38,7 @@
     components: {
       SectionLink,
     },
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       name: {
         type: String,

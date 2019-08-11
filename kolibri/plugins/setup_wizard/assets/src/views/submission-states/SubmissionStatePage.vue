@@ -21,13 +21,13 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KCircularLoader from 'kolibri.shared.KCircularLoader';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
+  import KCircularLoader from 'kolibri-components/src/loaders/KCircularLoader';
 
   export default {
     name: 'SubmissionStatePage',
     components: { KCircularLoader },
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       header: {
         type: String,

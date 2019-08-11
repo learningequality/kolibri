@@ -31,12 +31,7 @@ import ContentIcon from '../views/ContentIcon';
 import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
 import CoreBase from '../views/CoreBase';
-import KModal from '../shared/KModal';
 import SideNav from '../views/SideNav';
-import KButton from '../shared/buttons-and-links/KButton';
-import KExternalLink from '../shared/buttons-and-links/KExternalLink';
-import KRouterLink from '../shared/buttons-and-links/KRouterLink';
-import KTextbox from '../shared/KTextbox';
 import Navbar from '../views/Navbar';
 import NavbarLink from '../views/Navbar/NavbarLink';
 import CoreLogo from '../views/CoreLogo';
@@ -44,18 +39,10 @@ import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherLis
 import ElapsedTime from '../views/ElapsedTime';
 import PointsIcon from '../views/PointsIcon';
 import AuthMessage from '../views/AuthMessage';
-import KBreadcrumbs from '../shared/KBreadcrumbs';
-import KCheckbox from '../shared/KCheckbox';
-import KRadioButton from '../shared/KRadioButton';
 import FilterTextbox from '../views/FilterTextbox';
-import KGrid from '../shared/grids/KGrid';
-import KGridItem from '../shared/grids/KGridItem';
-import KFixedGrid from '../shared/grids/KFixedGrid';
-import KFixedGridItem from '../shared/grids/KFixedGridItem';
-import KSelect from '../shared/KSelect';
 import router from '../router';
-import responsiveWindow from '../mixins/responsive-window';
-import responsiveElement from '../mixins/responsive-element';
+import responsiveWindow from 'kolibri-components/src/KResponsiveWindowMixin';
+import responsiveElement from 'kolibri-components/src/KResponsiveElementMixin';
 import contentRendererMixin from '../mixins/contentRenderer';
 import commonCoreStrings from '../mixins/commonCoreStrings';
 import CoreFullscreen from '../views/CoreFullscreen';
@@ -76,7 +63,6 @@ import CoreMenu from '../views/CoreMenu';
 import CoreMenuOption from '../views/CoreMenu/CoreMenuOption';
 import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
-import KDropdownMenu from '../shared/KDropdownMenu';
 import CoachContentLabel from '../views/CoachContentLabel';
 import PrivacyInfoModal from '../views/PrivacyInfoModal';
 import UserTypeDisplay from '../views/UserTypeDisplay';
@@ -85,10 +71,6 @@ import Draggable from '../views/sortable/Draggable';
 import DragHandle from '../views/sortable/DragHandle';
 import DragContainer from '../views/sortable/DragContainer';
 import DragSortWidget from '../views/sortable/DragSortWidget';
-import KEmptyPlaceholder from '../shared/KEmptyPlaceholder';
-import KPageContainer from '../shared/KPageContainer';
-import KIcon from '../shared/KIcon';
-import KLabeledIcon from '../shared/KLabeledIcon';
 import BottomAppBar from '../views/BottomAppBar';
 import PaginatedListContainer from '../views/PaginatedListContainer';
 
@@ -99,46 +81,19 @@ import AttemptLogList from '../views/AttemptLogList';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
 import TextTruncator from '../views/TextTruncator';
-import KLinearLoader from '../shared/loaders/KLinearLoader';
-import KCircularLoader from '../shared/loaders/KCircularLoader';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
 import coreBannerContent from '../utils/coreBannerContent';
 import CatchErrors from '../utils/CatchErrors';
-import KTooltip from '../shared/KTooltip';
 import UiIconButton from '../views/KeenUiIconButton.vue';
 import UiToolbar from '../views/KeenUiToolbar.vue';
 import shuffled from '../utils/shuffled';
-import themeMixin from '../mixins/theme';
 import vue from './kolibriVue';
 import * as client from './client';
 import urls from './urls';
 
 export default {
-  shared: {
-    KBreadcrumbs,
-    KButton,
-    KCheckbox,
-    KCircularLoader,
-    KDropdownMenu,
-    KEmptyPlaceholder,
-    KExternalLink,
-    KFixedGrid,
-    KFixedGridItem,
-    KGrid,
-    KGridItem,
-    KIcon,
-    KLabeledIcon,
-    KLinearLoader,
-    KModal,
-    KPageContainer,
-    KRadioButton,
-    KRouterLink,
-    KSelect,
-    KTextbox,
-    KTooltip,
-  },
   client,
   heartbeat,
   lib: {
@@ -203,10 +158,7 @@ export default {
     },
     router,
     mixins: {
-      responsiveWindow,
-      responsiveElement,
       contentRendererMixin,
-      themeMixin,
       commonCoreStrings,
     },
   },

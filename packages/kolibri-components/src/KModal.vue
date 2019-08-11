@@ -92,11 +92,11 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import logger from 'kolibri.lib.logging';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import debounce from 'lodash/debounce';
-  import KButton from 'kolibri.shared.KButton';
+  import KButton from 'kolibri-components/src/buttons-and-links/KButton';
 
   const logging = logger.getLogger(__filename);
 
@@ -108,7 +108,7 @@
     components: {
       KButton,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [responsiveWindow, KThemeMixin],
     props: {
       /**
        * The title of the modal

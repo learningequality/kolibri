@@ -49,11 +49,11 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
 
   export default {
     name: 'BottomBar',
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       heading: {
         type: String,

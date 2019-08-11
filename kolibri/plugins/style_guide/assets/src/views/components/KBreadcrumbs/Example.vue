@@ -7,7 +7,7 @@
 
 <script>
 
-  import KBreadcrumbs from 'kolibri.shared.KBreadcrumbs';
+  import KBreadcrumbs from 'kolibri-components/src/KBreadcrumbs';
 
   export default {
     name: 'Example',

@@ -57,8 +57,8 @@
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KCircularLoader from 'kolibri.shared.KCircularLoader';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
+  import KCircularLoader from 'kolibri-components/src/loaders/KCircularLoader';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
@@ -76,7 +76,7 @@
 
     components: { KCircularLoader, CoreFullscreen },
 
-    mixins: [commonCoreStrings, ResponsiveElement, contentRendererMixin, themeMixin],
+    mixins: [commonCoreStrings, ResponsiveElement, contentRendererMixin, KThemeMixin],
 
     data: () => ({
       dummyTime: 0,

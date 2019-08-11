@@ -1,41 +1,41 @@
-import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+import kTheme from 'kolibri-components/src/styles/kTheme';
 
 export const THEMES = {
   WHITE: {
     name: 'WHITE',
-    backgroundColor: themeMixin.computed.$themeTokens().surface,
-    hoverColor: themeMixin.computed.$themePalette().grey.v_200,
-    textColor: themeMixin.computed.$themeTokens().text,
+    backgroundColor: kTheme.$themeTokens().surface,
+    hoverColor: kTheme.$themePalette().grey.v_200,
+    textColor: kTheme.$themeTokens().text,
   },
   BEIGE: {
     name: 'BEIGE',
-    backgroundColor: themeMixin.computed.$themePalette().brown.v_50,
-    hoverColor: themeMixin.computed.$themePalette().brown.v_100,
-    textColor: themeMixin.computed.$themePalette().brown.v_800,
+    backgroundColor: kTheme.$themePalette().brown.v_50,
+    hoverColor: kTheme.$themePalette().brown.v_100,
+    textColor: kTheme.$themePalette().brown.v_800,
   },
   GREY: {
     name: 'GREY',
-    backgroundColor: themeMixin.computed.$themePalette().grey.v_800,
-    hoverColor: themeMixin.computed.$themePalette().grey.v_600,
-    textColor: themeMixin.computed.$themePalette().white,
+    backgroundColor: kTheme.$themePalette().grey.v_800,
+    hoverColor: kTheme.$themePalette().grey.v_600,
+    textColor: kTheme.$themePalette().white,
   },
   BLACK: {
     name: 'BLACK',
-    backgroundColor: themeMixin.computed.$themePalette().grey.v_900,
-    hoverColor: themeMixin.computed.$themePalette().grey.v_700,
-    textColor: themeMixin.computed.$themePalette().grey.v_400,
+    backgroundColor: kTheme.$themePalette().grey.v_900,
+    hoverColor: kTheme.$themePalette().grey.v_700,
+    textColor: kTheme.$themePalette().grey.v_400,
   },
   YELLOW: {
     name: 'YELLOW',
-    backgroundColor: themeMixin.computed.$themePalette().grey.v_900,
-    hoverColor: themeMixin.computed.$themePalette().grey.v_700,
-    textColor: themeMixin.computed.$themePalette().yellow.v_300,
+    backgroundColor: kTheme.$themePalette().grey.v_900,
+    hoverColor: kTheme.$themePalette().grey.v_700,
+    textColor: kTheme.$themePalette().yellow.v_300,
   },
   BLUE: {
     name: 'BLUE',
-    backgroundColor: themeMixin.computed.$themeTokens().surface,
-    hoverColor: themeMixin.computed.$themePalette().grey.v_200,
-    textColor: themeMixin.computed.$themePalette().blue.v_800,
+    backgroundColor: kTheme.$themeTokens().surface,
+    hoverColor: kTheme.$themePalette().grey.v_200,
+    textColor: kTheme.$themePalette().blue.v_800,
   },
 };
 

@@ -33,12 +33,12 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import ClipboardJS from 'clipboard';
 
   export default {
     name: 'TechnicalTextBlock',
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       text: {
         type: String,

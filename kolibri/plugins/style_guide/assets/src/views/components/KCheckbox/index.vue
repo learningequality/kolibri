@@ -60,7 +60,7 @@
   import exampleCode from '!!raw-loader!./Example.vue';
   /* eslint-enable import/no-duplicates */
 
-  import kCheckboxApi from '!vue-doc!kolibri.shared.KCheckbox';
+  import kCheckboxApi from '!vue-doc!kolibri-components/src/KCheckbox';
 
   export default {
     name: 'KCheckbox',

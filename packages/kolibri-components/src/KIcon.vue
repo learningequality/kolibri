@@ -51,7 +51,7 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
 
   const iconTypes = [
     // tracking
@@ -100,7 +100,7 @@
 
   export default {
     name: 'KIcon',
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       icon: {
         type: String,
@@ -125,7 +125,7 @@
         return { fill: this.$themeTokens.text };
       },
       flip() {
-        return this.isRtl ? 'rtl-icon' : null;
+        return this.isRtl ? 'rtl-flip-icon' : null;
       },
     },
   };
@@ -140,6 +140,10 @@
     top: 0.125em;
     width: 1.125em;
     height: 1.125em;
+  }
+
+  .rtl-flip-icon {
+    transform: scaleX(-1);
   }
 
 </style>

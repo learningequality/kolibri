@@ -27,7 +27,7 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import UiIcon from 'keen-ui/src/UiIcon';
 
@@ -37,7 +37,7 @@
   export default {
     name: 'NavbarLink',
     components: { UiIcon },
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       /**
        * The text

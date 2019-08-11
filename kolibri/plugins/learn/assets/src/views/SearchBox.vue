@@ -119,7 +119,7 @@
 
   import maxBy from 'lodash/maxBy';
   import { mapGetters, mapState } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -141,7 +141,7 @@
     components: {
       UiIconButton,
     },
-    mixins: [themeMixin, commonCoreStrings],
+    mixins: [KThemeMixin, commonCoreStrings],
     props: {
       icon: {
         type: String,

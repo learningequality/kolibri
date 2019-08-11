@@ -16,12 +16,12 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import { coachStringsMixin } from './commonCoachStrings';
 
   export default {
     name: 'LessonActive',
-    mixins: [themeMixin, coachStringsMixin],
+    mixins: [KThemeMixin, coachStringsMixin],
     props: {
       active: {
         type: Boolean,

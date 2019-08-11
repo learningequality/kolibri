@@ -21,7 +21,7 @@
 
 <script>
 
-  import KDropdownMenu from 'kolibri.shared.KDropdownMenu';
+  import KDropdownMenu from 'kolibri-components/src/KDropdownMenu';
 
   export default {
     name: 'Example',

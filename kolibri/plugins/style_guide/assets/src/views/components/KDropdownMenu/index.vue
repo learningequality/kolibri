@@ -24,7 +24,7 @@
   import exampleCode from '!!raw-loader!./Example.vue';
   /* eslint-enable import/no-duplicates */
 
-  import kDropdownMenuApi from '!vue-doc!kolibri.shared.KDropdownMenu';
+  import kDropdownMenuApi from '!vue-doc!kolibri-components/src/KDropdownMenu';
 
   export default {
     name: 'KDropdownMenu',

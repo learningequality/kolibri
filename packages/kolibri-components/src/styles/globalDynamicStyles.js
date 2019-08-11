@@ -1,6 +1,6 @@
 import { StyleSheet as baseStyleSheet } from 'aphrodite/no-important';
 import store from 'kolibri.coreVue.vuex.store';
-import theme from './theme';
+import theme from './kTheme';
 
 const globalSelectorHandler = (selector, _, generateSubtreeStyles) => {
   if (selector[0] !== '*') {

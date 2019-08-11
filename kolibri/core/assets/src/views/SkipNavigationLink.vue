@@ -15,11 +15,11 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
 
   export default {
     name: 'SkipNavigationLink',
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     computed: {
       linkStyles() {
         return {

@@ -61,7 +61,7 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
@@ -79,7 +79,7 @@
       InteractionList,
       MultiPaneLayout,
     },
-    mixins: [commonCoreStrings, themeMixin],
+    mixins: [commonCoreStrings, KThemeMixin],
     props: {
       examAttempts: {
         type: Array,

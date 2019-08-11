@@ -97,7 +97,7 @@
   import startsWith from 'lodash/startsWith';
   import throttle from 'lodash/throttle';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import KRouterLink from 'kolibri.shared.KRouterLink';
+  import KRouterLink from 'kolibri-components/src/buttons-and-links/KRouterLink';
 
   const DROPDOWN_BTN_WIDTH = 55;
   const DROPDOWN_SIDE_PADDING = 32; // pulled from .breadcrumbs-dropdown

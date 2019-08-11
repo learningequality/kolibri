@@ -11,10 +11,8 @@
     @import '~kolibri.styles.definitions';
 */
 
-@import './materialDesignElevations';
-
-$radius: 4px;
-$core-time: 0.25s;
+// Add items from the design system
+@import '~kolibri-components/src/styles/styleDefinitions';
 
 /*
   Mixins for font-family to ensure that the full fonts are not referenced until they've

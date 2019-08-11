@@ -6,8 +6,8 @@ import Buttons from './views/patterns/Buttons';
 
 // import ComponentDocs from './views/common/ComponentDocs';
 
-// import KCheckboxesAPI from '!vue-doc!kolibri.shared.KCheckbox';
-// import KBreadcrumbsAPI from '!vue-doc!kolibri.shared.KBreadcrumbs';
+// import KCheckboxesAPI from '!vue-doc!kolibri-components/src/KCheckbox';
+// import KBreadcrumbsAPI from '!vue-doc!kolibri-components/src/KBreadcrumbs';
 
 const homeRoute = [
   {

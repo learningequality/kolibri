@@ -11,11 +11,11 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
 
   export default {
     name: 'BottomAppBar',
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       maxWidth: {
         type: Number,

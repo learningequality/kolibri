@@ -1,0 +1,8 @@
+{
+  "name": "kolibri-components",
+  "version": "0.1.0",
+  "description": "Front-end components and utilities supporting the Kolibri Design System",
+  "author": "Learning Equality",
+  "license": "MIT",
+  "dependencies": {}
+}

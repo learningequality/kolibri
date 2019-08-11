@@ -179,12 +179,12 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import fuzzysearch from 'fuzzysearch';
   import startswith from 'lodash/startsWith';
   import sortby from 'lodash/sortBy';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import KCircularLoader from 'kolibri.shared.KCircularLoader';
+  import KCircularLoader from 'kolibri-components/src/loaders/KCircularLoader';
 
   import { looseIndexOf, looseEqual } from 'keen-ui/src/helpers/util';
   import { scrollIntoView, resetScroll } from 'keen-ui/src/helpers/element-scroll';
@@ -199,7 +199,7 @@
       KCircularLoader,
       KeenUiSelectOption,
     },
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       name: String,
       value: {

@@ -53,8 +53,8 @@
 
 <script>
 
-  import KModal from 'kolibri.shared.KModal';
-  import KButton from 'kolibri.shared.KButton';
+  import KModal from 'kolibri-components/src/KModal';
+  import KButton from 'kolibri-components/src/buttons-and-links/KButton';
 
   export default {
     name: 'Example',

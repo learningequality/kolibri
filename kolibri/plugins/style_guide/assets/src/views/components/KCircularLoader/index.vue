@@ -27,7 +27,7 @@
   import Example from './Example';
   import ExampleCode from '!!raw-loader!./Example';
 
-  import KCircularLoaderApi from '!vue-doc!kolibri.shared.KCircularLoader';
+  import KCircularLoaderApi from '!vue-doc!kolibri-components/src/loaders/KCircularLoader';
   /* eslint-enable import/no-duplicates */
 
   export default {

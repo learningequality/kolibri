@@ -25,13 +25,13 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import AnswerIcon from './AnswerIcon';
 
   export default {
     name: 'ExerciseAttempts',
     components: { AnswerIcon },
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       // Creates an empty space awaiting a new attempt
       waitingForAttempt: {

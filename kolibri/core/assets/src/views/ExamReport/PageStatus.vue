@@ -54,7 +54,7 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -65,7 +65,7 @@
       ProgressIcon,
       ElapsedTime,
     },
-    mixins: [commonCoreStrings, themeMixin],
+    mixins: [commonCoreStrings, KThemeMixin],
     props: {
       userName: {
         type: String,

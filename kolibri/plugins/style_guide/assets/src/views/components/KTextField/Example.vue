@@ -31,7 +31,7 @@
 
 <script>
 
-  import KTextbox from 'kolibri.shared.KTextbox';
+  import KTextbox from 'kolibri-components/src/KTextbox';
 
   export default {
     name: 'Example',

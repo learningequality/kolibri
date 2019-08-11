@@ -29,7 +29,7 @@
   import Example from './Example';
   import ExampleCode from '!!raw-loader!./Example';
 
-  import KLinearLoaderApi from '!vue-doc!kolibri.shared.KLinearLoader';
+  import KLinearLoaderApi from '!vue-doc!kolibri-components/src/loaders/KLinearLoader';
   /* eslint-enable import/no-duplicates */
 
   export default {

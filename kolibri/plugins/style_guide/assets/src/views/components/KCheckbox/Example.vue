@@ -33,7 +33,7 @@
 
 <script>
 
-  import KCheckbox from 'kolibri.shared.KCheckbox';
+  import KCheckbox from 'kolibri-components/src/KCheckbox';
 
   export default {
     name: 'Example',

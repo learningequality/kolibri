@@ -1,5 +1,5 @@
 import VueRouter from 'vue-router';
-import KBreadcrumbs from 'kolibri.shared.KBreadcrumbs';
+import KBreadcrumbs from 'kolibri-components/src/KBreadcrumbs';
 import { mount } from '@vue/test-utils';
 import Breadcrumbs from '../../src/views/Breadcrumbs';
 import makeStore from '../makeStore';

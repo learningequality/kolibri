@@ -242,7 +242,7 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import ExternalLink from '../../common/ExternalLink';
   import PageTemplate from '../../common/PageTemplate';
   import PageSection from '../../common/PageSection';
@@ -256,7 +256,7 @@
       ExternalLink,
       ColorBlock,
     },
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     computed: {
       palette() {
         const palette = [];

@@ -11,8 +11,8 @@ require('kolibri.urls').default.setUp();
 // include global styles
 require('purecss/build/base-min.css');
 require('../styles/main.scss');
-require('../styles/globalDynamicStyles');
-require('./vuexModality');
+require('kolibri-components/src/styles/globalDynamicStyles');
+require('kolibri-components/src/styles/vuexModality');
 require('./monitorPageVisibility');
 
 // Required to setup Keen UI, should be imported only once in your project

@@ -36,13 +36,13 @@
 
 <script>
 
-  import KExternalLink from 'kolibri.shared.KExternalLink';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KExternalLink from 'kolibri-components/src/buttons-and-links/KExternalLink';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
 
   export default {
     name: 'DemoServerBannerContent',
     components: { KExternalLink },
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       bannerClosed: {
         required: true,

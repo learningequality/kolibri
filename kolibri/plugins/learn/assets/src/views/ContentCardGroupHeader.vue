@@ -21,14 +21,14 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KRouterLink from 'kolibri.shared.KRouterLink';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
+  import KRouterLink from 'kolibri-components/src/buttons-and-links/KRouterLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ContentCardGroupHeader',
     components: { KRouterLink },
-    mixins: [commonCoreStrings, themeMixin],
+    mixins: [commonCoreStrings, KThemeMixin],
     props: {
       header: { type: String },
       viewMorePageLink: { type: Object },

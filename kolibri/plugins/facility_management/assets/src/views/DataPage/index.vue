@@ -80,7 +80,7 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import urls from 'kolibri.urls';
   import { PageNames } from '../../constants';
@@ -98,7 +98,7 @@
       GeneratedElapsedTime,
       DataPageTaskProgress,
     },
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     computed: {
       ...mapGetters('manageCSV', [
         'inSessionCSVCreation',

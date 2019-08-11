@@ -41,7 +41,7 @@
   import exampleCode from '!!raw-loader!./Example.vue';
   /* eslint-enable import/no-duplicates */
 
-  import kBreadcrumbsApi from '!vue-doc!kolibri.shared.KBreadcrumbs';
+  import kBreadcrumbsApi from '!vue-doc!kolibri-components/src/KBreadcrumbs';
 
   export default {
     name: 'KBreadcrumbs',

@@ -2,18 +2,7 @@
   Apply this mixin to your vue components to get reactive information
   about the component's size.
 
-  For example:
-
-    <script>
-
-      import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-
-      export default {
-        mixins: [responsiveElement],
-        props: {
-    ...
-
-  This adds a couple reactive properties to your vue model:
+  Adds a couple reactive properties to your vue model:
 
     this.elementHeight   // component's $el height in pixels
     this.elementWidth    // component's $el width in pixels

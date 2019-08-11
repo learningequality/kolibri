@@ -34,7 +34,7 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import SearchBox from './SearchBox';
@@ -45,7 +45,7 @@
       UiIconButton,
       SearchBox,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [responsiveWindow, KThemeMixin],
     data() {
       return {
         searchBoxIsOpen: false,

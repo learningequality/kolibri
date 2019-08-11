@@ -139,7 +139,7 @@
   import exampleCode from '!!raw-loader!./Example.vue';
   /* eslint-enable import/no-duplicates */
 
-  import kTextboxApi from '!vue-doc!kolibri.shared.KTextbox';
+  import kTextboxApi from '!vue-doc!kolibri-components/src/KTextbox';
 
   export default {
     name: 'KTextField',

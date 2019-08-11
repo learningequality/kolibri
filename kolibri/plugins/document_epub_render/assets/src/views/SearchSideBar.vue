@@ -91,7 +91,7 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import Mark from 'mark.js';
   import SideBar from './SideBar';
@@ -145,7 +145,7 @@
       SideBar,
       UiIconButton,
     },
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       book: {
         type: Object,

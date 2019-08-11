@@ -37,7 +37,7 @@
 
 <script>
 
-  import KRadioButton from 'kolibri.shared.KRadioButton';
+  import KRadioButton from 'kolibri-components/src/KRadioButton';
 
   export default {
     name: 'Example',

@@ -22,7 +22,7 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
 
   export default {
@@ -30,7 +30,7 @@
     components: {
       ContentRenderer,
     },
-    mixins: [themeMixin],
+    mixins: [KThemeMixin],
     props: {
       content: {
         type: Object,
