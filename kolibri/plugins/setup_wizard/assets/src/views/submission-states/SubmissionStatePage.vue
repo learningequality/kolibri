@@ -22,11 +22,9 @@
 <script>
 
   import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-  import KCircularLoader from 'kolibri-components/src/loaders/KCircularLoader';
 
   export default {
     name: 'SubmissionStatePage',
-    components: { KCircularLoader },
     mixins: [KThemeMixin],
     props: {
       header: {

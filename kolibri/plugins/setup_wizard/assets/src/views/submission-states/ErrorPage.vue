@@ -26,12 +26,11 @@
 <script>
 
   import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-  import KButton from 'kolibri-components/src/buttons-and-links/KButton';
   import SubmissionStatePage from './SubmissionStatePage';
 
   export default {
     name: 'ErrorPage',
-    components: { SubmissionStatePage, KButton },
+    components: { SubmissionStatePage },
     mixins: [KThemeMixin],
     methods: {
       refreshPage() {

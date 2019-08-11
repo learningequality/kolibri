@@ -14,11 +14,8 @@
 
 <script>
 
-  import KLinearLoader from 'kolibri-components/src/loaders/KLinearLoader';
-
   export default {
     name: 'Example',
-    components: { KLinearLoader },
     data: () => ({
       progress: 50,
     }),

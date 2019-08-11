@@ -96,7 +96,6 @@
   import logger from 'kolibri.lib.logging';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import debounce from 'lodash/debounce';
-  import KButton from 'kolibri-components/src/buttons-and-links/KButton';
 
   const logging = logger.getLogger(__filename);
 
@@ -105,9 +104,6 @@
    */
   export default {
     name: 'KModal',
-    components: {
-      KButton,
-    },
     mixins: [responsiveWindow, KThemeMixin],
     props: {
       /**

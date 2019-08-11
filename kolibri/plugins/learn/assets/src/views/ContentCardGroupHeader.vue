@@ -22,12 +22,10 @@
 <script>
 
   import KThemeMixin from 'kolibri-components/src/mixins/KThemeMixin';
-  import KRouterLink from 'kolibri-components/src/buttons-and-links/KRouterLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ContentCardGroupHeader',
-    components: { KRouterLink },
     mixins: [commonCoreStrings, KThemeMixin],
     props: {
       header: { type: String },

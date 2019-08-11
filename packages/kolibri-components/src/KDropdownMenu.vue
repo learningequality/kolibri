@@ -37,7 +37,6 @@
 
 <script>
 
-  import KButton from 'kolibri-components/src/buttons-and-links/KButton';
   import UiPopover from 'keen-ui/src/UiPopover';
   import UiMenu from 'keen-ui/src/UiMenu';
   import { validator } from './buttons-and-links/appearances';
@@ -48,7 +47,6 @@
   export default {
     name: 'KDropdownMenu',
     components: {
-      KButton,
       UiPopover,
       UiMenu,
     },

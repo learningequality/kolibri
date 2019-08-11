@@ -54,11 +54,10 @@
 <script>
 
   import KModal from 'kolibri-components/src/KModal';
-  import KButton from 'kolibri-components/src/buttons-and-links/KButton';
 
   export default {
     name: 'Example',
-    components: { KModal, KButton },
+    components: { KModal },
     data: () => ({
       modalShown: null,
     }),

@@ -13,16 +13,12 @@
 /* eslint-disable */
 
 import { mapGetters, mapState } from 'vuex';
-import KExternalLink from 'kolibri-components/src/buttons-and-links/KExternalLink';
 import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 import urls from 'kolibri.urls';
 import commonCoach from './common';
 
 export default {
   name: 'TestComponent',
-  components: {
-    KExternalLink,
-  },
   mixins: [commonCoach, commonCoreStrings],
   computed: {
     ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
