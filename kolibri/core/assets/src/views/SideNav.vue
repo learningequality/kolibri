@@ -108,8 +108,8 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
-  import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';

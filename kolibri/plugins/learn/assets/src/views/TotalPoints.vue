@@ -25,7 +25,7 @@
 <script>
 
   import { mapGetters, mapActions } from 'vuex';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
 
   export default {

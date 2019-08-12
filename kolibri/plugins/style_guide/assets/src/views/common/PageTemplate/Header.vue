@@ -27,7 +27,7 @@
 <script>
 
   import { throttle } from 'frame-throttle';
-  import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
+  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
   import state from '../../../state';
 
   export default {

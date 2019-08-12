@@ -14,7 +14,7 @@
 
 <script>
 
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import KFixedGrid from './KFixedGrid';
   import { validateGutter } from './common';
 

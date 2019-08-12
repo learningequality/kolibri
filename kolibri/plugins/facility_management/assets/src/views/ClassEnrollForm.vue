@@ -36,7 +36,7 @@
 <script>
 
   import differenceWith from 'lodash/differenceWith';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';

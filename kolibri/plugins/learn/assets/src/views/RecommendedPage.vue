@@ -68,7 +68,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';

@@ -141,7 +141,7 @@
 
   import { mapState, mapActions, mapGetters } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';

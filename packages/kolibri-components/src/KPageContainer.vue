@@ -13,7 +13,7 @@
 
 <script>
 
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
 
   export default {
     name: 'KPageContainer',

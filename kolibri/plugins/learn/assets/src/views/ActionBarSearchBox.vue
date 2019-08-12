@@ -34,7 +34,7 @@
 
 <script>
 
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import SearchBox from './SearchBox';
 

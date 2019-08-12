@@ -152,8 +152,8 @@
   import FocusLock from 'vue-focus-lock';
   import { mapGetters } from 'vuex';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
-  import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';

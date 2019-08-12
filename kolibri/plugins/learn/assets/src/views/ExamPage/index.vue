@@ -124,7 +124,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames } from '../../constants';
   import AnswerHistory from './AnswerHistory';

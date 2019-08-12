@@ -45,8 +45,8 @@
 
 <script>
 
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
-  import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
 
   export default {
     name: 'MultiPaneLayout',

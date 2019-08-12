@@ -23,7 +23,7 @@
 
 <script>
 
-  import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
+  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
   import InteractionItem from './InteractionItem';
 
   export default {

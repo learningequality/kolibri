@@ -30,7 +30,7 @@
   import { mapGetters, mapState } from 'vuex';
   import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';

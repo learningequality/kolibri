@@ -87,7 +87,7 @@
 
   import { mapGetters } from 'vuex';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';

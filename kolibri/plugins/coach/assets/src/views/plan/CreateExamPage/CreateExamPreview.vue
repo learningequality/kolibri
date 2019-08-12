@@ -131,7 +131,7 @@
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';

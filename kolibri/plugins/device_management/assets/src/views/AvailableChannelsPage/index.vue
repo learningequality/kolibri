@@ -94,7 +94,7 @@
 
   import { mapState, mapMutations, mapGetters } from 'vuex';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import uniqBy from 'lodash/uniqBy';
   import ChannelListItem from '../ManageContentPage/ChannelListItem';

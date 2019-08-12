@@ -199,7 +199,7 @@
   import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import urls from 'kolibri.urls';
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';

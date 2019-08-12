@@ -21,7 +21,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import AssignedExamsCards from './AssignedExamsCards';
   import AssignedLessonsCards from './AssignedLessonsCards';
 

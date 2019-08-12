@@ -30,7 +30,7 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import ContentCard from './ContentCard';
   import CopiesModal from './CopiesModal';
 

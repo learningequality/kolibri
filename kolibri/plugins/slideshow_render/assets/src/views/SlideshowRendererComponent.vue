@@ -55,8 +55,8 @@
   import client from 'kolibri.client';
 
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
-  import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';

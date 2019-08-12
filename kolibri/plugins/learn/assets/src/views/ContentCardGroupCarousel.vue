@@ -68,7 +68,7 @@
 
 <script>
 
-  import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
+  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import ContentCard from './ContentCard';

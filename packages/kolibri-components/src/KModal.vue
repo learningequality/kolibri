@@ -93,7 +93,7 @@
 <script>
 
   import logger from 'kolibri.lib.logging';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import debounce from 'lodash/debounce';
 
   const logging = logger.getLogger(__filename);

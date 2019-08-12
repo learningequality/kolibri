@@ -91,7 +91,7 @@
 <script>
 
   import ResizeSensor from 'css-element-queries/src/ResizeSensor';
-  import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
+  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import filter from 'lodash/filter';
   import startsWith from 'lodash/startsWith';

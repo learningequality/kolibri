@@ -57,7 +57,7 @@
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
-  import KResponsiveElementMixin from 'kolibri-components/src/mixins/KResponsiveElementMixin';
+  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import { fullscreenApiIsSupported } from 'kolibri.utils.browser';

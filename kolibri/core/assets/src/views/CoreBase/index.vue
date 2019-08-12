@@ -116,7 +116,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import AppBar from 'kolibri.coreVue.components.AppBar';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';

@@ -29,7 +29,7 @@
 
   import { mapState, mapGetters } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ContentCard from '../ContentCard';

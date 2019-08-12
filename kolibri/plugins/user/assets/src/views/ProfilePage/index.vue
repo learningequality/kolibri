@@ -122,7 +122,7 @@
   import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { validateUsername } from 'kolibri.utils.validators';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';

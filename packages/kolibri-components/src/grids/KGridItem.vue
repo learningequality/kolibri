@@ -9,7 +9,7 @@
 
 <script>
 
-  import KResponsiveWindowMixin from 'kolibri-components/src/mixins/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import logger from 'kolibri.lib.logging';
   import KFixedGridItem from './KFixedGridItem';
   import { validateAlignment, validateSpan } from './common';
