@@ -2,6 +2,16 @@
 
 List of the most important changes for each release.
 
+## 0.12.8
+
+### Changed or fixed
+
+- Fixed an issue where users creating accounts for themselves would be placed in the wrong facility
+- Fixed an issue where, occasionally, images would be missing from Khan Academy exercises
+- Fixed an issue where the "Usage and Privacy" modal would not close when clicking the "Close" button
+
+([0.12.8 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.8))
+
 ## 0.12.7
 
 (Note: 0.12.6 contained a regression and was superseded by 0.12.7)
