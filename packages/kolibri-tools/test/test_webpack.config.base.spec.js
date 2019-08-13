@@ -16,6 +16,16 @@ jest.mock('../lib/logging', () => ({
   },
 }));
 
+jest.mock(
+  'test',
+  () => ({
+    webpack_config: {
+      entry: 'test',
+    },
+  }),
+  { virtual: true }
+);
+
 const baseData = {
   name: 'kolibri.plugin.test.test_plugin',
   stats_file: 'output.json',
@@ -24,11 +34,8 @@ const baseData = {
   locale_data_folder: 'kolibri/locale/test',
   version: 'test',
   plugin_path: 'kolibri/plugin',
-  config: {
-    entry: {
-      test_plugin: 'src/file.js',
-    },
-  },
+  config_path: 'test',
+  index: null,
 };
 
 describe('webpackConfigBase', function() {
@@ -86,9 +93,9 @@ describe('webpackConfigBase', function() {
       expectParsedDataIsUndefined(data);
     });
   });
-  describe('input is missing config, bundles output', function() {
+  describe('input is missing config_path, bundles output', function() {
     it('should be undefined', function() {
-      delete data.config;
+      delete data.config_path;
       expectParsedDataIsUndefined(data);
     });
   });
