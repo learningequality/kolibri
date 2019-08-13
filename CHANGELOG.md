@@ -6,9 +6,9 @@ List of the most important changes for each release.
 
 ### Changed or fixed
 
-- Fixed an issue where users creating accounts for themselves would be placed in the wrong facility
-- Fixed an issue where, occasionally, images would be missing from Khan Academy exercises
-- Fixed an issue where the "Usage and Privacy" modal would not close when clicking the "Close" button
+- Fixed: users creating accounts for themselves not being placed in their selected facility
+- Fixed: images in Khan Academy exercises not appearing on occasion
+- Fixed: "Usage and Privacy" modal not closing when clicking the "Close" button
 
 ([0.12.8 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.8))
 
