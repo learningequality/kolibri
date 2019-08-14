@@ -21,7 +21,9 @@ const CSV_PATH = path.resolve('./kolibri/locale/CSV_FILES/');
 // Processing Functions //
 // -------------------- //
 
-const processVueFiles = (files) => {
+const processVueFiles = (files, definitions) => {
+  const updatedFiles = [];
+
   files.forEach(filePath => {
     let fileHasChanged = false;
     const file = fs.readFileSync(filePath);
@@ -32,7 +34,7 @@ const processVueFiles = (files) => {
       whitespace: 'preserve',
     });
 
-    // Extract the needed data.
+    // Extract the needed data into an object.
     const compiledVue = {
       // Raw string of everything between <template> tags
       templateContent: get(vueSFC, 'template.content'),
@@ -97,12 +99,16 @@ const processVueFiles = (files) => {
         tabWidth: 2,
       }).code;
       const newFile = compileSFC(compiledVue);
-      fs.writeFileSync(filePath, newFile);
+      updatedFiles.push({[filePath]: newFile});
     }
   });
+
+  return updatedFiles;
 };
 
-const processJSFiles = (files) => {
+const processJSFiles = (files, definitions) => {
+  const updatedFiles = [];
+
   files.forEach(filePath => {
     let fileHasChanged = false;
 
@@ -156,29 +162,18 @@ const processJSFiles = (files) => {
     // No need to rewrite the file if we didn't modify it.
     if(fileHasChanged) {
       const newFile = recast.print(ast, { reuseWhitspace: false, tabWidth: 2 }).code;
-      fs.writeFileSync(filePath, newFile);
+      updatedFiles.push({[filePath]: newFile});
+      //fs.writeFileSync(filePath, newFile);
     }
   });
+
+  return updatedFiles;
 };
 
 
 // ----------------- //
 // Utility Functions //
 // ----------------- //
-
-// Compile all of the defined strings & context from the CSVs that have been downloaded
-// from Crowdin.
-const definitions = fs.readdirSync(CSV_PATH).reduce((acc, file, index) => {
-  // Skip anything that isn't CSV - needed to avoid loading .po files.
-  if (!file.endsWith('.csv')) {
-    return acc;
-  }
-  const filePath = `${CSV_PATH}/${file}`;
-  const csvFile = fs.readFileSync(filePath).toString();
-
-  return (acc = [...acc, ...parseCsvSync(csvFile, { skip_empty_lines: true, columns: true })]);
-}, []);
-
 
 // Given a vueObject, return a formatted string including <template> <script> <style> blocks in order.
 const compileSFC = vueObject => {
@@ -281,16 +276,44 @@ const namespaceFromPath = path => {
   }
 };
 
+// Compile all of the defined strings & context from the CSVs that have been downloaded
+// from Crowdin.
+const parseCSVDefinitions = (path) => {
+  return fs.readdirSync(path).reduce((acc, file, index) => {
+    // Skip anything that isn't CSV - needed to avoid loading .po files.
+    if (!file.endsWith('.csv')) {
+      return acc;
+    }
+    const filePath = `${path}/${file}`;
+    const csvFile = fs.readFileSync(filePath).toString();
+
+    return (acc = [...acc, ...parseCsvSync(csvFile, { skip_empty_lines: true, columns: true })]);
+  }, []);
+}
+
 // ----------------------- //
 // Where The Magic Happens //
 // ----------------------- //
 
 logging.info('Transfering context...');
 
+const csvDefinitions = parseCSVDefinitions(CSV_PATH);
+
+// Load the files
 const vueFiles = glob.sync(VUE_GLOB, {});
 const jsFiles = glob.sync(JS_GLOB, {});
 
-processVueFiles(vueFiles);
-processJSFiles(jsFiles);
+// Get the updated files
+const filesToWrite = processVueFiles(vueFiles, csvDefinitions)
+  .concat(
+    processJSFiles(jsFiles, csvDefinitions)
+  )
+
+// Write the updated files
+filesToWrite.forEach(fileObj => {
+  Object.keys(fileObj).forEach(path => {
+    fs.writeFileSync(path, fileObj[path]);
+  })
+});
 
 logging.info('Context transfer has completed!');
