@@ -214,6 +214,7 @@ i18n-download:
 	node build_tools/i18n/intl_code_gen.js
 	$(MAKE) i18n-django-compilemessages
 	python build_tools/i18n/crowdin.py convert
+	i18n-transfer-context
 
 i18n-download-source-fonts:
 	python build_tools/i18n/fonts.py download-source-fonts
