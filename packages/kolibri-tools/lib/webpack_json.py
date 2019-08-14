@@ -15,6 +15,9 @@ from pkg_resources import resource_listdir
 
 logger = logging.getLogger("webpack_json")
 logger.setLevel(level=logging.INFO)
+handler = logging.StreamHandler()
+handler.setLevel(logging.INFO)
+logger.addHandler(handler)
 
 BUILD_CONFIG = "buildConfig.js"
 

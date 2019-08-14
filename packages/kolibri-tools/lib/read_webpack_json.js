@@ -5,31 +5,11 @@ const temp = require('temp').track();
 
 const webpack_json = path.resolve(path.dirname(__filename), './webpack_json.py');
 
-function parseConfig(buildConfig, pythonData) {
+function parseConfig(buildConfig, pythonData, configPath, index = null) {
   // Set the main entry for this module, set the name based on the data.name and the path to the
   // entry file from the data.src_file
   const bundleId = buildConfig.bundle_id;
-  const webpackConfig = buildConfig.webpack_config;
   const pluginPath = pythonData.plugin_path;
-  if (typeof webpackConfig.entry === 'string') {
-    webpackConfig.entry = {
-      [bundleId]: path.join(pluginPath, webpackConfig.entry),
-    };
-  } else {
-    Object.keys(webpackConfig.entry).forEach(key => {
-      function makePathAbsolute(entryPath) {
-        if (entryPath.startsWith('./') || entryPath.startsWith('../')) {
-          return path.join(pluginPath, entryPath);
-        }
-        return entryPath;
-      }
-      if (Array.isArray(webpackConfig.entry[key])) {
-        webpackConfig.entry[key] = webpackConfig.entry[key].map(makePathAbsolute);
-      } else {
-        webpackConfig.entry[key] = makePathAbsolute(webpackConfig.entry[key]);
-      }
-    });
-  }
   return {
     name: bundleId,
     static_dir: path.join(pluginPath, 'static'),
@@ -37,7 +17,8 @@ function parseConfig(buildConfig, pythonData) {
     locale_data_folder: pythonData.locale_data_folder,
     plugin_path: pluginPath,
     version: pythonData.version,
-    config: webpackConfig,
+    config_path: configPath,
+    index,
   };
 }
 
@@ -84,13 +65,14 @@ module.exports = function({ pluginFile, plugins, pluginPath }) {
     const parsedResult = JSON.parse(result);
     const output = [];
     parsedResult.forEach(pythonData => {
-      const buildConfig = require(path.join(pythonData.plugin_path, 'buildConfig.js'));
+      const configPath = path.join(pythonData.plugin_path, 'buildConfig.js');
+      const buildConfig = require(configPath);
       if (Array.isArray(buildConfig)) {
-        buildConfig.forEach(configObj => {
-          output.push(parseConfig(configObj, pythonData));
+        buildConfig.forEach((configObj, i) => {
+          output.push(parseConfig(configObj, pythonData, configPath, i));
         });
       } else {
-        output.push(parseConfig(buildConfig, pythonData));
+        output.push(parseConfig(buildConfig, pythonData, configPath));
       }
     });
     return output;
