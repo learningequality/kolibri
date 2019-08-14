@@ -22,7 +22,10 @@ clean-pyc:
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
-dist: clean
+assets:
+	yarn run build
+
+dist: clean assets
 	python setup.py sdist
 	python setup.py bdist_wheel --universal
 

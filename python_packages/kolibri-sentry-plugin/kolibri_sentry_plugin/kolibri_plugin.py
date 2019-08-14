@@ -12,8 +12,7 @@ class SentryPlugin(KolibriPluginBase):
 
 
 class SentryPluginAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "kolibri_sentry_plugin_module"
-    src_file = "assets/src/module.js"
+    bundle_id = "kolibri_sentry_plugin_module"
     context = {
         "sentryDSN": conf.OPTIONS["Debug"]["SENTRY_FRONTEND_DSN"],
         "sentryEnv": conf.OPTIONS["Debug"]["SENTRY_ENVIRONMENT"],
