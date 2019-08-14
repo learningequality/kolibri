@@ -34,8 +34,8 @@ from kolibri.core.hooks import NavigationHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.theme_hook import ThemeHook
 from kolibri.core.webpack.utils import webpack_asset_render
-from kolibri.utils import conf
 from kolibri.utils import i18n
+from kolibri.utils.js_names import KOLIBRI_CORE_JS_NAME
 
 register = template.Library()
 
@@ -200,7 +200,7 @@ def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
         "var model = {0}.resources.{1}.createModel(JSON.parse({2}));"
         "model.synced = true;"
         "</script>".format(
-            conf.KOLIBRI_CORE_JS_NAME,
+            KOLIBRI_CORE_JS_NAME,
             api_resource,
             json.dumps(JSONRenderer().render(response.data).decode("utf-8")),
         )
@@ -218,7 +218,7 @@ def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
         "var collection = {0}.resources.{1}.createCollection({2}, JSON.parse({3}));"
         "collection.synced = true;"
         "</script>".format(
-            conf.KOLIBRI_CORE_JS_NAME,
+            KOLIBRI_CORE_JS_NAME,
             api_resource,
             json.dumps(kwargs),
             json.dumps(JSONRenderer().render(response.data).decode("utf-8")),
