@@ -155,6 +155,16 @@ module.exports = {
         ],
       },
     ],
+    'vue/html-indent': [
+      ERROR,
+      2, // Base indent spaces
+      {
+        'attribute': 1,
+        'baseIndent': 1,
+        'closeBracket': 0,
+        'alignAttributesVertically': true,
+      }
+    ],
 
     'import/first': ERROR,
     'import/no-duplicates': ERROR,

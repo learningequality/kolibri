@@ -15,6 +15,7 @@
     "build": "kolibri-tools build prod --file ./build_tools/build_plugins.txt && yarn run hashi-build",
     "makemessages": "kolibri-tools build i18n --file ./build_tools/build_plugins.txt",
     "combineprofiles": "node ./packages/kolibri-tools/lib/combineStringProfiles.js ./kolibri/locale/en/LC_MESSAGES/profiles/",
+    "transfercontext": "node ./packages/kolibri-tools/lib/i18nSyncContext.js && yarn lint-frontend:format && yarn lint-frontend:format",
     "watch": "kolibri-tools build dev --file ./build_tools/build_plugins.txt",
     "watch-hot": "yarn run watch --hot",
     "django-devserver": "kolibri manage --debug runserver --settings=kolibri.deployment.default.settings.dev \"0.0.0.0:8000\" ",
