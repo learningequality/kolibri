@@ -389,6 +389,9 @@
       ...mapActions(['kolibriLogin']),
       closeFacilityModal() {
         this.facilityModalVisible = false;
+        this.$nextTick().then(() => {
+          this.$refs.username.focus();
+        });
       },
       setSuggestionTerm(newVal) {
         if (newVal !== null && typeof newVal !== 'undefined') {

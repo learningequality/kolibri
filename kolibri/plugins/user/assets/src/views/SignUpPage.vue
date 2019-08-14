@@ -247,7 +247,9 @@
       }),
       closeFacilityModal() {
         this.facilityModalVisible = false;
-        this.$refs.name.focus();
+        this.$nextTick().then(() => {
+          this.$refs.name.focus();
+        });
       },
       signUp() {
         this.formSubmitted = true;
