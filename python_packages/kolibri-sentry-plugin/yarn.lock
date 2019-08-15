@@ -389,16 +389,6 @@
   dependencies:
     any-observable "^0.3.0"
 
-"@sentry/browser@^5.0.5":
-  version "5.6.1"
-  resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-5.6.1.tgz#9bb64d2b8371c70e3725b3f6a95835f3ca6ff8ee"
-  integrity sha512-EtuI3YUIXfSzbF2Z7c5UXcdkcjZj83Y0vj73kMXBxxYsmDkyU+KtJFFvonSUrLILMqYBNZXTgCrfglLfFkl7kA==
-  dependencies:
-    "@sentry/core" "5.6.1"
-    "@sentry/types" "5.6.1"
-    "@sentry/utils" "5.6.1"
-    tslib "^1.9.3"
-
 "@sentry/browser@^5.5.0":
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-5.5.0.tgz#ec99ea6897d23affc46d58e6ada32016b27721b5"
@@ -420,17 +410,6 @@
     "@sentry/utils" "5.5.0"
     tslib "^1.9.3"
 
-"@sentry/core@5.6.1":
-  version "5.6.1"
-  resolved "https://registry.yarnpkg.com/@sentry/core/-/core-5.6.1.tgz#946f064cc500bf4cd2a1bac580192fe440b614c7"
-  integrity sha512-gK8XfkJIZLsBEQehkr2q2fdHI50B3yo4RXiixSZiNBVIzQ+1z3JcMssDzGwhbY81NHUzHZ7of3oQ4Ab4OGRI/g==
-  dependencies:
-    "@sentry/hub" "5.6.1"
-    "@sentry/minimal" "5.6.1"
-    "@sentry/types" "5.6.1"
-    "@sentry/utils" "5.6.1"
-    tslib "^1.9.3"
-
 "@sentry/hub@5.5.0":
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/@sentry/hub/-/hub-5.5.0.tgz#6b8eecf769fa693260d45e771f4bca15bdbc6f4b"
@@ -438,24 +417,6 @@
   dependencies:
     "@sentry/types" "5.5.0"
     "@sentry/utils" "5.5.0"
-    tslib "^1.9.3"
-
-"@sentry/hub@5.6.1":
-  version "5.6.1"
-  resolved "https://registry.yarnpkg.com/@sentry/hub/-/hub-5.6.1.tgz#9f355c0abcc92327fbd10b9b939608aa4967bece"
-  integrity sha512-m+OhkIV5yTAL3R1+XfCwzUQka0UF/xG4py8sEfPXyYIcoOJ2ZTX+1kQJLy8QQJ4RzOBwZA+DzRKP0cgzPJ3+oQ==
-  dependencies:
-    "@sentry/types" "5.6.1"
-    "@sentry/utils" "5.6.1"
-    tslib "^1.9.3"
-
-"@sentry/integrations@^5.0.5":
-  version "5.6.1"
-  resolved "https://registry.yarnpkg.com/@sentry/integrations/-/integrations-5.6.1.tgz#fcee1a6e5535a07fdefd365178662283279ce0d7"
-  integrity sha512-bPtJbmhLDH9Exy0luIKxjlfqmuyAjUPTHZ2CLIw6YlhA5WgK9aYyyjLHTmWK+E9baZBqSp0ShVPAgue2jfpQmQ==
-  dependencies:
-    "@sentry/types" "5.6.1"
-    "@sentry/utils" "5.6.1"
     tslib "^1.9.3"
 
 "@sentry/integrations@^5.5.0":
@@ -476,24 +437,10 @@
     "@sentry/types" "5.5.0"
     tslib "^1.9.3"
 
-"@sentry/minimal@5.6.1":
-  version "5.6.1"
-  resolved "https://registry.yarnpkg.com/@sentry/minimal/-/minimal-5.6.1.tgz#09d92b26de0b24555cd50c3c33ba4c3e566009a1"
-  integrity sha512-ercCKuBWHog6aS6SsJRuKhJwNdJ2oRQVWT2UAx1zqvsbHT9mSa8ZRjdPHYOtqY3DoXKk/pLUFW/fkmAnpdMqRw==
-  dependencies:
-    "@sentry/hub" "5.6.1"
-    "@sentry/types" "5.6.1"
-    tslib "^1.9.3"
-
 "@sentry/types@5.5.0":
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/@sentry/types/-/types-5.5.0.tgz#0e7d8e8359c7af685258d92b23831072bb79f46a"
   integrity sha512-3otF/miVDth91o+iign00x0o31McUPeyIFbMjLbgeTRRW9rXpu2jGrcRrvHfofECtoqCf5Y734hwvvlBvFZeIw==
-
-"@sentry/types@5.6.1":
-  version "5.6.1"
-  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-5.6.1.tgz#5915e1ee4b7a678da3ac260c356b1cb91139a299"
-  integrity sha512-Kub8TETefHpdhvtnDj3kKfhCj0u/xn3Zi2zIC7PB11NJHvvPXENx97tciz4roJGp7cLRCJsFqCg4tHXniqDSnQ==
 
 "@sentry/utils@5.5.0":
   version "5.5.0"
@@ -501,14 +448,6 @@
   integrity sha512-gO8Bs/QcKDn7ncc2f2fIOTPx2AiZKrGj4us1Yxu6mBU8JZqMQRl9XjDMFAUECJQvquBAta+TFJyYj71ZedeQUQ==
   dependencies:
     "@sentry/types" "5.5.0"
-    tslib "^1.9.3"
-
-"@sentry/utils@5.6.1":
-  version "5.6.1"
-  resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-5.6.1.tgz#69d9e151e50415bc91f2428e3bcca8beb9bc2815"
-  integrity sha512-rfgha+UsHW816GqlSRPlniKqAZylOmQWML2JsujoUP03nPu80zdN43DK9Poy/d9OxBxv0gd5K2n+bFdM2kqLQQ==
-  dependencies:
-    "@sentry/types" "5.6.1"
     tslib "^1.9.3"
 
 "@shopify/draggable@^1.0.0-beta.8":
@@ -4065,10 +4004,10 @@ eslint-plugin-jest@^21.26.1:
   resolved "https://registry.yarnpkg.com/eslint-plugin-jest/-/eslint-plugin-jest-21.27.2.tgz#2a795b7c3b5e707df48a953d651042bd01d7b0a8"
   integrity sha512-0E4OIgBJVlAmf1KfYFtZ3gYxgUzC5Eb3Jzmrc9ikI1OY+/cM8Kh72Ti7KfpeHNeD3HJNf9SmEfmvQLIz44Hrhw==
 
-eslint-plugin-kolibri@0.13.0-dev.3:
-  version "0.13.0-dev.3"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-kolibri/-/eslint-plugin-kolibri-0.13.0-dev.3.tgz#0d72b151261bf11d2ea4786eee69748d0c0e32df"
-  integrity sha512-SloCOdHgyIxlFuy7mpL8j2GluGUIsMwks8wMZ2/JIIGvGrtKMxNpTJ30B1EQo6A8cKZZ2GJPb+3/bBePZZzFOQ==
+eslint-plugin-kolibri@0.13.0-dev.5:
+  version "0.13.0-dev.5"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-kolibri/-/eslint-plugin-kolibri-0.13.0-dev.5.tgz#a20c40ac753252fa39d302e0d95d95bc8f5c0804"
+  integrity sha512-KNYQvWmmjsBM+V3tewECxYfW5SZc13gGBV2E72XrQz6MIFDI0aeAVJBKZ+J53mMzPqHaGXTWxdHmYBLLCbXNYA==
   dependencies:
     requireindex "^1.1.0"
 
@@ -6952,10 +6891,10 @@ knuth-shuffle-seeded@^1.0.6:
   dependencies:
     seed-random "~2.2.0"
 
-kolibri-tools@^0.13.0-dev.3:
-  version "0.13.0-dev.3"
-  resolved "https://registry.yarnpkg.com/kolibri-tools/-/kolibri-tools-0.13.0-dev.3.tgz#2d6bcd39932cd435c744c79fb912acd7d298e53a"
-  integrity sha512-ixVzqdPjPXv2gFWij4H5AdAgBI7dMdzjy5NWuoppe8y/oKmEDOgrqJMFeCtnq9+5SGV1mPBl7MA2WfdNicWAeA==
+kolibri-tools@^0.13.0-dev.5:
+  version "0.13.0-dev.5"
+  resolved "https://registry.yarnpkg.com/kolibri-tools/-/kolibri-tools-0.13.0-dev.5.tgz#b15d0177455af1b96e89385aa3f0cf3f4cd400c8"
+  integrity sha512-7h2TBFSlnsNl3s1D3LD2sZk6e9xbbKudIJZZrpCAgynYA5allCLN599eJSGHUP9k1qtb+dU6PSfxjRT3CQKJ6A==
   dependencies:
     "@vue/test-utils" "1.0.0-beta.25"
     ast-traverse "^0.1.1"
@@ -6976,7 +6915,7 @@ kolibri-tools@^0.13.0-dev.3:
     eslint-config-prettier "^2.9.0"
     eslint-plugin-import "^2.14.0"
     eslint-plugin-jest "^21.26.1"
-    eslint-plugin-kolibri "0.13.0-dev.3"
+    eslint-plugin-kolibri "0.13.0-dev.5"
     eslint-plugin-vue "^5.2.2"
     espree "^5.0.1"
     esquery "^1.0.1"
@@ -7028,15 +6967,13 @@ kolibri-tools@^0.13.0-dev.3:
     webpack-merge "^4.1.0"
     webpack-rtl-plugin "^2.0.0"
   optionalDependencies:
-    kolibri "0.13.0-dev.3"
+    kolibri "0.13.0-dev.5"
 
-kolibri@0.13.0-dev.3:
-  version "0.13.0-dev.3"
-  resolved "https://registry.yarnpkg.com/kolibri/-/kolibri-0.13.0-dev.3.tgz#778160738b1a8bab469c8f5d6cddb314298e0673"
-  integrity sha512-I3RyUt0ztRuWtDxSBRMwcjq03kUV4EkJE1fSLkMoyBDwzrT7PAuR91S/9q8Pa2gHMMxaXX9Y27XNkal3BS9V9A==
+kolibri@0.13.0-dev.5:
+  version "0.13.0-dev.4"
+  resolved "https://registry.yarnpkg.com/kolibri/-/kolibri-0.13.0-dev.4.tgz#3e26ba676b5a4248c8d010491f87680f8bb0c2be"
+  integrity sha512-TwQhxQxMY8pbrS/pdAI2jkgKsyPntAgtu2F4az2iJgdxwF56pw9jiS7k3UrcQz0c4b3IW9Xxq/I/8Ws8jun4Mw==
   dependencies:
-    "@sentry/browser" "^5.0.5"
-    "@sentry/integrations" "^5.0.5"
     "@shopify/draggable" "^1.0.0-beta.8"
     aphrodite "https://github.com/learningequality/aphrodite/"
     array-includes "^3.0.3"
