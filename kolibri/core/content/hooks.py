@@ -19,7 +19,6 @@ from le_utils.constants import content_kinds
 
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins.hooks import KolibriHook
-from kolibri.utils.js_names import KOLIBRI_CORE_JS_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +101,7 @@ class ContentRendererHook(WebpackBundleHook):
         urls = [chunk["url"] for chunk in self.bundle]
         tags = self.frontend_message_tag() + [
             '<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {content_types});</script>'.format(
-                kolibri_name=KOLIBRI_CORE_JS_NAME,
+                kolibri_name="kolibriGlobal",
                 bundle=self.bundle_id,
                 urls='","'.join(urls),
                 content_types=json.dumps(self.content_types),

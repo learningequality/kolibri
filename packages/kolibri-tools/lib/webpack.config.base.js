@@ -20,7 +20,7 @@ const ExtractStrings = require('./ExtractStrings');
 const logging = require('./logging');
 const coreExternals = require('./apiSpecExportTools').coreExternals();
 const coreAliases = require('./apiSpecExportTools').coreAliases();
-const { kolibriName, kolibriPluginDataName } = require('./kolibriName');
+const { kolibriName } = require('./kolibriName');
 const WebpackMessages = require('./webpackMessages');
 
 /**
@@ -247,7 +247,6 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
       // the kolibri version).
       // Also add the copyright year for auto updated copyright footers.
       new webpack.DefinePlugin({
-        __kolibriPluginDataName: JSON.stringify(kolibriPluginDataName),
         __kolibriModuleName: JSON.stringify(data.name),
         __version: JSON.stringify(data.version),
         __copyrightYear: new Date().getFullYear(),

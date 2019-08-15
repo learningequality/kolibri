@@ -32,8 +32,6 @@ from pkg_resources import resource_filename
 from six import text_type
 
 from kolibri.plugins import hooks
-from kolibri.utils.js_names import KOLIBRI_CORE_JS_NAME
-from kolibri.utils.js_names import KOLIBRI_JS_PLUGIN_DATA_NAME
 
 # Use the cache specifically for built files
 # Only reference the specific cache inside methods
@@ -269,7 +267,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         if self.frontend_messages():
             return [
                 '<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", {messages});</script>'.format(
-                    kolibri_name=KOLIBRI_CORE_JS_NAME,
+                    kolibri_name="kolibriGlobal",
                     bundle=self.bundle_id,
                     lang_code=get_language(),
                     messages=self.frontend_messages(),
@@ -287,7 +285,7 @@ class WebpackBundleHook(hooks.KolibriHook):
                     window["{name}"]["{bundle}"] = JSON.parse('{plugin_data}');
                 </script>
                 """.format(
-                    name=KOLIBRI_JS_PLUGIN_DATA_NAME,
+                    name="__kolibriPluginData",
                     bundle=self.bundle_id,
                     plugin_data=json.dumps(self.plugin_data),
                 )
@@ -396,7 +394,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             + self.frontend_message_tag()
             + [
                 '<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
-                    kolibri_name=KOLIBRI_CORE_JS_NAME,
+                    kolibri_name="kolibriGlobal",
                     bundle=self.bundle_id,
                     urls='","'.join(urls),
                 )
