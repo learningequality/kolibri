@@ -6,7 +6,10 @@ help:
 	@echo "release - package and upload a release"
 	@echo "dist - package"
 
-clean: clean-build clean-pyc
+clean: clean-assets clean-build clean-pyc
+
+clean-assets:
+	yarn run clean
 
 clean-build:
 	rm -fr build/
@@ -32,4 +35,4 @@ dist: clean assets
 release: dist
 	echo "Ensure that you have built the frontend files using Kolibri"
 	echo "Uploading dist/* to PyPi, using twine"
-	twine upload -s --sign-with gpg2 dist/*
+	twine upload -s dist/*

@@ -2,42 +2,29 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-import sys
-
 from setuptools import setup
 
 import kolibri_sentry_plugin
-
-
-def read_file(fname):
-    """
-    Read file and decode in py2k
-    """
-    if sys.version_info < (3,):
-        return open(fname).read().decode("utf-8")
-    return open(fname).read()
-
 
 dist_name = "kolibri_sentry_plugin"
 plugin_name = "kolibri_sentry_plugin"
 repo_url = "https://github.com/learningequality/kolibri-sentry-plugin"
 
-readme = read_file("README.rst")
-doclink = """
-Documentation
--------------
-
-The full documentation is at."""
-
 # Default description of the distributed package
 description = """A plugin to provide sentry integration for Kolibri"""
 
+long_description = """
+A plugin that provides Sentry SDK integration for the frontend and backend
+of Kolibri. See the `Github repo <{repo_url}>`_ for more details.
+""".format(
+    repo_url=repo_url
+)
 
 setup(
     name=dist_name,
     version=kolibri_sentry_plugin.__version__,
     description=description,
-    long_description="{readme}\n\n{doclink}".format(readme=readme, doclink=doclink),
+    long_description=long_description,
     author="Learning Equality",
     author_email="info@learningequality.org",
     url=repo_url,
