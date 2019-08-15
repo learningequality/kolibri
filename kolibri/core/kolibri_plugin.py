@@ -10,6 +10,7 @@ from django.utils.translation import get_language_bidi
 from django.utils.translation import get_language_info
 
 import kolibri
+from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.theme_hook import ThemeHook
 from kolibri.core.webpack.hooks import FrontEndCoreAssetHook
@@ -52,10 +53,6 @@ class FrontEndCoreAppAssetHook(FrontEndCoreAssetHook):
 
     @property
     def plugin_data(self):
-        # Import here to prevent initializing the Django App registry
-        # at plugin initialization.
-        from kolibri.core.device.models import ContentCacheKey
-
         return {
             "cacheKey": ContentCacheKey.get_cache_key(),
             "languageGlobals": self.language_globals(),
