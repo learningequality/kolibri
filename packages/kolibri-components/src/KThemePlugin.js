@@ -1,6 +1,4 @@
 import computedClass from './styles/computedClass';
-import trackInputModality from './styles/trackInputModality';
-import generateGlobalStyles from './styles/generateGlobalStyles';
 
 import KBreadcrumbs from './KBreadcrumbs';
 import KButton from './buttons-and-links/KButton';
@@ -31,8 +29,6 @@ import { themeTokens, themeBrand, themePalette, themeOutlineStyle } from './styl
  * Also, set up global state, listeners, and styles.
  */
 export default function KThemePlugin(Vue) {
-  trackInputModality();
-  generateGlobalStyles();
   Vue.mixin({
     /* eslint-disable kolibri/vue-no-unused-properties */
     computed: {
