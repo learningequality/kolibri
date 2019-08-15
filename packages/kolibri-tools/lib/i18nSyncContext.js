@@ -80,10 +80,12 @@ const processVueFiles = (files, definitions) => {
             // If we have context, assign an AST objet.
             // If we don't, then  do nothing.
             if (definition['Context'] && definition['Context'] !== '') {
-              property.value = objectToAst({
-                string: definition['Source String'],
-                context: definition['Context'],
-              });
+              property.value = objectToAst(definition);
+              fileHasChanged = true;
+            } else if (definition['Source String'] && property.type === 'ObjectProperty') {
+              // We don't have context to add, but we have an ObjectProperty in the codebase
+              // so we will convert it back to a regular ol' string.
+              property.value = stringAst(definition);
               fileHasChanged = true;
             }
             return property;
@@ -93,13 +95,13 @@ const processVueFiles = (files, definitions) => {
     });
 
     // No need to write the file if it hasn't changed.
-    if(fileHasChanged) {
+    if (fileHasChanged) {
       compiledVue.scriptContent = recast.print(scriptAST, {
         reuseWhitspace: false,
         tabWidth: 2,
       }).code;
       const newFile = compileSFC(compiledVue);
-      updatedFiles.push({[filePath]: newFile});
+      updatedFiles.push({ [filePath]: newFile });
     }
   });
 
@@ -146,10 +148,12 @@ const processJSFiles = (files, definitions) => {
               // and assign an object including the Source string and context.
               // If we don't have context to add or update, we have nothing to change here.
               if (definition['Context'] && definition['Context'] !== '') {
-                property.value = objectToAst({
-                  string: definition['Source String'],
-                  context: definition['Context'],
-                });
+                property.value = objectToAst(definition);
+                fileHasChanged = true;
+              } else if (definition['Source String'] && property.type === 'ObjectProperty') {
+                // We don't have context to add, but we have an ObjectProperty in the codebase
+                // so we will convert it back to a regular ol' string.
+                property.value = stringAst(definition);
                 fileHasChanged = true;
               }
               return property;
@@ -160,16 +164,14 @@ const processJSFiles = (files, definitions) => {
     });
 
     // No need to rewrite the file if we didn't modify it.
-    if(fileHasChanged) {
+    if (fileHasChanged) {
       const newFile = recast.print(ast, { reuseWhitspace: false, tabWidth: 2 }).code;
-      updatedFiles.push({[filePath]: newFile});
-      //fs.writeFileSync(filePath, newFile);
+      updatedFiles.push({ [filePath]: newFile });
     }
   });
 
   return updatedFiles;
 };
-
 
 // ----------------- //
 // Utility Functions //
@@ -241,24 +243,45 @@ const is$trs = node => {
   );
 };
 
-// Given an object { string: '', context: '', etc: ''} return an AST-friendly object for it.
-const objectToAst = obj => {
-  const properties = Object.keys(obj).map(key => {
-    return {
-      type: 'ObjectProperty',
-      key: {
-        type: 'Identifier',
-        name: key,
-      },
-      value: {
-        type: 'StringLiteral',
-        value: obj[key],
-      },
-    };
-  });
+// Given a definition, return an ObjectExpression that includes context & string values
+// This ought to be assigned to the right-hand value of an ObjectProperty node's `value`
+// where the `key` on that ObjectProperty is the `Identifier` used for the defined
+// translation string.
+const objectToAst = def => {
   return {
     type: 'ObjectExpression',
-    properties,
+    properties: [
+      {
+        type: 'ObjectProperty',
+        key: {
+          type: 'Identifier',
+          name: 'string',
+        },
+        value: {
+          type: 'StringLiteral',
+          value: def['Source String'],
+        },
+      },
+      {
+        type: 'ObjectProperty',
+        key: {
+          type: 'Identifier',
+          name: 'context',
+        },
+        value: {
+          type: 'StringLiteral',
+          value: def['Context'],
+        },
+      },
+    ],
+  };
+};
+
+// Given a definition, return an ObjectProperty node object with a StringLiteral value.
+const stringAst = def => {
+  return {
+    type: 'StringLiteral',
+    value: def['Source String'],
   };
 };
 
@@ -269,8 +292,8 @@ const namespaceFromPath = path => {
 
   // If the filename is an `index.vue` then it's parent directory name
   // indicates the namespace.
-  if(fileName === "index.vue") {
-    return splitPath[splitPath.length - 2]
+  if (fileName === 'index.vue') {
+    return splitPath[splitPath.length - 2];
   } else {
     return splitPath.pop().replace('.vue', '');
   }
@@ -278,7 +301,7 @@ const namespaceFromPath = path => {
 
 // Compile all of the defined strings & context from the CSVs that have been downloaded
 // from Crowdin.
-const parseCSVDefinitions = (path) => {
+const parseCSVDefinitions = path => {
   return fs.readdirSync(path).reduce((acc, file, index) => {
     // Skip anything that isn't CSV - needed to avoid loading .po files.
     if (!file.endsWith('.csv')) {
@@ -289,7 +312,7 @@ const parseCSVDefinitions = (path) => {
 
     return (acc = [...acc, ...parseCsvSync(csvFile, { skip_empty_lines: true, columns: true })]);
   }, []);
-}
+};
 
 // ----------------------- //
 // Where The Magic Happens //
@@ -304,16 +327,15 @@ const vueFiles = glob.sync(VUE_GLOB, {});
 const jsFiles = glob.sync(JS_GLOB, {});
 
 // Get the updated files
-const filesToWrite = processVueFiles(vueFiles, csvDefinitions)
-  .concat(
-    processJSFiles(jsFiles, csvDefinitions)
-  )
+const filesToWrite = processVueFiles(vueFiles, csvDefinitions).concat(
+  processJSFiles(jsFiles, csvDefinitions)
+);
 
 // Write the updated files
 filesToWrite.forEach(fileObj => {
   Object.keys(fileObj).forEach(path => {
     fs.writeFileSync(path, fileObj[path]);
-  })
+  });
 });
 
 logging.info('Context transfer has completed!');
