@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
+from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins.base import KolibriPluginBase
 
@@ -15,6 +16,10 @@ class User(KolibriPluginBase):
 
 class UserAsset(webpack_hooks.WebpackBundleHook):
     bundle_id = "user_module"
+
+    @property
+    def plugin_data(self):
+        return {"oidcProviderEnabled": OIDCProviderHook().is_enabled}
 
 
 class LogInRedirect(RoleBasedRedirectHook):
