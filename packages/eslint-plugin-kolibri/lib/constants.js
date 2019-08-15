@@ -5,6 +5,7 @@ const GROUP_DATA = 'data';
 const GROUP_COMPUTED = 'computed';
 const GROUP_METHODS = 'methods';
 const GROUP_WATCH = 'watch';
+const GROUP_$TRS = '$trs';
 
 const PROPERTY_LABEL = {
   [GROUP_PROPS]: 'property',
@@ -23,6 +24,7 @@ module.exports = {
   GROUP_DATA,
   GROUP_COMPUTED,
   GROUP_METHODS,
+  GROUP_$TRS,
   GROUP_WATCH,
   PROPERTY_LABEL,
   VUEX_STATE,
