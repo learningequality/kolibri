@@ -32,7 +32,8 @@ from pkg_resources import resource_filename
 from six import text_type
 
 from kolibri.plugins import hooks
-from kolibri.utils import conf
+from kolibri.utils.js_names import KOLIBRI_CORE_JS_NAME
+from kolibri.utils.js_names import KOLIBRI_JS_PLUGIN_DATA_NAME
 
 # Use the cache specifically for built files
 # Only reference the specific cache inside methods
@@ -76,6 +77,11 @@ class WebpackBundleHook(hooks.KolibriHook):
     # : When being included for synchronous loading, should the source files
     # : for this be inlined?
     inline = False
+
+    # : A mapping of key to JSON serializable value.
+    # : This plugin_data will be bootstrapped into a global object on window
+    # : with a key of the bundle_id as a Javascript object
+    plugin_data = {}
 
     def __init__(self, *args, **kwargs):
         super(WebpackBundleHook, self).__init__(*args, **kwargs)
@@ -263,10 +269,27 @@ class WebpackBundleHook(hooks.KolibriHook):
         if self.frontend_messages():
             return [
                 '<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", {messages});</script>'.format(
-                    kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
+                    kolibri_name=KOLIBRI_CORE_JS_NAME,
                     bundle=self.bundle_id,
                     lang_code=get_language(),
                     messages=self.frontend_messages(),
+                )
+            ]
+        else:
+            return []
+
+    def plugin_data_tag(self):
+        if self.plugin_data:
+            return [
+                """
+                <script>
+                    window["{name}"] = window["{name}"] || {{}};
+                    window["{name}"]["{bundle}"] = JSON.parse('{plugin_data}');
+                </script>
+                """.format(
+                    name=KOLIBRI_JS_PLUGIN_DATA_NAME,
+                    bundle=self.bundle_id,
+                    plugin_data=json.dumps(self.plugin_data),
                 )
             ]
         else:
@@ -344,7 +367,11 @@ class WebpackBundleHook(hooks.KolibriHook):
         :param bundle_data: The data returned from
         :return: HTML of script tags for insertion into a page.
         """
-        tags = self.frontend_message_tag() + list(self.js_and_css_tags())
+        tags = (
+            self.plugin_data_tag()
+            + self.frontend_message_tag()
+            + list(self.js_and_css_tags())
+        )
 
         return mark_safe("\n".join(tags))
 
@@ -364,13 +391,17 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: HTML of a script tag to insert into a page.
         """
         urls = [chunk["url"] for chunk in self.sorted_chunks()]
-        tags = self.frontend_message_tag() + [
-            '<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
-                kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
-                bundle=self.bundle_id,
-                urls='","'.join(urls),
-            )
-        ]
+        tags = (
+            self.plugin_data_tag()
+            + self.frontend_message_tag()
+            + [
+                '<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
+                    kolibri_name=KOLIBRI_CORE_JS_NAME,
+                    bundle=self.bundle_id,
+                    urls='","'.join(urls),
+                )
+            ]
+        )
         return mark_safe("\n".join(tags))
 
     class Meta:

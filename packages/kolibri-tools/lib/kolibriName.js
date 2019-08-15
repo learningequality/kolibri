@@ -2,16 +2,19 @@ const fs = require('fs');
 const path = require('path');
 const ensureDist = require('./ensureDist');
 
-let kolibriName;
+const sourcePath = path.resolve(__dirname, '../../../kolibri/utils/kolibri_js_names.json');
+const distPath = path.resolve(__dirname, '../dist/kolibri_js_names.json');
 
-const sourcePath = path.resolve(__dirname, '../../../kolibri/utils/KOLIBRI_CORE_JS_NAME');
-const distPath = path.resolve(__dirname, '../dist/KOLIBRI_CORE_JS_NAME');
+let names;
 
 try {
-  kolibriName = fs.readFileSync(sourcePath, 'utf-8').trim();
+  names = require(sourcePath);
 } catch (e) {
-  kolibriName = fs.readFileSync(distPath, 'utf-8').trim();
+  names = require(distPath);
 }
+
+const kolibriName = names['KOLIBRI_CORE_JS_NAME'];
+const kolibriPluginDataName = names['KOLIBRI_JS_PLUGIN_DATA_NAME'];
 
 function __buildKolibriName() {
   if (!fs.existsSync(sourcePath)) {
@@ -19,12 +22,13 @@ function __buildKolibriName() {
       'Attempting to build the kolibriName file from outside the Kolibri source repo'
     );
   }
-  const name = fs.readFileSync(sourcePath, 'utf-8').trim();
+  const nameFile = fs.readFileSync(sourcePath, 'utf-8').trim();
   ensureDist();
-  fs.writeFileSync(distPath, name, { encoding: 'utf-8' });
+  fs.writeFileSync(distPath, nameFile, { encoding: 'utf-8' });
 }
 
 module.exports = {
   kolibriName,
+  kolibriPluginDataName,
   __buildKolibriName,
 };

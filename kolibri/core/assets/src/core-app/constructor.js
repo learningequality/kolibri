@@ -66,5 +66,6 @@ export default class CoreApp {
     publicMethods.forEach(method => {
       this[method] = mediator[method].bind(mediator);
     });
+    this.version = __version;
   }
 }
