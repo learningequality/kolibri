@@ -1,7 +1,11 @@
 <template>
 
   <KGrid>
-    <KGridItem sizes="4, 4, 5" class="list-wrapper">
+    <KGridItem
+      :layout8="{ span: 4 }"
+      :layout12="{ span: 5 }"
+      class="list-wrapper"
+    >
       <KDragContainer
         v-if="fixedOrder && !readOnly"
         :items="annotatedQuestions"
@@ -57,7 +61,10 @@
         </ul>
       </transition>
     </KGridItem>
-    <KGridItem sizes="4, 4, 7">
+    <KGridItem
+      :layout8="{ span: 4 }"
+      :layout12="{ span: 7 }"
+    >
       <h3 class="question-title">
         {{ currentQuestion.title }}
       </h3>

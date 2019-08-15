@@ -2,11 +2,15 @@
 
   <div
     class="header"
-    :class="{ fixed: scrolled}"
+    :class="{ fixed: scrolled }"
     :style="style"
   >
     <h1 class="header-text">
-      {{ title }} <SectionLink @click.native="scrollToTop" />
+      {{ title }}
+      <a href="#" @click.native="scrollToTop">
+        <file-svg class="icon-link" src="./link.svg" />
+        <span class="visuallyhidden">link to current page</span>
+      </a>
     </h1>
     <ul v-if="sections.length" class="nav">
       <li v-for="(section, i) in sections" :key="i" class="nav-item">
@@ -24,12 +28,10 @@
 
   import { throttle } from 'frame-throttle';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import navWidth from '../../navWidth';
-  import SectionLink from './SectionLink';
+  import state from '../../../state';
 
   export default {
     name: 'Header',
-    components: { SectionLink },
     mixins: [ResponsiveElement],
     props: {
       sections: {
@@ -52,19 +54,19 @@
       },
       style() {
         return {
-          left: `${navWidth}px`,
+          left: `${this.navWidth}px`,
           // Pos fixed inline style necessary for responsive-element compatibility
           position: 'fixed',
         };
+      },
+      navWidth() {
+        return state.navWidth;
       },
     },
     watch: {
       elementHeight() {
         this.$emit('heightChange', this.elementHeight);
       },
-    },
-    created() {
-      this.navWidth = navWidth;
     },
     mounted() {
       window.addEventListener('scroll', this.throttledHandleScroll);
@@ -105,6 +107,13 @@
     border-bottom: 1px solid #dedede;
   }
 
+  @media print {
+    .header {
+      position: absolute !important;
+      border-bottom-width: 0;
+    }
+  }
+
   .nav {
     padding: 0;
     margin: 0;
@@ -124,6 +133,13 @@
 
   .header-text {
     margin: 0;
+  }
+
+  .icon-link {
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    margin-left: 8px;
   }
 
 </style>

@@ -19,7 +19,7 @@
     <iframe
       ref="iframe"
       class="iframe"
-      :style="{ backgroundColor: $themeColors.palette.grey.v_100 }"
+      :style="{ backgroundColor: $themePalette.grey.v_100 }"
       sandbox="allow-scripts"
       frameBorder="0"
       :name="name"

@@ -9,7 +9,7 @@
       class="search-box-row"
       :style="{
         backgroundColor: $themeTokens.surface,
-        borderColor: $themeColors.palette.grey.v_300,
+        borderColor: $themePalette.grey.v_300,
         fontSize: '16px',
       }"
     >

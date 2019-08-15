@@ -1,7 +1,11 @@
 <template>
 
-  <KGrid class="page-status" :style="{ backgroundColor: $themeTokens.surface }">
-    <KGridItem size="75" percentage>
+  <KFixedGrid
+    numCols="4"
+    class="page-status"
+    :style="{ backgroundColor: $themeTokens.surface }"
+  >
+    <KFixedGridItem span="3">
       <div>
         <h1 class="title">
           <KLabeledIcon icon="person" :label="userName" />
@@ -31,8 +35,8 @@
           </td>
         </tr>
       </table>
-    </KGridItem>
-    <KGridItem size="25" percentage align="right">
+    </KFixedGridItem>
+    <KFixedGridItem span="1" alignment="right">
       <div>
         <ProgressIcon class="svg-icon" :progress="progress" />
         <strong>
@@ -42,8 +46,8 @@
       <div v-if="completed">
         <ElapsedTime :date="completionTimestamp" />
       </div>
-    </KGridItem>
-  </KGrid>
+    </KFixedGridItem>
+  </KFixedGrid>
 
 </template>
 
@@ -51,8 +55,8 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KFixedGrid from 'kolibri.coreVue.components.KFixedGrid';
+  import KFixedGridItem from 'kolibri.coreVue.components.KFixedGridItem';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
@@ -61,8 +65,8 @@
   export default {
     name: 'PageStatus',
     components: {
-      KGrid,
-      KGridItem,
+      KFixedGrid,
+      KFixedGridItem,
       ProgressIcon,
       ElapsedTime,
       KLabeledIcon,

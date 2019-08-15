@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.urls import reverse
 
-from . import hooks
 from kolibri.core.auth.constants.user_kinds import LEARNER
 from kolibri.core.content.hooks import ContentNodeDisplayHook
 from kolibri.core.hooks import NavigationHook
@@ -27,17 +26,11 @@ class LearnRedirect(RoleBasedRedirectHook):
 
 
 class LearnNavItem(NavigationHook, webpack_hooks.WebpackBundleHook):
-    unique_slug = "learn_module_side_nav"
-    src_file = "assets/src/views/LearnSideNavEntry.vue"
+    bundle_id = "learn_module_side_nav"
 
 
 class LearnAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "learn_module"
-    src_file = "assets/src/app.js"
-
-
-class LearnInclusionHook(hooks.LearnSyncHook):
-    bundle_class = LearnAsset
+    bundle_id = "learn_module"
 
 
 class LearnContentNodeHook(ContentNodeDisplayHook):

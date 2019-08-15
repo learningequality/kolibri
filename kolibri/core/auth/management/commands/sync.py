@@ -8,12 +8,11 @@ from morango.models import ScopeDefinition
 from morango.sync.controller import MorangoProfileController
 
 from ..utils import create_superuser_and_provision_device
+from ..utils import get_baseurl
 from ..utils import get_client_and_server_certs
 from ..utils import get_dataset_id
 from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.management.utils import get_facility
-from kolibri.core.discovery.utils.network.client import NetworkClient
-from kolibri.core.discovery.utils.network.errors import URLParseError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
 
@@ -72,14 +71,7 @@ class Command(AsyncCommand):
 
         # validate url that is passed in
         if not PORTAL_SYNC:
-            try:
-                baseurl = NetworkClient(address=baseurl).base_url
-            except URLParseError:
-                raise CommandError(
-                    "Base URL/IP: {} is not valid. Please retry command and enter a valid URL/IP.".format(
-                        baseurl
-                    )
-                )
+            baseurl = get_baseurl(baseurl)
 
         # call this in case user directly syncs without migrating database
         if not ScopeDefinition.objects.filter():

@@ -87,7 +87,9 @@
         <AppError />
       </KPageContainer>
 
-      <slot v-else></slot>
+      <div v-else id="main" role="main" tabindex="-1" class="main">
+        <slot></slot>
+      </div>
     </div>
 
     <GlobalSnackbar />
@@ -314,7 +316,7 @@
         return {
           top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
           bottom: `${this.marginBottom}px`,
-          backgroundColor: this.$themeColors.palette.grey.v_100,
+          backgroundColor: this.$themePalette.grey.v_100,
         };
       },
       contentStyles() {
@@ -445,6 +447,15 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+
+  .main {
+    height: 100%;
+  }
+
+  // When focused by SkipNavigationLink, don't outline non-buttons/links
+  /deep/ [tabindex='-1'] {
+    outline-style: none !important;
+  }
 
   .scrolling-pane {
     position: absolute;

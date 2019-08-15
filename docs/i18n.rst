@@ -169,7 +169,7 @@ It is recommended to use the ``KIcon`` component when possible, as this will han
 
 .. code-block:: html
 
-  <KIcon forward />
+  <KIcon icon="forward" />
 
 
 If ``KIcon`` does not have the icon you need or is not usable for some reason, we also provide a global CSS class ``rtl-icon`` which will flip the icon. This can be applied conditionally with the ``isRtl`` property, e.g.:

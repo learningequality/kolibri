@@ -33,7 +33,6 @@
   {% include "kolibri/loading_snippet.html" %}
 </rootvue>
 {% block frontend_assets %}
-{% kolibri_sentry_error_reporting %}
 {% kolibri_content_cache_key %}
 {% webpack_asset 'default_frontend' %}
 {% kolibri_navigation_actions %}

@@ -15,21 +15,16 @@ const staticState = {
     {
       // brand shortcuts
       primary: 'brand.primary.v_400',
-      primaryLight: 'brand.primary.v_100',
       primaryDark: 'brand.primary.v_700',
-      secondary: 'brand.secondary.v_400',
-      secondaryLight: 'brand.secondary.v_100',
-      secondaryDark: 'brand.secondary.v_700',
-      logoText: 'brand.primary.v_300',
 
       // UI colors
       text: 'palette.grey.v_900',
       textDisabled: 'palette.grey.v_300',
       annotation: 'palette.grey.v_700',
-      textInverted: 'white',
+      textInverted: 'palette.white',
       loading: 'brand.secondary.v_200',
       focusOutline: 'brand.secondary.v_200',
-      surface: 'white',
+      surface: 'palette.white',
       fineLine: '#dedede',
 
       // general semantic colors
@@ -51,6 +46,7 @@ const staticState = {
       document: 'palette.deeporange.v_600',
       html5: 'palette.yellow.v_800',
       topic: 'palette.grey.v_800',
+      slideshow: 'palette.green.v_400',
     },
     global.kolibriTheme.tokenMapping
   ),
@@ -102,8 +98,14 @@ export default {
   $themeTokens() {
     return tokens;
   },
-  $themeColors() {
-    return staticState.colors;
+  $themeTokenMapping() {
+    return staticState.tokenMapping;
+  },
+  $themeBrand() {
+    return staticState.colors.brand;
+  },
+  $themePalette() {
+    return staticState.colors.palette;
   },
   $theme() {
     return global.kolibriTheme;

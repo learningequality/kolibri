@@ -123,9 +123,7 @@
       },
       linkStyle() {
         const hoverAndFocus = {
-          backgroundColor: this.primary
-            ? this.$themeTokens.primaryDark
-            : this.$themeColors.palette.black,
+          backgroundColor: this.primary ? this.$themeTokens.primaryDark : this.$themePalette.black,
         };
         return {
           backgroundColor: this.primary ? this.$themeTokens.primary : this.$themeTokens.text,

@@ -63,6 +63,12 @@
         :class="[colorClass]"
       />
       <mat-svg
+        v-if="is(ContentNodeKinds.SLIDESHOW)"
+        category="image"
+        name="photo_library"
+        :class="[colorClass]"
+      />
+      <mat-svg
         v-if="is(USER)"
         category="social"
         name="person"
@@ -138,6 +144,7 @@
           [ContentNodeKinds.HTML5]: 'html5',
           [ContentNodeKinds.EXAM]: 'exam',
           [ContentNodeKinds.LESSON]: 'lesson',
+          [ContentNodeKinds.SLIDESHOW]: 'slideshow',
           [USER]: 'user',
         };
         const label = kindToLabeLMap[this.kind];
@@ -160,6 +167,7 @@
       exam: 'Quiz',
       lesson: 'Lesson',
       user: 'User',
+      slideshow: 'Slideshow',
     },
   };
 

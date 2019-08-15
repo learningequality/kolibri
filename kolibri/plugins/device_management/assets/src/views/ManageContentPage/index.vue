@@ -13,14 +13,16 @@
         />
 
         <KGrid>
-          <KGridItem sizes="100, 50, 50" percentage>
+          <KGridItem
+            :layout8="{ span: 4 }"
+            :layout12="{ span: 6 }"
+          >
             <h1>{{ coreString('channelsLabel') }}</h1>
           </KGridItem>
           <KGridItem
             v-if="!activeTaskList.length"
-            sizes="100, 50, 50"
-            alignments="left, right, right"
-            percentage
+            :layout8="{ span: 4, alignment: 'right' }"
+            :layout12="{ span: 6, alignment: 'right' }"
           >
             <KButton
               :text="$tr('import')"

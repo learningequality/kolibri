@@ -1,6 +1,6 @@
 {
   "name": "kolibri-tools",
-  "version": "0.12.0-beta.3.2",
+  "version": "0.13.0-dev.5",
   "description": "Tools for building Kolibri frontend plugins",
   "main": "lib/cli.js",
   "repository": "github.com/learningequality/kolibri",
@@ -20,8 +20,8 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
-    "buble": "0.19.3",
-    "buble-loader": "0.5.0",
+    "buble": "0.19.8",
+    "buble-loader": "0.5.1",
     "check-node-version": "^3.3.0",
     "chokidar": "^2.0.4",
     "colors": "^1.1.2",
@@ -32,7 +32,7 @@
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jest": "^21.26.1",
-    "eslint-plugin-kolibri": "0.12.0-beta.3.2",
+    "eslint-plugin-kolibri": "0.13.0-dev.5",
     "eslint-plugin-vue": "^5.2.2",
     "espree": "^5.0.1",
     "esquery": "^1.0.1",
@@ -74,6 +74,7 @@
     "vue-jest": "^3.0.0",
     "vue-loader": "^15.7.0",
     "vue-style-loader": "^3.0.3",
+    "vue-template-compiler": "~2.6.10",
     "webpack": "^4.6.0",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-bundle-tracker": "https://github.com/learningequality/webpack-bundle-tracker",
@@ -84,18 +85,14 @@
     "webpack-merge": "^4.1.0",
     "webpack-rtl-plugin": "^2.0.0"
   },
-  "peerDependencies": {
-    "vue-template-compiler": "^2.x"
-  },
   "engines": {
     "node": "10.x",
     "npm": ">= 3"
   },
   "devDependencies": {
-    "readline-sync": "^1.4.9",
-    "vue-template-compiler": "^2.x"
+    "readline-sync": "^1.4.9"
   },
   "optionalDependencies": {
-    "kolibri": "0.12.0-beta.3.2"
+    "kolibri": "0.13.0-dev.5"
   }
 }

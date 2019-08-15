@@ -1,57 +1,25 @@
 import argparse
-import glob
 import importlib
 import json
 import logging
 import os
+import sys
 import tempfile
 
-try:
-    # Python 3.5+
-    import importlib.util
-
-    def import_package(package_name, package_path):
-        spec = importlib.util.spec_from_file_location(package_name, package_path)
-        foo = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(foo)
-        return foo
-
-
-except ImportError:
-    try:
-        # Python 3.4
-        from importlib.machinery import SourceFileLoader
-
-        def import_package(package_name, package_path):
-            return SourceFileLoader(package_name, package_path).load_module()
-
-    except ImportError:
-        # Python 2.7
-        import imp
-
-        def import_package(package_name, package_path):
-            return imp.load_source(package_name, package_path)
-
-
-try:
-
-    from kolibri.core.webpack.hooks import WebpackBundleHook
-
-except ImportError:
-    # This can happen if we are running from the Kolibri source repo
-    # and we have not installed Kolibri in the local environment.
-    # Try adding the path to the kolibri package in the source file
-    # and then reimport.
-    import sys
-
-    sys.path.append(
-        os.path.realpath(os.path.join(os.path.dirname(__file__), "../../.."))
-    )
-
-    from kolibri.core.webpack.hooks import WebpackBundleHook
+from pkg_resources import DistributionNotFound
+from pkg_resources import get_distribution
+from pkg_resources import resource_exists
+from pkg_resources import resource_filename
+from pkg_resources import resource_isdir
+from pkg_resources import resource_listdir
 
 logger = logging.getLogger("webpack_json")
 logger.setLevel(level=logging.INFO)
+handler = logging.StreamHandler()
+handler.setLevel(logging.INFO)
+logger.addHandler(handler)
+
+BUILD_CONFIG = "buildConfig.js"
 
 
 def load_plugins_from_file(file_path):
@@ -90,53 +58,65 @@ def expand_glob(build_item):
         [item for item in build_item.split(".") if item and item != "*"]
     )
     try:
-        parent_module = importlib.import_module(parent_module_path)
-    except ImportError:
-        # Someone has passed us an invalid module path, carry on
-        return plugins
-    for file in glob.glob(os.path.join(os.path.dirname(parent_module.__file__), "*")):
-        try:
-            file = file.replace(os.path.dirname(parent_module.__file__), "")
-            child_module_path = parent_module_path + file.replace("/", ".")
-            plugins.append(initialize_plugin(child_module_path))
-        except ImportError:
-            continue
+        for file in resource_listdir(parent_module_path, "."):
+            if resource_isdir(parent_module_path, file):
+                try:
+                    child_module_path = parent_module_path + "." + file
+                    plugin = plugin_data(child_module_path)
+                    if plugin is not None:
+                        plugins.append(plugin)
+                except ImportError:
+                    continue
+    except OSError:
+        pass
     return plugins
 
 
-def initialize_plugin(app, path=None):
+def plugin_data(module_path):
     try:
-        import_string = app + ".kolibri_plugin"
-        if path:
-            # Need to define the base module by its path first
-            import_package(app, os.path.join(path, "__init__.py"))
-            # Then import the plugin module after
-            plugin_module = import_package(
-                import_string, os.path.join(path, "kolibri_plugin.py")
-            )
-        else:
-            plugin_module = importlib.import_module(import_string)
-        return plugin_module
-    except ImportError:
-        pass
+        if resource_exists(module_path, BUILD_CONFIG):
+            plugin_path = os.path.dirname(resource_filename(module_path, BUILD_CONFIG))
+            try:
+                version = get_distribution(module_path).version
+            except (DistributionNotFound, AttributeError):
+                try:
+                    module = importlib.import_module(module_path)
+                    version = module.__version__
+                except (ImportError, AttributeError):
+                    import kolibri
 
+                    version = kolibri.__version__
+            if module_path.startswith("kolibri."):
+                import kolibri
 
-def initialize_plugins(build_list, paths=None):
-    plugins = []
-    for i, build_item in enumerate(build_list):
-        path = None
-        if paths is not None:
-            path = paths[i]
-
-        if "*" in build_item:
-            if paths:
-                raise RuntimeError(
-                    "Do not mix globbed module python import paths with explicit file paths"
+                locale_data_folder = os.path.join(
+                    os.path.dirname(kolibri.__file__), "locale", "en", "LC_MESSAGES"
                 )
+            # Is an external plugin, do otherwise!
+            else:
+                locale_data_folder = os.path.join(
+                    plugin_path, "locale", "en", "LC_MESSAGES"
+                )
+            return {
+                "locale_data_folder": locale_data_folder,
+                "plugin_path": plugin_path,
+                "version": version,
+            }
+    # Python 3.{4,5,6} raises a NotImplementedError for an empty directory
+    # Python 3.7 raises a TypeError for an empty directory
+    except (NotImplementedError, TypeError):
+        pass
+    raise ImportError("No frontend build assets")
+
+
+def initialize_plugins(build_list):
+    plugins = []
+    for build_item in build_list:
+        if "*" in build_item:
             plugins += expand_glob(build_item)
-        else:
+        elif build_item:
             # No '*' in the module path, so just add it naively
-            plugin = initialize_plugin(build_item, path)
+            plugin = plugin_data(build_item)
             if plugin is not None:
                 plugins.append(plugin)
     return plugins
@@ -159,11 +139,10 @@ def main():
         default=None,
     )
     parser.add_argument(
-        "--plugin_paths",
-        help="provide a space separated list of plugin explicit plugin paths",
+        "--plugin_path",
+        help="provide a path to add to the Python path to enable import of the plugins",
         type=str,
-        nargs="*",
-        default=None,
+        default=os.getcwd(),
     )
     parser.add_argument(
         "-o", "--output_file", type=str, default=None, dest="output_file"
@@ -175,27 +154,22 @@ def main():
     if args.verbose:
         logger.setLevel(logging.DEBUG)
 
+    plugin_path = os.path.realpath(args.plugin_path)
+
+    # Add our plugin_path to the path
+    sys.path.append(plugin_path)
+
     # Put environment variable setting first to allow customized builds within buildkite through env vars
     if "BUILD_TIME_PLUGINS" in os.environ and os.environ["BUILD_TIME_PLUGINS"]:
         build_list = load_plugins_from_file(os.environ["BUILD_TIME_PLUGINS"])
     elif args.plugin_file:
         build_list = load_plugins_from_file(args.plugin_file)
     elif args.plugins:
-        if args.plugin_paths and len(args.plugin_paths) != len(args.plugins):
-            raise RuntimeError(
-                "If you specify plugin paths it must match the plugins exactly"
-            )
         build_list = args.plugins
 
     logger.info("Gathering relevant modules from {}".format(build_list))
 
-    initialize_plugins(build_list, paths=args.plugin_paths)
-
-    result = [
-        hook.webpack_bundle_data
-        for hook in WebpackBundleHook().registered_hooks
-        if hook.webpack_bundle_data
-    ]
+    result = initialize_plugins(build_list)
 
     if args.output_file:
         logger.info("Writing webpack_json output to {}".format(args.output_file))
@@ -204,6 +178,9 @@ def main():
     else:
         logger.info("No output file argument; writing webpack_json output to stdout.")
         logger.info(json.dumps(result))
+
+    # Remove the plugin_path from the path to clean up
+    sys.path.remove(plugin_path)
 
 
 if __name__ == "__main__":

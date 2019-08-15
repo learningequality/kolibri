@@ -1,12 +1,20 @@
 <template>
 
   <KGrid>
-    <KGridItem sizes="100, 50, 50" percentage>
+    <KGridItem
+      :layout8="{ span: 4 }"
+      :layout12="{ span: 6 }"
+    >
       <p>
         <slot name="backlink"></slot>
       </p>
     </KGridItem>
-    <KGridItem sizes="100, 50, 50" percentage alignment="right" class="pad-button">
+    <KGridItem
+      :layout="{ alignment: 'right' }"
+      :layout8="{ span: 4 }"
+      :layout12="{ span: 6 }"
+      class="pad-button"
+    >
       <slot name="options"></slot>
     </KGridItem>
   </KGrid>

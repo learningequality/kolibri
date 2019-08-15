@@ -8,7 +8,6 @@
  */
 
 const path = require('path');
-const fs = require('fs');
 const BundleTracker = require('webpack-bundle-tracker');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
@@ -21,14 +20,14 @@ const ExtractStrings = require('./ExtractStrings');
 const logging = require('./logging');
 const coreExternals = require('./apiSpecExportTools').coreExternals();
 const coreAliases = require('./apiSpecExportTools').coreAliases();
-const { kolibriName } = require('./kolibriName');
+const { kolibriName, kolibriPluginDataName } = require('./kolibriName');
 const WebpackMessages = require('./webpackMessages');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle
  * configuration for webpack.
  * @param {Object} data - An object that contains the data for configuring the bundle.
- * @param {string} data.src_file - The Javascript source file that initializes the plugin.
+ * @param {string} data.config - Injected webpack configuration for this bundle.
  * @param {string} data.name - The name that the plugin is referred to by.
  * @param {string} data.static_dir - Directory path to the module in which the plugin is defined.
  * @param {string} data.stats_file - The name of the webpack bundle stats file that the plugin data
@@ -38,8 +37,8 @@ const WebpackMessages = require('./webpackMessages');
  */
 module.exports = (data, { mode = 'development', hot = false } = {}) => {
   if (
-    typeof data.src_file === 'undefined' ||
     typeof data.name === 'undefined' ||
+    typeof data.config_path === 'undefined' ||
     typeof data.static_dir === 'undefined' ||
     typeof data.stats_file === 'undefined' ||
     typeof data.locale_data_folder === 'undefined' ||
@@ -49,7 +48,32 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
     logging.error(data.name + ' plugin is misconfigured, missing parameter(s)');
     return;
   }
-
+  const configData = require(data.config_path);
+  let webpackConfig;
+  if (data.index !== null) {
+    webpackConfig = configData[data.index].webpack_config;
+  } else {
+    webpackConfig = configData.webpack_config;
+  }
+  if (typeof webpackConfig.entry === 'string') {
+    webpackConfig.entry = {
+      [data.name]: path.join(data.plugin_path, webpackConfig.entry),
+    };
+  } else {
+    Object.keys(webpackConfig.entry).forEach(key => {
+      function makePathAbsolute(entryPath) {
+        if (entryPath.startsWith('./') || entryPath.startsWith('../')) {
+          return path.join(data.plugin_path, entryPath);
+        }
+        return entryPath;
+      }
+      if (Array.isArray(webpackConfig.entry[key])) {
+        webpackConfig.entry[key] = webpackConfig.entry[key].map(makePathAbsolute);
+      } else {
+        webpackConfig.entry[key] = makePathAbsolute(webpackConfig.entry[key]);
+      }
+    });
+  }
   const production = mode === 'production';
 
   const cssInsertionLoader = hot ? 'style-loader' : MiniCssExtractPlugin.loader;
@@ -81,21 +105,9 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
     },
   ];
 
-  let local_config = {};
-
-  try {
-    const localConfigPath = path.resolve(path.join(data.plugin_path, 'webpack.config.js'));
-    if (fs.existsSync(localConfigPath)) {
-      local_config = require(localConfigPath);
-    }
-  } catch (e) {
-    logging.error('Local webpack config import failed with error ' + e);
-    local_config = {};
-  }
-
   let externals;
 
-  if (!local_config.output || local_config.output.library !== kolibriName) {
+  if (!webpackConfig.output || webpackConfig.output.library !== kolibriName) {
     // If this is not the core bundle, then we need to add the external library mappings.
     externals = coreExternals;
   } else {
@@ -103,11 +115,6 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
   }
 
   let bundle = {
-    // Set the main entry for this module, set the name based on the data.name and the path to the
-    // entry file from the data.src_file
-    entry: {
-      [data.name]: path.join(data.plugin_path, data.src_file),
-    },
     externals,
     name: data.name,
     mode,
@@ -193,7 +200,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
       filename: '[name]-' + data.version + '.js',
       // Need to define this in order for chunks to be named
       // Without this chunks from different bundles will likely have colliding names
-      chunkFilename: '[name]-' + data.version + '.js',
+      chunkFilename: data.name + '-[name]-' + data.version + '.js',
     },
     resolve: {
       extensions: ['.js', '.vue', '.scss'],
@@ -240,6 +247,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
       // the kolibri version).
       // Also add the copyright year for auto updated copyright footers.
       new webpack.DefinePlugin({
+        __kolibriPluginDataName: JSON.stringify(kolibriPluginDataName),
         __kolibriModuleName: JSON.stringify(data.name),
         __version: JSON.stringify(data.version),
         __copyrightYear: new Date().getFullYear(),
@@ -254,7 +262,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
     stats: 'minimal',
   };
 
-  bundle = merge.smart(bundle, local_config);
+  bundle = merge.smart(bundle, webpackConfig);
 
   return bundle;
 };

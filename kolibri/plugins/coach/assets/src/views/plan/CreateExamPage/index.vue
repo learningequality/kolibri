@@ -27,7 +27,7 @@
       <h2>{{ coachString('detailsLabel') }}</h2>
 
       <KGrid>
-        <KGridItem sizes="100, 100, 50" percentage>
+        <KGridItem :layout12="{ span: 6 }">
           <KTextbox
             ref="title"
             v-model.trim="examTitle"
@@ -36,7 +36,7 @@
             :maxlength="100"
           />
         </KGridItem>
-        <KGridItem sizes="100, 100, 50" percentage>
+        <KGridItem :layout12="{ span: 6 }">
           <KTextbox
             ref="questionsInput"
             v-model.trim.number="numQuestions"
@@ -193,7 +193,7 @@
       };
     },
     computed: {
-      ...mapState(['pageName', 'toolbarRoute']),
+      ...mapState(['toolbarRoute']),
       ...mapGetters('examCreation', ['numRemainingSearchResults']),
       ...mapState('examCreation', [
         'numberOfQuestions',
@@ -203,6 +203,9 @@
         'searchResults',
         'ancestors',
       ]),
+      pageName() {
+        return this.$route.name;
+      },
       maxQs() {
         return MAX_QUESTIONS;
       },

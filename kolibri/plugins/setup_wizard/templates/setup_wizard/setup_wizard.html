@@ -1,7 +1,6 @@
 {% extends "kolibri/base.html" %}
-{% load setup_wizard_tags %}
+{% load webpack_tags %}
 
 {% block content %}
-  {% setup_wizard_async_assets %}
-  {% setup_wizard_assets %}
+  {% webpack_asset 'setup_wizard' %}
 {% endblock %}

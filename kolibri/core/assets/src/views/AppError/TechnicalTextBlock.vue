@@ -9,8 +9,8 @@
       wrap="soft"
       aria-hidden="true"
       :style="[dynamicHeightStyle, {
-        backgroundColor: $themeColors.palette.grey.v_200,
-        border: $themeColors.palette.grey.v_300,
+        backgroundColor: $themePalette.grey.v_200,
+        border: $themePalette.grey.v_300,
       }]"
     >
     </textarea>

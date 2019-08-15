@@ -13,14 +13,14 @@ from .base import TestHookMixin
 
 
 class _WebpackBundleHookSwappedOut(hooks.WebpackBundleHook):
-    unique_slug = "i_get_swapped_out"
+    bundle_id = "i_get_swapped_out"
 
     src_file = "im_a_source_file"
 
 
 class _WebpackBundleHookInheritor(_WebpackBundleHookSwappedOut):
 
-    unique_slug = "i_get_swapped_in"
+    bundle_id = "i_get_swapped_in"
 
     src_file = "im_a_source_file"
 
@@ -29,7 +29,7 @@ class _WebpackBundleHookInheritor(_WebpackBundleHookSwappedOut):
 
 
 class _FrontEndCoreAssetHook(hooks.FrontEndCoreAssetHook):
-    unique_slug = "im_a_core_hook"
+    bundle_id = "im_a_core_hook"
 
     src_file = "im_a_source_file"
 
@@ -38,7 +38,7 @@ class _FrontEndCoreAssetHook(hooks.FrontEndCoreAssetHook):
 
 
 class _FrontEndASyncAssetHook(TestHookMixin, hooks.WebpackBundleHook):
-    unique_slug = "im_an_async_hook"
+    bundle_id = "im_an_async_hook"
 
     src_file = "im_a_source_file"
 

@@ -59,7 +59,7 @@
     methods: {
       buttonStyle(index) {
         return {
-          backgroundColor: index === this.selectedIndex ? this.$themeColors.palette.grey.v_300 : '',
+          backgroundColor: index === this.selectedIndex ? this.$themePalette.grey.v_300 : '',
         };
       },
     },

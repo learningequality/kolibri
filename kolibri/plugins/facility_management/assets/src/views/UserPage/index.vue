@@ -2,10 +2,17 @@
 
   <div>
     <KGrid>
-      <KGridItem sizes="100, 50, 50" percentage>
+      <KGridItem
+        :layout8="{ span: 4 }"
+        :layout12="{ span: 6 }"
+      >
         <h1>{{ coreString('usersLabel') }}</h1>
       </KGridItem>
-      <KGridItem sizes="100, 50, 50" percentage align="right">
+      <KGridItem
+        :layout="{ alignment: 'right' }"
+        :layout8="{ span: 4 }"
+        :layout12="{ span: 6 }"
+      >
         <KButton
           :text="$tr('newUserButtonLabel')"
           :primary="true"
@@ -13,7 +20,14 @@
           @click="$router.push($router.getRoute('USER_CREATE_PAGE'))"
         />
       </KGridItem>
-      <KGridItem sizes="3, 3, 3">
+    </KGrid>
+
+    <PaginatedListContainer
+      :items="facilityUsers"
+      :filterFunction="filterUsers"
+      :filterPlaceholder="$tr('searchText')"
+    >
+      <template v-slot:otherFilter>
         <KSelect
           v-model="roleFilter"
           :label="coreString('userTypeLabel')"
@@ -21,58 +35,26 @@
           :inline="true"
           class="type-filter"
         />
-      </KGridItem>
-      <KGridItem sizes="4, 5, 5">
-        <KFilterTextbox
-          v-model="searchFilter"
-          :placeholder="$tr('searchText')"
-          class="user-filter"
-        />
-      </KGridItem>
-    </KGrid>
-
-    <UserTable
-      class="user-roster move-down"
-      :users="visibleUsers"
-      :emptyMessage="emptyMessage"
-      :showDemographicInfo="true"
-    >
-      <template slot="action" slot-scope="userRow">
-        <KDropdownMenu
-          :text="coreString('optionsLabel')"
-          :options="manageUserOptions(userRow.user.id)"
-          :disabled="!userCanBeEdited(userRow.user)"
-          appearance="flat-button"
-          @select="handleManageUserSelection($event, userRow.user)"
-        />
       </template>
-    </UserTable>
 
-    <nav>
-      <span dir="auto">
-        {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
-      </span>
-      <UiIconButton
-        type="primary"
-        :ariaLabel="$tr('previousResults')"
-        :disabled="pageNum === 1"
-        size="small"
-        class="pagination-button"
-        @click="goToPage(pageNum - 1)"
-      >
-        <KIcon icon="back" style="position: relative; top: -1px;" />
-      </UiIconButton>
-      <UiIconButton
-        type="primary"
-        :ariaLabel="$tr('nextResults')"
-        :disabled="pageNum === 0 || pageNum === numPages"
-        size="small"
-        class="pagination-button"
-        @click="goToPage(pageNum + 1)"
-      >
-        <KIcon icon="forward" style="position: relative; top: -1px;" />
-      </UiIconButton>
-    </nav>
+      <template v-slot:default="{items, filterInput}">
+        <UserTable
+          class="user-roster move-down"
+          :users="items"
+          :emptyMessage="emptyMessageForItems(items, filterInput)"
+        >
+          <template slot="action" slot-scope="userRow">
+            <KDropdownMenu
+              :text="$tr('optionsButtonLabel')"
+              :options="manageUserOptions(userRow.user.id)"
+              :disabled="!userCanBeEdited(userRow.user)"
+              appearance="flat-button"
+              @select="handleManageUserSelection($event, userRow.user)"
+            />
+          </template>
+        </UserTable>
+      </template>
+    </PaginatedListContainer>
 
     <!-- Modals -->
 
@@ -99,14 +81,12 @@
   import { mapState, mapGetters } from 'vuex';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
@@ -126,24 +106,18 @@
       ResetUserPasswordModal,
       DeleteUserModal,
       KButton,
-      KFilterTextbox,
       KDropdownMenu,
-      KIcon,
       KSelect,
       KGrid,
       KGridItem,
       UserTable,
-      UiIconButton,
+      PaginatedListContainer,
     },
     mixins: [commonCoreStrings],
     data() {
       return {
-        searchFilter: '',
         roleFilter: null,
         selectedUser: null,
-        perPage: 10,
-        pageNum: 1,
-        modalShown: '',
       };
     },
     computed: {
@@ -158,58 +132,30 @@
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
         ];
       },
-      sortedFilteredUsers() {
-        return filterAndSortUsers(
-          this.facilityUsers,
-          user => userMatchesFilter(user, this.searchFilter) && this.userMatchesRole(user)
-        );
-      },
-      visibleUsers() {
-        return this.sortedFilteredUsers.slice(this.startRange, this.endRange);
-      },
-      emptyMessage() {
-        if (this.facilityUsers.length === 0) {
-          return this.coreString('noUsersExistLabel');
-        } else if (this.visibleUsers.length === 0) {
-          return this.$tr('allUsersFilteredOut');
-        }
-        return '';
-      },
-      numPages() {
-        return Math.ceil(this.numFilteredUsers / this.perPage);
-      },
-      startRange() {
-        return (this.pageNum - 1) * this.perPage;
-      },
-      visibleStartRange() {
-        return Math.min(this.startRange + 1, this.numFilteredUsers);
-      },
-      endRange() {
-        return this.pageNum * this.perPage;
-      },
-      visibleEndRange() {
-        return Math.min(this.endRange, this.numFilteredUsers);
-      },
-      numFilteredUsers() {
-        return this.sortedFilteredUsers.length;
-      },
-    },
-    watch: {
-      searchFilter() {
-        // Reset the pageNum to the first page when searchFilter changes
-        // to avoid showing an empty page.
-        this.pageNum = 1;
-      },
     },
     beforeMount() {
       this.roleFilter = this.userKinds[0];
     },
     methods: {
+      emptyMessageForItems(items, filterText) {
+        if (this.facilityUsers.length === 0) {
+          return this.$tr('noUsersExist');
+        } else if (items.length === 0) {
+          return this.$tr('allUsersFilteredOut', { filterText });
+        }
+        return '';
+      },
+      filterUsers(users, filterText) {
+        return filterAndSortUsers(
+          users,
+          user => userMatchesFilter(user, filterText) && this.userMatchesRole(user, this.roleFilter)
+        );
+      },
       closeModal() {
         this.modalShown = '';
       },
-      userMatchesRole(user) {
-        const { value: filterKind } = this.roleFilter;
+      userMatchesRole(user, roleFilter) {
+        const { value: filterKind } = roleFilter;
         if (filterKind === ALL_FILTER) {
           return true;
         }
@@ -231,9 +177,6 @@
             disabled: userId === this.currentUserId,
           },
         ];
-      },
-      goToPage(page) {
-        this.pageNum = page;
       },
       handleManageUserSelection(selection, user) {
         if (selection.value === Modals.EDIT_USER) {
@@ -257,14 +200,10 @@
       searchText: 'Search for a user…',
       admins: 'Admins',
       newUserButtonLabel: 'New User',
-      allUsersFilteredOut: 'No users match the filter',
+      noUsersExist: 'No users exist',
+      allUsersFilteredOut: "No users match the filter: '{filterText}'",
+      optionsButtonLabel: 'Options',
       resetUserPassword: 'Reset password',
-      userActions: 'User management actions',
-      userPageTitle: 'Users',
-      pagination:
-        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
-      previousResults: 'Previous results',
-      nextResults: 'Next results',
     },
   };
 
@@ -282,21 +221,8 @@
     margin-bottom: 0;
   }
 
-  .user-filter {
-    width: 100%;
-    margin-top: 14px;
-  }
-
   .user-roster {
     overflow-x: auto;
-  }
-  .actions-header,
-  .footer,
-  nav {
-    text-align: end;
-  }
-  .pagination-button {
-    margin-left: 8px;
   }
 
 </style>

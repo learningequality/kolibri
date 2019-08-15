@@ -46,7 +46,7 @@
     <div
       v-if="progress!==undefined"
       class="progress-bar-wrapper"
-      :style="{ backgroundColor: $themeColors.palette.grey.v_200 }"
+      :style="{ backgroundColor: $themePalette.grey.v_200 }"
     >
       <div
         class="progress-bar"
@@ -142,6 +142,8 @@
             return { fill: this.$themeTokens.document };
           case ContentNodeKinds.HTML5:
             return { fill: this.$themeTokens.html5 };
+          case ContentNodeKinds.SLIDESHOW:
+            return { fill: this.$themeTokens.slideshow };
           default:
             return { fill: this.$themeTokens.topic };
         }

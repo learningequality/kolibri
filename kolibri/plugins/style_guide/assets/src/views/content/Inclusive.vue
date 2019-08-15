@@ -1,7 +1,7 @@
 <template>
 
   <PageTemplate>
-    <PageSection>
+    <PageSection title="Overview" anchor="#overview">
       <p>
         At Learning Equality, one of our
         <ExternalLink href="https://learningequality.org/about/values/" text="core values" />

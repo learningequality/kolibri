@@ -1,8 +1,6 @@
 {% extends "kolibri/base.html" %}
-{% load user_tags %}
-{% load kolibri_tags %}
-{% load cache %}
+{% load webpack_tags user_tags %}
 {% block content %}
-  {% user_async_assets %}
   {% user_assets %}
+  {% webpack_asset 'user_module' %}
 {% endblock %}

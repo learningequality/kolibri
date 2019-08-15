@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from . import hooks
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
@@ -15,12 +14,7 @@ class User(KolibriPluginBase):
 
 
 class UserAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "user_module"
-    src_file = "assets/src/app.js"
-
-
-class UserInclusionHook(hooks.UserSyncHook):
-    bundle_class = UserAsset
+    bundle_id = "user_module"
 
 
 class LogInRedirect(RoleBasedRedirectHook):
@@ -32,10 +26,8 @@ class LogInRedirect(RoleBasedRedirectHook):
 
 
 class LogInNavAction(NavigationHook, webpack_hooks.WebpackBundleHook):
-    unique_slug = "user_module_login_nav_side_nav"
-    src_file = "assets/src/views/LoginSideNavEntry.vue"
+    bundle_id = "user_module_login_nav_side_nav"
 
 
 class ProfileNavAction(NavigationHook, webpack_hooks.WebpackBundleHook):
-    unique_slug = "user_module_user_profile_nav_side_nav"
-    src_file = "assets/src/views/UserProfileSideNavEntry.vue"
+    bundle_id = "user_module_user_profile_nav_side_nav"

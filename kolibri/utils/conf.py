@@ -29,10 +29,6 @@ from .compat import module_exists
 
 logger = logging.getLogger(__name__)
 
-# use default OS encoding
-with open(os.path.join(os.path.dirname(__file__), "KOLIBRI_CORE_JS_NAME")) as f:
-    KOLIBRI_CORE_JS_NAME = f.read().strip()
-
 #: Absolute path of the main user data directory.
 #: Will be created automatically if it doesn't exist.
 KOLIBRI_HOME = os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"]))
@@ -77,6 +73,7 @@ except ImportError:
         "kolibri.plugins.style_guide",
         "kolibri.plugins.document_epub_render",
         "kolibri.plugins.default_theme",
+        "kolibri.plugins.slideshow_render",
     ]
 
 conf_file = os.path.join(KOLIBRI_HOME, "kolibri_settings.json")
@@ -92,15 +89,7 @@ class ConfigDict(dict):
     def __init__(self):
         # If the settings file does not exist or does not contain
         # valid JSON then create it
-        self.update(
-            {
-                #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
-                # except disabled ones below
-                "INSTALLED_APPS": DEFAULT_PLUGINS,
-                #: Everything in this list is removed from the list above
-                "DISABLED_APPS": [],
-            }
-        )
+        self.set_defaults()
         if os.path.isfile(conf_file):
             try:
                 # Open up the config file and load settings
@@ -114,6 +103,17 @@ class ConfigDict(dict):
                 )
         logger.info("Initialize kolibri_settings.json..")
         self.save()
+
+    def set_defaults(self):
+        self.update(
+            {
+                #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
+                # except disabled ones below
+                "INSTALLED_APPS": DEFAULT_PLUGINS,
+                #: Everything in this list is removed from the list above
+                "DISABLED_APPS": [],
+            }
+        )
 
     @property
     def ACTIVE_PLUGINS(self):

@@ -47,6 +47,21 @@ def _is_plugin(obj):
     )
 
 
+def _import_python_module(plugin_name):
+    try:
+        importlib.import_module(plugin_name)
+    except ImportError as e:
+        # Python 2: message, Python 3: msg
+        exc_message = getattr(e, "message", getattr(e, "msg", None))
+        if exc_message.startswith("No module named"):
+            msg = (
+                "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?"
+            ).format(plugin_name)
+            raise PluginDoesNotExist(msg)
+        else:
+            raise
+
+
 def get_kolibri_plugin(plugin_name):
     """
     Try to load kolibri_plugin from given plugin module identifier
@@ -55,6 +70,10 @@ def get_kolibri_plugin(plugin_name):
     """
 
     plugin_classes = []
+
+    # First import the bare plugin name to see if it exists
+    # This will raise an exception if not
+    _import_python_module(plugin_name)
 
     try:
         # Exceptions are expected to be thrown from here.
@@ -68,7 +87,7 @@ def get_kolibri_plugin(plugin_name):
         exc_message = getattr(e, "message", getattr(e, "msg", None))
         if exc_message.startswith("No module named"):
             msg = (
-                "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?"
+                "Plugin '{}' exists but does not have an importable kolibri_plugin module"
             ).format(plugin_name)
             raise PluginDoesNotExist(msg)
         else:
@@ -91,9 +110,12 @@ def get_kolibri_plugin(plugin_name):
 
 
 def enable_plugin(plugin_name):
-    plugin_classes = get_kolibri_plugin(plugin_name)
-    for klass in plugin_classes:
-        klass.enable()
+    try:
+        plugin_classes = get_kolibri_plugin(plugin_name)
+        for klass in plugin_classes:
+            klass.enable()
+    except PluginDoesNotExist as e:
+        logger.error(str(e))
 
 
 def disable_plugin(plugin_name):

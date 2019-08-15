@@ -1,6 +1,6 @@
 <template>
 
-  <div class="snackbar" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
+  <div class="snackbar" :style="{ backgroundColor: $themePalette.grey.v_100 }">
     <div class="table">
       <div class="row">
         <div class="icon-container cell">

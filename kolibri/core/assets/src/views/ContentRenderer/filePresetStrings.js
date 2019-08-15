@@ -22,6 +22,7 @@ const filePresetStrings = {
   html5Zip: 'HTML5 Zip ({fileSize})',
   html5Thumbnail: 'HTML5 Thumbnail ({fileSize})',
   epub: 'ePub Document ({fileSize})',
+  slideshow: 'Slideshow ({fileSize})',
 };
 
 const filePresetTranslator = createTranslator('FilePresetStrings', filePresetStrings);
