@@ -4,8 +4,10 @@ import SignUpPage from '../../src/views/SignUpPage';
 import makeStore from '../makeStore';
 
 function makeWrapper() {
+  const store = makeStore();
+  store.state.core.facilities = [{ id: 1, name: 'facility' }];
   return mount(SignUpPage, {
-    store: makeStore(),
+    store,
     router: new VueRouter({
       routes: [{ name: 'SIGN_IN', path: '/signin' }],
     }),

@@ -281,6 +281,10 @@ LOGGING = get_logging_config(conf.LOG_ROOT)
 
 AUTH_USER_MODEL = "kolibriauth.FacilityUser"
 
+# Our own custom setting to override the anonymous user model
+
+AUTH_ANONYMOUS_USER_MODEL = "kolibriauth.KolibriAnonymousUser"
+
 AUTHENTICATION_BACKENDS = ["kolibri.core.auth.backends.FacilityUserBackend"]
 
 
