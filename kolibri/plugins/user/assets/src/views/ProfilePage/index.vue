@@ -80,11 +80,6 @@
         <td>{{ session.username }}</td>
       </tr>
 
-      <tr v-if="facilityUser.id_number">
-        <th>{{ coreString('identifierLabel') }}</th>
-        <td>{{ facilityUser.id_number }}</td>
-      </tr>
-
       <tr>
         <th>{{ coreString('genderLabel') }}</th>
         <td>
