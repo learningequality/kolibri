@@ -27,13 +27,11 @@
     computed: {
       displayText() {
         if (this.gender === 'DECLINE') {
-          return this.coreString('preferNotToSayOption');
+          return this.coreString('notSpecifiedOption');
         } else if (this.gender === 'MALE') {
           return this.coreString('genderOptionMale');
         } else if (this.gender === 'FEMALE') {
           return this.coreString('genderOptionFemale');
-        } else if (this.gender === 'OTHER') {
-          return this.coreString('genderOptionOther');
         } else {
           return '';
         }

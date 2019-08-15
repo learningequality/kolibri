@@ -62,7 +62,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   genderOptionMale: 'Male',
   genderOptionFemale: 'Female',
   genderOptionOther: 'Other',
-  preferNotToSayOption: 'Prefer not to say',
+  notSpecifiedOption: 'Not specified',
   identifierTooltip:
     'This could be a student ID number or an existing user identification number outside of Kolibri, for example.',
   identifierAriaLabel: 'About providing an identifier or ID number',

@@ -43,12 +43,8 @@
             label: this.coreString('genderOptionFemale'),
           },
           {
-            value: 'OTHER',
-            label: this.coreString('genderOptionOther'),
-          },
-          {
             value: 'DECLINE',
-            label: this.coreString('preferNotToSayOption'),
+            label: this.coreString('notSpecifiedOption'),
           },
         ];
       },

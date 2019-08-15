@@ -641,8 +641,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     GENDER_CHOICES = [
         ("MALE", "Male"),
         ("FEMALE", "Female"),
-        ("OTHER", "Other"),
-        ("DECLINE", "Prefers not to say"),
+        ("DECLINE", "Not specified"),
         ("DEFER", "Defers for later"),
     ]
 

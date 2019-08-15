@@ -27,7 +27,7 @@
     computed: {
       displayText() {
         if (this.birthYear === 'DECLINE') {
-          return this.coreString('preferNotToSayOption');
+          return this.coreString('notSpecifiedOption');
         } else if (this.birthYear !== 'DEFER') {
           return this.birthYear;
         } else {

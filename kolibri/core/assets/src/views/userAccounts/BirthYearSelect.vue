@@ -59,7 +59,7 @@
         return [
           {
             value: 'DECLINE',
-            label: this.coreString('preferNotToSayOption'),
+            label: this.coreString('notSpecifiedOption'),
           },
           ...yearOptions,
         ];
