@@ -61,15 +61,14 @@
         @blur="confirmedPasswordBlurred = true"
       />
 
-      <KSelect
-        v-model="selectedFacility"
-        :label="coreString('facilityLabel')"
-        :options="facilityList"
-        :invalid="facilityIsInvalid"
-        :invalidText="facilityIsInvalidText"
-        :disabled="facilityList.length === 1"
-        @blur="facilityBlurred = true"
-      />
+      <template v-if="currentFacility">
+        <h2>
+          {{ coreString('facilityLabel') }}
+        </h2>
+        <p>
+          {{ currentFacility.name }}
+        </p>
+      </template>
 
       <p class="privacy-link">
         <KButton
@@ -99,6 +98,13 @@
       v-if="privacyModalVisible"
       hideOwnersSection
       @cancel="privacyModalVisible = false"
+      @submit="privacyModalVisible = false"
+    />
+
+    <FacilityModal
+      v-if="facilityModalVisible"
+      @cancel="closeFacilityModal"
+      @submit="closeFacilityModal"
     />
 
   </div>
@@ -112,10 +118,10 @@
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import FacilityModal from './SignInPage/FacilityModal';
   import getUrlParameter from './getUrlParameter';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
 
@@ -127,9 +133,9 @@
       };
     },
     components: {
+      FacilityModal,
       KButton,
       KTextbox,
-      KSelect,
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
@@ -147,15 +153,13 @@
       facilityBlurred: false,
       formSubmitted: false,
       privacyModalVisible: false,
+      facilityModalVisible: false,
     }),
     computed: {
       ...mapGetters(['facilities']),
       ...mapState('signUp', ['errors', 'busy']),
-      facilityList() {
-        return this.facilities.map(facility => ({
-          label: facility.name,
-          value: facility.id,
-        }));
+      currentFacility() {
+        return this.facilities.find(facility => facility.id === this.$store.state.facilityId);
       },
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
@@ -216,27 +220,12 @@
       confirmedPasswordIsInvalid() {
         return Boolean(this.confirmedPasswordIsInvalidText);
       },
-      noFacilitySelected() {
-        return !this.selectedFacility.value;
-      },
-      facilityIsInvalidText() {
-        if (this.facilityBlurred || this.formSubmitted) {
-          if (this.noFacilitySelected) {
-            return this.coreString('requiredFieldLabel');
-          }
-        }
-        return '';
-      },
-      facilityIsInvalid() {
-        return Boolean(this.facilityIsInvalidText);
-      },
       formIsValid() {
         return (
           !this.nameIsInvalid &&
           !this.usernameIsInvalid &&
           !this.passwordIsInvalid &&
-          !this.confirmedPasswordIsInvalid &&
-          !this.facilityIsInvalid
+          !this.confirmedPasswordIsInvalid
         );
       },
       nextParam() {
@@ -249,8 +238,8 @@
       },
     },
     beforeMount() {
-      if (this.facilityList.length === 1) {
-        this.selectedFacility = this.facilityList[0];
+      if (!this.currentFacility) {
+        this.facilityModalVisible = true;
       }
     },
     methods: {
@@ -258,12 +247,18 @@
       ...mapMutations('signUp', {
         resetSignUpState: 'RESET_STATE',
       }),
+      closeFacilityModal() {
+        this.facilityModalVisible = false;
+        this.$nextTick().then(() => {
+          this.$refs.name.focus();
+        });
+      },
       signUp() {
         this.formSubmitted = true;
         const canSubmit = this.formIsValid && !this.busy;
         if (canSubmit) {
           const payload = {
-            facility: this.selectedFacility.value,
+            facility: this.currentFacility.id,
             full_name: this.name,
             username: this.username,
             password: this.password,

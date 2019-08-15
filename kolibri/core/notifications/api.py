@@ -351,12 +351,11 @@ def parse_attemptslog(attemptlog):
     failed_interactions = []
     attempts = AttemptLog.objects.filter(masterylog_id=attemptlog.masterylog_id)
 
-    # NOTE: saw at elast one error here where failed['correct'] raised a key error
     failed_interactions = [
         failed
         for attempt in attempts
         for failed in attempt.interaction_history
-        if failed["correct"] == 0
+        if failed.get("correct", 0) == 0
     ]
 
     # More than 3 errors in this mastery log:
