@@ -182,7 +182,7 @@ tester.run('vue-no-undefined-string-uses', rule, {
       `,
       errors: [
         {
-          message: 'Attempt to use undefined string notDefined',
+          message: 'Message not defined in $trs: "notDefined"',
         },
       ],
     },
@@ -210,7 +210,7 @@ tester.run('vue-no-undefined-string-uses', rule, {
       `,
       errors: [
         {
-          message: 'Attempt to use undefined string personLabel',
+          message: 'Message not defined in $trs: "personLabel"',
         },
       ],
     },
