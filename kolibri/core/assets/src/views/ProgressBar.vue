@@ -32,12 +32,11 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ProgressBar',
-    mixins: [commonCoreStrings, themeMixin],
+    mixins: [commonCoreStrings],
     props: {
       progress: {
         type: Number,

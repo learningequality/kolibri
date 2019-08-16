@@ -60,9 +60,6 @@
 
   import { mapGetters, mapState } from 'vuex';
   import find from 'lodash/find';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { deleteAddress, fetchAddresses } from './api';
@@ -79,9 +76,6 @@
   export default {
     name: 'SelectAddressForm',
     components: {
-      KButton,
-      KModal,
-      KRadioButton,
       UiAlert,
     },
     mixins: [commonCoreStrings],

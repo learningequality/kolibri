@@ -1,15 +1,15 @@
 <template>
 
-  <KDragContainer
+  <DragContainer
     :items="workingResources"
     @sort="handleDrag"
   >
     <transition-group tag="div" name="list" class="wrapper">
-      <KDraggable
+      <Draggable
         v-for="(resourceId, index) in workingResources"
         :key="resourceId"
       >
-        <KDragHandle>
+        <DragHandle>
           <KFixedGrid
             class="row"
             :style="{ backgroundColor: $themeTokens.surface }"
@@ -17,7 +17,7 @@
           >
             <KFixedGridItem span="1" class="relative">
               <div class="move-handle">
-                <KDragSortWidget
+                <DragSortWidget
                   :moveUpText="$tr('moveResourceUpButtonDescription')"
                   :moveDownText="$tr('moveResourceDownButtonDescription')"
                   :isFirst="index === 0"
@@ -53,10 +53,10 @@
               />
             </KFixedGridItem>
           </KFixedGrid>
-        </KDragHandle>
-      </KDraggable>
+        </DragHandle>
+      </Draggable>
     </transition-group>
-  </KDragContainer>
+  </DragContainer>
 
 </template>
 
@@ -64,15 +64,10 @@
 <script>
 
   import { mapActions, mapState, mapMutations } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KDragSortWidget from 'kolibri.coreVue.components.KDragSortWidget';
-  import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
-  import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
-  import KDraggable from 'kolibri.coreVue.components.KDraggable';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KFixedGrid from 'kolibri.coreVue.components.KFixedGrid';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KFixedGridItem from 'kolibri.coreVue.components.KFixedGridItem';
+  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
+  import DragContainer from 'kolibri.coreVue.components.DragContainer';
+  import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  import Draggable from 'kolibri.coreVue.components.Draggable';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -82,18 +77,14 @@
   export default {
     name: 'ResourceListTable',
     components: {
-      KDraggable,
-      KDragContainer,
-      KDragHandle,
-      KDragSortWidget,
-      KRouterLink,
+      Draggable,
+      DragContainer,
+      DragHandle,
+      DragSortWidget,
       CoachContentLabel,
-      KButton,
-      KFixedGrid,
-      KFixedGridItem,
       ContentIcon,
     },
-    mixins: [commonCoreStrings, themeMixin],
+    mixins: [commonCoreStrings],
     data() {
       const workingResourcesIds = this.$store.state.lessonSummary.workingResources;
       const resourceContentNodes = this.$store.state.lessonSummary.resourceCache;

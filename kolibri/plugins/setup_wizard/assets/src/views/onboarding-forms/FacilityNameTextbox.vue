@@ -17,13 +17,8 @@
 
 <script>
 
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-
   export default {
     name: 'FacilityNameTextbox',
-    components: {
-      KTextbox,
-    },
     data() {
       return {
         facilityName: this.$store.state.onboardingData.facility.name,

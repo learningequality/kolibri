@@ -8,12 +8,12 @@ require('url-polyfill');
 // Do this before any async imports to ensure that public paths
 // are set correctly
 require('kolibri.urls').default.setUp();
-// include global styles
-require('purecss/build/base-min.css');
-require('../styles/main.scss');
-require('../styles/globalDynamicStyles');
-require('./vuexModality');
-require('./monitorPageVisibility');
+
+// set up theme
+const theme = require('kolibri-components/src/styles/theme');
+
+theme.setBrandColors(global.kolibriTheme.brandColors);
+theme.setTokenMapping(global.kolibriTheme.tokenMapping);
 
 // Required to setup Keen UI, should be imported only once in your project
 require('keen-ui/src/bootstrap');
@@ -22,6 +22,20 @@ require('keen-ui/src/bootstrap');
 const KeenUiConfig = require('keen-ui/src/config').default;
 KeenUiConfig.set(require('../keen-config/options.json'));
 require('../keen-config/font-stack.scss');
+
+// global styles
+const generateGlobalStyles = require('kolibri-components/src/styles/generateGlobalStyles');
+
+generateGlobalStyles();
+require('../styles/main.scss');
+
+// monitor input modality
+const trackInputModality = require('kolibri-components/src/styles/trackInputModality');
+
+trackInputModality();
+
+// monitor page visibility
+require('./monitorPageVisibility');
 
 // set up logging
 const logging = require('kolibri.lib.logging').default;

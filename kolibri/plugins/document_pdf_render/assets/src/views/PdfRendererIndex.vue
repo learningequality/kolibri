@@ -80,10 +80,8 @@
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
   import 'intersection-observer';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
-  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import urls from 'kolibri.urls';
@@ -104,13 +102,12 @@
   export default {
     name: 'PdfRendererIndex',
     components: {
-      KLinearLoader,
       UiIconButton,
       PdfPage,
       RecycleList,
       CoreFullscreen,
     },
-    mixins: [responsiveWindow, responsiveElement, contentRendererMixin, themeMixin],
+    mixins: [KResponsiveWindowMixin, KResponsiveElementMixin, contentRendererMixin],
     data: () => ({
       progress: null,
       scale: null,

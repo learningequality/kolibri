@@ -47,8 +47,6 @@
 <script>
 
   import { mapActions, mapGetters, mapState } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import DeleteChannelModal from './DeleteChannelModal';
   import ChannelListItem from './ChannelListItem';
 
@@ -56,10 +54,8 @@
     name: 'ChannelsGrid',
     components: {
       ChannelListItem,
-      KLinearLoader,
       DeleteChannelModal,
     },
-    mixins: [themeMixin],
     data() {
       return {
         selectedChannelId: null,

@@ -1,10 +1,7 @@
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-
   export default {
     name: 'CoreTable',
-    mixins: [themeMixin],
     props: {
       selectable: {
         type: Boolean,

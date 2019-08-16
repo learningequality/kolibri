@@ -13,23 +13,23 @@
         <div class="table-cell main-cell">
           <div class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
             <CoreLogo
-              v-if="$theme.signIn.topLogo"
+              v-if="$kolibriTheme.signIn.topLogo"
               class="logo"
-              :src="$theme.signIn.topLogo.src"
-              :alt="$theme.signIn.topLogo.alt"
-              :style="$theme.signIn.topLogo.style"
+              :src="$kolibriTheme.signIn.topLogo.src"
+              :alt="$kolibriTheme.signIn.topLogo.alt"
+              :style="$kolibriTheme.signIn.topLogo.style"
             />
             <h1
-              v-if="$theme.signIn.showTitle"
+              v-if="$kolibriTheme.signIn.showTitle"
               class="kolibri-title"
               :class="$computedClass({color: $themeBrand.primary.v_300})"
-              :style="$theme.signIn.titleStyle"
+              :style="$kolibriTheme.signIn.titleStyle"
             >
               {{ logoText }}
             </h1>
             <p
-              v-if="$theme.signIn.showPoweredBy"
-              :style="$theme.signIn.poweredByStyle"
+              v-if="$kolibriTheme.signIn.showPoweredBy"
+              :style="$kolibriTheme.signIn.poweredByStyle"
               class="small-text"
             >
               <KButton
@@ -146,7 +146,7 @@
             <span class="version-string">
               {{ versionMsg }}
             </span>
-            <CoreLogo v-if="this.$theme.signIn.showKolibriFooterLogo" class="footer-logo" />
+            <CoreLogo v-if="this.$kolibriTheme.signIn.showKolibriFooterLogo" class="footer-logo" />
             <span v-else> • </span>
             <KButton
               :text="coreString('usageAndPrivacyLabel')"
@@ -192,20 +192,14 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { FacilityUsernameResource } from 'kolibri.resources';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KModal from 'kolibri.coreVue.components.KModal';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import { validateUsername } from 'kolibri.utils.validators';
   import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import urls from 'kolibri.urls';
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
@@ -220,11 +214,6 @@
       };
     },
     components: {
-      KButton,
-      KRouterLink,
-      KExternalLink,
-      KTextbox,
-      KModal,
       FacilityModal,
       CoreLogo,
       UiAutocompleteSuggestion,
@@ -232,7 +221,7 @@
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
-    mixins: [responsiveWindow, themeMixin, commonCoreStrings],
+    mixins: [KResponsiveWindowMixin, commonCoreStrings],
     data() {
       return {
         username: '',
@@ -327,18 +316,18 @@
         return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
       },
       logoText() {
-        return this.$theme.signIn.title
-          ? this.$theme.signIn.title
+        return this.$kolibriTheme.signIn.title
+          ? this.$kolibriTheme.signIn.title
           : this.coreString('kolibriLabel');
       },
       guestURL() {
         return urls['kolibri:core:guest']();
       },
       backgroundImageStyle() {
-        if (this.$theme.signIn.background) {
+        if (this.$kolibriTheme.signIn.background) {
           return {
             backgroundColor: this.$themeTokens.primary,
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${this.$theme.signIn.background})`,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${this.$kolibriTheme.signIn.background})`,
           };
         }
         return { backgroundColor: this.$themeBrand.primary.v_900 };
@@ -359,6 +348,9 @@
       username(newVal) {
         this.setSuggestionTerm(newVal);
       },
+    },
+    created() {
+      this.$kolibriTheme = global.kolibriTheme;
     },
     mounted() {
       /*

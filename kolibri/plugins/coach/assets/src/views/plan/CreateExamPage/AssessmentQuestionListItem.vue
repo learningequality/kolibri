@@ -20,7 +20,7 @@
       />
     </a>
     <div v-if="draggable" class="handle">
-      <KDragSortWidget
+      <DragSortWidget
         :isFirst="isFirst"
         :isLast="isLast"
         :moveUpText="$tr('moveExerciseUp')"
@@ -36,18 +36,17 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import KDragSortWidget from 'kolibri.coreVue.components.KDragSortWidget';
+  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'AssessmentQuestionListItem',
     components: {
       CoachContentLabel,
-      KDragSortWidget,
+      DragSortWidget,
     },
-    mixins: [themeMixin, coachStringsMixin],
+    mixins: [coachStringsMixin],
     props: {
       draggable: {
         type: Boolean,

@@ -62,16 +62,12 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
   import commonCoach from './common';
 
   export default {
     name: 'CoachClassListPage',
-    components: {
-      KExternalLink,
-    },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),

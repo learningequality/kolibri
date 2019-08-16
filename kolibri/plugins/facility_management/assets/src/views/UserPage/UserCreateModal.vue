@@ -82,19 +82,9 @@
   import { validateUsername } from 'kolibri.utils.validators';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
 
   export default {
     name: 'UserCreateModal',
-    components: {
-      KRadioButton,
-      KModal,
-      KTextbox,
-      KSelect,
-    },
     mixins: [commonCoreStrings],
     data() {
       return {

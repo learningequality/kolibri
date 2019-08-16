@@ -27,11 +27,11 @@
       </UiIconButton>
 
       <img
-        v-if="$theme.appBar.topLogo"
+        v-if="$kolibriTheme.appBar.topLogo"
         slot="brand"
-        :src="$theme.appBar.topLogo.src"
-        :alt="$theme.appBar.topLogo.alt"
-        :style="$theme.appBar.topLogo.style"
+        :src="$kolibriTheme.appBar.topLogo.src"
+        :alt="$kolibriTheme.appBar.topLogo.alt"
+        :style="$kolibriTheme.appBar.topLogo.style"
         class="brand-logo"
       >
 
@@ -115,7 +115,6 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
@@ -141,7 +140,7 @@
       UserTypeDisplay,
       SkipNavigationLink,
     },
-    mixins: [commonCoreStrings, navComponentsMixin, themeMixin],
+    mixins: [commonCoreStrings, navComponentsMixin],
     props: {
       title: {
         type: String,
@@ -170,6 +169,7 @@
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
+      this.$kolibriTheme = global.kolibriTheme;
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);

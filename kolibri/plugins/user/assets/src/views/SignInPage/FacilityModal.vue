@@ -22,16 +22,10 @@
 <script>
 
   import { mapGetters, mapActions, mapMutations } from 'vuex';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'FacilityModal',
-    components: {
-      KModal,
-      KRadioButton,
-    },
     mixins: [commonCoreStrings],
     data() {
       const facilityId = this.$store.state.facilityId || this.$store.getters.facilities[0].id;

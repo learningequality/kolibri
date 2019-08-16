@@ -32,19 +32,11 @@
 
 <script>
 
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { mapGetters, mapActions, mapMutations } from 'vuex';
 
   export default {
     name: 'UpdateNotification',
-    components: {
-      KCheckbox,
-      KExternalLink,
-      KModal,
-    },
     mixins: [commonCoreStrings],
     props: {
       id: {

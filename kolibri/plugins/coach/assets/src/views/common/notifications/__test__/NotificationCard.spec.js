@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, RouterLinkStub } from '@vue/test-utils';
 import NotificationCard from '../NotificationCard';
 
 NotificationCard.methods.getRoute = x => x;
@@ -10,10 +10,7 @@ function makeWrapper(options) {
         props: ['icon'],
         template: '<div></div>',
       },
-      KRouterLink: {
-        props: ['to', 'text'],
-        template: '<div></div>',
-      },
+      RouterLink: RouterLinkStub,
     },
     propsData: {
       eventType: 'Completed',

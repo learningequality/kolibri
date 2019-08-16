@@ -23,13 +23,13 @@
 
 <script>
 
-  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
   import InteractionItem from './InteractionItem';
 
   export default {
     name: 'InteractionList',
     components: { InteractionItem },
-    mixins: [responsiveElement],
+    mixins: [KResponsiveElementMixin],
     props: {
       interactions: {
         type: Array,

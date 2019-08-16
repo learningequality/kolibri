@@ -28,16 +28,10 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ClassCreateModal',
-    components: {
-      KModal,
-      KTextbox,
-    },
     mixins: [commonCoreStrings],
     props: {
       classes: {

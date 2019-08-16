@@ -49,9 +49,6 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
@@ -59,9 +56,6 @@
     components: {
       CoachContentLabel,
       ContentIcon,
-      KButton,
-      KCheckbox,
-      KLabeledIcon,
     },
     props: {
       node: {

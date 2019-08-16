@@ -138,7 +138,6 @@
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import markdownIt from 'markdown-it';
   import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
@@ -170,7 +169,6 @@
       ContentCardGroupCarousel,
       ContentRenderer,
       DownloadButton,
-      KPageContainer,
       AssessmentWrapper,
       MasteredSnackbars,
       UiIconButton,

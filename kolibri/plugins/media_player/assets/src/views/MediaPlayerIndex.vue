@@ -57,9 +57,7 @@
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-  import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import { fullscreenApiIsSupported } from 'kolibri.utils.browser';
@@ -74,9 +72,9 @@
   export default {
     name: 'MediaPlayerIndex',
 
-    components: { KCircularLoader, CoreFullscreen },
+    components: { CoreFullscreen },
 
-    mixins: [commonCoreStrings, ResponsiveElement, contentRendererMixin, themeMixin],
+    mixins: [commonCoreStrings, KResponsiveElementMixin, contentRendererMixin],
 
     data: () => ({
       dummyTime: 0,

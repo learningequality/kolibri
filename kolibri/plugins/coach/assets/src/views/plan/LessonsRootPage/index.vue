@@ -109,11 +109,6 @@
   import { mapState, mapActions } from 'vuex';
   import countBy from 'lodash/countBy';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KModal from 'kolibri.coreVue.components.KModal';
   import { CollectionKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -128,11 +123,6 @@
     components: {
       PlanHeader,
       CoreTable,
-      KButton,
-      KRouterLink,
-      KSelect,
-      KLabeledIcon,
-      KModal,
       LessonActive,
       AssignmentDetailsModal,
     },

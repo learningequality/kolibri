@@ -86,22 +86,12 @@
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
   // IDEA use UserTypeDisplay for strings in options
   export default {
     name: 'EditUserModal',
     components: {
-      KModal,
-      KTextbox,
-      KSelect,
-      KRadioButton,
-      KExternalLink,
       UserTypeDisplay,
     },
     mixins: [commonCoreStrings],

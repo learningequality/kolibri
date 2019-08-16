@@ -105,7 +105,7 @@
         :selectedExercises="selectedExercises"
       />
 
-      <KBottomAppBar>
+      <BottomAppBar>
         <KRouterLink
           appearance="flat-button"
           :text="coreString('goBackAction')"
@@ -117,7 +117,7 @@
           primary
           @click="submit"
         />
-      </KBottomAppBar>
+      </BottomAppBar>
     </KPageContainer>
 
   </CoreBase>
@@ -130,14 +130,8 @@
   import { mapState } from 'vuex';
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -154,16 +148,10 @@
     },
     components: {
       UiIconButton,
-      KRouterLink,
-      KButton,
-      KRadioButton,
-      KGrid,
-      KGridItem,
-      KBottomAppBar,
-      KTextbox,
+      BottomAppBar,
       QuestionListPreview,
     },
-    mixins: [responsiveWindow, commonCoach, commonCoreStrings],
+    mixins: [KResponsiveWindowMixin, commonCoach, commonCoreStrings],
     data() {
       return {
         showError: false,

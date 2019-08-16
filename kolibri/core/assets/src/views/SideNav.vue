@@ -45,11 +45,11 @@
           :style="{ top: `${headerHeight}px`, width: `${width}px` }"
         >
           <img
-            v-if="$theme.sideNav.topLogo"
+            v-if="$kolibriTheme.sideNav.topLogo"
             class="logo"
-            :src="$theme.sideNav.topLogo.src"
-            :alt="$theme.sideNav.topLogo.alt"
-            :style="$theme.sideNav.topLogo.style"
+            :src="$kolibriTheme.sideNav.topLogo.src"
+            :alt="$kolibriTheme.sideNav.topLogo.alt"
+            :style="$kolibriTheme.sideNav.topLogo.style"
           >
           <CoreMenu
             role="navigation"
@@ -64,7 +64,7 @@
 
           <div class="side-nav-scrollable-area-footer" :style="{ color: $themeTokens.annotation }">
             <CoreLogo
-              v-if="$theme.sideNav.showKolibriFooterLogo"
+              v-if="$kolibriTheme.sideNav.showKolibriFooterLogo"
               class="side-nav-scrollable-area-footer-logo"
             />
             <div class="side-nav-scrollable-area-footer-info">
@@ -107,15 +107,13 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import navComponents from 'kolibri.utils.navComponents';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import navComponentsMixin from '../mixins/nav-components';
@@ -139,15 +137,13 @@
       UiIconButton,
       CoreLogo,
       SideNavDivider,
-      KButton,
       PrivacyInfoModal,
     },
     mixins: [
       commonCoreStrings,
-      responsiveWindow,
-      responsiveElement,
+      KResponsiveWindowMixin,
+      KResponsiveElementMixin,
       navComponentsMixin,
-      themeMixin,
     ],
     props: {
       navShown: {
@@ -201,6 +197,9 @@
         });
       },
     },
+    created() {
+      this.$kolibriTheme = global.kolibriTheme;
+    },
     methods: {
       toggleNav() {
         this.$emit('toggleSideNav');
@@ -250,6 +249,11 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+
+  // Matches the Keen-UI/UiToolbar box-shadow property
+  %ui-toolbar-box-shadow {
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+  }
 
   .side-nav-wrapper {
     overflow-x: hidden;

@@ -31,31 +31,16 @@ import ContentIcon from '../views/ContentIcon';
 import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
 import CoreBase from '../views/CoreBase';
-import KModal from '../views/KModal';
 import SideNav from '../views/SideNav';
-import KButton from '../views/buttons-and-links/KButton';
-import KExternalLink from '../views/buttons-and-links/KExternalLink';
-import KRouterLink from '../views/buttons-and-links/KRouterLink';
-import KTextbox from '../views/KTextbox';
-import KNavbar from '../views/KNavbar';
-import KNavbarLink from '../views/KNavbar/KNavbarLink';
+import Navbar from '../views/Navbar';
+import NavbarLink from '../views/Navbar/NavbarLink';
 import CoreLogo from '../views/CoreLogo';
 import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
 import ElapsedTime from '../views/ElapsedTime';
 import PointsIcon from '../views/PointsIcon';
 import AuthMessage from '../views/AuthMessage';
-import KBreadcrumbs from '../views/KBreadcrumbs';
-import KCheckbox from '../views/KCheckbox';
-import KRadioButton from '../views/KRadioButton';
-import KFilterTextbox from '../views/KFilterTextbox';
-import KGrid from '../views/grids/KGrid';
-import KGridItem from '../views/grids/KGridItem';
-import KFixedGrid from '../views/grids/KFixedGrid';
-import KFixedGridItem from '../views/grids/KFixedGridItem';
-import KSelect from '../views/KSelect';
+import FilterTextbox from '../views/FilterTextbox';
 import router from '../router';
-import responsiveWindow from '../mixins/responsive-window';
-import responsiveElement from '../mixins/responsive-element';
 import contentRendererMixin from '../mixins/contentRenderer';
 import commonCoreStrings from '../mixins/commonCoreStrings';
 import CoreFullscreen from '../views/CoreFullscreen';
@@ -76,20 +61,15 @@ import CoreMenu from '../views/CoreMenu';
 import CoreMenuOption from '../views/CoreMenu/CoreMenuOption';
 import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
-import KDropdownMenu from '../views/KDropdownMenu';
 import CoachContentLabel from '../views/CoachContentLabel';
 import PrivacyInfoModal from '../views/PrivacyInfoModal';
 import UserTypeDisplay from '../views/UserTypeDisplay';
 import TechnicalTextBlock from '../views/AppError/TechnicalTextBlock';
-import KDraggable from '../views/kSortable/KDraggable';
-import KDragHandle from '../views/kSortable/KDragHandle';
-import KDragContainer from '../views/kSortable/KDragContainer';
-import KDragSortWidget from '../views/kSortable/KDragSortWidget';
-import KEmptyPlaceholder from '../views/KEmptyPlaceholder';
-import KPageContainer from '../views/KPageContainer';
-import KIcon from '../views/icons/KIcon';
-import KLabeledIcon from '../views/icons/KLabeledIcon';
-import KBottomAppBar from '../views/KBottomAppBar';
+import Draggable from '../views/sortable/Draggable';
+import DragHandle from '../views/sortable/DragHandle';
+import DragContainer from '../views/sortable/DragContainer';
+import DragSortWidget from '../views/sortable/DragSortWidget';
+import BottomAppBar from '../views/BottomAppBar';
 import PaginatedListContainer from '../views/PaginatedListContainer';
 
 // webpack optimization
@@ -99,18 +79,14 @@ import AttemptLogList from '../views/AttemptLogList';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
 import TextTruncator from '../views/TextTruncator';
-import KLinearLoader from '../views/KLinearLoader';
-import KCircularLoader from '../views/KCircularLoader';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
 import coreBannerContent from '../utils/coreBannerContent';
 import CatchErrors from '../utils/CatchErrors';
-import KTooltip from '../views/KTooltip';
 import UiIconButton from '../views/KeenUiIconButton.vue';
 import UiToolbar from '../views/KeenUiToolbar.vue';
 import shuffled from '../utils/shuffled';
-import themeMixin from '../mixins/theme';
 import vue from './kolibriVue';
 import * as client from './client';
 import urls from './urls';
@@ -144,40 +120,24 @@ export default {
       ProgressIcon,
       PermissionsIcon,
       CoreBase,
-      KModal,
       SideNav,
-      KButton,
-      KExternalLink,
-      KRouterLink,
-      KTextbox,
-      KNavbar,
-      KNavbarLink,
+      Navbar,
+      NavbarLink,
       LanguageSwitcherList,
       ElapsedTime,
       PointsIcon,
       AuthMessage,
-      KBreadcrumbs,
-      KCheckbox,
-      KRadioButton,
-      KFilterTextbox,
-      KGrid,
-      KGridItem,
-      KFixedGrid,
-      KFixedGridItem,
-      KSelect,
+      FilterTextbox,
       AppBar,
       CoreSnackbar,
       CoreMenu,
       CoreMenuOption,
       CoreTable,
-      KDropdownMenu,
       CoreInfoIcon,
       AttemptLogList,
       InteractionList,
       ExamReport,
       TextTruncator,
-      KLinearLoader,
-      KCircularLoader,
       MultiPaneLayout,
       CoreFullscreen,
       CoreLogo,
@@ -187,24 +147,16 @@ export default {
       PrivacyInfoModal,
       UserTypeDisplay,
       TechnicalTextBlock,
-      KTooltip,
-      KDraggable,
-      KDragHandle,
-      KDragContainer,
-      KDragSortWidget,
-      KEmptyPlaceholder,
-      KPageContainer,
-      KIcon,
-      KLabeledIcon,
-      KBottomAppBar,
+      Draggable,
+      DragHandle,
+      DragContainer,
+      DragSortWidget,
+      BottomAppBar,
       PaginatedListContainer,
     },
     router,
     mixins: {
-      responsiveWindow,
-      responsiveElement,
       contentRendererMixin,
-      themeMixin,
       commonCoreStrings,
     },
   },

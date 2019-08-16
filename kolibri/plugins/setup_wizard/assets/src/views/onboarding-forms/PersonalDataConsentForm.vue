@@ -28,14 +28,12 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import OnboardingForm from './OnboardingForm';
 
   export default {
     name: 'PersonalDataConsentForm',
     components: {
-      KButton,
       PrivacyInfoModal,
       OnboardingForm,
     },

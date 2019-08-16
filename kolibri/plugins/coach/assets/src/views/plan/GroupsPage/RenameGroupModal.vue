@@ -28,17 +28,11 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KModal from 'kolibri.coreVue.components.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'RenameGroupModal',
-    components: {
-      KModal,
-      KTextbox,
-    },
     mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       groupName: {

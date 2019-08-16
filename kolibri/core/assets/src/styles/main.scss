@@ -72,33 +72,6 @@ svg:not(:root) {
   border: 0;
 }
 
-/* Button reset for consistency. */
-button {
-  display: inline-block;
-  overflow: hidden;
-  text-align: center;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  user-select: none;
-  background: none;
-  border: 0;
-  outline: none;
-
-  &::-moz-focus-inner {
-    border: 0;
-  }
-}
-
-hr {
-  display: block;
-  height: 1px;
-  padding: 0;
-  margin: 1em 0;
-  background-color: silver;
-  border: 0;
-}
-
 .rtl-icon {
   transform: scaleX(-1);
 }

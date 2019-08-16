@@ -116,8 +116,6 @@
 
   import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
   import { validateUsername } from 'kolibri.utils.validators';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -134,8 +132,6 @@
     },
     components: {
       FacilityModal,
-      KButton,
-      KTextbox,
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },

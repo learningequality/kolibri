@@ -55,10 +55,7 @@
   import uniq from 'lodash/uniq';
   import map from 'lodash/map';
   import { mapState } from 'vuex';
-  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { cardTextForNotification } from '../notifications/notificationStrings';
   import notificationsResource from '../../../apiResources/notifications';
   import { NotificationObjects } from '../../../constants/notificationsConstants';
@@ -74,12 +71,10 @@
   export default {
     name: 'ActivityList',
     components: {
-      KButton,
-      KLinearLoader,
       NotificationsFilter,
       NotificationCard,
     },
-    mixins: [coachStringsMixin, themeMixin],
+    mixins: [coachStringsMixin],
     props: {
       // getParams for NotificationsResource.fetchCollection
       notificationParams: {

@@ -1,47 +1,47 @@
 <template>
 
-  <KNavbar>
-    <KNavbarLink
+  <Navbar>
+    <NavbarLink
       :title="coreString('classesLabel')"
       :link="linkify(PageNames.CLASS_MGMT_PAGE)"
     >
       <mat-svg name="domain" category="social" />
-    </KNavbarLink>
-    <KNavbarLink
+    </NavbarLink>
+    <NavbarLink
       :title="coreString('usersLabel')"
       :link="linkify(PageNames.USER_MGMT_PAGE)"
     >
       <mat-svg name="people" category="social" />
-    </KNavbarLink>
-    <KNavbarLink
+    </NavbarLink>
+    <NavbarLink
       :title="$tr('settings')"
       :link="linkify(PageNames.FACILITY_CONFIG_PAGE)"
     >
       <mat-svg name="settings" category="action" />
-    </KNavbarLink>
-    <KNavbarLink
+    </NavbarLink>
+    <NavbarLink
       :title="$tr('data')"
       :link="linkify(PageNames.DATA_EXPORT_PAGE)"
     >
       <mat-svg name="save" category="content" />
-    </KNavbarLink>
-  </KNavbar>
+    </NavbarLink>
+  </Navbar>
 
 </template>
 
 
 <script>
 
-  import KNavbar from 'kolibri.coreVue.components.KNavbar';
-  import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
+  import Navbar from 'kolibri.coreVue.components.Navbar';
+  import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
 
   export default {
     name: 'FacilityTopNav',
     components: {
-      KNavbar,
-      KNavbarLink,
+      Navbar,
+      NavbarLink,
     },
     mixins: [commonCoreStrings],
     computed: {

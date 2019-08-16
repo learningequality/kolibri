@@ -40,7 +40,7 @@ oriented data synchronization.
       />
     </div>
 
-    <KBottomAppBar
+    <BottomAppBar
       class="attempts-container"
       :class="{ 'mobile': windowIsSmall }"
     >
@@ -99,7 +99,7 @@ oriented data synchronization.
           </div>
         </div>
       </div>
-    </KBottomAppBar>
+    </BottomAppBar>
   </div>
 
 </template>
@@ -108,16 +108,14 @@ oriented data synchronization.
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import shuffled from 'kolibri.utils.shuffled';
   import { now } from 'kolibri.utils.serverClock';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
   import ExerciseAttempts from './ExerciseAttempts';
 
@@ -126,11 +124,10 @@ oriented data synchronization.
     components: {
       ExerciseAttempts,
       ContentRenderer,
-      KButton,
       UiAlert,
-      KBottomAppBar,
+      BottomAppBar,
     },
-    mixins: [commonCoreStrings, themeMixin, responsiveWindow],
+    mixins: [commonCoreStrings, KResponsiveWindowMixin],
     props: {
       id: {
         type: String,
