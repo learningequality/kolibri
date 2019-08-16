@@ -6,9 +6,9 @@ const temp = require('temp').track();
 const webpack_json = path.resolve(path.dirname(__filename), './webpack_json.py');
 
 function parseConfig(buildConfig, pythonData, configPath, index = null) {
-  // Set the main entry for this module, set the name based on the data.name and the path to the
-  // entry file from the data.src_file
-  const bundleId = buildConfig.bundle_id;
+  // Set the bundleId by a concatenation of the Python module path
+  // And the specified bundle_id that should be unique within this plugin.
+  const bundleId = `${pythonData.module_path}.${buildConfig.bundle_id}`;
   const pluginPath = pythonData.plugin_path;
   return {
     name: bundleId,

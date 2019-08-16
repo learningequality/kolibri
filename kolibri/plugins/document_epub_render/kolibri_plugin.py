@@ -11,5 +11,5 @@ class DocumentEPUBRenderPlugin(KolibriPluginBase):
 
 
 class DocumentEPUBRenderAsset(content_hooks.ContentRendererHook):
-    bundle_id = "document_epub_render_module"
+    bundle_id = "main"
     content_types_file = "content_types.json"

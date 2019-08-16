@@ -68,7 +68,7 @@ class ContentRendererHook(WebpackBundleHook):
     @cached_property
     def content_types(self):
         global _JSON_CONTENT_TYPES_CACHE
-        if not _JSON_CONTENT_TYPES_CACHE.get(self.bundle_id):
+        if not _JSON_CONTENT_TYPES_CACHE.get(self.unique_id):
             try:
                 file_path = os.path.join(
                     self._module_file_path, self.content_types_file
@@ -79,15 +79,15 @@ class ContentRendererHook(WebpackBundleHook):
                         if kind_data.get("name") not in dict(content_kinds.choices):
                             logger.debug(
                                 "{kind} not found in valid content kinds for plugin {name}".format(
-                                    kind=kind_data.get("name"), name=self.bundle_id
+                                    kind=kind_data.get("name"), name=self.unique_id
                                 )
                             )
-                    _JSON_CONTENT_TYPES_CACHE[self.bundle_id] = content_types
+                    _JSON_CONTENT_TYPES_CACHE[self.unique_id] = content_types
             except IOError:
                 raise IOError(
                     "Content types file not found at {}".format(self.content_types_file)
                 )
-        return _JSON_CONTENT_TYPES_CACHE.get(self.bundle_id, {})
+        return _JSON_CONTENT_TYPES_CACHE.get(self.unique_id, {})
 
     def render_to_page_load_async_html(self):
         """
@@ -102,7 +102,7 @@ class ContentRendererHook(WebpackBundleHook):
         tags = self.frontend_message_tag() + [
             '<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {content_types});</script>'.format(
                 kolibri_name="kolibriCoreAppGlobal",
-                bundle=self.bundle_id,
+                bundle=self.unique_id,
                 urls='","'.join(urls),
                 content_types=json.dumps(self.content_types),
             )

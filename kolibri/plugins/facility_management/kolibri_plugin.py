@@ -17,7 +17,7 @@ class FacilityManagementPlugin(KolibriPluginBase):
 
 
 class FacilityManagementAsset(WebpackBundleHook):
-    bundle_id = "facility_management_module"
+    bundle_id = "app"
 
 
 class FacilityRedirect(RoleBasedRedirectHook):
@@ -29,4 +29,4 @@ class FacilityRedirect(RoleBasedRedirectHook):
 
 
 class FacilityManagementNavItem(NavigationHook, WebpackBundleHook):
-    bundle_id = "facility_management_side_nav"
+    bundle_id = "side_nav"

@@ -1,12 +1,12 @@
 module.exports = [
   {
-    bundle_id: 'facility_management_module',
+    bundle_id: 'app',
     webpack_config: {
       entry: './assets/src/app.js',
     },
   },
   {
-    bundle_id: 'facility_management_side_nav',
+    bundle_id: 'side_nav',
     webpack_config: {
       entry: './assets/src/views/FacilityManagementSideNavEntry.vue',
     },

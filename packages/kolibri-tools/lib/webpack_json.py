@@ -111,6 +111,7 @@ def plugin_data(module_path):
             return {
                 "locale_data_folder": locale_data_folder,
                 "plugin_path": plugin_path,
+                "module_path": module_path,
                 "version": version,
             }
     # Python 3.{4,5,6} raises a NotImplementedError for an empty directory

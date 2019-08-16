@@ -23,14 +23,14 @@
     <script src="{% url 'api-docs:schema-js' %}"></script>
   {% endif %}
   {% kolibri_set_urls %}
-  {% webpack_asset 'user_agent' %}
+  {% webpack_asset 'kolibri.core.user_agent' %}
 </head>
 <body>
 <rootvue>
   {% include "kolibri/loading_snippet.html" %}
 </rootvue>
 {% block frontend_assets %}
-{% webpack_asset 'default_frontend' %}
+{% webpack_asset 'kolibri.core.default_frontend' %}
 {% kolibri_navigation_actions %}
 {% webpack_base_assets %}
 {% webpack_base_async_assets %}

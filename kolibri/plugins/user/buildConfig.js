@@ -1,18 +1,18 @@
 module.exports = [
   {
-    bundle_id: 'user_module',
+    bundle_id: 'app',
     webpack_config: {
       entry: './assets/src/app.js',
     },
   },
   {
-    bundle_id: 'user_module_login_nav_side_nav',
+    bundle_id: 'login_side_nav',
     webpack_config: {
       entry: './assets/src/views/LoginSideNavEntry.vue',
     },
   },
   {
-    bundle_id: 'user_module_user_profile_nav_side_nav',
+    bundle_id: 'user_profile_side_nav',
     webpack_config: {
       entry: './assets/src/views/UserProfileSideNavEntry.vue',
     },
