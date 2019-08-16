@@ -43,7 +43,6 @@ module.exports = {
     __filename: true,
     __copyrightYear: true,
     __kolibriModuleName: true,
-    __kolibriPluginDataName: true,
   },
   extends: [
     'eslint:recommended',

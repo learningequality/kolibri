@@ -58,7 +58,7 @@ logger = logging.getLogger(__name__)
 class Registry(list):
     apps = set()
 
-    def register(self, apps, was_configured):
+    def register(self, apps, was_configured=True):
         for app in apps:
             try:
 
@@ -120,7 +120,7 @@ def __initialize():
         logger.warn(
             "Django settings already configured when plugin registry initialized"
         )
-    registry.register(config.ACTIVE_PLUGINS, was_configured)
+    registry.register(config.ACTIVE_PLUGINS, was_configured=was_configured)
     return registry
 
 

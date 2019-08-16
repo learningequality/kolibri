@@ -9,11 +9,19 @@ require('url-polyfill');
 // are set correctly
 require('kolibri.urls').default.setUp();
 
+const getPluginData = require('kolibri.utils.getPluginData').default; // eslint-disable-line
+
 // set up theme
 const theme = require('kolibri-components/src/styles/theme');
 
-theme.setBrandColors(global.kolibriTheme.brandColors);
-theme.setTokenMapping(global.kolibriTheme.tokenMapping);
+const kolibriTheme = getPluginData().kolibriTheme;
+
+theme.setBrandColors(kolibriTheme.brandColors);
+theme.setTokenMapping(kolibriTheme.tokenMapping);
+// set up branding
+const branding = require('kolibri.utils.branding').default;
+
+branding.setBranding(kolibriTheme);
 
 // Required to setup Keen UI, should be imported only once in your project
 require('keen-ui/src/bootstrap');

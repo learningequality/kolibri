@@ -206,18 +206,15 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     def frontend_messages(self):
         lang_code = get_language()
-        cache_key = "json_stats_file_cache_{slug}_{lang}".format(
+        cache_key = "json_message_file_cache_{slug}_{lang}".format(
             slug=self.bundle_id, lang=lang_code
         )
-        message_file_content = caches[CACHE_NAMESPACE].get(cache_key)
+        message_file_content = caches[CACHE_NAMESPACE].get(cache_key, {})
         if not message_file_content or getattr(settings, "DEVELOPER_MODE", False):
             frontend_message_file = self.frontend_message_file(lang_code)
             if frontend_message_file:
                 with io.open(frontend_message_file, mode="r", encoding="utf-8") as f:
-                    # Load JSON file, then immediately convert it to a string in minified form.
-                    message_file_content = json.dumps(
-                        json.load(f), separators=(",", ":")
-                    )
+                    message_file_content = json.load(f)
                 caches[CACHE_NAMESPACE].set(cache_key, message_file_content, None)
         return message_file_content
 
@@ -270,7 +267,9 @@ class WebpackBundleHook(hooks.KolibriHook):
                     kolibri_name="kolibriGlobal",
                     bundle=self.bundle_id,
                     lang_code=get_language(),
-                    messages=self.frontend_messages(),
+                    messages=json.dumps(
+                        self.frontend_messages(), separators=(",", ":")
+                    ),
                 )
             ]
         else:
@@ -285,9 +284,11 @@ class WebpackBundleHook(hooks.KolibriHook):
                     window["{name}"]["{bundle}"] = JSON.parse('{plugin_data}');
                 </script>
                 """.format(
-                    name="__kolibriPluginData",
+                    name="kolibriPluginData",
                     bundle=self.bundle_id,
-                    plugin_data=json.dumps(self.plugin_data),
+                    plugin_data=json.dumps(
+                        self.plugin_data, separators=(",", ":")
+                    ).replace("'", "\\'"),
                 )
             ]
         else:
@@ -448,30 +449,6 @@ class WebpackInclusionHook(hooks.KolibriHook):
             for hook in bundle.registered_hooks:
                 html += hook.render_to_page_load_async_html()
         return mark_safe(html)
-
-    class Meta:
-        abstract = True
-
-
-class FrontEndCoreAssetHook(WebpackBundleHook):
-    def render_to_page_load_sync_html(self):
-        """
-        Generates the appropriate script tags for the core bundle, be they JS or CSS
-        files.
-
-        :return: HTML of script tags for insertion into a page.
-        """
-        tags = []
-        if self.frontend_messages():
-            tags = [
-                "<script>var coreLanguageMessages = {messages};</script>".format(
-                    messages=self.frontend_messages()
-                )
-            ]
-
-        tags += list(self.js_and_css_tags())
-
-        return mark_safe("\n".join(tags))
 
     class Meta:
         abstract = True

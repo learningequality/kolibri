@@ -13,48 +13,27 @@ import kolibri
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.theme_hook import ThemeHook
-from kolibri.core.webpack.hooks import FrontEndCoreAssetHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.utils import i18n
 
 
-class FrontEndCoreAppAssetHook(FrontEndCoreAssetHook):
+class FrontEndCoreAppAssetHook(WebpackBundleHook):
     bundle_id = "default_frontend"
 
     def render_to_page_load_sync_html(self):
         """
-        Generates the appropriate script tags for the bundle, be they JS or CSS
-        files.
-
-        :param bundle_data: The data returned from
-        :return: HTML of script tags for insertion into a page.
+        Don't render the frontend message files in the usual way
+        as the global object to register them does not exist yet.
+        Instead they are loaded through plugin data.
         """
-        tags = (
-            self.plugin_data_tag()
-            + self.language_font_file_tags()
-            + self.frontend_message_tag()
-            + list(self.js_and_css_tags())
-        )
+        tags = self.plugin_data_tag() + list(self.js_and_css_tags())
 
         return mark_safe("\n".join(tags))
-
-    def language_font_file_tags(self):
-        language_code = get_language()
-        common_file = static("assets/fonts/noto-common.css")
-        subset_file = static("assets/fonts/noto-subset.{}.css".format(language_code))
-        return [
-            '<link type="text/css" href="{common_css_file}?v={version}" rel="stylesheet"/>'.format(
-                common_css_file=common_file, version=kolibri.__version__
-            ),
-            '<link type="text/css" href="{subset_css_file}?v={version}" rel="stylesheet"/>'.format(
-                subset_css_file=subset_file, version=kolibri.__version__
-            ),
-        ]
 
     @property
     def plugin_data(self):
         return {
-            "cacheKey": ContentCacheKey.get_cache_key(),
+            "contentCacheKey": ContentCacheKey.get_cache_key(),
             "languageGlobals": self.language_globals(),
             "oidcProviderEnabled": OIDCProviderHook().is_enabled,
             "kolibriTheme": ThemeHook().theme,
@@ -83,23 +62,55 @@ class FrontEndCoreAppAssetHook(FrontEndCoreAssetHook):
                 else get_language_info(code)["name"],
                 "lang_direction": get_language_info(code)["bidi"],
             }
-
-        full_file = "assets/fonts/noto-full.{}.{}.css?v={}"
-        full_file_modern = static(
-            full_file.format(language_code, "modern", kolibri.__version__)
-        )
-        full_file_basic = static(
-            full_file.format(language_code, "basic", kolibri.__version__)
-        )
         return {
-            "langCode": language_code,
-            "langDir": lang_dir,
+            "coreMessages": self.frontend_messages(),
+            "languageCode": language_code,
+            "languageDir": lang_dir,
             "languages": languages,
-            "fullCssFileModern": full_file_modern,
-            "fullCssFileBasic": full_file_basic,
         }
 
 
 class FrontEndUserAgentAssetHook(WebpackBundleHook):
     bundle_id = "user_agent"
     inline = True
+
+    def render_to_page_load_sync_html(self):
+        """
+        Add in the extra language font file tags needed
+        for preloading our custom font files.
+        """
+        tags = (
+            self.plugin_data_tag()
+            + self.language_font_file_tags()
+            + self.frontend_message_tag()
+            + list(self.js_and_css_tags())
+        )
+
+        return mark_safe("\n".join(tags))
+
+    def language_font_file_tags(self):
+        language_code = get_language()
+        common_file = static("assets/fonts/noto-common.css")
+        subset_file = static("assets/fonts/noto-subset.{}.css".format(language_code))
+        return [
+            '<link type="text/css" href="{common_css_file}?v={version}" rel="stylesheet"/>'.format(
+                common_css_file=common_file, version=kolibri.__version__
+            ),
+            '<link type="text/css" href="{subset_css_file}?v={version}" rel="stylesheet"/>'.format(
+                subset_css_file=subset_file, version=kolibri.__version__
+            ),
+        ]
+
+    @property
+    def plugin_data(self):
+        language_code = get_language()
+        static_root = static("assets/fonts/noto-full")
+        full_file = "{}.{}.{}.css?v={}"
+        return {
+            "fullCSSFileModern": full_file.format(
+                static_root, language_code, "modern", kolibri.__version__
+            ),
+            "fullCSSFileBasic": full_file.format(
+                static_root, language_code, "basic", kolibri.__version__
+            ),
+        }

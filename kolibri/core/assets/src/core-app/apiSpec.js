@@ -71,6 +71,7 @@ import DragContainer from '../views/sortable/DragContainer';
 import DragSortWidget from '../views/sortable/DragSortWidget';
 import BottomAppBar from '../views/BottomAppBar';
 import PaginatedListContainer from '../views/PaginatedListContainer';
+import branding from '../utils/branding';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -180,5 +181,6 @@ export default {
     UserType,
     shuffled,
     bytesForHumans,
+    branding,
   },
 };

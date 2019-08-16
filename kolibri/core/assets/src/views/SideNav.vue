@@ -45,11 +45,11 @@
           :style="{ top: `${headerHeight}px`, width: `${width}px` }"
         >
           <img
-            v-if="$kolibriTheme.sideNav.topLogo"
+            v-if="$kolibriBranding.sideNav.topLogo"
             class="logo"
-            :src="$kolibriTheme.sideNav.topLogo.src"
-            :alt="$kolibriTheme.sideNav.topLogo.alt"
-            :style="$kolibriTheme.sideNav.topLogo.style"
+            :src="$kolibriBranding.sideNav.topLogo.src"
+            :alt="$kolibriBranding.sideNav.topLogo.alt"
+            :style="$kolibriBranding.sideNav.topLogo.style"
           >
           <CoreMenu
             role="navigation"
@@ -64,7 +64,7 @@
 
           <div class="side-nav-scrollable-area-footer" :style="{ color: $themeTokens.annotation }">
             <CoreLogo
-              v-if="$kolibriTheme.sideNav.showKolibriFooterLogo"
+              v-if="$kolibriBranding.sideNav.showKolibriFooterLogo"
               class="side-nav-scrollable-area-footer-logo"
             />
             <div class="side-nav-scrollable-area-footer-info">
@@ -116,6 +116,7 @@
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import navComponents from 'kolibri.utils.navComponents';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
+  import branding from 'kolibri.utils.branding';
   import navComponentsMixin from '../mixins/nav-components';
   import logout from './LogoutSideNavEntry';
   import SideNavDivider from './SideNavDivider';
@@ -198,7 +199,7 @@
       },
     },
     created() {
-      this.$kolibriTheme = global.kolibriTheme;
+      this.$kolibriBranding = branding;
     },
     methods: {
       toggleNav() {

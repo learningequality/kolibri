@@ -54,6 +54,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import getPluginData from 'kolibri.utils.getPluginData';
 
   export default {
     name: 'PrivacyInfoModal',
@@ -74,7 +75,7 @@
     },
     computed: {
       oidcProviderEnabled() {
-        return global.oidcProviderEnabled;
+        return getPluginData().oidcProviderEnabled;
       },
     },
     $trs: {

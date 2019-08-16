@@ -1,3 +1,3 @@
 export default function getPluginData() {
-  return (global['__kolibriPluginData'] || {})[__kolibriModuleName] || {};
+  return (global['kolibriPluginData'] || {})[__kolibriModuleName] || {};
 }
