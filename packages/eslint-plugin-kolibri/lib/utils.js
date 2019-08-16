@@ -221,7 +221,7 @@ module.exports = {
     unused.forEach(prop => {
       context.report({
         node: prop.node,
-        message: `Unused translation defined for ${prop.node.name}`,
+        message: `Unused message found in $trs: "${prop.node.name}"`,
       });
     });
   },
@@ -236,7 +236,7 @@ module.exports = {
     badAttempts.forEach(node => {
       context.report({
         node,
-        message: `Attempt to use undefined string ${node.value}`,
+        message: `Message not defined in $trs: "${node.value}"`,
       });
     });
   },
