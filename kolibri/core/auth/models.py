@@ -46,6 +46,7 @@ from mptt.models import TreeForeignKey
 from .constants import collection_kinds
 from .constants import facility_presets
 from .constants import role_kinds
+from .constants import user_kinds
 from .errors import InvalidRoleKind
 from .errors import UserDoesNotHaveRoleError
 from .errors import UserHasRoleOnlyIndirectlyThroughHierarchyError
@@ -285,6 +286,15 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     def get_short_name(self):
         return self.full_name.split(" ", 1)[0]
 
+    @property
+    def session_data(self):
+        """
+        Data that is added to the session data at login and during session updates.
+        """
+        raise NotImplementedError(
+            "Subclasses of KolibriAbstractBaseUser must override the `session_data` property."
+        )
+
     def is_member_of(self, coll):
         """
         Determine whether this user is a member of the specified ``Collection``.
@@ -484,6 +494,16 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
 
     class Meta:
         abstract = True
+
+    @property
+    def session_data(self):
+        return {
+            "username": "",
+            "full_name": "",
+            "user_id": None,
+            "facility_id": getattr(Facility.get_default_facility(), "id", None),
+            "kind": [user_kinds.ANONYMOUS],
+        }
 
     def is_member_of(self, coll):
         return False
@@ -692,6 +712,25 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
                 return True
             return False
         return False
+
+    @property
+    def session_data(self):
+        roles = list(self.roles.values_list("kind", flat=True).distinct())
+
+        if self.is_superuser:
+            roles.insert(0, user_kinds.SUPERUSER)
+
+        if not roles:
+            roles = [user_kinds.LEARNER]
+
+        return {
+            "username": self.username,
+            "full_name": self.full_name,
+            "user_id": self.id,
+            "kind": roles,
+            "can_manage_content": self.can_manage_content,
+            "facility_id": self.facility_id,
+        }
 
     @property
     def can_manage_content(self):

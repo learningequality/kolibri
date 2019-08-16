@@ -40,15 +40,14 @@
             :disabled="busy"
           />
 
-          <KSelect
-            v-model="selectedFacility"
-            :label="$tr('facility')"
-            :options="facilityList"
-            :invalid="Boolean(facilityIsInvalidText)"
-            :invalidText="facilityIsInvalidText"
-            :disabled="busy || facilityList.length === 1"
-            @blur="facilityBlurred = true"
-          />
+          <template v-if="currentFacility">
+            <h2>
+              {{ coreString('facilityLabel') }}
+            </h2>
+            <p>
+              {{ currentFacility.name }}
+            </p>
+          </template>
         </div>
 
         <div v-show="!atFirstStep">
@@ -110,7 +109,6 @@
   import find from 'lodash/find';
   import { FacilityUsernameResource, SignUpResource } from 'kolibri.resources';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
@@ -132,7 +130,6 @@
     },
     components: {
       KButton,
-      KSelect,
       KPageContainer,
       LanguageSwitcherFooter,
       PrivacyInfoModal,
@@ -150,8 +147,6 @@
         usernameValid: true,
         password: '',
         passwordValid: true,
-        selectedFacility: {},
-        facilityBlurred: false,
         formSubmitted: false,
         privacyModalVisible: false,
         gender: '',
@@ -171,20 +166,11 @@
           value: id,
         }));
       },
-      facilityIsInvalidText() {
-        if (this.facilityBlurred || this.formSubmitted) {
-          if (!this.selectedFacility.value) {
-            return this.$tr('required');
-          }
-        }
-        return '';
-      },
       firstStepIsValid() {
         return every([
           this.nameValid,
           this.usernameValid,
           this.passwordValid,
-          !this.facilityIsInvalidText,
         ]);
       },
     },
