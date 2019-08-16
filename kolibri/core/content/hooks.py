@@ -101,7 +101,7 @@ class ContentRendererHook(WebpackBundleHook):
         urls = [chunk["url"] for chunk in self.bundle]
         tags = self.frontend_message_tag() + [
             '<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {content_types});</script>'.format(
-                kolibri_name="kolibriGlobal",
+                kolibri_name="kolibriCoreAppGlobal",
                 bundle=self.bundle_id,
                 urls='","'.join(urls),
                 content_types=json.dumps(self.content_types),

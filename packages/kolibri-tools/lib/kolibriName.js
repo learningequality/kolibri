@@ -1,3 +1,3 @@
 module.exports = {
-  kolibriName: 'kolibriGlobal',
+  kolibriName: 'kolibriCoreAppGlobal',
 };

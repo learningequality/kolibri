@@ -264,7 +264,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         if self.frontend_messages():
             return [
                 '<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", {messages});</script>'.format(
-                    kolibri_name="kolibriGlobal",
+                    kolibri_name="kolibriCoreAppGlobal",
                     bundle=self.bundle_id,
                     lang_code=get_language(),
                     messages=json.dumps(
@@ -284,7 +284,7 @@ class WebpackBundleHook(hooks.KolibriHook):
                     window["{name}"]["{bundle}"] = JSON.parse('{plugin_data}');
                 </script>
                 """.format(
-                    name="kolibriPluginData",
+                    name="kolibriPluginDataGlobal",
                     bundle=self.bundle_id,
                     plugin_data=json.dumps(
                         self.plugin_data, separators=(",", ":")
@@ -395,7 +395,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             + self.frontend_message_tag()
             + [
                 '<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
-                    kolibri_name="kolibriGlobal",
+                    kolibri_name="kolibriCoreAppGlobal",
                     bundle=self.bundle_id,
                     urls='","'.join(urls),
                 )

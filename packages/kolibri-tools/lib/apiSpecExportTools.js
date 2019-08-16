@@ -378,7 +378,7 @@ const __builder = {
      * Function for creating an exported copy of the API spec and all associated modules
      * to allow building of frontend plugins that need to import files that cannot be referenced
      * in the frontend, e.g. scss files (required during build time) or for standalone apps that
-     * wish to use our component library but do not want to import the entire kolibriGlobal object.
+     * wish to use our component library but do not want to import the entire kolibriCoreAppGlobal object.
      */
     this.checkSrc();
 

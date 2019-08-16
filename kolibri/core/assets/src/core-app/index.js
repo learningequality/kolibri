@@ -51,7 +51,7 @@ const logging = require('kolibri.lib.logging').default;
 logging.setDefaultLevel(process.env.NODE_ENV === 'production' ? 2 : 0);
 
 // Create an instance of the global app object.
-// This is exported by webpack as the kolibriGlobal object, due to the 'output.library' flag
+// This is exported by webpack as the kolibriCoreAppGlobal object, due to the 'output.library' flag
 // which exports the coreApp at the bottom of this file as a named global variable:
 // https://webpack.github.io/docs/configuration.html#output-library
 //
