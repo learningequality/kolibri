@@ -10,7 +10,7 @@
     />
     <CoreInfoIcon
       class="info-icon"
-      :tooltipText="coreString('identifierTooltip')"
+      :tooltipText="coreString('identifierInputTooltip')"
       :iconAriaLabel="coreString('identifierAriaLabel')"
     />
   </div>
@@ -55,6 +55,10 @@
     position: absolute;
     top: 27px;
     right: -34px;
+  }
+
+  /deep/ .k-tooltip {
+    max-width: 300px;
   }
 
 </style>

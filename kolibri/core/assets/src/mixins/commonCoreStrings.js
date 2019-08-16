@@ -63,8 +63,9 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   genderOptionFemale: 'Female',
   genderOptionOther: 'Other',
   notSpecifiedOption: 'Not specified',
-  identifierTooltip:
-    'This could be a student ID number or an existing user identification number outside of Kolibri, for example.',
+  identifierInputTooltip:
+    'Examples: a student ID number or an existing user identification number. Avoid using highly sensitive personal information because it might put your users at risk.',
+  identifierTooltip: 'Examples: a student ID number or an existing user identification number.',
   identifierAriaLabel: 'About providing an identifier or ID number',
 });
 

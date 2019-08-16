@@ -42,6 +42,7 @@
           class="user-roster move-down"
           :users="items"
           :emptyMessage="emptyMessageForItems(items, filterInput)"
+          :showDemographicInfo="true"
         >
           <template slot="action" slot-scope="userRow">
             <KDropdownMenu

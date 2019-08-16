@@ -167,11 +167,7 @@
         }));
       },
       firstStepIsValid() {
-        return every([
-          this.nameValid,
-          this.usernameValid,
-          this.passwordValid,
-        ]);
+        return every([this.nameValid, this.usernameValid, this.passwordValid]);
       },
     },
     beforeMount() {
