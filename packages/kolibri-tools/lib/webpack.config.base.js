@@ -201,6 +201,12 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
       // Need to define this in order for chunks to be named
       // Without this chunks from different bundles will likely have colliding names
       chunkFilename: data.name + '-[name]-' + data.version + '.js',
+      // c.f. https://webpack.js.org/configuration/output/#outputjsonpfunction
+      // Without this namespacing, there is a possibility that chunks from different
+      // plugins could conflict in the global chunk namespace.
+      // Replace any '.' in the name as unclear from documentation whether
+      // webpack properly handles that or not.
+      jsonpFunction: 'webpackJsonp__' + data.name.replace('.', ''),
     },
     resolve: {
       extensions: ['.js', '.vue', '.scss'],
