@@ -20,7 +20,7 @@ const ExtractStrings = require('./ExtractStrings');
 const logging = require('./logging');
 const coreExternals = require('./apiSpecExportTools').coreExternals();
 const coreAliases = require('./apiSpecExportTools').coreAliases();
-const { kolibriName } = require('./kolibriName');
+const { kolibriName, kolibriPluginDataName } = require('./kolibriName');
 const WebpackMessages = require('./webpackMessages');
 
 /**
@@ -38,7 +38,7 @@ const WebpackMessages = require('./webpackMessages');
 module.exports = (data, { mode = 'development', hot = false } = {}) => {
   if (
     typeof data.name === 'undefined' ||
-    typeof data.config === 'undefined' ||
+    typeof data.config_path === 'undefined' ||
     typeof data.static_dir === 'undefined' ||
     typeof data.stats_file === 'undefined' ||
     typeof data.locale_data_folder === 'undefined' ||
@@ -48,7 +48,32 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
     logging.error(data.name + ' plugin is misconfigured, missing parameter(s)');
     return;
   }
-
+  const configData = require(data.config_path);
+  let webpackConfig;
+  if (data.index !== null) {
+    webpackConfig = configData[data.index].webpack_config;
+  } else {
+    webpackConfig = configData.webpack_config;
+  }
+  if (typeof webpackConfig.entry === 'string') {
+    webpackConfig.entry = {
+      [data.name]: path.join(data.plugin_path, webpackConfig.entry),
+    };
+  } else {
+    Object.keys(webpackConfig.entry).forEach(key => {
+      function makePathAbsolute(entryPath) {
+        if (entryPath.startsWith('./') || entryPath.startsWith('../')) {
+          return path.join(data.plugin_path, entryPath);
+        }
+        return entryPath;
+      }
+      if (Array.isArray(webpackConfig.entry[key])) {
+        webpackConfig.entry[key] = webpackConfig.entry[key].map(makePathAbsolute);
+      } else {
+        webpackConfig.entry[key] = makePathAbsolute(webpackConfig.entry[key]);
+      }
+    });
+  }
   const production = mode === 'production';
 
   const cssInsertionLoader = hot ? 'style-loader' : MiniCssExtractPlugin.loader;
@@ -82,7 +107,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
 
   let externals;
 
-  if (!data.config.output || data.config.output.library !== kolibriName) {
+  if (!webpackConfig.output || webpackConfig.output.library !== kolibriName) {
     // If this is not the core bundle, then we need to add the external library mappings.
     externals = coreExternals;
   } else {
@@ -222,6 +247,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
       // the kolibri version).
       // Also add the copyright year for auto updated copyright footers.
       new webpack.DefinePlugin({
+        __kolibriPluginDataName: JSON.stringify(kolibriPluginDataName),
         __kolibriModuleName: JSON.stringify(data.name),
         __version: JSON.stringify(data.version),
         __copyrightYear: new Date().getFullYear(),
@@ -236,7 +262,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
     stats: 'minimal',
   };
 
-  bundle = merge.smart(bundle, data.config);
+  bundle = merge.smart(bundle, webpackConfig);
 
   return bundle;
 };

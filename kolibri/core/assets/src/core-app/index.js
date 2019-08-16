@@ -42,33 +42,6 @@ const logging = require('kolibri.lib.logging').default;
 
 logging.setDefaultLevel(process.env.NODE_ENV === 'production' ? 2 : 0);
 
-// optionally set up client-side Sentry error reporting
-if (global.sentryDSN) {
-  require.ensure(['@sentry/browser'], function(require) {
-    const Sentry = require('@sentry/browser');
-    const SentryIntegrations = require('@sentry/integrations');
-    const Vue = require('./kolibriVue');
-
-    Sentry.init({
-      dsn: global.sentryDSN,
-      environment: global.sentryEnv,
-      release: __version,
-      integrations: [new SentryIntegrations.Vue({ Vue: Vue.default })],
-      beforeSend: (event, hint) => {
-        logging.error('Sending error to Sentry:');
-        logging.error(event);
-        logging.error(hint);
-        return event;
-      },
-    });
-    Sentry.configureScope(scope => {
-      scope.setTag('lang', global.languageCode);
-      scope.setTag('host', window.location.hostname);
-    });
-    logging.warn('Sentry error logging is enabled - this makes console errors less readable');
-  });
-}
-
 // Create an instance of the global app object.
 // This is exported by webpack as the kolibriGlobal object, due to the 'output.library' flag
 // which exports the coreApp at the bottom of this file as a named global variable:

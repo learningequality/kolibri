@@ -121,6 +121,12 @@ const baseAliasSourcePaths = {
     __dirname,
     '../../../kolibri/core/assets/src/content_renderer_module'
   ),
+  'kolibri.utils.getPluginData': path.resolve(
+    __dirname,
+    '../../../kolibri/core/assets/src/utils/getPluginData'
+  ),
+  // To clean up - once we allow for core API elements to be defined as either bundled or not bundled
+  // into the default frontend code bundle, we should amalgamate all of these into the main API spec.
 };
 
 const baseAliasDistPath = path.resolve(__dirname, '../dist');
@@ -129,6 +135,7 @@ const baseAliasDistPaths = {
   kolibri_module: path.resolve(baseAliasDistPath, 'kolibri_module'),
   kolibri_app: path.resolve(baseAliasDistPath, 'kolibri_app'),
   content_renderer_module: path.resolve(baseAliasDistPath, 'content_renderer_module'),
+  'kolibri.utils.getPluginData': path.resolve(baseAliasDistPath, 'kolibri.utils.getPluginData'),
 };
 
 // Assume if kolibri_module is not available on the source path, then we need to use the dist

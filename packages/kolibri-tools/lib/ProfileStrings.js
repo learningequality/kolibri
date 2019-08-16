@@ -12,6 +12,8 @@ const logging = require('./logging');
 
 const PROFILES_FOLDER = 'profiles';
 
+// If you ever add a namespace here - you should also add that to the
+// $TR_FUNCTIONS array in the vue-no-unused-translations eslint rule.
 const COMMON_NAMESPACES = {
   coachString: 'CommonCoachStrings',
   coreString: 'CommonCoreStrings',

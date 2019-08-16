@@ -4,8 +4,6 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
-    "@sentry/browser": "^5.0.5",
-    "@sentry/integrations": "^5.0.5",
     "@shopify/draggable": "^1.0.0-beta.8",
     "array-includes": "^3.0.3",
     "clipboard": "^2.0.1",
@@ -34,7 +32,7 @@
     "vuex": "^3.1.0"
   },
   "devDependencies": {
-    "kolibri-tools": "0.12.0-beta.3.2",
+    "kolibri-tools": "0.13.0-dev.5",
     "responselike": "^1.0.2"
   }
 }

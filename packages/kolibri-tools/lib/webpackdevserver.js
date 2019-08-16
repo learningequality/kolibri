@@ -55,7 +55,7 @@ function webpackConfig(pluginData, hot) {
 function buildWebpack(data, index, startCallback, doneCallback, options) {
   const port = options.port + index;
   const publicPath = genPublicPath(CONFIG.address, port, CONFIG.basePath);
-  const hot = options.hot;
+  const hot = Boolean(options.hot);
 
   // webpack config for this bundle
   const bundleConfig = webpackConfig(data, hot);
@@ -82,6 +82,7 @@ function buildWebpack(data, index, startCallback, doneCallback, options) {
   const compiler = webpack(bundleConfig);
   const devServerOptions = {
     hot,
+    liveReload: !hot,
     host: CONFIG.host,
     port,
     watchOptions: {

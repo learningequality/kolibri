@@ -19,6 +19,7 @@
       v-if="showModal"
       hideUsersSection
       @cancel="closeModal"
+      @submit="closeModal"
     />
   </div>
 

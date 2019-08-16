@@ -3,9 +3,7 @@
   <KModal
     :title="$tr('facilitySelectionModalHeader')"
     :submitText="$tr('submitFacilitySelectionButtonPrompt')"
-    :cancelText="coreString('closeAction')"
     @submit="submitAndClose"
-    @cancel="$emit('cancel')"
   >
     {{ $tr('facilitySelectionPrompt') }}
 
@@ -30,9 +28,10 @@
     name: 'FacilityModal',
     mixins: [commonCoreStrings],
     data() {
+      const facilityId = this.$store.state.facilityId || this.$store.getters.facilities[0].id;
       return {
         // currentFacilityId uses session, with is anonymous in sign-in-page
-        selectedFacility: this.$store.state.facilityId,
+        selectedFacility: facilityId,
       };
     },
     computed: {
