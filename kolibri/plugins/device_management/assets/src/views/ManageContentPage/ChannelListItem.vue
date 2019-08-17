@@ -87,7 +87,7 @@
 
   import { mapGetters } from 'vuex';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -112,7 +112,7 @@
       CoachContentLabel,
       UiIcon,
     },
-    mixins: [commonCoreStrings, KResponsiveWindowMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       channel: {
         type: Object,

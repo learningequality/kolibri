@@ -146,7 +146,10 @@
             <span class="version-string">
               {{ versionMsg }}
             </span>
-            <CoreLogo v-if="this.$kolibriBranding.signIn.showKolibriFooterLogo" class="footer-logo" />
+            <CoreLogo
+              v-if="this.$kolibriBranding.signIn.showKolibriFooterLogo"
+              class="footer-logo"
+            />
             <span v-else> • </span>
             <KButton
               :text="coreString('usageAndPrivacyLabel')"
@@ -200,7 +203,7 @@
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import branding from 'kolibri.utils.branding';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import urls from 'kolibri.urls';
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
@@ -223,7 +226,7 @@
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
-    mixins: [KResponsiveWindowMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings],
     data() {
       return {
         username: '',

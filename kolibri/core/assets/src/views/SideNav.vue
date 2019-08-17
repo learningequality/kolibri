@@ -109,8 +109,8 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
-  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
@@ -140,12 +140,7 @@
       SideNavDivider,
       PrivacyInfoModal,
     },
-    mixins: [
-      commonCoreStrings,
-      KResponsiveWindowMixin,
-      KResponsiveElementMixin,
-      navComponentsMixin,
-    ],
+    mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
     props: {
       navShown: {
         type: Boolean,
