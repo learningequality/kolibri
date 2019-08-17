@@ -26,14 +26,12 @@
 
 <script>
 
-  import KModal from 'kolibri.coreVue.components.KModal';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ResetUserPasswordModal',
     components: {
-      KModal,
       PasswordTextbox,
     },
     mixins: [commonCoreStrings],

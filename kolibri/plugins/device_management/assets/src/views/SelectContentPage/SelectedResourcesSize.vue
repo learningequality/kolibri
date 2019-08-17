@@ -47,10 +47,7 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import UiAlert from 'keen-ui/src/UiAlert';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
@@ -59,12 +56,9 @@
   export default {
     name: 'SelectedResourcesSize',
     components: {
-      KButton,
-      KGrid,
-      KGridItem,
       UiAlert,
     },
-    mixins: [responsiveWindow],
+    mixins: [KResponsiveWindowMixin],
     props: {
       mode: {
         type: String,

@@ -37,8 +37,6 @@
 
   import { mapMutations } from 'vuex';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
 
@@ -46,8 +44,6 @@
     name: 'ChannelTokenModal',
     components: {
       UiAlert,
-      KModal,
-      KTextbox,
     },
     mixins: [commonCoreStrings],
     data() {

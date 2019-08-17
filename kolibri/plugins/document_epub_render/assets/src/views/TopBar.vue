@@ -68,9 +68,6 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import TocButton from './TocButton';
   import SettingsButton from './SettingsButton';
@@ -79,14 +76,11 @@
   export default {
     name: 'TopBar',
     components: {
-      KGrid,
-      KGridItem,
       UiIconButton,
       TocButton,
       SettingsButton,
       SearchButton,
     },
-    mixins: [themeMixin],
     props: {
       title: {
         type: String,

@@ -14,14 +14,10 @@
 
 <script>
 
-  import KSelect from 'kolibri.coreVue.components.KSelect';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'GenderSelect',
-    components: {
-      KSelect,
-    },
     mixins: [commonCoreStrings],
     props: {
       value: {

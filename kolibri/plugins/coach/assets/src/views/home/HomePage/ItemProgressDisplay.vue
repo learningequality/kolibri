@@ -30,7 +30,6 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoach from '../../common';
   import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
 
@@ -39,7 +38,7 @@
     components: {
       ProgressSummaryBar,
     },
-    mixins: [commonCoach, themeMixin],
+    mixins: [commonCoach],
     props: {
       name: {
         type: String,

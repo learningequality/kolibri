@@ -37,7 +37,7 @@
           </KPageContainer>
 
           <!-- contents displayed in reverse-order for semantic ordering -->
-          <KBottomAppBar :dir="isRtl ? 'ltr' : 'rtl'" :maxWidth="null">
+          <BottomAppBar :dir="isRtl ? 'ltr' : 'rtl'" :maxWidth="null">
             <KButton
               :disabled="questionNumber===exam.question_count-1"
               :primary="true"
@@ -71,7 +71,7 @@
               />
             </div>
 
-          </KBottomAppBar>
+          </BottomAppBar>
 
           <!-- below prev/next buttons in tab and DOM order, in page -->
           <KPageContainer v-if="!windowIsLarge">
@@ -117,21 +117,14 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
   import debounce from 'lodash/debounce';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KModal from 'kolibri.coreVue.components.KModal';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames } from '../../constants';
   import AnswerHistory from './AnswerHistory';
@@ -145,17 +138,11 @@
     },
     components: {
       ContentRenderer,
-      KButton,
-      KPageContainer,
       AnswerHistory,
-      KIcon,
-      KModal,
       UiAlert,
-      KGrid,
-      KGridItem,
-      KBottomAppBar,
+      BottomAppBar,
     },
-    mixins: [themeMixin, responsiveWindow, commonCoreStrings],
+    mixins: [KResponsiveWindowMixin, commonCoreStrings],
     data() {
       return {
         submitModalOpen: false,

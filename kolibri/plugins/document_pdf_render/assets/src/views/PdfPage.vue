@@ -25,11 +25,8 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-
   export default {
     name: 'PdfPage',
-    mixins: [themeMixin],
     props: {
       pageNum: {
         type: Number,

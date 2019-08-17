@@ -26,7 +26,6 @@
   import range from 'lodash/range';
   import getYear from 'date-fns/get_year';
   import { now } from 'kolibri.utils.serverClock';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
@@ -43,7 +42,6 @@
     name: 'BirthYearSelect',
     components: {
       CoreInfoIcon,
-      KSelect,
     },
     mixins: [commonCoreStrings],
     props: {

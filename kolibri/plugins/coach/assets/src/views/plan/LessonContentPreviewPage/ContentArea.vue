@@ -22,7 +22,6 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
 
   export default {
@@ -30,7 +29,6 @@
     components: {
       ContentRenderer,
     },
-    mixins: [themeMixin],
     props: {
       content: {
         type: Object,

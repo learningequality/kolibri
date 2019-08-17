@@ -17,14 +17,10 @@
 
 <script>
 
-  import KModal from 'kolibri.coreVue.components.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UserRemoveConfirmationModal',
-    components: {
-      KModal,
-    },
     mixins: [commonCoreStrings],
     props: {
       classname: {

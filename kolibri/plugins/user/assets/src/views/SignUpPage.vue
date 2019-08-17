@@ -97,6 +97,11 @@
       @cancel="privacyModalVisible = false"
     />
 
+    <FacilityModal
+      v-if="facilityModalVisible"
+      @cancel="closeFacilityModal"
+      @submit="closeFacilityModal"
+    />
   </div>
 
 </template>
@@ -108,8 +113,6 @@
   import every from 'lodash/every';
   import find from 'lodash/find';
   import { FacilityUsernameResource, SignUpResource } from 'kolibri.resources';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
@@ -120,6 +123,7 @@
   import { redirectBrowser } from 'kolibri.utils.browser';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
+  import FacilityModal from './SignInPage/FacilityModal';
 
   export default {
     name: 'SignUpPage',
@@ -129,8 +133,7 @@
       };
     },
     components: {
-      KButton,
-      KPageContainer,
+      FacilityModal,
       LanguageSwitcherFooter,
       PrivacyInfoModal,
       GenderSelect,
@@ -153,6 +156,7 @@
         birthYear: '',
         caughtErrors: [],
         busy: false,
+        facilityModalVisible: false,
       };
     },
     computed: {
@@ -171,6 +175,9 @@
       },
     },
     beforeMount() {
+      if (!this.currentFacility) {
+        this.facilityModalVisible = true;
+      }
       // If no user input is in memory, reset the wizard
       if (!this.username) {
         this.goToFirstStep();
@@ -180,6 +187,12 @@
       }
     },
     methods: {
+      closeFacilityModal() {
+        this.facilityModalVisible = false;
+        this.$nextTick().then(() => {
+          this.$refs.name.focus();
+        });
+      },
       checkForDuplicateUsername(username) {
         if (!username) {
           return Promise.resolve();

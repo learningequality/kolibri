@@ -119,21 +119,14 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { FacilityUserResource } from 'kolibri.resources';
   import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
   import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
@@ -147,12 +140,6 @@
       };
     },
     components: {
-      KButton,
-      KGrid,
-      KGridItem,
-      KLabeledIcon,
-      KPageContainer,
-      KRouterLink,
       PointsIcon,
       PermissionsIcon,
       ChangeUserPasswordModal,
@@ -160,7 +147,7 @@
       GenderDisplayText,
       BirthYearDisplayText,
     },
-    mixins: [responsiveWindow, themeMixin, commonCoreStrings],
+    mixins: [KResponsiveWindowMixin, commonCoreStrings],
     data() {
       return {
         facilityUser: {},

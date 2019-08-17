@@ -61,9 +61,7 @@
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
   import { mapGetters } from 'vuex';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
@@ -80,8 +78,6 @@
       };
     },
     components: {
-      KButton,
-      KPageContainer,
       GenderSelect,
       BirthYearSelect,
       FullNameTextbox,

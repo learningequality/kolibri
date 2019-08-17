@@ -30,14 +30,10 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'SelectOptions',
-    components: {
-      KButton,
-    },
     mixins: [commonCoreStrings],
     props: {
       isSelected: {

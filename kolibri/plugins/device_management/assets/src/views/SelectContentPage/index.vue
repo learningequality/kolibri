@@ -100,12 +100,10 @@
 <script>
 
   import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
   import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
@@ -126,12 +124,11 @@
       ChannelContentsSummary,
       ContentTreeViewer,
       ContentWizardUiAlert,
-      KButton,
       SelectedResourcesSize,
       TaskProgress,
       UiAlert,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [KResponsiveWindowMixin],
     data() {
       return {
         showUpdateProgressBar: false,

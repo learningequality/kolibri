@@ -19,13 +19,8 @@
 
 <script>
 
-  import KTooltip from 'kolibri.coreVue.components.KTooltip';
-
   export default {
     name: 'KTooltipExample',
-    components: {
-      KTooltip,
-    },
     props: {
       kTooltipProps: {
         type: Object,

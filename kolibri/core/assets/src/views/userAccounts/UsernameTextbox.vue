@@ -18,16 +18,12 @@
 
 <script>
 
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UsernameTextbox',
-    components: {
-      KTextbox,
-    },
     mixins: [commonCoreStrings],
     props: {
       // NOTE: 'value', 'errors', and 'isValid' must be .sync'ed with parent

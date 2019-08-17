@@ -19,13 +19,8 @@
 
 <script>
 
-  import KModal from 'kolibri.coreVue.components.KModal';
-
   export default {
     name: 'WelcomeModal',
-    components: {
-      KModal,
-    },
     render: createElement => window.setTimeout(createElement, 750),
     $trs: {
       welcomeModalHeader: 'Welcome to Kolibri!',

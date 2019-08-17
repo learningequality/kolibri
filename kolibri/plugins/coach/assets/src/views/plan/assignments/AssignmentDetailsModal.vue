@@ -71,7 +71,7 @@
       <slot name="resourceTable"></slot>
     </form>
 
-    <KBottomAppBar v-if="assignmentType !== 'new_lesson'">
+    <BottomAppBar v-if="assignmentType !== 'new_lesson'">
       <KButton
         :text="coreString('cancelAction')"
         appearance="flat-button"
@@ -85,7 +85,7 @@
         :disabled="disabled"
         @click="submitData"
       />
-    </KBottomAppBar>
+    </BottomAppBar>
   </div>
 
 </template>
@@ -94,11 +94,8 @@
 <script>
 
   import xor from 'lodash/xor';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
@@ -106,10 +103,7 @@
   export default {
     name: 'AssignmentDetailsModal',
     components: {
-      KBottomAppBar,
-      KButton,
-      KRadioButton,
-      KTextbox,
+      BottomAppBar,
       RecipientSelector,
       UiAlert,
     },

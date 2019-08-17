@@ -78,10 +78,7 @@
 
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
   import markdownIt from 'markdown-it';
@@ -97,14 +94,11 @@
       };
     },
     components: {
-      KLabeledIcon,
       QuestionList,
       ContentArea,
       SelectOptions,
       CoachContentLabel,
       InfoIcon,
-      KGrid,
-      KGridItem,
       MultiPaneLayout,
     },
     mixins: [commonCoreStrings],

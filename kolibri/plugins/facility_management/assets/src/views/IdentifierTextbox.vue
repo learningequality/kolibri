@@ -20,7 +20,6 @@
 
 <script>
 
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
@@ -28,7 +27,6 @@
     name: 'IdentifierTextbox',
     components: {
       CoreInfoIcon,
-      KTextbox,
     },
     mixins: [commonCoreStrings],
     props: {

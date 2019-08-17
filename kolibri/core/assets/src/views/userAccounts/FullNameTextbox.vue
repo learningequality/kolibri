@@ -19,14 +19,10 @@
 
 <script>
 
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'FullNameTextbox',
-    components: {
-      KTextbox,
-    },
     mixins: [commonCoreStrings],
     // NOTE: 'value' and 'isValid' must be .sync'd with parent
     props: {

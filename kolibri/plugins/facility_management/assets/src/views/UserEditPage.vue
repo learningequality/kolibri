@@ -123,11 +123,7 @@
   import urls from 'kolibri.urls';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
@@ -143,10 +139,6 @@
       };
     },
     components: {
-      KButton,
-      KSelect,
-      KRadioButton,
-      KExternalLink,
       UserTypeDisplay,
       GenderSelect,
       BirthYearSelect,

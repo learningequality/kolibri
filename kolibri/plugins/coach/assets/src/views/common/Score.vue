@@ -10,14 +10,10 @@
 
 <script>
 
-  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
   import { coachStringsMixin } from './commonCoachStrings';
 
   export default {
     name: 'Score',
-    components: {
-      KEmptyPlaceholder,
-    },
     mixins: [coachStringsMixin],
     props: {
       value: {

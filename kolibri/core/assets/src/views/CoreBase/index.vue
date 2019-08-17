@@ -116,13 +116,10 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import AppBar from 'kolibri.coreVue.components.AppBar';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { throttle } from 'frame-throttle';
   import Lockr from 'lockr';
   import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
@@ -185,13 +182,11 @@
       SideNav,
       AuthMessage,
       GlobalSnackbar,
-      KLinearLoader,
-      KPageContainer,
       ScrollingHeader,
       UpdateNotification,
       LanguageSwitcherModal,
     },
-    mixins: [responsiveWindow, themeMixin, commonCoreStrings],
+    mixins: [KResponsiveWindowMixin, commonCoreStrings],
     props: {
       appBarTitle: {
         type: String,

@@ -33,11 +33,8 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-
   export default {
     name: 'CoreMenu',
-    mixins: [themeMixin],
     props: {
       // Whether to show if links are currently active
       showActive: {

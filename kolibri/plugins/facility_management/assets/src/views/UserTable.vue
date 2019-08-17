@@ -132,15 +132,11 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import difference from 'lodash/difference';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
-  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
   import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
@@ -149,14 +145,11 @@
     components: {
       CoreInfoIcon,
       CoreTable,
-      KCheckbox,
       UserTypeDisplay,
-      KLabeledIcon,
       GenderDisplayText,
       BirthYearDisplayText,
-      KEmptyPlaceholder,
     },
-    mixins: [commonCoreStrings, themeMixin],
+    mixins: [commonCoreStrings],
     props: {
       users: {
         type: Array,

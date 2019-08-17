@@ -34,16 +34,12 @@
 
 <script>
 
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UpdateYourProfileModal',
     components: {
-      KButton,
-      KModal,
       PrivacyInfoModal,
     },
     mixins: [commonCoreStrings],

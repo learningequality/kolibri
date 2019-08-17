@@ -105,9 +105,6 @@
   import { mapState, mapGetters } from 'vuex';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
@@ -124,9 +121,6 @@
       };
     },
     components: {
-      KRadioButton,
-      KButton,
-      KSelect,
       GenderSelect,
       BirthYearSelect,
       UsernameTextbox,

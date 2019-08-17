@@ -31,11 +31,9 @@
 <script>
 
   import { mapState } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'AnswerHistory',
-    mixins: [themeMixin],
     props: {
       questionNumber: {
         type: Number,

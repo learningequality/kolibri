@@ -21,8 +21,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import AssignedExamsCards from './AssignedExamsCards';
   import AssignedLessonsCards from './AssignedLessonsCards';
 
@@ -36,9 +35,8 @@
     components: {
       AssignedExamsCards,
       AssignedLessonsCards,
-      KLabeledIcon,
     },
-    mixins: [responsiveWindow],
+    mixins: [KResponsiveWindowMixin],
     data() {
       return {
         pollTimeoutId: null,

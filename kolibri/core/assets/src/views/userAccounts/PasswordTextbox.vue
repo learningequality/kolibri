@@ -31,14 +31,10 @@
 
 <script>
 
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'PasswordTextbox',
-    components: {
-      KTextbox,
-    },
     mixins: [commonCoreStrings],
     props: {
       // NOTE: 'value', and 'isValid' must be .sync'd with parent

@@ -10,14 +10,10 @@
 
 <script>
 
-  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'GenderDisplayText',
-    components: {
-      KEmptyPlaceholder,
-    },
     mixins: [commonCoreStrings],
     props: {
       gender: {

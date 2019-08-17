@@ -86,11 +86,8 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -113,11 +110,9 @@
     name: 'ChannelListItem',
     components: {
       CoachContentLabel,
-      KDropdownMenu,
-      KRouterLink,
       UiIcon,
     },
-    mixins: [commonCoreStrings, responsiveWindow, themeMixin],
+    mixins: [commonCoreStrings, KResponsiveWindowMixin],
     props: {
       channel: {
         type: Object,

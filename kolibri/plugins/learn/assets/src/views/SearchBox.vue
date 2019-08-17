@@ -119,10 +119,8 @@
 
   import maxBy from 'lodash/maxBy';
   import { mapGetters, mapState } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
 
@@ -141,9 +139,8 @@
     name: 'SearchBox',
     components: {
       UiIconButton,
-      KSelect,
     },
-    mixins: [themeMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
     props: {
       icon: {
         type: String,

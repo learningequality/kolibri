@@ -10,11 +10,8 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-
   export default {
     name: 'Placeholder',
-    mixins: [themeMixin],
     props: {
       ready: {
         type: Boolean,

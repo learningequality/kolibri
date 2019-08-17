@@ -15,14 +15,10 @@
 
 <script>
 
-  import KModal from 'kolibri.coreVue.components.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'DeleteChannelModal',
-    components: {
-      KModal,
-    },
     mixins: [commonCoreStrings],
     props: {
       channelTitle: {

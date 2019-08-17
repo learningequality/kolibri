@@ -81,11 +81,6 @@
 
   import { mapState, mapGetters } from 'vuex';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import UserTable from '../UserTable';
@@ -106,11 +101,6 @@
     components: {
       ResetUserPasswordModal,
       DeleteUserModal,
-      KButton,
-      KDropdownMenu,
-      KSelect,
-      KGrid,
-      KGridItem,
       UserTable,
       PaginatedListContainer,
     },

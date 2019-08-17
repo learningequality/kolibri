@@ -49,15 +49,8 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
-
   export default {
     name: 'BottomBar',
-    components: {
-      KLinearLoader,
-    },
-    mixins: [themeMixin],
     props: {
       heading: {
         type: String,

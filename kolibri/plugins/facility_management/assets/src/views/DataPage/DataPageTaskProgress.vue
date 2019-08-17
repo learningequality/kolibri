@@ -13,13 +13,8 @@
 
 <script>
 
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-
   export default {
     name: 'DataPageTaskProgress',
-    components: {
-      KCircularLoader,
-    },
     $trs: {
       generatingLog: 'Generating log file...',
     },
