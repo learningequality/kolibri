@@ -1,12 +1,11 @@
 /**
- * @fileoverview Disallow unused translation string definitions.
+ * @fileoverview Disallow attempted uses of undefined translation strings.
  */
 
 'use strict';
 
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
-const get = require('lodash/get');
 const utils = require('../utils');
 const constants = require('../constants');
 
@@ -17,7 +16,7 @@ const $TR_FUNCTION = '$tr';
 const create = context => {
   let hasTemplate;
   let definitionNodes = [];
-  let usedStrings = [];
+  let usedStringNodes = [];
 
   const initialize = {
     Program(node) {
@@ -35,32 +34,11 @@ const create = context => {
       'CallExpression[callee.type="MemberExpression"]'(node) {
         if (node.callee.property.name == $TR_FUNCTION && node.arguments.length) {
           node.arguments.forEach(arg => {
-            if (get(arg, ['value'])) {
-              usedStrings.push(arg.value);
+            if (arg.type == 'Literal') {
+              usedStringNodes.push(arg);
             }
           });
         }
-      },
-    },
-    // This will include any defined Identifiers (eg, coachesLabel or submitAction) that is
-    // found inside of an array or as the value assigned in an object. This covers the case
-    // where a string may be used dynamically or in an iterator.
-    {
-      ObjectExpression(node) {
-        node.properties.forEach(prop => {
-          if (get(prop, ['value', 'value'])) {
-            usedStrings.push(prop.value.value);
-          }
-        });
-      },
-    },
-    {
-      ArrayExpression(node) {
-        node.elements.forEach(elem => {
-          if (get(elem, ['value'])) {
-            usedStrings.push(elem.value);
-          }
-        });
       },
     },
     eslintPluginVueUtils.executeOnVue(context, obj => {
@@ -69,7 +47,7 @@ const create = context => {
       );
 
       if (!hasTemplate) {
-        utils.reportUnusedTranslations(context, definitionNodes, usedStrings);
+        utils.reportUseOfUndefinedTranslation(context, definitionNodes, usedStringNodes);
       }
     })
   );
@@ -80,15 +58,15 @@ const create = context => {
       'CallExpression[callee.type="Identifier"]'(node) {
         if (node.callee.name == $TR_FUNCTION && node.arguments.length) {
           node.arguments.forEach(arg => {
-            if (get(arg, ['value'])) {
-              usedStrings.push(arg.value);
+            if (arg.type == 'Literal') {
+              usedStringNodes.push(arg);
             }
           });
         }
       },
     },
     utils.executeOnRootTemplateEnd(() => {
-      utils.reportUnusedTranslations(context, definitionNodes, usedStrings);
+      utils.reportUseOfUndefinedTranslation(context, definitionNodes, usedStringNodes);
     })
   );
 
@@ -102,7 +80,7 @@ const create = context => {
 module.exports = {
   meta: {
     docs: {
-      description: 'Disallow unused translation string definitions.',
+      description: 'Disallow attempted uses of undefined translation strings.',
     },
     fixable: null,
   },

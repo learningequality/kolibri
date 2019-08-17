@@ -221,7 +221,22 @@ module.exports = {
     unused.forEach(prop => {
       context.report({
         node: prop.node,
-        message: `Unused translation defined for ${prop.node.name}`,
+        message: `Unused message found in $trs: "${prop.node.name}"`,
+      });
+    });
+  },
+
+  /**
+   * Report uses of undefined strings
+   */
+  reportUseOfUndefinedTranslation(context, definitions, uses) {
+    const definedStrings = definitions.map(prop => prop.name);
+    const badAttempts = uses.filter(prop => !definedStrings.includes(prop.value));
+
+    badAttempts.forEach(node => {
+      context.report({
+        node,
+        message: `Message not defined in $trs: "${node.value}"`,
       });
     });
   },
