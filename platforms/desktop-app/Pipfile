@@ -1,0 +1,14 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+py2app = {version = "==0.14",sys_platform = "== 'darwin'"}
+
+[packages]
+pyeverywhere = {git = "https://github.com/kollivier/pyeverywhere",ref = "dev"}
+wxpython = "*"
+
+[requires]
+python_version = "3.6"
