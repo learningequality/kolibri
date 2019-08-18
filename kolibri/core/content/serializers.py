@@ -206,7 +206,6 @@ class LanguageSerializer(serializers.ModelSerializer):
 
 class FileSerializer(serializers.ModelSerializer):
     storage_url = serializers.SerializerMethodField()
-    preset = serializers.SerializerMethodField()
     download_url = serializers.SerializerMethodField()
     extension = serializers.SerializerMethodField()
     file_size = serializers.SerializerMethodField()
@@ -214,9 +213,6 @@ class FileSerializer(serializers.ModelSerializer):
 
     def get_storage_url(self, target_node):
         return target_node.get_storage_url()
-
-    def get_preset(self, target_node):
-        return target_node.get_preset()
 
     def get_download_url(self, target_node):
         return target_node.get_download_url()

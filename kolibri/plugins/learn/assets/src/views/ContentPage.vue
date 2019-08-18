@@ -234,7 +234,7 @@
         );
       },
       downloadableFiles() {
-        return this.content.files.filter(file => file.preset !== 'Thumbnail');
+        return this.content.files.filter(file => !file.preset.endsWith('thumbnail'));
       },
       nextContentLink() {
         // HACK Use a the Resource Viewer Link instead

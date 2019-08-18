@@ -66,9 +66,9 @@ export default {
       required: true,
       validator: multipleFileValidator,
     },
-    defaultFile: {
+    file: {
       type: Object,
-      required: true,
+      default: null,
       validator: fileValidator,
     },
     itemId: {
@@ -82,14 +82,12 @@ export default {
       type: Boolean,
       default: true,
     },
-    supplementaryFiles: {
-      type: Array,
-      validator: multipleFileValidator,
+    extraFields: {
+      type: Object,
+      default: () => {},
     },
-    thumbnailFiles: {
-      type: Array,
-      validator: multipleFileValidator,
-    },
+    // Allow content renderers to display in a static mode
+    // where user interaction is not allowed
     interactive: {
       type: Boolean,
       default: true,
@@ -99,16 +97,39 @@ export default {
       default: () => defaultLanguage,
       validator: languageValidator,
     },
-    extraFields: {
-      type: Object,
-      default: () => {},
-    },
     showCorrectAnswer: {
       type: Boolean,
       default: false,
     },
   },
   computed: {
+    available() {
+      return this.defaultFile ? this.defaultFile.available : false;
+    },
+    preset() {
+      return this.defaultFile ? this.defaultFile.preset : undefined;
+    },
+    availableFiles() {
+      return this.files.filter(
+        file =>
+          !file.thumbnail &&
+          !file.supplementary &&
+          file.available &&
+          this.Kolibri.canRenderContent(file.preset)
+      );
+    },
+    defaultFile() {
+      return (
+        this.file ||
+        (this.availableFiles && this.availableFiles.length ? this.availableFiles[0] : undefined)
+      );
+    },
+    supplementaryFiles() {
+      return this.files.filter(file => file.supplementary && file.available);
+    },
+    thumbnailFiles() {
+      return this.files.filter(file => file.thumbnail && file.available);
+    },
     contentDirection() {
       return getContentLangDir(this.lang);
     },

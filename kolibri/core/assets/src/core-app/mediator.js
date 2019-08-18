@@ -412,51 +412,41 @@ export default class Mediator {
    * @param  {String} kolibriModuleName name of the module.
    * @param  {String[]} kolibriModuleUrls the URLs of the Javascript
    * files that constitute the kolibriModule
-   * @param  {Object} contentTypes      Object of kind, array of extension mappings
+   * @param  {String[]} contentPresets the names of presets this content renderer can render
    */
-  registerContentRenderer(kolibriModuleName, kolibriModuleUrls, contentTypes) {
+  registerContentRenderer(kolibriModuleName, kolibriModuleUrls, contentPresets) {
     this._contentRendererUrls[kolibriModuleName] = kolibriModuleUrls;
-    contentTypes.kinds.forEach(kindData => {
-      const kind = kindData.name;
-      if (!this._contentRendererRegistry[kind]) {
-        this._contentRendererRegistry[kind] = {};
+    contentPresets.forEach(preset => {
+      if (this._contentRendererRegistry[preset]) {
+        logging.warn(`Two content renderers are registering for ${preset}`);
+      } else {
+        this._contentRendererRegistry[preset] = kolibriModuleName;
       }
-      kindData.extensions.forEach(extension => {
-        if (this._contentRendererRegistry[kind][extension]) {
-          logging.warn(`Two content renderers are registering for ${kind}/${extension}`);
-        } else {
-          this._contentRendererRegistry[kind][extension] = kolibriModuleName;
-        }
-      });
     });
   }
 
   /**
-   * A method to for checking if we have a component for a specific kind/extension combination.
-   * @param  {String} kind      content kind
-   * @param  {String} extension content extension
+   * A method to for checking if we have a component for a specific preset..
+   * @param  {String} preset    content preset
    * @return {Promise}          Promise that resolves with loaded content renderer Vue component
    */
-  canRenderContent(kind, extension) {
-    return Boolean((this._contentRendererRegistry[kind] || {})[extension]);
+  canRenderContent(preset) {
+    return Boolean(this._contentRendererRegistry[preset]);
   }
 
   /**
    * A method to retrieve a content renderer component.
-   * @param  {String} kind      content kind
-   * @param  {String} extension content extension
+   * @param  {String} preset    content preset
    * @return {Promise}          Promise that resolves with loaded content renderer Vue component
    */
-  retrieveContentRenderer(kind, extension) {
+  retrieveContentRenderer(preset) {
     return new Promise((resolve, reject) => {
-      const kolibriModuleName = (this._contentRendererRegistry[kind] || {})[extension];
+      const kolibriModuleName = this._contentRendererRegistry[preset];
       if (!kolibriModuleName) {
-        // Our content renderer registry does not have a renderer for this content kind/extension.
-        reject(
-          `No registered content renderer available for kind: ${kind} with file extension: ${extension}`
-        );
+        // Our content renderer registry does not have a renderer for this content preset.
+        reject(`No registered content renderer available for preset: ${preset}`);
       } else if (this._kolibriModuleRegistry[kolibriModuleName]) {
-        // There is a named renderer for this kind/extension combination, and it is already loaded.
+        // There is a named renderer for this preset, and it is already loaded.
         resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
       } else {
         // We have a content renderer for this, but it has not been loaded, so load it, and then
