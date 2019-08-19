@@ -1,3 +1,12 @@
+kolibri-server (0.3.0-0ubuntu1) bionic; urgency=low
+
+  * debian/control:
+    - bumped minimum kolibri version dependency
+    - added redis dependency
+  * Setup options to use redis for server caching
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Sun, 28 Jul 2019 13:16:59 +0200
+
 kolibri-server (0.2.5-0ubuntu1) bionic; urgency=medium
 
   * Ensure URL_PATH_PREFIX is correctly inserted in nginx urls

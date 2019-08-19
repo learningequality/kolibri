@@ -66,6 +66,14 @@ def disable_cherrypy():
     """
     update_options_file('Server', "CHERRYPY_START", False, KOLIBRI_HOME)
 
+def enable_redis_cache():
+    """
+    Set redis as the cache backend .
+    When multiple processes run the server we need to use
+    redis to ensure the cache is shared among them.
+    """
+    update_options_file('Cache', "CACHE_BACKEND",  "redis", KOLIBRI_HOME)
+
 
 def save_nginx_conf_port(port, nginx_conf=None):
     """
@@ -143,6 +151,7 @@ if __name__ == '__main__':
     if args.debconfport:  # To be executed only when installing/reconfiguring the Debian package
         disable_cherrypy()
         set_port(args.debconfport)
+        enable_redis_cache()
     else:
         disable_cherrypy()
         save_nginx_conf_include(STATIC_ROOT)
