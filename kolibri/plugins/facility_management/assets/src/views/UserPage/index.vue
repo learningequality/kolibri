@@ -109,6 +109,7 @@
       return {
         roleFilter: null,
         selectedUser: null,
+        modalShown: null,
       };
     },
     computed: {

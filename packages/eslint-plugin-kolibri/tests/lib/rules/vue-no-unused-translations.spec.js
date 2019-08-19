@@ -181,7 +181,7 @@ tester.run('vue-no-unused-translations', rule, {
       `,
       errors: [
         {
-          message: 'Unused translation defined for helloWorld',
+          message: 'Unused message found in $trs: "helloWorld"',
         },
       ],
     },
@@ -205,7 +205,7 @@ tester.run('vue-no-unused-translations', rule, {
       `,
       errors: [
         {
-          message: 'Unused translation defined for testString',
+          message: 'Unused message found in $trs: "testString"',
         },
       ],
     },
@@ -235,7 +235,7 @@ tester.run('vue-no-unused-translations', rule, {
       `,
       errors: [
         {
-          message: 'Unused translation defined for unusedLabel',
+          message: 'Unused message found in $trs: "unusedLabel"',
         },
       ],
     },
@@ -264,7 +264,7 @@ tester.run('vue-no-unused-translations', rule, {
         {
           // Despite `coachLabel` being used in `coachString` - the definition
           // in this component would be going unused.
-          message: 'Unused translation defined for coachLabel',
+          message: 'Unused message found in $trs: "coachLabel"',
         },
       ],
     },
@@ -294,7 +294,7 @@ tester.run('vue-no-unused-translations', rule, {
       `,
       errors: [
         {
-          message: 'Unused translation defined for unusedLabel',
+          message: 'Unused message found in $trs: "unusedLabel"',
         },
       ],
     },
@@ -324,13 +324,13 @@ tester.run('vue-no-unused-translations', rule, {
       `,
       errors: [
         {
-          message: 'Unused translation defined for testString',
+          message: 'Unused message found in $trs: "testString"',
         },
         {
-          message: 'Unused translation defined for personLabel',
+          message: 'Unused message found in $trs: "personLabel"',
         },
         {
-          message: 'Unused translation defined for unusedLabel',
+          message: 'Unused message found in $trs: "unusedLabel"',
         },
       ],
     },
@@ -374,10 +374,10 @@ tester.run('vue-no-unused-translations', rule, {
       `,
       errors: [
         {
-          message: 'Unused translation defined for lesson',
+          message: 'Unused message found in $trs: "lesson"',
         },
         {
-          message: 'Unused translation defined for slideshow',
+          message: 'Unused message found in $trs: "slideshow"',
         },
       ],
     },
@@ -401,10 +401,10 @@ tester.run('vue-no-unused-translations', rule, {
       `,
       errors: [
         {
-          message: 'Unused translation defined for channel',
+          message: 'Unused message found in $trs: "channel"',
         },
         {
-          message: 'Unused translation defined for exercise',
+          message: 'Unused message found in $trs: "exercise"',
         },
       ],
     },
