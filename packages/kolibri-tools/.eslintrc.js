@@ -170,5 +170,7 @@ module.exports = {
     'kolibri/vue-no-unused-methods': ERROR,
     'kolibri/vue-no-unused-vuex-methods': ERROR,
     'kolibri/vue-watch-no-string': ERROR,
+    'kolibri/vue-no-unused-translations': ERROR,
+    'kolibri/vue-no-undefined-string-uses': ERROR,
   },
 };

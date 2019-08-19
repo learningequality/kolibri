@@ -122,7 +122,6 @@
     },
     $trs: {
       deviceManagementTitle: 'Device',
-      selectContentTitle: 'Select Content',
       permissionsLabel: 'Permissions',
     },
   };

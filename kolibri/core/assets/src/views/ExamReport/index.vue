@@ -185,7 +185,6 @@
       },
     },
     $trs: {
-      yourAnswer: 'Your answer',
       noItemId: 'This question has an error, please move on to the next question',
     },
   };
