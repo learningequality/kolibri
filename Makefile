@@ -188,7 +188,6 @@ i18n-extract: i18n-extract-frontend i18n-extract-backend
 
 i18n-transfer-context:
 	yarn transfercontext
-	yarn lint-frontend:format
 
 i18n-django-compilemessages:
 	# Change working directory to kolibri/ such that compilemessages

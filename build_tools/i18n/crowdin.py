@@ -404,6 +404,7 @@ def _chunks(files):
 
 def _modify(url, file_names):
     # split into multiple requests
+    logging.info("Uploading {}".format(url))
     for chunk in _chunks(file_names):
         # generate the weird syntax and data structure required by crowdin + requests
         references = [_source_upload_ref(file_name) for file_name in chunk]

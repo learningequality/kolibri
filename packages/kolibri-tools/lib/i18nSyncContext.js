@@ -318,24 +318,26 @@ const parseCSVDefinitions = path => {
 // Where The Magic Happens //
 // ----------------------- //
 
-logging.info('Transfering context...');
+if (process.argv.includes('run')) {
+  logging.info('Transfering context...');
 
-const csvDefinitions = parseCSVDefinitions(CSV_PATH);
+  const csvDefinitions = parseCSVDefinitions(CSV_PATH);
 
-// Load the files
-const vueFiles = glob.sync(VUE_GLOB, {});
-const jsFiles = glob.sync(JS_GLOB, {});
+  // Load the files
+  const vueFiles = glob.sync(VUE_GLOB, {});
+  const jsFiles = glob.sync(JS_GLOB, {});
 
-// Get the updated files
-const filesToWrite = processVueFiles(vueFiles, csvDefinitions).concat(
-  processJSFiles(jsFiles, csvDefinitions)
-);
+  // Get the updated files
+  const filesToWrite = processVueFiles(vueFiles, csvDefinitions).concat(
+    processJSFiles(jsFiles, csvDefinitions)
+  );
 
-// Write the updated files
-filesToWrite.forEach(fileObj => {
-  Object.keys(fileObj).forEach(path => {
-    fs.writeFileSync(path, fileObj[path]);
+  // Write the updated files
+  filesToWrite.forEach(fileObj => {
+    Object.keys(fileObj).forEach(path => {
+      fs.writeFileSync(path, fileObj[path]);
+    });
   });
-});
 
-logging.info('Context transfer has completed!');
+  logging.info('Context transfer has completed!');
+}
