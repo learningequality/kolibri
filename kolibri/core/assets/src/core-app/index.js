@@ -24,13 +24,13 @@ KeenUiConfig.set(require('../keen-config/options.json'));
 require('../keen-config/font-stack.scss');
 
 // global styles
-const generateGlobalStyles = require('kolibri-components/src/styles/generateGlobalStyles');
+const generateGlobalStyles = require('kolibri-components/src/styles/generateGlobalStyles').default;
 
 generateGlobalStyles();
 require('../styles/main.scss');
 
 // monitor input modality
-const trackInputModality = require('kolibri-components/src/styles/trackInputModality');
+const trackInputModality = require('kolibri-components/src/styles/trackInputModality').default;
 
 trackInputModality();
 
