@@ -9,7 +9,7 @@ export { licenseTranslations } from './licenseTranslations';
 
 const logging = logger.getLogger(__filename);
 
-const languageGlobals = getPluginData()['languageGlobals'];
+const languageGlobals = getPluginData()['languageGlobals'] || {};
 
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   if (args) {
