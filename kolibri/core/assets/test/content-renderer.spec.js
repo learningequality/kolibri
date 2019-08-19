@@ -17,13 +17,12 @@ describe('ContentRenderer Component', () => {
   const defaultFiles = [
     {
       available: true,
-      extension: 'tst',
+      preset: 'tst',
     },
   ];
 
   function defaultPropsDataFromFiles(files = defaultFiles) {
     return {
-      kind: 'test',
       files,
     };
   }
@@ -52,7 +51,7 @@ describe('ContentRenderer Component', () => {
         const newFiles = defaultFiles.concat({
           available: true,
           supplementary: true,
-          extension: 'vtt',
+          preset: 'subtitle',
         });
         testAvailableFiles(newFiles, 1);
       });
@@ -61,7 +60,7 @@ describe('ContentRenderer Component', () => {
         const newFiles = defaultFiles.concat({
           available: true,
           thumbnail: true,
-          extension: 'vtt',
+          preset: 'subtitle',
         });
         testAvailableFiles(newFiles, 1);
       });
@@ -69,7 +68,7 @@ describe('ContentRenderer Component', () => {
       it('should be 2 when there are two available files', () => {
         const newFiles = defaultFiles.concat({
           available: true,
-          extension: 'vtt',
+          preset: 'subtitle',
         });
         testAvailableFiles(newFiles, 2);
       });
@@ -108,92 +107,6 @@ describe('ContentRenderer Component', () => {
 
       it('should be undefined when there are no available files', () => {
         testExtension([], undefined);
-      });
-    });
-  });
-
-  describe('method', () => {
-    describe('updateRendererComponent', () => {
-      describe('when content is available', () => {
-        describe('when renderer is available', () => {
-          const dummyComponent = { test: 'testing' };
-          beforeEach(() => {
-            Vue.prototype.Kolibri.retrieveContentRenderer = () => Promise.resolve(dummyComponent);
-          });
-
-          afterEach(() => {
-            delete Vue.prototype.Kolibri.retrieveContentRenderer;
-          });
-
-          it('should set currentViewClass to returned component', () => {
-            const props = Object.assign(defaultPropsDataFromFiles(), {
-              available: true,
-            });
-            const wrapper = mount(ContentRenderer, {
-              propsData: props,
-              store,
-            });
-            return Vue.nextTick().then(() => {
-              expect(wrapper.vm.currentViewClass).toEqual(dummyComponent);
-            });
-          });
-
-          it('should call initSession', () => {
-            const props = Object.assign(defaultPropsDataFromFiles(), {
-              available: true,
-              initSession: jest.fn().mockResolvedValue(),
-            });
-            const wrapper = mount(ContentRenderer, {
-              propsData: props,
-              store,
-            });
-            return Vue.nextTick().then(() => {
-              expect(wrapper.vm.initSession).toHaveBeenCalledTimes(1);
-            });
-          });
-        });
-
-        describe('when no renderer is available', () => {
-          beforeEach(() => {
-            Vue.prototype.Kolibri.retrieveContentRenderer = () =>
-              Promise.reject({ message: 'oh no' });
-          });
-
-          afterEach(() => {
-            delete Vue.prototype.Kolibri.retrieveContentRenderer;
-          });
-
-          it('calling updateRendererComponent should set noRendererAvailable to true', () => {
-            const props = Object.assign(defaultPropsDataFromFiles(), {
-              available: true,
-            });
-            const wrapper = mount(ContentRenderer, {
-              propsData: props,
-              store,
-            });
-            // 'created' hook runs it once. Running it here again for testing.
-            // TODO Look into how to do this without calling the method directly
-            return wrapper.vm.updateRendererComponent().then(() => {
-              expect(wrapper.vm.noRendererAvailable).toEqual(true);
-            });
-          });
-        });
-      });
-
-      describe('when content is not available', () => {
-        it('should return null', () => {
-          const props = Object.assign(defaultPropsDataFromFiles(), {
-            available: false,
-          });
-          const wrapper = mount(ContentRenderer, {
-            propsData: props,
-            store,
-          });
-          // 'created' hook runs it once. Running it here again for testing.
-          return wrapper.vm.updateRendererComponent().then(component => {
-            expect(component).toEqual(null);
-          });
-        });
       });
     });
   });
