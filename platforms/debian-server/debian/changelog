@@ -1,3 +1,9 @@
+kolibri-server (0.3.1-0ubuntu1) bionic; urgency=medium
+
+  * Added wsgi-disable-file-wrapper flag to fix uwsgi bug
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 19 Aug 2019 16:57:06 +0200
+
 kolibri-server (0.3.0-0ubuntu1) bionic; urgency=low
 
   * debian/control:
