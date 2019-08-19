@@ -68,12 +68,7 @@ DETAILS_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT, key=CROWDIN_API_KEY, cmd="info", params="&json"
 )
 CROWDIN_LANG_CODES = "identifier,source_phrase,context," + ",".join(
-    [
-        lang["crowdin_code"]
-        for lang in utils.supported_languages(
-            include_english=True
-        )
-    ]
+    [lang["crowdin_code"] for lang in utils.supported_languages(include_english=True)]
 )
 
 LANG_STATUS_URL = CROWDIN_API_URL.format(
@@ -283,6 +278,7 @@ def command_upload_translations(branch):
 Convert CSV to JSON command
 """
 
+
 def _format_json_files():
     """
     re-print all json files to ensure consistent diffs with ordered keys
@@ -318,7 +314,7 @@ def _locale_data_from_csv(file_data, locale_path):
         return json
 
     for row in csv_reader:
-        if(len(row) == 0):
+        if len(row) == 0:
             return json
         json[row[0]] = row[locale_index]
 
@@ -385,6 +381,7 @@ def command_download(branch):
 """
 Upload command
 """
+
 
 def _source_upload_ref(file_name):
     if file_name == PERSEUS_FILE:  # hack for perseus, assumes the same file name

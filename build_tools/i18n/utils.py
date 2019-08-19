@@ -89,11 +89,11 @@ def local_locale_path(lang_object):
         LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
     )
 
+
 @memoize
 def local_locale_csv_path():
-    return os.path.join(
-        LOCALE_PATH, 'CSV_FILES'
-    )
+    return os.path.join(LOCALE_PATH, "CSV_FILES")
+
 
 @memoize
 def local_perseus_locale_path(lang_object):
@@ -101,11 +101,11 @@ def local_perseus_locale_path(lang_object):
         PERSEUS_LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
     )
 
+
 @memoize
 def local_perseus_locale_csv_path():
-    return os.path.join(
-        PERSEUS_LOCALE_PATH, "CSV_FILES"
-    )
+    return os.path.join(PERSEUS_LOCALE_PATH, "CSV_FILES")
+
 
 def json_dump_formatted(data, file_path, file_name):
     """
