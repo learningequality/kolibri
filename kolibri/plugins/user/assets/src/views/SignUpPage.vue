@@ -45,7 +45,7 @@
               {{ coreString('facilityLabel') }}
             </h2>
             <p>
-              {{ currentFacility.name }}
+              {{ currentFacility.label }}
             </p>
           </template>
         </div>
@@ -66,19 +66,16 @@
           />
         </div>
 
-        <p class="privacy-link">
-          <KButton
-            :text="$tr('privacyLink')"
-            appearance="basic-link"
-            @click="privacyModalVisible = true"
-          />
-        </p>
+        <PrivacyLinkAndModal
+          class="privacy-link"
+          :modalProps="{ hideOwnersSection: true }"
+        />
 
         <p>
           <KButton
             :disabled="busy"
             :primary="true"
-            :text="atFirstStep ? $tr('continue') : $tr('finish')"
+            :text="atFirstStep ? coreString('continueAction') : coreString('finishAction')"
             type="submit"
             class="submit"
           />
@@ -90,12 +87,6 @@
     <div v-if="atFirstStep" class="footer">
       <LanguageSwitcherFooter />
     </div>
-
-    <PrivacyInfoModal
-      v-if="privacyModalVisible"
-      hideOwnersSection
-      @cancel="privacyModalVisible = false"
-    />
 
     <FacilityModal
       v-if="facilityModalVisible"
@@ -112,16 +103,18 @@
   import { mapGetters } from 'vuex';
   import every from 'lodash/every';
   import find from 'lodash/find';
-  import { FacilityUsernameResource, SignUpResource } from 'kolibri.resources';
-  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
+  import { FacilityUsernameResource } from 'kolibri.resources';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
+  import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
   import { redirectBrowser } from 'kolibri.utils.browser';
   import CatchErrors from 'kolibri.utils.CatchErrors';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { SignUpResource } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import FacilityModal from './SignInPage/FacilityModal';
 
@@ -135,13 +128,14 @@
     components: {
       FacilityModal,
       LanguageSwitcherFooter,
-      PrivacyInfoModal,
       GenderSelect,
       BirthYearSelect,
       FullNameTextbox,
       PasswordTextbox,
       UsernameTextbox,
+      PrivacyLinkAndModal,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         name: '',
@@ -151,12 +145,12 @@
         password: '',
         passwordValid: true,
         formSubmitted: false,
-        privacyModalVisible: false,
         gender: '',
         birthYear: '',
         caughtErrors: [],
         busy: false,
         facilityModalVisible: false,
+        currentFacility: null,
       };
     },
     computed: {
@@ -175,22 +169,30 @@
       },
     },
     beforeMount() {
-      if (!this.currentFacility) {
-        this.facilityModalVisible = true;
-      }
       // If no user input is in memory, reset the wizard
       if (!this.username) {
         this.goToFirstStep();
       }
-      if (this.facilityList.length === 1) {
-        this.selectedFacility = this.facilityList[0];
+      if (!this.$store.state.facilityId) {
+        if (this.facilityList.length === 1) {
+          this.currentFacility = this.facilityList[0];
+        } else {
+          this.facilityModalVisible = true;
+        }
+      } else {
+        this.currentFacility = this.facilityList.find(
+          ({ value }) => value === this.$store.state.facilityId
+        );
       }
     },
     methods: {
       closeFacilityModal() {
         this.facilityModalVisible = false;
+        this.currentFacility = this.facilityList.find(
+          ({ value }) => value === this.$store.state.facilityId
+        );
         this.$nextTick().then(() => {
-          this.$refs.name.focus();
+          this.$refs.fullNameTextbox.focus();
         });
       },
       checkForDuplicateUsername(username) {
@@ -202,7 +204,7 @@
         // already exists in a facility
         return FacilityUsernameResource.fetchCollection({
           getParams: {
-            facility: this.selectedFacility.value,
+            facility: this.currentFacility.value,
             search: username,
           },
           force: true,
@@ -218,6 +220,7 @@
       },
       handleSubmit() {
         if (this.atFirstStep) {
+          this.formSubmitted = true;
           this.goToSecondStep();
         } else {
           this.submitNewFacilityUser();
@@ -246,7 +249,7 @@
           this.busy = true;
           SignUpResource.saveModel({
             data: {
-              facility: this.selectedFacility.value,
+              facility: this.currentFacility.value,
               full_name: this.name,
               username: this.username,
               password: this.password,
@@ -292,14 +295,7 @@
     },
     $trs: {
       createAccount: 'Create an account',
-      logIn: 'Sign in',
-      kolibri: 'Kolibri',
-      continue: 'Continue',
-      finish: 'Finish',
-      facility: 'Facility',
-      required: 'This field is required',
       documentTitle: 'Create account',
-      privacyLink: 'Usage and privacy in Kolibri',
       demographicInfoExplanation:
         'This information is optional. It is used to help with user administration.',
     },

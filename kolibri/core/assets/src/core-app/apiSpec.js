@@ -77,6 +77,7 @@ import UsernameTextbox from '../views/userAccounts/UsernameTextbox';
 import PasswordTextbox from '../views/userAccounts/PasswordTextbox';
 import GenderDisplayText from '../views/userAccounts/GenderDisplayText';
 import BirthYearDisplayText from '../views/userAccounts/BirthYearDisplayText';
+import PrivacyLinkAndModal from '../views/userAccounts/PrivacyLinkAndModal.vue';
 import PaginatedListContainer from '../views/PaginatedListContainer';
 
 // webpack optimization
@@ -167,6 +168,7 @@ export default {
       PasswordTextbox,
       BirthYearDisplayText,
       PaginatedListContainer,
+      PrivacyLinkAndModal,
     },
     router,
     mixins: {
