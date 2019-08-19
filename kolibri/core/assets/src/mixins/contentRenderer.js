@@ -59,6 +59,16 @@ function multipleFileValidator(files) {
   return files.reduce((acc, file) => acc && fileValidator(file), true);
 }
 
+const interactionEvents = [
+  'answerGiven',
+  'hintTaken',
+  'itemError',
+  'interaction',
+  'updateProgress',
+  'updateContentState',
+  'startTracking',
+];
+
 export default {
   props: {
     files: {
@@ -137,4 +147,5 @@ export default {
       return this.contentDirection === 'rtl';
     },
   },
+  interactionEvents,
 };

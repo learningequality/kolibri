@@ -23,7 +23,6 @@ const publicMethods = [
   'off',
   'registerLanguageAssets',
   'registerContentRenderer',
-  'retrieveContentRenderer',
   'loadDirectionalCSS',
   'scriptLoader',
   'canRenderContent',

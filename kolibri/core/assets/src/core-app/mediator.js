@@ -7,6 +7,8 @@
 import Vue from 'vue';
 import logger from 'kolibri.lib.logging';
 import { languageDirection, languageDirections } from 'kolibri.utils.i18n';
+import ContentRendererError from '../views/ContentRenderer/ContentRendererError';
+import ContentRendererLoading from '../views/ContentRenderer/ContentRendererLoading';
 
 const logging = logger.getLogger(__filename);
 
@@ -421,6 +423,21 @@ export default class Mediator {
         logging.warn(`Two content renderers are registering for ${preset}`);
       } else {
         this._contentRendererRegistry[preset] = kolibriModuleName;
+        Vue.component(preset + '_renderer', () => ({
+          /* Check the Kolibri core app for a content renderer module that is able to
+           * handle the rendering of the current content node.
+           */
+          component: this.retrieveContentRenderer(preset),
+          // A component to use while the async component is loading
+          loading: ContentRendererLoading,
+          // A component to use if the load fails
+          error: ContentRendererError,
+          // Delay before showing the loading component.
+          delay: 0,
+          // The error component will be displayed if a timeout is
+          // provided and exceeded.
+          timeout: 30000,
+        }));
       }
     });
   }
