@@ -102,8 +102,8 @@ do_check_nginx()
 }
 
 do_stop() {
-  do_stop_uwsgi
   service kolibri stop
+  do_stop_uwsgi
 
   retval=$?
 
@@ -144,7 +144,7 @@ case "$1" in
     # 'force-reload' alias
     #
     log_daemon_msg "Restarting $DESC" "$NAME"
-    #do_stop
+    do_stop
     case "$?" in
       0|1)
         if [ -s "$CONFIG_FILE" ]; then
