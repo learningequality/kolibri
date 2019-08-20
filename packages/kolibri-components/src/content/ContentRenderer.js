@@ -3,7 +3,9 @@ import { RENDERER_SUFFIX } from './constants';
 export default function contentRendererFactory({
   logging = console,
   activeCallback = () => {},
+  Vue,
   contentRendererMixin,
+  ContentRendererErrorComponent,
 } = {}) {
   return {
     mixins: [contentRendererMixin],
@@ -24,21 +26,25 @@ export default function contentRendererFactory({
       },
     },
     render: function(createElement) {
-      const listeners = {
-        ...this.$listeners,
-      };
-      contentRendererMixin.interactionEvents.forEach(event => {
-        if (listeners[event]) {
-          listeners[event] = [listeners[event], activeCallback];
-        } else {
-          listeners[event] = activeCallback;
-        }
-      });
-      return createElement(this.defaultItemPreset + RENDERER_SUFFIX, {
-        props: this.$props,
-        on: listeners,
-        ref: 'contentView',
-      });
+      const rendererComponentName = this.defaultItemPreset + RENDERER_SUFFIX;
+      if (Vue.options.components[rendererComponentName]) {
+        const listeners = {
+          ...this.$listeners,
+        };
+        contentRendererMixin.interactionEvents.forEach(event => {
+          if (listeners[event]) {
+            listeners[event] = [listeners[event], activeCallback];
+          } else {
+            listeners[event] = activeCallback;
+          }
+        });
+        return createElement(rendererComponentName, {
+          props: this.$props,
+          on: listeners,
+          ref: 'contentView',
+        });
+      }
+      return createElement(ContentRendererErrorComponent);
     },
   };
 }

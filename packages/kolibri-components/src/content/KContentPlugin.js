@@ -40,6 +40,8 @@ export default {
         logging,
         activeCallback,
         contentRendererMixin,
+        Vue,
+        ContentRendererErrorComponent,
       })
     );
   },
