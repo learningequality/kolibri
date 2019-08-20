@@ -9,7 +9,7 @@
     >
       <KButton
         ref="modalButton"
-        :text="$tr('moreInfo')"
+        :text="coreString('usageAndPrivacyLabel')"
         appearance="basic-link"
         @click="showModal = true"
       />
@@ -29,6 +29,7 @@
 <script>
 
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import OnboardingForm from './OnboardingForm';
 
   export default {
@@ -37,6 +38,7 @@
       PrivacyInfoModal,
       OnboardingForm,
     },
+    mixins: [commonCoreStrings],
     props: {
       submitText: {
         type: String,
@@ -74,7 +76,6 @@
       description:
         'If you are setting up Kolibri to be used by other users, you or someone you delegate will be responsible for protecting and managing the user accounts and personal information stored on this device.',
       header: 'Responsibilities as an administrator',
-      moreInfo: 'More information',
     },
   };
 
