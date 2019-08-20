@@ -30,15 +30,17 @@
       autocomplete="new-password"
     />
 
+    <GenderSelect
+      :value.sync="gender"
+      class="select"
+    />
+
     <BirthYearSelect
       :value.sync="birthYear"
       class="select"
     />
 
-    <GenderSelect
-      :value.sync="gender"
-      class="select"
-    />
+    <PrivacyLinkAndModal />
 
     <div slot="footer" class="reminder">
       <div class="icon">
@@ -62,6 +64,7 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
+  import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import OnboardingForm from './OnboardingForm';
 
@@ -74,6 +77,7 @@
       PasswordTextbox,
       BirthYearSelect,
       GenderSelect,
+      PrivacyLinkAndModal,
     },
     mixins: [commonCoreStrings],
     props: {
