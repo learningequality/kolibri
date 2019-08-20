@@ -73,13 +73,28 @@ export default function contentRendererMixinFactory({ logging = console } = {}) 
     props: {
       files: {
         type: Array,
-        required: true,
+        default: () => [],
         validator: multipleFileValidator,
       },
       file: {
         type: Object,
         default: null,
         validator: fileValidator,
+      },
+      // As an alternative to passing a file object to set the state of the
+      // content renderer, can also pass raw itemData (which will be parsed by
+      // the renderer if there are no files or file object).
+      // The type could depend on the renderer, so we enforce nothing here
+      // except a null default.
+      itemData: {
+        default: null,
+      },
+      // If just itemData is passed, we have no mechanism for knowing the preset
+      // of the data, and hence which renderer to choose. If itemData is utilized
+      // the preset must be explicitly set.
+      preset: {
+        default: null,
+        type: String,
       },
       itemId: {
         type: String,
@@ -94,7 +109,7 @@ export default function contentRendererMixinFactory({ logging = console } = {}) 
       },
       extraFields: {
         type: Object,
-        default: () => {},
+        default: () => ({}),
       },
       // Allow content renderers to display in a static mode
       // where user interaction is not allowed
@@ -113,8 +128,12 @@ export default function contentRendererMixinFactory({ logging = console } = {}) 
       },
     },
     computed: {
-      preset() {
-        return this.defaultFile ? this.defaultFile.preset : undefined;
+      defaultItemPreset() {
+        return this.defaultFile
+          ? this.defaultFile.preset
+          : this.canRenderContent(this.preset)
+          ? this.preset
+          : null;
       },
       availableFiles() {
         return this.files.filter(

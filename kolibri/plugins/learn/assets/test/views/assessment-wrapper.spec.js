@@ -32,7 +32,7 @@ describe('assessmentWrapper Component', function() {
     this.files = [
       {
         available: true,
-        extension: 'tst',
+        preset: 'tst',
       },
     ];
     this.id = 'testing';

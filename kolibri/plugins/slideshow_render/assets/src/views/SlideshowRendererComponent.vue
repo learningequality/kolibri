@@ -16,8 +16,8 @@
       <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
       <mat-svg v-else name="fullscreen" category="navigation" />
     </UiIconButton>
-    <Hooper v-if="slides" @slide="handleSlide" @loaded="initializeHooper">
-      <Slide v-for="slide in slides" :key="slide.id">
+    <Hooper v-if="slides.length" @slide="handleSlide" @loaded="initializeHooper">
+      <Slide v-for="(slide, index) in slides" :key="slide.id + index">
         <div
           class="slideshow-slide-image-wrapper"
           :style="{
@@ -65,11 +65,6 @@
     Navigation as HooperNavigation,
     Pagination as HooperPagination,
   } from 'hooper';
-  import { checksumFromFile } from '../utils.js';
-
-  const presets = {
-    slideshow_manifest: 'Slideshow Manifest',
-  };
 
   export default {
     name: 'SlideshowRendererComponent',
@@ -82,74 +77,73 @@
       HooperNavigation,
     },
     mixins: [responsiveElementMixin, responsiveWindowMixin],
-    props: {
-      defaultFile: {
-        type: Object,
-        default: () => {},
-        validator(file) {
-          // File must have a storage_url
-          if (file.hasOwnProperty('storage_url')) {
-            // Ensure the file is a JSON file because the defaultFile is the manifest.
-            return /json$/.test(file.storage_url);
-          } else {
-            return false;
-          }
-        },
-      },
-      files: {
-        type: Array,
-        default: () => [],
-        validator(files) {
-          let isValid = true;
-          // Ensure we receive a non-empty array.
-          if (files.length === 0) {
-            return false;
-          } else {
-            // Check each file to have a storage_url
-            files.forEach(file => {
-              if (!file.hasOwnProperty('storage_url')) {
-                isValid = false;
-              }
-            });
-          }
-          return isValid;
-        },
-      },
-    },
     data: () => ({
       isInFullscreen: false,
-      manifest: {},
-      slides: null,
-      currentSlide: null,
+      slides: [],
+      currentSlideIndex: 0,
     }),
     computed: {
+      currentSlide() {
+        return this.slides[this.currentSlideIndex];
+      },
       slideshowImages: function() {
         const files = this.files;
-        return files.filter(file => file.preset != presets.slideshow_manifest);
+        return files.filter(file => file.preset != 'slideshow_manifest');
       },
       captionHeight: function() {
-        return 30 + (this.currentSlide ? this.$refs[this.currentSlide.id][0].clientHeight : 0);
+        return (
+          30 +
+          (this.currentSlide && this.$refs[this.currentSlide.id]
+            ? this.$refs[this.currentSlide.id][0].clientHeight
+            : 0)
+        );
       },
       contentHeight: function() {
         return window.innerHeight * 0.7 + 'px';
       },
     },
-    mounted() {
-      /*
-        Using the manifest file, get the JSON from the manifest, then
-        use the manifest JSON to get all slide images and metadata.
-      */
-      const path = this.defaultFile.storage_url;
-      const method = 'GET';
-      client({ path, method }).then(({ entity }) => {
-        this.manifest = entity.slideshow_data;
-
+    watch: {
+      defaultFile(newFile) {
+        if (newFile) {
+          this.setSlidesFromDefaultFile(newFile);
+        }
+      },
+      itemData(newData) {
+        if (newData) {
+          this.setSlides(newData);
+        }
+      },
+    },
+    created() {
+      if (this.defaultFile) {
+        this.setSlidesFromDefaultFile(this.defaultFile);
+      } else if (this.itemData) {
+        this.setSlides(this.itemData);
+      }
+    },
+    methods: {
+      setSlidesFromDefaultFile(defaultFile) {
+        /*
+         * First check that the file has a storage url and that it is a JSON file.
+         */
+        if (defaultFile.hasOwnProperty('storage_url') && defaultFile.extension === 'json') {
+          /*
+            Using the manifest file, get the JSON from the manifest, then
+            use the manifest JSON to get all slide images and metadata.
+          */
+          const path = defaultFile.storage_url;
+          const method = 'GET';
+          client({ path, method }).then(({ entity }) => {
+            this.setSlides(entity.slideshow_data);
+          });
+        }
+      },
+      setSlides(slideShowData) {
         this.slides = orderBy(
-          this.manifest.map(image => {
+          slideShowData.slideshow_data.map(image => {
+            const fileData = this.slideshowImages.find(sFile => sFile.checksum == image.checksum);
             return {
-              storage_url: this.slideshowImages.find(
-                sFile => checksumFromFile(sFile) == image.checksum
-              ).storage_url,
+              storage_url: fileData ? fileData.storage_url : image.url,
               caption: image.caption,
               sort_order: image.sort_order,
               id: image.checksum,
@@ -159,11 +153,10 @@
           ['sort_order'],
           ['asc']
         );
-      });
-    },
-    methods: {
+        this.currentSlideIndex = 0;
+      },
       handleSlide(payload) {
-        this.currentSlide = this.slides[payload.currentSlide];
+        this.currentSlideIndex = payload.currentSlide;
       },
       slideTextId(id) {
         return 'descriptive-text-' + id;

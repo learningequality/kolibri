@@ -14,4 +14,4 @@ class SlideshowRenderPlugin(KolibriPluginBase):
 
 class SlideshowRenderAsset(content_hooks.ContentRendererHook):
     bundle_id = "main"
-    preset = (format_presets.SLIDESHOW_MANIFEST,)
+    presets = (format_presets.SLIDESHOW_MANIFEST,)

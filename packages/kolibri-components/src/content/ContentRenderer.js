@@ -34,7 +34,7 @@ export default function contentRendererFactory({
           listeners[event] = activeCallback;
         }
       });
-      return createElement(this.preset + RENDERER_SUFFIX, {
+      return createElement(this.defaultItemPreset + RENDERER_SUFFIX, {
         props: this.$props,
         on: listeners,
         ref: 'contentView',
