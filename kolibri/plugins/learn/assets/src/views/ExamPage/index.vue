@@ -18,7 +18,7 @@
             <h1>
               {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
             </h1>
-            <ContentRenderer
+            <KContentRenderer
               v-if="content && itemId"
               ref="contentRenderer"
               :kind="content.kind"
@@ -122,7 +122,6 @@
   import { now } from 'kolibri.utils.serverClock';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -137,7 +136,6 @@
       };
     },
     components: {
-      ContentRenderer,
       AnswerHistory,
       UiAlert,
       BottomAppBar,

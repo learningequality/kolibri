@@ -33,7 +33,6 @@
 
 <script>
 
-  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import { now } from 'kolibri.utils.serverClock';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
@@ -46,7 +45,6 @@
       UiIconButton,
       CoreFullscreen,
     },
-    mixins: [contentRendererMixin],
     props: {
       defaultFile: {
         type: Object,

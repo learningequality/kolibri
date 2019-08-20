@@ -82,7 +82,6 @@
   import 'intersection-observer';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import urls from 'kolibri.urls';
 
@@ -107,7 +106,7 @@
       RecycleList,
       CoreFullscreen,
     },
-    mixins: [responsiveWindowMixin, responsiveElementMixin, contentRendererMixin],
+    mixins: [responsiveWindowMixin, responsiveElementMixin],
     data: () => ({
       progress: null,
       scale: null,

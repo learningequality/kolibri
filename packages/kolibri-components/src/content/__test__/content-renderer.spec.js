@@ -1,18 +1,19 @@
 import Vue from 'vue';
 import { mount } from '@vue/test-utils';
 import store from 'kolibri.coreVue.vuex.store';
-import ContentRenderer from '../src/views/ContentRenderer';
+import ContentRendererFactory from '../ContentRenderer';
+import ContentRendererMixinFactory from '../mixin';
 
-jest.mock('kolibri.lib.logging');
+const ContentRenderer = ContentRendererFactory({
+  contentRendererMixin: ContentRendererMixinFactory(),
+});
 
 describe('ContentRenderer Component', () => {
   beforeEach(() => {
-    Vue.prototype.Kolibri = {
-      canRenderContent: () => true,
-    };
+    Vue.prototype.canRenderContent = () => true;
   });
   afterEach(() => {
-    Vue.prototype.Kolibri = {};
+    delete Vue.prototype.canRenderContent;
   });
   const defaultFiles = [
     {
@@ -38,9 +39,9 @@ describe('ContentRenderer Component', () => {
       }
 
       it('should be 0 if the mediator concludes that there are no compatible renderers', () => {
-        Vue.prototype.Kolibri.canRenderContent = () => false;
+        Vue.prototype.canRenderContent = () => false;
         testAvailableFiles(defaultFiles, 0);
-        Vue.prototype.Kolibri.canRenderContent = () => true;
+        Vue.prototype.canRenderContent = () => true;
       });
 
       it('should be 1 when there is one available file', () => {

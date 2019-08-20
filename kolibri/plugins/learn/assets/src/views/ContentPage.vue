@@ -14,7 +14,7 @@
       :isTopic="isTopic"
     />
     <template v-if="sessionReady">
-      <ContentRenderer
+      <KContentRenderer
         v-if="!content.assessment"
         class="content-renderer"
         :kind="content.kind"
@@ -133,7 +133,6 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
@@ -167,7 +166,6 @@
       CoachContentLabel,
       PageHeader,
       ContentCardGroupCarousel,
-      ContentRenderer,
       DownloadButton,
       AssessmentWrapper,
       MasteredSnackbars,

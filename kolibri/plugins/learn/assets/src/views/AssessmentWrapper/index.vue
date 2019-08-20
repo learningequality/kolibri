@@ -19,7 +19,7 @@ oriented data synchronization.
       />
     </UiAlert>
     <div>
-      <ContentRenderer
+      <KContentRenderer
         ref="contentRenderer"
         :kind="kind"
         :lang="lang"
@@ -112,7 +112,6 @@ oriented data synchronization.
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import shuffled from 'kolibri.utils.shuffled';
   import { now } from 'kolibri.utils.serverClock';
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
@@ -123,7 +122,6 @@ oriented data synchronization.
     name: 'AssessmentWrapper',
     components: {
       ExerciseAttempts,
-      ContentRenderer,
       UiAlert,
       BottomAppBar,
     },
