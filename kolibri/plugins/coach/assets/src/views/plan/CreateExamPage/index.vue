@@ -493,7 +493,6 @@
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
       noneSelected: 'No exercises are selected',
-      // TODO: Interpolate strings correctly
       exitSearchButtonLabel: 'Exit search',
       // TODO: Handle singular/plural
       selectionInformation:

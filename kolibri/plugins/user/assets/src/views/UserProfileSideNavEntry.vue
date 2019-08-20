@@ -1,6 +1,5 @@
 <template>
 
-  <!-- eslint-disable kolibri/vue-no-undefined-string-uses -->
   <CoreMenuOption
     :label="$tr('profile')"
     :link="url"
