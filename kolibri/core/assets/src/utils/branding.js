@@ -38,6 +38,6 @@ globalBrandingState.setBranding = state => {
   Object.keys(schema).forEach(key => {
     Vue.set(globalBrandingState, key, state[key]);
   });
-}
+};
 
 export default globalBrandingState;
