@@ -2,6 +2,12 @@
 
 List of the most important changes for each release.
 
+## 0.13.0 (unreleased)
+
+### Changed or fixed
+
+- Fixed: Unclean shutdowns on very large databases, due to prolonged database cleanup
+
 ## 0.12.8
 
 ### Changed or fixed
