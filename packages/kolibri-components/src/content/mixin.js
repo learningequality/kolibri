@@ -26,6 +26,9 @@ const fileFieldMap = {
   file_size: {
     type: Number,
   },
+  checksum: {
+    type: String,
+  },
   extension: {
     type: String,
   },

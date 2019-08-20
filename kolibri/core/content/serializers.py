@@ -205,6 +205,7 @@ class LanguageSerializer(serializers.ModelSerializer):
 
 
 class FileSerializer(serializers.ModelSerializer):
+    checksum = serializers.CharField(source="local_file_id")
     storage_url = serializers.SerializerMethodField()
     download_url = serializers.SerializerMethodField()
     extension = serializers.SerializerMethodField()
@@ -232,6 +233,7 @@ class FileSerializer(serializers.ModelSerializer):
             "available",
             "file_size",
             "extension",
+            "checksum",
             "preset",
             "lang",
             "supplementary",

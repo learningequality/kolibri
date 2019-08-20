@@ -17,8 +17,10 @@ from django.utils.html import mark_safe
 from django_js_reverse.core import prepare_url_list
 from django_js_reverse.rjsmin import jsmin
 
+from kolibri.core.content.utils.paths import get_content_storage_url
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.webpack.utils import webpack_asset_render
+from kolibri.utils.conf import OPTIONS
 
 register = template.Library()
 
@@ -63,10 +65,14 @@ def kolibri_set_urls(context):
         + """
         {global_object}.staticUrl = '{static_url}';
         {global_object}.mediaUrl = '{media_url}';
+        {global_object}.contentUrl = '{content_url}';
         </script>
         """.format(
             global_object=js_global_object_name,
             static_url=settings.STATIC_URL,
             media_url=settings.MEDIA_URL,
+            content_url=get_content_storage_url(
+                baseurl=OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+            ),
         )
     )

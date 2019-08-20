@@ -5,11 +5,18 @@
 
 import setWebpackPublicPath from '../utils/setWebpackPublicPath';
 
+function generateUrl(baseUrl, url) {
+  const base = new URL(baseUrl, window.location.origin);
+  const urlObject = new URL(url, base);
+  return urlObject.href;
+}
+
 const urls = {
   setUp() {
     Object.assign(this, global.kolibriUrls);
     this.__staticURL = global.staticUrl;
     this.__mediaURL = global.mediaUrl;
+    this.__contentURL = global.contentUrl;
     setWebpackPublicPath(this);
   },
   static(url) {
@@ -27,6 +34,13 @@ const urls = {
     const base = new URL(this.__mediaURL, window.location.origin);
     const urlObject = new URL(url, base);
     return urlObject.href;
+  },
+  storageUrl(fileId, extension, embeddedFilePath = '') {
+    const filename = `${fileId}.${extension}`;
+    if (['perseus', 'zip', 'h5p'].includes(extension)) {
+      return this['kolibri:core:zipcontent'](filename, embeddedFilePath);
+    }
+    return generateUrl(this.__contentURL, `${filename[0]}/${filename[1]}/${filename}`);
   },
 };
 
