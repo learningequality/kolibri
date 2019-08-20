@@ -104,7 +104,7 @@
   import every from 'lodash/every';
   import find from 'lodash/find';
   import { FacilityUsernameResource } from 'kolibri.resources';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
@@ -117,6 +117,8 @@
   import { SignUpResource } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import FacilityModal from './SignInPage/FacilityModal';
+
+  const { DEFERRED } = DemographicConstants;
 
   export default {
     name: 'SignUpPage',
@@ -253,10 +255,10 @@
               full_name: this.name,
               username: this.username,
               password: this.password,
-              // If user skips this part, these fields are marked as 'DEFER'
+              // If user skips this part, these fields are marked as 'DEFERRED'
               // so they don't see a notification after logging in.
-              gender: this.gender || 'DEFER',
-              birth_year: this.birthYear || 'DEFER',
+              gender: this.gender || DEFERRED,
+              birth_year: this.birthYear || DEFERRED,
             },
           })
             .then(() => {

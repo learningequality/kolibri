@@ -1,6 +1,7 @@
 <template>
 
   <OnboardingForm
+    class="credentials-form"
     :header="$tr('adminAccountCreationHeader')"
     :description="$tr('adminAccountCreationDescription')"
     :submitText="submitText"
@@ -66,7 +67,10 @@
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
   import OnboardingForm from './OnboardingForm';
+
+  const { DEFERRED } = DemographicConstants;
 
   export default {
     name: 'SuperuserCredentialsForm',
@@ -118,8 +122,8 @@
           full_name: this.fullName,
           username: this.username,
           password: this.password,
-          birth_year: this.birthYear || 'DEFER',
-          gender: this.gender || 'DEFER',
+          birth_year: this.birthYear || DEFERRED,
+          gender: this.gender || DEFERRED,
         });
       },
       submitForm() {
@@ -163,6 +167,11 @@
 
 <style lang="scss" scoped>
 
+  // Need to make this form narrower to fit Keen-UI components
+  .credentials-form {
+    width: 400px !important;
+  }
+
   .reminder {
     display: table;
 
@@ -180,7 +189,6 @@
   }
 
   .select {
-    width: 400px;
     margin: 18px 0 36px;
   }
 

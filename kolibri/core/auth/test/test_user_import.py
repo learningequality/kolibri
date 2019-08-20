@@ -187,14 +187,14 @@ class UserImportCommandTestCase(TestCase):
         with open(self.csvpath, "w") as f:
             writer = csv.writer(f)
             writer.writerow(["username", "birth_year", "gender"])
-            writer.writerow(["alice", "", "DECLINE"])
+            writer.writerow(["alice", "", "NOT_SPECIFIED"])
             writer.writerow(["bob", "1970", "MALE"])
 
         call_command("importusers", self.csvpath)
         alice = FacilityUser.objects.get(username="alice")
         bob = FacilityUser.objects.get(username="bob")
         self.assertEqual(alice.birth_year, "")
-        self.assertEqual(alice.gender, "DECLINE")
+        self.assertEqual(alice.gender, "NOT_SPECIFIED")
         self.assertEqual(bob.birth_year, "1970")
         self.assertEqual(bob.gender, "MALE")
 
@@ -202,7 +202,7 @@ class UserImportCommandTestCase(TestCase):
         facility, superuser = setup_device()
         FacilityUser.objects.create(
             username="alice",
-            birth_year="DECLINE",
+            birth_year="NOT_SPECIFIED",
             password="password",
             facility=facility,
         )
@@ -216,7 +216,7 @@ class UserImportCommandTestCase(TestCase):
         # The entire update operation fails
         alice = FacilityUser.objects.get(username="alice")
         bob = FacilityUser.objects.get(username="bob")
-        self.assertEqual(alice.birth_year, "DECLINE")
+        self.assertEqual(alice.birth_year, "NOT_SPECIFIED")
         self.assertEqual(alice.gender, "")
         self.assertEqual(bob.birth_year, "")
         self.assertEqual(bob.gender, "")

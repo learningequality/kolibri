@@ -122,3 +122,15 @@ export const ERROR_CONSTANTS = {
   PERMISSION_DENIED: 'PERMISSION_DENIED',
   NOT_AUTHENTICATED: 'NOT_AUTHENTICATED',
 };
+
+export const DemographicConstants = {
+  NOT_SPECIFIED: 'NOT_SPECIFIED',
+  DEFERRED: 'DEFERRED',
+};
+
+// See FacilityUser model
+export const FacilityUserGender = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+  ...DemographicConstants,
+};

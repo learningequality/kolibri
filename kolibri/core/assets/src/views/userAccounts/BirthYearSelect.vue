@@ -28,6 +28,9 @@
   import { now } from 'kolibri.utils.serverClock';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
+
+  const { NOT_SPECIFIED } = DemographicConstants;
 
   // Take the last-known year to be the later of the copyright year,
   // or the year of the server date
@@ -56,7 +59,7 @@
       options() {
         return [
           {
-            value: 'DECLINE',
+            value: NOT_SPECIFIED,
             label: this.coreString('notSpecifiedOption'),
           },
           ...yearOptions,

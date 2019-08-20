@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 default="",
-                max_length=10,
+                max_length=16,
                 validators=[kolibri.core.auth.models.validate_birth_year],
             ),
         ),
@@ -29,11 +29,11 @@ class Migration(migrations.Migration):
                 choices=[
                     ("MALE", "Male"),
                     ("FEMALE", "Female"),
-                    ("DECLINE", "Not specified"),
-                    ("DEFER", "Defers for later"),
+                    ("NOT_SPECIFIED", "Not specified"),
+                    ("DEFERRED", "Defers for later"),
                 ],
                 default="",
-                max_length=10,
+                max_length=16,
             ),
         ),
         migrations.AddField(

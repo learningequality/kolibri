@@ -606,7 +606,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
 def validate_birth_year(value):
     error = ""
 
-    if value == "DECLINE" or value == "DEFER":
+    if value == "NOT_SPECIFIED" or value == "DEFERRED":
         return
 
     try:
@@ -661,16 +661,16 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     GENDER_CHOICES = [
         ("MALE", "Male"),
         ("FEMALE", "Female"),
-        ("DECLINE", "Not specified"),
-        ("DEFER", "Defers for later"),
+        ("NOT_SPECIFIED", "Not specified"),
+        ("DEFERRED", "Defers for later"),
     ]
 
     gender = models.CharField(
-        max_length=10, choices=GENDER_CHOICES, default="", blank=True
+        max_length=16, choices=GENDER_CHOICES, default="", blank=True
     )
 
     birth_year = models.CharField(
-        max_length=10, default="", validators=[validate_birth_year], blank=True
+        max_length=16, default="", validators=[validate_birth_year], blank=True
     )
 
     id_number = models.CharField(max_length=64, default="", blank=True)

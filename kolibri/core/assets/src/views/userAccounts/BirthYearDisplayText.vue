@@ -11,6 +11,9 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
+
+  const { NOT_SPECIFIED, DEFERRED } = DemographicConstants;
 
   export default {
     name: 'BirthYearDisplayText',
@@ -22,9 +25,9 @@
     },
     computed: {
       displayText() {
-        if (this.birthYear === 'DECLINE') {
+        if (this.birthYear === NOT_SPECIFIED) {
           return this.coreString('notSpecifiedOption');
-        } else if (this.birthYear !== 'DEFER') {
+        } else if (this.birthYear !== DEFERRED) {
           return this.birthYear;
         } else {
           return '';

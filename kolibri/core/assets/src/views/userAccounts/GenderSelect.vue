@@ -15,6 +15,9 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { FacilityUserGender } from 'kolibri.coreVue.vuex.constants';
+
+  const { NOT_SPECIFIED, MALE, FEMALE } = FacilityUserGender;
 
   export default {
     name: 'GenderSelect',
@@ -31,15 +34,15 @@
       options() {
         return [
           {
-            value: 'MALE',
+            value: MALE,
             label: this.coreString('genderOptionMale'),
           },
           {
-            value: 'FEMALE',
+            value: FEMALE,
             label: this.coreString('genderOptionFemale'),
           },
           {
-            value: 'DECLINE',
+            value: NOT_SPECIFIED,
             label: this.coreString('notSpecifiedOption'),
           },
         ];

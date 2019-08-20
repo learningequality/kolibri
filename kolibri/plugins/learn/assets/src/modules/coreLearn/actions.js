@@ -1,6 +1,9 @@
 import { ContentNodeResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
+import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
 import { PageNames, pageNameToModuleMap } from '../../constants';
+
+const { DEFERRED } = DemographicConstants;
 
 export function resetModuleState(store, lastPageName) {
   const moduleName = pageNameToModuleMap[lastPageName];
@@ -69,13 +72,13 @@ export function getDemographicInfo(store) {
   });
 }
 
-// Sets FacilityUser.gender to 'DEFER'. See getDemographicInfo above.
+// Sets FacilityUser.gender to 'DEFERRED'. See getDemographicInfo above.
 export function deferProfileUpdates(store, demographicInfo) {
   return FacilityUserResource.saveModel({
     id: store.getters.currentUserId,
     data: {
-      gender: demographicInfo.gender || 'DEFER',
-      birth_year: demographicInfo.birth_year || 'DEFER',
+      gender: demographicInfo.gender || DEFERRED,
+      birth_year: demographicInfo.birth_year || DEFERRED,
     },
   });
 }
