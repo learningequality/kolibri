@@ -47,11 +47,13 @@ const create = context => {
     // where a string may be used dynamically or in an iterator.
     {
       ObjectExpression(node) {
-        node.properties.forEach(prop => {
-          if (get(prop, ['value', 'value'])) {
-            usedStrings.push(prop.value.value);
-          }
-        });
+        if(get(node, 'parent.key.name') !== "$trs") {
+          node.properties.forEach(prop => {
+            if (get(prop, ['value', 'value'])) {
+              usedStrings.push(prop.value.value);
+            }
+          });
+        }
       },
     },
     {
