@@ -98,13 +98,13 @@ ADD_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="add-file",
-    params="&branch={branch}&scheme={langs}&json&first_line_contains_header",
+    params="&branch={branch}&scheme={langs}&json&first_line_contains_header&import_translations=0",
 )
 UPDATE_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="update-file",
-    params="&branch={branch}&scheme={langs}&json&first_line_contains_header",
+    params="&branch={branch}&scheme={langs}&json&first_line_contains_headerimport_translations=0",
 )
 DELETE_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
@@ -317,8 +317,9 @@ def _ensure_locale_headers(file_headers):
         )
         if lang["crowdin_code"] in crowdin_lang_codes
     ]
-    # Get the headers and remove empty values
-    headers = [h for h in file_headers if h != ""]
+    # Get the headers and remove empty values and the wonky crowdin header (ie, crwdns123:crd12341)
+    base_headers = ['Identifier', 'Source String', 'Context']
+    headers = [h for h in file_headers if h in base_headers]
 
     # If they don't match in length, then the file's headers are missing locales
     if len(headers) != len(CROWDIN_LANG_CODES):

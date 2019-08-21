@@ -196,7 +196,6 @@ i18n-django-compilemessages:
 
 i18n-upload: i18n-extract
 	python build_tools/i18n/crowdin.py upload-sources ${branch}
-	python build_tools/i18n/crowdin.py upload-translations ${branch}
 
 i18n-pretranslate:
 	python build_tools/i18n/crowdin.py pretranslate ${branch}

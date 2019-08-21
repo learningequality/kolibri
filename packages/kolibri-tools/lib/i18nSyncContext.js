@@ -85,9 +85,10 @@ function processVueFiles(files, definitions) {
             } else if (definition['Source String'] && property.type === 'ObjectProperty') {
               // We don't have context to add, but we have an ObjectProperty in the codebase
               // so we will convert it back to a regular ol' string.
-              property.value = (property.value.type === 'TemplateLiteral') ?
-                templateLiteralNode(definition) :
-                stringLiteralNode(definition);
+              property.value =
+                property.value.type === 'TemplateLiteral'
+                  ? templateLiteralNode(definition)
+                  : stringLiteralNode(definition);
               fileHasChanged = true;
             }
             return property;
@@ -108,7 +109,7 @@ function processVueFiles(files, definitions) {
   });
 
   return updatedFiles;
-};
+}
 
 function processJSFiles(files, definitions) {
   const updatedFiles = [];
@@ -155,9 +156,10 @@ function processJSFiles(files, definitions) {
               } else if (definition['Source String'] && property.type === 'ObjectProperty') {
                 // We don't have context to add, but we have an ObjectProperty in the codebase
                 // so we will convert it back to a regular ol' string.
-                property.value = (property.value.type === 'TemplateLiteral') ?
-                  templateLiteralNode(definition) :
-                  stringLiteralNode(definition);
+                property.value =
+                  property.value.type === 'TemplateLiteral'
+                    ? templateLiteralNode(definition)
+                    : stringLiteralNode(definition);
                 fileHasChanged = true;
               }
               return property;
@@ -175,7 +177,7 @@ function processJSFiles(files, definitions) {
   });
 
   return updatedFiles;
-};
+}
 
 // ----------------- //
 // Utility Functions //
@@ -194,7 +196,7 @@ function compileSFC(vueObject) {
   const firstStyleNewlines = styles && styles.length ? '\n\n' : '';
 
   return template + script + firstStyleNewlines + styles;
-};
+}
 
 // Given the template string and any relevant attrs on the <template> definition, return the proper
 // <template> block of code.
@@ -204,12 +206,12 @@ function compileVueTemplate(template, attrs) {
   } else {
     return '';
   }
-};
+}
 
 // Given the Vue file's <script> and attrs, return the <script> block as a string.
 function compileVueScript(script, attrs) {
   return `<script${attrsString(attrs)}>${script}</script>\n`;
-};
+}
 
 // Layout Vue <style> code and return the properly formatted and attributed <style> block.
 function compileVueStyle(style, lang, scoped) {
@@ -220,12 +222,12 @@ function compileVueStyle(style, lang, scoped) {
   } else {
     return '';
   }
-};
+}
 
 // Convert an object containing attr definitions into a string prepended with a space.
 // eg, { type: 'javascript/text' } will be returned as ' type="javascript/text"'.
 function attrsString(attrs) {
-  Object.keys(attrs)
+  return Object.keys(attrs)
     .map(key => ` ${key}="${attrs[key]}"`)
     .join('');
 }
@@ -237,7 +239,7 @@ function isCreateTranslator(node) {
     node.callee.type === 'Identifier' &&
     node.callee.name === 'createTranslator'
   );
-};
+}
 
 // Boolean check if a node is the definition of $trs in a Vue component.
 function is$trs(node) {
@@ -246,7 +248,7 @@ function is$trs(node) {
     node.key.name === '$trs' &&
     node.value.type === 'ObjectExpression'
   );
-};
+}
 
 // Given a definition, return an ObjectExpression that includes context & string values
 // This ought to be assigned to the right-hand value of an ObjectProperty node's `value`
@@ -278,7 +280,7 @@ function objectToAst(def, valueIsTemplateNode = false) {
       },
     ],
   };
-};
+}
 
 // Given a definition, return the value node for a StringLiteral
 function stringLiteralNode(def) {
@@ -286,7 +288,7 @@ function stringLiteralNode(def) {
     type: 'StringLiteral',
     value: def['Source String'],
   };
-};
+}
 
 // Given a definition, return the value node for a TemplateLiteral
 function templateLiteralNode(def) {
@@ -303,7 +305,7 @@ function templateLiteralNode(def) {
       },
     ],
     expressions: [],
-  }
+  };
 }
 
 // Given a file's path, extract the namespace for that file's strings.
@@ -318,7 +320,7 @@ function namespaceFromPath(path) {
   } else {
     return splitPath.pop().replace('.vue', '');
   }
-};
+}
 
 // Compile all of the defined strings & context from the CSVs that have been downloaded
 // from Crowdin.
@@ -333,7 +335,7 @@ function parseCSVDefinitions(path) {
 
     return (acc = [...acc, ...parseCsvSync(csvFile, { skip_empty_lines: true, columns: true })]);
   }, []);
-};
+}
 
 // ----------------------- //
 // Where The Magic Happens //
