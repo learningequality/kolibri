@@ -1,4 +1,10 @@
-kolibri-server (0.3.1-0ubuntu2) UNRELEASED; urgency=medium
+kolibri-server (0.3.2-0ubuntu1) bionic; urgency=medium
+
+  * Added logic to restore CherryPy and remove junk files when removing this package
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 21 Aug 2019 17:33:29 +0200
+
+kolibri-server (0.3.1-0ubuntu2) bionic; urgency=medium
 
   * debian/kolibri-server.init: ensure kolibri stops is executed in the right order
 

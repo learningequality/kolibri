@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+  remove|purge)
+    # get KOLIBRI_USER from kolibri installer package:
+    . /etc/default/kolibri
+    su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -c"
+    ;;
+
+
+  upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    ;;
+
+  *)
+    echo "prerm called with unknown argument \`$1'" >&2
+    exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0
