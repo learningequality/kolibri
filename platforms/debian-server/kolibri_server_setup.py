@@ -70,7 +70,6 @@ def disable_cherrypy():
 def enable_cherrypy():
     """
     Enable internal kolibri web server.
-    Kolibri will only run normally.
     This option is incompatible with running kolibri-server
     """
     update_options_file('Server', "CHERRYPY_START", True, KOLIBRI_HOME)
