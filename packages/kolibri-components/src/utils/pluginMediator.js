@@ -1,4 +1,5 @@
 import { RENDERER_SUFFIX } from '../content/constants';
+import contentRendererMixin from '../content/mixin';
 import scriptLoader from './scriptLoader';
 import { languageDirections } from './i18n';
 
@@ -18,19 +19,14 @@ const publicMethods = [
   'registerLanguageAssets',
   'registerContentRenderer',
   'loadDirectionalCSS',
-  'canRenderContent',
   'ready',
 ];
 
 export default function pluginMediatorFactory({
   Vue,
-  languageDirection,
-  logging,
-  ContentRendererLoadingComponent,
-  ContentRendererErrorComponent,
-  contentRendererMixin,
+  languageDirection = languageDirections.LTR,
   facade,
-}) {
+} = {}) {
   function mergeMixin(component) {
     return Vue.util.mergeOptions(contentRendererMixin, component);
   }
@@ -123,7 +119,7 @@ export default function pluginMediatorFactory({
       // Execute any callbacks that were called before the kolibriModule had loaded,
       // in the order that they happened.
       this._executeCallbackBuffer(kolibriModule);
-      logging.info(`KolibriModule: ${kolibriModule.name} registered`);
+      console.info(`Kolibri Modules: ${kolibriModule.name} registered`); // eslint-disable-line no-console
       this.emit('kolibri_register', kolibriModule);
       if (this._ready) {
         kolibriModule.ready();
@@ -315,8 +311,8 @@ export default function pluginMediatorFactory({
                   resolve();
                 })
                 .catch(() => {
-                  const errorText = `${kolibriModuleName} failed to load`;
-                  logging.error(errorText);
+                  const errorText = `Kolibri Modules: ${kolibriModuleName} failed to load`;
+                  console.error(errorText); // eslint-disable-line no-console
                   reject(errorText);
                 });
               // Start fetching any language assets that this module might need also.
@@ -418,7 +414,7 @@ export default function pluginMediatorFactory({
       this._contentRendererUrls[kolibriModuleName] = kolibriModuleUrls;
       contentPresets.forEach(preset => {
         if (this._contentRendererRegistry[preset]) {
-          logging.warn(`Two content renderers are registering for ${preset}`);
+          console.warn(`Kolibri Modules: Two content renderers are registering for ${preset}`); // eslint-disable-line no-console
         } else {
           this._contentRendererRegistry[preset] = kolibriModuleName;
           Vue.component(preset + RENDERER_SUFFIX, () => ({
@@ -427,9 +423,9 @@ export default function pluginMediatorFactory({
              */
             component: this.retrieveContentRenderer(preset),
             // A component to use while the async component is loading
-            loading: ContentRendererLoadingComponent,
+            loading: Vue.options.components['ContentRendererLoading'],
             // A component to use if the load fails
-            error: ContentRendererErrorComponent,
+            error: Vue.options.components['ContentRendererError'],
             // Delay before showing the loading component.
             delay: 0,
             // The error component will be displayed if a timeout is
@@ -438,15 +434,6 @@ export default function pluginMediatorFactory({
           }));
         }
       });
-    },
-
-    /**
-     * A method to for checking if we have a component for a specific preset..
-     * @param  {String} preset    content preset
-     * @return {Promise}          Promise that resolves with loaded content renderer Vue component
-     */
-    canRenderContent(preset) {
-      return Boolean(this._contentRendererRegistry[preset]);
     },
 
     /**
@@ -512,7 +499,7 @@ export default function pluginMediatorFactory({
               }
             })
             .catch(error => {
-              logging.error(error);
+              console.error('Kolibri Modules: ' + error); // eslint-disable-line no-console
               reject('Content renderer failed to load properly');
             });
         }

@@ -1,14 +1,9 @@
 import Vue from 'vue';
 import { mount } from '@vue/test-utils';
 import store from 'kolibri.coreVue.vuex.store';
-import ContentRendererFactory from '../ContentRenderer';
-import ContentRendererMixinFactory from '../mixin';
+import KContentRenderer from '../KContentRenderer';
 
-const ContentRenderer = ContentRendererFactory({
-  contentRendererMixin: ContentRendererMixinFactory(),
-});
-
-describe('ContentRenderer Component', () => {
+describe('KContentRenderer Component', () => {
   beforeEach(() => {
     Vue.prototype.canRenderContent = () => true;
   });
@@ -31,7 +26,7 @@ describe('ContentRenderer Component', () => {
   describe('computed property', () => {
     describe('availableFiles', () => {
       function testAvailableFiles(files, expected) {
-        const wrapper = mount(ContentRenderer, {
+        const wrapper = mount(KContentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
           store,
         });
@@ -77,7 +72,7 @@ describe('ContentRenderer Component', () => {
 
     describe('defaultFile', () => {
       function testDefaultFile(files, expected) {
-        const wrapper = mount(ContentRenderer, {
+        const wrapper = mount(KContentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
           store,
         });
@@ -95,7 +90,7 @@ describe('ContentRenderer Component', () => {
 
     describe('extension', () => {
       function testExtension(files, expected) {
-        const wrapper = mount(ContentRenderer, {
+        const wrapper = mount(KContentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
           store,
         });

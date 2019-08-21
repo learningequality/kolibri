@@ -1,48 +1,44 @@
-import pluginMediatorFactory from '../utils/pluginMediator';
-import { languageDirections } from '../utils/i18n';
-import contentRendererMixinFactory from './mixin';
-import contentRendererFactory from './ContentRenderer';
+import setupPluginMediator from '../utils/pluginMediator';
+import KContentRenderer from './KContentRenderer';
+import { RENDERER_SUFFIX } from './constants';
 
 export default {
   install(
     Vue,
     {
-      languageDirection = languageDirections.LTR,
-      ContentRendererLoadingComponent = {},
-      ContentRendererErrorComponent = {},
+      languageDirection,
+      ContentRendererLoadingComponent = {
+        render(h) {
+          return h('p', '-----');
+        },
+      },
+      ContentRendererErrorComponent = {
+        render(h) {
+          return h('p', 'xxxxx');
+        },
+      },
       facade,
-      logging = console,
-      activeCallback = () => {},
+      registerContentActivity = () => {},
     } = {}
   ) {
     if (!facade) {
       facade = window.kolibriCoreAppGlobal = window.kolibriCoreAppGlobal || {};
     }
-    const contentRendererMixin = contentRendererMixinFactory({
-      logging,
-    });
 
-    const mediator = pluginMediatorFactory({
+    Vue.component('ContentRendererLoading', ContentRendererLoadingComponent);
+    Vue.component('ContentRendererError', ContentRendererErrorComponent);
+
+    setupPluginMediator({
       Vue,
       languageDirection,
-      logging,
-      ContentRendererLoadingComponent,
-      ContentRendererErrorComponent,
       facade,
-      contentRendererMixin,
     });
 
-    Vue.prototype.canRenderContent = mediator.canRenderContent.bind(mediator);
+    Vue.prototype.canRenderContent = preset =>
+      Boolean(Vue.options.components[preset + RENDERER_SUFFIX]);
 
-    Vue.component(
-      'KContentRenderer',
-      contentRendererFactory({
-        logging,
-        activeCallback,
-        contentRendererMixin,
-        Vue,
-        ContentRendererErrorComponent,
-      })
-    );
+    Vue.prototype.registerContentActivity = registerContentActivity;
+
+    Vue.component('KContentRenderer', KContentRenderer);
   },
 };

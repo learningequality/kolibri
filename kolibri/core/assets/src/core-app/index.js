@@ -86,7 +86,7 @@ Vue.use(KContentPlugin, {
   ContentRendererErrorComponent,
   facade: coreApp,
   logging: logging.getLogger(`${__kolibriModuleName} plugin mediator`),
-  activeCallback: heartbeat.setActive,
+  registerContentActivity: heartbeat.setActive,
 });
 
 // Start the heartbeat polling here, as any URL needs should be set by now
