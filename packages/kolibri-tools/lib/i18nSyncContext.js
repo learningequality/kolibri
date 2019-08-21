@@ -21,7 +21,7 @@ const CSV_PATH = path.resolve('./kolibri/locale/CSV_FILES/');
 // Processing Functions //
 // -------------------- //
 
-const processVueFiles = (files, definitions) => {
+function processVueFiles(files, definitions) {
   const updatedFiles = [];
 
   files.forEach(filePath => {
@@ -80,12 +80,14 @@ const processVueFiles = (files, definitions) => {
             // If we have context, assign an AST objet.
             // If we don't, then  do nothing.
             if (definition['Context'] && definition['Context'] !== '') {
-              property.value = objectToAst(definition);
+              property.value = objectToAst(definition, property.value.type === 'TemplateLiteral');
               fileHasChanged = true;
             } else if (definition['Source String'] && property.type === 'ObjectProperty') {
               // We don't have context to add, but we have an ObjectProperty in the codebase
               // so we will convert it back to a regular ol' string.
-              property.value = stringAst(definition);
+              property.value = (property.value.type === 'TemplateLiteral') ?
+                templateLiteralNode(definition) :
+                stringLiteralNode(definition);
               fileHasChanged = true;
             }
             return property;
@@ -108,7 +110,7 @@ const processVueFiles = (files, definitions) => {
   return updatedFiles;
 };
 
-const processJSFiles = (files, definitions) => {
+function processJSFiles(files, definitions) {
   const updatedFiles = [];
 
   files.forEach(filePath => {
@@ -148,12 +150,14 @@ const processJSFiles = (files, definitions) => {
               // and assign an object including the Source string and context.
               // If we don't have context to add or update, we have nothing to change here.
               if (definition['Context'] && definition['Context'] !== '') {
-                property.value = objectToAst(definition);
+                property.value = objectToAst(definition, property.value.type === 'TemplateLiteral');
                 fileHasChanged = true;
               } else if (definition['Source String'] && property.type === 'ObjectProperty') {
                 // We don't have context to add, but we have an ObjectProperty in the codebase
                 // so we will convert it back to a regular ol' string.
-                property.value = stringAst(definition);
+                property.value = (property.value.type === 'TemplateLiteral') ?
+                  templateLiteralNode(definition) :
+                  stringLiteralNode(definition);
                 fileHasChanged = true;
               }
               return property;
@@ -178,7 +182,7 @@ const processJSFiles = (files, definitions) => {
 // ----------------- //
 
 // Given a vueObject, return a formatted string including <template> <script> <style> blocks in order.
-const compileSFC = vueObject => {
+function compileSFC(vueObject) {
   const template = compileVueTemplate(vueObject.templateContent, vueObject.templateAttrs);
   const script = compileVueScript(vueObject.scriptContent, vueObject.scriptAttrs);
   const styles = vueObject.styles
@@ -194,7 +198,7 @@ const compileSFC = vueObject => {
 
 // Given the template string and any relevant attrs on the <template> definition, return the proper
 // <template> block of code.
-const compileVueTemplate = (template, attrs) => {
+function compileVueTemplate(template, attrs) {
   if (template) {
     return `<template${attrsString(attrs)}>${template}</template>\n\n\n`;
   } else {
@@ -203,12 +207,12 @@ const compileVueTemplate = (template, attrs) => {
 };
 
 // Given the Vue file's <script> and attrs, return the <script> block as a string.
-const compileVueScript = (script, attrs) => {
+function compileVueScript(script, attrs) {
   return `<script${attrsString(attrs)}>${script}</script>\n`;
 };
 
 // Layout Vue <style> code and return the properly formatted and attributed <style> block.
-const compileVueStyle = (style, lang, scoped) => {
+function compileVueStyle(style, lang, scoped) {
   if (style || style === '') {
     const langDef = lang ? ` lang="${lang}"` : '';
     const scopedText = scoped ? ' scoped' : '';
@@ -220,13 +224,14 @@ const compileVueStyle = (style, lang, scoped) => {
 
 // Convert an object containing attr definitions into a string prepended with a space.
 // eg, { type: 'javascript/text' } will be returned as ' type="javascript/text"'.
-const attrsString = attrs =>
+function attrsString(attrs) {
   Object.keys(attrs)
     .map(key => ` ${key}="${attrs[key]}"`)
     .join('');
+}
 
 // Boolean check if a node is a call of the fn 'createTranslator()'
-const isCreateTranslator = node => {
+function isCreateTranslator(node) {
   return (
     node.type === 'CallExpression' &&
     node.callee.type === 'Identifier' &&
@@ -235,7 +240,7 @@ const isCreateTranslator = node => {
 };
 
 // Boolean check if a node is the definition of $trs in a Vue component.
-const is$trs = node => {
+function is$trs(node) {
   return (
     node.type === 'ObjectProperty' &&
     node.key.name === '$trs' &&
@@ -247,7 +252,8 @@ const is$trs = node => {
 // This ought to be assigned to the right-hand value of an ObjectProperty node's `value`
 // where the `key` on that ObjectProperty is the `Identifier` used for the defined
 // translation string.
-const objectToAst = def => {
+function objectToAst(def, valueIsTemplateNode = false) {
+  const sourceStringValue = valueIsTemplateNode ? templateLiteralNode(def) : stringLiteralNode(def);
   return {
     type: 'ObjectExpression',
     properties: [
@@ -257,10 +263,7 @@ const objectToAst = def => {
           type: 'Identifier',
           name: 'string',
         },
-        value: {
-          type: 'StringLiteral',
-          value: def['Source String'],
-        },
+        value: sourceStringValue,
       },
       {
         type: 'ObjectProperty',
@@ -277,16 +280,34 @@ const objectToAst = def => {
   };
 };
 
-// Given a definition, return an ObjectProperty node object with a StringLiteral value.
-const stringAst = def => {
+// Given a definition, return the value node for a StringLiteral
+function stringLiteralNode(def) {
   return {
     type: 'StringLiteral',
     value: def['Source String'],
   };
 };
 
+// Given a definition, return the value node for a TemplateLiteral
+function templateLiteralNode(def) {
+  return {
+    type: 'TemplateLiteral',
+    quasis: [
+      {
+        type: 'TemplateElement',
+        tail: true,
+        value: {
+          raw: def['Source String'],
+          cooked: def['Source String'],
+        },
+      },
+    ],
+    expressions: [],
+  }
+}
+
 // Given a file's path, extract the namespace for that file's strings.
-const namespaceFromPath = path => {
+function namespaceFromPath(path) {
   const splitPath = path.split('/');
   const fileName = splitPath[splitPath.length - 1];
 
@@ -301,7 +322,7 @@ const namespaceFromPath = path => {
 
 // Compile all of the defined strings & context from the CSVs that have been downloaded
 // from Crowdin.
-const parseCSVDefinitions = path => {
+function parseCSVDefinitions(path) {
   return fs.readdirSync(path).reduce((acc, file, index) => {
     // Skip anything that isn't CSV - needed to avoid loading .po files.
     if (!file.endsWith('.csv')) {
