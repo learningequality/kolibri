@@ -258,7 +258,6 @@
       reEnterPassword: 'Re-enter password',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
-      facilityCoachLabel: 'Facility coach',
       facilityCoachDescription: 'Can instruct all classes in your facility',
       usernameAlreadyExists: 'Username already exists',
     },

@@ -279,7 +279,6 @@
       viewInDeviceTabPrompt: 'View details in Device permissions',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
-      facilityCoachLabel: 'Facility coach',
       facilityCoachDescription: 'Can instruct all classes in your facility',
     },
   };

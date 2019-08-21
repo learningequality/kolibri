@@ -274,7 +274,6 @@
       },
     },
     $trs: {
-      pageLoadingError: 'There was a problem loading this quiz',
       quizDeletedNotification: `'{title}' was deleted`,
       uniqueTitleError: `A quiz titled '{title}' already exists in '{className}'`,
     },

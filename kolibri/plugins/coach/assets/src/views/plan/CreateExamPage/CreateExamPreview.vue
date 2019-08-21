@@ -252,9 +252,7 @@
     },
     $trs: {
       title: 'Select questions',
-      backLabel: 'Select topics or exercises',
       appBarLabel: 'Select exercises',
-      exercise: 'Exercise { num }',
       randomize: 'Choose a different set of questions',
       questionsLabel: 'Questions',
       preview: 'Preview quiz',

@@ -89,7 +89,6 @@
     },
     $trs: {
       searchForUser: 'Search for a user',
-      userTableLabel: 'User List',
       // TODO clarify empty state messages after string freeze
       noUsersMatch: 'No users match the filter: "{filterText}"',
       selectAllOnPage: 'Select all on page',

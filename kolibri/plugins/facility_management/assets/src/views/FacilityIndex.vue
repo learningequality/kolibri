@@ -92,6 +92,7 @@
     $trs: {
       adminOrSuperuser: 'You must be signed in as an admin or super admin to view this page',
       // here because going to use immersive-page
+      // eslint-disable-next-line kolibri/vue-no-unused-translations
       detailPageReturnPrompt: 'Class details',
     },
   };
