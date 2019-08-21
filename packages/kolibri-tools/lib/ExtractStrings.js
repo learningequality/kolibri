@@ -2,6 +2,8 @@ const url = require('url');
 const espree = require('espree');
 const escodegen = require('escodegen');
 const mkdirp = require('mkdirp');
+const path = require('path');
+const fs = require('fs');
 const sortBy = require('lodash/sortBy');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const logging = require('./logging');
@@ -372,13 +374,25 @@ ExtractStrings.prototype.writeOutput = function(messageExport) {
   */
 };
 
+
+function crowdinLocaleHeaders() {
+  const langPath = path.resolve('./kolibri/locale/supported_languages.json');
+  const languages = JSON.parse(fs.readFileSync(langPath));
+  return languages.map(lang => {
+    const langCode = lang['crowdin_code'];
+    return {id: langCode, title: langCode}
+  })
+}
+
 function toCSV(path, messages) {
+  const crowdinHeaders = crowdinLocaleHeaders();
   const csvWriter = createCsvWriter({
     path,
     header: [
       { id: 'identifier', title: 'Identifier' },
       { id: 'sourceString', title: 'Source String' },
       { id: 'context', title: 'Context' },
+      //...crowdinHeaders
     ],
   });
 

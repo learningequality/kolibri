@@ -68,7 +68,12 @@ DETAILS_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT, key=CROWDIN_API_KEY, cmd="info", params="&json"
 )
 CROWDIN_LANG_CODES = "identifier,source_phrase,context," + ",".join(
-    [lang["crowdin_code"] for lang in utils.supported_languages(include_english=True)]
+    [
+        lang["crowdin_code"]
+        for lang in utils.supported_languages(
+            include_english=True, include_in_context=True
+        )
+    ]
 )
 
 LANG_STATUS_URL = CROWDIN_API_URL.format(
@@ -93,13 +98,13 @@ ADD_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="add-file",
-    params="&branch={branch}&first_line_contains_header&scheme={langs}&json",
+    params="&branch={branch}&scheme={langs}&json&first_line_contains_header",
 )
 UPDATE_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="update-file",
-    params="&branch={branch}&first_line_contains_header&scheme={langs}&json",
+    params="&branch={branch}&scheme={langs}&json&first_line_contains_header",
 )
 DELETE_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
@@ -300,9 +305,33 @@ def _format_json_files():
             )
 
 
+# For some reason, Crowdin doesn't always return the CSVs with the locales in the headers.
+# Pass a CSV file's headers here and it will ensure that we are getting the right locale column.
+def _ensure_locale_headers(file_headers):
+    # Get the lang_codes without the first 3 values
+    crowdin_lang_codes = CROWDIN_LANG_CODES.split(",")[3:]
+    lang_codes = [
+        utils.to_locale(lang["intl_code"])
+        for lang in utils.supported_languages(
+            include_english=True, include_in_context=True
+        )
+        if lang["crowdin_code"] in crowdin_lang_codes
+    ]
+    # Get the headers and remove empty values
+    headers = [h for h in file_headers if h != ""]
+
+    # If they don't match in length, then the file's headers are missing locales
+    if len(headers) != len(CROWDIN_LANG_CODES):
+        # So we return the headers and lang_codes
+        return headers + lang_codes
+    else:
+        return headers
+
+
 def _locale_data_from_csv(file_data, locale_path):
     csv_reader = csv.reader(file_data)
     headers = csv_reader.__next__()
+    headers = _ensure_locale_headers(headers)
     locale = locale_path.split("/")[-2]
     json = dict()
 
