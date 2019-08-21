@@ -6,10 +6,8 @@
 
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
+const get = require('lodash/get');
 const utils = require('../utils');
-const constants = require('../constants');
-
-const { GROUP_$TRS } = constants;
 
 const $TR_FUNCTION = '$tr';
 
@@ -41,11 +39,16 @@ const create = context => {
         }
       },
     },
-    eslintPluginVueUtils.executeOnVue(context, obj => {
-      definitionNodes = Array.from(
-        eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_$TRS]))
-      );
-
+    {
+      ObjectExpression(node) {
+        if (get(node, 'parent.key.name') === '$trs') {
+          node.properties.forEach(prop => {
+            definitionNodes.push({ name: prop.key.name });
+          });
+        }
+      },
+    },
+    eslintPluginVueUtils.executeOnVue(context, () => {
       if (!hasTemplate) {
         utils.reportUseOfUndefinedTranslation(context, definitionNodes, usedStringNodes);
       }

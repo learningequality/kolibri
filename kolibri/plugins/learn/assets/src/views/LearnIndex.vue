@@ -169,7 +169,7 @@
           let appBarTitle;
           const { searchTerm, last } = this.$route.query;
           if (searchTerm) {
-            appBarTitle = this.$tr('searchTitle');
+            appBarTitle = this.coreString('searchTitle');
             immersivePageRoute = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
           } else if (last) {
             // 'last' should only be route names for Recommended Page and its subpages

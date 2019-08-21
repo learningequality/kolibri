@@ -128,12 +128,8 @@
     $trs: {
       appsLabel: 'Apps',
       audioLabel: 'Audio',
-      bookLabel: 'Book',
-      eventTypeLabel: 'Event type',
-      dateLabel: 'Date',
       documentsLabel: 'Documents',
       exercisesLabel: 'Exercises',
-      needsHelpOnlyToggle: "Show only 'Needs help'",
       progressTypeLabel: 'Progress type',
       resourceTypeLabel: 'Resource type',
       videosLabel: 'Videos',

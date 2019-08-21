@@ -88,6 +88,7 @@
       // The strings below are not actually used in the appplication code.
       // They are included simply to get the strings translated for later use. We should do
       // this differently in the longer-term to ensure that we have broader language support.
+      /* eslint-disable kolibri/vue-no-unused-translations */
       upgradeHeader: 'Upgrade available',
       upgradeHeaderImportant: 'Important upgrade available',
       upgradeMessageGeneric: 'A new version of Kolibri is available.',
@@ -97,6 +98,7 @@
         'Kolibri version 0.12.4 is now available! It contains important bug fixes and new Coach features.',
       upgradeDownload: 'Download it here',
       upgradeLearnAndDownload: 'Learn more and download it here',
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 

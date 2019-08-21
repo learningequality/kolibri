@@ -139,6 +139,9 @@
       },
     },
     $trs: {
+      // These are not going to be picked up by the linter because snake cased versions
+      // are used to get the keys to these strings.
+      /* eslint-disable kolibri/vue-no-unused-translations */
       learnerCanEditName: 'Allow learners and coaches to edit their full name',
       learnerCanEditPassword: 'Allow learners and coaches to change their password when signed in',
       learnerCanEditUsername: 'Allow learners and coaches to edit their username',
@@ -146,6 +149,7 @@
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
       showDownloadButtonInLearn: "Show 'download' button with content",
       allowGuestAccess: 'Allow users to access content without signing in',
+      /* eslint-enable kolibri/vue-no-unused-translations */
       pageDescription: 'Configure various settings',
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to defaults',
