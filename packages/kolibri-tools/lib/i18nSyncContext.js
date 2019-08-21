@@ -69,7 +69,6 @@ function processVueFiles(files, definitions) {
           node.value.properties = node.value.properties.map(property => {
             const namespace = namespaceFromPath(filePath).replace('.vue', '');
             const key = property.key.name;
-            const value = property.value.value;
 
             const definition = definitions.find(o => o['Identifier'] === `${namespace}.${key}`);
 
@@ -183,7 +182,8 @@ function processJSFiles(files, definitions) {
 // Utility Functions //
 // ----------------- //
 
-// Given a vueObject, return a formatted string including <template> <script> <style> blocks in order.
+// Given a vueObject, return a formatted string including
+// <template> <script> <style> blocks in order.
 function compileSFC(vueObject) {
   const template = compileVueTemplate(vueObject.templateContent, vueObject.templateAttrs);
   const script = compileVueScript(vueObject.scriptContent, vueObject.scriptAttrs);
@@ -325,7 +325,7 @@ function namespaceFromPath(path) {
 // Compile all of the defined strings & context from the CSVs that have been downloaded
 // from Crowdin.
 function parseCSVDefinitions(path) {
-  return fs.readdirSync(path).reduce((acc, file, index) => {
+  return fs.readdirSync(path).reduce((acc, file) => {
     // Skip anything that isn't CSV - needed to avoid loading .po files.
     if (!file.endsWith('.csv')) {
       return acc;

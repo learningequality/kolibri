@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { createTranslator } from 'kolibri.utils.i18n';
 
 /**
@@ -9,6 +10,7 @@ const contextStrings = createTranslator('CommonContextStrings01', {
 });
 
 // A meaningless node to ensure is$trs() works properly.
+
 const $trs = () => {
   return null;
 };
