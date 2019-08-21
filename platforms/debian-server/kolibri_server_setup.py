@@ -69,9 +69,9 @@ def disable_cherrypy():
 
 def enable_cherrypy():
     """
-    Disables internal kolibri web server.
-    Kolibri will only run background tasks.
-    Web must be provided by an external server, usually uwsgi + nginx
+    Enable internal kolibri web server.
+    Kolibri will only run normally.
+    This option is incompatible with running kolibri-server
     """
     update_options_file('Server', "CHERRYPY_START", True, KOLIBRI_HOME)
 

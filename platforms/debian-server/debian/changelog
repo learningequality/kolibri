@@ -1,6 +1,6 @@
 kolibri-server (0.3.2-0ubuntu1) bionic; urgency=medium
 
-  * Added logic to restore CherryPy and junk files when removing this package
+  * Added logic to restore CherryPy and remove junk files when removing this package
 
  -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 21 Aug 2019 17:33:29 +0200
 
