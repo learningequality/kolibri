@@ -66,6 +66,16 @@ def disable_cherrypy():
     """
     update_options_file('Server', "CHERRYPY_START", False, KOLIBRI_HOME)
 
+
+def enable_cherrypy():
+    """
+    Disables internal kolibri web server.
+    Kolibri will only run background tasks.
+    Web must be provided by an external server, usually uwsgi + nginx
+    """
+    update_options_file('Server', "CHERRYPY_START", True, KOLIBRI_HOME)
+
+
 def enable_redis_cache():
     """
     Set redis as the cache backend .
@@ -147,14 +157,25 @@ if __name__ == '__main__':
         default="",
         help="Initial port to be used when installing/reconfiguring kolibri-server package",
     )
+    parser.add_argument(
+        "-c",
+        "--cherrypy",
+        required=False,
+        default=False,
+        action='store_true',
+        help="Restore cherrypy because kolibri-server is not going to be run",
+    )
     args = parser.parse_args()
-    if args.debconfport:  # To be executed only when installing/reconfiguring the Debian package
-        disable_cherrypy()
-        set_port(args.debconfport)
-        enable_redis_cache()
+    if args.cherrypy:
+        enable_cherrypy()
     else:
-        disable_cherrypy()
-        save_nginx_conf_include(STATIC_ROOT)
-        save_nginx_conf_port(port)
-        # Let's update debconf, just in case the user has changed the port in options.ini:
-        set_debconf_port(port)
+        if args.debconfport:  # To be executed only when installing/reconfiguring the Debian package
+            disable_cherrypy()
+            set_port(args.debconfport)
+            enable_redis_cache()
+        else:
+            disable_cherrypy()
+            save_nginx_conf_include(STATIC_ROOT)
+            save_nginx_conf_port(port)
+            # Let's update debconf, just in case the user has changed the port in options.ini:
+            set_debconf_port(port)
