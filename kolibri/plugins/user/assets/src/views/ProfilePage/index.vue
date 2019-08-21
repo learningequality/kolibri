@@ -217,7 +217,6 @@
     $trs: {
       detailsHeader: 'Details',
       editAction: 'Edit',
-      success: 'Profile details updated',
       isSuperuser: 'Super admin permissions ',
       manageContent: 'Manage content',
       manageDevicePermissions: 'Manage device permissions',

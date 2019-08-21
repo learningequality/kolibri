@@ -103,7 +103,6 @@
       },
     },
     $trs: {
-      passwordLabel: 'Password',
       confirmPasswordLabel: 'Re-enter password',
       errorNotMatching: 'Passwords do not match',
     },

@@ -89,7 +89,6 @@
     },
     $trs: {
       userProfileTitle: 'Profile',
-      createAccount: 'Create an account',
       signUpStep1Title: 'Step 1 of 2',
       signUpStep2Title: 'Step 2 of 2',
     },

@@ -209,6 +209,8 @@
     $trs: {
       role: 'Role',
       userActionsColumnHeader: 'Actions',
+      selectAllLabel: 'Select all',
+      userCheckboxLabel: 'Select user',
     },
   };
 

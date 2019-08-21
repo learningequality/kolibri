@@ -156,9 +156,6 @@
         'This account allows you to manage the facility, content, and user accounts on this device',
       rememberThisAccountInformation:
         'Important: please remember this account information. Write it down if needed',
-      // error messages
-      facilityFieldEmptyErrorMessage: 'Facility cannot be empty',
-      setupProgressFeedback: 'Setting up your device...',
     },
   };
 
