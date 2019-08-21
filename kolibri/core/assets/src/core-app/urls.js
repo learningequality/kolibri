@@ -4,6 +4,7 @@
  */
 
 import setWebpackPublicPath from '../utils/setWebpackPublicPath';
+import getPluginData from 'kolibri.utils.getPluginData';
 
 function generateUrl(baseUrl, url) {
   const base = new URL(baseUrl, window.location.origin);
@@ -13,10 +14,7 @@ function generateUrl(baseUrl, url) {
 
 const urls = {
   setUp() {
-    Object.assign(this, global.kolibriUrls);
-    this.__staticURL = global.staticUrl;
-    this.__mediaURL = global.mediaUrl;
-    this.__contentURL = global.contentUrl;
+    Object.assign(this, getPluginData().urls);
     setWebpackPublicPath(this);
   },
   static(url) {
