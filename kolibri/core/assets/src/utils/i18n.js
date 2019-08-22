@@ -4,7 +4,7 @@ import logger from 'kolibri.lib.logging';
 import { languageDirections, defaultLanguage } from 'kolibri-components/src/utils/i18n';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
-import getPluginData from 'kolibri.utils.getPluginData';
+import plugin_data from 'plugin_data';
 
 export {
   languageDirections,
@@ -16,7 +16,7 @@ export { licenseTranslations } from './licenseTranslations';
 
 const logging = logger.getLogger(__filename);
 
-const languageGlobals = getPluginData()['languageGlobals'] || {};
+const languageGlobals = plugin_data['languageGlobals'] || {};
 
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   if (args) {

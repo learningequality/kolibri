@@ -29,7 +29,7 @@ import ContentRendererLoadingComponent from '../views/ContentRenderer/ContentRen
 import ContentRendererErrorComponent from '../views/ContentRenderer/ContentRendererError';
 import apiSpec from './apiSpec';
 import monitorPageVisibility from './monitorPageVisibility';
-import getPluginData from 'kolibri.utils.getPluginData';
+import plugin_data from 'plugin_data';
 // Do this before any async imports to ensure that public paths
 // are set correctly
 urls.setUp();
@@ -55,7 +55,7 @@ const coreApp = {
 };
 
 // set up theme
-const kolibriTheme = getPluginData().kolibriTheme;
+const kolibriTheme = plugin_data.kolibriTheme;
 
 theme.setBrandColors(kolibriTheme.brandColors);
 theme.setTokenMapping(kolibriTheme.tokenMapping);
