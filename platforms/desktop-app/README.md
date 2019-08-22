@@ -12,7 +12,9 @@ Run pipenv to download and install dependencies:
  
 `pipenv sync --dev`
 
-Download and unpack the desired Kolibri wheel to `src/kolibri`
+Download and unpack the desired Kolibri wheel to `src/kolibri`,
+then delete the `pyX.Y` subdirs in `src/kolibri/dist/cext` as
+these do not contain any Mac binaries.
 
 ### Building
 
