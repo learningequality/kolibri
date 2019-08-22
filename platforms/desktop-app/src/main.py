@@ -12,10 +12,12 @@ except ModuleNotFoundError:
 logging.basicConfig(level=logging.DEBUG)
 
 # make sure we add Kolibri's dist folder to the path early on so that we avoid import errors
-script_dir = os.path.dirname(os.path.abspath(__file__))
-kolibri_package_dir = os.path.join(script_dir, "kolibri", "dist")
-print("Kolibri package dir = {}".format(kolibri_package_dir))
-sys.path.append(script_dir)
+root_dir = os.path.dirname(os.path.abspath(__file__))
+if getattr(sys, 'frozen', False) and sys.platform == 'darwin':
+    # On Mac, included Python packages go into the lib/python3.6
+    root_dir = os.path.join(root_dir, "lib", "python3.6")
+
+kolibri_package_dir = os.path.join(root_dir, "kolibri", "dist")
 sys.path.append(kolibri_package_dir)
 
 
@@ -41,6 +43,9 @@ if pew.ui.platform == "android":
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base"
 
+app_data_dir = pew.get_app_files_dir()
+os.makedirs(app_data_dir, exist_ok=True)
+
 if pew.ui.platform == "android":
     os.environ["KOLIBRI_HOME"] = get_home_folder()
     os.environ["TZ"] = Timezone.getDefault().getDisplayName()
@@ -48,30 +53,14 @@ if pew.ui.platform == "android":
     logging.info("Home folder: {}".format(os.environ["KOLIBRI_HOME"]))
     logging.info("Timezone: {}".format(os.environ["TZ"]))
 else:
-    os.environ["KOLIBRI_HOME"] = pew.get_app_files_dir()
+    os.environ["KOLIBRI_HOME"] = os.path.join(app_data_dir, "kolibri_data")
 
 
 def start_django():
-    import django
-    django.setup()
-
-    from django.conf import settings
-    settings.DEBUG = False
-
-    logging.info("Preparing Kolibri for launch...")
-    from django.core.management import call_command
-    call_command("migrate", interactive=False, database="default")
-
-    call_command("collectstatic", interactive=False)
-
-    # remove this after Kolibri no longer needs it
-    if sys.version[0] == '2':
-        reload(sys)
-        sys.setdefaultencoding('utf8')
+    from kolibri.utils.cli import main
 
     logging.info("Starting server...")
-    from kolibri.utils.server import run_server
-    run_server(5000)
+    main(["start", "--foreground", "--port=5000"])
 
 
 class Application(pew.ui.PEWApp):
