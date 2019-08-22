@@ -13,28 +13,21 @@
     >
       <slot v-if="!isDivider">
         <div class="ui-menu-option-content">
-          <UiIcon
-            v-if="$slots.icon"
-            class="ui-menu-option-icon"
-          >
-            <slot name="icon"></slot>
-          </UiIcon>
+          <KLabeledIcon :style="disable ? { color: $themeTokens.textDisabled } : {}">
+            <KIcon
+              slot="icon"
+              :icon="icon"
+              :color="disable ? { color: $themeTokens.textDisabled } : {}"
+              class="ui-menu-option-icon"
+            />
+            <div
+              class="ui-menu-option-text"
+            >{{ label }}</div>
+          </KLabeledIcon>
 
-          <!-- if anything in the dropdown menu has an icon, then we are
-          going to add padding to make all the items align -->
-          <div
-            class="ui-menu-option-text"
-            :class="{ 'ui-menu-option-text-lp': !$slots.icon }"
-          >
-            {{ label }}
-          </div>
           <div
             v-if="secondaryText"
-            class="ui-menu-option-secondary-text"
-            :style="{ color: disabled ? $themeTokens.annotation : '' }"
-          >
-            {{ secondaryText }}
-          </div>
+          >{{ secondaryText }}</div>
         </div>
       </slot>
     </a>
@@ -57,6 +50,7 @@
       label: String,
       link: String,
       secondaryText: String,
+      icon: String,
       disabled: {
         type: Boolean,
         default: false,
