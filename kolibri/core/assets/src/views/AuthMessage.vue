@@ -11,7 +11,7 @@
     </p>
     <p v-if="!isUserLoggedIn">
       <KExternalLink
-        :text="$tr('signInToKolibriAction')"
+        :text="linkText"
         :href="signInLink"
         appearance="basic-link"
       />
@@ -49,12 +49,13 @@
     computed: {
       ...mapGetters(['isUserLoggedIn']),
       detailsText() {
-        if (this.details) {
-          return this.details;
-        } else if (!this.userPluginUrl) {
+        return this.details || this.$tr(this.authorizedRole);
+      },
+      linkText() {
+        if (!this.userPluginUrl) {
           return this.$tr('goBackToHomeAction');
         } else {
-          return this.$tr(this.authorizedRole);
+          return this.$tr('signInToKolibriAction');
         }
       },
       userPluginUrl() {
