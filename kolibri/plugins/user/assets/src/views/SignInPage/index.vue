@@ -469,6 +469,9 @@
           };
           if (global.oidcProviderEnabled) {
             sessionPayload['next'] = this.nextParam;
+          } else if (this.$route.query.redirect && !this.nextParam) {
+            // Go to URL in 'redirect' query param, if arriving from AuthMessage
+            sessionPayload['next'] = this.$route.query.redirect;
           }
           this.kolibriLogin(sessionPayload).catch();
         } else {
