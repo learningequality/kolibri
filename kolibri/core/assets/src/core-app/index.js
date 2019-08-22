@@ -16,6 +16,7 @@ import trackInputModality from 'kolibri-components/src/styles/trackInputModality
 import keenUiConfig from 'keen-ui/src/config';
 import branding from 'kolibri.utils.branding';
 import logging from 'kolibri.lib.logging';
+import store from 'kolibri.coreVue.vuex.store';
 import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
@@ -28,7 +29,6 @@ import { i18nSetup, languageDirection } from '../utils/i18n';
 import ContentRendererLoadingComponent from '../views/ContentRenderer/ContentRendererLoading';
 import ContentRendererErrorComponent from '../views/ContentRenderer/ContentRendererError';
 import apiSpec from './apiSpec';
-import monitorPageVisibility from './monitorPageVisibility';
 import plugin_data from 'plugin_data';
 // Do this before any async imports to ensure that public paths
 // are set correctly
@@ -72,7 +72,9 @@ generateGlobalStyles();
 trackInputModality();
 
 // monitor page visibility
-monitorPageVisibility();
+document.addEventListener('visibilitychange', function() {
+  store.dispatch('setPageVisibility');
+});
 
 // Register Vue plugins and components
 Vue.use(Vuex);
