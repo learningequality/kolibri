@@ -26,7 +26,6 @@ import heartbeat from 'kolibri.heartbeat';
 import KContentPlugin from 'kolibri-components/src/content/KContentPlugin';
 import keenOptions from '../keen-config/options.json';
 import { i18nSetup, languageDirection } from '../utils/i18n';
-import ContentRendererLoadingComponent from '../views/ContentRenderer/ContentRendererLoading';
 import ContentRendererErrorComponent from '../views/ContentRenderer/ContentRendererError';
 import apiSpec from './apiSpec';
 import plugin_data from 'plugin_data';
@@ -84,10 +83,8 @@ Vue.use(KThemePlugin);
 
 Vue.use(KContentPlugin, {
   languageDirection,
-  ContentRendererLoadingComponent,
   ContentRendererErrorComponent,
-  facade: coreApp,
-  logging: logging.getLogger(`${__kolibriModuleName} plugin mediator`),
+  coreApp,
   registerContentActivity: heartbeat.setActive,
 });
 
