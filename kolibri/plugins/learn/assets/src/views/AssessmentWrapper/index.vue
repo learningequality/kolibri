@@ -28,10 +28,8 @@ oriented data synchronization.
         :extraFields="extraFields"
         :assessment="true"
         :itemId="itemId"
-        :initSession="initSession"
         @answerGiven="answerGiven"
         @hintTaken="hintTaken"
-        @sessionInitialized="sessionInitialized"
         @itemError="handleItemError"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
@@ -166,10 +164,6 @@ oriented data synchronization.
         type: Object,
         default: () => {},
       },
-      initSession: {
-        type: Function,
-        default: () => Promise.resolve(),
-      },
     },
     data() {
       return {
@@ -292,6 +286,14 @@ oriented data synchronization.
       if (this.currentInteractions > 0) {
         this.saveAttemptLogMasterLog(false);
       }
+    },
+    created() {
+      if (this.isUserLoggedIn) {
+        this.callInitMasteryLog();
+      } else {
+        this.createDummyMasteryLog();
+      }
+      this.nextQuestion();
     },
     methods: {
       ...mapActions([
@@ -453,15 +455,6 @@ oriented data synchronization.
         this.updateExerciseProgress({ progressPercent: this.exerciseProgress });
         updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
         this.$emit('updateProgress', this.exerciseProgress);
-      },
-      sessionInitialized() {
-        if (this.isUserLoggedIn) {
-          this.callInitMasteryLog();
-        } else {
-          this.createDummyMasteryLog();
-        }
-        this.nextQuestion();
-        this.$emit('sessionInitialized');
       },
       handleItemError() {
         this.itemError = true;
