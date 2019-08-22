@@ -14,6 +14,11 @@ function generateUrl(baseUrl, url) {
 
 const urls = {
   setUp() {
+    // Set urls onto this object for export
+    // This will add functions for every reversible URL
+    // and strings for __staticURL, __mediaURL, and __contentURL
+    // this behaviour is defined in kolibri/core/kolibri_plugin.py
+    // in the url_tag method of the FrontEndCoreAppAssetHook.
     Object.assign(this, plugin_data.urls);
     setWebpackPublicPath(this);
   },

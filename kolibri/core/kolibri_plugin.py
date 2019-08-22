@@ -38,6 +38,8 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
 
         data = generate_json(default_urlresolver)
 
+        # Generate the JS that exposes functions to reverse all Django URLs
+        # in the frontend.
         js = render_to_string(
             "django_js_reverse/urls_js.tpl",
             {"data": _safe_json(data), "js_name": "__placeholder__"},
@@ -47,7 +49,11 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
         return [
             mark_safe(
                 """<script type="text/javascript">"""
+                # Minify the generated Javascript
                 + jsmin(js)
+                # Add URL references for our base static URL, the Django media URL
+                # and our content storage URL - this allows us to calculate
+                # the path at which to access a local file on the frontend if needed.
                 + """
             {js_name}.__staticUrl = '{static_url}';
             {js_name}.__mediaUrl = '{media_url}';
