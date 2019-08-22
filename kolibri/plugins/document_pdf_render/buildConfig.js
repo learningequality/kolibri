@@ -1,8 +1,8 @@
 module.exports = {
-  bundle_id: 'document_pdf_render_module',
+  bundle_id: 'main',
   webpack_config: {
     entry: {
-      document_pdf_render_module: './assets/src/module.js',
+      main: './assets/src/module.js',
       pdfJSWorker: 'pdfjs-dist/build/pdf.worker.entry',
     },
   },

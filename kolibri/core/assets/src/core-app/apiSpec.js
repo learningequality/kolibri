@@ -16,6 +16,8 @@ import vuex from 'vuex';
 import UiAlert from 'keen-ui/src/UiAlert';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
+import responsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+import responsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
 import logging from '../logging';
 import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';
@@ -71,6 +73,7 @@ import DragContainer from '../views/sortable/DragContainer';
 import DragSortWidget from '../views/sortable/DragSortWidget';
 import BottomAppBar from '../views/BottomAppBar';
 import PaginatedListContainer from '../views/PaginatedListContainer';
+import branding from '../utils/branding';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -156,6 +159,8 @@ export default {
     },
     router,
     mixins: {
+      responsiveWindowMixin,
+      responsiveElementMixin,
       contentRendererMixin,
       commonCoreStrings,
     },
@@ -180,5 +185,6 @@ export default {
     UserType,
     shuffled,
     bytesForHumans,
+    branding,
   },
 };

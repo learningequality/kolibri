@@ -103,7 +103,7 @@
   import UiAlert from 'keen-ui/src/UiAlert';
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
   import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
@@ -128,7 +128,7 @@
       TaskProgress,
       UiAlert,
     },
-    mixins: [KResponsiveWindowMixin],
+    mixins: [responsiveWindowMixin],
     data() {
       return {
         showUpdateProgressBar: false,

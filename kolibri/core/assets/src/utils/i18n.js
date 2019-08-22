@@ -3,10 +3,13 @@ import vue from 'kolibri.lib.vue';
 import logger from 'kolibri.lib.logging';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
+import getPluginData from 'kolibri.utils.getPluginData';
 
 export { licenseTranslations } from './licenseTranslations';
 
 const logging = logger.getLogger(__filename);
+
+const languageGlobals = getPluginData()['languageGlobals'] || {};
 
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   if (args) {
@@ -186,8 +189,8 @@ function _setUpVueIntl() {
   };
 
   vue.setLocale(currentLanguage);
-  if (global.coreLanguageMessages) {
-    vue.registerMessages(currentLanguage, global.coreLanguageMessages);
+  if (languageGlobals.coreLanguageMessages) {
+    vue.registerMessages(currentLanguage, languageGlobals.coreLanguageMessages);
   }
   importVueIntlLocaleData().forEach(localeData => VueIntl.addLocaleData(localeData));
 }
@@ -245,15 +248,15 @@ export function i18nSetup(skipPolyfill = false) {
    **/
 
   // Set up exported module variable
-  if (global.languageCode) {
-    currentLanguage = global.languageCode;
+  if (languageGlobals.languageCode) {
+    currentLanguage = languageGlobals.languageCode;
   }
 
-  if (global.languages) {
-    Object.assign(availableLanguages, global.languages);
+  if (languageGlobals.languages) {
+    Object.assign(availableLanguages, languageGlobals.languages);
   }
 
-  languageDirection = global.languageDir || languageDirection;
+  languageDirection = languageGlobals.languageDir || languageDirection;
 
   // Set up typography
   setLanguageDensity(currentLanguage);
@@ -276,7 +279,7 @@ export function i18nSetup(skipPolyfill = false) {
             'intl'
           );
         }),
-        importIntlLocale(global.languageCode),
+        importIntlLocale(currentLanguage),
       ]).then(
         // eslint-disable-line
         ([requireIntl, requireIntlLocaleData]) => {

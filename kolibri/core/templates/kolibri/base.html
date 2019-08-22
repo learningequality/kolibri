@@ -22,19 +22,15 @@
     <script src="{% static 'rest_framework/js/coreapi-0.1.1.js' %}"></script>
     <script src="{% url 'api-docs:schema-js' %}"></script>
   {% endif %}
-  {% kolibri_language_globals %}
-  {% enable_oidc_provider %}
-  {% kolibri_theme %}
   {% kolibri_set_urls %}
-  {% webpack_asset 'user_agent' %}
+  {% webpack_asset 'kolibri.core.user_agent' %}
 </head>
 <body>
 <rootvue>
   {% include "kolibri/loading_snippet.html" %}
 </rootvue>
 {% block frontend_assets %}
-{% kolibri_content_cache_key %}
-{% webpack_asset 'default_frontend' %}
+{% webpack_asset 'kolibri.core.default_frontend' %}
 {% kolibri_navigation_actions %}
 {% webpack_base_assets %}
 {% webpack_base_async_assets %}

@@ -33,12 +33,12 @@
 
   import shave from 'shave';
   import debounce from 'lodash/debounce';
-  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
+  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'TextTruncator',
-    mixins: [commonCoreStrings, KResponsiveElementMixin],
+    mixins: [commonCoreStrings, responsiveElementMixin],
     props: {
       text: {
         type: String,

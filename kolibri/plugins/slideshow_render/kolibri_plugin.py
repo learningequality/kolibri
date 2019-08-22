@@ -11,5 +11,5 @@ class SlideshowRenderPlugin(KolibriPluginBase):
 
 
 class SlideshowRenderAsset(content_hooks.ContentRendererHook):
-    bundle_id = "slideshow_render_module"
+    bundle_id = "main"
     content_types_file = "content_types.json"

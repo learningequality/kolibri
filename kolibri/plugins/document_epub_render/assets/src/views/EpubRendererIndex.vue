@@ -152,8 +152,8 @@
   import FocusLock from 'vue-focus-lock';
   import { mapGetters } from 'vuex';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
-  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
@@ -203,7 +203,7 @@
       SearchButton,
       LoadingError,
     },
-    mixins: [KResponsiveWindowMixin, KResponsiveElementMixin, contentRendererMixin],
+    mixins: [responsiveWindowMixin, responsiveElementMixin, contentRendererMixin],
     data() {
       return {
         book: null,

@@ -28,15 +28,6 @@ class _WebpackBundleHookInheritor(_WebpackBundleHookSwappedOut):
         replace_parent = True
 
 
-class _FrontEndCoreAssetHook(hooks.FrontEndCoreAssetHook):
-    bundle_id = "im_a_core_hook"
-
-    src_file = "im_a_source_file"
-
-    class Meta:
-        replace_parent = True
-
-
 class _FrontEndASyncAssetHook(TestHookMixin, hooks.WebpackBundleHook):
     bundle_id = "im_an_async_hook"
 

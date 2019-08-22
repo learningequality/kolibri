@@ -46,7 +46,7 @@
 <script>
 
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import languageSwitcherMixin from './mixin';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
@@ -57,7 +57,7 @@
       LanguageSwitcherModal,
       UiIconButton,
     },
-    mixins: [KResponsiveWindowMixin, languageSwitcherMixin],
+    mixins: [responsiveWindowMixin, languageSwitcherMixin],
     data() {
       return {
         showLanguageModal: false,

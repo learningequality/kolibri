@@ -55,8 +55,8 @@
   import client from 'kolibri.client';
 
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
-  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
@@ -82,7 +82,7 @@
       HooperPagination,
       HooperNavigation,
     },
-    mixins: [contentRendererMixin, KResponsiveElementMixin, KResponsiveWindowMixin],
+    mixins: [contentRendererMixin, responsiveElementMixin, responsiveWindowMixin],
     props: {
       defaultFile: {
         type: Object,

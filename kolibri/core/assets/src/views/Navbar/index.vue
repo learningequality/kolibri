@@ -51,7 +51,7 @@
 
 <script>
 
-  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
+  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import throttle from 'lodash/throttle';
 
   /**
@@ -59,7 +59,7 @@
    */
   export default {
     name: 'Navbar',
-    mixins: [KResponsiveElementMixin],
+    mixins: [responsiveElementMixin],
     data() {
       return {
         enoughSpace: true,

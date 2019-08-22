@@ -27,11 +27,11 @@
       </UiIconButton>
 
       <img
-        v-if="$kolibriTheme.appBar.topLogo"
+        v-if="$kolibriBranding.appBar.topLogo"
         slot="brand"
-        :src="$kolibriTheme.appBar.topLogo.src"
-        :alt="$kolibriTheme.appBar.topLogo.alt"
-        :style="$kolibriTheme.appBar.topLogo.style"
+        :src="$kolibriBranding.appBar.topLogo.src"
+        :alt="$kolibriBranding.appBar.topLogo.alt"
+        :style="$kolibriBranding.appBar.topLogo.style"
         class="brand-logo"
       >
 
@@ -124,6 +124,7 @@
   import UiButton from 'keen-ui/src/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+  import branding from 'kolibri.utils.branding';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
   import SkipNavigationLink from './SkipNavigationLink';
@@ -169,7 +170,7 @@
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
-      this.$kolibriTheme = global.kolibriTheme;
+      this.$kolibriBranding = branding;
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);

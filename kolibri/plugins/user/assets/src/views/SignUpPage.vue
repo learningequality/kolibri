@@ -122,6 +122,7 @@
   import FacilityModal from './SignInPage/FacilityModal';
   import getUrlParameter from './getUrlParameter';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
+  import getPluginData from 'kolibri.utils.getPluginData';
 
   export default {
     name: 'SignUpPage',
@@ -259,7 +260,7 @@
             username: this.username,
             password: this.password,
           };
-          if (global.oidcProviderEnabled) {
+          if (getPluginData().oidcProviderEnabled) {
             payload['next'] = this.nextParam;
           }
           this.signUpNewUser(payload);

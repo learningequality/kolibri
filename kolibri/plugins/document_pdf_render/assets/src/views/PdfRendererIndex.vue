@@ -80,8 +80,8 @@
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
   import 'intersection-observer';
-  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import urls from 'kolibri.urls';
@@ -107,7 +107,7 @@
       RecycleList,
       CoreFullscreen,
     },
-    mixins: [KResponsiveWindowMixin, KResponsiveElementMixin, contentRendererMixin],
+    mixins: [responsiveWindowMixin, responsiveElementMixin, contentRendererMixin],
     data: () => ({
       progress: null,
       scale: null,

@@ -28,22 +28,20 @@ TEST_STATS_FILE_DATA = {
 class TestHookMixin(object):
     """
     This hook will automatically create a stats file (normally created by npm)
-    and populate it with test data according to the uniqe_slug of the hook
+    and populate it with test data according to the unique_id of the hook
     that it's mixed into.
     """
-
-    src_file = "assets/src/kolibri_core_app.js"
 
     @property
     def _stats_file(self):
         self.TEST_STATS_FILE = tempfile.NamedTemporaryFile(mode="w+", delete=False)
         self.TEST_STATS_FILE_DATA = copy.deepcopy(TEST_STATS_FILE_DATA)
-        self.TEST_STATS_FILE_DATA["chunks"][self.bundle_id] = self.TEST_STATS_FILE_DATA[
+        self.TEST_STATS_FILE_DATA["chunks"][self.unique_id] = self.TEST_STATS_FILE_DATA[
             "chunks"
         ].pop("untitled")
         json.dump(self.TEST_STATS_FILE_DATA, self.TEST_STATS_FILE)
         self.TEST_STATS_FILE.close()
-        print(self.bundle_id)
+        print(self.unique_id)
         return self.TEST_STATS_FILE.name
 
 

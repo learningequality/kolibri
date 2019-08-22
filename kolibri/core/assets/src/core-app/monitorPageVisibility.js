@@ -1,5 +1,7 @@
 import store from 'kolibri.coreVue.vuex.store';
 
-document.addEventListener('visibilitychange', function() {
-  store.dispatch('setPageVisibility');
-});
+export default function monitorPageVisibility() {
+  document.addEventListener('visibilitychange', function() {
+    store.dispatch('setPageVisibility');
+  });
+}

@@ -5,10 +5,11 @@ import isEqual from 'lodash/isEqual';
 import urls from 'kolibri.urls';
 import cloneDeep from './cloneDeep';
 import ConditionalPromise from './conditionalPromise';
+import getPluginData from 'kolibri.utils.getPluginData';
 
 export const logging = logger.getLogger(__filename);
 
-const contentCacheKey = global.contentCacheKey;
+const contentCacheKey = getPluginData().contentCacheKey;
 
 /** Class representing a single API resource object */
 export class Model {

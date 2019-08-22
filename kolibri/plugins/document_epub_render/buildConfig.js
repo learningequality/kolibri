@@ -1,5 +1,5 @@
 module.exports = {
-  bundle_id: 'document_epub_render_module',
+  bundle_id: 'main',
   webpack_config: {
     entry: './assets/src/module.js',
   },
