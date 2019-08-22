@@ -3,13 +3,8 @@
   <CoreMenuOption
     :label="$tr('profile')"
     :link="url"
-  >
-    <mat-svg
-      slot="icon"
-      name="account_circle"
-      category="action"
-    />
-  </CoreMenuOption>
+    icon="profile"
+  />
 
 </template>
 

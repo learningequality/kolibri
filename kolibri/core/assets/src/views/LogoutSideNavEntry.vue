@@ -3,14 +3,9 @@
   <CoreMenuOption
     :label="$tr('signOut')"
     :link="url"
-  >
-    <mat-svg
-      slot="icon"
-      name="exit_to_app"
-      category="action"
-      :class="{ 'rtl-icon': isRtl }"
-    />
-  </CoreMenuOption>
+    :class="{ 'rtl-icon': isRtl }"
+    icon="logout"
+  />
 
 </template>
 

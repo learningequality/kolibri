@@ -12,7 +12,7 @@
       @keydown.enter="conditionalEmit"
     >
       <slot v-if="!isDivider">
-        <div>
+        <div class="core-menu-option-content">
           <KLabeledIcon>
             <KIcon
               slot="icon"
@@ -106,6 +106,13 @@
 
 <style lang="scss" scoped>
 
-
+  .core-menu-option {
+    min-height: 2.5rem;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  .core-menu-option-content {
+    height: 2.5rem;
+  }
 
 </style>

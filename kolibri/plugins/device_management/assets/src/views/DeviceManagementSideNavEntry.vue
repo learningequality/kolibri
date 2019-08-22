@@ -3,13 +3,8 @@
   <CoreMenuOption
     :label="$tr('device')"
     :link="url"
-  >
-    <mat-svg
-      slot="icon"
-      name="tablet_mac"
-      category="hardware"
-    />
-  </CoreMenuOption>
+    icon="device"
+  />
 
 </template>
 

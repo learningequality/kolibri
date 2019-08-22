@@ -3,14 +3,9 @@
   <CoreMenuOption
     :label="coreString('signInLabel')"
     :link="url"
-  >
-    <mat-svg
-      slot="icon"
-      name="exit_to_app"
-      category="action"
-      :class="{ 'rtl-icon': isRtl }"
-    />
-  </CoreMenuOption>
+    icon="login"
+    :class="{ 'rtl-icon': isRtl }"
+  />
 
 </template>
 

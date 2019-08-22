@@ -89,14 +89,9 @@
             <component :is="component" v-for="component in menuOptions" :key="component.name" />
             <CoreMenuOption
               :label="$tr('languageSwitchMenuOption')"
+              icon="language"
               @select="handleChangeLanguage"
-            >
-              <mat-svg
-                slot="icon"
-                name="language"
-                category="action"
-              />
-            </CoreMenuOption>
+            />
             <LogoutSideNavEntry v-if="isUserLoggedIn" />
           </template>
 

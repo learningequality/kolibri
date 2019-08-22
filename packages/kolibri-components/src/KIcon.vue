@@ -24,7 +24,7 @@
   <mat-svg v-else-if="icon ==='exercise'" name="assignment" category="action" :style="style" />
   <mat-svg v-else-if="icon ==='topic'" name="folder" category="file" :style="style" />
   <mat-svg v-else-if="icon ==='video'" name="ondemand_video" category="notification" :style="style" />
-  <mat-svg v-else-if="icon === 'slideshow'" name="photo_library" category="image" :style="style" />
+  <mat-svg v-else-if="icon ==='slideshow'" name="photo_library" category="image" :style="style" />
   <!-- users -->
   <mat-svg v-else-if="icon ==='classroom'" name="business" category="communication" :style="style" />
   <mat-svg v-else-if="icon ==='group'" category="action" name="group_work" :style="style" />
@@ -46,6 +46,11 @@
   <!-- side nav -->
   <mat-svg v-else-if="icon ==='learn'" name="school" category="social" :style="style" />
   <mat-svg v-else-if="icon ==='device'" name="tablet_mac" category="hardware" :style="style" />
+  <mat-svg v-else-if="icon ==='profile'" name="account_circle" category="action" :style="style" />
+  <mat-svg v-else-if="icon ==='login'" name="exit_to_app" category="action" :style="style" />
+  <mat-svg v-else-if="icon ==='logout'" name="exit_to_app" category="action" :style="style" />
+  <mat-svg v-else-if="icon ==='coach'" name="assessment" category="action" :style="style" />
+  <mat-svg v-else-if="icon ==='facility'" name="settings_input_antenna" category="action" :style="style" />
 
   <!--eslint-enable-->
 
@@ -98,6 +103,14 @@
     'logout',
     'menu',
     'search',
+    // side nav
+    'learn',
+    'device',
+    'profile',
+    'login',
+    'logout',
+    'coach',
+    'facility',
   ];
 
   export default {
