@@ -19,6 +19,7 @@ import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
 import responsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
 import responsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
+import scriptLoader from 'kolibri-components/src/utils/scriptLoader';
 import logging from '../logging';
 import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';
@@ -182,5 +183,6 @@ export default {
     shuffled,
     bytesForHumans,
     branding,
+    scriptLoader,
   },
 };
