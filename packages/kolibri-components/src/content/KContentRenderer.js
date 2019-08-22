@@ -35,6 +35,7 @@ export default {
       });
       return createElement(this.defaultItemPreset + RENDERER_SUFFIX, {
         props: this.$props,
+        attrs: this.$attrs,
         on: listeners,
         ref: 'contentView',
       });
