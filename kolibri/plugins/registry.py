@@ -46,6 +46,7 @@ from __future__ import unicode_literals
 import importlib
 import logging
 
+from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 
 from .base import KolibriPluginBase
@@ -57,7 +58,7 @@ logger = logging.getLogger(__name__)
 class Registry(list):
     apps = set()
 
-    def register(self, apps):
+    def register(self, apps, was_configured=True):
         for app in apps:
             try:
 
@@ -97,6 +98,13 @@ class Registry(list):
                         )
                         self.append(PluginClass())
                     self.apps.add(app)
+                if not was_configured and settings.configured:
+                    logger.warn(
+                        "Initializing plugin {} caused Django settings to be configured".format(
+                            app
+                        )
+                    )
+                    was_configured = True
             except ImportError:
                 pass
 
@@ -107,8 +115,12 @@ def __initialize():
     """
     registry = Registry()
     logger.debug("Loading kolibri plugin registry...")
-
-    registry.register(config.ACTIVE_PLUGINS)
+    was_configured = settings.configured
+    if was_configured:
+        logger.warn(
+            "Django settings already configured when plugin registry initialized"
+        )
+    registry.register(config.ACTIVE_PLUGINS, was_configured=was_configured)
     return registry
 
 

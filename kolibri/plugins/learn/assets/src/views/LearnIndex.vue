@@ -40,7 +40,7 @@
   import { redirectBrowser } from 'kolibri.utils.browser';
   import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
@@ -90,7 +90,7 @@
       TotalPoints,
       UpdateYourProfileModal,
     },
-    mixins: [commonCoreStrings, commonLearnStrings, KResponsiveWindowMixin],
+    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     data() {
       return {
         lastRoute: null,

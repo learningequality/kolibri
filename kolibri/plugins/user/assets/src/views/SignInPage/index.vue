@@ -13,23 +13,23 @@
         <div class="table-cell main-cell">
           <div class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
             <CoreLogo
-              v-if="$kolibriTheme.signIn.topLogo"
+              v-if="$kolibriBranding.signIn.topLogo"
               class="logo"
-              :src="$kolibriTheme.signIn.topLogo.src"
-              :alt="$kolibriTheme.signIn.topLogo.alt"
-              :style="$kolibriTheme.signIn.topLogo.style"
+              :src="$kolibriBranding.signIn.topLogo.src"
+              :alt="$kolibriBranding.signIn.topLogo.alt"
+              :style="$kolibriBranding.signIn.topLogo.style"
             />
             <h1
-              v-if="$kolibriTheme.signIn.showTitle"
+              v-if="$kolibriBranding.signIn.showTitle"
               class="kolibri-title"
               :class="$computedClass({color: $themeBrand.primary.v_300})"
-              :style="$kolibriTheme.signIn.titleStyle"
+              :style="$kolibriBranding.signIn.titleStyle"
             >
               {{ logoText }}
             </h1>
             <p
-              v-if="$kolibriTheme.signIn.showPoweredBy"
-              :style="$kolibriTheme.signIn.poweredByStyle"
+              v-if="$kolibriBranding.signIn.showPoweredBy"
+              :style="$kolibriBranding.signIn.poweredByStyle"
               class="small-text"
             >
               <KButton
@@ -146,7 +146,10 @@
             <span class="version-string">
               {{ versionMsg }}
             </span>
-            <CoreLogo v-if="this.$kolibriTheme.signIn.showKolibriFooterLogo" class="footer-logo" />
+            <CoreLogo
+              v-if="this.$kolibriBranding.signIn.showKolibriFooterLogo"
+              class="footer-logo"
+            />
             <span v-else> • </span>
             <KButton
               :text="coreString('usageAndPrivacyLabel')"
@@ -198,13 +201,15 @@
   import { validateUsername } from 'kolibri.utils.validators';
   import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
+  import branding from 'kolibri.utils.branding';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import urls from 'kolibri.urls';
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
   import getUrlParameter from '../getUrlParameter';
   import FacilityModal from './FacilityModal';
+  import getPluginData from 'kolibri.utils.getPluginData';
 
   export default {
     name: 'SignInPage',
@@ -221,7 +226,7 @@
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
-    mixins: [KResponsiveWindowMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings],
     data() {
       return {
         username: '',
@@ -316,24 +321,24 @@
         return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
       },
       logoText() {
-        return this.$kolibriTheme.signIn.title
-          ? this.$kolibriTheme.signIn.title
+        return this.$kolibriBranding.signIn.title
+          ? this.$kolibriBranding.signIn.title
           : this.coreString('kolibriLabel');
       },
       guestURL() {
         return urls['kolibri:core:guest']();
       },
       backgroundImageStyle() {
-        if (this.$kolibriTheme.signIn.background) {
+        if (this.$kolibriBranding.signIn.background) {
           return {
             backgroundColor: this.$themeTokens.primary,
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${this.$kolibriTheme.signIn.background})`,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${this.$kolibriBranding.signIn.background})`,
           };
         }
         return { backgroundColor: this.$themeBrand.primary.v_900 };
       },
       oidcProviderFlow() {
-        return global.oidcProviderEnabled && this.nextParam;
+        return getPluginData().oidcProviderEnabled && this.nextParam;
       },
       nextParam() {
         // query is after hash
@@ -350,7 +355,7 @@
       },
     },
     created() {
-      this.$kolibriTheme = global.kolibriTheme;
+      this.$kolibriBranding = branding;
     },
     mounted() {
       /*
@@ -467,7 +472,7 @@
             password: this.password,
             facility: this.facilityId,
           };
-          if (global.oidcProviderEnabled) {
+          if (getPluginData().oidcProviderEnabled) {
             sessionPayload['next'] = this.nextParam;
           }
           this.kolibriLogin(sessionPayload).catch();

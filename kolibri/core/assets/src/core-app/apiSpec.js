@@ -16,6 +16,8 @@ import vuex from 'vuex';
 import UiAlert from 'keen-ui/src/UiAlert';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
+import responsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+import responsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
 import logging from '../logging';
 import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';
@@ -79,6 +81,7 @@ import GenderDisplayText from '../views/userAccounts/GenderDisplayText';
 import BirthYearDisplayText from '../views/userAccounts/BirthYearDisplayText';
 import PrivacyLinkAndModal from '../views/userAccounts/PrivacyLinkAndModal.vue';
 import PaginatedListContainer from '../views/PaginatedListContainer';
+import branding from '../utils/branding';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -172,6 +175,8 @@ export default {
     },
     router,
     mixins: {
+      responsiveWindowMixin,
+      responsiveElementMixin,
       contentRendererMixin,
       commonCoreStrings,
     },
@@ -196,5 +201,6 @@ export default {
     UserType,
     shuffled,
     bytesForHumans,
+    branding,
   },
 };

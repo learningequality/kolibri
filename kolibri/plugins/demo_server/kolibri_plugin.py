@@ -12,7 +12,7 @@ class DemoServer(KolibriPluginBase):
 
 
 class DemoServerAsset(webpack_hooks.WebpackBundleHook):
-    bundle_id = "demo_server_module"
+    bundle_id = "main"
 
 
 class DemoServerInclusionHook(hooks.UserSyncHook):

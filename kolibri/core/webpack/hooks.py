@@ -32,8 +32,6 @@ from pkg_resources import resource_filename
 from six import text_type
 
 from kolibri.plugins import hooks
-from kolibri.utils.js_names import KOLIBRI_CORE_JS_NAME
-from kolibri.utils.js_names import KOLIBRI_JS_PLUGIN_DATA_NAME
 
 # Use the cache specifically for built files
 # Only reference the specific cache inside methods
@@ -71,7 +69,8 @@ class WebpackBundleHook(hooks.KolibriHook):
     the webpack asset loading pipeline.
     """
 
-    # : You should set a unique human readable name
+    # : You should set a human readable name that is unique within the
+    # : plugin in which this is defined.
     bundle_id = ""
 
     # : When being included for synchronous loading, should the source files
@@ -80,28 +79,29 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     # : A mapping of key to JSON serializable value.
     # : This plugin_data will be bootstrapped into a global object on window
-    # : with a key of the bundle_id as a Javascript object
+    # : with a key of the unique_id as a Javascript object
     plugin_data = {}
 
     def __init__(self, *args, **kwargs):
         super(WebpackBundleHook, self).__init__(*args, **kwargs)
 
-        # Verify the uniqueness of the slug
+        # Verify the uniqueness of the unique_id
         # It can be '0' in the parent class constructor
         assert (
-            len([x for x in self.registered_hooks if x.bundle_id == self.bundle_id])
+            len([x for x in self.registered_hooks if x.unique_id == self.unique_id])
             <= 1
-        ), "Non-unique slug found: '{}'".format(self.bundle_id)
+        ), "Non-unique id found: '{}'".format(self.unique_id)
 
     @hooks.abstract_method
-    def get_by_slug(self, slug):
+    def get_by_unique_id(self, unique_id):
         """
-        Fetch a registered hook instance by its unique slug
+        Fetch a registered hook instance by its unique_id
         """
         for hook in self.registered_hooks:
-            if hook.bundle_id == slug:
+
+            if hook.unique_id == unique_id:
                 return hook
-        raise BundleNotFound("No bundle with that name is loaded: {}".format(slug))
+        raise BundleNotFound("No bundle with that name is loaded: {}".format(unique_id))
 
     @cached_property
     @hooks.registered_method
@@ -110,7 +110,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: A dict of the data contained in the JSON files which are
           written by Webpack.
         """
-        cache_key = "json_stats_file_cache_{slug}".format(slug=self.bundle_id)
+        cache_key = "json_stats_file_cache_{unique_id}".format(unique_id=self.unique_id)
         try:
             stats_file_content = caches[CACHE_NAMESPACE].get(cache_key)
             if not stats_file_content or getattr(settings, "DEVELOPER_MODE", False):
@@ -128,7 +128,7 @@ class WebpackBundleHook(hooks.KolibriHook):
                     if stats["status"] == "error":
                         raise WebpackError("Webpack compilation has errored")
                 stats_file_content = {
-                    "files": stats.get("chunks", {}).get(self.bundle_id, []),
+                    "files": stats.get("chunks", {}).get(self.unique_id, []),
                     "hasMessages": stats.get("messages", False),
                 }
                 # Don't invalidate during runtime.
@@ -158,7 +158,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             if not getattr(settings, "DEVELOPER_MODE", False):
                 if any(list(regex.match(filename) for regex in IGNORE_PATTERNS)):
                     continue
-            relpath = "{0}/{1}".format(self.bundle_id, filename)
+            relpath = "{0}/{1}".format(self.unique_id, filename)
             if getattr(settings, "DEVELOPER_MODE", False):
                 try:
                     f["url"] = f["publicPath"]
@@ -167,6 +167,16 @@ class WebpackBundleHook(hooks.KolibriHook):
             else:
                 f["url"] = staticfiles_storage.url(relpath)
             yield f
+
+    @property
+    def unique_id(self):
+        """
+        Returns a globally unique id for the frontend module bundle.
+        This is created by appending the locally unique bundle_id to the
+        Python module path. This should give a globally unique id for the module
+        and prevent accidental or malicious collisions.
+        """
+        return "{}.{}".format(self._module_path, self.bundle_id)
 
     @property
     def _module_path(self):
@@ -187,7 +197,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         containing information about the built bundles.
         """
         return os.path.join(
-            self._build_path, "{plugin}_stats.json".format(plugin=self.bundle_id)
+            self._build_path, "{plugin}_stats.json".format(plugin=self.unique_id)
         )
 
     @property
@@ -198,7 +208,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         return os.path.dirname(self._build_path)
 
     def frontend_message_file(self, lang_code):
-        message_file_name = "{name}-messages.json".format(name=self.bundle_id)
+        message_file_name = "{name}-messages.json".format(name=self.unique_id)
         for path in getattr(settings, "LOCALE_PATHS", []):
             file_path = os.path.join(
                 path, to_locale(lang_code), "LC_MESSAGES", message_file_name
@@ -208,18 +218,15 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     def frontend_messages(self):
         lang_code = get_language()
-        cache_key = "json_stats_file_cache_{slug}_{lang}".format(
-            slug=self.bundle_id, lang=lang_code
+        cache_key = "json_message_file_cache_{unique_id}_{lang}".format(
+            unique_id=self.unique_id, lang=lang_code
         )
-        message_file_content = caches[CACHE_NAMESPACE].get(cache_key)
+        message_file_content = caches[CACHE_NAMESPACE].get(cache_key, {})
         if not message_file_content or getattr(settings, "DEVELOPER_MODE", False):
             frontend_message_file = self.frontend_message_file(lang_code)
             if frontend_message_file:
                 with io.open(frontend_message_file, mode="r", encoding="utf-8") as f:
-                    # Load JSON file, then immediately convert it to a string in minified form.
-                    message_file_content = json.dumps(
-                        json.load(f), separators=(",", ":")
-                    )
+                    message_file_content = json.load(f)
                 caches[CACHE_NAMESPACE].set(cache_key, message_file_content, None)
         return message_file_content
 
@@ -269,10 +276,12 @@ class WebpackBundleHook(hooks.KolibriHook):
         if self.frontend_messages():
             return [
                 '<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", {messages});</script>'.format(
-                    kolibri_name=KOLIBRI_CORE_JS_NAME,
-                    bundle=self.bundle_id,
+                    kolibri_name="kolibriCoreAppGlobal",
+                    bundle=self.unique_id,
                     lang_code=get_language(),
-                    messages=self.frontend_messages(),
+                    messages=json.dumps(
+                        self.frontend_messages(), separators=(",", ":")
+                    ),
                 )
             ]
         else:
@@ -287,9 +296,11 @@ class WebpackBundleHook(hooks.KolibriHook):
                     window["{name}"]["{bundle}"] = JSON.parse('{plugin_data}');
                 </script>
                 """.format(
-                    name=KOLIBRI_JS_PLUGIN_DATA_NAME,
-                    bundle=self.bundle_id,
-                    plugin_data=json.dumps(self.plugin_data),
+                    name="kolibriPluginDataGlobal",
+                    bundle=self.unique_id,
+                    plugin_data=json.dumps(
+                        self.plugin_data, separators=(",", ":")
+                    ).replace("'", "\\'"),
                 )
             ]
         else:
@@ -396,8 +407,8 @@ class WebpackBundleHook(hooks.KolibriHook):
             + self.frontend_message_tag()
             + [
                 '<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
-                    kolibri_name=KOLIBRI_CORE_JS_NAME,
-                    bundle=self.bundle_id,
+                    kolibri_name="kolibriCoreAppGlobal",
+                    bundle=self.unique_id,
                     urls='","'.join(urls),
                 )
             ]
@@ -450,30 +461,6 @@ class WebpackInclusionHook(hooks.KolibriHook):
             for hook in bundle.registered_hooks:
                 html += hook.render_to_page_load_async_html()
         return mark_safe(html)
-
-    class Meta:
-        abstract = True
-
-
-class FrontEndCoreAssetHook(WebpackBundleHook):
-    def render_to_page_load_sync_html(self):
-        """
-        Generates the appropriate script tags for the core bundle, be they JS or CSS
-        files.
-
-        :return: HTML of script tags for insertion into a page.
-        """
-        tags = []
-        if self.frontend_messages():
-            tags = [
-                "<script>var coreLanguageMessages = {messages};</script>".format(
-                    messages=self.frontend_messages()
-                )
-            ]
-
-        tags += list(self.js_and_css_tags())
-
-        return mark_safe("\n".join(tags))
 
     class Meta:
         abstract = True

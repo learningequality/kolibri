@@ -114,7 +114,7 @@ oriented data synchronization.
   import { now } from 'kolibri.utils.serverClock';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
   import ExerciseAttempts from './ExerciseAttempts';
@@ -127,7 +127,7 @@ oriented data synchronization.
       UiAlert,
       BottomAppBar,
     },
-    mixins: [commonCoreStrings, KResponsiveWindowMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       id: {
         type: String,

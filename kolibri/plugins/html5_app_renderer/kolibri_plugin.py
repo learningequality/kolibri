@@ -11,5 +11,5 @@ class HTML5AppPlugin(KolibriPluginBase):
 
 
 class HTML5AppAsset(content_hooks.ContentRendererHook):
-    bundle_id = "html5_app_renderer_module"
+    bundle_id = "main"
     content_types_file = "content_types.json"

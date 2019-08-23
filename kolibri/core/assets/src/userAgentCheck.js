@@ -1,4 +1,7 @@
 import { getBrowser, passesRequirements } from './utils/userAgent';
+import getPluginData from 'kolibri.utils.getPluginData';
+
+const pluginData = getPluginData();
 
 const userAgent =
   window && window.navigator && window.navigator.userAgent ? window.navigator.userAgent : '';
@@ -55,7 +58,7 @@ function setFontStyle(href) {
 }
 
 if (passesRequirements(browser, modernFontBrowsers)) {
-  setFontStyle(window.fullCSSFileModern);
+  setFontStyle(pluginData.fullCSSFileModern);
 } else {
-  setFontStyle(window.fullCSSFileBasic);
+  setFontStyle(pluginData.fullCSSFileBasic);
 }

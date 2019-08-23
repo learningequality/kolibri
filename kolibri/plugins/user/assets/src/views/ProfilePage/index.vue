@@ -121,7 +121,7 @@
   import { mapState, mapGetters } from 'vuex';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
@@ -147,7 +147,7 @@
       GenderDisplayText,
       BirthYearDisplayText,
     },
-    mixins: [KResponsiveWindowMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings],
     data() {
       return {
         facilityUser: {},

@@ -117,6 +117,8 @@
   import { SignUpResource } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import FacilityModal from './SignInPage/FacilityModal';
+  import getUrlParameter from './getUrlParameter';
+  import getPluginData from 'kolibri.utils.getPluginData';
 
   const { DEFERRED } = DemographicConstants;
 
@@ -168,6 +170,14 @@
       },
       firstStepIsValid() {
         return every([this.nameValid, this.usernameValid, this.passwordValid]);
+      },
+      nextParam() {
+        // query is after hash
+        if (this.$route.query.next) {
+          return this.$route.query.next;
+        }
+        // query is before hash
+        return getUrlParameter('next');
       },
     },
     beforeMount() {
@@ -249,18 +259,20 @@
         const canSubmit = this.firstStepIsValid && !this.busy;
         if (canSubmit) {
           this.busy = true;
-          SignUpResource.saveModel({
-            data: {
-              facility: this.currentFacility.value,
-              full_name: this.name,
-              username: this.username,
-              password: this.password,
-              // If user skips this part, these fields are marked as 'DEFERRED'
-              // so they don't see a notification after logging in.
-              gender: this.gender || DEFERRED,
-              birth_year: this.birthYear || DEFERRED,
-            },
-          })
+          const payload = {
+            facility: this.currentFacility.value,
+            full_name: this.name,
+            username: this.username,
+            password: this.password,
+            // If user skips this part, these fields are marked as 'DEFERRED'
+            // so they don't see a notification after logging in.
+            gender: this.gender || DEFERRED,
+            birth_year: this.birthYear || DEFERRED,
+          };
+          if (getPluginData().oidcProviderEnabled) {
+            payload['next'] = this.nextParam;
+          }
+          SignUpResource.saveModel({ data: payload })
             .then(() => {
               redirectBrowser();
             })

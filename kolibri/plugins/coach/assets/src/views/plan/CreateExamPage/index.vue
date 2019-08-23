@@ -141,7 +141,7 @@
 
   import { mapState, mapActions, mapGetters } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
@@ -168,7 +168,7 @@
       UiIconButton,
       BottomAppBar,
     },
-    mixins: [commonCoreStrings, commonCoach, KResponsiveWindowMixin],
+    mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     data() {
       return {
         showError: false,
