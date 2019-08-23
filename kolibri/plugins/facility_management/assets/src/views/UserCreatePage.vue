@@ -280,15 +280,15 @@
   }
 
   .narrow-container {
-    width: 500px;
+    max-width: 500px;
     margin: auto;
   }
 
   .form {
     max-width: 400px;
-    min-height: 950px;
+    padding-bottom: 75px;
     margin-right: auto;
-    margin-bottom: 100px;
+    margin-bottom: 20px;
     margin-left: auto;
   }
 

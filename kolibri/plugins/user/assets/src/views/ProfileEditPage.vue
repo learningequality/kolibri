@@ -199,7 +199,7 @@
 <style lang="scss" scoped>
 
   .narrow-container {
-    width: 500px;
+    max-width: 500px;
     margin: auto;
   }
 
