@@ -36,10 +36,14 @@
   // or the year of the server date
   const firstYear = Math.max(Number(__copyrightYear), getYear(now()));
 
-  const yearOptions = range(firstYear, 1900, -1).map(n => ({
-    label: String(n),
-    value: String(n),
-  }));
+  function makeYearOptions(max, min) {
+    return range(max, min, -1).map(n => ({
+      label: String(n),
+      value: String(n),
+    }));
+  }
+
+  const yearOptions = makeYearOptions(firstYear, 1900);
 
   export default {
     name: 'BirthYearSelect',
@@ -57,11 +61,18 @@
         return this.options.find(o => o.value === this.value) || {};
       },
       options() {
+        // The backend validation actually lets you pick years up to 3000, so we'll
+        // fill in the gaps just in case a user was given a later date, e.g. via CSV
+        let extraYears = [];
+        if (Number(this.value) > firstYear) {
+          extraYears = makeYearOptions(Number(this.value), firstYear - 1);
+        }
         return [
           {
             value: NOT_SPECIFIED,
             label: this.coreString('notSpecifiedOption'),
           },
+          ...extraYears,
           ...yearOptions,
         ];
       },
