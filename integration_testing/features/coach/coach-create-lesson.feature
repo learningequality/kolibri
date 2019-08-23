@@ -102,6 +102,8 @@ Feature: Coach creates lessons
       And I see content from channels related to the searched keyword
     When I select a specific channel from the channel filter dropdown
     Then I see the search results are filtered and present content only from the selected channel
+    When I select *All* in the filter dropdown
+    Then I see that results are not filtered anymore
 
   Scenario: Filter coach content in and out
     Given I am on the search results page
@@ -147,7 +149,6 @@ Feature: Coach creates lessons
     Given I am on the search results page
       When I click *Exit search*
       Then I see the *Manage resources in '<lesson>'* page again
-
 
 
 Examples:
