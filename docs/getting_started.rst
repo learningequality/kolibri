@@ -74,13 +74,12 @@ Managing Python installations can be quite tricky. We *highly* recommend using p
 Python virtual environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You should use a Python virtual environment to isolate the dependencies of your Python projects from each other and to avoid corrupting your system's Python installation. There are many ways to set up Python virtual environments, including Virtualenv which has been around for quite some time. Learn more about `using Virtualenv <https://virtualenv.pypa.io/en/stable/userguide/>`__.
+You should use a Python virtual environment to isolate the dependencies of your Python projects from each other and to avoid corrupting your system's Python installation.
+
+There are many ways to set up Python virtual environments, but we recommend installing and using `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__. (You could also use `Virtualenv <https://virtualenv.pypa.io/en/stable/userguide/>`__, `Python 3 venv <https://docs.python.org/3/library/venv.html>`__, `Poetry <https://poetry.eustace.io>`__, etc...)
 
 .. note::
-  Many virtual environments will require special setup for non-Bash shells such as Fish and ZSH.
-
-
-As an alternative to Virtualenv, we recommend installing and using `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__.
+  Most virtual environments will require special setup for non-Bash shells such as Fish and ZSH.
 
 Once Pipenv is installed, you can use the following commands to set up and use a virtual environment from within the Kolibri repo:
 
