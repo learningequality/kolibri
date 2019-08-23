@@ -9,6 +9,7 @@ from le_utils.constants import content_kinds
 from mock import call
 from mock import MagicMock
 from mock import patch
+from requests import Response
 from requests import Session
 from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError
@@ -411,40 +412,62 @@ class ImportContentTestCase(TestCase):
         self.assertTrue("404" in logger_mock.call_args_list[0][0][0])
 
     @patch("kolibri.core.content.management.commands.importcontent.sleep")
-    @patch("kolibri.core.content.management.commands.importcontent.logger.error")
     @patch(
-        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_remote_url"
+        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload"
     )
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
     @patch(
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
         side_effect=[False, True, True, True],
     )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path",
+        return_value="test",
+    )
     def test_remote_import_httperror_502(
         self,
+        content_storage_file_path_mock,
         is_cancelled_mock,
         cancel_mock,
-        url_mock,
-        logger_mock,
+        file_download_mock,
         sleep_mock,
         annotation_mock,
     ):
-        url_mock.return_value = "http://httpbin.org/status/502"
+        response = Response()
+        response.status_code = 502
+        file_download_mock.return_value.__enter__.side_effect = HTTPError(
+            response=response
+        )
+        file_download_mock.return_value.dest = "test"
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
         call_command("importcontent", "network", self.the_channel_id)
         cancel_mock.assert_called_with()
         annotation_mock.annotate_content.assert_called()
         sleep_mock.assert_called_once()
-        self.assertTrue("502" in logger_mock.call_args_list[0][0][0])
 
-    @patch("kolibri.core.content.management.commands.importcontent.logger.error")
     @patch(
-        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_remote_url"
+        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload"
     )
-    def test_remote_import_httperror_500(self, url_mock, logger_mock, annotation_mock):
-        url_mock.return_value = "http://httpbin.org/status/500"
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path",
+        return_value="test",
+    )
+    def test_remote_import_httperror_500(
+        self, content_storage_file_path_mock, file_download_mock, annotation_mock
+    ):
+        response = Response()
+        response.status_code = 500
+        file_download_mock.return_value.__enter__.side_effect = HTTPError(
+            response=response
+        )
+        file_download_mock.return_value.dest = "test"
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
         with self.assertRaises(HTTPError):
             call_command("importcontent", "network", self.the_channel_id)
-            self.assertTrue("500" in logger_mock.call_args_list[0][0][0])
         annotation_mock.annotate_content.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.len")
