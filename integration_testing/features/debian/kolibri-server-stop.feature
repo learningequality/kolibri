@@ -1,5 +1,5 @@
 Feature: Stopping kolibri-server service stops kolibri too
-  After kolibri-server service is stopped, there should not be any kolibri instances running either. This test should be done in Debian Buster and Ubuntu bionic.
+  After kolibri-server service is stopped, there should not be any kolibri instances running either. This test should be done in Debian Buster and Ubuntu Bionic.
 
   Background:
     Given that the kolibri-server is installed and running
