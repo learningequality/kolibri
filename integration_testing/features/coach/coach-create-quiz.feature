@@ -100,6 +100,12 @@ Feature: Coach creates quizzes
     Then I am redirected to the search results page
       And I see the *No results found...* message
 
+  Scenario: Clear results and reset search
+    Given that there are results from the previous search
+    When I press the *X* button in the search field
+      Or I delete the previous search term and press *Enter*
+    Then I see the list of all *Channels* with exercises under *Select topics or exercises* again
+
   Scenario: Add a topic or exercise from the search results page
     Given I am on the search results page
       And there are exercises and topics available in the search results
