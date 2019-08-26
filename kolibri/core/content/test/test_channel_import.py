@@ -27,6 +27,7 @@ from kolibri.core.content.models import NO_VERSION
 from kolibri.core.content.models import V020BETA1
 from kolibri.core.content.models import V040BETA3
 from kolibri.core.content.models import VERSION_1
+from kolibri.core.content.models import VERSION_2
 from kolibri.core.content.utils.annotation import recurse_annotation_up_tree
 from kolibri.core.content.utils.annotation import (
     set_leaf_node_availability_from_local_file_availability,
@@ -593,9 +594,25 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
         )
 
 
+class Version2ImportTestCase(NaiveImportTestCase):
+    """
+    Integration test for import from version 2 import
+    """
+
+    name = VERSION_2
+
+    @classmethod
+    def tearDownClass(cls):
+        super(Version2ImportTestCase, cls).tearDownClass()
+
+    @classmethod
+    def setUpClass(cls):
+        super(Version2ImportTestCase, cls).setUpClass()
+
+
 class Version1ImportTestCase(NaiveImportTestCase):
     """
-    Integration test for import from no version import
+    Integration test for import from version 1 import
     """
 
     name = VERSION_1

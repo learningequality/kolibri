@@ -25,6 +25,7 @@ from kolibri.core.content.models import V020BETA1
 from kolibri.core.content.models import V040BETA3
 from kolibri.core.content.models import VERSION_1
 from kolibri.core.content.models import VERSION_2
+from kolibri.core.content.models import VERSION_3
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -704,6 +705,7 @@ mappings = {
     NO_VERSION: NoVersionChannelImport,
     VERSION_1: ChannelImport,
     VERSION_2: ChannelImport,
+    VERSION_3: ChannelImport,
 }
 
 
