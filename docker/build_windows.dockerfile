@@ -22,7 +22,7 @@ VOLUME /kolibridist/
 # TODO(cpauya): Verify the checksums of the downloaded Python installers.
 
 CMD git clone https://github.com/learningequality/kolibri-installer-windows.git && \
-    cd kolibri-installer-windows/windows && \
+    cd kolibri-installer-windows/src && \
     git checkout $KOLIBRI_WINDOWS_INSTALLER_VERSION && \
     cp /kolibridist/kolibri-$KOLIBRI_VERSION*.whl . && \
     export KOLIBRI_BUILD_VERSION=$KOLIBRI_VERSION && \
