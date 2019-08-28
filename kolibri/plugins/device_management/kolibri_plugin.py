@@ -6,7 +6,7 @@ from kolibri.core.auth.constants.user_kinds import SUPERUSER
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
-from kolibri.plugins.base import KolibriPluginBase
+from kolibri.plugins import KolibriPluginBase
 
 
 class DeviceManagementPlugin(KolibriPluginBase):

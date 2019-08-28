@@ -8,11 +8,11 @@ from kolibri.plugins.registry import registered_plugins
 def get_urls():
     urlpatterns = []
     for plugin_instance in registered_plugins:
-        url_module = plugin_instance.url_module()
-        api_url_module = plugin_instance.api_url_module()
+        url_module = plugin_instance.url_module
+        api_url_module = plugin_instance.api_url_module
         instance_patterns = []
         # Normalize slug
-        slug = plugin_instance.url_slug().lstrip("^").rstrip("/") + "/"
+        slug = plugin_instance.url_slug.lstrip("^").rstrip("/") + "/"
         if url_module:
             instance_patterns += i18n_patterns(url_module.urlpatterns, prefix=slug)
         if api_url_module:
@@ -21,9 +21,7 @@ def get_urls():
             urlpatterns.append(
                 url(
                     "",
-                    include(
-                        instance_patterns, namespace=plugin_instance.url_namespace()
-                    ),
+                    include(instance_patterns, namespace=plugin_instance.url_namespace),
                 )
             )
 
@@ -33,7 +31,7 @@ def get_urls():
 def get_root_urls():
     urlpatterns = []
     for plugin_instance in registered_plugins:
-        root_url_module = plugin_instance.root_url_module()
+        root_url_module = plugin_instance.root_url_module
         if root_url_module:
             urlpatterns.append(url("", include(root_url_module)))
 

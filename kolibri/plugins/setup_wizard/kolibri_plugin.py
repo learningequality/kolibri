@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from kolibri.core.device.hooks import SetupHook
 from kolibri.core.webpack import hooks as webpack_hooks
-from kolibri.plugins.base import KolibriPluginBase
+from kolibri.plugins import KolibriPluginBase
 
 
 class SetupWizardPlugin(KolibriPluginBase):

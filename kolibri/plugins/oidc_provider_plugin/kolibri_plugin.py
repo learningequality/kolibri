@@ -3,7 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
-from kolibri.plugins.base import KolibriPluginBase
+from kolibri.plugins import KolibriPluginBase
 
 
 class OIDCProvider(KolibriPluginBase):

@@ -9,7 +9,7 @@ from kolibri.core.content.hooks import ContentNodeDisplayHook
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack import hooks as webpack_hooks
-from kolibri.plugins.base import KolibriPluginBase
+from kolibri.plugins import KolibriPluginBase
 
 
 class Learn(KolibriPluginBase):
