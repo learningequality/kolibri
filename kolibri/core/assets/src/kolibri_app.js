@@ -137,7 +137,7 @@ export default class KolibriApp extends KolibriModule {
       });
     }
 
-    heartbeat.startPolling().then(() => {
+    return heartbeat.startPolling().then(() => {
       this.store.dispatch('getNotifications');
       return Promise.all([
         // Invoke each of the state setters before initializing the app.
