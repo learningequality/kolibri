@@ -33,6 +33,7 @@ from __future__ import unicode_literals
 
 import logging
 
+from django.apps import AppConfig
 from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 
@@ -49,6 +50,10 @@ class Registry(list):
 
     def register(self, apps, was_configured=True):
         for app in apps:
+            # In case we are registering from INSTALLED_APPS that could include
+            # Django AppConfig objects.
+            if isinstance(app, AppConfig):
+                app = app.name
             try:
 
                 if app not in self.apps:

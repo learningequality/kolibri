@@ -2,6 +2,8 @@ import importlib
 import warnings
 from types import ModuleType
 
+from django.apps import AppConfig
+
 from kolibri.plugins.registry import registered_plugins
 from kolibri.utils import i18n
 
@@ -79,9 +81,17 @@ def _process_module_settings(
 
 
 def _apply_base_settings(plugin_instance, settings_module):
+    # Instead of just adding the module path to the settings
+    # we instantiate an app config object for the plugin
+    # and explicitly set its label to its module path.
+    # This way, there is no way for a plugin to collide in its
+    # label in the Django App Registry with kolibri core apps
+    # or Kolibri core plugins.
+    app_config = AppConfig.create(plugin_instance.module_path)
+    app_config.label = plugin_instance.module_path
     # Register the plugin as an installed app
     _set_setting_value(
-        "INSTALLED_APPS", (plugin_instance.module_path,), settings_module
+        "INSTALLED_APPS", (app_config,), settings_module
     )
     # Add in the external plugins' locale paths. Our frontend messages depends
     # specifically on the value of LOCALE_PATHS to find its catalog files.
