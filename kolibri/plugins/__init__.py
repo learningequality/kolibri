@@ -25,8 +25,8 @@ try:
     DEFAULT_PLUGINS = plugins
 except ImportError:
     DEFAULT_PLUGINS = [
-        "kolibri.plugins.facility_management",
-        "kolibri.plugins.device_management",
+        "kolibri.plugins.facility",
+        "kolibri.plugins.device",
         "kolibri.plugins.learn",
         "kolibri.plugins.document_pdf_render",
         "kolibri.plugins.html5_app_renderer",
@@ -224,6 +224,7 @@ class KolibriPluginBase(object):
 
         return None
 
+    @property
     def url_module(self):
         """
         Return a url module, containing ``urlpatterns = [...]``, a conventional
@@ -250,6 +251,7 @@ class KolibriPluginBase(object):
                 )
             return module
 
+    @property
     def api_url_module(self):
         """
         Return a url module, containing ``urlpatterns = [...]``, a conventional
@@ -279,6 +281,7 @@ class KolibriPluginBase(object):
                 )
             return module
 
+    @property
     def root_url_module(self):
         """
         Return a url module, containing ``urlpatterns = [...]``, a conventional
@@ -304,6 +307,7 @@ class KolibriPluginBase(object):
                 )
             return module
 
+    @property
     def settings_module(self):
         """
         Return a settings module, containing Django settings that this
@@ -325,6 +329,7 @@ class KolibriPluginBase(object):
                 )
             return module
 
+    @property
     def options_module(self):
         """
         Return an options module, containing a config spec as the 'option_spec' value.
@@ -345,13 +350,7 @@ class KolibriPluginBase(object):
                 )
             return module
 
-    def url_namespace(self):
-        """
-        Used for the ``namespace`` argument when including the plugin's
-        urlpatterns. By default, returns a lowercase of the class name.
-        """
-        return self.__class__.__name__.lower()
-
+    @property
     def url_slug(self):
         """
         Where should urls be included? By default, this is a lower-case version

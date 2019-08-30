@@ -1,5 +1,5 @@
-kolibri.plugins.device_management
-kolibri.plugins.facility_management
+kolibri.plugins.device
+kolibri.plugins.facility
 kolibri.plugins.learn
 kolibri.plugins.document_pdf_render
 kolibri.plugins.html5_app_renderer
