@@ -12,9 +12,6 @@ from kolibri.plugins import KolibriPluginBase
 class FacilityManagementPlugin(KolibriPluginBase):
     translated_view_urls = "urls"
 
-    def url_slug(self):
-        return "^facility/"
-
 
 class FacilityManagementAsset(WebpackBundleHook):
     bundle_id = "app"

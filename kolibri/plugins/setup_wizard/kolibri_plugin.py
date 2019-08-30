@@ -10,9 +10,6 @@ from kolibri.plugins import KolibriPluginBase
 class SetupWizardPlugin(KolibriPluginBase):
     translated_view_urls = "urls"
 
-    def url_slug(self):
-        return "^setup_wizard/"
-
 
 class SetupWizardAsset(webpack_hooks.WebpackBundleHook):
     bundle_id = "app"

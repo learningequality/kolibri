@@ -45,8 +45,17 @@ from kolibri.plugins.utils import PluginDoesNotExist
 logger = logging.getLogger(__name__)
 
 
-class Registry(list):
-    apps = set()
+class Registry(object):
+    __slots__ = '_apps',
+
+    def __init__(self):
+        self._apps = {}
+
+    def __iter__(self):
+        return iter(self._apps.values())
+
+    def get(self, app):
+        return self._apps.get(app, None)
 
     def register(self, apps, was_configured=True):
         for app in apps:
@@ -56,10 +65,9 @@ class Registry(list):
                 app = app.name
             try:
 
-                if app not in self.apps:
+                if app not in self._apps:
                     plugin_object = get_kolibri_plugin_object(app)
-                    self.append(plugin_object)
-                    self.apps.add(app)
+                    self._apps[app] = plugin_object
                 if not was_configured and settings.configured:
                     raise RuntimeError(
                         "Initializing plugin {} caused Django settings to be configured".format(

@@ -13,9 +13,6 @@ class DeviceManagementPlugin(KolibriPluginBase):
     untranslated_view_urls = "api_urls"
     translated_view_urls = "urls"
 
-    def url_slug(self):
-        return "^device/"
-
 
 class DeviceManagementAsset(WebpackBundleHook):
     bundle_id = "app"

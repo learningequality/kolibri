@@ -38,10 +38,10 @@ class MultiplePlugins(Exception):
     """
 
 
-def plugin_url(plugin_obj, url_name):
+def plugin_url(plugin_class, url_name):
     return reverse(
         "kolibri:{namespace}:{url_name}".format(
-            namespace=plugin_obj.url_namespace, url_name=url_name
+            namespace=plugin_class.class_module_path(), url_name=url_name
         )
     )
 

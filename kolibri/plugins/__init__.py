@@ -187,9 +187,13 @@ class KolibriPluginBase(object):
     # : Suggested property, not yet in use
     collect_static_on_enable = False
 
+    @classmethod
+    def class_module_path(self):
+        return ".".join(self.__module__.split(".")[:-1])
+
     @property
     def module_path(self):
-        return ".".join(self.__module__.split(".")[:-1])
+        return self.class_module_path()
 
     def _installed_apps_add(self):
         """Call this from your enable() method to have the plugin automatically
@@ -362,4 +366,4 @@ class KolibriPluginBase(object):
 
         .. warning:: Avoid the empty string, as you might get conflicts.
         """
-        return self.__class__.__name__.lower() + "/"
+        return self.module_path.split(".")[-1].lower() + "/"

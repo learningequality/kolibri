@@ -11,6 +11,7 @@ class OIDCProvider(KolibriPluginBase):
     django_settings = "settings"
     kolibri_options = "options"
 
+    @property
     def url_slug(self):
         return "^oidc_provider/"
 
