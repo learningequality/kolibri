@@ -180,7 +180,7 @@ def autoremove_unavailable_plugins():
         config.save()
 
 
-def enable_default_plugins():
+def enable_new_default_plugins():
     """
     Enable new plugins that have been added between versions
     This will have the undesired side effect of reactivating

@@ -35,10 +35,11 @@ from kolibri.core.deviceadmin.utils import IncompatibleDatabase
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
 from kolibri.plugins import config
+from kolibri.plugins import DEFAULT_PLUGINS
 from kolibri.plugins.utils import autoremove_unavailable_plugins
 from kolibri.plugins.utils import check_plugin_config_file_location
 from kolibri.plugins.utils import disable_plugin
-from kolibri.plugins.utils import enable_default_plugins
+from kolibri.plugins.utils import enable_new_default_plugins
 from kolibri.plugins.utils import enable_plugin
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import LOG_ROOT
@@ -269,7 +270,7 @@ def initialize(skip_update=False):
         # Reset the enabled plugins to the defaults
         # This needs to be run before dbbackup because
         # dbbackup relies on settings.INSTALLED_APPS
-        enable_default_plugins()
+        enable_new_default_plugins()
 
     try:
         django.setup()
@@ -635,7 +636,10 @@ def plugin():
 
 @plugin.command(help="Enable Kolibri plugins")
 @click.argument("plugin_name", nargs=-1)
-def enable(plugin_name):
+@click.option("-d", "--default-plugins", default=False, is_flag=True)
+def enable(plugin_name, default_plugins):
+    if not plugin_name and default_plugins:
+        plugin_name = DEFAULT_PLUGINS
     for name in plugin_name:
         try:
             logger.info("Enabling plugin '{}'".format(name))

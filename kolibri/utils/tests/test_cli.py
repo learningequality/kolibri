@@ -128,7 +128,7 @@ def test_plugin_with_no_plugin_class(plugins):
     """
     # For fun, we pass in a system library
     installed_apps_before = plugins.config["INSTALLED_APPS"].copy()
-    cli.enable.callback(("os.path",))
+    cli.enable.callback(("os.path",), False)
     assert installed_apps_before == plugins.config["INSTALLED_APPS"]
 
 
