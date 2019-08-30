@@ -28,17 +28,17 @@ except ImportError:
         "kolibri.plugins.facility",
         "kolibri.plugins.device",
         "kolibri.plugins.learn",
-        "kolibri.plugins.document_pdf_render",
-        "kolibri.plugins.html5_app_renderer",
+        "kolibri.plugins.pdf_viewer",
+        "kolibri.plugins.html5_viewer",
         "kolibri.plugins.media_player",
         "kolibri.plugins.setup_wizard",
         "kolibri.plugins.coach",
         "kolibri.plugins.user",
         "kolibri_exercise_perseus_plugin",
         "kolibri.plugins.style_guide",
-        "kolibri.plugins.document_epub_render",
+        "kolibri.plugins.epub_viewer",
         "kolibri.plugins.default_theme",
-        "kolibri.plugins.slideshow_render",
+        "kolibri.plugins.slideshow_viewer",
     ]
 
 conf_file = os.path.join(KOLIBRI_HOME, "plugins.json")
