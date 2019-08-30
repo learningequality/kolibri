@@ -27,7 +27,7 @@
     $trs: {},
     computed: {
       url() {
-        return urls['kolibri:user:user']();
+        return urls['kolibri:kolibri.plugins.user:user']();
       },
     },
     role: UserKinds.ANONYMOUS,

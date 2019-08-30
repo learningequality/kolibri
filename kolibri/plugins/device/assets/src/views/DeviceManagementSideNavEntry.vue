@@ -26,7 +26,7 @@
     },
     computed: {
       url() {
-        return urls['kolibri:devicemanagementplugin:device_management']();
+        return urls['kolibri:kolibri.plugins.device:device_management']();
       },
     },
     role: UserKinds.CAN_MANAGE_CONTENT,

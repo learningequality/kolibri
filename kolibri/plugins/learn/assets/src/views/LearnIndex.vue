@@ -22,7 +22,7 @@
 
     <UpdateYourProfileModal
       v-if="profileNeedsUpdate"
-      :disabled="demographicInfo === null"
+      :disabled="demographicInfo === null || !userPluginUrl"
       @cancel="handleCancelUpdateYourProfileModal"
       @submit="handleSubmitUpdateYourProfileModal"
     />
@@ -242,6 +242,9 @@
           (this.demographicInfo.gender === '' || this.demographicInfo.birth_year === '')
         );
       },
+      userPluginUrl() {
+        return urls['kolibri:kolibri.plugins.user:user'];
+      },
     },
     watch: {
       $route: function(newRoute, oldRoute) {
@@ -277,8 +280,10 @@
         this.demographicInfo = null;
       },
       handleSubmitUpdateYourProfileModal() {
-        const redirect = () => redirectBrowser(`${urls['kolibri:user:user']()}#/profile/edit`);
-        this.$store.dispatch('deferProfileUpdates', this.demographicInfo).then(redirect, redirect);
+        if (this.userPluginUrl) {
+          const redirect = () => redirectBrowser(`${this.userPluginUrl()}#/profile/edit`);
+          this.$store.dispatch('deferProfileUpdates', this.demographicInfo).then(redirect, redirect);
+        }
       },
     },
     $trs: {

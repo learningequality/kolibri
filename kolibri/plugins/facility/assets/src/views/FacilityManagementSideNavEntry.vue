@@ -26,7 +26,7 @@
     $trs: {},
     computed: {
       url() {
-        return urls['kolibri:facilitymanagementplugin:facility_management']();
+        return urls['kolibri:kolibri.plugins.facility:facility_management']();
       },
     },
     role: UserKinds.ADMIN,

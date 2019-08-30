@@ -25,7 +25,7 @@
     computed: {
       ...mapGetters(['canManageContent']),
       deviceContentUrl() {
-        const deviceContentUrl = urls['kolibri:devicemanagementplugin:device_management'];
+        const deviceContentUrl = urls['kolibri:kolibri.plugins.device:device_management'];
         if (deviceContentUrl && this.canManageContent) {
           return `${deviceContentUrl()}#/content`;
         }

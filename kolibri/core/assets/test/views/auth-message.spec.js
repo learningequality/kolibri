@@ -71,7 +71,7 @@ describe('auth message component', () => {
 
   it('shows correct link text if there is a user plugin', () => {
     const userUrl = jest.fn();
-    urls['kolibri:user:user'] = userUrl;
+    urls['kolibri:kolibri.plugins.user:user'] = userUrl;
     userUrl.mockReturnValue('http://localhost:8000/en/user/');
     const wrapper = makeWrapper();
     const link = wrapper.find('kexternallink-stub');
@@ -79,7 +79,7 @@ describe('auth message component', () => {
       href: 'http://localhost:8000/en/user/#signin?redirect=http%3A%2F%2Fkolibri.time%2F',
       text: 'Sign in to Kolibri',
     });
-    delete urls['kolibri:user:user'];
+    delete urls['kolibri:kolibri.plugins.user:user'];
   });
 
   it('shows correct link text if there is not a user plugin', () => {
