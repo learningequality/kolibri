@@ -148,7 +148,7 @@ class ExamStatusSerializer(KolibriModelSerializer):
 
     def get_num_correct(self, exam_log):
         return (
-            exam_log.attemptlogs.values_list("item")
+            exam_log.attemptlogs.values_list("item", "content_id")
             .order_by("completion_timestamp")
             .distinct()
             .aggregate(Sum("correct"))
@@ -157,7 +157,7 @@ class ExamStatusSerializer(KolibriModelSerializer):
 
     def get_num_answered(self, exam_log):
         return (
-            exam_log.attemptlogs.values_list("item")
+            exam_log.attemptlogs.values_list("item", "content_id")
             .order_by("completion_timestamp")
             .distinct()
             .aggregate(
