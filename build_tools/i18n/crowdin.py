@@ -318,7 +318,7 @@ def _ensure_locale_headers(file_headers):
         if lang["crowdin_code"] in crowdin_lang_codes
     ]
     # Get the headers and remove empty values and the wonky crowdin header (ie, crwdns123:crd12341)
-    base_headers = ['Identifier', 'Source String', 'Context']
+    base_headers = ["Identifier", "Source String", "Context"]
     headers = [h for h in file_headers if h in base_headers]
 
     # If they don't match in length, then the file's headers are missing locales
