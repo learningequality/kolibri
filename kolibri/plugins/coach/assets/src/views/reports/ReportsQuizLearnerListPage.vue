@@ -72,9 +72,6 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import commonCoach from '../common';
   import ReportsQuizHeader from './ReportsQuizHeader';
 
@@ -82,10 +79,8 @@
     name: 'ReportsQuizLearnerListPage',
     components: {
       ReportsQuizHeader,
-      KIcon,
-      KLabeledIcon,
     },
-    mixins: [commonCoach, commonCoreStrings, themeMixin],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         filter: 'allQuizzes',
@@ -131,7 +126,6 @@
       this.filter = this.filterOptions[0];
     },
     $trs: {
-      averageScore: 'Average score: {score, number, percent}',
       allQuizzes: 'All quizzes',
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
