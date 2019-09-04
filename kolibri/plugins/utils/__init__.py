@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 
+from django.conf import settings
 from django.core.exceptions import AppRegistryNotReady
 from django.core.urlresolvers import reverse
 
@@ -68,13 +69,49 @@ def _import_python_module(plugin_name):
             raise
 
 
+def initialize_plugins_and_hooks(all_classes, plugin_name):
+    was_configured = settings.configured
+    plugin_objects = []
+    for class_definition in all_classes:
+        if _is_plugin(class_definition):
+            # Initialize the class, nothing more happens for now.
+            plugin_objects.append(class_definition())
+            if not was_configured and settings.configured:
+                raise RuntimeError(
+                    "Initializing plugin class {} in plugin {} caused Django settings to be configured".format(
+                        class_definition.__name__, plugin_name
+                    )
+                )
+        elif issubclass(class_definition, KolibriHook):
+            class_definition.add_hook_to_registries()
+            if not was_configured and settings.configured:
+                raise RuntimeError(
+                    "Initializing hook class {} in plugin {} caused Django settings to be configured".format(
+                        class_definition.__name__, plugin_name
+                    )
+                )
+    if len(plugin_objects) == 0:
+        raise PluginDoesNotExist(
+            "Plugin '{}' exists but does not define a KolibriPluginBase derived class".format(
+                plugin_name
+            )
+        )
+    if len(plugin_objects) == 1:
+        plugin_instance = plugin_objects[0]
+        logger.debug("Initializing plugin: {}".format(plugin_name))
+        return plugin_instance
+
+    if len(plugin_objects) > 1:
+        raise MultiplePlugins("More than one plugin defined in kolibri_plugin module")
+
+
 def get_kolibri_plugin_object(plugin_name):
     """
     Try to load kolibri_plugin from given plugin module identifier
 
     :returns: A generator of objects instantiating KolibriPlugin
     """
-
+    was_configured = settings.configured
     # First import the bare plugin name to see if it exists
     # This will raise an exception if not
     _import_python_module(plugin_name)
@@ -82,6 +119,12 @@ def get_kolibri_plugin_object(plugin_name):
     try:
         # Exceptions are expected to be thrown from here.
         plugin_module = importlib.import_module(plugin_name + ".kolibri_plugin")
+        if not was_configured and settings.configured:
+            raise RuntimeError(
+                "Importing plugin module {} caused Django settings to be configured".format(
+                    plugin_name
+                )
+            )
         logger.debug("Loaded kolibri plugin: {}".format(plugin_name))
         # If no exception is thrown, use this to find the plugin class.
         # Load a list of all class types in module
@@ -98,27 +141,8 @@ def get_kolibri_plugin_object(plugin_name):
         all_classes = filter(
             lambda x: plugin_package + ".kolibri_plugin" == x.__module__, all_classes
         )
-        plugin_classes = []
-        for class_definition in all_classes:
-            if _is_plugin(class_definition):
-                plugin_classes.append(class_definition)
-            elif issubclass(class_definition, KolibriHook):
-                class_definition.add_hook_to_registries()
-        if len(plugin_classes) == 0:
-            raise PluginDoesNotExist(
-                "Plugin '{}' exists but does not define a KolibriPluginBase derived class".format(
-                    plugin_name
-                )
-            )
-        if len(plugin_classes) == 1:
-            # Initialize the class, nothing more happens for now.
-            PluginClass = plugin_classes[0]
-            logger.debug("Initializing plugin: {}".format(PluginClass.__name__))
-            return PluginClass()
-        if len(plugin_classes) > 1:
-            raise MultiplePlugins(
-                "More than one plugin defined in kolibri_plugin module"
-            )
+        return initialize_plugins_and_hooks(all_classes, plugin_name)
+
     except ImportError as e:
         # Python 2: message, Python 3: msg
         exc_message = getattr(e, "message", getattr(e, "msg", None))

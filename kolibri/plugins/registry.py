@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 
 
 class Registry(object):
-    __slots__ = '_apps',
+    __slots__ = ("_apps",)
 
     def __init__(self):
         self._apps = {}
@@ -57,7 +57,7 @@ class Registry(object):
     def get(self, app):
         return self._apps.get(app, None)
 
-    def register(self, apps, was_configured=True):
+    def register(self, apps):
         for app in apps:
             # In case we are registering from INSTALLED_APPS that could include
             # Django AppConfig objects.
@@ -68,12 +68,6 @@ class Registry(object):
                 if app not in self._apps:
                     plugin_object = get_kolibri_plugin_object(app)
                     self._apps[app] = plugin_object
-                if not was_configured and settings.configured:
-                    raise RuntimeError(
-                        "Initializing plugin {} caused Django settings to be configured".format(
-                            app
-                        )
-                    )
             except (MultiplePlugins, ImportError):
                 logger.warn("Cannot initialize plugin {}".format(app))
             except PluginDoesNotExist:
@@ -91,7 +85,7 @@ def __initialize():
         raise RuntimeError(
             "Django settings already configured when plugin registry initialized"
         )
-    registry.register(config.ACTIVE_PLUGINS, was_configured=was_configured)
+    registry.register(config.ACTIVE_PLUGINS)
     return registry
 
 
