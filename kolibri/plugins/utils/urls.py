@@ -28,7 +28,11 @@ def find_duplicate_slugs():
             if all(map(lambda x: x.startswith("kolibri.plugins"), value)):
                 # If we have multiple kolibri core plugins setting the same url slug, we should error out.
                 # This is not acceptable.
-                raise RuntimeError("Multiple core kolibri plugins define the same top level URL slug: {}".format(key))
+                raise RuntimeError(
+                    "Multiple core kolibri plugins define the same top level URL slug: {}".format(
+                        key
+                    )
+                )
             duplicate_slugs[key] = value
     return duplicate_slugs
 
@@ -45,9 +49,19 @@ def get_urls():
         # If we have a collision, and one of the plugins is a kolibri core plugin, we let it take precedence.
         # If both are Kolibri core plugins, we have raised a RuntimeError already when checking for
         # duplicate slugs.
-        if slug in duplicate_slugs and not plugin_instance.module_path.startswith("kolibri.plugins"):
-            other_modules = ", ".join(filter(lambda x: x != plugin_instance.module_path, duplicate_slugs[slug]))
-            logger.warn("Plugin {} defines a top level URL slug that clashes with other plugins: {}".format(other_modules))
+        if slug in duplicate_slugs and not plugin_instance.module_path.startswith(
+            "kolibri.plugins"
+        ):
+            other_modules = ", ".join(
+                filter(
+                    lambda x: x != plugin_instance.module_path, duplicate_slugs[slug]
+                )
+            )
+            logger.warn(
+                "Plugin {} defines a top level URL slug that clashes with other plugins: {}".format(
+                    other_modules
+                )
+            )
             slug = normalize_slug(plugin_instance.module_path.replace(".", ""))
         if url_module:
             instance_patterns += i18n_patterns(url_module.urlpatterns, prefix=slug)
