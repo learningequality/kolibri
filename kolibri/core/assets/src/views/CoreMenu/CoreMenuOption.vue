@@ -12,11 +12,12 @@
       @keydown.enter="conditionalEmit"
     >
       <slot v-if="!isDivider">
-        <div class="core-menu-option-content">
+        <div class="core-menu-option-content" :style="optionContentStyle">
           <KLabeledIcon>
             <KIcon
               slot="icon"
               :icon="icon"
+              :style="optionIconStyle"
             />
             <div>{{ label }}</div>
           </KLabeledIcon>
@@ -91,6 +92,38 @@
           }
         );
       },
+      optionContentStyle() {
+        let backgroundColor = '';
+        let color = this.$themePalette.grey.v_600;
+        if (!this.isDivider) {
+          if (this.active) {
+            backgroundColor = this.$themeBrand.primary.v_50;
+            color = this.$themeTokens.primary;
+          }
+        }
+        return Object.assign(
+          {
+            backgroundColor,
+            color,
+            ':hover': {
+              backgroundColor: '#ff0',
+              color: '#000',
+            },
+          },
+        );
+      },
+      optionIconStyle() {
+        let fill = this.$themePalette.grey.v_600;
+        if (this.active) {
+          fill = this.$themeTokens.primary;
+        }
+        if (this.hover) {
+          fill = '#000';
+        }
+        return {
+          fill,
+        };
+      },
     },
     methods: {
       conditionalEmit() {
@@ -106,13 +139,25 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .core-menu-option {
-    min-height: 2.5rem;
+    height: 48px;
     padding-top: 4px;
     padding-bottom: 4px;
+    text-decoration: none;
   }
   .core-menu-option-content {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: center;
     height: 2.5rem;
+    padding: 0 8px;
+    margin: 4px 8px 0;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    border-radius: $radius;
   }
 
 </style>
