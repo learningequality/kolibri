@@ -26,6 +26,7 @@
       v-if="privacyModalVisible"
       hideOwnersSection
       @cancel="privacyModalVisible = false"
+      @submit="privacyModalVisible = false"
     />
   </div>
 
