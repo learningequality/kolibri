@@ -635,12 +635,12 @@ def plugin():
 
 
 @plugin.command(help="Enable Kolibri plugins")
-@click.argument("plugin_name", nargs=-1)
+@click.argument("plugin_names", nargs=-1)
 @click.option("-d", "--default-plugins", default=False, is_flag=True)
-def enable(plugin_name, default_plugins):
-    if not plugin_name and default_plugins:
-        plugin_name = DEFAULT_PLUGINS
-    for name in plugin_name:
+def enable(plugin_names, default_plugins):
+    if not plugin_names and default_plugins:
+        plugin_names = DEFAULT_PLUGINS
+    for name in plugin_names:
         try:
             logger.info("Enabling plugin '{}'".format(name))
             enable_plugin(name)
@@ -649,14 +649,23 @@ def enable(plugin_name, default_plugins):
 
 
 @plugin.command(help="Disable Kolibri plugins")
-@click.argument("plugin_name", nargs=-1)
+@click.argument("plugin_names", nargs=-1)
 @click.option("-a", "--all-plugins", default=False, is_flag=True)
-def disable(plugin_name, all_plugins):
-    if not plugin_name and all_plugins:
-        plugin_name = config.ACTIVE_PLUGINS
-    for name in plugin_name:
+def disable(plugin_names, all_plugins):
+    if not plugin_names and all_plugins:
+        plugin_names = config.ACTIVE_PLUGINS
+    for name in plugin_names:
         try:
             logger.info("Disabling plugin '{}'".format(name))
             disable_plugin(name)
         except Exception as e:
             logger.error("Error Disabling plugin '{}', error was: {}".format(name, e))
+
+
+@plugin.command(help="Set Kolibri plugins to be enabled and disable all others")
+@click.argument("plugin_names", nargs=-1)
+@click.pass_context
+def apply(ctx, plugin_names):
+    to_be_disabled = set(config.ACTIVE_PLUGINS) - set(plugin_names)
+    ctx.invoke(disable, plugin_names=to_be_disabled, all_plugins=False)
+    ctx.invoke(enable, plugin_names=plugin_names, default_plugins=False)
