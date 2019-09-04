@@ -9,24 +9,35 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import json
+from abc import abstractmethod
+from abc import abstractproperty
 
 from django.utils.safestring import mark_safe
 
 from kolibri.core.webpack.hooks import WebpackBundleHook
+from kolibri.core.webpack.hooks import WebpackInclusionMixin
+from kolibri.plugins.hooks import define_hook
 from kolibri.plugins.hooks import KolibriHook
 
 
-class ContentRendererHook(WebpackBundleHook):
+@define_hook
+class ContentRendererHook(WebpackBundleHook, WebpackInclusionMixin):
     """
     An inheritable hook that allows special behaviour for a frontend module that defines
     a content renderer.
     """
 
     #: Set tuple of format presets that this content renderer can handle
-    presets = tuple()
+    @abstractproperty
+    def presets(self):
+        pass
 
-    class Meta:
-        abstract = True
+    @classmethod
+    def html(cls):
+        tags = []
+        for hook in cls.registered_hooks:
+            tags.append(hook.render_to_page_load_async_html())
+        return mark_safe("\n".join(tags))
 
     def render_to_page_load_async_html(self):
         """
@@ -49,6 +60,7 @@ class ContentRendererHook(WebpackBundleHook):
         return mark_safe("\n".join(tags))
 
 
+@define_hook
 class ContentNodeDisplayHook(KolibriHook):
     """
     A hook that registers a capability of a plugin to provide a user interface
@@ -59,5 +71,6 @@ class ContentNodeDisplayHook(KolibriHook):
     then it may return None.
     """
 
+    @abstractmethod
     def node_url(self, content_node):
-        raise NotImplementedError("This must be overridden by a subclass")
+        pass

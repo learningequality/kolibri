@@ -1,4 +1,4 @@
-{% load i18n kolibri_tags webpack_tags content_tags cache %}
+{% load i18n core_tags webpack_tags content_tags cache %}
 {% load staticfiles %}
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 {% get_current_language as LANGUAGE_CODE %}
@@ -30,9 +30,8 @@
 </rootvue>
 {% block frontend_assets %}
 {% webpack_asset 'kolibri.core.default_frontend' %}
-{% kolibri_navigation_actions %}
-{% webpack_base_assets %}
-{% webpack_base_async_assets %}
+{% frontend_base_assets %}
+{% frontend_base_async_assets %}
 {% content_renderer_assets %}
 {% endblock %}
 

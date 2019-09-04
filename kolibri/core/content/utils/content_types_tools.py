@@ -8,7 +8,7 @@ renderable_contentnodes_without_topics_q_filter = Q()
 
 
 # loop through all the registered content renderer hooks
-for hook in ContentRendererHook().registered_hooks:
+for hook in ContentRendererHook.registered_hooks:
     for preset in hook.presets:
         # iterate through each of the content presets that each hook can handle
         # Extend the q filter by ORing with a q filter for this preset

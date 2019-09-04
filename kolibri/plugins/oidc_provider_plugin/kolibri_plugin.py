@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
 
 
 class OIDCProvider(KolibriPluginBase):
@@ -16,5 +17,6 @@ class OIDCProvider(KolibriPluginBase):
         return "^oidc_provider/"
 
 
+@register_hook
 class EnableOIDC(OIDCProviderHook):
     pass

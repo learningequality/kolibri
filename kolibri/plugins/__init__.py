@@ -6,9 +6,12 @@ import json
 import logging
 import os
 import sys
+from abc import ABCMeta
 from importlib import import_module
 
 from django.utils.module_loading import module_has_submodule
+
+from six import with_metaclass
 
 from kolibri.utils.conf import KOLIBRI_HOME
 
@@ -140,7 +143,20 @@ class ConfigDict(dict):
 config = ConfigDict()
 
 
-class KolibriPluginBase(object):
+class SingletonMeta(ABCMeta):
+    _instances = {}
+
+    # Make all classes using this metaclass singletons
+    # Taken from here: https://stackoverflow.com/q/6760685
+    # Should be resistant to the __new__ method on the class object
+    # being overwritten.
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(SingletonMeta, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class KolibriPluginBase(with_metaclass(SingletonMeta)):
     """
     This is the base class that all Kolibri plugins need to implement.
     """

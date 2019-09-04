@@ -16,6 +16,8 @@ import logging
 import os
 import re
 import time
+from abc import abstractproperty
+from abc import ABCMeta
 from functools import partial
 
 from django.conf import settings
@@ -30,6 +32,7 @@ from django.utils.translation import get_language_info
 from django.utils.translation import to_locale
 from pkg_resources import resource_filename
 from six import text_type
+from six import with_metaclass
 
 from kolibri.plugins import hooks
 
@@ -62,6 +65,7 @@ def filter_by_bidi(bidi, chunk):
         return chunk["name"].split(".")[-2] != "rtl"
 
 
+@hooks.define_hook
 class WebpackBundleHook(hooks.KolibriHook):
     """
     This is the abstract hook class that all plugins that wish to load any
@@ -71,7 +75,9 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     # : You should set a human readable name that is unique within the
     # : plugin in which this is defined.
-    bundle_id = ""
+    @abstractproperty
+    def bundle_id(self):
+        pass
 
     # : When being included for synchronous loading, should the source files
     # : for this be inlined?
@@ -82,29 +88,17 @@ class WebpackBundleHook(hooks.KolibriHook):
     # : with a key of the unique_id as a Javascript object
     plugin_data = {}
 
-    def __init__(self, *args, **kwargs):
-        super(WebpackBundleHook, self).__init__(*args, **kwargs)
-
-        # Verify the uniqueness of the unique_id
-        # It can be '0' in the parent class constructor
-        assert (
-            len([x for x in self.registered_hooks if x.unique_id == self.unique_id])
-            <= 1
-        ), "Non-unique id found: '{}'".format(self.unique_id)
-
-    @hooks.abstract_method
-    def get_by_unique_id(self, unique_id):
+    @classmethod
+    def get_by_unique_id(cls, unique_id):
         """
         Fetch a registered hook instance by its unique_id
         """
-        for hook in self.registered_hooks:
-
-            if hook.unique_id == unique_id:
-                return hook
+        hook = cls.get_hook(unique_id)
+        if hook:
+            return hook
         raise BundleNotFound("No bundle with that name is loaded: {}".format(unique_id))
 
     @cached_property
-    @hooks.registered_method
     def _stats_file_content(self):
         """
         :returns: A dict of the data contained in the JSON files which are
@@ -147,7 +141,6 @@ class WebpackBundleHook(hooks.KolibriHook):
             )
 
     @property
-    @hooks.registered_method
     def bundle(self):
         """
         :returns: a generator yielding dict objects with properties of the built
@@ -177,10 +170,6 @@ class WebpackBundleHook(hooks.KolibriHook):
         and prevent accidental or malicious collisions.
         """
         return "{}.{}".format(self._module_path, self.bundle_id)
-
-    @property
-    def _module_path(self):
-        return ".".join(self.__module__.split(".")[:-1])
 
     @property
     def _build_path(self):
@@ -415,72 +404,44 @@ class WebpackBundleHook(hooks.KolibriHook):
         )
         return mark_safe("\n".join(tags))
 
-    class Meta:
-        abstract = True
+
+class WebpackInclusionMixin(object):
+    @abstractproperty
+    def bundle_html(self):
+        pass
+
+    @classmethod
+    def html(cls):
+        tags = []
+        for hook in cls.registered_hooks:
+            tags.append(hook.bundle_html)
+        return mark_safe("\n".join(tags))
 
 
-class WebpackInclusionHook(hooks.KolibriHook):
-    """
-    To define an asset target of inclusing in some html template, you must
-    define an inheritor of ``WebpackBundleHook`` for the asset files themselves
-    and then a ``WebpackInclusionHook`` to define where the inclusion takes
-    place.
+class WebpackInclusionSyncMixin(hooks.KolibriHook, WebpackInclusionMixin):
+    @abstractproperty
+    def bundle_class(self):
+        pass
 
-    This abstract hook does nothing, it's just the universal inclusion hook, and
-    no templates intend to include ALL assets at once.
-    """
-
-    #: Should define an instance of ``WebpackBundleHook``, likely abstract
-    bundle_class = None
-
-    def __init__(self, *args, **kwargs):
-        super(WebpackInclusionHook, self).__init__(*args, **kwargs)
-        if not self._meta.abstract:
-            assert (
-                self.bundle_class is not None
-            ), "Must specify bundle_class property, this one did not: {} ({})".format(
-                type(self), type(self.bundle_class)
-            )
-
-    def render_to_page_load_sync_html(self):
-        html = ""
+    @property
+    def bundle_html(self):
         bundle = self.bundle_class()
-        if not bundle._meta.abstract:
-            html = bundle.render_to_page_load_sync_html()
-        else:
-            for hook in bundle.registered_hooks:
-                html += hook.render_to_page_load_sync_html()
+        html = bundle.render_to_page_load_sync_html()
         return mark_safe(html)
 
-    def render_to_page_load_async_html(self):
-        html = ""
-        bundle = self.bundle_class()
-        if not bundle._meta.abstract:
-            html = bundle.render_to_page_load_async_html()
-        else:
-            for hook in bundle.registered_hooks:
-                html += hook.render_to_page_load_async_html()
-        return mark_safe(html)
 
-    class Meta:
-        abstract = True
-
-
-class FrontEndBaseSyncHook(WebpackInclusionHook):
+class WebpackInclusionASyncMixin(hooks.KolibriHook, WebpackInclusionMixin):
     """
     Inherit a hook defining assets to be loaded in kolibri/base.html, that means
     ALL pages. Use with care.
     """
 
-    class Meta:
-        abstract = True
+    @abstractproperty
+    def bundle_class(self):
+        pass
 
-
-class FrontEndBaseASyncHook(WebpackInclusionHook):
-    """
-    Inherit a hook defining assets to be loaded in kolibri/base.html, that means
-    ALL pages. Use with care.
-    """
-
-    class Meta:
-        abstract = True
+    @property
+    def bundle_html(self):
+        bundle = self.bundle_class()
+        html = bundle.render_to_page_load_async_html()
+        return mark_safe(html)

@@ -10,6 +10,7 @@ from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
 
 
 class Learn(KolibriPluginBase):
@@ -17,6 +18,7 @@ class Learn(KolibriPluginBase):
     translated_view_urls = "urls"
 
 
+@register_hook
 class LearnRedirect(RoleBasedRedirectHook):
     role = LEARNER
 
@@ -25,14 +27,17 @@ class LearnRedirect(RoleBasedRedirectHook):
         return self.plugin_url(Learn, "learn")
 
 
-class LearnNavItem(NavigationHook, webpack_hooks.WebpackBundleHook):
+@register_hook
+class LearnNavItem(NavigationHook):
     bundle_id = "side_nav"
 
 
+@register_hook
 class LearnAsset(webpack_hooks.WebpackBundleHook):
     bundle_id = "app"
 
 
+@register_hook
 class LearnContentNodeHook(ContentNodeDisplayHook):
     def node_url(self, node):
         kind_slug = None

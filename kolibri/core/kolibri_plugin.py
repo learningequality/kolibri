@@ -19,12 +19,15 @@ import kolibri
 from kolibri.core.content.utils.paths import get_content_storage_url
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
+from kolibri.core.hooks import NavigationHook
 from kolibri.core.theme_hook import ThemeHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
+from kolibri.plugins.hooks import register_hook
 from kolibri.utils import i18n
 from kolibri.utils.conf import OPTIONS
 
 
+@register_hook
 class FrontEndCoreAppAssetHook(WebpackBundleHook):
     bundle_id = "default_frontend"
 
@@ -70,13 +73,24 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             )
         ]
 
+    def navigation_tags(self):
+        return [
+            hook.render_to_page_load_sync_html()
+            for hook in NavigationHook.registered_hooks
+        ]
+
     def render_to_page_load_sync_html(self):
         """
         Don't render the frontend message files in the usual way
         as the global object to register them does not exist yet.
         Instead they are loaded through plugin data.
         """
-        tags = self.plugin_data_tag() + self.url_tag() + list(self.js_and_css_tags())
+        tags = (
+            self.plugin_data_tag()
+            + self.url_tag()
+            + list(self.js_and_css_tags())
+            + self.navigation_tags()
+        )
 
         return mark_safe("\n".join(tags))
 
@@ -85,8 +99,8 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
         return {
             "contentCacheKey": ContentCacheKey.get_cache_key(),
             "languageGlobals": self.language_globals(),
-            "oidcProviderEnabled": OIDCProviderHook().is_enabled,
-            "kolibriTheme": ThemeHook().theme,
+            "oidcProviderEnabled": OIDCProviderHook.is_enabled(),
+            "kolibriTheme": ThemeHook.get_theme(),
         }
 
     def language_globals(self):
@@ -120,6 +134,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
         }
 
 
+@register_hook
 class FrontEndUserAgentAssetHook(WebpackBundleHook):
     bundle_id = "user_agent"
     inline = True

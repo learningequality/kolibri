@@ -26,10 +26,15 @@ We have two different types of hooks:
 
 Abstract hooks
     Are definitions of hooks that are implemented by *implementing hooks*.
+    These hooks are Python abstract base classes, and can use the @abstractproperty
+    and @abstractmethod decorators from the abc module in order to define which
+    properties and methods their descendant registered hooks should implement.
 
 Registered hooks
     Are concrete hooks that inherit from abstract hooks, thus embodying the
-    definitions of the abstract hook into a specific case.
+    definitions of the abstract hook into a specific case. If the abstract parent hook
+    has any abstract properties or methods, the hook being registered as a descendant
+    must implement those properties and methods, or an error will occur.
 
 So what's "a hook"?
     Simply referring to "a hook" is okay, it can be ambiguous on purpose. For
@@ -51,19 +56,18 @@ a Kolibri component exposes, you can refer to its ``hooks`` module.
 
 .. warning::
     Do not define abstract and registered hooks in the same module. Or to put it
-    in other words: Never put registered hooks in ``<myapp>/hooks.py``. The
-    non-abstract hooks should not be loaded unintentionally in case your
-    application is not loaded but only used to import an abstract definition
-    by an external component!
+    in other words: Always put registered hooks in ``<myapp>/kolibri_plugin.py``. The
+    registered hooks will only be initialized for use by the Kolibri plugin registry
+    if they are registered inside the kolibri_plugin.py module for the plugin.
 
 
 In which order are hooks used/applied?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This is entirely up to the registering class. By default, hooks are applied in
-the same order that the registered hook gets registered! This most likely means
-the order in which ``kolibri_plugin`` is loaded ``=>`` the order in which the
-app is listed in ``INSTALLED_APPS``
+the same order that the registered hook gets registered! While it could be the
+case that plugins could be enabled in a certain order to get a specific ordering
+of hooks - it is best not to depend on this behaviour as it could result in brittleness.
 
 
 An example of a plugin using a hook
@@ -72,7 +76,7 @@ An example of a plugin using a hook
 .. note::
 
     The example shows a NavigationHook which is simplified for the sake of
-    readability. The actual implementation in Kolibri will defer.
+    readability. The actual implementation in Kolibri will differ.
 
 
 Example implementation
@@ -83,77 +87,62 @@ Here is an example of how to use a hook in ``myplugin.kolibri_plugin.py``:
 
 .. code-block:: python
 
-    from django.db.models
-
-    # This is where the actual abstract hook is defined
     from kolibri.core.hooks import NavigationHook
+    from kolibri.plugins.hooks import register_hook
 
-    # By inheriting NavigationHook, we tell that we are going to want our
-    # plugin to be part of the hook's activities with the specified attributes.
-    # We only define one navigation item, but defining another one is as simple
-    # as adding another class definition.
-    class MyPluginNavigationItem(NavigationHook):
-
-        label = _("My Plugin")
-        url = reverse_lazy("kolibri:my_plugin:index")
+    @register_hook
+    class MyPluginNavItem(NavigationHook):
+        bundle_id = "side_nav"
 
 
-And here is the definition of that hook in kolibri.core.hooks:
+The decorator ``@register_hook`` signals that the wrapped class is intended to be registered
+against any abstract KolibriHook descendants that it inherits from. In this case, the hook
+being registered inherits from NavigationHook, so any hook registered will be available on
+the ``NavigationHook.registered_hooks`` property.
+
+Here is the definition of the abstract NavigatonHook in kolibri.core.hooks:
 
 .. code-block:: python
 
-    from kolibri.plugins.hooks import KolibriHook
+    from kolibri.core.webpack.hooks import WebpackBundleHook
+    from kolibri.plugins.hooks import define_hook
 
 
-    class NavigationHook(KolibriHook):
-        \"\"\"
-        Extend this hook to define a new navigation item
-        \"\"\"
+    @define_hook
+    class NavigationHook(WebpackBundleHook):
 
-        #: A string label for the menu item
-        label = "Untitled"
+        # Set this to True so that the resulting frontend code will be rendered inline.
+        inline = True
 
-        #: A string or lazy proxy for the url
-        url = "/"
-
-        @classmethod
-        def get_menu(cls):
-            menu = {}
-            for hook in self.registered_hooks:
-                menu[hook.label] = url
-            return menu
-
-        class Meta:
-
-            abstract = True
+As can be seen from above, to define an abstract hook, instead of using the ``@register_hook``
+decorator, the ``@define_hook`` decorator is used instead, to signal that this instance of
+inheritance is not intended to register anything against the parent ``WebpackBundleHook``.
+However, because of the inheritance relationship, any hook registered against ``NavigationHook``
+(like our example registered hook above), will also be registered against the ``WebpackBundleHook``,
+so we should expect to see our plugin's nav item listed in the ``WebpackBundleHook.registered_hooks``
+property as well as in the ``NavigationHook.registered_hooks`` property.
 
 
 Usage of the hook
 -----------------
 
-Inside our templates, we load a template tag from navigation_tags, and this
-template tag definition looks like this:
+The hook can then be used to collect all the information from the hooks, as per this usage
+of the ``NavigationHook`` in ``kolibri/core/kolibri_plugin.py``:
 
 .. code-block:: python
 
     from kolibri.core.hooks import NavigationHook
 
-    @register.assignment_tag()
-    def kolibri_main_navigation():
+    ...
+        def navigation_tags(self):
+            return [
+                hook.render_to_page_load_sync_html()
+                for hook in NavigationHook.registered_hooks
+            ]
 
-        for item in NavigationHook().get_menu():
-            yield item
-
-
-.. code-block:: html
-
-    {% load kolibri_tags %}
-
-    <ul>
-    {% for menu_item in kolibri_main_navigation %}
-        <li><a href="{{ menu_item.url }}">{{ menu_item.label }}</a></li>
-    {% endfor %}
-    </ul>
+Each registered hook is iterated over and its appropriate HTML for rendering into
+the frontend are returned. When iterating over ``registered_hooks`` the returned
+objects are each instances of the hook classes that were registered.
 
 
 .. warning::
@@ -170,194 +159,172 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import functools
 import logging
 
 import six
 
+from abc import abstractproperty
+from functools import partial
+from inspect import isabstract
+
+from kolibri.plugins import SingletonMeta
+
 logger = logging.getLogger(__name__)
 
 
-# : Inspired by how Django's Model Meta option settings work, we define a simple
-# : list of valid options for Meta classes.
-DEFAULT_NAMES = ("abstract", "replace_parent")
+def _make_singleton(subclass):
+    original_new = subclass.__new__
+
+    def new(cls, *args, **kwds):
+        if cls._instance is None:
+            cls._instance = original_new(cls, *args, **kwds)
+        return cls._instance
+
+    subclass._instance = None
+    subclass.__new__ = new
 
 
-def abstract_method(func):
-    @functools.wraps(func)
-    def inner(instance, *args, **kwargs):
-        assert instance._meta.abstract, "Method call only valid for an abstract hook"
-        return func(instance, *args, **kwargs)
-
-    return inner
-
-
-def registered_method(func):
-    @functools.wraps(func)
-    def inner(instance, *args, **kwargs):
-        assert (
-            not instance._meta.abstract
-        ), "Method call only valid for a registered, non-abstract hook"
-        return func(instance, *args, **kwargs)
-
-    return inner
-
-
-def only_one_registered(func):
+def define_hook(subclass=None, only_one_registered=False):
     """
-    Ensures that only one hook of this type is registered at a time
+    This method can be used as a decorator to define a new hook inheriting from
+    the hook class that this is called from, this will return an abstract base
+    class, which distinguishes is from the classes returned by register_hook
+    which can be instantiated. Only abstract base classes track registered hooks.
     """
 
-    @functools.wraps(func)
-    def inner(instance, *args, **kwargs):
-        hooks = list(instance.registered_hooks)
-        if not hooks:
-            logger.error("Should have exactly one hook registered.")
-        if len(hooks) > 1:
-            logger.error("Too many hooks registered:")
-            for hook in hooks:
-                logger.error(hook)
-        return func(instance, *args, **kwargs)
+    # Allow optional arguments to be passed to define_hook when used as a decorator
+    if subclass is None:
+        return partial(define_hook, only_one_registered=only_one_registered)
 
-    return inner
+    subclass = six.add_metaclass(KolibriHookMeta)(subclass)
+
+    subclass._setup_base_class(only_one_registered=only_one_registered)
+
+    return subclass
 
 
-class Options(object):
+def register_hook(subclass):
     """
-    Stores instance of options for Hook.Meta classes
+    This method can be used as a decorator to register a hook against this hook
+    class and all parent abstract classes - can only be called on an abstract
+    base class.
     """
+    if not any(
+        hasattr(base, "_registered_hooks")
+        and base.abstract
+        and issubclass(base, KolibriHook)
+        for base in subclass.__bases__
+    ):
+        raise TypeError(
+            "register_hook method/decorator used on a class that does not inherit from any abstract KolibriHook subclasses"
+        )
+    if not subclass.__module__.endswith("kolibri_plugin"):
+        raise RuntimeError(
+            "register_hook method/decorator invoked outside of a kolibri_plugin.py module - this hook will not be initialized"
+        )
+    attrs = dict(subclass.__dict__)
+    attrs.update({"_not_abstract": True})
+    subclass = type(subclass.__name__, subclass.__bases__, attrs)
+    subclass._registered = True
 
-    def __init__(self, meta):
-        self.abstract = False
-        self.replace_parent = False
-        self.meta = meta
-        self.registered_hooks = set()
-        if meta:
-            # Deep copy because options may be immutable, and so we shouldn't
-            # have one object manipulate an instance of an option and that
-            # propagates to other objects.
-            meta_attrs = self.meta.__dict__.copy()
-            for attr_name in DEFAULT_NAMES:
-                if attr_name in meta_attrs:
-                    setattr(self, attr_name, meta_attrs.pop(attr_name))
-
-        assert not (
-            self.abstract and self.replace_parent
-        ), "Cannot replace abstract hooks"
+    return subclass
 
 
-class KolibriHookMeta(type):
+class KolibriHookMeta(SingletonMeta):
     """
-    This is the base meta class of all hooks in Kolibri. A lot of the code is
-    lifted from django.db.models.ModelBase.
-
-    We didn't end up like this because of bad luck, rather it fitted perfectly
-    to how we want plugin functionality to be /plugged into/ in an explicit
-    manner:
-
-        Metaclasses are deeper magic than 99% of users should ever worry about.
-        If you wonder whether you need them, you don't (the people who actually
-        need them know with certainty that they need them, and don't need an
-        explanation about why).
-
-        - Tim Peters
-
+    We use a metaclass to define class level properties and methods in a simple way.
+    We could define the classmethods on the KolibriHook object below, but this keeps
+    the logic contained into one definition.
     """
 
-    def __new__(cls, name, bases, attrs):
+    # : Sets a flag so that we can check that the hook class has properly gone through
+    # : the register_hook function above.
+    _registered = False
+
+    @property
+    def abstract(cls):
         """
-        Inspired by Django's ModelBase, we create a dynamic type for each hook
-        definition type class and add it to the global registry of hooks.
+        Check if the class object is an abstract base class or not.
         """
+        return isabstract(cls)
 
-        super_new = super(KolibriHookMeta, cls).__new__
+    @property
+    def registered_hooks(cls):
+        """
+        A generator of all registered hooks.
+        """
+        if not cls.abstract:
+            raise TypeError("registered_hooks property accessed on a non-abstract hook")
+        for hook in cls._registered_hooks.values():
+            yield hook
 
-        # Parent classes of cls up until and including KolibriHookMeta
-        parents = [b for b in bases if isinstance(b, KolibriHookMeta)]
+    def _setup_base_class(cls, only_one_registered=False):
+        """
+        Do any setup required specifically if this class is being setup as a hook definition
+        abstract base class.
+        """
+        cls._registered_hooks = {}
+        cls._only_one_registered = only_one_registered
 
-        # If there isn't any parents, it's the main class of everything
-        # ...and we just set some empty options
-        if not parents:
-            base_class = super_new(cls, name, bases, attrs)
-            base_class.add_to_class("_meta", Options(None))
-            base_class.add_to_class("_parents", [])
-            return base_class
+    def add_hook_to_registries(cls):
+        """
+        Add a concrete hook class to all relevant abstract hook registries.
+        """
+        if not cls.abstract and cls._registered:
+            hook = cls()
+            for parent in cls.__mro__:
+                if (
+                    isabstract(parent)
+                    and issubclass(parent, KolibriHook)
+                    and parent is not KolibriHook
+                ):
+                    parent.add_hook_to_class_registry(hook)
 
-        # Create the class.
-        module = attrs.pop("__module__")
-        new_class = super_new(cls, name, bases, {"__module__": module})
+    def add_hook_to_class_registry(cls, hook):
+        """
+        Add a concrete hook instance to the hook registry on this abstract hook
+        """
+        if not cls.abstract:
+            raise TypeError("add_hook_to_registry method used on a non-abstract hook")
+        if (
+            cls._only_one_registered
+            and cls._registered_hooks
+            and hook not in cls.registered_hooks
+        ):
+            raise RuntimeError(
+                "Attempted to register more than one instance of {}".format(
+                    hook.__class__
+                )
+            )
+        cls._registered_hooks[hook.unique_id] = hook
 
-        attr_meta = attrs.pop("Meta", None)
-        abstract = getattr(attr_meta, "abstract", False)
-        # Commented out because it sets the meta properties of the parent
-        # if not attr_meta:
-        #     meta = getattr(new_class, 'Meta', None)
-        # else:
-        #     meta = attr_meta
-        meta = attr_meta
-
-        # Meta of the base object can be retrieved by looking at the currently
-        # set _meta object... but we don't use it...
-        # base_meta = getattr(new_class, '_meta', None)
-
-        # Add all attributes to the class.
-        for obj_name, obj in attrs.items():
-            new_class.add_to_class(obj_name, obj)
-
-        new_class.add_to_class("_meta", Options(meta))
-        new_class.add_to_class("_parents", parents)
-
-        if not abstract:
-            logger.debug("Registered hook class {}".format(new_class))
-            for parent in new_class._parents:
-                parent.register_hook(new_class)
-
-            if new_class._meta.replace_parent:
-                immediate_parent = parents[-1]
-                for parent in parents:
-                    parent.unregister_hook(immediate_parent)
-
-        return new_class
-
-    def add_to_class(cls, name, value):
-        setattr(cls, name, value)
-
-    def unregister_hook(cls, child_hook):
-        if child_hook in cls._meta.registered_hooks:
-            cls._meta.registered_hooks.remove(child_hook)
-        for parent in cls._parents:
-            parent.unregister_hook(child_hook)
-
-    def register_hook(cls, child_hook):
-        cls._meta.registered_hooks.add(child_hook)
-        for parent in cls._parents:
-            parent.register_hook(child_hook)
+    def get_hook(cls, unique_id):
+        """
+        Fetch a registered hook instance by its unique_id
+        """
+        if not cls.abstract:
+            raise TypeError("get_hook method used on a non-abstract hook")
+        return cls._registered_hooks.get(unique_id, None)
 
 
 class KolibriHook(six.with_metaclass(KolibriHookMeta)):
-    """
-    WIP!!!
-
-    To use it, extend it. All hooks in kolibri extends from this.
-    Example is in the main description of ``kolibri.plugins.hooks``.
-    """
-
-    def __init__(self):
-        # We have been initialized. A noop. But inheriting hooks might want to
-        # pay attention when they are initialized, since it's an event in itself
-        # signaling that whatever that hook was intended for is now being
-        # yielded or rendered.
+    @abstractproperty
+    def _not_abstract(self):
+        """
+        A dummy property that we set on classes that are not intended to be abstract in the register_hook function above.
+        """
         pass
 
     @property
-    def registered_hooks(self):
+    def unique_id(self):
         """
-        Always go through this method. This should guarantee that every time a
-        hook is accessed, it's also instantiated, giving it a chance to re-do
-        things that it wants done on every event.
+        Returns a globally unique id for the frontend module bundle.
+        This is created by appending the locally unique bundle_id to the
+        Python module path. This should give a globally unique id for the module
+        and prevent accidental or malicious collisions.
         """
-        for HookClass in self._meta.registered_hooks:
-            yield HookClass()
+        return "{}.{}".format(self._module_path, self.__class__.__name__)
 
-    class Meta:
-        abstract = True
+    @property
+    def _module_path(self):
+        return ".".join(self.__module__.split(".")[:-1])

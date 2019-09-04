@@ -11,6 +11,7 @@ from kolibri.plugins import conf_file
 from kolibri.plugins import config
 from kolibri.plugins import DEFAULT_PLUGINS
 from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import KolibriHook
 from kolibri.utils.compat import module_exists
 from kolibri.utils.conf import KOLIBRI_HOME
 
@@ -101,6 +102,8 @@ def get_kolibri_plugin_object(plugin_name):
         for class_definition in all_classes:
             if _is_plugin(class_definition):
                 plugin_classes.append(class_definition)
+            elif issubclass(class_definition, KolibriHook):
+                class_definition.add_hook_to_registries()
         if len(plugin_classes) == 0:
             raise PluginDoesNotExist(
                 "Plugin '{}' exists but does not define a KolibriPluginBase derived class".format(
