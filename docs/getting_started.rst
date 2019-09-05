@@ -76,7 +76,7 @@ Python virtual environment
 
 You should use a Python virtual environment to isolate the dependencies of your Python projects from each other and to avoid corrupting your system's Python installation.
 
-There are many ways to set up Python virtual environments, but we recommend installing and using `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__. (You could also use `Virtualenv <https://virtualenv.pypa.io/en/stable/userguide/>`__, `Python 3 venv <https://docs.python.org/3/library/venv.html>`__, `Poetry <https://poetry.eustace.io>`__, etc...)
+There are many ways to set up Python virtual environments: You can use `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__ as shown in the instructions below; you can also use `Virtualenv <https://virtualenv.pypa.io/en/stable/userguide/>`__, `Python 3 venv <https://docs.python.org/3/library/venv.html>`__, `Poetry <https://poetry.eustace.io>`__ etc.
 
 .. note::
   Most virtual environments will require special setup for non-Bash shells such as Fish and ZSH.
