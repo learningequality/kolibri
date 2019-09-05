@@ -96,6 +96,7 @@ class NotificationEventType(myEnum):
     Started = "Started"
     Completed = "Completed"
     Help = "HelpNeeded"
+    Answered = "Answered"
 
 
 class HelpReason(myEnum):
@@ -121,6 +122,7 @@ class LearnerProgressNotification(models.Model):
     lesson_id = UUIDField(null=True)
     quiz_id = UUIDField(null=True)
     quiz_num_correct = models.IntegerField(null=True)
+    quiz_num_answered = models.IntegerField(null=True)
     reason = models.CharField(max_length=200, choices=HelpReason.choices(), blank=True)
     timestamp = DateTimeTzField(default=local_now)
 

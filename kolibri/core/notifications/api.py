@@ -1,5 +1,8 @@
 from django.db import transaction
 from django.db.models import Sum
+from django.db.models import Count
+from django.db.models import Case
+from django.db.models import When
 from le_utils.constants import content_kinds
 
 from .models import HelpReason
@@ -95,6 +98,7 @@ def create_notification(
     contentnode_id=None,
     quiz_id=None,
     quiz_num_correct=None,
+    quiz_num_answered=None,
     reason=None,
     timestamp=None,
 ):
@@ -111,6 +115,8 @@ def create_notification(
         notification.quiz_id = quiz_id
     if quiz_num_correct:
         notification.quiz_num_correct = quiz_num_correct
+    if quiz_num_answered:
+        notification.quiz_num_answered = quiz_num_answered
     if reason:
         notification.reason = reason
     if timestamp:
@@ -275,13 +281,32 @@ def exist_exam_notification(user_id, exam_id):
     ).exists()
 
 
+@memoize
+def exist_examattempt_notification(user_id, exam_id):
+    return LearnerProgressNotification.objects.filter(
+        user_id=user_id,
+        quiz_id=exam_id,
+        notification_event=NotificationEventType.Answered,
+    ).exists()
+
+
 def num_correct(examlog):
     return (
-        examlog.attemptlogs.values_list("item")
+        examlog.attemptlogs.values_list("item", "content_id")
         .order_by("completion_timestamp")
         .distinct()
         .aggregate(Sum("correct"))
         .get("correct__sum")
+    )
+
+
+def num_answered(examlog):
+    return (
+        examlog.attemptlogs.values_list("item", "content_id")
+        .order_by("completion_timestamp")
+        .distinct()
+        .aggregate(complete__sum=Count(Case(When(complete=True, then=1), default=0)))
+        .get("complete__sum")
     )
 
 
@@ -298,6 +323,7 @@ def created_quiz_notification(examlog, event_type, timestamp):
             group,
             quiz_id=examlog.exam_id,
             quiz_num_correct=num_correct(examlog),
+            quiz_num_answered=num_answered(examlog),
             timestamp=timestamp,
         )
         notifications.append(notification)
@@ -328,6 +354,20 @@ def parse_examlog(examlog, timestamp):
     if not examlog.closed:
         return
     event_type = NotificationEventType.Completed
+    created_quiz_notification(examlog, event_type, timestamp)
+
+
+def create_examattemptslog(examlog, timestamp):
+    """
+    Method called by the ContentSummaryLogSerializer when the
+    examattemptslog is created.
+    It creates the Resource and, if needed, the ExamAttempt created event
+    """
+    # Checks to add an 'Answered' event
+    if exist_examattempt_notification(examlog.user_id, examlog.exam_id):
+        return  # the event has already been triggered
+    event_type = NotificationEventType.Answered
+    exist_exam_notification.cache_clear()
     created_quiz_notification(examlog, event_type, timestamp)
 
 
