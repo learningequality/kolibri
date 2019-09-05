@@ -23,18 +23,18 @@ const urls = {
     setWebpackPublicPath(this);
   },
   static(url) {
-    if (!this.__staticURL) {
-      throw new ReferenceError('Static URL is not defined');
+    if (!this.__staticUrl) {
+      throw new ReferenceError('Static Url is not defined');
     }
-    const base = new URL(this.__staticURL, window.location.origin);
+    const base = new URL(this.__staticUrl, window.location.origin);
     const urlObject = new URL(url, base);
     return urlObject.href;
   },
   media(url) {
-    if (!this.__mediaURL) {
-      throw new ReferenceError('Media URL is not defined');
+    if (!this.__mediaUrl) {
+      throw new ReferenceError('Media Url is not defined');
     }
-    const base = new URL(this.__mediaURL, window.location.origin);
+    const base = new URL(this.__mediaUrl, window.location.origin);
     const urlObject = new URL(url, base);
     return urlObject.href;
   },
@@ -43,7 +43,7 @@ const urls = {
     if (['perseus', 'zip', 'h5p'].includes(extension)) {
       return this['kolibri:core:zipcontent'](filename, embeddedFilePath);
     }
-    return generateUrl(this.__contentURL, `${filename[0]}/${filename[1]}/${filename}`);
+    return generateUrl(this.__contentUrl, `${filename[0]}/${filename[1]}/${filename}`);
   },
 };
 
