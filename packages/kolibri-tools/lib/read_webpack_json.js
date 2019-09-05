@@ -12,6 +12,7 @@ function parseConfig(buildConfig, pythonData, configPath, index = null) {
   const pluginPath = pythonData.plugin_path;
   return {
     name: bundleId,
+    bundle_id: buildConfig.bundle_id,
     static_dir: path.join(pluginPath, 'static'),
     stats_file: path.join(pluginPath, 'build', `${bundleId}_stats.json`),
     locale_data_folder: pythonData.locale_data_folder,

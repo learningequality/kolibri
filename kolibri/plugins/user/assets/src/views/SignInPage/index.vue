@@ -209,7 +209,7 @@
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
   import getUrlParameter from '../getUrlParameter';
   import FacilityModal from './FacilityModal';
-  import getPluginData from 'kolibri.utils.getPluginData';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'SignInPage',
@@ -338,7 +338,7 @@
         return { backgroundColor: this.$themeBrand.primary.v_900 };
       },
       oidcProviderFlow() {
-        return getPluginData().oidcProviderEnabled && this.nextParam;
+        return plugin_data.oidcProviderEnabled && this.nextParam;
       },
       nextParam() {
         // query is after hash
@@ -472,7 +472,7 @@
             password: this.password,
             facility: this.facilityId,
           };
-          if (getPluginData().oidcProviderEnabled) {
+          if (plugin_data.oidcProviderEnabled) {
             sessionPayload['next'] = this.nextParam;
           }
           this.kolibriLogin(sessionPayload).catch();

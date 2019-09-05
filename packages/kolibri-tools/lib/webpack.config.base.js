@@ -38,6 +38,7 @@ const WebpackMessages = require('./webpackMessages');
 module.exports = (data, { mode = 'development', hot = false } = {}) => {
   if (
     typeof data.name === 'undefined' ||
+    typeof data.bundle_id === 'undefined' ||
     typeof data.config_path === 'undefined' ||
     typeof data.static_dir === 'undefined' ||
     typeof data.stats_file === 'undefined' ||
@@ -71,6 +72,10 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
         webpackConfig.entry[key] = webpackConfig.entry[key].map(makePathAbsolute);
       } else {
         webpackConfig.entry[key] = makePathAbsolute(webpackConfig.entry[key]);
+      }
+      if (key === data.bundle_id) {
+        webpackConfig.entry[data.name] = webpackConfig.entry[key];
+        delete webpackConfig.entry[key];
       }
     });
   }

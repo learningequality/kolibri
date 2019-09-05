@@ -19,7 +19,7 @@ oriented data synchronization.
       />
     </UiAlert>
     <div>
-      <ContentRenderer
+      <KContentRenderer
         ref="contentRenderer"
         :kind="kind"
         :lang="lang"
@@ -28,10 +28,8 @@ oriented data synchronization.
         :extraFields="extraFields"
         :assessment="true"
         :itemId="itemId"
-        :initSession="initSession"
         @answerGiven="answerGiven"
         @hintTaken="hintTaken"
-        @sessionInitialized="sessionInitialized"
         @itemError="handleItemError"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
@@ -112,7 +110,6 @@ oriented data synchronization.
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import shuffled from 'kolibri.utils.shuffled';
   import { now } from 'kolibri.utils.serverClock';
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
@@ -123,7 +120,6 @@ oriented data synchronization.
     name: 'AssessmentWrapper',
     components: {
       ExerciseAttempts,
-      ContentRenderer,
       UiAlert,
       BottomAppBar,
     },
@@ -167,10 +163,6 @@ oriented data synchronization.
       extraFields: {
         type: Object,
         default: () => {},
-      },
-      initSession: {
-        type: Function,
-        default: () => Promise.resolve(),
       },
     },
     data() {
@@ -294,6 +286,14 @@ oriented data synchronization.
       if (this.currentInteractions > 0) {
         this.saveAttemptLogMasterLog(false);
       }
+    },
+    created() {
+      if (this.isUserLoggedIn) {
+        this.callInitMasteryLog();
+      } else {
+        this.createDummyMasteryLog();
+      }
+      this.nextQuestion();
     },
     methods: {
       ...mapActions([
@@ -455,15 +455,6 @@ oriented data synchronization.
         this.updateExerciseProgress({ progressPercent: this.exerciseProgress });
         updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
         this.$emit('updateProgress', this.exerciseProgress);
-      },
-      sessionInitialized() {
-        if (this.isUserLoggedIn) {
-          this.callInitMasteryLog();
-        } else {
-          this.createDummyMasteryLog();
-        }
-        this.nextQuestion();
-        this.$emit('sessionInitialized');
       },
       handleItemError() {
         this.itemError = true;

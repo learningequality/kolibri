@@ -4,7 +4,7 @@
     <h2 v-if="isExercise" class="header">
       {{ header }}
     </h2>
-    <ContentRenderer
+    <KContentRenderer
       :class="{ hof: isExercise}"
       :showCorrectAnswer="true"
       :itemId="selectedQuestion"
@@ -22,13 +22,8 @@
 
 <script>
 
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
-
   export default {
     name: 'ContentArea',
-    components: {
-      ContentRenderer,
-    },
     props: {
       content: {
         type: Object,

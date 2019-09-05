@@ -8,86 +8,25 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import io
 import json
-import logging
-import os
 
-from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
-from le_utils.constants import content_kinds
 
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins.hooks import KolibriHook
-
-logger = logging.getLogger(__name__)
-
-_JSON_CONTENT_TYPES_CACHE = {}
 
 
 class ContentRendererHook(WebpackBundleHook):
     """
     An inheritable hook that allows special behaviour for a frontend module that defines
-    a content renderer. Reads a JSON file detailing the kinds and file extensions that the
-    renderer can handle.
+    a content renderer.
     """
 
-    """
-    JSON file format:
-    {
-        "kinds": [
-            {
-                "name": "kind_name",
-                "extensions": [
-                    "file_extension"
-                ]
-            }
-        ]
-    }
-    e.g.
-    {
-        "kinds": [
-            {
-                "name": "video",
-                "extensions": [
-                    "mp4",
-                    "ogg",
-                    "wmv"
-                ]
-            }
-        ]
-    }
-    """
-
-    # Set local path to content type JSON that details the kind, extension pairs this deals with.
-    content_types_file = ""
+    #: Set tuple of format presets that this content renderer can handle
+    presets = tuple()
 
     class Meta:
         abstract = True
-
-    @cached_property
-    def content_types(self):
-        global _JSON_CONTENT_TYPES_CACHE
-        if not _JSON_CONTENT_TYPES_CACHE.get(self.unique_id):
-            try:
-                file_path = os.path.join(
-                    self._module_file_path, self.content_types_file
-                )
-                with io.open(file_path, mode="r", encoding="utf-8") as f:
-                    content_types = json.load(f)
-                    for kind_data in content_types.get("kinds", []):
-                        if kind_data.get("name") not in dict(content_kinds.choices):
-                            logger.debug(
-                                "{kind} not found in valid content kinds for plugin {name}".format(
-                                    kind=kind_data.get("name"), name=self.unique_id
-                                )
-                            )
-                    _JSON_CONTENT_TYPES_CACHE[self.unique_id] = content_types
-            except IOError:
-                raise IOError(
-                    "Content types file not found at {}".format(self.content_types_file)
-                )
-        return _JSON_CONTENT_TYPES_CACHE.get(self.unique_id, {})
 
     def render_to_page_load_async_html(self):
         """
@@ -100,11 +39,11 @@ class ContentRendererHook(WebpackBundleHook):
         # text direction than the interface due to the text direction of content
         urls = [chunk["url"] for chunk in self.bundle]
         tags = self.frontend_message_tag() + [
-            '<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {content_types});</script>'.format(
+            '<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {presets});</script>'.format(
                 kolibri_name="kolibriCoreAppGlobal",
                 bundle=self.unique_id,
                 urls='","'.join(urls),
-                content_types=json.dumps(self.content_types),
+                presets=json.dumps(self.presets),
             )
         ]
         return mark_safe("\n".join(tags))

@@ -1,22 +1,21 @@
-import Vue from 'kolibri.lib.vue';
-import vueintl from 'vue-intl';
-import Mediator from '../src/core-app/mediator';
+import Vue from 'vue';
+import mediatorFactory from '../pluginMediator';
 
 if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
   global.Intl = require('intl');
   require('intl/locale-data/jsonp/en.js');
 }
 
-Vue.use(vueintl, { defaultLocale: 'en-us' });
-
 describe('Mediator', function() {
-  let mediator, kolibriModule;
+  let mediator, kolibriModule, facade;
   const kolibriModuleName = 'test';
   beforeEach(function() {
-    mediator = new Mediator();
+    facade = {};
+    mediator = mediatorFactory({ Vue, facade });
   });
   afterEach(function() {
     mediator = undefined;
+    facade = undefined;
   });
   describe('kolibriModule registry', function() {
     it('should be empty', function() {

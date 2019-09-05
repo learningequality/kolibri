@@ -12,12 +12,14 @@
 // N.B. You cannot use keys that require quotation marks in this object.
 // e.g. 'content-icon' (although this can be used as a value in module).
 
+import vue from 'vue';
 import vuex from 'vuex';
 import UiAlert from 'keen-ui/src/UiAlert';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
 import responsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
 import responsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
+import scriptLoader from 'kolibri-components/src/utils/scriptLoader';
 import logging from '../logging';
 import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';
@@ -26,7 +28,6 @@ import * as getters from '../state/modules/core/getters';
 import * as actions from '../state/modules/core/actions';
 import store from '../state/store';
 import * as mappers from '../state/mappers';
-import ContentRenderer from '../views/ContentRenderer';
 import DownloadButton from '../views/ContentRenderer/DownloadButton';
 import ProgressBar from '../views/ProgressBar';
 import ContentIcon from '../views/ContentIcon';
@@ -43,7 +44,6 @@ import PointsIcon from '../views/PointsIcon';
 import AuthMessage from '../views/AuthMessage';
 import FilterTextbox from '../views/FilterTextbox';
 import router from '../router';
-import contentRendererMixin from '../mixins/contentRenderer';
 import commonCoreStrings from '../mixins/commonCoreStrings';
 import CoreFullscreen from '../views/CoreFullscreen';
 import definitions from '../styles/definitions.scss';
@@ -90,7 +90,6 @@ import CatchErrors from '../utils/CatchErrors';
 import UiIconButton from '../views/KeenUiIconButton.vue';
 import UiToolbar from '../views/KeenUiToolbar.vue';
 import shuffled from '../utils/shuffled';
-import vue from './kolibriVue';
 import * as client from './client';
 import urls from './urls';
 
@@ -116,7 +115,6 @@ export default {
     },
     components: {
       CoachContentLabel,
-      ContentRenderer,
       DownloadButton,
       ProgressBar,
       ContentIcon,
@@ -161,7 +159,6 @@ export default {
     mixins: {
       responsiveWindowMixin,
       responsiveElementMixin,
-      contentRendererMixin,
       commonCoreStrings,
     },
   },
@@ -186,5 +183,6 @@ export default {
     shuffled,
     bytesForHumans,
     branding,
+    scriptLoader,
   },
 };

@@ -1,11 +1,12 @@
 import { redirectBrowser } from 'kolibri.utils.browser';
 import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
 import { httpClient } from 'kolibri.client';
+import urls from 'kolibri.urls';
 
 export default {
   methods: {
     switchLanguage(code) {
-      const path = this.Kolibri.urls['kolibri:core:set_language']();
+      const path = urls['kolibri:core:set_language']();
       const entity = { language: code, next: window.location.href };
       httpClient({
         method: 'POST',

@@ -76,6 +76,7 @@
     'topic',
     'video',
     'html5',
+    'slideshow',
     // users
     'classroom',
     'group',

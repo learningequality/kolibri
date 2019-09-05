@@ -28,6 +28,7 @@ jest.mock(
 
 const baseData = {
   name: 'kolibri.plugin.test.test_plugin',
+  bundle_id: 'test_plugin',
   stats_file: 'output.json',
   static_url_root: 'static',
   static_dir: 'kolibri/plugin/test',
