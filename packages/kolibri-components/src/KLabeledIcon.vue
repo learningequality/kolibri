@@ -9,9 +9,9 @@
     <div class="label">
       <!-- nest slot inside span to get alignment and flow correct for mixed RLT/LTR -->
       <span dir="auto">
-        <slot>
-          {{ label }}
-        </slot>
+        <!-- Use zero-width space when empty -->
+        <slot v-if="!labelEmpty">{{ label }}</slot>
+        <template v-else>&#8203;</template>
       </span>
     </div>
   </span>
@@ -38,6 +38,24 @@
       label: {
         type: String,
         required: false,
+      },
+    },
+    computed: {
+      labelEmpty() {
+        if (this.label) {
+          return false;
+        }
+
+        if (!('default' in this.$slots) || !this.$slots.default.length) {
+          return true;
+        }
+
+        const defaultSlot = this.$slots.default[0];
+        return !(
+          defaultSlot.text ||
+          defaultSlot.tag ||
+          (defaultSlot.children && defaultSlot.children.length)
+        );
       },
     },
   };

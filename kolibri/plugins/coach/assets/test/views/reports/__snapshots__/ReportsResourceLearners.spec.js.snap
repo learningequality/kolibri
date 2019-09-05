@@ -11,9 +11,7 @@ exports[`ReportsResourceLearners doesn't render groups information when show gro
         <!---->
         <th>Last activity</th>
       </tr>
-    </thead><span tag="tbody" name="list"><tr><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto">
-        learner1
-      </span>
+    </thead><span tag="tbody" name="list"><tr><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto">learner1</span>
 </div></span></td>
 <td>
   <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto">
@@ -29,9 +27,7 @@ exports[`ReportsResourceLearners doesn't render groups information when show gro
 </span></td>
 </tr>
 <tr>
-  <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto">
-        learner2
-      </span></div></span></td>
+  <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto">learner2</span></div></span></td>
   <td>
     <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto">
     Started
@@ -61,9 +57,7 @@ exports[`ReportsResourceLearners renders all entries 1`] = `
         </th>
         <th>Last activity</th>
       </tr>
-    </thead><span tag="tbody" name="list"><tr><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto">
-        learner1
-      </span>
+    </thead><span tag="tbody" name="list"><tr><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto">learner1</span>
 </div></span></td>
 <td>
   <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto">
@@ -83,9 +77,7 @@ exports[`ReportsResourceLearners renders all entries 1`] = `
 </span></td>
 </tr>
 <tr>
-  <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto">
-        learner2
-      </span></div></span></td>
+  <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto">learner2</span></div></span></td>
   <td>
     <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto">
     Started
