@@ -17,7 +17,7 @@
       <mat-svg v-else name="fullscreen" category="navigation" />
     </UiIconButton>
     <Hooper v-if="slides.length" @slide="handleSlide" @loaded="initializeHooper">
-      <Slide v-for="(slide, index) in slides" :key="slide.id + index">
+      <Slide v-for="(slide, index) in slides" :key="slide.id + index" :index="index">
         <div
           class="slideshow-slide-image-wrapper"
           :style="{
@@ -134,7 +134,7 @@
           const path = defaultFile.storage_url;
           const method = 'GET';
           client({ path, method }).then(({ entity }) => {
-            this.setSlides(entity.slideshow_data);
+            this.setSlides(entity);
           });
         }
       },
