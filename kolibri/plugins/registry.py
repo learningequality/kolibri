@@ -38,11 +38,18 @@ from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 
 from kolibri.plugins import config
-from kolibri.plugins.utils import get_kolibri_plugin_object
+from kolibri.plugins.utils import initialize_kolibri_plugin
 from kolibri.plugins.utils import MultiplePlugins
 from kolibri.plugins.utils import PluginDoesNotExist
 
 logger = logging.getLogger(__name__)
+
+
+class PluginExistsInApp(Exception):
+    """
+    This exception is raise when a plugin is initialized inside a Django app and
+    it is found to actually have defined a plugin. NO!
+    """
 
 
 class Registry(object):
@@ -57,21 +64,50 @@ class Registry(object):
     def get(self, app):
         return self._apps.get(app, None)
 
-    def register(self, apps):
+    def register_plugins(self, apps):
+        """
+        Register plugins - i.e. modules that have a KolibriPluginBase derived
+        class in their kolibri_plugin.py module - these can be enabled and disabled
+        by the Kolibri plugin machinery.
+        """
         for app in apps:
-            # In case we are registering from INSTALLED_APPS that could include
-            # Django AppConfig objects.
-            if isinstance(app, AppConfig):
-                app = app.name
             try:
-
                 if app not in self._apps:
-                    plugin_object = get_kolibri_plugin_object(app)
+                    plugin_object = initialize_kolibri_plugin(app)
                     self._apps[app] = plugin_object
             except (MultiplePlugins, ImportError):
                 logger.warn("Cannot initialize plugin {}".format(app))
             except PluginDoesNotExist:
                 pass
+
+    def register_non_plugins(self, apps):
+        """
+        Register non-plugins - i.e. modules that do not have a KolibriPluginBase derived
+        class in their kolibri_plugin.py module - these cannot be enabled and disabled
+        by the Kolibri plugin machinery, but may wish to still register Kolibri Hooks
+        """
+        for app in apps:
+            # In case we are registering non-plugins from INSTALLED_APPS (the usual use case)
+            # that could include Django AppConfig objects.
+            if isinstance(app, AppConfig):
+                app = app.name
+                if app not in self._apps:
+                    try:
+                        initialize_kolibri_plugin(app)
+                        # Raise an error here because non-plugins should raise a PluginDoesNotExist exception
+                        # if they are properly configured.
+                        raise PluginExistsInApp(
+                            "Django app {} contains a plugin definition".format(app)
+                        )
+                    except MultiplePlugins:
+                        raise PluginExistsInApp(
+                            "Django app {} contains multiple plugin definitions".format(
+                                app
+                            )
+                        )
+                    except (PluginDoesNotExist, ImportError):
+                        # Register so that we don't do this twice.
+                        self._apps[app] = None
 
 
 def __initialize():
@@ -85,7 +121,7 @@ def __initialize():
         raise RuntimeError(
             "Django settings already configured when plugin registry initialized"
         )
-    registry.register(config.ACTIVE_PLUGINS)
+    registry.register_plugins(config.ACTIVE_PLUGINS)
     return registry
 
 

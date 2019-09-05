@@ -3,7 +3,7 @@ import logging
 import os
 import shutil
 
-from django.conf import settings
+from django.conf import settings as django_settings
 from django.core.exceptions import AppRegistryNotReady
 from django.core.urlresolvers import reverse
 
@@ -21,8 +21,7 @@ logger = logging.getLogger(__name__)
 
 class PluginDoesNotExist(Exception):
     """
-    This exception is local to the CLI environment in case actions are performed
-    on a plugin that cannot be loaded.
+    This exception is raised when a plugin is initialized but it has no plugin class
     """
 
 
@@ -70,13 +69,13 @@ def _import_python_module(plugin_name):
 
 
 def initialize_plugins_and_hooks(all_classes, plugin_name):
-    was_configured = settings.configured
+    was_configured = django_settings.configured
     plugin_objects = []
     for class_definition in all_classes:
         if _is_plugin(class_definition):
             # Initialize the class, nothing more happens for now.
             plugin_objects.append(class_definition())
-            if not was_configured and settings.configured:
+            if not was_configured and django_settings.configured:
                 raise RuntimeError(
                     "Initializing plugin class {} in plugin {} caused Django settings to be configured".format(
                         class_definition.__name__, plugin_name
@@ -84,7 +83,7 @@ def initialize_plugins_and_hooks(all_classes, plugin_name):
                 )
         elif issubclass(class_definition, KolibriHook):
             class_definition.add_hook_to_registries()
-            if not was_configured and settings.configured:
+            if not was_configured and django_settings.configured:
                 raise RuntimeError(
                     "Initializing hook class {} in plugin {} caused Django settings to be configured".format(
                         class_definition.__name__, plugin_name
@@ -105,13 +104,16 @@ def initialize_plugins_and_hooks(all_classes, plugin_name):
         raise MultiplePlugins("More than one plugin defined in kolibri_plugin module")
 
 
-def get_kolibri_plugin_object(plugin_name):
+def initialize_kolibri_plugin(plugin_name):
     """
     Try to load kolibri_plugin from given plugin module identifier
+    In so doing, it will instantiate the KolibriPlugin object if it
+    exists, and also register any hooks found in the module.
 
-    :returns: A generator of objects instantiating KolibriPlugin
+    :returns: the KolibriPlugin object for the module
     """
-    was_configured = settings.configured
+    was_configured = django_settings.configured
+
     # First import the bare plugin name to see if it exists
     # This will raise an exception if not
     _import_python_module(plugin_name)
@@ -119,7 +121,7 @@ def get_kolibri_plugin_object(plugin_name):
     try:
         # Exceptions are expected to be thrown from here.
         plugin_module = importlib.import_module(plugin_name + ".kolibri_plugin")
-        if not was_configured and settings.configured:
+        if not was_configured and django_settings.configured:
             raise RuntimeError(
                 "Importing plugin module {} caused Django settings to be configured".format(
                     plugin_name
@@ -163,7 +165,7 @@ def get_kolibri_plugin_object(plugin_name):
 
 def enable_plugin(plugin_name):
     try:
-        obj = get_kolibri_plugin_object(plugin_name)
+        obj = initialize_kolibri_plugin(plugin_name)
         if obj:
             obj.enable()
     except PluginDoesNotExist as e:
@@ -172,7 +174,7 @@ def enable_plugin(plugin_name):
 
 def disable_plugin(plugin_name):
     try:
-        obj = get_kolibri_plugin_object(plugin_name)
+        obj = initialize_kolibri_plugin(plugin_name)
         if obj:
             obj.disable()
     except PluginDoesNotExist as e:

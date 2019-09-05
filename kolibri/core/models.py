@@ -8,4 +8,4 @@ from kolibri.plugins.registry import registered_plugins
 
 # Register any django apps that may have kolibri plugin
 # modules inside them
-registered_plugins.register(settings.INSTALLED_APPS)
+registered_plugins.register_non_plugins(settings.INSTALLED_APPS)
