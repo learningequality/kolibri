@@ -10,7 +10,7 @@
             class="core-table-checkbox-col select-all"
           >
             <KCheckbox
-              :label="selectAllLabel"
+              :label="$tr('selectAllLabel')"
               :showLabel="true"
               :checked="allAreSelected"
               class="overflow-label"
@@ -33,6 +33,22 @@
           <th v-if="$scopedSlots.info">
             {{ infoDescriptor }}
           </th>
+          <template v-if="showDemographicInfo">
+            <th>
+              <span>{{ coreString('identifierLabel') }}</span>
+              <CoreInfoIcon
+                class="tooltip"
+                :iconAriaLabel="coreString('identifierAriaLabel')"
+                :tooltipText="coreString('identifierTooltip')"
+              />
+            </th>
+            <th>
+              {{ coreString('genderLabel') }}
+            </th>
+            <th>
+              {{ coreString('birthYearLabel') }}
+            </th>
+          </template>
           <th v-if="$scopedSlots.action" class="user-action-button">
             <span class="visuallyhidden">
               {{ $tr('userActionsColumnHeader') }}
@@ -48,14 +64,17 @@
         >
           <td v-if="selectable" class="core-table-checkbox-col">
             <KCheckbox
-              :label="userCheckboxLabel"
+              :label="$tr('userCheckboxLabel')"
               :showLabel="false"
               :checked="userIsSelected(user.id)"
               @change="selectUser(user.id, $event)"
             />
           </td>
           <td>
-            <KLabeledIcon :icon="isCoach ? 'coach' : 'person'" :label="user.full_name" />
+            <KLabeledIcon
+              :icon="isCoach ? 'coach' : 'person'"
+              :label="user.full_name"
+            />
             <UserTypeDisplay
               aria-hidden="true"
               :userType="user.kind"
@@ -75,6 +94,20 @@
               {{ user.username }}
             </span>
           </td>
+          <template v-if="showDemographicInfo">
+            <td class="id-col">
+              <span v-if="user.id_number">
+                {{ user.id_number }}
+              </span>
+              <KEmptyPlaceholder v-else />
+            </td>
+            <td>
+              <GenderDisplayText :gender="user.gender" />
+            </td>
+            <td>
+              <BirthYearDisplayText :birthYear="user.birth_year" />
+            </td>
+          </template>
           <td v-if="$scopedSlots.info">
             <slot name="info" :user="user"></slot>
           </td>
@@ -102,13 +135,19 @@
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import difference from 'lodash/difference';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
+  import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UserTable',
     components: {
+      CoreInfoIcon,
       CoreTable,
       UserTypeDisplay,
+      GenderDisplayText,
+      BirthYearDisplayText,
     },
     mixins: [commonCoreStrings],
     props: {
@@ -123,14 +162,6 @@
         type: Boolean,
         default: false,
       },
-      // TODO bring string into this component after stringfreeze
-      selectAllLabel: {
-        type: String,
-      },
-      // TODO bring string into this component after stringfreeze
-      userCheckboxLabel: {
-        type: String,
-      },
       // used for optional checkboxes
       value: {
         type: Array,
@@ -143,6 +174,11 @@
       infoDescriptor: {
         type: String,
         default: '',
+      },
+      // If true, shows ID number, gender, and birth year columns
+      showDemographicInfo: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {
@@ -173,6 +209,8 @@
     $trs: {
       role: 'Role',
       userActionsColumnHeader: 'Actions',
+      selectAllLabel: 'Select all',
+      userCheckboxLabel: 'Select user',
     },
   };
 
@@ -215,6 +253,14 @@
     position: absolute;
     top: 8px;
     white-space: nowrap;
+  }
+
+  .tooltip {
+    margin-left: 2px;
+  }
+
+  td.id-col {
+    max-width: 120px;
   }
 
 </style>

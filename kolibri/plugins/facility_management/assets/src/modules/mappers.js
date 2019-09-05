@@ -16,5 +16,8 @@ export function _userState(facilityUser) {
     kind: UserType(facilityUser),
     is_superuser: facilityUser.is_superuser,
     roles: facilityUser.roles,
+    gender: facilityUser.gender,
+    birth_year: facilityUser.birth_year,
+    id_number: facilityUser.id_number,
   };
 }

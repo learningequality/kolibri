@@ -9,19 +9,14 @@ export function showUserPage(store) {
     name: PageNames.USER_MGMT_PAGE,
   });
 
-  const facilityId = store.getters.currentFacilityId;
-
   return FacilityUserResource.fetchCollection({
-    getParams: { member_of: facilityId },
+    getParams: { member_of: store.getters.currentFacilityId },
     force: true,
   }).only(
     samePageCheckGenerator(store),
     users => {
       store.commit('userManagement/SET_STATE', {
         facilityUsers: users.map(_userState),
-        modalShown: false,
-        error: '',
-        isBusy: false,
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
     },

@@ -4,30 +4,20 @@
     :title="$tr('resetPassword')"
     :submitText="coreString('saveAction')"
     :cancelText="coreString('cancelAction')"
-    :submitDisabled="isBusy"
+    :submitDisabled="busy"
+    :cancelDisabled="busy"
     @submit="submitForm"
     @cancel="$emit('cancel')"
   >
     <p>{{ $tr('username') }}<strong>{{ username }}</strong></p>
 
-    <KTextbox
-      ref="password"
-      v-model="password"
-      type="password"
-      :label="$tr('newPassword')"
+    <PasswordTextbox
+      ref="passwordTextbox"
       :autofocus="true"
-      :invalid="passwordIsInvalid"
-      :invalidText="passwordIsInvalidText"
-      @blur="passwordBlurred = true"
-    />
-    <KTextbox
-      ref="confirmedPassword"
-      v-model="confirmedPassword"
-      type="password"
-      :label="$tr('confirmNewPassword')"
-      :invalid="confirmedPasswordIsInvalid"
-      :invalidText="confirmedPasswordIsInvalidText"
-      @blur="confirmedPasswordBlurred = true"
+      :disabled="busy"
+      :value.sync="password"
+      :isValid.sync="passwordValid"
+      :shouldValidate="formSubmitted"
     />
   </KModal>
 
@@ -36,11 +26,14 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ResetUserPasswordModal',
+    components: {
+      PasswordTextbox,
+    },
     mixins: [commonCoreStrings],
     props: {
       id: {
@@ -55,67 +48,47 @@
     data() {
       return {
         password: '',
-        confirmedPassword: '',
-        passwordBlurred: false,
-        confirmedPasswordBlurred: false,
-        submittedForm: false,
+        passwordValid: false,
+        formSubmitted: false,
+        busy: false,
       };
     },
-    computed: {
-      ...mapState('userManagement', ['isBusy']),
-      passwordIsInvalidText() {
-        if (this.passwordBlurred || this.submittedForm) {
-          if (this.password === '') {
-            return this.coreString('requiredFieldLabel');
-          }
-        }
-        return '';
-      },
-      passwordIsInvalid() {
-        return Boolean(this.passwordIsInvalidText);
-      },
-      confirmedPasswordIsInvalidText() {
-        if (this.confirmedPasswordBlurred || this.submittedForm) {
-          if (this.confirmedPassword === '') {
-            return this.coreString('requiredFieldLabel');
-          }
-          if (this.confirmedPassword !== this.password) {
-            return this.coreString('passwordsMismatchError');
-          }
-        }
-        return '';
-      },
-      confirmedPasswordIsInvalid() {
-        return Boolean(this.confirmedPasswordIsInvalidText);
-      },
-      formIsValid() {
-        return !this.passwordIsInvalid && !this.confirmedPasswordIsInvalid;
-      },
-    },
     methods: {
-      ...mapActions(['handleApiError']),
-      ...mapActions('userManagement', ['updateFacilityUser']),
       submitForm() {
-        this.submittedForm = true;
-        if (this.formIsValid) {
-          // TODO handle the error within this modal (needs new strings)
-          this.updateFacilityUser({ userId: this.id, updates: { password: this.password } })
-            .catch(error => this.handleApiError(error))
-            .then(() => this.$emit('cancel'));
-        } else {
-          if (this.passwordIsInvalid) {
-            this.$refs.password.focus();
-          } else if (this.confirmedPasswordIsInvalid) {
-            this.$refs.confirmedPassword.focus();
-          }
+        this.formSubmitted = true;
+
+        if (!this.passwordValid) {
+          return this.focusOnInvalidField();
         }
+
+        this.busy = true;
+        this.$store
+          .dispatch('userManagement/updateFacilityUserPassword', {
+            userId: this.id,
+            password: this.password,
+          })
+          .then(() => {
+            this.busy = false;
+            this.$emit('cancel');
+            this.$store.dispatch(
+              'createSnackbar',
+              this.$tr('passwordChangedNotification', { username: this.username })
+            );
+          })
+          .catch(error => this.$store.dispatch('handleApiError', error));
+      },
+      focusOnInvalidField() {
+        this.$nextTick().then(() => {
+          if (!this.passwordValid) {
+            this.$refs.passwordTextbox.focus();
+          }
+        });
       },
     },
     $trs: {
       resetPassword: 'Reset user password',
       username: 'Username: ',
-      newPassword: 'New password',
-      confirmNewPassword: 'Confirm new password',
+      passwordChangedNotification: "Password changed for '{username}'",
     },
   };
 

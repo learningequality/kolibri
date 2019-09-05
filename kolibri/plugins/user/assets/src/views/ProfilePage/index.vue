@@ -1,116 +1,115 @@
 <template>
 
-  <KPageContainer class="content">
+  <KPageContainer>
 
-    <section>
-      <h2>{{ $tr('points') }}</h2>
-      <PointsIcon class="points-icon" />
-      <span class="points-num" :style="{ color: $themeTokens.correct }">
-        {{ $formatNumber(totalPoints) }}
-      </span>
-    </section>
+    <KGrid>
+      <KGridItem sizes="100, 75, 75" percentage>
+        <h1>{{ $tr('detailsHeader') }}</h1>
+      </KGridItem>
+      <KGridItem sizes="100, 25, 25" percentage alignment="right">
+        <KRouterLink
+          :text="$tr('editAction')"
+          appearance="raised-button"
+          :primary="true"
+          :to="$router.getRoute('PROFILE_EDIT')"
+        />
+      </KGridItem>
+    </KGrid>
 
-    <section>
-      <h2>{{ coreString('userTypeLabel') }}</h2>
-      <UserTypeDisplay :distinguishCoachTypes="false" :userType="getUserKind" />
-    </section>
+    <table>
+      <tr>
+        <th>{{ $tr('points') }}</th>
+        <td class="points-cell">
+          <PointsIcon class="points-icon" />
+          <span :style="{ color: $themeTokens.correct }">
+            {{ $formatNumber(totalPoints) }}
+          </span>
+        </td>
+      </tr>
 
-    <section v-if="facilityName">
-      <h2>{{ coreString('facilityLabel') }}</h2>
-      <p>{{ facilityName }}</p>
-    </section>
+      <tr>
+        <th>{{ coreString('userTypeLabel') }}</th>
 
+        <td>
+          <UserTypeDisplay
+            :distinguishCoachTypes="false"
+            :userType="getUserKind"
+          />
+        </td>
+      </tr>
 
-    <section v-if="userHasPermissions">
-      <h2>{{ coreString('devicePermissionsLabel') }}</h2>
-      <p>
-        <KLabeledIcon>
-          <PermissionsIcon slot="icon" :permissionType="permissionType" class="permissions-icon" />
-          {{ permissionTypeText }}
-        </KLabeledIcon>
-      </p>
-      <p>
-        {{ $tr('youCan') }}
-        <ul class="permissions-list">
-          <li v-if="isSuperuser">
-            {{ $tr('manageDevicePermissions') }}
-          </li>
-          <li v-for="(value, key) in userPermissions" :key="key">
-            {{ getPermissionString(key) }}
-          </li>
-        </ul>
-      </p>
-    </section>
+      <tr v-if="facilityName">
+        <th>{{ coreString('facilityLabel') }}</th>
+        <td>{{ facilityName }}</td>
+      </tr>
 
-    <form @submit.prevent="submitEdits">
-      <UiAlert
-        v-if="success"
-        type="success"
-        :dismissible="false"
-      >
-        {{ $tr('success') }}
-      </UiAlert>
+      <tr v-if="userHasPermissions">
+        <th style="vertical-align: top">
+          {{ coreString('devicePermissionsLabel') }}
+        </th>
+        <td>
+          <KLabeledIcon>
+            <PermissionsIcon
+              slot="icon"
+              :permissionType="permissionType"
+              class="permissions-icon"
+            />
+            {{ permissionTypeText }}
+          </KLabeledIcon>
+          <p>
+            {{ $tr('youCan') }}
+            <ul class="permissions-list">
+              <li v-if="isSuperuser">
+                {{ $tr('manageDevicePermissions') }}
+              </li>
+              <li v-for="(value, key) in userPermissions" :key="key">
+                {{ getPermissionString(key) }}
+              </li>
+            </ul>
+          </p>
+        </td>
+      </tr>
 
-      <KTextbox
-        v-if="canEditName"
-        ref="name"
-        v-model="name"
-        type="text"
-        autocomplete="name"
-        :autofocus="false"
-        :label="coreString('fullNameLabel')"
-        :disabled="busy"
-        :maxlength="120"
-        :invalid="nameIsInvalid"
-        :invalidText="nameIsInvalidText"
-      />
-      <template v-else>
-        <h2>{{ coreString('fullNameLabel') }}</h2>
-        <p>{{ name }}</p>
-      </template>
+      <tr>
+        <th>{{ coreString('fullNameLabel') }}</th>
+        <td>{{ session.full_name }}</td>
+      </tr>
 
-      <KTextbox
-        v-if="canEditUsername"
-        ref="username"
-        v-model="username"
-        type="text"
-        autocomplete="username"
-        :label="coreString('usernameLabel')"
-        :disabled="busy"
-        :maxlength="30"
-        :invalid="usernameIsInvalid"
-        :invalidText="usernameIsInvalidText"
-        @blur="usernameBlurred = true"
-        @input="resetProfileState"
-      />
-      <template v-else>
-        <h2>{{ coreString('usernameLabel') }}</h2>
-        <p>{{ session.username }}</p>
-      </template>
+      <tr>
+        <th>{{ coreString('usernameLabel') }}</th>
+        <td>{{ session.username }}</td>
+      </tr>
 
-      <KButton
-        v-if="canEditUsername || canEditName"
-        type="submit"
-        class="submit"
-        :text="coreString('saveChangesAction')"
-        :primary="true"
-        :disabled="busy"
-      />
+      <tr>
+        <th>{{ coreString('genderLabel') }}</th>
+        <td>
+          <GenderDisplayText :gender="facilityUser.gender" />
+        </td>
+      </tr>
 
-    </form>
+      <tr>
+        <th>{{ coreString('birthYearLabel') }}</th>
+        <td>
+          <BirthYearDisplayText :birthYear="facilityUser.birth_year" />
+        </td>
+      </tr>
 
-    <KButton
-      v-if="canEditPassword"
-      appearance="basic-link"
-      :text="$tr('changePasswordPrompt')"
-      :disabled="busy"
-      class="change-password"
-      @click="setPasswordModalVisible(true)"
-    />
+      <tr v-if="canEditPassword">
+        <th>{{ coreString('passwordLabel') }}</th>
+        <td>
+          <KButton
+            appearance="basic-link"
+            :text="$tr('changePasswordPrompt')"
+            class="change-password"
+            @click="showPasswordModal = true"
+          />
+        </td>
+      </tr>
+    </table>
 
     <ChangeUserPasswordModal
-      v-if="passwordModalVisible"
-      @cancel="setPasswordModalVisible(false)"
+      v-if="showPasswordModal"
+      @cancel="showPasswordModal = false"
     />
   </KPageContainer>
 
@@ -119,17 +118,18 @@
 
 <script>
 
-  import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { validateUsername } from 'kolibri.utils.validators';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
-  import UiAlert from 'keen-ui/src/UiAlert';
-  import { PermissionTypes, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
+  import { FacilityUserResource } from 'kolibri.resources';
+  import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
+  import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
 
   export default {
@@ -140,21 +140,18 @@
       };
     },
     components: {
-      UiAlert,
       PointsIcon,
       PermissionsIcon,
       ChangeUserPasswordModal,
       UserTypeDisplay,
+      GenderDisplayText,
+      BirthYearDisplayText,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     data() {
-      const { username, full_name } = this.$store.state.core.session;
       return {
-        username: username,
-        name: full_name,
-        usernameBlurred: false,
-        nameBlurred: false,
-        formSubmitted: false,
+        facilityUser: {},
+        showPasswordModal: false,
       };
     },
     computed: {
@@ -162,18 +159,12 @@
         'facilityConfig',
         'getUserKind',
         'getUserPermissions',
-        'isCoach',
-        'isLearner',
         'isSuperuser',
         'totalPoints',
         'userHasPermissions',
       ]),
       ...mapState({
         session: state => state.core.session,
-      }),
-      ...mapState('profile', ['busy', 'passwordState', 'success']),
-      ...mapState('profile', {
-        profileErrors: 'errors',
       }),
       userPermissions() {
         return pickBy(this.getUserPermissions);
@@ -183,9 +174,6 @@
           id: this.$store.getters.currentFacilityId,
         });
         return match ? match.name : '';
-      },
-      passwordModalVisible() {
-        return this.passwordState.modal;
       },
       permissionType() {
         if (this.isSuperuser) {
@@ -203,102 +191,39 @@
         }
         return '';
       },
-      canEditUsername() {
-        if (this.isCoach || this.isLearner) {
-          return this.facilityConfig.learner_can_edit_username;
-        }
-        return true;
-      },
-      canEditName() {
-        if (this.isCoach || this.isLearner) {
-          return this.facilityConfig.learner_can_edit_name;
-        }
-        return true;
-      },
       canEditPassword() {
         return this.isSuperuser || this.facilityConfig.learner_can_edit_password;
       },
-      nameIsInvalidText() {
-        if (this.nameBlurred || this.formSubmitted) {
-          if (this.name === '') {
-            return this.coreString('requiredFieldLabel');
-          }
-        }
-        return '';
-      },
-      nameIsInvalid() {
-        return Boolean(this.nameIsInvalidText);
-      },
-      usernameIsInvalidText() {
-        if (this.usernameBlurred || this.formSubmitted) {
-          if (this.username === '') {
-            return this.coreString('requiredFieldLabel');
-          }
-          if (!validateUsername(this.username)) {
-            return this.coreString('usernameNotAlphaNumError');
-          }
-          if (this.usernameAlreadyExists) {
-            return this.$tr('usernameAlreadyExists');
-          }
-        }
-        return '';
-      },
-      usernameIsInvalid() {
-        return Boolean(this.usernameIsInvalidText);
-      },
-      usernameAlreadyExists() {
-        return this.profileErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
-      },
-      formIsValid() {
-        return !this.usernameIsInvalid;
-      },
     },
     created() {
-      this.fetchPoints();
+      this.$store.dispatch('fetchPoints');
+    },
+    mounted() {
+      this.fetchFacilityUser();
     },
     methods: {
-      ...mapActions(['fetchPoints']),
-      ...mapActions('profile', ['updateUserProfile']),
-      ...mapMutations('profile', {
-        resetProfileState: 'RESET_STATE',
-        setPasswordModalVisible: 'SET_PROFILE_PASSWORD_MODAL',
-      }),
-      submitEdits() {
-        this.formSubmitted = true;
-        this.resetProfileState();
-        if (this.formIsValid) {
-          this.updateUserProfile({
-            edits: {
-              username: this.username,
-              full_name: this.name,
-            },
-            session: this.session,
-          });
-        } else {
-          if (this.nameIsInvalid) {
-            this.$refs.name.focus();
-          } else if (this.usernameIsInvalid) {
-            this.$refs.username.focus();
-          }
-        }
-      },
       getPermissionString(permission) {
         if (permission === 'can_manage_content') {
           return this.$tr('manageContent');
         }
         return permission;
       },
+      fetchFacilityUser() {
+        FacilityUserResource.fetchModel({ id: this.session.user_id }).then(facilityUser => {
+          this.facilityUser = { ...facilityUser };
+        });
+      },
     },
     $trs: {
-      success: 'Profile details updated',
+      detailsHeader: 'Details',
+      editAction: 'Edit',
       isSuperuser: 'Super admin permissions ',
       manageContent: 'Manage content',
       manageDevicePermissions: 'Manage device permissions',
       points: 'Points',
       limitedPermissions: 'Limited permissions',
-      youCan: 'You can',
+      youCan: 'You can:',
       changePasswordPrompt: 'Change password',
-      usernameAlreadyExists: 'An account with that username already exists',
       documentTitle: 'User Profile',
     },
   };
@@ -308,20 +233,26 @@
 
 <style lang="scss" scoped>
 
-  .content {
-    max-width: 500px;
-    margin-right: auto;
-    margin-left: auto;
-  }
-
   .points-icon,
   .points-num {
     display: inline-block;
   }
 
-  .points-icon {
-    width: 2em;
+  th {
+    text-align: left;
+  }
+
+  th,
+  td {
     height: 2em;
+    padding-top: 24px;
+    padding-right: 24px;
+  }
+
+  .points-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 4px;
   }
 
   .points-num {
@@ -348,6 +279,10 @@
 
   .change-password {
     margin-top: 8px;
+  }
+
+  .points-cell {
+    vertical-align: middle;
   }
 
 </style>

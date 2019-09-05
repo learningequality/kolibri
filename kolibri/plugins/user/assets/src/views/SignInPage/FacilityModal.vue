@@ -45,6 +45,9 @@
       }),
       submitAndClose() {
         this.setFacilityId(this.selectedFacility);
+        this.$store.commit('CORE_SET_SESSION', {
+          facility_id: this.selectedFacility,
+        });
         this.setLoginError('');
         this.getFacilityConfig(this.selectedFacility).then(() => this.$emit('submit'));
       },

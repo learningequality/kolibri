@@ -603,6 +603,30 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         DevicePermissions.objects.create(user=superuser, is_superuser=True)
 
 
+def validate_birth_year(value):
+    error = ""
+
+    if value == "NOT_SPECIFIED" or value == "DEFERRED":
+        return
+
+    try:
+        if int(value) < 1900:
+            error = "Birth year {value} is invalid, as it is prior to the year 1900".format(
+                value=value
+            )
+
+        elif int(value) > 3000:
+            error = "Birth year {value} is invalid, as it is after the year 3000".format(
+                value=value
+            )
+
+    except ValueError:
+        error = "{value} is not a valid value for birth_year".format(value=value)
+
+    if error != "":
+        raise ValidationError(error)
+
+
 @python_2_unicode_compatible
 class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
@@ -632,6 +656,24 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     facility = models.ForeignKey("Facility")
 
     is_facility_user = True
+
+    # Demographic information
+    GENDER_CHOICES = [
+        ("MALE", "Male"),
+        ("FEMALE", "Female"),
+        ("NOT_SPECIFIED", "Not specified"),
+        ("DEFERRED", "Defers for later"),
+    ]
+
+    gender = models.CharField(
+        max_length=16, choices=GENDER_CHOICES, default="", blank=True
+    )
+
+    birth_year = models.CharField(
+        max_length=16, default="", validators=[validate_birth_year], blank=True
+    )
+
+    id_number = models.CharField(max_length=64, default="", blank=True)
 
     def calculate_partition(self):
         return "{dataset_id}:user-ro:{user_id}".format(

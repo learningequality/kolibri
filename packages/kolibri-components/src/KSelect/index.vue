@@ -14,6 +14,7 @@
     :invalid="invalid"
     :error="invalidText"
     :name="name"
+    :placeholder="placeholder"
     @change="handleChange"
     @blur="$emit('blur')"
   />
@@ -112,6 +113,10 @@
       floatingLabel: {
         type: Boolean,
         default: true,
+      },
+      placeholder: {
+        type: String,
+        required: false,
       },
     },
     data() {

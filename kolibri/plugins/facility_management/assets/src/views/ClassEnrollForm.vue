@@ -12,8 +12,6 @@
           v-model="selectedUsers"
           :users="items"
           :selectable="true"
-          :selectAllLabel="$tr('selectAllOnPage')"
-          :userCheckboxLabel="$tr('selectUser')"
           :emptyMessage="emptyMessageForItems(items, filterInput)"
         />
       </template>
@@ -91,9 +89,7 @@
       searchForUser: 'Search for a user',
       // TODO clarify empty state messages after string freeze
       noUsersMatch: 'No users match the filter: "{filterText}"',
-      selectAllOnPage: 'Select all on page',
       allUsersAlready: 'All users are already enrolled in this class',
-      selectUser: 'Select user',
     },
   };
 

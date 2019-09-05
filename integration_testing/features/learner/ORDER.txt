@@ -10,3 +10,4 @@ learner-engage-quiz.feature
 learner-engage-epub-content.feature
 learner-background-tab.feature
 learner-sign-out.feature
+learner-profile-update-notification.feature

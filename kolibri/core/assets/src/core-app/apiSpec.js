@@ -72,6 +72,14 @@ import DragHandle from '../views/sortable/DragHandle';
 import DragContainer from '../views/sortable/DragContainer';
 import DragSortWidget from '../views/sortable/DragSortWidget';
 import BottomAppBar from '../views/BottomAppBar';
+import GenderSelect from '../views/userAccounts/GenderSelect';
+import BirthYearSelect from '../views/userAccounts/BirthYearSelect';
+import FullNameTextbox from '../views/userAccounts/FullNameTextbox';
+import UsernameTextbox from '../views/userAccounts/UsernameTextbox';
+import PasswordTextbox from '../views/userAccounts/PasswordTextbox';
+import GenderDisplayText from '../views/userAccounts/GenderDisplayText';
+import BirthYearDisplayText from '../views/userAccounts/BirthYearDisplayText';
+import PrivacyLinkAndModal from '../views/userAccounts/PrivacyLinkAndModal.vue';
 import PaginatedListContainer from '../views/PaginatedListContainer';
 import branding from '../utils/branding';
 
@@ -153,7 +161,15 @@ export default {
       DragContainer,
       DragSortWidget,
       BottomAppBar,
+      GenderSelect,
+      GenderDisplayText,
+      BirthYearSelect,
+      FullNameTextbox,
+      UsernameTextbox,
+      PasswordTextbox,
+      BirthYearDisplayText,
       PaginatedListContainer,
+      PrivacyLinkAndModal,
     },
     router,
     mixins: {

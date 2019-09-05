@@ -47,6 +47,7 @@
 
     padding: 8px 24px 24px;
     margin-top: 24px;
+    overflow-x: auto;
     border-radius: 4px;
   }
 

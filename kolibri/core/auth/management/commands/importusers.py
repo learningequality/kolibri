@@ -57,6 +57,40 @@ def infer_and_create_class(user, facility):
         return classroom
 
 
+def update_user_demographics(user_dict, user_model):
+    username = user_dict["username"]
+    demo_fields = ["gender", "birth_year", "id_number"]
+    user_updated = any(user_dict.get(key, None) is not None for key in demo_fields)
+
+    if not user_updated:
+        return
+
+    if user_dict.get("gender", None) is not None:
+        user_model.gender = user_dict["gender"]
+
+    if user_dict.get("birth_year", None) is not None:
+        user_model.birth_year = user_dict["birth_year"]
+
+    if user_dict.get("id_number", None) is not None:
+        user_model.id_number = user_dict["id_number"]
+
+    try:
+        user_model.full_clean()
+        user_model.save()
+        logger.info(
+            'User "{username}" was updated with demographic info'.format(
+                username=username
+            )
+        )
+
+    except ValidationError as e:
+        logger.error(
+            'Tried to update demogrpahic info for "{username}", but invalid values were given for fields: {keys}'.format(
+                username=username, keys=list(e.error_dict.keys())
+            )
+        )
+
+
 def create_user(i, user, default_facility=None):
     validate_username(user)
 
@@ -71,14 +105,18 @@ def create_user(i, user, default_facility=None):
     username = user["username"]
     try:
         user_obj = FacilityUser.objects.get(username=username, facility=facility)
-        logger.warn(
-            "Tried to create a user with the username {username} in facility {facility}, but one already exists".format(
-                username=username, facility=facility
-            )
-        )
+        update_user_demographics(user, user_obj)
+
         if classroom:
             classroom.add_member(user_obj)
+            logger.info(
+                'Exiting user "{username}" was added to a classroom "{classroom}"'.format(
+                    username=username, classroom=classroom.name
+                )
+            )
+
         return False
+
     except FacilityUser.DoesNotExist:
         password = user.get("password", DEFAULT_PASSWORD) or DEFAULT_PASSWORD
         try:
@@ -88,6 +126,9 @@ def create_user(i, user, default_facility=None):
                 facility=facility,
                 password=password,
             )
+
+            update_user_demographics(user, new_user)
+
             if classroom:
                 classroom.add_member(new_user)
             logger.info(
@@ -152,7 +193,16 @@ class Command(BaseCommand):
                 "No default facility exists, please make sure to provision this device before running this command"
             )
 
-        fieldnames = ["full_name", "username", "password", "facility", "class"]
+        fieldnames = [
+            "full_name",
+            "username",
+            "password",
+            "facility",
+            "class",
+            "gender",
+            "birth_year",
+            "id_number",
+        ]
         # open using default OS encoding
         with open(options["filepath"]) as f:
             header = next(csv.reader(f, strict=True))

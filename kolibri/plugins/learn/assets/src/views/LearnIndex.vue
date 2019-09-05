@@ -20,6 +20,14 @@
       <component :is="currentPage" />
     </div>
 
+    <UpdateYourProfileModal
+      v-if="profileNeedsUpdate"
+      :disabled="demographicInfo === null"
+      @cancel="handleCancelUpdateYourProfileModal"
+      @submit="handleSubmitUpdateYourProfileModal"
+    />
+
+
   </CoreBase>
 
 </template>
@@ -28,6 +36,8 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import urls from 'kolibri.urls';
+  import { redirectBrowser } from 'kolibri.utils.browser';
   import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -52,6 +62,7 @@
   import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
+  import UpdateYourProfileModal from './UpdateYourProfileModal';
 
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: ChannelsPage,
@@ -77,11 +88,13 @@
       CoreBase,
       LearnTopNav,
       TotalPoints,
+      UpdateYourProfileModal,
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     data() {
       return {
         lastRoute: null,
+        demographicInfo: null,
       };
     },
     computed: {
@@ -223,6 +236,12 @@
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? ASSESSMENT_FOOTER : 0;
       },
+      profileNeedsUpdate() {
+        return (
+          this.demographicInfo &&
+          (this.demographicInfo.gender === '' || this.demographicInfo.birth_year === '')
+        );
+      },
     },
     watch: {
       $route: function(newRoute, oldRoute) {
@@ -240,6 +259,26 @@
           query: oldRoute.query,
           params: oldRoute.params,
         };
+      },
+    },
+    mounted() {
+      if (this.isUserLoggedIn) {
+        this.$store
+          .dispatch('getDemographicInfo')
+          .then(info => {
+            this.demographicInfo = { ...info };
+          })
+          .catch(() => {});
+      }
+    },
+    methods: {
+      handleCancelUpdateYourProfileModal() {
+        this.$store.dispatch('deferProfileUpdates', this.demographicInfo);
+        this.demographicInfo = null;
+      },
+      handleSubmitUpdateYourProfileModal() {
+        const redirect = () => redirectBrowser(`${urls['kolibri:user:user']()}#/profile/edit`);
+        this.$store.dispatch('deferProfileUpdates', this.demographicInfo).then(redirect, redirect);
       },
     },
     $trs: {

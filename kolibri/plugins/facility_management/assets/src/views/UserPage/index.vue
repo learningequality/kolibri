@@ -17,7 +17,7 @@
           :text="$tr('newUserButtonLabel')"
           :primary="true"
           class="move-down"
-          @click="displayModal(Modals.CREATE_USER)"
+          @click="$router.push($router.getRoute('USER_CREATE_PAGE'))"
         />
       </KGridItem>
     </KGrid>
@@ -42,6 +42,7 @@
           class="user-roster move-down"
           :users="items"
           :emptyMessage="emptyMessageForItems(items, filterInput)"
+          :showDemographicInfo="true"
         >
           <template slot="action" slot-scope="userRow">
             <KDropdownMenu
@@ -57,16 +58,6 @@
     </PaginatedListContainer>
 
     <!-- Modals -->
-    <UserCreateModal v-if="modalShown===Modals.CREATE_USER" @cancel="closeModal" />
-
-    <EditUserModal
-      v-if="modalShown===Modals.EDIT_USER"
-      :id="selectedUser.id"
-      :name="selectedUser.full_name"
-      :username="selectedUser.username"
-      :kind="selectedUser.kind"
-      @cancel="closeModal"
-    />
 
     <ResetUserPasswordModal
       v-if="modalShown===Modals.RESET_USER_PASSWORD"
@@ -88,15 +79,13 @@
 
 <script>
 
-  import { mapActions, mapState, mapGetters } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
-  import UserCreateModal from './UserCreateModal';
-  import EditUserModal from './EditUserModal';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
   import DeleteUserModal from './DeleteUserModal';
 
@@ -110,8 +99,6 @@
       };
     },
     components: {
-      UserCreateModal,
-      EditUserModal,
       ResetUserPasswordModal,
       DeleteUserModal,
       UserTable,
@@ -122,11 +109,12 @@
       return {
         roleFilter: null,
         selectedUser: null,
+        modalShown: null,
       };
     },
     computed: {
       ...mapGetters(['currentUserId', 'isSuperuser']),
-      ...mapState('userManagement', ['facilityUsers', 'modalShown']),
+      ...mapState('userManagement', ['facilityUsers']),
       Modals: () => Modals,
       userKinds() {
         return [
@@ -141,7 +129,6 @@
       this.roleFilter = this.userKinds[0];
     },
     methods: {
-      ...mapActions('userManagement', ['displayModal']),
       emptyMessageForItems(items, filterText) {
         if (this.facilityUsers.length === 0) {
           return this.$tr('noUsersExist');
@@ -157,7 +144,7 @@
         );
       },
       closeModal() {
-        this.displayModal(false);
+        this.modalShown = '';
       },
       userMatchesRole(user, roleFilter) {
         const { value: filterKind } = roleFilter;
@@ -184,8 +171,16 @@
         ];
       },
       handleManageUserSelection(selection, user) {
-        this.selectedUser = user;
-        this.displayModal(selection.value);
+        if (selection.value === Modals.EDIT_USER) {
+          this.$router.push(
+            this.$router.getRoute('USER_EDIT_PAGE', {
+              id: user.id,
+            })
+          );
+        } else {
+          this.selectedUser = user;
+          this.modalShown = selection.value;
+        }
       },
       userCanBeEdited(user) {
         // If logged-in user is a superuser, then they can edit anybody (including other SUs).

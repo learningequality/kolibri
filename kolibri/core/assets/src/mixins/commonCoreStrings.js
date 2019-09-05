@@ -14,21 +14,26 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   saveAction: 'Save',
   saveChangesAction: 'Save changes',
   showAction: 'Show',
+  updateAction: 'Update',
 
   // labels, phrases, titles, headers...
   adminLabel: 'Admin',
   allLabel: 'All',
   allLessonsLabel: 'All lessons',
+  birthYearLabel: 'Birth year',
   channelsLabel: 'Channels',
-  classesLabel: 'Classes',
+  classCoachLabel: 'Class coach',
   classNameLabel: 'Class name',
-  coachesLabel: 'Coaches',
+  classesLabel: 'Classes',
   coachLabel: 'Coach',
+  coachesLabel: 'Coaches',
   completedLabel: 'Completed',
   devicePermissionsLabel: 'Device permissions',
   facilityCoachLabel: 'Facility coach',
   facilityLabel: 'Facility',
   fullNameLabel: 'Full name',
+  genderLabel: 'Gender',
+  identifierLabel: 'Identifier',
   kolibriLabel: 'Kolibri',
   learnerLabel: 'Learner',
   learnersLabel: 'Learners',
@@ -44,23 +49,25 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   showCorrectAnswerLabel: 'Show correct answer',
   signInLabel: 'Sign in',
   usageAndPrivacyLabel: 'Usage and privacy',
+  userTypeLabel: 'User type',
   usernameLabel: 'Username',
   usersLabel: 'Users',
-  userTypeLabel: 'User type',
   viewMoreAction: 'View more',
 
-  // notifications
-  passwordsMismatchError: 'Passwords do not match',
-  requiredFieldLabel: 'This field is required',
+  // Errors
+  requiredFieldError: 'This field is required',
   usernameNotAlphaNumError: 'Username can only contain letters, numbers, and underscores',
 
-  // empty states
-
-  // toggles
-
-  // formatted values
-
-  // Errors
+  // Demographic-specific strings
+  genderOptionMale: 'Male',
+  genderOptionFemale: 'Female',
+  genderOptionOther: 'Other',
+  genderOptionNotSpecified: 'Not specified',
+  birthYearNotSpecified: 'Not specified',
+  identifierInputTooltip:
+    'Examples: a student ID number or an existing user identification number. Avoid using highly sensitive personal information because it might put your users at risk.',
+  identifierTooltip: 'Examples: a student ID number or an existing user identification number.',
+  identifierAriaLabel: 'About providing an identifier or ID number',
 });
 
 export default {

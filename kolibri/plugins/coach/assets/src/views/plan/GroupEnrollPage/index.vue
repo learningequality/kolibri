@@ -29,8 +29,6 @@
           v-model="selectedUsers"
           :users="visibleFilteredUsers"
           :selectable="true"
-          :selectAllLabel="$tr('selectAllOnPage')"
-          :userCheckboxLabel="$tr('selectUser')"
           :emptyMessage="emptyMessage"
           :infoDescriptor="$tr('learnerGroups')"
         >
@@ -219,9 +217,7 @@
       noUsersMatch: 'No users match',
       previousResults: 'Previous results',
       nextResults: 'Next results',
-      selectAllOnPage: 'Select all on page',
       allUsersAlready: 'All users are already enrolled in this class',
-      selectUser: 'Select user',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
       learnerGroups: 'Current groups',

@@ -299,6 +299,8 @@ class SignUpViewSet(viewsets.ViewSet):
             "facility": request.data.get(
                 "facility", Facility.get_default_facility().id
             ),
+            "gender": request.data.get("gender", ""),
+            "birth_year": request.data.get("birth_year", ""),
         }
 
     def create(self, request):

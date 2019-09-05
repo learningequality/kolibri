@@ -15,25 +15,26 @@ function makeWrapper() {
 }
 
 describe('SuperuserCredentialsForm', () => {
-  it('clicking submit updates vuex with correct data', () => {
+  it('clicking submit updates vuex with correct data', async () => {
     const { store, wrapper, actions } = makeWrapper();
     wrapper.setData({
-      name: 'Schoolhouse Rock',
+      fullName: 'Schoolhouse Rock',
+      fullNameValid: true,
       username: 'schoolhouse_rock',
+      usernameValid: true,
       password: 'password',
-      passwordConfirm: 'password',
-      visitedFields: {
-        name: true,
-        username: true,
-        password: true,
-        passwordConfirm: true,
-      },
+      passwordValid: true,
+      birthYear: '1901',
+      gender: 'NOT_SPECIFIED',
     });
     actions.simulateSubmit();
+    await wrapper.vm.$nextTick();
     expect(store.state.onboardingData.superuser).toEqual({
       full_name: 'Schoolhouse Rock',
       username: 'schoolhouse_rock',
       password: 'password',
+      birth_year: '1901',
+      gender: 'NOT_SPECIFIED',
     });
     expect(wrapper.vm.$emit).toHaveBeenCalledWith('submit');
   });

@@ -1,8 +1,6 @@
-import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-import pickBy from 'lodash/pickBy';
+import isEmpty from 'lodash/isEmpty';
+import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import { FacilityUserResource } from 'kolibri.resources';
-import CatchErrors from 'kolibri.utils.CatchErrors';
-import { _userState } from '../mappers';
 import { updateFacilityLevelRoles } from './utils';
 
 /**
@@ -25,115 +23,42 @@ function setUserRole(user, role) {
  * @param {object} stateUserData
  *  Needed: username, full_name, facility, role, password
  */
-export function createUser(store, stateUserData) {
-  // resolves with user object
+export function createFacilityUser(store, payload) {
   return FacilityUserResource.saveModel({
     data: {
       facility: store.rootState.core.session.facility_id,
-      username: stateUserData.username,
-      full_name: stateUserData.full_name,
-      password: stateUserData.password,
+      username: payload.username,
+      full_name: payload.full_name,
+      password: payload.password,
+      id_number: payload.id_number,
+      gender: payload.gender,
+      birth_year: payload.birth_year,
     },
-  })
-    .then(userModel => {
-      function dispatchUser(newUser) {
-        const userState = _userState(newUser);
-        store.commit('ADD_USER', userState);
-        store.dispatch('displayModal', false);
-        return userState;
-      }
-      // only runs if there's a role to be assigned
-      if (stateUserData.role.kind !== UserKinds.LEARNER) {
-        return setUserRole(userModel, stateUserData.role).then(user => dispatchUser(user));
-      } else {
-        // no role to assigned
-        return dispatchUser(userModel);
-      }
-    })
-    .catch(error => store.dispatch('handleApiError', error, { root: true }));
-}
-
-/**
- * Do a PATCH to update existing user
- * @param {object} store
- * @param {string} userId
- * @param {object} updates Optional Changes: full_name, username, password, and kind(role)
- */
-export function updateUser(store, { userId, updates }) {
-  setError(store, null);
-  store.commit('SET_BUSY', true);
-  const origUserState = store.state.facilityUsers.find(user => user.id === userId);
-  const facilityRoleHasChanged = updates.role && origUserState.kind !== updates.role.kind;
-
-  return updateFacilityUser(store, { userId, updates })
-    .then(updatedUser => {
-      const update = userData => store.commit('UPDATE_USER', _userState(userData));
-      if (facilityRoleHasChanged) {
-        if (store.rootGetters.currentUserId === userId && store.rootGetters.isSuperuser) {
-          // maintain superuser if updating self.
-          store.commit('UPDATE_CURRENT_USER_KIND', [UserKinds.SUPERUSER, updates.role.kind], {
-            root: true,
-          });
-        }
-        return setUserRole(updatedUser, updates.role).then(userWithRole => {
-          update(userWithRole);
-        });
-      } else {
-        update(updatedUser);
-      }
-    })
-    .catch(error => {
-      store.commit('SET_BUSY', false);
-      const errorsCaught = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
-      if (errorsCaught) {
-        setError(store, errorsCaught);
-      } else {
-        store.dispatch('handleApiError', error, { root: true });
-      }
-    });
-}
-
-export function setError(store, error) {
-  store.commit('SET_ERROR', error);
-}
-
-// Update fields on the FacilityUser model
-// updates :: { full_name, username, password }
-export function updateFacilityUser(store, { userId, updates }) {
-  const origUserState = store.state.facilityUsers.find(user => user.id === userId);
-  const changedValues = pickBy(
-    updates,
-    (value, key) => updates[key] && updates[key] !== origUserState[key]
-  );
-  const facilityUserHasChanged = Object.keys(changedValues).length > 0;
-  if (facilityUserHasChanged) {
-    return FacilityUserResource.saveModel({ id: userId, data: changedValues });
-  }
-  return Promise.resolve({
-    ...origUserState,
-    facility: origUserState.facility_id,
+  }).then(facilityUser => {
+    if (payload.role.kind !== UserKinds.LEARNER) {
+      return setUserRole(facilityUser, payload.role);
+    }
   });
 }
 
-/**
- * Do a DELETE to delete the user.
- * @param {string or Integer} id
- */
-export function deleteUser(store, id) {
-  if (!id) {
-    // if no id passed, abort the function
-    return;
+export function updateFacilityUserDetails(store, { userId, updates }) {
+  const { facilityUserUpdates, roleUpdates } = updates;
+  if (isEmpty(facilityUserUpdates) && !roleUpdates) {
+    return Promise.resolve();
   }
-  FacilityUserResource.deleteModel({ id }).then(
-    () => {
-      store.commit('DELETE_USER', id);
-      store.dispatch('displayModal', false);
-      if (store.rootState.core.session.user_id === id) {
-        store.dispatch('kolibriLogout', { root: true });
+  return FacilityUserResource.saveModel({ id: userId, data: { ...facilityUserUpdates } }).then(
+    user => {
+      if (roleUpdates) {
+        return updateFacilityLevelRoles(user, roleUpdates.kind);
       }
-    },
-    error => {
-      store.dispatch('handleApiError', error, { root: true });
     }
   );
+}
+
+export function updateFacilityUserPassword(store, { userId, password }) {
+  return FacilityUserResource.saveModel({ id: userId, data: { password } });
+}
+
+export function deleteFacilityUser(store, { userId }) {
+  return FacilityUserResource.deleteModel({ id: userId });
 }
