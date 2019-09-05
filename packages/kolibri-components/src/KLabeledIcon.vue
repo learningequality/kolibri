@@ -42,12 +42,20 @@
     },
     computed: {
       labelEmpty() {
-        const defaultSlot =
-          'default' in this.$slots && this.$slots.default.length
-            ? this.$slots.default[0].text
-            : null;
+        if (this.label) {
+          return false;
+        }
 
-        return !defaultSlot && !this.label;
+        if (!('default' in this.$slots) || !this.$slots.default.length) {
+          return true;
+        }
+
+        const defaultSlot = this.$slots.default[0];
+        return !(
+          defaultSlot.text ||
+          defaultSlot.tag ||
+          (defaultSlot.children && defaultSlot.children.length)
+        );
       },
     },
   };
