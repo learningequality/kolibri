@@ -154,7 +154,6 @@
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
   import LoadingError from './LoadingError';
@@ -203,7 +202,7 @@
       SearchButton,
       LoadingError,
     },
-    mixins: [responsiveWindowMixin, responsiveElementMixin, contentRendererMixin],
+    mixins: [responsiveWindowMixin, responsiveElementMixin],
     data() {
       return {
         book: null,

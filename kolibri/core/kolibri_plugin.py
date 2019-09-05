@@ -4,21 +4,71 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.core.urlresolvers import get_resolver
+from django.core.urlresolvers import reverse
+from django.template.loader import render_to_string
 from django.utils.html import mark_safe
 from django.utils.translation import get_language
 from django.utils.translation import get_language_bidi
 from django.utils.translation import get_language_info
+from django_js_reverse.core import _safe_json
+from django_js_reverse.core import generate_json
+from django_js_reverse.rjsmin import jsmin
 
 import kolibri
+from kolibri.core.content.utils.paths import get_content_storage_url
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.theme_hook import ThemeHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.utils import i18n
+from kolibri.utils.conf import OPTIONS
 
 
 class FrontEndCoreAppAssetHook(WebpackBundleHook):
     bundle_id = "default_frontend"
+
+    def url_tag(self):
+        # Modified from:
+        # https://github.com/ierror/django-js-reverse/blob/master/django_js_reverse/core.py#L101
+        js_name = "window.kolibriPluginDataGlobal['{bundle}'].urls".format(
+            bundle=self.unique_id
+        )
+        default_urlresolver = get_resolver(None)
+
+        data = generate_json(default_urlresolver)
+
+        # Generate the JS that exposes functions to reverse all Django URLs
+        # in the frontend.
+        js = render_to_string(
+            "django_js_reverse/urls_js.tpl",
+            {"data": _safe_json(data), "js_name": "__placeholder__"},
+            # For some reason the js_name gets escaped going into the template
+            # so this was the easiest way to inject it.
+        ).replace("__placeholder__", js_name)
+        return [
+            mark_safe(
+                """<script type="text/javascript">"""
+                # Minify the generated Javascript
+                + jsmin(js)
+                # Add URL references for our base static URL, the Django media URL
+                # and our content storage URL - this allows us to calculate
+                # the path at which to access a local file on the frontend if needed.
+                + """
+            {js_name}.__staticUrl = '{static_url}';
+            {js_name}.__mediaUrl = '{media_url}';
+            {js_name}.__contentUrl = '{content_url}';
+            </script>
+            """.format(
+                    js_name=js_name,
+                    static_url=settings.STATIC_URL,
+                    media_url=settings.MEDIA_URL,
+                    content_url=get_content_storage_url(
+                        baseurl=OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+                    ),
+                )
+            )
+        ]
 
     def render_to_page_load_sync_html(self):
         """
@@ -26,7 +76,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
         as the global object to register them does not exist yet.
         Instead they are loaded through plugin data.
         """
-        tags = self.plugin_data_tag() + list(self.js_and_css_tags())
+        tags = self.plugin_data_tag() + self.url_tag() + list(self.js_and_css_tags())
 
         return mark_safe("\n".join(tags))
 
@@ -113,4 +163,5 @@ class FrontEndUserAgentAssetHook(WebpackBundleHook):
             "fullCSSFileBasic": full_file.format(
                 static_root, language_code, "basic", kolibri.__version__
             ),
+            "unsupportedUrl": reverse("kolibri:core:unsupported"),
         }

@@ -40,7 +40,7 @@
             :selectedInteractionIndex="interactionIndex"
             @select="navigateToNewInteraction($event)"
           />
-          <ContentRenderer
+          <KContentRenderer
             v-if="currentInteraction"
             :itemId="currentLearner.item"
             :assessment="true"
@@ -64,7 +64,6 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
@@ -75,7 +74,6 @@
   export default {
     name: 'QuestionLearnersReport',
     components: {
-      ContentRenderer,
       QuestionDetailLearnerList,
       InteractionList,
       MultiPaneLayout,

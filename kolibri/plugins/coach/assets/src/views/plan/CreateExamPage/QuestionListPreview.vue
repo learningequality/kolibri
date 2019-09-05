@@ -68,7 +68,7 @@
       <h3 class="question-title">
         {{ currentQuestion.title }}
       </h3>
-      <ContentRenderer
+      <KContentRenderer
         v-if="content && questionId"
         ref="contentRenderer"
         :kind="content.kind"
@@ -89,7 +89,6 @@
 
 <script>
 
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
@@ -98,7 +97,6 @@
   export default {
     name: 'QuestionListPreview',
     components: {
-      ContentRenderer,
       AssessmentQuestionListItem,
       Draggable,
       DragContainer,

@@ -118,7 +118,7 @@
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import FacilityModal from './SignInPage/FacilityModal';
   import getUrlParameter from './getUrlParameter';
-  import getPluginData from 'kolibri.utils.getPluginData';
+  import plugin_data from 'plugin_data';
 
   const { DEFERRED } = DemographicConstants;
 
@@ -269,7 +269,7 @@
             gender: this.gender || DEFERRED,
             birth_year: this.birthYear || DEFERRED,
           };
-          if (getPluginData().oidcProviderEnabled) {
+          if (plugin_data.oidcProviderEnabled) {
             payload['next'] = this.nextParam;
           }
           SignUpResource.saveModel({ data: payload })

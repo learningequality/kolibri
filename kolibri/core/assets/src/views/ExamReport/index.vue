@@ -36,7 +36,7 @@
         :selectedInteractionIndex="selectedInteractionIndex"
         @select="navigateToQuestionAttempt"
       />
-      <ContentRenderer
+      <KContentRenderer
         v-if="exercise"
         :itemId="itemId"
         :allowHints="false"
@@ -61,7 +61,6 @@
 
 <script>
 
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
   import find from 'lodash/find';
@@ -72,7 +71,6 @@
   export default {
     name: 'ExamReport',
     components: {
-      ContentRenderer,
       PageStatus,
       AttemptLogList,
       InteractionList,

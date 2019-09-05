@@ -1,7 +1,7 @@
 import { getBrowser, passesRequirements } from './utils/userAgent';
-import getPluginData from 'kolibri.utils.getPluginData';
+import plugin_data from 'plugin_data';
 
-const pluginData = getPluginData();
+const pluginData = plugin_data;
 
 const userAgent =
   window && window.navigator && window.navigator.userAgent ? window.navigator.userAgent : '';
@@ -20,7 +20,7 @@ const minimumBrowserRequirements = {
 };
 
 if (!passesRequirements(browser, minimumBrowserRequirements)) {
-  window.location.href = window.kolibriUrls['kolibri:core:unsupported']();
+  window.location.href = pluginData.unsupportedUrl;
 }
 
 const modernFontBrowsers = {

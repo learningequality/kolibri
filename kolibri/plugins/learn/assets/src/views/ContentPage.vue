@@ -13,43 +13,43 @@
       :value="content.coach_content ? 1 : 0"
       :isTopic="isTopic"
     />
+    <template v-if="sessionReady">
+      <KContentRenderer
+        v-if="!content.assessment"
+        class="content-renderer"
+        :kind="content.kind"
+        :lang="content.lang"
+        :files="content.files"
+        :available="content.available"
+        :extraFields="extraFields"
+        @sessionInitialized="setWasIncomplete"
+        @startTracking="startTracking"
+        @stopTracking="stopTracking"
+        @updateProgress="updateProgress"
+        @updateContentState="updateContentState"
+      />
 
-    <ContentRenderer
-      v-if="!content.assessment"
-      class="content-renderer"
-      :kind="content.kind"
-      :lang="content.lang"
-      :files="content.files"
-      :available="content.available"
-      :extraFields="extraFields"
-      :initSession="initSession"
-      @sessionInitialized="setWasIncomplete"
-      @startTracking="startTracking"
-      @stopTracking="stopTracking"
-      @updateProgress="updateProgress"
-      @updateContentState="updateContentState"
-    />
-
-    <AssessmentWrapper
-      v-else
-      :id="content.id"
-      class="content-renderer"
-      :kind="content.kind"
-      :files="content.files"
-      :lang="content.lang"
-      :randomize="content.randomize"
-      :masteryModel="content.masteryModel"
-      :assessmentIds="content.assessmentIds"
-      :channelId="channelId"
-      :available="content.available"
-      :extraFields="extraFields"
-      :initSession="initSession"
-      @sessionInitialized="setWasIncomplete"
-      @startTracking="startTracking"
-      @stopTracking="stopTracking"
-      @updateProgress="updateExerciseProgress"
-      @updateContentState="updateContentState"
-    />
+      <AssessmentWrapper
+        v-else
+        :id="content.id"
+        class="content-renderer"
+        :kind="content.kind"
+        :files="content.files"
+        :lang="content.lang"
+        :randomize="content.randomize"
+        :masteryModel="content.masteryModel"
+        :assessmentIds="content.assessmentIds"
+        :channelId="channelId"
+        :available="content.available"
+        :extraFields="extraFields"
+        @sessionInitialized="setWasIncomplete"
+        @startTracking="startTracking"
+        @stopTracking="stopTracking"
+        @updateProgress="updateExerciseProgress"
+        @updateContentState="updateContentState"
+      />
+    </template>
+    <KCircularLoader v-else />
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
     <!-- eslint-disable-next-line vue/no-v-html -->
@@ -133,7 +133,6 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
@@ -167,7 +166,6 @@
       CoachContentLabel,
       PageHeader,
       ContentCardGroupCarousel,
-      ContentRenderer,
       DownloadButton,
       AssessmentWrapper,
       MasteredSnackbars,
@@ -178,6 +176,7 @@
       return {
         wasIncomplete: false,
         licenceDescriptionIsVisible: false,
+        sessionReady: false,
       };
     },
     computed: {
@@ -234,7 +233,7 @@
         );
       },
       downloadableFiles() {
-        return this.content.files.filter(file => file.preset !== 'Thumbnail');
+        return this.content.files.filter(file => !file.preset.endsWith('thumbnail'));
       },
       nextContentLink() {
         // HACK Use a the Resource Viewer Link instead
@@ -271,6 +270,15 @@
         return this.content.license_description;
       },
     },
+    created() {
+      return this.initSessionAction({
+        channelId: this.channelId,
+        contentId: this.contentId,
+        contentKind: this.content.kind,
+      }).then(() => {
+        this.sessionReady = true;
+      });
+    },
     beforeDestroy() {
       this.stopTracking();
     },
@@ -284,13 +292,6 @@
       }),
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
-      },
-      initSession() {
-        return this.initSessionAction({
-          channelId: this.channelId,
-          contentId: this.contentId,
-          contentKind: this.content.kind,
-        });
       },
       updateProgress(progressPercent, forceSave = false) {
         this.updateProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
