@@ -28,7 +28,11 @@ export default {
       };
       contentRendererMixin.interactionEvents.forEach(event => {
         if (listeners[event]) {
-          listeners[event] = [listeners[event], this.registerContentActivity];
+          if (Array.isArray(listeners[event])) {
+            listeners[event] = [...listeners[event], this.registerContentActivity];
+          } else {
+            listeners[event] = [listeners[event], this.registerContentActivity];
+          }
         } else {
           listeners[event] = this.registerContentActivity;
         }
