@@ -130,7 +130,7 @@
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
       questionsCompletedRatioLabel:
-        '{count, number, integer} of {total, number, integer} {count, plural, other {completed}}',
+        '{count, number, integer} of {total, number, integer} {count, plural, other {answered}}',
     },
   };
 
