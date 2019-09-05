@@ -44,7 +44,7 @@ def load_plugins_from_file(file_path):
 
 
 build_config_path = os.path.join(
-    os.path.dirname(__file__), "../kolibri/plugins/utils/build_config"
+    os.path.dirname(__file__), "../kolibri/utils/build_config"
 )
 
 default_settings_template = "settings_path = '{path}'"

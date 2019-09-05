@@ -10,7 +10,6 @@ from abc import ABCMeta
 from importlib import import_module
 
 from django.utils.module_loading import module_has_submodule
-
 from six import with_metaclass
 
 from kolibri.utils.conf import KOLIBRI_HOME
@@ -23,7 +22,7 @@ try:
     # in the root of the Kolibri repository. The default list is identical to the list below,
     # except that the style_guide plugin is not enabled in production builds.
     # Caveat: this list may have been changed at build time to specify a different list of plugins.
-    from kolibri.plugins.utils.build_config.default_plugins import plugins
+    from kolibri.utils.build_config.default_plugins import plugins
 
     DEFAULT_PLUGINS = plugins
 except ImportError:
