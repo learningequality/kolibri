@@ -9,6 +9,12 @@ const parseCsvSync = require('csv-parse/lib/sync');
 const vueCompiler = require('vue-template-compiler');
 const logging = require('./logging');
 
+// Regex for finding open and close <script> tags
+// Will match full line unless there is a character on that line prior
+// to the script tag (ie, if it is commented out).
+const reScriptOpen = /^[ ]*<script[^>]*>/;
+const reScriptClose = /^[ ]*<\/script>/;
+
 // Glob path patterns
 // All JS files not in node_modules
 const JS_GLOB = path.resolve('./kolibri') + '/!(node_modules)/**/*.js';
@@ -34,28 +40,15 @@ function processVueFiles(files, definitions) {
       whitespace: 'preserve',
     });
 
-    // Extract the needed data into an object.
-    const compiledVue = {
-      // Raw string of everything between <template> tags
-      templateContent: get(vueSFC, 'template.content'),
-      // Array of attr objects defined on <template> (eg, <template v-if="foo">)
-      templateAttrs: get(vueSFC, 'template.attrs'),
-      // Raw string of everything between <script> tags
-      scriptContent: get(vueSFC, 'script.content'),
-      // Array of attr objects defined on <script> (eg, <template type="bar/baz">)
-      scriptAttrs: get(vueSFC, 'script.attrs'),
-      // Array of all <style> content, attrs, etc. There may be more than 1 <style>
-      // definition in a file so we just take it all here and parse it later.
-      styles: get(vueSFC, 'styles', []),
-    };
+    let scriptContent = get(vueSFC, 'script.content');
 
     // If we don't have a script, we have no work to do and should leave before breaking something.
-    if (!compiledVue.scriptContent) {
+    if (!scriptContent) {
       return;
     }
 
     // Create an AST of the <script> code.
-    const scriptAST = recast.parse(compiledVue.scriptContent, {
+    const scriptAST = recast.parse(scriptContent, {
       parser: require('recast/parsers/babylon'),
       tabWidth: 2,
       reuseWhitspace: false,
@@ -98,11 +91,11 @@ function processVueFiles(files, definitions) {
 
     // No need to write the file if it hasn't changed.
     if (fileHasChanged) {
-      compiledVue.scriptContent = recast.print(scriptAST, {
+      const updatedScript = recast.print(scriptAST, {
         reuseWhitspace: false,
         tabWidth: 2,
       }).code;
-      const newFile = compileSFC(compiledVue);
+      const newFile = injectNewScript(file.toString(), updatedScript);
       updatedFiles.push({ [filePath]: newFile });
     }
   });
@@ -182,54 +175,37 @@ function processJSFiles(files, definitions) {
 // Utility Functions //
 // ----------------- //
 
-// Given a vueObject, return a formatted string including
-// <template> <script> <style> blocks in order.
-function compileSFC(vueObject) {
-  const template = compileVueTemplate(vueObject.templateContent, vueObject.templateAttrs);
-  const script = compileVueScript(vueObject.scriptContent, vueObject.scriptAttrs);
-  const styles = vueObject.styles
-    .map(style => {
-      return compileVueStyle(style.content, style.lang, style.scoped);
-    })
-    .join('\n\n');
-  // Need to prepend the first <style> definition - but only if there is one.
-  const firstStyleNewlines = styles && styles.length ? '\n\n' : '';
+// Replaces the body of <script> tags in a Vue file and replaces its content
+// with that which is passed to the function.
+function injectNewScript(file, content) {
+  // Make both items an array of lines.
+  const lines = file.split('\n');
+  const contentLines = content.split('\n');
 
-  return template + script + firstStyleNewlines + styles;
-}
+  // Will store the index positions for the open and close <script> tags.
+  let open;
+  let close;
 
-// Given the template string and any relevant attrs on the <template> definition, return the proper
-// <template> block of code.
-function compileVueTemplate(template, attrs) {
-  if (template) {
-    return `<template${attrsString(attrs)}>${template}</template>\n\n\n`;
-  } else {
-    return '';
-  }
-}
+  lines.forEach((line, i) => {
+    // Test each line to find the opening <script...> tag
+    if (reScriptOpen.test(line)) {
+      open = i + 1; // Add one so the index includes the matched <script>
+      return;
+    }
+    // Test each line to find the closing </script> tag
+    if (reScriptClose.test(line)) {
+      close = i - 1; // Take one away to ensure inclusion of </script>
+      return;
+    }
+  });
 
-// Given the Vue file's <script> and attrs, return the <script> block as a string.
-function compileVueScript(script, attrs) {
-  return `<script${attrsString(attrs)}>${script}</script>\n`;
-}
+  // Everything up to and including the opening <script> tag.
+  const top = lines.slice(0, open);
+  // Everything from (inclusively) the </script> tag to EOF.
+  const bottom = lines.slice(close);
 
-// Layout Vue <style> code and return the properly formatted and attributed <style> block.
-function compileVueStyle(style, lang, scoped) {
-  if (style || style === '') {
-    const langDef = lang ? ` lang="${lang}"` : '';
-    const scopedText = scoped ? ' scoped' : '';
-    return `<style${langDef}${scopedText}>${style}</style>\n`;
-  } else {
-    return '';
-  }
-}
-
-// Convert an object containing attr definitions into a string prepended with a space.
-// eg, { type: 'javascript/text' } will be returned as ' type="javascript/text"'.
-function attrsString(attrs) {
-  return Object.keys(attrs)
-    .map(key => ` ${key}="${attrs[key]}"`)
-    .join('');
+  // Combine the three arrays and append the newline Vue files need.
+  return [...top, ...contentLines, ...bottom].join('\n');
 }
 
 // Boolean check if a node is a call of the fn 'createTranslator()'
