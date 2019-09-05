@@ -100,6 +100,12 @@ Feature: Coach creates quizzes
     Then I am redirected to the search results page
       And I see the *No results found...* message
 
+  Scenario: Clear results and reset search
+    Given that there are results from the previous search
+    When I press the *X* button in the search field
+      Or I delete the previous search term and press *Enter*
+    Then I see the list of all *Channels* with exercises under *Select topics or exercises* again
+
   Scenario: Add a topic or exercise from the search results page
     Given I am on the search results page
       And there are exercises and topics available in the search results
@@ -138,6 +144,8 @@ Feature: Coach creates quizzes
       And I don't see content from channels that do not contain exercises
     When I select a specific channel from the channel filter dropdown
     Then I see the search results are filtered and present content only from the selected channel
+    When I select *All* in the filter dropdown
+    Then I see that results are not filtered anymore
 
   Scenario: Filter coach content in and out
     Given I am on the search results page
@@ -165,7 +173,7 @@ Feature: Coach creates quizzes
       And I see how many coach exercises/topics it contains
       And I see how many exercises inside are added to the quiz
 
-#  Scenario: Preview a resource in the search results
+  Scenario: Preview a resource in the search results
     Given I am on the search results page
       And there are exercises in the search results page
     When I click an exercise <exercise> card
@@ -173,13 +181,11 @@ Feature: Coach creates quizzes
     When I click the *back arrow* button
     Then I see the search results page again
       And I see my results are still present
-# This ^^ is not implemented
 
-#  Scenario: Exit the search results page
+  Scenario: Exit the search results page
     Given I am on the search results page
       When I click *Exit search*
-      Then I see the topic and channel I was viewing before I initiated the search
-# This ^^ is not implemented
+      Then I see the *Create new quiz* page again
 
   Scenario: Preview quiz and change the question order
     Given I am on *Create new quiz* page
