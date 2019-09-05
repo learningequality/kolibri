@@ -62,7 +62,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   genderOptionMale: 'Male',
   genderOptionFemale: 'Female',
   genderOptionOther: 'Other',
-  notSpecifiedOption: 'Not specified',
+  genderOptionNotSpecified: 'Not specified',
+  birthYearNotSpecified: 'Not specified',
   identifierInputTooltip:
     'Examples: a student ID number or an existing user identification number. Avoid using highly sensitive personal information because it might put your users at risk.',
   identifierTooltip: 'Examples: a student ID number or an existing user identification number.',

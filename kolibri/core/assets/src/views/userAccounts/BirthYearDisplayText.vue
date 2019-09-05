@@ -26,7 +26,7 @@
     computed: {
       displayText() {
         if (this.birthYear === NOT_SPECIFIED) {
-          return this.coreString('notSpecifiedOption');
+          return this.coreString('birthYearNotSpecified');
         } else if (this.birthYear !== DEFERRED) {
           return this.birthYear;
         } else {

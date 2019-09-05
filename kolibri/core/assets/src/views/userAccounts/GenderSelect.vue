@@ -43,7 +43,7 @@
           },
           {
             value: NOT_SPECIFIED,
-            label: this.coreString('notSpecifiedOption'),
+            label: this.coreString('genderOptionNotSpecified'),
           },
         ];
       },

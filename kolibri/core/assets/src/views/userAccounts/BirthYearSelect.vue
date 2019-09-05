@@ -70,7 +70,7 @@
         return [
           {
             value: NOT_SPECIFIED,
-            label: this.coreString('notSpecifiedOption'),
+            label: this.coreString('birthYearNotSpecified'),
           },
           ...extraYears,
           ...yearOptions,

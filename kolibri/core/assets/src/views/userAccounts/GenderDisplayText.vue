@@ -26,7 +26,7 @@
     computed: {
       displayText() {
         if (this.gender === NOT_SPECIFIED) {
-          return this.coreString('notSpecifiedOption');
+          return this.coreString('genderOptionNotSpecified');
         } else if (this.gender === MALE) {
           return this.coreString('genderOptionMale');
         } else if (this.gender === FEMALE) {
