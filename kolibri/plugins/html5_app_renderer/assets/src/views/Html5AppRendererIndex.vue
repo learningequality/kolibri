@@ -45,12 +45,6 @@
       UiIconButton,
       CoreFullscreen,
     },
-    props: {
-      defaultFile: {
-        type: Object,
-        required: true,
-      },
-    },
     data() {
       return {
         isInFullscreen: false,
