@@ -1,9 +1,3 @@
-from six.moves.urllib.parse import urlparse
-from six.moves.urllib.parse import urlunparse
-
-from kolibri.utils.conf import OPTIONS
-
-
 def add_security_headers(some_func):
     """
     Decorator for adding security headers to zipcontent endpoints
@@ -29,7 +23,7 @@ def add_security_headers(some_func):
 
 
 def _add_access_control_headers(request, response):
-    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Origin"] = get_host(request)
     response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
     requested_headers = request.META.get("HTTP_ACCESS_CONTROL_REQUEST_HEADERS", "")
     if requested_headers:
@@ -46,18 +40,4 @@ def _add_content_security_policy_header(request, response):
 
 
 def get_host(request):
-    parsed_referrer_url = get_referrer_url(request)
-    if parsed_referrer_url:
-        host = urlunparse(
-            (parsed_referrer_url[0], parsed_referrer_url[1], "", "", "", "")
-        )
-    else:
-        host = request.build_absolute_uri(OPTIONS["Deployment"]["URL_PATH_PREFIX"])
-    return host.strip("/")
-
-
-def get_referrer_url(request):
-    if request.META.get("HTTP_REFERER"):
-        # If available use HTTP_REFERER to infer the host as that will give us more
-        # information if Kolibri is behind a proxy.
-        return urlparse(request.META.get("HTTP_REFERER"))
+    return request.build_absolute_uri("/").strip("/")
