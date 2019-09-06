@@ -22,8 +22,9 @@ VOLUME /kolibridist/
 # TODO(cpauya): Verify the checksums of the downloaded Python installers.
 
 CMD git clone https://github.com/benjaoming/kolibri-installer-windows.git && \
-    cd kolibri-installer-windows/src && \
+    cd kolibri-installer-windows && \
     git checkout $KOLIBRI_WINDOWS_INSTALLER_VERSION && \
+    cd src && \
     cp /kolibridist/kolibri-$KOLIBRI_VERSION*.whl . && \
     export KOLIBRI_BUILD_VERSION=$KOLIBRI_VERSION && \
     curl -sS https://www.python.org/ftp/python/3.4.3/python-3.4.3.msi --output "python-setup/python-3.4.3.msi" && \
