@@ -17,7 +17,7 @@ class VersionUpgrade(object):
     Class for version upgrade operations
     """
 
-    __slots__ = ["OLD_VERSION", "NEW_VERSION", "upgrade"]
+    __slots__ = ["OLD_VERSION", "NEW_VERSION", "upgrade", "module"]
 
     def __init__(self, old_version=None, new_version=None, upgrade=None):
         # Semver version range specification for the previous version
@@ -43,6 +43,7 @@ class VersionUpgrade(object):
         if not callable(upgrade):
             raise TypeError("Upgrade argument must be a function or other callable")
         self.upgrade = upgrade
+        self.module = upgrade.__module__
 
     def __call__(self):
         return self.upgrade()
@@ -125,7 +126,7 @@ def get_upgrades(app_configs=None):
                 # Only import instances of version upgrade
                 if isinstance(upgrade, VersionUpgrade)
                 # Only import instances defined in this module
-                and upgrade.__module__ == upgrade_module.__name__
+                and upgrade.module == upgrade_module.__name__
             ]
         except ImportError:
             pass
