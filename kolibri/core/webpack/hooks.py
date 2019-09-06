@@ -17,7 +17,6 @@ import os
 import re
 import time
 from abc import abstractproperty
-from abc import ABCMeta
 from functools import partial
 
 from django.conf import settings
@@ -32,7 +31,6 @@ from django.utils.translation import get_language_info
 from django.utils.translation import to_locale
 from pkg_resources import resource_filename
 from six import text_type
-from six import with_metaclass
 
 from kolibri.plugins import hooks
 
@@ -410,6 +408,10 @@ class WebpackInclusionMixin(object):
     def bundle_html(self):
         pass
 
+    @abstractproperty
+    def bundle_class(self):
+        pass
+
     @classmethod
     def html(cls):
         tags = []
@@ -419,10 +421,6 @@ class WebpackInclusionMixin(object):
 
 
 class WebpackInclusionSyncMixin(hooks.KolibriHook, WebpackInclusionMixin):
-    @abstractproperty
-    def bundle_class(self):
-        pass
-
     @property
     def bundle_html(self):
         bundle = self.bundle_class()
@@ -431,15 +429,6 @@ class WebpackInclusionSyncMixin(hooks.KolibriHook, WebpackInclusionMixin):
 
 
 class WebpackInclusionASyncMixin(hooks.KolibriHook, WebpackInclusionMixin):
-    """
-    Inherit a hook defining assets to be loaded in kolibri/base.html, that means
-    ALL pages. Use with care.
-    """
-
-    @abstractproperty
-    def bundle_class(self):
-        pass
-
     @property
     def bundle_html(self):
         bundle = self.bundle_class()
