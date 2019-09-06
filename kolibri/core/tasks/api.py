@@ -10,7 +10,6 @@ from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from six import string_types
 
-from .queue import get_queue
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.permissions import CanExportLogs
 from kolibri.core.content.permissions import CanManageContent
@@ -20,6 +19,7 @@ from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.tasks.iceqube.classes import State
 from kolibri.core.tasks.iceqube.exceptions import JobNotFound
 from kolibri.core.tasks.iceqube.exceptions import UserCancelledError
+from kolibri.core.tasks.queue import queue
 from kolibri.utils import conf
 
 try:
@@ -113,7 +113,7 @@ class TasksViewSet(viewsets.ViewSet):
         return [permission() for permission in permission_classes]
 
     def list(self, request):
-        jobs_response = [_job_to_response(j) for j in get_queue().jobs]
+        jobs_response = [_job_to_response(j) for j in queue.jobs]
 
         return Response(jobs_response)
 
@@ -123,7 +123,7 @@ class TasksViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
         try:
-            task = _job_to_response(get_queue().fetch_job(pk))
+            task = _job_to_response(queue.fetch_job(pk))
             return Response(task)
         except JobNotFound:
             raise Http404("Task with {pk} not found".format(pk=pk))
@@ -145,7 +145,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         for task in tasks:
             task.update({"type": "REMOTEIMPORT", "started_by": request.user.pk})
-            import_job_id = get_queue().enqueue(
+            import_job_id = queue.enqueue(
                 _remoteimport,
                 task["channel_id"],
                 task["baseurl"],
@@ -154,7 +154,7 @@ class TasksViewSet(viewsets.ViewSet):
             )
             job_ids.append(import_job_id)
 
-        resp = [_job_to_response(get_queue().fetch_job(job_id)) for job_id in job_ids]
+        resp = [_job_to_response(queue.fetch_job(job_id)) for job_id in job_ids]
 
         return Response(resp)
 
@@ -165,7 +165,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         task.update({"type": "REMOTECHANNELIMPORT", "started_by": request.user.pk})
 
-        job_id = get_queue().enqueue(
+        job_id = queue.enqueue(
             call_command,
             "importchannel",
             "network",
@@ -174,7 +174,7 @@ class TasksViewSet(viewsets.ViewSet):
             extra_metadata=task,
             cancellable=True,
         )
-        resp = _job_to_response(get_queue().fetch_job(job_id))
+        resp = _job_to_response(queue.fetch_job(job_id))
 
         return Response(resp)
 
@@ -185,7 +185,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         task.update({"type": "REMOTECONTENTIMPORT", "started_by": request.user.pk})
 
-        job_id = get_queue().enqueue(
+        job_id = queue.enqueue(
             call_command,
             "importcontent",
             "network",
@@ -198,7 +198,7 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=True,
         )
 
-        resp = _job_to_response(get_queue().fetch_job(job_id))
+        resp = _job_to_response(queue.fetch_job(job_id))
 
         return Response(resp)
 
@@ -215,7 +215,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         for task in tasks:
             task.update({"type": "DISKIMPORT", "started_by": request.user.pk})
-            import_job_id = get_queue().enqueue(
+            import_job_id = queue.enqueue(
                 _diskimport,
                 task["channel_id"],
                 task["datafolder"],
@@ -224,7 +224,7 @@ class TasksViewSet(viewsets.ViewSet):
             )
             job_ids.append(import_job_id)
 
-        resp = [_job_to_response(get_queue().fetch_job(job_id)) for job_id in job_ids]
+        resp = [_job_to_response(queue.fetch_job(job_id)) for job_id in job_ids]
 
         return Response(resp)
 
@@ -234,7 +234,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         task.update({"type": "DISKCHANNELIMPORT", "started_by": request.user.pk})
 
-        job_id = get_queue().enqueue(
+        job_id = queue.enqueue(
             call_command,
             "importchannel",
             "disk",
@@ -244,7 +244,7 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=True,
         )
 
-        resp = _job_to_response(get_queue().fetch_job(job_id))
+        resp = _job_to_response(queue.fetch_job(job_id))
         return Response(resp)
 
     @list_route(methods=["post"])
@@ -253,7 +253,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         task.update({"type": "DISKCONTENTIMPORT", "started_by": request.user.pk})
 
-        job_id = get_queue().enqueue(
+        job_id = queue.enqueue(
             call_command,
             "importcontent",
             "disk",
@@ -266,7 +266,7 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=True,
         )
 
-        resp = _job_to_response(get_queue().fetch_job(job_id))
+        resp = _job_to_response(queue.fetch_job(job_id))
 
         return Response(resp)
 
@@ -294,7 +294,7 @@ class TasksViewSet(viewsets.ViewSet):
                     "file_size": channel.published_size,
                     "resource_count": channel.total_resource_count,
                 }
-                delete_job_id = get_queue().enqueue(
+                delete_job_id = queue.enqueue(
                     call_command,
                     "deletechannel",
                     task["channel_id"],
@@ -305,7 +305,7 @@ class TasksViewSet(viewsets.ViewSet):
             except ChannelMetadata.DoesNotExist:
                 continue
 
-        resp = [_job_to_response(get_queue().fetch_job(job_id)) for job_id in job_ids]
+        resp = [_job_to_response(queue.fetch_job(job_id)) for job_id in job_ids]
 
         return Response(resp)
 
@@ -326,7 +326,7 @@ class TasksViewSet(viewsets.ViewSet):
             "channel_id": channel_id,
         }
 
-        task_id = get_queue().enqueue(
+        task_id = queue.enqueue(
             call_command,
             "deletechannel",
             channel_id,
@@ -335,7 +335,7 @@ class TasksViewSet(viewsets.ViewSet):
         )
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(get_queue().fetch_job(task_id))
+        resp = _job_to_response(queue.fetch_job(task_id))
 
         return Response(resp)
 
@@ -359,7 +359,7 @@ class TasksViewSet(viewsets.ViewSet):
                     "file_size": channel.published_size,
                     "resource_count": channel.total_resource_count,
                 }
-                export_job_id = get_queue().enqueue(
+                export_job_id = queue.enqueue(
                     _localexport,
                     task["channel_id"],
                     task["drive_id"],
@@ -371,7 +371,7 @@ class TasksViewSet(viewsets.ViewSet):
             except ChannelMetadata.DoesNotExist:
                 continue
 
-        resp = [_job_to_response(get_queue().fetch_job(job_id)) for job_id in job_ids]
+        resp = [_job_to_response(queue.fetch_job(job_id)) for job_id in job_ids]
 
         return Response(resp)
 
@@ -395,7 +395,7 @@ class TasksViewSet(viewsets.ViewSet):
             }
         )
 
-        task_id = get_queue().enqueue(
+        task_id = queue.enqueue(
             _localexport,
             task["channel_id"],
             task["drive_id"],
@@ -407,7 +407,7 @@ class TasksViewSet(viewsets.ViewSet):
         )
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(get_queue().fetch_job(task_id))
+        resp = _job_to_response(queue.fetch_job(task_id))
 
         return Response(resp)
 
@@ -422,7 +422,7 @@ class TasksViewSet(viewsets.ViewSet):
         if not isinstance(request.data["task_id"], string_types):
             raise serializers.ValidationError("The 'task_id' should be a string.")
         try:
-            get_queue().cancel(request.data["task_id"])
+            queue.cancel(request.data["task_id"])
         except JobNotFound:
             pass
 
@@ -434,7 +434,7 @@ class TasksViewSet(viewsets.ViewSet):
         Cancels all running tasks.
         """
 
-        get_queue().empty()
+        queue.empty()
         return Response({})
 
     @list_route(methods=["post"])
@@ -444,9 +444,9 @@ class TasksViewSet(viewsets.ViewSet):
         """
         task_id = request.data.get("task_id")
         if task_id:
-            get_queue().clear_job(task_id)
+            queue.clear_job(task_id)
         else:
-            get_queue().clear()
+            queue.clear()
         return Response({})
 
     @list_route(methods=["get"])
@@ -490,7 +490,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         job_metadata = {"type": job_type, "started_by": request.user.pk}
 
-        job_id = get_queue().enqueue(
+        job_id = queue.enqueue(
             call_command,
             "exportlogs",
             log_type=log_type,
@@ -500,7 +500,7 @@ class TasksViewSet(viewsets.ViewSet):
             track_progress=True,
         )
 
-        resp = _job_to_response(get_queue().fetch_job(job_id))
+        resp = _job_to_response(queue.fetch_job(job_id))
 
         return Response(resp)
 

@@ -127,7 +127,7 @@ class AllUrlsTest(APITestCase):
         # Patch this so that no tasks get started.
         with patch(
             "kolibri.core.webpack.hooks.WebpackBundleHook.bundle", return_value=[]
-        ), patch("kolibri.core.tasks.api.get_queue"), patch(
+        ), patch("kolibri.core.tasks.api.queue"), patch(
             "kolibri.core.webpack.hooks.WebpackBundleHook.get_by_unique_id"
         ):
             check_urls(urlpatterns)

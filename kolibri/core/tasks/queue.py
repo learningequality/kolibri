@@ -62,10 +62,3 @@ queue = Queue(app, connection=connection)
 def initialize_worker():
     worker = Worker(app, connection=connection, num_workers=1)
     atexit.register(worker.shutdown)
-
-
-def get_queue():
-    """
-    :return: the Queue object
-    """
-    return queue

@@ -83,9 +83,9 @@ def run_services():
 
     # This is run every time the server is started to clear all the tasks
     # in the queue
-    from kolibri.core.tasks.queue import get_queue
+    from kolibri.core.tasks.queue import queue
 
-    get_queue().empty()
+    queue.empty()
 
     # Initialize the iceqube engine to handle scheduled tasks
     from kolibri.core.tasks.queue import initialize_worker
