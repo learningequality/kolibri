@@ -52,7 +52,8 @@ class StorageMixin(object):
         self.engine = connection
         if self.engine.name == "sqlite":
             self.set_sqlite_pragmas()
-        Base.metadata.create_all(self.engine)
+        self.Base = Base
+        self.Base.metadata.create_all(self.engine)
         self.sessionmaker = sessionmaker(bind=self.engine)
 
     @contextmanager
@@ -66,6 +67,10 @@ class StorageMixin(object):
             raise
         finally:
             session.close()
+
+    def recreate_tables(self):
+        self.Base.metadata.drop_all(self.engine)
+        self.Base.metadata.create_all(self.engine)
 
     def set_sqlite_pragmas(self):
         """
