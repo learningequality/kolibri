@@ -1,13 +1,13 @@
 import atexit
 import os
 
-from iceqube.queue import Queue
-from iceqube.worker import Worker
 from sqlalchemy import create_engine
 from sqlalchemy import event
 from sqlalchemy import exc
 from sqlalchemy.pool import NullPool
 
+from kolibri.core.tasks.iceqube.queue import Queue
+from kolibri.core.tasks.iceqube.worker import Worker
 from kolibri.utils import conf
 
 app = "kolibri"

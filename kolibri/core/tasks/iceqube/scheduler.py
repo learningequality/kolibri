@@ -1,0 +1,214 @@
+import time
+from datetime import datetime
+from datetime import timedelta
+
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Index
+from sqlalchemy import Integer
+from sqlalchemy import PickleType
+from sqlalchemy import String
+from sqlalchemy.ext.declarative import declarative_base
+
+from kolibri.core.tasks.iceqube.classes import Job
+from kolibri.core.tasks.iceqube.classes import State
+from kolibri.core.tasks.iceqube.exceptions import JobNotFound
+from kolibri.core.tasks.iceqube.queue import Queue
+from kolibri.core.tasks.iceqube.storage import StorageMixin
+from kolibri.core.tasks.iceqube.utils import InfiniteLoopThread
+
+Base = declarative_base()
+
+
+DEFAULT_INTERVAL = 60
+
+
+class ScheduledJob(Base):
+    """
+    The DB representation of a scheduled job,
+    storing the relevant details needed to schedule jobs.
+    """
+
+    __tablename__ = "scheduledjobs"
+
+    # The hex UUID given to the job upon first creation
+    id = Column(String, primary_key=True, autoincrement=False)
+
+    # Repeat interval in seconds.
+    interval = Column(Integer, default=0)
+
+    # Number of times to repeat - None means repeat forever.
+    repeat = Column(Integer, nullable=True)
+
+    # The app name passed to the client when the job is scheduled.
+    queue = Column(String, index=True)
+
+    # The original Job object, pickled here for so we can easily access it.
+    obj = Column(PickleType)
+
+    scheduled_time = Column(DateTime())
+
+    __table_args__ = (Index("queue__scheduled_time", "queue", "scheduled_time"),)
+
+
+class Scheduler(StorageMixin):
+    def __init__(self, queue=None, connection=None, interval=DEFAULT_INTERVAL):
+        if connection is None and not isinstance(queue, Queue):
+            raise ValueError("One of either connection or queue must be specified")
+        elif connection is not None and isinstance(queue, Queue):
+            raise ValueError(
+                "One of either connection or queue must be specified, but not both"
+            )
+        elif isinstance(queue, Queue):
+            self.queue = queue
+            connection = self.queue.storage.engine
+        elif connection:
+            self.queue = queue(connection=connection)
+
+        self.interval = interval
+
+        super(Scheduler, self).__init__(connection, Base=Base)
+
+    def start_schedule_checker(self):
+        """
+        Starts up the job checker thread, that starts scheduled jobs when there are workers free,
+        and checks for cancellation requests for jobs currently assigned to a worker.
+        Returns: the Thread object.
+        """
+        t = InfiniteLoopThread(
+            self.check_schedule,
+            thread_name="SCHEDULECHECKER",
+            wait_between_runs=self.interval,
+        )
+        t.start()
+        return t
+
+    def run(self):
+        """
+        Start the schedule checker in a blocking way to be parallel to the rq-scheduler method.
+        """
+        thread = self.start_schedule_checker()
+        thread.join()
+
+    def start_scheduler(self):
+        if not self._schedule_checker or not self._schedule_checker.is_alive():
+            self._schedule_checker = self.start_schedule_checker()
+
+    def shutdown_scheduler(self):
+        if self._scheduler_checker:
+            self._scheduler_checker.stop()
+
+    def enqueue_at(self, dt, func, *args, **kwargs):
+        """
+        Add the job to the scheduler for the specified time
+        """
+        return self.schedule(dt, func, interval=0, repeat=0, *args, **kwargs)
+
+    def enqueue_in(self, delta_t, func, *args, **kwargs):
+        """
+        Add the job to the scheduler in the specified time delta
+        """
+        if not isinstance(delta_t, timedelta):
+            raise ValueError("Time argument must be a timedelta object.")
+        dt = self._now() + delta_t
+        return self.schedule(dt, func, interval=0, repeat=0, *args, **kwargs)
+
+    def schedule(self, dt, func, interval=0, repeat=0, *args, **kwargs):
+        """
+        Add the job to the scheduler for the specified time, interval, and number of repeats.
+        Repeat of None with a specified interval means the job will repeat forever at that
+        interval.
+        """
+        if not isinstance(dt, datetime):
+            raise ValueError("Time argument must be a datetime object.")
+        if not interval and repeat != 0:
+            raise ValueError("Must specify an interval if the task is repeating")
+        if isinstance(func, Job):
+            job = func
+        # else, turn it into a job first.
+        else:
+            job = Job(func, *args, **kwargs)
+
+        job.state = State.SCHEDULED
+
+        with self.session_scope() as session:
+            scheduled_job = ScheduledJob(
+                id=job.job_id,
+                queue=self.queue.name,
+                interval=interval,
+                repeat=repeat,
+                scheduled_time=dt,
+                obj=job,
+            )
+            session.merge(scheduled_job)
+
+            return job.job_id
+
+    def get_jobs(self):
+        with self.session_scope() as s:
+            scheduled_jobs = self._ns_query(s).all()
+            return [o.obj for o in scheduled_jobs]
+
+    def count(self):
+        with self.session_scope() as s:
+            return self._ns_query(s).count()
+
+    def get_job(self, job_id):
+        with self.session_scope() as session:
+            scheduled_job = self._ns_query(session).filter_by(id=job_id).one_or_none()
+            if scheduled_job is None:
+                raise JobNotFound()
+            return scheduled_job.obj
+
+    def cancel(self, job_id):
+        """
+        Clear a scheduled job.
+        :type job_id: NoneType or str
+        :param job_id: the job_id to clear. If None, clear all jobs.
+        """
+        with self.session_scope() as s:
+            q = self._ns_query(s)
+            if job_id:
+                q = q.filter_by(id=job_id)
+
+            q.delete(synchronize_session=False)
+
+    def check_schedule(self):
+        start = time.time()
+        now = self._now()
+        with self.session_scope() as s:
+            scheduled_jobs = self._ns_query(s).filter(
+                ScheduledJob.scheduled_time <= now
+            )
+            for scheduled_job in scheduled_jobs:
+                new_repeat = 0
+                repeat = False
+                if scheduled_job.repeat is None:
+                    new_repeat = None
+                    repeat = True
+                elif scheduled_job.repeat > 0:
+                    new_repeat = scheduled_job.repeat - 1
+                    repeat = True
+                job_for_queue = scheduled_job.obj
+                self.queue.enqueue(job_for_queue)
+                if repeat:
+                    # Update this scheduled job to repeat this
+                    self.schedule(
+                        self._now() + timedelta(seconds=scheduled_job.interval),
+                        job_for_queue,
+                        interval=scheduled_job.interval,
+                        repeat=new_repeat,
+                    )
+                else:
+                    s.delete(scheduled_job)
+            return time.time() - start
+
+    def _ns_query(self, session):
+        """
+        Return a SQLAlchemy query that is already namespaced by the queue.
+        Returns: a SQLAlchemy query object
+        """
+        return session.query(ScheduledJob).filter(ScheduledJob.queue == self.queue.name)
+
+    def _now(self):
+        return datetime.utcnow()

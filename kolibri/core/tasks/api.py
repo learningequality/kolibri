@@ -4,9 +4,6 @@ from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
 from django.http.response import Http404
 from django.utils.translation import gettext_lazy as _
-from iceqube.classes import State
-from iceqube.exceptions import JobNotFound
-from iceqube.exceptions import UserCancelledError
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
@@ -20,6 +17,9 @@ from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.paths import get_content_database_file_path
+from kolibri.core.tasks.iceqube.classes import State
+from kolibri.core.tasks.iceqube.exceptions import JobNotFound
+from kolibri.core.tasks.iceqube.exceptions import UserCancelledError
 from kolibri.utils import conf
 
 try:

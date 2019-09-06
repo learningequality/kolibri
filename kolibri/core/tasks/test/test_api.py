@@ -1,7 +1,4 @@
 from django.core.urlresolvers import reverse
-from iceqube.classes import Job
-from iceqube.classes import State
-from iceqube.exceptions import JobNotFound
 from mock import MagicMock
 from mock import patch
 from rest_framework.test import APITestCase
@@ -11,6 +8,9 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.tasks.iceqube.classes import Job
+from kolibri.core.tasks.iceqube.classes import State
+from kolibri.core.tasks.iceqube.exceptions import JobNotFound
 
 DUMMY_PASSWORD = "password"
 
