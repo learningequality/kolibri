@@ -1,11 +1,14 @@
 """
-We do not import unicode_literals here as it causes Click to
-give some very aggressive warning errors about subtle bugs.
-So, to avoid these errors and these subtle bugs, we use
-explicit unicode literals in the following.
+Please make note ``kolibri.utils.cli`` has  a sensitive module import order.
+
+This deliberately imports ``kolibri.__init__`` before loading additional
+``kolibri.*`` modules.
+
+TODO: Investigate and challenge/explain this load order.
 """
 from __future__ import absolute_import
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import importlib
 import logging
@@ -39,7 +42,16 @@ from kolibri.utils.conf import LOG_ROOT  # noqa
 from kolibri.utils.conf import OPTIONS  # noqa
 from kolibri.utils.logger import get_base_logging_config  # noqa
 
+
 logger = logging.getLogger(__name__)
+
+
+# We use Unicode strings for Python 2.7 throughout the codebase, so choosing
+# to silence these warnings.
+# Ref:
+# https://github.com/learningequality/kolibri/pull/5494#discussion_r318057385
+# https://github.com/PythonCharmers/python-future/issues/22
+click.disable_unicode_literals_warning = True
 
 
 def version_file():
@@ -82,7 +94,7 @@ def validate_module(ctx, param, value):
             importlib.import_module(value)
         except ImportError:
             raise click.BadParameter(
-                u"{param} must be a valid python module import path"
+                "{param} must be a valid python module import path"
             )
     return value
 
@@ -91,33 +103,33 @@ debug_option = click.Option(
     param_decls=["--debug"],
     default=False,
     is_flag=True,
-    help=u"Output debug messages (for development)",
+    help="Output debug messages (for development)",
 )
 
 settings_option = click.Option(
     param_decls=["--settings"],
     callback=validate_module,
-    help=u"Django settings module path",
+    help="Django settings module path",
 )
 
 pythonpath_option = click.Option(
     param_decls=["--pythonpath"],
     type=click.Path(exists=True, file_okay=False),
-    help=u"Add a path to the Python path",
+    help="Add a path to the Python path",
 )
 
 skip_update_option = click.Option(
     param_decls=["--skip-update"],
     default=False,
     is_flag=True,
-    help=u"Do not run update logic. (Useful when running multiple Kolibri commands in parallel)",
+    help="Do not run update logic. (Useful when running multiple Kolibri commands in parallel)",
 )
 
 noinput_option = click.Option(
     param_decls=["--no-input"],
     default=False,
     is_flag=True,
-    help=u"Suppress user prompts",
+    help="Suppress user prompts",
 )
 
 
@@ -240,10 +252,10 @@ def initialize(skip_update=False):
     except (DatabaseError, SQLite3DatabaseError) as e:
         if "malformed" in str(e):
             logger.error(
-                u"Your database appears to be corrupted. If you encounter this,"
-                u"please immediately back up all files in the .kolibri folder that"
-                u"end in .sqlite3, .sqlite3-shm, .sqlite3-wal, or .log and then"
-                u"contact Learning Equality. Thank you!"
+                "Your database appears to be corrupted. If you encounter this,"
+                "please immediately back up all files in the .kolibri folder that"
+                "end in .sqlite3, .sqlite3-shm, .sqlite3-wal, or .log and then"
+                "contact Learning Equality. Thank you!"
             )
         raise
 
@@ -254,15 +266,15 @@ def initialize(skip_update=False):
 
             try:
                 backup = dbbackup(version)
-                logger.info(u"Backed up database to: {path}".format(path=backup))
+                logger.info("Backed up database to: {path}".format(path=backup))
             except IncompatibleDatabase:
                 logger.warning(
-                    u"Skipped automatic database backup, not compatible with "
-                    u"this DB engine."
+                    "Skipped automatic database backup, not compatible with "
+                    "this DB engine."
                 )
 
         logger.info(
-            u"Version was {old}, new version: {new}".format(
+            "Version was {old}, new version: {new}".format(
                 old=version, new=kolibri.__version__
             )
         )
@@ -290,7 +302,7 @@ def update(old_version, new_version):
     TODO: We should look at version numbers of external plugins, too!
     """
 
-    logger.info(u"Running update routines for new version...")
+    logger.info("Running update routines for new version...")
 
     # Need to do this here, before we run any Django management commands that
     # import settings. Otherwise the updated configuration will not be used
@@ -314,7 +326,7 @@ def update(old_version, new_version):
     cache.clear()
 
 
-main_help = u"""Kolibri management commands
+main_help = """Kolibri management commands
 
 For more information, see:
 https://kolibri.readthedocs.io/en/latest/advanced.html
@@ -339,20 +351,20 @@ def create_startup_lock(port):
     try:
         server._write_pid_file(server.STARTUP_LOCK, port)
     except (IOError, OSError):
-        logger.warn(u"Impossible to create file lock to communicate starting process")
+        logger.warn("Impossible to create file lock to communicate starting process")
 
 
-@main.command(cls=KolibriDjangoCommand, help=u"Start the Kolibri process")
+@main.command(cls=KolibriDjangoCommand, help="Start the Kolibri process")
 @click.option(
     "--port",
     default=OPTIONS["Deployment"]["HTTP_PORT"],
     type=int,
-    help=u"Port on which to run Kolibri",
+    help="Port on which to run Kolibri",
 )
 @click.option(
     "--background/--foreground",
     default=True,
-    help=u"Run Kolibri as a background process",
+    help="Run Kolibri as a background process",
 )
 def start(port, background):
     """
@@ -378,10 +390,10 @@ def start(port, background):
     run_cherrypy = OPTIONS["Server"]["CHERRYPY_START"]
 
     if not background:
-        logger.info(u"Running Kolibri")
+        logger.info("Running Kolibri")
 
     else:
-        logger.info(u"Running Kolibri as background process")
+        logger.info("Running Kolibri as background process")
 
     if run_cherrypy:
         # Check if the port is occupied
@@ -390,19 +402,19 @@ def start(port, background):
         __, urls = server.get_urls(listen_port=port)
         if not urls:
             logger.error(
-                u"Could not detect an IP address that Kolibri binds to, but try "
-                u"opening up the following addresses:\n"
+                "Could not detect an IP address that Kolibri binds to, but try "
+                "opening up the following addresses:\n"
             )
             urls = [
                 "http://{}:{}".format(ip, port) for ip in ("localhost", "127.0.0.1")
             ]
         else:
-            logger.info(u"Kolibri running on:\n")
+            logger.info("Kolibri running on:\n")
         for addr in urls:
             sys.stderr.write("\t{}\n".format(addr))
         sys.stderr.write("\n")
     else:
-        logger.info(u"Starting Kolibri background workers")
+        logger.info("Starting Kolibri background workers")
 
     # Daemonize at this point, no more user output is needed
     if background:
@@ -410,7 +422,7 @@ def start(port, background):
         from django.conf import settings
 
         kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
-        logger.info(u"Going to background mode, logging to {0}".format(kolibri_log))
+        logger.info("Going to background mode, logging to {0}".format(kolibri_log))
 
         kwargs = {}
         # Truncate the file
@@ -424,7 +436,7 @@ def start(port, background):
     server.start(port=port, run_cherrypy=run_cherrypy)
 
 
-@main.command(cls=KolibriCommand, help=u"Stop the Kolibri process")
+@main.command(cls=KolibriCommand, help="Stop the Kolibri process")
 def stop():
     """
     Stops the server unless it isn't running
@@ -434,24 +446,24 @@ def stop():
         server.stop(pid=pid)
         stopped = True
         if OPTIONS["Server"]["CHERRYPY_START"]:
-            logger.info(u"Kolibri server has successfully been stopped.")
+            logger.info("Kolibri server has successfully been stopped.")
         else:
-            logger.info(u"Kolibri background services have successfully been stopped.")
+            logger.info("Kolibri background services have successfully been stopped.")
     except server.NotRunning as e:
         verbose_status = "{msg:s} ({code:d})".format(
             code=e.status_code, msg=status.codes[e.status_code]
         )
         if e.status_code == server.STATUS_STOPPED:
-            logger.info(u"Already stopped: {}".format(verbose_status))
+            logger.info("Already stopped: {}".format(verbose_status))
             stopped = True
         elif e.status_code == server.STATUS_STARTING_UP:
-            logger.error(u"Not stopped: {}".format(verbose_status))
+            logger.error("Not stopped: {}".format(verbose_status))
             sys.exit(e.status_code)
         else:
             logger.error(
-                u"During graceful shutdown, server says: {}".format(verbose_status)
+                "During graceful shutdown, server says: {}".format(verbose_status)
             )
-            logger.error(u"Not responding, killing with force")
+            logger.error("Not responding, killing with force")
             server.stop(force=True)
             stopped = True
 
@@ -459,7 +471,7 @@ def stop():
         sys.exit(0)
 
 
-@main.command(cls=KolibriCommand, help=u"Show the status of the Kolibri process")
+@main.command(cls=KolibriCommand, help="Show the status of the Kolibri process")
 def status():
     """
     How is Kolibri doing?
@@ -478,9 +490,9 @@ def status():
     status_code, urls = server.get_urls()
 
     if status_code == server.STATUS_RUNNING:
-        sys.stderr.write(u"{msg:s} (0)\n".format(msg=status.codes[0]))
+        sys.stderr.write("{msg:s} (0)\n".format(msg=status.codes[0]))
         if urls:
-            sys.stderr.write(u"Kolibri running on:\n\n")
+            sys.stderr.write("Kolibri running on:\n\n")
             for addr in urls:
                 sys.stderr.write("\t{}\n".format(addr))
     else:
@@ -492,27 +504,27 @@ def status():
 
 
 status.codes = {
-    server.STATUS_RUNNING: u"OK, running",
-    server.STATUS_STOPPED: u"Stopped",
-    server.STATUS_STARTING_UP: u"Starting up",
-    server.STATUS_NOT_RESPONDING: u"Not responding",
-    server.STATUS_FAILED_TO_START: u"Failed to start (check log file: {0})".format(
+    server.STATUS_RUNNING: "OK, running",
+    server.STATUS_STOPPED: "Stopped",
+    server.STATUS_STARTING_UP: "Starting up",
+    server.STATUS_NOT_RESPONDING: "Not responding",
+    server.STATUS_FAILED_TO_START: "Failed to start (check log file: {0})".format(
         server.DAEMON_LOG
     ),
-    server.STATUS_UNCLEAN_SHUTDOWN: u"Unclean shutdown",
-    server.STATUS_UNKNOWN_INSTANCE: u"Unknown Kolibri running on port",
-    server.STATUS_SERVER_CONFIGURATION_ERROR: u"Kolibri server configuration error",
-    server.STATUS_PID_FILE_READ_ERROR: u"Could not read PID file",
-    server.STATUS_PID_FILE_INVALID: u"Invalid PID file",
-    server.STATUS_UNKNOWN: u"Could not determine status",
+    server.STATUS_UNCLEAN_SHUTDOWN: "Unclean shutdown",
+    server.STATUS_UNKNOWN_INSTANCE: "Unknown Kolibri running on port",
+    server.STATUS_SERVER_CONFIGURATION_ERROR: "Kolibri server configuration error",
+    server.STATUS_PID_FILE_READ_ERROR: "Could not read PID file",
+    server.STATUS_PID_FILE_INVALID: "Invalid PID file",
+    server.STATUS_UNKNOWN: "Could not determine status",
 }
 
 
-@main.command(cls=KolibriDjangoCommand, help=u"Start worker processes")
+@main.command(cls=KolibriDjangoCommand, help="Start worker processes")
 @click.option(
     "--background/--foreground",
     default=True,
-    help=u"Run Kolibri services as a background task",
+    help="Run Kolibri services as a background task",
 )
 def services(background):
     """
@@ -521,7 +533,7 @@ def services(background):
 
     create_startup_lock(None)
 
-    logger.info(u"Starting Kolibri background services")
+    logger.info("Starting Kolibri background services")
 
     # Daemonize at this point, no more user output is needed
     if background:
@@ -529,7 +541,7 @@ def services(background):
         from django.conf import settings
 
         kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
-        logger.info(u"Going to background mode, logging to {0}".format(kolibri_log))
+        logger.info("Going to background mode, logging to {0}".format(kolibri_log))
 
         kwargs = {}
         # Truncate the file
@@ -563,16 +575,16 @@ def setup_logging(debug=False):
 @main.command(
     cls=KolibriDjangoCommand,
     context_settings=dict(ignore_unknown_options=True, allow_extra_args=True),
-    help=u"Invoke a Django management command",
+    help="Invoke a Django management command",
 )
 @click.pass_context
 def manage(ctx):
     if ctx.args:
-        logger.info(u"Invoking command {}".format(" ".join(ctx.args)))
+        logger.info("Invoking command {}".format(" ".join(ctx.args)))
     execute_from_command_line(["kolibri manage"] + ctx.args)
 
 
-@main.command(cls=KolibriDjangoCommand, help=u"Launch a Django shell")
+@main.command(cls=KolibriDjangoCommand, help="Launch a Django shell")
 @click.pass_context
 def shell(ctx):
     execute_from_command_line(["kolibri manage", "shell"] + ctx.args)
@@ -582,7 +594,7 @@ ENABLE = "enable"
 DISABLE = "disable"
 
 
-@main.command(cls=KolibriCommand, help=u"Manage Kolibri plugins")
+@main.command(cls=KolibriCommand, help="Manage Kolibri plugins")
 @click.argument("plugin_name", nargs=1)
 @click.argument("command", type=click.Choice([ENABLE, DISABLE]))
 def plugin(plugin_name, command):
@@ -590,11 +602,11 @@ def plugin(plugin_name, command):
     Allows a Kolibri plugin to be either enabled or disabled.
     """
     if command == ENABLE:
-        logger.info(u"Enabling plugin '{}'".format(plugin_name))
+        logger.info("Enabling plugin '{}'".format(plugin_name))
         enable_plugin(plugin_name)
 
     if command == DISABLE:
-        logger.info(u"Disabling plugin '{}'".format(plugin_name))
+        logger.info("Disabling plugin '{}'".format(plugin_name))
         disable_plugin(plugin_name)
 
     config.save()
