@@ -5124,6 +5124,11 @@ frame-throttle@^2.0.1:
   resolved "https://registry.yarnpkg.com/frame-throttle/-/frame-throttle-2.0.1.tgz#d184334335da04e7f48a5318a0aac7a9901f048f"
   integrity sha1-0YQzQzXaBOf0ilMYoKrHqZAfBI8=
 
+frame-throttle@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/frame-throttle/-/frame-throttle-3.0.0.tgz#a666e007c10af6239909cf73871be09a7ea1c6d1"
+  integrity sha1-pmbgB8EK9iOZCc9zhxvgmn6hxtE=
+
 fresh@0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
