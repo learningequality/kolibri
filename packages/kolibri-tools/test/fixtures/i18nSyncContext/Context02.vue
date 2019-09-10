@@ -6,6 +6,7 @@
 
 
 <script>
+
   /* eslint-disable kolibri/vue-no-unused-translations */
   /**
    * This file includes context object definitions.

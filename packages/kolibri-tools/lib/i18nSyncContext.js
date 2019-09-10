@@ -17,9 +17,9 @@ const reScriptClose = /^[ ]*<\/script>/;
 
 // Glob path patterns
 // All JS files not in node_modules
-const JS_GLOB = path.resolve('./kolibri') + '/!(node_modules)/**/*.js';
+const JS_GLOB = path.resolve('./kolibri') + '/**/*.js';
 // All Vue files not in node_modules
-const VUE_GLOB = path.resolve('./kolibri') + '/!(node_modules)/**/*.vue';
+const VUE_GLOB = path.resolve('./kolibri') + '/**/*.vue';
 // All of the files downloaded from Crowdin
 const CSV_PATH = path.resolve('./kolibri/locale/CSV_FILES/');
 
@@ -31,6 +31,9 @@ function processVueFiles(files, definitions) {
   const updatedFiles = [];
 
   files.forEach(filePath => {
+    if (filePath.includes('node_modules')) {
+      return;
+    }
     let fileHasChanged = false;
     const file = fs.readFileSync(filePath);
 
@@ -107,6 +110,9 @@ function processJSFiles(files, definitions) {
   const updatedFiles = [];
 
   files.forEach(filePath => {
+    if (filePath.includes('node_modules')) {
+      return;
+    }
     let fileHasChanged = false;
 
     const file = fs.readFileSync(filePath);
