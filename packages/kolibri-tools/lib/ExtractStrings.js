@@ -167,7 +167,7 @@ ExtractStrings.prototype.apply = function(compiler) {
                         // and extract the string and context.
                         if (message.value.type === 'ObjectExpression') {
                           const stringNode = message.value.properties.filter(
-                            prop => prop.key.name === 'string'
+                            prop => prop.key.name === 'message'
                           )[0];
                           const contextNode = message.value.properties.filter(
                             prop => prop.key.name === 'context'
@@ -182,7 +182,7 @@ ExtractStrings.prototype.apply = function(compiler) {
                           if (!string) {
                             logging.error(
                               `The value for $trs ${message.key.name} is not valid. Make sure it is a
-                              string or an object including a key 'string'. Found in ${module.resource}`
+                              string or an object including a key 'message'. Found in ${module.resource}`
                             );
                           }
                           messages[message.key.name] = { string, context };
@@ -192,7 +192,7 @@ ExtractStrings.prototype.apply = function(compiler) {
                           if (!message.value.value) {
                             logging.error(
                               `The value for $trs ${message.key.name} is not valid. Make sure it is a
-                              string or an object including a key 'string'. Found in ${module.resource}`
+                              string or an object including a key 'message'. Found in ${module.resource}`
                             );
                           } else {
                             messages[message.key.name] = message.value.value;
@@ -387,7 +387,7 @@ function toCSV(path, messages) {
       context = '';
 
     if (typeof messages[identifier] === 'object') {
-      sourceString = messages[identifier]['string'];
+      sourceString = messages[identifier]['message'];
       context = messages[identifier]['context'];
     } else {
       sourceString = messages[identifier];

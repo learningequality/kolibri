@@ -23,12 +23,12 @@
     $trs: {
       // Should be left alone unless the context changes.
       testAction: {
-        string: 'Test',
+        message: 'Test',
         context: 'For testing actions',
       },
       // Should be converted to a string unless context is defined
       noContextObject: {
-        string: `Just a string here...`, // TemplateLiteral
+        message: `Just a string here...`, // TemplateLiteral
       },
     },
   };

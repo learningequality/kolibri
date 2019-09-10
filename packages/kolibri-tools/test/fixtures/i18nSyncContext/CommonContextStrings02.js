@@ -6,7 +6,7 @@ import { createTranslator } from 'kolibri.utils.i18n';
 
 const contextStrings = createTranslator('CommonContextStrings02', {
   userLabel: {
-    string: 'User',
+    message: 'User',
     context: 'Label for the user',
   },
 });

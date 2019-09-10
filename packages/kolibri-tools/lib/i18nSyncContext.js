@@ -245,7 +245,7 @@ function objectToAst(def, valueIsTemplateNode = false) {
         type: 'ObjectProperty',
         key: {
           type: 'Identifier',
-          name: 'string',
+          name: 'message',
         },
         value: sourceStringValue,
       },

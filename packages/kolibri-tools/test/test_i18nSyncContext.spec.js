@@ -196,11 +196,11 @@ describe('processVueFiles', function() {
       expect(property.value.type).toEqual('ObjectExpression');
 
       const contexts = property.value.properties.filter(p => p.key.name === 'context');
-      const strings = property.value.properties.filter(p => p.key.name === 'string');
-      // Ensure that every object has a `string` and `context` key
+      const messages = property.value.properties.filter(p => p.key.name === 'message');
+      // Ensure that every object has a `messages` and `context` key
       expect(contexts.length).toBeGreaterThan(0);
-      expect(strings.length).toBeGreaterThan(0);
-      expect(contexts.length).toEqual(strings.length);
+      expect(messages.length).toBeGreaterThan(0);
+      expect(contexts.length).toEqual(messages.length);
 
       // Ensure all of the contexts are the "Added Context" defined in the CSV.
       contexts.forEach(c => expect(c.value.value).toEqual(ADDED_CONTEXT));
@@ -220,8 +220,8 @@ describe('processJSFiles', function() {
   });
 
   // ** Remove ObjectExpression & insert StringLiteral/TemplateLiteral, when no context exists ** //
-  // noContextDefs defines that no strings should have any context. We therefore
-  // expect that the updated files will have no objects defined for strings and
+  // noContextDefs defines that no messages should have any context. We therefore
+  // expect that the updated files will have no objects defined for messages and
   // that all right-side values in $trs are (String|Template)Literal nodes.
   const noContextUpdatedFiles = processJSFiles(JSFilePaths, noContextDefs);
 
@@ -256,11 +256,11 @@ describe('processJSFiles', function() {
       expect(property.value.type).toEqual('ObjectExpression');
 
       const contexts = property.value.properties.filter(p => p.key.name === 'context');
-      const strings = property.value.properties.filter(p => p.key.name === 'string');
-      // Ensure that every object has a `string` and `context` key
+      const messages = property.value.properties.filter(p => p.key.name === 'message');
+      // Ensure that every object has a `message` and `context` key
       expect(contexts.length).toBeGreaterThan(0);
-      expect(strings.length).toBeGreaterThan(0);
-      expect(contexts.length).toEqual(strings.length);
+      expect(messages.length).toBeGreaterThan(0);
+      expect(contexts.length).toEqual(messages.length);
 
       // Ensure all of the contexts are the "Added Context" defined in the CSV.
       contexts.forEach(c => expect(c.value.value).toEqual(ADDED_CONTEXT));
