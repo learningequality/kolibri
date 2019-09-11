@@ -285,7 +285,7 @@ kolibri_configure()
     update-rc.d -f kolibri remove
 
     KERNEL_RASPBERRY=`uname -a|grep arm`
-    [ ! -z "$KERNEL_RASPBERRY" ] && echo "This operation take some minutes in this platform"
+    [ ! -z "$KERNEL_RASPBERRY" ] && echo "\n\n  NB! This operation take some minutes in this platform..."
 
     if $ENABLE_INIT_D
     then
