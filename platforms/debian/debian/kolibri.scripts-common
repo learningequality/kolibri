@@ -186,7 +186,7 @@ kolibri_get_config()
 # Used in .config
 kolibri_debconf_ask()
 {
-    
+
     if ! has_state "after_preinst"
     then
         return
@@ -195,14 +195,14 @@ kolibri_debconf_ask()
     # Get the current configuration -- or rather: These are the defaults
     # or presets before asking.
     kolibri_get_config
-    
+
     db_settitle kolibri/window-title
     db_go || true
 
     # Run as system script?
     db_input high kolibri/init || true
     db_go || true
-    
+
     # Give init.d instructions
     db_get kolibri/init
     if [ "$RET" = "true" ]
@@ -264,7 +264,7 @@ kolibri_configure()
         fi
         addgroup --system "$new_group_name"
         usermod -g "$KOLIBRI_USER" "$new_group_name"
-        
+
         # If a ~/.kolibri already existed, then set group ownership
         DEFAULT_KOLIBRI_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')/.kolibri"
         if [ -e "$DEFAULT_KOLIBRI_HOME" ]
@@ -283,6 +283,9 @@ kolibri_configure()
 
     # Remove because we might re-register as systemd during an upgrade
     update-rc.d -f kolibri remove
+
+    KERNEL_RASPBERRY=`uname -a|grep arm`
+    [ ! -z "$KERNEL_RASPBERRY" ] && echo "This operation take some minutes in this platform"
 
     if $ENABLE_INIT_D
     then
@@ -321,7 +324,7 @@ kolibri_debconf_set_defaults()
     # mark it as unseen (changing a db value automatically marks it as seen)
     db_fget kolibri/user seen
     USER_SEEN="$RET"
-    
+
     # Extra sensitivity for upgrades from <0.10 - this can be deleted at some
     # point without causing serious harm, it's just nice to have for the bulk of
     # users upgrading upon release.
@@ -341,7 +344,7 @@ kolibri_debconf_set_defaults()
     else
         db_fset kolibri/pre-010-upgrade-system-user seen true
     fi
-    
+
     if [ "$USER_SEEN" == "false" ]
     then
         # DESKTOP_USER=`getent passwd | awk -F: '$3 >= 1000 && $3 < 2000 {print $1}'`
@@ -366,7 +369,7 @@ kolibri_debconf_set_defaults()
 
 kolibri_preinst()
 {
-    
+
     # Initialize: Remove the states file. This is expected to work fine, and
     # also HAS to be done somewhere, otherwise state may be transferred between
     # different dpkg processes! For instance, "apt-get install" followed by
@@ -382,7 +385,7 @@ kolibri_preinst()
     if [ "${args[0]}" = "install" ] ||
        [ "${args[0]}" = "upgrade" ]
     then
-    
+
         # Step 1: Stop the system service
         stop_kolibri_service
 
