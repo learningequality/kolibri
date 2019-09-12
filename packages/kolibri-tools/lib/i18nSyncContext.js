@@ -77,7 +77,7 @@ function processVueFiles(files, definitions) {
             if (definition['Context'] && definition['Context'] !== '') {
               property.value = objectToAst(definition, property.value.type === 'TemplateLiteral');
               fileHasChanged = true;
-            } else if (definition['Source String'] && property.type === 'ObjectProperty') {
+            } else if (definition['Source String'] && property.value.type === 'ObjectProperty') {
               // We don't have context to add, but we have an ObjectProperty in the codebase
               // so we will convert it back to a regular ol' string.
               property.value =
@@ -151,7 +151,7 @@ function processJSFiles(files, definitions) {
               if (definition['Context'] && definition['Context'] !== '') {
                 property.value = objectToAst(definition, property.value.type === 'TemplateLiteral');
                 fileHasChanged = true;
-              } else if (definition['Source String'] && property.type === 'ObjectProperty') {
+              } else if (definition['Source String'] && property.value.type === 'ObjectProperty') {
                 // We don't have context to add, but we have an ObjectProperty in the codebase
                 // so we will convert it back to a regular ol' string.
                 property.value =
