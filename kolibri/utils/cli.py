@@ -335,15 +335,20 @@ You can also run: kolibri COMMAND --help
 """
 
 
-@click.group(help=main_help)
+@click.group(invoke_without_command=True, help=main_help)
+@click.pass_context
 @click.version_option(version=kolibri.__version__)
-def main():
+def main(ctx):
     """
     Kolibri's main function.
 
     Utility functions should be callable for unit testing purposes, but remember
     to use main() for integration tests in order to test the argument API.
     """
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
+        ctx.exit(1)
+
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
