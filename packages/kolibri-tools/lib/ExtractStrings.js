@@ -156,46 +156,46 @@ ExtractStrings.prototype.apply = function(compiler) {
                     if (property.key.name === '$trs') {
                       // Grab every message in our $trs property and
                       // save it into our messages object.
-                      property.value.properties.forEach(function(message) {
+                      property.value.properties.forEach(function(messageNode) {
                         // Check that the trs id is camelCase.
-                        if (!isCamelCase(message.key.name)) {
+                        if (!isCamelCase(messageNode.key.name)) {
                           logging.error(
-                            `$trs id "${message.key.name}" should be in camelCase. Found in ${module.resource}`
+                            `$trs id "${messageNode.key.name}" should be in camelCase. Found in ${module.resource}`
                           );
                         }
                         // First, check if the value is an object
                         // and extract the string and context.
-                        if (message.value.type === 'ObjectExpression') {
-                          const stringNode = message.value.properties.filter(
+                        if (messageNode.value.type === 'ObjectExpression') {
+                          const stringNode = messageNode.value.properties.filter(
                             prop => prop.key.name === 'message'
                           )[0];
-                          const contextNode = message.value.properties.filter(
+                          const contextNode = messageNode.value.properties.filter(
                             prop => prop.key.name === 'context'
                           )[0];
 
-                          const string =
+                          const message =
                             stringNode && stringNode.value ? stringNode.value.value : null;
                           const context =
                             contextNode && contextNode.value ? contextNode.value.value : '';
 
                           // Ensure that there is a value for the string key passed.
-                          if (!string) {
+                          if (!message) {
                             logging.error(
-                              `The value for $trs ${message.key.name} is not valid. Make sure it is a
+                              `The value for $trs ${messageNode.key.name} is not valid. Make sure it is a
                               string or an object including a key 'message'. Found in ${module.resource}`
                             );
                           }
-                          messages[message.key.name] = { string, context };
+                          messages[messageNode.key.name] = { message, context };
                         } else {
                           // If the value is not an object,
                           // ensure a value is passed in the first place.
-                          if (!message.value.value) {
+                          if (!messageNode.value.value) {
                             logging.error(
-                              `The value for $trs ${message.key.name} is not valid. Make sure it is a
+                              `The value for $trs ${messageNode.key.name} is not valid. Make sure it is a
                               string or an object including a key 'message'. Found in ${module.resource}`
                             );
                           } else {
-                            messages[message.key.name] = message.value.value;
+                            messages[messageNode.key.name] = messageNode.value.value;
                           }
                         }
                       });
