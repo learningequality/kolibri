@@ -91,24 +91,24 @@
       },
       optionContentStyle() {
         let backgroundColor = '';
-        let color = this.$themePalette.grey.v_600;
+        let color = '#000';
         let hover = {
           backgroundColor: this.$themePalette.grey.v_200,
         };
+        let fontWeight = 'normal';
 
         if (!this.isDivider) {
           if (this.active) {
             backgroundColor = this.$themeBrand.primary.v_50;
-            color = this.$themeTokens.primary;
-            hover['color'] = this.$themeTokens.primaryDark;
-          } else {
-            hover['color'] = '#000000';
+            color = this.$themeTokens.primaryDark;
+            fontWeight = 'bold';
           }
         }
 
         return {
           backgroundColor,
           color,
+          fontWeight,
           ':hover': hover,
         };
       },
@@ -149,15 +149,11 @@
     text-decoration: none;
   }
   .core-menu-option-content {
-    display: -webkit-box;
-    display: -ms-flexbox;
     display: flex;
     align-items: center;
     height: 2.5rem;
     padding: 0 8px;
     margin: 4px 8px 0;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
     border-radius: $radius;
   }
   .divider {

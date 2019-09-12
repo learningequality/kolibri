@@ -16,7 +16,7 @@
           :style="{
             height: headerHeight + 'px',
             width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px',
-            backgroundColor: $themeTokens.text,
+            backgroundColor: $themeTokens.primary,
           }"
         >
           <UiIconButton
