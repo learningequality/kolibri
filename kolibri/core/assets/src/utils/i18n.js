@@ -25,7 +25,14 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
                       arguments or an object of named options.`);
     }
   }
-  const defaultMessageText = defaultMessages[messageId];
+
+  // Handle the possibility that the message is defined with an object including context.
+  const messageValue = defaultMessages[messageId];
+  const defaultMessageText =
+    typeof messageValue === 'object' && messageValue.hasOwnProperty('message')
+      ? messageValue.message
+      : messageValue;
+
   const message = {
     id: `${nameSpace}.${messageId}`,
     defaultMessage: defaultMessageText,

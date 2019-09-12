@@ -198,7 +198,6 @@ ExtractStrings.prototype.apply = function(compiler) {
                             messages[message.key.name] = message.value.value;
                           }
                         }
-                        // Check that the value is valid, and not an expression
                       });
                       // We also want to take a note of the name space
                       // these messages have been put in too!
