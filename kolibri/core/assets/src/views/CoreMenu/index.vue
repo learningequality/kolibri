@@ -82,5 +82,10 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+  .ui-menu-header {
+    padding: 1rem 1rem 1rem 50px;
+    font-size: 0.9375rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
 
 </style>
