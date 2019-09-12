@@ -90,6 +90,7 @@
             <CoreMenuOption
               :label="$tr('languageSwitchMenuOption')"
               icon="language"
+              style="cursor: pointer;"
               @select="handleChangeLanguage"
             />
             <LogoutSideNavEntry v-if="isUserLoggedIn" />
@@ -213,10 +214,38 @@
     text-overflow: ellipsis;
   }
 
+  // Holdover from keen-ui to keep dropdown profile correctly formatted.
+  /deep/ .ui-menu {
+    min-width: 10.5rem;
+    max-width: 17rem;
+    max-height: 100vh;
+    padding: 0.25rem 0;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    list-style: none;
+    background-color: inherit;
+    border: 0.0625rem solid rgba(0, 0, 0, 0.08);
+    outline: none;
+  }
+
   .user-menu-dropdown {
     position: fixed;
     right: 0;
     z-index: 8;
+
+    // Holdover from previous CoreMenuOption format. Will keep the profile
+    // dropdown formatted correctly.
+    /deep/ .core-menu-option-content {
+      padding-right: 8px;
+      padding-left: 8px;
+      font-size: 0.9375rem;
+      color: black !important;
+    }
+
+    /deep/ svg {
+      fill: black !important;
+    }
   }
 
   .role {
