@@ -28,7 +28,12 @@
         </div>
       </slot>
     </a>
-    <span v-else class="divider" :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"></span>
+    <span
+      v-else
+      class="divider"
+      :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
+    >
+    </span>
   </li>
 
 </template>
