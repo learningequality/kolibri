@@ -13,6 +13,7 @@
       :height="appbarHeight"
       :scrollPosition="scrollPosition"
       :alwaysVisible="fixedAppBar"
+      :mainWrapperScrollHeight="mainWrapperScrollHeight"
     >
       <ImmersiveToolbar
         v-if="immersivePage && !fullScreen"
@@ -273,6 +274,7 @@
         unwatchScrollHeight: undefined,
         notificationModalShown: true,
         languageModalShown: false,
+        mainWrapperScrollHeight: 0,
       };
     },
     computed: {
@@ -425,7 +427,14 @@
           Lockr.set(UPDATE_MODAL_DISMISSED, true);
         }
       },
+      updateScrollHeight() {
+        this.mainWrapperScrollHeight = Math.max(
+          this.$refs.mainWrapper.offsetHeight,
+          this.$refs.mainWrapper.scrollHeight
+        );
+      },
       setScroll() {
+        this.updateScrollHeight();
         this.$el.scrollTop = scrollPositions.getScrollPosition().y;
         this.scrollPosition = this.$el.scrollTop;
       },
