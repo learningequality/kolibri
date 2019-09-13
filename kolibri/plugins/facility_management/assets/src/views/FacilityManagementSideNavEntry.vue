@@ -3,13 +3,8 @@
   <CoreMenuOption
     :label="coreString('facilityLabel')"
     :link="url"
-  >
-    <mat-svg
-      slot="icon"
-      name="settings_input_antenna"
-      category="action"
-    />
-  </CoreMenuOption>
+    icon="facility"
+  />
 
 </template>
 

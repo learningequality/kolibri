@@ -3,13 +3,8 @@
   <CoreMenuOption
     :label="learnString('learnLabel')"
     :link="url"
-  >
-    <mat-svg
-      slot="icon"
-      name="school"
-      category="social"
-    />
-  </CoreMenuOption>
+    icon="learn"
+  />
 
 </template>
 

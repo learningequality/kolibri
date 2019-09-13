@@ -3,13 +3,8 @@
   <CoreMenuOption
     :label="coreString('coachLabel')"
     :link="url"
-  >
-    <mat-svg
-      slot="icon"
-      name="assessment"
-      category="action"
-    />
-  </CoreMenuOption>
+    icon="coach"
+  />
 
 </template>
 

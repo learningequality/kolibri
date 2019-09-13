@@ -71,7 +71,7 @@
     methods: {
       redirectFocus(e) {
         e.stopPropagation();
-        this.$el.querySelector('.ui-menu-option').focus();
+        this.$el.querySelector('.core-menu-option').focus();
       },
     },
   };
@@ -81,48 +81,11 @@
 
 <style lang="scss" scoped>
 
-  @import '~keen-ui/src/styles/imports';
   @import '~kolibri.styles.definitions';
-
-  /* stylelint-disable csstree/validator */
-
-  .ui-menu {
-    min-width: rem-calc(168px);
-    max-width: rem-calc(272px);
-    max-height: 100vh;
-    padding: rem-calc(4px 0);
-    margin: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    list-style: none;
-    background-color: inherit;
-    border: rem-calc(1px) solid rgba(black, 0.08);
-    outline: none;
-
-    &.is-raised {
-      @extend %dropshadow-8dp;
-
-      border: 0;
-    }
-
-    &.has-secondary-text {
-      min-width: rem-calc(240px);
-      max-width: rem-calc(304px);
-    }
-  }
-
-  .ui-menu-focus-redirector {
-    position: absolute;
-    opacity: 0;
-  }
-
   .ui-menu-header {
-    padding: 1rem;
-    padding-left: 50px; // TODO make a variable?
-    font-size: $ui-dropdown-item-font-size;
-    border-bottom: solid 1px rgba(black, 0.08);
+    padding: 1rem 1rem 1rem 50px;
+    font-size: 0.9375rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   }
-
-  /* stylelint-enable */
 
 </style>
