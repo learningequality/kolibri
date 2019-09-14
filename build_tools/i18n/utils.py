@@ -5,7 +5,6 @@ import json
 import logging
 import os
 import sys
-from pathlib import Path
 
 import kolibri_exercise_perseus_plugin
 
@@ -114,15 +113,19 @@ def json_dump_formatted(data, file_path, file_name):
     - sorted keys
     - make sure it's utf-8
     """
+
     # Ensure that the directory exists for the file to be opened inside of.
-    dir_path = Path(file_path)
-    dir_path.mkdir(exist_ok=True, parents=True)
+    try:
+        os.makedirs(file_path)
+    except:
+        # Path already exists
+        pass
 
     # Join the filename to the path which we now know exists for sure.
-    file_path = os.path.join(file_path, file_name)
+    file_path_with_file_name = os.path.join(file_path, file_name)
 
     # Format and write the JSON file
-    with io.open(file_path, mode="w+", encoding="utf-8") as file_object:
+    with io.open(file_path_with_file_name, mode="w+", encoding="utf-8") as file_object:
         json.dump(
             data,
             file_object,
