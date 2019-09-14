@@ -97,6 +97,7 @@ function processVueFiles(files, definitions) {
       const updatedScript = recast.print(scriptAST, {
         reuseWhitspace: false,
         tabWidth: 2,
+        quote: 'single',
       }).code;
       const newFile = injectNewScript(file.toString(), updatedScript);
       updatedFiles.push({ [filePath]: newFile });
@@ -169,7 +170,7 @@ function processJSFiles(files, definitions) {
 
     // No need to rewrite the file if we didn't modify it.
     if (fileHasChanged) {
-      const newFile = recast.print(ast, { reuseWhitspace: false, tabWidth: 2 }).code;
+      const newFile = recast.print(ast, { reuseWhitspace: false, tabWidth: 2, quote: 'single', }).code;
       updatedFiles.push({ [filePath]: newFile });
     }
   });
@@ -184,34 +185,8 @@ function processJSFiles(files, definitions) {
 // Replaces the body of <script> tags in a Vue file and replaces its content
 // with that which is passed to the function.
 function injectNewScript(file, content) {
-  // Make both items an array of lines.
-  const lines = file.split('\n');
-  const contentLines = content.split('\n');
-
-  // Will store the index positions for the open and close <script> tags.
-  let open;
-  let close;
-
-  lines.forEach((line, i) => {
-    // Test each line to find the opening <script...> tag
-    if (reScriptOpen.test(line)) {
-      open = i + 1; // Add one so the index includes the matched <script>
-      return;
-    }
-    // Test each line to find the closing </script> tag
-    if (reScriptClose.test(line)) {
-      close = i - 1; // Take one away to ensure inclusion of </script>
-      return;
-    }
-  });
-
-  // Everything up to and including the opening <script> tag.
-  const top = lines.slice(0, open);
-  // Everything from (inclusively) the </script> tag to EOF.
-  const bottom = lines.slice(close);
-
-  // Combine the three arrays and append the newline Vue files need.
-  return [...top, ...contentLines, ...bottom].join('\n');
+  const scriptRegex = new RegExp("(^<script[^>]*>$).*?(^</script>$)", "m");
+  file.replace(scriptRegex, `$1${content}$2`);
 }
 
 // Boolean check if a node is a call of the fn 'createTranslator()'
