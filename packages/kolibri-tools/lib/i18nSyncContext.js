@@ -8,6 +8,8 @@ const get = require('lodash/get');
 const parseCsvSync = require('csv-parse/lib/sync');
 const vueCompiler = require('vue-template-compiler');
 const logging = require('./logging');
+// Constant for where we will split context strings
+const DO_NOT_EDIT = require('./ExtractStrings').DO_NOT_EDIT;
 
 // Regex for finding open and close <script> tags
 // Will match full line unless there is a character on that line prior
@@ -74,7 +76,7 @@ function processVueFiles(files, definitions) {
 
             // If we have context, assign an AST objet.
             // If we don't, then  do nothing.
-            if (definition['Context'] && definition['Context'] !== '') {
+            if (definition['Context'] && extractContext(definition['Context']) !== '') {
               property.value = objectToAst(definition, property.value.type === 'TemplateLiteral');
               fileHasChanged = true;
             } else if (definition['Source String'] && property.value.type === 'ObjectProperty') {
@@ -149,7 +151,7 @@ function processJSFiles(files, definitions) {
               // If the definition from the CSV includes context, then we will create
               // and assign an object including the Source string and context.
               // If we don't have context to add or update, we have nothing to change here.
-              if (definition['Context'] && definition['Context'] !== '') {
+              if (definition['Context'] && extractContext(definition['Context']) !== '') {
                 property.value = objectToAst(definition, property.value.type === 'TemplateLiteral');
                 fileHasChanged = true;
               } else if (definition['Source String'] && property.value.type === 'ObjectProperty') {
@@ -258,7 +260,7 @@ function objectToAst(def, valueIsTemplateNode = false) {
         },
         value: {
           type: 'StringLiteral',
-          value: def['Context'],
+          value: extractContext(def['Context']),
         },
       },
     ],
@@ -303,6 +305,11 @@ function namespaceFromPath(path) {
   } else {
     return splitPath.pop().replace('.vue', '');
   }
+}
+
+// Given the defined context string, return it without the appended identifier
+function extractContext(context) {
+  return context.split(DO_NOT_EDIT)[0];
 }
 
 // Compile all of the defined strings & context from the CSVs that have been downloaded

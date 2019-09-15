@@ -10,6 +10,9 @@ const coreAliases = require('./apiSpecExportTools').coreAliases;
 // Find alias for i18n utils, do this so that we don't have to hard code it here
 const i18nAlias = Object.keys(coreAliases()).find(key => key.includes('i18n'));
 
+// String appended prior to the identifier for context.
+const DO_NOT_EDIT = "\n-- Do Not Edit This Line or Below --\n";
+
 function isCamelCase(str) {
   return /^[a-z][a-zA-Z0-9]*$/.test(str);
 }
@@ -392,6 +395,8 @@ function toCSV(path, messages) {
       sourceString = messages[identifier];
     }
 
+    context += DO_NOT_EDIT + identifier;
+
     return {
       identifier,
       sourceString,
@@ -403,3 +408,4 @@ function toCSV(path, messages) {
 }
 
 module.exports = ExtractStrings;
+module.exports.DO_NOT_EDIT = DO_NOT_EDIT;
