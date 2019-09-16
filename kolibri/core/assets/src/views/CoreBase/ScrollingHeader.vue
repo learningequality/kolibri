@@ -1,9 +1,6 @@
 <template>
 
-  <div
-    class="scrolling-header"
-    :class="classes"
-  >
+  <div class="scrolling-header" :class="classes">
     <slot></slot>
   </div>
 
@@ -20,7 +17,7 @@
   export default {
     name: 'ScrollingHeader',
     props: {
-      // current scroll offset of content pane
+      // Current scroll offset of content pane
       scrollPosition: {
         type: Number,
         required: true,
@@ -28,7 +25,7 @@
           return value >= 0;
         },
       },
-      // keep the header permanently pinned to the top
+      // If 'true', keeps the header permanently pinned to the top
       alwaysVisible: {
         type: Boolean,
         default: false,
@@ -37,6 +34,7 @@
       mainWrapperScrollHeight: {
         type: Number,
       },
+      // Synced with CoreBase to handle changes when window is resized
       isHidden: {
         type: Boolean,
         default: false,
@@ -44,24 +42,24 @@
     },
     data() {
       return {
-        scrollIntegral: 0,
+        scrollDistance: 0,
       };
     },
     computed: {
-      resetIntegralDebounced() {
-        return debounce(this.resetIntegral, 500);
+      resetDistanceDebounced() {
+        return debounce(this.resetDistance, 500);
       },
       classes() {
         return {
           'is-hidden': this.isHidden,
-          'dir-up': this.scrollIntegral > 0,
-          'dir-down': this.scrollIntegral <= 0,
+          'dir-up': this.scrollDistance > 0,
+          'dir-down': this.scrollDistance <= 0,
         };
       },
       scrollThreshold() {
         // Scroll thresholds are relative to how much you can scroll, since
         // users may also modulate their scrolling based on how much content they see.
-        // To mitigate overscroll rebound and other reasons,
+        // Also, to mitigate overscroll rebound and other reasons,
         // the upward threshold is set higher than the downward one.
         const downThresh = Math.round(this.mainWrapperScrollHeight * 0.05);
         return {
@@ -89,36 +87,37 @@
           return;
         }
 
-        // Update scrollIntegral
+        // Update scrollDistance
         if (newVal === 0) {
-          this.scrollIntegral = 0;
-        } else if (this.scrollIntegral * delta < 0) {
+          this.scrollDistance = 0;
+        } else if (this.scrollDistance * delta < 0) {
           // Reset the integral if the direction changes
-          this.scrollIntegral = delta;
+          this.scrollDistance = delta;
         } else {
-          this.scrollIntegral = this.scrollIntegral + delta;
+          this.scrollDistance = this.scrollDistance + delta;
         }
 
-        // Update isHidden
+        // If thresholds have been passed, then update isHidden
         if (delta < 0) {
           // Un-hide if near top or up-delta is past threshold
-          if (!this.pastMinScroll || -this.scrollIntegral > this.scrollThreshold.up) {
+          if (!this.pastMinScroll || -this.scrollDistance > this.scrollThreshold.up) {
             this.$emit('update:isHidden', false);
           }
         } else if (delta > 0) {
           // Hide if past the top and down-delta is past threshold
-          if (this.pastMinScroll && this.scrollIntegral > this.scrollThreshold.down) {
+          if (this.pastMinScroll && this.scrollDistance > this.scrollThreshold.down) {
             this.$emit('update:isHidden', true);
           }
         }
-        this.resetIntegralDebounced(delta, this.scrollPosition);
+
+        this.resetDistanceDebounced(delta, this.scrollPosition);
       },
       // Reset the scrolling integral if user pauses scrolling for some time.
-      resetIntegral(delta, lastPos) {
+      resetDistance(delta, lastPos) {
         setTimeout(() => {
           if (this.scrollPosition === lastPos) {
             // Set to +/- 1 to maintain the direction
-            this.scrollIntegral = Math.sign(delta);
+            this.scrollDistance = Math.sign(delta);
           }
         }, 2000);
       },
