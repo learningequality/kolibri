@@ -35,16 +35,17 @@
         @toggleSideNav="navShown = !navShown"
         @showLanguageModal="languageModalShown = true"
       >
-        <slot slot="totalPointsMenuItem" name="totalPointsMenuItem"></slot>
-        <div slot="app-bar-actions" class="app-bar-actions">
-          <slot name="app-bar-actions"></slot>
-        </div>
-        <slot
-          v-if="showSubNav"
-          slot="sub-nav"
-          name="sub-nav"
-        >
-        </slot>
+        <template v-slot:totalPointsMenuItem>
+          <slot name="totalPointsMenuItem"></slot>
+        </template>
+        <template v-slot:app-bar-actions>
+          <div class="app-bar-actions">
+            <slot name="app-bar-actions"></slot>
+          </div>
+        </template>
+        <template v-if="showSubNav" v-slot:sub-nav>
+          <slot name="sub-nav"></slot>
+        </template>
       </AppBar>
       <KLinearLoader
         v-if="loading && !fullScreen"
