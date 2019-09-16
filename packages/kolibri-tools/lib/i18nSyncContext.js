@@ -9,7 +9,7 @@ const parseCsvSync = require('csv-parse/lib/sync');
 const vueCompiler = require('vue-template-compiler');
 const logging = require('./logging');
 // Constant for where we will split context strings
-const DO_NOT_EDIT = require('./ExtractStrings').DO_NOT_EDIT;
+const CONTEXT_LINE = require('./ExtractStrings').CONTEXT_LINE;
 
 // Regex for finding open and close <script> tags
 // Will match full line unless there is a character on that line prior
@@ -172,7 +172,8 @@ function processJSFiles(files, definitions) {
 
     // No need to rewrite the file if we didn't modify it.
     if (fileHasChanged) {
-      const newFile = recast.print(ast, { reuseWhitspace: false, tabWidth: 2, quote: 'single', }).code;
+      const newFile = recast.print(ast, { reuseWhitspace: false, tabWidth: 2, quote: 'single' })
+        .code;
       updatedFiles.push({ [filePath]: newFile });
     }
   });
@@ -309,7 +310,8 @@ function namespaceFromPath(path) {
 
 // Given the defined context string, return it without the appended identifier
 function extractContext(context) {
-  return context.split(DO_NOT_EDIT)[0];
+  const splitContext = context.split(CONTEXT_LINE);
+  return splitContext[splitContext.length - 1];
 }
 
 // Compile all of the defined strings & context from the CSVs that have been downloaded
