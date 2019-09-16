@@ -138,6 +138,9 @@
     width: 36px;
     height: 36px;
     vertical-align: middle;
+    background-color: inherit;
+    border: none;
+    appearance: none;
   }
 
 </style>
