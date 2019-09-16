@@ -1,7 +1,7 @@
 <template>
 
   <div
-    class="scrolling-header ease"
+    class="scrolling-header"
     :class="classes"
   >
     <slot></slot>
@@ -37,11 +37,14 @@
       mainWrapperScrollHeight: {
         type: Number,
       },
+      isHidden: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
         scrollIntegral: 0,
-        isHidden: false,
       };
     },
     computed: {
@@ -50,7 +53,7 @@
       },
       classes() {
         return {
-          'header-hidden': this.isHidden,
+          'is-hidden': this.isHidden,
           'dir-up': this.scrollIntegral > 0,
           'dir-down': this.scrollIntegral <= 0,
         };
@@ -74,11 +77,6 @@
       scrollPosition(newVal, oldVal) {
         if (!this.alwaysVisible) {
           this.handleNewScrollPosition(newVal, oldVal);
-        }
-      },
-      isHidden(newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.$emit('togglehide', newVal);
         }
       },
     },
@@ -105,12 +103,12 @@
         if (delta < 0) {
           // Un-hide if near top or up-delta is past threshold
           if (!this.pastMinScroll || -this.scrollIntegral > this.scrollThreshold.up) {
-            this.isHidden = false;
+            this.$emit('update:isHidden', false);
           }
         } else if (delta > 0) {
           // Hide if past the top and down-delta is past threshold
           if (this.pastMinScroll && this.scrollIntegral > this.scrollThreshold.down) {
-            this.isHidden = true;
+            this.$emit('update:isHidden', true);
           }
         }
         this.resetIntegralDebounced(delta, this.scrollPosition);
@@ -142,27 +140,22 @@
     right: 0;
     left: 0;
     z-index: 4;
-  }
 
-  .ease {
-    transition-duration: 0.25s;
-    transition-property: top;
-  }
+    // Use different transition timing functions depending on direction
+    // to maintain some kind of symmetry
+    &.dir-up {
+      transition: top 0.25s ease-in;
+    }
 
-  // Use different timing functions depending on direction
-  // to maintain some kind of symmetry
-  .dir-up {
-    transition-timing-function: ease-in;
-  }
+    &.dir-down {
+      transition: top 0.25s ease-out;
+    }
 
-  .dir-down {
-    transition-timing-function: ease-out;
-  }
-
-  .header-hidden {
-    // 200px is arbitrary, so will not really work if app bar gets taller.
-    // It's intentionally more than actual height so box shadows don't appear.
-    top: -200px;
+    &.is-hidden {
+      // 200px is arbitrary, so will not really work if app bar gets taller.
+      // It's intentionally more than actual height so box shadows don't appear.
+      top: -200px;
+    }
   }
 
 </style>

@@ -1,6 +1,7 @@
 <template>
 
   <div
+    ref="mainWrapper"
     class="main-wrapper"
     :style="mainWrapperStyles"
     :class="fullScreen ? '' : 'scrolling-pane'"
@@ -10,10 +11,10 @@
     <div v-if="blockDoubleClicks" class="click-mask"></div>
 
     <ScrollingHeader
-      :height="appbarHeight"
       :scrollPosition="scrollPosition"
       :alwaysVisible="fixedAppBar"
       :mainWrapperScrollHeight="mainWrapperScrollHeight"
+      :isHidden.sync="headerIsHidden"
     >
       <ImmersiveToolbar
         v-if="immersivePage && !fullScreen"
@@ -274,6 +275,7 @@
         unwatchScrollHeight: undefined,
         notificationModalShown: true,
         languageModalShown: false,
+        headerIsHidden: false,
         mainWrapperScrollHeight: 0,
       };
     },
@@ -311,9 +313,10 @@
           return { top: 0, bottom: 0 };
         }
         return {
-          top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
+          top: 0,
           bottom: `${this.marginBottom}px`,
           backgroundColor: this.$themePalette.grey.v_100,
+          paddingTop: `${this.appbarHeight}px`,
         };
       },
       contentStyles() {
@@ -325,7 +328,7 @@
           };
         }
         return {
-          marginTop: `${this.fixedAppBar ? 0 : this.appbarHeight}px`,
+          top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
           padding: `${this.windowIsSmall ? 16 : 32}px`,
         };
       },
@@ -403,6 +406,12 @@
           this.setScroll();
         }
       },
+      windowWidth() {
+        if (this.fixedAppBar && this.headerIsHidden) {
+          this.headerIsHidden = false;
+        }
+        this.updateScrollHeight();
+      },
     },
     beforeRouteUpdate() {
       this.recordScroll();
@@ -437,6 +446,12 @@
         this.updateScrollHeight();
         this.$el.scrollTop = scrollPositions.getScrollPosition().y;
         this.scrollPosition = this.$el.scrollTop;
+        // If recorded scroll is applied, immediately un-hide the header
+        if (this.scrollPosition > 0) {
+          this.$nextTick().then(() => {
+            this.headerIsHidden = false;
+          });
+        }
       },
     },
     $trs: {
@@ -468,7 +483,6 @@
     bottom: 0;
     left: 0;
     overflow-x: auto;
-    overflow-y: scroll; // has to be scroll, not auto
   }
 
   .click-mask {
