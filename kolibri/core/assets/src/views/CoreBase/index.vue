@@ -415,7 +415,7 @@
       this.recordScroll();
     },
     mounted() {
-      window.addEventListener('scroll', this.throttledHandleScroll);
+      window.addEventListener('scroll', this.throttledHandleScroll, { passive: true });
       this.setScroll();
     },
     beforeDestroy() {
@@ -423,11 +423,11 @@
     },
     methods: {
       handleScroll() {
-        this.scrollPosition = window.scrollY;
+        this.scrollPosition = window.pageYOffset;
         this.recordScroll();
       },
       recordScroll() {
-        scrollPositions.setScrollPosition({ y: window.scrollY });
+        scrollPositions.setScrollPosition({ y: window.pageYOffset });
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
@@ -443,8 +443,8 @@
       },
       setScroll() {
         this.updateScrollHeight();
-        this.$el.scrollTop = scrollPositions.getScrollPosition().y;
-        this.scrollPosition = this.$el.scrollTop;
+        window.scrollTo(0, scrollPositions.getScrollPosition().y);
+        this.scrollPosition = window.pageYOffset;
         // If recorded scroll is applied, immediately un-hide the header
         if (this.scrollPosition > 0) {
           this.$nextTick().then(() => {
