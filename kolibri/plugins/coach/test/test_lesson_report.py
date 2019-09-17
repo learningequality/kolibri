@@ -110,7 +110,7 @@ class LessonReportTestCase(APITestCase):
             assigned_by=self.facility_and_classroom_coach,
             collection=self.classroom,
         )
-        self.lessonreport_basename = "kolibri:coach:lessonreport"
+        self.lessonreport_basename = "kolibri:kolibri.plugins.coach:lessonreport"
         # Need ContentSummaryLog
 
     def test_anon_user_cannot_access_list(self):

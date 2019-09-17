@@ -48,4 +48,9 @@ class LearnContentNodeHook(ContentNodeDisplayHook):
         else:
             kind_slug = "c/"
         if kind_slug is not None:
-            return reverse("kolibri:learn:learn") + "#/topics/" + kind_slug + node.id
+            return (
+                reverse("kolibri:kolibri.plugins.learn:learn")
+                + "#/topics/"
+                + kind_slug
+                + node.id
+            )

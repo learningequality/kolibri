@@ -156,7 +156,7 @@ class RootURLRedirectView(View):
         """
         # If it has not been provisioned and we have something that can handle setup, redirect there.
         if not is_provisioned():
-            SETUP_WIZARD_URLS = [hook.url for hook in SetupHook().registered_hooks]
+            SETUP_WIZARD_URLS = [hook.url for hook in SetupHook.registered_hooks]
             if SETUP_WIZARD_URLS:
                 return redirect(SETUP_WIZARD_URLS[0])
 

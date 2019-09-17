@@ -13,8 +13,8 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import DUMMY_PASSWORD
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
-from kolibri.deployment.default.urls import urlpatterns
 from kolibri.core.device.translation import get_settings_language
+from kolibri.deployment.default.urls import urlpatterns
 
 
 class KolibriTagNavigationTestCase(APITestCase):
@@ -24,14 +24,16 @@ class KolibriTagNavigationTestCase(APITestCase):
             self.assertEqual(response.status_code, 302)
             self.assertEqual(
                 response.get("location"),
-                reverse("kolibri:setupwizardplugin:setupwizard"),
+                reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard"),
             )
 
     def test_redirect_root_to_user_if_not_logged_in(self):
         provision_device()
         response = self.client.get(reverse("kolibri:core:root_redirect"))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.get("location"), reverse("kolibri:user:user"))
+        self.assertEqual(
+            response.get("location"), reverse("kolibri:kolibri.plugins.user:user")
+        )
 
     def test_redirect_root_to_learn_if_logged_in(self):
         facility = FacilityFactory.create()
@@ -40,7 +42,9 @@ class KolibriTagNavigationTestCase(APITestCase):
         self.client.login(username=do.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse("kolibri:core:root_redirect"))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.get("location"), reverse("kolibri:learn:learn"))
+        self.assertEqual(
+            response.get("location"), reverse("kolibri:kolibri.plugins.learn:learn")
+        )
 
 
 class AllUrlsTest(APITestCase):
@@ -122,7 +126,7 @@ class AllUrlsTest(APITestCase):
         # Some API endpoints start iceqube tasks which can cause the task runner to hang
         # Patch this so that no tasks get started.
         with patch(
-            "kolibri.core.webpack.hooks.WebpackBundleHook.bundle", return_value=[]
+            "kolibri.core.webpack.hooks.WebpackBundleHook.get_by_unique_id"
         ), patch("kolibri.core.tasks.api.get_queue"):
             check_urls(urlpatterns)
 

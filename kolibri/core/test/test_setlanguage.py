@@ -40,13 +40,13 @@ class I18NTests(TestCase):
         The user is redirected to the "next" argument.
         """
         lang_code = self._get_inactive_language_code()
-        next_url = reverse("kolibri:learn:learn")
+        next_url = reverse("kolibri:kolibri.plugins.learn:learn")
         post_data = dict(language=lang_code, next=next_url)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.content.decode("utf-8"),
-            translate_url(reverse("kolibri:learn:learn"), lang_code),
+            translate_url(reverse("kolibri:kolibri.plugins.learn:learn"), lang_code),
         )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
 
@@ -108,7 +108,7 @@ class I18NTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.content.decode("utf-8"),
-            translate_url(reverse("kolibri:learn:learn"), "en"),
+            translate_url(reverse("kolibri:kolibri.plugins.learn:learn"), "en"),
         )
         self.assertFalse(LANGUAGE_SESSION_KEY in self.client.session)
 
