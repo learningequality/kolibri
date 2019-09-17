@@ -189,7 +189,11 @@
             this.notifications = [
               ...this.notifications,
               ...data.results.map(this.reshapeNotification).filter(Boolean),
-            ];
+            ].filter(n => {
+              // 'Answered' event types should not show up in the notifications
+              // because it would add a ton of meaningless events.
+              return n.event !== 'Answered';
+            });
             this.moreResults = data.next !== null;
             this.nextPage = this.nextPage + 1;
             this.loading = false;
