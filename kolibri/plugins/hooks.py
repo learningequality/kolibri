@@ -160,12 +160,11 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
-
-import six
-
 from abc import abstractproperty
 from functools import partial
 from inspect import isabstract
+
+import six
 
 from kolibri.plugins import SingletonMeta
 
@@ -186,7 +185,7 @@ def _make_singleton(subclass):
 
 def define_hook(subclass=None, only_one_registered=False):
     """
-    This method can be used as a decorator to define a new hook inheriting from
+    This method must be used as a decorator to define a new hook inheriting from
     the hook class that this is called from, this will return an abstract base
     class, which distinguishes is from the classes returned by register_hook
     which can be instantiated. Only abstract base classes track registered hooks.
@@ -205,7 +204,7 @@ def define_hook(subclass=None, only_one_registered=False):
 
 def register_hook(subclass):
     """
-    This method can be used as a decorator to register a hook against this hook
+    This method must be used as a decorator to register a hook against this hook
     class and all parent abstract classes - can only be called on an abstract
     base class.
     """
@@ -216,11 +215,11 @@ def register_hook(subclass):
         for base in subclass.__bases__
     ):
         raise TypeError(
-            "register_hook method/decorator used on a class that does not inherit from any abstract KolibriHook subclasses"
+            "register_hook decorator used on a class that does not inherit from any abstract KolibriHook subclasses"
         )
     if not subclass.__module__.endswith("kolibri_plugin"):
         raise RuntimeError(
-            "register_hook method/decorator invoked outside of a kolibri_plugin.py module - this hook will not be initialized"
+            "register_hook decorator invoked outside of a kolibri_plugin.py module - this hook will not be initialized"
         )
     attrs = dict(subclass.__dict__)
     attrs.update({"_not_abstract": True})
