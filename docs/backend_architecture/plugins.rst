@@ -9,7 +9,7 @@ to developing plugins.
 Enabling and disabling plugins
 ------------------------------
 
-Non-core plugins can be enabled or disabled using the ``kolibri plugin`` command.
+Non-core plugins can be enabled or disabled using the ``kolibri plugin`` commands.
 
 .. automodule:: kolibri.plugins.registry
 
@@ -20,9 +20,8 @@ Other stuff you can do with plugins
 
 Plugins can implement Javascript code as a Kolibri module that can be used in the frontend as a plugin to the core
 Kolibri Javascript code. Each of these Javascript plugins are defined in the `kolibri_plugin.py` file by subclassing the
-``KolibriFrontEndPluginBase`` class to define each frontend Kolibri module. This defines the base Javascript file that
-defines the Kolibri module. In addition, this Plugin object within the app will automatically add these Kolibri modules
-to an internal frontend asset registry for loading in the front end. For more information on developing frontend code
+``WebpackBundleHook`` class to define each frontend Kolibri module. This allows a webpack built Javascript bundle to be
+cross-referenced and loaded into Kolibri. For more information on developing frontend code
 for Kolibri please see :doc:`/frontend_architecture/index`.
 
 Plugins can be standalone Django apps in their own right, meaning they can define templates, models, new urls, and
