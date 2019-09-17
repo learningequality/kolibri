@@ -2,6 +2,7 @@
 
   <div
     ref="mainWrapper"
+    class="main-wrapper"
     :style="mainWrapperStyles"
   >
 
@@ -310,6 +311,7 @@
         return {
           backgroundColor: this.$themePalette.grey.v_100,
           paddingTop: `${this.appbarHeight}px`,
+          paddingBottom: `${this.marginBottom}px`,
         };
       },
       contentStyles() {
@@ -417,7 +419,7 @@
       this.setScroll();
     },
     beforeDestroy() {
-      window.removeEventListener('scroll');
+      window.removeEventListener('scroll', this.throttledHandleScroll);
     },
     methods: {
       handleScroll() {
@@ -463,6 +465,11 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+
+  .main-wrapper {
+    display: inline-block;
+    width: 100%;
+  }
 
   .main {
     height: 100%;

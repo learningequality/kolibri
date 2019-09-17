@@ -21,6 +21,7 @@
 
 html {
   box-sizing: border-box;
+  height: 100%;
   overflow-y: auto; // fixes #3318, even though 'scroll' might be preferable
   font-size: 100%; // https://davidwalsh.name/html5-boilerplate
   line-height: 1.4;
@@ -29,7 +30,6 @@ html {
 
 html,
 body {
-  height: 100%;
   letter-spacing: 0.01em;
 }
 
