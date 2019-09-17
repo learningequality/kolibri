@@ -2,10 +2,7 @@
 
   <div
     ref="mainWrapper"
-    class="main-wrapper"
     :style="mainWrapperStyles"
-    :class="fullScreen ? '' : 'scrolling-pane'"
-    @scroll.passive="throttledHandleScroll"
   >
 
     <div v-if="blockDoubleClicks" class="click-mask"></div>
@@ -310,12 +307,7 @@
         return !this.authorized;
       },
       mainWrapperStyles() {
-        if (this.fullScreen) {
-          return { top: 0, bottom: 0 };
-        }
         return {
-          top: 0,
-          bottom: `${this.marginBottom}px`,
           backgroundColor: this.$themePalette.grey.v_100,
           paddingTop: `${this.appbarHeight}px`,
         };
@@ -421,15 +413,19 @@
       this.recordScroll();
     },
     mounted() {
+      window.addEventListener('scroll', this.throttledHandleScroll);
       this.setScroll();
+    },
+    beforeDestroy() {
+      window.removeEventListener('scroll');
     },
     methods: {
       handleScroll() {
-        this.scrollPosition = this.$el.scrollTop;
+        this.scrollPosition = window.scrollY;
         this.recordScroll();
       },
       recordScroll() {
-        scrollPositions.setScrollPosition({ y: this.$el.scrollTop });
+        scrollPositions.setScrollPosition({ y: window.scrollY });
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
