@@ -97,7 +97,7 @@ for Kolibri please see :doc:`/frontend_architecture/index`.
 
 
 Learn plugin example
--------------------
+--------------------
 
 View the source to learn more!
 

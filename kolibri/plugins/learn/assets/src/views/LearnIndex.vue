@@ -282,7 +282,9 @@
       handleSubmitUpdateYourProfileModal() {
         if (this.userPluginUrl) {
           const redirect = () => redirectBrowser(`${this.userPluginUrl()}#/profile/edit`);
-          this.$store.dispatch('deferProfileUpdates', this.demographicInfo).then(redirect, redirect);
+          this.$store
+            .dispatch('deferProfileUpdates', this.demographicInfo)
+            .then(redirect, redirect);
         }
       },
     },
