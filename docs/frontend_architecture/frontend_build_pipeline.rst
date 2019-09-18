@@ -3,35 +3,35 @@ Frontend build pipeline
 
 Asset pipelining is done using Webpack - this allows the use of require to import modules - as such all written code should be highly modular, individual files should be responsible for exporting a single function or object.
 
-There are two distinct entities that control this behaviour - a Kolibri Hook on the Python side, which manages the registration of the frontend code within Django and a ``buildConfig.js`` file for the webpack configuration. The format of the ``buildConfig.js`` is relatively straight forward, and the Kolibri Hook and the ``buildConfig.js`` are connected by a single shared ``bundle_id`` specified in both::
+There are two distinct entities that control this behaviour - a Kolibri Hook on the Python side, which manages the registration of the frontend code within Django and a ``buildConfig.js`` file for the webpack configuration. The format of the ``buildConfig.js`` is relatively straight forward, and the Kolibri Hook and the ``buildConfig.js`` are connected by a single shared ``bundle_id`` specified in both:
 
 .. code-block:: python
 
-    @register_hook
-    class LearnNavItem(NavigationHook):
-        bundle_id = "side_nav"
+  @register_hook
+  class LearnNavItem(NavigationHook):
+      bundle_id = "side_nav"
 
 
-    @register_hook
-    class LearnAsset(webpack_hooks.WebpackBundleHook):
-        bundle_id = "app"
+  @register_hook
+  class LearnAsset(webpack_hooks.WebpackBundleHook):
+      bundle_id = "app"
 
 .. code-block:: javascript
 
-    module.exports = [
-      {
-        bundle_id: 'app',
-        webpack_config: {
-          entry: './assets/src/app.js',
-        },
+  module.exports = [
+    {
+      bundle_id: 'app',
+      webpack_config: {
+        entry: './assets/src/app.js',
       },
-      {
-        bundle_id: 'side_nav',
-        webpack_config: {
-          entry: './assets/src/views/LearnSideNavEntry.vue',
-        },
+    },
+    {
+      bundle_id: 'side_nav',
+      webpack_config: {
+        entry: './assets/src/views/LearnSideNavEntry.vue',
       },
-    ];
+    },
+  ];
 
 The two specifications are connected by the shared specification of the ``bundle_id``. Minimally an ``entry`` value for the ``webpack_config`` object is required, but any other valid webpack configuration options may be passed as part of the object - they will be merged with the default Kolibri webpack build.
 
