@@ -3,6 +3,7 @@
   <Block
     :allLinkText="coachString('viewAllAction')"
     :allLinkRoute="$router.getRoute('HomeActivityPage')"
+    :showAllLink="notifications.length"
   >
     <template slot="title">
       {{ $tr('classActivityLabel') }}

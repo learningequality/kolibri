@@ -3,6 +3,7 @@
   <Block
     :allLinkText="coachString('viewAllAction')"
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
+    :showAllLink="table.length"
   >
     <KLabeledIcon slot="title" icon="quiz" :label="coreString('quizzesLabel')" />
 
