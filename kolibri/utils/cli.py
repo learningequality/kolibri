@@ -638,28 +638,40 @@ def plugin():
 @click.argument("plugin_names", nargs=-1)
 @click.option("-d", "--default-plugins", default=False, is_flag=True)
 def enable(plugin_names, default_plugins):
+    error = False
     if not plugin_names and default_plugins:
         plugin_names = DEFAULT_PLUGINS
     for name in plugin_names:
         try:
             logger.info("Enabling plugin '{}'".format(name))
-            enable_plugin(name)
+            error = error or not enable_plugin(name)
         except Exception as e:
+            error = True
             logger.error("Error enabling plugin '{}', error was: {}".format(name, e))
+    if error:
+        exception = click.ClickException("One or more plugins could not be enabled")
+        exception.exit_code = 2
+        raise exception
 
 
 @plugin.command(help="Disable Kolibri plugins")
 @click.argument("plugin_names", nargs=-1)
 @click.option("-a", "--all-plugins", default=False, is_flag=True)
 def disable(plugin_names, all_plugins):
+    error = False
     if not plugin_names and all_plugins:
         plugin_names = config.ACTIVE_PLUGINS
     for name in plugin_names:
         try:
             logger.info("Disabling plugin '{}'".format(name))
-            disable_plugin(name)
+            error = error or not disable_plugin(name)
         except Exception as e:
+            error = True
             logger.error("Error Disabling plugin '{}', error was: {}".format(name, e))
+    if error:
+        exception = click.ClickException("One or more plugins could not be disabled")
+        exception.exit_code = 2
+        raise exception
 
 
 @plugin.command(help="Set Kolibri plugins to be enabled and disable all others")
@@ -667,5 +679,18 @@ def disable(plugin_names, all_plugins):
 @click.pass_context
 def apply(ctx, plugin_names):
     to_be_disabled = set(config.ACTIVE_PLUGINS) - set(plugin_names)
-    ctx.invoke(disable, plugin_names=to_be_disabled, all_plugins=False)
-    ctx.invoke(enable, plugin_names=plugin_names, default_plugins=False)
+    error = False
+    try:
+        ctx.invoke(disable, plugin_names=to_be_disabled, all_plugins=False)
+    except click.ClickException:
+        error = True
+    try:
+        ctx.invoke(enable, plugin_names=plugin_names, default_plugins=False)
+    except click.ClickException:
+        error = True
+    if error:
+        exception = click.ClickException(
+            "An error occurred applying the plugin configuration"
+        )
+        exception.exit_code = 2
+        raise exception

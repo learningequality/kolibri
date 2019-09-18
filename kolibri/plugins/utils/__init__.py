@@ -168,6 +168,7 @@ def enable_plugin(plugin_name):
         obj = initialize_kolibri_plugin(plugin_name)
         if obj:
             obj.enable()
+            return True
     except PluginDoesNotExist as e:
         logger.error(str(e))
 
@@ -177,6 +178,7 @@ def disable_plugin(plugin_name):
         obj = initialize_kolibri_plugin(plugin_name)
         if obj:
             obj.disable()
+            return True
     except PluginDoesNotExist as e:
         logger.error(str(e))
         logger.warning(
