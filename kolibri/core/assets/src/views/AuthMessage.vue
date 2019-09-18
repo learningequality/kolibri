@@ -59,7 +59,7 @@
         }
       },
       userPluginUrl() {
-        return urls['kolibri:user:user'];
+        return urls['kolibri:kolibri.plugins.user:user'];
       },
       signInLink() {
         // Creates a link to the Sign In Page that also has a query parameter that

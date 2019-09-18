@@ -6,21 +6,21 @@ from kolibri.core.auth.constants.user_kinds import SUPERUSER
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
-from kolibri.plugins.base import KolibriPluginBase
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
 
 
 class DeviceManagementPlugin(KolibriPluginBase):
     untranslated_view_urls = "api_urls"
     translated_view_urls = "urls"
 
-    def url_slug(self):
-        return "^device/"
 
-
+@register_hook
 class DeviceManagementAsset(WebpackBundleHook):
     bundle_id = "app"
 
 
+@register_hook
 class DeviceFirstTimeRedirect(RoleBasedRedirectHook):
     role = SUPERUSER
     first_login = True
@@ -32,5 +32,6 @@ class DeviceFirstTimeRedirect(RoleBasedRedirectHook):
         )
 
 
-class DeviceManagementNavItem(NavigationHook, WebpackBundleHook):
+@register_hook
+class DeviceManagementNavItem(NavigationHook):
     bundle_id = "side_nav"

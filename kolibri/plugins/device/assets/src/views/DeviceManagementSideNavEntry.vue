@@ -1,9 +1,9 @@
 <template>
 
   <CoreMenuOption
-    :label="coreString('facilityLabel')"
+    :label="$tr('device')"
     :link="url"
-    icon="facility"
+    icon="device"
   />
 
 </template>
@@ -13,23 +13,23 @@
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
 
   const component = {
-    name: 'FacilityManagementSideNavEntry',
-    mixins: [commonCoreStrings],
+    name: 'DeviceManagementSideNavEntry',
     components: {
       CoreMenuOption,
     },
-    $trs: {},
+    $trs: {
+      device: 'Device',
+    },
     computed: {
       url() {
-        return urls['kolibri:facilitymanagementplugin:facility_management']();
+        return urls['kolibri:kolibri.plugins.device:device_management']();
       },
     },
-    role: UserKinds.ADMIN,
+    role: UserKinds.CAN_MANAGE_CONTENT,
     priority: 10,
   };
 

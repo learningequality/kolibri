@@ -4,15 +4,16 @@ from __future__ import unicode_literals
 
 from django.contrib.staticfiles.templatetags.staticfiles import static
 
-from kolibri.plugins.base import KolibriPluginBase
-
 from kolibri.core import theme_hook
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
 
 
 class DefaultThemePlugin(KolibriPluginBase):
     pass
 
 
+@register_hook
 class DefaultThemeHook(theme_hook.ThemeHook):
     @property
     def theme(self):

@@ -25,7 +25,7 @@ TEST_STATS_FILE_DATA = {
 }
 
 
-class TestHookMixin(object):
+class HookMixin(object):
     """
     This hook will automatically create a stats file (normally created by npm)
     and populate it with test data according to the unique_id of the hook
@@ -45,5 +45,5 @@ class TestHookMixin(object):
         return self.TEST_STATS_FILE.name
 
 
-class TestHook(TestHookMixin, WebpackBundleHook):
+class Hook(HookMixin, WebpackBundleHook):
     bundle_id = "non_default_frontend"

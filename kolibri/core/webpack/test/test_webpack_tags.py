@@ -4,13 +4,15 @@ from __future__ import unicode_literals
 
 from django.test.testcases import TestCase
 
-from .base import TestHook
+from .base import Hook
+from kolibri.plugins.hooks import register_hook
 
 
 class KolibriTagNavigationTestCase(TestCase):
     def setUp(self):
         super(KolibriTagNavigationTestCase, self).setUp()
-        self.test_hook = TestHook()
+        Hook.__module__ = "test.kolibri_plugin"
+        self.test_hook = register_hook(Hook)()
 
     def test_frontend_tag(self):
         self.assertIn(

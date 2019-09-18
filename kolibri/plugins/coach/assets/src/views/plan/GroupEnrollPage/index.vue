@@ -112,8 +112,8 @@
   import {
     userMatchesFilter,
     filterAndSortUsers,
-  } from '../../../../../../facility_management/assets/src/userSearchUtils';
-  import UserTable from '../../../../../../facility_management/assets/src/views/UserTable';
+  } from '../../../../../../facility/assets/src/userSearchUtils';
+  import UserTable from '../../../../../../facility/assets/src/views/UserTable';
 
   export default {
     name: 'GroupEnrollPage',

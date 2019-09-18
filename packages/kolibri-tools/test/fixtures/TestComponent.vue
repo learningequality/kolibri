@@ -103,7 +103,7 @@
         return '';
       },
       createClassUrl() {
-        const facilityUrl = urls['kolibri:facilitymanagementplugin:facility_management'];
+        const facilityUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
         if (facilityUrl) {
           return facilityUrl();
         }

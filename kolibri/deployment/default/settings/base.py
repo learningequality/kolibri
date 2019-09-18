@@ -77,14 +77,6 @@ INSTALLED_APPS = [
     "django_js_reverse",
     "jsonfield",
     "morango",
-] + conf.config.ACTIVE_PLUGINS
-
-# Add in the external plugins' locale paths. Our frontend messages depends
-# specifically on the value of LOCALE_PATHS to find its catalog files.
-LOCALE_PATHS += [
-    i18n.get_installed_app_locale_path(app)
-    for app in INSTALLED_APPS
-    if i18n.is_external_plugin(app) and i18n.get_installed_app_locale_path(app)
 ]
 
 MIDDLEWARE = [
@@ -221,7 +213,7 @@ EXTRA_LANG_INFO = {
 }
 locale.LANG_INFO.update(EXTRA_LANG_INFO)
 
-LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
+LANGUAGE_CODE = "en"
 
 try:
     TIME_ZONE = get_localzone().zone

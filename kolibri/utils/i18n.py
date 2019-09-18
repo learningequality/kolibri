@@ -6,8 +6,6 @@ import os
 
 import kolibri
 
-EXTERNAL_PLUGINS_PREFIX = "kolibri_"
-
 
 def is_external_plugin(appname):
     """
@@ -17,7 +15,7 @@ def is_external_plugin(appname):
     prefixed with "kolibri_". If so, we think it's a plugin.
     """
 
-    return appname.startswith(EXTERNAL_PLUGINS_PREFIX)
+    return not appname.startswith("kolibri.")
 
 
 def get_installed_app_locale_path(appname):

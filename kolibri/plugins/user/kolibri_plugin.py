@@ -7,21 +7,24 @@ from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.webpack import hooks as webpack_hooks
-from kolibri.plugins.base import KolibriPluginBase
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
 
 
 class User(KolibriPluginBase):
     translated_view_urls = "urls"
 
 
+@register_hook
 class UserAsset(webpack_hooks.WebpackBundleHook):
     bundle_id = "app"
 
     @property
     def plugin_data(self):
-        return {"oidcProviderEnabled": OIDCProviderHook().is_enabled}
+        return {"oidcProviderEnabled": OIDCProviderHook.is_enabled()}
 
 
+@register_hook
 class LogInRedirect(RoleBasedRedirectHook):
     role = ANONYMOUS
 
@@ -30,9 +33,11 @@ class LogInRedirect(RoleBasedRedirectHook):
         return self.plugin_url(User, "user")
 
 
-class LogInNavAction(NavigationHook, webpack_hooks.WebpackBundleHook):
+@register_hook
+class LogInNavAction(NavigationHook):
     bundle_id = "login_side_nav"
 
 
-class ProfileNavAction(NavigationHook, webpack_hooks.WebpackBundleHook):
+@register_hook
+class ProfileNavAction(NavigationHook):
     bundle_id = "user_profile_side_nav"

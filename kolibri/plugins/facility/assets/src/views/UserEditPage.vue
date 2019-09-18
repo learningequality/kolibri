@@ -209,7 +209,7 @@
         return this.kind === UserKinds.SUPERUSER;
       },
       devicePermissionsPageLink() {
-        const devicePageUrl = urls['kolibri:devicemanagementplugin:device_management'];
+        const devicePageUrl = urls['kolibri:kolibri.plugins.device:device_management'];
         if (devicePageUrl) {
           return `${devicePageUrl()}#/permissions/${this.userId}`;
         }

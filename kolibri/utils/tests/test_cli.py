@@ -12,6 +12,7 @@ import pytest
 from mock import patch
 
 import kolibri
+from kolibri.plugins.utils import autoremove_unavailable_plugins
 from kolibri.utils import cli
 from kolibri.utils import options
 
@@ -41,94 +42,103 @@ def activate_log_logger(monkeypatch):
 
 
 @pytest.fixture
-def conf():
-    from kolibri.utils import conf
+def plugins():
+    from kolibri import plugins
 
     _, config_file = tempfile.mkstemp(suffix="json")
-    old_config_file = conf.conf_file
-    conf.conf_file = config_file
-    conf.config.set_defaults()
-    yield conf
-    conf.conf_file = old_config_file
+    old_config_file = plugins.conf_file
+    plugins.conf_file = config_file
+    plugins.config.set_defaults()
+    yield plugins
+    plugins.conf_file = old_config_file
 
 
-def test_bogus_plugin_autoremove(conf):
+def test_bogus_plugin_autoremove(plugins):
     """
     Checks that a plugin is auto-removed when it cannot be imported
     """
     plugin_name = "giraffe.horse"
-    conf.config["INSTALLED_APPS"].add(plugin_name)
-    conf.config.save()
-    conf.config.autoremove_unavailable_plugins()
-    assert plugin_name not in conf.config["INSTALLED_APPS"]
+    plugins.config["INSTALLED_APPS"].add(plugin_name)
+    plugins.config.save()
+    autoremove_unavailable_plugins()
+    assert plugin_name not in plugins.config["INSTALLED_APPS"]
 
 
-def test_bogus_plugin_autoremove_no_path(conf):
+def test_bogus_plugin_autoremove_no_path(plugins):
     """
     Checks that a plugin without a dotted path is also auto-removed
     """
     plugin_name = "giraffehorse"
-    conf.config["INSTALLED_APPS"].add(plugin_name)
-    conf.config.save()
-    conf.config.autoremove_unavailable_plugins()
-    assert plugin_name not in conf.config["INSTALLED_APPS"]
+    plugins.config["INSTALLED_APPS"].add(plugin_name)
+    plugins.config.save()
+    autoremove_unavailable_plugins()
+    assert plugin_name not in plugins.config["INSTALLED_APPS"]
 
 
-def test_bogus_plugin_disable(conf):
-    installed_apps_before = conf.config["INSTALLED_APPS"].copy()
-    disabled_apps_before = conf.config["DISABLED_APPS"].copy()
-    cli.plugin.callback("i_do_not_exist", cli.DISABLE)
-    assert installed_apps_before == conf.config["INSTALLED_APPS"]
-    assert disabled_apps_before == conf.config["DISABLED_APPS"]
+def test_bogus_plugin_disable(plugins):
+    installed_apps_before = plugins.config["INSTALLED_APPS"].copy()
+    disabled_apps_before = plugins.config["DISABLED_APPS"].copy()
+    try:
+        cli.disable.callback(("i_do_not_exist",), False)
+    except Exception:
+        pass
+    assert installed_apps_before == plugins.config["INSTALLED_APPS"]
+    assert disabled_apps_before == plugins.config["DISABLED_APPS"]
 
 
-def test_plugin_cannot_be_imported_disable(conf):
+def test_plugin_cannot_be_imported_disable(plugins):
     """
-    A plugin may be in conf.config['INSTALLED_APPS'] but broken or uninstalled
+    A plugin may be in plugins.config['INSTALLED_APPS'] but broken or uninstalled
     """
     plugin_name = "giraffe.horse"
-    conf.config["INSTALLED_APPS"].add(plugin_name)
-    conf.config.save()
-    cli.plugin.callback(plugin_name, cli.DISABLE)
-    assert plugin_name not in conf.config["INSTALLED_APPS"]
+    plugins.config["INSTALLED_APPS"].add(plugin_name)
+    plugins.config.save()
+    try:
+        cli.disable.callback((plugin_name,), False)
+    except Exception:
+        pass
+    assert plugin_name not in plugins.config["INSTALLED_APPS"]
     # We also don't want to endlessly add cruft to the disabled apps
-    assert plugin_name not in conf.config["DISABLED_APPS"]
+    assert plugin_name not in plugins.config["DISABLED_APPS"]
 
 
-def test_real_plugin_disable(conf):
-    installed_apps_before = conf.config["INSTALLED_APPS"].copy()
+def test_real_plugin_disable(plugins):
+    installed_apps_before = plugins.config["INSTALLED_APPS"].copy()
     test_plugin = "kolibri.plugins.media_player"
     assert test_plugin in installed_apps_before
     # Because RIP example plugin
-    cli.plugin.callback(test_plugin, cli.DISABLE)
-    assert test_plugin not in conf.config["INSTALLED_APPS"]
-    assert test_plugin in conf.config["DISABLED_APPS"]
+    cli.disable.callback((test_plugin,), False)
+    assert test_plugin not in plugins.config["INSTALLED_APPS"]
+    assert test_plugin in plugins.config["DISABLED_APPS"]
 
 
-def test_real_plugin_disable_twice(conf):
-    installed_apps_before = conf.config["INSTALLED_APPS"].copy()
+def test_real_plugin_disable_twice(plugins):
+    installed_apps_before = plugins.config["INSTALLED_APPS"].copy()
     test_plugin = "kolibri.plugins.media_player"
     assert test_plugin in installed_apps_before
-    cli.plugin.callback(test_plugin, cli.DISABLE)
-    assert test_plugin not in conf.config.ACTIVE_PLUGINS
-    assert test_plugin not in conf.config["INSTALLED_APPS"]
-    assert test_plugin in conf.config["DISABLED_APPS"]
-    installed_apps_before = conf.config["INSTALLED_APPS"].copy()
-    cli.plugin.callback(test_plugin, cli.DISABLE)
-    assert test_plugin not in conf.config.ACTIVE_PLUGINS
-    assert test_plugin not in conf.config["INSTALLED_APPS"]
-    assert test_plugin in conf.config["DISABLED_APPS"]
+    cli.disable.callback((test_plugin,), False)
+    assert test_plugin not in plugins.config.ACTIVE_PLUGINS
+    assert test_plugin not in plugins.config["INSTALLED_APPS"]
+    assert test_plugin in plugins.config["DISABLED_APPS"]
+    installed_apps_before = plugins.config["INSTALLED_APPS"].copy()
+    cli.disable.callback((test_plugin,), False)
+    assert test_plugin not in plugins.config.ACTIVE_PLUGINS
+    assert test_plugin not in plugins.config["INSTALLED_APPS"]
+    assert test_plugin in plugins.config["DISABLED_APPS"]
 
 
-def test_plugin_with_no_plugin_class(conf):
+def test_plugin_with_no_plugin_class(plugins):
     """
     Expected behavior is that nothing blows up with exceptions, user just gets
     a warning and nothing is enabled or changed in the configuration.
     """
     # For fun, we pass in a system library
-    installed_apps_before = conf.config["INSTALLED_APPS"].copy()
-    cli.plugin.callback("os.path", cli.ENABLE)
-    assert installed_apps_before == conf.config["INSTALLED_APPS"]
+    installed_apps_before = plugins.config["INSTALLED_APPS"].copy()
+    try:
+        cli.enable.callback(("os.path",), False)
+    except Exception:
+        pass
+    assert installed_apps_before == plugins.config["INSTALLED_APPS"]
 
 
 @pytest.mark.django_db
@@ -157,7 +167,7 @@ def test_kolibri_listen_port_env(monkeypatch):
 
         os.environ["KOLIBRI_HTTP_PORT"] = str(test_port)
 
-        # force a reload of conf.OPTIONS so the environment variable will be read in
+        # force a reload of plugins.OPTIONS so the environment variable will be read in
         from kolibri.utils import conf
 
         conf.OPTIONS.update(options.read_options_file(conf.KOLIBRI_HOME))
@@ -202,9 +212,9 @@ def test_first_run(dbbackup, plugin, update, get_version):
     dbbackup.assert_not_called()
 
     # Check that it got called for each default plugin
-    from kolibri.utils import conf
+    from kolibri import plugins
 
-    assert set(conf.config["INSTALLED_APPS"]) == set(conf.DEFAULT_PLUGINS)
+    assert set(plugins.config["INSTALLED_APPS"]) == set(plugins.DEFAULT_PLUGINS)
 
 
 @pytest.mark.django_db

@@ -25,22 +25,26 @@ from django.core.management.base import handle_default_options
 from django.db.utils import DatabaseError
 
 import kolibri
-from . import server  # noqa
+from . import server
 from .debian_check import check_debian_user
-from .sanity_checks import check_content_directory_exists_and_writable  # noqa
-from .sanity_checks import check_log_file_location  # noqa
-from .sanity_checks import check_other_kolibri_running  # noqa
-from .system import become_daemon  # noqa
-from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
-from kolibri.core.upgrade import matches_version  # noqa
-from kolibri.core.upgrade import run_upgrades  # noqa
-from kolibri.plugins.utils import disable_plugin  # noqa
-from kolibri.plugins.utils import enable_plugin  # noqa
-from kolibri.utils.conf import config  # noqa
-from kolibri.utils.conf import KOLIBRI_HOME  # noqa
-from kolibri.utils.conf import LOG_ROOT  # noqa
-from kolibri.utils.conf import OPTIONS  # noqa
-from kolibri.utils.logger import get_base_logging_config  # noqa
+from .sanity_checks import check_content_directory_exists_and_writable
+from .sanity_checks import check_log_file_location
+from .sanity_checks import check_other_kolibri_running
+from .system import become_daemon
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase
+from kolibri.core.upgrade import matches_version
+from kolibri.core.upgrade import run_upgrades
+from kolibri.plugins import config
+from kolibri.plugins import DEFAULT_PLUGINS
+from kolibri.plugins.utils import autoremove_unavailable_plugins
+from kolibri.plugins.utils import check_plugin_config_file_location
+from kolibri.plugins.utils import disable_plugin
+from kolibri.plugins.utils import enable_new_default_plugins
+from kolibri.plugins.utils import enable_plugin
+from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.conf import LOG_ROOT
+from kolibri.utils.conf import OPTIONS
+from kolibri.utils.logger import get_base_logging_config
 
 
 logger = logging.getLogger(__name__)
@@ -180,6 +184,31 @@ class KolibriCommand(click.Command):
         return super(KolibriCommand, self).invoke(ctx)
 
 
+class KolibriGroupCommand(click.Group):
+    """
+    A command class for Kolibri commands that do not require
+    the django stack, but have subcommands. By default adds
+    a debug param for logging purposes
+    also invokes setup_logging before invoking the command.
+    """
+
+    allow_extra_args = True
+
+    def __init__(self, *args, **kwargs):
+        kwargs["params"] = base_params + (
+            kwargs["params"] if "params" in kwargs else []
+        )
+        super(KolibriGroupCommand, self).__init__(*args, **kwargs)
+
+    def invoke(self, ctx):
+        # Check if the current user is the kolibri user when running kolibri from Debian installer.
+        check_debian_user(ctx.params.get("no_input"))
+        setup_logging(debug=get_debug_param())
+        for param in base_params:
+            ctx.params.pop(param.name)
+        return super(KolibriGroupCommand, self).invoke(ctx)
+
+
 class KolibriDjangoCommand(click.Command):
     """
     A command class for Kolibri commands that do require
@@ -232,15 +261,16 @@ def initialize(skip_update=False):
 
     # Do this here so that we can fix any issues with our configuration file before
     # we attempt to set up django.
-    config.autoremove_unavailable_plugins()
+    autoremove_unavailable_plugins()
 
     version = get_version()
 
     if version_updated(kolibri.__version__, version):
+        check_plugin_config_file_location(version)
         # Reset the enabled plugins to the defaults
         # This needs to be run before dbbackup because
         # dbbackup relies on settings.INSTALLED_APPS
-        config.enable_default_plugins()
+        enable_new_default_plugins()
 
     try:
         django.setup()
@@ -599,19 +629,68 @@ ENABLE = "enable"
 DISABLE = "disable"
 
 
-@main.command(cls=KolibriCommand, help="Manage Kolibri plugins")
-@click.argument("plugin_name", nargs=1)
-@click.argument("command", type=click.Choice([ENABLE, DISABLE]))
-def plugin(plugin_name, command):
-    """
-    Allows a Kolibri plugin to be either enabled or disabled.
-    """
-    if command == ENABLE:
-        logger.info("Enabling plugin '{}'".format(plugin_name))
-        enable_plugin(plugin_name)
+@main.command(cls=KolibriGroupCommand, help="Manage Kolibri plugins")
+def plugin():
+    pass
 
-    if command == DISABLE:
-        logger.info("Disabling plugin '{}'".format(plugin_name))
-        disable_plugin(plugin_name)
 
-    config.save()
+@plugin.command(help="Enable Kolibri plugins")
+@click.argument("plugin_names", nargs=-1)
+@click.option("-d", "--default-plugins", default=False, is_flag=True)
+def enable(plugin_names, default_plugins):
+    error = False
+    if not plugin_names and default_plugins:
+        plugin_names = DEFAULT_PLUGINS
+    for name in plugin_names:
+        try:
+            logger.info("Enabling plugin '{}'".format(name))
+            error = error or not enable_plugin(name)
+        except Exception as e:
+            error = True
+            logger.error("Error enabling plugin '{}', error was: {}".format(name, e))
+    if error:
+        exception = click.ClickException("One or more plugins could not be enabled")
+        exception.exit_code = 2
+        raise exception
+
+
+@plugin.command(help="Disable Kolibri plugins")
+@click.argument("plugin_names", nargs=-1)
+@click.option("-a", "--all-plugins", default=False, is_flag=True)
+def disable(plugin_names, all_plugins):
+    error = False
+    if not plugin_names and all_plugins:
+        plugin_names = config.ACTIVE_PLUGINS
+    for name in plugin_names:
+        try:
+            logger.info("Disabling plugin '{}'".format(name))
+            error = error or not disable_plugin(name)
+        except Exception as e:
+            error = True
+            logger.error("Error Disabling plugin '{}', error was: {}".format(name, e))
+    if error:
+        exception = click.ClickException("One or more plugins could not be disabled")
+        exception.exit_code = 2
+        raise exception
+
+
+@plugin.command(help="Set Kolibri plugins to be enabled and disable all others")
+@click.argument("plugin_names", nargs=-1)
+@click.pass_context
+def apply(ctx, plugin_names):
+    to_be_disabled = set(config.ACTIVE_PLUGINS) - set(plugin_names)
+    error = False
+    try:
+        ctx.invoke(disable, plugin_names=to_be_disabled, all_plugins=False)
+    except click.ClickException:
+        error = True
+    try:
+        ctx.invoke(enable, plugin_names=plugin_names, default_plugins=False)
+    except click.ClickException:
+        error = True
+    if error:
+        exception = click.ClickException(
+            "An error occurred applying the plugin configuration"
+        )
+        exception.exit_code = 2
+        raise exception
