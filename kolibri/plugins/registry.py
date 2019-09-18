@@ -59,7 +59,7 @@ class Registry(object):
         self._apps = {}
 
     def __iter__(self):
-        return iter(self._apps.values())
+        return iter(app for app in self._apps.values() if app is not None)
 
     def get(self, app):
         return self._apps.get(app, None)
@@ -91,23 +91,21 @@ class Registry(object):
             # that could include Django AppConfig objects.
             if isinstance(app, AppConfig):
                 app = app.name
-                if app not in self._apps:
-                    try:
-                        initialize_kolibri_plugin(app)
-                        # Raise an error here because non-plugins should raise a PluginDoesNotExist exception
-                        # if they are properly configured.
-                        raise PluginExistsInApp(
-                            "Django app {} contains a plugin definition".format(app)
-                        )
-                    except MultiplePlugins:
-                        raise PluginExistsInApp(
-                            "Django app {} contains multiple plugin definitions".format(
-                                app
-                            )
-                        )
-                    except (PluginDoesNotExist, ImportError):
-                        # Register so that we don't do this twice.
-                        self._apps[app] = None
+            if app not in self._apps:
+                try:
+                    initialize_kolibri_plugin(app)
+                    # Raise an error here because non-plugins should raise a PluginDoesNotExist exception
+                    # if they are properly configured.
+                    raise PluginExistsInApp(
+                        "Django app {} contains a plugin definition".format(app)
+                    )
+                except MultiplePlugins:
+                    raise PluginExistsInApp(
+                        "Django app {} contains multiple plugin definitions".format(app)
+                    )
+                except (PluginDoesNotExist, ImportError):
+                    # Register so that we don't do this twice.
+                    self._apps[app] = None
 
 
 def __initialize():
