@@ -3,17 +3,18 @@
   <KPageContainer class="block">
     <KGrid>
       <KGridItem
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
+        :layout8="{ span: showAllLink ? 5 : 8 }"
+        :layout12="{ span: showAllLink ? 8 : 12 }"
       >
         <h2>
           <slot name="title"></slot>
         </h2>
       </KGridItem>
       <KGridItem
+        v-if="showAllLink"
         :layout="{ alignment: 'right' }"
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
+        :layout8="{ span: 3 }"
+        :layout12="{ span: 4 }"
       >
         <KRouterLink
           appearance="flat-button"
@@ -44,6 +45,10 @@
       allLinkRoute: {
         type: Object,
         required: true,
+      },
+      showAllLink: {
+        type: Boolean,
+        default: true,
       },
     },
   };
