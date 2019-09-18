@@ -357,7 +357,7 @@ class ContentPermalinkRedirect(View):
         # build up the target topic/content page URL
         if node:
             url = None
-            for hook in ContentNodeDisplayHook().registered_hooks:
+            for hook in ContentNodeDisplayHook.registered_hooks:
                 url = hook.node_url(node)
             if url:
                 return HttpResponseRedirect(url)

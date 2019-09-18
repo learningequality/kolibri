@@ -126,8 +126,10 @@ class AllUrlsTest(APITestCase):
         # Some API endpoints start iceqube tasks which can cause the task runner to hang
         # Patch this so that no tasks get started.
         with patch(
+            "kolibri.core.webpack.hooks.WebpackBundleHook.bundle", return_value=[]
+        ), patch("kolibri.core.tasks.api.get_queue"), patch(
             "kolibri.core.webpack.hooks.WebpackBundleHook.get_by_unique_id"
-        ), patch("kolibri.core.tasks.api.get_queue"):
+        ):
             check_urls(urlpatterns)
 
     def test_anonymous_responses(self):

@@ -102,7 +102,7 @@ class I18NTests(TestCase):
             translate_url(reverse("kolibri:core:redirect_user"), lang_code),
         )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
-        next_url = reverse("kolibri:learn:learn")
+        next_url = reverse("kolibri:kolibri.plugins.learn:learn")
         post_data = dict(language=None, next=next_url)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
