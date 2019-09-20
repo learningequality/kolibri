@@ -98,7 +98,7 @@
         let backgroundColor = '';
         let color = '#000';
         let hover = {
-          backgroundColor: this.$themePalette.grey.v_200,
+          backgroundColor: this.$themeBrand.primary.v_50,
         };
         let fontWeight = 'normal';
 
