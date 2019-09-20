@@ -93,6 +93,7 @@ import TextTruncator from '../views/TextTruncator';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
+import loginComponents from '../utils/loginComponents';
 import coreBannerContent from '../utils/coreBannerContent';
 import CatchErrors from '../utils/CatchErrors';
 import UiIconButton from '../views/KeenUiIconButton.vue';
@@ -191,6 +192,7 @@ export default {
     validators,
     serverClock,
     i18n,
+    loginComponents,
     navComponents,
     coreBannerContent,
     samePageCheckGenerator,
