@@ -125,6 +125,9 @@
                 appearance="flat-button"
               />
             </p>
+            <div slot="options">
+              <component :is="component" v-for="component in loginOptions" :key="component.name" />
+            </div>
             <p
               v-if="showGuestAccess"
               class="guest small-text"
@@ -205,6 +208,7 @@
   import UiAlert from 'keen-ui/src/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import urls from 'kolibri.urls';
+  import loginComponents from 'kolibri.utils.loginComponents';
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
   import getUrlParameter from '../getUrlParameter';
@@ -347,6 +351,10 @@
         }
         // query is before hash
         return getUrlParameter('next');
+      },
+      loginOptions() {
+        // POC, in the future sorting of different login options can be implemented
+        return [...loginComponents];
       },
     },
     watch: {
