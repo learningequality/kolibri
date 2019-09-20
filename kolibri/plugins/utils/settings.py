@@ -23,7 +23,12 @@ def _validate_settings_module(settings_module):
     return settings_module
 
 
-_tuple_settings = ("INSTALLED_APPS", "TEMPLATE_DIRS", "LOCALE_PATHS", "AUTHENTICATION_BACKENDS")
+_tuple_settings = (
+    "INSTALLED_APPS",
+    "TEMPLATE_DIRS",
+    "LOCALE_PATHS",
+    "AUTHENTICATION_BACKENDS",
+)
 
 
 def _validate_module_setting(
