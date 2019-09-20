@@ -276,6 +276,7 @@ class KolibriHookMeta(SingletonMeta):
                     isabstract(parent)
                     and issubclass(parent, KolibriHook)
                     and parent is not KolibriHook
+                    and hasattr(parent, "_registered_hooks")
                 ):
                     parent.add_hook_to_class_registry(hook)
 
