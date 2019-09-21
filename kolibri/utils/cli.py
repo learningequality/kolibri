@@ -334,6 +334,20 @@ def update(old_version, new_version):
 
     logger.info("Running update routines for new version...")
 
+    try:
+        # Check if there are other kolibri instances running
+        # If there are, then we need to stop users from starting kolibri again.
+        server.get_status()
+        logger.error(
+            "There is a Kolibri server running."
+            "Running updates now could cause a database error."
+            "Please use `kolibri stop` and try again."
+        )
+        sys.exit(1)
+
+    except server.NotRunning:
+        pass
+
     # Need to do this here, before we run any Django management commands that
     # import settings. Otherwise the updated configuration will not be used
     # during this runtime.
