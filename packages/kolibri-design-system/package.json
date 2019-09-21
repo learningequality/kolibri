@@ -1,0 +1,36 @@
+{
+  "name": "kolibri-design-system",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve --port 8181",
+    "serve:format": "npm-run-all --parallel serve lint:watch:format",
+    "build": "vue-cli-service build",
+    "lint": "kolibri-tools lint '**/*.{js,vue,scss,less,css}' --ignore '**/node_modules/**','**/static/**','**/dist/**'",
+    "lint:format": "kolibri-tools lint '**/*.{js,vue,scss,less,css}' --ignore '**/node_modules/**','**/static/**','**/dist/**' --write",
+    "lint:watch": "kolibri-tools lint '**/*.{js,vue,scss,less,css}' --ignore '**/node_modules/**','**/static/**','**/dist/**' --monitor",
+    "lint:watch:format": "kolibri-tools lint '**/*.{js,vue,scss,less,css}' --ignore '**/node_modules/**','**/static/**','**/dist/**' --write --monitor"
+  },
+  "dependencies": {
+    "core-js": "^3.1.2",
+    "vue": "^2.6.10"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^4.0.0-rc.3",
+    "@vue/cli-plugin-eslint": "^4.0.0-rc.3",
+    "@vue/cli-service": "^4.0.0-rc.3",
+    "@vue/eslint-config-prettier": "^5.0.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.16.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "node-sass": "^4.12.0",
+    "prettier": "^1.18.2",
+    "sass-loader": "^8.0.0",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "browserslist": [
+    "> 0.25%",
+    "last 3 versions"
+  ]
+}
