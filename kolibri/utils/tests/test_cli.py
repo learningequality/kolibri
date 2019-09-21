@@ -229,6 +229,20 @@ def test_update(update, get_version):
 
 
 @pytest.mark.django_db
+@patch("kolibri.utils.cli.get_version", return_value="0.0.1")
+def test_update_exits_if_running(get_version):
+    """
+    Tests that update() function performs as expected
+    """
+    with patch("kolibri.utils.cli.server.get_status"):
+        try:
+            cli.initialize()
+            pytest.fail("Update did not exit when Kolibri was already running")
+        except SystemExit:
+            pass
+
+
+@pytest.mark.django_db
 def test_version_updated():
     """
     Tests our db backup logic: version_updated gets any change, backup gets only non-dev changes
