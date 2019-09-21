@@ -5,7 +5,7 @@
 
       <h1 class="header">
         <a href="#" class="header-logo" @click="toggle">
-          <CoreLogo alt="Kolibri" />
+          <file-svg v-if="active" src="./kolibri-logo.svg" />
         </a>
         <span v-show="!closed" class="header-text">Design System</span>
       </h1>
@@ -63,10 +63,9 @@
 
 <script>
 
-  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import lockr from 'lockr';
-  import { patternRoutes, componentRoutes } from '../../../routes.js';
-  import state from '../../../state';
+  import { patternRoutes, componentRoutes } from '../../routes.js';
+  import state from '../../state';
   import NavSectionList from './NavSectionList';
   import { termList, matches } from './filter';
 
@@ -76,7 +75,6 @@
     name: 'SideNav',
     components: {
       NavSectionList,
-      CoreLogo,
     },
     data() {
       return {

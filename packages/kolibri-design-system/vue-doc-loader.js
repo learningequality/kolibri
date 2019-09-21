@@ -1,7 +1,10 @@
 var vuedoc = require('@vuedoc/parser');
-var _ = require('lodash')
+var _ = require('lodash');
 
-var pascalCase = _.flow(_.camelCase, _.upperFirst);
+var pascalCase = _.flow(
+  _.camelCase,
+  _.upperFirst
+);
 
 /**
  * Loader that extracts the props, events, slots and methods from a Vue component
@@ -20,9 +23,9 @@ module.exports = function(content) {
   vuedoc
     .parse(options)
     .then(component => {
-      component.name = pascalCase(component.name)
+      component.name = pascalCase(component.name);
       for (const prop of component.props) {
-        prop.name = _.camelCase(prop.name)
+        prop.name = _.camelCase(prop.name);
       }
       json = JSON.stringify(component);
       callback(null, `export default ${json}; `);

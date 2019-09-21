@@ -1,3 +1,5 @@
+var path = require('path');
+
 module.exports = {
   pages: {
     index: {
@@ -9,6 +11,13 @@ module.exports = {
       entry: 'src/main.js',
       template: 'public/index.html',
       title: 'Sub-page',
+    },
+  },
+  configureWebpack: {
+    resolveLoader: {
+      alias: {
+        'vue-doc': path.join(__dirname, './vue-doc-loader'),
+      },
     },
   },
 };

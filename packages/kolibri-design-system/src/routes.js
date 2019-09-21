@@ -1,8 +1,8 @@
-import Home from './views/Home';
-import Inclusive from './views/patterns/Inclusive';
-import Writing from './views/patterns/Writing';
-import Colors from './views/patterns/Colors';
-import Buttons from './views/patterns/Buttons';
+import Home from './Home';
+import Inclusive from './patterns/Inclusive';
+import Writing from './patterns/Writing';
+import Colors from './patterns/Colors';
+import Buttons from './patterns/Buttons';
 
 // import ComponentDocs from './views/common/ComponentDocs';
 

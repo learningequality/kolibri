@@ -1,4 +1,4 @@
-import Vue from 'kolibri.lib.vue';
+import Vue from 'vue';
 
 const state = Vue.observable({ navWidth: 260 });
 

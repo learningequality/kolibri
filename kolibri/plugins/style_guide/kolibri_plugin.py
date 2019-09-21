@@ -9,8 +9,3 @@ from kolibri.plugins.hooks import register_hook
 
 class StyleGuide(KolibriPluginBase):
     root_view_urls = "root_urls"
-
-
-@register_hook
-class StyleGuideAsset(webpack_hooks.WebpackBundleHook):
-    bundle_id = "app"
