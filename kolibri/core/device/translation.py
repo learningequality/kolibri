@@ -8,6 +8,7 @@ import re
 from django.conf import settings
 from django.core.cache import cache
 from django.db.utils import OperationalError
+from django.db.utils import ProgrammingError
 from django.urls import resolve
 from django.urls import Resolver404
 from django.urls.resolvers import RegexURLResolver
@@ -35,7 +36,12 @@ def get_device_language():
                 DEVICE_LANGUAGE_CACHE_KEY, DeviceSettings.objects.get().language_id, 600
             )
         return get_supported_language_variant(cache.get(DEVICE_LANGUAGE_CACHE_KEY))
-    except (DeviceSettings.DoesNotExist, LookupError, OperationalError):
+    except (
+        DeviceSettings.DoesNotExist,
+        LookupError,
+        OperationalError,
+        ProgrammingError,
+    ):
         return None
 
 
