@@ -552,7 +552,7 @@ class ChannelImport(object):
                 self.check_cancelled()
 
                 # execute the actual query
-                self.destination.session.execute(text(query))
+                self.destination.get_connection().execute(text(query))
 
     def check_cancelled(self):
         if callable(self.cancel_check):
