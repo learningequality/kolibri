@@ -1,0 +1,2 @@
+kolibri>=0.13
+mozilla-django-oidc==1.2.2

@@ -1,0 +1,20 @@
+{
+    "scripts": {
+      "build": "kolibri-tools build prod --plugins kolibri_oidc_client_plugin --pluginPath ../",
+      "clean": "kolibri-tools build clean --plugins kolibri_oidc_client_plugin --pluginPath ../"
+    },
+    "name": "kolibri-oidc-client-plugin",
+    "description": "OpenID Client plugin for Kolibri",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+      "vue": "^2.6.8",
+      "kolibri-components": "0.13.0-dev.8",
+      "intl": "^1.2.4",
+      "vue-intl": "3.0.0"
+    },
+    "devDependencies": {
+      "kolibri-tools": "0.13.0-dev.3",
+      "webpack": "4.6.0"
+    }
+  }

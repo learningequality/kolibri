@@ -1,0 +1,5 @@
+[flake8]
+exclude = src/filelock.py, data/*
+ignore = E226, E302, E41
+max-line-length = 119
+max-complexity = -1
