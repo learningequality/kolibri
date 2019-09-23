@@ -6,7 +6,6 @@ six==1.11.0
 colorlog==3.2.0 # pyup: <4.0.0
 configobj==5.0.6
 django-mptt==0.9.1
-djangorestframework-csv==2.1.0
 requests==2.21.0
 cherrypy==13.0.1  # Temporarily pinning this until CherryPy stops depending on namespaced package, see #2971 # pyup: <13.1.0
 tempora<1.13  # derived no-upper-bounds dependency of cherrypy causing issues  # pyup: <1.13
