@@ -92,7 +92,7 @@ class SQLAlchemyBridgeClassTestCase(TestCase):
         bridge = Bridge(sqlite_file_path="test")
         bridge.get_connection()
         engine_mock.connect.assert_called_once_with()
-        self.assertIn(connection, bridge.connections)
+        self.assertEqual(connection, bridge.connection)
 
     def test_instance_end(
         self, connection_string_mock, make_session_mock, db_matches_schema_mock
@@ -102,7 +102,7 @@ class SQLAlchemyBridgeClassTestCase(TestCase):
         make_session_mock.return_value = (session_mock, engine_mock)
         connection = MagicMock()
         bridge = Bridge(sqlite_file_path="test")
-        bridge.connections = [connection]
+        bridge.connection = connection
         bridge.end()
         session_mock.close.assert_called_once_with()
         connection.close.assert_called_once_with()
