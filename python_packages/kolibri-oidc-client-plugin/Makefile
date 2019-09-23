@@ -28,7 +28,7 @@ assets:
 	mkdir kolibri_oidc_client_plugin/static
 	cd kolibri_oidc_client_plugin && yarn run clean && yarn run build
 
-dist: clean
+dist: clean assets
 	python setup.py sdist
 	python setup.py bdist_wheel --universal
 
