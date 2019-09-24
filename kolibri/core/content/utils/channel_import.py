@@ -609,6 +609,8 @@ class ChannelImport(object):
         except (SQLAlchemyError, ImportCancelError) as e:
             # Rollback the transaction if any error occurs during the transaction
             self.destination.session.rollback()
+            if self.destination.engine.name == "postgresql":
+                self.destination.get_raw_connection().rollback()
             self.try_detaching_sqlite_database()
             # Reraise the exception to prevent other errors occuring due to the non-completion
             raise e

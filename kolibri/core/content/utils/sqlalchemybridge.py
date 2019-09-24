@@ -265,7 +265,7 @@ class Bridge(object):
             # change in the schema beyond creating tables.
             self.Base.metadata.create_all(self.engine)
 
-        self.connections = []
+        self.connection = None
 
     def get_class(self, DjangoModel):
         return get_class(DjangoModel, self.Base)
@@ -277,13 +277,17 @@ class Bridge(object):
         """
         return self.get_class(DjangoModel).__table__
 
+    def get_raw_connection(self):
+        conn = self.get_connection()
+        return conn.connection
+
     def get_connection(self):
-        connection = self.engine.connect()
-        self.connections.append(connection)
-        return connection
+        if self.connection is None:
+            self.connection = self.engine.connect()
+        return self.connection
 
     def end(self):
         # Clean up session
         self.session.close()
-        for connection in self.connections:
-            connection.close()
+        if self.connection:
+            self.connection.close()
