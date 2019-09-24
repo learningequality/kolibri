@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Error</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- <meta http-equiv="refresh" content="2" /> -->
+
+    <style>
+      body {
+        height: 100%;
+        font-family: noto-full,noto-subset,noto-common,sans-serif;
+      }
+      html {
+        height: 90%;
+      }
+      h1 {
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        text-align: center;
+      }
+      .container {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-flow: column;
+      }
+      .message{
+          font-size:1.2em;
+      }
+      .spinner{
+          stroke:purple;
+      }
+      .raised {
+        padding: 0 16px;
+        margin: 8px;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 36px;
+        border: 0;
+        border-radius: 2px;
+        color: rgb(33, 33, 33);
+        background-color: rgb(238, 238, 238);
+        cursor: pointer;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img src="app-error-bird.png" />
+      <h1>
+        <svg width="50" height="30" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" class="spinner" stroke="#000">
+          <g fill="none" fill-rule="evenodd">
+            <g transform="translate(1 1)" stroke-width="2">
+              <circle stroke-opacity=".5" cx="18" cy="18" r="18" />
+              <path d="M36 18c0-9.94-8.06-18-18-18">
+                <animateTransform
+                  attributeName="transform"
+                  type="rotate"
+                  from="0 18 18"
+                  to="360 18 18"
+                  dur="1s"
+                  repeatCount="indefinite"
+                />
+              </path>
+            </g>
+          </g>
+        </svg>
+        Starting Kolibri server...
+      </h1>
+
+      <p class="message">
+        If you are not redirected in a few minutes, please contact our community forums or try refreshing this page.
+      </p>
+      <div>
+        <a href="https://community.learningequality.org/c/support/kolibri">Ask for help on our community forums</a>
+      </div>
+      <button class="raised">REFRESH</button>
+      <div>kolibri-server 1.2.3</div>
+    </div>
+  </body>
+</html>
