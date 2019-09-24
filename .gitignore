@@ -94,6 +94,7 @@ js-dist
 # Content App
 storage/*
 kolibri/content/content_db/*.sqlite3
+kolibri/core/content/contentschema/migrations/*
 
 # virtual environment
 venv/
