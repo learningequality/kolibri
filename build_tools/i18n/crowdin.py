@@ -285,7 +285,9 @@ def _format_json_files():
         locale_path = utils.local_locale_path(lang_object)
         perseus_path = utils.local_perseus_locale_path(lang_object)
 
-        csv_locale_dir_path = os.path.join(utils.local_locale_csv_path(), lang_object["crowdin_code"])
+        csv_locale_dir_path = os.path.join(
+            utils.local_locale_csv_path(), lang_object["crowdin_code"]
+        )
         for file_name in os.listdir(csv_locale_dir_path):
             if file_name.endswith("json"):
                 # Then it is a Perseus JSON file - just copy it.
@@ -308,9 +310,10 @@ def _format_json_files():
                 json.loads(json_data), locale_path, file_name.replace("csv", "json")
             )
 
+
 def _locale_data_from_csv(file_data):
     csv_reader = csv.reader(file_data)
-    csv_reader.__next__() # Remove the headers
+    csv_reader.__next__()  # Remove the headers
 
     json = dict()
 
@@ -338,6 +341,7 @@ def _wipe_translations(locale_path):
         target = os.path.join(locale_path, file_name)
         if file_name != "en" and os.path.isdir(target):
             shutil.rmtree(target)
+
 
 def command_download(branch):
     """
@@ -441,9 +445,7 @@ def command_upload_sources(branch):
         _modify(ADD_SOURCE_URL.format(branch=branch), to_add)
     if to_update:
         logging.info("\tUpdate in '{}': {}".format(branch, ", ".join(to_update)))
-        _modify(
-            UPDATE_SOURCE_URL.format(branch=branch), to_update
-        )
+        _modify(UPDATE_SOURCE_URL.format(branch=branch), to_update)
 
     logging.info("Crowdin: upload succeeded!")
 
