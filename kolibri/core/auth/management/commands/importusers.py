@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 from django.db import transaction
 
+from kolibri.core.auth.constants.demographics import DEMO_FIELDS
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -42,25 +43,22 @@ def infer_facility(user, default_facility):
         return default_facility
 
 
-def infer_and_create_class(user, facility):
-    if "class" in user and user["class"]:
+def infer_and_create_class(class_id, facility):
+    if class_id is not None:
         try:
             # Try lookup by id first, then name
-            classroom = Classroom.objects.get(pk=user["class"], parent=facility)
+            classroom = Classroom.objects.get(pk=class_id, parent=facility)
         except (Classroom.DoesNotExist, ValueError):
             try:
-                classroom = Classroom.objects.get(name=user["class"], parent=facility)
+                classroom = Classroom.objects.get(name=class_id, parent=facility)
             except Classroom.DoesNotExist:
-                classroom = Classroom.objects.create(
-                    name=user["class"], parent=facility
-                )
+                classroom = Classroom.objects.create(name=class_id, parent=facility)
         return classroom
 
 
 def update_user_demographics(user_dict, user_model):
     username = user_dict["username"]
-    demo_fields = ["gender", "birth_year", "id_number"]
-    user_updated = any(user_dict.get(key, None) is not None for key in demo_fields)
+    user_updated = any(user_dict.get(key, None) is not None for key in DEMO_FIELDS)
 
     if not user_updated:
         return
@@ -85,13 +83,13 @@ def update_user_demographics(user_dict, user_model):
 
     except ValidationError as e:
         logger.error(
-            'Tried to update demogrpahic info for "{username}", but invalid values were given for fields: {keys}'.format(
+            'Tried to update demographic info for "{username}", but invalid values were given for fields: {keys}'.format(
                 username=username, keys=list(e.error_dict.keys())
             )
         )
 
 
-def create_user(i, user, default_facility=None):
+def create_user(i, user):
     validate_username(user)
 
     if i == 0 and all(key == val or val is None for key, val in user.items()):
@@ -100,8 +98,8 @@ def create_user(i, user, default_facility=None):
         # Or the header is not included in the CSV, so it is None
         return False
 
-    facility = infer_facility(user, default_facility)
-    classroom = infer_and_create_class(user, facility)
+    facility = infer_facility(user.get("facility", None))
+    classroom = infer_and_create_class(user.get("class", None), facility)
     username = user["username"]
     try:
         user_obj = FacilityUser.objects.get(username=username, facility=facility)

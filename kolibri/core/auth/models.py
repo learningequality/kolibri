@@ -66,6 +66,7 @@ from .permissions.general import IsAdminForOwnFacility
 from .permissions.general import IsFromSameFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
+from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
 from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.constants.morango_scope_definitions import SINGLE_USER
 from kolibri.core.errors import KolibriValidationError
@@ -656,14 +657,6 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     facility = models.ForeignKey("Facility")
 
     is_facility_user = True
-
-    # Demographic information
-    GENDER_CHOICES = [
-        ("MALE", "Male"),
-        ("FEMALE", "Female"),
-        ("NOT_SPECIFIED", "Not specified"),
-        ("DEFERRED", "Defers for later"),
-    ]
 
     gender = models.CharField(
         max_length=16, choices=GENDER_CHOICES, default="", blank=True
