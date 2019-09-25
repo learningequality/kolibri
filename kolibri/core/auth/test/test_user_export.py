@@ -17,7 +17,9 @@ from kolibri.core.auth.constants.demographics import MALE
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.csv_utils import labels
 from kolibri.core.auth.csv_utils import transform_choices
+from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
 
 
 users = [
@@ -43,7 +45,7 @@ users = [
 ]
 
 
-class ContentSummaryLogCSVExportTestCase(TestCase):
+class UserCSVExportTestCase(TestCase):
     def test_csv_export_with_demographics(self):
         facility, superuser = setup_device()
         for user in users:
@@ -98,3 +100,56 @@ class ContentSummaryLogCSVExportTestCase(TestCase):
         for demo_field in DEMO_FIELDS:
             label = labels[demo_field]
             self.assertFalse(label in results[0])
+
+    def test_csv_export_user_in_multiple_classes(self):
+        facility, superuser = setup_device()
+        classroom1 = Classroom.objects.create(name="testclass1", parent=facility)
+        classroom2 = Classroom.objects.create(name="testclass2", parent=facility)
+        user = users[0]
+        user_obj = FacilityUser.objects.create(facility=facility, **user)
+        classroom1.add_member(user_obj)
+        classroom2.add_member(user_obj)
+        _, filepath = tempfile.mkstemp(suffix=".csv")
+        call_command(
+            "exportusers", output_file=filepath, overwrite=True, demographic=True
+        )
+        if sys.version_info[0] < 3:
+            csv_file = open(filepath, "rb")
+        else:
+            csv_file = open(filepath, "r", newline="")
+        with csv_file as f:
+            results = list(row for row in csv.DictReader(f))
+
+        self.assertEqual(len(results), 2)
+
+    def test_csv_export_user_in_one_class_one_group(self):
+        facility, superuser = setup_device()
+        classroom = Classroom.objects.create(name="testclass", parent=facility)
+        group = LearnerGroup.objects.create(name="testgroup", parent=classroom)
+        user = users[0]
+        user_obj = FacilityUser.objects.create(facility=facility, **user)
+        classroom.add_member(user_obj)
+        group.add_member(user_obj)
+        _, filepath = tempfile.mkstemp(suffix=".csv")
+        call_command(
+            "exportusers", output_file=filepath, overwrite=True, demographic=True
+        )
+        if sys.version_info[0] < 3:
+            csv_file = open(filepath, "rb")
+        else:
+            csv_file = open(filepath, "r", newline="")
+        with csv_file as f:
+            results = list(row for row in csv.DictReader(f))
+
+        self.assertEqual(len(results), 2)
+
+        for row in results:
+            user = filter(lambda x: x["username"] == row[labels["username"]], users)
+            if user:
+                user = user[0]
+                self.assertEqual(
+                    row[labels["memberships__collection__name"]], classroom.name
+                )
+                self.assertEqual(
+                    row[labels["memberships__collection__id"]], classroom.id
+                )

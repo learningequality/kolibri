@@ -43,6 +43,10 @@ class UserImportTestCase(TestCase):
         default = {}
         self.assertEqual(infer_facility(None, default), default)
 
+    def test_infer_facility_empty_string(self):
+        default = {}
+        self.assertEqual(infer_facility("", default), default)
+
     def test_infer_facility_by_id(self):
         default = {}
         self.assertEqual(infer_facility(self.facility.id, default), self.facility)

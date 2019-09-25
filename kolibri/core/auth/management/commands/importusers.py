@@ -89,14 +89,18 @@ def create_user(user, default_facility=None):
     facility = infer_facility(user.get("facility", None), facility=default_facility)
     classroom = infer_and_create_class(user.get("class", None), facility)
     username = user["username"]
+    password = user.get("password", "")
     try:
         user_obj = FacilityUser.objects.get(username=username, facility=facility)
+        if password:
+            user_obj.set_password(password)
+            user_obj.save()
         update_user_demographics(user, user_obj)
 
         if classroom and not user_obj.is_member_of(classroom):
             classroom.add_member(user_obj)
             logger.info(
-                'Exiting user "{username}" was added to a classroom "{classroom}"'.format(
+                'Existing user "{username}" was added to a classroom "{classroom}"'.format(
                     username=username, classroom=classroom.name
                 )
             )
@@ -202,7 +206,7 @@ class Command(BaseCommand):
             if has_header:
                 reader = csv.DictReader(f, strict=True)
             else:
-                reader = csv.reader(f, strict=True)
+                reader = csv.DictReader(f, fieldnames=input_fields, strict=True)
             with transaction.atomic():
                 total = 0
                 for row in reader:

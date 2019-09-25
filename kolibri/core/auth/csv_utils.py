@@ -8,8 +8,16 @@ import sys
 from collections import OrderedDict
 from functools import partial
 
+from django.db.models import IntegerField
+from django.db.models import OuterRef
+from django.db.models import Prefetch
+from django.db.models import Subquery
+
+from kolibri.core.auth.constants.collection_kinds import CLASSROOM
 from kolibri.core.auth.constants.demographics import choices
 from kolibri.core.auth.constants.demographics import DEMO_FIELDS
+from kolibri.core.auth.models import Classroom
+from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 
@@ -18,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 def infer_facility(facility_id, facility=None):
-    if facility_id is not None:
+    if facility_id:
         try:
             # Try lookup by id first, then name
             facility = Facility.objects.get(pk=facility_id)
@@ -55,9 +63,24 @@ def transform_choices(field, obj):
     return choices_dict.get(obj[field], obj[field])
 
 
-mappings = {
+MULTIPLE_CLASSROOMS_TEXT = "User is enrolled in multiple classrooms"
+
+
+def replace_multiple_classrooms(field, obj):
+    if "classroom_count" in obj and obj["classroom_count"] > 1:
+        return MULTIPLE_CLASSROOMS_TEXT
+    return obj[field]
+
+
+output_mappings = {
     "gender": partial(transform_choices, "gender"),
     "birth_year": partial(transform_choices, "birth_year"),
+    "memberships__collection__id": partial(
+        replace_multiple_classrooms, "memberships__collection__id"
+    ),
+    "memberships__collection__name": partial(
+        replace_multiple_classrooms, "memberships__collection__name"
+    ),
 }
 
 labels = OrderedDict(
@@ -67,13 +90,24 @@ labels = OrderedDict(
         ("memberships__collection__name", "Class name"),
         ("memberships__collection__id", "Class id"),
         ("full_name", "Full name"),
+        ("username", "Username"),
+        ("password", "Password"),
         ("gender", "Gender"),
         ("birth_year", "Birth year"),
         ("id_number", "ID number"),
-        ("username", "Username"),
-        ("password", "Password"),
     )
 )
+
+
+def map_output(obj):
+    mapped_obj = {}
+    for header, label in labels.items():
+        if header in output_mappings and header in obj:
+            mapped_obj[label] = output_mappings[header](obj)
+        elif header in obj:
+            mapped_obj[label] = obj[header]
+    return mapped_obj
+
 
 input_fields = (
     "full_name",
@@ -100,8 +134,14 @@ def transform_inputs(field, obj):
     return input_choices.get(obj[field], obj[field])
 
 
+def map_class(obj):
+    value = get_field(["class", "Class id", "Class name"], obj)
+    if value != MULTIPLE_CLASSROOMS_TEXT:
+        return value
+
+
 input_mappings = {
-    "class": partial(get_field, ["class", "Class id", "Class name"]),
+    "class": map_class,
     "facility": partial(get_field, ["facility", "Facility id", "Facility name"]),
 }
 
@@ -119,27 +159,24 @@ def map_input(obj):
     return mapped_obj
 
 
-def map_object(obj):
-    mapped_obj = {}
-    for header, label in labels.items():
-        if header in mappings and header in obj:
-            mapped_obj[label] = mappings[header](obj)
-        elif header in obj:
-            mapped_obj[label] = obj[header]
-    return mapped_obj
-
-
 db_columns = (
     "facility__name",
     "facility__id",
     "memberships__collection__name",
     "memberships__collection__id",
+    "classroom_count",
     "full_name",
     "username",
     "gender",
     "birth_year",
     "id_number",
 )
+
+
+class SQCount(Subquery):
+    # Include ALIAS at the end to support Postgres
+    template = "(SELECT COUNT(%(field)s) FROM (%(subquery)s) AS %(field)s__sum)"
+    output_field = IntegerField()
 
 
 def csv_file_generator(facility, filepath, overwrite=True, demographic=False):
@@ -166,8 +203,24 @@ def csv_file_generator(facility, filepath, overwrite=True, demographic=False):
         writer = csv.DictWriter(f, header_labels)
         logger.info("Creating csv file {filename}".format(filename=filepath))
         writer.writeheader()
-        for item in queryset.select_related(
-            "facility", "memberships__collection"
-        ).values(*columns):
-            writer.writerow(map_object(item))
-            yield
+        usernames = set()
+        for item in (
+            queryset.select_related("facility")
+            .annotate(
+                classroom_count=SQCount(
+                    Classroom.objects.filter(membership__user=OuterRef("id")),
+                    field="id",
+                )
+            )
+            .prefetch_related(
+                Prefetch(
+                    "memberships__collection",
+                    queryset=Collection.objects.filter(kind=CLASSROOM),
+                )
+            )
+            .values(*columns)
+        ):
+            if item["username"] not in usernames:
+                writer.writerow(map_output(item))
+                usernames.add(item["username"])
+                yield
