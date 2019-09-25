@@ -2,6 +2,8 @@ import logging
 import os
 import sys
 import time
+import webbrowser
+
 try:
     from urllib2 import urlopen, URLError
 except ModuleNotFoundError:
@@ -40,7 +42,7 @@ if pew.ui.platform == "android":
         kolibri_home_file = PythonActivity.getExternalFilesDir(None)
         return kolibri_home_file.toString()
 
-
+KOLIBRI_ROOT_URL = 'http://localhost:5000'
 os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base"
 
 app_data_dir = pew.get_app_files_dir()
@@ -63,17 +65,56 @@ def start_django():
     main(["start", "--foreground", "--port=5000"])
 
 
-class Application(pew.ui.PEWApp):
+class MenuEventHandler:
+    def on_documentation(self):
+        webbrowser.open('https://kolibri.readthedocs.io/en/latest/')
+
+    def on_forums(self):
+        webbrowser.open('https://community.learningequality.org/')
+
+    def on_new_window(self):
+        window = self.create_kolibri_window(KOLIBRI_ROOT_URL)
+        self.windows.append(window)
+        window.show()
+
+    def on_close_window(self):
+        pass
+
+
+class KolibriView(pew.ui.WebUIView):
+    def shutdown(self):
+        """
+        By default, WebUIView assumes a single window, to work the same on mobile and desktops.
+        Since we allow for multiple windows, make sure we only really shutdown once all windows are
+        closed.
+        :return:
+        """
+        app = pew.ui.get_app()
+        if app:
+            app.windows.remove(self)
+            if len(app.windows) > 0:
+                # if we still have open windows, don't run shutdown
+                return
+
+        super(KolibriView, self).shutdown()
+
+
+class Application(pew.ui.PEWApp, MenuEventHandler):
     def setUp(self):
         """
         Start your UI and app run loop here.
         """
 
+        MenuEventHandler.__init__(self)
+
         # Set loading screen
         loader_page = os.path.abspath(os.path.join('assets', '_load.html'))
         self.loader_url = 'file://{}'.format(loader_page)
         self.kolibri_loaded = False
-        self.view = pew.ui.WebUIView("Kolibri", self.loader_url, delegate=self)
+
+        self.view = self.create_kolibri_window(self.loader_url)
+
+        self.windows = [self.view]
 
         # start thread
         self.thread = pew.ui.PEWThread(target=start_django)
@@ -89,6 +130,37 @@ class Application(pew.ui.PEWApp):
         # causing the app to shut down early
         self.view.show()
         return 0
+
+    def create_kolibri_window(self, url):
+        window = KolibriView("Kolibri", url, delegate=self)
+
+        # create menu bar, we do this per-window for cross-platform purposes
+        menu_bar = pew.ui.PEWMenuBar()
+
+        file_menu = pew.ui.PEWMenu('File')
+        file_menu.add('New Window', handler=self.on_new_window)
+        # file_menu.add('Close Window', handler=self.on_close_window)
+
+        menu_bar.add_menu(file_menu)
+
+        edit_menu = pew.ui.PEWMenu('Edit')
+        edit_menu.add('Undo', command='undo', shortcut='CTRL+Z')
+        edit_menu.add('Redo', command='redo', shortcut='CTRL+SHIFT+Z')
+        edit_menu.add_separator()
+        edit_menu.add('Cut', command='cut', shortcut='CTRL+X')
+        edit_menu.add('Copy', command='copy', shortcut='CTRL+C')
+        edit_menu.add('Paste', command='paste', shortcut='CTRL+V')
+        edit_menu.add('Select All', command='select-all', shortcut='CTRL+A')
+        menu_bar.add_menu(edit_menu)
+
+        help_menu = pew.ui.PEWMenu('Help')
+        help_menu.add('Documentation', handler=self.on_documentation)
+        help_menu.add('Community Forums', handler=self.on_forums)
+        menu_bar.add_menu(help_menu)
+
+        window.set_menubar(menu_bar)
+
+        return window
 
     def page_loaded(self, url):
         """
@@ -108,7 +180,7 @@ class Application(pew.ui.PEWApp):
     def wait_for_server(self):
         from kolibri.utils import server
 
-        home_url = 'http://localhost:5000'
+        home_url = KOLIBRI_ROOT_URL
 
         # test url to see if servr has started
         def running():
@@ -128,7 +200,7 @@ class Application(pew.ui.PEWApp):
         logging.debug('Persisted View State: {}'.format(self.view.get_view_state()))
 
         if "URL" in saved_state and saved_state["URL"].startswith(home_url):
-            pew.ui.run_on_main_thread(self.view.load_url(saved_state["URL"]))
+            pew.ui.run_on_main_thread(self.view.load_url, saved_state["URL"])
             return
 
         pew.ui.run_on_main_thread(self.view.load_url(home_url))
