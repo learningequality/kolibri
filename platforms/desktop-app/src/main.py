@@ -1,5 +1,6 @@
 import logging
 import os
+import subprocess
 import sys
 import time
 import webbrowser
@@ -77,6 +78,9 @@ class MenuEventHandler:
         self.windows.append(window)
         window.show()
 
+    def on_open_kolibri_home(self):
+        subprocess.call(['open', os.environ['KOLIBRI_HOME']])
+
     # FIXME: Remove these once the native menu handlers are restored
     def on_redo(self):
         self.view.webview.Redo()
@@ -147,6 +151,8 @@ class Application(pew.ui.PEWApp, MenuEventHandler):
         file_menu = pew.ui.PEWMenu('File')
         file_menu.add('New Window', handler=self.on_new_window)
         # file_menu.add('Close Window', handler=self.on_close_window)
+        file_menu.add_separator()
+        file_menu.add('Open Kolibri Home Folder', handler=self.on_open_kolibri_home)
 
         menu_bar.add_menu(file_menu)
 
