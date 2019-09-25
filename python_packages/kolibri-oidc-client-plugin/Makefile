@@ -1,4 +1,4 @@
-.PHONY: help clean clean-pyc release dist
+.PHONY: help clean assets clean-pyc release dist
 
 help:
 	@echo "clean-build - remove build artifacts"
@@ -33,6 +33,6 @@ dist: clean assets
 	python setup.py bdist_wheel --universal
 
 release: dist
-        echo "Ensure that you have built the frontend files using Kolibri"
-        echo "Uploading dist/* to PyPi, using twine"
-        twine upload -s --sign-with gpg2 dist/*
+	echo "Ensure that you have built the frontend files using Kolibri"
+	echo "Uploading dist/* to PyPi, using twine"
+	twine upload -s --sign-with gpg2 dist/*

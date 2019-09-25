@@ -53,6 +53,13 @@ setup(
     include_package_data=True,
     license='MIT',
     install_requires=['mozilla-django-oidc'],
+    extras_require={
+        'dev': [
+            'setuptools',
+            'wheel',
+            'twine',
+        ]
+    },
     zip_safe=False,
     keywords='kolibri',
     classifiers=[

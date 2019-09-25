@@ -1,0 +1,8 @@
+include AUTHORS.rst
+include CONTRIBUTING.rst
+include LICENSE
+include README.md
+recursive-exclude kolibri_oidc_client_plugin/* *pyc
+recursive-include kolibri_oidc_client_plugin/static *.*
+recursive-include kolibri_oidc_client_plugin/build *.json
+recursive-exclude kolibri_oidc_client_plugin/assets *
