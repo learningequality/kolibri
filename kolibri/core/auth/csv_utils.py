@@ -17,7 +17,7 @@ from kolibri.core.auth.models import FacilityUser
 logger = logging.getLogger(__name__)
 
 
-def infer_facility(facility_id):
+def infer_facility(facility_id, facility=None):
     if facility_id is not None:
         try:
             # Try lookup by id first, then name
@@ -31,6 +31,8 @@ def infer_facility(facility_id):
                         facility=facility_id
                     )
                 )
+    elif facility is not None:
+        return facility
     else:
         facility = Facility.get_default_facility()
         if facility:
@@ -69,8 +71,52 @@ labels = OrderedDict(
         ("birth_year", "Birth year"),
         ("id_number", "ID number"),
         ("username", "Username"),
+        ("password", "Password"),
     )
 )
+
+input_fields = (
+    "full_name",
+    "username",
+    "password",
+    "facility",
+    "class",
+    "gender",
+    "birth_year",
+    "id_number",
+)
+
+
+def get_field(fields, obj):
+    for label in fields:
+        if label in obj:
+            return obj[label]
+
+
+input_choices = {val: key for key, val in choices}
+
+
+def transform_inputs(field, obj):
+    return input_choices.get(obj[field], obj[field])
+
+
+input_mappings = {
+    "class": partial(get_field, ["class", "Class id", "Class name"]),
+    "facility": partial(get_field, ["facility", "Facility id", "Facility name"]),
+}
+
+
+def map_input(obj):
+    mapped_obj = {}
+    for label in input_fields:
+        header = labels.get(label, None)
+        if label in input_mappings:
+            mapped_obj[label] = input_mappings[label](obj)
+        elif label in obj:
+            mapped_obj[label] = obj[label]
+        elif header and header in obj:
+            mapped_obj[label] = obj[header]
+    return mapped_obj
 
 
 def map_object(obj):
