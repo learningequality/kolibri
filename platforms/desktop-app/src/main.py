@@ -77,6 +77,13 @@ class MenuEventHandler:
         self.windows.append(window)
         window.show()
 
+    # FIXME: Remove these once the native menu handlers are restored
+    def on_redo(self):
+        self.view.webview.Redo()
+
+    def on_undo(self):
+        self.view.webview.Undo()
+
     def on_close_window(self):
         pass
 
@@ -144,8 +151,8 @@ class Application(pew.ui.PEWApp, MenuEventHandler):
         menu_bar.add_menu(file_menu)
 
         edit_menu = pew.ui.PEWMenu('Edit')
-        edit_menu.add('Undo', command='undo', shortcut='CTRL+Z')
-        edit_menu.add('Redo', command='redo', shortcut='CTRL+SHIFT+Z')
+        edit_menu.add('Undo', handler=self.on_undo, shortcut='CTRL+Z')
+        edit_menu.add('Redo', handler=self.on_redo, shortcut='CTRL+SHIFT+Z')
         edit_menu.add_separator()
         edit_menu.add('Cut', command='cut', shortcut='CTRL+X')
         edit_menu.add('Copy', command='copy', shortcut='CTRL+C')
