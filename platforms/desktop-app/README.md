@@ -24,7 +24,13 @@ Running the app from source:
 
 Creating a macOS app for testing in `dist/Kolibri.app`:
 
-`pew build`
+```
+# this makes sure the modules in src/kolibri/dist are found
+# despite not having been installed in the virtualenv
+export PYTHONPATH=$PWD/src/kolibri/dist
+
+pew build
+```
 
 Creating a macOS disk image in `package` directory:
 
