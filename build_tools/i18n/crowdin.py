@@ -67,14 +67,6 @@ CROWDIN_API_URL = "https://api.crowdin.com/api/project/{proj}/{cmd}?key={key}{pa
 DETAILS_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT, key=CROWDIN_API_KEY, cmd="info", params="&json"
 )
-CROWDIN_LANG_CODES = "identifier,source_phrase,context," + ",".join(
-    [
-        lang["crowdin_code"]
-        for lang in utils.supported_languages(
-            include_english=True, include_in_context=True
-        )
-    ]
-)
 
 LANG_STATUS_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
@@ -91,20 +83,20 @@ REBUILD_URL = CROWDIN_API_URL.format(
 DOWNLOAD_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
-    cmd="download/{language}.zip",
+    cmd="download/all.zip",
     params="&branch={branch}",
 )
 ADD_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="add-file",
-    params="&branch={branch}&scheme={langs}&json&first_line_contains_header&import_translations=0",
+    params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0",
 )
 UPDATE_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="update-file",
-    params="&branch={branch}&scheme={langs}&json&first_line_contains_headerimport_translations=0",
+    params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0",
 )
 DELETE_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
@@ -288,65 +280,45 @@ def _format_json_files():
     """
     re-print all json files to ensure consistent diffs with ordered keys
     """
-    locale_paths = []
+
     for lang_object in utils.supported_languages(include_in_context=True):
-        locale_paths.append(utils.local_locale_path(lang_object))
-        locale_paths.append(utils.local_perseus_locale_path(lang_object))
-    for locale_path in locale_paths:
-        for file_name in os.listdir(utils.local_locale_csv_path()):
-            if not file_name.endswith(".csv"):
+        locale_path = utils.local_locale_path(lang_object)
+        perseus_path = utils.local_perseus_locale_path(lang_object)
+
+        csv_locale_dir_path = os.path.join(utils.local_locale_csv_path(), lang_object["crowdin_code"])
+        for file_name in os.listdir(csv_locale_dir_path):
+            if file_name.endswith("json"):
+                # Then it is a Perseus JSON file - just copy it.
+                source = os.path.join(csv_locale_dir_path, file_name)
+                target = os.path.join(perseus_path, file_name)
+                try:
+                    os.makedirs(perseus_path)
+                except:
+                    pass
+                shutil.copyfile(source, target)
                 continue
-            file_path = os.path.join(utils.local_locale_csv_path(), file_name)
-            with io.open(file_path, mode="r", encoding="utf-8") as f:
-                json_data = _locale_data_from_csv(f, locale_path)
-                data = json.dumps(json_data)
+            elif not file_name.endswith("csv"):
+                continue
+
+            csv_file = os.path.join(csv_locale_dir_path, file_name)
+            with io.open(csv_file, mode="r", encoding="utf-8") as f:
+                data = _locale_data_from_csv(f)
+                json_data = json.dumps(data)
             utils.json_dump_formatted(
-                json.loads(data), locale_path, file_name.replace("csv", "json")
+                json.loads(json_data), locale_path, file_name.replace("csv", "json")
             )
 
-
-# For some reason, Crowdin doesn't always return the CSVs with the locales in the headers.
-# Pass a CSV file's headers here and it will ensure that we are getting the right locale column.
-def _ensure_locale_headers(file_headers):
-    # Get the lang_codes without the first 3 values
-    crowdin_lang_codes = CROWDIN_LANG_CODES.split(",")[3:]
-    lang_codes = [
-        utils.to_locale(lang["intl_code"])
-        for lang in utils.supported_languages(
-            include_english=True, include_in_context=True
-        )
-        if lang["crowdin_code"] in crowdin_lang_codes
-    ]
-    # Get the headers and remove empty values and the wonky crowdin header (ie, crwdns123:crd12341)
-    base_headers = ["Identifier", "Source String", "Context"]
-    headers = [h for h in file_headers if h in base_headers]
-
-    # If they don't match in length, then the file's headers are missing locales
-    if len(headers) != len(CROWDIN_LANG_CODES):
-        # So we return the headers and lang_codes
-        return headers + lang_codes
-    else:
-        return headers
-
-
-def _locale_data_from_csv(file_data, locale_path):
+def _locale_data_from_csv(file_data):
     csv_reader = csv.reader(file_data)
-    headers = csv_reader.__next__()
-    headers = _ensure_locale_headers(headers)
-    locale = locale_path.split("/")[-2]
-    json = dict()
+    csv_reader.__next__() # Remove the headers
 
-    try:
-        locale_index = headers.index(locale)
-    except:
-        # If there is no locale in the headers of the file, then there
-        # certainly aren't any translations. So just return empty dict
-        return json
+    json = dict()
 
     for row in csv_reader:
         if len(row) == 0:
             return json
-        json[row[0]] = row[locale_index]
+        # First index is Identifier, Third index is the translation
+        json[row[0]] = row[3]
 
     return json
 
@@ -366,7 +338,6 @@ def _wipe_translations(locale_path):
         target = os.path.join(locale_path, file_name)
         if file_name != "en" and os.path.isdir(target):
             shutil.rmtree(target)
-
 
 def command_download(branch):
     """
@@ -467,11 +438,11 @@ def command_upload_sources(branch):
 
     if to_add:
         logging.info("\tAdd in '{}': {}".format(branch, ", ".join(to_add)))
-        _modify(ADD_SOURCE_URL.format(branch=branch, langs=CROWDIN_LANG_CODES), to_add)
+        _modify(ADD_SOURCE_URL.format(branch=branch), to_add)
     if to_update:
         logging.info("\tUpdate in '{}': {}".format(branch, ", ".join(to_update)))
         _modify(
-            UPDATE_SOURCE_URL.format(branch=branch, langs=CROWDIN_LANG_CODES), to_update
+            UPDATE_SOURCE_URL.format(branch=branch), to_update
         )
 
     logging.info("Crowdin: upload succeeded!")

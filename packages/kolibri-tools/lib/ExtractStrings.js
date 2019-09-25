@@ -381,6 +381,7 @@ function toCSV(path, messages) {
       { id: 'identifier', title: 'Identifier' },
       { id: 'sourceString', title: 'Source String' },
       { id: 'context', title: 'Context' },
+      { id: 'translation', title: 'Translation' },
     ],
   });
 
@@ -401,6 +402,7 @@ function toCSV(path, messages) {
       identifier,
       sourceString,
       context,
+      translation: '',
     };
   });
 

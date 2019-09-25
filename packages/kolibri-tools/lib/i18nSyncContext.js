@@ -22,8 +22,10 @@ const reScriptClose = /^[ ]*<\/script>/;
 const JS_GLOB = path.resolve('./kolibri') + '/**/*.js';
 // All Vue files not in node_modules
 const VUE_GLOB = path.resolve('./kolibri') + '/**/*.vue';
-// All of the files downloaded from Crowdin
-const CSV_PATH = path.resolve('./kolibri/locale/CSV_FILES/');
+// We only need one set of languages - since we have the ACH
+// which is a Crowdin placeholder language, we'll go there to
+// get the Context.
+const CSV_PATH = path.resolve('./kolibri/locale/CSV_FILES/ach/');
 
 // -------------------- //
 // Processing Functions //
