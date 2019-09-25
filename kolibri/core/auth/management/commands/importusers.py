@@ -29,7 +29,7 @@ def validate_username(user):
 
 
 def infer_and_create_class(class_id, facility):
-    if class_id is not None:
+    if class_id:
         try:
             # Try lookup by id first, then name
             classroom = Classroom.objects.get(pk=class_id, parent=facility)
@@ -184,30 +184,29 @@ class Command(BaseCommand):
         # open using default OS encoding
         with open(options["filepath"]) as f:
             header = next(csv.reader(f, strict=True))
+            has_header = False
             if all(col in fieldnames for col in header):
                 # Every item in the first row matches an item in the fieldnames, it is a header row
                 if "username" not in header and str(labels["username"]) not in header:
                     raise CommandError(
                         "No usernames specified, this is required for user creation"
                     )
-                ordered_fieldnames = header
+                has_header = True
             elif any(col in fieldnames for col in header):
                 raise CommandError(
                     "Mix of valid and invalid header labels found in first row"
                 )
-            else:
-                ordered_fieldnames = input_fields
 
         # open using default OS encoding
         with open(options["filepath"]) as f:
-            reader = csv.DictReader(f, fieldnames=ordered_fieldnames, strict=True)
+            if has_header:
+                reader = csv.DictReader(f, strict=True)
+            else:
+                reader = csv.reader(f, strict=True)
             with transaction.atomic():
                 total = 0
                 for row in reader:
-                    if not all(col in row.values() for col in ordered_fieldnames):
-                        total += int(
-                            create_user(
-                                map_input(row), default_facility=default_facility
-                            )
-                        )
+                    total += int(
+                        create_user(map_input(row), default_facility=default_facility)
+                    )
                 logger.info("{total} users created".format(total=total))
