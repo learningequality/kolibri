@@ -15,7 +15,7 @@
     "vue-intl": "3.0.0"
   },
   "devDependencies": {
-    "kolibri-tools": "0.13.0-dev.3",
+    "kolibri-tools": "^0.13.0-dev.8",
     "webpack": "4.6.0"
   }
 }

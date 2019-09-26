@@ -6,3 +6,4 @@ recursive-exclude kolibri_oidc_client_plugin/* *pyc
 recursive-include kolibri_oidc_client_plugin/static *.*
 recursive-include kolibri_oidc_client_plugin/build *.json
 recursive-exclude kolibri_oidc_client_plugin/assets *
+recursive-include kolibri_exercise_perseus_plugin/locale *.json

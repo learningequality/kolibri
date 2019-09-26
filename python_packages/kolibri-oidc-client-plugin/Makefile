@@ -24,7 +24,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 assets:
-	rm -r kolibri_oidc_client_plugin/static
+	rm -rf kolibri_oidc_client_plugin/static
 	mkdir kolibri_oidc_client_plugin/static
 	cd kolibri_oidc_client_plugin && yarn run clean && yarn run build
 
