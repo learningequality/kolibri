@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 from kolibri.core.upgrade import matches_version
 from kolibri.plugins import conf_file
 from kolibri.plugins import config
+from kolibri.plugins import ConfigDict
 from kolibri.plugins import DEFAULT_PLUGINS
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import KolibriHook
@@ -190,14 +191,14 @@ def disable_plugin(plugin_name):
 
 def autoremove_unavailable_plugins():
     """
-    Sanitize INSTALLED_APPS - something that should be done separately for all
+    Sanitize INSTALLED_PLUGINS - something that should be done separately for all
     built in plugins, but we should not auto-remove plugins that are actually
     configured by the user or some other kind of hard dependency that should
     make execution stop if not loadable.
     """
     changed = False
     # Iterate over a copy of the set so that it is not modified during the loop
-    for module_path in config["INSTALLED_APPS"].copy():
+    for module_path in config["INSTALLED_PLUGINS"].copy():
         if not module_exists(module_path):
             config.clear_plugin(module_path)
             logger.error(
@@ -220,10 +221,10 @@ def enable_new_default_plugins():
     """
     changed = False
     for module_path in DEFAULT_PLUGINS:
-        if module_path not in config["INSTALLED_APPS"]:
-            config["INSTALLED_APPS"].add(module_path)
+        if module_path not in config["INSTALLED_PLUGINS"]:
+            config["INSTALLED_PLUGINS"].add(module_path)
             # Can be migrated to upgrade only logic
-            if module_path not in config["DISABLED_APPS"]:
+            if module_path not in config["DISABLED_PLUGINS"]:
                 logger.warning(
                     (
                         "Default plugin {mod} not found in configuration. To re-disable it, run:\n"
@@ -242,5 +243,13 @@ def check_plugin_config_file_location(version):
         if os.path.exists(old_conf_file):
             if not os.path.exists(conf_file):
                 shutil.move(old_conf_file, conf_file)
+                migrate_config = ConfigDict()
+                # Migrate from using 'APPS' to 'PLUGINS' as the keys
+                migrate_config.update(
+                    {
+                        "INSTALLED_PLUGINS": migrate_config.pop("INSTALLED_APPS"),
+                        "DISABLED_PLUGINS": migrate_config.pop("DISABLED_APPS"),
+                    }
+                )
             else:
                 os.remove(old_conf_file)

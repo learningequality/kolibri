@@ -50,7 +50,7 @@ class ConfigDict(dict):
     # These values are encoded on the config dict as sets
     # so they need to be treated specially for serialization
     # and deserialization to/from JSON
-    SET_KEYS = ("INSTALLED_APPS", "DISABLED_APPS")
+    SET_KEYS = ("INSTALLED_PLUGINS", "DISABLED_PLUGINS")
 
     def __init__(self):
         # If the settings file does not exist or does not contain
@@ -75,15 +75,15 @@ class ConfigDict(dict):
             {
                 #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
                 # except disabled ones below
-                "INSTALLED_APPS": DEFAULT_PLUGINS,
+                "INSTALLED_PLUGINS": DEFAULT_PLUGINS,
                 #: Everything in this list is removed from the list above
-                "DISABLED_APPS": [],
+                "DISABLED_PLUGINS": [],
             }
         )
 
     @property
     def ACTIVE_PLUGINS(self):
-        return list(self["INSTALLED_APPS"] - self["DISABLED_APPS"])
+        return list(self["INSTALLED_PLUGINS"] - self["DISABLED_PLUGINS"])
 
     def update(self, new_values):
         """
@@ -107,9 +107,9 @@ class ConfigDict(dict):
     def add_plugin(self, module_path):
         if module_path in self.ACTIVE_PLUGINS:
             logger.warning("{} already enabled".format(module_path))
-        self["INSTALLED_APPS"].add(module_path)
+        self["INSTALLED_PLUGINS"].add(module_path)
         try:
-            self["DISABLED_APPS"].remove(module_path)
+            self["DISABLED_PLUGINS"].remove(module_path)
         except KeyError:
             pass
         self.save()
@@ -117,9 +117,9 @@ class ConfigDict(dict):
     def remove_plugin(self, module_path):
         if module_path not in self.ACTIVE_PLUGINS:
             logger.warning("{} already disabled".format(module_path))
-        self["DISABLED_APPS"].add(module_path)
+        self["DISABLED_PLUGINS"].add(module_path)
         try:
-            self["INSTALLED_APPS"].remove(module_path)
+            self["INSTALLED_PLUGINS"].remove(module_path)
         except KeyError:
             pass
         self.save()
@@ -128,11 +128,11 @@ class ConfigDict(dict):
         # Clean up references to plugins that either don't exist
         # Or don't import properly.
         try:
-            self["INSTALLED_APPS"].remove(module_path)
+            self["INSTALLED_PLUGINS"].remove(module_path)
         except KeyError:
             pass
         try:
-            self["DISABLED_APPS"].remove(module_path)
+            self["DISABLED_PLUGINS"].remove(module_path)
         except KeyError:
             pass
         self.save()
