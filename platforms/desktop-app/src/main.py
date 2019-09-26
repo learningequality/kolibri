@@ -74,25 +74,40 @@ class MenuEventHandler:
         webbrowser.open('https://community.learningequality.org/')
 
     def on_new_window(self):
-        window = self.create_kolibri_window(KOLIBRI_ROOT_URL)
-        self.windows.append(window)
-        window.show()
+        app = pew.ui.get_app()
+        if app:
+            window = app.create_kolibri_window(KOLIBRI_ROOT_URL)
+            app.windows.append(window)
+            window.show()
+
+    def on_close_window(self):
+        self.close()
 
     def on_open_kolibri_home(self):
         subprocess.call(['open', os.environ['KOLIBRI_HOME']])
 
+    def on_back(self):
+        self.go_back()
+
+    def on_forward(self):
+        self.go_forward()
+
+    def on_reload(self):
+        self.reload()
+
     # FIXME: Remove these once the native menu handlers are restored
     def on_redo(self):
-        self.view.webview.Redo()
+        self.webview.Redo()
 
     def on_undo(self):
-        self.view.webview.Undo()
-
-    def on_close_window(self):
-        pass
+        self.webview.Undo()
 
 
-class KolibriView(pew.ui.WebUIView):
+class KolibriView(pew.ui.WebUIView, MenuEventHandler):
+    def __init__(self, *args, **kwargs):
+        super(KolibriView, self).__init__(*args, **kwargs)
+        MenuEventHandler.__init__(self)
+
     def shutdown(self):
         """
         By default, WebUIView assumes a single window, to work the same on mobile and desktops.
@@ -110,13 +125,11 @@ class KolibriView(pew.ui.WebUIView):
         super(KolibriView, self).shutdown()
 
 
-class Application(pew.ui.PEWApp, MenuEventHandler):
+class Application(pew.ui.PEWApp):
     def setUp(self):
         """
         Start your UI and app run loop here.
         """
-
-        MenuEventHandler.__init__(self)
 
         # Set loading screen
         loader_page = os.path.abspath(os.path.join('assets', '_load.html'))
@@ -149,16 +162,16 @@ class Application(pew.ui.PEWApp, MenuEventHandler):
         menu_bar = pew.ui.PEWMenuBar()
 
         file_menu = pew.ui.PEWMenu('File')
-        file_menu.add('New Window', handler=self.on_new_window)
-        # file_menu.add('Close Window', handler=self.on_close_window)
+        file_menu.add('New Window', handler=window.on_new_window)
+        file_menu.add('Close Window', handler=window.on_close_window)
         file_menu.add_separator()
-        file_menu.add('Open Kolibri Home Folder', handler=self.on_open_kolibri_home)
+        file_menu.add('Open Kolibri Home Folder', handler=window.on_open_kolibri_home)
 
         menu_bar.add_menu(file_menu)
 
         edit_menu = pew.ui.PEWMenu('Edit')
-        edit_menu.add('Undo', handler=self.on_undo, shortcut='CTRL+Z')
-        edit_menu.add('Redo', handler=self.on_redo, shortcut='CTRL+SHIFT+Z')
+        edit_menu.add('Undo', handler=window.on_undo, shortcut='CTRL+Z')
+        edit_menu.add('Redo', handler=window.on_redo, shortcut='CTRL+SHIFT+Z')
         edit_menu.add_separator()
         edit_menu.add('Cut', command='cut', shortcut='CTRL+X')
         edit_menu.add('Copy', command='copy', shortcut='CTRL+C')
@@ -166,9 +179,21 @@ class Application(pew.ui.PEWApp, MenuEventHandler):
         edit_menu.add('Select All', command='select-all', shortcut='CTRL+A')
         menu_bar.add_menu(edit_menu)
 
+        view_menu = pew.ui.PEWMenu('View')
+        view_menu.add('Reload', handler=window.on_reload)
+        menu_bar.add_menu(view_menu)
+
+        history_menu = pew.ui.PEWMenu('History')
+        history_menu.add('Back', handler=window.on_back, shortcut='CTRL+[')
+        history_menu.add('Forward', handler=window.on_forward, shortcut='CTRL+]')
+        menu_bar.add_menu(history_menu)
+
+        window_menu = pew.ui.PEWMenu('Window')
+        menu_bar.add_menu(window_menu)
+
         help_menu = pew.ui.PEWMenu('Help')
-        help_menu.add('Documentation', handler=self.on_documentation)
-        help_menu.add('Community Forums', handler=self.on_forums)
+        help_menu.add('Documentation', handler=window.on_documentation)
+        help_menu.add('Community Forums', handler=window.on_forums)
         menu_bar.add_menu(help_menu)
 
         window.set_menubar(menu_bar)
@@ -180,15 +205,13 @@ class Application(pew.ui.PEWApp, MenuEventHandler):
         This is a PyEverywhere delegate method to let us know the WebView is ready to use.
         """
 
-        # On Android, there is a system back button, that works like the browser back button. Make sure we clear the
-        # history after first load so that the user cannot go back to the loading screen. We cannot clear the history
-        # during load, so we do it here.
+        # Make sure that any attempts to use back functionality don't take us back to the loading screen
         # For more info, see: https://stackoverflow.com/questions/8103532/how-to-clear-webview-history-in-android
-        if pew.ui.platform == 'android' and not self.kolibri_loaded and url != self.loader_url:
+        if not self.kolibri_loaded and url != self.loader_url:
             # FIXME: Change pew to reference the native webview as webview.native_webview rather than webview.webview
             # for clarity.
             self.kolibri_loaded = True
-            self.view.webview.webview.clearHistory()
+            self.view.clear_history()
 
     def wait_for_server(self):
         from kolibri.utils import server
