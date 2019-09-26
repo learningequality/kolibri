@@ -35,4 +35,4 @@ dist: clean assets
 release: dist
 	echo "Ensure that you have built the frontend files using Kolibri"
 	echo "Uploading dist/* to PyPi, using twine"
-	twine upload -s --sign-with gpg2 dist/*
+	twine upload -s dist/*

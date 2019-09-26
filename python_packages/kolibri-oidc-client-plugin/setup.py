@@ -11,7 +11,7 @@ dist_name = 'kolibri_oidc_client_plugin'
 
 # Default description of the distributed package
 description = (
-    """Kolibri plugin for rendering Khan Academy Perseus style exercises"""
+    """Kolibri plugin to authenticate using an OpenID Connect provider"""
 )
 
 
