@@ -63,9 +63,10 @@ class UserCSVExportTestCase(TestCase):
             results = list(row for row in csv.DictReader(f))
 
         for row in results:
-            user = filter(lambda x: x["username"] == row[labels["username"]], users)
+            user = next(
+                filter(lambda x: x["username"] == row[labels["username"]], users), None
+            )
             if user:
-                user = user[0]
                 self.assertEqual(row[labels["birth_year"]], user["birth_year"])
                 self.assertEqual(
                     row[labels["gender"]], transform_choices("gender", user)
@@ -144,9 +145,10 @@ class UserCSVExportTestCase(TestCase):
         self.assertEqual(len(results), 2)
 
         for row in results:
-            user = filter(lambda x: x["username"] == row[labels["username"]], users)
+            user = next(
+                filter(lambda x: x["username"] == row[labels["username"]], users), None
+            )
             if user:
-                user = user[0]
                 self.assertEqual(
                     row[labels["memberships__collection__name"]], classroom.name
                 )

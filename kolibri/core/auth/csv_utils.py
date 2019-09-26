@@ -10,14 +10,13 @@ from functools import partial
 
 from django.db.models import IntegerField
 from django.db.models import OuterRef
-from django.db.models import Prefetch
+from django.db.models import Q
 from django.db.models import Subquery
 
 from kolibri.core.auth.constants.collection_kinds import CLASSROOM
 from kolibri.core.auth.constants.demographics import choices
 from kolibri.core.auth.constants.demographics import DEMO_FIELDS
 from kolibri.core.auth.models import Classroom
-from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 
@@ -212,13 +211,12 @@ def csv_file_generator(facility, filepath, overwrite=True, demographic=False):
                     field="id",
                 )
             )
-            .prefetch_related(
-                Prefetch(
-                    "memberships__collection",
-                    queryset=Collection.objects.filter(kind=CLASSROOM),
-                )
-            )
+            .prefetch_related("memberships__collection")
             .values(*columns)
+            .filter(
+                Q(memberships__collection__kind=CLASSROOM)
+                | Q(memberships__collection__isnull=True)
+            )
         ):
             if item["username"] not in usernames:
                 writer.writerow(map_output(item))
