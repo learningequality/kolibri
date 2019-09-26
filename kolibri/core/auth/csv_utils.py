@@ -212,11 +212,11 @@ def csv_file_generator(facility, filepath, overwrite=True, demographic=False):
                 )
             )
             .prefetch_related("memberships__collection")
-            .values(*columns)
             .filter(
                 Q(memberships__collection__kind=CLASSROOM)
                 | Q(memberships__collection__isnull=True)
             )
+            .values(*columns)
         ):
             if item["username"] not in usernames:
                 writer.writerow(map_output(item))
