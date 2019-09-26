@@ -98,7 +98,9 @@ def _apply_base_settings(plugin_instance, settings_module):
     _set_setting_value("INSTALLED_APPS", (app_config,), settings_module)
     # Add in the external plugins' locale paths. Our frontend messages depends
     # specifically on the value of LOCALE_PATHS to find its catalog files.
-    if i18n.is_external_plugin(plugin_instance.module_path):
+    if i18n.is_external_plugin(
+        plugin_instance.module_path
+    ) and i18n.get_installed_app_locale_path(plugin_instance.module_path):
         _set_setting_value(
             "LOCALE_PATHS",
             (i18n.get_installed_app_locale_path(plugin_instance.module_path),),
