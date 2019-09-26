@@ -188,9 +188,6 @@ class Application(pew.ui.PEWApp):
         history_menu.add('Forward', handler=window.on_forward, shortcut='CTRL+]')
         menu_bar.add_menu(history_menu)
 
-        window_menu = pew.ui.PEWMenu('Window')
-        menu_bar.add_menu(window_menu)
-
         help_menu = pew.ui.PEWMenu('Help')
         help_menu.add('Documentation', handler=window.on_documentation)
         help_menu.add('Community Forums', handler=window.on_forums)
