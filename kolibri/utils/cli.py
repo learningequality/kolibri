@@ -666,6 +666,9 @@ def enable(plugin_names, default_plugins):
         exception = click.ClickException("One or more plugins could not be enabled")
         exception.exit_code = 2
         raise exception
+    else:
+        django.setup()
+        call_command("collectstatic", interactive=False, verbosity=1)
 
 
 @plugin.command(help="Disable Kolibri plugins")
