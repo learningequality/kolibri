@@ -35,7 +35,7 @@ def content_status_serializer(lesson_data, learners_data, classroom):
     for lesson in lesson_data:
         lesson_node_ids |= set(lesson.get("node_ids"))
 
-    # Now create a map of node_id to content_id so that we can map between lessons, and notifications
+    # Now create a map of content_id to node_id so that we can map between lessons, and notifications
     # which use the node id, and summary logs, which use content_id. Note that many node_ids may map
     # to the same content_id.
     content_map = {
