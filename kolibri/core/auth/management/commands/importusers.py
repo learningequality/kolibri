@@ -1,13 +1,17 @@
 import csv
 import logging
-from functools import partial
-from itertools import starmap
 
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 from django.db import transaction
 
+from kolibri.core.auth.constants.demographics import DEMO_FIELDS
+from kolibri.core.auth.csv_utils import infer_facility
+from kolibri.core.auth.csv_utils import input_fields
+from kolibri.core.auth.csv_utils import labels
+from kolibri.core.auth.csv_utils import map_input
+from kolibri.core.auth.csv_utils import transform_inputs
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -24,93 +28,89 @@ def validate_username(user):
         raise CommandError("No usernames specified, this is required for user creation")
 
 
-def infer_facility(user, default_facility):
-    if "facility" in user and user["facility"]:
+def infer_and_create_class(class_id, facility):
+    if class_id:
         try:
             # Try lookup by id first, then name
-            return Facility.objects.get(pk=user["facility"])
-        except (Facility.DoesNotExist, ValueError):
-            try:
-                return Facility.objects.get(name=user["facility"])
-            except Facility.DoesNotExist:
-                raise CommandError(
-                    "Facility matching identifier {facility} was not found".format(
-                        facility=user["facility"]
-                    )
-                )
-    else:
-        return default_facility
-
-
-def infer_and_create_class(user, facility):
-    if "class" in user and user["class"]:
-        try:
-            # Try lookup by id first, then name
-            classroom = Classroom.objects.get(pk=user["class"], parent=facility)
+            classroom = Classroom.objects.get(pk=class_id, parent=facility)
         except (Classroom.DoesNotExist, ValueError):
             try:
-                classroom = Classroom.objects.get(name=user["class"], parent=facility)
+                classroom = Classroom.objects.get(name=class_id, parent=facility)
             except Classroom.DoesNotExist:
-                classroom = Classroom.objects.create(
-                    name=user["class"], parent=facility
-                )
+                classroom = Classroom.objects.create(name=class_id, parent=facility)
         return classroom
 
 
 def update_user_demographics(user_dict, user_model):
     username = user_dict["username"]
-    demo_fields = ["gender", "birth_year", "id_number"]
-    user_updated = any(user_dict.get(key, None) is not None for key in demo_fields)
+    user_updated = any(user_dict.get(key, None) is not None for key in DEMO_FIELDS)
 
     if not user_updated:
         return
 
+    user_updated = False
+
     if user_dict.get("gender", None) is not None:
-        user_model.gender = user_dict["gender"]
+        value = transform_inputs("gender", user_dict)
+        user_updated = user_updated or value != user_model.gender
+        user_model.gender = value
 
     if user_dict.get("birth_year", None) is not None:
-        user_model.birth_year = user_dict["birth_year"]
+        value = transform_inputs("birth_year", user_dict)
+        user_updated = user_updated or value != user_model.birth_year
+        user_model.birth_year = value
 
     if user_dict.get("id_number", None) is not None:
-        user_model.id_number = user_dict["id_number"]
+        value = user_dict["id_number"]
+        user_updated = user_updated or value != user_model.id_number
+        user_model.id_number = value
 
     try:
-        user_model.full_clean()
-        user_model.save()
-        logger.info(
-            'User "{username}" was updated with demographic info'.format(
-                username=username
+        if user_updated:
+            user_model.full_clean()
+            user_model.save()
+            logger.info(
+                'User "{username}" was updated with demographic info'.format(
+                    username=username
+                )
             )
-        )
 
     except ValidationError as e:
         logger.error(
-            'Tried to update demogrpahic info for "{username}", but invalid values were given for fields: {keys}'.format(
+            'Tried to update demographic info for "{username}", but invalid values were given for fields: {keys}'.format(
                 username=username, keys=list(e.error_dict.keys())
             )
         )
 
 
-def create_user(i, user, default_facility=None):
+def get_facility(user, default_facility):
+    try:
+        return infer_facility(user.get("facility", None), facility=default_facility)
+    except ValueError:
+        raise CommandError(
+            "Facility name/id not found. Please make sure that the facility name/id {} in the CSV file exists on the device.".format(
+                user.get("facility", None)
+            )
+        )
+
+
+def create_user(user, default_facility=None):
     validate_username(user)
-
-    if i == 0 and all(key == val or val is None for key, val in user.items()):
-        # Check whether the first row is a header row or not
-        # Either each key will be equal to the value
-        # Or the header is not included in the CSV, so it is None
-        return False
-
-    facility = infer_facility(user, default_facility)
-    classroom = infer_and_create_class(user, facility)
+    facility = get_facility(user, default_facility)
+    classroom = infer_and_create_class(user.get("class", None), facility)
     username = user["username"]
+    password = user.get("password", "")
     try:
         user_obj = FacilityUser.objects.get(username=username, facility=facility)
+        if password:
+            user_obj.set_password(password)
+            user_obj.save()
         update_user_demographics(user, user_obj)
 
-        if classroom:
+        if classroom and not user_obj.is_member_of(classroom):
             classroom.add_member(user_obj)
             logger.info(
-                'Exiting user "{username}" was added to a classroom "{classroom}"'.format(
+                'Existing user "{username}" was added to a classroom "{classroom}"'.format(
                     username=username, classroom=classroom.name
                 )
             )
@@ -193,37 +193,34 @@ class Command(BaseCommand):
                 "No default facility exists, please make sure to provision this device before running this command"
             )
 
-        fieldnames = [
-            "full_name",
-            "username",
-            "password",
-            "facility",
-            "class",
-            "gender",
-            "birth_year",
-            "id_number",
-        ]
+        fieldnames = input_fields + tuple(val for val in labels.values())
+
         # open using default OS encoding
         with open(options["filepath"]) as f:
             header = next(csv.reader(f, strict=True))
+            has_header = False
             if all(col in fieldnames for col in header):
                 # Every item in the first row matches an item in the fieldnames, it is a header row
-                if "username" not in header:
+                if "username" not in header and str(labels["username"]) not in header:
                     raise CommandError(
                         "No usernames specified, this is required for user creation"
                     )
-                ordered_fieldnames = header
+                has_header = True
             elif any(col in fieldnames for col in header):
                 raise CommandError(
                     "Mix of valid and invalid header labels found in first row"
                 )
-            else:
-                ordered_fieldnames = fieldnames
 
         # open using default OS encoding
         with open(options["filepath"]) as f:
-            reader = csv.DictReader(f, fieldnames=ordered_fieldnames, strict=True)
+            if has_header:
+                reader = csv.DictReader(f, strict=True)
+            else:
+                reader = csv.DictReader(f, fieldnames=input_fields, strict=True)
             with transaction.atomic():
-                create_func = partial(create_user, default_facility=default_facility)
-                total = sum(starmap(create_func, enumerate(reader)))
+                total = 0
+                for row in reader:
+                    total += int(
+                        create_user(map_input(row), default_facility=default_facility)
+                    )
                 logger.info("{total} users created".format(total=total))
