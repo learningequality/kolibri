@@ -240,7 +240,7 @@ def is_plugin_updated(plugin_name):
         new_version = VersionInfo.parse(
             normalize_version_to_semver(_get_plugin_version(plugin_name))
         )
-        return new_version > old_version
+        return new_version != old_version
     except KeyError:
         # We have no previous record of this plugin, so it is updated
         return True
@@ -301,11 +301,20 @@ class PluginUpdateManager(object):
         except Exception as e:
             return
         if old_version:
-            logger.info(
-                "Running upgrade routines for {}, upgrading from {} to {}".format(
-                    plugin_name, old_version, new_version
+            if VersionInfo.parse(
+                normalize_version_to_semver(old_version)
+            ) < VersionInfo.parse(normalize_version_to_semver(new_version)):
+                logger.info(
+                    "Running upgrade routines for {}, upgrading from {} to {}".format(
+                        plugin_name, old_version, new_version
+                    )
                 )
-            )
+            else:
+                logger.info(
+                    "Running downgrade routines for {}, downgrading from {} to {}".format(
+                        plugin_name, old_version, new_version
+                    )
+                )
         else:
             logger.info(
                 "Running installation routines for {}, installing {}".format(
