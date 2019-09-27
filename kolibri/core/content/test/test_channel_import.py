@@ -17,16 +17,16 @@ from sqlalchemy import create_engine
 from .sqlalchemytesting import django_connection_engine
 from .test_content_app import ContentNodeTestBase
 from kolibri.core.content import models as content
+from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
+from kolibri.core.content.constants.schema_versions import NO_VERSION
+from kolibri.core.content.constants.schema_versions import V020BETA1
+from kolibri.core.content.constants.schema_versions import V040BETA3
+from kolibri.core.content.constants.schema_versions import VERSION_1
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
-from kolibri.core.content.models import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.models import NO_VERSION
-from kolibri.core.content.models import V020BETA1
-from kolibri.core.content.models import V040BETA3
-from kolibri.core.content.models import VERSION_1
 from kolibri.core.content.utils.annotation import recurse_annotation_up_tree
 from kolibri.core.content.utils.annotation import (
     set_leaf_node_availability_from_local_file_availability,
