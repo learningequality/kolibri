@@ -202,6 +202,9 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
     # : Suggested property, not yet in use
     collect_static_on_enable = False
 
+    def __init__(self):
+        self.INSTALLED_APPS = []
+
     @classmethod
     def class_module_path(self):
         return ".".join(self.__module__.split(".")[:-1])

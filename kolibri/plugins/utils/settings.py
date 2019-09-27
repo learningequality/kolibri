@@ -97,6 +97,7 @@ def _apply_base_settings(plugin_instance, settings_module):
     app_config.label = plugin_instance.module_path
     # Register the plugin as an installed app
     _set_setting_value("INSTALLED_APPS", (app_config,), settings_module)
+    plugin_instance.INSTALLED_APPS.append(app_config)
     # Add in the external plugins' locale paths. Our frontend messages depends
     # specifically on the value of LOCALE_PATHS to find its catalog files.
     if is_external_plugin(
@@ -138,3 +139,7 @@ def apply_settings(settings_module):
                 plugin_instance.module_path,
                 settings_module,
             )
+            if hasattr(plugin_settings_module, "INSTALLED_APPS"):
+                plugin_instance.INSTALLED_APPS.extend(
+                    plugin_settings_module.INSTALLED_APPS
+                )
