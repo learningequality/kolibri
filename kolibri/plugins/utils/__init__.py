@@ -54,6 +54,17 @@ def _is_plugin(class_definition):
     )
 
 
+def is_external_plugin(module_path):
+    """
+    Returns true when the given module is an external plugin.
+
+    Implementation note: does a simple check on the name to see if it's
+    not prefixed with "kolibri.". If so, we know it's not an internal plugin.
+    """
+
+    return not module_path.startswith("kolibri.")
+
+
 def _import_python_module(plugin_name):
     try:
         importlib.import_module(plugin_name)
