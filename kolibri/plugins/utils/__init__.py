@@ -9,6 +9,7 @@ from django.conf import settings as django_settings
 from django.core.exceptions import AppRegistryNotReady
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
+from pkg_resources import DistributionNotFound
 from pkg_resources import get_distribution
 from semver import VersionInfo
 
@@ -210,7 +211,23 @@ def disable_plugin(plugin_name):
 
 def _get_plugin_version(plugin_name):
     if is_external_plugin(plugin_name):
-        return get_distribution(plugin_name).version
+        top_level_module = plugin_name.split(".")[0]
+        try:
+            return get_distribution(top_level_module).version
+        except (DistributionNotFound, AttributeError):
+            try:
+                module = importlib.import_module(plugin_name)
+                return module.__version__
+            except (ImportError, AttributeError):
+                try:
+                    # Try importing the top level module that this plugin is in
+                    module = importlib.import_module(top_level_module)
+                    return module.__version__
+                except (ImportError, AttributeError):
+                    # This should work for most things, but seems like we are stuck
+                    # just use the Kolibri version and just run upgrades in line with
+                    # Kolibri instead.
+                    return kolibri.__version__
     else:
         return kolibri.__version__
 
