@@ -1,6 +1,6 @@
 {
   "name": "kolibri",
-  "version": "0.13.0-dev.8",
+  "version": "0.13.0-dev.9",
   "description": "The Kolibri core API",
   "repository": "github.com/learningequality/kolibri",
   "author": "Learning Equality",
@@ -34,6 +34,6 @@
     "vuex": "^3.1.0"
   },
   "devDependencies": {
-    "kolibri-tools": "0.13.0-dev.8"
+    "kolibri-tools": "0.13.0-dev.9"
   }
 }
