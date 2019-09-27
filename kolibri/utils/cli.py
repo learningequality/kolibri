@@ -41,6 +41,7 @@ from kolibri.plugins.utils import check_plugin_config_file_location
 from kolibri.plugins.utils import disable_plugin
 from kolibri.plugins.utils import enable_new_default_plugins
 from kolibri.plugins.utils import enable_plugin
+from kolibri.plugins.utils import run_plugin_updates
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import LOG_ROOT
 from kolibri.utils.conf import OPTIONS
@@ -243,6 +244,28 @@ class DefaultDjangoOptions(object):
         self.pythonpath = pythonpath
 
 
+def _setup_django(debug):
+    """
+    Do our django setup - separated from initialize to reduce complexity.
+    """
+    try:
+        django.setup()
+        if debug:
+            from django.conf import settings
+
+            settings.DEBUG = True
+
+    except (DatabaseError, SQLite3DatabaseError) as e:
+        if "malformed" in str(e):
+            logger.error(
+                "Your database appears to be corrupted. If you encounter this,"
+                "please immediately back up all files in the .kolibri folder that"
+                "end in .sqlite3, .sqlite3-shm, .sqlite3-wal, or .log and then"
+                "contact Learning Equality. Thank you!"
+            )
+        raise
+
+
 def initialize(skip_update=False):
     """
     Currently, always called before running commands. This may change in case
@@ -272,22 +295,7 @@ def initialize(skip_update=False):
         # dbbackup relies on settings.INSTALLED_APPS
         enable_new_default_plugins()
 
-    try:
-        django.setup()
-        if debug:
-            from django.conf import settings
-
-            settings.DEBUG = True
-
-    except (DatabaseError, SQLite3DatabaseError) as e:
-        if "malformed" in str(e):
-            logger.error(
-                "Your database appears to be corrupted. If you encounter this,"
-                "please immediately back up all files in the .kolibri folder that"
-                "end in .sqlite3, .sqlite3-shm, .sqlite3-wal, or .log and then"
-                "contact Learning Equality. Thank you!"
-            )
-        raise
+    _setup_django(debug)
 
     if version_updated(kolibri.__version__, version) and not skip_update:
         if should_back_up(kolibri.__version__, version):
@@ -303,12 +311,20 @@ def initialize(skip_update=False):
                     "this DB engine."
                 )
 
-        logger.info(
-            "Version was {old}, new version: {new}".format(
-                old=version, new=kolibri.__version__
+        if version:
+            logger.info(
+                "Version was {old}, new version: {new}".format(
+                    old=version, new=kolibri.__version__
+                )
             )
-        )
+        else:
+            logger.info("New install, version: {new}".format(new=kolibri.__version__))
         update(version, kolibri.__version__)
+
+    if not skip_update:
+        # Run any plugin specific updates here in case they were missed by
+        # our Kolibri version based update logic.
+        run_plugin_updates()
 
 
 def _migrate_databases():

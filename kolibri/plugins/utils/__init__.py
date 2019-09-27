@@ -3,14 +3,18 @@ import logging
 import os
 import shutil
 
+from django.apps import AppConfig
+from django.apps import apps
 from django.conf import settings as django_settings
 from django.core.exceptions import AppRegistryNotReady
+from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from pkg_resources import get_distribution
 from semver import VersionInfo
 
 import kolibri
 from kolibri.core.upgrade import matches_version
+from kolibri.core.upgrade import run_upgrades
 from kolibri.plugins import conf_file
 from kolibri.plugins import config
 from kolibri.plugins import ConfigDict
@@ -223,6 +227,118 @@ def is_plugin_updated(plugin_name):
     except KeyError:
         # We have no previous record of this plugin, so it is updated
         return True
+
+
+class PluginUpdateException(Exception):
+    pass
+
+
+class PluginUpdateManager(object):
+    def __init__(self, updated_plugins):
+        # Import here as triggers django app loading
+        from django.db.migrations.loader import MigrationLoader
+
+        self.migration_loader = MigrationLoader(None)
+        # Make a copy as this could get modified during the iteration
+        self.updated_plugins = list(updated_plugins)
+        self.errors = []
+
+    def _migrate_plugin(self, plugin_name, app_configs):
+        for app_config in app_configs:
+            if app_config.label in self.migration_loader.migrated_apps:
+                logger.info(
+                    "Running database migrations for {}".format(app_config.label)
+                )
+                for database in django_settings.DATABASES:
+                    # Run any unapplied migrations on all active databases
+                    # Migrate takes a single app label at a time as an argument
+                    try:
+                        call_command(
+                            "migrate",
+                            app_config.label,
+                            interactive=False,
+                            database=database,
+                        )
+                    except Exception as e:
+                        logger.error(
+                            "An exception occured running migrations for plugin {} in app {} on database {}: {}".format(
+                                plugin_name, app_config.label, database, e
+                            )
+                        )
+                        raise e
+
+    def _update_plugin(self, plugin_name):
+        # Import here to prevent circular import
+        from kolibri.plugins.registry import registered_plugins
+
+        app_configs = []
+        plugin_instance = registered_plugins.get(plugin_name)
+        for app in plugin_instance.INSTALLED_APPS:
+            if not isinstance(app, AppConfig) and isinstance(app, str):
+                app = apps.get_containing_app_config(app)
+            app_configs.append(app)
+        old_version = config["PLUGIN_VERSIONS"].get(plugin_name, "")
+        new_version = _get_plugin_version(plugin_name)
+        try:
+            self._migrate_plugin(plugin_name, app_configs)
+        except Exception as e:
+            return
+        if old_version:
+            logger.info(
+                "Running upgrade routines for {}, upgrading from {} to {}".format(
+                    plugin_name, old_version, new_version
+                )
+            )
+        else:
+            logger.info(
+                "Running installation routines for {}, installing {}".format(
+                    plugin_name, new_version
+                )
+            )
+        try:
+            run_upgrades(old_version, new_version, app_configs=app_configs)
+        except Exception as e:
+            logger.error(
+                "An exception occured running upgrades for plugin {}: {}".format(
+                    plugin_name, e
+                )
+            )
+            return
+        return new_version
+
+    def update_plugins(self):
+        for plugin_name in self.updated_plugins:
+            new_version = self._update_plugin(plugin_name)
+            if new_version:
+                logger.info("{} successfully updated".format(plugin_name))
+                config.update_plugin_version(plugin_name, new_version)
+            else:
+                logger.error("{} plugin could not update".format(plugin_name))
+                config.remove_plugin(plugin_name)
+                self.errors.append(plugin_name)
+
+
+def run_plugin_updates():
+    if config["UPDATED_PLUGINS"]:
+        logger.info(
+            "Detected updates to plugins: {}".format(
+                ", ".join(config["UPDATED_PLUGINS"])
+            )
+        )
+        logger.info("Copying updated static files")
+        # Collect any static files
+        call_command("collectstatic", interactive=False, verbosity=0)
+
+        update_manager = PluginUpdateManager(config["UPDATED_PLUGINS"])
+
+        update_manager.update_plugins()
+
+        if update_manager.errors:
+            raise PluginUpdateException(
+                "{} failed to update, please restart Kolibri".format(
+                    ", ".join(update_manager.errors)
+                )
+            )
 
 
 def autoremove_unavailable_plugins():
