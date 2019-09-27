@@ -83,10 +83,20 @@ def update_user_demographics(user_dict, user_model):
         )
 
 
+def get_facility(user, default_facility):
+    try:
+        return infer_facility(user.get("facility", None), facility=default_facility)
+    except ValueError:
+        raise CommandError(
+            "Facility name/id not found. Please make sure that the facility name/id {} in the CSV file exists on the device.".format(
+                user.get("facility", None)
+            )
+        )
+
+
 def create_user(user, default_facility=None):
     validate_username(user)
-
-    facility = infer_facility(user.get("facility", None), facility=default_facility)
+    facility = get_facility(user, default_facility)
     classroom = infer_and_create_class(user.get("class", None), facility)
     username = user["username"]
     password = user.get("password", "")
