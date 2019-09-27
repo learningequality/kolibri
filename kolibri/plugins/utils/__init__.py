@@ -6,7 +6,10 @@ import shutil
 from django.conf import settings as django_settings
 from django.core.exceptions import AppRegistryNotReady
 from django.core.urlresolvers import reverse
+from pkg_resources import get_distribution
+from semver import VersionInfo
 
+import kolibri
 from kolibri.core.upgrade import matches_version
 from kolibri.plugins import conf_file
 from kolibri.plugins import config
@@ -16,6 +19,7 @@ from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import KolibriHook
 from kolibri.utils.compat import module_exists
 from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.version import normalize_version_to_semver
 
 logger = logging.getLogger(__name__)
 
@@ -198,6 +202,27 @@ def disable_plugin(plugin_name):
         )
         config.clear_plugin(plugin_name)
         logger.info("Removed '{}'".format(plugin_name))
+
+
+def _get_plugin_version(plugin_name):
+    if is_external_plugin(plugin_name):
+        return get_distribution(plugin_name).version
+    else:
+        return kolibri.__version__
+
+
+def is_plugin_updated(plugin_name):
+    try:
+        old_version = VersionInfo.parse(
+            normalize_version_to_semver(config["PLUGIN_VERSIONS"][plugin_name])
+        )
+        new_version = VersionInfo.parse(
+            normalize_version_to_semver(_get_plugin_version(plugin_name))
+        )
+        return new_version > old_version
+    except KeyError:
+        # We have no previous record of this plugin, so it is updated
+        return True
 
 
 def autoremove_unavailable_plugins():
