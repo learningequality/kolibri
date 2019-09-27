@@ -1,6 +1,6 @@
 {
   "name": "kolibri",
-  "version": "0.13.0-dev.8",
+  "version": "0.13.0-dev.9",
   "description": "The Kolibri core API",
   "repository": "github.com/learningequality/kolibri",
   "author": "Learning Equality",
@@ -17,7 +17,7 @@
     "js-cookie": "^2.1.2",
     "keen-ui": "https://github.com/learningequality/Keen-UI/",
     "knuth-shuffle-seeded": "^1.0.6",
-    "kolibri-components": "0.13.0-dev.8",
+    "kolibri-components": "0.13.0-dev.9",
     "lockr": "0.8.4",
     "lodash": "^4.17.4",
     "loglevel": "^1.4.1",
@@ -34,6 +34,6 @@
     "vuex": "^3.1.0"
   },
   "devDependencies": {
-    "kolibri-tools": "0.13.0-dev.8"
+    "kolibri-tools": "0.13.0-dev.9"
   }
 }
