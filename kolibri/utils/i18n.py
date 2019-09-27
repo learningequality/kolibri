@@ -7,17 +7,6 @@ import os
 import kolibri
 
 
-def is_external_plugin(appname):
-    """
-    Returns true when the given app is an external plugin.
-
-    Implementation note: does a simple check on the name to see if it's
-    prefixed with "kolibri_". If so, we think it's a plugin.
-    """
-
-    return not appname.startswith("kolibri.")
-
-
 def get_installed_app_locale_path(appname):
     """
     Load the app given by appname and return its locale folder path, if it exists.

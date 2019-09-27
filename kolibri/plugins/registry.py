@@ -37,8 +37,11 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 
+import kolibri
 from kolibri.plugins import config
 from kolibri.plugins.utils import initialize_kolibri_plugin
+from kolibri.plugins.utils import is_external_plugin
+from kolibri.plugins.utils import is_plugin_updated
 from kolibri.plugins.utils import MultiplePlugins
 from kolibri.plugins.utils import PluginDoesNotExist
 
@@ -75,6 +78,12 @@ class Registry(object):
                 if app not in self._apps:
                     plugin_object = initialize_kolibri_plugin(app)
                     self._apps[app] = plugin_object
+                    if is_plugin_updated(app):
+                        if is_external_plugin(app):
+                            config["UPDATED_PLUGINS"].add(app)
+                            config.save()
+                        else:
+                            config.update_plugin_version(app, kolibri.__version__)
             except (MultiplePlugins, ImportError):
                 logger.warn("Cannot initialize plugin {}".format(app))
             except PluginDoesNotExist:

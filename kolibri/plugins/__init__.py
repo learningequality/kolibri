@@ -50,7 +50,7 @@ class ConfigDict(dict):
     # These values are encoded on the config dict as sets
     # so they need to be treated specially for serialization
     # and deserialization to/from JSON
-    SET_KEYS = ("INSTALLED_APPS", "DISABLED_APPS")
+    SET_KEYS = ("INSTALLED_PLUGINS", "DISABLED_PLUGINS", "UPDATED_PLUGINS")
 
     def __init__(self):
         # If the settings file does not exist or does not contain
@@ -75,15 +75,19 @@ class ConfigDict(dict):
             {
                 #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
                 # except disabled ones below
-                "INSTALLED_APPS": DEFAULT_PLUGINS,
+                "INSTALLED_PLUGINS": DEFAULT_PLUGINS,
                 #: Everything in this list is removed from the list above
-                "DISABLED_APPS": [],
+                "DISABLED_PLUGINS": [],
+                # Plugins that have been updated since we last initialized Kolibri
+                "UPDATED_PLUGINS": [],
+                # The current versions of plugins (both internal and external)
+                "PLUGIN_VERSIONS": {},
             }
         )
 
     @property
     def ACTIVE_PLUGINS(self):
-        return list(self["INSTALLED_APPS"] - self["DISABLED_APPS"])
+        return list(self["INSTALLED_PLUGINS"] - self["DISABLED_PLUGINS"])
 
     def update(self, new_values):
         """
@@ -107,9 +111,11 @@ class ConfigDict(dict):
     def add_plugin(self, module_path):
         if module_path in self.ACTIVE_PLUGINS:
             logger.warning("{} already enabled".format(module_path))
-        self["INSTALLED_APPS"].add(module_path)
+            return
+        self["INSTALLED_PLUGINS"].add(module_path)
+        self["UPDATED_PLUGINS"].add(module_path)
         try:
-            self["DISABLED_APPS"].remove(module_path)
+            self["DISABLED_PLUGINS"].remove(module_path)
         except KeyError:
             pass
         self.save()
@@ -117,9 +123,14 @@ class ConfigDict(dict):
     def remove_plugin(self, module_path):
         if module_path not in self.ACTIVE_PLUGINS:
             logger.warning("{} already disabled".format(module_path))
-        self["DISABLED_APPS"].add(module_path)
+            return
+        self["DISABLED_PLUGINS"].add(module_path)
         try:
-            self["INSTALLED_APPS"].remove(module_path)
+            self["INSTALLED_PLUGINS"].remove(module_path)
+        except KeyError:
+            pass
+        try:
+            self["UPDATED_PLUGINS"].remove(module_path)
         except KeyError:
             pass
         self.save()
@@ -128,11 +139,23 @@ class ConfigDict(dict):
         # Clean up references to plugins that either don't exist
         # Or don't import properly.
         try:
-            self["INSTALLED_APPS"].remove(module_path)
+            self["INSTALLED_PLUGINS"].remove(module_path)
         except KeyError:
             pass
         try:
-            self["DISABLED_APPS"].remove(module_path)
+            self["DISABLED_PLUGINS"].remove(module_path)
+        except KeyError:
+            pass
+        try:
+            self["UPDATED_PLUGINS"].remove(module_path)
+        except KeyError:
+            pass
+        self.save()
+
+    def update_plugin_version(self, module_path, new_version):
+        self["PLUGIN_VERSIONS"][module_path] = new_version
+        try:
+            self["UPDATED_PLUGINS"].remove(module_path)
         except KeyError:
             pass
         self.save()
@@ -202,6 +225,9 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
     # : Suggested property, not yet in use
     collect_static_on_enable = False
 
+    def __init__(self):
+        self.INSTALLED_APPS = []
+
     @classmethod
     def class_module_path(self):
         return ".".join(self.__module__.split(".")[:-1])
@@ -213,20 +239,12 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
     def _installed_apps_add(self):
         """Call this from your enable() method to have the plugin automatically
         added to Kolibri configuration"""
-        module_path = self.module_path
-        if module_path not in config.ACTIVE_PLUGINS:
-            config.add_plugin(module_path)
-        else:
-            logger.warning("{} already enabled".format(module_path))
+        config.add_plugin(self.module_path)
 
     def _installed_apps_remove(self):
         """Call this from your enable() method to have the plugin automatically
         added to Kolibri configuration"""
-        module_path = self.module_path
-        if module_path in config.ACTIVE_PLUGINS:
-            config.remove_plugin(module_path)
-        else:
-            logger.warning("{} already disabled".format(module_path))
+        config.remove_plugin(self.module_path)
 
     def enable(self):
         """Modify the kolibri config dict to your plugin's needs"""

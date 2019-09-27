@@ -12,5 +12,3 @@ if "KOLIBRI_HOME" not in os.environ:
 
 
 from .base import *  # noqa isort:skip @UnusedWildImport
-
-KOLIBRI_SKIP_AUTO_DATABASE_MIGRATION = False
