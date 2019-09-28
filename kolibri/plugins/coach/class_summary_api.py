@@ -28,7 +28,7 @@ HELP_NEEDED = "HelpNeeded"
 COMPLETED = "Completed"
 
 
-def content_status_serializer(lesson_data, learners_data, classroom):
+def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C901
 
     # First generate a unique set of content node ids from all the lessons
     lesson_node_ids = set()
