@@ -1,3 +1,9 @@
+kolibri-server (0.3.3-0ubuntu1) UNRELEASED; urgency=medium
+
+  * Create error page to automatically detect when the server is back
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 30 Sep 2019 19:06:45 +0200
+
 kolibri-server (0.3.2-0ubuntu1) bionic; urgency=medium
 
   * Added logic to restore CherryPy and remove junk files when removing this package

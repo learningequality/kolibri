@@ -5,3 +5,8 @@
 	dh $@ --with=systemd
 override_dh_systemd_enable:
 	dh_systemd_enable --name=kolibri-server
+
+override_dh_compress:
+	sed 's/1.2.3/$(shell dpkg-parsechangelog -SVersion)/' \
+        nginx_error_page/error.html > debian/kolibri-server/etc/kolibri/dist/error.html
+	dh_compress
