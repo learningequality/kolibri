@@ -39,10 +39,6 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
 
     const { object, type, event } = firstEvent;
 
-    if (type === 'QuizAnswered') {
-      continue; // Skip QuizAnswered notifications
-    }
-
     // Set details about Lesson or Quiz
     let assignment;
 
