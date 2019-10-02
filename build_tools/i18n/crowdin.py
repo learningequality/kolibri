@@ -302,26 +302,33 @@ def _format_json_files():
             elif not file_name.endswith("csv"):
                 continue
 
-            csv_file = os.path.join(csv_locale_dir_path, file_name)
-            with io.open(csv_file, mode="r", encoding="utf-8") as f:
-                data = _locale_data_from_csv(f)
-                json_data = json.dumps(data)
+            csv_path = os.path.join(csv_locale_dir_path, file_name)
+
+            # Account for csv reading differences in Pythons 2 and 3
+            if sys.version_info[0] < 3:
+                csv_file = open(csv_path, "rb")
+            else:
+                csv_file = open(csv_path, "r", newline="")
+
+            with csv_file as f:
+                csv_data = list(row for row in csv.DictReader(f))
+
+            data = _locale_data_from_csv(csv_data)
+            json_data = json.dumps(data)
+
             utils.json_dump_formatted(
                 json.loads(json_data), locale_path, file_name.replace("csv", "json")
             )
 
 
 def _locale_data_from_csv(file_data):
-    csv_reader = csv.reader(file_data)
-    csv_reader.__next__()  # Remove the headers
-
     json = dict()
 
-    for row in csv_reader:
-        if len(row) == 0:
+    for row in file_data:
+        if len(row.keys()) == 0:
             return json
         # First index is Identifier, Third index is the translation
-        json[row[0]] = row[3]
+        json[row["Source String"]] = row["Translation"]
 
     return json
 

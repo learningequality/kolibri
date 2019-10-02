@@ -126,11 +126,26 @@ def json_dump_formatted(data, file_path, file_name):
 
     # Format and write the JSON file
     with io.open(file_path_with_file_name, mode="w+", encoding="utf-8") as file_object:
-        json.dump(
-            data,
-            file_object,
-            sort_keys=True,
-            indent=2,
-            separators=(",", ": "),
-            ensure_ascii=False,
-        )
+        # Account for file writing differences in Pythons 2 and 3
+        # python2 str is python3 bytes and python2 unicode is python3 str...
+        if sys.version_info[0] < 3:
+            output = unicode(
+                json.dumps(
+                    data,
+                    file_object,
+                    sort_keys=True,
+                    indent=2,
+                    separators=(",", ": "),
+                    ensure_ascii=False,
+                )
+            )
+        else:
+            output = json.dumps(
+                data,
+                file_object,
+                sort_keys=True,
+                indent=2,
+                separators=(",", ": "),
+                ensure_ascii=False,
+            )
+        file_object.write(output)
