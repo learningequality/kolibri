@@ -328,7 +328,7 @@ def _locale_data_from_csv(file_data):
         if len(row.keys()) == 0:
             return json
         # First index is Identifier, Third index is the translation
-        json[row["Source String"]] = row["Translation"]
+        json[row["Identifier"]] = row["Translation"]
 
     return json
 
