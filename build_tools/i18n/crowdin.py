@@ -314,10 +314,9 @@ def _format_json_files():
                 csv_data = list(row for row in csv.DictReader(f))
 
             data = _locale_data_from_csv(csv_data)
-            json_data = json.dumps(data)
 
             utils.json_dump_formatted(
-                json.loads(json_data), locale_path, file_name.replace("csv", "json")
+                data, locale_path, file_name.replace("csv", "json")
             )
 
 
