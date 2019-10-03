@@ -453,11 +453,14 @@ def parse_attemptslog(attemptlog):
         )
         notifications += notifications_started
 
-        notifications_answered = check_and_created_answered_lesson(
-            lesson, attemptlog.user_id, contentnode_id, attemptlog.end_timestamp
-        )
-        if notifications_answered:
-            notifications.append(notifications_answered)
+        # If the timestamps don't match, then it isn't a "started" event and
+        # should be an answer attempt
+        if attemptlog.start_timestamp != attemptlog.end_timestamp:
+            notifications_answered = check_and_created_answered_lesson(
+                lesson, attemptlog.user_id, contentnode_id, attemptlog.end_timestamp
+            )
+            if notifications_answered:
+                notifications.append(notifications_answered)
 
     if notifications:
         save_notifications(notifications)
