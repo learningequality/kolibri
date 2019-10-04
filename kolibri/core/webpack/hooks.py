@@ -267,7 +267,9 @@ class WebpackBundleHook(hooks.KolibriHook):
                     bundle=self.unique_id,
                     lang_code=get_language(),
                     messages=json.dumps(
-                        self.frontend_messages(), separators=(",", ":")
+                        self.frontend_messages(),
+                        separators=(",", ":"),
+                        ensure_ascii=False,
                     ),
                 )
             ]
