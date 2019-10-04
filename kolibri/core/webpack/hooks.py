@@ -270,7 +270,8 @@ class WebpackBundleHook(hooks.KolibriHook):
                         self.frontend_messages(),
                         separators=(",", ":"),
                         ensure_ascii=False,
-                    ).replace("'", "\\'")
+                    )
+                    .replace("'", "\\'")
                     .replace('"', '\\"'),
                 )
             ]
