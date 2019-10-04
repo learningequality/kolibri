@@ -1,14 +1,17 @@
-var fs = require('fs');
-var path = require('path');
-var url = require('url');
-var espree = require('espree');
-var escodegen = require('escodegen');
-var mkdirp = require('mkdirp');
-var logging = require('./logging');
-var coreAliases = require('./apiSpecExportTools').coreAliases;
+const url = require('url');
+const espree = require('espree');
+const escodegen = require('escodegen');
+const mkdirp = require('mkdirp');
+const sortBy = require('lodash/sortBy');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const logging = require('./logging');
+const coreAliases = require('./apiSpecExportTools').coreAliases;
 
 // Find alias for i18n utils, do this so that we don't have to hard code it here
-var i18nAlias = Object.keys(coreAliases()).find(key => key.includes('i18n'));
+const i18nAlias = Object.keys(coreAliases()).find(key => key.includes('i18n'));
+
+// String appended prior to the identifier for context.
+const CONTEXT_LINE = '\n-- CONTEXT --\n';
 
 function isCamelCase(str) {
   return /^[a-z][a-zA-Z0-9]*$/.test(str);
@@ -156,20 +159,47 @@ ExtractStrings.prototype.apply = function(compiler) {
                     if (property.key.name === '$trs') {
                       // Grab every message in our $trs property and
                       // save it into our messages object.
-                      property.value.properties.forEach(function(message) {
+                      property.value.properties.forEach(function(messageNode) {
                         // Check that the trs id is camelCase.
-                        if (!isCamelCase(message.key.name)) {
+                        if (!isCamelCase(messageNode.key.name)) {
                           logging.error(
-                            `$trs id "${message.key.name}" should be in camelCase. Found in ${module.resource}`
+                            `$trs id "${messageNode.key.name}" should be in camelCase. Found in ${module.resource}`
                           );
                         }
-                        // Check that the value is valid, and not an expression
-                        if (!message.value.value) {
-                          logging.error(
-                            `The value for $trs "${message.key.name}", is not valid. Make sure it is not an expression. Found in ${module.resource}.`
-                          );
+                        // First, check if the value is an object
+                        // and extract the string and context.
+                        if (messageNode.value.type === 'ObjectExpression') {
+                          const stringNode = messageNode.value.properties.filter(
+                            prop => prop.key.name === 'message'
+                          )[0];
+                          const contextNode = messageNode.value.properties.filter(
+                            prop => prop.key.name === 'context'
+                          )[0];
+
+                          const message =
+                            stringNode && stringNode.value ? stringNode.value.value : null;
+                          const context =
+                            contextNode && contextNode.value ? contextNode.value.value : '';
+
+                          // Ensure that there is a value for the string key passed.
+                          if (!message) {
+                            logging.error(
+                              `The value for $trs ${messageNode.key.name} is not valid. Make sure it is a
+                              string or an object including a key 'message'. Found in ${module.resource}`
+                            );
+                          }
+                          messages[messageNode.key.name] = { message, context };
                         } else {
-                          messages[message.key.name] = message.value.value;
+                          // If the value is not an object,
+                          // ensure a value is passed in the first place.
+                          if (!messageNode.value.value) {
+                            logging.error(
+                              `The value for $trs ${messageNode.key.name} is not valid. Make sure it is a
+                              string or an object including a key 'message'. Found in ${module.resource}`
+                            );
+                          } else {
+                            messages[messageNode.key.name] = messageNode.value.value;
+                          }
                         }
                       });
                       // We also want to take a note of the name space
@@ -332,12 +362,52 @@ ExtractStrings.prototype.apply = function(compiler) {
 ExtractStrings.prototype.writeOutput = function(messageExport) {
   // Make sure the directory we are using exists.
   mkdirp.sync(this.messageDir);
+  // Write out the data to CSV.
+  toCSV(`${this.messageDir}/${this.messagesName}-messages.csv`, messageExport);
   // Write out the data to JSON.
+  /*
   fs.writeFileSync(
     path.join(this.messageDir, this.messagesName + '-messages.json'),
     // pretty print and sort keys
     JSON.stringify(messageExport, Object.keys(messageExport).sort(), 2)
   );
+  */
 };
 
+function toCSV(path, messages) {
+  const csvWriter = createCsvWriter({
+    path,
+    header: [
+      { id: 'identifier', title: 'Identifier' },
+      { id: 'sourceString', title: 'Source String' },
+      { id: 'context', title: 'Context' },
+      { id: 'translation', title: 'Translation' },
+    ],
+  });
+
+  const csvData = Object.keys(messages).map(identifier => {
+    let sourceString,
+      context = '';
+
+    if (typeof messages[identifier] === 'object') {
+      sourceString = messages[identifier]['message'];
+      context = messages[identifier]['context'];
+    } else {
+      sourceString = messages[identifier];
+    }
+
+    context = CONTEXT_LINE + context;
+
+    return {
+      identifier,
+      sourceString,
+      context,
+      translation: '',
+    };
+  });
+
+  csvWriter.writeRecords(sortBy(csvData, 'identifier')).then(() => logging.log('Wrote file!'));
+}
+
 module.exports = ExtractStrings;
+module.exports.CONTEXT_LINE = CONTEXT_LINE;

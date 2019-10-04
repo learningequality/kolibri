@@ -127,7 +127,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
                 "lang_direction": get_language_info(code)["bidi"],
             }
         return {
-            "coreMessages": self.frontend_messages(),
+            "coreLanguageMessages": self.frontend_messages(),
             "languageCode": language_code,
             "languageDir": lang_dir,
             "languages": languages,

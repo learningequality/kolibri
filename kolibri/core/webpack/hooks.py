@@ -262,13 +262,17 @@ class WebpackBundleHook(hooks.KolibriHook):
     def frontend_message_tag(self):
         if self.frontend_messages():
             return [
-                '<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", {messages});</script>'.format(
+                '<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", JSON.parse("{messages}"));</script>'.format(
                     kolibri_name="kolibriCoreAppGlobal",
                     bundle=self.unique_id,
                     lang_code=get_language(),
                     messages=json.dumps(
-                        self.frontend_messages(), separators=(",", ":")
-                    ),
+                        self.frontend_messages(),
+                        separators=(",", ":"),
+                        ensure_ascii=False,
+                    )
+                    .replace("'", "\\'")
+                    .replace('"', '\\"'),
                 )
             ]
         else:
@@ -286,8 +290,10 @@ class WebpackBundleHook(hooks.KolibriHook):
                     name="kolibriPluginDataGlobal",
                     bundle=self.unique_id,
                     plugin_data=json.dumps(
-                        self.plugin_data, separators=(",", ":")
-                    ).replace("'", "\\'"),
+                        self.plugin_data, separators=(",", ":"), ensure_ascii=False
+                    )
+                    .replace("'", "\\'")
+                    .replace('"', '\\"'),
                 )
             ]
         else:

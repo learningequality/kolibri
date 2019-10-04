@@ -186,6 +186,9 @@ i18n-extract-frontend:
 
 i18n-extract: i18n-extract-frontend i18n-extract-backend
 
+i18n-transfer-context:
+	yarn transfercontext
+
 i18n-django-compilemessages:
 	# Change working directory to kolibri/ such that compilemessages
 	# finds only the .po files nested there.
@@ -193,7 +196,6 @@ i18n-django-compilemessages:
 
 i18n-upload: i18n-extract
 	python build_tools/i18n/crowdin.py upload-sources ${branch}
-	python build_tools/i18n/crowdin.py upload-translations ${branch}
 
 i18n-pretranslate:
 	python build_tools/i18n/crowdin.py pretranslate ${branch}
@@ -201,11 +203,15 @@ i18n-pretranslate:
 i18n-pretranslate-approve-all:
 	python build_tools/i18n/crowdin.py pretranslate ${branch} --approve-all
 
+i18n-convert:
+	python build_tools/i18n/crowdin.py convert
+
 i18n-download:
 	python build_tools/i18n/crowdin.py rebuild ${branch}
 	python build_tools/i18n/crowdin.py download ${branch}
 	node build_tools/i18n/intl_code_gen.js
 	$(MAKE) i18n-django-compilemessages
+	python build_tools/i18n/crowdin.py convert
 
 i18n-download-source-fonts:
 	python build_tools/i18n/fonts.py download-source-fonts
