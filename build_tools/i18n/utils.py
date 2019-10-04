@@ -135,7 +135,7 @@ def json_dump_formatted(data, file_path, file_name):
                 separators=(",", ": "),
                 ensure_ascii=False,
             )
-            output = unicode(output, 'utf-8')
+            output = unicode(output, "utf-8")
             file_object.write(output)
         else:
             json.dump(

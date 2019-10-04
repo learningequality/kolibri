@@ -280,14 +280,16 @@ class WebpackBundleHook(hooks.KolibriHook):
                 """
                 <script>
                     window["{name}"] = window["{name}"] || {{}};
-                    window["{name}"]["{bundle}"] = {plugin_data};
+                    window["{name}"]["{bundle}"] = JSON.parse('{plugin_data}');
                 </script>
                 """.format(
                     name="kolibriPluginDataGlobal",
                     bundle=self.unique_id,
                     plugin_data=json.dumps(
-                        self.plugin_data, separators=(",", ":")
-                    ).replace("'", "\\'"),
+                        self.plugin_data, separators=(",", ":"), ensure_ascii=False
+                    )
+                    .replace("'", "\\'")
+                    .replace('"', '\\"'),
                 )
             ]
         else:
