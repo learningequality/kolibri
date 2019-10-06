@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { SessionResource, AttemptLogResource } from 'kolibri.resources';
+import * as redirectBrowser from 'kolibri.utils.redirectBrowser';
 import * as constants from '../../src/constants';
-import * as browser from '../../src/utils/browser';
 import ConditionalPromise from '../../src/conditionalPromise';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
 
@@ -37,7 +37,7 @@ describe('Vuex store/actions for core module', () => {
 
     beforeEach(() => {
       store = makeStore();
-      redirectStub = jest.spyOn(browser, 'redirectBrowser');
+      redirectStub = jest.spyOn(redirectBrowser, 'redirectBrowser');
     });
 
     afterEach(() => {

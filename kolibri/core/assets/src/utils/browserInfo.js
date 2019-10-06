@@ -5,9 +5,10 @@
  * the more general purpose code therein.
  */
 
+import ScreenFull from 'screenfull';
+
 const NAME = 'name';
 const VERSION = 'version';
-
 const browserTests = [
   {
     test: /\s(opr)\/([\w.]+)/i,
@@ -175,3 +176,17 @@ export function passesRequirements(browser, requirements) {
   }
   return true;
 }
+
+export const userAgent =
+  window && window.navigator && window.navigator.userAgent ? window.navigator.userAgent : '';
+
+/**
+ * Detection of whether an Android device is using WebView based on
+ * https://developer.chrome.com/multidevice/user-agent#webview_user_agent
+ * First checks for 'wv' (Lolipop+), then for 'Version/x.x'
+ */
+const isAndroid = /Android/.test(userAgent);
+const isWebview = /wv/.test(userAgent) || /Version\/\d+\.\d+/.test(userAgent);
+export const isAndroidWebView = isAndroid && isWebview;
+export const fullscreenApiIsSupported = ScreenFull.enabled && !isAndroidWebView;
+export const browser = getBrowser(userAgent);

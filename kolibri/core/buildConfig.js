@@ -14,9 +14,9 @@ module.exports = [
     },
   },
   {
-    bundle_id: 'user_agent',
+    bundle_id: 'frontend_head_assets',
     webpack_config: {
-      entry: './assets/src/userAgentCheck.js',
+      entry: './assets/src/utils/minimumBrowserRequirements.js',
     },
   },
 ];

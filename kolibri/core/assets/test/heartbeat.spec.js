@@ -1,5 +1,5 @@
 import coreStore from 'kolibri.coreVue.vuex.store';
-import * as browser from 'kolibri.utils.browser';
+import * as redirectBrowser from 'kolibri.utils.redirectBrowser';
 import * as serverClock from 'kolibri.utils.serverClock';
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
@@ -192,7 +192,7 @@ describe('HeartBeat', function() {
       http.__setCode(200);
       http.__setHeaders({ 'Content-Type': 'application/json' });
       http.__setEntity({ user_id: 'nottest', id: 'current' });
-      const redirectStub = jest.spyOn(browser, 'redirectBrowser');
+      const redirectStub = jest.spyOn(redirectBrowser, 'redirectBrowser');
       return heartBeat._checkSession().finally(() => {
         expect(redirectStub).toHaveBeenCalledTimes(1);
       });

@@ -59,7 +59,7 @@
   import Lockr from 'lockr';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
-  import { fullscreenApiIsSupported } from 'kolibri.utils.browser';
+  import { fullscreenApiIsSupported } from 'kolibri.utils.browserInfo';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import audioIconPoster from './audio-icon-poster.svg';

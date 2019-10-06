@@ -37,7 +37,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import urls from 'kolibri.urls';
-  import { redirectBrowser } from 'kolibri.utils.browser';
+  import { redirectBrowser } from 'kolibri.utils.redirectBrowser';
   import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';

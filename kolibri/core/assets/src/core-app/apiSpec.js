@@ -53,7 +53,9 @@ import * as validators from '../validators';
 import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
-import * as browser from '../utils/browser';
+import * as browserInfo from '../utils/browserInfo';
+import { redirectBrowser } from '../utils/redirectBrowser';
+import UiIconButton from '../views/KeenUiIconButton.vue';
 import bytesForHumans from '../utils/bytesForHumans';
 import UserType from '../utils/UserType';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
@@ -96,7 +98,6 @@ import navComponents from '../utils/navComponents';
 import loginComponents from '../utils/loginComponents';
 import coreBannerContent from '../utils/coreBannerContent';
 import CatchErrors from '../utils/CatchErrors';
-import UiIconButton from '../views/KeenUiIconButton.vue';
 import UiToolbar from '../views/KeenUiToolbar.vue';
 import shuffled from '../utils/shuffled';
 import * as client from './client';
@@ -187,7 +188,8 @@ export default {
   urls,
   utils: {
     contentNode,
-    browser,
+    redirectBrowser,
+    browserInfo,
     exams,
     validators,
     serverClock,

@@ -80,7 +80,7 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import { isAndroidWebView } from 'kolibri.utils.browser';
+  import { isAndroidWebView } from 'kolibri.utils.browserInfo';
   import urls from 'kolibri.urls';
   import { PageNames } from '../../constants';
   import GeneratedElapsedTime from './GeneratedElapsedTime';

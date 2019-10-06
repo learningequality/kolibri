@@ -96,7 +96,17 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
 
     @property
     def plugin_data(self):
+        language_code = get_language()
+        static_root = static("assets/fonts/noto-full")
+        full_file = "{}.{}.{}.css?v={}"
         return {
+            "fullCSSFileModern": full_file.format(
+                static_root, language_code, "modern", kolibri.__version__
+            ),
+            "fullCSSFileBasic": full_file.format(
+                static_root, language_code, "basic", kolibri.__version__
+            ),
+            "unsupportedUrl": reverse("kolibri:core:unsupported"),
             "contentCacheKey": ContentCacheKey.get_cache_key(),
             "languageGlobals": self.language_globals(),
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),
@@ -135,8 +145,12 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
 
 
 @register_hook
-class FrontEndUserAgentAssetHook(WebpackBundleHook):
-    bundle_id = "user_agent"
+class FrontendHeadAssetsHook(WebpackBundleHook):
+    """
+    Render these assets in the <head> tag of base.html, before other JS and assets.
+    """
+
+    bundle_id = "frontend_head_assets"
     inline = True
 
     def render_to_page_load_sync_html(self):
@@ -165,18 +179,3 @@ class FrontEndUserAgentAssetHook(WebpackBundleHook):
                 subset_css_file=subset_file, version=kolibri.__version__
             ),
         ]
-
-    @property
-    def plugin_data(self):
-        language_code = get_language()
-        static_root = static("assets/fonts/noto-full")
-        full_file = "{}.{}.{}.css?v={}"
-        return {
-            "fullCSSFileModern": full_file.format(
-                static_root, language_code, "modern", kolibri.__version__
-            ),
-            "fullCSSFileBasic": full_file.format(
-                static_root, language_code, "basic", kolibri.__version__
-            ),
-            "unsupportedUrl": reverse("kolibri:core:unsupported"),
-        }

@@ -209,11 +209,11 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import urls from 'kolibri.urls';
   import loginComponents from 'kolibri.utils.loginComponents';
+  import plugin_data from 'plugin_data';
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
   import getUrlParameter from '../getUrlParameter';
   import FacilityModal from './FacilityModal';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'SignInPage',
