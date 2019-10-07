@@ -31,6 +31,7 @@ const staticState = {
       focusOutline: 'brand.secondary.v_200',
       surface: 'white',
       fineLine: '#dedede',
+      appBarPrimary: 'brand.primary.v_400',
 
       // general semantic colors
       error: 'palette.red.v_700',
