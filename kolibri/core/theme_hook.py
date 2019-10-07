@@ -3,12 +3,13 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
-
-from kolibri.plugins import hooks
-import kolibri
-from django.utils.six.moves.urllib import parse
-from django.conf import settings
 import os
+
+from django.conf import settings
+from django.utils.six.moves.urllib import parse
+
+import kolibri
+from kolibri.plugins import hooks
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,9 @@ BACKGROUND = "background"
 TITLE = "title"
 TITLE_STYLE = "titleStyle"
 TOP_LOGO = "topLogo"
+LOGO = "logo"
+BRANDED_FOOTER = "brandedFooter"
+TEXT_LINES = "textLines"
 IMG_SRC = "src"
 IMG_STYLE = "style"
 IMG_ALT = "alt"
@@ -153,6 +157,8 @@ class ThemeHook(hooks.KolibriHook):
             theme[SIDE_NAV][TOP_LOGO][IMG_SRC] += bust
         if _isSet(theme, [APP_BAR, TOP_LOGO, IMG_SRC]):
             theme[APP_BAR][TOP_LOGO][IMG_SRC] += bust
+        if _isSet(theme, [SIDE_NAV, BRANDED_FOOTER, LOGO, IMG_SRC]):
+            theme[SIDE_NAV][BRANDED_FOOTER][LOGO][IMG_SRC] += bust
 
         # if a background image has been locally set using the `manage background` command, use it
         bg_img = os.path.join(settings.MEDIA_ROOT, DEFAULT_BG_IMAGE_FILE)
