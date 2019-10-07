@@ -3,12 +3,13 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
-
-from kolibri.plugins import hooks
-import kolibri
-from django.utils.six.moves.urllib import parse
-from django.conf import settings
 import os
+
+from django.conf import settings
+from django.utils.six.moves.urllib import parse
+
+import kolibri
+from kolibri.plugins import hooks
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,7 @@ SIGN_IN = "signIn"
 SIDE_NAV = "sideNav"
 APP_BAR = "appBar"
 BACKGROUND = "background"
+DISABLE_SCRIM = "disableScrim"
 TITLE = "title"
 TITLE_STYLE = "titleStyle"
 TOP_LOGO = "topLogo"

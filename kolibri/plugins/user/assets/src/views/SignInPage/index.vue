@@ -338,9 +338,11 @@
         if (this.$theme.signIn.background) {
           return {
             backgroundColor: this.$themeTokens.primary,
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${
-              this.$theme.signIn.background
-            })`,
+            backgroundImage: this.$theme.signIn.disableScrim
+              ? `url(${this.$theme.signIn.background})`
+              : `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${
+                  this.$theme.signIn.background
+                })`,
           };
         }
         return { backgroundColor: this.$themeColors.brand.primary.v_900 };
