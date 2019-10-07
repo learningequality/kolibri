@@ -334,10 +334,6 @@
     margin: 8px 0;
   }
 
-  .content-renderer {
-    margin-top: 24px;
-  }
-
   .metadata {
     font-size: smaller;
   }
