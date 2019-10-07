@@ -753,6 +753,7 @@
     position: absolute;
     top: $top-bar-height;
     bottom: $bottom-bar-height;
+    -webkit-overflow-scrolling: touch;
   }
 
   .side-bar-left {
@@ -805,6 +806,7 @@
     left: 0;
     max-height: calc(100vh - #{$top-bar-height + $bottom-bar-height});
     white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
   }
 
   .epubjs-navigation {

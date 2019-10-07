@@ -336,6 +336,7 @@
   .pdf-renderer {
     position: relative;
     height: 500px;
+    -webkit-overflow-scrolling: touch;
   }
 
   .controls {

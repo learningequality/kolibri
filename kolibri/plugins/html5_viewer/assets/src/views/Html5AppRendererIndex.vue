@@ -16,16 +16,18 @@
       <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
       <mat-svg v-else name="fullscreen" category="navigation" />
     </UiIconButton>
-    <iframe
-      ref="iframe"
-      class="iframe"
-      :style="{ backgroundColor: $themePalette.grey.v_100 }"
-      sandbox="allow-scripts"
-      frameBorder="0"
-      :name="name"
-      :src="rooturl"
-    >
-    </iframe>
+    <div class="iframe-container">
+      <iframe
+        ref="iframe"
+        class="iframe"
+        :style="{ backgroundColor: $themePalette.grey.v_100 }"
+        sandbox="allow-scripts"
+        frameBorder="0"
+        :name="name"
+        :src="rooturl"
+      >
+      </iframe>
+    </div>
   </CoreFullscreen>
 
 </template>
@@ -101,17 +103,26 @@
     position: absolute;
     top: 8px;
     right: 21px;
+    z-index: 1;
   }
 
   .html5-renderer {
     position: relative;
     height: 500px;
-    overflow-x: auto;
-    overflow-y: hidden;
     text-align: center;
   }
 
   .iframe {
+    width: 100%;
+    height: 100%;
+  }
+
+  .iframe-container {
+    -webkit-overflow-scrolling: touch;
+    overflow: auto;
+    position: absolute;
+    top: 0;
+    bottom: 0;
     width: 100%;
     height: 100%;
   }
