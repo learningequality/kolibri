@@ -116,11 +116,15 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .wrapper {
     padding-left: 16px;
   }
 
   .wrapper-narrow {
+    @extend %momentum-scroll;
+
     padding-left: 0;
   }
 
