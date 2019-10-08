@@ -99,6 +99,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .btn {
     position: absolute;
     top: 8px;
@@ -118,13 +120,14 @@
   }
 
   .iframe-container {
-    -webkit-overflow-scrolling: touch;
-    overflow: auto;
+    @extend %momentum-scroll;
+
     position: absolute;
     top: 0;
     bottom: 0;
     width: 100%;
     height: 100%;
+    overflow: auto;
   }
 
 </style>

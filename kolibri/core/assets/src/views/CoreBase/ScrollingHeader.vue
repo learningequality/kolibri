@@ -91,7 +91,7 @@
         if (newVal === 0) {
           this.scrollDistance = 0;
         } else if (this.scrollDistance * delta < 0) {
-          // Reset the integral if the direction changes
+          // Reset the distance if the direction changes
           this.scrollDistance = delta;
         } else {
           this.scrollDistance = this.scrollDistance + delta;
@@ -112,7 +112,7 @@
 
         this.resetDistanceDebounced(delta, this.scrollPosition);
       },
-      // Reset the scrolling integral if user pauses scrolling for some time.
+      // Reset the scrolling distance if user pauses scrolling for some time.
       resetDistance(delta, lastPos) {
         setTimeout(() => {
           if (this.scrollPosition === lastPos) {

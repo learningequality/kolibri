@@ -750,10 +750,11 @@
   }
 
   .side-bar {
+    @extend %momentum-scroll;
+
     position: absolute;
     top: $top-bar-height;
     bottom: $bottom-bar-height;
-    -webkit-overflow-scrolling: touch;
   }
 
   .side-bar-left {
@@ -799,6 +800,8 @@
   }
 
   .navigation-and-epubjs {
+    @extend %momentum-scroll;
+
     position: absolute;
     top: $top-bar-height;
     right: 0;
@@ -806,7 +809,6 @@
     left: 0;
     max-height: calc(100vh - #{$top-bar-height + $bottom-bar-height});
     white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
   }
 
   .epubjs-navigation {

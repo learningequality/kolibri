@@ -87,7 +87,11 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .core-table-container {
+    @extend %momentum-scroll;
+
     overflow-x: auto;
     overflow-y: hidden;
   }

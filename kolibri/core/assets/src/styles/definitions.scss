@@ -43,3 +43,9 @@
   backface-visibility: hidden;
   perspective: 10000px;
 }
+
+// Use this mixin in select containers where the content is likely going to be
+// very large and mobile users may benefit from a smooth touch scroll experience.
+%momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+}
