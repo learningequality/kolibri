@@ -12,6 +12,7 @@ from kolibri.core.content.api import ChannelMetadataFilter
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.serializers import ChannelMetadataSerializer
+from kolibri.core.device.models import ContentCacheKey
 
 
 class DeviceChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
@@ -58,4 +59,5 @@ class DeviceChannelOrderView(APIView):
         queryset.update(
             order=Case(*(When(id=uuid, then=i + 1) for i, uuid in enumerate(ids)))
         )
+        ContentCacheKey.update_cache_key()
         return Response({})
