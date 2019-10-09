@@ -62,6 +62,14 @@ const routes = [
       hideLoadingScreen();
     },
   },
+  {
+    name: PageNames.REARRANGE_CHANNELS,
+    path: '/rearrange_channels',
+    handler: ({ name }) => {
+      store.dispatch('preparePage', { name });
+      hideLoadingScreen();
+    },
+  },
   ...wizardTransitionRoutes,
   {
     path: '/content/*',

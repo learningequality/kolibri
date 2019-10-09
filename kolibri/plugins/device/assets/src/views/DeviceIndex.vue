@@ -40,6 +40,7 @@
   import AvailableChannelsPage from './AvailableChannelsPage';
   import SelectContentPage from './SelectContentPage';
   import DeviceSettingsPage from './DeviceSettingsPage';
+  import RearrangeChannelsPage from './RearrangeChannelsPage';
 
   const pageNameComponentMap = {
     [PageNames.MANAGE_CONTENT_PAGE]: ManageContentPage,
@@ -49,6 +50,7 @@
     [ContentWizardPages.AVAILABLE_CHANNELS]: AvailableChannelsPage,
     [ContentWizardPages.SELECT_CONTENT]: SelectContentPage,
     [PageNames.DEVICE_SETTINGS_PAGE]: DeviceSettingsPage,
+    [PageNames.REARRANGE_CHANNELS]: RearrangeChannelsPage,
   };
 
   export default {
@@ -82,8 +84,9 @@
         // When the icon is an arrow, it should true for Primary with one
         // exception: The SELECT_CONTENT page.
         return (
-          this.immersivePageIcon === 'arrow_back' &&
-          this.pageName !== ContentWizardPages.SELECT_CONTENT
+          (this.immersivePageIcon === 'arrow_back' &&
+            this.pageName !== ContentWizardPages.SELECT_CONTENT) ||
+          this.pageName === PageNames.REARRANGE_CHANNELS
         );
       },
     },

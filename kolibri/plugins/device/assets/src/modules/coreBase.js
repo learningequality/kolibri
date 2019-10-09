@@ -21,6 +21,7 @@ export default {
         ContentWizardPages.AVAILABLE_CHANNELS,
         ContentWizardPages.SELECT_CONTENT,
         PageNames.USER_PERMISSIONS_PAGE,
+        PageNames.REARRANGE_CHANNELS,
       ].includes(rootState.pageName);
     },
     inContentManagementPage(state, getters, rootState) {
@@ -28,6 +29,7 @@ export default {
         ContentWizardPages.AVAILABLE_CHANNELS,
         ContentWizardPages.SELECT_CONTENT,
         PageNames.MANAGE_CONTENT_PAGE,
+        PageNames.REARRANGE_CHANNELS,
       ].includes(rootState.pageName);
     },
     // NOTE: appBarTitle needs to be set imperatively in handlers and some components,

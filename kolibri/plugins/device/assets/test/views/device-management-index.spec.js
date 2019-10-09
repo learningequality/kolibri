@@ -17,6 +17,10 @@ function makeWrapper(store) {
         path: '/content',
       },
       {
+        name: 'AVAILABLE_CHANNELS',
+        path: '/content/channel',
+      },
+      {
         name: 'SELECT_CONTENT',
         path: '/content/channel/:channel_id',
       },

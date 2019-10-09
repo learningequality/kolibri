@@ -32,8 +32,13 @@
             <KButton
               v-if="deviceHasChannels"
               :text="$tr('export')"
-              class="flush-right"
               @click="startExportWorkflow()"
+            />
+            <KButton
+              v-if="deviceHasChannels"
+              :text="$tr('rearrangeAction')"
+              class="flush-right"
+              @click="goToRearrangeChannels()"
             />
           </KGridItem>
         </KGrid>
@@ -109,10 +114,14 @@
       clearCompletedTasks() {
         return TaskResource.deleteFinishedTasks();
       },
+      goToRearrangeChannels() {
+        this.$router.push(this.$router.getRoute('REARRANGE_CHANNELS'));
+      },
     },
     $trs: {
       import: 'Import',
       export: 'Export',
+      rearrangeAction: 'Rearrange',
       noAccessDetails:
         'You must be signed in as a superuser or have content management permissions to view this page',
       documentTitle: 'Manage Device Channels',
