@@ -23,7 +23,6 @@ class DeviceChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return (
             ChannelMetadata.objects.all()
-            .order_by("-last_updated")
             .select_related("root__lang")
         )
 
