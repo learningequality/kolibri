@@ -55,8 +55,19 @@ if pew.ui.platform == "android":
 
     logging.info("Home folder: {}".format(os.environ["KOLIBRI_HOME"]))
     logging.info("Timezone: {}".format(os.environ["TZ"]))
-else:
+elif not 'KOLIBRI_HOME' in os.environ:
     os.environ["KOLIBRI_HOME"] = os.path.join(app_data_dir, "kolibri_data")
+
+
+from kolibri.core.logger.utils.handler import KolibriTimedRotatingFileHandler
+
+log_basename = "kolibri-app.txt"
+log_dir = os.path.join(os.environ['KOLIBRI_HOME'], 'logs')
+os.makedirs(log_dir, exist_ok=True)
+log_filename = os.path.join(log_dir, log_basename)
+root_logger = logging.getLogger()
+file_handler = KolibriTimedRotatingFileHandler(filename=log_filename, when='midnight', backupCount=30)
+root_logger.addHandler(file_handler)
 
 
 def start_django():
@@ -82,6 +93,9 @@ class MenuEventHandler:
 
     def on_close_window(self):
         self.close()
+
+    def on_open_in_browser(self):
+        webbrowser.open(self.get_url())
 
     def on_open_kolibri_home(self):
         subprocess.call(['open', os.environ['KOLIBRI_HOME']])
@@ -181,6 +195,8 @@ class Application(pew.ui.PEWApp):
 
         view_menu = pew.ui.PEWMenu('View')
         view_menu.add('Reload', handler=window.on_reload)
+        view_menu.add_separator()
+        view_menu.add('Open in Browser', handler=window.on_open_in_browser)
         menu_bar.add_menu(view_menu)
 
         history_menu = pew.ui.PEWMenu('History')
