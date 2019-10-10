@@ -2,6 +2,7 @@ import importlib
 import logging
 import os
 import shutil
+from pkgutil import iter_modules
 
 from django.apps import AppConfig
 from django.apps import apps
@@ -11,6 +12,7 @@ from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from pkg_resources import DistributionNotFound
 from pkg_resources import get_distribution
+from pkg_resources import resource_exists
 from semver import VersionInfo
 
 import kolibri
@@ -431,3 +433,29 @@ def check_plugin_config_file_location(version):
                 )
             else:
                 os.remove(old_conf_file)
+
+
+def _can_import_plugin(plugin):
+    try:
+        initialize_kolibri_plugin(plugin)
+        return True
+    except Exception:
+        pass
+
+
+def iterate_plugins():
+    for module_loader, name, is_pkg in iter_modules():
+        try:
+            if (
+                is_pkg
+                and resource_exists(name, "kolibri_plugin.py")
+                and _can_import_plugin(name)
+            ):
+                yield name
+            elif is_pkg and resource_exists(name, "kolibri_plugin_manifest.py"):
+                manifest = importlib.import_module(name + ".kolibri_plugin_manifest")
+                for plugin in manifest.plugins:
+                    if _can_import_plugin(plugin):
+                        yield plugin
+        except Exception:
+            pass

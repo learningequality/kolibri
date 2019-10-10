@@ -26,22 +26,9 @@ try:
 
     DEFAULT_PLUGINS = plugins
 except ImportError:
-    DEFAULT_PLUGINS = [
-        "kolibri.plugins.facility",
-        "kolibri.plugins.device",
-        "kolibri.plugins.learn",
-        "kolibri.plugins.pdf_viewer",
-        "kolibri.plugins.html5_viewer",
-        "kolibri.plugins.media_player",
-        "kolibri.plugins.setup_wizard",
-        "kolibri.plugins.coach",
-        "kolibri.plugins.user",
-        "kolibri_exercise_perseus_plugin",
-        "kolibri.plugins.style_guide",
-        "kolibri.plugins.epub_viewer",
-        "kolibri.plugins.default_theme",
-        "kolibri.plugins.slideshow_viewer",
-    ]
+    from kolibri.kolibri_plugin_manifest import plugins
+
+    DEFAULT_PLUGINS = plugins + ["kolibri_exercise_perseus_plugin"]
 
 conf_file = os.path.join(KOLIBRI_HOME, "plugins.json")
 

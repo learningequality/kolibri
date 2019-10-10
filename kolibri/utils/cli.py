@@ -41,6 +41,7 @@ from kolibri.plugins.utils import check_plugin_config_file_location
 from kolibri.plugins.utils import disable_plugin
 from kolibri.plugins.utils import enable_new_default_plugins
 from kolibri.plugins.utils import enable_plugin
+from kolibri.plugins.utils import iterate_plugins
 from kolibri.plugins.utils import run_plugin_updates
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import LOG_ROOT
@@ -717,3 +718,11 @@ def apply(ctx, plugin_names):
         )
         exception.exit_code = 2
         raise exception
+
+
+@plugin.command(help="List all available Kolibri plugins")
+def list():
+    plugins = [plugin for plugin in iterate_plugins()]
+    logger.info("These plugins are available to be activated:")
+    for plugin in sorted(plugins):
+        logger.info(plugin)
