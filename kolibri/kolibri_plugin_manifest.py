@@ -17,3 +17,5 @@ for item in resource_listdir("kolibri.plugins", "."):
             plugins.append("kolibri.plugins." + item)
     except ImportError:
         pass
+    except NotImplementedError:
+        pass
