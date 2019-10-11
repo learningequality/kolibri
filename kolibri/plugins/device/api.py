@@ -21,10 +21,7 @@ class DeviceChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
-        return (
-            ChannelMetadata.objects.all()
-            .select_related("root__lang")
-        )
+        return ChannelMetadata.objects.all().select_related("root__lang")
 
 
 def validate_uuid(value):

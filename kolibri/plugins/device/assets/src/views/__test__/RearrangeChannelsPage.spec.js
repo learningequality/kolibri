@@ -7,8 +7,10 @@ RearrangeChannelsPage.methods.fetchChannels = () => {
   return Promise.resolve([{ id: '1', name: 'Channel 1' }, { id: '2', name: 'Channel 2' }]);
 };
 async function makeWrapper() {
+  const store = makeStore();
+  store.state.core.session.can_manage_content = true;
   const wrapper = mount(RearrangeChannelsPage, {
-    store: makeStore(),
+    store,
   });
   // Have to wait to let the channels data load
   await wrapper.vm.$nextTick();

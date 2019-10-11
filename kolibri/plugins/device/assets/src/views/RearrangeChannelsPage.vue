@@ -34,7 +34,6 @@
       </DragContainer>
     </template>
 
-
   </div>
 
 </template>
@@ -79,6 +78,9 @@
       },
     },
     beforeMount() {
+      if (!this.$store.getters.canManageContent) {
+        return this.$router.replace(this.$router.getRoute('MANAGE_CONTENT_PAGE'));
+      }
       this.fetchChannels()
         .then(channels => {
           this.channels = [...channels];
