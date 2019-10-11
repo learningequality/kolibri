@@ -87,7 +87,7 @@
       ...mapGetters('manageContent', ['activeTaskList']),
       ...mapState('manageContent/wizard', ['pageName']),
       ...mapState('manageContent', {
-        deviceHasChannels: state => state.channelList.length > 0,
+        deviceHasChannels: state => state.channelList.filter(c => c.available).length > 0,
       }),
     },
     watch: {

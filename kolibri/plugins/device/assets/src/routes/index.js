@@ -40,10 +40,10 @@ const routes = [
   },
   {
     name: PageNames.USER_PERMISSIONS_PAGE,
-    path: '/permissions/:userid',
+    path: '/permissions/:userId',
     handler: ({ params, name }) => {
       store.dispatch('preparePage', { name });
-      showUserPermissionsPage(store, params.userid);
+      showUserPermissionsPage(store, params.userId);
     },
   },
   {
