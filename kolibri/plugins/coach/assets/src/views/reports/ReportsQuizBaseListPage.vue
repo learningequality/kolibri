@@ -13,7 +13,11 @@
         <ReportsQuizHeader />
       </KGridItem>
       <KGridItem :layout12="{ span: 4 }">
-        <QuizStatus />
+        <QuizStatus
+          :avgScore="avgScore"
+          :groupNames="getGroupNames(exam.groups)"
+          :exam="exam"
+        />
       </KGridItem>
       <KGridItem :layout12="{ span: 8 }">
         <KPageContainer>
@@ -54,6 +58,20 @@
       };
     },
     computed: {
+      avgScore() {
+        return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
+      },
+      exam() {
+        return this.examMap[this.$route.params.quizId];
+      },
+      recipients() {
+        return this.getLearnersForExam(this.exam);
+      },
+      orderDescriptionString() {
+        return this.exam.learners_see_fixed_order
+          ? this.coachString('orderFixedLabel')
+          : this.coachString('orderRandomLabel');
+      },
       filterOptions() {
         return [
           {

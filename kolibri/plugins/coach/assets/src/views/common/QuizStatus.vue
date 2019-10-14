@@ -7,20 +7,61 @@
       type="submit"
       style="margin-left: 0; margin-top: 1.5rem;"
     />
-    <div><b>Recipients</b></div>
-    <div>Entire class</div>
-    <div><b>Average score</b></div>
-    <div>--</div>
-    <div><b>Question order</b></div>
-    <div>Randomized</div>
+    <div>
+      <b>{{ coachString('recipientsLabel') }}</b>
+    </div>
+    <div>
+      <Recipients
+        slot="value"
+        :groupNames="groupNames"
+        :hasAssignments="exam.assignments.length > 0"
+      />
+    </div>
+    <div>
+      <b>Average score</b>
+    </div>
+    <div>
+      <Score :value="avgScore" />
+    </div>
+    <div>
+      <b>Question order</b>
+    </div>
+    <div>{{ orderDescriptionString }}</div>
   </KPageContainer>
 
 </template>
 
 <script>
 
+  import { coachStringsMixin } from './commonCoachStrings';
+  import Score from './Score';
+  import Recipients from './Recipients'
+
   export default {
     name: 'QuizStatus',
+    components: { Score, Recipients },
+    mixins: [coachStringsMixin],
+    props: {
+      groupNames: {
+        type: Array,
+        required: true,
+      },
+      exam: {
+        type: Object,
+        required: true,
+      },
+      avgScore: {
+        type: Number,
+        required: false,
+      },
+    },
+    computed: {
+      orderDescriptionString() {
+        return this.exam.learners_see_fixed_order
+          ? this.coachString('orderFixedLabel')
+          : this.coachString('orderRandomLabel');
+      },
+    }
   };
 
 </script>
