@@ -59,7 +59,7 @@
     const url = window.location.href;
 
     function urlMatches(urlName) {
-      return urls[urlName] && url.includes(urls[urlName]())
+      return urls[urlName] && url.includes(urls[urlName]());
     }
 
     if (urlMatches('kolibri:kolibri.plugins.learn:learn')) {
@@ -122,12 +122,13 @@
       exitButtonLabel() {
         let stringId;
         if (this.isPageNotFound) {
-          stringId = {
-            LEARN: 'backToLearnLabel',
-            COACH: 'backToCoachLabel',
-            DEVICE: 'backToDeviceLabel',
-            FACILITY: 'backToFacilityLabel',
-          }[getCurrentKolibriPlugin()] || 'defaultErrorExitPrompt';
+          stringId =
+            {
+              LEARN: 'backToLearnLabel',
+              COACH: 'backToCoachLabel',
+              DEVICE: 'backToDeviceLabel',
+              FACILITY: 'backToFacilityLabel',
+            }[getCurrentKolibriPlugin()] || 'defaultErrorExitPrompt';
         } else {
           stringId = 'defaultErrorExitPrompt';
         }
