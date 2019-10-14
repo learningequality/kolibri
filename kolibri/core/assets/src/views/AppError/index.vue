@@ -58,15 +58,19 @@
   function getCurrentKolibriPlugin() {
     const url = window.location.href;
 
-    if (url.includes(urls['kolibri:learn:learn']())) {
+    function urlMatches(urlName) {
+      return urls[urlName] && url.includes(urls[urlName]())
+    }
+
+    if (urlMatches('kolibri:kolibri.plugins.learn:learn')) {
       return 'LEARN';
-    } else if (url.includes(urls['kolibri:coach:coach']())) {
+    } else if (urlMatches('kolibri:kolibri.plugins.coach:coach')) {
       return 'COACH';
-    } else if (url.includes(urls['kolibri:devicemanagementplugin:device_management']())) {
+    } else if (urlMatches('kolibri:kolibri.plugins.device:device_management')) {
       return 'DEVICE';
-    } else if (url.includes(urls['kolibri:facilitymanagementplugin:facility_management']())) {
+    } else if (urlMatches('kolibri:kolibri.plugins.facility:facility_management')) {
       return 'FACILITY';
-    } else if (url.includes(urls['kolibri:user:user']())) {
+    } else if (urlMatches('kolibri:kolibri.plugins.user:user')) {
       // Probably won't be used, since Anonymous users are re-directed when
       // trying to go to Profile page
       return 'USER';
@@ -123,7 +127,7 @@
             COACH: 'backToCoachLabel',
             DEVICE: 'backToDeviceLabel',
             FACILITY: 'backToFacilityLabel',
-          }[getCurrentKolibriPlugin()];
+          }[getCurrentKolibriPlugin()] || 'defaultErrorExitPrompt';
         } else {
           stringId = 'defaultErrorExitPrompt';
         }
@@ -149,6 +153,7 @@
     },
     $trs: {
       defaultErrorHeader: 'Sorry! Something went wrong!',
+      // eslint-disable-next-line
       defaultErrorExitPrompt: 'Back to home',
       pageReloadPrompt: 'Refresh',
       defaultErrorMessage:
