@@ -14,9 +14,7 @@
         <h1>
           <KLabeledIcon icon="quiz" :label="exam.title" />
         </h1>
-        <p class="time-context">
-          Created n days ago
-        </p>
+        <CreatedElapsedTime :date="new Date('2019', '9', '14', '4', '57', '0')" />
       </div>
       <QuizOptionsDropdownMenu
         slot="options"
@@ -110,13 +108,6 @@
   h1 {
     margin-bottom: 0;
     font-size: 1.5rem;
-  }
-
-  .time-context {
-    margin-top: 2px;
-    margin-bottom: -1rem;
-    font-size: small;
-    color: gray;
   }
 
 </style>
