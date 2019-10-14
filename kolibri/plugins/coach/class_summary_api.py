@@ -245,6 +245,7 @@ class ExamAssignmentsField(serializers.RelatedField):
 class ExamSerializer(KolibriModelSerializer):
 
     question_sources = ExamQuestionSourcesField(default=[])
+    date_created = DateTimeTzField()
 
     # classes are in here, and filtered out later to create `groups`
     assignments = ExamAssignmentsField(many=True, read_only=True)
@@ -264,6 +265,7 @@ class ExamSerializer(KolibriModelSerializer):
             "question_count",
             "learners_see_fixed_order",
             "seed",
+            "date_created",
         )
 
 

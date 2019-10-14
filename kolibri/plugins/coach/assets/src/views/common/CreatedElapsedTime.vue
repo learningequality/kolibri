@@ -18,7 +18,8 @@
     props: {
       date: {
         type: Date,
-        required: true,
+        required: false,
+        default: null,
       },
     },
     data: () => ({
@@ -26,6 +27,10 @@
     }),
     computed: {
       formattedTime() {
+        // No need to do anything if there is no date given.
+        if (!this.date) {
+          return '';
+        }
         const timeDifference = this.now - this.date;
         // Seconds
         if (timeDifference < MINUTE) {

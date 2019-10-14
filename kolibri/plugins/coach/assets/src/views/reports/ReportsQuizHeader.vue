@@ -14,7 +14,7 @@
         <h1>
           <KLabeledIcon icon="quiz" :label="exam.title" />
         </h1>
-        <CreatedElapsedTime :date="new Date('2019', '9', '14', '4', '57', '0')" />
+        <CreatedElapsedTime :date="new Date(exam.date_created)" />
       </div>
       <QuizOptionsDropdownMenu
         slot="options"
@@ -22,33 +22,7 @@
         @select="handleSelectOption"
       />
     </BackLinkWithOptions>
-  <!-- TODO - Extract to sidebar
-    <HeaderTable>
-      <HeaderTableRow :keyText="coachString('statusLabel')">
-        <QuizActive
-          slot="value"
-          :active="exam.active"
-        />
-      </HeaderTableRow>
-      <HeaderTableRow :keyText="coachString('recipientsLabel')">
-        <Recipients
-          slot="value"
-          :groupNames="getGroupNames(exam.groups)"
-          :hasAssignments="exam.assignments.length > 0"
-        />
-      </HeaderTableRow>
-      <HeaderTableRow :keyText="coachString('avgScoreLabel')">
-        <Score slot="value" :value="avgScore" />
-      </HeaderTableRow>
-      <HeaderTableRow
-        :keyText="coachString('questionOrderLabel')"
-        :valueText="orderDescriptionString"
-      />
-    </HeaderTable>
-  -->
-  <!-- Move to separate grid piece
 
-  -->
   </KPageContainer>
 
 </template>
@@ -76,11 +50,6 @@
       },
       recipients() {
         return this.getLearnersForExam(this.exam);
-      },
-      orderDescriptionString() {
-        return this.exam.learners_see_fixed_order
-          ? this.coachString('orderFixedLabel')
-          : this.coachString('orderRandomLabel');
       },
     },
     methods: {

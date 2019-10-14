@@ -18,6 +18,8 @@ class Exam(AbstractFacilityDataModel):
 
     morango_model_name = "exam"
 
+    date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
     permissions = (
         RoleBasedPermissions(
             target_field="collection",
