@@ -34,6 +34,7 @@
       </CoreTable>
     </div>
   </ReportsQuizBaseListPage>
+
 </template>
 
 
@@ -43,13 +44,11 @@
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
   import ReportsQuizBaseListPage from './ReportsQuizBaseListPage';
-  import ReportsQuizHeader from './ReportsQuizHeader';
   import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsQuizQuestionListPage',
     components: {
-      ReportsQuizHeader,
       LearnerProgressRatio,
       ReportsQuizBaseListPage,
     },

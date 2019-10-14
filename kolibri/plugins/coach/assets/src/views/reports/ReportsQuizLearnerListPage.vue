@@ -62,13 +62,11 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
-  import ReportsQuizHeader from './ReportsQuizHeader';
   import ReportsQuizBaseListPage from './ReportsQuizBaseListPage';
 
   export default {
     name: 'ReportsQuizLearnerListPage',
     components: {
-      ReportsQuizHeader,
       ReportsQuizBaseListPage,
     },
     mixins: [commonCoach, commonCoreStrings],

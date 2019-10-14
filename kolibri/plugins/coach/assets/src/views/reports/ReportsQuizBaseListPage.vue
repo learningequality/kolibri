@@ -70,24 +70,6 @@
           },
         ];
       },
-      exam() {
-        return this.examMap[this.$route.params.quizId];
-      },
-      recipients() {
-        return this.getLearnersForExam(this.exam);
-      },
-      table() {
-        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
-        const sorted = this._.sortBy(learners, ['name']);
-        return sorted.map(learner => {
-          const tableRow = {
-            groups: this.getGroupNamesForLearner(learner.id),
-            statusObj: this.getExamStatusObjForLearner(this.exam.id, learner.id),
-          };
-          Object.assign(tableRow, learner);
-          return tableRow;
-        });
-      },
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
@@ -96,8 +78,6 @@
       allQuizzes: 'All quizzes',
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
-      questionsCompletedRatioLabel:
-        '{count, number, integer} of {total, number, integer} {count, plural, other {answered}}',
     },
   };
 
