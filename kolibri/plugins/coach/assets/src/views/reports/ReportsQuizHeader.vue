@@ -1,23 +1,30 @@
 <template>
 
-  <div>
+  <KPageContainer style="padding-top:16px;">
+    <BackLink
+      :to="classRoute('ReportsQuizListPage')"
+      :text="coachString('allQuizzesLabel')"
+    />
+
+    <!-- Cheating to get the same layout effect but not
+         using a backlink...
+    -->
     <BackLinkWithOptions>
-      <BackLink
-        slot="backlink"
-        :to="classRoute('ReportsQuizListPage')"
-        :text="coachString('allQuizzesLabel')"
-      />
+      <div slot="backlink">
+        <h1>
+          <KLabeledIcon icon="quiz" :label="exam.title" />
+        </h1>
+        <p class="time-context">
+          Created n days ago
+        </p>
+      </div>
       <QuizOptionsDropdownMenu
         slot="options"
         optionsFor="report"
         @select="handleSelectOption"
       />
     </BackLinkWithOptions>
-
-    <h1>
-      <KLabeledIcon icon="quiz" :label="exam.title" />
-    </h1>
-
+  <!-- TODO - Extract to sidebar
     <HeaderTable>
       <HeaderTableRow :keyText="coachString('statusLabel')">
         <QuizActive
@@ -40,19 +47,11 @@
         :valueText="orderDescriptionString"
       />
     </HeaderTable>
+  -->
+  <!-- Move to separate grid piece
 
-    <HeaderTabs>
-      <HeaderTab
-        :text="coachString('reportLabel')"
-        :to="classRoute('ReportsQuizLearnerListPage')"
-      />
-      <HeaderTab
-        :text="coachString('difficultQuestionsLabel')"
-        :to="classRoute('ReportsQuizQuestionListPage')"
-      />
-    </HeaderTabs>
-
-  </div>
+  -->
+  </KPageContainer>
 
 </template>
 
@@ -106,6 +105,18 @@
 
   .stats {
     margin-right: 16px;
+  }
+
+  h1 {
+    margin-bottom: 0;
+    font-size: 1.5rem;
+  }
+
+  .time-context {
+    margin-top: 2px;
+    margin-bottom: -1rem;
+    font-size: small;
+    color: gray;
   }
 
 </style>

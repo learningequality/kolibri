@@ -1,70 +1,59 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-    :showSubNav="true"
-  >
-    <TopNavbar slot="sub-nav" />
-
-    <KPageContainer>
-      <ReportsQuizHeader />
-
-      <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachString('nameLabel') }}</th>
-            <th>{{ coreString('progressLabel') }}</th>
-            <th>{{ coachString('scoreLabel') }}</th>
-            <th>{{ coachString('groupsLabel') }}</th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.id">
-            <td>
-              <KLabeledIcon icon="person">
-                <KRouterLink
-                  v-if="tableRow.statusObj.status !== STATUSES.notStarted"
-                  :text="tableRow.name"
-                  :to="classRoute('ReportsQuizLearnerPage', {
-                    learnerId: tableRow.id,
-                    questionId: 0,
-                    interactionIndex: 0
-                  })"
-                />
-                <template v-else>
-                  {{ tableRow.name }}
-                </template>
-              </KLabeledIcon>
-            </td>
-            <td>
-              <StatusSimple
-                v-if="tableRow.statusObj.status !== STATUSES.started"
-                :status="tableRow.statusObj.status"
+  <ReportsQuizBaseListPage>
+    <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
+      <thead slot="thead">
+        <tr>
+          <th>{{ coachString('nameLabel') }}</th>
+          <th>{{ coreString('progressLabel') }}</th>
+          <th>{{ coachString('scoreLabel') }}</th>
+          <th>{{ coachString('groupsLabel') }}</th>
+        </tr>
+      </thead>
+      <transition-group slot="tbody" tag="tbody" name="list">
+        <tr v-for="tableRow in table" :key="tableRow.id">
+          <td>
+            <KLabeledIcon icon="person">
+              <KRouterLink
+                v-if="tableRow.statusObj.status !== STATUSES.notStarted"
+                :text="tableRow.name"
+                :to="classRoute('ReportsQuizLearnerPage', {
+                  learnerId: tableRow.id,
+                  questionId: 0,
+                  interactionIndex: 0
+                })"
               />
-              <KLabeledIcon v-else>
-                <KIcon slot="icon" :color="$themeTokens.progress" icon="inProgress" />
-                {{
-                  $tr('questionsCompletedRatioLabel',
-                      {count: tableRow.statusObj.num_answered || 0, total: exam.question_count})
-                }}
-              </KLabeledIcon>
-            </td>
-            <td>
-              <Score
-                v-if="tableRow.statusObj.status === STATUSES.completed"
-                :value="tableRow.statusObj.score || 0.0"
-              />
-            </td>
-            <td>
-              <TruncatedItemList :items="tableRow.groups" />
-            </td>
-          </tr>
-        </transition-group>
-      </CoreTable>
-    </KPageContainer>
-  </CoreBase>
+              <template v-else>
+                {{ tableRow.name }}
+              </template>
+            </KLabeledIcon>
+          </td>
+          <td>
+            <StatusSimple
+              v-if="tableRow.statusObj.status !== STATUSES.started"
+              :status="tableRow.statusObj.status"
+            />
+            <KLabeledIcon v-else>
+              <KIcon slot="icon" :color="$themeTokens.progress" icon="inProgress" />
+              {{
+                $tr('questionsCompletedRatioLabel',
+                    {count: tableRow.statusObj.num_answered || 0, total: exam.question_count})
+              }}
+            </KLabeledIcon>
+          </td>
+          <td>
+            <Score
+              v-if="tableRow.statusObj.status === STATUSES.completed"
+              :value="tableRow.statusObj.score || 0.0"
+            />
+          </td>
+          <td>
+            <TruncatedItemList :items="tableRow.groups" />
+          </td>
+        </tr>
+      </transition-group>
+    </CoreTable>
+  </ReportsQuizBaseListPage>
 
 </template>
 
@@ -74,11 +63,13 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import ReportsQuizHeader from './ReportsQuizHeader';
+  import ReportsQuizBaseListPage from './ReportsQuizBaseListPage';
 
   export default {
     name: 'ReportsQuizLearnerListPage',
     components: {
       ReportsQuizHeader,
+      ReportsQuizBaseListPage,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {

@@ -1,18 +1,7 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-    :showSubNav="true"
-  >
-
-    <TopNavbar slot="sub-nav" />
-
-    <KPageContainer>
-
-      <ReportsQuizHeader />
-
+  <ReportsQuizBaseListPage>
+    <div>
       <h2>{{ coachString('overallLabel') }}</h2>
       <CoreTable :emptyMessage="coachString('questionListEmptyState')">
         <thead slot="thead">
@@ -43,9 +32,8 @@
           </tr>
         </transition-group>
       </CoreTable>
-    </KPageContainer>
-  </CoreBase>
-
+    </div>
+  </ReportsQuizBaseListPage>
 </template>
 
 
@@ -54,6 +42,7 @@
   import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
+  import ReportsQuizBaseListPage from './ReportsQuizBaseListPage';
   import ReportsQuizHeader from './ReportsQuizHeader';
   import { PageNames } from './../../constants';
 
@@ -62,6 +51,7 @@
     components: {
       ReportsQuizHeader,
       LearnerProgressRatio,
+      ReportsQuizBaseListPage,
     },
     mixins: [commonCoach],
     computed: {
