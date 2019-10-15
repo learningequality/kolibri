@@ -14,7 +14,7 @@
         <h1>
           <KLabeledIcon icon="quiz" :label="exam.title" />
         </h1>
-        <StatusElapsedTime :date="new Date(exam.date_created)" actionType="created" />
+        <StatusElapsedTime :date="examCreatedDate" actionType="created" />
       </div>
       <QuizOptionsDropdownMenu
         slot="options"
@@ -45,6 +45,13 @@
       exam() {
         return this.examMap[this.$route.params.quizId];
       },
+      examCreatedDate() {
+        if(this.exam.date_created) {
+          return new Date(exam.date_created)
+        } else {
+          return null;
+        }
+      }
     },
     methods: {
       handleSelectOption(option) {
