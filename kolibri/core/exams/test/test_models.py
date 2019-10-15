@@ -5,6 +5,7 @@ from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.exams.models import Exam
 from kolibri.core.auth.test.helpers import provision_device
 
+
 class ExamTestCase(TestCase):
     def setUp(self):
         provision_device()

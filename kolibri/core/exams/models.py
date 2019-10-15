@@ -115,10 +115,10 @@ class Exam(AbstractFacilityDataModel):
         super(Exam, self).delete(using, keep_parents)
 
     def save(self, *args, **kwargs):
-        if getattr(self, 'archive', False) == True:
-            print("it is archived")
-            if getattr(self, 'date_archived') == None:
-                print("it had no date")
+        # If archive is True during the save op, but there is no date_archived then
+        # this is the save that is archiving the object and we need to datestamp it
+        if getattr(self, "archive", False) == True:
+            if getattr(self, "date_archived") == None:
                 self.date_archived = timezone.now()
         super(Exam, self).save(*args, **kwargs)
 
