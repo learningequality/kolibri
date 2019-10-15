@@ -236,7 +236,8 @@ class Application(pew.ui.PEWApp):
             try:
                 urlopen(home_url)
                 return True
-            except URLError:
+            except URLError as e:
+                logging.info("Error pinging Kolibri server: {}".format(e))
                 return False
 
         # Tie up this thread until the server is running
