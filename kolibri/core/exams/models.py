@@ -104,6 +104,8 @@ class Exam(AbstractFacilityDataModel):
         FacilityUser, related_name="exams", blank=False, null=False
     )
     date_created = models.DateTimeField(auto_now_add=True, null=True)
+
+    # archive will be used on the frontend to indicate if a quiz is "closed"
     archive = models.BooleanField(default=False)
     date_archived = models.DateTimeField(default=None, null=True, blank=True)
 

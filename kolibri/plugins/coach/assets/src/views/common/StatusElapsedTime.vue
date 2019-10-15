@@ -27,10 +27,10 @@
         type: String,
         required: false,
         default: null,
-        validator: function (value) {
-          return ['created', 'closed', null].includes(value)
-        }
-      }
+        validator: function(value) {
+          return ['created', 'closed', null].includes(value);
+        },
+      },
     },
     data: () => ({
       now: now(),
@@ -48,8 +48,8 @@
 
         // Seconds
         if (timeDifference < MINUTE) {
-          const strParams = { seconds: this.toSeconds(timeDifference) }
-          switch(this.actionType) {
+          const strParams = { seconds: this.toSeconds(timeDifference) };
+          switch (this.actionType) {
             case 'created':
               return this.$tr('createdSecondsAgo', strParams);
             case 'closed':
@@ -60,8 +60,8 @@
         }
         // Minutes
         if (timeDifference < HOUR) {
-          const strParams = { minutes: this.toMinutes(timeDifference) }
-          switch(this.actionType) {
+          const strParams = { minutes: this.toMinutes(timeDifference) };
+          switch (this.actionType) {
             case 'created':
               return this.$tr('createdMinutesAgo', strParams);
             case 'closed':
@@ -72,8 +72,8 @@
         }
         // Hours
         if (timeDifference < DAY) {
-          const strParams = { hours: this.toHours(timeDifference) }
-          switch(this.actionType) {
+          const strParams = { hours: this.toHours(timeDifference) };
+          switch (this.actionType) {
             case 'created':
               return this.$tr('createdHoursAgo', strParams);
             case 'closed':
@@ -83,8 +83,8 @@
           }
         }
         // else, Days
-        const strParams = { days: this.toDays(timeDifference) }
-        switch(this.actionType) {
+        const strParams = { days: this.toDays(timeDifference) };
+        switch (this.actionType) {
           case 'created':
             return this.$tr('createdDaysAgo', strParams);
           case 'closed':
@@ -149,18 +149,15 @@
       },
       secondsAgo: {
         message: '{seconds} {seconds, plural, one {second} other {seconds}} ago',
-        context:
-          'Indicates that something occured seconds prior to the current time.',
+        context: 'Indicates that something occured seconds prior to the current time.',
       },
       minutesAgo: {
         message: '{minutes} {minutes, plural, one {minute} other {minutes}} ago',
-        context:
-          'Indicates that something occured minutes prior to the current time.',
+        context: 'Indicates that something occured minutes prior to the current time.',
       },
       hoursAgo: {
         message: '{hours} {hours, plural, one {hour} other {hours}} ago',
-        context:
-          'Indicates that something occured hours prior to the current time.',
+        context: 'Indicates that something occured hours prior to the current time.',
       },
       daysAgo: {
         message: '{days} {days, plural, one {day} other {days}} ago',
@@ -174,6 +171,7 @@
 <style scoped lang='scss'>
 
   .time-context {
+    display: block;
     margin-top: 2px;
     margin-bottom: -1rem;
     font-size: small;

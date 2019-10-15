@@ -18,6 +18,18 @@
       @click="showCancellationModal = true"
     />
     <dl>
+      <dt v-if="exam.archive">
+        <b>{{ $tr('quizClosedLabel') }}</b>
+      </dt>
+      <dd v-if="exam.archive" style="margin-bottom: 2.5rem;">
+        <StatusElapsedTime :date="examDateArchived" />
+      </dd>
+      <dt v-if="exam.archive">
+        <b>{{ $tr('reportVisibleLabel') }}</b>
+      </dt>
+      <dd v-if="exam.archive">
+        ==() Yes
+      </dd>
       <dt>
         <b>{{ coachString('recipientsLabel') }}</b>
       </dt>
@@ -63,10 +75,11 @@
   import Score from './Score';
   import Recipients from './Recipients';
   import QuizStatusModal from './QuizStatusModal';
+  import StatusElapsedTime from './StatusElapsedTime';
 
   export default {
     name: 'QuizStatus',
-    components: { Score, Recipients, QuizStatusModal },
+    components: { Score, Recipients, QuizStatusModal, StatusElapsedTime },
     mixins: [coachStringsMixin],
     props: {
       groupNames: {
@@ -101,6 +114,13 @@
           ':hover': { 'background-color': '#f66' },
         };
       },
+      examDateArchived() {
+        if (this.exam.date_archived) {
+          return new Date(this.exam.date_archived);
+        } else {
+          return null;
+        }
+      },
     },
     $trs: {
       openQuizLabel: {
@@ -124,6 +144,16 @@
           'All learners will be given a final score and a quiz report. Unfinished questions will be counted as incorrect.',
         context:
           "Text shown on a modal pop-up window when the user clicks the 'Close Quiz' button. This explains what will happen when the modal window is confirmed.",
+      },
+      quizClosedLabel: {
+        message: 'Quiz closed',
+        context:
+          'A label indicating that the currently viewed quiz is closed - meaning that learners may no longer give answers to the quiz.',
+      },
+      reportVisibleLabel: {
+        message: 'Report visible to learners',
+        context:
+          'The label for a switch that will toggle whether or not learners can view their quiz report.',
       },
     },
   };

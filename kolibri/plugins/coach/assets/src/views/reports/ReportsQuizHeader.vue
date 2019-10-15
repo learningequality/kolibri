@@ -46,12 +46,12 @@
         return this.examMap[this.$route.params.quizId];
       },
       examCreatedDate() {
-        if(this.exam.date_created) {
-          return new Date(exam.date_created)
+        if (this.exam.date_created) {
+          return new Date(this.exam.date_created);
         } else {
           return null;
         }
-      }
+      },
     },
     methods: {
       handleSelectOption(option) {
