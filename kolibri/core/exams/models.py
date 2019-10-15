@@ -1,6 +1,7 @@
 from django.db import models
 from jsonfield import JSONField
 
+from django.utils import timezone
 from .permissions import UserCanReadExamAssignmentData
 from .permissions import UserCanReadExamData
 from kolibri.core.auth.constants import role_kinds
@@ -112,6 +113,14 @@ class Exam(AbstractFacilityDataModel):
         """
         LearnerProgressNotification.objects.filter(quiz_id=self.id).delete()
         super(Exam, self).delete(using, keep_parents)
+
+    def save(self, *args, **kwargs):
+        if getattr(self, 'archive', False) == True:
+            print("it is archived")
+            if getattr(self, 'date_archived') == None:
+                print("it had no date")
+                self.date_archived = timezone.now()
+        super(Exam, self).save(*args, **kwargs)
 
     """
     As we evolve this model in ways that migrations can't handle, certain fields may
