@@ -18,8 +18,6 @@ class Exam(AbstractFacilityDataModel):
 
     morango_model_name = "exam"
 
-    date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-
     permissions = (
         RoleBasedPermissions(
             target_field="collection",
@@ -104,7 +102,9 @@ class Exam(AbstractFacilityDataModel):
     creator = models.ForeignKey(
         FacilityUser, related_name="exams", blank=False, null=False
     )
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
     archive = models.BooleanField(default=False)
+    date_archived = models.DateTimeField(default=None, null=True, blank=True)
 
     def delete(self, using=None, keep_parents=False):
         """

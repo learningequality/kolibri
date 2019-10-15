@@ -4,6 +4,9 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
+def forward_func(apps, schema_editor):
+    Exam = apps.get_model("exams", "Exam")
+    Exam.objects.all().update(date_created=None, date_archived=None)
 
 class Migration(migrations.Migration):
 
@@ -15,9 +18,11 @@ class Migration(migrations.Migration):
             name="date_created",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
-        # Ensure that previously created exams have no created_at by default.
-        migrations.RunSQL(
-            sql="UPDATE exams_exam SET date_created=NULL",
-            reverse_sql=migrations.RunSQL.noop,
+        migrations.AddField(
+            model_name='exam',
+            name='date_archived',
+            field=models.DateTimeField(default=None, null=True, blank=True),
         ),
+        # Ensure that previously created exams have no created_at by default.
+        migrations.RunPython(forward_func, lambda *_: None),
     ]

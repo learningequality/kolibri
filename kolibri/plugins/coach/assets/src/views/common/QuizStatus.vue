@@ -2,10 +2,17 @@
 
   <KPageContainer>
     <KButton
+      v-if="!exam.active"
       :primary="true"
       text="Open Quiz"
       type="submit"
-      style="margin-left: 0; margin-top: 1.5rem;"
+      style="margin-left: 0; margin-top: 1rem; margin-bottom: 0;"
+    />
+    <KButton
+      v-if="exam.active"
+      text="Close Quiz"
+      type="submit"
+      style="margin-left: 0; margin-top: 1rem; margin-bottom: 0;"
     />
     <div>
       <b>{{ coachString('recipientsLabel') }}</b>
@@ -35,7 +42,7 @@
 
   import { coachStringsMixin } from './commonCoachStrings';
   import Score from './Score';
-  import Recipients from './Recipients'
+  import Recipients from './Recipients';
 
   export default {
     name: 'QuizStatus',
@@ -61,7 +68,7 @@
           ? this.coachString('orderFixedLabel')
           : this.coachString('orderRandomLabel');
       },
-    }
+    },
   };
 
 </script>

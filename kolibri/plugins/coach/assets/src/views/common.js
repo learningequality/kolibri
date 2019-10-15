@@ -33,7 +33,7 @@ import StatusSummary from './common/status/StatusSummary';
 import StatusSimple from './common/status/StatusSimple';
 import HelpNeeded from './common/status/HelpNeeded';
 import Placeholder from './common/Placeholder';
-import CreatedElapsedTime from './common/CreatedElapsedTime';
+import StatusElapsedTime from './common/StatusElapsedTime';
 import { VERBS, ICONS } from './common/status/constants';
 
 function formatPageTitle() {
@@ -131,7 +131,7 @@ export default {
     StatusSimple,
     HelpNeeded,
     Placeholder,
-    CreatedElapsedTime,
+    StatusElapsedTime,
   },
   mixins: [coachStringsMixin],
   computed: {

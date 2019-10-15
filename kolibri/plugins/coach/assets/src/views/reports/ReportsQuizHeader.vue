@@ -14,7 +14,7 @@
         <h1>
           <KLabeledIcon icon="quiz" :label="exam.title" />
         </h1>
-        <CreatedElapsedTime :date="new Date(exam.date_created)" />
+        <StatusElapsedTime :date="new Date(exam.date_created)" actionType="created" />
       </div>
       <QuizOptionsDropdownMenu
         slot="options"
@@ -42,14 +42,8 @@
     },
     mixins: [commonCoach],
     computed: {
-      avgScore() {
-        return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
-      },
       exam() {
         return this.examMap[this.$route.params.quizId];
-      },
-      recipients() {
-        return this.getLearnersForExam(this.exam);
       },
     },
     methods: {
