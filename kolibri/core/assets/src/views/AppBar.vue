@@ -52,7 +52,7 @@
             category="social"
             :style="{fill: $themeTokens.textInverted}"
           />
-          <span v-if="isUserLoggedIn" class="username">{{ username }}</span>
+          <span v-if="isUserLoggedIn" class="username">{{ dropdownName }}</span>
           <mat-svg
             name="arrow_drop_down"
             category="navigation"
@@ -149,17 +149,23 @@
     data() {
       return {
         userMenuDropdownIsOpen: false,
+        usernameRegex: /^[a-f0-9]{30}$/,
       };
     },
     computed: {
       ...mapGetters(['isUserLoggedIn', 'getUserKind']),
       ...mapState({
         username: state => state.core.session.username,
+        fullName: state => state.core.session.full_name,
       }),
       menuOptions() {
         return navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
           .filter(this.filterByRole);
+      },
+      // temp hack for the VF plugin
+      dropdownName() {
+        return !this.usernameRegex.test(this.username) ? this.username : this.fullName;
       },
     },
     created() {
