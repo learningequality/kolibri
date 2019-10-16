@@ -165,8 +165,12 @@ class ExamSerializer(serializers.ModelSerializer):
         instance.title = validated_data.get("title", instance.title)
         instance.active = validated_data.get("active", instance.active)
         instance.archive = validated_data.get("archive", instance.archive)
-        instance.date_activated = validated_data.get("date_activated", instance.date_activated)
-        instance.date_archived = validated_data.get("date_archived", instance.date_archived)
+        instance.date_activated = validated_data.get(
+            "date_activated", instance.date_activated
+        )
+        instance.date_archived = validated_data.get(
+            "date_archived", instance.date_archived
+        )
 
         # Add/delete any new/removed Assignments
         if "assignments" in validated_data:

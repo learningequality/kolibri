@@ -7,7 +7,9 @@ from django.db import migrations, models
 # Ensure that existing date values are initialized with a NULL value
 def forward_func(apps, schema_editor):
     Exam = apps.get_model("exams", "Exam")
-    Exam.objects.all().update(date_created=None, date_archived=None, date_activated=None)
+    Exam.objects.all().update(
+        date_created=None, date_archived=None, date_activated=None
+    )
 
 
 class Migration(migrations.Migration):

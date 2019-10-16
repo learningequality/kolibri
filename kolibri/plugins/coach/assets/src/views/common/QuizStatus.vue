@@ -71,6 +71,7 @@
 
 </template>
 
+
 <script>
 
   import { ExamResource } from 'kolibri.resources';
@@ -232,7 +233,8 @@
 
 </script>
 
-<style scoped lang='scss'>
+
+<style scoped lang="scss">
 
   dt {
     margin-top: 1.5rem;

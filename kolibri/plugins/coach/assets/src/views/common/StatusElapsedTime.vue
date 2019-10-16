@@ -5,6 +5,8 @@
   </p>
 
 </template>
+
+
 <script>
 
   import { now } from 'kolibri.utils.serverClock';
@@ -203,7 +205,8 @@
 
 </script>
 
-<style scoped lang='scss'>
+
+<style scoped lang="scss">
 
   .time-context {
     display: block;

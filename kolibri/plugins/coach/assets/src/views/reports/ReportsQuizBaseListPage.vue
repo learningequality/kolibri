@@ -67,11 +67,6 @@
       recipients() {
         return this.getLearnersForExam(this.exam);
       },
-      orderDescriptionString() {
-        return this.exam.learners_see_fixed_order
-          ? this.coachString('orderFixedLabel')
-          : this.coachString('orderRandomLabel');
-      },
       filterOptions() {
         return [
           {

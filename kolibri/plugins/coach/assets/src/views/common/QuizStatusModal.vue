@@ -12,6 +12,7 @@
 
 </template>
 
+
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
