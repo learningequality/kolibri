@@ -9,14 +9,16 @@
       style="margin-left: 0; margin-top: 1rem; margin-bottom: 0;"
       @click="showConfirmationModal = true"
     />
-    <KButton
-      v-if="exam.active && !exam.archive"
-      :text="$tr('closeQuizLabel')"
-      type="submit"
-      style="margin-left: 0; margin-top: 1rem; margin-bottom: 0;"
-      :appearanceOverrides="cancelStyleOverrides"
-      @click="showCancellationModal = true"
-    />
+    <div v-if="exam.active && !exam.archive" style="margin-bottom: 2.5rem;">
+      <KButton
+        :text="$tr('closeQuizLabel')"
+        type="submit"
+        style="margin-left: 0; margin-top: 1rem; margin-bottom: 0;"
+        :appearanceOverrides="cancelStyleOverrides"
+        @click="showCancellationModal = true"
+      />
+      <StatusElapsedTime :date="examDateOpened" actionType="opened" />
+    </div>
     <dl>
       <dt v-if="exam.archive">
         <b>{{ $tr('quizClosedLabel') }}</b>
@@ -56,14 +58,14 @@
       :modalHeader="$tr('openQuizLabel')"
       :modalDetail="$tr('openQuizModalDetail')"
       @cancel="showConfirmationModal = false"
-      @submit="openQuiz"
+      @submit="handleOpenQuiz"
     />
     <QuizStatusModal
       v-if="showCancellationModal"
       :modalHeader="$tr('closeQuizLabel')"
       :modalDetail="$tr('closeQuizModalDetail')"
       @cancel="showCancellationModal = false"
-      @submit="closeQuiz"
+      @submit="handleCloseQuiz"
     />
   </KPageContainer>
 
@@ -71,6 +73,7 @@
 
 <script>
 
+  import { ExamResource } from 'kolibri.resources';
   import { coachStringsMixin } from './commonCoachStrings';
   import Score from './Score';
   import Recipients from './Recipients';
@@ -121,8 +124,77 @@
           return null;
         }
       },
+      examDateOpened() {
+        if (this.exam.date_activated) {
+          return new Date(this.exam.date_activated);
+        } else {
+          return null;
+        }
+      },
+    },
+    methods: {
+      handleOpenQuiz() {
+        let promise = ExamResource.saveModel({
+          id: this.$route.params.quizId,
+          data: {
+            active: true,
+            date_activated: new Date(),
+          },
+          exists: true,
+        });
+
+        return promise
+          .then(() => {
+            this.$store.dispatch('classSummary/refreshClassSummary');
+            this.showConfirmationModal = false;
+            this.$store.dispatch('createSnackbar', this.$tr('quizOpenedMessage'));
+          })
+          .catch(() => {
+            this.$store.dispatch('createSnackbar', this.$tr('quizFailedToOpenMessage'));
+          });
+      },
+      handleCloseQuiz() {
+        let promise = ExamResource.saveModel({
+          id: this.$route.params.quizId,
+          data: {
+            archive: true,
+            date_archived: new Date(),
+          },
+          exists: true,
+        });
+
+        return promise
+          .then(() => {
+            this.$store.dispatch('classSummary/refreshClassSummary');
+            this.showCancellationModal = false;
+            this.$store.dispatch('createSnackbar', this.$tr('quizClosedMessage'));
+          })
+          .catch(() => {
+            this.$store.dispatch('createSnackbar', this.$tr('quizFailedToCloseMessage'));
+          });
+      },
     },
     $trs: {
+      quizOpenedMessage: {
+        message: 'Quiz is open',
+        context:
+          'A brief snackbar message notifying the user that the quiz was successfully opened.',
+      },
+      quizFailedToOpenMessage: {
+        message: 'There was a problem opening the quiz. The quiz was not opened.',
+        context:
+          'A brief snackbar message notifying the user that there was an error trying to open the quiz and that the quiz is not open.',
+      },
+      quizClosedMessage: {
+        message: 'Quiz is closed',
+        context:
+          'A brief snackbar message notifying the user that the quiz was successfully closed.',
+      },
+      quizFailedToCloseMessage: {
+        message: 'There was a problem closing the quiz. The quiz was not closed.',
+        context:
+          'A brief snackbar message notifying the user that there was an error trying to close the quiz and that the quiz is not closed.',
+      },
       openQuizLabel: {
         message: 'Open quiz',
         context:

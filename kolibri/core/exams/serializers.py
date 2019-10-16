@@ -8,6 +8,7 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
+from kolibri.core.serializers import DateTimeTzField
 
 
 class NestedCollectionSerializer(serializers.ModelSerializer):
@@ -77,6 +78,8 @@ class ExamSerializer(serializers.ModelSerializer):
     creator = serializers.PrimaryKeyRelatedField(
         read_only=False, queryset=FacilityUser.objects.all()
     )
+    date_archived = DateTimeTzField()
+    date_activated = DateTimeTzField()
 
     class Meta:
         model = Exam
@@ -89,6 +92,8 @@ class ExamSerializer(serializers.ModelSerializer):
             "active",
             "collection",
             "archive",
+            "date_archived",
+            "date_activated",
             "assignments",
             "creator",
             "data_model_version",
@@ -159,6 +164,9 @@ class ExamSerializer(serializers.ModelSerializer):
         # Update the scalar fields
         instance.title = validated_data.get("title", instance.title)
         instance.active = validated_data.get("active", instance.active)
+        instance.archive = validated_data.get("archive", instance.archive)
+        instance.date_activated = validated_data.get("date_activated", instance.date_activated)
+        instance.date_archived = validated_data.get("date_archived", instance.date_archived)
 
         # Add/delete any new/removed Assignments
         if "assignments" in validated_data:
