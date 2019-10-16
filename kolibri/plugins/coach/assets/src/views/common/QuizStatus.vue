@@ -30,7 +30,10 @@
         <b>{{ $tr('reportVisibleLabel') }}</b>
       </dt>
       <dd v-if="exam.archive">
-        ==() Yes
+        <a
+          href="#"
+          @click="handleToggleVisibility"
+        >{{ exam.active ? "YES" : "NO" }}</a>
       </dd>
       <dt>
         <b>{{ coachString('recipientsLabel') }}</b>
@@ -173,6 +176,20 @@
           .catch(() => {
             this.$store.dispatch('createSnackbar', this.$tr('quizFailedToCloseMessage'));
           });
+      },
+      handleToggleVisibility() {
+        let promise = ExamResource.saveModel({
+          id: this.$route.params.quizId,
+          data: {
+            active: !this.exam.active,
+          },
+          exists: true,
+        });
+
+        return promise.then(() => {
+          this.$store.dispatch('classSummary/refreshClassSummary');
+          this.showConfirmationModal = false;
+        });
       },
     },
     $trs: {
