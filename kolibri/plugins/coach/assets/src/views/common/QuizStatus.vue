@@ -131,8 +131,8 @@
       cancelStyleOverrides() {
         return {
           color: '#fff',
-          'background-color': '#f00',
-          ':hover': { 'background-color': '#f66' },
+          'background-color': this.$themePalette.red.v_700,
+          ':hover': { 'background-color': this.$themePalette.red.v_900 },
         };
       },
       examDateArchived() {
@@ -271,7 +271,7 @@
       questionOrderLabel: {
         message: 'Question order',
         context: 'A label for the place where the question order is shown.',
-      }
+      },
     },
   };
 
