@@ -30,10 +30,7 @@
         <b>{{ $tr('reportVisibleLabel') }}</b>
       </dt>
       <dd v-if="exam.archive">
-        <a
-          href="#"
-          @click="handleToggleVisibility"
-        >{{ exam.active ? "YES" : "NO" }}</a>
+
       </dd>
       <dt>
         <b>{{ coachString('recipientsLabel') }}</b>
@@ -46,13 +43,29 @@
         />
       </dd>
       <dt>
-        <b>Average score</b>
+        <b>
+          <span>{{ $tr('averageScoreLabel') }}</span>
+          <div ref="icon" style="display:inline;">
+            <KIcon
+              icon="error"
+              :color="$themeTokens.primary"
+              style="position: relative; top:4px; left: 4px;"
+            />
+            <KTooltip
+              reference="icon"
+              :refs="$refs"
+            >
+              {{ $tr('visibleToLearnersTooltipMessage') }}
+            </KTooltip>
+          </div>
+        </b>
+
       </dt>
       <dd>
         <Score :value="avgScore" />
       </dd>
       <dt>
-        <b>Question order</b>
+        <b>{{ $tr('questionOrderLabel') }} </b>
       </dt>
       <dd>{{ orderDescriptionString }}</dd>
     </dl>
@@ -78,6 +91,7 @@
 <script>
 
   import { ExamResource } from 'kolibri.resources';
+  import UiSwitch from 'keen-ui/src/UiSwitch';
   import { coachStringsMixin } from './commonCoachStrings';
   import Score from './Score';
   import Recipients from './Recipients';
@@ -86,7 +100,7 @@
 
   export default {
     name: 'QuizStatus',
-    components: { Score, Recipients, QuizStatusModal, StatusElapsedTime },
+    components: { Score, Recipients, QuizStatusModal, StatusElapsedTime, UiSwitch },
     mixins: [coachStringsMixin],
     props: {
       groupNames: {
@@ -245,6 +259,19 @@
         context:
           'The label for a switch that will toggle whether or not learners can view their quiz report.',
       },
+      visibleToLearnersTooltipMessage: {
+        message: 'Calculated only from quizzes that were completed',
+        context:
+          'A message for a tooltip that shows when the user hovers over a small icon that tells the user that the Average Quiz Score is calculated only using quizzes that learners completed.',
+      },
+      averageScoreLabel: {
+        message: 'Average score',
+        context: 'A label for the place where the average score for the quiz is displayed.',
+      },
+      questionOrderLabel: {
+        message: 'Question order',
+        context: 'A label for the place where the question order is shown.',
+      }
     },
   };
 
