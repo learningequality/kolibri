@@ -103,6 +103,10 @@ class Exam(AbstractFacilityDataModel):
     creator = models.ForeignKey(
         FacilityUser, related_name="exams", blank=False, null=False
     )
+
+    # To be set True when the quiz is first set to active=True
+    date_activated = models.DateTimeField(default=None, null=True, blank=True)
+
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     # archive will be used on the frontend to indicate if a quiz is "closed"
