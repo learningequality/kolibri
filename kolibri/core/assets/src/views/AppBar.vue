@@ -124,6 +124,8 @@
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
 
+  const hashedValuePattern = /^[a-f0-9]{30}$/;
+
   export default {
     name: 'AppBar',
     components: {
@@ -149,7 +151,6 @@
     data() {
       return {
         userMenuDropdownIsOpen: false,
-        usernameRegex: /^[a-f0-9]{30}$/,
       };
     },
     computed: {
@@ -165,7 +166,7 @@
       },
       // temp hack for the VF plugin
       dropdownName() {
-        return !this.usernameRegex.test(this.username) ? this.username : this.fullName;
+        return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
       },
     },
     created() {
