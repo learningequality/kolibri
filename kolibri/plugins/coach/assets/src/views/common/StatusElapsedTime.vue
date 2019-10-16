@@ -13,6 +13,13 @@
   const HOUR = MINUTE * 60;
   const DAY = HOUR * 24;
 
+  const ACTION_TYPES = [
+    'created',
+    'closed',
+    'opened',
+    null, // Default to "n minutes ago"
+  ];
+
   export default {
     name: 'StatusElapsedTime',
     props: {
@@ -28,67 +35,76 @@
         required: false,
         default: null,
         validator: function(value) {
-          return ['created', 'closed', null].includes(value);
+          return ACTION_TYPES.includes(value);
         },
       },
     },
-    data: () => ({
-      now: now(),
-    }),
     computed: {
+      timeDifference() {
+        const time = now() - this.date;
+        // Ensure time is never negative or 0 (also - this is in ms)
+        return time >= 1000 ? time : 1000;
+      },
       formattedTime() {
         // No need to do anything if there is no date given.
         if (!this.date) {
           return '';
         }
-        const timeDifference = this.now - this.date;
         // The following is a bit verbose - but our i18n profiling can better process
         // our translation usage when used explicitly rather than by dynamically
         // generating the string identifiers.
 
         // Seconds
-        if (timeDifference < MINUTE) {
-          const strParams = { seconds: this.toSeconds(timeDifference) };
+        if (this.timeDifference < MINUTE) {
+          const strParams = { seconds: this.toSeconds(this.timeDifference) };
           switch (this.actionType) {
             case 'created':
               return this.$tr('createdSecondsAgo', strParams);
             case 'closed':
               return this.$tr('closedSecondsAgo', strParams);
+            case 'opened':
+              return this.$tr('openedSecondsAgo', strParams);
             default:
               return this.$tr('secondsAgo', strParams);
           }
         }
         // Minutes
-        if (timeDifference < HOUR) {
-          const strParams = { minutes: this.toMinutes(timeDifference) };
+        if (this.timeDifference < HOUR) {
+          const strParams = { minutes: this.toMinutes(this.timeDifference) };
           switch (this.actionType) {
             case 'created':
               return this.$tr('createdMinutesAgo', strParams);
             case 'closed':
               return this.$tr('closedMinutesAgo', strParams);
+            case 'opened':
+              return this.$tr('openedMinutesAgo', strParams);
             default:
               return this.$tr('minutesAgo', strParams);
           }
         }
         // Hours
-        if (timeDifference < DAY) {
-          const strParams = { hours: this.toHours(timeDifference) };
+        if (this.timeDifference < DAY) {
+          const strParams = { hours: this.toHours(this.timeDifference) };
           switch (this.actionType) {
             case 'created':
               return this.$tr('createdHoursAgo', strParams);
             case 'closed':
               return this.$tr('closedHoursAgo', strParams);
+            case 'opened':
+              return this.$tr('openedHoursAgo', strParams);
             default:
               return this.$tr('hoursAgo', strParams);
           }
         }
         // else, Days
-        const strParams = { days: this.toDays(timeDifference) };
+        const strParams = { days: this.toDays(this.timeDifference) };
         switch (this.actionType) {
           case 'created':
             return this.$tr('createdDaysAgo', strParams);
           case 'closed':
             return this.$tr('closedDaysAgo', strParams);
+          case 'opened':
+            return this.$tr('openedDaysAgo', strParams);
           default:
             return this.$tr('daysAgo', strParams);
         }
@@ -146,6 +162,25 @@
       closedDaysAgo: {
         message: 'Closed {days} {days, plural, one {day} other {days}} ago',
         context: 'Indicates that an item was closed a number of days prior to the current date.',
+      },
+      openedSecondsAgo: {
+        message: 'Opened {seconds} {seconds, plural, one {second} other {seconds}} ago',
+        context:
+          'Indicates that an item was opened a number of seconds prior to the current time, but is always less than 1 minute ago.',
+      },
+      openedMinutesAgo: {
+        message: 'Opened {minutes} {minutes, plural, one {minute} other {minutes}} ago',
+        context:
+          'Indicates that an item was opened a number of minutes prior to the current time, but the time is always less than 1 hour ago.',
+      },
+      openedHoursAgo: {
+        message: 'Opened {hours} {hours, plural, one {hour} other {hours}} ago',
+        context:
+          'Indicates that an item was opened a number of hours prior to the current time, but the time is always less than one day ago',
+      },
+      openedDaysAgo: {
+        message: 'Opened {days} {days, plural, one {day} other {days}} ago',
+        context: 'Indicates that an item was opened a number of days prior to the current date.',
       },
       secondsAgo: {
         message: '{seconds} {seconds, plural, one {second} other {seconds}} ago',
