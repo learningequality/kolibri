@@ -49,7 +49,7 @@ class DefaultThemeHook(theme_hook.ThemeHook):
             # sign-in page config
             theme_hook.SIGN_IN: {
                 theme_hook.BACKGROUND: static("background.jpg"),
-                theme_hook.DISABLE_SCRIM: False,
+                theme_hook.SCRIM_OPACITY: None,  # use default: 0.7,
                 theme_hook.TITLE: None,  # use default: "Kolibri"
                 theme_hook.TOP_LOGO: {
                     theme_hook.IMG_SRC: None,  # use default Kolibri bird
