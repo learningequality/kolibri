@@ -330,6 +330,11 @@
 
 <style lang="scss" scoped>
 
+  .content-renderer {
+    // Needs to be one less than the ScrollingHeader's z-index of 4
+    z-index: 3;
+  }
+
   .coach-content-label {
     margin: 8px 0;
   }
