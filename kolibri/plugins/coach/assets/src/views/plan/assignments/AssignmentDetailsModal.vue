@@ -35,27 +35,6 @@
         />
       </fieldset>
 
-      <fieldset v-if="assignmentType !== 'new_lesson'">
-        <legend>
-          {{ coachString('statusLabel') }}
-        </legend>
-        <p>
-          {{ assignmentStrings.statusExplanation }}
-        </p>
-        <KRadioButton
-          v-model="activeIsSelected"
-          :label="assignmentStrings.activeStatus"
-          :value="true"
-          :disabled="disabled || formIsSubmitted"
-        />
-        <KRadioButton
-          v-model="activeIsSelected"
-          :label="assignmentStrings.inactiveStatus"
-          :value="false"
-          :disabled="disabled || formIsSubmitted"
-        />
-      </fieldset>
-
       <fieldset>
         <legend>
           {{ coachString('recipientsLabel') }}
