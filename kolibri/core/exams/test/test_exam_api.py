@@ -44,6 +44,8 @@ class ExamAPITestCase(APITestCase):
             "learners_see_fixed_order": False,
             "question_sources": [],
             "assignments": [],
+            "date_activated": None,
+            "date_archived": None,
         }
 
     def post_new_exam(self, exam):
