@@ -198,10 +198,13 @@
           });
       },
       handleToggleVisibility() {
+        const newActiveState = !this.exam.active;
+        const snackbarMessage = newActiveState ? this.$tr("quizVisibleToLearners") : this.$tr("quizNotVisibleToLearners");
+
         let promise = ExamResource.saveModel({
           id: this.$route.params.quizId,
           data: {
-            active: !this.exam.active,
+            active: newActiveState,
           },
           exists: true,
         });
@@ -209,6 +212,7 @@
         return promise.then(() => {
           this.$store.dispatch('classSummary/refreshClassSummary');
           this.showConfirmationModal = false;
+          this.$store.dispatch('createSnackbar', snackbarMessage);
         });
       },
     },
@@ -232,6 +236,16 @@
         message: 'There was a problem closing the quiz. The quiz was not closed.',
         context:
           'A brief snackbar message notifying the user that there was an error trying to close the quiz and that the quiz is not closed.',
+      },
+      quizVisibleToLearners: {
+        message: 'Quiz report is visible to learners',
+        context:
+          'A brief snackbar message notifying the user that learners may view their quiz report. It will show when the user changes a setting to make the quiz visible.',
+      },
+      quizNotVisibleToLearners: {
+        message: 'Quiz report is not visible to learners',
+        context:
+          'A brief snackbar message notifying the user that learners may no longer view their quiz report. It will show when the user changes a setting to make the quiz no longer visible.',
       },
       openQuizLabel: {
         message: 'Open quiz',
