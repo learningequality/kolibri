@@ -199,7 +199,9 @@
       },
       handleToggleVisibility() {
         const newActiveState = !this.exam.active;
-        const snackbarMessage = newActiveState ? this.$tr("quizVisibleToLearners") : this.$tr("quizNotVisibleToLearners");
+        const snackbarMessage = newActiveState
+          ? this.$tr('quizVisibleToLearners')
+          : this.$tr('quizNotVisibleToLearners');
 
         let promise = ExamResource.saveModel({
           id: this.$route.params.quizId,
