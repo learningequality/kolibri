@@ -78,8 +78,8 @@ class ExamSerializer(serializers.ModelSerializer):
     creator = serializers.PrimaryKeyRelatedField(
         read_only=False, queryset=FacilityUser.objects.all()
     )
-    date_archived = DateTimeTzField()
-    date_activated = DateTimeTzField()
+    date_archived = DateTimeTzField(allow_null=True)
+    date_activated = DateTimeTzField(allow_null=True)
 
     class Meta:
         model = Exam
