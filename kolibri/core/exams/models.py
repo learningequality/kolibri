@@ -123,8 +123,8 @@ class Exam(AbstractFacilityDataModel):
     def save(self, *args, **kwargs):
         # If archive is True during the save op, but there is no date_archived then
         # this is the save that is archiving the object and we need to datestamp it
-        if getattr(self, "archive", False) == True:
-            if getattr(self, "date_archived") == None:
+        if getattr(self, "archive", False) is True:
+            if getattr(self, "date_archived") is None:
                 self.date_archived = timezone.now()
         super(Exam, self).save(*args, **kwargs)
 

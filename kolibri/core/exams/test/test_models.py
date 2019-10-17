@@ -1,7 +1,6 @@
 from django.test import TestCase
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.exams.models import Exam
 from kolibri.core.auth.test.helpers import provision_device
 
