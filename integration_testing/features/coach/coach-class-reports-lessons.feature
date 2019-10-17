@@ -58,6 +58,11 @@ Feature: Lessons subtab
     When a learner has not started <resource> or <exercise>
     Then the learner's *Progress* column states *Not started*
 
+  Scenario: Learner has submitted an answer to a resource
+    When a learner has answered a question on a <resource> or <exercise>
+    Then the *Time Spent* column automatically updates the time value
+      And the *Last Activity* column automatically updates the time value
+
   Scenario: Learner has started a resource
     When a learner has started an <resource> or <exercise>
     Then the learner's *Progress* column states *Started*

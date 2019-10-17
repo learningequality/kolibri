@@ -55,9 +55,14 @@
     computed: {
       ...mapGetters('coachNotifications', ['summarizedNotifications']),
       notifications() {
-        return orderBy(this.summarizedNotifications, ({ lastId }) => Number(lastId), [
-          'desc',
-        ]).slice(0, MAX_NOTIFICATIONS);
+        // Filter out "Answered" notifications to avoid flooding the list
+        const filteredNotifications = this.summarizedNotifications.filter(
+          n => n.event !== 'Answered'
+        );
+        return orderBy(filteredNotifications, ({ lastId }) => Number(lastId), ['desc']).slice(
+          0,
+          MAX_NOTIFICATIONS
+        );
       },
     },
     methods: {

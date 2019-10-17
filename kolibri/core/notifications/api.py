@@ -169,6 +169,29 @@ def check_and_created_completed_lesson(lesson, user_id, timestamp):
     return notification
 
 
+def check_and_created_answered_lesson(lesson, user_id, contentnode_id, timestamp):
+    notification = None
+    # Check if the notification has been previously saved:
+    if not LearnerProgressNotification.objects.filter(
+        user_id=user_id,
+        notification_object=NotificationObjectType.Resource,
+        notification_event=NotificationEventType.Answered,
+        lesson_id=lesson.id,
+        classroom_id=lesson.group_or_classroom,
+        timestamp=timestamp,
+    ).exists():
+        # Let's create an Lesson Completion notification
+        notification = create_notification(
+            NotificationObjectType.Resource,
+            NotificationEventType.Answered,
+            user_id,
+            lesson.group_or_classroom,
+            lesson_id=lesson.id,
+            timestamp=timestamp,
+        )
+    return notification
+
+
 def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
     # If the Resource started notification exists, nothing to do here:
     if LearnerProgressNotification.objects.filter(
@@ -179,7 +202,6 @@ def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
         contentnode_id=contentnode_id,
     ).exists():
         return []
-
     notifications = []
     # Let's create an Resource Started notification
     notifications.append(
@@ -425,10 +447,20 @@ def parse_attemptslog(attemptlog):
                     timestamp=attemptlog.end_timestamp,
                 )
                 notifications.append(notification)
+
         notifications_started = check_and_created_started(
             lesson, attemptlog.user_id, contentnode_id, attemptlog.start_timestamp
         )
-
         notifications += notifications_started
+
+        # If the timestamps don't match, then it isn't a "started" event and
+        # should be an answer attempt
+        if attemptlog.start_timestamp != attemptlog.end_timestamp:
+            notifications_answered = check_and_created_answered_lesson(
+                lesson, attemptlog.user_id, contentnode_id, attemptlog.end_timestamp
+            )
+            if notifications_answered:
+                notifications.append(notifications_answered)
+
     if notifications:
         save_notifications(notifications)
