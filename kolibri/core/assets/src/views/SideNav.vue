@@ -72,11 +72,12 @@
               :style="$theme.sideNav.brandedFooter.logo.style"
             >
             <div
-              v-if="$theme.sideNav.brandedFooter.logo"
+              v-if="$theme.sideNav.brandedFooter.paragraphArray
+                && $theme.sideNav.brandedFooter.paragraphArray.length"
               class="side-nav-scrollable-area-footer-info"
             >
               <p
-                v-for="(line, index) in $theme.sideNav.brandedFooter.textLines"
+                v-for="(line, index) in $theme.sideNav.brandedFooter.paragraphArray"
                 :key="index"
               >
                 {{ line }}
