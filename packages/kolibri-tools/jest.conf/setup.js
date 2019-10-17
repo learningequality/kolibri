@@ -58,6 +58,6 @@ global.kolibriTheme = {
     },
     showKFooterLogo: false,
   },
-  sideNav: { showKFooterLogo: true },
+  sideNav: { brandedFooter: {}, showKFooterLogo: true },
   appBar: { topLogo: null },
 };
