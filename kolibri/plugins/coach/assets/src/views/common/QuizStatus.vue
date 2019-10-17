@@ -30,6 +30,13 @@
         <b>{{ $tr('reportVisibleLabel') }}</b>
       </dt>
       <dd v-if="exam.archive">
+        <KSwitch
+          name="toggle-quiz-visibility"
+          :checked="exam.active"
+          :value="exam.active"
+          :label="$tr('yesLabel')"
+          @change="handleToggleVisibility"
+        />
 
       </dd>
       <dt>
@@ -272,6 +279,10 @@
         message: 'Question order',
         context: 'A label for the place where the question order is shown.',
       },
+      yesLabel: {
+        message: 'Yes',
+        context: "Used to indicate to the user when a switch element has a true or 'on' value.",
+      },
     },
   };
 
@@ -281,7 +292,7 @@
 <style scoped lang="scss">
 
   dt {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     margin-left: 0;
   }
   dd {
