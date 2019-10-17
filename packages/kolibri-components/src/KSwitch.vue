@@ -1,5 +1,6 @@
 <template>
 
+  <!-- Vendored from Keen UI UISwitch component https://josephuspaye.github.io/Keen-UI/#/ui-switch -->
   <label class="k-switch" :class="classes">
     <div class="k-switch__input-wrapper">
       <input

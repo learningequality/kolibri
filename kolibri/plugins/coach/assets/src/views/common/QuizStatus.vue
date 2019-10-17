@@ -98,7 +98,6 @@
 <script>
 
   import { ExamResource } from 'kolibri.resources';
-  import UiSwitch from 'keen-ui/src/UiSwitch';
   import { coachStringsMixin } from './commonCoachStrings';
   import Score from './Score';
   import Recipients from './Recipients';
@@ -107,7 +106,7 @@
 
   export default {
     name: 'QuizStatus',
-    components: { Score, Recipients, QuizStatusModal, StatusElapsedTime, UiSwitch },
+    components: { Score, Recipients, QuizStatusModal, StatusElapsedTime },
     mixins: [coachStringsMixin],
     props: {
       groupNames: {
