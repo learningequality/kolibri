@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="{ backgroundColor: $themeTokens.appBarPrimary }">
+  <div :style="{ backgroundColor: $themeTokens.appBar }">
     <UiToolbar
       :title="title"
       type="clear"
