@@ -61,7 +61,9 @@
         // users may also modulate their scrolling based on how much content they see.
         // Also, to mitigate overscroll rebound and other reasons,
         // the upward threshold is set higher than the downward one.
-        const downThresh = Math.round(this.mainWrapperScrollHeight * 0.05);
+        // Capped at 240 px, which is half the height of a iPhone 4,
+        // the page would need to be be at least 4800px high to reach this cap.
+        const downThresh = Math.min(Math.round(this.mainWrapperScrollHeight * 0.05), 240);
         return {
           up: downThresh * 2,
           down: downThresh,
@@ -141,13 +143,14 @@
     z-index: 4;
 
     // Use different transition timing functions depending on direction
-    // to maintain some kind of symmetry
+    // to maintain some kind of symmetry. Curves are decelerate/accelerate
+    // easing, respectively from https://material.io/design/motion/speed.html#easing.
     &.dir-up {
-      transition: top 0.25s ease-in;
+      transition: top 0.25s cubic-bezier(0.4, 0, 1, 1);
     }
 
     &.dir-down {
-      transition: top 0.25s ease-out;
+      transition: top 0.25s cubic-bezier(0, 0, 0.2, 1);
     }
 
     &.is-hidden {
