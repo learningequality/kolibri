@@ -50,32 +50,8 @@
 <script>
 
   import get from 'lodash/get';
-  import urls from 'kolibri.urls';
   import { mapActions } from 'vuex';
   import ReportErrorModal from './ReportErrorModal';
-
-  // Inspects URL and returns an enum of the plugin (enum values are "learn", "coach", etc.)
-  function getCurrentKolibriPlugin() {
-    const url = window.location.href;
-
-    function urlMatches(urlName) {
-      return urls[urlName] && url.includes(urls[urlName]());
-    }
-
-    if (urlMatches('kolibri:kolibri.plugins.learn:learn')) {
-      return 'LEARN';
-    } else if (urlMatches('kolibri:kolibri.plugins.coach:coach')) {
-      return 'COACH';
-    } else if (urlMatches('kolibri:kolibri.plugins.device:device_management')) {
-      return 'DEVICE';
-    } else if (urlMatches('kolibri:kolibri.plugins.facility:facility_management')) {
-      return 'FACILITY';
-    } else if (urlMatches('kolibri:kolibri.plugins.user:user')) {
-      // Probably won't be used, since Anonymous users are re-directed when
-      // trying to go to Profile page
-      return 'USER';
-    }
-  }
 
   export default {
     name: 'AppError',
@@ -90,13 +66,13 @@
     computed: {
       headerText() {
         if (this.isPageNotFound) {
-          return this.$tr('pageNotFoundHeader');
+          return this.$tr('resourceNotFoundHeader');
         }
         return this.$tr('defaultErrorHeader');
       },
       paragraphTexts() {
         if (this.isPageNotFound) {
-          return [this.$tr('pageNotFoundMessage')];
+          return [this.$tr('resourceNotFoundMessage')];
         }
         return [this.$tr('defaultErrorMessage'), this.$tr('defaultErrorResolution')];
       },
@@ -120,19 +96,7 @@
         );
       },
       exitButtonLabel() {
-        let stringId;
-        if (this.isPageNotFound) {
-          stringId =
-            {
-              LEARN: 'backToLearnLabel',
-              COACH: 'backToCoachLabel',
-              DEVICE: 'backToDeviceLabel',
-              FACILITY: 'backToFacilityLabel',
-            }[getCurrentKolibriPlugin()] || 'defaultErrorExitPrompt';
-        } else {
-          stringId = 'defaultErrorExitPrompt';
-        }
-        return this.$tr(stringId);
+        return this.$tr('defaultErrorExitPrompt');
       },
     },
     methods: {
@@ -161,12 +125,8 @@
         'We care about your experience on Kolibri and are working hard to fix this issue',
       defaultErrorResolution: 'Try refreshing this page or going back to the home page',
       defaultErrorReportPrompt: 'Help us by reporting this error',
-      pageNotFoundHeader: 'Page not found',
-      pageNotFoundMessage: "Sorry, we can't seem to find the page you're looking for",
-      backToCoachLabel: 'Back to Coach',
-      backToDeviceLabel: 'Back to Device',
-      backToFacilityLabel: 'Back to Facility',
-      backToLearnLabel: 'Back to Learn',
+      resourceNotFoundHeader: 'Resource not found',
+      resourceNotFoundMessage: 'Sorry, that resource does not exist',
     },
   };
 
