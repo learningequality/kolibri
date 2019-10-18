@@ -91,6 +91,63 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   // Errors
   quizDuplicateTitleError: 'A quiz with that name already exists',
   lessonDuplicateTitleError: 'A lesson with this name already exists',
+
+  // Quiz activation / closing / etc
+  reportVisibleLabel: {
+    message: 'Report visible',
+    context:
+      'A label used on a switch indicating that the learners can see their reports when the switch is turned "on"',
+  },
+  quizOpenedMessage: {
+    message: 'Quiz is open',
+    context: 'A brief snackbar message notifying the user that the quiz was successfully opened.',
+  },
+  quizFailedToOpenMessage: {
+    message: 'There was a problem opening the quiz. The quiz was not opened.',
+    context:
+      'A brief snackbar message notifying the user that there was an error trying to open the quiz and that the quiz is not open.',
+  },
+  quizClosedMessage: {
+    message: 'Quiz is closed',
+    context: 'A brief snackbar message notifying the user that the quiz was successfully closed.',
+  },
+  quizFailedToCloseMessage: {
+    message: 'There was a problem closing the quiz. The quiz was not closed.',
+    context:
+      'A brief snackbar message notifying the user that there was an error trying to close the quiz and that the quiz is not closed.',
+  },
+  quizVisibleToLearners: {
+    message: 'Quiz report is visible to learners',
+    context:
+      'A brief snackbar message notifying the user that learners may view their quiz report. It will show when the user changes a setting to make the quiz visible.',
+  },
+  quizNotVisibleToLearners: {
+    message: 'Quiz report is not visible to learners',
+    context:
+      'A brief snackbar message notifying the user that learners may no longer view their quiz report. It will show when the user changes a setting to make the quiz no longer visible.',
+  },
+  openQuizLabel: {
+    message: 'Open quiz',
+    context:
+      "Label for a button that, when clicked, will 'open' a quiz - making it active so that Learners may take the quiz.",
+  },
+  openQuizModalDetail: {
+    message:
+      'Opening the quiz will make it visible to learners and they will be able to answer questions',
+    context:
+      "Text shown on a modal pop-up window when the user clicks the 'Open Quiz' button. This explains what will happen when the user confirms the action of opening the quiz.",
+  },
+  closeQuizLabel: {
+    message: 'Close quiz',
+    context:
+      "Label for a button that, when clicked, will 'close' a quiz. This makes the quiz inactive and Learners will no longer be able to give answers.",
+  },
+  closeQuizModalDetail: {
+    message:
+      'All learners will be given a final score and a quiz report. Unfinished questions will be counted as incorrect.',
+    context:
+      "Text shown on a modal pop-up window when the user clicks the 'Close Quiz' button. This explains what will happen when the modal window is confirmed.",
+  },
 });
 
 const coachStringsMixin = {

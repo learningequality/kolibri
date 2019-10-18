@@ -4,14 +4,14 @@
     <KButton
       v-if="!exam.active && !exam.archive"
       :primary="true"
-      :text="$tr('openQuizLabel')"
+      :text="coachString('openQuizLabel')"
       type="button"
       style="margin-left: 0; margin-top: 1rem; margin-bottom: 0;"
       @click="showConfirmationModal = true"
     />
     <div v-if="exam.active && !exam.archive" style="margin-bottom: 2.5rem;">
       <KButton
-        :text="$tr('closeQuizLabel')"
+        :text="coachString('closeQuizLabel')"
         type="submit"
         style="margin-left: 0; margin-top: 1rem; margin-bottom: 0;"
         :appearanceOverrides="cancelStyleOverrides"
@@ -66,15 +66,15 @@
     </dl>
     <QuizStatusModal
       v-if="showConfirmationModal"
-      :modalHeader="$tr('openQuizLabel')"
-      :modalDetail="$tr('openQuizModalDetail')"
+      :modalHeader="coachString('openQuizLabel')"
+      :modalDetail="coachString('openQuizModalDetail')"
       @cancel="showConfirmationModal = false"
       @submit="handleOpenQuiz"
     />
     <QuizStatusModal
       v-if="showCancellationModal"
-      :modalHeader="$tr('closeQuizLabel')"
-      :modalDetail="$tr('closeQuizModalDetail')"
+      :modalHeader="coachString('closeQuizLabel')"
+      :modalDetail="coachString('closeQuizModalDetail')"
       @cancel="showCancellationModal = false"
       @submit="handleCloseQuiz"
     />
@@ -160,10 +160,10 @@
           .then(() => {
             this.$store.dispatch('classSummary/refreshClassSummary');
             this.showConfirmationModal = false;
-            this.$store.dispatch('createSnackbar', this.$tr('quizOpenedMessage'));
+            this.$store.dispatch('createSnackbar', this.coachString('quizOpenedMessage'));
           })
           .catch(() => {
-            this.$store.dispatch('createSnackbar', this.$tr('quizFailedToOpenMessage'));
+            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToOpenMessage'));
           });
       },
       handleCloseQuiz() {
@@ -180,17 +180,17 @@
           .then(() => {
             this.$store.dispatch('classSummary/refreshClassSummary');
             this.showCancellationModal = false;
-            this.$store.dispatch('createSnackbar', this.$tr('quizClosedMessage'));
+            this.$store.dispatch('createSnackbar', this.coachString('quizClosedMessage'));
           })
           .catch(() => {
-            this.$store.dispatch('createSnackbar', this.$tr('quizFailedToCloseMessage'));
+            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
           });
       },
       handleToggleVisibility() {
         const newActiveState = !this.exam.active;
         const snackbarMessage = newActiveState
-          ? this.$tr('quizVisibleToLearners')
-          : this.$tr('quizNotVisibleToLearners');
+          ? this.coachString('quizVisibleToLearners')
+          : this.coachString('quizNotVisibleToLearners');
 
         let promise = ExamResource.saveModel({
           id: this.$route.params.quizId,
@@ -208,58 +208,6 @@
       },
     },
     $trs: {
-      quizOpenedMessage: {
-        message: 'Quiz is open',
-        context:
-          'A brief snackbar message notifying the user that the quiz was successfully opened.',
-      },
-      quizFailedToOpenMessage: {
-        message: 'There was a problem opening the quiz. The quiz was not opened.',
-        context:
-          'A brief snackbar message notifying the user that there was an error trying to open the quiz and that the quiz is not open.',
-      },
-      quizClosedMessage: {
-        message: 'Quiz is closed',
-        context:
-          'A brief snackbar message notifying the user that the quiz was successfully closed.',
-      },
-      quizFailedToCloseMessage: {
-        message: 'There was a problem closing the quiz. The quiz was not closed.',
-        context:
-          'A brief snackbar message notifying the user that there was an error trying to close the quiz and that the quiz is not closed.',
-      },
-      quizVisibleToLearners: {
-        message: 'Quiz report is visible to learners',
-        context:
-          'A brief snackbar message notifying the user that learners may view their quiz report. It will show when the user changes a setting to make the quiz visible.',
-      },
-      quizNotVisibleToLearners: {
-        message: 'Quiz report is not visible to learners',
-        context:
-          'A brief snackbar message notifying the user that learners may no longer view their quiz report. It will show when the user changes a setting to make the quiz no longer visible.',
-      },
-      openQuizLabel: {
-        message: 'Open quiz',
-        context:
-          "Label for a button that, when clicked, will 'open' a quiz - making it active so that Learners may take the quiz.",
-      },
-      openQuizModalDetail: {
-        message:
-          'Opening the quiz will make it visible to learners and they will be able to answer questions',
-        context:
-          "Text shown on a modal pop-up window when the user clicks the 'Open Quiz' button. This explains what will happen when the user confirms the action of opening the quiz.",
-      },
-      closeQuizLabel: {
-        message: 'Close quiz',
-        context:
-          "Label for a button that, when clicked, will 'close' a quiz. This makes the quiz inactive and Learners will no longer be able to give answers.",
-      },
-      closeQuizModalDetail: {
-        message:
-          'All learners will be given a final score and a quiz report. Unfinished questions will be counted as incorrect.',
-        context:
-          "Text shown on a modal pop-up window when the user clicks the 'Close Quiz' button. This explains what will happen when the modal window is confirmed.",
-      },
       quizClosedLabel: {
         message: 'Quiz closed',
         context:
@@ -270,7 +218,6 @@
         context:
           'The label for a switch that will toggle whether or not learners can view their quiz report.',
       },
-
       questionOrderLabel: {
         message: 'Question order',
         context: 'A label for the place where the question order is shown.',
