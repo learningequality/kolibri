@@ -27,7 +27,7 @@
         <StatusElapsedTime :date="examDateArchived" />
       </dd>
       <dt v-if="exam.archive">
-        <b>{{ $tr('reportVisibleLabel') }}</b>
+        <b>{{ $tr('reportVisibleToLearnersLabel') }}</b>
       </dt>
       <dd v-if="exam.archive">
         <KSwitch
@@ -50,21 +50,9 @@
         />
       </dd>
       <dt>
-        <b>
-          <span>{{ $tr('averageScoreLabel') }}</span>
-          <div ref="icon" style="display:inline;">
-            <KIcon
-              icon="error"
-              :color="$themeTokens.primary"
-              style="position: relative; top:4px; left: 4px;"
-            />
-            <KTooltip
-              reference="icon"
-              :refs="$refs"
-            >
-              {{ $tr('visibleToLearnersTooltipMessage') }}
-            </KTooltip>
-          </div>
+        <b style="position: relative;">
+          <span>{{ coachString('avgScoreLabel') }}</span>
+          <AverageScoreTooltip />
         </b>
 
       </dt>
@@ -103,10 +91,11 @@
   import Recipients from './Recipients';
   import QuizStatusModal from './QuizStatusModal';
   import StatusElapsedTime from './StatusElapsedTime';
+  import AverageScoreTooltip from './AverageScoreTooltip';
 
   export default {
     name: 'QuizStatus',
-    components: { Score, Recipients, QuizStatusModal, StatusElapsedTime },
+    components: { Score, Recipients, QuizStatusModal, StatusElapsedTime, AverageScoreTooltip },
     mixins: [coachStringsMixin],
     props: {
       groupNames: {
@@ -276,20 +265,12 @@
         context:
           'A label indicating that the currently viewed quiz is closed - meaning that learners may no longer give answers to the quiz.',
       },
-      reportVisibleLabel: {
+      reportVisibleToLearnersLabel: {
         message: 'Report visible to learners',
         context:
           'The label for a switch that will toggle whether or not learners can view their quiz report.',
       },
-      visibleToLearnersTooltipMessage: {
-        message: 'Calculated only from quizzes that were completed',
-        context:
-          'A message for a tooltip that shows when the user hovers over a small icon that tells the user that the Average Quiz Score is calculated only using quizzes that learners completed.',
-      },
-      averageScoreLabel: {
-        message: 'Average score',
-        context: 'A label for the place where the average score for the quiz is displayed.',
-      },
+
       questionOrderLabel: {
         message: 'Question order',
         context: 'A label for the place where the question order is shown.',

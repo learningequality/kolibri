@@ -16,6 +16,7 @@ import { STATUSES } from '../modules/classSummary/constants';
 import TopNavbar from './TopNavbar';
 import { coachStrings, coachStringsMixin } from './common/commonCoachStrings';
 import Answer from './common/Answer';
+import AverageScoreTooltip from './common/AverageScoreTooltip';
 import BackLink from './common/BackLink';
 import TruncatedItemList from './common/TruncatedItemList';
 import LessonActive from './common/LessonActive';
@@ -25,6 +26,7 @@ import Score from './common/Score';
 import TimeDuration from './common/TimeDuration';
 import QuizActive from './common/QuizActive';
 import QuizStatus from './common/QuizStatus';
+import QuizStatusModal from './common/QuizStatusModal';
 import HeaderTable from './common/HeaderTable';
 import HeaderTableRow from './common/HeaderTable/HeaderTableRow';
 import HeaderTabs from './common/HeaderTabs';
@@ -113,6 +115,7 @@ export default {
     ContentIcon,
     TopNavbar,
     Answer,
+    AverageScoreTooltip,
     BackLink,
     TruncatedItemList,
     LessonActive,
@@ -122,6 +125,7 @@ export default {
     TimeDuration,
     QuizActive,
     QuizStatus,
+    QuizStatusModal,
     HeaderTable,
     ElapsedTime,
     HeaderTableRow,
