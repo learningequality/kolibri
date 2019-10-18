@@ -146,17 +146,17 @@
     // to maintain some kind of symmetry. Curves are decelerate/accelerate
     // easing, respectively from https://material.io/design/motion/speed.html#easing.
     &.dir-up {
-      transition: top 0.25s cubic-bezier(0.4, 0, 1, 1);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1);
     }
 
     &.dir-down {
-      transition: top 0.25s cubic-bezier(0, 0, 0.2, 1);
+      transition: transform 0.25s cubic-bezier(0, 0, 0.2, 1);
     }
 
     &.is-hidden {
       // 200px is arbitrary, so will not really work if app bar gets taller.
       // It's intentionally more than actual height so box shadows don't appear.
-      top: -200px;
+      transform: translateY(-200px);
     }
   }
 
