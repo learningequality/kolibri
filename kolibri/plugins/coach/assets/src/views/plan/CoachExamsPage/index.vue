@@ -30,9 +30,7 @@
           <tr>
             <th>{{ coachString('titleLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th>
-              {{ coachString('statusLabel') }}
-            </th>
+            <th></th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -58,7 +56,30 @@
             </td>
 
             <td>
-              <QuizActive :active="exam.active" />
+              <!-- Open quiz button -->
+              <KButton
+                v-if="!exam.active && !exam.archive"
+                :text="coachString('openQuizLabel')"
+                appearance="flat-button"
+                @click="showOpenConfirmationModal = true; modalQuizId=exam.id"
+              />
+              <!-- Close quiz button -->
+              <KButton
+                v-if="exam.active && !exam.archive"
+                :text="coachString('closeQuizLabel')"
+                appearance="flat-button"
+                @click="showCloseConfirmationModal = true; modalQuizId=exam.id;"
+              />
+              <!-- Toggle visibility -->
+              <KSwitch
+                v-if="exam.archive"
+                name="toggle-quiz-visibility"
+                :checked="exam.active"
+                :value="exam.active"
+                :label="coachString('reportVisibleLabel')"
+                style="margin: 0.5rem;"
+                @change="handleToggleVisibility(exam.id, exam.active)"
+              />
             </td>
 
           </tr>
@@ -80,6 +101,22 @@
       >
         {{ $tr('noInactiveExams') }}
       </p>
+
+      <!-- Modals for Close & Open of quiz from right-most column -->
+      <QuizStatusModal
+        v-if="showOpenConfirmationModal"
+        :modalHeader="coachString('openQuizLabel')"
+        :modalDetail="coachString('openQuizModalDetail')"
+        @cancel="showOpenConfirmationModal = false"
+        @submit="handleOpenQuiz(modalQuizId)"
+      />
+      <QuizStatusModal
+        v-if="showCloseConfirmationModal"
+        :modalHeader="coachString('closeQuizLabel')"
+        :modalDetail="coachString('closeQuizModalDetail')"
+        @cancel="showCloseConfirmationModal = false"
+        @submit="handleCloseQuiz(modalQuizId)"
+      />
     </KPageContainer>
 
   </CoreBase>
@@ -91,10 +128,10 @@
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ExamResource } from 'kolibri.resources';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
-  import QuizActive from '../../common/QuizActive';
 
   export default {
     name: 'CoachExamsPage',
@@ -106,7 +143,6 @@
     components: {
       PlanHeader,
       CoreTable,
-      QuizActive,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {
@@ -115,6 +151,8 @@
           label: this.coachString('allQuizzesLabel'),
           value: this.coachString('allQuizzesLabel'),
         },
+        showOpenConfirmationModal: false,
+        showCloseConfirmationModal: false,
       };
     },
     computed: {
@@ -154,6 +192,68 @@
       },
       newExamRoute() {
         return { name: PageNames.EXAM_CREATION_ROOT };
+      },
+    },
+    methods: {
+      handleOpenQuiz(quizId) {
+        let promise = ExamResource.saveModel({
+          id: quizId,
+          data: {
+            active: true,
+            date_activated: new Date(),
+          },
+          exists: true,
+        });
+
+        return promise
+          .then(() => {
+            this.$store.dispatch('classSummary/refreshClassSummary');
+            this.showOpenConfirmationModal = false;
+            this.$store.dispatch('createSnackbar', this.coachString('quizOpenedMessage'));
+          })
+          .catch(() => {
+            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToOpenMessage'));
+          });
+      },
+      handleCloseQuiz(quizId) {
+        let promise = ExamResource.saveModel({
+          id: quizId,
+          data: {
+            archive: true,
+            date_archived: new Date(),
+          },
+          exists: true,
+        });
+
+        return promise
+          .then(() => {
+            this.$store.dispatch('classSummary/refreshClassSummary');
+            this.showCloseConfirmationModal = false;
+            this.$store.dispatch('createSnackbar', this.coachString('quizClosedMessage'));
+          })
+          .catch(() => {
+            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
+          });
+      },
+      handleToggleVisibility(quizId, isActive) {
+        const newActiveState = !isActive;
+        const snackbarMessage = newActiveState
+          ? this.coachString('quizVisibleToLearners')
+          : this.coachString('quizNotVisibleToLearners');
+
+        let promise = ExamResource.saveModel({
+          id: quizId,
+          data: {
+            active: newActiveState,
+          },
+          exists: true,
+        });
+
+        return promise.then(() => {
+          this.$store.dispatch('classSummary/refreshClassSummary');
+          this.showOpenConfirmationModal = false;
+          this.$store.dispatch('createSnackbar', snackbarMessage);
+        });
       },
     },
     $trs: {
