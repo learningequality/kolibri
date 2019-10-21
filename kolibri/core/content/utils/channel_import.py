@@ -18,6 +18,7 @@ from kolibri.core.content.constants.schema_versions import V020BETA1
 from kolibri.core.content.constants.schema_versions import V040BETA3
 from kolibri.core.content.constants.schema_versions import VERSION_1
 from kolibri.core.content.constants.schema_versions import VERSION_2
+from kolibri.core.content.constants.schema_versions import VERSION_3
 from kolibri.core.content.legacy_models import License
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -725,6 +726,7 @@ mappings = {
     NO_VERSION: NoVersionChannelImport,
     VERSION_1: ChannelImport,
     VERSION_2: ChannelImport,
+    VERSION_3: ChannelImport,
 }
 
 

@@ -27,6 +27,15 @@ incremented, with an additional constant added for the new version.
 E.g. a new constant VERSION_3 = '3', might be added, and CONTENT_SCHEMA_VERSION set to
 VERSION_3.
 
+Before doing the changes in kolibri/core/content/constants/schema_versions.py,
+a pickled SQLAlchemy schema for the new schema must also be generated using the
+generate_schema management command. This must be generated using an empty, migrated
+database.
+
+The 'version' parameter passed to the command should be the value of e.g. VERSION_3:
+
+    `kolibri manage generate_schema 3`
+
 In addition, the new constant should be added to the mappings dict in
 ./utils/channel_import.py with an appropriate ChannelImport class associated.
 This map associates content schema versions with associated ChannelImport classes,
@@ -37,14 +46,6 @@ If the new schema requires inference of the field when it is missing from old da
 (i.e. it does not have a default value, or cannot be null or blank), then all the
 ChannelImport classes for previous versions must be updated to infer this data from old
 databases.
-
-A pickled SQLAlchemy schema for the new schema must also be generated using the
-generate_schema management command. This must be generated using an empty, migrated
-database.
-
-The 'version' parameter passed to the command should be the value of e.g. VERSION_3:
-
-    `kolibri manage generate_schema 3`
 
 All pickled schema should be registered in the CONTENT_DB_SCHEMA_VERSIONS list in
 this file e.g. VERSION_3 should be added to the list.

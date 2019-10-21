@@ -22,6 +22,7 @@ from kolibri.core.content.constants.schema_versions import NO_VERSION
 from kolibri.core.content.constants.schema_versions import V020BETA1
 from kolibri.core.content.constants.schema_versions import V040BETA3
 from kolibri.core.content.constants.schema_versions import VERSION_1
+from kolibri.core.content.constants.schema_versions import VERSION_2
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -599,6 +600,22 @@ class Version1ImportTestCase(NaiveImportTestCase):
     """
 
     name = VERSION_1
+
+    @classmethod
+    def tearDownClass(cls):
+        super(Version1ImportTestCase, cls).tearDownClass()
+
+    @classmethod
+    def setUpClass(cls):
+        super(Version1ImportTestCase, cls).setUpClass()
+
+
+class Version2ImportTestCase(NaiveImportTestCase):
+    """
+    Integration test for import from no version import
+    """
+
+    name = VERSION_2
 
     @classmethod
     def tearDownClass(cls):
