@@ -94,9 +94,6 @@ class ChannelImport(object):
             "per_row": {
                 "tree_id": "available_tree_id",
                 "available": "default_to_not_available",
-                # Do this for now because we can't currently delete columns
-                # and properly regenerate our import schema.
-                "stemmed_metaphone": "set_blank_text",
             }
         },
         LocalFile: {"per_row": {"available": "default_to_not_available"}},
@@ -642,7 +639,6 @@ class NoVersionChannelImport(ChannelImport):
                 "available": "get_none",
                 "license_name": "get_license_name",
                 "license_description": "get_license_description",
-                "stemmed_metaphone": "set_blank_text",
             }
         },
         File: {

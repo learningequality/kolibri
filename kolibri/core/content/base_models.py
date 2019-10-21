@@ -118,9 +118,6 @@ class ContentNode(MPTTModel):
     author = models.CharField(max_length=200, blank=True)
     kind = models.CharField(max_length=200, choices=content_kinds.choices, blank=True)
     available = models.BooleanField(default=False)
-    stemmed_metaphone = models.CharField(
-        max_length=1800, blank=True
-    )  # for fuzzy search in title and description
     lang = models.ForeignKey("Language", blank=True, null=True)
 
     class Meta:
