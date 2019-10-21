@@ -30,6 +30,7 @@ override_dh_auto_install:
 	# dh_installman
 	install -D -m0755 debian/startup/kolibri.init $(CURDIR)/debian/kolibri/etc/init.d/kolibri
 	install -D -m0644 debian/startup/kolibri.default $(CURDIR)/debian/kolibri/etc/default/kolibri
+	install -D -m0644 debian/README.etc $(CURDIR)/debian/kolibri/etc/kolibri/README
 	install -D -m0644 debian/startup/kolibri.service $(CURDIR)/debian/kolibri/lib/systemd/system/kolibri.service
 	# remove sentry_sdk files depending on Python >= 3.5:
 	rm -f $(CURDIR)/debian/kolibri/usr/lib/python3/dist-packages/kolibri/dist/sentry_sdk/integrations/aiohttp.py

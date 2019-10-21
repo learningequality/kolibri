@@ -1,0 +1,17 @@
+Configuring the Kolibri Debian package:
+
+Kolibri is normally configured in its own environment, for instance in
+its main configuration file `~/.kolibri/options.ini` or through command
+line options such as `kolibri start --port=1234`.
+
+If you want Kolibri to be configured in its external environment, you can
+set a number of environment variables.
+
+The prefered way to define them is to add your own file in
+`/etc/kolibri/conf.d/<MY_CONFIGURATION>.conf`, where you can choose any
+file name and add as many configurations as you like. They will be loaded
+in alphabetical order.
+
+In these files, you can set the options defined in
+`/etc/kolibri/daemon.conf`. This configuration file is the final one
+that will be loaded.
