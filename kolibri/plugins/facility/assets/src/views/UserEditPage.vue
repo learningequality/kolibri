@@ -230,16 +230,20 @@
     mounted() {
       FacilityUserResource.fetchModel({
         id: this.$route.params.id,
-      }).then(user => {
-        this.username = user.username;
-        this.fullName = user.full_name;
-        this.idNumber = user.id_number;
-        this.gender = user.gender;
-        this.birthYear = user.birth_year;
-        this.setKind(user);
-        this.makeCopyOfUser(user);
-        this.loading = false;
-      });
+      })
+        .then(user => {
+          this.username = user.username;
+          this.fullName = user.full_name;
+          this.idNumber = user.id_number;
+          this.gender = user.gender;
+          this.birthYear = user.birth_year;
+          this.setKind(user);
+          this.makeCopyOfUser(user);
+          this.loading = false;
+        })
+        .catch(error => {
+          this.$store.dispatch('handleApiError', error);
+        });
     },
     methods: {
       setKind(user) {
