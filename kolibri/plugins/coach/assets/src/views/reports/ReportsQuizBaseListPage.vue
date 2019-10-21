@@ -10,7 +10,10 @@
 
     <KGrid gutter="16">
       <KGridItem>
-        <ReportsQuizHeader />
+        <ReportsQuizHeader
+          :backlink="classRoute('ReportsQuizListPage')"
+          :backlinkLabel="coachString('allQuizzesLabel')"
+        />
       </KGridItem>
       <KGridItem :layout12="{ span: 4 }">
         <QuizStatus

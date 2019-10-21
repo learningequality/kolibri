@@ -2,8 +2,8 @@
 
   <KPageContainer style="padding-top:16px;">
     <BackLink
-      :to="classRoute('ReportsQuizListPage')"
-      :text="coachString('allQuizzesLabel')"
+      :to="backlink"
+      :text="backlinkLabel"
     />
 
     <!-- Cheating to get the same layout effect but not
@@ -41,6 +41,16 @@
       QuizOptionsDropdownMenu,
     },
     mixins: [commonCoach],
+    props: {
+      backlink: {
+        type: Object,
+        required: true,
+      },
+      backlinkLabel: {
+        type: String,
+        required: true,
+      },
+    },
     computed: {
       exam() {
         return this.examMap[this.$route.params.quizId];
