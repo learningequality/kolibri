@@ -92,15 +92,11 @@ class Command(BaseCommand):
         Base.prepare()
         session = sessionmaker(bind=engine, autoflush=False)()
 
-        # Always update the current schema
-        with open(SCHEMA_PATH_TEMPLATE.format(name=CURRENT_SCHEMA_VERSION), "wb") as f:
+        with open(SCHEMA_PATH_TEMPLATE.format(name=options["version"]), "wb") as f:
             pickle.dump(metadata, f, protocol=2)
 
         # Only do this if we are generating a new export schema version
         if not no_export_schema:
-
-            with open(SCHEMA_PATH_TEMPLATE.format(name=options["version"]), "wb") as f:
-                pickle.dump(metadata, f, protocol=2)
 
             # Load fixture data into the test database with Django
             call_command("loaddata", "content_import_test.json", interactive=False)
@@ -119,6 +115,8 @@ class Command(BaseCommand):
             else:
                 with io.open(data_path, mode="w", encoding="utf-8") as f:
                     json.dump(data, f)
+
+            call_command("generate_schema", CURRENT_SCHEMA_VERSION, interactive=False)
 
             shutil.rmtree(
                 os.path.join(
