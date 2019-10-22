@@ -238,7 +238,8 @@ class Application(pew.ui.PEWApp):
                 return True
             except URLError as e:
                 logging.info("Error pinging Kolibri server: {}".format(e))
-                return False
+                # debugging code to check if native cli tools succeed when urlopen fails.
+                return subprocess.call(['curl', '-I', home_url]) == 0
 
         # Tie up this thread until the server is running
         while not running():
