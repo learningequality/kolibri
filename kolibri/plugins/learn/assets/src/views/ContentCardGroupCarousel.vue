@@ -3,7 +3,6 @@
   <section class="content-carousel">
 
     <div :style="contentControlsContainerStyles">
-
       <div
         v-show="!isFirstSet"
         class="content-carousel-previous-control"
@@ -160,7 +159,7 @@
         const gutters = (this.contentSetSize - 1) * this.gutterWidth;
         return {
           width: `${cards + gutters}px`,
-          height: `${this.contentCardWidth}px`,
+          minHeight: `${this.contentCardWidth}px`,
           overflow: 'visible',
           position: 'relative',
         };

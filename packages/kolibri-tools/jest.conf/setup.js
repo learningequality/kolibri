@@ -29,3 +29,5 @@ const csrf = global.document.createElement('input');
 csrf.name = 'csrfmiddlewaretoken';
 csrf.value = 'csrfmiddlewaretoken';
 global.document.body.append(csrf);
+
+Object.defineProperty(window, 'scrollTo', { value: () => {}, writable: true });

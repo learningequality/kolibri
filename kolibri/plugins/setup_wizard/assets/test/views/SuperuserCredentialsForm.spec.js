@@ -6,6 +6,8 @@ function makeWrapper() {
   const store = makeStore();
   const wrapper = mount(SuperuserCredentialsForm, {
     store,
+    // These need to be stubbed because of some mysterious errors
+    stubs: ['FullNameTextbox', 'UsernameTextbox'],
   });
   jest.spyOn(wrapper.vm, '$emit');
   const actions = {

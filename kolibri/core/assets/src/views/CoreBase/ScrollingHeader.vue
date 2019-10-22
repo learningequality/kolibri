@@ -1,10 +1,6 @@
 <template>
 
-  <div
-    class="scrolling-header"
-    :style="barPositioning"
-    :class="{ 'ease': pinned && transition }"
-  >
+  <div class="scrolling-header" :class="classes">
     <slot></slot>
   </div>
 
@@ -14,36 +10,14 @@
 <script>
 
   import debounce from 'lodash/debounce';
-  import logger from 'kolibri.lib.logging';
 
-  const logging = logger.getLogger(__filename);
-
-  /*
-    The parameters below can be fine-tuned:
-  */
-  // time waited to see if scrolling has stopped
-  const SCROLL_STOPPED_WAIT = 250;
-  // time waited between flipping position styles and enabling CSS transition
-  const TRANSITION_START_DELAY = 25;
-  // Fraction of app bar height that triggers hiding a partially-visible bar.
-  // For example, 4 would mean the bar gets hidden if at least 1/4 of the height is offscreen
-  const THRESHOLD_DIVISOR = 3;
-  // Determines how aggressively we extrapolate scroll position and preemptively pin the bar.
-  // For example, if you scroll up very quickly, the bar might appear in the middle of the screen.
-  const SPEED_SCALER = 2;
+  // Used to avoid large a gap between KPageContainer and top of view when hidden
+  const TOP_THRESHOLD = 40;
 
   export default {
     name: 'ScrollingHeader',
     props: {
-      // height of the bar being passed into the slot
-      height: {
-        type: Number,
-        required: true,
-        validator(value) {
-          return value > 0;
-        },
-      },
-      // current scroll offset of content pane
+      // Current scroll offset of content pane
       scrollPosition: {
         type: Number,
         required: true,
@@ -51,228 +25,103 @@
           return value >= 0;
         },
       },
-      // keep the header permanently pinned to the top
+      // If 'true', keeps the header permanently pinned to the top
       alwaysVisible: {
         type: Boolean,
         default: false,
       },
-      // print out the logic
-      debug: {
+      // The scrollable height of the content area
+      mainWrapperScrollHeight: {
+        type: Number,
+      },
+      // Synced with CoreBase to handle changes when window is resized
+      isHidden: {
         type: Boolean,
         default: false,
       },
     },
     data() {
       return {
-        // whether app bar is moving with content or pinned to the page
-        pinned: true,
-        // vertical offset of the bar. generally in range [-height, 0] inclusive
-        offset: 0,
-        // briefly enable CSS transitions when scrolling stops to prevent hard jumps
-        transition: false,
+        scrollDistance: 0,
       };
     },
     computed: {
-      // sets up appropriate styles
-      barPositioning() {
-        if (this.alwaysVisible) {
-          return { position: 'fixed' };
-        }
+      resetDistanceDebounced() {
+        return debounce(this.resetDistance, 500);
+      },
+      classes() {
         return {
-          position: this.pinned ? 'fixed' : 'absolute',
-          transform: `translateY(${this.offset}px)`,
+          'is-hidden': this.isHidden,
+          'dir-up': this.scrollDistance > 0,
+          'dir-down': this.scrollDistance <= 0,
         };
       },
-      // position of app bar relative to browser viewport
-      barPos() {
-        if (this.pinned) {
-          return this.offset;
-        }
-        return this.offset - this.scrollPosition;
+      scrollThreshold() {
+        // Scroll thresholds are relative to how much you can scroll, since
+        // users may also modulate their scrolling based on how much content they see.
+        // Also, to mitigate overscroll rebound and other reasons,
+        // the upward threshold is set higher than the downward one.
+        // Capped at 240 px, which is half the height of a iPhone 4,
+        // the page would need to be be at least 4800px high to reach this cap.
+        const downThresh = Math.min(Math.round(this.mainWrapperScrollHeight * 0.05), 240);
+        return {
+          up: downThresh * 2,
+          down: downThresh,
+        };
       },
-      // calls scrollingStopped a short period after scrolling pauses
-      waitForScrollStop() {
-        return debounce(this.scrollingStopped, SCROLL_STOPPED_WAIT);
+      pastMinScroll() {
+        return this.scrollPosition > TOP_THRESHOLD;
       },
     },
     watch: {
-      scrollPosition(scrollPosNew, scrollPosPrev) {
+      scrollPosition(newVal, oldVal) {
         if (!this.alwaysVisible) {
-          this.handleScroll(scrollPosNew - scrollPosPrev);
+          this.handleNewScrollPosition(newVal, oldVal);
         }
       },
     },
     methods: {
-      log(msg) {
-        if (this.debug) {
-          logging.debug(msg);
+      handleNewScrollPosition(newVal, oldVal) {
+        const delta = newVal - oldVal;
+
+        // If delta shouldn't cause a change in isHidden, then do nothing
+        if ((this.isHidden && delta > 0) || (!this.isHidden && delta < 0)) {
+          return;
         }
+
+        // Update scrollDistance
+        if (newVal === 0) {
+          this.scrollDistance = 0;
+        } else if (this.scrollDistance * delta < 0) {
+          // Reset the distance if the direction changes
+          this.scrollDistance = delta;
+        } else {
+          this.scrollDistance = this.scrollDistance + delta;
+        }
+
+        // If thresholds have been passed, then update isHidden
+        if (delta < 0) {
+          // Un-hide if near top or up-delta is past threshold
+          if (!this.pastMinScroll || -this.scrollDistance > this.scrollThreshold.up) {
+            this.$emit('update:isHidden', false);
+          }
+        } else if (delta > 0) {
+          // Hide if past the top and down-delta is past threshold
+          if (this.pastMinScroll && this.scrollDistance > this.scrollThreshold.down) {
+            this.$emit('update:isHidden', true);
+          }
+        }
+
+        this.resetDistanceDebounced(delta, this.scrollPosition);
       },
-      // based on the short history of scroll positions, figure out how to set positioning
-      handleScroll(delta) {
-        this.waitForScrollStop();
-        this.transition = false;
-
-        // IF: scrolling upward, bar visibly pinned
-        if (delta < 0 && this.pinned && this.offset === 0) {
-          this.log('scrolling upward, bar visibly pinned');
-          // THEN: bar stays visibly pinned
-          return;
-        }
-
-        // IF: scrolling downward, bar visibly pinned
-        else if (delta > 0 && this.pinned && this.offset === 0) {
-          this.log('scrolling downward, bar visibly pinned');
-          // THEN: attach at content position so it can scroll offscreen
-          this.pinned = false;
-          this.offset = this.scrollPosition;
-          return;
-        }
-
-        // IF: scrolling upward, bar invisibly pinned
-        else if (delta < 0 && this.pinned && this.offset === -this.height) {
-          this.log('scrolling upward, bar invisibly pinned');
-          // THEN: attach at content position
-          this.pinned = false;
-          this.offset = this.scrollPosition - this.height;
-          return;
-        }
-
-        // IF: scrolling downward, bar invisibly pinned
-        else if (delta > 0 && this.pinned && this.offset === -this.height) {
-          this.log('scrolling downward, bar invisibly pinned');
-          // THEN: bar stays invisibly pinned
-          return;
-        }
-
-        // IF: scrolling, bar pinned somewhere in the middle
-        else if (this.pinned) {
-          this.log('scrolling, bar pinned somewhere unknown');
-          // THEN: attach it to content at its current location
-          this.pinned = false;
-          this.offset = this.offset + this.scrollPosition;
-          return;
-        }
-
-        // IF: scrolling downward, attached to content
-        else if (delta > 0 && !this.pinned) {
-          this.log('scrolling downward, attached to content');
-          // IF: bar is fully offscreen
-          if (this.barPos <= -this.height) {
-            this.log('  bar is fully offscreen');
-            // THEN: pin bar offscreen
-            this.pinned = true;
-            this.offset = -this.height;
-            return;
-          }
-          // IF: bar is partially offscreen
-          else if (-this.height < this.barPos && this.barPos < 0) {
-            this.log('  bar is partially offscreen');
-            // THEN: stay attached to content at current position
-            return;
-          }
-          // IF: if bar somehow got too low (barPos > 0)
-          else {
-            this.log('  if bar somehow got too low (barPos > 0)');
-            // THEN: re-attach at content position
-            this.offset = this.scrollPosition;
-            return;
-          }
-        }
-
-        // IF: scrolling upward, attached to content
-        else if (delta < 0 && !this.pinned) {
-          this.log('scrolling upward, attached to content');
-          // IF: bar is at least partially offscreen
-          if (-this.height <= this.barPos && this.barPos < 0) {
-            this.log('  bar is at least partially offscreen');
-            // IF: scrolling quickly relative to app bar height and distance remaining
-            // note - both delta and barPos are negative here
-            if (SPEED_SCALER * delta < this.barPos) {
-              this.log('  scrolling quickly relative to app bar height');
-              // THEN: pin bar visibly
-              this.pinned = true;
-              this.offset = 0;
-              return;
-            } else {
-              this.log('  scrolling slowly relative to app bar height');
-              // THEN: stay attached to content at bar position
-              return;
-            }
-          }
-          // IF: bar is too low, e.g. due to momentum or overshoot
-          else if (this.barPos >= 0) {
-            this.log('  bar is too low, e.g. due to momentum or overshoot');
-            // THEN: pin bar visibly
-            this.pinned = true;
-            this.offset = 0;
-            return;
-          }
-          // IF: bar is too high (barPos < negBarHeight)
-          else {
-            this.log('  bar is too high (barPos < negBarHeight)');
-            // THEN: re-attach at content position
-            this.pinned = false;
-            this.offset = this.scrollPosition;
-            return;
-          }
-        }
-
-        // report if logic above is flawed or incomplete
-        logging.warn(`Unhandled scrolling state:`);
-        logging.warn(`\tAppbar height: ${this.height}`);
-        logging.warn(`\tAppbar offset: ${this.offset}`);
-        logging.warn(`\tIs pinned: ${this.pinned}`);
-      },
-      // called when we've detected a pause in scrolling
-      scrollingStopped() {
-        this.log('scrolling stopped');
-
-        // IF: the bar is already pinned
-        if (this.pinned) {
-          this.log('  already pinned');
-          // THEN: do nothing
-          return;
-        }
-
-        // IF: the bar is attached to the content
-        if (!this.pinned) {
-          this.log('  the bar is attached to the content');
-          // IF: the content is near the top
-          if (this.scrollPosition < this.height) {
-            this.log('    close to top');
-            // THEN: pin bar visibly to prevent a blank space
-            this.transitionTo(0);
-            return;
-          }
-          // IF: bar is at least two thirds visible
-          else if (-this.barPos < this.height / THRESHOLD_DIVISOR) {
-            this.log('    at least two thirds visible');
-            // THEN: pin bar visibly
-            this.transitionTo(0);
-            return;
-          }
-          // IF: bar is up to two thirds visible
-          else {
-            this.log('    up to two thirds visible');
-            // THEN: pin bar offscreen
-            this.transitionTo(-this.height);
-            return;
-          }
-        }
-      },
-      // In order to make the transition work right, we need to switch to position: fixed first
-      transitionTo(offset) {
-        // first pin it at its current location
-        this.pinned = true;
-        this.transition = false;
-        this.offset = this.offset - this.scrollPosition;
-        // Then on the next frame, transition it to be fully visible.
-        // Expected $nextTick should have worked here, but it doesn't seem to.
+      // Reset the scrolling distance if user pauses scrolling for some time.
+      resetDistance(delta, lastPos) {
         setTimeout(() => {
-          this.transition = true;
-          this.offset = offset;
-        }, TRANSITION_START_DELAY);
+          if (this.scrollPosition === lastPos) {
+            // Set to +/- 1 to maintain the direction
+            this.scrollDistance = Math.sign(delta);
+          }
+        }, 2000);
       },
     },
   };
@@ -287,16 +136,28 @@
   .scrolling-header {
     @extend %enable-gpu-acceleration;
 
+    position: fixed;
     top: 0;
     right: 0;
     left: 0;
     z-index: 4;
-  }
 
-  .ease {
-    transition-timing-function: ease-in;
-    transition-duration: 0.1s;
-    transition-property: transform;
+    // Use different transition timing functions depending on direction
+    // to maintain some kind of symmetry. Curves are decelerate/accelerate
+    // easing, respectively from https://material.io/design/motion/speed.html#easing.
+    &.dir-up {
+      transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    &.dir-down {
+      transition: transform 0.25s cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    &.is-hidden {
+      // 200px is arbitrary, so will not really work if app bar gets taller.
+      // It's intentionally more than actual height so box shadows don't appear.
+      transform: translateY(-200px);
+    }
   }
 
 </style>

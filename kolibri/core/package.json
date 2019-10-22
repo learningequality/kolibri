@@ -9,7 +9,7 @@
     "core-js": "^3.2.1",
     "date-fns": "^1.28.2",
     "fontfaceobserver": "^2.0.13",
-    "frame-throttle": "^2.0.1",
+    "frame-throttle": "^3.0.0",
     "intl": "^1.2.4",
     "js-cookie": "^2.1.2",
     "keen-ui": "https://github.com/learningequality/Keen-UI/",
