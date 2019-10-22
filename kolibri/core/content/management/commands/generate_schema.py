@@ -122,10 +122,10 @@ class Command(BaseCommand):
                 with io.open(data_path, mode="w", encoding="utf-8") as f:
                     json.dump(data, f)
 
-            call_command("generate_schema", CURRENT_SCHEMA_VERSION, interactive=False)
-
             shutil.rmtree(
                 os.path.join(
                     os.path.dirname(__file__), "../../contentschema/migrations"
                 )
             )
+
+            os.system("kolibri manage generate_schema " + CURRENT_SCHEMA_VERSION)
