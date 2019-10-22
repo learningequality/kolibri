@@ -21,20 +21,28 @@ not need to be added to an importable schema version (and will not be used in St
 To make updates to fields with this purpose, please use the models defined in the main
 models.py in this module.
 
+To faciltitate importing from different versions of exported channel databases
+a pickled SQLAlchemy schema for the new schema must be generated using the
+generate_schema management command.
+
+In the case where no updates have yet been made to the schema_versions constants,
+the command can be run without arguments, and it will auto increment:
+
+    `kolibri manage generate_schema`
+
+If the schema_versions file has already been updated, then the 'version' parameter
+passed to the command should be the value of the new version e.g. VERSION_3:
+
+    `kolibri manage generate_schema 3`
+
+Note that in both these cases the current schema pickle that is used for doing
+SQLAlchemy operations on the default Django database will also be updated.
+
 In order to track updates to models or fields, the CONTENT_SCHEMA_VERSION value in
 kolibri/core/content/constants/schema_versions.py must be
 incremented, with an additional constant added for the new version.
 E.g. a new constant VERSION_3 = '3', might be added, and CONTENT_SCHEMA_VERSION set to
 VERSION_3.
-
-Before doing the changes in kolibri/core/content/constants/schema_versions.py,
-a pickled SQLAlchemy schema for the new schema must also be generated using the
-generate_schema management command. This must be generated using an empty, migrated
-database.
-
-The 'version' parameter passed to the command should be the value of e.g. VERSION_3:
-
-    `kolibri manage generate_schema 3`
 
 In addition, the new constant should be added to the mappings dict in
 ./utils/channel_import.py with an appropriate ChannelImport class associated.
