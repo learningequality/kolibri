@@ -111,7 +111,7 @@ class LearnerClassroomSerializer(ModelSerializer):
 
         filtered_exams = (
             Exam.objects.filter(assignments__in=exam_assignments, collection=instance)
-            .filter(Q(active=True) & Q(examlogs__user=current_user))
+            .filter(Q(active=True) | Q(examlogs__user=current_user))
             .distinct()
         )
 

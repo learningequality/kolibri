@@ -10,7 +10,7 @@
       </p>
     </div>
     <ContentCard
-      v-for="exam in exams"
+      v-for="exam in visibleExams"
       :key="exam.id"
       class="content-card"
       :link="genExamLink(exam)"
@@ -52,6 +52,9 @@
     },
     computed: {
       EXAM: () => ContentNodeKinds.EXAM,
+      visibleExams() {
+        return this.exams.filter(e => e.active === true);
+      },
     },
     methods: {
       examStarted(exam) {
