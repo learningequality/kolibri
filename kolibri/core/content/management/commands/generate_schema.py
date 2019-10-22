@@ -18,6 +18,7 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
 
 from kolibri.core.content.apps import KolibriContentConfig
+from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 from kolibri.core.content.utils.sqlalchemybridge import SCHEMA_PATH_TEMPLATE
@@ -47,11 +48,16 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser):
-        parser.add_argument("version", type=str)
+        parser.add_argument("version", type=str, nargs="?")
 
     def handle(self, *args, **options):
 
-        no_export_schema = options["version"] == CURRENT_SCHEMA_VERSION
+        version = options["version"]
+
+        if not version:
+            version = str(int(CONTENT_SCHEMA_VERSION) + 1)
+
+        no_export_schema = version == CURRENT_SCHEMA_VERSION
 
         app_name = KolibriContentConfig.label
 
@@ -92,7 +98,7 @@ class Command(BaseCommand):
         Base.prepare()
         session = sessionmaker(bind=engine, autoflush=False)()
 
-        with open(SCHEMA_PATH_TEMPLATE.format(name=options["version"]), "wb") as f:
+        with open(SCHEMA_PATH_TEMPLATE.format(name=version), "wb") as f:
             pickle.dump(metadata, f, protocol=2)
 
         # Only do this if we are generating a new export schema version
@@ -106,7 +112,7 @@ class Command(BaseCommand):
             for table_name, record in Base.classes.items():
                 data[table_name] = [get_dict(r) for r in session.query(record).all()]
 
-            data_path = DATA_PATH_TEMPLATE.format(name=options["version"])
+            data_path = DATA_PATH_TEMPLATE.format(name=version)
             # Handle Python 2 unicode issue by opening the file in binary mode
             # with no encoding as the data has already been encoded
             if sys.version[0] == "2":
