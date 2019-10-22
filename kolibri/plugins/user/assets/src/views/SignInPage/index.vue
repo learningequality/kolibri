@@ -338,9 +338,7 @@
             this.$theme.signIn.scrimOpacity !== null ? this.$theme.signIn.scrimOpacity : 0.7;
           return {
             backgroundColor: this.$themeTokens.primary,
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${
-              this.$kolibriBranding.signIn.background
-            })`,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.$kolibriBranding.signIn.background})`,
           };
         }
         return { backgroundColor: this.$themeBrand.primary.v_900 };
