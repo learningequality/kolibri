@@ -37,7 +37,7 @@
     </template>
 
     <template slot="meta">
-      <div v-if="inImportMode && onDevice" class="spec-ref-on-device">
+      <div v-if="inImportMode && onDevice" data-test="on-device">
         <UiIcon class="icon">
           <mat-svg
             category="action"
@@ -47,13 +47,13 @@
         </UiIcon>
         <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
       </div>
-      <div v-if="inExportMode || inManageMode" dir="auto" class="spec-ref-resources-size">
+      <div v-if="inExportMode || inManageMode" dir="auto" data-test="resources-size">
         {{ resourcesSizeText }}
       </div>
     </template>
 
     <template slot="description">
-      <p dir="auto" class="spec-ref-description">
+      <p dir="auto" data-test="description">
         {{ channel.description || $tr('defaultDescription') }}
       </p>
       <CoachContentLabel
@@ -139,7 +139,7 @@
             value: ChannelActions.IMPORT_MORE_FROM_CHANNEL,
           },
           {
-            label: this.coreString('deleteAction'),
+            label: this.$tr('deleteChannelAction'),
             value: ChannelActions.DELETE_CHANNEL,
           },
         ];
@@ -206,6 +206,7 @@
     $trs: {
       defaultDescription: '(No description)',
       importMoreFromChannel: 'Import more',
+      deleteChannelAction: 'Delete channel',
       onYourDevice: 'On your device',
       selectButton: 'Select',
       version: 'Version {version}',

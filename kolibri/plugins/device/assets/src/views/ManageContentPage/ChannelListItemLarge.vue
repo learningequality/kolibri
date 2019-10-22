@@ -1,13 +1,10 @@
 <template>
 
   <KFixedGrid numCols="6">
-
     <KFixedGridItem span="1">
       <slot name="thumbnail"></slot>
     </KFixedGridItem>
-
     <KFixedGridItem span="4">
-
       <KFixedGrid numCols="8">
         <KFixedGridItem span="5">
           <slot name="header"></slot>
@@ -19,13 +16,10 @@
           <slot name="description"></slot>
         </KFixedGridItem>
       </KFixedGrid>
-
     </KFixedGridItem>
-
     <KFixedGridItem span="1" alignment="right" class="raise-button">
       <slot name="buttons"></slot>
     </KFixedGridItem>
-
   </KFixedGrid>
 
 </template>
