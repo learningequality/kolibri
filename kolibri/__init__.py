@@ -20,3 +20,23 @@ VERSION = (0, 13, 0, "alpha", 0)
 __author__ = "Learning Equality"
 __email__ = "info@learningequality.org"
 __version__ = str(get_version(VERSION))
+
+
+#: A list of all available plugins defined within the Kolibri repo
+#: Define it here to avoid introspection malarkey, and to allow for
+#: import in setup.py for creating a list of plugin entry points.
+INTERNAL_PLUGINS = [
+    "kolibri.plugins.facility",
+    "kolibri.plugins.device",
+    "kolibri.plugins.learn",
+    "kolibri.plugins.pdf_viewer",
+    "kolibri.plugins.html5_viewer",
+    "kolibri.plugins.media_player",
+    "kolibri.plugins.setup_wizard",
+    "kolibri.plugins.coach",
+    "kolibri.plugins.user",
+    "kolibri.plugins.style_guide",
+    "kolibri.plugins.epub_viewer",
+    "kolibri.plugins.default_theme",
+    "kolibri.plugins.slideshow_viewer",
+]

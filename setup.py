@@ -4,9 +4,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import logging
 import os
-import sys
 
 from setuptools import setup
 from setuptools.command.install_scripts import install_scripts
@@ -25,6 +23,7 @@ exit /b 1
 set py_exe=%line1:~2%
 call %py_exe% %pyscript% %*
 """
+
 
 # Generate Windows-specific .bat files
 class gen_windows_batch_files(install_scripts):
@@ -77,7 +76,13 @@ setup(
     author_email="info@learningequality.org",
     url="https://github.com/learningequality/kolibri",
     packages=[str("kolibri")],  # https://github.com/pypa/setuptools/pull/597
-    entry_points={"console_scripts": ["kolibri = kolibri.utils.cli:main"]},
+    entry_points={
+        "console_scripts": ["kolibri = kolibri.utils.cli:main"],
+        "kolibri.plugins": [
+            "{module_path} = {module_path}".format(module_path=module_path)
+            for module_path in kolibri.INTERNAL_PLUGINS
+        ],
+    },
     package_dir={"kolibri": "kolibri"},
     include_package_data=True,
     install_requires=[],
