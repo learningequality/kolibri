@@ -7,14 +7,8 @@ import {
   updateTreeViewTopic,
 } from '../modules/wizard/handlers';
 import { ContentWizardPages } from '../constants';
-import { selectContentTopicLink } from '../views/ManageContentPage/manageContentLinks';
 import AvailableChannelsPage from '../views/AvailableChannelsPage';
 import SelectContentPage from '../views/SelectContentPage';
-
-// To update the treeview topic programatically
-export function navigateToTopicUrl(node, query) {
-  router.push(selectContentTopicLink(node, query));
-}
 
 export default [
   {
