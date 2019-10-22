@@ -1,7 +1,7 @@
-import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import Index from '../../src/views/DeviceIndex';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
+import router from './testRouter';
 
 jest.mock('kolibri.urls');
 
@@ -10,18 +10,6 @@ function makeStore() {
 }
 
 function makeWrapper(store) {
-  const router = new VueRouter({
-    routes: [
-      {
-        name: 'MANAGE_CONTENT_PAGE',
-        path: '/content',
-      },
-      {
-        name: 'SELECT_CONTENT',
-        path: '/content/channel/:channel_id',
-      },
-    ],
-  });
   const wrapper = mount(Index, {
     store: store || makeStore,
     router,

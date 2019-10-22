@@ -1,11 +1,7 @@
-import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import AvailableChannelsPage from '../../src/views/AvailableChannelsPage';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
-
-const router = new VueRouter({
-  routes: [{ path: '/content/channel/:channel_id', name: 'SELECT_CONTENT' }],
-});
+import router from './testRouter';
 
 function makeWrapper(options = {}) {
   const { store, props = {} } = options;

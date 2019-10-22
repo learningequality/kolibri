@@ -1,8 +1,8 @@
-import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import ChannelListItem from '../../src/views/ManageContentPage/ChannelListItem';
 import { defaultChannel } from '../utils/data';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
+import router from './testRouter';
 
 const fakeImage = 'data:image/png;base64,abcd1234';
 
@@ -19,14 +19,7 @@ function makeWrapper(options = {}) {
   return mount(ChannelListItem, {
     propsData: { ...defaultProps, ...props },
     store: store || makeAvailableChannelsPageStore(),
-    router: new VueRouter({
-      routes: [
-        {
-          name: 'SELECT_CONTENT',
-          path: '/content/channel/:channel_id',
-        },
-      ],
-    }),
+    router,
   });
 }
 
