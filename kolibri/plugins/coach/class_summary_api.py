@@ -30,7 +30,7 @@ HELP_NEEDED = "HelpNeeded"
 COMPLETED = "Completed"
 
 
-def content_status_serializer(lesson_data, learners_data, classroom):
+def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C901
 
     # First generate a unique set of content node ids from all the lessons
     lesson_node_ids = set()
@@ -38,11 +38,12 @@ def content_status_serializer(lesson_data, learners_data, classroom):
         lesson_node_ids |= set(lesson.get("node_ids"))
 
     # Now create a map of content_id to node_id so that we can map between lessons, and notifications
-    # which use the node id, and summary logs, which use content_id
+    # which use the node id, and summary logs, which use content_id. Note that many node_ids may map
+    # to the same content_id.
     content_map = {
         n[0]: n[1]
         for n in ContentNode.objects.filter(id__in=lesson_node_ids).values_list(
-            "content_id", "id"
+            "id", "content_id"
         )
     }
 
@@ -50,7 +51,7 @@ def content_status_serializer(lesson_data, learners_data, classroom):
     # relevant content items.
     content_log_values = (
         logger_models.ContentSummaryLog.objects.filter(
-            content_id__in=set(content_map.keys()),
+            content_id__in=set(content_map.values()),
             user__in=[learner["id"] for learner in learners_data],
         )
         .annotate(attempts=Count("masterylogs__attemptlogs"))
@@ -98,17 +99,19 @@ def content_status_serializer(lesson_data, learners_data, classroom):
         current progress.
         """
         content_id = log["content_id"]
-        if content_id in content_map:
+        if content_id in content_map.values():
             # Don't try to lookup anything if we don't know the content_id
             # node_id mapping - might happen if a channel has since been deleted
-            key = lookup_key.format(
-                user_id=log["user_id"], node_id=content_map[content_id]
-            )
-            if key in needs_help:
-                # Now check if we have not already registered completion of the content node
-                # or if we have and the timestamp is earlier than that on the needs_help event
-                if key not in completed or completed[key] < needs_help[key]:
-                    return HELP_NEEDED
+            content_ids = [
+                key for key, value in content_map.items() if value == content_id
+            ]
+            for c_id in content_ids:
+                key = lookup_key.format(user_id=log["user_id"], node_id=c_id)
+                if key in needs_help:
+                    # Now check if we have not already registered completion of the content node
+                    # or if we have and the timestamp is earlier than that on the needs_help event
+                    if key not in completed or completed[key] < needs_help[key]:
+                        return HELP_NEEDED
         if log["progress"] == 1:
             return COMPLETED
         if log["kind"] == content_kinds.EXERCISE:

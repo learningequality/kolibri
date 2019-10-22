@@ -12,6 +12,10 @@ export const defaultTokenMapping = {
   focusOutline: 'brand.secondary.v_200',
   surface: 'palette.white',
   fineLine: '#dedede',
+  appBar: 'brand.primary.v_400',
+  appBarDark: 'brand.primary.v_700',
+  appBarFullscreen: 'palette.grey.v_900',
+  appBarFullscreenDark: 'black',
 
   // general semantic colors
   error: 'palette.red.v_700',
