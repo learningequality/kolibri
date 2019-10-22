@@ -19,7 +19,7 @@
         :appBarTitle="toolbarTitle || appBarTitle"
         :icon="immersivePageIcon"
         :route="immersivePageRoute"
-        :primary="immersivePagePrimary"
+        :isFullscreen="!immersivePagePrimary"
         :height="headerHeight"
         @nav-icon-click="$emit('navIconClick')"
       />
