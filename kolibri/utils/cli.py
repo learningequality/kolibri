@@ -723,6 +723,15 @@ def apply(ctx, plugin_names):
 @plugin.command(help="List all available Kolibri plugins")
 def list():
     plugins = [plugin for plugin in iterate_plugins()]
-    logger.info("These plugins are available to be activated:")
+    max_len = max((len(plugin) for plugin in plugins))
+    available_plugins = "Available plugins"
+    status = "Status"
+    click.echo(
+        available_plugins + " " * (max_len - len(available_plugins) + 4) + status
+    )
     for plugin in sorted(plugins):
-        logger.info(plugin)
+        click.echo(
+            plugin
+            + " " * (max_len - len(plugin) + 4)
+            + ("ENABLED" if plugin in config.ACTIVE_PLUGINS else "DISABLED")
+        )
