@@ -594,28 +594,28 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
         )
 
 
-class Version1ImportTestCase(NaiveImportTestCase):
-    """
-    Integration test for import from no version import
-    """
-
-    name = VERSION_1
-
-    @classmethod
-    def tearDownClass(cls):
-        super(Version1ImportTestCase, cls).tearDownClass()
-
-    @classmethod
-    def setUpClass(cls):
-        super(Version1ImportTestCase, cls).setUpClass()
-
-
 class Version2ImportTestCase(NaiveImportTestCase):
     """
     Integration test for import from no version import
     """
 
     name = VERSION_2
+
+    @classmethod
+    def tearDownClass(cls):
+        super(Version2ImportTestCase, cls).tearDownClass()
+
+    @classmethod
+    def setUpClass(cls):
+        super(Version2ImportTestCase, cls).setUpClass()
+
+
+class Version1ImportTestCase(NaiveImportTestCase):
+    """
+    Integration test for import from no version import
+    """
+
+    name = VERSION_1
 
     @classmethod
     def tearDownClass(cls):
