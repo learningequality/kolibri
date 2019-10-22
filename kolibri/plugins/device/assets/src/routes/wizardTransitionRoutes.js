@@ -1,3 +1,4 @@
+import omit from 'lodash/omit';
 import router from 'kolibri.coreVue.router';
 import store from 'kolibri.coreVue.vuex.store';
 import {
@@ -32,42 +33,38 @@ export default [
     name: ContentWizardPages.SELECT_CONTENT,
     component: SelectContentPage,
     path: '/content/channels/:channel_id',
-    handler: ({ query, params }, from) => {
-      // HACK don't refresh state when going from SELECT_CONTENT_TOPIC back to here
-      if (from.name === ContentWizardPages.SELECT_CONTENT_TOPIC) {
-        const cachedChannelPath = store.state.manageContent.wizard.pathCache[params.channel_id];
-        return updateTreeViewTopic(store, cachedChannelPath[0]);
-      }
-
-      return showSelectContentPage(store, {
-        channel_id: params.channel_id,
-        address_id: query.address_id,
-        drive_id: query.drive_id,
-        for_export: String(query.for_export) === 'true',
-      });
-    },
-  },
-  {
-    name: ContentWizardPages.SELECT_CONTENT_TOPIC,
-    component: SelectContentPage,
-    path: '/content/channels/:channel_id/node/:node_id',
     handler: toRoute => {
-      // If wizardState is not fully-hydrated, redirect to top-level channel page
-      if (!store.state.manageContent.wizard.transferType) {
-        router.replace({ ...toRoute, name: ContentWizardPages.SELECT_CONTENT });
-      } else {
-        const { params } = toRoute;
-        let nextNode;
-        if (!params.node) {
-          nextNode = {
-            // Works fine without title at the moment.
-            path: store.state.manageContent.wizard.pathCache[params.node_id],
-            id: params.node_id,
-          };
+      const { query, params } = toRoute;
+      const { node_id } = query;
+      if (node_id) {
+        // If wizardState is not fully-hydrated, redirect to top-level channel page
+        if (!store.state.manageContent.wizard.transferType || node_id === params.channel_id) {
+          router.replace({ ...toRoute, query: omit(query, 'node_id') });
         } else {
-          nextNode = params.node;
+          let nextNode;
+          if (!params.node) {
+            nextNode = {
+              // Works fine without title at the moment.
+              path: store.state.manageContent.wizard.pathCache[node_id],
+              id: node_id,
+            };
+          } else {
+            nextNode = params.node;
+          }
+          return updateTreeViewTopic(store, nextNode);
         }
-        return updateTreeViewTopic(store, nextNode);
+      } else {
+        const cachedChannelPath = store.state.manageContent.wizard.pathCache[params.channel_id];
+        if (cachedChannelPath) {
+          updateTreeViewTopic(store, cachedChannelPath[0]);
+        } else {
+          return showSelectContentPage(store, {
+            channel_id: params.channel_id,
+            address_id: query.address_id,
+            drive_id: query.drive_id,
+            for_export: String(query.for_export) === 'true',
+          });
+        }
       }
     },
   },

@@ -16,7 +16,7 @@ function makeWrapper(options = {}) {
     propsData: props,
     store: store || makeSelectContentPageStore(),
     router: new VueRouter({
-      routes: [{ name: 'SELECT_CONTENT_TOPIC', path: 'topic' }],
+      routes: [{ name: 'SELECT_CONTENT', path: 'topic' }],
     }),
   });
 }

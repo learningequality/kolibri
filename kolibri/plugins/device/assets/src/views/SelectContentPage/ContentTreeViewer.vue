@@ -91,7 +91,7 @@
         'transferType',
       ]),
       breadcrumbs() {
-        return this.path.map(x => transformBreadrumb(x, this.$route.query));
+        return this.path.map(x => transformBreadrumb(x, this.$route));
       },
       childNodes() {
         // Guard against when state is reset going back to manage content page
