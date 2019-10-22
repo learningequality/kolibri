@@ -7,6 +7,8 @@ import {
 } from '../modules/wizard/handlers';
 import { ContentWizardPages } from '../constants';
 import { selectContentTopicLink } from '../views/ManageContentPage/manageContentLinks';
+import AvailableChannelsPage from '../views/AvailableChannelsPage';
+import SelectContentPage from '../views/SelectContentPage';
 
 // To update the treeview topic programatically
 export function navigateToTopicUrl(node, query) {
@@ -16,6 +18,7 @@ export function navigateToTopicUrl(node, query) {
 export default [
   {
     name: ContentWizardPages.AVAILABLE_CHANNELS,
+    component: AvailableChannelsPage,
     path: '/content/channels',
     handler: ({ query }) => {
       return showAvailableChannelsPage(store, {
@@ -27,6 +30,7 @@ export default [
   },
   {
     name: ContentWizardPages.SELECT_CONTENT,
+    component: SelectContentPage,
     path: '/content/channels/:channel_id',
     handler: ({ query, params }, from) => {
       // HACK don't refresh state when going from SELECT_CONTENT_TOPIC back to here
@@ -45,6 +49,7 @@ export default [
   },
   {
     name: ContentWizardPages.SELECT_CONTENT_TOPIC,
+    component: SelectContentPage,
     path: '/content/channels/:channel_id/node/:node_id',
     handler: toRoute => {
       // If wizardState is not fully-hydrated, redirect to top-level channel page
