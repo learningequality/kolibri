@@ -335,7 +335,9 @@
       backgroundImageStyle() {
         if (this.$kolibriBranding.signIn.background) {
           const scrimOpacity =
-            this.$theme.signIn.scrimOpacity !== null ? this.$theme.signIn.scrimOpacity : 0.7;
+            this.$kolibriBranding.signIn.scrimOpacity !== null
+              ? this.$kolibriBranding.signIn.scrimOpacity
+              : 0.7;
           return {
             backgroundColor: this.$themeTokens.primary,
             backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.$kolibriBranding.signIn.background})`,
