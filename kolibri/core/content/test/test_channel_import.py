@@ -34,8 +34,6 @@ from kolibri.core.content.utils.annotation import (
 )
 from kolibri.core.content.utils.channel_import import ChannelImport
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
-from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
-from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 
 
@@ -432,13 +430,6 @@ class ContentImportTestBase(TransactionTestCase):
             "kolibri.core.content.utils.sqlalchemybridge.get_engine",
             new=self.get_engine,
         ):
-
-            channel_metadata = read_channel_metadata_from_db_file(
-                get_content_database_file_path("6199dde695db4ee4ab392222d5af1e5c")
-            )
-
-            # Double check that we have actually created a valid content db that is recognized as having that schema
-            assert channel_metadata.inferred_schema_version == self.schema_name
 
             import_channel_from_local_db("6199dde695db4ee4ab392222d5af1e5c")
 
