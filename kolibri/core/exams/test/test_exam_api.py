@@ -8,9 +8,12 @@ from rest_framework.test import APITestCase
 
 from .. import models
 from kolibri.core import error_constants
+from kolibri.core.auth.models import Collection
+from kolibri.core.auth.models import Membership
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.logger.models import ExamLog
 from kolibri.core.auth.test.helpers import provision_device
 
 
@@ -153,6 +156,54 @@ class ExamAPITestCase(APITestCase):
         self.assertEqual(
             models.Exam.objects.get(id=self.exam.id).title, "updated title"
         )
+
+    def test_create_exam_logs_when_exam_is_closed(self):
+        self.login_as_admin()
+        group = LearnerGroup.objects.create(name="test", parent=self.facility)
+
+        for i in range(10):
+            user = FacilityUser.objects.create(
+                username="u{}".format(i), facility=self.facility
+            )
+            # Be sure to pretend a user has taken the quiz already to be
+            # sure the code actually works properly
+            if i == 1:
+                user_who_takes_the_exam_already = user
+            else:
+                group.add_learner(user)
+
+        exam_logs = ExamLog.objects.filter(exam_id=self.exam.id)
+        models.ExamAssignment.objects.create(
+            exam=self.exam, collection=group, assigned_by=self.admin
+        )
+        assigned_collection_ids = models.ExamAssignment.objects.filter(
+            exam_id=self.exam.id
+        ).values_list("collection_id", flat=True)
+        learner_ids = Membership.objects.filter(collection_id=group.id).values_list(
+            "user_id", flat=True
+        )
+        self.assertNotEquals(len(learner_ids), len(exam_logs))
+
+        # Now - lets make an ExamLog to pretend someone has taken the quiz.
+        import datetime
+
+        ExamLog.objects.create(
+            closed=False,
+            exam_id=self.exam.id,
+            user_id=user_who_takes_the_exam_already.id,
+            completion_timestamp=datetime.datetime.now(),
+            dataset_id=self.exam.dataset_id,
+        )
+        # Be sure the learner who takes the quiz is in the group
+        group.add_learner(user_who_takes_the_exam_already)
+        # Now get the learner IDs again fresh
+        learner_ids = Membership.objects.filter(collection_id=group.id).values_list(
+            "user_id", flat=True
+        )
+        # Finally - make the request.
+        response = self.put_updated_exam(self.exam.id, {"archive": True})
+        exam_logs = ExamLog.objects.filter(exam_id=self.exam.id)
+        self.assertEquals(len(learner_ids), len(exam_logs))
 
     def test_logged_in_user_exam_no_update(self):
         self.login_as_learner()
