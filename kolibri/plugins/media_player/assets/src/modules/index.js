@@ -27,11 +27,9 @@ export default {
 
       store.commit('SET_PLAYER', player);
     },
-
     withPlayer(store, callback) {
       return callback(store.state.player);
     },
-
     resetState(store) {
       if (store.state.player) {
         store.state.player.dispose();

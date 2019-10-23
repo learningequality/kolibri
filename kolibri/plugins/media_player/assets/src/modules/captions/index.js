@@ -74,7 +74,6 @@ export default {
       const track = tracks(state).find(track => state.language === track.language);
       return track ? track.label : '';
     },
-
     /**
      * @param state
      * @return {TextTrackCue[]}
@@ -82,7 +81,6 @@ export default {
     cues(state) {
       return trackUtils.listToArray(state.cueList || []);
     },
-
     /**
      * @param state
      * @return {String[]}
@@ -93,13 +91,11 @@ export default {
         .map(cue => cue.id)
         .filter(Boolean);
     },
-
     /**
      * @param state
      * @return {TextTrack[]}
      */
     tracks,
-
     /**
      * @param state
      * @return {TextTrack}
@@ -138,7 +134,6 @@ export default {
         { root: true }
       );
     },
-
     setTrackList(store, trackList) {
       if (store.state.trackList) {
         store.state.trackListeners.forEach(({ trackId, event, listener }) => {
@@ -179,7 +174,6 @@ export default {
         track.addCue.overridden = true;
       });
     },
-
     updateTrackList(store, trackList) {
       if (store.state.trackList.length !== trackList.length) {
         return store.dispatch('setTrackList', trackList);
@@ -188,7 +182,6 @@ export default {
       store.commit('SET_TRACK_LIST', trackList);
       store.dispatch('synchronizeTrackList');
     },
-
     setCuesFromTrack(store, track) {
       store.commit('SET_CUE_LIST', track.cues);
       // Ensure cues have ids
@@ -196,11 +189,9 @@ export default {
         cue.id = track.id + '-cue-' + i;
       });
     },
-
     setActiveCuesFromTrack(store, track) {
       store.commit('SET_ACTIVE_CUE_LIST', track.activeCues);
     },
-
     synchronizeTrackList(store) {
       const { language, subtitles, transcript } = store.state;
       const settings = new Settings(defaultSettings());
@@ -221,17 +212,14 @@ export default {
         }
       });
     },
-
     toggleSubtitles(store) {
       store.commit('SET_SUBTITLES', !store.state.subtitles);
       store.dispatch('synchronizeTrackList');
     },
-
     toggleTranscript(store) {
       store.commit('SET_TRANSCRIPT', !store.state.transcript);
       store.dispatch('synchronizeTrackList');
     },
-
     resetState(store) {
       store.commit('SET_CUE_LIST', null);
       store.commit('SET_ACTIVE_CUE_LIST', null);
