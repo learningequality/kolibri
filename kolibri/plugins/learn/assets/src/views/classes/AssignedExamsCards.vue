@@ -53,7 +53,14 @@
     computed: {
       EXAM: () => ContentNodeKinds.EXAM,
       visibleExams() {
-        return this.exams.filter(e => e.active === true);
+        return this.exams.filter(exam => {
+          let showIfActive = true;
+          if (exam.archive) {
+            // Closed (archived) exams only show if the learner started/submitted
+            showIfActive = this.examStarted(exam) || this.examSubmitted(exam);
+          }
+          return showIfActive && exam.active;
+        });
       },
     },
     methods: {

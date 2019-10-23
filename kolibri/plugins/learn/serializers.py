@@ -23,7 +23,7 @@ class ExamProgressSerializer(ModelSerializer):
 
     class Meta:
         model = Exam
-        fields = ("active", "id", "progress", "question_count", "title")
+        fields = ("active", "archive", "id", "progress", "question_count", "title")
 
     progress = SerializerMethodField()
 
