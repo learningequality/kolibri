@@ -21,6 +21,23 @@ not need to be added to an importable schema version (and will not be used in St
 To make updates to fields with this purpose, please use the models defined in the main
 models.py in this module.
 
+To faciltitate importing from different versions of exported channel databases
+a pickled SQLAlchemy schema for the new schema must be generated using the
+generate_schema management command.
+
+In the case where no updates have yet been made to the schema_versions constants,
+the command can be run without arguments, and it will auto increment:
+
+    `kolibri manage generate_schema`
+
+If the schema_versions file has already been updated, then the 'version' parameter
+passed to the command should be the value of the new version e.g. VERSION_3:
+
+    `kolibri manage generate_schema 3`
+
+Note that in both these cases the current schema pickle that is used for doing
+SQLAlchemy operations on the default Django database will also be updated.
+
 In order to track updates to models or fields, the CONTENT_SCHEMA_VERSION value in
 kolibri/core/content/constants/schema_versions.py must be
 incremented, with an additional constant added for the new version.
@@ -37,14 +54,6 @@ If the new schema requires inference of the field when it is missing from old da
 (i.e. it does not have a default value, or cannot be null or blank), then all the
 ChannelImport classes for previous versions must be updated to infer this data from old
 databases.
-
-A pickled SQLAlchemy schema for the new schema must also be generated using the
-generate_schema management command. This must be generated using an empty, migrated
-database.
-
-The 'version' parameter passed to the command should be the value of e.g. VERSION_3:
-
-    `kolibri manage generate_schema 3`
 
 All pickled schema should be registered in the CONTENT_DB_SCHEMA_VERSIONS list in
 this file e.g. VERSION_3 should be added to the list.
@@ -118,9 +127,6 @@ class ContentNode(MPTTModel):
     author = models.CharField(max_length=200, blank=True)
     kind = models.CharField(max_length=200, choices=content_kinds.choices, blank=True)
     available = models.BooleanField(default=False)
-    stemmed_metaphone = models.CharField(
-        max_length=1800, blank=True
-    )  # for fuzzy search in title and description
     lang = models.ForeignKey("Language", blank=True, null=True)
 
     class Meta:
