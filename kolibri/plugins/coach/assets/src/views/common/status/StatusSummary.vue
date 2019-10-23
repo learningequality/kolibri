@@ -87,7 +87,7 @@
         debug="ratio; has some needing help"
       />
       <LearnerProgressCount
-        v-if="showItem(!verbose)"
+        v-if="showItem(notStarted)"
         class="item"
         :style="{ color: $themeTokens.textDisabled }"
         :verb="VERBS.notStarted"
