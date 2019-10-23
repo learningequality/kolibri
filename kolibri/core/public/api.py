@@ -13,6 +13,7 @@ import kolibri
 from .. import error_constants
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import PublicChannelSerializer
 
 
@@ -115,5 +116,30 @@ def get_public_channel_lookup(request, version, identifier):
         )
     return HttpResponse(
         json.dumps(PublicChannelSerializer(channel_list, many=True).data),
+        content_type="application/json",
+    )
+
+
+@api_view(["GET"])
+def get_public_file_checksums(request, version, channel_id):
+    """ Endpoint: /public/<version>/file_checksums/<channel_id> """
+    if version == "v1":
+        try:
+            channel = ChannelMetadata.objects.get(id=channel_id)
+            tree_id = channel.root.tree_id
+            checksums = (
+                LocalFile.objects.filter(
+                    available=True, files__contentnode__tree_id=tree_id
+                )
+                .values_list("id", flat=True)
+                .distinct()
+            )
+            return HttpResponse(
+                json.dumps(list(checksums)), content_type="application/json"
+            )
+        except ChannelMetadata.DoesNotExist:
+            pass
+    return HttpResponseNotFound(
+        json.dumps({"id": error_constants.NOT_FOUND, "metadata": {"view": ""}}),
         content_type="application/json",
     )
