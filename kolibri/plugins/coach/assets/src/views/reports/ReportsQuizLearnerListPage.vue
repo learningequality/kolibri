@@ -28,12 +28,19 @@
               </template>
             </KLabeledIcon>
           </td>
-          <td>
+          <td v-if="tableRow.statusObj.status !== STATUSES.started">
             <StatusSimple
-              v-if="tableRow.statusObj.status !== STATUSES.started"
               :status="tableRow.statusObj.status"
             />
-            <KLabeledIcon v-else>
+            <div v-if="tableRow.statusObj.status === STATUSES.completed" class="small-answered-count">
+
+              {{
+                completedQuestionsCountLabel(tableRow.statusObj.num_answered, exam.question_count)
+              }}
+            </div>
+          </td>
+          <td v-else>
+            <KLabeledIcon >
               <KIcon slot="icon" :color="$themeTokens.progress" icon="inProgress" />
               {{
                 $tr('questionsCompletedRatioLabel',
@@ -114,16 +121,35 @@
     beforeMount() {
       this.filter = this.filterOptions[0];
     },
+    methods: {
+      completedQuestionsCountLabel(answered, total) {
+        if (answered === total) {
+          return this.$tr('allQuestionsAnswered');
+        } else {
+          return this.$tr('questionsCompletedRatioLabel', { count: answered || 0, total: total });
+        }
+      },
+    },
     $trs: {
       allQuizzes: 'All quizzes',
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
+      allQuestionsAnswered: 'All questions answered',
       questionsCompletedRatioLabel:
-        '{count, number, integer} of {total, number, integer} {count, plural, other {answered}}',
+        '{count, number, integer} of {total, number, integer} questions {count, plural, other {answered}}',
     },
   };
 
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .small-answered-count {
+    display: block;
+    margin-left: 1.75rem;
+    font-size: small;
+    color: gray;
+  }
+
+</style>
