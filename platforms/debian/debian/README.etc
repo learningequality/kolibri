@@ -11,6 +11,11 @@ If you would like to change the location of `$KOLIBRI_HOME`, you add a file
 
 KOLIBRI_HOME=/location/of/your/choice
 
+Note that if you only want to change where content is stored, you can do that
+using the Kolibri `movedirectory` command:
+
+kolibri manage content movedirectory <destination>
+
 Alternatively, you can configure Kolibri using environment variables rather than
 `options.ini`. Any option can be configured in conf.d files by prefixing the
 option name with "KOLIBRI_". For example, HTTP_PORT can be configured as
