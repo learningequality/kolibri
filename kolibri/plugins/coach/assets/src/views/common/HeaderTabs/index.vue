@@ -13,12 +13,11 @@
 
 <script>
 
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   export default {
     name: 'HeaderTabs',
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [responsiveWindowMixin],
   };
 
 </script>

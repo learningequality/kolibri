@@ -43,15 +43,8 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KTooltip from 'kolibri.coreVue.components.KTooltip';
-
   export default {
     name: 'AnswerIcon',
-    components: {
-      KTooltip,
-    },
-    mixins: [themeMixin],
     props: {
       answer: {
         type: String,

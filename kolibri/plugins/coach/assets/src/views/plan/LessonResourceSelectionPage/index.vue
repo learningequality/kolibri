@@ -3,9 +3,9 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="close"
-    immersivePagePrimary
+    :immersivePagePrimary="false"
     :immersivePageRoute="exitButtonRoute"
-    :appBarTitle="coachCommon$tr('manageResourcesAction')"
+    :appBarTitle="$tr('manageResourcesAction')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :pageTitle="pageTitle"
@@ -17,18 +17,11 @@
       </h1>
 
       <KGrid>
-        <KGridItem
-          sizes="100, 100, 50"
-          percentage
-        >
+        <KGridItem :layout12="{span: 6}">
           <LessonsSearchBox @searchterm="handleSearchTerm" />
         </KGridItem>
 
-        <KGridItem
-          sizes="100, 100, 50"
-          percentage
-          alignments="left, left, right"
-        >
+        <KGridItem :layout12="{span: 6, alignment: 'right'}">
           <p>
             {{ $tr('totalResourcesSelected', { total: workingResources.length }) }}
           </p>
@@ -67,14 +60,14 @@
 
     </KPageContainer>
 
-    <KBottomAppBar>
+    <BottomAppBar>
       <KRouterLink
-        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coachCommon$tr('finishAction')"
+        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coreString('finishAction')"
         :primary="true"
         appearance="raised-button"
         :to="exitButtonRoute"
       />
-    </KBottomAppBar>
+    </BottomAppBar>
 
   </CoreBase>
 
@@ -89,11 +82,9 @@
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
   import xor from 'lodash/xor';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
@@ -111,15 +102,12 @@
     },
     components: {
       ContentCardList,
-      KRouterLink,
-      KGrid,
-      KGridItem,
       LessonsSearchFilters,
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
-      KBottomAppBar,
+      BottomAppBar,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         // null corresponds to 'All' filter value
@@ -402,15 +390,12 @@
       },
     },
     $trs: {
-      // TODO semantic string names
-      save: 'Save',
       // TODO: Handle singular/plural
       selectionInformation:
         '{count, number, integer} of {total, number, integer} resources selected',
       totalResourcesSelected:
         '{total, number, integer} {total, plural, one {resource} other {resources}} in this lesson',
       documentTitle: `Manage resources in '{lessonName}'`,
-      selectAllCheckboxLabel: 'Select all',
       resourcesAddedSnackbarText:
         'Added {count, number, integer} {count, plural, one {resource} other {resources}} to lesson',
       resourcesRemovedSnackbarText:
@@ -419,6 +404,7 @@
       saveBeforeExitSnackbarText: 'Saving your changes…',
       // only shown on search page
       exitSearchButtonLabel: 'Exit search',
+      manageResourcesAction: 'Manage lesson resources',
     },
   };
 

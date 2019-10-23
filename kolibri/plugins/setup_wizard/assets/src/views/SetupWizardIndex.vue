@@ -39,8 +39,8 @@
 <script>
 
   import { mapActions, mapState, mapMutations } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import LoadingPage from './submission-states/LoadingPage';
   import ErrorPage from './submission-states/ErrorPage';
   import ProgressToolbar from './ProgressToolbar';
@@ -75,7 +75,7 @@
       LoadingPage,
       ErrorPage,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
         totalOnboardingSteps: 7,
@@ -91,8 +91,8 @@
       },
       submitText() {
         return this.isLastStep
-          ? this.$tr('onboardingFinishButton')
-          : this.$tr('onboardingNextStepButton');
+          ? this.coreString('finishAction')
+          : this.coreString('continueAction');
       },
     },
     methods: {
@@ -129,8 +129,6 @@
       },
     },
     $trs: {
-      onboardingNextStepButton: 'Continue',
-      onboardingFinishButton: 'Finish',
       documentTitle: 'Setup Wizard',
       personalFacilityName: 'Home Facility {name}',
     },
@@ -142,6 +140,19 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+
+  // from http://nicolasgallagher.com/micro-clearfix-hack/
+  @mixin clearfix() {
+    zoom: 1;
+    &::after,
+    &::before {
+      display: table;
+      content: '';
+    }
+    &::after {
+      clear: both;
+    }
+  }
 
   .onboarding {
     @include clearfix(); // child margin leaks up into otherwise empty parent

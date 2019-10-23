@@ -14,13 +14,13 @@
       <div class="filter-and-button">
         <KSelect
           v-model="filterSelection"
-          :label="coachCommon$tr('showAction')"
+          :label="coreString('showAction')"
           :options="filterOptions"
           :inline="true"
         />
         <KButton
           :primary="true"
-          :text="coachCommon$tr('newLessonAction')"
+          :text="coachString('newLessonAction')"
           @click="showModal=true"
         />
       </div>
@@ -28,10 +28,10 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('titleLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
             <th>{{ $tr('size') }}</th>
-            <th>{{ coachCommon$tr('recipientsLabel') }}</th>
-            <th>{{ coachCommon$tr('statusLabel') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
+            <th>{{ coachString('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -48,7 +48,7 @@
                 />
               </KLabeledIcon>
             </td>
-            <td>{{ coachCommon$tr('numberOfResources', { value: lesson.resources.length }) }}</td>
+            <td>{{ coachString('numberOfResources', { value: lesson.resources.length }) }}</td>
             <td>
               <Recipients
                 :groupNames="getGroupNames(getGroupIds(lesson.lesson_assignments))"
@@ -75,8 +75,8 @@
       <KModal
         v-if="showModal"
         :title="$tr('newLessonModalTitle')"
-        :submitText="coachCommon$tr('continueAction')"
-        :cancelText="coachCommon$tr('cancelAction')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
         :submitDisabled="detailsModalIsDisabled"
         :cancelDisabled="detailsModalIsDisabled"
         @cancel="showModal=false"
@@ -109,13 +109,9 @@
   import { mapState, mapActions } from 'vuex';
   import countBy from 'lodash/countBy';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KModal from 'kolibri.coreVue.components.KModal';
   import { CollectionKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LessonActive from '../../common/LessonActive';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
@@ -127,15 +123,10 @@
     components: {
       PlanHeader,
       CoreTable,
-      KButton,
-      KRouterLink,
-      KSelect,
-      KLabeledIcon,
-      KModal,
       LessonActive,
       AssignmentDetailsModal,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         showModal: false,
@@ -205,7 +196,6 @@
       inactiveLessons: 'Inactive lessons',
       newLessonModalTitle: 'Create new lesson',
       size: 'Size',
-      noOne: 'No one',
       noLessons: 'You do not have any lessons',
       noActiveLessons: 'No active lessons',
       noInactiveLessons: 'No inactive lessons',

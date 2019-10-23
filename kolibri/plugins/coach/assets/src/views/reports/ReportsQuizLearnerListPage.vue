@@ -6,20 +6,18 @@
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-
       <ReportsQuizHeader />
 
-      <CoreTable :emptyMessage="coachCommon$tr('learnerListEmptyState')">
+      <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('nameLabel') }}</th>
-            <th>{{ coachCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('scoreLabel') }}</th>
-            <th>{{ coachCommon$tr('groupsLabel') }}</th>
+            <th>{{ coachString('nameLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('scoreLabel') }}</th>
+            <th>{{ coachString('groupsLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -41,10 +39,27 @@
               </KLabeledIcon>
             </td>
             <td>
-              <StatusSimple :status="tableRow.statusObj.status" />
+              <StatusSimple
+                v-if="tableRow.statusObj.status !== STATUSES.started"
+                :status="tableRow.statusObj.status"
+              />
+              <KLabeledIcon v-else>
+                <KIcon slot="icon" :color="$themeTokens.progress" icon="inProgress" />
+                {{
+                  $tr('questionsCompletedRatioLabel',
+                      {count: tableRow.statusObj.num_answered || 0, total: exam.question_count})
+                }}
+              </KLabeledIcon>
             </td>
-            <td><Score :value="tableRow.statusObj.score" /></td>
-            <td><TruncatedItemList :items="tableRow.groups" /></td>
+            <td>
+              <Score
+                v-if="tableRow.statusObj.status === STATUSES.completed"
+                :value="tableRow.statusObj.score || 0.0"
+              />
+            </td>
+            <td>
+              <TruncatedItemList :items="tableRow.groups" />
+            </td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -56,6 +71,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import ReportsQuizHeader from './ReportsQuizHeader';
 
@@ -64,7 +80,7 @@
     components: {
       ReportsQuizHeader,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         filter: 'allQuizzes',
@@ -74,15 +90,15 @@
       filterOptions() {
         return [
           {
-            label: this.$tr('allQuizzes'),
+            label: this.coachString('allQuizzesLabel'),
             value: 'allQuizzes',
           },
           {
-            label: this.$tr('activeQuizzes'),
+            label: this.coachString('activeQuizzesLabel'),
             value: 'activeQuizzes',
           },
           {
-            label: this.$tr('inactiveQuizzes'),
+            label: this.coachString('inactiveQuizzesLabel'),
             value: 'inactiveQuizzes',
           },
         ];
@@ -110,10 +126,11 @@
       this.filter = this.filterOptions[0];
     },
     $trs: {
-      averageScore: 'Average score: {score, number, percent}',
       allQuizzes: 'All quizzes',
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
+      questionsCompletedRatioLabel:
+        '{count, number, integer} of {total, number, integer} {count, plural, other {answered}}',
     },
   };
 

@@ -1,4 +1,7 @@
 import { getBrowser, passesRequirements } from './utils/userAgent';
+import plugin_data from 'plugin_data';
+
+const pluginData = plugin_data;
 
 const userAgent =
   window && window.navigator && window.navigator.userAgent ? window.navigator.userAgent : '';
@@ -17,7 +20,7 @@ const minimumBrowserRequirements = {
 };
 
 if (!passesRequirements(browser, minimumBrowserRequirements)) {
-  window.location.href = window.kolibriUrls['kolibri:core:unsupported']();
+  window.location.href = pluginData.unsupportedUrl;
 }
 
 const modernFontBrowsers = {
@@ -55,7 +58,7 @@ function setFontStyle(href) {
 }
 
 if (passesRequirements(browser, modernFontBrowsers)) {
-  setFontStyle(window.fullCSSFileModern);
+  setFontStyle(pluginData.fullCSSFileModern);
 } else {
-  setFontStyle(window.fullCSSFileBasic);
+  setFontStyle(pluginData.fullCSSFileBasic);
 }

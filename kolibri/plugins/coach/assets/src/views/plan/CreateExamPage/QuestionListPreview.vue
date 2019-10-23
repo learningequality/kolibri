@@ -1,18 +1,22 @@
 <template>
 
   <KGrid>
-    <KGridItem sizes="4, 4, 5" class="list-wrapper">
-      <KDragContainer
+    <KGridItem
+      :layout8="{ span: 4 }"
+      :layout12="{ span: 5 }"
+      class="list-wrapper"
+    >
+      <DragContainer
         v-if="fixedOrder && !readOnly"
         :items="annotatedQuestions"
         @sort="handleUserSort"
       >
         <transition-group tag="ol" name="list" class="question-list">
-          <KDraggable
+          <Draggable
             v-for="(question, questionIndex) in annotatedQuestions"
             :key="listKey(question)"
           >
-            <KDragHandle>
+            <DragHandle>
               <AssessmentQuestionListItem
                 :draggable="true"
                 :isSelected="isSelected(question)"
@@ -25,10 +29,10 @@
                 @moveDown="moveQuestionDown(questionIndex)"
                 @moveUp="moveQuestionUp(questionIndex)"
               />
-            </KDragHandle>
-          </KDraggable>
+            </DragHandle>
+          </Draggable>
         </transition-group>
-      </KDragContainer>
+      </DragContainer>
       <ul v-else class="question-list">
         <AssessmentQuestionListItem
           v-for="(question, questionIndex) in annotatedQuestions"
@@ -57,11 +61,14 @@
         </ul>
       </transition>
     </KGridItem>
-    <KGridItem sizes="4, 4, 7">
+    <KGridItem
+      :layout8="{ span: 4 }"
+      :layout12="{ span: 7 }"
+    >
       <h3 class="question-title">
         {{ currentQuestion.title }}
       </h3>
-      <ContentRenderer
+      <KContentRenderer
         v-if="content && questionId"
         ref="contentRenderer"
         :kind="content.kind"
@@ -82,24 +89,18 @@
 
 <script>
 
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
-  import KDraggable from 'kolibri.coreVue.components.KDraggable';
-  import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
+  import DragContainer from 'kolibri.coreVue.components.DragContainer';
+  import Draggable from 'kolibri.coreVue.components.Draggable';
+  import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
 
   export default {
     name: 'QuestionListPreview',
     components: {
-      ContentRenderer,
       AssessmentQuestionListItem,
-      KGrid,
-      KGridItem,
-      KDraggable,
-      KDragContainer,
-      KDragHandle,
+      Draggable,
+      DragContainer,
+      DragHandle,
     },
     props: {
       // If set to true, question buttons will be draggable

@@ -1,21 +1,23 @@
-var fs = require('fs');
-var path = require('path');
-var url = require('url');
-var mkdirp = require('mkdirp');
-var espree = require('espree');
-var traverse = require('ast-traverse');
-var createCsvWriter = require('csv-writer').createObjectCsvWriter;
-var reduce = require('lodash/reduce');
-var isEqual = require('lodash/isEqual');
-var vueCompiler = require('vue-template-compiler');
-var logging = require('./logging');
+const fs = require('fs');
+const path = require('path');
+const url = require('url');
+const mkdirp = require('mkdirp');
+const espree = require('espree');
+const traverse = require('ast-traverse');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const reduce = require('lodash/reduce');
+const isEqual = require('lodash/isEqual');
+const vueCompiler = require('vue-template-compiler');
+const logging = require('./logging');
 
 const PROFILES_FOLDER = 'profiles';
 
+// If you ever add a namespace here - you should also add that to the
+// $TR_FUNCTIONS array in the vue-no-unused-translations eslint rule.
 const COMMON_NAMESPACES = {
-  // Be sure to add all Common*Strings files for all modules here as they are created.
-  coach_module: 'CommonCoachStrings',
-  test_component: 'TestComponent',
+  coachString: 'CommonCoachStrings',
+  coreString: 'CommonCoreStrings',
+  learnString: 'CommonLearnStrings',
 };
 
 function ProfileStrings(localePath, moduleName) {
@@ -138,14 +140,23 @@ ProfileStrings.prototype.apply = function(compiler) {
  */
 function getStringDefinitions(localeBasePath, moduleName) {
   const localeFilePath = `${localeBasePath}/${moduleName}-messages.json`;
+  let coreStringsFilePath = `${localeBasePath}/default_frontend-messages.json`;
   let fileContents;
   let definitions = {};
 
   try {
     fileContents = JSON.parse(fs.readFileSync(localeFilePath));
+    // If we aren't processing default_frontend, ensure we include definitions
+    // there that are in the CommonCoreStrings namespace.
+    if (moduleName !== 'default_frontend') {
+      const coreContents = JSON.parse(fs.readFileSync(coreStringsFilePath));
+      fileContents = { ...fileContents, ...coreContents };
+    }
   } catch (e) {
     // Not all modules have messages files - return null and we'll bail.
-    return null;
+    if (!fileContents) {
+      return null;
+    }
   }
 
   Object.keys(fileContents).forEach(nsKeyPair => {
@@ -242,38 +253,17 @@ function profileToCSV(profile) {
  * @param {string} key          - The key to query.
  * @param {bool} common         - Is the suspected use one of a Common string set?
  */
-function getStringFromNamespaceKey(profile, namespace, key, common = false) {
-  let $tr = null;
-
+function getStringFromNamespaceKey(profile, namespace, key) {
   // Check against every translation string in the profile as a key.
   for (let str of Object.keys(profile)) {
-    // Bail if we find a $tring that matched.
-    if ($tr) {
-      break;
-    }
-
-    let matchedNamespace;
-    let matchedKey;
-
-    if (common) {
-      // Assumes that all Common*Strings namespaces will include the word Common in them... may need
-      // to address this in a better fashion.
-      matchedNamespace = profile[str].definitions.find(def => def.namespace.includes('Common'));
-    } else {
-      matchedNamespace = profile[str].definitions.find(def => def.namespace === namespace);
-    }
-
-    if (matchedNamespace) {
-      matchedKey = profile[str].definitions.find(def => def.key === key);
-    }
+    let matchedNamespace = profile[str].definitions.find(def => def.namespace === namespace);
+    let matchedKey = profile[str].definitions.find(def => def.key === key);
 
     // If we have matched the translation string to our NS and Key then we win!
     if (matchedNamespace && matchedKey) {
-      $tr = str;
+      return str;
     }
   }
-
-  return $tr;
 }
 
 // Returns if the file is the type of *.vue file we're interested in.
@@ -330,7 +320,7 @@ function namespaceFromPath(path) {
 
 // Returns true if the string given is a *Common$tr
 function isCommonFn(string) {
-  return /Common\$tr/.test(string);
+  return Object.keys(COMMON_NAMESPACES).includes(string);
 }
 
 /* Profiling Functions */
@@ -345,7 +335,7 @@ function isCommonFn(string) {
  * profileJSFile - parses JS files.
  */
 
-function profileVueScript(profile, ast, pathname, moduleName) {
+function profileVueScript(profile, ast, pathname) {
   let namespace;
   let key;
   let common = false;
@@ -369,14 +359,21 @@ function profileVueScript(profile, ast, pathname, moduleName) {
                 key = keyFromArguments(node.arguments, namespace);
                 common = false;
               }
+
               if (isCommonFn(node.callee.property.name)) {
-                key = keyFromArguments(node.arguments, COMMON_NAMESPACES[moduleName]);
+                key = keyFromArguments(
+                  node.arguments,
+                  COMMON_NAMESPACES[node.callee.property.name]
+                );
                 common = true;
               }
-              let currentNamespace = common ? COMMON_NAMESPACES[moduleName] : namespace;
 
-              if (key !== undefined && namespace) {
-                let $tring = getStringFromNamespaceKey(profile, currentNamespace, key, common);
+              let currentNamespace = common
+                ? COMMON_NAMESPACES[node.callee.property.name]
+                : namespace;
+
+              if (key && currentNamespace) {
+                let $tring = getStringFromNamespaceKey(profile, currentNamespace, key);
 
                 if ($tring) {
                   profile[$tring].uses.push({
@@ -385,9 +382,9 @@ function profileVueScript(profile, ast, pathname, moduleName) {
                     common,
                     parsedUrl: pathname,
                   });
-                  key = undefined; // Avoid errant uses by setting key to undefined.
+                  key = null;
                 } else {
-                  logKeyError(namespace, key);
+                  logKeyError(currentNamespace, key);
                 }
               }
             }
@@ -401,7 +398,7 @@ function profileVueScript(profile, ast, pathname, moduleName) {
   return profile;
 }
 
-function profileVueTemplate(profile, ast, pathname, moduleName) {
+function profileVueTemplate(profile, ast, pathname) {
   let namespace;
   let key;
   let common = false;
@@ -425,14 +422,14 @@ function profileVueTemplate(profile, ast, pathname, moduleName) {
               common = false;
             }
             if (isCommonFn(node.callee.name)) {
-              key = keyFromArguments(node.arguments, COMMON_NAMESPACES[moduleName]);
+              key = keyFromArguments(node.arguments, COMMON_NAMESPACES[node.callee.name]);
               common = true;
             }
 
-            let currentNamespace = common ? COMMON_NAMESPACES[moduleName] : namespace;
+            let currentNamespace = common ? COMMON_NAMESPACES[node.callee.name] : namespace;
 
-            if (key !== undefined && namespace) {
-              let $tring = getStringFromNamespaceKey(profile, namespace, key, common);
+            if (key && currentNamespace) {
+              let $tring = getStringFromNamespaceKey(profile, currentNamespace, key);
 
               if ($tring) {
                 profile[$tring].uses.push({
@@ -442,7 +439,7 @@ function profileVueTemplate(profile, ast, pathname, moduleName) {
                   parsedUrl: pathname,
                 });
               }
-              key = undefined; // Avoid errant uses by setting key to undefined.
+              key = null;
             }
           }
         }

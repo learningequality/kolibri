@@ -42,7 +42,7 @@ class KolibriServer(object):
         self.db_path = os.path.join(self.env["KOLIBRI_HOME"], "db.sqlite3")
         self.db_alias = uuid.uuid4().hex
         self.port = get_free_tcp_port()
-        self.base_url = "http://127.0.0.1:{}/".format(self.port)
+        self.baseurl = "http://127.0.0.1:{}/".format(self.port)
         if autostart:
             self.start(pre_migrate=pre_migrate)
 
@@ -57,7 +57,7 @@ class KolibriServer(object):
     def _wait_for_server_start(self, timeout=20):
         for i in range(timeout * 2):
             try:
-                resp = requests.get(self.base_url, timeout=3)
+                resp = requests.get(self.baseurl, timeout=3)
                 if resp.status_code > 0:
                     return
             except RequestException:

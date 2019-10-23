@@ -1,7 +1,11 @@
 <template>
 
-  <KGrid class="page-status" :style="{ backgroundColor: $themeTokens.surface }">
-    <KGridItem size="75" percentage>
+  <KFixedGrid
+    numCols="4"
+    class="page-status"
+    :style="{ backgroundColor: $themeTokens.surface }"
+  >
+    <KFixedGridItem span="3">
       <div>
         <h1 class="title">
           <KLabeledIcon icon="person" :label="userName" />
@@ -31,8 +35,8 @@
           </td>
         </tr>
       </table>
-    </KGridItem>
-    <KGridItem size="25" percentage align="right">
+    </KFixedGridItem>
+    <KFixedGridItem span="1" alignment="right">
       <div>
         <ProgressIcon class="svg-icon" :progress="progress" />
         <strong>
@@ -42,31 +46,25 @@
       <div v-if="completed">
         <ElapsedTime :date="completionTimestamp" />
       </div>
-    </KGridItem>
-  </KGrid>
+    </KFixedGridItem>
+  </KFixedGrid>
 
 </template>
 
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'PageStatus',
     components: {
-      KGrid,
-      KGridItem,
       ProgressIcon,
       ElapsedTime,
-      KLabeledIcon,
     },
-    mixins: [themeMixin],
+    mixins: [commonCoreStrings],
     props: {
       userName: {
         type: String,
@@ -99,11 +97,11 @@
       },
       progressIconLabel() {
         if (this.completed) {
-          return this.$tr('completed');
+          return this.coreString('completedLabel');
         } else if (this.completed !== null) {
           return this.$tr('inProgress');
         } else {
-          return this.$tr('notStarted');
+          return this.$tr('notStartedLabel');
         }
       },
     },
@@ -112,9 +110,8 @@
       overallScore: 'Overall score',
       questionsCorrectLabel: 'Questions correct',
       questionsCorrectValue: '{correct, number} out of {total, number}',
-      completed: 'Completed',
       inProgress: 'In progress',
-      notStarted: 'Not started',
+      notStartedLabel: 'Not started',
     },
   };
 

@@ -1,5 +1,8 @@
 from django.db import transaction
 from django.db.models import Sum
+from django.db.models import Count
+from django.db.models import Case
+from django.db.models import When
 from le_utils.constants import content_kinds
 
 from .models import HelpReason
@@ -95,6 +98,7 @@ def create_notification(
     contentnode_id=None,
     quiz_id=None,
     quiz_num_correct=None,
+    quiz_num_answered=None,
     reason=None,
     timestamp=None,
 ):
@@ -111,6 +115,8 @@ def create_notification(
         notification.quiz_id = quiz_id
     if quiz_num_correct:
         notification.quiz_num_correct = quiz_num_correct
+    if quiz_num_answered:
+        notification.quiz_num_answered = quiz_num_answered
     if reason:
         notification.reason = reason
     if timestamp:
@@ -163,6 +169,29 @@ def check_and_created_completed_lesson(lesson, user_id, timestamp):
     return notification
 
 
+def check_and_created_answered_lesson(lesson, user_id, contentnode_id, timestamp):
+    notification = None
+    # Check if the notification has been previously saved:
+    if not LearnerProgressNotification.objects.filter(
+        user_id=user_id,
+        notification_object=NotificationObjectType.Resource,
+        notification_event=NotificationEventType.Answered,
+        lesson_id=lesson.id,
+        classroom_id=lesson.group_or_classroom,
+        timestamp=timestamp,
+    ).exists():
+        # Let's create an Lesson Completion notification
+        notification = create_notification(
+            NotificationObjectType.Resource,
+            NotificationEventType.Answered,
+            user_id,
+            lesson.group_or_classroom,
+            lesson_id=lesson.id,
+            timestamp=timestamp,
+        )
+    return notification
+
+
 def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
     # If the Resource started notification exists, nothing to do here:
     if LearnerProgressNotification.objects.filter(
@@ -173,7 +202,6 @@ def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
         contentnode_id=contentnode_id,
     ).exists():
         return []
-
     notifications = []
     # Let's create an Resource Started notification
     notifications.append(
@@ -275,13 +303,32 @@ def exist_exam_notification(user_id, exam_id):
     ).exists()
 
 
+@memoize
+def exist_examattempt_notification(user_id, exam_id):
+    return LearnerProgressNotification.objects.filter(
+        user_id=user_id,
+        quiz_id=exam_id,
+        notification_event=NotificationEventType.Answered,
+    ).exists()
+
+
 def num_correct(examlog):
     return (
-        examlog.attemptlogs.values_list("item")
+        examlog.attemptlogs.values_list("item", "content_id")
         .order_by("completion_timestamp")
         .distinct()
         .aggregate(Sum("correct"))
         .get("correct__sum")
+    )
+
+
+def num_answered(examlog):
+    return (
+        examlog.attemptlogs.values_list("item", "content_id")
+        .order_by("completion_timestamp")
+        .distinct()
+        .aggregate(complete__sum=Count(Case(When(complete=True, then=1), default=0)))
+        .get("complete__sum")
     )
 
 
@@ -298,6 +345,7 @@ def created_quiz_notification(examlog, event_type, timestamp):
             group,
             quiz_id=examlog.exam_id,
             quiz_num_correct=num_correct(examlog),
+            quiz_num_answered=num_answered(examlog),
             timestamp=timestamp,
         )
         notifications.append(notification)
@@ -331,6 +379,20 @@ def parse_examlog(examlog, timestamp):
     created_quiz_notification(examlog, event_type, timestamp)
 
 
+def create_examattemptslog(examlog, timestamp):
+    """
+    Method called by the ContentSummaryLogSerializer when the
+    examattemptslog is created.
+    It creates the Resource and, if needed, the ExamAttempt created event
+    """
+    # Checks to add an 'Answered' event
+    if exist_examattempt_notification(examlog.user_id, examlog.exam_id):
+        return  # the event has already been triggered
+    event_type = NotificationEventType.Answered
+    exist_exam_notification.cache_clear()
+    created_quiz_notification(examlog, event_type, timestamp)
+
+
 def parse_attemptslog(attemptlog):
     """
     Method called by the AttemptLogSerializer everytime the
@@ -338,7 +400,10 @@ def parse_attemptslog(attemptlog):
     It more than 3 failed attempts exists, it creates a NeededHelp notification
     for the user & resource
     """
-    # This Event should not be triggered when a Learner is interacting with an Exercise outside of a Lesson:
+    # This event should not be triggered when an anonymous Learner is interacting with an Exercise:
+    if not attemptlog.masterylog:
+        return
+    # This event should not be triggered when a Learner is interacting with an Exercise outside of a Lesson:
     lessons = get_assignments(
         attemptlog.user, attemptlog.masterylog.summarylog, attempt=True
     )
@@ -348,12 +413,11 @@ def parse_attemptslog(attemptlog):
     failed_interactions = []
     attempts = AttemptLog.objects.filter(masterylog_id=attemptlog.masterylog_id)
 
-    # NOTE: saw at elast one error here where failed['correct'] raised a key error
     failed_interactions = [
         failed
         for attempt in attempts
         for failed in attempt.interaction_history
-        if failed["correct"] == 0
+        if failed.get("correct", 0) == 0
     ]
 
     # More than 3 errors in this mastery log:
@@ -383,10 +447,20 @@ def parse_attemptslog(attemptlog):
                     timestamp=attemptlog.end_timestamp,
                 )
                 notifications.append(notification)
+
         notifications_started = check_and_created_started(
             lesson, attemptlog.user_id, contentnode_id, attemptlog.start_timestamp
         )
-
         notifications += notifications_started
+
+        # If the timestamps don't match, then it isn't a "started" event and
+        # should be an answer attempt
+        if attemptlog.start_timestamp != attemptlog.end_timestamp:
+            notifications_answered = check_and_created_answered_lesson(
+                lesson, attemptlog.user_id, contentnode_id, attemptlog.end_timestamp
+            )
+            if notifications_answered:
+                notifications.append(notifications_answered)
+
     if notifications:
         save_notifications(notifications)

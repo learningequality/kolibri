@@ -13,16 +13,13 @@
 /* eslint-disable */
 
 import { mapGetters, mapState } from 'vuex';
-import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
+import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 import urls from 'kolibri.urls';
 import commonCoach from './common';
 
 export default {
   name: 'TestComponent',
-  components: {
-    KExternalLink,
-  },
-  mixins: [commonCoach],
+  mixins: [commonCoach, commonCoreStrings],
   computed: {
     ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
     ...mapState(['classList']),
@@ -38,13 +35,13 @@ export default {
         return this.$tr('noClassesDetailsForFacilityCoach');
       }
       if (true) {
-        return this.coachCommon$tr('coachLabel');
+        return this.coreString('coachLabel');
       }
 
       return '';
     },
     createClassUrl() {
-      const facilityUrl = urls['kolibri:facilitymanagementplugin:facility_management'];
+      const facilityUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
       if (facilityUrl) {
         return facilityUrl();
       }

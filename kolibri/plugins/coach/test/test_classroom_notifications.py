@@ -49,7 +49,7 @@ class ClassroomNotificationsTestCase(APITestCase):
             username="learner", password=DUMMY_PASSWORD, facility=self.facility
         )
 
-        self.basename = "kolibri:coach:notifications"
+        self.basename = "kolibri:kolibri.plugins.coach:notifications"
         self.list_name = self.basename + "-list"
 
     def test_anon_user_cannot_access_list(self):

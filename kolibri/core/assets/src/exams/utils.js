@@ -158,6 +158,7 @@ export function getExamReport(store, examId, userId, questionNumber = 0, interac
         exam: examId,
         user: userId,
       },
+      force: true,
     });
     const userPromise = FacilityUserResource.fetchModel({ id: userId });
 

@@ -42,7 +42,7 @@ module.exports = {
 
   /**
    * Get an array of watchers names.
-   * @param {Object} obj Vue objec
+   * @param {Object} obj Vue object
    */
   getWatchersNames(obj) {
     const watchers = Array.from(
@@ -208,6 +208,35 @@ module.exports = {
       context.report({
         node: property.node,
         message: `Unused Vuex ${property.kind} found: "${property.name}"`,
+      });
+    });
+  },
+
+  /**
+   * Report unused translation definitions.
+   */
+  reportUnusedTranslations(context, definitions, uses) {
+    const unused = definitions.filter(prop => !uses.includes(prop.name));
+
+    unused.forEach(prop => {
+      context.report({
+        node: prop.node,
+        message: `Unused message found in $trs: "${prop.node.name}"`,
+      });
+    });
+  },
+
+  /**
+   * Report uses of undefined strings
+   */
+  reportUseOfUndefinedTranslation(context, definitions, uses) {
+    const definedStrings = definitions.map(prop => prop.name);
+    const badAttempts = uses.filter(prop => !definedStrings.includes(prop.value));
+
+    badAttempts.forEach(node => {
+      context.report({
+        node,
+        message: `Message not defined in $trs: "${node.value}"`,
       });
     });
   },

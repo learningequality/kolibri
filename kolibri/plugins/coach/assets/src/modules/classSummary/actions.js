@@ -45,9 +45,15 @@ export function updateWithNotifications(store, notifications) {
     }
 
     if (object === QUIZ) {
+      // May not be necessary to add the status in the backend.
+      // If so - then remove this.
+      if (update.status === 'Answered') {
+        update.status = 'Started';
+      }
       examLearnerStatusMapUpdates.push({
         ...update,
         num_correct: notification.quiz_num_correct,
+        num_answered: notification.quiz_num_answered,
         exam_id: notification.quiz_id,
       });
     }

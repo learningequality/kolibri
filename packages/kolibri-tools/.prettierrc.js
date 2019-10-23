@@ -6,5 +6,5 @@ module.exports = {
   printWidth: 100,
   singleQuote: true,
   trailingComma: 'es5',
-  parser: 'babylon',
+  parser: 'babel',
 };

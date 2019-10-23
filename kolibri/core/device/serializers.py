@@ -26,7 +26,7 @@ class DevicePermissionsSerializer(serializers.ModelSerializer):
 class NoFacilityFacilityUserSerializer(FacilityUserSerializer):
     class Meta:
         model = FacilityUser
-        fields = ("id", "username", "full_name", "password")
+        fields = ("id", "username", "full_name", "password", "birth_year", "gender")
 
     def validate(self, attrs):
         return attrs

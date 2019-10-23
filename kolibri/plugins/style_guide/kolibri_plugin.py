@@ -2,22 +2,15 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from . import hooks
 from kolibri.core.webpack import hooks as webpack_hooks
-from kolibri.plugins.base import KolibriPluginBase
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
 
 
 class StyleGuide(KolibriPluginBase):
-    translated_view_urls = "urls"
-
-    def url_slug(self):
-        return "^style_guide"
+    root_view_urls = "root_urls"
 
 
+@register_hook
 class StyleGuideAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "style_guide_module"
-    src_file = "assets/src/app.js"
-
-
-class StyleGuideInclusionHook(hooks.StyleGuideSyncHook):
-    bundle_class = StyleGuideAsset
+    bundle_id = "app"

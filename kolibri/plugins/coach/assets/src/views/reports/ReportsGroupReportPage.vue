@@ -14,8 +14,8 @@
       <ReportsGroupHeader />
 
       <KGrid>
-        <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachCommon$tr('lessonsAssignedLabel') }}</h2>
+        <KGridItem :layout12="{ span: 6 }">
+          <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="lesson in lessonsList" :key="lesson.id">
               <KLabeledIcon icon="lesson">
@@ -27,11 +27,11 @@
             </li>
           </ul>
           <p v-if="lessonsList.length === 0">
-            {{ coachCommon$tr('lessonListEmptyState') }}
+            {{ coachString('lessonListEmptyState') }}
           </p>
         </KGridItem>
-        <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachCommon$tr('quizzesAssignedLabel') }}</h2>
+        <KGridItem :layout12="{ span: 6 }">
+          <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="exam in examsList" :key="exam.id">
               <KLabeledIcon icon="quiz">
@@ -43,7 +43,7 @@
             </li>
           </ul>
           <p v-if="examsList.length === 0">
-            {{ coachCommon$tr('quizListEmptyState') }}
+            {{ coachString('quizListEmptyState') }}
           </p>
         </KGridItem>
       </KGrid>

@@ -6,8 +6,8 @@
     :immersivePagePrimary="false"
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
-    :appBarTitle="$tr('appBarTitle', { title: quiz.title })"
-    :pageTitle="$tr('appBarTitle', { title: quiz.title })"
+    :appBarTitle="$tr('appBarTitle')"
+    :pageTitle="$tr('pageTitle', { title: quiz.title })"
     :showSubNav="false"
     :immersivePageRoute="previousPageRoute"
   >
@@ -30,7 +30,6 @@
 
   import { mapGetters } from 'vuex';
   import { ExamResource } from 'kolibri.resources';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { CoachCoreBase } from '../common';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import AssignmentDetailsModal from './assignments/AssignmentDetailsModal';
@@ -40,7 +39,6 @@
     components: {
       AssignmentDetailsForm: AssignmentDetailsModal,
       CoreBase: CoachCoreBase,
-      KPageContainer,
     },
     mixins: [coachStringsMixin],
     props: {},
@@ -130,7 +128,8 @@
       },
     },
     $trs: {
-      appBarTitle: `Edit quiz details for '{title}'`,
+      pageTitle: `Edit quiz details for '{title}'`,
+      appBarTitle: `Edit quiz details`,
       submitErrorMessage: 'There was a problem saving your changes',
     },
   };

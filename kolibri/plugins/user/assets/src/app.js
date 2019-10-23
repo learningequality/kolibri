@@ -18,11 +18,10 @@ class UserModule extends KolibriApp {
     return pluginModule;
   }
   ready() {
-    return super.ready().then(() => {
-      router.afterEach((toRoute, fromRoute) => {
-        this.store.dispatch('resetModuleState', { toRoute, fromRoute });
-      });
+    router.afterEach((toRoute, fromRoute) => {
+      this.store.dispatch('resetModuleState', { toRoute, fromRoute });
     });
+    super.ready();
   }
 }
 

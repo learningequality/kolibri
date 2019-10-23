@@ -1,36 +1,36 @@
 <template>
 
-  <KNavbar>
-    <KNavbarLink
+  <Navbar>
+    <NavbarLink
       v-if="isUserLoggedIn && userHasMemberships"
       name="classes-link"
-      :title="coachCommon$tr('classesLabel')"
+      :title="coreString('classesLabel')"
       :link="allClassesLink"
     >
       <mat-svg
         name="business"
         category="communication"
       />
-    </KNavbarLink>
-    <KNavbarLink
-      :title="coachCommon$tr('channelsLabel')"
+    </NavbarLink>
+    <NavbarLink
+      :title="coreString('channelsLabel')"
       :link="channelsLink"
     >
       <mat-svg
         name="apps"
         category="navigation"
       />
-    </KNavbarLink>
-    <KNavbarLink
-      :title="coachCommon$tr('recommendedLabel')"
+    </NavbarLink>
+    <NavbarLink
+      :title="learnString('recommendedLabel')"
       :link="recommendedLink"
     >
       <mat-svg
         name="forum"
         category="communication"
       />
-    </KNavbarLink>
-  </KNavbar>
+    </NavbarLink>
+  </Navbar>
 
 </template>
 
@@ -38,18 +38,19 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import KNavbar from 'kolibri.coreVue.components.KNavbar';
-  import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
+  import Navbar from 'kolibri.coreVue.components.Navbar';
+  import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames, PageNames } from '../constants';
-  import { learnStringsMixin } from './commonLearnStrings';
+  import commonLearnStrings from './commonLearnStrings';
 
   export default {
     name: 'LearnTopNav',
     components: {
-      KNavbar,
-      KNavbarLink,
+      Navbar,
+      NavbarLink,
     },
-    mixins: [learnStringsMixin],
+    mixins: [commonCoreStrings, commonLearnStrings],
     props: {},
     data() {
       return {

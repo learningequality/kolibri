@@ -97,7 +97,9 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
             assigned_by=self.facility_and_classroom_coach,
             collection=self.classroom,
         )
-        self.exercise_difficulties_basename = "kolibri:coach:exercisedifficulties"
+        self.exercise_difficulties_basename = (
+            "kolibri:kolibri.plugins.coach:exercisedifficulties"
+        )
 
     def test_learner_cannot_access_by_classroom_id(self):
         self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
@@ -506,7 +508,9 @@ class QuizDifficultQuestionTestCase(APITestCase):
             assigned_by=self.facility_and_classroom_coach,
             collection=self.classroom,
         )
-        self.quiz_difficulties_basename = "kolibri:coach:quizdifficulties"
+        self.quiz_difficulties_basename = (
+            "kolibri:kolibri.plugins.coach:quizdifficulties"
+        )
         self.content_id = "25f32edcec565396a1840c5413c92451"
 
     def _get_quiz_difficulties(self, for_group=False):

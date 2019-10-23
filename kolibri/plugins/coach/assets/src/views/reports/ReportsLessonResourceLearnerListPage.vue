@@ -15,11 +15,11 @@
           <BackLink
             slot="backlink"
             :to="classRoute('ReportsLessonReportPage', {})"
-            :text="$tr('back', { lesson: lesson.title })"
+            :text="coachString('backToLessonLabel', { lesson: lesson.title })"
           />
           <KButton
             slot="options"
-            :text="coachCommon$tr('previewAction')"
+            :text="coachString('previewAction')"
             @click="onPreviewClick"
           />
         </BackLinkWithOptions>
@@ -29,7 +29,7 @@
       </section>
 
       <KCheckbox
-        :label="coachCommon$tr('viewByGroupsLabel')"
+        :label="coachString('viewByGroupsLabel')"
         :checked="viewByGroups"
         @change="toggleGroupsView"
       />
@@ -48,18 +48,18 @@
             <KLabeledIcon icon="group" :label="group.name" />
           </h2>
 
-          <KGrid cols="2">
-            <KGridItem size="1">
+          <KFixedGrid numCols="2">
+            <KFixedGridItem span="1">
               <StatusSummary
                 :tally="getGroupTally(group.id)"
                 :showNeedsHelp="false"
                 :verbose="false"
               />
-            </KGridItem>
-            <KGridItem size="1">
+            </KFixedGridItem>
+            <KFixedGridItem span="1">
               <ReportsResourcesStats :avgTime="getGroupRecipientsAvgTime(group.id)" />
-            </KGridItem>
-          </KGrid>
+            </KFixedGridItem>
+          </KFixedGrid>
 
           <ReportsResourceLearners
             :entries="getGroupEntries(group.id)"
@@ -75,7 +75,7 @@
             class="group-title"
             data-test="group-title"
           >
-            {{ coachCommon$tr('ungroupedLearnersLabel') }}
+            {{ coachString('ungroupedLearnersLabel') }}
           </h2>
 
           <ReportsResourceLearners
@@ -224,10 +224,7 @@
         );
       },
     },
-    $trs: {
-      back: "Back to '{lesson}'",
-      avgNumViews: 'Average number of views',
-    },
+    $trs: {},
   };
 
 </script>

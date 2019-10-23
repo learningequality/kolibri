@@ -1,4 +1,4 @@
-import { shallowMount, mount } from '@vue/test-utils';
+import { shallowMount, mount, RouterLinkStub } from '@vue/test-utils';
 
 import { STATUSES } from '../../../src/modules/classSummary/constants';
 import ReportsExerciseLearners from '../../../src/views/reports/ReportsExerciseLearners';
@@ -40,10 +40,7 @@ const initWrapper = propsData => {
   return mount(ReportsExerciseLearners, {
     propsData,
     stubs: {
-      KRouterLink: {
-        props: ['to', 'text'],
-        template: '<div>{{ text }}</div>',
-      },
+      RouterLink: RouterLinkStub,
     },
   });
 };

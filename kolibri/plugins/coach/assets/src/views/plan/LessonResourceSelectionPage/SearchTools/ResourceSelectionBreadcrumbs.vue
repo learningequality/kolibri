@@ -7,13 +7,11 @@
 
 <script>
 
-  import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ResourceSelectionBreadcrumbs',
-    components: {
-      KBreadcrumbs,
-    },
+    mixins: [commonCoreStrings],
     props: {
       ancestors: {
         type: Array,
@@ -32,7 +30,7 @@
       selectionCrumbs() {
         return [
           // The "Channels" breadcrumb
-          { text: this.$tr('channelBreadcrumbLabel'), link: this.channelsLink },
+          { text: this.coreString('channelsLabel'), link: this.channelsLink },
           // Ancestors breadcrumbs
           // NOTE: The current topic is injected into `ancestors` in the showPage action
           ...this.ancestors.map(a => ({
@@ -42,9 +40,7 @@
         ];
       },
     },
-    $trs: {
-      channelBreadcrumbLabel: 'Channels',
-    },
+    $trs: {},
   };
 
 </script>

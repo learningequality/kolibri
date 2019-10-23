@@ -3,9 +3,7 @@
   <KModal
     :title="$tr('facilitySelectionModalHeader')"
     :submitText="$tr('submitFacilitySelectionButtonPrompt')"
-    :cancelText="$tr('close')"
     @submit="submitAndClose"
-    @cancel="$emit('cancel')"
   >
     {{ $tr('facilitySelectionPrompt') }}
 
@@ -24,19 +22,16 @@
 <script>
 
   import { mapGetters, mapActions, mapMutations } from 'vuex';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'FacilityModal',
-    components: {
-      KModal,
-      KRadioButton,
-    },
+    mixins: [commonCoreStrings],
     data() {
+      const facilityId = this.$store.state.facilityId || this.$store.getters.facilities[0].id;
       return {
         // currentFacilityId uses session, with is anonymous in sign-in-page
-        selectedFacility: this.$store.state.facilityId,
+        selectedFacility: facilityId,
       };
     },
     computed: {
@@ -50,6 +45,9 @@
       }),
       submitAndClose() {
         this.setFacilityId(this.selectedFacility);
+        this.$store.commit('CORE_SET_SESSION', {
+          facility_id: this.selectedFacility,
+        });
         this.setLoginError('');
         this.getFacilityConfig(this.selectedFacility).then(() => this.$emit('submit'));
       },
@@ -58,7 +56,6 @@
       facilitySelectionPrompt: 'Which facility do you want to sign in to?',
       submitFacilitySelectionButtonPrompt: 'Select',
       facilitySelectionModalHeader: 'Select a facility',
-      close: 'Close',
     },
   };
 

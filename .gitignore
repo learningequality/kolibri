@@ -46,6 +46,7 @@ kolibrihome_test/
 # Translations
 *.mo
 kolibri/locale/en/
+kolibri/locale/CSV_FILES/**/*
 
 # Mr Developer
 .mr.developer.cfg
@@ -94,6 +95,7 @@ js-dist
 # Content App
 storage/*
 kolibri/content/content_db/*.sqlite3
+kolibri/core/content/contentschema/migrations/*
 
 # virtual environment
 venv/

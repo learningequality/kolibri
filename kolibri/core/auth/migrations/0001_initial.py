@@ -7,7 +7,7 @@ import uuid
 import django.core.validators
 import django.db.models.deletion
 import django.utils.timezone
-import morango.utils.uuids
+import morango.models
 import mptt.fields
 from django.db import migrations
 from django.db import models
@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "id",
-                    morango.utils.uuids.UUIDField(
+                    morango.models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
                         primary_key=True,
@@ -75,7 +75,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    morango.utils.uuids.UUIDField(
+                    morango.models.UUIDField(
                         editable=False, primary_key=True, serialize=False
                     ),
                 ),
@@ -112,7 +112,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    morango.utils.uuids.UUIDField(
+                    morango.models.UUIDField(
                         editable=False, primary_key=True, serialize=False
                     ),
                 ),
@@ -147,7 +147,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "id",
-                    morango.utils.uuids.UUIDField(
+                    morango.models.UUIDField(
                         editable=False, primary_key=True, serialize=False
                     ),
                 ),
@@ -202,7 +202,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    morango.utils.uuids.UUIDField(
+                    morango.models.UUIDField(
                         editable=False, primary_key=True, serialize=False
                     ),
                 ),
@@ -243,7 +243,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    morango.utils.uuids.UUIDField(
+                    morango.models.UUIDField(
                         editable=False, primary_key=True, serialize=False
                     ),
                 ),

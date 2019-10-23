@@ -5,14 +5,12 @@ from __future__ import unicode_literals
 from kolibri.plugins import hooks
 
 
+@hooks.define_hook
 class OIDCProviderHook(hooks.KolibriHook):
     """
     A hook to enable the OIDC provider
     """
 
-    class Meta:
-        abstract = True
-
-    @property
-    def is_enabled(self):
-        return len(list(self.registered_hooks)) == 1
+    @classmethod
+    def is_enabled(cls):
+        return len(list(cls.registered_hooks)) == 1

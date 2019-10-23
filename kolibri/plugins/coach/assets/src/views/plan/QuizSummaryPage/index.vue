@@ -15,7 +15,7 @@
           <BackLink
             slot="backlink"
             :to="$router.getRoute('EXAMS')"
-            :text="$tr('allQuizzes')"
+            :text="coachString('allQuizzesLabel')"
           />
           <QuizOptionsDropdownMenu
             slot="options"
@@ -30,10 +30,10 @@
 
       <section>
         <HeaderTable>
-          <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
+          <HeaderTableRow :keyText="coachString('statusLabel')">
             <QuizActive slot="value" :active="quiz.active" />
           </HeaderTableRow>
-          <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
+          <HeaderTableRow :keyText="coachString('recipientsLabel')">
             <Recipients
               slot="value"
               :groupNames="learnerGroupNames"
@@ -41,7 +41,7 @@
             />
           </HeaderTableRow>
           <HeaderTableRow
-            :keyText="coachCommon$tr('questionOrderLabel')"
+            :keyText="coachString('questionOrderLabel')"
             :valueText="questionOrderValueString"
           />
         </HeaderTable>
@@ -49,7 +49,7 @@
 
       <section v-if="selectedQuestions">
         <h2>
-          {{ coachCommon$tr('numberOfQuestions', { value: selectedQuestions.length }) }}
+          {{ coachString('numberOfQuestions', { value: selectedQuestions.length }) }}
         </h2>
 
         <p>
@@ -82,10 +82,9 @@
   import { mapState } from 'vuex';
   import fromPairs from 'lodash/fromPairs';
   import find from 'lodash/find';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { CoachCoreBase } from '../../common';
   import BackLink from '../../common/BackLink';
   import HeaderTable from '../../common/HeaderTable';
@@ -113,8 +112,6 @@
       CoreBase: CoachCoreBase,
       HeaderTable,
       HeaderTableRow,
-      KLabeledIcon,
-      KPageContainer,
       ManageExamModals,
       QuestionListPreview,
       QuizActive,
@@ -122,7 +119,7 @@
       Recipients,
       TopNavbar,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     data() {
       return {
         quiz: {
@@ -148,13 +145,13 @@
       },
       questionOrderValueString() {
         return this.quizIsRandomized
-          ? this.coachCommon$tr('orderRandomLabel')
-          : this.coachCommon$tr('orderFixedLabel');
+          ? this.coachString('orderRandomLabel')
+          : this.coachString('orderFixedLabel');
       },
       orderDescriptionString() {
         return this.quizIsRandomized
-          ? this.coachCommon$tr('orderRandomDescription')
-          : this.coachCommon$tr('orderFixedDescription');
+          ? this.coachString('orderRandomDescription')
+          : this.coachString('orderFixedDescription');
       },
       classId() {
         return this.$route.params.classId;
@@ -250,7 +247,7 @@
                   className,
                 }),
                 autoDismiss: false,
-                actionText: this.coachCommon$tr('closeAction'),
+                actionText: this.coreString('closeAction'),
                 actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
               });
             } else {
@@ -277,8 +274,6 @@
       },
     },
     $trs: {
-      pageLoadingError: 'There was a problem loading this quiz',
-      allQuizzes: 'All quizzes',
       quizDeletedNotification: `'{title}' was deleted`,
       uniqueTitleError: `A quiz titled '{title}' already exists in '{className}'`,
     },

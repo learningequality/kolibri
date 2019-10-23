@@ -17,14 +17,14 @@
         <StatusSummary :tally="tally" />
       </p>
 
-      <CoreTable :emptyMessage="coachCommon$tr('activityListEmptyState')">
+      <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('nameLabel') }}</th>
-            <th>{{ coachCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('timeSpentLabel') }}</th>
-            <th>{{ coachCommon$tr('groupsLabel') }}</th>
-            <th>{{ coachCommon$tr('lastActivityLabel') }}</th>
+            <th>{{ coachString('nameLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('timeSpentLabel') }}</th>
+            <th>{{ coachString('groupsLabel') }}</th>
+            <th>{{ coachString('lastActivityLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -62,6 +62,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import ReportsGroupReportLessonExerciseHeader from './ReportsGroupReportLessonExerciseHeader';
@@ -71,7 +72,7 @@
     components: {
       ReportsGroupReportLessonExerciseHeader,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);

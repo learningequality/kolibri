@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('changeLanguageModalHeader')"
-    :submitText="$tr('confirmButtonText')"
-    :cancelText="$tr('cancelButtonText')"
+    :submitText="coreString('confirmAction')"
+    :cancelText="coreString('cancelAction')"
     @cancel="$emit('cancel')"
     @submit="setLang"
   >
@@ -12,9 +12,8 @@
         v-for="(languageCol, index) in splitLanguageOptions"
         :key="index"
         :class="{ 'offset-col': windowIsSmall && index === 1 }"
-        sizes="100, 50, 50"
-        percentage
-        alignment="left"
+        :layout8="{ span: 4 }"
+        :layout12="{ span: 6 }"
       >
         <KRadioButton
           v-for="language in languageCol"
@@ -35,23 +34,14 @@
 
 <script>
 
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { currentLanguage } from 'kolibri.utils.i18n';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import languageSwitcherMixin from './mixin';
 
   export default {
     name: 'LanguageSwitcherModal',
-    components: {
-      KModal,
-      KGrid,
-      KGridItem,
-      KRadioButton,
-    },
-    mixins: [languageSwitcherMixin, responsiveWindow],
+    mixins: [commonCoreStrings, languageSwitcherMixin, responsiveWindowMixin],
     data() {
       return {
         selectedLanguage: currentLanguage,
@@ -72,8 +62,6 @@
     },
     $trs: {
       changeLanguageModalHeader: 'Change language',
-      cancelButtonText: 'Cancel',
-      confirmButtonText: 'Confirm',
     },
   };
 

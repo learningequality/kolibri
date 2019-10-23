@@ -36,11 +36,8 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-
   export default {
     name: 'KeenUiSnackbar',
-    mixins: [themeMixin],
     props: {
       message: String,
       action: String,

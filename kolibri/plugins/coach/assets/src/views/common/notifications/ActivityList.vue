@@ -36,7 +36,7 @@
         <template v-else>
           <KButton
             v-if="moreResults"
-            :text="coachCommon$tr('showMoreAction')"
+            :text="coachString('showMoreAction')"
             @click="fetchNotifications"
           />
         </template>
@@ -55,10 +55,7 @@
   import uniq from 'lodash/uniq';
   import map from 'lodash/map';
   import { mapState } from 'vuex';
-  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { cardTextForNotification } from '../notifications/notificationStrings';
   import notificationsResource from '../../../apiResources/notifications';
   import { NotificationObjects } from '../../../constants/notificationsConstants';
@@ -74,12 +71,10 @@
   export default {
     name: 'ActivityList',
     components: {
-      KButton,
-      KLinearLoader,
       NotificationsFilter,
       NotificationCard,
     },
-    mixins: [coachStringsMixin, themeMixin],
+    mixins: [coachStringsMixin],
     props: {
       // getParams for NotificationsResource.fetchCollection
       notificationParams: {
@@ -193,7 +188,14 @@
           .then(data => {
             this.notifications = [
               ...this.notifications,
-              ...data.results.map(this.reshapeNotification).filter(Boolean),
+              ...data.results
+                .filter(n => {
+                  // 'Answered' event types should not show up in the notifications
+                  // because it would add a ton of meaningless events.
+                  return n.event !== 'Answered';
+                })
+                .map(this.reshapeNotification)
+                .filter(Boolean),
             ];
             this.moreResults = data.next !== null;
             this.nextPage = this.nextPage + 1;

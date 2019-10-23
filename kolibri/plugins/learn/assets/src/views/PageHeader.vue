@@ -1,12 +1,16 @@
 <template>
 
   <KGrid>
-    <KGridItem sizes="3, 7, 11">
+    <KGridItem
+      :layout4="{ span: 3 }"
+      :layout8="{ span: 7 }"
+      :layout12="{ span: 11 }"
+    >
       <h1>
         <KLabeledIcon :icon="contentType" :label="title" />
       </h1>
     </KGridItem>
-    <KGridItem sizes="1, 1, 1" alignment="right">
+    <KGridItem :layout="{ span: 1, alignment: 'right' }">
       <ProgressIcon class="progress-icon" :progress="progress" />
     </KGridItem>
   </KGrid>
@@ -17,16 +21,10 @@
 <script>
 
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
 
   export default {
     name: 'PageHeader',
     components: {
-      KGridItem,
-      KGrid,
-      KLabeledIcon,
       ProgressIcon,
     },
     props: {

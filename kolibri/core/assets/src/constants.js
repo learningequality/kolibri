@@ -25,6 +25,7 @@ export const ContentNodeKinds = {
   LESSON: 'lesson',
   CLASSROOM: 'CLASSROOM',
   ACTIVITY: 'ACTIVITY',
+  SLIDESHOW: 'slideshow',
 };
 
 // used internally on the client as a hack to allow content-icons to display users
@@ -120,4 +121,16 @@ export const ERROR_CONSTANTS = {
   // 403 error constants
   PERMISSION_DENIED: 'PERMISSION_DENIED',
   NOT_AUTHENTICATED: 'NOT_AUTHENTICATED',
+};
+
+export const DemographicConstants = {
+  NOT_SPECIFIED: 'NOT_SPECIFIED',
+  DEFERRED: 'DEFERRED',
+};
+
+// See FacilityUser model
+export const FacilityUserGender = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+  ...DemographicConstants,
 };

@@ -14,13 +14,13 @@
       <ReportsLearnerHeader />
 
       <KGrid>
-        <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachCommon$tr('lessonsAssignedLabel') }}</h2>
-          <CoreTable :emptyMessage="coachCommon$tr('lessonListEmptyState')">
+        <KGridItem :layout12="{ span: 6 }">
+          <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
+          <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
             <thead slot="thead">
               <tr>
-                <th>{{ coachCommon$tr('titleLabel') }}</th>
-                <th>{{ coachCommon$tr('progressLabel') }}</th>
+                <th>{{ coachString('titleLabel') }}</th>
+                <th>{{ coreString('progressLabel') }}</th>
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
@@ -40,14 +40,14 @@
             </transition-group>
           </CoreTable>
         </KGridItem>
-        <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachCommon$tr('quizzesAssignedLabel') }}</h2>
-          <CoreTable :emptyMessage="coachCommon$tr('quizListEmptyState')">
+        <KGridItem :layout12="{ span: 6 }">
+          <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
+          <CoreTable :emptyMessage="coachString('quizListEmptyState')">
             <thead slot="thead">
               <tr>
-                <th>{{ coachCommon$tr('titleLabel') }}</th>
-                <th>{{ coachCommon$tr('progressLabel') }}</th>
-                <th>{{ coachCommon$tr('scoreLabel') }}</th>
+                <th>{{ coachString('titleLabel') }}</th>
+                <th>{{ coreString('progressLabel') }}</th>
+                <th>{{ coachString('scoreLabel') }}</th>
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
@@ -78,6 +78,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import ReportsLearnerHeader from './ReportsLearnerHeader';
@@ -87,7 +88,7 @@
     components: {
       ReportsLearnerHeader,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       learner() {
         return this.learnerMap[this.$route.params.learnerId];

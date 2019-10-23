@@ -74,13 +74,12 @@ Managing Python installations can be quite tricky. We *highly* recommend using p
 Python virtual environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You should use a Python virtual environment to isolate the dependencies of your Python projects from each other and to avoid corrupting your system's Python installation. There are many ways to set up Python virtual environments, including Virtualenv which has been around for quite some time. Learn more about `using Virtualenv <https://virtualenv.pypa.io/en/stable/userguide/>`__.
+You should use a Python virtual environment to isolate the dependencies of your Python projects from each other and to avoid corrupting your system's Python installation.
+
+There are many ways to set up Python virtual environments: You can use `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__ as shown in the instructions below; you can also use `Virtualenv <https://virtualenv.pypa.io/en/stable/userguide/>`__, `Python 3 venv <https://docs.python.org/3/library/venv.html>`__, `Poetry <https://poetry.eustace.io>`__ etc.
 
 .. note::
-  Many virtual environments will require special setup for non-Bash shells such as Fish and ZSH.
-
-
-As an alternative to Virtualenv, we recommend installing and using `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__.
+  Most virtual environments will require special setup for non-Bash shells such as Fish and ZSH.
 
 Once Pipenv is installed, you can use the following commands to set up and use a virtual environment from within the Kolibri repo:
 
@@ -205,7 +204,7 @@ In the first terminal you can start the django development server with this comm
 
 .. code-block:: bash
 
-  kolibri --debug manage runserver --settings=kolibri.deployment.default.settings.dev "0.0.0.0:8000"
+  kolibri manage --debug runserver --settings=kolibri.deployment.default.settings.dev "0.0.0.0:8000"
 
 In the second terminal you can start the webpack build process for frontend assets in 'watch' mode – meaning they will be automatically rebuilt if you modify them – with this command:
 
@@ -220,7 +219,7 @@ If you need to make the development server available through the LAN, you need t
   # first build the assets
   yarn run build
   # now, run the Django devserver
-  kolibri --debug manage runserver -- 0.0.0.0:8000
+  kolibri manage --debug runserver -- 0.0.0.0:8000
 
 Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
 
@@ -372,6 +371,12 @@ You can initialize the server using:
 
 Development workflows
 ---------------------
+
+Design system
+~~~~~~~~~~~~~
+
+We have a large number of reusable patterns, conventions, and components built into the application. Review the `Kolibri Design System <http://kolibribeta.learningequality.org/design>`__ to get a sense for the tools at your disposal, and to ensure that new changes stay consistent with established UI patterns.
+
 
 Linting and auto-formatting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -105,6 +105,8 @@
   "PrivacyInfoModal.kolibriUsersP5": "Quando você faz o login de usuário em Kolibri, informações como seu nome, nome de usuário, o conteúdo que você visualiza e seu desempenho nas avaliações podem ser disponibilizados para certos administradores e educadores de sua instituição local Kolibri.",
   "PrivacyInfoModal.kolibriUsersP6": "Quando você utiliza Kolibri como convidado, as informações sobre o conteúdo que você e outros usuários convidados visualizam podem estar disponíveis para administradores e certos professores.",
   "PrivacyInfoModal.kolibriUsersTitle": "Usuários",
+  "PrivacyInfoModal.openIdH1": "Conectar a aplicativos de terceiros usando o Kolibri",
+  "PrivacyInfoModal.openIdP1": "É possível utilizar o Kolibri para se registrar ou conectar a aplicativos de terceiros. Se fizer isto, o outro aplicativo terá acesso ao seu nome de usuário do Kolibri, ID única de usuário e nome completo.",
   "PrivacyInfoModal.privacyModalHeader": "Uso e privacidade",
   "ProgressBar.label": "Progresso",
   "ProgressBar.pct": "{0, number, percent}",

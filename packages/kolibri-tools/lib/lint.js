@@ -206,7 +206,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
         }
         // Raw JS
         if (extension === 'js') {
-          formatted = prettierFormat(source, 'babylon');
+          formatted = prettierFormat(source, 'babel');
           if (formatted !== source) {
             notSoPretty = true;
           }
@@ -244,7 +244,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
             block = vueComponent.script;
 
             const js = block.content;
-            let formattedJs = prettierFormat(js, 'babylon', true);
+            let formattedJs = prettierFormat(js, 'babel', true);
             formatted = insertContent(formatted, block, formattedJs);
             if (formattedJs.trim() !== js.trim()) {
               notSoPretty = true;

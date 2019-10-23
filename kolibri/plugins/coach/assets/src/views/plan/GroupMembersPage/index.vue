@@ -26,32 +26,28 @@
           <KLabeledIcon icon="group" :label="currentGroup.name" />
         </h1>
 
-        <KGrid>
-          <KGridItem
-            class="number-learners"
-            :size="50"
-            percentage
-          >
-            {{ coachCommon$tr('numberOfLearners', { value: currentGroup.users.length }) }}
-          </KGridItem>
-          <KGridItem :size="50" percentage alignment="right">
+        <KFixedGrid numCols="2">
+          <KFixedGridItem span="1" class="number-learners">
+            {{ coachString('numberOfLearners', { value: currentGroup.users.length }) }}
+          </KFixedGridItem>
+          <KFixedGridItem span="1" alignment="right">
             <KRouterLink
               :primary="true"
               appearance="raised-button"
               :text="$tr('enrollButton')"
               :to="$router.getRoute('GroupEnrollPage')"
             />
-          </KGridItem>
-        </KGrid>
+          </KFixedGridItem>
+        </KFixedGrid>
 
         <CoreTable>
           <thead slot="thead">
             <tr>
               <th>
-                {{ $tr('fullName') }}
+                {{ coreString('fullNameLabel') }}
               </th>
               <th>
-                {{ $tr('username') }}
+                {{ coreString('usernameLabel') }}
               </th>
               <th></th>
             </tr>
@@ -74,7 +70,7 @@
               </td>
               <td class="core-table-button-col">
                 <KButton
-                  :text="$tr('removeButton')"
+                  :text="coreString('removeAction')"
                   appearance="flat-button"
                   @click="userForRemoval = user"
                 />
@@ -100,6 +96,7 @@
 
   import { mapState, mapActions } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
 
@@ -121,7 +118,7 @@
       CoreTable,
       RemoveFromGroupModal,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoreStrings, commonCoach],
     data() {
       return {
         userForRemoval: null,
@@ -142,18 +139,14 @@
             userIds: [this.userForRemoval.id],
             groupId: this.currentGroup.id,
           }).then(() => {
-            this.createSnackbar(this.coachCommon$tr('updatedNotification'));
+            this.createSnackbar(this.coachString('updatedNotification'));
             this.userForRemoval = null;
           });
         }
       },
     },
     $trs: {
-      groupsHeader: 'Groups',
       enrollButton: 'Enroll learners',
-      fullName: 'Full name',
-      username: 'Username',
-      removeButton: 'Remove',
       noLearnersInGroup: 'No learners in this group',
       groupDoesNotExist: 'This group does not exist',
       back: 'All groups',

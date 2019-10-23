@@ -1,0 +1,10 @@
+{
+  "name": "kolibri-slideshow-render-plugin",
+  "description": "Slideshow Render Plugin for Kolibri",
+  "private": true,
+  "version": "0.0.1",
+  "dependencies": {
+    "hooper": "^0.1.2",
+    "object-fit-images": "^3.2.4"
+  }
+}

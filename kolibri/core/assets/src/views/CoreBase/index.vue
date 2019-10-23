@@ -87,7 +87,9 @@
         <AppError />
       </KPageContainer>
 
-      <slot v-else></slot>
+      <div v-else id="main" role="main" tabindex="-1" class="main">
+        <slot></slot>
+      </div>
     </div>
 
     <GlobalSnackbar />
@@ -114,18 +116,16 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import AppBar from 'kolibri.coreVue.components.AppBar';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { throttle } from 'frame-throttle';
   import Lockr from 'lockr';
   import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
   import coreBannerContent from 'kolibri.utils.coreBannerContent';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AppError from '../AppError';
   import GlobalSnackbar from '../GlobalSnackbar';
   import ImmersiveToolbar from '../ImmersiveToolbar';
@@ -166,7 +166,7 @@
           }
           if (!title) {
             // If no child component sets title, it reads 'Kolibri'
-            return this.$tr('kolibriMessage');
+            return this.coreString('kolibriLabel');
           }
           // If child component sets title, it reads 'Child Title - Kolibri'
           return this.$tr('kolibriTitleMessage', { title });
@@ -182,13 +182,11 @@
       SideNav,
       AuthMessage,
       GlobalSnackbar,
-      KLinearLoader,
-      KPageContainer,
       ScrollingHeader,
       UpdateNotification,
       LanguageSwitcherModal,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
       appBarTitle: {
         type: String,
@@ -313,7 +311,7 @@
         return {
           top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
           bottom: `${this.marginBottom}px`,
-          backgroundColor: this.$themeColors.palette.grey.v_100,
+          backgroundColor: this.$themePalette.grey.v_100,
         };
       },
       contentStyles() {
@@ -433,7 +431,6 @@
       },
     },
     $trs: {
-      kolibriMessage: 'Kolibri',
       kolibriTitleMessage: '{ title } - Kolibri',
       errorPageTitle: 'Error',
     },
@@ -445,6 +442,15 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+
+  .main {
+    height: 100%;
+  }
+
+  // When focused by SkipNavigationLink, don't outline non-buttons/links
+  /deep/ [tabindex='-1'] {
+    outline-style: none !important;
+  }
 
   .scrolling-pane {
     position: absolute;

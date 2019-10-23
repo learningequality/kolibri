@@ -74,8 +74,12 @@ export function seq(arr, index) {
       const loadEvent = document.createEvent('Event');
       loadEvent.initEvent('load', true, true);
       document.dispatchEvent(DOMContentLoadedEvent);
-      document.dispatchEvent(loadEvent);
-      window.dispatchEvent(loadEvent);
+      if (document.readyState === 'complete') {
+        // Only call this if the document is already fully loaded
+        // and we need to emulate the window load event.
+        document.dispatchEvent(loadEvent);
+        window.dispatchEvent(loadEvent);
+      }
       const elements = document.querySelectorAll(':not(script)');
       Array.prototype.forEach.call(elements, element => {
         element.dispatchEvent(loadEvent);

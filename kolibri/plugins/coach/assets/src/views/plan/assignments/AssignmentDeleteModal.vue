@@ -2,8 +2,8 @@
 
   <KModal
     :title="modalTitle"
-    :submitText="coachCommon$tr('deleteAction')"
-    :cancelText="coachCommon$tr('cancelAction')"
+    :submitText="coreString('deleteAction')"
+    :cancelText="coreString('cancelAction')"
     @submit="$emit('submit')"
     @cancel="$emit('cancel')"
   >
@@ -18,15 +18,12 @@
 
 <script>
 
-  import KModal from 'kolibri.coreVue.components.KModal';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'AssignmentDeleteModal',
-    components: {
-      KModal,
-    },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       modalTitle: {
         type: String,

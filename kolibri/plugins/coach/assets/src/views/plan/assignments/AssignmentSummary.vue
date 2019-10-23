@@ -6,10 +6,10 @@
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
+      <HeaderTableRow :keyText="coachString('statusLabel')">
         <LessonActive slot="value" :active="active" />
       </HeaderTableRow>
-      <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
+      <HeaderTableRow :keyText="coachString('recipientsLabel')">
         <template slot="value">
           <Recipients
             :groupNames="groupNames"
@@ -18,8 +18,8 @@
         </template>
       </HeaderTableRow>
       <HeaderTableRow
-        :keyText="coachCommon$tr('descriptionLabel')"
-        :valueText="description || coachCommon$tr('descriptionMissingLabel')"
+        :keyText="coachString('descriptionLabel')"
+        :valueText="description || coachString('descriptionMissingLabel')"
       />
     </HeaderTable>
 
@@ -30,7 +30,6 @@
 
 <script>
 
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import HeaderTable from '../../common/HeaderTable';
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
   import Recipients from '../../common/Recipients';
@@ -43,7 +42,6 @@
     name: 'AssignmentSummary',
     components: {
       LessonActive,
-      KLabeledIcon,
       HeaderTable,
       HeaderTableRow,
       Recipients,
@@ -84,9 +82,7 @@
         return names;
       },
     },
-    $trs: {
-      noOne: 'No one',
-    },
+    $trs: {},
   };
 
 </script>

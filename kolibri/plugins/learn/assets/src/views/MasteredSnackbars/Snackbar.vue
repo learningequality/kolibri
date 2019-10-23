@@ -1,6 +1,6 @@
 <template>
 
-  <div class="snackbar" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
+  <div class="snackbar" :style="{ backgroundColor: $themePalette.grey.v_100 }">
     <div class="table">
       <div class="row">
         <div class="icon-container cell">
@@ -12,7 +12,7 @@
         <div class="close-container cell">
           <UiIconButton
             size="small"
-            :ariaLabel="$tr('close')"
+            :ariaLabel="coreString('closeAction')"
             @click="$emit('close')"
           >
             <mat-svg name="close" category="navigation" />
@@ -28,7 +28,7 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
@@ -36,10 +36,8 @@
     components: {
       UiIconButton,
     },
-    mixins: [themeMixin],
-    $trs: {
-      close: 'Close',
-    },
+    mixins: [commonCoreStrings],
+    $trs: {},
   };
 
 </script>

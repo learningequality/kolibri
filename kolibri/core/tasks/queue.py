@@ -24,12 +24,14 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
 
 elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
     connection = create_engine(
-        "postgresql://{user}:{password}@{host}:{port}/{name}".format(
+        "postgresql://{user}:{password}@{host}{port}/{name}".format(
             name=conf.OPTIONS["Database"]["DATABASE_NAME"],
             password=conf.OPTIONS["Database"]["DATABASE_PASSWORD"],
             user=conf.OPTIONS["Database"]["DATABASE_USER"],
             host=conf.OPTIONS["Database"]["DATABASE_HOST"],
-            port=conf.OPTIONS["Database"]["DATABASE_PORT"],
+            port=":" + conf.OPTIONS["Database"]["DATABASE_PORT"]
+            if conf.OPTIONS["Database"]["DATABASE_PORT"]
+            else "",
         )
     )
 

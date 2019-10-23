@@ -2,42 +2,38 @@
 
   <li>
     <a
+      v-if="!isDivider"
       :href="link"
-      class="ui-menu-option"
+      class="core-menu-option"
       role="menuitem"
-      :class="classes"
-      :style="optionStyle"
+      :class="coreMenuOptionClasses"
       :tabindex="(isDivider || disabled) ? null : '0'"
       @click="conditionalEmit"
       @keydown.enter="conditionalEmit"
     >
-      <slot v-if="!isDivider">
-        <div class="ui-menu-option-content">
-          <UiIcon
-            v-if="$slots.icon"
-            class="ui-menu-option-icon"
-          >
-            <slot name="icon"></slot>
-          </UiIcon>
+      <slot>
+        <div class="core-menu-option-content" :class="$computedClass(optionContentStyle)">
+          <KLabeledIcon>
+            <KIcon
+              slot="icon"
+              :icon="icon"
+              :class="$computedClass(optionIconStyle)"
+            />
+            <div>{{ label }}</div>
+          </KLabeledIcon>
 
-          <!-- if anything in the dropdown menu has an icon, then we are
-          going to add padding to make all the items align -->
-          <div
-            class="ui-menu-option-text"
-            :class="{ 'ui-menu-option-text-lp': !$slots.icon }"
-          >
-            {{ label }}
-          </div>
           <div
             v-if="secondaryText"
-            class="ui-menu-option-secondary-text"
-            :style="{ color: disabled ? $themeTokens.annotation : '' }"
-          >
-            {{ secondaryText }}
-          </div>
+          >{{ secondaryText }}</div>
         </div>
       </slot>
     </a>
+    <span
+      v-else
+      class="divider"
+      :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
+    >
+    </span>
   </li>
 
 </template>
@@ -45,20 +41,14 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import UiIcon from 'keen-ui/src/UiIcon';
-
   export default {
     name: 'CoreMenuOption',
-    components: {
-      UiIcon,
-    },
-    mixins: [themeMixin],
     props: {
       type: String,
       label: String,
       link: String,
       secondaryText: String,
+      icon: String,
       disabled: {
         type: Boolean,
         default: false,
@@ -66,11 +56,12 @@
     },
     inject: ['showActive'],
     computed: {
-      classes() {
+      coreMenuOptionClasses() {
         return {
           'is-divider': this.isDivider,
           'is-disabled': this.disabled,
           'is-active': this.active,
+          [this.$computedClass(this.optionStyle)]: true,
         };
       },
       isDivider() {
@@ -92,21 +83,51 @@
           }
         }
         const bg = {
-          backgroundColor: this.$themeColors.palette.grey.v_200,
+          backgroundColor: this.$themePalette.grey.v_200,
         };
         return Object.assign(
           {
             color,
           },
-          this.disabled
-            ? {}
-            : {
-                ':hover': bg,
-              },
           {
             ":focus body[modality='keyboard']": bg,
           }
         );
+      },
+      optionContentStyle() {
+        let backgroundColor = '';
+        let color = '#000';
+        let hover = {
+          backgroundColor: this.$themeBrand.primary.v_50,
+        };
+        let fontWeight = 'normal';
+
+        if (!this.isDivider) {
+          if (this.active) {
+            backgroundColor = this.$themeBrand.primary.v_50;
+            color = this.$themeTokens.primaryDark;
+            fontWeight = 'bold';
+          }
+        }
+
+        return {
+          backgroundColor,
+          color,
+          fontWeight,
+          ':hover': hover,
+        };
+      },
+      optionIconStyle() {
+        let fill = this.$themePalette.grey.v_600;
+        if (this.active) {
+          fill = this.$themeTokens.primary;
+        }
+        if (this.hover) {
+          fill = '#000';
+        }
+        return {
+          fill,
+        };
       },
     },
     methods: {
@@ -123,68 +144,29 @@
 
 <style lang="scss" scoped>
 
-  @import '~keen-ui/src/styles/imports';
+  @import '~kolibri.styles.definitions';
 
-  /* stylelint-disable csstree/validator */
-
-  .ui-menu-option {
-    position: relative;
-    display: block;
-    width: 100%;
-    text-decoration: inherit;
-    user-select: none;
-
-    &.is-divider {
-      display: block;
-      height: rem-calc(1px);
-      padding: 0;
-      margin: rem-calc(6px 0);
-      background-color: rgba(black, 0.08);
-    }
-
-    &:not(.is-divider) {
-      min-height: rem-calc(40px);
-      font-size: $ui-dropdown-item-font-size;
-      font-weight: normal;
-      cursor: pointer;
-      outline: none;
-
-      &.is-disabled {
-        cursor: default;
-        opacity: 0.5;
-      }
-    }
+  .core-menu-option {
+    height: 48px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    font-size: 16px;
+    text-decoration: none;
   }
-
-  .ui-menu-option-content {
+  .core-menu-option-content {
     display: flex;
     align-items: center;
-    height: rem-calc(40px);
-    padding: rem-calc(0 16px);
+    height: 2.5rem;
+    padding: 0 8px;
+    margin: 4px 8px 0;
+    border-radius: $radius;
   }
-
-  .ui-menu-option-icon {
-    margin-right: rem-calc(16px);
-    font-size: rem-calc(18px);
+  .divider {
+    display: block;
+    min-width: 100%;
+    height: 1px;
+    margin: 8px 0;
+    overflow-y: hidden;
   }
-
-  .ui-menu-option-text {
-    @include text-truncation;
-
-    flex-grow: 1;
-    line-height: 2em;
-  }
-
-  .ui-menu-option-secondary-text {
-    flex-shrink: 0;
-    margin-left: rem-calc(4px);
-    font-size: rem-calc(13px);
-  }
-
-  .ui-menu-option-text-lp {
-    padding-left: 40px;
-  }
-
-  /* stylelint-enable */
 
 </style>

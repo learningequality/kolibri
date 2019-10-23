@@ -1,113 +1,62 @@
+"""
+Please make note ``kolibri.utils.cli`` has  a sensitive module import order.
+
+This deliberately imports ``kolibri.__init__`` before loading additional
+``kolibri.*`` modules.
+
+TODO: Investigate and challenge/explain this load order.
+"""
 from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import importlib
 import logging
 import os
 import signal
 import sys
 from sqlite3 import DatabaseError as SQLite3DatabaseError
 
+import click
 import django
 from django.core.management import call_command
+from django.core.management import execute_from_command_line
+from django.core.management.base import handle_default_options
 from django.db.utils import DatabaseError
-from docopt import docopt
 
 import kolibri
+from . import server
 from .debian_check import check_debian_user
+from .sanity_checks import check_content_directory_exists_and_writable
+from .sanity_checks import check_log_file_location
+from .sanity_checks import check_other_kolibri_running
+from .system import become_daemon
+from kolibri.core.deviceadmin.utils import IncompatibleDatabase
+from kolibri.core.upgrade import matches_version
+from kolibri.core.upgrade import run_upgrades
+from kolibri.plugins import config
+from kolibri.plugins import DEFAULT_PLUGINS
+from kolibri.plugins.utils import autoremove_unavailable_plugins
+from kolibri.plugins.utils import check_plugin_config_file_location
+from kolibri.plugins.utils import disable_plugin
+from kolibri.plugins.utils import enable_new_default_plugins
+from kolibri.plugins.utils import enable_plugin
+from kolibri.plugins.utils import run_plugin_updates
+from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.conf import LOG_ROOT
+from kolibri.utils.conf import OPTIONS
+from kolibri.utils.logger import get_base_logging_config
 
-# Check if the current user is the kolibri user when running kolibri from .deb.
-# Putting it here because importing server module creates KOLIBRI_HOME directory.
-check_debian_user()
-
-from . import server  # noqa
-from .conf import OPTIONS  # noqa
-from .sanity_checks import check_content_directory_exists_and_writable  # noqa
-from .sanity_checks import check_other_kolibri_running  # noqa
-from .sanity_checks import check_log_file_location  # noqa
-from .system import become_daemon  # noqa
-from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
-from kolibri.plugins.utils import disable_plugin  # noqa
-from kolibri.plugins.utils import enable_plugin  # noqa
-from kolibri.utils.conf import config  # noqa
-from kolibri.utils.conf import KOLIBRI_HOME  # noqa
-from kolibri.utils.conf import OPTIONS  # noqa
-
-
-USAGE = """
-Kolibri
-
-Supported by Foundation for Learning Equality
-www.learningequality.org
-
-Usage:
-  kolibri start [--foreground] [--port=<port>] [options]
-  kolibri stop [options]
-  kolibri restart [options]
-  kolibri status [options]
-  kolibri shell [options]
-  kolibri services [--foreground] [options]
-  kolibri manage COMMAND [DJANGO_OPTIONS ...]
-  kolibri manage COMMAND [options] [-- DJANGO_OPTIONS ...]
-  kolibri diagnose [options]
-  kolibri plugin [options] PLUGIN (enable | disable)
-  kolibri language setdefault <langcode>
-  kolibri plugin --list
-  kolibri -h | --help
-  kolibri --version
-
-Options:
-  -h --help             Show this screen.
-  --version             Show version.
-  --debug               Output debug messages (for development)
-  --skipupdate          Don't run update logic - useful if running two kolibri
-                        commands in parallel.
-  COMMAND               The name of any available django manage command. For
-                        help, type `kolibri manage help`
-  DJANGO_OPTIONS        Command options are passed on to the django manage
-                        command. Notice that all django options must appear
-                        *last* and should not be mixed with other options.
-
-Examples:
-  kolibri start             Start Kolibri
-  kolibri stop              Stop Kolibri
-  kolibri status            How is Kolibri doing?
-  kolibri services          Start Kolibri background services
-  kolibri url               Tell me the address of Kolibri
-  kolibri shell             Display a Django shell
-  kolibri manage help       Show the Django management usage dialogue
-  kolibri manage runserver  Runs Django's development server
-  kolibri diagnose          Show system information for debugging
-
-
-Environment:
-
-  DJANGO_SETTINGS_MODULE
-   - The Django settings module to load. Useful if you are deploying Kolibri
-     in a specific setup such as your own web server.
-   - Default: "kolibri.deployment.default.settings.base"
-
-  KOLIBRI_HOME
-   - Where Kolibri will store its data and configuration files.
-
-  KOLIBRI_HTTP_PORT
-   - Default: 8080
-
-"""
-
-__doc__ = """
-Kolibri Command Line Interface (CLI)
-====================================
-
-Auto-generated usage instructions from ``kolibri -h``::
-
-{usage:s}
-
-""".format(
-    usage="\n".join(map(lambda x: "    " + x, USAGE.split("\n")))
-)
 
 logger = logging.getLogger(__name__)
+
+
+# We use Unicode strings for Python 2.7 throughout the codebase, so choosing
+# to silence these warnings.
+# Ref:
+# https://github.com/learningequality/kolibri/pull/5494#discussion_r318057385
+# https://github.com/PythonCharmers/python-future/issues/22
+click.disable_unicode_literals_warning = True
 
 
 def version_file():
@@ -118,50 +67,239 @@ def version_file():
     return os.path.join(KOLIBRI_HOME, ".data_version")
 
 
-def should_reset_plugins(kolibri_version, version_file_contents):
+def version_updated(kolibri_version, version_file_contents):
     return kolibri_version != version_file_contents
 
 
 def should_back_up(kolibri_version, version_file_contents):
     change_version = kolibri_version != version_file_contents
     return (
-        change_version
+        # Only back up if there was a previous version
+        version_file_contents
+        # That version has changed
+        and change_version
+        # The previous version was not a dev version
         and "dev" not in version_file_contents
+        # And the new version is not a dev version
         and "dev" not in kolibri_version
     )
 
 
-def initialize(debug=False, skip_update=False):
+def get_version():
+    try:
+        version = open(version_file(), "r").read()
+        return version.strip() if version else ""
+    except IOError:
+        return ""
+
+
+def validate_module(ctx, param, value):
+    if value:
+        try:
+            importlib.import_module(value)
+        except ImportError:
+            raise click.BadParameter(
+                "{param} must be a valid python module import path"
+            )
+    return value
+
+
+debug_option = click.Option(
+    param_decls=["--debug"],
+    default=False,
+    is_flag=True,
+    help="Output debug messages (for development)",
+)
+
+settings_option = click.Option(
+    param_decls=["--settings"],
+    callback=validate_module,
+    help="Django settings module path",
+)
+
+pythonpath_option = click.Option(
+    param_decls=["--pythonpath"],
+    type=click.Path(exists=True, file_okay=False),
+    help="Add a path to the Python path",
+)
+
+skip_update_option = click.Option(
+    param_decls=["--skip-update"],
+    default=False,
+    is_flag=True,
+    help="Do not run update logic. (Useful when running multiple Kolibri commands in parallel)",
+)
+
+noinput_option = click.Option(
+    param_decls=["--no-input"],
+    default=False,
+    is_flag=True,
+    help="Suppress user prompts",
+)
+
+
+def get_debug_param():
+    try:
+        return click.get_current_context().params["debug"]
+    except (KeyError, RuntimeError):
+        return debug_option.default
+
+
+base_params = [debug_option, noinput_option]
+
+initialize_params = base_params + [
+    settings_option,
+    pythonpath_option,
+    skip_update_option,
+]
+
+
+def get_initialize_params():
+    try:
+        return click.get_current_context().params
+    except RuntimeError:
+        return {param.name: param.default for param in initialize_params}
+
+
+class KolibriCommand(click.Command):
+    """
+    A command class for basic Kolibri commands that do not require
+    the django stack. By default adds a debug param for logging purposes
+    also invokes setup_logging before invoking the command.
+    """
+
+    allow_extra_args = True
+
+    def __init__(self, *args, **kwargs):
+        kwargs["params"] = base_params + (
+            kwargs["params"] if "params" in kwargs else []
+        )
+        super(KolibriCommand, self).__init__(*args, **kwargs)
+
+    def invoke(self, ctx):
+        # Check if the current user is the kolibri user when running kolibri from Debian installer.
+        check_debian_user(ctx.params.get("no_input"))
+        setup_logging(debug=get_debug_param())
+        for param in base_params:
+            ctx.params.pop(param.name)
+        return super(KolibriCommand, self).invoke(ctx)
+
+
+class KolibriGroupCommand(click.Group):
+    """
+    A command class for Kolibri commands that do not require
+    the django stack, but have subcommands. By default adds
+    a debug param for logging purposes
+    also invokes setup_logging before invoking the command.
+    """
+
+    allow_extra_args = True
+
+    def __init__(self, *args, **kwargs):
+        kwargs["params"] = base_params + (
+            kwargs["params"] if "params" in kwargs else []
+        )
+        super(KolibriGroupCommand, self).__init__(*args, **kwargs)
+
+    def invoke(self, ctx):
+        # Check if the current user is the kolibri user when running kolibri from Debian installer.
+        check_debian_user(ctx.params.get("no_input"))
+        setup_logging(debug=get_debug_param())
+        for param in base_params:
+            ctx.params.pop(param.name)
+        return super(KolibriGroupCommand, self).invoke(ctx)
+
+
+class KolibriDjangoCommand(click.Command):
+    """
+    A command class for Kolibri commands that do require
+    the django stack. By default adds all params needed for
+    the initialize function, calls the initialize function and
+    also invokes setup_logging before invoking the command.
+    """
+
+    allow_extra_args = True
+
+    def __init__(self, *args, **kwargs):
+        kwargs["params"] = initialize_params + (
+            kwargs["params"] if "params" in kwargs else []
+        )
+        super(KolibriDjangoCommand, self).__init__(*args, **kwargs)
+
+    def invoke(self, ctx):
+        # Check if the current user is the kolibri user when running kolibri from Debian installer.
+        check_debian_user(ctx.params.get("no_input"))
+        setup_logging(debug=get_debug_param())
+        initialize()
+        for param in initialize_params:
+            ctx.params.pop(param.name)
+        return super(KolibriDjangoCommand, self).invoke(ctx)
+
+
+class DefaultDjangoOptions(object):
+    __slots__ = ["settings", "pythonpath"]
+
+    def __init__(self, settings, pythonpath):
+        self.settings = settings
+        self.pythonpath = pythonpath
+
+
+def _setup_django(debug):
+    """
+    Do our django setup - separated from initialize to reduce complexity.
+    """
+    try:
+        django.setup()
+        if debug:
+            from django.conf import settings
+
+            settings.DEBUG = True
+
+    except (DatabaseError, SQLite3DatabaseError) as e:
+        if "malformed" in str(e):
+            logger.error(
+                "Your database appears to be corrupted. If you encounter this,"
+                "please immediately back up all files in the .kolibri folder that"
+                "end in .sqlite3, .sqlite3-shm, .sqlite3-wal, or .log and then"
+                "contact Learning Equality. Thank you!"
+            )
+        raise
+
+
+def initialize(skip_update=False):
     """
     Currently, always called before running commands. This may change in case
     commands that conflict with this behavior show up.
-
-    :param: debug: Tells initialization to setup logging etc.
     """
-    if not os.path.isfile(version_file()):
-        django.setup()
+    params = get_initialize_params()
 
-        setup_logging(debug=debug)
+    debug = params["debug"]
+    skip_update = skip_update or params["skip_update"]
+    settings = params["settings"]
+    pythonpath = params["pythonpath"]
 
-        if not skip_update:
-            _first_run()
-    else:
-        # Do this here so that we can fix any issues with our configuration file before
-        # we attempt to set up django.
+    default_options = DefaultDjangoOptions(settings, pythonpath)
 
-        config.autoremove_unavailable_plugins()
+    handle_default_options(default_options)
 
-        version = open(version_file(), "r").read()
-        version = version.strip() if version else ""
+    # Do this here so that we can fix any issues with our configuration file before
+    # we attempt to set up django.
+    autoremove_unavailable_plugins()
 
-        if should_reset_plugins(kolibri.__version__, version):
-            # Reset the enabled plugins to the defaults
-            # This needs to be run before dbbackup because
-            # dbbackup relies on settings.INSTALLED_APPS
-            config.enable_default_plugins()
+    version = get_version()
 
+    if version_updated(kolibri.__version__, version):
+        check_plugin_config_file_location(version)
+        # Reset the enabled plugins to the defaults
+        # This needs to be run before dbbackup because
+        # dbbackup relies on settings.INSTALLED_APPS
+        enable_new_default_plugins()
+
+    _setup_django(debug)
+
+    if version_updated(kolibri.__version__, version) and not skip_update:
         if should_back_up(kolibri.__version__, version):
-            # Version changed, make a backup no matter what.
+            # Non-dev version change, make a backup no matter what.
             from kolibri.core.deviceadmin.utils import dbbackup
 
             try:
@@ -173,18 +311,20 @@ def initialize(debug=False, skip_update=False):
                     "this DB engine."
                 )
 
-        django.setup()
-
-        setup_logging(debug=debug)
-
-        if kolibri.__version__ != version:
+        if version:
             logger.info(
                 "Version was {old}, new version: {new}".format(
                     old=version, new=kolibri.__version__
                 )
             )
-            if not skip_update:
-                update()
+        else:
+            logger.info("New install, version: {new}".format(new=kolibri.__version__))
+        update(version, kolibri.__version__)
+
+    if not skip_update:
+        # Run any plugin specific updates here in case they were missed by
+        # our Kolibri version based update logic.
+        run_plugin_updates()
 
 
 def _migrate_databases():
@@ -201,35 +341,7 @@ def _migrate_databases():
     call_command("loaddata", "scopedefinitions")
 
 
-def _first_run():
-    """
-    Called once at least.
-    """
-    if os.path.exists(version_file()):
-        logger.error("_first_run() called, but Kolibri is already initialized.")
-        return
-    logger.info("Kolibri running for the first time.")
-    logger.info(
-        "We don't yet use pre-migrated database seeds, so you're going to have "
-        "to wait a bit while we create a blank database...\n\n"
-    )
-
-    from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
-
-    # We need to migrate the database before enabling plugins, because they
-    # might depend on database readiness.
-    if not SKIP_AUTO_DATABASE_MIGRATION:
-        _migrate_databases()
-
-    config.enable_default_plugins()
-
-    logger.info("Automatically enabling applications.")
-
-    # Finally collect static assets and run migrations again
-    update()
-
-
-def update():
+def update(old_version, new_version):
     """
     Called whenever a version change in kolibri is detected
 
@@ -238,23 +350,28 @@ def update():
 
     logger.info("Running update routines for new version...")
 
-    # Need to do this here, before we run any Django management commands that
-    # import settings. Otherwise the updated configuration will not be used
-    # during this runtime.
+    try:
+        # Check if there are other kolibri instances running
+        # If there are, then we need to stop users from starting kolibri again.
+        server.get_status()
+        logger.error(
+            "There is a Kolibri server running."
+            "Running updates now could cause a database error."
+            "Please use `kolibri stop` and try again."
+        )
+        sys.exit(1)
+
+    except server.NotRunning:
+        pass
 
     call_command("collectstatic", interactive=False, verbosity=0)
 
-    from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
+    _migrate_databases()
 
-    if not SKIP_AUTO_DATABASE_MIGRATION:
-        _migrate_databases()
+    run_upgrades(old_version, new_version)
 
     with open(version_file(), "w") as f:
         f.write(kolibri.__version__)
-
-    from kolibri.core.content.utils.annotation import update_channel_metadata
-
-    update_channel_metadata()
 
     from django.core.cache import caches
 
@@ -262,26 +379,84 @@ def update():
     cache.clear()
 
 
-def start(port=None, daemon=True):
+main_help = """Kolibri management commands
+
+For more information, see:
+https://kolibri.readthedocs.io/en/latest/advanced.html
+
+You can also run: kolibri COMMAND --help
+"""
+
+
+@click.group(invoke_without_command=True, help=main_help)
+@click.pass_context
+@click.version_option(version=kolibri.__version__)
+def main(ctx):
+    """
+    Kolibri's main function.
+
+    Utility functions should be callable for unit testing purposes, but remember
+    to use main() for integration tests in order to test the argument API.
+    """
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
+        ctx.exit(1)
+
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+
+def create_startup_lock(port):
+    try:
+        server._write_pid_file(server.STARTUP_LOCK, port)
+    except (IOError, OSError):
+        logger.warn("Impossible to create file lock to communicate starting process")
+
+
+@main.command(cls=KolibriDjangoCommand, help="Start the Kolibri process")
+@click.option(
+    "--port",
+    default=OPTIONS["Deployment"]["HTTP_PORT"],
+    type=int,
+    help="Port on which to run Kolibri",
+)
+@click.option(
+    "--background/--foreground",
+    default=True,
+    help="Run Kolibri as a background process",
+)
+def start(port, background):
     """
     Start the server on given port.
-
-    :param: port: Port number (default: 8080)
-    :param: daemon: Fork to background process (default: True)
     """
+
+    create_startup_lock(port)
+
+    # Check if the content directory exists when Kolibri runs after the first time.
+    check_content_directory_exists_and_writable()
+
+    # Defragment the db
+    call_command("vacuumsqlite")
+
+    # Clear old sessions up
+    call_command("clearsessions")
+
+    # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
+    # a better fix. See https://github.com/learningequality/kolibri/issues/4821
+    if sys.platform == "darwin":
+        background = False
+
     run_cherrypy = OPTIONS["Server"]["CHERRYPY_START"]
 
-    # In case some tests run start() function only
-    if not isinstance(port, int):
-        port = _get_port(port)
-
-    if not daemon:
-        logger.info("Running 'kolibri start' in foreground...")
+    if not background:
+        logger.info("Running Kolibri")
 
     else:
-        logger.info("Running 'kolibri start' as daemon (system service)")
+        logger.info("Running Kolibri as background process")
 
     if run_cherrypy:
+        # Check if the port is occupied
+        check_other_kolibri_running(port)
+
         __, urls = server.get_urls(listen_port=port)
         if not urls:
             logger.error(
@@ -297,15 +472,15 @@ def start(port=None, daemon=True):
             sys.stderr.write("\t{}\n".format(addr))
         sys.stderr.write("\n")
     else:
-        logger.info("Starting Kolibri background services")
+        logger.info("Starting Kolibri background workers")
 
     # Daemonize at this point, no more user output is needed
-    if daemon:
+    if background:
 
         from django.conf import settings
 
         kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
-        logger.info("Going to daemon mode, logging to {0}".format(kolibri_log))
+        logger.info("Going to background mode, logging to {0}".format(kolibri_log))
 
         kwargs = {}
         # Truncate the file
@@ -319,6 +494,7 @@ def start(port=None, daemon=True):
     server.start(port=port, run_cherrypy=run_cherrypy)
 
 
+@main.command(cls=KolibriCommand, help="Stop the Kolibri process")
 def stop():
     """
     Stops the server unless it isn't running
@@ -353,8 +529,10 @@ def stop():
         sys.exit(0)
 
 
+@main.command(cls=KolibriCommand, help="Show the status of the Kolibri process")
 def status():
     """
+    How is Kolibri doing?
     Check the server's status. For possible statuses, see the status dictionary
     status.codes
 
@@ -365,7 +543,7 @@ def status():
     TODO: We can't guarantee the above behavior because of the django stack
     being loaded regardless
 
-    :returns: status_code, key has description in status.codes
+    Exits with status_code, key has description in status.codes
     """
     status_code, urls = server.get_urls()
 
@@ -375,13 +553,12 @@ def status():
             sys.stderr.write("Kolibri running on:\n\n")
             for addr in urls:
                 sys.stderr.write("\t{}\n".format(addr))
-        return server.STATUS_RUNNING
     else:
         verbose_status = status.codes[status_code]
         sys.stderr.write(
             "{msg:s} ({code:d})\n".format(code=status_code, msg=verbose_status)
         )
-        return status_code
+    sys.exit(status_code)
 
 
 status.codes = {
@@ -401,22 +578,28 @@ status.codes = {
 }
 
 
-def services(daemon=True):
+@main.command(cls=KolibriDjangoCommand, help="Start worker processes")
+@click.option(
+    "--background/--foreground",
+    default=True,
+    help="Run Kolibri services as a background task",
+)
+def services(background):
     """
     Start the kolibri background services.
-
-    :param: daemon: Fork to background process (default: True)
     """
+
+    create_startup_lock(None)
 
     logger.info("Starting Kolibri background services")
 
     # Daemonize at this point, no more user output is needed
-    if daemon:
+    if background:
 
         from django.conf import settings
 
         kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
-        logger.info("Going to daemon mode, logging to {0}".format(kolibri_log))
+        logger.info("Going to background mode, logging to {0}".format(kolibri_log))
 
         kwargs = {}
         # Truncate the file
@@ -434,216 +617,103 @@ def setup_logging(debug=False):
     """
     Configures logging in cases where a Django environment is not supposed
     to be configured.
-
-    TODO: This is really confusing, importing django settings is allowed to
-    fail when debug=False, but if it's true it can fail?
     """
-    try:
-        from django.settings import LOGGING
-    except ImportError:
-        from kolibri.deployment.default.settings.base import LOGGING
+    # Would be ideal to use the upgrade logic for this, but that is currently
+    # only designed for post-Django initialization tasks. If there are more cases
+    # for pre-django initialization upgrade tasks, we can generalize the logic here
+    if matches_version(get_version(), "<0.12.4"):
+        check_log_file_location()
+    LOGGING = get_base_logging_config(LOG_ROOT)
     if debug:
-        from django.conf import settings
-
-        settings.DEBUG = True
         LOGGING["handlers"]["console"]["level"] = "DEBUG"
         LOGGING["loggers"]["kolibri"]["level"] = "DEBUG"
-        logger.debug("Debug mode is on!")
     logging.config.dictConfig(LOGGING)
 
 
-def manage(cmd, args=[]):
-    """
-    Invokes a django command
-
-    :param: cmd: The command to invoke, for instance "runserver"
-    :param: args: arguments for the command
-    """
-    # Set sys.argv to correctly reflect the way we invoke kolibri as a Python
-    # module
-    sys.argv = ["-m", "kolibri"] + sys.argv[1:]
-    from django.core.management import execute_from_command_line
-
-    argv = ["kolibri manage", cmd] + args
-    logger.info("Invoking command '{}'.".format(" ".join(argv)))
-    execute_from_command_line(argv=argv)
+@main.command(
+    cls=KolibriDjangoCommand,
+    context_settings=dict(ignore_unknown_options=True, allow_extra_args=True),
+    help="Invoke a Django management command",
+)
+@click.pass_context
+def manage(ctx):
+    if ctx.args:
+        logger.info("Invoking command {}".format(" ".join(ctx.args)))
+    execute_from_command_line(["kolibri manage"] + ctx.args)
 
 
-def plugin(plugin_name, **kwargs):
-    """
-    Receives a plugin identifier and tries to load its main class. Calls class
-    functions.
-    """
-    if kwargs.get("enable", False):
-        logger.info("Enabling Kolibri plugin {}.".format(plugin_name))
-        enable_plugin(plugin_name)
-
-    if kwargs.get("disable", False):
-        logger.info("Disabling Kolibri plugin {}.".format(plugin_name))
-        disable_plugin(plugin_name)
-
-    config.save()
+@main.command(cls=KolibriDjangoCommand, help="Launch a Django shell")
+@click.pass_context
+def shell(ctx):
+    execute_from_command_line(["kolibri manage", "shell"] + ctx.args)
 
 
-def set_default_language(lang):
-    """
-    Set the default language for this installation of Kolibri. Any running
-    instance of Kolibri needs to be restarted in order for this change to work.
-    """
-
-    from django.conf import settings
-
-    valid_languages = [l[0] for l in settings.LANGUAGES]
-
-    if lang in valid_languages:
-        logger.info(
-            "Setting the default language code to {} for this installation of Kolibri.".format(
-                lang
-            )
-        )
-        config["LANGUAGE_CODE"] = lang
-        config.save()
-    else:
-        msg = "Invalid language code {langcode}. Must be one of: {validlangs}".format(
-            langcode=lang, validlangs=valid_languages
-        )
-
-        logger.warning(msg)
+ENABLE = "enable"
+DISABLE = "disable"
 
 
-def parse_args(args=None):
-    """
-    Parses arguments by invoking docopt. Arguments for django management
-    commands are split out before returning.
-
-    :returns: (parsed_arguments, raw_django_ars)
-    """
-
-    if not args:
-        args = sys.argv[1:]
-
-    # Split out the parts of the argument list that we pass on to Django
-    # and don't feed to docopt.
-    if "--" in args:
-        # At the moment, we keep this for backwards-compatibility and in case there
-        # is a real case of having to force the parsing of DJANGO_OPTIONS to a
-        # specific location. Example:
-        # kolibri manage commandname --non-django-arg -- --django-arg
-        pivot = args.index("--")
-        args, django_args = args[:pivot], args[pivot + 1 :]
-    elif "manage" in args:
-        # Include "manage COMMAND" for docopt parsing, but split out the rest
-        pivot = args.index("manage") + 2
-        args, django_args = args[:pivot], args[pivot:]
-    else:
-        django_args = []
-
-    docopt_kwargs = dict(version=str(kolibri.__version__), options_first=False)
-
-    if args:
-        docopt_kwargs["argv"] = args
-
-    return docopt(USAGE, **docopt_kwargs), django_args
+@main.command(cls=KolibriGroupCommand, help="Manage Kolibri plugins")
+def plugin():
+    pass
 
 
-def _get_port(port):
-    return int(port) if port else OPTIONS["Deployment"]["HTTP_PORT"]
-
-
-def main(args=None):  # noqa: max-complexity=13
-    """
-    Kolibri's main function. Parses arguments and calls utility functions.
-    Utility functions should be callable for unit testing purposes, but remember
-    to use main() for integration tests in order to test the argument API.
-    """
-
-    try:
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
-    except ValueError:
-        logger.warn("Error adding signal handler for SIGINT...")
-
-    arguments, django_args = parse_args(args)
-
-    debug = arguments["--debug"]
-
-    if arguments["start"]:
-        port = _get_port(arguments["--port"])
-        if OPTIONS["Server"]["CHERRYPY_START"]:
-            check_other_kolibri_running(port)
-
-    check_log_file_location()
-
-    try:
-        initialize(debug=debug, skip_update=arguments["--skipupdate"])
-    except (DatabaseError, SQLite3DatabaseError) as e:
-        if "malformed" in str(e):
-            logger.error(
-                "Your database appears to be corrupted. If you encounter this,"
-                "please immediately back up all files in the .kolibri folder that"
-                "end in .sqlite3, .sqlite3-shm, .sqlite3-wal, or .log and then"
-                "contact Learning Equality. Thank you!"
-            )
-        raise
-
-    daemon = not arguments["--foreground"]
-    # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
-    # a better fix. See https://github.com/learningequality/kolibri/issues/4821
-    if sys.platform == "darwin":
-        daemon = False
-
-    # Alias
-    if arguments["shell"]:
-        arguments["manage"] = True
-        arguments["COMMAND"] = "shell"
-
-    if arguments["manage"]:
-        command = arguments["COMMAND"]
-        manage(command, args=django_args)
-        return
-
-    if arguments["plugin"]:
-        plugin_name = arguments["PLUGIN"]
-        plugin(plugin_name, **arguments)
-        return
-
-    if arguments["start"]:
+@plugin.command(help="Enable Kolibri plugins")
+@click.argument("plugin_names", nargs=-1)
+@click.option("-d", "--default-plugins", default=False, is_flag=True)
+def enable(plugin_names, default_plugins):
+    error = False
+    if not plugin_names and default_plugins:
+        plugin_names = DEFAULT_PLUGINS
+    for name in plugin_names:
         try:
-            server._write_pid_file(server.STARTUP_LOCK, port)
-        except (IOError, OSError):
-            logger.warn(
-                "Impossible to create file lock to communicate starting process"
-            )
-        # Check if the content directory exists when Kolibri runs after the first time.
-        check_content_directory_exists_and_writable()
+            logger.info("Enabling plugin '{}'".format(name))
+            error = error or not enable_plugin(name)
+        except Exception as e:
+            error = True
+            logger.error("Error enabling plugin '{}', error was: {}".format(name, e))
+    if error:
+        exception = click.ClickException("One or more plugins could not be enabled")
+        exception.exit_code = 2
+        raise exception
 
-        # Defragment the db
-        call_command("vacuumsqlite")
 
-        # Clear old sessions up
-        call_command("clearsessions")
-
-        start(port, daemon=daemon)
-        return
-
-    if arguments["stop"]:
-        stop()
-        return
-
-    if arguments["status"]:
-        status_code = status()
-        sys.exit(status_code)
-        return
-
-    if arguments["services"]:
+@plugin.command(help="Disable Kolibri plugins")
+@click.argument("plugin_names", nargs=-1)
+@click.option("-a", "--all-plugins", default=False, is_flag=True)
+def disable(plugin_names, all_plugins):
+    error = False
+    if not plugin_names and all_plugins:
+        plugin_names = config.ACTIVE_PLUGINS
+    for name in plugin_names:
         try:
-            server._write_pid_file(server.STARTUP_LOCK, None)
-        except (IOError, OSError):
-            logger.warn(
-                "Impossible to create file lock to communicate starting process"
-            )
+            logger.info("Disabling plugin '{}'".format(name))
+            error = error or not disable_plugin(name)
+        except Exception as e:
+            error = True
+            logger.error("Error Disabling plugin '{}', error was: {}".format(name, e))
+    if error:
+        exception = click.ClickException("One or more plugins could not be disabled")
+        exception.exit_code = 2
+        raise exception
 
-        services(daemon=daemon)
-        return
 
-    if arguments["language"] and arguments["setdefault"]:
-        set_default_language(arguments["<langcode>"])
+@plugin.command(help="Set Kolibri plugins to be enabled and disable all others")
+@click.argument("plugin_names", nargs=-1)
+@click.pass_context
+def apply(ctx, plugin_names):
+    to_be_disabled = set(config.ACTIVE_PLUGINS) - set(plugin_names)
+    error = False
+    try:
+        ctx.invoke(disable, plugin_names=to_be_disabled, all_plugins=False)
+    except click.ClickException:
+        error = True
+    try:
+        ctx.invoke(enable, plugin_names=plugin_names, default_plugins=False)
+    except click.ClickException:
+        error = True
+    if error:
+        exception = click.ClickException(
+            "An error occurred applying the plugin configuration"
+        )
+        exception.exit_code = 2
+        raise exception

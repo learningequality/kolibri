@@ -35,23 +35,25 @@ class MultipleCollectionTestCase(TestMigrations):
         DeviceOwner.objects.create(username="test2")
         self.username2 = deviceowner.username
 
-    def test_in_default_facility_migrated(self):
-        self.assertEqual(
-            self.facility, FacilityUser.objects.get(username=self.username).facility
+    def get_facility_user(self):
+        # Need to defer fields added in migration 0014
+        return (
+            FacilityUser.objects.defer("gender", "birth_year", "id_number")
+            .filter(username=self.username)
+            .first()
         )
 
+    def test_in_default_facility_migrated(self):
+        self.assertEqual(self.facility, self.get_facility_user().facility)
+
     def test_admin(self):
-        self.assertEqual(
-            FacilityUser.objects.get(username=self.username).roles.first().collection,
-            self.facility,
-        )
-        self.assertEqual(
-            FacilityUser.objects.get(username=self.username).roles.first().kind, ADMIN
-        )
+        user = self.get_facility_user()
+        self.assertEqual(user.roles.first().collection, self.facility)
+        self.assertEqual(user.roles.first().kind, ADMIN)
 
     def test_device_owners_created(self):
         self.assertTrue(FacilityUser.objects.filter(username=self.username).exists())
         self.assertTrue(FacilityUser.objects.filter(username=self.username2).exists())
 
     def test_facilityuser_deleted(self):
-        self.assertTrue(FacilityUser.objects.get(username=self.username).is_superuser)
+        self.assertTrue(self.get_facility_user().is_superuser)

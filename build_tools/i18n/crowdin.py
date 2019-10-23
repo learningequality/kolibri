@@ -7,6 +7,7 @@ This set of functions interacts with the crowdin API as documented here:
     https://support.crowdin.com/api/api-integration-setup/
 """
 import argparse
+import csv
 import io
 import json
 import logging
@@ -66,6 +67,7 @@ CROWDIN_API_URL = "https://api.crowdin.com/api/project/{proj}/{cmd}?key={key}{pa
 DETAILS_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT, key=CROWDIN_API_KEY, cmd="info", params="&json"
 )
+
 LANG_STATUS_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
@@ -81,20 +83,20 @@ REBUILD_URL = CROWDIN_API_URL.format(
 DOWNLOAD_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
-    cmd="download/{language}.zip",
+    cmd="download/all.zip",
     params="&branch={branch}",
 )
 ADD_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="add-file",
-    params="&branch={branch}&json",
+    params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0",
 )
 UPDATE_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="update-file",
-    params="&branch={branch}&json",
+    params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0",
 )
 DELETE_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
@@ -126,6 +128,7 @@ UPLOAD_TRANSLATION_URL = CROWDIN_API_URL.format(
 )
 
 PERSEUS_FILE = "exercise_perseus_render_module-messages.json"
+PERSEUS_CSV = "exercise_perseus_render_module-messages.csv"
 
 """
 Shared helpers
@@ -154,26 +157,8 @@ def _crowdin_files(branch, details):
     )
 
 
-def _format_json_files():
-    """
-    re-print all json files to ensure consistent diffs with ordered keys
-    """
-    locale_paths = []
-    for lang_object in utils.supported_languages(include_in_context=True):
-        locale_paths.append(utils.local_locale_path(lang_object))
-        locale_paths.append(utils.local_perseus_locale_path(lang_object))
-    for locale_path in locale_paths:
-        for file_name in os.listdir(locale_path):
-            if not file_name.endswith(".json"):
-                continue
-            file_path = os.path.join(locale_path, file_name)
-            with io.open(file_path, mode="r", encoding="utf-8") as f:
-                data = json.load(f)
-            utils.json_dump_formatted(data, file_path)
-
-
 def _is_string_file(file_name):
-    return file_name.endswith(".json") or file_name.endswith(".po")
+    return file_name.endswith(".po") or file_name.endswith("-messages.csv")
 
 
 """
@@ -287,6 +272,72 @@ def command_upload_translations(branch):
 
 
 """
+Convert CSV to JSON command
+"""
+
+
+def _format_json_files():
+    """
+    re-print all json files to ensure consistent diffs with ordered keys
+    """
+
+    for lang_object in utils.supported_languages(include_in_context=True):
+        locale_path = utils.local_locale_path(lang_object)
+        perseus_path = utils.local_perseus_locale_path(lang_object)
+
+        csv_locale_dir_path = os.path.join(
+            utils.local_locale_csv_path(), lang_object["crowdin_code"]
+        )
+        for file_name in os.listdir(csv_locale_dir_path):
+            if file_name.endswith("json"):
+                # Then it is a Perseus JSON file - just copy it.
+                source = os.path.join(csv_locale_dir_path, file_name)
+                target = os.path.join(perseus_path, file_name)
+                try:
+                    os.makedirs(perseus_path)
+                except:
+                    pass
+                shutil.copyfile(source, target)
+                continue
+            elif not file_name.endswith("csv"):
+                continue
+
+            csv_path = os.path.join(csv_locale_dir_path, file_name)
+
+            # Account for csv reading differences in Pythons 2 and 3
+            if sys.version_info[0] < 3:
+                csv_file = open(csv_path, "rb")
+            else:
+                csv_file = open(csv_path, "r", newline="")
+
+            with csv_file as f:
+                csv_data = list(row for row in csv.DictReader(f))
+
+            data = _locale_data_from_csv(csv_data)
+
+            utils.json_dump_formatted(
+                data, locale_path, file_name.replace("csv", "json")
+            )
+
+
+def _locale_data_from_csv(file_data):
+    json = dict()
+
+    for row in file_data:
+        if len(row.keys()) == 0:
+            return json
+        # First index is Identifier, Third index is the translation
+        json[row["Identifier"]] = row["Translation"]
+
+    return json
+
+
+def command_convert():
+    _format_json_files()
+    logging.info("Kolibri: CSV to JSON conversion succeeded!")
+
+
+"""
 Download command
 """
 
@@ -314,19 +365,26 @@ def command_download(branch):
         r = requests.get(url)
         r.raise_for_status()
         z = zipfile.ZipFile(io.BytesIO(r.content))
-        target = utils.local_locale_path(lang_object)
+        target = utils.local_locale_csv_path()
         logging.info("\tExtracting {} to {}".format(code, target))
         z.extractall(target)
 
         # hack for perseus
-        perseus_target = utils.local_perseus_locale_path(lang_object)
+        perseus_target = utils.local_perseus_locale_csv_path()
+        ## TODO - Update this to work with perseus properly - likely to need to update
+        ## the kolibri-exercise-perseus-plugin repo directly to produce a CSV for its
+        ## translations.
         if not os.path.exists(perseus_target):
             os.makedirs(perseus_target)
-        shutil.move(
-            os.path.join(target, PERSEUS_FILE),
-            os.path.join(perseus_target, PERSEUS_FILE),
-        )
+        try:
+            shutil.move(
+                os.path.join(target, PERSEUS_CSV),
+                os.path.join(perseus_target, PERSEUS_CSV),
+            )
+        except:
+            pass
 
+    ## TODO Don't need to format here... going to do this in the new command.
     _format_json_files()  # clean them up to make git diffs more meaningful
     logging.info("Crowdin: download succeeded!")
 
@@ -354,6 +412,7 @@ def _chunks(files):
 
 def _modify(url, file_names):
     # split into multiple requests
+    logging.info("Uploading {}".format(url))
     for chunk in _chunks(file_names):
         # generate the weird syntax and data structure required by crowdin + requests
         references = [_source_upload_ref(file_name) for file_name in chunk]
@@ -521,6 +580,9 @@ def main():
         "download", help="Download translations from Crowdin"
     )
     parser_download.add_argument("branch", help="Branch name", type=str)
+    parser_convert = subparsers.add_parser(
+        "convert", help="Convert downloaded CSVs to JSON files"
+    )
     parser_upload = subparsers.add_parser(
         "upload-sources", help="Upload English sources to Crowdin"
     )
@@ -562,6 +624,8 @@ def main():
         command_stats(args.branch)
     elif args.command == "upload-translations":
         command_upload_translations(args.branch)
+    elif args.command == "convert":
+        command_convert()
     else:
         logging.warning("Unknown command\n")
         parser.print_help(sys.stderr)

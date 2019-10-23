@@ -1,9 +1,6 @@
 {% extends "kolibri/base.html" %}
-{% load learn_tags %}
-{% load kolibri_tags %}
-{% load cache %}
+{% load webpack_tags %}
 
 {% block content %}
-  {% learn_async_assets %}
-  {% learn_assets %}
+  {% webpack_asset 'kolibri.plugins.learn.app' %}
 {% endblock %}

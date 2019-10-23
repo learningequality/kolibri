@@ -75,11 +75,11 @@
   import throttle from 'lodash/throttle';
 
   import { languageIdToCode } from 'kolibri.utils.i18n';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-  import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
-  import ResponsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
+  // import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  // import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   import Settings from '../utils/settings';
   import { ReplayButton, ForwardButton } from './customButtons';
@@ -106,9 +106,15 @@
   export default {
     name: 'MediaPlayerIndex',
 
-    components: { KCircularLoader, MediaPlayerFullscreen, MediaPlayerTranscript },
+    components: { MediaPlayerFullscreen, MediaPlayerTranscript },
 
-    mixins: [ResponsiveWindow, ResponsiveElement, contentRendererMixin, themeMixin],
+    mixins: [
+      commonCoreStrings,
+      responsiveWindowMixin,
+      responsiveElementMixin,
+      // contentRendererMixin,
+      // themeMixin,
+    ],
 
     data: () => ({
       dummyTime: 0,
@@ -251,7 +257,7 @@
               'Current Time': this.$tr('currentTime'),
               'Duration Time': this.$tr('durationTime'),
               Loaded: this.$tr('loaded'),
-              Progress: this.$tr('progress'),
+              Progress: this.coreString('progressLabel'),
               'Progress Bar': this.$tr('progressBar'),
               Fullscreen: this.$tr('fullscreen'),
               'Non-Fullscreen': this.$tr('nonFullscreen'),
@@ -440,7 +446,6 @@
       currentTime: 'Current time',
       durationTime: 'Duration time',
       loaded: 'Loaded',
-      progress: 'Progress',
       progressBar: 'Progress bar',
       fullscreen: 'Fullscreen',
       nonFullscreen: 'Non-fullscreen',

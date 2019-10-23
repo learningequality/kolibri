@@ -5,7 +5,7 @@
       <BackLink
         v-if="classListPageEnabled"
         :to="$router.getRoute('CoachClassListPage')"
-        :text="$tr('back')"
+        :text="$tr('allClassesLabel')"
       />
     </p>
 
@@ -26,7 +26,7 @@
           :label="$tr('learner', {count: learnerNames.length})"
         />
         <template slot="value">
-          {{ coachCommon$tr('integer', {value: learnerNames.length}) }}
+          {{ coachString('integer', {value: learnerNames.length}) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>
@@ -54,8 +54,7 @@
       },
     },
     $trs: {
-      back: 'All classes',
-      changeClass: 'Change class',
+      allClassesLabel: 'All classes',
       coach: '{count, plural, one {Coach} other {Coaches}}',
       learner: '{count, plural, one {Learner} other {Learners}}',
     },

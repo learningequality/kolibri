@@ -72,7 +72,6 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { validateLinkObject } from 'kolibri.utils.validators';
@@ -83,7 +82,6 @@
       UiToolbar,
       UiIconButton,
     },
-    mixins: [themeMixin],
     props: {
       appBarTitle: {
         type: String,
@@ -123,9 +121,7 @@
       },
       linkStyle() {
         const hoverAndFocus = {
-          backgroundColor: this.primary
-            ? this.$themeTokens.primaryDark
-            : this.$themeColors.palette.black,
+          backgroundColor: this.primary ? this.$themeTokens.primaryDark : this.$themePalette.black,
         };
         return {
           backgroundColor: this.primary ? this.$themeTokens.primary : this.$themeTokens.text,

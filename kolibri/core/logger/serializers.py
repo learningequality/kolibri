@@ -16,6 +16,7 @@ from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.notifications.api import create_examlog
 from kolibri.core.notifications.api import create_summarylog
 from kolibri.core.notifications.api import parse_attemptslog
+from kolibri.core.notifications.api import create_examattemptslog
 from kolibri.core.notifications.api import parse_examlog
 from kolibri.core.notifications.api import parse_summarylog
 from kolibri.core.notifications.tasks import wrap_to_save_queue
@@ -206,6 +207,12 @@ class ExamAttemptLogSerializer(KolibriModelSerializer):
             except ExamLog.DoesNotExist:
                 raise serializers.ValidationError("Invalid exam log")
         return data
+
+    def create(self, validated_data):
+        instance = super(ExamAttemptLogSerializer, self).create(validated_data)
+        # to check if a notification must be created:
+        wrap_to_save_queue(create_examattemptslog, instance.examlog, local_now())
+        return instance
 
 
 class ContentSummaryLogSerializer(KolibriModelSerializer):

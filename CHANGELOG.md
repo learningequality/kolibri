@@ -2,11 +2,41 @@
 
 List of the most important changes for each release.
 
-## 0.12.6
+## 0.13.0 (unreleased)
 
-### Changed or Fixed
+### Changed or fixed
+
+- Fixed: Unclean shutdowns on very large databases, due to prolonged database cleanup
+
+## 0.12.8
+
+### Changed or fixed
+
+- Fixed: users creating accounts for themselves not being placed in their selected facility
+- Fixed: images in Khan Academy exercises not appearing on occasion
+- Fixed: "Usage and Privacy" modal not closing when clicking the "Close" button
+
+([0.12.8 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.8))
+
+## 0.12.7
+
+(Note: 0.12.6 contained a regression and was superseded by 0.12.7)
+
+### Changed or fixed
 
 - Facility user table is now paginated to improve performance for facilities with large numbers of users.
+- Various usability and visual improvements, including improved layout when using a RTL language
+- On Windows, `kolibri.exe` is automatically added to the path in the command prompt
+- Improved system clean-up when uninstalling on Windows
+
+
+### Internationalization and localization
+
+- Added Latin American Spanish (ES-419)
+
+([0.12.7 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.7))
+
+([0.12.6 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.6))
 
 ## 0.12.5
 

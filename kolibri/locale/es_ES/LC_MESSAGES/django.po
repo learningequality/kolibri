@@ -4,13 +4,13 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: es-ES\n"
-"X-Crowdin-File: /release-v0.12.y/django.po\n"
+"X-Crowdin-File: /release-v0.12.x/django.po\n"
 "Project-Id-Version: kolibri\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Last-Translator: learningequality\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
-"PO-Revision-Date: 2019-06-05 03:45\n"
+"PO-Revision-Date: 2019-07-25 00:45\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -24,15 +24,15 @@ msgstr "Salón de clase"
 msgid "Learner group"
 msgstr "Grupo de estudiantes"
 
-#: kolibri/core/content/api.py:138
+#: kolibri/core/content/api.py:141
 msgid "Content"
 msgstr "Contenido"
 
-#: kolibri/core/content/api.py:836
+#: kolibri/core/content/api.py:842
 msgid "The requested channel does not exist on the content server"
 msgstr "El canal solicitado no existe en el servidor de contenidos"
 
-#: kolibri/core/content/models.py:296
+#: kolibri/core/content/models.py:316
 msgid "Unknown format"
 msgstr "Formato desconocido"
 
@@ -40,15 +40,15 @@ msgstr "Formato desconocido"
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri todavía no está disponible en este idioma"
 
-#: kolibri/core/tasks/api.py:33
+#: kolibri/core/tasks/api.py:34
 msgid "There was a network error."
 msgstr "Hubo un error de red."
 
-#: kolibri/core/tasks/api.py:35
+#: kolibri/core/tasks/api.py:36
 msgid "There was a disk access error."
 msgstr "Hubo un error de acceso a disco."
 
-#: kolibri/core/tasks/api.py:37
+#: kolibri/core/tasks/api.py:38
 msgid "There was an unknown error."
 msgstr "Se ha producido un error desconocido."
 
@@ -73,7 +73,15 @@ msgstr "Para utilizar el Kolibri, recomendamos usar Firefox o Chrome."
 msgid "You can also try updating your current browser."
 msgstr "También puedes actualizar tu navegador actual."
 
-#: kolibri/core/views.py:184
+#: kolibri/core/views.py:185
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Fue imposible redirigir página correctamente. Es probable que Kolibri está mal configurado"
+
+#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
+msgid "OpenID Provider Authorization"
+msgstr "Autorización del proveedor de OpenID"
+
+#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
+msgid "Request for Permission"
+msgstr "Petición de permiso"
 

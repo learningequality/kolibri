@@ -9,8 +9,8 @@
       wrap="soft"
       aria-hidden="true"
       :style="[dynamicHeightStyle, {
-        backgroundColor: $themeColors.palette.grey.v_200,
-        border: $themeColors.palette.grey.v_300,
+        backgroundColor: $themePalette.grey.v_200,
+        border: $themePalette.grey.v_300,
       }]"
     >
     </textarea>
@@ -33,16 +33,10 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import ClipboardJS from 'clipboard';
 
   export default {
     name: 'TechnicalTextBlock',
-    components: {
-      KButton,
-    },
-    mixins: [themeMixin],
     props: {
       text: {
         type: String,
@@ -93,7 +87,6 @@
     $trs: {
       copyToClipboardButtonPrompt: 'Copy to clipboard',
       copiedToClipboardConfirmation: 'Copied to clipboard',
-      downloadAsTextPrompt: 'Or download as a text file',
     },
   };
 

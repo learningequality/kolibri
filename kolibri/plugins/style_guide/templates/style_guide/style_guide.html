@@ -1,6 +1,5 @@
 {% extends "kolibri/base.html" %}
-{% load style_guide_tags %}
+{% load webpack_tags %}
 {% block content %}
-  {% style_guide_async_assets %}
-  {% style_guide_assets %}
+    {% webpack_asset 'kolibri.plugins.style_guide.app' %}
 {% endblock %}

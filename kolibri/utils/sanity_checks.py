@@ -59,10 +59,15 @@ def check_content_directory_exists_and_writable():
 
     # Check if the content directory exists
     if not os.path.exists(content_directory):
-        logger.error(
-            "The content directory {} does not exist.".format(content_directory)
-        )
-        sys.exit(1)
+        try:
+            os.makedirs(content_directory)
+        except OSError:
+            logger.error(
+                "The content directory {} does not exist and cannot be created.".format(
+                    content_directory
+                )
+            )
+            sys.exit(1)
 
     # Check if the directory is writable
     if not os.access(content_directory, os.W_OK):

@@ -29,6 +29,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { canViewExam } from '../../utils/exams';
   import ContentCard from '../ContentCard';
   import { examViewerLink, examReportViewerLink } from './classPageLinks';
@@ -38,6 +39,7 @@
     components: {
       ContentCard,
     },
+    mixins: [commonCoreStrings],
     props: {
       exams: {
         type: Array,
@@ -80,9 +82,9 @@
       },
       genExamSubtitle(exam) {
         if (this.examSubmitted(exam)) {
-          return this.$tr('completed');
+          return this.coreString('completedLabel');
         } else if (!this.examStarted(exam)) {
-          return this.$tr('notStarted');
+          return this.$tr('notStartedLabel');
         } else if (this.examStartedNotSubmitted(exam)) {
           return this.$tr('questionsLeft', {
             questionsLeft: exam.question_count - exam.progress.answer_count,
@@ -99,10 +101,9 @@
     $trs: {
       examsHeader: 'Quizzes',
       noExamsMessage: 'You have no quizzes assigned',
-      notStarted: 'Not started',
+      notStartedLabel: 'Not started',
       questionsLeft:
         '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',
-      completed: 'Completed',
     },
   };
 

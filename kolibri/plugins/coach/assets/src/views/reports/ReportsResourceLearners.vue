@@ -1,15 +1,15 @@
 <template>
 
-  <CoreTable :emptyMessage="coachCommon$tr('activityListEmptyState')">
+  <CoreTable :emptyMessage="coachString('activityListEmptyState')">
     <thead slot="thead">
       <tr>
-        <th>{{ coachCommon$tr('nameLabel') }}</th>
-        <th>{{ coachCommon$tr('statusLabel') }}</th>
-        <th>{{ coachCommon$tr('timeSpentLabel') }}</th>
+        <th>{{ coachString('nameLabel') }}</th>
+        <th>{{ coachString('statusLabel') }}</th>
+        <th>{{ coachString('timeSpentLabel') }}</th>
         <th v-if="showGroupsColumn">
-          {{ coachCommon$tr('groupsLabel') }}
+          {{ coachString('groupsLabel') }}
         </th>
-        <th>{{ coachCommon$tr('lastActivityLabel') }}</th>
+        <th>{{ coachString('lastActivityLabel') }}</th>
       </tr>
     </thead>
     <transition-group slot="tbody" tag="tbody" name="list">
@@ -40,7 +40,6 @@
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSimple from '../common/status/StatusSimple';
   import TimeDuration from '../common/TimeDuration';
@@ -51,7 +50,6 @@
     components: {
       CoreTable,
       ElapsedTime,
-      KLabeledIcon,
       StatusSimple,
       TimeDuration,
       TruncatedItemList,

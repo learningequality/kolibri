@@ -14,38 +14,34 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from kolibri.plugins import hooks
+from abc import abstractproperty
+
+from kolibri.core.webpack.hooks import WebpackBundleHook
+from kolibri.core.webpack.hooks import WebpackInclusionSyncMixin
+from kolibri.core.webpack.hooks import WebpackInclusionASyncMixin
+from kolibri.plugins.hooks import define_hook
+from kolibri.plugins.hooks import KolibriHook
 from kolibri.plugins.utils import plugin_url
 
 
-class NavigationHook(hooks.KolibriHook):
+@define_hook
+class NavigationHook(WebpackBundleHook):
 
-    # : A string label for the menu item
-    label = "Untitled"
-
-    # : A string or lazy proxy for the url
-    url = "/"
-
-    # Set this to True so that any time this is mixed in with a
-    # frontend asset hook, the resulting frontend code will be rendered inline.
+    # Set this to True so that the resulting frontend code will be rendered inline.
     inline = True
 
-    def get_menu(self):
-        menu = {}
-        for hook in self.registered_hooks:
-            menu[hook.label] = self.url
-        return menu
 
-    class Meta:
-        abstract = True
-
-
-class RoleBasedRedirectHook(hooks.KolibriHook):
+@define_hook
+class RoleBasedRedirectHook(KolibriHook):
     # User role to redirect for
-    role = None
+    @abstractproperty
+    def role(self):
+        pass
 
     # URL to redirect to
-    url = None
+    @abstractproperty
+    def url(self):
+        pass
 
     # Special flag to only redirect on first login
     # Default to False
@@ -54,5 +50,18 @@ class RoleBasedRedirectHook(hooks.KolibriHook):
     def plugin_url(self, plugin_class, url_name):
         return plugin_url(plugin_class, url_name)
 
-    class Meta:
-        abstract = True
+
+@define_hook
+class FrontEndBaseSyncHook(WebpackInclusionSyncMixin):
+    """
+    Inherit a hook defining assets to be loaded in kolibri/base.html, that means
+    ALL pages. Use with care.
+    """
+
+
+@define_hook
+class FrontEndBaseASyncHook(WebpackInclusionASyncMixin):
+    """
+    Inherit a hook defining assets to be loaded in kolibri/base.html, that means
+    ALL pages. Use with care.
+    """

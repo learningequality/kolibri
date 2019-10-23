@@ -46,7 +46,7 @@
     <div
       v-if="progress!==undefined"
       class="progress-bar-wrapper"
-      :style="{ backgroundColor: $themeColors.palette.grey.v_200 }"
+      :style="{ backgroundColor: $themePalette.grey.v_200 }"
     >
       <div
         class="progress-bar"
@@ -66,7 +66,6 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
@@ -78,7 +77,6 @@
       ContentIcon,
       ProgressIcon,
     },
-    mixins: [themeMixin],
     props: {
       thumbnail: {
         type: String,
@@ -142,6 +140,8 @@
             return { fill: this.$themeTokens.document };
           case ContentNodeKinds.HTML5:
             return { fill: this.$themeTokens.html5 };
+          case ContentNodeKinds.SLIDESHOW:
+            return { fill: this.$themeTokens.slideshow };
           default:
             return { fill: this.$themeTokens.topic };
         }
@@ -163,6 +163,8 @@
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
+    // Add an extra border to contain the progress bar and not have it overlap the image
+    border-bottom: solid transparent 5px;
   }
 
   .type-icon {
@@ -199,7 +201,7 @@
 
   .progress-bar-wrapper {
     position: absolute;
-    bottom: -12px;
+    bottom: -5px;
     width: 100%;
     height: 5px;
     opacity: 0.9;

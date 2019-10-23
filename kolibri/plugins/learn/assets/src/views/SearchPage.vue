@@ -2,7 +2,7 @@
 
   <div>
 
-    <h3>{{ $tr('searchPageHeader') }}</h3>
+    <h3>{{ coreString('searchLabel') }}</h3>
 
     <SearchBox ref="searchBox" :filters="contents.length > 0" />
 
@@ -29,7 +29,7 @@
 
       <KButton
         v-if="contents.length < total_results && !loading"
-        :text="$tr('viewMore')"
+        :text="coreString('viewMoreAction')"
         @click="loadMore"
       />
       <KCircularLoader
@@ -47,8 +47,7 @@
 
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import SearchBox from './SearchBox';
@@ -57,15 +56,14 @@
     name: 'SearchPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.coreString('searchLabel'),
       };
     },
     components: {
       ContentCardGroupGrid,
-      KButton,
-      KCircularLoader,
       SearchBox,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         loading: false,
@@ -107,13 +105,10 @@
       },
     },
     $trs: {
-      searchPageHeader: 'Search',
       noSearch: 'Search by typing in the box above',
       showingResultsFor:
         "{totalResults, plural, one {{totalResults} result} other {{totalResults} results}} for '{searchTerm}'",
       noResultsMsg: "No results for '{searchTerm}'",
-      documentTitle: 'Search',
-      viewMore: 'View more',
     },
   };
 

@@ -3,18 +3,20 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from kolibri.core.webpack import hooks as webpack_hooks
-from kolibri.plugins.base import KolibriPluginBase
+from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.user import hooks
+from kolibri.plugins.hooks import register_hook
 
 
 class DemoServer(KolibriPluginBase):
     pass
 
 
+@register_hook
 class DemoServerAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "demo_server_module"
-    src_file = "assets/src/module.js"
+    bundle_id = "main"
 
 
+@register_hook
 class DemoServerInclusionHook(hooks.UserSyncHook):
     bundle_class = DemoServerAsset

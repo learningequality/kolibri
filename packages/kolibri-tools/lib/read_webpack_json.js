@@ -5,7 +5,25 @@ const temp = require('temp').track();
 
 const webpack_json = path.resolve(path.dirname(__filename), './webpack_json.py');
 
-module.exports = function({ pluginFile, plugins, pluginPaths }) {
+function parseConfig(buildConfig, pythonData, configPath, index = null) {
+  // Set the bundleId by a concatenation of the Python module path
+  // And the specified bundle_id that should be unique within this plugin.
+  const bundleId = `${pythonData.module_path}.${buildConfig.bundle_id}`;
+  const pluginPath = pythonData.plugin_path;
+  return {
+    name: bundleId,
+    bundle_id: buildConfig.bundle_id,
+    static_dir: path.join(pluginPath, 'static'),
+    stats_file: path.join(pluginPath, 'build', `${bundleId}_stats.json`),
+    locale_data_folder: pythonData.locale_data_folder,
+    plugin_path: pluginPath,
+    version: pythonData.version,
+    config_path: configPath,
+    index,
+  };
+}
+
+module.exports = function({ pluginFile, plugins, pluginPath }) {
   // the temporary path where the webpack_json json is stored
   const webpack_json_tempfile = temp.openSync({ suffix: '.json' }).path;
 
@@ -28,11 +46,8 @@ module.exports = function({ pluginFile, plugins, pluginPaths }) {
   } else if (plugins.length) {
     const allPlugins = plugins.join(' ');
     command += `--plugins ${allPlugins}`;
-    if (pluginPaths.length && pluginPaths.length === plugins.length) {
-      const allPaths = pluginPaths.map(p => path.resolve(process.cwd(), p)).join(' ');
-      command += ` --plugin_paths ${allPaths}`;
-    } else if (pluginPaths.length && pluginPaths.length !== plugins.length) {
-      throw ReferenceError('Plugin paths and plugins must be of equal length');
+    if (pluginPath) {
+      command += ` --plugin_path ${pluginPath}`;
     }
   }
   if (process.platform !== 'win32') {
@@ -48,7 +63,20 @@ module.exports = function({ pluginFile, plugins, pluginPaths }) {
   if (result.length > 0) {
     // The above script prints JSON to stdout, here we parse that JSON and use it
     // as input to our webpack configuration builder.
-    return JSON.parse(result);
+    const parsedResult = JSON.parse(result);
+    const output = [];
+    parsedResult.forEach(pythonData => {
+      const configPath = path.join(pythonData.plugin_path, 'buildConfig.js');
+      const buildConfig = require(configPath);
+      if (Array.isArray(buildConfig)) {
+        buildConfig.forEach((configObj, i) => {
+          output.push(parseConfig(configObj, pythonData, configPath, i));
+        });
+      } else {
+        output.push(parseConfig(buildConfig, pythonData, configPath));
+      }
+    });
+    return output;
   }
 
   return [];

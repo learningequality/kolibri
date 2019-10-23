@@ -25,6 +25,7 @@ from kolibri.deployment.default.cache import CACHES
 from kolibri.plugins.utils.settings import apply_settings
 from kolibri.utils import conf
 from kolibri.utils import i18n
+from kolibri.utils.logger import get_logging_config
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -76,14 +77,6 @@ INSTALLED_APPS = [
     "django_js_reverse",
     "jsonfield",
     "morango",
-] + conf.config.ACTIVE_PLUGINS
-
-# Add in the external plugins' locale paths. Our frontend messages depends
-# specifically on the value of LOCALE_PATHS to find its catalog files.
-LOCALE_PATHS += [
-    i18n.get_installed_app_locale_path(app)
-    for app in INSTALLED_APPS
-    if i18n.is_external_plugin(app) and i18n.get_installed_app_locale_path(app)
 ]
 
 MIDDLEWARE = [
@@ -185,6 +178,18 @@ EXTRA_LANG_INFO = {
         "name": "Fulfulde (Cameroon)",
         "name_local": "Fulfulde Mbororoore",
     },
+    "es-419": {
+        "bidi": False,
+        "code": "es-419",
+        "name": "Spanish (Latin America)",
+        "name_local": "Español",
+    },
+    "es-es": {
+        "bidi": False,
+        "code": "es-es",
+        "name": "Spanish (Spain)",
+        "name_local": "Español (España)",
+    },
     "fr-ht": {
         "bidi": False,
         "code": "fr-ht",
@@ -208,7 +213,7 @@ EXTRA_LANG_INFO = {
 }
 locale.LANG_INFO.update(EXTRA_LANG_INFO)
 
-LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
+LANGUAGE_CODE = "en"
 
 try:
     TIME_ZONE = get_localzone().zone
@@ -260,109 +265,17 @@ SESSION_COOKIE_PATH = path_prefix
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
-        },
-        "simple": {"format": "%(levelname)s %(message)s"},
-        "simple_date": {"format": "%(levelname)s %(asctime)s %(module)s %(message)s"},
-        "simple_date_file": {
-            "()": "kolibri.core.logger.utils.formatter.KolibriLogFileFormatter",
-            "format": "%(levelname)s %(asctime)s %(module)s %(message)s",
-        },
-        "color": {
-            "()": "colorlog.ColoredFormatter",
-            "format": "%(log_color)s%(levelname)-8s %(message)s",
-            "log_colors": {
-                "DEBUG": "bold_black",
-                "INFO": "white",
-                "WARNING": "yellow",
-                "ERROR": "red",
-                "CRITICAL": "bold_red",
-            },
-        },
-    },
-    "filters": {
-        "require_debug_true": {"()": "django.utils.log.RequireDebugTrue"},
-        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
-    },
-    "handlers": {
-        "console": {
-            "level": "INFO",
-            "class": "logging.StreamHandler",
-            "formatter": "color",
-        },
-        "mail_admins": {
-            "level": "ERROR",
-            "class": "django.utils.log.AdminEmailHandler",
-            "filters": ["require_debug_false"],
-        },
-        "request_debug": {
-            "level": "ERROR",
-            "class": "logging.StreamHandler",
-            "formatter": "color",
-            "filters": ["require_debug_true"],
-        },
-        "file_debug": {
-            "level": "DEBUG",
-            "filters": ["require_debug_true"],
-            "class": "logging.FileHandler",
-            "filename": os.path.join(conf.LOG_ROOT, "debug.txt"),
-            "formatter": "simple_date",
-        },
-        "file": {
-            "level": "INFO",
-            "filters": [],
-            "class": "kolibri.core.logger.utils.handler.KolibriTimedRotatingFileHandler",
-            "filename": os.path.join(conf.LOG_ROOT, "kolibri.txt"),
-            "formatter": "simple_date_file",
-            "when": "midnight",
-            "backupCount": 30,
-        },
-    },
-    "loggers": {
-        "django": {"handlers": ["console", "file"], "propagate": False},
-        "django.request": {
-            "handlers": ["mail_admins", "file", "request_debug"],
-            "level": "ERROR",
-            "propagate": False,
-        },
-        "kolibri": {
-            "handlers": ["console", "mail_admins", "file", "file_debug"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "iceqube": {
-            "handlers": ["file", "console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "morango": {
-            "handlers": ["file", "console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "cherrypy.access": {
-            "handlers": ["file", "console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "cherrypy.error": {
-            "handlers": ["file", "console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-    },
-}
+LOGGING = get_logging_config(conf.LOG_ROOT)
 
 
 # Customizing Django auth system
 # https://docs.djangoproject.com/en/1.9/topics/auth/customizing/
 
 AUTH_USER_MODEL = "kolibriauth.FacilityUser"
+
+# Our own custom setting to override the anonymous user model
+
+AUTH_ANONYMOUS_USER_MODEL = "kolibriauth.KolibriAnonymousUser"
 
 AUTHENTICATION_BACKENDS = ["kolibri.core.auth.backends.FacilityUserBackend"]
 
@@ -375,7 +288,6 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
-        "rest_framework_csv.renderers.CSVRenderer",
     ),
     "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
 }
@@ -407,25 +319,6 @@ SESSION_COOKIE_NAME = "kolibri"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SESSION_COOKIE_AGE = 1200
-
-
-if conf.OPTIONS["Debug"]["SENTRY_BACKEND_DSN"]:
-    import sentry_sdk
-    from kolibri.utils.server import installation_type
-    from sentry_sdk.integrations.django import DjangoIntegration
-
-    sentry_sdk.init(
-        dsn=conf.OPTIONS["Debug"]["SENTRY_BACKEND_DSN"],
-        environment=conf.OPTIONS["Debug"]["SENTRY_ENVIRONMENT"],
-        integrations=[DjangoIntegration()],
-        release=kolibri.__version__,
-    )
-
-    with sentry_sdk.configure_scope() as scope:
-        scope.set_tag("mode", conf.OPTIONS["Deployment"]["RUN_MODE"])
-        scope.set_tag("installer", installation_type())
-
-    print("Sentry backend error logging is enabled")
 
 
 apply_settings(sys.modules[__name__])

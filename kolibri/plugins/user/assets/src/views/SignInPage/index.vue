@@ -11,21 +11,42 @@
     <div class="wrapper-table">
       <div class="table-row main-row" :style="backgroundImageStyle">
         <div class="table-cell main-cell">
-          <div class="box" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
+          <div class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
             <CoreLogo
-              v-if="$theme.signIn.topLogo"
+              v-if="$kolibriBranding.signIn.topLogo"
               class="logo"
-              :src="$theme.signIn.topLogo.src"
-              :alt="$theme.signIn.topLogo.alt"
-              :style="$theme.signIn.topLogo.style"
+              :src="$kolibriBranding.signIn.topLogo.src"
+              :alt="$kolibriBranding.signIn.topLogo.alt"
+              :style="$kolibriBranding.signIn.topLogo.style"
             />
             <h1
+              v-if="$kolibriBranding.signIn.showTitle"
               class="kolibri-title"
-              :class="$computedClass({color: $themeTokens.logoText})"
-              :style="$theme.signIn.titleStyle"
+              :class="$computedClass({color: $themeBrand.primary.v_300})"
+              :style="$kolibriBranding.signIn.titleStyle"
             >
               {{ logoText }}
             </h1>
+            <p
+              v-if="$kolibriBranding.signIn.showPoweredBy"
+              :style="$kolibriBranding.signIn.poweredByStyle"
+              class="small-text"
+            >
+              <KButton
+                v-if="oidcProviderFlow"
+                :text="$tr('poweredByKolibri')"
+                appearance="basic-link"
+                @click="whatsThisModalVisible = true"
+              />
+              <KExternalLink
+                v-else
+                :text="$tr('poweredByKolibri')"
+                :primary="true"
+                href="https://learningequality.org/r/powered_by_kolibri"
+                target="_blank"
+                appearance="basic-link"
+              />
+            </p>
             <form ref="form" class="login-form" @submit.prevent="signIn">
               <UiAlert
                 v-if="invalidCredentials"
@@ -41,7 +62,7 @@
                   v-model="username"
                   autocomplete="username"
                   :autofocus="!hasMultipleFacilities"
-                  :label="$tr('username')"
+                  :label="coreString('usernameLabel')"
                   :invalid="usernameIsInvalid"
                   :invalidText="usernameIsInvalidText"
                   @blur="handleUsernameBlur"
@@ -75,7 +96,7 @@
                   v-model="password"
                   type="password"
                   autocomplete="current-password"
-                  :label="$tr('password')"
+                  :label="coreString('passwordLabel')"
                   :autofocus="simpleSignIn"
                   :invalid="passwordIsInvalid"
                   :invalidText="passwordIsInvalidText"
@@ -88,7 +109,7 @@
                 <KButton
                   class="login-btn"
                   type="submit"
-                  :text="$tr('signIn')"
+                  :text="coreString('signInLabel')"
                   :primary="true"
                   :disabled="busy"
                 />
@@ -98,12 +119,15 @@
             <p class="create">
               <KRouterLink
                 v-if="canSignUp"
-                :text="$tr('createAccount')"
+                :text="$tr('createAccountAction')"
                 :to="signUpPage"
                 :primary="true"
                 appearance="flat-button"
               />
             </p>
+            <div slot="options">
+              <component :is="component" v-for="component in loginOptions" :key="component.name" />
+            </div>
             <p
               v-if="showGuestAccess"
               class="guest small-text"
@@ -125,10 +149,13 @@
             <span class="version-string">
               {{ versionMsg }}
             </span>
-            <CoreLogo v-if="this.$theme.signIn.showKolibriFooterLogo" class="footer-logo" />
+            <CoreLogo
+              v-if="this.$kolibriBranding.signIn.showKolibriFooterLogo"
+              class="footer-logo"
+            />
             <span v-else> • </span>
             <KButton
-              :text="$tr('privacyLink')"
+              :text="coreString('usageAndPrivacyLabel')"
               appearance="basic-link"
               @click="privacyModalVisible = true"
             />
@@ -139,8 +166,28 @@
 
     <PrivacyInfoModal
       v-if="privacyModalVisible"
+      @submit="privacyModalVisible = false"
       @cancel="privacyModalVisible = false"
     />
+
+    <KModal
+      v-if="whatsThisModalVisible"
+      :title="$tr('whatsThis')"
+      :submitText="coreString('closeAction')"
+      @submit="whatsThisModalVisible = false"
+      @cancel="whatsThisModalVisible = false"
+    >
+      <p>{{ $tr('oidcGenericExplanation') }}</p>
+      <p>
+        <KExternalLink
+          text="https://learningequality.org/kolibri"
+          :primary="true"
+          href="https://learningequality.org/r/powered_by_kolibri"
+          target="_blank"
+          appearance="basic-link"
+        />
+      </p>
+    </KModal>
 
   </div>
 
@@ -151,30 +198,22 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { FacilityUsernameResource } from 'kolibri.resources';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import { validateUsername } from 'kolibri.utils.validators';
   import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
+  import branding from 'kolibri.utils.branding';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import urls from 'kolibri.urls';
+  import loginComponents from 'kolibri.utils.loginComponents';
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
+  import getUrlParameter from '../getUrlParameter';
   import FacilityModal from './FacilityModal';
-
-  // https://davidwalsh.name/query-string-javascript
-  function getUrlParameter(name) {
-    name = name.replace(/[[]/, '[').replace(/[\]]/, '\\]');
-    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-    var results = regex.exec(location.search);
-    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-  }
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'SignInPage',
@@ -184,10 +223,6 @@
       };
     },
     components: {
-      KButton,
-      KRouterLink,
-      KExternalLink,
-      KTextbox,
       FacilityModal,
       CoreLogo,
       UiAutocompleteSuggestion,
@@ -195,7 +230,7 @@
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [responsiveWindowMixin, commonCoreStrings],
     data() {
       return {
         username: '',
@@ -210,6 +245,7 @@
         formSubmitted: false,
         autoFilledByChromeAndNotEdited: false,
         privacyModalVisible: false,
+        whatsThisModalVisible: false,
       };
     },
     computed: {
@@ -234,9 +270,9 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldError');
           } else if (!validateUsername(this.username)) {
-            return this.$tr('usernameNotAlphaNumUnderscore');
+            return this.coreString('usernameNotAlphaNumError');
           }
         }
         return '';
@@ -249,7 +285,7 @@
           if (this.simpleSignIn && this.password === '') {
             return this.$tr('requiredForCoachesAdmins');
           } else if (this.password === '') {
-            return this.$tr('required');
+            return this.coreString('requiredFieldError');
           }
         }
         return '';
@@ -271,6 +307,9 @@
         return this.facilityConfig.learner_can_sign_up;
       },
       signUpPage() {
+        if (this.nextParam) {
+          return { name: PageNames.SIGN_UP, query: { next: this.nextParam } };
+        }
         return { name: PageNames.SIGN_UP };
       },
       versionMsg() {
@@ -286,24 +325,24 @@
         return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
       },
       logoText() {
-        return this.$theme.signIn.title ? this.$theme.signIn.title : this.$tr('kolibri');
+        return this.$kolibriBranding.signIn.title
+          ? this.$kolibriBranding.signIn.title
+          : this.coreString('kolibriLabel');
       },
       guestURL() {
         return urls['kolibri:core:guest']();
       },
       backgroundImageStyle() {
-        if (this.$theme.signIn.background) {
+        if (this.$kolibriBranding.signIn.background) {
           return {
             backgroundColor: this.$themeTokens.primary,
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${
-              this.$theme.signIn.background
-            })`,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${this.$kolibriBranding.signIn.background})`,
           };
         }
-        return { backgroundColor: this.$themeColors.brand.primary.v_900 };
+        return { backgroundColor: this.$themeBrand.primary.v_900 };
       },
       oidcProviderFlow() {
-        return global.oidcProviderEnabled && this.nextParam;
+        return plugin_data.oidcProviderEnabled && this.nextParam;
       },
       nextParam() {
         // query is after hash
@@ -313,11 +352,18 @@
         // query is before hash
         return getUrlParameter('next');
       },
+      loginOptions() {
+        // POC, in the future sorting of different login options can be implemented
+        return [...loginComponents];
+      },
     },
     watch: {
       username(newVal) {
         this.setSuggestionTerm(newVal);
       },
+    },
+    created() {
+      this.$kolibriBranding = branding;
     },
     mounted() {
       /*
@@ -343,6 +389,9 @@
       ...mapActions(['kolibriLogin']),
       closeFacilityModal() {
         this.facilityModalVisible = false;
+        this.$nextTick().then(() => {
+          this.$refs.username.focus();
+        });
       },
       setSuggestionTerm(newVal) {
         if (newVal !== null && typeof newVal !== 'undefined') {
@@ -431,8 +480,11 @@
             password: this.password,
             facility: this.facilityId,
           };
-          if (global.oidcProviderEnabled) {
+          if (plugin_data.oidcProviderEnabled) {
             sessionPayload['next'] = this.nextParam;
+          } else if (this.$route.query.redirect && !this.nextParam) {
+            // Go to URL in 'redirect' query param, if arriving from AuthMessage
+            sessionPayload['next'] = this.$route.query.redirect;
           }
           this.kolibriLogin(sessionPayload).catch();
         } else {
@@ -451,25 +503,25 @@
       },
       suggestionStyle(i) {
         return {
-          backgroundColor: this.highlightedIndex === i ? this.$themeColors.palette.grey.v_200 : '',
+          backgroundColor: this.highlightedIndex === i ? this.$themePalette.grey.v_200 : '',
         };
       },
     },
     $trs: {
-      kolibri: 'Kolibri',
-      signIn: 'Sign in',
-      username: 'Username',
-      password: 'Password',
-      enterPassword: 'Enter password',
-      createAccount: 'Create an account',
+      createAccountAction: 'Create an account',
+      poweredByKolibri: 'Powered by Kolibri',
+      whatsThis: "What's this?",
+      oidcGenericExplanation:
+        'Kolibri is an e-learning platform. You can also use your Kolibri account to log in to some third-party applications.',
+      // Disable the rule here because we will keep this unused string in case we need it later on.
+      // eslint-disable-next-line kolibri/vue-no-unused-translations
+      oidcSpecificExplanation:
+        "You were sent here from the application '{app_name}'. Kolibri is an e-learning platform, and you can also use your Kolibri account to access '{app_name}'.",
       accessAsGuest: 'Explore without account',
       signInError: 'Incorrect username or password',
       poweredBy: 'Kolibri {version}',
-      required: 'This field is required',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       documentTitle: 'User Sign In',
-      privacyLink: 'Usage and privacy',
     },
   };
 

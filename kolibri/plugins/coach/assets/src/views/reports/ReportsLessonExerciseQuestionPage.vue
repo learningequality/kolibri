@@ -2,6 +2,8 @@
 
   <CoreBase
     :immersivePage="true"
+    :immersivePagePrimary="true"
+    immersivePageIcon="arrow_back"
     :immersivePageRoute="toolbarRoute"
     :appBarTitle="title"
     :pageTitle="title"
@@ -46,11 +48,7 @@
         });
       },
     },
-    $trs: {
-      allQuestionsLabel: 'All questions',
-      summary:
-        '{count, number, integer} {count, plural, one {learner} other {learners}} got this question incorrect',
-    },
+    $trs: {},
   };
 
 </script>

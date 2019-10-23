@@ -23,17 +23,13 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'CoreInfoIcon',
     components: {
       UiIcon,
-      KTooltip,
     },
-    mixins: [themeMixin],
     props: {
       iconAriaLabel: {
         type: String,

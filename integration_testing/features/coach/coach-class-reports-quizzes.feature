@@ -17,7 +17,7 @@ Feature: Coach reviews learner reports for quizzes
         When I look high level summary
         Then I see the *Average score* reports just the average of those learners' scores
 
-    Scenario: Review quiz attempt report for a learner 
+    Scenario: Review quiz attempt report for a learner
       Given that I am on the <quiz> *Report* subtab
         When I click on the <learner> name
         Then I see the attempt report of the <learner> for each question in the <quiz>
@@ -25,8 +25,8 @@ Feature: Coach reviews learner reports for quizzes
     Scenario: Review DIFFICULT QUESTIONS subtab
       Given that I am on the <quiz> *Report* subtab
         When I click on *Difficult questions* subtab
-        Then I see a list of the most difficult quiz questions 
-              
+        Then I see a list of the most difficult quiz questions
+
     Scenario: Review single difficult question
       Given that I am on the *Difficult questions* subtab
         When I click into a <question> question
@@ -62,8 +62,8 @@ Feature: Coach reviews learner reports for quizzes
   Scenario: A learner has started a quiz
     When a learner has started the <quiz>
       And they have some of the questions remaining
-    Then the learner's *Progress* column displays *Started*
-      And their *Score* column shows the current score
+    Then the learner's *Progress* column displays *X of Y completed*
+      And their *Score* column is blank
 
   Scenario: A learner has completed a quiz
     When a learner has completed the <quiz>

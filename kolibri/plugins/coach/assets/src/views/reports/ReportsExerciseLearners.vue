@@ -1,15 +1,15 @@
 <template>
 
-  <CoreTable :emptyMessage="coachCommon$tr('activityListEmptyState')">
+  <CoreTable :emptyMessage="coachString('activityListEmptyState')">
     <thead slot="thead">
       <tr>
-        <th>{{ coachCommon$tr('nameLabel') }}</th>
-        <th>{{ coachCommon$tr('progressLabel') }}</th>
-        <th>{{ coachCommon$tr('timeSpentLabel') }}</th>
+        <th>{{ coachString('nameLabel') }}</th>
+        <th>{{ coreString('progressLabel') }}</th>
+        <th>{{ coachString('timeSpentLabel') }}</th>
         <th v-if="showGroupsColumn">
-          {{ coachCommon$tr('groupsLabel') }}
+          {{ coachString('groupsLabel') }}
         </th>
-        <th>{{ coachCommon$tr('lastActivityLabel') }}</th>
+        <th>{{ coachString('lastActivityLabel') }}</th>
       </tr>
     </thead>
     <transition-group slot="tbody" tag="tbody" name="list">
@@ -53,8 +53,7 @@
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSimple from '../common/status/StatusSimple';
   import TimeDuration from '../common/TimeDuration';
@@ -66,13 +65,11 @@
     components: {
       CoreTable,
       ElapsedTime,
-      KRouterLink,
-      KLabeledIcon,
       StatusSimple,
       TimeDuration,
       TruncatedItemList,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       entries: {
         type: Array,

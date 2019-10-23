@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 
 import logging
 
+from abc import abstractproperty
+
 from kolibri.plugins import hooks
 import kolibri
 from django.utils.six.moves.urllib import parse
@@ -42,7 +44,10 @@ TOP_LOGO = "topLogo"
 IMG_SRC = "src"
 IMG_STYLE = "style"
 IMG_ALT = "alt"
+SHOW_TITLE = "showTitle"
 SHOW_K_FOOTER_LOGO = "showKolibriFooterLogo"
+SHOW_POWERED_BY = "showPoweredBy"
+POWERED_BY_STYLE = "poweredByStyle"
 
 # This is the image file name that will be used when customizing the sign-in background
 # image using the 'kolibri manage background' command. It does not attempt to use a file
@@ -111,29 +116,25 @@ def _initFields(theme):
         theme[APP_BAR] = {}
 
 
+@hooks.define_hook(only_one_registered=True)
 class ThemeHook(hooks.KolibriHook):
     """
     A hook to allow custom theming of Kolibri
     Use this tool to help generate your brand colors: https://materialpalettes.com/
     """
 
-    class Meta:
-        abstract = True
-
-    @property
-    @hooks.only_one_registered
-    def cacheKey(self):
-        theme = list(self.registered_hooks)[0].theme
+    @classmethod
+    def cacheKey(cls):
+        theme = list(cls.registered_hooks)[0].theme
         return parse.quote(
             "{}-{}-{}".format(
                 kolibri.__version__, theme[THEME_NAME], theme[THEME_VERSION]
             )
         )
 
-    @property
-    @hooks.only_one_registered
-    def theme(self):
-        theme = list(self.registered_hooks)[0].theme
+    @classmethod
+    def get_theme(cls):
+        theme = list(cls.registered_hooks)[0].theme
 
         # some validation and initialization
         _initFields(theme)
@@ -141,7 +142,7 @@ class ThemeHook(hooks.KolibriHook):
         _validateBrandColors(theme)
 
         # set up cache busting
-        bust = "?" + self.cacheKey
+        bust = "?" + cls.cacheKey()
         if _isSet(theme, [SIGN_IN, BACKGROUND]):
             theme[SIGN_IN][BACKGROUND] += bust
         if _isSet(theme, [SIGN_IN, TOP_LOGO, IMG_SRC]):
@@ -164,3 +165,7 @@ class ThemeHook(hooks.KolibriHook):
                     theme[SIGN_IN][BACKGROUND] += "?{}".format(f.read())
 
         return theme
+
+    @abstractproperty
+    def theme(self):
+        pass

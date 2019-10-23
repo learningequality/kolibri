@@ -1,35 +1,27 @@
 <template>
 
   <router-link class="link" :style="{color: $themeTokens.text}" :to="to">
-    <KGrid class="wrapper">
-      <KGridItem size="75" percentage>
+    <KFixedGrid numCols="4" class="wrapper">
+      <KFixedGridItem span="3">
         <h3 class="title">
           {{ name }}
         </h3>
-      </KGridItem>
-
-      <KGridItem size="25" percentage alignment="right">
+      </KFixedGridItem>
+      <KFixedGridItem span="1" alignment="right">
         <div class="context">
           <Recipients
             :groupNames="groupNames"
             :hasAssignments="hasAssignments"
           />
         </div>
-      </KGridItem>
-
-      <KGridItem size="100" percentage>
-        <ProgressSummaryBar
-          :tally="tally"
-          class="dashboard-bar"
-        />
-      </KGridItem>
-
-      <KGridItem size="100" percentage>
-        <StatusSummary
-          :tally="tally"
-        />
-      </KGridItem>
-    </KGrid>
+      </KFixedGridItem>
+      <KFixedGridItem>
+        <ProgressSummaryBar :tally="tally" class="dashboard-bar" />
+      </KFixedGridItem>
+      <KFixedGridItem>
+        <StatusSummary :tally="tally" />
+      </KFixedGridItem>
+    </KFixedGrid>
   </router-link>
 
 </template>
@@ -38,7 +30,6 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoach from '../../common';
   import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
 
@@ -47,7 +38,7 @@
     components: {
       ProgressSummaryBar,
     },
-    mixins: [commonCoach, themeMixin],
+    mixins: [commonCoach],
     props: {
       name: {
         type: String,

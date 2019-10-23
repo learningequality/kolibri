@@ -2,27 +2,29 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from . import hooks
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
+from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.webpack import hooks as webpack_hooks
-from kolibri.plugins.base import KolibriPluginBase
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
 
 
 class User(KolibriPluginBase):
     translated_view_urls = "urls"
 
 
+@register_hook
 class UserAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "user_module"
-    src_file = "assets/src/app.js"
+    bundle_id = "app"
+
+    @property
+    def plugin_data(self):
+        return {"oidcProviderEnabled": OIDCProviderHook.is_enabled()}
 
 
-class UserInclusionHook(hooks.UserSyncHook):
-    bundle_class = UserAsset
-
-
+@register_hook
 class LogInRedirect(RoleBasedRedirectHook):
     role = ANONYMOUS
 
@@ -31,11 +33,11 @@ class LogInRedirect(RoleBasedRedirectHook):
         return self.plugin_url(User, "user")
 
 
-class LogInNavAction(NavigationHook, webpack_hooks.WebpackBundleHook):
-    unique_slug = "user_module_login_nav_side_nav"
-    src_file = "assets/src/views/LoginSideNavEntry.vue"
+@register_hook
+class LogInNavAction(NavigationHook):
+    bundle_id = "login_side_nav"
 
 
-class ProfileNavAction(NavigationHook, webpack_hooks.WebpackBundleHook):
-    unique_slug = "user_module_user_profile_nav_side_nav"
-    src_file = "assets/src/views/UserProfileSideNavEntry.vue"
+@register_hook
+class ProfileNavAction(NavigationHook):
+    bundle_id = "user_profile_side_nav"

@@ -1,4 +1,3 @@
-import findKey from 'lodash/findKey';
 import { createTranslator } from 'kolibri.utils.i18n';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
 import logger from 'kolibri.lib.logging';
@@ -10,18 +9,19 @@ const logging = logger.getLogger(__filename);
 // NOTE: Strings for 'Exercise Image', 'Exercise Graphie', and 'Channel Thumbnail'
 // are excluded, as they are not downloadable in Kolibri.
 const filePresetStrings = {
-  highResolutionVideo: 'High Resolution ({fileSize})',
-  lowResolutionVideo: 'Low Resolution ({fileSize})',
-  vectorizedVideo: 'Vectorized ({fileSize})',
+  high_res_video: 'High Resolution ({fileSize})',
+  low_res_video: 'Low Resolution ({fileSize})',
+  vector_video: 'Vectorized ({fileSize})',
   // Same 'thumbnail' string is used for video, audio, document, exercise, and topic
   thumbnail: 'Thumbnail ({fileSize})',
-  videoSubtitle: 'Subtitles - {langCode} ({fileSize})',
+  subtitle: 'Subtitles - {langCode} ({fileSize})',
   audio: 'Audio ({fileSize})',
   document: 'Document ({fileSize})',
   exercise: 'Exercise ({fileSize})',
-  html5Zip: 'HTML5 Zip ({fileSize})',
-  html5Thumbnail: 'HTML5 Thumbnail ({fileSize})',
+  html5_zip: 'HTML5 Zip ({fileSize})',
   epub: 'ePub Document ({fileSize})',
+  slideshow_manifest: 'Slideshow ({fileSize})',
+  slideshow_image: 'Slideshow image ({fileSize})',
 };
 
 const filePresetTranslator = createTranslator('FilePresetStrings', filePresetStrings);
@@ -31,15 +31,17 @@ const filePresetTranslator = createTranslator('FilePresetStrings', filePresetStr
 // translator to return the localized string.
 export function getFilePresetString(file) {
   const { preset, file_size } = file;
-  if (preset === 'Subtitle') {
-    return filePresetTranslator.$tr('videoSubtitle', {
-      langCode: file.lang.lang_code,
-      fileSize: bytesForHumans(file_size),
-    });
+  const params = {
+    fileSize: bytesForHumans(file_size),
+  };
+  if (preset === 'video_subtitle') {
+    params.langCode = file.lang.lang_code;
   }
-  const trKey = findKey(filePresetStrings, x => x.startsWith(preset));
-  if (trKey) {
-    return filePresetTranslator.$tr(trKey, { fileSize: bytesForHumans(file_size) });
+  if (preset.endsWith('thumbnail')) {
+    return filePresetTranslator.$tr('thumbnail', params);
+  }
+  if (filePresetStrings[preset]) {
+    return filePresetTranslator.$tr(preset, { fileSize: bytesForHumans(file_size) });
   }
   logging.error(`Download translation string not defined for '${preset}'`);
   return preset;

@@ -1,11 +1,12 @@
 <template>
 
   <Block
-    :allLinkText="$tr('viewAll')"
+    :allLinkText="coachString('viewAllAction')"
     :allLinkRoute="$router.getRoute('HomeActivityPage')"
+    :showAllLink="notifications.length"
   >
     <template slot="title">
-      {{ $tr('classActivity') }}
+      {{ $tr('classActivityLabel') }}
     </template>
 
     <ContentIcon slot="icon" :kind="ContentNodeKinds.ACTIVITY" />
@@ -21,7 +22,7 @@
       </BlockItem>
     </transition-group>
     <div v-if="notifications.length === 0">
-      {{ $tr('noActivity') }}
+      {{ $tr('noActivityLabel') }}
     </div>
   </Block>
 
@@ -54,9 +55,14 @@
     computed: {
       ...mapGetters('coachNotifications', ['summarizedNotifications']),
       notifications() {
-        return orderBy(this.summarizedNotifications, ({ lastId }) => Number(lastId), [
-          'desc',
-        ]).slice(0, MAX_NOTIFICATIONS);
+        // Filter out "Answered" notifications to avoid flooding the list
+        const filteredNotifications = this.summarizedNotifications.filter(
+          n => n.event !== 'Answered'
+        );
+        return orderBy(filteredNotifications, ({ lastId }) => Number(lastId), ['desc']).slice(
+          0,
+          MAX_NOTIFICATIONS
+        );
       },
     },
     methods: {
@@ -80,11 +86,8 @@
       },
     },
     $trs: {
-      classActivity: 'Class activity',
-      recentActivity: 'Recent activity',
-      recentClassActivity: 'Recent Class activity',
-      noActivity: 'No activity in your class',
-      viewAll: 'View all',
+      classActivityLabel: 'Class activity',
+      noActivityLabel: 'No activity in your class',
     },
   };
 

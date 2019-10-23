@@ -8,8 +8,8 @@
     <p class="context icon-spacer">
       {{ context }}
     </p>
-    <KGrid>
-      <KGridItem :sizes="mainColSizes">
+    <KFixedGrid numCols="4">
+      <KFixedGridItem :span="time ? 3 : 4">
         <div class="icon-spacer">
           <ContentIcon
             slot="icon"
@@ -26,16 +26,11 @@
             {{ linkText }}
           </span>
         </div>
-      </KGridItem>
-
-      <KGridItem
-        v-if="time"
-        :sizes="[1, 2, 3]"
-        alignment="right"
-      >
+      </KFixedGridItem>
+      <KFixedGridItem v-if="time" :span="1" alignment="right">
         <ElapsedTime :date="parseDate(time)" />
-      </KGridItem>
-    </KGrid>
+      </KFixedGridItem>
+    </KFixedGrid>
   </div>
 
 </template>
@@ -45,9 +40,6 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import CoachStatusIcon from '../status/CoachStatusIcon';
   import {
@@ -67,9 +59,6 @@
       ContentIcon,
       CoachStatusIcon,
       ElapsedTime,
-      KGrid,
-      KGridItem,
-      KRouterLink,
     },
     props: {
       targetPage: {
@@ -139,12 +128,6 @@
           return this.contentContext;
         }
         return '';
-      },
-      mainColSizes() {
-        if (this.time) {
-          return [3, 6, 9];
-        }
-        return [4, 8, 12];
       },
     },
     methods: {

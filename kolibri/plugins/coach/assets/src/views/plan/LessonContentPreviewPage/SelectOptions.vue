@@ -9,7 +9,7 @@
       />
       {{ $tr('addedIndicator') }}
       <KButton
-        :text="$tr('removeLabel')"
+        :text="coreString('removeAction')"
         :primary="true"
         class="no-margin"
         @click="$emit('removeResource')"
@@ -30,13 +30,11 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'SelectOptions',
-    components: {
-      KButton,
-    },
+    mixins: [commonCoreStrings],
     props: {
       isSelected: {
         type: Boolean,
@@ -44,7 +42,6 @@
       },
     },
     $trs: {
-      removeLabel: 'Remove',
       addButtonLabel: 'Add',
       addedIndicator: 'Added',
     },

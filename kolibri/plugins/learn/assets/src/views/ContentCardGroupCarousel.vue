@@ -68,7 +68,7 @@
 
 <script>
 
-  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import ContentCard from './ContentCard';
@@ -76,7 +76,7 @@
   if (!ContentCard.mixins) {
     ContentCard.mixins = [];
   }
-  ContentCard.mixins.push(responsiveElement); //including because carousel breaks without it
+  ContentCard.mixins.push(responsiveElementMixin); //including because carousel breaks without it
 
   const contentCardWidth = 210;
   const gutterWidth = 20;
@@ -88,7 +88,7 @@
       UiIconButton,
       ContentCard,
     },
-    mixins: [responsiveElement],
+    mixins: [responsiveElementMixin],
     props: {
       contents: {
         type: Array,
@@ -252,7 +252,7 @@
         this.panBackwards = true;
       },
     },
-    $trs: { viewAllButtonLabel: 'View all' },
+    $trs: {},
   };
 
 </script>
@@ -261,6 +261,19 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+
+  // from http://nicolasgallagher.com/micro-clearfix-hack/
+  @mixin clearfix() {
+    zoom: 1;
+    &::after,
+    &::before {
+      display: table;
+      content: '';
+    }
+    &::after {
+      clear: both;
+    }
+  }
 
   // width of card + gutter
   $card-height: 210px;

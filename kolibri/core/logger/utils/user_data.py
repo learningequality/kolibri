@@ -10,6 +10,7 @@ from django.db.models import Max
 from django.db.models import Min
 from django.db.models import Sum
 from django.db.models.query import F
+from django.db.models.query import Q
 from django.utils import timezone
 from le_utils.constants import content_kinds
 
@@ -424,9 +425,11 @@ def create_exams_for_classrooms(**options):
     for count in range(num_exams):
 
         # exam questions can come from different channels
-        exercise_content = ContentNode.objects.filter(kind=content_kinds.EXERCISE)
+        exercise_content = ContentNode.objects.filter(
+            kind=content_kinds.EXERCISE
+        ).filter(~Q(assessmentmetadata__assessment_item_ids=[]))
         # don't add more than 3 resources per:
-        n_content_items = min(random.randint(0, exercise_content.count() - 1), 3)
+        n_content_items = min(exercise_content.count(), 3)
         exam_content = []
         content_ids = []
         assessment_ids = []

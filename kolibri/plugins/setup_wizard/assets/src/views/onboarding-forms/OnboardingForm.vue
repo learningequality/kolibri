@@ -35,13 +35,8 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
-
   export default {
     name: 'OnboardingForm',
-    components: {
-      KButton,
-    },
     props: {
       header: {
         type: String,

@@ -4,15 +4,16 @@ from __future__ import unicode_literals
 
 from django.contrib.staticfiles.templatetags.staticfiles import static
 
-from kolibri.plugins.base import KolibriPluginBase
-
 from kolibri.core import theme_hook
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
 
 
 class DefaultThemePlugin(KolibriPluginBase):
     pass
 
 
+@register_hook
 class DefaultThemeHook(theme_hook.ThemeHook):
     @property
     def theme(self):
@@ -56,6 +57,8 @@ class DefaultThemeHook(theme_hook.ThemeHook):
                     theme_hook.IMG_STYLE: "padding-left: 64px; padding-right: 64px; margin-bottom: 8px; margin-top: 8px",
                     theme_hook.IMG_ALT: None,
                 },
+                theme_hook.SHOW_POWERED_BY: False,
+                theme_hook.SHOW_TITLE: True,
                 theme_hook.SHOW_K_FOOTER_LOGO: False,
             },
             # side-nav config

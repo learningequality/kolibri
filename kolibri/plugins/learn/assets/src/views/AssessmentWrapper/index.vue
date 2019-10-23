@@ -19,7 +19,7 @@ oriented data synchronization.
       />
     </UiAlert>
     <div>
-      <ContentRenderer
+      <KContentRenderer
         ref="contentRenderer"
         :kind="kind"
         :lang="lang"
@@ -28,10 +28,8 @@ oriented data synchronization.
         :extraFields="extraFields"
         :assessment="true"
         :itemId="itemId"
-        :initSession="initSession"
         @answerGiven="answerGiven"
         @hintTaken="hintTaken"
-        @sessionInitialized="sessionInitialized"
         @itemError="handleItemError"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
@@ -40,7 +38,7 @@ oriented data synchronization.
       />
     </div>
 
-    <KBottomAppBar
+    <BottomAppBar
       class="attempts-container"
       :class="{ 'mobile': windowIsSmall }"
     >
@@ -49,13 +47,13 @@ oriented data synchronization.
           name="stars"
           category="action"
           :style="{
-            fill: success ? $themeTokens.mastered : $themeColors.palette.grey.v_200,
+            fill: success ? $themeTokens.mastered : $themePalette.grey.v_200,
             marginBottom: '-6px',
           }"
         />
         <div class="overall-status-text">
           <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
-            {{ $tr('completed') }}
+            {{ coreString('completedLabel') }}
           </span>
           <span>
             {{ $tr('goal', {count: totalCorrectRequiredM}) }}
@@ -99,7 +97,7 @@ oriented data synchronization.
           </div>
         </div>
       </div>
-    </KBottomAppBar>
+    </BottomAppBar>
   </div>
 
 </template>
@@ -108,15 +106,13 @@ oriented data synchronization.
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import shuffled from 'kolibri.utils.shuffled';
   import { now } from 'kolibri.utils.serverClock';
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
   import ExerciseAttempts from './ExerciseAttempts';
 
@@ -124,12 +120,10 @@ oriented data synchronization.
     name: 'AssessmentWrapper',
     components: {
       ExerciseAttempts,
-      ContentRenderer,
-      KButton,
       UiAlert,
-      KBottomAppBar,
+      BottomAppBar,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       id: {
         type: String,
@@ -169,10 +163,6 @@ oriented data synchronization.
       extraFields: {
         type: Object,
         default: () => {},
-      },
-      initSession: {
-        type: Function,
-        default: () => Promise.resolve(),
       },
     },
     data() {
@@ -296,6 +286,14 @@ oriented data synchronization.
       if (this.currentInteractions > 0) {
         this.saveAttemptLogMasterLog(false);
       }
+    },
+    created() {
+      if (this.isUserLoggedIn) {
+        this.callInitMasteryLog();
+      } else {
+        this.createDummyMasteryLog();
+      }
+      this.nextQuestion();
     },
     methods: {
       ...mapActions([
@@ -458,15 +456,6 @@ oriented data synchronization.
         updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
         this.$emit('updateProgress', this.exerciseProgress);
       },
-      sessionInitialized() {
-        if (this.isUserLoggedIn) {
-          this.callInitMasteryLog();
-        } else {
-          this.createDummyMasteryLog();
-        }
-        this.nextQuestion();
-        this.$emit('sessionInitialized');
-      },
       handleItemError() {
         this.itemError = true;
         this.updateAttemptLogInteractionHistory({
@@ -506,7 +495,6 @@ oriented data synchronization.
       check: 'Check',
       next: 'Next',
       itemError: 'There was an error showing this item',
-      completed: 'Completed',
       inputAnswer: 'Please enter an answer above',
       hintUsed: 'Hint used',
       greatKeepGoing: 'Great! Keep going',

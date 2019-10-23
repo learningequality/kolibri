@@ -6,8 +6,15 @@
     </h1>
     <p>
       <slot name="details">
-        {{ details || defaultDetails }}
+        {{ detailsText }}
       </slot>
+    </p>
+    <p v-if="!isUserLoggedIn">
+      <KExternalLink
+        :text="linkText"
+        :href="signInLink"
+        appearance="basic-link"
+      />
     </p>
   </div>
 
@@ -15,6 +22,9 @@
 
 
 <script>
+
+  import { mapGetters } from 'vuex';
+  import urls from 'kolibri.urls';
 
   const userRoles = ['admin', 'adminOrCoach', 'learner', 'registeredUser', 'superuser'];
 
@@ -37,8 +47,31 @@
       details: { type: String },
     },
     computed: {
-      defaultDetails() {
-        return this.$tr(this.authorizedRole);
+      ...mapGetters(['isUserLoggedIn']),
+      detailsText() {
+        return this.details || this.$tr(this.authorizedRole);
+      },
+      linkText() {
+        if (!this.userPluginUrl) {
+          return this.$tr('goBackToHomeAction');
+        } else {
+          return this.$tr('signInToKolibriAction');
+        }
+      },
+      userPluginUrl() {
+        return urls['kolibri:kolibri.plugins.user:user'];
+      },
+      signInLink() {
+        // Creates a link to the Sign In Page that also has a query parameter that
+        // will redirect back to this page after user logs in with correct credentials.
+        if (!this.userPluginUrl) {
+          // If User plugin is not active, go to the root of whatever plugin you're in.
+          // In practice, this will only happen on select Learn pages.
+          return '/';
+        } else {
+          const currentURL = window.encodeURIComponent(window.location.href);
+          return `${this.userPluginUrl()}#signin?redirect=${currentURL}`;
+        }
       },
     },
     $trs: {
@@ -48,6 +81,8 @@
       registeredUser: 'You must be signed in to view this page',
       superuser: 'You must have super admin permissions to view this page',
       forgetToSignIn: 'Did you forget to sign in?',
+      signInToKolibriAction: 'Sign in to Kolibri',
+      goBackToHomeAction: 'Go to home page',
     },
   };
 

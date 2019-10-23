@@ -20,6 +20,14 @@
       <component :is="currentPage" />
     </div>
 
+    <UpdateYourProfileModal
+      v-if="profileNeedsUpdate"
+      :disabled="demographicInfo === null || !userPluginUrl"
+      @cancel="handleCancelUpdateYourProfileModal"
+      @submit="handleSubmitUpdateYourProfileModal"
+    />
+
+
   </CoreBase>
 
 </template>
@@ -28,11 +36,14 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import urls from 'kolibri.urls';
+  import { redirectBrowser } from 'kolibri.utils.browser';
   import lastItem from 'lodash/last';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
+  import commonLearnStrings from './commonLearnStrings';
   import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
   import ContentPage from './ContentPage';
@@ -51,6 +62,7 @@
   import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
+  import UpdateYourProfileModal from './UpdateYourProfileModal';
 
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: ChannelsPage,
@@ -76,12 +88,13 @@
       CoreBase,
       LearnTopNav,
       TotalPoints,
-      KPageContainer,
+      UpdateYourProfileModal,
     },
-    mixins: [responsiveWindow],
+    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     data() {
       return {
         lastRoute: null,
+        demographicInfo: null,
       };
     },
     computed: {
@@ -89,6 +102,9 @@
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
         currentLesson: 'currentLesson',
+      }),
+      ...mapState('classAssignments', {
+        classroomName: state => state.currentClassroom.name,
       }),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
@@ -108,11 +124,11 @@
       immersivePageProps() {
         if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
           return {
-            appBarTitle: this.$store.state.examViewer.exam.title || '',
+            appBarTitle: this.classroomName || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
@@ -120,8 +136,8 @@
             appBarTitle: this.currentLesson.title || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
         if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
@@ -139,12 +155,12 @@
         }
         if (this.pageName === PageNames.SEARCH) {
           return {
-            appBarTitle: this.$tr('searchTitle'),
+            appBarTitle: this.coreString('searchLabel'),
             immersivePage: true,
             // Default to the Learn root page if there is no lastRoute to return to.
             immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
 
@@ -153,7 +169,7 @@
           let appBarTitle;
           const { searchTerm, last } = this.$route.query;
           if (searchTerm) {
-            appBarTitle = this.$tr('searchTitle');
+            appBarTitle = this.coreString('searchLabel');
             immersivePageRoute = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
           } else if (last) {
             // 'last' should only be route names for Recommended Page and its subpages
@@ -183,13 +199,13 @@
             appBarTitle,
             immersivePage: true,
             immersivePageRoute,
-            immersivePagePrimary: false,
+            immersivePagePrimary: true,
             immersivePageIcon: 'arrow_back',
           };
         }
 
         return {
-          appBarTitle: this.$tr('learnTitle'),
+          appBarTitle: this.learnString('learnLabel'),
           immersivePage: false,
         };
       },
@@ -220,6 +236,15 @@
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? ASSESSMENT_FOOTER : 0;
       },
+      profileNeedsUpdate() {
+        return (
+          this.demographicInfo &&
+          (this.demographicInfo.gender === '' || this.demographicInfo.birth_year === '')
+        );
+      },
+      userPluginUrl() {
+        return urls['kolibri:kolibri.plugins.user:user'];
+      },
     },
     watch: {
       $route: function(newRoute, oldRoute) {
@@ -239,10 +264,32 @@
         };
       },
     },
+    mounted() {
+      if (this.isUserLoggedIn) {
+        this.$store
+          .dispatch('getDemographicInfo')
+          .then(info => {
+            this.demographicInfo = { ...info };
+          })
+          .catch(() => {});
+      }
+    },
+    methods: {
+      handleCancelUpdateYourProfileModal() {
+        this.$store.dispatch('deferProfileUpdates', this.demographicInfo);
+        this.demographicInfo = null;
+      },
+      handleSubmitUpdateYourProfileModal() {
+        if (this.userPluginUrl) {
+          const redirect = () => redirectBrowser(`${this.userPluginUrl()}#/profile/edit`);
+          this.$store
+            .dispatch('deferProfileUpdates', this.demographicInfo)
+            .then(redirect, redirect);
+        }
+      },
+    },
     $trs: {
-      learnTitle: 'Learn',
       examReportTitle: '{examTitle} report',
-      searchTitle: 'Search',
       recommended: 'Recommended',
       documentTitleForPopular: 'Popular',
       documentTitleForResume: 'Resume',

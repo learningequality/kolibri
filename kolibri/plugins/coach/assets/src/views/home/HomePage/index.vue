@@ -9,21 +9,21 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <KGrid :gutter="16">
-      <KGridItem size="100" percentage>
+    <KGrid gutter="16">
+      <KGridItem>
         <OverviewBlock />
       </KGridItem>
-      <KGridItem sizes="100, 100, 50" percentage>
-        <KGrid :gutter="16">
-          <KGridItem size="100" percentage>
+      <KGridItem :layout12="{ span: 6 }">
+        <KGrid gutter="16">
+          <KGridItem>
             <QuizzesBlock />
           </KGridItem>
-          <KGridItem size="100" percentage>
+          <KGridItem>
             <LessonsBlock />
           </KGridItem>
         </KGrid>
       </KGridItem>
-      <KGridItem sizes="100, 100, 50" percentage>
+      <KGridItem :layout12="{ span: 6 }">
         <ActivityBlock />
       </KGridItem>
     </KGrid>

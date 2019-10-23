@@ -1,6 +1,9 @@
 <template>
 
   <div :style="{ backgroundColor: $themeTokens.primary }">
+
+    <SkipNavigationLink />
+
     <UiToolbar
       :title="title"
       type="clear"
@@ -24,11 +27,11 @@
       </UiIconButton>
 
       <img
-        v-if="$theme.appBar.topLogo"
+        v-if="$kolibriBranding.appBar.topLogo"
         slot="brand"
-        :src="$theme.appBar.topLogo.src"
-        :alt="$theme.appBar.topLogo.alt"
-        :style="$theme.appBar.topLogo.style"
+        :src="$kolibriBranding.appBar.topLogo.src"
+        :alt="$kolibriBranding.appBar.topLogo.alt"
+        :style="$kolibriBranding.appBar.topLogo.style"
         class="brand-logo"
       >
 
@@ -72,7 +75,7 @@
         >
           <template v-if="isUserLoggedIn" slot="header">
             <div class="role">
-              {{ $tr('userTypeLabel') }}
+              {{ coreString('userTypeLabel') }}
             </div>
             <div>
               <UserTypeDisplay
@@ -86,14 +89,10 @@
             <component :is="component" v-for="component in menuOptions" :key="component.name" />
             <CoreMenuOption
               :label="$tr('languageSwitchMenuOption')"
+              icon="language"
+              style="cursor: pointer;"
               @select="handleChangeLanguage"
-            >
-              <mat-svg
-                slot="icon"
-                name="language"
-                category="action"
-              />
-            </CoreMenuOption>
+            />
             <LogoutSideNavEntry v-if="isUserLoggedIn" />
           </template>
 
@@ -112,7 +111,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
@@ -121,8 +120,10 @@
   import UiButton from 'keen-ui/src/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+  import branding from 'kolibri.utils.branding';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
+  import SkipNavigationLink from './SkipNavigationLink';
 
   export default {
     name: 'AppBar',
@@ -134,8 +135,9 @@
       CoreMenuOption,
       LogoutSideNavEntry,
       UserTypeDisplay,
+      SkipNavigationLink,
     },
-    mixins: [navComponentsMixin, themeMixin],
+    mixins: [commonCoreStrings, navComponentsMixin],
     props: {
       title: {
         type: String,
@@ -164,6 +166,7 @@
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
+      this.$kolibriBranding = branding;
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
@@ -185,8 +188,7 @@
       },
     },
     $trs: {
-      openNav: 'Open site navigation menu',
-      userTypeLabel: 'User type',
+      openNav: 'Open site navigation',
       languageSwitchMenuOption: 'Change language',
       userMenu: 'User menu',
     },
@@ -212,10 +214,38 @@
     text-overflow: ellipsis;
   }
 
+  // Holdover from keen-ui to keep dropdown profile correctly formatted.
+  /deep/ .ui-menu {
+    min-width: 10.5rem;
+    max-width: 17rem;
+    max-height: 100vh;
+    padding: 0.25rem 0;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    list-style: none;
+    background-color: inherit;
+    border: 0.0625rem solid rgba(0, 0, 0, 0.08);
+    outline: none;
+  }
+
   .user-menu-dropdown {
     position: fixed;
     right: 0;
     z-index: 8;
+
+    // Holdover from previous CoreMenuOption format. Will keep the profile
+    // dropdown formatted correctly.
+    /deep/ .core-menu-option-content {
+      padding-right: 8px;
+      padding-left: 8px;
+      font-size: 0.9375rem;
+      color: black !important;
+    }
+
+    /deep/ svg {
+      fill: black !important;
+    }
   }
 
   .role {

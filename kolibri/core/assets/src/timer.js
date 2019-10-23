@@ -46,7 +46,7 @@ class Timer {
    * Start interval timer
    * @param {int} intervalTime
    * @param {function} intervalAction
-  */
+   */
   startTimer(intervalTime, intervalAction) {
     if (this.intervalTimer) {
       throw new Error('ERROR: Cannot have multiple timers running at the same time!');

@@ -31,15 +31,8 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KButton from 'kolibri.coreVue.components.KButton';
-
   export default {
     name: 'QuestionList',
-    components: {
-      KButton,
-    },
-    mixins: [themeMixin],
     props: {
       questions: {
         type: Array,
@@ -59,13 +52,12 @@
     methods: {
       buttonStyle(index) {
         return {
-          backgroundColor: index === this.selectedIndex ? this.$themeColors.palette.grey.v_300 : '',
+          backgroundColor: index === this.selectedIndex ? this.$themePalette.grey.v_300 : '',
         };
       },
     },
     $trs: {
       questionListHeader: '{numOfQuestions, number} Questions',
-      questionLabel: 'Question { questionNumber, number }',
     },
   };
 

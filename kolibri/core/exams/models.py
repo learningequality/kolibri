@@ -124,7 +124,7 @@ class Exam(AbstractFacilityDataModel):
     data_model_version = models.SmallIntegerField(default=2)
 
     def infer_dataset(self, *args, **kwargs):
-        return self.creator.dataset_id
+        return self.cached_related_dataset_lookup("creator")
 
     def calculate_partition(self):
         return self.dataset_id
@@ -160,7 +160,7 @@ class ExamAssignment(AbstractFacilityDataModel):
     )
 
     def infer_dataset(self, *args, **kwargs):
-        return self.assigned_by.dataset_id
+        return self.cached_related_dataset_lookup("assigned_by")
 
     def calculate_source_id(self):
         return "{exam_id}:{collection_id}".format(

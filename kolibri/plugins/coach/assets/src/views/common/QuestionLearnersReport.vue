@@ -30,7 +30,7 @@
           :style="{ backgroundColor: $themeTokens.surface }"
         >
           <KCheckbox
-            :label="coachCommon$tr('showCorrectAnswerLabel')"
+            :label="coreString('showCorrectAnswerLabel')"
             :checked="showCorrectAnswer"
             @change="toggleShowCorrectAnswer"
           />
@@ -40,7 +40,7 @@
             :selectedInteractionIndex="interactionIndex"
             @select="navigateToNewInteraction($event)"
           />
-          <ContentRenderer
+          <KContentRenderer
             v-if="currentInteraction"
             :itemId="currentLearner.item"
             :assessment="true"
@@ -64,26 +64,22 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import QuestionDetailLearnerList from './QuestionDetailLearnerList';
 
   export default {
     name: 'QuestionLearnersReport',
     components: {
-      ContentRenderer,
       QuestionDetailLearnerList,
       InteractionList,
-      KCheckbox,
       MultiPaneLayout,
       CoachContentLabel,
     },
-    mixins: [commonCoach, themeMixin],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         showCorrectAnswer: false,

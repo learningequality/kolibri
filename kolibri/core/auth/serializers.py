@@ -43,6 +43,9 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             "facility",
             "roles",
             "is_superuser",
+            "id_number",
+            "gender",
+            "birth_year",
         )
 
     def validate(self, attrs):
@@ -110,7 +113,7 @@ class FacilitySerializer(serializers.ModelSerializer):
 class PublicFacilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Facility
-        fields = ("dataset", "name")
+        fields = ("id", "dataset", "name")
 
 
 class ClassroomSerializer(serializers.ModelSerializer):

@@ -20,7 +20,7 @@
       />
     </a>
     <div v-if="draggable" class="handle">
-      <KDragSortWidget
+      <DragSortWidget
         :isFirst="isFirst"
         :isLast="isLast"
         :moveUpText="$tr('moveExerciseUp')"
@@ -36,18 +36,17 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import KDragSortWidget from 'kolibri.coreVue.components.KDragSortWidget';
+  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'AssessmentQuestionListItem',
     components: {
       CoachContentLabel,
-      KDragSortWidget,
+      DragSortWidget,
     },
-    mixins: [themeMixin, coachStringsMixin],
+    mixins: [coachStringsMixin],
     props: {
       draggable: {
         type: Boolean,
@@ -83,7 +82,7 @@
         if (this.questionNumberOfExercise === undefined) {
           return this.exerciseName;
         }
-        return this.$tr('nthExerciseName', {
+        return this.coachString('nthExerciseName', {
           name: this.exerciseName,
           number: this.questionNumberOfExercise,
         });
@@ -92,9 +91,7 @@
         return this.$computedClass({ ':focus': this.$coreOutline });
       },
       bgStyle() {
-        const color = this.isSelected
-          ? this.$themeColors.palette.grey.v_300
-          : this.$themeTokens.surface;
+        const color = this.isSelected ? this.$themePalette.grey.v_300 : this.$themeTokens.surface;
         return { backgroundColor: color };
       },
     },
@@ -104,10 +101,6 @@
       },
     },
     $trs: {
-      questionNum: 'Question {number, number, integer}:',
-      questionNumShort: '{number, number, integer}.',
-      preview: 'Preview',
-      view: 'View',
       moveExerciseUp: 'Move this exercise up by one position',
       moveExerciseDown: 'Move this exercise down by one position',
     },

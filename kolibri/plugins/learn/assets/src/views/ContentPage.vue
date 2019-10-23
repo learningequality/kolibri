@@ -13,43 +13,43 @@
       :value="content.coach_content ? 1 : 0"
       :isTopic="isTopic"
     />
+    <template v-if="sessionReady">
+      <KContentRenderer
+        v-if="!content.assessment"
+        class="content-renderer"
+        :kind="content.kind"
+        :lang="content.lang"
+        :files="content.files"
+        :available="content.available"
+        :extraFields="extraFields"
+        @sessionInitialized="setWasIncomplete"
+        @startTracking="startTracking"
+        @stopTracking="stopTracking"
+        @updateProgress="updateProgress"
+        @updateContentState="updateContentState"
+      />
 
-    <ContentRenderer
-      v-if="!content.assessment"
-      class="content-renderer"
-      :kind="content.kind"
-      :lang="content.lang"
-      :files="content.files"
-      :available="content.available"
-      :extraFields="extraFields"
-      :initSession="initSession"
-      @sessionInitialized="setWasIncomplete"
-      @startTracking="startTracking"
-      @stopTracking="stopTracking"
-      @updateProgress="updateProgress"
-      @updateContentState="updateContentState"
-    />
-
-    <AssessmentWrapper
-      v-else
-      :id="content.id"
-      class="content-renderer"
-      :kind="content.kind"
-      :files="content.files"
-      :lang="content.lang"
-      :randomize="content.randomize"
-      :masteryModel="content.masteryModel"
-      :assessmentIds="content.assessmentIds"
-      :channelId="channelId"
-      :available="content.available"
-      :extraFields="extraFields"
-      :initSession="initSession"
-      @sessionInitialized="setWasIncomplete"
-      @startTracking="startTracking"
-      @stopTracking="stopTracking"
-      @updateProgress="updateExerciseProgress"
-      @updateContentState="updateContentState"
-    />
+      <AssessmentWrapper
+        v-else
+        :id="content.id"
+        class="content-renderer"
+        :kind="content.kind"
+        :files="content.files"
+        :lang="content.lang"
+        :randomize="content.randomize"
+        :masteryModel="content.masteryModel"
+        :assessmentIds="content.assessmentIds"
+        :channelId="channelId"
+        :available="content.available"
+        :extraFields="extraFields"
+        @sessionInitialized="setWasIncomplete"
+        @startTracking="startTracking"
+        @stopTracking="stopTracking"
+        @updateProgress="updateExerciseProgress"
+        @updateContentState="updateContentState"
+      />
+    </template>
+    <KCircularLoader v-else />
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
     <!-- eslint-disable-next-line vue/no-v-html -->
@@ -108,7 +108,7 @@
         />
       </template>
       <template v-if="showRecommended">
-        <h2>{{ $tr('recommended') }}</h2>
+        <h2>{{ learnString('recommendedLabel') }}</h2>
         <ContentCardGroupCarousel
           :genContentLink="genContentLink"
           :header="recommendedText"
@@ -133,12 +133,10 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import markdownIt from 'markdown-it';
   import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
@@ -148,6 +146,7 @@
   import AssessmentWrapper from './AssessmentWrapper';
   import MasteredSnackbars from './MasteredSnackbars';
   import { lessonResourceViewerLink } from './classes/classPageLinks';
+  import commonLearnStrings from './commonLearnStrings';
 
   export default {
     name: 'ContentPage',
@@ -167,17 +166,17 @@
       CoachContentLabel,
       PageHeader,
       ContentCardGroupCarousel,
-      ContentRenderer,
       DownloadButton,
-      KPageContainer,
       AssessmentWrapper,
       MasteredSnackbars,
       UiIconButton,
     },
+    mixins: [commonLearnStrings],
     data() {
       return {
         wasIncomplete: false,
         licenceDescriptionIsVisible: false,
+        sessionReady: false,
       };
     },
     computed: {
@@ -216,7 +215,7 @@
         return '';
       },
       recommendedText() {
-        return this.$tr('recommended');
+        return this.learnString('recommendedLabel');
       },
       progress() {
         if (this.isUserLoggedIn) {
@@ -234,7 +233,7 @@
         );
       },
       downloadableFiles() {
-        return this.content.files.filter(file => file.preset !== 'Thumbnail');
+        return this.content.files.filter(file => !file.preset.endsWith('thumbnail'));
       },
       nextContentLink() {
         // HACK Use a the Resource Viewer Link instead
@@ -271,6 +270,15 @@
         return this.content.license_description;
       },
     },
+    created() {
+      return this.initSessionAction({
+        channelId: this.channelId,
+        contentId: this.contentId,
+        contentKind: this.content.kind,
+      }).then(() => {
+        this.sessionReady = true;
+      });
+    },
     beforeDestroy() {
       this.stopTracking();
     },
@@ -284,13 +292,6 @@
       }),
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
-      },
-      initSession() {
-        return this.initSessionAction({
-          channelId: this.channelId,
-          contentId: this.contentId,
-          contentKind: this.content.kind,
-        });
       },
       updateProgress(progressPercent, forceSave = false) {
         this.updateProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
@@ -315,7 +316,6 @@
       },
     },
     $trs: {
-      recommended: 'Recommended',
       author: 'Author: {author}',
       license: 'License: {license}',
       toggleLicenseDescription: 'Toggle license description',

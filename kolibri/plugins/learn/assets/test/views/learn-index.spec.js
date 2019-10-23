@@ -38,7 +38,7 @@ function getElements(wrapper) {
     classesLink: () => wrapper.find('[href="#/classes"]'),
     recommendedLink: () => wrapper.find('[href="#/recommended"]'),
     topicsLink: () => wrapper.find('[href="#/topics"]'),
-    tabLinks: () => wrapper.findAll({ name: 'KNavbarLink' }),
+    tabLinks: () => wrapper.findAll({ name: 'NavbarLink' }),
     CoreBase: () => wrapper.find({ name: 'CoreBase' }),
   };
 }
