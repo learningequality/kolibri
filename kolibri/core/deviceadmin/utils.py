@@ -43,7 +43,10 @@ def get_dtm_from_backup_name(fname):
     p = re.compile(r"^db\-v[^_]+_(?P<dtm>[\d\-_]+).*\.dump$")
     m = p.search(fname)
     if m:
-        return m.groups("dtm")[0]
+        label = m.groups("dtm")[0]
+        date = label.split("_")[0]
+        time = label.split("_")[1]
+        return "{date} {time}".format(date=date, time=time.replace("-", ":"))
     raise ValueError(
         "Tried to get date component of unparsed filename: {}".format(fname)
     )
