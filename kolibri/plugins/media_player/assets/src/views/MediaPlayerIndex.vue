@@ -60,7 +60,7 @@
         </template>
       </audio>
 
-      <MediaPlayerTranscript ref="transcript" />
+      <MediaPlayerTranscript v-if="transcript" ref="transcript" />
     </div>
   </MediaPlayerFullscreen>
 
@@ -467,7 +467,6 @@
     box-sizing: content-box;
     max-width: 100%;
     max-height: 562px;
-    transition: padding-bottom $core-time ease;
   }
 
   .wrapper.transcript-visible.transcript-wrap {
@@ -540,11 +539,6 @@
   /* !!rtl:begin:ignore */
 
   @import './videojs-style/variables';
-
-  .video-js.vjs-fill {
-    z-index: 1;
-    transition: width $core-time ease;
-  }
 
   .transcript-visible:not(.transcript-wrap) > .video-js.vjs-fill {
     width: 66.666%;
@@ -669,10 +663,6 @@
     /* Transcript button */
     .vjs-button-transcript img {
       max-width: 20px;
-    }
-
-    .vjs-transcript-visible > .vjs-transcript {
-      display: block;
     }
 
     .vjs-transcript-visible > .vjs-tech,
