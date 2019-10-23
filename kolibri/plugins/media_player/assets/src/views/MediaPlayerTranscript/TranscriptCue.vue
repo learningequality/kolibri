@@ -41,7 +41,6 @@
 
   export default {
     name: 'TranscriptCue',
-
     props: {
       cue: Object,
       mediaDuration: Number,
@@ -51,22 +50,18 @@
         default: false,
       },
     },
-
     computed: {
       dir() {
         return getLangDir(this.langCode);
       },
-
       speaker() {
         return this.cue.text.match(SPEAKER_REGEX)
           ? this.cue.text.replace(SPEAKER_REGEX, '$1')
           : null;
       },
-
       startTime() {
         return videojs.formatTime(this.cue.startTime, this.mediaDuration);
       },
-
       style() {
         const activeStyles = this.active
           ? {
@@ -82,24 +77,20 @@
           ':focus': this.$coreOutline,
         });
       },
-
       text() {
         return this.cue.text.replace(SPEAKER_REGEX, '');
       },
-
       textStyle() {
         return {
           'border-color': this.$themeTokens.fineLine,
         };
       },
-
       timeStyle() {
         return {
           color: this.$themeTokens.annotation,
         };
       },
     },
-
     methods: {
       triggerSeekEvent() {
         this.$emit('seek', this.cue.startTime);
@@ -107,21 +98,18 @@
           preventScroll: true,
         });
       },
-
       /**
        * @public
        */
       duration() {
         return this.cue.endTime - this.cue.startTime;
       },
-
       /**
        * @public
        */
       height() {
         return this.$el.offsetHeight;
       },
-
       /**
        * @public
        */

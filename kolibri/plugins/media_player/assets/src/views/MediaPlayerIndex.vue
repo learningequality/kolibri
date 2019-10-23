@@ -75,11 +75,9 @@
   import throttle from 'lodash/throttle';
 
   import { languageIdToCode } from 'kolibri.utils.i18n';
-  // import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  // import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   import Settings from '../utils/settings';
   import { ReplayButton, ForwardButton } from './customButtons';
@@ -108,13 +106,7 @@
 
     components: { MediaPlayerFullscreen, MediaPlayerTranscript },
 
-    mixins: [
-      commonCoreStrings,
-      responsiveWindowMixin,
-      responsiveElementMixin,
-      // contentRendererMixin,
-      // themeMixin,
-    ],
+    mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin],
 
     data: () => ({
       dummyTime: 0,

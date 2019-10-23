@@ -14,17 +14,13 @@
 
   export default {
     name: 'MediaPlayerFullscreen',
-
     components: { CoreFullscreen },
-
     data: () => ({
       registered: false,
     }),
-
     computed: {
       ...mapState('mediaPlayer', ['player']),
     },
-
     watch: {
       player(player) {
         if (!player || this.registered) {
@@ -42,7 +38,6 @@
         this.registered = true;
       },
     },
-
     methods: {
       handleChangeFullscreen(isFullscreen) {
         this.$emit('changeFullscreen', isFullscreen);

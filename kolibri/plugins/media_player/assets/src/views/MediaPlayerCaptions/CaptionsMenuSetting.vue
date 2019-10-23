@@ -39,7 +39,6 @@
 
   export default {
     name: 'CaptionsMenuSetting',
-
     props: {
       title: {
         type: String,
@@ -54,7 +53,6 @@
         required: true,
       },
     },
-
     computed: {
       buttonStyle() {
         return {

@@ -24,7 +24,6 @@
 
   export default {
     name: 'CaptionsMenuItem',
-
     props: {
       label: {
         type: String,
@@ -35,14 +34,12 @@
         required: true,
       },
     },
-
     computed: {
       ...mapState('mediaPlayer/captions', ['language']),
       selected() {
         return this.language === this.value;
       },
     },
-
     methods: {
       ...mapActions('mediaPlayer/captions', ['setLanguage']),
     },

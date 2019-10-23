@@ -51,34 +51,27 @@
 
   export default {
     name: 'MediaPlayerTranscript',
-
     components: { TranscriptCue },
-
     data: () => ({
       langCode: null,
       hovering: false,
       nextScroll: null,
       scrollThrottle: null,
     }),
-
     computed: {
       ...mapState('mediaPlayer', ['player']),
       ...mapState('mediaPlayer/captions', ['transcript', 'language']),
       ...mapGetters('mediaPlayer/captions', ['cues', 'activeCueIds']),
-
       showing() {
         return this.player && this.transcript && this.cues.length;
       },
-
       mediaDuration() {
         return this.player ? this.player.duration() : 0;
       },
-
       capStyle() {
         return { color: this.$themeTokens.annotation };
       },
     },
-
     watch: {
       activeCueIds(newActiveCueIds) {
         if (!newActiveCueIds || !newActiveCueIds.length || !Object.keys(this.$refs).length) {
@@ -109,7 +102,6 @@
 
         this.scrollTo(offsetTop, offsetBottom, duration);
       },
-
       hovering(isHovering) {
         if (!isHovering && this.nextScroll) {
           const { offsetTop, offsetBottom, duration, start } = this.nextScroll;
@@ -120,12 +112,10 @@
         }
       },
     },
-
     methods: {
       handleSeekEvent(cueTime) {
         this.player.currentTime(cueTime);
       },
-
       scrollTo(offsetTop, offsetBottom, duration) {
         const start = new Date().getTime();
 
@@ -180,7 +170,6 @@
 
         this.$nextTick(this.scrollThrottle);
       },
-
       /**
        * @param {Function} callback
        * @return {Function}

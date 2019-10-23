@@ -60,18 +60,14 @@
 
   export default {
     name: 'CaptionsMenu',
-
     components: { CaptionsMenuSetting },
-
     data: function() {
       return {
         open: false,
-
         isKindOpen: false,
         isLanguageOpen: false,
       };
     },
-
     computed: {
       ...mapState('mediaPlayer/captions', ['subtitles', 'transcript']),
       ...mapGetters('mediaPlayer/captions', ['languageLabel']),
@@ -80,7 +76,6 @@
         return kindNames.length ? kindNames.join(', ') : this.$tr('none');
       },
     },
-
     watch: {
       open(open) {
         if (!open) {
@@ -89,10 +84,8 @@
         }
       },
     },
-
     methods: {
       ...mapActions('mediaPlayer/captions', ['toggleSubtitles', 'toggleTranscript']),
-
       /**
        * @public
        * @return {Element}
@@ -100,21 +93,18 @@
       contentEl() {
         return this.$refs.contentEl;
       },
-
       /**
        * @public
        */
       show() {
         this.open = true;
       },
-
       /**
        * @public
        */
       hide() {
         this.open = false;
       },
-
       /**
        * @public
        * @return {boolean}
