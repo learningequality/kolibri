@@ -103,11 +103,8 @@
 
   export default {
     name: 'MediaPlayerIndex',
-
     components: { MediaPlayerFullscreen, MediaPlayerTranscript },
-
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin],
-
     data: () => ({
       dummyTime: 0,
       progressStartingPoint: 0,
@@ -120,7 +117,6 @@
       updateContentStateInterval: null,
       isFullscreen: false,
     }),
-
     computed: {
       ...mapState('mediaPlayer/captions', {
         transcript: state => state.transcript,
@@ -328,20 +324,16 @@
       throttledResizePlayer: throttle(function resizePlayer() {
         this.resizePlayer();
       }, 300),
-
       throttledUpdateVolume: throttle(function updateVolume() {
         this.updateVolume();
       }, 1000),
-
       updateVolume() {
         this.settings.playerVolume = this.player.volume();
         this.settings.playerMuted = this.player.muted();
       },
-
       updateRate() {
         this.settings.playerRate = this.player.playbackRate();
       },
-
       useSavedSettings() {
         this.playerVolume = this.settings.playerVolume;
         this.playerMuted = this.settings.playerMuted;
@@ -350,7 +342,6 @@
         this.player.muted(this.playerMuted);
         this.player.playbackRate(this.playerRate);
       },
-
       focusOnPlayControl() {
         this.$refs.wrapper.getElementsByClassName('vjs-play-control')[0].focus();
       },
@@ -414,7 +405,6 @@
           this.player.addClass('player-tiny');
         }
       },
-
       updateContentState() {
         const currentLocation = this.player.currentTime();
         let contentState;
