@@ -57,7 +57,7 @@ def mock_status_not_running():
 
 def test_latest():
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(CommandError):
         call_command("dbrestore", "-l")
 
 
@@ -96,7 +96,7 @@ def test_inactive_kolibri():
         "kolibri.utils.server.get_status", side_effect=mock_status_not_running
     ) as gs:
         # Since there's no backups available during a test, this should fail!
-        with pytest.raises(RuntimeError):
+        with pytest.raises(CommandError):
             call_command("dbrestore", "-l")
             gs.assert_called_once()
 
