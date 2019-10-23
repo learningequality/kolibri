@@ -18,7 +18,7 @@
       />
     </transition>
 
-    <KPageContainer>
+    <KPageContainer :style="containerStyles">
       <router-view />
     </KPageContainer>
   </CoreBase>
@@ -51,6 +51,15 @@
         'immersivePageRoute',
         'inContentManagementPage',
       ]),
+      containerStyles() {
+        // Need to override overflow rule for setting page
+        if (this.$route.name === PageNames.DEVICE_SETTINGS_PAGE) {
+          return {
+            overflowX: 'inherit',
+          };
+        }
+        return {};
+      },
       currentPageAppBarTitle() {
         if (this.pageName === PageNames.USER_PERMISSIONS_PAGE) {
           return this.$tr('permissionsLabel');
