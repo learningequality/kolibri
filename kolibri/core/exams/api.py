@@ -6,7 +6,6 @@ from rest_framework import viewsets
 
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
-from kolibri.core.logger.models import ExamLog
 from kolibri.core.exams import models
 from kolibri.core.exams import serializers
 
