@@ -12,10 +12,12 @@ from importlib import import_module
 from django.utils.module_loading import module_has_submodule
 from six import with_metaclass
 
+from kolibri import INTERNAL_PLUGINS
 from kolibri.utils.conf import KOLIBRI_HOME
 
 
 logger = logging.getLogger(__name__)
+
 
 try:
     # The default list for this is populated from build_tools/default_plugins.txt
@@ -26,22 +28,7 @@ try:
 
     DEFAULT_PLUGINS = plugins
 except ImportError:
-    DEFAULT_PLUGINS = [
-        "kolibri.plugins.facility",
-        "kolibri.plugins.device",
-        "kolibri.plugins.learn",
-        "kolibri.plugins.pdf_viewer",
-        "kolibri.plugins.html5_viewer",
-        "kolibri.plugins.media_player",
-        "kolibri.plugins.setup_wizard",
-        "kolibri.plugins.coach",
-        "kolibri.plugins.user",
-        "kolibri_exercise_perseus_plugin",
-        "kolibri.plugins.style_guide",
-        "kolibri.plugins.epub_viewer",
-        "kolibri.plugins.default_theme",
-        "kolibri.plugins.slideshow_viewer",
-    ]
+    DEFAULT_PLUGINS = INTERNAL_PLUGINS + ["kolibri_exercise_perseus_plugin"]
 
 conf_file = os.path.join(KOLIBRI_HOME, "plugins.json")
 
