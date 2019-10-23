@@ -52,8 +52,6 @@
       },
     },
 
-    data: () => ({}),
-
     computed: {
       dir() {
         return getLangDir(this.langCode);
