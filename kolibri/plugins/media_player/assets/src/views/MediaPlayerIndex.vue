@@ -13,6 +13,7 @@
       :class="[
         'wrapper',
         {
+          'video-loading': loading,
           'transcript-visible': transcript,
           'transcript-wrap': windowIsPortrait || (!isFullscreen && windowIsSmall),
         },
@@ -60,7 +61,7 @@
         </template>
       </audio>
 
-      <MediaPlayerTranscript v-if="transcript" ref="transcript" />
+      <MediaPlayerTranscript v-if="!loading && transcript" ref="transcript" />
     </div>
   </MediaPlayerFullscreen>
 
@@ -462,6 +463,7 @@
 
   $transcript-wrap-height: 250px;
   $transcript-wrap-fill-height: 100% * 9 / 16;
+  $video-height: 100% * 9 / 16;
 
   .wrapper {
     box-sizing: content-box;
@@ -473,19 +475,27 @@
     padding-bottom: $transcript-wrap-height;
   }
 
-  .fill-space {
+  .wrapper.video-loading video {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.1;
+  }
+
+  /deep/ .fill-space {
     position: relative;
     width: 100%;
     height: 100%;
     border: 1px solid transparent;
   }
 
-  .loading-space {
+  /deep/ .loading-space {
     box-sizing: border-box;
-    padding-top: calc(100% * 9 / 16);
+    padding-top: #{$video-height};
   }
 
-  .loader {
+  /deep/ .loader {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -498,16 +508,28 @@
     bottom: 0;
     z-index: 0;
     box-sizing: border-box;
+
+    /deep/ .fill-space {
+      height: auto;
+    }
   }
 
   .wrapper:not(.transcript-wrap) .media-player-transcript {
     top: 0;
     width: 33.333%;
+
+    /deep/ .loading-space {
+      padding-top: #{300% * 9 / 16};
+    }
   }
 
   .wrapper.transcript-wrap .media-player-transcript {
     left: 0;
     height: $transcript-wrap-height;
+
+    /deep/ .loading-space {
+      padding-top: 90px;
+    }
   }
 
   .normalize-fullscreen,
@@ -525,12 +547,12 @@
     .wrapper.transcript-visible.transcript-wrap .media-player-transcript {
       top: 0;
       height: auto;
-      margin-top: #{$transcript-wrap-fill-height};
+      margin-top: #{$video-height};
     }
 
     .wrapper.transcript-visible.transcript-wrap .video-js.vjs-fill {
       height: auto;
-      padding-top: #{$transcript-wrap-fill-height};
+      padding-top: #{$video-height};
     }
   }
 

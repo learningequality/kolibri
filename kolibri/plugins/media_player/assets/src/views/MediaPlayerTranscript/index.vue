@@ -15,6 +15,7 @@
     </div>
 
     <div
+      v-show="cues.length"
       class="transcript-cap"
       :style="capStyle"
     >
@@ -32,6 +33,7 @@
       />
     </template>
     <div
+      v-show="cues.length"
       class="transcript-cap"
       :style="capStyle"
     >
