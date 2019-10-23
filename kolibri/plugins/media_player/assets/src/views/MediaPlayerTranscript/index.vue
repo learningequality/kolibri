@@ -45,8 +45,6 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import { throttle } from 'frame-throttle';
 
   import TranscriptCue from './TranscriptCue';
@@ -54,9 +52,7 @@
   export default {
     name: 'MediaPlayerTranscript',
 
-    components: { TranscriptCue, KCircularLoader },
-
-    mixins: [themeMixin],
+    components: { TranscriptCue },
 
     data: () => ({
       langCode: null,

@@ -54,8 +54,6 @@
 <script>
 
   import { mapState, mapActions, mapGetters } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import CaptionsMenuSetting from './CaptionsMenuSetting';
 
   const KINDS = ['subtitles', 'transcript'];
@@ -63,8 +61,7 @@
   export default {
     name: 'CaptionsMenu',
 
-    components: { KCheckbox, CaptionsMenuSetting },
-    mixins: [themeMixin],
+    components: { CaptionsMenuSetting },
 
     data: function() {
       return {
@@ -129,7 +126,6 @@
     $trs: {
       format: 'Format',
       language: 'Language',
-      languages: 'Languages',
       subtitles: 'Subtitles',
       transcript: 'Transcript',
       none: 'None',

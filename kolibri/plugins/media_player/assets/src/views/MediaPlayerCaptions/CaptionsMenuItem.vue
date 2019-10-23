@@ -21,12 +21,9 @@
 <script>
 
   import { mapActions, mapState } from 'vuex';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
   export default {
     name: 'CaptionsMenuItem',
-
-    components: { KRadioButton },
 
     props: {
       label: {

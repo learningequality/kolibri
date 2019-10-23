@@ -37,14 +37,8 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KButton from 'kolibri.coreVue.components.KButton';
-
   export default {
     name: 'CaptionsMenuSetting',
-
-    components: { KButton },
-    mixins: [themeMixin],
 
     props: {
       title: {

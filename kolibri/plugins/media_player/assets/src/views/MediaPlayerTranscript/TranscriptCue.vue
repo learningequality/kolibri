@@ -35,15 +35,12 @@
 <script>
 
   import videojs from 'video.js';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { getLangDir } from 'kolibri.utils.i18n';
 
   const SPEAKER_REGEX = /<v ([^>]+)>/i;
 
   export default {
     name: 'TranscriptCue',
-
-    mixins: [themeMixin],
 
     props: {
       cue: Object,
@@ -75,14 +72,14 @@
       style() {
         const activeStyles = this.active
           ? {
-              backgroundColor: this.$themeColors.palette.grey.v_300,
+              backgroundColor: this.$themePalette.grey.v_300,
               borderLeftColor: this.$themeTokens.video,
             }
           : {};
 
         return Object.assign(activeStyles, {
           ':hover': {
-            backgroundColor: this.$themeColors.palette.grey.v_200,
+            backgroundColor: this.$themePalette.grey.v_200,
           },
           ':focus': this.$coreOutline,
         });
