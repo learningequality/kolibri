@@ -103,6 +103,9 @@
     },
     computed: {
       ...mapState(['classList']),
+      // Removing the classSummary groupMap state mapping breaks things.
+      // Maybe it should live elsewhere?
+      /* eslint-disable-next-line kolibri/vue-no-unused-vuex-properties */
       ...mapState('classSummary', ['groupMap']),
       selectedQuestions() {
         return this.quiz.question_sources;
@@ -119,11 +122,6 @@
       recipients() {
         return this.getLearnersForExam(this.exam);
       },
-      questionOrderValueString() {
-        return this.quizIsRandomized
-          ? this.coachString('orderRandomLabel')
-          : this.coachString('orderFixedLabel');
-      },
       orderDescriptionString() {
         return this.quizIsRandomized
           ? this.coachString('orderRandomDescription')
@@ -131,17 +129,6 @@
       },
       classId() {
         return this.$route.params.classId;
-      },
-      learnerGroupNames() {
-        const names = [];
-        const { assignments = [] } = this.quiz;
-        assignments.forEach(({ collection }) => {
-          const match = this.groupMap[collection];
-          if (match) {
-            return names.push(match.name);
-          }
-        });
-        return names;
       },
     },
     beforeRouteEnter(to, from, next) {
@@ -167,13 +154,6 @@
         this.$store.dispatch('handleApiError', error);
         this.loading = false;
         this.$store.dispatch('notLoading');
-      },
-      setCurrentAction(action) {
-        if (action === 'EDIT_DETAILS') {
-          this.$router.push(this.$router.getRoute('QuizEditDetailsPage'));
-        } else {
-          this.currentAction = action;
-        }
       },
       closeModal() {
         this.currentAction = '';

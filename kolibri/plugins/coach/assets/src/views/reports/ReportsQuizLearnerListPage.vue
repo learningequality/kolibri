@@ -32,15 +32,17 @@
             <StatusSimple
               :status="tableRow.statusObj.status"
             />
-            <div v-if="tableRow.statusObj.status === STATUSES.completed" class="small-answered-count">
-
+            <div
+              v-if="tableRow.statusObj.status === STATUSES.completed"
+              class="small-answered-count"
+            >
               {{
                 completedQuestionsCountLabel(tableRow.statusObj.num_answered, exam.question_count)
               }}
             </div>
           </td>
           <td v-else>
-            <KLabeledIcon >
+            <KLabeledIcon>
               <KIcon slot="icon" :color="$themeTokens.progress" icon="inProgress" />
               {{
                 $tr('questionsCompletedRatioLabel',
