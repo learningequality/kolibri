@@ -120,7 +120,6 @@ export default {
     },
     windowHeight() {
       this._updateOrientation();
-      this.windowIsShort = this.windowHeight < 600;
     },
   },
   computed: {
