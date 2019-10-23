@@ -71,27 +71,10 @@ class ExamViewset(viewsets.ModelViewSet):
             ).update(completion_timestamp=now())
 
         if not was_archived and serializer.instance.archive:
-            exam_assignments = models.ExamAssignment.objects.filter(
-                exam_id=serializer.instance.id
-            )
-            memberships = Membership.objects.filter(
-                collection_id__in=[e.collection_id for e in exam_assignments]
-            )
-            learners = FacilityUser.objects.filter(
-                id__in=[m.user_id for m in memberships]
-            )
+            # It was not archived (closed), but now it is - so we close all ExamLogs
             existing_exam_log_learner_ids = ExamLog.objects.filter(
                 exam_id=serializer.instance.id
-            ).values_list("user_id", flat=True)
-            for learner in learners:
-                if learner.id not in existing_exam_log_learner_ids:
-                    ExamLog.objects.create(
-                        closed=True,
-                        exam_id=serializer.instance.id,
-                        user_id=learner.id,
-                        completion_timestamp=serializer.instance.date_archived,
-                        dataset_id=serializer.instance.dataset_id,
-                    )
+            ).update(closed=True)
 
 
 class ExamAssignmentViewset(viewsets.ModelViewSet):

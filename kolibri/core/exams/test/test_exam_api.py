@@ -157,53 +157,44 @@ class ExamAPITestCase(APITestCase):
             models.Exam.objects.get(id=self.exam.id).title, "updated title"
         )
 
-    def test_create_exam_logs_when_exam_is_closed(self):
+    def test_close_exam_logs_when_exam_is_closed(self):
         self.login_as_admin()
         group = LearnerGroup.objects.create(name="test", parent=self.facility)
 
+        import datetime
+
+        EXAM_LOGS = 0
         for i in range(10):
             user = FacilityUser.objects.create(
                 username="u{}".format(i), facility=self.facility
             )
-            # Be sure to pretend a user has taken the quiz already to be
-            # sure the code actually works properly
-            if i == 1:
-                user_who_takes_the_exam_already = user
-            else:
-                group.add_learner(user)
 
-        exam_logs = ExamLog.objects.filter(exam_id=self.exam.id)
-        models.ExamAssignment.objects.create(
-            exam=self.exam, collection=group, assigned_by=self.admin
-        )
-        assigned_collection_ids = models.ExamAssignment.objects.filter(
-            exam_id=self.exam.id
-        ).values_list("collection_id", flat=True)
-        learner_ids = Membership.objects.filter(collection_id=group.id).values_list(
-            "user_id", flat=True
-        )
-        self.assertNotEquals(len(learner_ids), len(exam_logs))
+            # Add the user to the learner group
+            group.add_learner(user)
 
-        # Now - lets make an ExamLog to pretend someone has taken the quiz.
-        import datetime
+            # Half of the students will _start_ the exam, half won't. So we will have
+            # 5 ExamLogs for this exam.
+            if i <= 5:
+                ExamLog.objects.create(
+                    closed=False,
+                    exam_id=self.exam.id,
+                    user_id=user.id,
+                    completion_timestamp=datetime.datetime.now(),
+                    dataset_id=self.exam.dataset_id,
+                )
+                EXAM_LOGS = EXAM_LOGS + 1
 
-        ExamLog.objects.create(
-            closed=False,
-            exam_id=self.exam.id,
-            user_id=user_who_takes_the_exam_already.id,
-            completion_timestamp=datetime.datetime.now(),
-            dataset_id=self.exam.dataset_id,
-        )
-        # Be sure the learner who takes the quiz is in the group
-        group.add_learner(user_who_takes_the_exam_already)
-        # Now get the learner IDs again fresh
-        learner_ids = Membership.objects.filter(collection_id=group.id).values_list(
-            "user_id", flat=True
-        )
+        open_exam_logs = ExamLog.objects.filter(exam_id=self.exam.id, closed=False)
+        # Make sure that the open exams in the DB match that which we counted above.
+        self.assertEquals(EXAM_LOGS, len(open_exam_logs))
+
         # Finally - make the request.
         response = self.put_updated_exam(self.exam.id, {"archive": True})
         exam_logs = ExamLog.objects.filter(exam_id=self.exam.id)
-        self.assertEquals(len(learner_ids), len(exam_logs))
+        closed_exam_logs = ExamLog.objects.filter(exam_id=self.exam.id, closed=True)
+        # No new ExamLogs made - but all that were made previously are closed.
+        self.assertEquals(len(closed_exam_logs), len(exam_logs))
+        self.assertEquals(EXAM_LOGS, len(closed_exam_logs))
 
     def test_logged_in_user_exam_no_update(self):
         self.login_as_learner()
