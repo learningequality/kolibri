@@ -1,53 +1,45 @@
 <template>
 
   <div>
-    <template v-if="canManageContent">
-      <SelectTransferSourceModal :pageName="pageName" />
+    <SelectTransferSourceModal :pageName="pageName" />
 
-      <div>
-        <TaskProgress
-          v-if="activeTaskList[0]"
-          v-bind="activeTaskList[0]"
-          @cleartask="clearCompletedTasks"
-          @canceltask="cancelRunningTask(activeTaskList[0].id)"
-        />
+    <div>
+      <TaskProgress
+        v-if="activeTaskList[0]"
+        v-bind="activeTaskList[0]"
+        @cleartask="clearCompletedTasks"
+        @canceltask="cancelRunningTask(activeTaskList[0].id)"
+      />
 
-        <KGrid>
-          <KGridItem
-            :layout8="{ span: 4 }"
-            :layout12="{ span: 6 }"
-          >
-            <h1>{{ coreString('channelsLabel') }}</h1>
-          </KGridItem>
-          <KGridItem
-            v-if="!activeTaskList.length"
-            :layout8="{ span: 4, alignment: 'right' }"
-            :layout12="{ span: 6, alignment: 'right' }"
-          >
-            <KButton
-              :text="$tr('import')"
-              :primary="true"
-              @click="startImportWorkflow()"
-            />
-            <KButton
-              v-if="deviceHasChannels"
-              :text="$tr('export')"
-              class="flush-right"
-              @click="startExportWorkflow()"
-            />
-          </KGridItem>
-        </KGrid>
+      <KGrid>
+        <KGridItem
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+        >
+          <h1>{{ coreString('channelsLabel') }}</h1>
+        </KGridItem>
+        <KGridItem
+          v-if="!activeTaskList.length"
+          :layout8="{ span: 4, alignment: 'right' }"
+          :layout12="{ span: 6, alignment: 'right' }"
+        >
+          <KButton
+            :text="$tr('import')"
+            :primary="true"
+            @click="startImportWorkflow()"
+          />
+          <KButton
+            v-if="deviceHasChannels"
+            :text="$tr('export')"
+            class="flush-right"
+            @click="startExportWorkflow()"
+          />
+        </KGridItem>
+      </KGrid>
 
-        <ChannelsGrid />
+      <ChannelsGrid />
 
-      </div>
-    </template>
-
-    <AuthMessage
-      v-else
-      :details="$tr('noAccessDetails')"
-    />
-
+    </div>
   </div>
 
 </template>
@@ -56,7 +48,6 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import ChannelsGrid from './ChannelsGrid';
@@ -71,14 +62,12 @@
       };
     },
     components: {
-      AuthMessage,
       ChannelsGrid,
       SelectTransferSourceModal,
       TaskProgress,
     },
     mixins: [commonCoreStrings],
     computed: {
-      ...mapGetters(['canManageContent']),
       ...mapGetters('manageContent', ['activeTaskList']),
       ...mapState('manageContent/wizard', ['pageName']),
       ...mapState('manageContent', {
@@ -113,8 +102,6 @@
     $trs: {
       import: 'Import',
       export: 'Export',
-      noAccessDetails:
-        'You must be signed in as a superuser or have content management permissions to view this page',
       documentTitle: 'Manage Device Channels',
     },
   };

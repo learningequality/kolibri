@@ -9,11 +9,12 @@ import {
 import { ContentWizardPages } from '../constants';
 import AvailableChannelsPage from '../views/AvailableChannelsPage';
 import SelectContentPage from '../views/SelectContentPage';
+import withAuthMessage from '../views/withAuthMessage';
 
 export default [
   {
     name: ContentWizardPages.AVAILABLE_CHANNELS,
-    component: AvailableChannelsPage,
+    component: withAuthMessage(AvailableChannelsPage, 'contentManager'),
     path: '/content/channels',
     handler: ({ query }) => {
       return showAvailableChannelsPage(store, {
@@ -25,7 +26,7 @@ export default [
   },
   {
     name: ContentWizardPages.SELECT_CONTENT,
-    component: SelectContentPage,
+    component: withAuthMessage(SelectContentPage, 'contentManager'),
     path: '/content/channels/:channel_id',
     handler: toRoute => {
       const { query, params } = toRoute;
