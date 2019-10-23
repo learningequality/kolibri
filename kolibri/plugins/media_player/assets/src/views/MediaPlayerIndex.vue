@@ -169,6 +169,11 @@
         };
       },
     },
+    watch: {
+      isFullscreen() {
+        this.resizePlayer();
+      },
+    },
     created() {
       this.settings = new Settings({
         playerVolume: this.playerVolume,
@@ -313,7 +318,7 @@
       },
       resizePlayer() {
         if (this.isFullscreen) {
-          this.$refs.wrapper.style.height = `100vh`;
+          this.$refs.wrapper.style.height = `100%`;
           return;
         }
 
