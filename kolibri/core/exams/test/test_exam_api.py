@@ -8,8 +8,6 @@ from rest_framework.test import APITestCase
 
 from .. import models
 from kolibri.core import error_constants
-from kolibri.core.auth.models import Collection
-from kolibri.core.auth.models import Membership
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
@@ -189,7 +187,7 @@ class ExamAPITestCase(APITestCase):
         self.assertEquals(EXAM_LOGS, len(open_exam_logs))
 
         # Finally - make the request.
-        response = self.put_updated_exam(self.exam.id, {"archive": True})
+        self.put_updated_exam(self.exam.id, {"archive": True})
         exam_logs = ExamLog.objects.filter(exam_id=self.exam.id)
         closed_exam_logs = ExamLog.objects.filter(exam_id=self.exam.id, closed=True)
         # No new ExamLogs made - but all that were made previously are closed.

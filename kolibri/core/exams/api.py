@@ -6,7 +6,6 @@ from rest_framework import viewsets
 
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
-from kolibri.core.auth.models import Collection, FacilityUser, Membership
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.exams import models
 from kolibri.core.exams import serializers
@@ -72,9 +71,7 @@ class ExamViewset(viewsets.ModelViewSet):
 
         if not was_archived and serializer.instance.archive:
             # It was not archived (closed), but now it is - so we close all ExamLogs
-            existing_exam_log_learner_ids = ExamLog.objects.filter(
-                exam_id=serializer.instance.id
-            ).update(closed=True)
+            serializer.instance.examlogs.update(closed=True)
 
 
 class ExamAssignmentViewset(viewsets.ModelViewSet):
