@@ -13,7 +13,7 @@ Feature: Coach reviews learner reports for quizzes
         And I see the *Progress* and *Score* columns for each learner
 
     Scenario: Report has the average score
-      Given that <quiz> has at least one learner who started or completed it
+      Given that <quiz> has at least one learner who completed it
         When I look high level summary
         Then I see the *Average score* reports just the average of those learners' scores
 
@@ -68,7 +68,9 @@ Feature: Coach reviews learner reports for quizzes
   Scenario: A learner has completed a quiz
     When a learner has completed the <quiz>
     Then their *Progress* column says *Completed*
+      And their *Progress* column says *N questions answered* or *All questions answered*
       And their *Score* column shows the final score
+
 
 Examples:
 | class    | quiz    | group  | question |
