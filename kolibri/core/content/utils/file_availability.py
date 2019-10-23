@@ -13,6 +13,23 @@ from kolibri.core.content.utils.paths import get_file_checksums_url
 checksum_regex = re.compile("^([a-f0-9]{32})$")
 
 
+def _filter_checksums_by_channel(checksums, channel_id):
+    """
+    Helper function to filter checksums received to what is actually used by our
+    copy of the channel. Used by both module methods, as for a disk based import
+    there could be many files present that are not part of the channel, and for
+    remote import, the remote channel might be a different version and hence
+    have different local files associated with it.
+    """
+    return list(
+        set(
+            LocalFile.objects.filter(
+                files__contentnode__channel_id=channel_id
+            ).values_list("id", flat=True)
+        ).intersection(set(checksums))
+    )
+
+
 def get_available_checksums_from_remote(channel_id, baseurl):
     CACHE_KEY = "PEER_AVAILABLE_CHECKSUMS_{baseurl}_{channel_id}".format(
         baseurl=baseurl, channel_id=channel_id
@@ -26,17 +43,25 @@ def get_available_checksums_from_remote(channel_id, baseurl):
         if response.status_code == 200:
             try:
                 checksums = json.loads(response.content)
+
                 # Filter to avoid passing in bad checksums
-                checksums = [
-                    checksum for checksum in checksums if checksum_regex.match(checksum)
-                ]
+                checksums = _filter_checksums_by_channel(
+                    [
+                        checksum
+                        for checksum in checksums
+                        if checksum_regex.match(checksum)
+                    ],
+                    channel_id,
+                )
                 cache.set(CACHE_KEY, checksums, 3600)
             except (ValueError, TypeError):
                 # Bad JSON parsing will throw ValueError
                 # If the result of the json.loads is not iterable, a TypeError will be thrown
                 # If we end up here, just set checksums to None to allow us to cleanly continue
                 pass
-    return cache.get(CACHE_KEY)
+    else:
+        checksums = cache.get(CACHE_KEY)
+    return checksums
 
 
 def get_available_checksums_from_disk(channel_id, basepath):
@@ -59,15 +84,10 @@ def get_available_checksums_from_disk(channel_id, basepath):
             # Cache is per device, so a relatively long lived one should
             # be fine.
             cache.set(PER_DISK_CACHE_KEY, disk_checksums, 3600)
-        disk_checksums = set(cache.get(PER_DISK_CACHE_KEY))
-        channel_checksums = set(
-            LocalFile.objects.filter(
-                files__contentnode__channel_id=channel_id
-            ).values_list("id", flat=True)
-        )
-        cache.set(
-            PER_DISK_PER_CHANNEL_CACHE_KEY,
-            channel_checksums.intersection(disk_checksums),
-            3600,
-        )
-    return cache.get(PER_DISK_PER_CHANNEL_CACHE_KEY)
+        else:
+            disk_checksums = cache.get(PER_DISK_CACHE_KEY)
+        checksums = _filter_checksums_by_channel(disk_checksums, channel_id)
+        cache.set(PER_DISK_PER_CHANNEL_CACHE_KEY, checksums, 3600)
+    else:
+        checksums = cache.get(PER_DISK_PER_CHANNEL_CACHE_KEY)
+    return checksums
