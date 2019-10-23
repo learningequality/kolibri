@@ -102,9 +102,9 @@ class Command(BaseCommand):
                     for num, backup in enumerate(backups)
                 )
             ),
-            type=click.Choice(range(1, len(backups) + 1)),
+            type=click.Choice([str(i) for i in range(1, len(backups) + 1)]),
         )
-        return os.path.join(dumps_root, backups[selected_backup - 1])
+        return os.path.join(dumps_root, backups[int(selected_backup) - 1])
 
     def handle(self, *args, **options):
         try:
