@@ -210,7 +210,7 @@
           });
       },
       goBack() {
-        this.$router.push({ path: '/permissions' });
+        this.$router.push({ name: 'MANAGE_PERMISSIONS_PAGE' });
       },
       UserType,
     },

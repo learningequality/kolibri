@@ -23,7 +23,7 @@ function getElements(wrapper) {
     ChannelTokenModal: () => wrapper.find({ name: 'ChannelTokenModal' }),
     filters: () => wrapper.find('.filters'),
     languageFilter: () => wrapper.find({ name: 'KSelect' }),
-    titleText: () => wrapper.find('[data-test="available"]').text().trim(),
+    titleText: () => wrapper.find('[data-test="title"]').text().trim(),
     titleFilter: () => wrapper.find({ name: 'FilterTextbox' }),
     unlistedChannelsSection: () => wrapper.findAll('section.unlisted-channels'),
   }
