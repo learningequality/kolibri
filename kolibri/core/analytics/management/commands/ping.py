@@ -106,6 +106,10 @@ class Command(BaseCommand):
                 logger.warn(
                     "Ping failed ({})! Trying again in {} minutes.".format(e, checkrate)
                 )
+            finally:
+                # if there are db errors, the connection must be closed too
+                connection.close()
+
             if once:
                 break
             time.sleep(checkrate * 60)
