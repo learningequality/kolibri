@@ -287,7 +287,6 @@
       "lang": 1,
       "local_file": "6bdfea4a01830fdd4a585181c0b8068c",
       "thumbnail": false,
-      "available": true,
       "preset": "high_res_video",
       "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
       "supplementary": false
@@ -300,7 +299,6 @@
       "lang": 1,
       "local_file": "211523265f53825b82f70ba19218a02e",
       "thumbnail": false,
-      "available": true,
       "preset": "low_res_video",
       "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
       "supplementary": false
@@ -313,7 +311,6 @@
       "lang": 3,
       "local_file": "e00699f859624e0f875ac6fe1e13d648",
       "thumbnail": false,
-      "available": false,
       "preset": "vector_video",
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": false
@@ -326,7 +323,6 @@
       "lang": null,
       "local_file": "4c30dc7619f74f97ae2ccd4fffd09bf2",
       "thumbnail": false,
-      "available": false,
       "preset": "low_res_video",
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": false
@@ -339,7 +335,6 @@
       "lang": null,
       "local_file": "8ad3fffedf144cba9492e16daec1e39a",
       "thumbnail": false,
-      "available": false,
       "preset": "caption",
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": true

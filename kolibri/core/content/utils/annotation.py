@@ -39,33 +39,23 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
 
     connection = bridge.get_connection()
 
-    file_statement = (
-        select([LocalFileTable.c.available])
-        .where(FileTable.c.local_file_id == LocalFileTable.c.id)
-        .limit(1)
-    )
-
-    logger.info("Setting availability of File objects based on LocalFile availability")
-
-    connection.execute(
-        FileTable.update()
-        .values(available=file_statement)
-        .execution_options(autocommit=True)
-    )
-
     contentnode_statement = (
         select([FileTable.c.contentnode_id])
-        .where(
-            and_(
-                FileTable.c.available == True,  # noqa
-                FileTable.c.supplementary == False,
+        .select_from(
+            FileTable.join(
+                LocalFileTable,
+                and_(
+                    FileTable.c.local_file_id == LocalFileTable.c.id,
+                    LocalFileTable.c.available == True,  # noqa
+                ),
             )
         )
+        .where(FileTable.c.supplementary == False)
         .where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
     )
 
     logger.info(
-        "Setting availability of non-topic ContentNode objects based on File availability"
+        "Setting availability of non-topic ContentNode objects based on LocalFile availability"
     )
 
     connection.execute(

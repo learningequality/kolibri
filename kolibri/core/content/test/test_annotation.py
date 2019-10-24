@@ -41,7 +41,6 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
     def test_all_local_files_available(self):
         LocalFile.objects.all().update(available=True)
         set_leaf_node_availability_from_local_file_availability(test_channel_id)
-        self.assertTrue(all(File.objects.all().values_list("available", flat=True)))
         self.assertTrue(
             all(
                 ContentNode.objects.exclude(kind=content_kinds.TOPIC)
@@ -53,7 +52,6 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
     def test_no_local_files_available(self):
         LocalFile.objects.all().update(available=False)
         set_leaf_node_availability_from_local_file_availability(test_channel_id)
-        self.assertEqual(File.objects.filter(available=True).count(), 0)
         self.assertEqual(
             ContentNode.objects.exclude(kind=content_kinds.TOPIC)
             .filter(available=True)
@@ -544,10 +542,7 @@ class CalculateChannelFieldsTestCase(TestCase):
             id=uuid.uuid4().hex, extension="mp4", available=True, file_size=10
         )
         File.objects.create(
-            id=uuid.uuid4().hex,
-            local_file=local_file,
-            available=True,
-            contentnode=self.node,
+            id=uuid.uuid4().hex, local_file=local_file, contentnode=self.node
         )
         calculate_total_resource_count(self.channel)
         self.assertEqual(self.channel.total_resource_count, 1)
@@ -557,10 +552,7 @@ class CalculateChannelFieldsTestCase(TestCase):
             id=uuid.uuid4().hex, extension="mp4", available=True, file_size=10
         )
         File.objects.create(
-            id=uuid.uuid4().hex,
-            local_file=local_file,
-            available=True,
-            contentnode=self.node,
+            id=uuid.uuid4().hex, local_file=local_file, contentnode=self.node
         )
         calculate_published_size(self.channel)
         self.assertEqual(self.channel.published_size, 10)

@@ -156,7 +156,6 @@ class File(models.Model):
     id = UUIDField(primary_key=True)
     # The foreign key mapping happens here as many File objects can map onto a single local file
     local_file = models.ForeignKey("LocalFile", related_name="files")
-    available = models.BooleanField(default=False)
     contentnode = models.ForeignKey("ContentNode", related_name="files")
     preset = models.CharField(
         max_length=150, choices=format_presets.choices, blank=True
