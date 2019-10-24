@@ -257,6 +257,7 @@
 
   .on-device-text {
     margin-left: 8px;
+    vertical-align: text-bottom;
   }
 
   .icon {
