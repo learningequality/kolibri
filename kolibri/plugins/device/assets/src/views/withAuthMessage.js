@@ -5,28 +5,36 @@ import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
 
 const logging = logger.getLogger(__filename);
 
+const roleToGetterMap = {
+  contentManager: 'canManageContent',
+  admin: 'isAdmin',
+  superuser: 'isSuperuser',
+};
+
 // Higher-order component that will conditionally render the intended component
 // or AuthMessage, depending on whether a user has permissions
 export default function withAuthMessage(component, authorizedRole) {
   return Vue.component('withAuthMessage', {
     render(createElement) {
-      // Map authorizedRole to specific getter
-      const getterName = {
-        contentManager: 'canManageContent',
-        admin: 'isAdmin',
-        superuser: 'isSuperuser',
-      }[authorizedRole];
-
       let canAccess;
+
+      // Map authorizedRole to specific getter
+      const getterName = roleToGetterMap[authorizedRole];
+
       if (getterName) {
-        canAccess = () => store.getters[getterName];
+        const getter = store.getters[getterName];
+        if (getter) {
+          canAccess = () => getter;
+        } else {
+          logging.error(`Getter is not registered in store: ${getterName}`);
+        }
       } else {
-        logging.warn(`No default getter associated with authorizedRole ${authorizedRole}`);
-        canAccess = () => true;
+        logging.error(`No default getter associated with authorizedRole: ${authorizedRole}`);
       }
 
-      // canAccess should reference the 'store' import if it relies on a getter
-      if (canAccess()) {
+      // If withAuthMessage is configured incorrectly and canAccess ends up undefined,
+      // we deny access by default.
+      if (canAccess && canAccess()) {
         return createElement(component);
       }
       return createElement(AuthMessage, { props: { authorizedRole } });
