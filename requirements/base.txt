@@ -1,7 +1,7 @@
 django-filter==1.1.0 # pyup: <2.0.0
 django-js-reverse==0.8.2
 djangorestframework==3.9.1
-django==1.11.22  # pyup: >=1.11,<2
+django==1.11.23  # pyup: >=1.11,<2
 six==1.11.0
 colorlog==3.2.0 # pyup: <4.0.0
 configobj==5.0.6
@@ -18,9 +18,9 @@ porter2stemmer==1.0
 unicodecsv==0.14.1
 metafone==0.5
 le-utils==0.1.15
-kolibri_exercise_perseus_plugin==1.1.9
+kolibri_exercise_perseus_plugin==1.1.12
 jsonfield==2.0.2
-morango==0.4.6
+morango==0.4.9
 requests-toolbelt==0.8.0
 clint==0.5.1
 tzlocal==1.5.1

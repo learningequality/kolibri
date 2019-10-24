@@ -59,6 +59,103 @@ Feature: Coach creates lessons
         And I see the <lesson> lesson page again
         And I see the resources I added to the <lesson> lesson
 
+  Scenario: Search and find by keyword
+    Given that there is a lesson <lesson> created
+      And that I am on the *Manage resources* page for  <lesson>
+    When I enter a keyword into the search box
+      And I click the search icon button or press Enter
+    Then I am redirected to the search results page
+      And I see topic and/or exercise cards on the search results page
+
+  Scenario: Fail to find by keyword
+    When I enter a keyword into the search box
+      And I click the search icon button or press Enter
+    Then I am redirected to the search results page
+      And I see the *No results found...* message
+
+  Scenario: Clear results and reset search
+    Given that there are results from the previous search
+    When I press the *X* button in the search field
+      Or I delete the previous search term and press *Enter*
+    Then I see the list of all *Channels* under *Select topics or exercises* again
+
+  Scenario: Add resources from the search results page
+    Given I am on the search results page
+      And there are resources available in the search results
+    When I check one or more resource checkboxes
+    Then I see a snackbar confirmation that *n resources added to the lesson* 
+
+  Scenario: Remove a topic or exercise from the search results page
+    Given I am on the search results page
+      And there are resources available in the search results
+      And some of them are selected
+    When I uncheck one or more checkbox
+    Then I see the a snackbar confirmation *n resources removed from the lesson*
+
+  Scenario: Filter search results by type
+    Given I am on the search results page
+      When I open the *Type* filter dropdown
+      Then I can see the available formats I can filter by 
+      When I select *Exercises* option
+      Then I see only exercises among search results
+      When I select *Topics* option
+      Then I see only topics among search results
+      When I select the option *All*
+      Then I see both topics and exercises in search results
+
+  Scenario: Use the channel filter
+    Given I am on the search results page
+      And I see content from channels related to the searched keyword
+    When I select a specific channel from the channel filter dropdown
+    Then I see the search results are filtered and present content only from the selected channel
+    When I select *All* in the filter dropdown
+    Then I see that results are not filtered anymore
+
+  Scenario: Filter coach content in and out
+    Given I am on the search results page
+      When I select *Coach* filter option
+      Then I see the search results are filtered and present only content for coaches
+      When I select *Non-coach* filter option
+      Then I see the search results are filtered and exclude content for coaches
+      When I select the *All* filter option
+      Then I see the search results include both coach and non-coach content
+
+  Scenario: View metadata on exercise cards in search results
+    Given I am on the search results page
+      And there are exercises in the search results
+    When I see an exercise card
+    Then I see its title
+      And I see its description
+      And I see whether it is a coach exercise or not
+
+  Scenario: View metadata on topic cards in search results
+    Given I am on the search results page
+      And there are topics in the search results
+    When I see a topic card
+    Then I see its title
+      And I see its description
+      And I see how many coach exercises/topics it contains
+
+  Scenario: Preview a resource from the search results and add/remove it to and from the lesson
+    Given I am on the search results page
+      And there are resources in the search results page
+    When I click an exercise <exercise> card
+    Then I am on the preview page for exercise <exercise>
+    When I click the *Add* button
+    Then I see a snackbar confirmation *1 resource added to the lesson*
+      And I see the *Added* label 
+      And I see the *Remove* button
+    When I click the *Remove* button
+    Then I see a snackbar confirmation *1 resource removed from the lesson*
+    When I click the *back arrow* button
+    Then I see the search results page again
+      And I see my results are still present
+
+  Scenario: Exit the search results page
+    Given I am on the search results page
+      When I click *Exit search*
+      Then I see the *Manage resources in '<lesson>'* page again
+
 
 Examples:
 | lesson        | description  | channel                | topic                |

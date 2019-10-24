@@ -63,7 +63,7 @@ class AsyncNotificationQueue:
                         # Catch all exceptions and log, otherwise the background process will end
                         # and no more logs will be saved!
                         logging.warn(
-                            "Exception raised during background notification calculation: ",
+                            "Exception raised during background notification calculation: %s",
                             e,
                         )
             connection.close()

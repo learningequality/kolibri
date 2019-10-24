@@ -20,17 +20,13 @@ from django.http.response import FileResponse
 from django.http.response import HttpResponseNotModified
 from django.template import loader
 from django.templatetags.static import static
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import etag
 from django.views.generic.base import View
-from le_utils.constants import exercises
-from six.moves.urllib.parse import urlunparse
 
 from .api import cache_forever
 from .decorators import add_security_headers
-from .decorators import get_referrer_url
 from .models import ContentNode
 from .utils.paths import get_content_storage_file_path
 from kolibri import __version__ as kolibri_version
@@ -54,19 +50,6 @@ def get_hashi_filename():
         ) as f:
             HASHI_FILENAME = f.read().strip()
     return HASHI_FILENAME
-
-
-def generate_image_prefix_url(request, zipped_filename):
-    parsed_referrer_url = get_referrer_url(request)
-    # Remove trailing slash
-    zipcontent = reverse(
-        "kolibri:core:zipcontent",
-        kwargs={"zipped_filename": zipped_filename, "embedded_filepath": ""},
-    )[:-1]
-    if parsed_referrer_url:
-        # Reconstruct the parsed URL using a blank scheme and host + port(1)
-        zipcontent = urlunparse(("", parsed_referrer_url[1], zipcontent, "", "", ""))
-    return zipcontent.encode()
 
 
 def calculate_zip_content_etag(request, *args, **kwargs):
@@ -234,18 +217,10 @@ def get_embedded_file(request, zf, zipped_filename, embedded_filepath):
         html = parse_html(content)
         response = HttpResponse(html, content_type=content_type)
         file_size = len(response.content)
-    elif not os.path.splitext(embedded_filepath)[1] == ".json":
+    else:
         # generate a streaming response object, pulling data from within the zip  file
         response = FileResponse(zf.open(info), content_type=content_type)
         file_size = info.file_size
-    else:
-        image_prefix_url = generate_image_prefix_url(request, zipped_filename)
-        # load the stream from json file into memory, replace the path_place_holder.
-        content = zf.open(info).read()
-        str_to_be_replaced = ("$" + exercises.IMG_PLACEHOLDER).encode()
-        content_with_path = content.replace(str_to_be_replaced, image_prefix_url)
-        response = HttpResponse(content_with_path, content_type=content_type)
-        file_size = len(response.content)
 
     # set the content-length header to the size of the embedded file
     if file_size:

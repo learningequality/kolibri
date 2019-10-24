@@ -36,16 +36,17 @@ from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
-from morango.certificates import Certificate
-from morango.manager import SyncableModelManager
+from morango.models import Certificate
+from morango.models import MorangoMPTTModel
+from morango.models import MorangoMPTTTreeManager
 from morango.models import SyncableModel
-from morango.utils.morango_mptt import MorangoMPTTModel
-from morango.utils.morango_mptt import MorangoMPTTTreeManager
+from morango.models import SyncableModelManager
 from mptt.models import TreeForeignKey
 
 from .constants import collection_kinds
 from .constants import facility_presets
 from .constants import role_kinds
+from .constants import user_kinds
 from .errors import InvalidRoleKind
 from .errors import UserDoesNotHaveRoleError
 from .errors import UserHasRoleOnlyIndirectlyThroughHierarchyError
@@ -285,6 +286,15 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     def get_short_name(self):
         return self.full_name.split(" ", 1)[0]
 
+    @property
+    def session_data(self):
+        """
+        Data that is added to the session data at login and during session updates.
+        """
+        raise NotImplementedError(
+            "Subclasses of KolibriAbstractBaseUser must override the `session_data` property."
+        )
+
     def is_member_of(self, coll):
         """
         Determine whether this user is a member of the specified ``Collection``.
@@ -485,6 +495,16 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
     class Meta:
         abstract = True
 
+    @property
+    def session_data(self):
+        return {
+            "username": "",
+            "full_name": "",
+            "user_id": None,
+            "facility_id": getattr(Facility.get_default_facility(), "id", None),
+            "kind": [user_kinds.ANONYMOUS],
+        }
+
     def is_member_of(self, coll):
         return False
 
@@ -650,6 +670,25 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
                 return True
             return False
         return False
+
+    @property
+    def session_data(self):
+        roles = list(self.roles.values_list("kind", flat=True).distinct())
+
+        if self.is_superuser:
+            roles.insert(0, user_kinds.SUPERUSER)
+
+        if not roles:
+            roles = [user_kinds.LEARNER]
+
+        return {
+            "username": self.username,
+            "full_name": self.full_name,
+            "user_id": self.id,
+            "kind": roles,
+            "can_manage_content": self.can_manage_content,
+            "facility_id": self.facility_id,
+        }
 
     @property
     def can_manage_content(self):
@@ -1073,8 +1112,6 @@ class Membership(AbstractFacilityDataModel):
     def infer_dataset(self, *args, **kwargs):
         user_dataset_id = self.cached_related_dataset_lookup("user")
         collection_dataset_id = self.cached_related_dataset_lookup("collection")
-        # user_dataset_id = self.user.dataset_id
-        # collection_dataset_id = self.collection.dataset_id
         if user_dataset_id != collection_dataset_id:
             raise KolibriValidationError(
                 "Collection and user for a Membership object must be in same dataset."

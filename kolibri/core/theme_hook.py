@@ -3,12 +3,13 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
-
-from kolibri.plugins import hooks
-import kolibri
-from django.utils.six.moves.urllib import parse
-from django.conf import settings
 import os
+
+from django.conf import settings
+from django.utils.six.moves.urllib import parse
+
+import kolibri
+from kolibri.plugins import hooks
 
 logger = logging.getLogger(__name__)
 
@@ -36,13 +37,20 @@ SIGN_IN = "signIn"
 SIDE_NAV = "sideNav"
 APP_BAR = "appBar"
 BACKGROUND = "background"
+SCRIM_OPACITY = "scrimOpacity"
 TITLE = "title"
 TITLE_STYLE = "titleStyle"
 TOP_LOGO = "topLogo"
+LOGO = "logo"
+BRANDED_FOOTER = "brandedFooter"
+PARAGRAPH_ARRAY = "paragraphArray"
 IMG_SRC = "src"
 IMG_STYLE = "style"
 IMG_ALT = "alt"
+SHOW_TITLE = "showTitle"
 SHOW_K_FOOTER_LOGO = "showKolibriFooterLogo"
+SHOW_POWERED_BY = "showPoweredBy"
+POWERED_BY_STYLE = "poweredByStyle"
 
 # This is the image file name that will be used when customizing the sign-in background
 # image using the 'kolibri manage background' command. It does not attempt to use a file
@@ -97,6 +105,17 @@ def _validateBrandColors(theme):
                 logger.error("{} '{}' not defined by theme".format(color, name))
 
 
+def _validateScrimOpacity(theme):
+    if SCRIM_OPACITY in theme[SIGN_IN]:
+        opacity = theme[SIGN_IN][SCRIM_OPACITY]
+        if opacity is not None:
+            if opacity < 0 or opacity > 1:
+                logger.error(
+                    "scrim opacity should be a value in the closed interval [0,1]"
+                )
+                return
+
+
 def _initFields(theme):
     """
     set up top-level dicts if they don't exist
@@ -139,6 +158,7 @@ class ThemeHook(hooks.KolibriHook):
         _initFields(theme)
         _validateMetadata(theme)
         _validateBrandColors(theme)
+        _validateScrimOpacity(theme)
 
         # set up cache busting
         bust = "?" + self.cacheKey
@@ -150,6 +170,8 @@ class ThemeHook(hooks.KolibriHook):
             theme[SIDE_NAV][TOP_LOGO][IMG_SRC] += bust
         if _isSet(theme, [APP_BAR, TOP_LOGO, IMG_SRC]):
             theme[APP_BAR][TOP_LOGO][IMG_SRC] += bust
+        if _isSet(theme, [SIDE_NAV, BRANDED_FOOTER, LOGO, IMG_SRC]):
+            theme[SIDE_NAV][BRANDED_FOOTER][LOGO][IMG_SRC] += bust
 
         # if a background image has been locally set using the `manage background` command, use it
         bg_img = os.path.join(settings.MEDIA_ROOT, DEFAULT_BG_IMAGE_FILE)

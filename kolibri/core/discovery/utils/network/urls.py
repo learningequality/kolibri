@@ -5,7 +5,8 @@ from six.moves.urllib.parse import urlparse
 from . import errors
 
 
-HTTP_PORTS = (8080, 80, 8008)
+# android is served on port 5000
+HTTP_PORTS = (8080, 80, 8008, 8000, 5000)
 HTTPS_PORTS = (443,)
 
 

@@ -5,14 +5,14 @@ ENV NODE_VERSION=10.14.1
 # install required packages
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
-      curl \
-      software-properties-common \
-      gettext \
-      git \
-      git-lfs \
-      python2.7 \
-      python-pip \
-      python-sphinx
+    curl \
+    software-properties-common \
+    gettext \
+    git \
+    git-lfs \
+    python2.7 \
+    python-pip \
+    python-sphinx
 
 # add yarn ppa
 RUN (curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -) && \
@@ -45,8 +45,8 @@ COPY . .
 
 CMD echo '--- Installing JS dependencies' && \
     yarn install --pure-lockfile && \
-    echo `--- Making whl` && \
+    echo '--- Making whl' && \
     make dist && \
-    echo `--- Making pex` && \
+    echo '--- Making pex' && \
     make pex && \
     cp /kolibri/dist/* /kolibridist/

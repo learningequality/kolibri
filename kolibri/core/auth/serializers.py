@@ -110,7 +110,7 @@ class FacilitySerializer(serializers.ModelSerializer):
 class PublicFacilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Facility
-        fields = ("dataset", "name")
+        fields = ("id", "dataset", "name")
 
 
 class ClassroomSerializer(serializers.ModelSerializer):

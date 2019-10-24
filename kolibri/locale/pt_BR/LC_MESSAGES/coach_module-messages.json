@@ -22,6 +22,7 @@
   "AssignmentDetailsModal.activeQuizzesExplanation": "Os alunos só podem visualizar os testes ativados",
   "AssignmentDetailsModal.fieldRequiredError": "Campo obrigatório",
   "AssignmentDetailsModal.titlePlaceholder": "Título",
+  "AssignmentSummary.noOne": "Ninguém",
   "CoachClassListPage.classNameLabel": "Nome da classe",
   "CoachClassListPage.classPageSubheader": "Ver o progresso dos alunos e o desempenho da classe",
   "CoachClassListPage.noAssignedClassesDetails": "Para inscrever-se em uma classe, por favor, contate seu administrador Kolibri",
