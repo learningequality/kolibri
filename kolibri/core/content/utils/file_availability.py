@@ -4,6 +4,8 @@ import re
 
 import requests
 from django.core.cache import cache
+from morango.constants.capabilities import GZIP_BUFFER_POST
+from morango.utils import CAPABILITIES
 
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_storage_dir_path
@@ -35,7 +37,15 @@ def get_available_checksums_from_remote(channel_id, baseurl):
         baseurl=baseurl, channel_id=channel_id
     )
     if CACHE_KEY not in cache:
-        response = requests.get(get_file_checksums_url(channel_id, baseurl))
+        # By default requests adds gzip accept encoding, regardless of whether the system
+        # can actually decode gzip
+        if GZIP_BUFFER_POST not in CAPABILITIES:
+            response = requests.get(
+                get_file_checksums_url(channel_id, baseurl),
+                headers={"accept-encoding": ""},
+            )
+        else:
+            response = requests.get(get_file_checksums_url(channel_id, baseurl))
 
         checksums = None
 

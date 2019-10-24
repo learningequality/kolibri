@@ -4,7 +4,9 @@ import platform
 from django.db.models import Q
 from django.http import HttpResponse
 from django.http import HttpResponseNotFound
+from morango.constants.capabilities import GZIP_BUFFER_POST
 from morango.models import InstanceIDModel
+from morango.utils import CAPABILITIES
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -15,6 +17,18 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import PublicChannelSerializer
+
+if GZIP_BUFFER_POST in CAPABILITIES:
+    from django.views.decorators.gzip import gzip_page
+else:
+    gzip_page = None
+
+
+def conditional_gzip_page(view_func):
+    if gzip_page:
+        return gzip_page(view_func)
+    else:
+        return view_func
 
 
 class InfoViewSet(viewsets.ViewSet):
@@ -121,6 +135,7 @@ def get_public_channel_lookup(request, version, identifier):
 
 
 @api_view(["GET"])
+@conditional_gzip_page
 def get_public_file_checksums(request, version, channel_id):
     """ Endpoint: /public/<version>/file_checksums/<channel_id> """
     if version == "v1":
