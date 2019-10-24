@@ -11,10 +11,16 @@
     <TopNavbar slot="sub-nav" />
     <KGrid gutter="16">
       <KGridItem>
-        <ReportsQuizHeader
+        <QuizHeader
           :backlink="$router.getRoute('EXAMS')"
           :backlinkLabel="coachString('allQuizzesLabel')"
-        />
+        >
+          <QuizOptionsDropdownMenu
+            slot="dropdown"
+            optionsFor="plan"
+            @select="setCurrentAction"
+          />
+        </QuizHeader>
       </KGridItem>
       <KGridItem :layout12="{ span: 4 }">
         <QuizStatus
@@ -68,7 +74,7 @@
   import TopNavbar from '../../TopNavbar';
   import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
-  import ReportsQuizHeader from '../../reports/ReportsQuizHeader';
+  import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';
   import {
     fetchQuizSummaryPageData,
@@ -83,8 +89,8 @@
       CoreBase: CoachCoreBase,
       ManageExamModals,
       QuestionListPreview,
-      ReportsQuizHeader,
       TopNavbar,
+      QuizOptionsDropdownMenu,
     },
     mixins: [commonCoach, coachStringsMixin, commonCoreStrings],
     data() {
@@ -155,6 +161,13 @@
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
+      setCurrentAction(action) {
+        if (action === 'EDIT_DETAILS') {
+          this.$router.push(this.$router.getRoute('QuizEditDetailsPage'));
+        } else {
+          this.currentAction = action;
+        }
+      },
       closeModal() {
         this.currentAction = '';
       },
@@ -174,6 +187,8 @@
               question_count: this.quiz.question_count,
               question_sources: this.quiz.question_sources,
               assignments: serverAssignmentPayload(groupIds, this.classId),
+              date_archived: null,
+              date_activated: null,
             },
             className,
           })

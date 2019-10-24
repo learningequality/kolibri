@@ -24,6 +24,9 @@
       optionsFor: {
         type: String,
         required: true,
+        validator(opt) {
+          return ['plan', 'report'].includes(opt);
+        },
       },
     },
     computed: {

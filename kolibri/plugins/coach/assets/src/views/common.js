@@ -25,6 +25,7 @@ import Recipients from './common/Recipients';
 import Score from './common/Score';
 import TimeDuration from './common/TimeDuration';
 import QuizActive from './common/QuizActive';
+import QuizHeader from './common/QuizHeader';
 import QuizStatus from './common/QuizStatus';
 import QuizStatusModal from './common/QuizStatusModal';
 import HeaderTable from './common/HeaderTable';
@@ -124,6 +125,7 @@ export default {
     Score,
     TimeDuration,
     QuizActive,
+    QuizHeader,
     QuizStatus,
     QuizStatusModal,
     HeaderTable,

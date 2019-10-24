@@ -10,10 +10,17 @@
 
     <KGrid gutter="16">
       <KGridItem>
-        <ReportsQuizHeader
+        <QuizHeader
           :backlink="classRoute('ReportsQuizListPage')"
           :backlinkLabel="coachString('allQuizzesLabel')"
-        />
+          optionsFor="report"
+        >
+          <QuizOptionsDropdownMenu
+            slot="dropdown"
+            optionsFor="report"
+            @select="handleSelectOption"
+          />
+        </QuizHeader>
       </KGridItem>
       <KGridItem :layout12="{ span: 4 }">
         <QuizStatus
@@ -47,12 +54,12 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
-  import ReportsQuizHeader from './ReportsQuizHeader';
+  import QuizOptionsDropdownMenu from '../plan/QuizSummaryPage/QuizOptionsDropdownMenu';
 
   export default {
     name: 'ReportsQuizBaseListPage',
     components: {
-      ReportsQuizHeader,
+      QuizOptionsDropdownMenu,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {
@@ -89,6 +96,16 @@
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
+    },
+    methods: {
+      handleSelectOption(option) {
+        if (option === 'EDIT_DETAILS') {
+          this.$router.push(this.$router.getRoute('QuizReportEditDetailsPage'));
+        }
+        if (option === 'PREVIEW') {
+          this.$router.push(this.$router.getRoute('ReportsQuizPreviewPage'));
+        }
+      },
     },
     $trs: {
       allQuizzes: 'All quizzes',

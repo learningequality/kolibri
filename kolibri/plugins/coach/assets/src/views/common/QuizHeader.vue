@@ -16,11 +16,9 @@
         </h1>
         <StatusElapsedTime :date="examCreatedDate" actionType="created" />
       </div>
-      <QuizOptionsDropdownMenu
-        slot="options"
-        optionsFor="report"
-        @select="handleSelectOption"
-      />
+      <div slot="options">
+        <slot name="dropdown"></slot>
+      </div>
     </BackLinkWithOptions>
 
   </KPageContainer>
@@ -30,17 +28,18 @@
 
 <script>
 
-  import commonCoach from '../common';
-  import QuizOptionsDropdownMenu from '../plan/QuizSummaryPage/QuizOptionsDropdownMenu';
-  import BackLinkWithOptions from '../common/BackLinkWithOptions';
+  import { mapState } from 'vuex';
+  import BackLinkWithOptions from './BackLinkWithOptions';
+  import StatusElapsedTime from './StatusElapsedTime';
+  import BackLink from './BackLink';
 
   export default {
-    name: 'ReportsQuizHeader',
+    name: 'QuizHeader',
     components: {
       BackLinkWithOptions,
-      QuizOptionsDropdownMenu,
+      StatusElapsedTime,
+      BackLink,
     },
-    mixins: [commonCoach],
     props: {
       backlink: {
         type: Object,
@@ -52,6 +51,7 @@
       },
     },
     computed: {
+      ...mapState('classSummary', ['examMap']),
       exam() {
         return this.examMap[this.$route.params.quizId];
       },
@@ -63,17 +63,6 @@
         }
       },
     },
-    methods: {
-      handleSelectOption(option) {
-        if (option === 'EDIT_DETAILS') {
-          this.$router.push(this.$router.getRoute('QuizReportEditDetailsPage'));
-        }
-        if (option === 'PREVIEW') {
-          this.$router.push(this.$router.getRoute('ReportsQuizPreviewPage'));
-        }
-      },
-    },
-    $trs: {},
   };
 
 </script>
