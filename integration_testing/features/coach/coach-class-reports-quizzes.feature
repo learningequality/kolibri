@@ -62,7 +62,7 @@ Feature: Coach reviews learner reports for quizzes
   Scenario: A learner has started a quiz
     When a learner has started the <quiz>
       And they have some of the questions remaining
-    Then the learner's *Progress* column displays *X of Y completed*
+    Then the learner's *Progress* column displays *X of Y questions answered*
       And their *Score* column is blank
 
   Scenario: A learner has completed a quiz
