@@ -6,11 +6,9 @@
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-
       <ReportsQuizHeader />
 
       <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
@@ -41,10 +39,27 @@
               </KLabeledIcon>
             </td>
             <td>
-              <StatusSimple :status="tableRow.statusObj.status" />
+              <StatusSimple
+                v-if="tableRow.statusObj.status !== STATUSES.started"
+                :status="tableRow.statusObj.status"
+              />
+              <KLabeledIcon v-else>
+                <KIcon slot="icon" :color="$themeTokens.progress" icon="inProgress" />
+                {{
+                  $tr('questionsCompletedRatioLabel',
+                      {count: tableRow.statusObj.num_answered || 0, total: exam.question_count})
+                }}
+              </KLabeledIcon>
             </td>
-            <td><Score :value="tableRow.statusObj.score" /></td>
-            <td><TruncatedItemList :items="tableRow.groups" /></td>
+            <td>
+              <Score
+                v-if="tableRow.statusObj.status === STATUSES.completed"
+                :value="tableRow.statusObj.score || 0.0"
+              />
+            </td>
+            <td>
+              <TruncatedItemList :items="tableRow.groups" />
+            </td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -110,7 +125,13 @@
     beforeMount() {
       this.filter = this.filterOptions[0];
     },
-    $trs: {},
+    $trs: {
+      allQuizzes: 'All quizzes',
+      activeQuizzes: 'Active quizzes',
+      inactiveQuizzes: 'Inactive quizzes',
+      questionsCompletedRatioLabel:
+        '{count, number, integer} of {total, number, integer} {count, plural, other {answered}}',
+    },
   };
 
 </script>

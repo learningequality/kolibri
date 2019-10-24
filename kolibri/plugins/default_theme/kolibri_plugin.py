@@ -4,15 +4,16 @@ from __future__ import unicode_literals
 
 from django.contrib.staticfiles.templatetags.staticfiles import static
 
-from kolibri.plugins.base import KolibriPluginBase
-
 from kolibri.core import theme_hook
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
 
 
 class DefaultThemePlugin(KolibriPluginBase):
     pass
 
 
+@register_hook
 class DefaultThemeHook(theme_hook.ThemeHook):
     @property
     def theme(self):
@@ -50,6 +51,7 @@ class DefaultThemeHook(theme_hook.ThemeHook):
             # sign-in page config
             theme_hook.SIGN_IN: {
                 theme_hook.BACKGROUND: static("background.jpg"),
+                theme_hook.SCRIM_OPACITY: None,  # use default: 0.7,
                 theme_hook.TITLE: None,  # use default: "Kolibri"
                 theme_hook.TOP_LOGO: {
                     theme_hook.IMG_SRC: None,  # use default Kolibri bird
@@ -61,7 +63,10 @@ class DefaultThemeHook(theme_hook.ThemeHook):
                 theme_hook.SHOW_K_FOOTER_LOGO: False,
             },
             # side-nav config
-            theme_hook.SIDE_NAV: {theme_hook.SHOW_K_FOOTER_LOGO: True},
+            theme_hook.SIDE_NAV: {
+                theme_hook.BRANDED_FOOTER: {},
+                theme_hook.SHOW_K_FOOTER_LOGO: True,
+            },
             # app bar config
             theme_hook.APP_BAR: {theme_hook.TOP_LOGO: None},
         }

@@ -3,14 +3,9 @@
   <CoreMenuOption
     :label="coreString('signInLabel')"
     :link="url"
-  >
-    <mat-svg
-      slot="icon"
-      name="exit_to_app"
-      category="action"
-      :class="{ 'rtl-icon': isRtl }"
-    />
-  </CoreMenuOption>
+    icon="login"
+    :class="{ 'rtl-icon': isRtl }"
+  />
 
 </template>
 
@@ -32,7 +27,7 @@
     $trs: {},
     computed: {
       url() {
-        return urls['kolibri:user:user']();
+        return urls['kolibri:kolibri.plugins.user:user']();
       },
     },
     role: UserKinds.ANONYMOUS,

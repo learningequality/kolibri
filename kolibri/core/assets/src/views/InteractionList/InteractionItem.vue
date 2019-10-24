@@ -41,11 +41,8 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-
   export default {
     name: 'InteractionItem',
-    mixins: [themeMixin],
     props: {
       interaction: {
         type: Object,

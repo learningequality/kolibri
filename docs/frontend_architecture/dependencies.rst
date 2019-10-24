@@ -9,4 +9,4 @@ Individual plugins can also have their own package.json and yarn.lock for their 
 
 To assist in tracking the source of bloat in our codebase, the command ``yarn run bundle-stats`` is available to give a full readout of the size that uglified packages take up in the final Javascript code.
 
-In addition, a plugin can have its own webpack.config.js for plugin specific webpack configuration (loaders, plugins, etc.). These options will be merged with the base options using ``webpack-merge``.
+In addition, a plugin can have its own webpack config, specified inside the ``buildConfig.js`` file for plugin specific webpack configuration (loaders, plugins, etc.). These options will be merged with the base options using ``webpack-merge``.

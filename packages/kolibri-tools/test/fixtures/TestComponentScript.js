@@ -13,16 +13,12 @@
 /* eslint-disable */
 
 import { mapGetters, mapState } from 'vuex';
-import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
 import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 import urls from 'kolibri.urls';
 import commonCoach from './common';
 
 export default {
   name: 'TestComponent',
-  components: {
-    KExternalLink,
-  },
   mixins: [commonCoach, commonCoreStrings],
   computed: {
     ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
@@ -45,7 +41,7 @@ export default {
       return '';
     },
     createClassUrl() {
-      const facilityUrl = urls['kolibri:facilitymanagementplugin:facility_management'];
+      const facilityUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
       if (facilityUrl) {
         return facilityUrl();
       }

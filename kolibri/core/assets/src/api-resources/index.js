@@ -16,7 +16,6 @@ export { default as FacilityResource } from './facility';
 export { default as TaskResource } from './task';
 export { default as ChannelResource } from './channel';
 export { default as MasteryLogResource } from './masteryLog';
-export { default as SignUpResource } from './signUp';
 export { default as ExamResource } from './exam';
 export { default as ExamAssignmentResource } from './examassignment';
 export { default as ExamLogResource } from './examLog';

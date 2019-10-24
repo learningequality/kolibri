@@ -109,15 +109,15 @@
         @moreresults="handleMoreResults"
       />
 
-      <KBottomAppBar v-if="inSearchMode">
+      <BottomAppBar v-if="inSearchMode">
         <KRouterLink
           appearance="raised-button"
           :text="$tr('exitSearchButtonLabel')"
           primary
           :to="toolbarRoute"
         />
-      </KBottomAppBar>
-      <KBottomAppBar v-else>
+      </BottomAppBar>
+      <BottomAppBar v-else>
         <KRouterLink
           appearance="flat-button"
           :text="coreString('goBackAction')"
@@ -128,7 +128,7 @@
           primary
           @click="continueProcess"
         />
-      </KBottomAppBar>
+      </BottomAppBar>
 
     </KPageContainer>
 
@@ -141,17 +141,12 @@
 
   import { mapState, mapActions, mapGetters } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
@@ -165,20 +160,15 @@
     // TODO: Rename this to 'ExamCreationPage'
     name: 'CreateExamPage',
     components: {
-      KTextbox,
-      KRouterLink,
-      KButton,
       UiAlert,
       LessonsSearchBox,
       LessonsSearchFilters,
       ResourceSelectionBreadcrumbs,
       ContentCardList,
-      KGrid,
-      KGridItem,
       UiIconButton,
-      KBottomAppBar,
+      BottomAppBar,
     },
-    mixins: [commonCoreStrings, commonCoach, responsiveWindow],
+    mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     data() {
       return {
         showError: false,
@@ -503,10 +493,6 @@
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
       noneSelected: 'No exercises are selected',
-      // TODO: Interpolate strings correctly
-      added: "Added '{item}'",
-      removed: "Removed '{item}'",
-      selected: '{count, number, integer} total selected',
       exitSearchButtonLabel: 'Exit search',
       // TODO: Handle singular/plural
       selectionInformation:

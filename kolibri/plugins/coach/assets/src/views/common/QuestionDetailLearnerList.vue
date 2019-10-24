@@ -52,12 +52,11 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'QuestionDetailLearnerList',
-    mixins: [commonCoreStrings, themeMixin],
+    mixins: [commonCoreStrings],
     props: {
       learners: {
         type: Array,

@@ -82,8 +82,6 @@
   import { mapState } from 'vuex';
   import fromPairs from 'lodash/fromPairs';
   import find from 'lodash/find';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -114,8 +112,6 @@
       CoreBase: CoachCoreBase,
       HeaderTable,
       HeaderTableRow,
-      KLabeledIcon,
-      KPageContainer,
       ManageExamModals,
       QuestionListPreview,
       QuizActive,
@@ -278,7 +274,6 @@
       },
     },
     $trs: {
-      pageLoadingError: 'There was a problem loading this quiz',
       quizDeletedNotification: `'{title}' was deleted`,
       uniqueTitleError: `A quiz titled '{title}' already exists in '{className}'`,
     },

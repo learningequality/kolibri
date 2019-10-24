@@ -54,24 +54,17 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KFixedGrid from 'kolibri.coreVue.components.KFixedGrid';
-  import KFixedGridItem from 'kolibri.coreVue.components.KFixedGridItem';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'PageStatus',
     components: {
-      KFixedGrid,
-      KFixedGridItem,
       ProgressIcon,
       ElapsedTime,
-      KLabeledIcon,
     },
-    mixins: [commonCoreStrings, themeMixin],
+    mixins: [commonCoreStrings],
     props: {
       userName: {
         type: String,

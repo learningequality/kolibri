@@ -88,7 +88,6 @@
       },
     },
     $trs: {
-      topics: 'Topics',
       documentTitleForChannel: 'Topics - { channelTitle }',
       documentTitleForTopic: '{ topicTitle } - { channelTitle }',
     },

@@ -9,8 +9,6 @@ import morango.models
 from django.db import migrations
 from django.db import models
 
-import kolibri.core.content.models
-
 
 class Migration(migrations.Migration):
 
@@ -97,8 +95,8 @@ class Migration(migrations.Migration):
                     "_morango_partition",
                     models.CharField(editable=False, max_length=128),
                 ),
-                ("content_id", kolibri.core.content.models.UUIDField(db_index=True)),
-                ("channel_id", kolibri.core.content.models.UUIDField()),
+                ("content_id", morango.models.UUIDField(db_index=True)),
+                ("channel_id", morango.models.UUIDField()),
                 ("start_timestamp", models.DateTimeField()),
                 ("end_timestamp", models.DateTimeField(blank=True, null=True)),
                 (
@@ -155,8 +153,8 @@ class Migration(migrations.Migration):
                     "_morango_partition",
                     models.CharField(editable=False, max_length=128),
                 ),
-                ("content_id", kolibri.core.content.models.UUIDField(db_index=True)),
-                ("channel_id", kolibri.core.content.models.UUIDField()),
+                ("content_id", morango.models.UUIDField(db_index=True)),
+                ("channel_id", morango.models.UUIDField()),
                 ("start_timestamp", models.DateTimeField()),
                 ("end_timestamp", models.DateTimeField(blank=True, null=True)),
                 ("completion_timestamp", models.DateTimeField(blank=True, null=True)),
@@ -247,8 +245,8 @@ class Migration(migrations.Migration):
                     "interaction_history",
                     jsonfield.fields.JSONField(blank=True, default=[]),
                 ),
-                ("content_id", kolibri.core.content.models.UUIDField()),
-                ("channel_id", kolibri.core.content.models.UUIDField()),
+                ("content_id", morango.models.UUIDField()),
+                ("channel_id", morango.models.UUIDField()),
                 (
                     "dataset",
                     models.ForeignKey(

@@ -8,6 +8,8 @@ module.exports = [
       entry: './assets/src/core-app',
       output: {
         library: kolibriName,
+        libraryExport: 'default',
+        libraryTarget: 'window',
       },
     },
   },

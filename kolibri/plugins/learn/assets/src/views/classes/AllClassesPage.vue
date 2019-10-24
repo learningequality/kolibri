@@ -29,7 +29,7 @@
 
   import { mapState, mapGetters } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ContentCard from '../ContentCard';
@@ -47,7 +47,7 @@
       AuthMessage,
       ContentCard,
     },
-    mixins: [commonCoreStrings, responsiveWindow, commonLearnStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin, commonLearnStrings],
     computed: {
       ...mapGetters(['isUserLoggedIn']),
       ...mapState('classes', ['classrooms']),

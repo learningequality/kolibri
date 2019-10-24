@@ -69,7 +69,6 @@
 
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
@@ -84,9 +83,6 @@
 
   export default {
     name: 'LessonsSearchFilters',
-    components: {
-      KSelect,
-    },
     mixins: [commonCoreStrings],
     props: {
       searchResults: {
@@ -180,8 +176,11 @@
       topics: 'Topics',
       videos: 'Videos',
       hideAction: 'Hide',
+      // Linter will not find these dynamic uses.
+      /* eslint-disable kolibri/vue-no-unused-translations */
       searchResultsMessage: `Results for '{searchTerm}'`,
       noSearchResultsMessage: `No results for '{searchTerm}'`,
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 

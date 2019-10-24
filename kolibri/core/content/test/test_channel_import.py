@@ -17,24 +17,23 @@ from sqlalchemy import create_engine
 from .sqlalchemytesting import django_connection_engine
 from .test_content_app import ContentNodeTestBase
 from kolibri.core.content import models as content
+from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
+from kolibri.core.content.constants.schema_versions import NO_VERSION
+from kolibri.core.content.constants.schema_versions import V020BETA1
+from kolibri.core.content.constants.schema_versions import V040BETA3
+from kolibri.core.content.constants.schema_versions import VERSION_1
+from kolibri.core.content.constants.schema_versions import VERSION_2
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
-from kolibri.core.content.models import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.models import NO_VERSION
-from kolibri.core.content.models import V020BETA1
-from kolibri.core.content.models import V040BETA3
-from kolibri.core.content.models import VERSION_1
 from kolibri.core.content.utils.annotation import recurse_annotation_up_tree
 from kolibri.core.content.utils.annotation import (
     set_leaf_node_availability_from_local_file_availability,
 )
 from kolibri.core.content.utils.channel_import import ChannelImport
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
-from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
-from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 
 
@@ -432,13 +431,6 @@ class ContentImportTestBase(TransactionTestCase):
             new=self.get_engine,
         ):
 
-            channel_metadata = read_channel_metadata_from_db_file(
-                get_content_database_file_path("6199dde695db4ee4ab392222d5af1e5c")
-            )
-
-            # Double check that we have actually created a valid content db that is recognized as having that schema
-            assert channel_metadata.inferred_schema_version == self.schema_name
-
             import_channel_from_local_db("6199dde695db4ee4ab392222d5af1e5c")
 
     def get_engine(self, connection_string):
@@ -591,6 +583,22 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
             ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").description,
             self.longdescription,
         )
+
+
+class Version2ImportTestCase(NaiveImportTestCase):
+    """
+    Integration test for import from no version import
+    """
+
+    name = VERSION_2
+
+    @classmethod
+    def tearDownClass(cls):
+        super(Version2ImportTestCase, cls).tearDownClass()
+
+    @classmethod
+    def setUpClass(cls):
+        super(Version2ImportTestCase, cls).setUpClass()
 
 
 class Version1ImportTestCase(NaiveImportTestCase):

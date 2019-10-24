@@ -40,9 +40,6 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import KFixedGrid from 'kolibri.coreVue.components.KFixedGrid';
-  import KFixedGridItem from 'kolibri.coreVue.components.KFixedGridItem';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import CoachStatusIcon from '../status/CoachStatusIcon';
   import {
@@ -62,9 +59,6 @@
       ContentIcon,
       CoachStatusIcon,
       ElapsedTime,
-      KFixedGrid,
-      KFixedGridItem,
-      KRouterLink,
     },
     props: {
       targetPage: {

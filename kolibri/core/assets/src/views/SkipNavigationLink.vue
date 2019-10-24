@@ -15,15 +15,8 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-
   export default {
     name: 'SkipNavigationLink',
-    components: {
-      KButton,
-    },
-    mixins: [themeMixin],
     computed: {
       linkStyles() {
         return {
@@ -50,7 +43,7 @@
           }
         } else {
           // NOTE: the button retains focus, but loses :focus styling after hitting "Enter"
-          // TODO: look into vuexModality.js to see if we can get consistent
+          // TODO: look into theme input modality to see if we can get consistent
           // styling when in keyboard modality
           this.$refs.button.$el.focus();
         }

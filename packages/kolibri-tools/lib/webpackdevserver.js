@@ -55,7 +55,7 @@ function webpackConfig(pluginData, hot) {
 function buildWebpack(data, index, startCallback, doneCallback, options) {
   const port = options.port + index;
   const publicPath = genPublicPath(CONFIG.address, port, CONFIG.basePath);
-  const hot = options.hot;
+  const hot = Boolean(options.hot);
 
   // webpack config for this bundle
   const bundleConfig = webpackConfig(data, hot);
@@ -65,23 +65,26 @@ function buildWebpack(data, index, startCallback, doneCallback, options) {
   // The standard strategy (addDevServerEntrypoints) doesn't work for us. See:
   //   https://github.com/webpack/webpack-dev-server/issues/1051#issuecomment-443794959
   if (hot) {
-    // First, turn entry points into an array if it's currently a string:
-    if (typeof bundleConfig.entry[data.name] === 'string') {
-      bundleConfig.entry[data.name] = [bundleConfig.entry[data.name]];
-    } else if (!Array.isArray(bundleConfig.entry[data.name])) {
-      buildLogging.error('Unhandled data type for bundle entries');
-      process.exit(1);
-    }
-    // Next, prepend two hot-reload-related entry points to the config:
-    bundleConfig.entry[data.name].unshift(
-      `webpack-dev-server/client?http://${CONFIG.address}:${port}/`,
-      'webpack/hot/dev-server'
-    );
+    Object.keys(bundleConfig.entry).forEach(key => {
+      // First, turn entry points into an array if it's currently a string:
+      if (typeof bundleConfig.entry[key] === 'string') {
+        bundleConfig.entry[key] = [bundleConfig.entry[key]];
+      } else if (!Array.isArray(bundleConfig.entry[key])) {
+        buildLogging.error('Unhandled data type for bundle entries');
+        process.exit(1);
+      }
+      // Next, prepend two hot-reload-related entry points to the config:
+      bundleConfig.entry[key].unshift(
+        `webpack-dev-server/client?http://${CONFIG.address}:${port}/`,
+        'webpack/hot/dev-server'
+      );
+    });
   }
 
   const compiler = webpack(bundleConfig);
   const devServerOptions = {
     hot,
+    liveReload: !hot,
     host: CONFIG.host,
     port,
     watchOptions: {

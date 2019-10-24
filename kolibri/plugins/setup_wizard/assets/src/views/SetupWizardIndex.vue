@@ -18,7 +18,7 @@
       <ProgressToolbar
         :currentStep="onboardingStep"
         :totalSteps="totalOnboardingSteps"
-        :style="{ backgroundColor: $themeTokens.primary }"
+        :style="{ backgroundColor: $themeTokens.appBar }"
         @backButtonClicked="goToPreviousStep"
       />
 
@@ -39,9 +39,8 @@
 <script>
 
   import { mapActions, mapState, mapMutations } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import LoadingPage from './submission-states/LoadingPage';
   import ErrorPage from './submission-states/ErrorPage';
   import ProgressToolbar from './ProgressToolbar';
@@ -76,7 +75,7 @@
       LoadingPage,
       ErrorPage,
     },
-    mixins: [commonCoreStrings, responsiveWindow, themeMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
         totalOnboardingSteps: 7,
@@ -141,6 +140,19 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+
+  // from http://nicolasgallagher.com/micro-clearfix-hack/
+  @mixin clearfix() {
+    zoom: 1;
+    &::after,
+    &::before {
+      display: table;
+      content: '';
+    }
+    &::after {
+      clear: both;
+    }
+  }
 
   .onboarding {
     @include clearfix(); // child margin leaks up into otherwise empty parent

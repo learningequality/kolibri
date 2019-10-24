@@ -9,7 +9,8 @@ from kolibri.core.content.hooks import ContentNodeDisplayHook
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack import hooks as webpack_hooks
-from kolibri.plugins.base import KolibriPluginBase
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
 
 
 class Learn(KolibriPluginBase):
@@ -17,6 +18,7 @@ class Learn(KolibriPluginBase):
     translated_view_urls = "urls"
 
 
+@register_hook
 class LearnRedirect(RoleBasedRedirectHook):
     role = LEARNER
 
@@ -25,14 +27,17 @@ class LearnRedirect(RoleBasedRedirectHook):
         return self.plugin_url(Learn, "learn")
 
 
-class LearnNavItem(NavigationHook, webpack_hooks.WebpackBundleHook):
-    bundle_id = "learn_module_side_nav"
+@register_hook
+class LearnNavItem(NavigationHook):
+    bundle_id = "side_nav"
 
 
+@register_hook
 class LearnAsset(webpack_hooks.WebpackBundleHook):
-    bundle_id = "learn_module"
+    bundle_id = "app"
 
 
+@register_hook
 class LearnContentNodeHook(ContentNodeDisplayHook):
     def node_url(self, node):
         kind_slug = None
@@ -43,4 +48,9 @@ class LearnContentNodeHook(ContentNodeDisplayHook):
         else:
             kind_slug = "c/"
         if kind_slug is not None:
-            return reverse("kolibri:learn:learn") + "#/topics/" + kind_slug + node.id
+            return (
+                reverse("kolibri:kolibri.plugins.learn:learn")
+                + "#/topics/"
+                + kind_slug
+                + node.id
+            )

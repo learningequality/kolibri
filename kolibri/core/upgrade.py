@@ -112,9 +112,11 @@ def matches_version(version, version_range):
     return match(version, version_range)
 
 
-def get_upgrades():
+def get_upgrades(app_configs=None):
+    if app_configs is None:
+        app_configs = apps.get_app_configs()
     version_upgrades = []
-    for app_config in apps.get_app_configs():
+    for app_config in app_configs:
         try:
             upgrade_module = import_module(".upgrade", app_config.module.__name__)
             version_upgrades += [
@@ -130,7 +132,7 @@ def get_upgrades():
     return version_upgrades
 
 
-def run_upgrades(old_version, new_version):
+def run_upgrades(old_version, new_version, app_configs=None):
     def filter_upgrade(upgrade):
         return (
             # Only import upgrades that match the old version
@@ -141,5 +143,7 @@ def run_upgrades(old_version, new_version):
             and matches_version(new_version, upgrade.NEW_VERSION)
         )
 
-    for version_upgrade in sorted(filter(filter_upgrade, get_upgrades())):
+    for version_upgrade in sorted(
+        filter(filter_upgrade, get_upgrades(app_configs=app_configs))
+    ):
         version_upgrade()

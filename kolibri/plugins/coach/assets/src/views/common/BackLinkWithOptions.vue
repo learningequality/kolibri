@@ -24,17 +24,10 @@
 
 <script>
 
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-
   // Lays out a back button on the left with an options button on the right,
   // as used in many different pages
   export default {
     name: 'BackLinkWithOptions',
-    components: {
-      KGrid,
-      KGridItem,
-    },
   };
 
 </script>

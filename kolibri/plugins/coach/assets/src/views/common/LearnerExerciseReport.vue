@@ -61,7 +61,7 @@
             :selectedInteractionIndex="interactionIndex"
             @select="navigateToNewInteraction($event)"
           />
-          <ContentRenderer
+          <KContentRenderer
             v-if="currentInteraction"
             :itemId="currentAttemptLog.item"
             :assessment="true"
@@ -85,11 +85,8 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -98,14 +95,12 @@
   export default {
     name: 'LearnerExerciseReport',
     components: {
-      ContentRenderer,
       AttemptLogList,
       InteractionList,
-      KCheckbox,
       MultiPaneLayout,
       CoachContentLabel,
     },
-    mixins: [commonCoach, commonCoreStrings, themeMixin],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         showCorrectAnswer: false,

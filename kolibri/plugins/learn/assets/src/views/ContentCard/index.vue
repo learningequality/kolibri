@@ -49,12 +49,10 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import CardThumbnail from './CardThumbnail';
 
   export default {
@@ -63,9 +61,7 @@
       CardThumbnail,
       CoachContentLabel,
       TextTruncator,
-      KButton,
     },
-    mixins: [themeMixin],
     props: {
       title: {
         type: String,

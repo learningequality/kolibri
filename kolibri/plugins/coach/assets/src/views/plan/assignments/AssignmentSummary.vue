@@ -30,7 +30,6 @@
 
 <script>
 
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import HeaderTable from '../../common/HeaderTable';
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
   import Recipients from '../../common/Recipients';
@@ -43,7 +42,6 @@
     name: 'AssignmentSummary',
     components: {
       LessonActive,
-      KLabeledIcon,
       HeaderTable,
       HeaderTableRow,
       Recipients,

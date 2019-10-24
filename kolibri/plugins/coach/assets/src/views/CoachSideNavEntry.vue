@@ -3,13 +3,8 @@
   <CoreMenuOption
     :label="coreString('coachLabel')"
     :link="url"
-  >
-    <mat-svg
-      slot="icon"
-      name="assessment"
-      category="action"
-    />
-  </CoreMenuOption>
+    icon="coach"
+  />
 
 </template>
 
@@ -31,7 +26,7 @@
     $trs: {},
     computed: {
       url() {
-        return urls['kolibri:coach:coach']();
+        return urls['kolibri:kolibri.plugins.coach:coach']();
       },
     },
     role: UserKinds.COACH,

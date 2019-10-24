@@ -53,16 +53,11 @@
 
 <script>
 
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import KModal from 'kolibri.coreVue.components.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'PrivacyInfoModal',
-    components: {
-      KExternalLink,
-      KModal,
-    },
     mixins: [commonCoreStrings],
     props: {
       hideUsersSection: {
@@ -80,7 +75,7 @@
     },
     computed: {
       oidcProviderEnabled() {
-        return global.oidcProviderEnabled;
+        return plugin_data.oidcProviderEnabled;
       },
     },
     $trs: {

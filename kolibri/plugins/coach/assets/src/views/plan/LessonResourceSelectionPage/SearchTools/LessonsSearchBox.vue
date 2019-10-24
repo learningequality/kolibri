@@ -69,7 +69,6 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
@@ -78,7 +77,7 @@
     components: {
       UiIconButton,
     },
-    mixins: [commonCoreStrings, themeMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         searchTerm: this.$route.params.searchTerm || '',

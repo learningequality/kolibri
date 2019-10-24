@@ -3,13 +3,8 @@
   <CoreMenuOption
     :label="$tr('profile')"
     :link="url"
-  >
-    <mat-svg
-      slot="icon"
-      name="account_circle"
-      category="action"
-    />
-  </CoreMenuOption>
+    icon="profile"
+  />
 
 </template>
 
@@ -31,7 +26,7 @@
     },
     computed: {
       url() {
-        return urls['kolibri:user:user']();
+        return urls['kolibri:kolibri.plugins.user:user']();
       },
     },
     role: UserKinds.LEARNER,

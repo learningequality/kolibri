@@ -98,9 +98,9 @@ To use computed classes for Vue.js transitions, you can use the ``{event}-class`
 Bootstrapped data
 -----------------
 
-The ``kolibriGlobal`` object is also used to bootstrap data into the JS app, rather than making unnecessary API requests.
+The ``kolibriCoreAppGlobal`` object is also used to bootstrap data into the JS app, rather than making unnecessary API requests.
 
-For example, we currently embellish the ``kolibriGlobal`` object with a ``urls`` object. This is defined by `Django JS Reverse <https://github.com/ierror/django-js-reverse>`__ and exposes Django URLs on the client side. This will primarily be used for accessing API Urls for synchronizing with the REST API. See the Django JS Reverse documentation for details on invoking the Url.
+For example, we currently embellish the ``kolibriCoreAppGlobal`` object with a ``urls`` object. This is defined by `Django JS Reverse <https://github.com/ierror/django-js-reverse>`__ and exposes Django URLs on the client side. This will primarily be used for accessing API Urls for synchronizing with the REST API. See the Django JS Reverse documentation for details on invoking the Url.
 
 Additional functionality
 ------------------------
@@ -109,7 +109,7 @@ These methods are also publicly exposed methods of the core app:
 
 .. code-block:: javascript
 
-  kolibriGlobal.register_kolibri_module_async   // Register a Kolibri module for asynchronous loading.
-  kolibriGlobal.register_kolibri_module_sync    // Register a Kolibri module once it has loaded.
-  kolibriGlobal.stopListening                   // Unbind an event/callback pair from triggering.
-  kolibriGlobal.emit                            // Emit an event, with optional args.
+  kolibriCoreAppGlobal.register_kolibri_module_async   // Register a Kolibri module for asynchronous loading.
+  kolibriCoreAppGlobal.register_kolibri_module_sync    // Register a Kolibri module once it has loaded.
+  kolibriCoreAppGlobal.stopListening                   // Unbind an event/callback pair from triggering.
+  kolibriCoreAppGlobal.emit                            // Emit an event, with optional args.

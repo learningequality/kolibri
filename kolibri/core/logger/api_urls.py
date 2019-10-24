@@ -9,8 +9,8 @@ from .api import ExamLogViewSet
 from .api import MasteryLogViewSet
 from .api import TotalContentProgressViewSet
 from .api import UserSessionLogViewSet
-from .csv import download_csv_file
-from .csv import exported_logs_info
+from .csv_export import download_csv_file
+from .csv_export import exported_logs_info
 
 router = routers.SimpleRouter()
 

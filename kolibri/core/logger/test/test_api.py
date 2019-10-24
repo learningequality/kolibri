@@ -4,6 +4,8 @@ Also tests whether the users with permissions can create logs.
 """
 import csv
 import datetime
+import sys
+import tempfile
 import uuid
 
 from django.core.management import call_command
@@ -582,56 +584,36 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         ]
         self.facility.add_admin(self.admin)
 
-    @patch(
-        "kolibri.core.logger.management.commands.exportlogs.AsyncListSerializer.data"
-    )
-    @patch("kolibri.core.api.CSVModelViewSet.get_queryset")
-    @patch("kolibri.core.logger.management.commands.exportlogs.Command._create_file")
-    def test_csv_download(self, _create_file_mock, get_queryset_mock, data_mock):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
+    def test_csv_download(self):
         expected_count = ContentSummaryLog.objects.count()
-        data_mock.__iter__.return_value = ContentSummaryLog.objects.all()
-        get_queryset_mock.return_value = ContentSummaryLog.objects
+        _, filepath = tempfile.mkstemp(suffix=".csv")
         call_command(
-            "exportlogs", log_type="summary", output_file="/my/path/not/exists"
+            "exportlogs", log_type="summary", output_file=filepath, overwrite=True
         )
-        response = _create_file_mock.call_args[0][0]
-        results = list(
-            csv.reader(row for row in response.decode("utf-8").split("\r\n") if row)
-        )
+        if sys.version_info[0] < 3:
+            csv_file = open(filepath, "rb")
+        else:
+            csv_file = open(filepath, "r", newline="")
+        with csv_file as f:
+            results = list(csv.reader(f))
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
 
-    @patch(
-        "kolibri.core.logger.management.commands.exportlogs.AsyncListSerializer.data"
-    )
-    @patch("kolibri.core.api.CSVModelViewSet.get_queryset")
-    @patch("kolibri.core.logger.management.commands.exportlogs.Command._create_file")
-    def test_csv_download_deleted_content(
-        self, _create_file_mock, get_queryset_mock, data_mock
-    ):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
+    def test_csv_download_deleted_content(self):
         expected_count = ContentSummaryLog.objects.count()
         ContentNode.objects.all().delete()
         ChannelMetadata.objects.all().delete()
-        data_mock.__iter__.return_value = ContentSummaryLog.objects.all()
-        get_queryset_mock.return_value = ContentSummaryLog.objects
+        _, filepath = tempfile.mkstemp(suffix=".csv")
         call_command(
-            "exportlogs", log_type="summary", output_file="/my/path/not/exists"
+            "exportlogs", log_type="summary", output_file=filepath, overwrite=True
         )
-        response = _create_file_mock.call_args[0][0]
-        results = list(
-            csv.reader(row for row in response.decode("utf-8").split("\r\n") if row)
-        )
+        if sys.version_info[0] < 3:
+            csv_file = open(filepath, "rb")
+        else:
+            csv_file = open(filepath, "r", newline="")
+        with csv_file as f:
+            results = list(csv.reader(f))
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
@@ -657,56 +639,36 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         ]
         self.facility.add_admin(self.admin)
 
-    @patch(
-        "kolibri.core.logger.management.commands.exportlogs.AsyncListSerializer.data"
-    )
-    @patch("kolibri.core.api.CSVModelViewSet.get_queryset")
-    @patch("kolibri.core.logger.management.commands.exportlogs.Command._create_file")
-    def test_csv_download(self, _create_file_mock, get_queryset_mock, data_mock):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
+    def test_csv_download(self):
         expected_count = ContentSessionLog.objects.count()
-        data_mock.__iter__.return_value = ContentSessionLog.objects.all()
-        get_queryset_mock.return_value = ContentSessionLog.objects
+        _, filepath = tempfile.mkstemp(suffix=".csv")
         call_command(
-            "exportlogs", log_type="session", output_file="/my/path/not/exists"
+            "exportlogs", log_type="session", output_file=filepath, overwrite=True
         )
-        response = _create_file_mock.call_args[0][0]
-        results = list(
-            csv.reader(row for row in response.decode("utf-8").split("\r\n") if row)
-        )
+        if sys.version_info[0] < 3:
+            csv_file = open(filepath, "rb")
+        else:
+            csv_file = open(filepath, "r", newline="")
+        with csv_file as f:
+            results = list(csv.reader(f))
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
 
-    @patch(
-        "kolibri.core.logger.management.commands.exportlogs.AsyncListSerializer.data"
-    )
-    @patch("kolibri.core.api.CSVModelViewSet.get_queryset")
-    @patch("kolibri.core.logger.management.commands.exportlogs.Command._create_file")
-    def test_csv_download_deleted_content(
-        self, _create_file_mock, get_queryset_mock, data_mock
-    ):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
+    def test_csv_download_deleted_content(self):
         expected_count = ContentSessionLog.objects.count()
         ContentNode.objects.all().delete()
         ChannelMetadata.objects.all().delete()
-        data_mock.__iter__.return_value = ContentSessionLog.objects.all()
-        get_queryset_mock.return_value = ContentSessionLog.objects
+        _, filepath = tempfile.mkstemp(suffix=".csv")
         call_command(
-            "exportlogs", log_type="session", output_file="/my/path/not/exists"
+            "exportlogs", log_type="session", output_file=filepath, overwrite=True
         )
-        response = _create_file_mock.call_args[0][0]
-        results = list(
-            csv.reader(row for row in response.decode("utf-8").split("\r\n") if row)
-        )
+        if sys.version_info[0] < 3:
+            csv_file = open(filepath, "rb")
+        else:
+            csv_file = open(filepath, "r", newline="")
+        with csv_file as f:
+            results = list(csv.reader(f))
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)

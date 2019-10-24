@@ -15,6 +15,9 @@ from pkg_resources import resource_listdir
 
 logger = logging.getLogger("webpack_json")
 logger.setLevel(level=logging.INFO)
+handler = logging.StreamHandler()
+handler.setLevel(logging.INFO)
+logger.addHandler(handler)
 
 BUILD_CONFIG = "buildConfig.js"
 
@@ -69,20 +72,31 @@ def expand_glob(build_item):
     return plugins
 
 
+def get_version(module_path):
+    try:
+        return get_distribution(module_path).version
+    except (DistributionNotFound, AttributeError):
+        try:
+            module = importlib.import_module(module_path)
+            return module.__version__
+        except (ImportError, AttributeError):
+            try:
+                # Try importing the top level module that this plugin is in
+                module = importlib.import_module(module_path.split(".")[0])
+                return module.__version__
+            except (ImportError, AttributeError):
+                # This should work for most things, but seems like we are stuck
+                # Make one last try by importing Kolibri instead!
+                import kolibri
+
+                return kolibri.__version__
+
+
 def plugin_data(module_path):
     try:
         if resource_exists(module_path, BUILD_CONFIG):
             plugin_path = os.path.dirname(resource_filename(module_path, BUILD_CONFIG))
-            try:
-                version = get_distribution(module_path).version
-            except (DistributionNotFound, AttributeError):
-                try:
-                    module = importlib.import_module(module_path)
-                    version = module.__version__
-                except (ImportError, AttributeError):
-                    import kolibri
-
-                    version = kolibri.__version__
+            version = get_version(module_path)
             if module_path.startswith("kolibri."):
                 import kolibri
 
@@ -97,6 +111,7 @@ def plugin_data(module_path):
             return {
                 "locale_data_folder": locale_data_folder,
                 "plugin_path": plugin_path,
+                "module_path": module_path,
                 "version": version,
             }
     # Python 3.{4,5,6} raises a NotImplementedError for an empty directory

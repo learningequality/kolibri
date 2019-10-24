@@ -65,9 +65,9 @@ def extend_config_spec(base_config_spec):
     plugin_specs = {}
     final_spec = copy.deepcopy(base_config_spec)
     for plugin_instance in registered_plugins:
-        plugin_options = plugin_instance.options_module()
+        plugin_options = plugin_instance.options_module
         if plugin_options and hasattr(plugin_options, "option_spec"):
-            module_path = plugin_instance._module_path()
+            module_path = plugin_instance.module_path
             option_spec = plugin_options.option_spec
             __process_config_spec(
                 option_spec, base_config_spec, plugin_specs, module_path, final_spec

@@ -21,13 +21,8 @@
 
 <script>
 
-  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
-
   export default {
     name: 'TruncatedItemList',
-    components: {
-      KEmptyPlaceholder,
-    },
     props: {
       items: {
         type: Array,

@@ -195,7 +195,11 @@ program
           if (persistent) {
             childProcess.on('exit', (code, signal) => {
               children.forEach(child => {
-                child.kill(signal);
+                if (signal) {
+                  child.kill(signal);
+                } else {
+                  child.kill();
+                }
               });
               process.exit(code);
             });

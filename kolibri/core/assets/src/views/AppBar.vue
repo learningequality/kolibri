@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="{ backgroundColor: $themeTokens.primary }">
+  <div :style="{ backgroundColor: $themeTokens.appBar }">
 
     <SkipNavigationLink />
 
@@ -27,11 +27,11 @@
       </UiIconButton>
 
       <img
-        v-if="$theme.appBar.topLogo"
+        v-if="$kolibriBranding.appBar.topLogo"
         slot="brand"
-        :src="$theme.appBar.topLogo.src"
-        :alt="$theme.appBar.topLogo.alt"
-        :style="$theme.appBar.topLogo.style"
+        :src="$kolibriBranding.appBar.topLogo.src"
+        :alt="$kolibriBranding.appBar.topLogo.alt"
+        :style="$kolibriBranding.appBar.topLogo.style"
         class="brand-logo"
       >
 
@@ -55,9 +55,7 @@
             category="social"
             :style="{fill: $themeTokens.textInverted}"
           />
-          <span v-if="isUserLoggedIn" class="username" tabindex="-1">
-            {{ username }}
-          </span>
+          <span v-if="isUserLoggedIn" class="username" tabindex="-1">{{ dropdownName }}</span>
           <mat-svg
             name="arrow_drop_down"
             category="navigation"
@@ -91,14 +89,10 @@
             <component :is="component" v-for="component in menuOptions" :key="component.name" />
             <CoreMenuOption
               :label="$tr('languageSwitchMenuOption')"
+              icon="language"
+              style="cursor: pointer;"
               @select="handleChangeLanguage"
-            >
-              <mat-svg
-                slot="icon"
-                name="language"
-                category="action"
-              />
-            </CoreMenuOption>
+            />
             <LogoutSideNavEntry v-if="isUserLoggedIn" />
           </template>
 
@@ -117,7 +111,6 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
@@ -127,9 +120,12 @@
   import UiButton from 'keen-ui/src/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+  import branding from 'kolibri.utils.branding';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
   import SkipNavigationLink from './SkipNavigationLink';
+
+  const hashedValuePattern = /^[a-f0-9]{30}$/;
 
   export default {
     name: 'AppBar',
@@ -143,7 +139,7 @@
       UserTypeDisplay,
       SkipNavigationLink,
     },
-    mixins: [commonCoreStrings, navComponentsMixin, themeMixin],
+    mixins: [commonCoreStrings, navComponentsMixin],
     props: {
       title: {
         type: String,
@@ -163,15 +159,21 @@
       ...mapGetters(['isUserLoggedIn', 'getUserKind']),
       ...mapState({
         username: state => state.core.session.username,
+        fullName: state => state.core.session.full_name,
       }),
       menuOptions() {
         return navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
           .filter(this.filterByRole);
       },
+      // temp hack for the VF plugin
+      dropdownName() {
+        return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
+      },
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
+      this.$kolibriBranding = branding;
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
@@ -219,10 +221,38 @@
     text-overflow: ellipsis;
   }
 
+  // Holdover from keen-ui to keep dropdown profile correctly formatted.
+  /deep/ .ui-menu {
+    min-width: 10.5rem;
+    max-width: 17rem;
+    max-height: 100vh;
+    padding: 0.25rem 0;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    list-style: none;
+    background-color: inherit;
+    border: 0.0625rem solid rgba(0, 0, 0, 0.08);
+    outline: none;
+  }
+
   .user-menu-dropdown {
     position: fixed;
     right: 0;
     z-index: 8;
+
+    // Holdover from previous CoreMenuOption format. Will keep the profile
+    // dropdown formatted correctly.
+    /deep/ .core-menu-option-content {
+      padding-right: 8px;
+      padding-left: 8px;
+      font-size: 0.9375rem;
+      color: black !important;
+    }
+
+    /deep/ svg {
+      fill: black !important;
+    }
   }
 
   .role {

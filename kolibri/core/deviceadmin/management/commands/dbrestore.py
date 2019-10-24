@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import logging
 import os
 
-from clint.textui import prompt
+import click
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 
@@ -69,7 +69,7 @@ class Command(BaseCommand):
         if os.path.exists(dumps_root):
             use_backup = search_latest(dumps_root, fallback_version)
         if not use_backup:
-            raise RuntimeError(
+            raise CommandError(
                 "Could not find a database backup for version: {}".format(
                     fallback_version
                 )
@@ -90,21 +90,21 @@ class Command(BaseCommand):
             backups = backups[:10]  # don't show more than 10 backups
 
         if not backups:
-            raise RuntimeError("Could not find a database backup}")
+            raise CommandError("Could not find a database backup}")
         # Shows a list of options to select from
-        backup_options = [
-            {
-                "selector": str(sel + 1),
-                "prompt": get_dtm_from_backup_name(backup),
-                "return": backup,
-            }
-            for sel, backup in enumerate(backups)
-        ]
-        selected_backup = prompt.options(
-            "Type the number in brackets to select the backup to be restored",
-            backup_options,
+        selected_backup = click.prompt(
+            "Type the number in brackets to select the backup to be restored\n"
+            + "".join(
+                (
+                    "({num}) {backup}\n".format(
+                        num=num + 1, backup=get_dtm_from_backup_name(backup)
+                    )
+                    for num, backup in enumerate(backups)
+                )
+            ),
+            type=click.Choice([str(i) for i in range(1, len(backups) + 1)]),
         )
-        return os.path.join(dumps_root, selected_backup)
+        return os.path.join(dumps_root, backups[int(selected_backup) - 1])
 
     def handle(self, *args, **options):
         try:

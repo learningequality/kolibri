@@ -2,7 +2,11 @@ import importlib
 import warnings
 from types import ModuleType
 
+from django.apps import AppConfig
+
 from kolibri.plugins.registry import registered_plugins
+from kolibri.plugins.utils import is_external_plugin
+from kolibri.utils import i18n
 
 
 def _validate_settings_module(settings_module):
@@ -20,7 +24,12 @@ def _validate_settings_module(settings_module):
     return settings_module
 
 
-_tuple_settings = ("INSTALLED_APPS", "TEMPLATE_DIRS", "LOCALE_PATHS")
+_tuple_settings = (
+    "INSTALLED_APPS",
+    "TEMPLATE_DIRS",
+    "LOCALE_PATHS",
+    "AUTHENTICATION_BACKENDS",
+)
 
 
 def _validate_module_setting(
@@ -49,6 +58,15 @@ def _validate_module_setting(
         plugin_settings[setting] = [module_path]
 
 
+def _set_setting_value(setting, setting_value, settings_module):
+    if setting in _tuple_settings:
+        setting_value = tuple(setting_value)
+        original_value = tuple(getattr(settings_module, setting, tuple()))
+        setattr(settings_module, setting, original_value + setting_value)
+    else:
+        setattr(settings_module, setting, setting_value)
+
+
 def _process_module_settings(
     plugin_settings_module,
     plugin_settings,
@@ -65,12 +83,31 @@ def _process_module_settings(
             _validate_module_setting(
                 setting, existing_settings, setting_value, plugin_settings, module_path
             )
-            if setting in _tuple_settings:
-                setting_value = tuple(setting_value)
-                original_value = tuple(getattr(settings_module, setting, tuple()))
-                setattr(settings_module, setting, original_value + setting_value)
-            else:
-                setattr(settings_module, setting, setting_value)
+            _set_setting_value(setting, setting_value, settings_module)
+
+
+def _apply_base_settings(plugin_instance, settings_module):
+    # Instead of just adding the module path to the settings
+    # we instantiate an app config object for the plugin
+    # and explicitly set its label to its module path.
+    # This way, there is no way for a plugin to collide in its
+    # label in the Django App Registry with kolibri core apps
+    # or Kolibri core plugins.
+    app_config = AppConfig.create(plugin_instance.module_path)
+    app_config.label = plugin_instance.module_path
+    # Register the plugin as an installed app
+    _set_setting_value("INSTALLED_APPS", (app_config,), settings_module)
+    plugin_instance.INSTALLED_APPS.append(app_config)
+    # Add in the external plugins' locale paths. Our frontend messages depends
+    # specifically on the value of LOCALE_PATHS to find its catalog files.
+    if is_external_plugin(
+        plugin_instance.module_path
+    ) and i18n.get_installed_app_locale_path(plugin_instance.module_path):
+        _set_setting_value(
+            "LOCALE_PATHS",
+            (i18n.get_installed_app_locale_path(plugin_instance.module_path),),
+            settings_module,
+        )
 
 
 def apply_settings(settings_module):
@@ -92,12 +129,17 @@ def apply_settings(settings_module):
     plugin_settings = {}
 
     for plugin_instance in registered_plugins:
-        plugin_settings_module = plugin_instance.settings_module()
+        _apply_base_settings(plugin_instance, settings_module)
+        plugin_settings_module = plugin_instance.settings_module
         if plugin_settings_module:
             _process_module_settings(
                 plugin_settings_module,
                 plugin_settings,
                 existing_settings,
-                plugin_instance._module_path(),
+                plugin_instance.module_path,
                 settings_module,
             )
+            if hasattr(plugin_settings_module, "INSTALLED_APPS"):
+                plugin_instance.INSTALLED_APPS.extend(
+                    plugin_settings_module.INSTALLED_APPS
+                )

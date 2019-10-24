@@ -63,7 +63,7 @@ class ClassSummaryTestCase(APITestCase):
             created_by=self.facility_admin,
         )
 
-        self.basename = "kolibri:coach:classsummary"
+        self.basename = "kolibri:kolibri.plugins.coach:classsummary"
         self.detail_name = self.basename + "-detail"
 
     def test_non_existent_nodes_dont_show_up_in_lessons(self):

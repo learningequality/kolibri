@@ -16,7 +16,7 @@
       </h1>
       <form @submit.prevent="addSelectedUsersToGroup">
         <div class="actions-header">
-          <KFilterTextbox
+          <FilterTextbox
             v-model.trim="filterInput"
             :placeholder="$tr('searchForUser')"
             @input="pageNum = 1"
@@ -29,8 +29,6 @@
           v-model="selectedUsers"
           :users="visibleFilteredUsers"
           :selectable="true"
-          :selectAllLabel="$tr('selectAllOnPage')"
-          :userCheckboxLabel="$tr('selectUser')"
           :emptyMessage="emptyMessage"
           :infoDescriptor="$tr('learnerGroups')"
         >
@@ -106,27 +104,25 @@
 
   import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import {
     userMatchesFilter,
     filterAndSortUsers,
-  } from '../../../../../../facility_management/assets/src/userSearchUtils';
-  import UserTable from '../../../../../../facility_management/assets/src/views/UserTable';
+  } from '../../../../../../facility/assets/src/userSearchUtils';
+  import UserTable from '../../../../../../facility/assets/src/views/UserTable';
 
   export default {
     name: 'GroupEnrollPage',
     components: {
-      KButton,
       UiIconButton,
-      KFilterTextbox,
+      FilterTextbox,
       UserTable,
     },
-    mixins: [responsiveWindow, commonCoach, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoach, commonCoreStrings],
     data() {
       return {
         filterInput: '',
@@ -221,9 +217,7 @@
       noUsersMatch: 'No users match',
       previousResults: 'Previous results',
       nextResults: 'Next results',
-      selectAllOnPage: 'Select all on page',
       allUsersAlready: 'All users are already enrolled in this class',
-      selectUser: 'Select user',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
       learnerGroups: 'Current groups',

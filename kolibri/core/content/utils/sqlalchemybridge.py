@@ -16,8 +16,8 @@ from sqlalchemy.pool import NullPool
 
 from .check_schema_db import db_matches_schema
 from .check_schema_db import DBSchemaError
-from kolibri.core.content.models import CONTENT_DB_SCHEMA_VERSIONS
-from kolibri.core.content.models import CURRENT_SCHEMA_VERSION
+from kolibri.core.content.constants.schema_versions import CONTENT_DB_SCHEMA_VERSIONS
+from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
@@ -35,6 +35,46 @@ BASES = {}
 
 class ClassNotFoundError(Exception):
     pass
+
+
+# get_conn and SharingPool code modified from:
+# http://nathansnoggin.blogspot.com/2013/11/integrating-sqlalchemy-into-django.html
+
+
+def get_conn(self):
+    """
+    custom connection factory, so we can share with django
+    """
+    from django.db import connections
+
+    conn = connections["default"]
+    return conn.connection
+
+
+class SharingPool(NullPool):
+    """
+    custom connection pool that doesn't close connections, and uses our
+    custom connection factory
+    """
+
+    def __init__(self, get_connection, **kwargs):
+        kwargs["reset_on_return"] = False
+        super(SharingPool, self).__init__(get_conn, **kwargs)
+
+    def status(self):
+        return "Sharing Pool"
+
+    def _do_return_conn(self, conn):
+        pass
+
+    def _do_get(self):
+        return self._create_connection()
+
+    def _close_connection(self, connection):
+        pass
+
+    def dispose(self):
+        pass
 
 
 def sqlite_connection_string(db_path):
@@ -226,27 +266,46 @@ class Bridge(object):
             self.connection_string = get_default_db_string()
             self.schema_version = schema_version or CURRENT_SCHEMA_VERSION
         else:
-            # Otherwise, we are accessing an external content database.
-            # So we try each of our historical database schema in order to see
-            # which glass slipper fits! If none do, just turn into a pumpkin.
+            # Otherwise, we are accessing an external database.
             self.connection_string = sqlite_connection_string(sqlite_file_path)
-            for version in CONTENT_DB_SCHEMA_VERSIONS:
-                self.schema_version = version
-                self.session, self.engine = make_session(self.connection_string)
-                try:
-                    db_matches_schema(BASES[self.schema_version], self.session)
-                    break
-                except DBSchemaError as e:
-                    logging.debug(e)
+            # If the schema_version is defined, then use the schema_version that was
+            # set.
+            if schema_version is not None:
+                self.schema_version = schema_version
             else:
-                raise SchemaNotFoundError("No matching schema found for this database")
+                # If not, we are probably looking at an imported content db
+                # So we try each of our historical database schema in order to see
+                # which glass slipper fits! If none do, just turn into a pumpkin.
+                for version in CONTENT_DB_SCHEMA_VERSIONS:
+                    self.schema_version = version
+                    self.session, self.engine = make_session(self.connection_string)
+                    try:
+                        db_matches_schema(BASES[self.schema_version], self.session)
+                        break
+                    except DBSchemaError as e:
+                        logging.debug(e)
+                else:
+                    raise SchemaNotFoundError(
+                        "No matching schema found for this database"
+                    )
 
         self.Base = BASES[self.schema_version]
         # We are using scoped sessions, so should always return the same session
         # in the same thread
         self.session, self.engine = make_session(self.connection_string)
 
-        self.connections = []
+        if schema_version is not None and sqlite_file_path is not None:
+            # In this case we are not using the default database, nor have
+            # we inferred the schema version from the schema of the database,
+            # so we cannot be sure that the database has the schema properly
+            # setup, so we do that here explicitly. If this DB has already
+            # had its schema put in place, SQLAlchemy is smart enough for this
+            # to be idempotent.
+            # Note, that this will not migrate databases if there has been a
+            # change in the schema beyond creating tables.
+            self.Base.metadata.create_all(self.engine)
+
+        self.connection = None
 
     def get_class(self, DjangoModel):
         return get_class(DjangoModel, self.Base)
@@ -258,13 +317,17 @@ class Bridge(object):
         """
         return self.get_class(DjangoModel).__table__
 
+    def get_raw_connection(self):
+        conn = self.get_connection()
+        return conn.connection
+
     def get_connection(self):
-        connection = self.engine.connect()
-        self.connections.append(connection)
-        return connection
+        if self.connection is None:
+            self.connection = self.engine.connect()
+        return self.connection
 
     def end(self):
         # Clean up session
         self.session.close()
-        for connection in self.connections:
-            connection.close()
+        if self.connection:
+            self.connection.close()

@@ -46,7 +46,6 @@
   import isEqual from 'lodash/isEqual';
   import isEmpty from 'lodash/isEmpty';
   import { LessonResource } from 'kolibri.resources';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { CoachCoreBase } from '../../common';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
@@ -58,7 +57,6 @@
     components: {
       AssignmentDetailsForm: AssignmentDetailsModal,
       CoreBase: CoachCoreBase,
-      KPageContainer,
       ResourceListTable,
     },
     mixins: [coachStringsMixin, commonCoreStrings],

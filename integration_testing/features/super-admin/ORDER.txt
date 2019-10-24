@@ -1,3 +1,5 @@
+super-admin-windows-installer-translated-strings.feature
+super-admin-windows-installer-setup-error-log.feature
 super-admin-setup-wizard.feature
 super-admin-sign-in.feature
 super-admin-change-language.feature

@@ -31,15 +31,8 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KButton from 'kolibri.coreVue.components.KButton';
-
   export default {
     name: 'QuestionList',
-    components: {
-      KButton,
-    },
-    mixins: [themeMixin],
     props: {
       questions: {
         type: Array,

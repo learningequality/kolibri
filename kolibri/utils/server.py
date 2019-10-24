@@ -471,9 +471,12 @@ def get_urls(listen_port=None):
             __, __, port = get_status()
         urls = []
         if port:
-            interfaces = ifcfg.interfaces()
-            for interface in filter(lambda i: i["inet"], interfaces.values()):
-                urls.append("http://{}:{}/".format(interface["inet"], port))
+            try:
+                interfaces = ifcfg.interfaces()
+                for interface in filter(lambda i: i["inet"], interfaces.values()):
+                    urls.append("http://{}:{}/".format(interface["inet"], port))
+            except RuntimeError:
+                logger.error("Error retrieving network interface list!")
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []

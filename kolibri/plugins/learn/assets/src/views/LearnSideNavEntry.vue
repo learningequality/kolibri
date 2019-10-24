@@ -3,13 +3,8 @@
   <CoreMenuOption
     :label="learnString('learnLabel')"
     :link="url"
-  >
-    <mat-svg
-      slot="icon"
-      name="school"
-      category="social"
-    />
-  </CoreMenuOption>
+    icon="learn"
+  />
 
 </template>
 
@@ -30,7 +25,7 @@
     $trs: {},
     computed: {
       url() {
-        return urls['kolibri:learn:learn']();
+        return urls['kolibri:kolibri.plugins.learn:learn']();
       },
     },
     priority: 10,

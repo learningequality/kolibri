@@ -55,7 +55,6 @@
     },
     $trs: {
       superUserLabel: 'Super admin',
-      facilityCoachLabel: 'Facility coach',
     },
   };
 

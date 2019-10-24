@@ -28,17 +28,11 @@
 <script>
 
   import { mapActions, mapState } from 'vuex';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'CreateGroupModal',
-    components: {
-      KModal,
-      KTextbox,
-    },
     mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       groups: {
@@ -69,7 +63,7 @@
         if (this.submitting) return '';
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.coreString('requiredFieldLabel');
+            return this.coreString('requiredFieldError');
           }
           if (this.duplicateName) {
             return this.$tr('duplicateName');

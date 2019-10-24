@@ -1,6 +1,6 @@
 {
   "name": "kolibri-tools",
-  "version": "0.12.0-beta.3.2",
+  "version": "0.13.0-dev.9",
   "description": "Tools for building Kolibri frontend plugins",
   "main": "lib/cli.js",
   "repository": "github.com/learningequality/kolibri",
@@ -27,12 +27,13 @@
     "colors": "^1.1.2",
     "commander": "^2.9.0",
     "css-loader": "^0.28.7",
+    "csv-parse": "^4.4.4",
     "csv-writer": "^1.3.0",
     "eslint": "^5.7.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jest": "^21.26.1",
-    "eslint-plugin-kolibri": "0.12.0-beta.3.2",
+    "eslint-plugin-kolibri": "0.13.0-dev.9",
     "eslint-plugin-vue": "^5.2.2",
     "espree": "^5.0.1",
     "esquery": "^1.0.1",
@@ -71,6 +72,7 @@
     "temp": "^0.8.3",
     "terser-webpack-plugin": "^1.2.2",
     "url-loader": "^1.0.1",
+    "vue-compiler": "^4.2.0",
     "vue-jest": "^3.0.0",
     "vue-loader": "^15.7.0",
     "vue-style-loader": "^3.0.3",
@@ -93,6 +95,6 @@
     "readline-sync": "^1.4.9"
   },
   "optionalDependencies": {
-    "kolibri": "0.12.0-beta.3.2"
+    "kolibri": "0.13.0-dev.9"
   }
 }

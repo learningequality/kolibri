@@ -13,15 +13,11 @@
 
 <script>
 
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'QuizOptionsDropdownMenu',
-    components: {
-      KDropdownMenu,
-    },
     mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       // Should be either 'report' or 'plan',

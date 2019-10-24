@@ -30,7 +30,7 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import ContentCard from './ContentCard';
   import CopiesModal from './CopiesModal';
 
@@ -40,7 +40,7 @@
       ContentCard,
       CopiesModal,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindowMixin],
     props: {
       contents: {
         type: Array,

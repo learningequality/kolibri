@@ -67,7 +67,7 @@ describe('SetupWizardIndex', () => {
     // set superuser, since that's how name is derived
     store.commit('SET_FACILITY_PRESET', 'informal');
     store.commit('SET_SU', {
-      name: 'Fred Rogers',
+      full_name: 'Fred Rogers',
       username: 'mr_rogers',
       password: 'password',
     });
@@ -82,7 +82,7 @@ describe('SetupWizardIndex', () => {
     // set superuser, since that's how name is derived
     store.commit('SET_FACILITY_PRESET', 'formal');
     store.commit('SET_SU', {
-      name: 'Fred Rogers',
+      full_name: 'Fred Rogers',
       username: 'mr_rogers',
       password: 'password',
     });

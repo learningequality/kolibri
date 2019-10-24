@@ -20,6 +20,14 @@
       <component :is="currentPage" />
     </div>
 
+    <UpdateYourProfileModal
+      v-if="profileNeedsUpdate"
+      :disabled="demographicInfo === null || !userPluginUrl"
+      @cancel="handleCancelUpdateYourProfileModal"
+      @submit="handleSubmitUpdateYourProfileModal"
+    />
+
+
   </CoreBase>
 
 </template>
@@ -28,11 +36,12 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import urls from 'kolibri.urls';
+  import { redirectBrowser } from 'kolibri.utils.browser';
   import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelsPage from './ChannelsPage';
@@ -53,6 +62,7 @@
   import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
+  import UpdateYourProfileModal from './UpdateYourProfileModal';
 
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: ChannelsPage,
@@ -78,12 +88,13 @@
       CoreBase,
       LearnTopNav,
       TotalPoints,
-      KPageContainer,
+      UpdateYourProfileModal,
     },
-    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindow],
+    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     data() {
       return {
         lastRoute: null,
+        demographicInfo: null,
       };
     },
     computed: {
@@ -158,7 +169,7 @@
           let appBarTitle;
           const { searchTerm, last } = this.$route.query;
           if (searchTerm) {
-            appBarTitle = this.$tr('searchTitle');
+            appBarTitle = this.coreString('searchLabel');
             immersivePageRoute = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
           } else if (last) {
             // 'last' should only be route names for Recommended Page and its subpages
@@ -225,6 +236,15 @@
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? ASSESSMENT_FOOTER : 0;
       },
+      profileNeedsUpdate() {
+        return (
+          this.demographicInfo &&
+          (this.demographicInfo.gender === '' || this.demographicInfo.birth_year === '')
+        );
+      },
+      userPluginUrl() {
+        return urls['kolibri:kolibri.plugins.user:user'];
+      },
     },
     watch: {
       $route: function(newRoute, oldRoute) {
@@ -242,6 +262,30 @@
           query: oldRoute.query,
           params: oldRoute.params,
         };
+      },
+    },
+    mounted() {
+      if (this.isUserLoggedIn) {
+        this.$store
+          .dispatch('getDemographicInfo')
+          .then(info => {
+            this.demographicInfo = { ...info };
+          })
+          .catch(() => {});
+      }
+    },
+    methods: {
+      handleCancelUpdateYourProfileModal() {
+        this.$store.dispatch('deferProfileUpdates', this.demographicInfo);
+        this.demographicInfo = null;
+      },
+      handleSubmitUpdateYourProfileModal() {
+        if (this.userPluginUrl) {
+          const redirect = () => redirectBrowser(`${this.userPluginUrl()}#/profile/edit`);
+          this.$store
+            .dispatch('deferProfileUpdates', this.demographicInfo)
+            .then(redirect, redirect);
+        }
       },
     },
     $trs: {

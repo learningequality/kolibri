@@ -66,7 +66,6 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
@@ -78,7 +77,6 @@
       ContentIcon,
       ProgressIcon,
     },
-    mixins: [themeMixin],
     props: {
       thumbnail: {
         type: String,

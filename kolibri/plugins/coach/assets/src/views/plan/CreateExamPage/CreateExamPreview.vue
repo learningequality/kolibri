@@ -105,7 +105,7 @@
         :selectedExercises="selectedExercises"
       />
 
-      <KBottomAppBar>
+      <BottomAppBar>
         <KRouterLink
           appearance="flat-button"
           :text="coreString('goBackAction')"
@@ -117,7 +117,7 @@
           primary
           @click="submit"
         />
-      </KBottomAppBar>
+      </BottomAppBar>
     </KPageContainer>
 
   </CoreBase>
@@ -130,14 +130,8 @@
   import { mapState } from 'vuex';
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -154,16 +148,10 @@
     },
     components: {
       UiIconButton,
-      KRouterLink,
-      KButton,
-      KRadioButton,
-      KGrid,
-      KGridItem,
-      KBottomAppBar,
-      KTextbox,
+      BottomAppBar,
       QuestionListPreview,
     },
-    mixins: [responsiveWindow, commonCoach, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoach, commonCoreStrings],
     data() {
       return {
         showError: false,
@@ -210,7 +198,7 @@
       },
       titleIsInvalidText() {
         if (this.examTitle === '') {
-          return this.coreString('requiredFieldLabel');
+          return this.coreString('requiredFieldError');
         }
         if (this.showTitleError) {
           return this.coachString('quizDuplicateTitleError');
@@ -264,9 +252,7 @@
     },
     $trs: {
       title: 'Select questions',
-      backLabel: 'Select topics or exercises',
       appBarLabel: 'Select exercises',
-      exercise: 'Exercise { num }',
       randomize: 'Choose a different set of questions',
       questionsLabel: 'Questions',
       preview: 'Preview quiz',

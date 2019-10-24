@@ -1,4 +1,5 @@
 from django.db import models
+from le_utils.constants import file_formats
 
 
 """
@@ -17,3 +18,26 @@ class License(models.Model):
 
     class Meta:
         abstract = True
+
+
+class File(object):
+    """
+    A mixin for previously deleted fields of the File Model
+    """
+
+    extension = models.CharField(
+        max_length=40, choices=file_formats.choices, blank=True
+    )
+    file_size = models.IntegerField(blank=True, null=True)
+    checksum = models.CharField(max_length=400, blank=True)
+
+
+class ContentNode(object):
+    """
+    A mixin for previously deleted field of the File Model
+    """
+
+    license = models.ForeignKey("License", null=True, blank=True)
+    stemmed_metaphone = models.CharField(
+        max_length=1800, blank=True
+    )  # for fuzzy search in title and description

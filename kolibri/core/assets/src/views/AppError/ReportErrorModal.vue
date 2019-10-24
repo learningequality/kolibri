@@ -48,16 +48,12 @@
 <script>
 
   import { mapState } from 'vuex';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import KModal from 'kolibri.coreVue.components.KModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import TechnicalTextBlock from './TechnicalTextBlock';
 
   export default {
     name: 'ReportErrorModal',
     components: {
-      KExternalLink,
-      KModal,
       TechnicalTextBlock,
     },
     mixins: [commonCoreStrings],

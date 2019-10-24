@@ -1,10 +1,7 @@
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-
   export default {
     name: 'CoreTable',
-    mixins: [themeMixin],
     props: {
       selectable: {
         type: Boolean,
@@ -90,7 +87,11 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .core-table-container {
+    @extend %momentum-scroll;
+
     overflow-x: auto;
     overflow-y: hidden;
   }

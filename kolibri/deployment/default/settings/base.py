@@ -77,14 +77,6 @@ INSTALLED_APPS = [
     "django_js_reverse",
     "jsonfield",
     "morango",
-] + conf.config.ACTIVE_PLUGINS
-
-# Add in the external plugins' locale paths. Our frontend messages depends
-# specifically on the value of LOCALE_PATHS to find its catalog files.
-LOCALE_PATHS += [
-    i18n.get_installed_app_locale_path(app)
-    for app in INSTALLED_APPS
-    if i18n.is_external_plugin(app) and i18n.get_installed_app_locale_path(app)
 ]
 
 MIDDLEWARE = [
@@ -221,7 +213,7 @@ EXTRA_LANG_INFO = {
 }
 locale.LANG_INFO.update(EXTRA_LANG_INFO)
 
-LANGUAGE_CODE = conf.config.get("LANGUAGE_CODE") or "en"
+LANGUAGE_CODE = "en"
 
 try:
     TIME_ZONE = get_localzone().zone
@@ -281,6 +273,10 @@ LOGGING = get_logging_config(conf.LOG_ROOT)
 
 AUTH_USER_MODEL = "kolibriauth.FacilityUser"
 
+# Our own custom setting to override the anonymous user model
+
+AUTH_ANONYMOUS_USER_MODEL = "kolibriauth.KolibriAnonymousUser"
+
 AUTHENTICATION_BACKENDS = ["kolibri.core.auth.backends.FacilityUserBackend"]
 
 
@@ -292,7 +288,6 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
-        "rest_framework_csv.renderers.CSVRenderer",
     ),
     "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
 }
@@ -324,25 +319,6 @@ SESSION_COOKIE_NAME = "kolibri"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SESSION_COOKIE_AGE = 1200
-
-
-if conf.OPTIONS["Debug"]["SENTRY_BACKEND_DSN"]:
-    import sentry_sdk
-    from kolibri.utils.server import installation_type
-    from sentry_sdk.integrations.django import DjangoIntegration
-
-    sentry_sdk.init(
-        dsn=conf.OPTIONS["Debug"]["SENTRY_BACKEND_DSN"],
-        environment=conf.OPTIONS["Debug"]["SENTRY_ENVIRONMENT"],
-        integrations=[DjangoIntegration()],
-        release=kolibri.__version__,
-    )
-
-    with sentry_sdk.configure_scope() as scope:
-        scope.set_tag("mode", conf.OPTIONS["Deployment"]["RUN_MODE"])
-        scope.set_tag("installer", installation_type())
-
-    print("Sentry backend error logging is enabled")
 
 
 apply_settings(sys.modules[__name__])
