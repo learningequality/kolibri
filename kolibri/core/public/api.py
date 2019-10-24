@@ -149,11 +149,11 @@ def get_public_file_checksums(request, version, channel_id):
                 .values_list("id", flat=True)
                 .distinct()
             )
-            return HttpResponse(
-                json.dumps(list(checksums)), content_type="application/json"
-            )
         except ChannelMetadata.DoesNotExist:
-            pass
+            checksums = []
+        return HttpResponse(
+            json.dumps(list(checksums)), content_type="application/json"
+        )
     return HttpResponseNotFound(
         json.dumps({"id": error_constants.NOT_FOUND, "metadata": {"view": ""}}),
         content_type="application/json",

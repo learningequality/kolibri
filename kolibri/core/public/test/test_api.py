@@ -177,3 +177,13 @@ class PublicAPITestCase(APITestCase):
     def test_public_channel_lookup_no_channel(self):
         response = self.client.get(get_channel_lookup_url(identifier=uuid.uuid4().hex))
         self.assertEqual(response.status_code, 404)
+
+    def test_public_checksum_lookup_no_channel(self):
+        channel_id = uuid.uuid4().hex
+        response = self.client.get(
+            reverse(
+                "kolibri:core:get_public_file_checksums",
+                kwargs={"version": "v1", "channel_id": channel_id},
+            )
+        )
+        self.assertEqual(response.json(), [])
