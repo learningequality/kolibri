@@ -7,8 +7,8 @@ Feature: Coach activates and deactivates quizzes
   Scenario: Change the quiz status to *Open*
     Given that quiz <quiz> has never been set to the status *Open*
       When I am on *Coach - '<class>' > Plan > Quizzes > '<quiz>'* page
-      Then I see the *Open Quiz* button on the left sidebar
-      When I click *Open Quiz* in the left sidebar
+      Then I see the *Open Quiz* button
+      When I click the *Open Quiz* button
       Then I see a modal asking me to confirm the change
       When I click *Continue* in that modal
       Then that modal window disappears
@@ -23,7 +23,8 @@ Feature: Coach activates and deactivates quizzes
   Scenario: Change the quiz status to *Closed*
     Given that quiz <quiz> *Status* is *Open*
       When I am on *Coach - '<class>' > Plan > Quizzes > '<quiz>'* page
-      When I click *Close Quiz* in the left sidebar
+      Then I see the *Close Quiz* button
+      When I click *Close Quiz*
       Then I see a modal asking me to confirm the change
       When I click *Continue* in that modal
         Then that modal window disappears
