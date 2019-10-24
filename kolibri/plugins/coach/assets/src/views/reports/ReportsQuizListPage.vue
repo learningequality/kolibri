@@ -47,6 +47,7 @@
               <StatusSummary
                 :tally="tableRow.tally"
                 :verbose="true"
+                :includeNotStarted="true"
               />
             </td>
             <td>
