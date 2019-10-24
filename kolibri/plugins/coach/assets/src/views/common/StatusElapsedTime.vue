@@ -186,19 +186,19 @@
       },
       secondsAgo: {
         message: '{seconds} {seconds, plural, one {second} other {seconds}} ago',
-        context: 'Indicates that something occured seconds prior to the current time.',
+        context: 'Indicates that something occurred seconds prior to the current time.',
       },
       minutesAgo: {
         message: '{minutes} {minutes, plural, one {minute} other {minutes}} ago',
-        context: 'Indicates that something occured minutes prior to the current time.',
+        context: 'Indicates that something occurred minutes prior to the current time.',
       },
       hoursAgo: {
         message: '{hours} {hours, plural, one {hour} other {hours}} ago',
-        context: 'Indicates that something occured hours prior to the current time.',
+        context: 'Indicates that something occurred hours prior to the current time.',
       },
       daysAgo: {
         message: '{days} {days, plural, one {day} other {days}} ago',
-        context: 'Indicates that something occured days prior to the current time.',
+        context: 'Indicates that something occurred days prior to the current time.',
       },
     },
   };
