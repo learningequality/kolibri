@@ -21,7 +21,7 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_storage_file_path
-from kolibri.core.content.utils.delete_content import delete_unavailable_stored_files
+from kolibri.core.content.utils.delete_content import cleanup_unavailable_stored_files
 
 
 def get_engine(connection_string):
@@ -50,7 +50,8 @@ class UnavailableContentDeletion(TransactionTestCase):
         # with an associated stored local file
         self.stored_local_file = LocalFile(
             id=self.hash, extension=self.extension,
-            available=True
+            available=True,
+            file_size=1000000
         )
         self.stored_local_file.save()
 
@@ -77,12 +78,12 @@ class UnavailableContentDeletion(TransactionTestCase):
         self.assertEqual(self.unavailable_contentnode.available, False)
         self.assertEqual(self.stored_local_file.available, True)
         self.assertEqual(os.path.exists(self.path), True)
-        self.assertEqual(len(LocalFile.objects.get_unavailable_files()), 1)
+        self.assertEqual(len(LocalFile.objects.get_unavailable_stored_files()), 1)
 
-        delete_unavailable_stored_files()
+        cleanup_unavailable_stored_files()
 
         self.assertEqual(os.path.exists(self.path), False)
-        self.assertEqual(len(LocalFile.objects.get_unavailable_files()), 0)
+        self.assertEqual(len(LocalFile.objects.get_unavailable_stored_files()), 0)
 
 
 

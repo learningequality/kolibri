@@ -191,8 +191,17 @@ class LocalFileManager(models.Manager):
     def delete_orphan_file_objects(self):
         return self.get_orphan_files().delete()
 
-    def get_unavailable_files(self):
+    def get_unavailable_stored_files(self):
         return self.filter(files__contentnode__available=False, available=True)
+
+    def delete_unavailable_stored_files(self):
+        unavailable_stored_files = self.get_unavailable_stored_files()
+
+        for file in unavailable_stored_files:
+            file.delete_stored_file()
+
+        return unavailable_stored_files
+
 
 
 @python_2_unicode_compatible
