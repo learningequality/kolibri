@@ -116,7 +116,8 @@
     },
     methods: {
       handleSeekEvent(cueTime) {
-        this.player.currentTime(cueTime);
+        // Add 10ms to cueTime to avoid triggering two cues if they overlap on end and start time
+        this.player.currentTime(cueTime + 0.01);
       },
       scrollTo(offsetTop, offsetBottom, duration) {
         const start = new Date().getTime();
