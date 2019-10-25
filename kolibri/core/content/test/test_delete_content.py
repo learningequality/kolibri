@@ -1,27 +1,18 @@
-import tempfile
-import uuid
 import hashlib
-import mimetypes
 import os
+import uuid
 
-from mock import patch
-
-from django.core.management import call_command
-from django.db import DataError
-from django.test import TestCase
 from django.test import TransactionTestCase
-from le_utils.constants import content_kinds
 from le_utils.constants import file_formats
 from le_utils.constants import format_presets
+from mock import patch
 
 from .sqlalchemytesting import django_connection_engine
-from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
-from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.utils.delete_content import cleanup_unavailable_stored_files
+from kolibri.core.content.utils.paths import get_content_storage_file_path
 
 
 def get_engine(connection_string):
@@ -30,7 +21,6 @@ def get_engine(connection_string):
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class UnavailableContentDeletion(TransactionTestCase):
-
     def setUp(self):
         super(UnavailableContentDeletion, self).setUp()
 
@@ -40,7 +30,7 @@ class UnavailableContentDeletion(TransactionTestCase):
             available=False,
             id=uuid.uuid4().hex,
             content_id=uuid.uuid4().hex,
-            channel_id=uuid.uuid4().hex
+            channel_id=uuid.uuid4().hex,
         )
         self.unavailable_contentnode.save()
 
@@ -49,9 +39,7 @@ class UnavailableContentDeletion(TransactionTestCase):
 
         # with an associated stored local file
         self.stored_local_file = LocalFile(
-            id=self.hash, extension=self.extension,
-            available=True,
-            file_size=1000000
+            id=self.hash, extension=self.extension, available=True, file_size=1000000
         )
         self.stored_local_file.save()
 
@@ -59,7 +47,7 @@ class UnavailableContentDeletion(TransactionTestCase):
             local_file=self.stored_local_file,
             contentnode=self.unavailable_contentnode,
             preset=format_presets.DOCUMENT,
-            id=uuid.uuid4().hex
+            id=uuid.uuid4().hex,
         )
         self.file.save()
 
@@ -87,6 +75,3 @@ class UnavailableContentDeletion(TransactionTestCase):
 
         self.assertEqual(os.path.exists(self.path), False)
         self.assertEqual(len(LocalFile.objects.get_unavailable_stored_files()), 0)
-
-
-

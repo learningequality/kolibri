@@ -237,6 +237,7 @@ class LocalFile(base_models.LocalFile):
         Delete the stored file from disk.
         """
         deleted = False
+
         try:
             os.remove(paths.get_content_storage_file_path(self.get_filename()))
             deleted = True
@@ -246,8 +247,6 @@ class LocalFile(base_models.LocalFile):
         self.available = False
         self.save()
         return deleted
-
-
 
 
 class AssessmentMetaData(base_models.AssessmentMetaData):
