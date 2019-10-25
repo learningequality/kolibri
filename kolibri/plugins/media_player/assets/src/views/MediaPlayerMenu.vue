@@ -65,16 +65,21 @@
   /* for consistency, use `em` since video.js defines these that way */
   .vjs-menu {
     position: absolute;
-    bottom: 3.25em;
+    bottom: $video-player-control-height;
     background: $video-player-color !important;
   }
 
   .custom-skin .vjs-menu /deep/ ul {
-    padding: 0;
+    padding: 4px 12px 0;
 
     li {
+      padding: 0;
       font-size: 1rem;
       text-transform: none;
+    }
+
+    li + li {
+      margin-top: 4px;
     }
   }
 

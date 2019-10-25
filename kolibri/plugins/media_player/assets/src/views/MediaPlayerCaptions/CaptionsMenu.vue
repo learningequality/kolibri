@@ -58,8 +58,4 @@
     width: 15em;
   }
 
-  /deep/ .k-checkbox-container {
-    margin: 0;
-  }
-
 </style>

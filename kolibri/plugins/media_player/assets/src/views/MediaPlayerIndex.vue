@@ -476,6 +476,7 @@
   @import './videojs-style/video-js.min.css';
   // Custom build icons.
   @import './videojs-style/videojs-font/css/videojs-icons.css';
+  @import './videojs-style/variables';
   @import '~kolibri.styles.definitions';
 
   $transcript-wrap-height: 250px;
@@ -485,7 +486,7 @@
   .wrapper {
     box-sizing: content-box;
     max-width: 100%;
-    max-height: 562px;
+    max-height: $video-player-max-height;
   }
 
   .wrapper.transcript-visible.transcript-wrap {
@@ -500,6 +501,7 @@
     opacity: 0.1;
   }
 
+  .fill-space,
   /deep/ .fill-space {
     position: relative;
     width: 100%;
@@ -507,6 +509,7 @@
     border: 1px solid transparent;
   }
 
+  .loading-space,
   /deep/ .loading-space {
     box-sizing: border-box;
     padding-top: #{$video-height};
@@ -576,8 +579,6 @@
   /***** PLAYER OVERRIDES *****/
 
   /* !!rtl:begin:ignore */
-
-  @import './videojs-style/variables';
 
   .transcript-visible:not(.transcript-wrap) > .video-js.vjs-fill {
     width: 66.666%;

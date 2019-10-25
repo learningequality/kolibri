@@ -30,10 +30,18 @@
   .vjs-menu {
     left: -12em;
     width: 20em;
+    max-height: calc(#{$video-player-max-height} - #{$video-player-control-height});
+    overflow-y: auto;
   }
 
   /deep/ .k-radio-button {
+    padding: 8px 0;
     margin: 0;
+
+    .checked,
+    .unchecked {
+      top: 8px;
+    }
   }
 
 </style>
