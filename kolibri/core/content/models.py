@@ -198,10 +198,8 @@ class LocalFileManager(models.Manager):
         unavailable_stored_files = self.get_unavailable_stored_files()
 
         for file in unavailable_stored_files:
-            file.delete_stored_file()
-
-        return unavailable_stored_files
-
+            deleted = file.delete_stored_file()
+            yield file, deleted
 
 
 @python_2_unicode_compatible
@@ -238,8 +236,10 @@ class LocalFile(base_models.LocalFile):
         """
         Delete the stored file from disk.
         """
+        deleted = False
         try:
-            deleted = os.remove(paths.get_content_storage_file_path(self.get_filename()))
+            os.remove(paths.get_content_storage_file_path(self.get_filename()))
+            deleted = True
         except (IOError, OSError, InvalidStorageFilenameError):
             deleted = False
 

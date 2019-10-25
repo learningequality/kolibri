@@ -80,7 +80,10 @@ class UnavailableContentDeletion(TransactionTestCase):
         self.assertEqual(os.path.exists(self.path), True)
         self.assertEqual(len(LocalFile.objects.get_unavailable_stored_files()), 1)
 
-        cleanup_unavailable_stored_files()
+        deleted, freed_bytes = cleanup_unavailable_stored_files()
+
+        self.assertEqual(deleted, 1)
+        self.assertEqual(freed_bytes, self.stored_local_file.file_size)
 
         self.assertEqual(os.path.exists(self.path), False)
         self.assertEqual(len(LocalFile.objects.get_unavailable_stored_files()), 0)
