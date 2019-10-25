@@ -7,7 +7,7 @@
     :showIcon="showIcon"
     :style="{
       height: height + 'px',
-      backgroundColor: primary ? $themeTokens.primary : $themeTokens.text,
+      backgroundColor: isFullscreen ? $themeTokens.appBar : $themeTokens.appBarFullscreen,
     }"
     @nav-icon-click="$emit('navIconClick')"
   >
@@ -109,10 +109,9 @@
         required: false,
         validator: validateLinkObject,
       },
-      primary: {
+      isFullscreen: {
         type: Boolean,
-        required: false,
-        default: true,
+        default: false,
       },
     },
     computed: {
@@ -121,10 +120,14 @@
       },
       linkStyle() {
         const hoverAndFocus = {
-          backgroundColor: this.primary ? this.$themeTokens.primaryDark : this.$themePalette.black,
+          backgroundColor: this.isFullscreen
+            ? this.$themeTokens.appBarDark
+            : this.$themeTokens.appBarFullscreenDark,
         };
         return {
-          backgroundColor: this.primary ? this.$themeTokens.primary : this.$themeTokens.text,
+          backgroundColor: this.isFullscreen
+            ? this.$themeTokens.appBar
+            : this.$themeTokens.appBarFullscreen,
           ':hover': hoverAndFocus,
         };
       },

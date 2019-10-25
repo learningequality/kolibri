@@ -750,6 +750,8 @@
   }
 
   .side-bar {
+    @extend %momentum-scroll;
+
     position: absolute;
     top: $top-bar-height;
     bottom: $bottom-bar-height;
@@ -798,6 +800,8 @@
   }
 
   .navigation-and-epubjs {
+    @extend %momentum-scroll;
+
     position: absolute;
     top: $top-bar-height;
     right: 0;

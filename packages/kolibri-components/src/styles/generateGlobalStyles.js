@@ -1,8 +1,10 @@
-import { StyleSheet as baseStyleSheet } from 'aphrodite/no-important';
+import { StyleSheet as baseStyleSheet, setStyleTagSuffix } from 'aphrodite/no-important';
 import { themeTokens, themePalette, themeBrand, themeOutlineStyle } from './theme';
 
 // include global styles
 import 'purecss/build/base-min.css';
+
+setStyleTagSuffix('kolibriVue');
 
 const globalSelectorHandler = (selector, _, generateSubtreeStyles) => {
   if (selector[0] !== '*') {

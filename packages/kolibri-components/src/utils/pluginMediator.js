@@ -449,7 +449,7 @@ export default function pluginMediatorFactory({
           reject(`No registered content renderer available for preset: ${preset}`);
         } else if (this._kolibriModuleRegistry[kolibriModuleName]) {
           // There is a named renderer for this preset, and it is already loaded.
-          resolve(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent);
+          resolve(mergeMixin(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent));
         } else {
           // We have a content renderer for this, but it has not been loaded, so load it, and then
           // resolve the promise when it has been loaded.

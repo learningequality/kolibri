@@ -333,7 +333,11 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .pdf-renderer {
+    @extend %momentum-scroll;
+
     position: relative;
     height: 500px;
   }

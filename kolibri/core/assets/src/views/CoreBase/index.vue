@@ -1,25 +1,25 @@
 <template>
 
   <div
+    ref="mainWrapper"
     class="main-wrapper"
     :style="mainWrapperStyles"
-    :class="fullScreen ? '' : 'scrolling-pane'"
-    @scroll.passive="throttledHandleScroll"
   >
 
     <div v-if="blockDoubleClicks" class="click-mask"></div>
 
     <ScrollingHeader
-      :height="appbarHeight"
       :scrollPosition="scrollPosition"
       :alwaysVisible="fixedAppBar"
+      :mainWrapperScrollHeight="mainWrapperScrollHeight"
+      :isHidden.sync="headerIsHidden"
     >
       <ImmersiveToolbar
         v-if="immersivePage && !fullScreen"
         :appBarTitle="toolbarTitle || appBarTitle"
         :icon="immersivePageIcon"
         :route="immersivePageRoute"
-        :primary="immersivePagePrimary"
+        :isFullscreen="!immersivePagePrimary"
         :height="headerHeight"
         @nav-icon-click="$emit('navIconClick')"
       />
@@ -33,16 +33,17 @@
         @toggleSideNav="navShown = !navShown"
         @showLanguageModal="languageModalShown = true"
       >
-        <slot slot="totalPointsMenuItem" name="totalPointsMenuItem"></slot>
-        <div slot="app-bar-actions" class="app-bar-actions">
-          <slot name="app-bar-actions"></slot>
-        </div>
-        <slot
-          v-if="showSubNav"
-          slot="sub-nav"
-          name="sub-nav"
-        >
-        </slot>
+        <template v-slot:totalPointsMenuItem>
+          <slot name="totalPointsMenuItem"></slot>
+        </template>
+        <template v-slot:app-bar-actions>
+          <div class="app-bar-actions">
+            <slot name="app-bar-actions"></slot>
+          </div>
+        </template>
+        <template v-if="showSubNav" v-slot:sub-nav>
+          <slot name="sub-nav"></slot>
+        </template>
       </AppBar>
       <KLinearLoader
         v-if="loading && !fullScreen"
@@ -273,6 +274,8 @@
         unwatchScrollHeight: undefined,
         notificationModalShown: true,
         languageModalShown: false,
+        headerIsHidden: false,
+        mainWrapperScrollHeight: 0,
       };
     },
     computed: {
@@ -305,13 +308,10 @@
         return !this.authorized;
       },
       mainWrapperStyles() {
-        if (this.fullScreen) {
-          return { top: 0, bottom: 0 };
-        }
         return {
-          top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
-          bottom: `${this.marginBottom}px`,
           backgroundColor: this.$themePalette.grey.v_100,
+          paddingTop: `${this.appbarHeight}px`,
+          paddingBottom: `${this.marginBottom}px`,
         };
       },
       contentStyles() {
@@ -323,7 +323,7 @@
           };
         }
         return {
-          marginTop: `${this.fixedAppBar ? 0 : this.appbarHeight}px`,
+          top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
           padding: `${this.windowIsSmall ? 16 : 32}px`,
         };
       },
@@ -401,6 +401,12 @@
           this.setScroll();
         }
       },
+      windowWidth() {
+        if (this.fixedAppBar && this.headerIsHidden) {
+          this.headerIsHidden = false;
+        }
+        this.updateScrollHeight();
+      },
     },
     beforeRouteUpdate() {
       this.recordScroll();
@@ -409,15 +415,19 @@
       this.recordScroll();
     },
     mounted() {
+      window.addEventListener('scroll', this.throttledHandleScroll, { passive: true });
       this.setScroll();
+    },
+    beforeDestroy() {
+      window.removeEventListener('scroll', this.throttledHandleScroll);
     },
     methods: {
       handleScroll() {
-        this.scrollPosition = this.$el.scrollTop;
+        this.scrollPosition = window.pageYOffset;
         this.recordScroll();
       },
       recordScroll() {
-        scrollPositions.setScrollPosition({ y: this.$el.scrollTop });
+        scrollPositions.setScrollPosition({ y: window.pageYOffset });
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
@@ -425,9 +435,22 @@
           Lockr.set(UPDATE_MODAL_DISMISSED, true);
         }
       },
+      updateScrollHeight() {
+        this.mainWrapperScrollHeight = Math.max(
+          this.$refs.mainWrapper.offsetHeight,
+          this.$refs.mainWrapper.scrollHeight
+        );
+      },
       setScroll() {
-        this.$el.scrollTop = scrollPositions.getScrollPosition().y;
-        this.scrollPosition = this.$el.scrollTop;
+        this.updateScrollHeight();
+        window.scrollTo(0, scrollPositions.getScrollPosition().y);
+        this.scrollPosition = window.pageYOffset;
+        // If recorded scroll is applied, immediately un-hide the header
+        if (this.scrollPosition > 0) {
+          this.$nextTick().then(() => {
+            this.headerIsHidden = false;
+          });
+        }
       },
     },
     $trs: {
@@ -442,6 +465,11 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+
+  .main-wrapper {
+    display: inline-block;
+    width: 100%;
+  }
 
   .main {
     height: 100%;
@@ -459,7 +487,6 @@
     bottom: 0;
     left: 0;
     overflow-x: auto;
-    overflow-y: scroll; // has to be scroll, not auto
   }
 
   .click-mask {

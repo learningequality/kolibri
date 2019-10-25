@@ -37,6 +37,7 @@
 
         <!-- Stop propagation of enter key to prevent the submit event from being emitted twice -->
         <form
+          class="form"
           @submit.prevent="emitSubmitEvent"
           @keyup.enter.stop
         >
@@ -323,6 +324,10 @@
     &:focus {
       outline: none;
     }
+  }
+
+  .form {
+    @extend %momentum-scroll;
   }
 
   .fade-enter-active,

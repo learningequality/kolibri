@@ -58,7 +58,7 @@
         return {
           color: this.$themePalette.grey.v_100,
           ':hover': {
-            'background-color': this.$themeTokens.primaryDark,
+            'background-color': this.$themeTokens.appBarDark,
           },
           ':focus': {
             ...this.$coreOutline,

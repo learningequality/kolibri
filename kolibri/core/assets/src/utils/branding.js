@@ -1,6 +1,6 @@
 import Vue from 'vue';
 
-const schema = {
+const defaults = {
   appBar: {
     topLogo: {
       src: null,
@@ -28,14 +28,15 @@ const schema = {
       alt: null,
       style: null,
     },
-    showKolibriFooterLogo: null,
+    brandedFooter: {},
+    showKFooterLogo: true,
   },
 };
 
-const globalBrandingState = Vue.observable(schema);
+const globalBrandingState = Vue.observable(defaults);
 
 globalBrandingState.setBranding = state => {
-  Object.keys(schema).forEach(key => {
+  Object.keys(defaults).forEach(key => {
     Vue.set(globalBrandingState, key, state[key]);
   });
 };

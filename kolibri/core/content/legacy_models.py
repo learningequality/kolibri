@@ -38,3 +38,6 @@ class ContentNode(object):
     """
 
     license = models.ForeignKey("License", null=True, blank=True)
+    stemmed_metaphone = models.CharField(
+        max_length=1800, blank=True
+    )  # for fuzzy search in title and description

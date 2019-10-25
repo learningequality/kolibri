@@ -1,6 +1,7 @@
 import abc
 from collections import namedtuple
 
+import click
 from django.core.management.base import BaseCommand
 from iceqube.exceptions import UserCancelledError
 
@@ -22,7 +23,17 @@ class ProgressTracker:
         self.level = level
         self.update_callback = update_callback
 
+        try:
+            # Check we are executing inside a click context
+            # as we only want to display progress bars from the command line
+            click.get_current_context()
+            self.progressbar = click.progressbar(length=total, width=0)
+        except RuntimeError:
+            self.progressbar = None
+
     def update_progress(self, increment=1, message="", extra_data=None):
+        if self.progressbar:
+            self.progressbar.update(increment)
         self.progress += increment
         self.message = message
         self.extra_data = extra_data

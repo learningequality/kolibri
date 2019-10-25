@@ -63,6 +63,27 @@
           </CoreMenu>
 
           <div class="side-nav-scrollable-area-footer" :style="{ color: $themeTokens.annotation }">
+            <!-- custom branded footer logo + text -->
+            <img
+              v-if="$kolibriBranding.sideNav.brandedFooter.logo"
+              class="side-nav-scrollable-area-footer-logo"
+              :src="$kolibriBranding.sideNav.brandedFooter.logo.src"
+              :alt="$kolibriBranding.sideNav.brandedFooter.logo.alt"
+              :style="$kolibriBranding.sideNav.brandedFooter.logo.style"
+            >
+            <div
+              v-if="$kolibriBranding.sideNav.brandedFooter.paragraphArray
+                && $kolibriBranding.sideNav.brandedFooter.paragraphArray.length"
+              class="side-nav-scrollable-area-footer-info"
+            >
+              <p
+                v-for="(line, index) in $kolibriBranding.sideNav.brandedFooter.paragraphArray"
+                :key="index"
+              >
+                {{ line }}
+              </p>
+            </div>
+            <!-- Kolibri footer logo -->
             <CoreLogo
               v-if="$kolibriBranding.sideNav.showKolibriFooterLogo"
               class="side-nav-scrollable-area-footer-logo"

@@ -18,6 +18,7 @@ from kolibri.core.content.constants.schema_versions import V020BETA1
 from kolibri.core.content.constants.schema_versions import V040BETA3
 from kolibri.core.content.constants.schema_versions import VERSION_1
 from kolibri.core.content.constants.schema_versions import VERSION_2
+from kolibri.core.content.constants.schema_versions import VERSION_3
 from kolibri.core.content.legacy_models import License
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -94,9 +95,6 @@ class ChannelImport(object):
             "per_row": {
                 "tree_id": "available_tree_id",
                 "available": "default_to_not_available",
-                # Do this for now because we can't currently delete columns
-                # and properly regenerate our import schema.
-                "stemmed_metaphone": "set_blank_text",
             }
         },
         LocalFile: {"per_row": {"available": "default_to_not_available"}},
@@ -642,7 +640,6 @@ class NoVersionChannelImport(ChannelImport):
                 "available": "get_none",
                 "license_name": "get_license_name",
                 "license_description": "get_license_description",
-                "stemmed_metaphone": "set_blank_text",
             }
         },
         File: {
@@ -729,6 +726,7 @@ mappings = {
     NO_VERSION: NoVersionChannelImport,
     VERSION_1: ChannelImport,
     VERSION_2: ChannelImport,
+    VERSION_3: ChannelImport,
 }
 
 
