@@ -137,10 +137,12 @@ users = [
 ]
 
 
-def test_device_not_setup(self):
-    with self.assertRaisesRegexp(CommandError, "No default facility exists"):
-        csvpath = tempfile.mkstemp(suffix="csv")
-        call_command("importusers", csvpath)
+class DeviceNotSetup(TestCase):
+    def test_device_not_setup(self):
+        csvfile, csvpath = tempfile.mkstemp(suffix="csv")
+        with self.assertRaisesRegexp(CommandError, "No default facility exists"):
+            call_command("importusers", csvpath)
+        os.remove(csvpath)
 
 
 class UserImportCommandTestCase(TestCase):
