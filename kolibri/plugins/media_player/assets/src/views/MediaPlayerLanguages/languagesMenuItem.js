@@ -1,9 +1,7 @@
-import connector from '../../utils/videojsVueConnector';
-import captionsMenuItem from './CaptionsMenuItem.vue';
+import mixin from '../../mixins/videojsVueMixin';
+import languagesMenuItem from './LanguagesMenuItem.vue';
 
-const BaseCaptionsMenuItem = connector('MenuItem', captionsMenuItem);
-
-class CaptionsMenuItem extends BaseCaptionsMenuItem {
+class LanguagesMenuItem extends mixin('MenuItem', languagesMenuItem) {
   /**
    * @param {Player} player
    * @param {Object} options
@@ -62,4 +60,4 @@ class CaptionsMenuItem extends BaseCaptionsMenuItem {
   handleClick() {}
 }
 
-export default CaptionsMenuItem;
+export default LanguagesMenuItem;

@@ -1,13 +1,13 @@
 <template>
 
   <li
-    class="vjs-menu-item vjs-captions-menu-item"
+    class="vjs-menu-item vjs-languages-menu-item"
     role="menuitem"
     :aria-checked="selected.toString()"
     tabindex="-1"
   >
     <KRadioButton
-      name="captions-menu-item"
+      name="languages-menu-item"
       :label="label"
       :value="1"
       :currentValue="selected ? 1 : 0"
@@ -23,7 +23,7 @@
   import { mapActions, mapState } from 'vuex';
 
   export default {
-    name: 'CaptionsMenuItem',
+    name: 'LanguagesMenuItem',
     props: {
       label: {
         type: String,

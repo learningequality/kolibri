@@ -14,7 +14,7 @@
         'wrapper',
         {
           'video-loading': loading,
-          'transcript-visible': transcript,
+          'transcript-visible': transcriptVisible,
           'transcript-wrap': windowIsPortrait || (!isFullscreen && windowIsSmall),
         },
         $computedClass(progressStyle)
@@ -61,7 +61,7 @@
         </template>
       </audio>
 
-      <MediaPlayerTranscript v-if="!loading && transcript" ref="transcript" />
+      <MediaPlayerTranscript v-if="transcriptVisible" ref="transcript" />
     </div>
   </MediaPlayerFullscreen>
 
@@ -71,7 +71,7 @@
 <script>
 
   import vue from 'kolibri.lib.vue';
-  import { mapActions, mapState } from 'vuex';
+  import { mapActions, mapState, mapGetters } from 'vuex';
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
 
@@ -86,6 +86,7 @@
   import MimicFullscreenToggle from './MediaPlayerFullscreen/mimicFullscreenToggle';
   import MediaPlayerTranscript from './MediaPlayerTranscript';
   import CaptionsButton from './MediaPlayerCaptions/captionsButton';
+  import LanguagesButton from './MediaPlayerLanguages/languagesButton';
 
   import audioIconPoster from './audio-icon-poster.svg';
 
@@ -96,6 +97,7 @@
     ReplayButton,
     ForwardButton,
     CaptionsButton,
+    LanguagesButton,
   };
 
   Object.entries(componentsToRegister).forEach(([name, component]) =>
@@ -122,6 +124,9 @@
       ...mapState('mediaPlayer/captions', {
         transcript: state => state.transcript,
         captionLanguage: state => state.language,
+      }),
+      ...mapGetters('mediaPlayer/captions', {
+        captionTracks: 'tracks',
       }),
       posterSources() {
         const posterFileExtensions = ['png', 'jpg'];
@@ -167,6 +172,9 @@
             },
           },
         };
+      },
+      transcriptVisible() {
+        return this.transcript && !this.loading && this.captionTracks.length > 0;
       },
     },
     watch: {
@@ -236,6 +244,10 @@
               { name: 'PlaybackRateMenuButton' },
               {
                 name: 'CaptionsButton',
+                settings: this.settings,
+              },
+              {
+                name: 'LanguagesButton',
                 settings: this.settings,
               },
               { name: 'MimicFullscreenToggle' },
@@ -579,7 +591,8 @@
   }
 
   /* Mimics glow video.js adds on fullscreen button when focused */
-  /deep/ .vjs-captions-button.active .vjs-icon-placeholder {
+  /deep/ .vjs-captions-button.active .vjs-icon-placeholder,
+  /deep/ .vjs-languages-button.active .vjs-icon-placeholder {
     text-shadow: 0 0 1em #ffffff;
   }
 

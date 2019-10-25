@@ -5,13 +5,12 @@ import videojs from 'video.js';
 /**
  * @param {String} videojsComponent A string of the videojs component to extend
  * @param {Object} vueComponent A compiled vue component object
- * @return {{new(Player, Object=): VueMixin, _vueComponent: null, prototype: VueMixin}}
  */
-export default function videojsVueConnector(videojsComponent, vueComponent) {
+export default function videojsVueMixin(videojsComponent, vueComponent) {
   const VideojsComponent = videojs.getComponent(videojsComponent);
   const VueComponent = Vue.extend(vueComponent);
 
-  return class VueMixin extends VideojsComponent {
+  return class extends VideojsComponent {
     /**
      * This is called by video.js code that usually constructs an element, but here we'll leverage
      * vue by calling it manually.

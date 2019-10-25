@@ -1,124 +1,46 @@
 <template>
 
-  <div
-    v-show="open"
-    class="vjs-menu captions-menu"
-    aria-hidden="true"
-  >
-    <div class="vjs-menu-content">
-      <ul role="menu" class="caption-settings-list">
-        <CaptionsMenuSetting
-          v-show="!isLanguageOpen"
-          :title="$tr('format')"
-          :currentValue="activeKindNames"
-          :open="isKindOpen"
-          @toggle="isKindOpen = $event"
-        >
-          <ul role="menu">
-            <li class="vjs-menu-item" role="menuitem">
-              <KCheckbox
-                :label="$tr('subtitles')"
-                :checked="subtitles"
-                role="menuitem"
-                @change="toggleSubtitles"
-              />
-            </li>
-            <li class="vjs-menu-item" role="menuitem">
-              <KCheckbox
-                :label="$tr('transcript')"
-                :checked="transcript"
-                role="menuitem"
-                @change="toggleTranscript"
-              />
-            </li>
-          </ul>
-        </CaptionsMenuSetting>
-        <CaptionsMenuSetting
-          v-show="!isKindOpen"
-          :title="$tr('language')"
-          :currentValue="languageLabel"
-          :open="isLanguageOpen"
-          @toggle="isLanguageOpen = $event"
-        >
-          <ul ref="contentEl">
-          <!-- Languages get added dynamically through video.js -->
-          </ul>
-        </CaptionsMenuSetting>
-      </ul>
-    </div>
-  </div>
+  <MediaPlayerMenu class="captions-menu">
+    <li class="vjs-menu-item" role="menuitem">
+      <KCheckbox
+        :label="$tr('subtitles')"
+        :checked="subtitles"
+        role="menuitem"
+        @change="toggleSubtitles"
+      />
+    </li>
+    <li class="vjs-menu-item" role="menuitem">
+      <KCheckbox
+        :label="$tr('transcript')"
+        :checked="transcript"
+        role="menuitem"
+        @change="toggleTranscript"
+      />
+    </li>
+  </MediaPlayerMenu>
 
 </template>
 
 
 <script>
 
-  import { mapState, mapActions, mapGetters } from 'vuex';
-  import CaptionsMenuSetting from './CaptionsMenuSetting';
-
-  const KINDS = ['subtitles', 'transcript'];
+  import { mapState, mapActions } from 'vuex';
+  import MediaPlayerMenu from '../MediaPlayerMenu';
+  import mediaPlayerMenuMixin from '../mixins/MediaPlayerMenu';
 
   export default {
     name: 'CaptionsMenu',
-    components: { CaptionsMenuSetting },
-    data: function() {
-      return {
-        open: false,
-        isKindOpen: false,
-        isLanguageOpen: false,
-      };
-    },
+    components: { MediaPlayerMenu },
+    mixins: [mediaPlayerMenuMixin],
     computed: {
       ...mapState('mediaPlayer/captions', ['subtitles', 'transcript']),
-      ...mapGetters('mediaPlayer/captions', ['languageLabel']),
-      activeKindNames() {
-        const kindNames = KINDS.filter(kind => this[kind]).map(kind => this.$tr(kind));
-        return kindNames.length ? kindNames.join(', ') : this.$tr('none');
-      },
-    },
-    watch: {
-      open(open) {
-        if (!open) {
-          this.isKindOpen = false;
-          this.isLanguageOpen = false;
-        }
-      },
     },
     methods: {
       ...mapActions('mediaPlayer/captions', ['toggleSubtitles', 'toggleTranscript']),
-      /**
-       * @public
-       * @return {Element}
-       */
-      contentEl() {
-        return this.$refs.contentEl;
-      },
-      /**
-       * @public
-       */
-      show() {
-        this.open = true;
-      },
-      /**
-       * @public
-       */
-      hide() {
-        this.open = false;
-      },
-      /**
-       * @public
-       * @return {boolean}
-       */
-      showing() {
-        return this.open;
-      },
     },
     $trs: {
-      format: 'Format',
-      language: 'Language',
       subtitles: 'Subtitles',
       transcript: 'Transcript',
-      none: 'None',
     },
   };
 
@@ -130,32 +52,13 @@
   @import '~kolibri.styles.definitions';
   @import '../videojs-style/variables';
 
+  /* for consistency, use `em` since video.js defines these that way */
   .vjs-menu {
-    position: absolute;
-    bottom: 3.25em;
-    left: -12em;
-
-    /* for consistency, use `em` since video.js defines these that way */
-    width: 20em;
-    background: $video-player-color !important;
+    left: -5em;
+    width: 15em;
   }
 
-  .custom-skin .vjs-menu /deep/ ul {
-    padding: 0;
-
-    ul {
-      padding: 0 16px;
-
-      li {
-        padding: 8px 5px;
-        font-size: 1rem;
-        text-transform: none;
-      }
-    }
-  }
-
-  /deep/ .k-checkbox-container,
-  /deep/ .k-radio-button {
+  /deep/ .k-checkbox-container {
     margin: 0;
   }
 
