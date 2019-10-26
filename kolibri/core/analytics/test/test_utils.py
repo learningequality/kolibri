@@ -163,6 +163,9 @@ class BaseDeviceSetupMixin(object):
                             content_id=uuid.uuid4().hex,
                         )
 
+    def tearDown(self):
+        pass
+
 
 class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
     def test_extract_facility_statistics(self):
