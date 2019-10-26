@@ -6,7 +6,7 @@
       class="snackbar-backdrop"
     >
     </div>
-    <transition name="snackbar">
+    <transition name="snackbar" @leave-to="clearSnackbar">
       <UiSnackbar
         v-show="isVisible"
         ref="snackbar"
@@ -14,7 +14,7 @@
         :message="text"
         :action="actionText"
         tabindex="0"
-        @action-click="$emit('actionClicked')"
+        @action-click="handleActionClick"
       />
     </transition>
   </div>
@@ -77,7 +77,6 @@
       }
     },
     beforeDestroy() {
-      this.isVisible = false;
       if (this.timeout) {
         window.clearTimeout(this.timeout);
       }
@@ -89,8 +88,8 @@
     methods: {
       ...mapActions(['clearSnackbar']),
       hideSnackbar() {
+        this.isVisible = false;
         this.$emit('hide');
-        this.clearSnackbar();
       },
       containFocus(event) {
         if (event.target === window) {
@@ -99,6 +98,10 @@
         if (!this.$refs.snackbar.$el.contains(event.target)) {
           this.$refs.snackbar.$el.focus();
         }
+      },
+      handleActionClick() {
+        this.isVisible = false;
+        this.$emit('actionClicked');
       },
     },
   };
@@ -126,9 +129,16 @@
     background-color: rgba(0, 0, 0, 0.7);
   }
 
+  .snackbar-enter-active {
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+
+  .snackbar-leave-active {
+    transition: transform 0.25s cubic-bezier(0, 0, 0.2, 1);
+  }
+
   .snackbar-enter-active,
   .snackbar-leave-active {
-    transition-timing-function: ease;
     transition-duration: 0.4s;
     transition-property: transform, opacity;
   }

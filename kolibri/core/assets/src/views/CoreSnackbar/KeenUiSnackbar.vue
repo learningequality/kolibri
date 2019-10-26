@@ -9,27 +9,25 @@
    functionality.
   -->
 
-  <transition :name="transitionName" @after-enter="onEnter" @after-leave="onLeave">
-    <div class="ui-snackbar" @click="onClick">
-      <div
-        class="ui-snackbar-message"
-        :style="{color: $themeTokens.textInverted}"
-      >
-        <slot>{{ message }}</slot>
-      </div>
-
-      <div class="ui-snackbar-action">
-        <button
-          v-if="action"
-          class="ui-snackbar-action-button"
-          :style="{ color: $themeTokens.textInverted }"
-          @click.stop="onActionClick"
-        >
-          {{ action }}
-        </button>
-      </div>
+  <div class="ui-snackbar" @click="onClick">
+    <div
+      class="ui-snackbar-message"
+      :style="{color: $themeTokens.textInverted}"
+    >
+      <slot>{{ message }}</slot>
     </div>
-  </transition>
+
+    <div class="ui-snackbar-action">
+      <button
+        v-if="action"
+        class="ui-snackbar-action-button"
+        :style="{ color: $themeTokens.textInverted }"
+        @click.stop="onActionClick"
+      >
+        {{ action }}
+      </button>
+    </div>
+  </div>
 
 </template>
 
