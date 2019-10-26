@@ -111,6 +111,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .snackbar {
     position: fixed;
     bottom: 0;
@@ -130,11 +132,11 @@
   }
 
   .snackbar-enter-active {
-    transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+    @extend %md-decelerate-func;
   }
 
   .snackbar-leave-active {
-    transition: transform 0.25s cubic-bezier(0, 0, 0.2, 1);
+    @extend %md-accelerate-func;
   }
 
   .snackbar-enter-active,
