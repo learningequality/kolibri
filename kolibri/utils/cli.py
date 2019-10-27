@@ -616,9 +616,6 @@ def main(args=None):  # noqa: max-complexity=13
         # Check if the content directory exists when Kolibri runs after the first time.
         check_content_directory_exists_and_writable()
 
-        # Defragment the db
-        call_command("vacuumsqlite")
-
         # Clear old sessions up
         call_command("clearsessions")
 
