@@ -12,25 +12,22 @@
       :href="link"
       class="core-menu-option"
       role="menuitem"
-      :class="coreMenuOptionClasses"
+      :class="$computedClass(optionStyle)"
       @click="conditionalEmit"
       @keydown.enter="conditionalEmit"
     >
       <slot>
-        <div class="core-menu-option-content" :class="$computedClass(optionContentStyle)">
-          <KLabeledIcon>
-            <KIcon
-              slot="icon"
-              :icon="icon"
-              :class="$computedClass(optionIconStyle)"
-            />
-            <div>{{ label }}</div>
-          </KLabeledIcon>
-
-          <div
-            v-if="secondaryText"
-          >{{ secondaryText }}</div>
-        </div>
+        <KLabeledIcon>
+          <KIcon
+            slot="icon"
+            :icon="icon"
+            :class="$computedClass(optionIconStyle)"
+          />
+          <div>{{ label }}</div>
+        </KLabeledIcon>
+        <div
+          v-if="secondaryText"
+        >{{ secondaryText }}</div>
       </slot>
     </a>
   </li>
@@ -51,67 +48,33 @@
     },
     inject: ['showActive'],
     computed: {
-      coreMenuOptionClasses() {
-        return {
-          'is-active': this.active,
-          [this.$computedClass(this.optionStyle)]: true,
-        };
-      },
       active() {
         let showActive = typeof this.showActive !== 'undefined' ? this.showActive : true;
         return showActive && window.location.pathname.startsWith(this.link);
       },
       optionStyle() {
-        let color = '';
         if (this.active) {
-          color = this.$themeTokens.primary;
-        } else {
-          color = this.$themeTokens.text;
+          return {
+            color: this.$themeTokens.primaryDark,
+            fontWeight: 'bold',
+            backgroundColor: this.$themeBrand.primary.v_50,
+            ':hover': {
+              backgroundColor: this.$themeBrand.primary.v_100,
+            },
+          };
         }
-        const bg = {
-          backgroundColor: this.$themePalette.grey.v_200,
-        };
-        return Object.assign(
-          {
-            color,
-          },
-          {
-            ":focus body[modality='keyboard']": bg,
-          }
-        );
-      },
-      optionContentStyle() {
-        let backgroundColor = '';
-        let color = '#000';
-        let hover = {
-          backgroundColor: this.$themeBrand.primary.v_50,
-        };
-        let fontWeight = 'normal';
-
-        if (this.active) {
-          backgroundColor = this.$themeBrand.primary.v_50;
-          color = this.$themeTokens.primaryDark;
-          fontWeight = 'bold';
-        }
-
         return {
-          backgroundColor,
-          color,
-          fontWeight,
-          ':hover': hover,
+          color: this.$themeTokens.text,
+          ':hover': {
+            backgroundColor: this.$themeBrand.primary.v_50,
+          },
         };
       },
       optionIconStyle() {
-        let fill = this.$themePalette.grey.v_600;
         if (this.active) {
-          fill = this.$themeTokens.primary;
+          return { fill: this.$themeTokens.primary };
         }
-        if (this.hover) {
-          fill = '#000';
-        }
-        return {
-          fill,
-        };
+        return { fill: this.$themePalette.grey.v_600 };
       },
     },
     methods: {
@@ -131,20 +94,20 @@
   @import '~kolibri.styles.definitions';
 
   .core-menu-option {
-    height: 48px;
-    padding-top: 4px;
-    padding-bottom: 4px;
+    display: block;
+    padding: 8px;
+    margin: 4px 8px;
     font-size: 16px;
     text-decoration: none;
-  }
-  .core-menu-option-content {
-    display: flex;
-    align-items: center;
-    height: 2.5rem;
-    padding: 0 8px;
-    margin: 4px 8px 0;
     border-radius: $radius;
+    outline-offset: -1px; // override global styles
+    transition: background-color $core-time ease;
+
+    &:hover {
+      outline-offset: -1px; // override global styles
+    }
   }
+
   .divider {
     display: block;
     min-width: 100%;

@@ -63,11 +63,6 @@ export function themePalette() {
 
 // outline for keyboard-modality tab-focus
 export function themeOutlineStyle() {
-  if (globalThemeState.inputModality !== 'keyboard') {
-    return {
-      outline: 'none',
-    };
-  }
   return {
     outlineColor: tokens.focusOutline,
     outlineStyle: 'solid',

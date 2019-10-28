@@ -23,6 +23,7 @@ import KTextbox from './KTextbox';
 import KTooltip from './KTooltip';
 
 import { themeTokens, themeBrand, themePalette, themeOutlineStyle } from './styles/theme';
+import globalThemeState from './styles/globalThemeState';
 
 /**
  * Install Kolibri theme helpers on all Vue instances.
@@ -33,7 +34,12 @@ export default function KThemePlugin(Vue) {
     /* eslint-disable kolibri/vue-no-unused-properties */
     computed: {
       $coreOutline() {
-        return themeOutlineStyle();
+        if (globalThemeState.inputModality === 'keyboard') {
+          return themeOutlineStyle();
+        }
+        return {
+          outline: 'none',
+        };
       },
     },
     /* eslint-enable kolibri/vue-no-unused-properties */
