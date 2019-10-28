@@ -43,7 +43,7 @@
   export default {
     name: 'CoreMenuOption',
     props: {
-      type: String,
+      isDivider: Boolean,
       label: String,
       link: String,
       secondaryText: String,
@@ -53,13 +53,9 @@
     computed: {
       coreMenuOptionClasses() {
         return {
-          'is-divider': this.isDivider,
           'is-active': this.active,
           [this.$computedClass(this.optionStyle)]: true,
         };
-      },
-      isDivider() {
-        return this.type === 'divider';
       },
       active() {
         let showActive = typeof this.showActive !== 'undefined' ? this.showActive : true;
@@ -67,12 +63,10 @@
       },
       optionStyle() {
         let color = '';
-        if (!this.isDivider) {
-          if (this.active) {
-            color = this.$themeTokens.primary;
-          } else {
-            color = this.$themeTokens.text;
-          }
+        if (this.active) {
+          color = this.$themeTokens.primary;
+        } else {
+          color = this.$themeTokens.text;
         }
         const bg = {
           backgroundColor: this.$themePalette.grey.v_200,
@@ -94,12 +88,10 @@
         };
         let fontWeight = 'normal';
 
-        if (!this.isDivider) {
-          if (this.active) {
-            backgroundColor = this.$themeBrand.primary.v_50;
-            color = this.$themeTokens.primaryDark;
-            fontWeight = 'bold';
-          }
+        if (this.active) {
+          backgroundColor = this.$themeBrand.primary.v_50;
+          color = this.$themeTokens.primaryDark;
+          fontWeight = 'bold';
         }
 
         return {
