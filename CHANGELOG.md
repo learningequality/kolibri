@@ -2,6 +2,23 @@
 
 List of the most important changes for each release.
 
+## 0.12.9
+
+### Changed or fixed
+
+- Database vacuum now works correctly
+- Fixes related to network detection
+
+### Added
+
+- Improved error reporting in Windows
+
+([0.12.9 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.9))
+
+### Internationalization and localization
+
+- Added Korean
+
 ## 0.12.8
 
 ### Changed or fixed
