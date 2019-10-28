@@ -82,40 +82,19 @@ class TasksViewSet(viewsets.ViewSet):
             "baseurl", conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
         )
 
-        channel_job_metadata = {
-            "type": "REMOTECHANNELIMPORT",
-            "started_by": request.user.pk,
-        }
-        content_job_metadata = {
-            "type": "REMOTECONTENTIMPORT",
-            "started_by": request.user.pk,
-        }
+        job_metadata = {"type": "REMOTEIMPORT", "started_by": request.user.pk}
 
         job_ids = []
 
         for channel_id in channel_ids:
-            channel_job_id = get_queue().enqueue(
-                call_command,
-                "importchannel",
-                "network",
+            import_job_id = get_queue().enqueue(
+                _remoteimport,
                 channel_id,
-                baseurl=baseurl,
-                extra_metadata=channel_job_metadata,
+                baseurl,
+                extra_metadata=job_metadata,
                 cancellable=True,
             )
-            job_ids.append(channel_job_id)
-
-            content_job_id = get_queue().enqueue(
-                call_command,
-                "importcontent",
-                "network",
-                channel_id,
-                baseurl=baseurl,
-                extra_metadata=content_job_metadata,
-                track_progress=True,
-                cancellable=True,
-            )
-            job_ids.append(content_job_id)
+            job_ids.append(import_job_id)
 
         resp = [_job_to_response(get_queue().fetch_job(job_id)) for job_id in job_ids]
 
@@ -207,40 +186,19 @@ class TasksViewSet(viewsets.ViewSet):
                 "That drive_id was not found in the list of drives."
             )
 
-        channel_job_metadata = {
-            "type": "DISKCHANNELIMPORT",
-            "started_by": request.user.pk,
-        }
-        content_job_metadata = {
-            "type": "DISKCONTENTIMPORT",
-            "started_by": request.user.pk,
-        }
+        job_metadata = {"type": "DISKIMPORT", "started_by": request.user.pk}
 
         job_ids = []
 
         for channel_id in channel_ids:
-            channel_job_id = get_queue().enqueue(
-                call_command,
-                "importchannel",
-                "disk",
+            import_job_id = get_queue().enqueue(
+                _diskimport,
                 channel_id,
                 drive.datafolder,
-                extra_metadata=channel_job_metadata,
+                extra_metadata=job_metadata,
                 cancellable=True,
             )
-            job_ids.append(channel_job_id)
-
-            content_job_id = get_queue().enqueue(
-                call_command,
-                "importcontent",
-                "disk",
-                channel_id,
-                drive.datafolder,
-                extra_metadata=content_job_metadata,
-                track_progress=True,
-                cancellable=True,
-            )
-            job_ids.append(content_job_id)
+            job_ids.append(import_job_id)
 
         resp = [_job_to_response(get_queue().fetch_job(job_id)) for job_id in job_ids]
 
@@ -565,6 +523,66 @@ class TasksViewSet(viewsets.ViewSet):
         resp = _job_to_response(get_queue().fetch_job(job_id))
 
         return Response(resp)
+
+
+def _remoteimport(
+    channel_id,
+    baseurl,
+    update_progress=None,
+    check_for_cancel=None,
+    node_ids=None,
+    exclude_node_ids=None,
+    extra_metadata=None,
+):
+
+    call_command(
+        "importchannel",
+        "network",
+        channel_id,
+        baseurl=baseurl,
+        update_progress=update_progress,
+        check_for_cancel=check_for_cancel,
+    )
+    call_command(
+        "importcontent",
+        "network",
+        channel_id,
+        baseurl=baseurl,
+        node_ids=node_ids,
+        exclude_node_ids=exclude_node_ids,
+        update_progress=update_progress,
+        check_for_cancel=check_for_cancel,
+    )
+
+
+def _diskimport(
+    channel_id,
+    drive_id,
+    update_progress=None,
+    check_for_cancel=None,
+    node_ids=None,
+    exclude_node_ids=None,
+    extra_metadata=None,
+):
+
+    call_command(
+        "importchannel",
+        "network",
+        channel_id,
+        drive_id,
+        update_progress=update_progress,
+        check_for_cancel=check_for_cancel,
+    )
+    call_command(
+        "importcontent",
+        "network",
+        channel_id,
+        drive_id,
+        node_ids=node_ids,
+        exclude_node_ids=exclude_node_ids,
+        update_progress=update_progress,
+        check_for_cancel=check_for_cancel,
+    )
 
 
 def _localexport(
