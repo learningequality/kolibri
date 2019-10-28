@@ -27,7 +27,7 @@
             </th>
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th></th>
+            <th>{{ coachString('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -62,6 +62,7 @@
                 v-if="!tableRow.active && !tableRow.archive"
                 :text="coachString('openQuizLabel')"
                 appearance="flat-button"
+                class="table-left-aligned-button"
                 @click="showOpenConfirmationModal = true; modalQuizId=tableRow.id"
               />
               <!-- Close quiz button -->
@@ -69,18 +70,15 @@
                 v-if="tableRow.active && !tableRow.archive"
                 :text="coachString('closeQuizLabel')"
                 appearance="flat-button"
+                class="table-left-aligned-button"
                 @click="showCloseConfirmationModal = true; modalQuizId=tableRow.id;"
               />
-              <!-- Toggle visibility -->
-              <KSwitch
+              <div
                 v-if="tableRow.archive"
-                name="toggle-quiz-visibility"
-                :checked="tableRow.active"
-                :value="tableRow.active"
-                :label="coachString('reportVisibleLabel')"
-                style="margin: 0.5rem;"
-                @change="handleToggleVisibility(tableRow.id, tableRow.active)"
-              />
+                class="quiz-closed-label"
+              >
+                {{ coachString('quizClosedLabel') }}
+              </div>
             </td>
           </tr>
         </transition-group>
@@ -228,26 +226,6 @@
             this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
           });
       },
-      handleToggleVisibility(quizId, isActive) {
-        const newActiveState = !isActive;
-        const snackbarMessage = newActiveState
-          ? this.coachString('quizVisibleToLearners')
-          : this.coachString('quizNotVisibleToLearners');
-
-        let promise = ExamResource.saveModel({
-          id: quizId,
-          data: {
-            active: newActiveState,
-          },
-          exists: true,
-        });
-
-        return promise.then(() => {
-          this.$store.dispatch('classSummary/refreshClassSummary');
-          this.showOpenConfirmationModal = false;
-          this.$store.dispatch('createSnackbar', snackbarMessage);
-        });
-      },
     },
     $trs: {
       noActiveExams: 'No active quizzes',
@@ -263,6 +241,14 @@
   td.status {
     padding-top: 0;
     padding-bottom: 0;
+  }
+  .quiz-closed-label {
+    padding: 0;
+    margin: 0.75rem 0;
+  }
+
+  .table-left-aligned-button {
+    margin: 0.5rem 0 0.5rem -1rem;
   }
 
 </style>

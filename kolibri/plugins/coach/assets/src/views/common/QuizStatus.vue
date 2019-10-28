@@ -9,7 +9,7 @@
       style="margin-left: 0; margin-top: 1rem; margin-bottom: 0;"
       @click="showConfirmationModal = true"
     />
-    <div v-if="exam.active && !exam.archive" style="margin-bottom: 2.5rem;">
+    <div v-if="exam.active && !exam.archive">
       <KButton
         :text="coachString('closeQuizLabel')"
         type="submit"
@@ -19,51 +19,52 @@
       />
       <StatusElapsedTime :date="examDateOpened" actionType="opened" />
     </div>
-    <dl>
-      <dt v-if="exam.archive">
-        <b>{{ $tr('quizClosedLabel') }}</b>
-      </dt>
-      <dd v-if="exam.archive" style="margin-bottom: 2.5rem;">
+    <KGrid gutter="16">
+      <KGridItem v-if="exam.archive" class="status-label">
+        {{ coachString('quizClosedLabel') }}
+      </KGridItem>
+      <KGridItem style="margin-bottom: 1rem">
         <StatusElapsedTime :date="examDateArchived" />
-      </dd>
-      <dt v-if="exam.archive">
-        <b>{{ $tr('reportVisibleToLearnersLabel') }}</b>
-      </dt>
-      <dd v-if="exam.archive">
+      </KGridItem>
+      <KGridItem v-if="exam.archive" class="status-label" :layout12="{ span: 8 }">
+        {{ $tr('reportVisibleToLearnersLabel') }}
+      </KGridItem>
+      <KGridItem v-if="exam.archive" class="status-label" :layout12="{ span: 4 }">
         <KSwitch
           name="toggle-quiz-visibility"
+          style="display:inline;"
           :checked="exam.active"
           :value="exam.active"
-          :label="$tr('yesLabel')"
           @change="handleToggleVisibility"
         />
-
-      </dd>
-      <dt>
-        <b>{{ coachString('recipientsLabel') }}</b>
-      </dt>
-      <dd>
-        <Recipients
-          slot="value"
-          :groupNames="groupNames"
-          :hasAssignments="exam.assignments.length > 0"
-        />
-      </dd>
-      <dt>
-        <b style="position: relative;">
-          <span>{{ coachString('avgScoreLabel') }}</span>
-          <AverageScoreTooltip />
-        </b>
-
-      </dt>
-      <dd>
+      </KGridItem>
+      <KGridItem class="status-label">
+        {{ coachString('recipientsLabel') }}
+      </KGridItem>
+      <KGridItem>
+        <div>
+          <Recipients
+            slot="value"
+            :groupNames="groupNames"
+            :hasAssignments="exam.assignments.length > 0"
+          />
+        </div>
+      </KGridItem>
+      <KGridItem class="status-label">
+        <span>{{ coachString('avgScoreLabel') }}</span>
+        <AverageScoreTooltip />
+      </KGridItem>
+      <KGridItem>
         <Score :value="avgScore" />
-      </dd>
-      <dt>
-        <b>{{ $tr('questionOrderLabel') }} </b>
-      </dt>
-      <dd>{{ orderDescriptionString }}</dd>
-    </dl>
+      </KGridItem>
+      <KGridItem class="status-label">
+        {{ $tr('questionOrderLabel') }}
+      </KGridItem>
+      <KGridItem>
+        {{ orderDescriptionString }}
+      </KGridItem>
+
+    </KGrid>
     <QuizStatusModal
       v-if="showConfirmationModal"
       :modalHeader="coachString('openQuizLabel')"
@@ -208,11 +209,6 @@
       },
     },
     $trs: {
-      quizClosedLabel: {
-        message: 'Quiz closed',
-        context:
-          'A label indicating that the currently viewed quiz is closed - meaning that learners may no longer give answers to the quiz.',
-      },
       reportVisibleToLearnersLabel: {
         message: 'Report visible to learners',
         context:
@@ -222,10 +218,6 @@
         message: 'Question order',
         context: 'A label for the place where the question order is shown.',
       },
-      yesLabel: {
-        message: 'Yes',
-        context: "Used to indicate to the user when a switch element has a true or 'on' value.",
-      },
     },
   };
 
@@ -234,15 +226,12 @@
 
 <style scoped lang="scss">
 
-  dt {
-    margin-top: 1rem;
-    margin-left: 0;
-  }
-  dd {
-    margin: 0;
-  }
-  div {
+  .grid-item {
     font-size: 0.925rem;
+  }
+  .status-label {
+    padding-top: 1.5rem;
+    font-weight: bold;
   }
 
 </style>

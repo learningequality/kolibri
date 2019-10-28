@@ -50,6 +50,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   questionLabel: 'Question',
   questionsLabel: 'Questions', // Kept here for use in common.js
   questionOrderLabel: 'Question order',
+  quizClosedLabel: {
+    message: 'Quiz closed',
+    context:
+      'A label indicating that the currently viewed quiz is closed - meaning that learners may no longer give answers to the quiz.',
+  },
   quizzesLabel: 'Quizzes', // Kept here for use in common.js
   quizzesAssignedLabel: 'Quizzes assigned',
   recipientsLabel: 'Recipients',

@@ -30,7 +30,7 @@
           <tr>
             <th>{{ coachString('titleLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th></th>
+            <th>{{ coachString('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -61,6 +61,7 @@
                 v-if="!exam.active && !exam.archive"
                 :text="coachString('openQuizLabel')"
                 appearance="flat-button"
+                class="table-left-aligned-button"
                 @click="showOpenConfirmationModal = true; modalQuizId=exam.id"
               />
               <!-- Close quiz button -->
@@ -68,18 +69,16 @@
                 v-if="exam.active && !exam.archive"
                 :text="coachString('closeQuizLabel')"
                 appearance="flat-button"
+                class="table-left-aligned-button"
                 @click="showCloseConfirmationModal = true; modalQuizId=exam.id;"
               />
-              <!-- Toggle visibility -->
-              <KSwitch
+              <!-- Closed quiz label -->
+              <div
                 v-if="exam.archive"
-                name="toggle-quiz-visibility"
-                :checked="exam.active"
-                :value="exam.active"
-                :label="coachString('reportVisibleLabel')"
-                style="margin: 0.5rem;"
-                @change="handleToggleVisibility(exam.id, exam.active)"
-              />
+                class="quiz-closed-label"
+              >
+                {{ coachString('quizClosedLabel') }}
+              </div>
             </td>
 
           </tr>
@@ -235,26 +234,6 @@
             this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
           });
       },
-      handleToggleVisibility(quizId, isActive) {
-        const newActiveState = !isActive;
-        const snackbarMessage = newActiveState
-          ? this.coachString('quizVisibleToLearners')
-          : this.coachString('quizNotVisibleToLearners');
-
-        let promise = ExamResource.saveModel({
-          id: quizId,
-          data: {
-            active: newActiveState,
-          },
-          exists: true,
-        });
-
-        return promise.then(() => {
-          this.$store.dispatch('classSummary/refreshClassSummary');
-          this.showOpenConfirmationModal = false;
-          this.$store.dispatch('createSnackbar', snackbarMessage);
-        });
-      },
     },
     $trs: {
       noExams: 'You do not have any quizzes',
@@ -279,6 +258,11 @@
 
   .center-text {
     text-align: center;
+  }
+
+  .table-left-aligned-button {
+    // Remove all margins except a new negative left margin
+    margin: 0 0 0 -1rem;
   }
 
 </style>
