@@ -497,6 +497,12 @@
       // TODO: Handle singular/plural
       selectionInformation:
         '{count, number, integer} of {total, number, integer} resources selected',
+      // TODO: Interpolate strings correctly
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      /* The items below are referred to dynamically */
+      added: "Added '{item}'",
+      removed: "Removed '{item}'",
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 
