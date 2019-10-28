@@ -3,7 +3,7 @@
 
 Typical usage:
 
-    - build a kolibri-server package for trusty
+    - build a kolibri-server package for xenial
     - dput ppa:build/kolibri-server-source_0.9.0~b2-0ubuntu1_source.changes
     - wait for it to be built
     - run python ppa-copy-packages.py
@@ -29,8 +29,8 @@ PPA_OWNER = 'learningequality'
 PPA_NAME = 'kolibri-server'
 PACKAGE_WHITELIST = ['kolibri-server-source']
 
-SOURCE_SERIES = 'trusty'
-TARGET_SERIESES = ['trusty', 'xenial', 'bionic', 'cosmic']
+SOURCE_SERIES = 'xenial'
+TARGET_SERIESES = ['xenial', 'bionic', 'disco', 'eoan']
 POCKET = 'Release'
 
 APP_NAME = 'ppa-kolibri-server-copy-packages'
