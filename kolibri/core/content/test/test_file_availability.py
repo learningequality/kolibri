@@ -1,4 +1,3 @@
-import json
 import os
 import shutil
 import tempfile
@@ -8,6 +7,7 @@ from django.test import TransactionTestCase
 from mock import patch
 
 from .sqlalchemytesting import django_connection_engine
+from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_disk,
 )
@@ -99,64 +99,39 @@ class LocalFileRemote(TransactionTestCase):
     fixtures = ["content_test.json"]
 
     @patch("kolibri.core.content.utils.file_availability.requests")
-    def test_set_one_file_in_channel(self, requests_mock):
-        requests_mock.get.return_value.status_code = 200
-        requests_mock.get.return_value.content = json.dumps([file_id_1])
+    def test_set_one_file(self, requests_mock):
+        LocalFile.objects.all().update(available=True)
+        LocalFile.objects.filter(id=file_id_1).update(available=False)
+        requests_mock.post.return_value.status_code = 200
+        requests_mock.post.return_value.content = "1"
         checksums = get_available_checksums_from_remote(test_channel_id, "test")
         self.assertEqual(checksums, [file_id_1])
 
     @patch("kolibri.core.content.utils.file_availability.requests")
-    def test_set_one_file_not_in_channel(self, requests_mock):
-        # This shouldn't happen unless something weird is happening on the other
-        # end of the request, but make sure we behave anyway
-        requests_mock.get.return_value.status_code = 200
-        requests_mock.get.return_value.content = json.dumps([uuid.uuid4().hex])
-        checksums = get_available_checksums_from_remote(test_channel_id, "test")
-        self.assertEqual(checksums, [])
-
-    @patch("kolibri.core.content.utils.file_availability.requests")
     def test_set_two_files_in_channel(self, requests_mock):
-        requests_mock.get.return_value.status_code = 200
-        requests_mock.get.return_value.content = json.dumps([file_id_1, file_id_2])
+        LocalFile.objects.all().update(available=True)
+        LocalFile.objects.filter(id__in=[file_id_1, file_id_2]).update(available=False)
+        requests_mock.post.return_value.status_code = 200
+        requests_mock.post.return_value.content = "3"
         checksums = get_available_checksums_from_remote(test_channel_id, "test")
         self.assertEqual(set(checksums), set([file_id_1, file_id_2]))
 
     @patch("kolibri.core.content.utils.file_availability.requests")
-    def test_set_two_files_one_in_channel(self, requests_mock):
-        requests_mock.get.return_value.status_code = 200
-        requests_mock.get.return_value.content = json.dumps(
-            [file_id_1, uuid.uuid4().hex]
-        )
-        checksums = get_available_checksums_from_remote(test_channel_id, "test")
-        self.assertEqual(checksums, [file_id_1])
-
-    @patch("kolibri.core.content.utils.file_availability.requests")
     def test_set_two_files_none_in_channel(self, requests_mock):
-        requests_mock.get.return_value.status_code = 200
-        requests_mock.get.return_value.content = json.dumps(
-            [uuid.uuid4().hex, uuid.uuid4().hex]
-        )
+        requests_mock.post.return_value.status_code = 200
+        requests_mock.post.return_value.content = "0"
         checksums = get_available_checksums_from_remote(test_channel_id, "test")
         self.assertEqual(checksums, [])
 
     @patch("kolibri.core.content.utils.file_availability.requests")
     def test_404_remote_checksum_response(self, requests_mock):
-        requests_mock.get.return_value.status_code = 404
+        requests_mock.post.return_value.status_code = 404
         checksums = get_available_checksums_from_remote(test_channel_id, "test")
         self.assertIsNone(checksums)
 
     @patch("kolibri.core.content.utils.file_availability.requests")
-    def test_invalid_json_remote_checksum_response(self, requests_mock):
-        requests_mock.get.return_value.status_code = 200
-        requests_mock.get.return_value.content = "I am not a json, I am a free man!"
+    def test_invalid_integer_remote_checksum_response(self, requests_mock):
+        requests_mock.post.return_value.status_code = 200
+        requests_mock.post.return_value.content = "I am not a json, I am a free man!"
         checksums = get_available_checksums_from_remote(test_channel_id, "test")
         self.assertIsNone(checksums)
-
-    @patch("kolibri.core.content.utils.file_availability.requests")
-    def test_invalid_checksums_remote_checksum_response(self, requests_mock):
-        requests_mock.get.return_value.status_code = 200
-        requests_mock.get.return_value.content = json.dumps(
-            ["I am not a checksum, I am a free man!", file_id_1 + ".mp4"]
-        )
-        checksums = get_available_checksums_from_remote(test_channel_id, "test")
-        self.assertEqual(checksums, [])

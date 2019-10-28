@@ -178,12 +178,45 @@ class PublicAPITestCase(APITestCase):
         response = self.client.get(get_channel_lookup_url(identifier=uuid.uuid4().hex))
         self.assertEqual(response.status_code, 404)
 
-    def test_public_checksum_lookup_no_channel(self):
-        channel_id = uuid.uuid4().hex
-        response = self.client.get(
-            reverse(
-                "kolibri:core:get_public_file_checksums",
-                kwargs={"version": "v1", "channel_id": channel_id},
-            )
+    def test_public_checksum_lookup_no_checksums(self):
+        response = self.client.post(
+            reverse("kolibri:core:get_public_file_checksums", kwargs={"version": "v1"}),
+            data=[],
+            format="json",
         )
-        self.assertEqual(response.json(), [])
+        self.assertEqual(response.content, "0")
+
+    def test_public_checksum_lookup_not_available(self):
+        LocalFile.objects.all().update(available=True)
+        test = LocalFile.objects.all().first()
+        test.available = False
+        test.save()
+        response = self.client.post(
+            reverse("kolibri:core:get_public_file_checksums", kwargs={"version": "v1"}),
+            data=[test.id],
+            format="json",
+        )
+        self.assertEqual(response.content, "0")
+
+    def test_public_checksum_lookup_two_available(self):
+        LocalFile.objects.all().update(available=True)
+        ids = LocalFile.objects.all()[:2].values_list("id", flat=True)
+        response = self.client.post(
+            reverse("kolibri:core:get_public_file_checksums", kwargs={"version": "v1"}),
+            data=ids,
+            format="json",
+        )
+        self.assertEqual(response.content, "3")
+
+    def test_public_checksum_lookup_one_available(self):
+        LocalFile.objects.all().update(available=True)
+        ids = LocalFile.objects.all()[:2].values_list("id", flat=True)
+        test = LocalFile.objects.all().first()
+        test.available = False
+        test.save()
+        response = self.client.post(
+            reverse("kolibri:core:get_public_file_checksums", kwargs={"version": "v1"}),
+            data=ids,
+            format="json",
+        )
+        self.assertEqual(response.content, "2")

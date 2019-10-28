@@ -1,11 +1,11 @@
 import json
 import os
 import re
+from itertools import compress
 
 import requests
 from django.core.cache import cache
-from morango.constants.capabilities import GZIP_BUFFER_POST
-from morango.utils import CAPABILITIES
+from django.utils.text import compress_string
 
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_storage_dir_path
@@ -32,36 +32,44 @@ def _filter_checksums_by_channel(checksums, channel_id):
     )
 
 
+def _generate_mask(integer_mask):
+    while integer_mask:
+        yield bool(integer_mask % 2)
+        integer_mask /= 2
+
+
 def get_available_checksums_from_remote(channel_id, baseurl):
     CACHE_KEY = "PEER_AVAILABLE_CHECKSUMS_{baseurl}_{channel_id}".format(
         baseurl=baseurl, channel_id=channel_id
     )
     if CACHE_KEY not in cache:
-        # By default requests adds gzip accept encoding, regardless of whether the system
-        # can actually decode gzip
-        if GZIP_BUFFER_POST not in CAPABILITIES:
-            response = requests.get(
-                get_file_checksums_url(channel_id, baseurl),
-                headers={"accept-encoding": ""},
+
+        channel_checksums = (
+            LocalFile.objects.filter(
+                available=False, files__contentnode__channel_id=channel_id
             )
-        else:
-            response = requests.get(get_file_checksums_url(channel_id, baseurl))
+            .values_list("id", flat=True)
+            .distinct()
+        )
+
+        response = requests.post(
+            get_file_checksums_url(channel_id, baseurl),
+            data=compress_string(
+                bytes(json.dumps(list(channel_checksums)).encode("utf-8"))
+            ),
+            headers={"content-type": "application/gzip"},
+        )
 
         checksums = None
 
         # Do something if we got a successful return
         if response.status_code == 200:
             try:
-                checksums = json.loads(response.content)
+                integer_mask = int(response.content)
 
                 # Filter to avoid passing in bad checksums
-                checksums = _filter_checksums_by_channel(
-                    [
-                        checksum
-                        for checksum in checksums
-                        if checksum_regex.match(checksum)
-                    ],
-                    channel_id,
+                checksums = list(
+                    compress(channel_checksums, _generate_mask(integer_mask))
                 )
                 cache.set(CACHE_KEY, checksums, 3600)
             except (ValueError, TypeError):

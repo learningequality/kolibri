@@ -1,12 +1,15 @@
+import gzip
+import io
 import json
 import platform
 
 from django.db.models import Q
 from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotFound
-from morango.constants.capabilities import GZIP_BUFFER_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.gzip import gzip_page
 from morango.models import InstanceIDModel
-from morango.utils import CAPABILITIES
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -17,18 +20,6 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import PublicChannelSerializer
-
-if GZIP_BUFFER_POST in CAPABILITIES:
-    from django.views.decorators.gzip import gzip_page
-else:
-    gzip_page = None
-
-
-def conditional_gzip_page(view_func):
-    if gzip_page:
-        return gzip_page(view_func)
-    else:
-        return view_func
 
 
 class InfoViewSet(viewsets.ViewSet):
@@ -134,25 +125,30 @@ def get_public_channel_lookup(request, version, identifier):
     )
 
 
-@api_view(["GET"])
-@conditional_gzip_page
-def get_public_file_checksums(request, version, channel_id):
-    """ Endpoint: /public/<version>/file_checksums/<channel_id> """
+@csrf_exempt
+@gzip_page
+def get_public_file_checksums(request, version):
+    """ Endpoint: /public/<version>/file_checksums/ """
     if version == "v1":
-        try:
-            channel = ChannelMetadata.objects.get(id=channel_id)
-            tree_id = channel.root.tree_id
-            checksums = (
-                LocalFile.objects.filter(
-                    available=True, files__contentnode__tree_id=tree_id
-                )
-                .values_list("id", flat=True)
-                .distinct()
-            )
-        except ChannelMetadata.DoesNotExist:
-            checksums = []
+        if request.content_type == "application/json":
+            data = request.body
+        elif request.content_type == "application/gzip":
+            with gzip.GzipFile(fileobj=io.BytesIO(request.body)) as f:
+                data = f.read()
+        else:
+            return HttpResponseBadRequest("POST body must be either json or gzip")
+        checksums = json.loads(data.decode("utf-8"))
+        available_checksums = set(
+            LocalFile.objects.filter(available=True, id__in=checksums)
+            .values_list("id", flat=True)
+            .distinct()
+        )
         return HttpResponse(
-            json.dumps(list(checksums)), content_type="application/json"
+            sum(
+                int(checksum in available_checksums) << i
+                for i, checksum in enumerate(checksums)
+            ),
+            content_type="application/octet-stream",
         )
     return HttpResponseNotFound(
         json.dumps({"id": error_constants.NOT_FOUND, "metadata": {"view": ""}}),
