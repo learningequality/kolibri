@@ -82,11 +82,14 @@ class TasksViewSet(viewsets.ViewSet):
             "baseurl", conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
         )
 
-        job_metadata = {"type": "REMOTEIMPORT", "started_by": request.user.pk}
-
         job_ids = []
 
         for channel_id in channel_ids:
+            job_metadata = {
+                "type": "REMOTEIMPORT",
+                "started_by": request.user.pk,
+                "channel_id": channel_id,
+            }
             import_job_id = get_queue().enqueue(
                 _remoteimport,
                 channel_id,
@@ -112,7 +115,11 @@ class TasksViewSet(viewsets.ViewSet):
             "baseurl", conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
         )
 
-        job_metadata = {"type": "REMOTECHANNELIMPORT", "started_by": request.user.pk}
+        job_metadata = {
+            "type": "REMOTECHANNELIMPORT",
+            "started_by": request.user.pk,
+            "channel_id": channel_id,
+        }
 
         job_id = get_queue().enqueue(
             call_command,
@@ -148,7 +155,11 @@ class TasksViewSet(viewsets.ViewSet):
         if exclude_node_ids and not isinstance(exclude_node_ids, list):
             raise serializers.ValidationError("exclude_node_ids must be a list.")
 
-        job_metadata = {"type": "REMOTECONTENTIMPORT", "started_by": request.user.pk}
+        job_metadata = {
+            "type": "REMOTECONTENTIMPORT",
+            "started_by": request.user.pk,
+            "channel_id": channel_id,
+        }
 
         job_id = get_queue().enqueue(
             call_command,
@@ -186,11 +197,14 @@ class TasksViewSet(viewsets.ViewSet):
                 "That drive_id was not found in the list of drives."
             )
 
-        job_metadata = {"type": "DISKIMPORT", "started_by": request.user.pk}
-
         job_ids = []
 
         for channel_id in channel_ids:
+            job_metadata = {
+                "type": "DISKIMPORT",
+                "started_by": request.user.pk,
+                "channel_id": channel_id,
+            }
             import_job_id = get_queue().enqueue(
                 _diskimport,
                 channel_id,
@@ -225,7 +239,11 @@ class TasksViewSet(viewsets.ViewSet):
                 "That drive_id was not found in the list of drives."
             )
 
-        job_metadata = {"type": "DISKCHANNELIMPORT", "started_by": request.user.pk}
+        job_metadata = {
+            "type": "DISKCHANNELIMPORT",
+            "started_by": request.user.pk,
+            "channel_id": channel_id,
+        }
 
         job_id = get_queue().enqueue(
             call_command,
@@ -270,7 +288,11 @@ class TasksViewSet(viewsets.ViewSet):
         if exclude_node_ids and not isinstance(exclude_node_ids, list):
             raise serializers.ValidationError("exclude_node_ids must be a list.")
 
-        job_metadata = {"type": "DISKCONTENTIMPORT", "started_by": request.user.pk}
+        job_metadata = {
+            "type": "DISKCONTENTIMPORT",
+            "started_by": request.user.pk,
+            "channel_id": channel_id,
+        }
 
         job_id = get_queue().enqueue(
             call_command,
@@ -296,11 +318,14 @@ class TasksViewSet(viewsets.ViewSet):
         except KeyError:
             raise serializers.ValidationError("The channel_ids field is required.")
 
-        job_metadata = {"type": "DELETECHANNEL", "started_by": request.user.pk}
-
         job_ids = []
 
         for channel_id in channel_ids:
+            job_metadata = {
+                "type": "DELETECHANNEL",
+                "started_by": request.user.pk,
+                "channel_id": channel_id,
+            }
             delete_job_id = get_queue().enqueue(
                 call_command,
                 "deletechannel",
@@ -325,7 +350,11 @@ class TasksViewSet(viewsets.ViewSet):
 
         channel_id = request.data["channel_id"]
 
-        job_metadata = {"type": "DELETECHANNEL", "started_by": request.user.pk}
+        job_metadata = {
+            "type": "DELETECHANNEL",
+            "started_by": request.user.pk,
+            "channel_id": channel_id,
+        }
 
         task_id = get_queue().enqueue(
             call_command,
@@ -359,11 +388,14 @@ class TasksViewSet(viewsets.ViewSet):
                 "That drive_id was not found in the list of drives."
             )
 
-        job_metadata = {"type": "DISKEXPORT", "started_by": request.user.pk}
-
         job_ids = []
 
         for channel_id in channel_ids:
+            job_metadata = {
+                "type": "DISKEXPORT",
+                "started_by": request.user.pk,
+                "channel_id": channel_id,
+            }
             export_job_id = get_queue().enqueue(
                 _localexport,
                 channel_id,
@@ -413,7 +445,11 @@ class TasksViewSet(viewsets.ViewSet):
         if exclude_node_ids and not isinstance(exclude_node_ids, list):
             raise serializers.ValidationError("exclude_node_ids must be a list.")
 
-        job_metadata = {"type": "DISKEXPORT", "started_by": request.user.pk}
+        job_metadata = {
+            "type": "DISKEXPORT",
+            "started_by": request.user.pk,
+            "channel_id": channel_id,
+        }
 
         task_id = get_queue().enqueue(
             _localexport,
