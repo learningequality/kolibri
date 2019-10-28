@@ -16,6 +16,17 @@ export default new Resource({
   },
 
   /**
+   * Initiates a Task that imports multiple channels and their contents from a remote source
+   *
+   * @param {string[]} params.channel_ids
+   * @param {string} params.baseurl
+   *
+   */
+  startRemoteBulkImport({ channel_ids, baseurl }) {
+    return this.postListEndpoint('startremotebulkimport', { channel_ids, baseurl });
+  },
+
+  /**
    * Initiates a Task that imports a Channel Metadata DB from a local drive
    *
    * @param {string} params.channel_id -
@@ -25,6 +36,20 @@ export default new Resource({
   startDiskChannelImport({ channel_id, drive_id }) {
     return this.postListEndpoint('startdiskchannelimport', {
       channel_id,
+      drive_id,
+    });
+  },
+
+  /**
+   * Initiates a Task that imports multiple channels and their contents from a local drive
+   *
+   * @param {string[]} params.channel_ids
+   * @param {string} params.drive_id
+   *
+   */
+  startDiskBulkImport({ channel_ids, drive_id }) {
+    return this.postListEndpoint('startdiskbulkimport', {
+      channel_ids,
       drive_id,
     });
   },
@@ -58,7 +83,7 @@ export default new Resource({
   },
 
   /**
-   * Initiates a Task that exports) Channel Content to a local drive
+   * Initiates a Task that exports Channel Content to a local drive
    *
    * @param {string} params.channel_id -
    * @param {string} params.drive_id -
@@ -70,6 +95,19 @@ export default new Resource({
   startDiskContentExport(params) {
     // Not naming it after URL to keep internal consistency
     return this.postListEndpoint('startdiskexport', pickBy(params));
+  },
+
+  /**
+   * Initiates a Task that exports Multiple Channel Contents to a local drive
+   *
+   * @param {string} params.channel_ids -
+   * @param {string} params.drive_id -
+   * @returns {Promise}
+   *
+   */
+  startDiskBulkExport({ channel_ids, drive_id }) {
+    // Not naming it after URL to keep internal consistency
+    return this.postListEndpoint('startdiskbulkexport', { channel_ids, drive_id });
   },
 
   /**
@@ -86,6 +124,12 @@ export default new Resource({
   deleteChannel(channelId) {
     return this.postListEndpoint('startdeletechannel', {
       channel_id: channelId,
+    });
+  },
+
+  deleteBulkChannels(channelIds) {
+    return this.postListEndpoint('startbulkdelete', {
+      channel_ids: channelIds,
     });
   },
 
