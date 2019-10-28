@@ -4,35 +4,68 @@ Feature: Coach activates and deactivates lessons
   Background:
     Given I am signed in to kolibri as coach user
       And I am on *Coach - '<class>' > Plan > Lessons* page
-      And I see the lesson <lesson>
+      And I see the table of lessons which includes <lesson>
 
   Scenario: Coach changes the lesson status to *Active*
     Given that lesson <lesson> *Status* is *Inactive*
-      When I click the *Options* button
-        And I select *Edit details*
-      Then I see the *Edit lesson details for '<lesson>'* page
-      When I select *Active* under *Status*
-      And I click *Save changes* button
-    Then the page closes
-      # And I see the snackbar notification *Changes to lesson saved* # No notification?
-      And I see the lesson *Status* is *Active*
-    But if I click the *Cancel* button
-    Then the page closes
-      And I see the lesson <lesson> *Status* is still *Inactive*
+      When I click the switch in the *Visible to learners* column on the row for <lesson>
+      Then I see the switch slide to the *Active* position
+        And I see a snackbar notification that says *Lesson is visible to learners*
 
   Scenario: Coach changes the lesson status to *Inactive*
     Given that lesson <lesson> *Status* is *Active*
-      When I click the *Options* button
-        And I select *Edit details*
-      Then I see the *Edit lesson details for '<lesson>'* page
-      When I select *Inactive* under *Status*
-      And I click *Save changes* button
-    Then the page closes
-      # And I see the snackbar notification *Changes to lesson saved* # No notification?
-      And I see the lesson *Status* is *Inactive*
-    But if I click the *Cancel* button
-    Then the page closes
-      And I see the lesson <lesson> *Status* is still *Active*
+      When I click the switch in the *Visible to learners* column on the row for <lesson>
+      Then I see the switch slide to the *Inactive* position
+        And I see a snackbar notification that says *Lesson is not visible to learners*
+
+  Background:
+    Given I am signed in to kolibri as coach user
+      And I am on *Coach - '<class>' > Report > Lessons* page
+      And I see the table of lessons which includes <lesson>
+
+  Scenario: Coach changes the lesson status to *Active*
+    Given that lesson <lesson> *Status* is *Inactive*
+      When I click the switch in the *Visible to learners* column on the row for <lesson>
+      Then I see the switch slide to the *Active* position
+        And I see a snackbar notification that says *Lesson is visible to learners*
+
+  Scenario: Coach changes the lesson status to *Inactive*
+    Given that lesson <lesson> *Status* is *Active*
+      When I click the switch in the *Visible to learners* column on the row for <lesson>
+      Then I see the switch slide to the *Inactive* position
+        And I see a snackbar notification that says *Lesson is not visible to learners*
+
+  Background:
+    Given I am signed in to Kolibri as a Coach user
+      And I am on *Coach - '<class>' > Plan > Lessons > '<lesson>'* page
+
+  Scenario: Coach changes the lesson status to *Active*
+    Given that lesson <lesson> *Status* is *Inactive*
+      When I click the switch next to the label *Visible to learners*
+      Then I see the switch slide to the *Active* position
+        And I see a snackbar notification that says *Lesson is visible to learners*
+
+  Scenario: Coach changes the lesson status to *Inactive*
+    Given that lesson <lesson> *Status* is *Active*
+      When I click the switch next to the label *Visible to learners*
+      Then I see the switch slide to the *Inactive* position
+        And I see a snackbar notification that says *Lesson is not visible to learners*
+
+  Background:
+    Given I am signed in to Kolibri as a Coach user
+      And I am on *Coach - '<class>' > Plan > Lessons > '<lesson>'* page
+
+  Scenario: Coach changes the lesson status to *Active*
+    Given that lesson <lesson> *Status* is *Inactive*
+      When I click the switch next to the label *Visible to learners*
+      Then I see the switch slide to the *Active* position
+        And I see a snackbar notification that says *Lesson is visible to learners*
+
+  Scenario: Coach changes the lesson status to *Inactive*
+    Given that lesson <lesson> *Status* is *Active*
+      When I click the switch next to the label *Visible to learners*
+      Then I see the switch slide to the *Inactive* position
+        And I see a snackbar notification that says *Lesson is not visible to learners*
 
 Examples:
 | lesson                |
