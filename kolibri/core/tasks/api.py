@@ -671,9 +671,7 @@ def _job_to_response(job):
             "cancellable": False,
         }
     else:
-        return {
-            "type": getattr(job, "extra_metadata", {}).get("type"),
-            "started_by": getattr(job, "extra_metadata", {}).get("started_by"),
+        output = {
             "status": job.state,
             "exception": str(job.exception),
             "traceback": str(job.traceback),
@@ -681,3 +679,5 @@ def _job_to_response(job):
             "id": job.job_id,
             "cancellable": job.cancellable,
         }
+        output.update(job.extra_metadata)
+        return output
