@@ -26,9 +26,13 @@ Changes can be built and released in ``kolibri-proposed`` by the `Learning Equal
 Releasing
 ---------
 
-Push new changes to ``kolibri-proposed`` and test them. Use the ``ppa-copy-packages.py`` script to copy the builds for Xenial to all other currently active and supported Ubuntu releases on Launchpad.
+Push new changes to ``kolibri-proposed`` and test them there.
 
-If a release in ``kolibri-proposed`` should be released as a stable release, use the binary copy function on Launchpad to copy builds from ``kolibri-proposed``.
+To build packages for all current Ubuntu release series:
+
+1. Install Launchpadlib: ``sudo apt install python-launchpadlib``
+1. Run ``ppa-copy-packages.py`` script to copy the builds for Xenial to all other currently active and supported Ubuntu releases on Launchpad. The script is run from command line with ``python2 ppa-copy-packages.py``. After this, you should be prompted to create an API key for your Launchpad account.
+1. When a release in ``kolibri-proposed`` should be released as a stable release, use the binary copy function on Launchpad to copy builds from ``kolibri-proposed``.
 
 Overview
 --------
