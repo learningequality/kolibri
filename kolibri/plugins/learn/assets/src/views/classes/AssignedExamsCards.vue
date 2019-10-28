@@ -92,7 +92,9 @@
       },
       genExamSubtitle(exam) {
         if (this.examSubmitted(exam)) {
-          return this.coreString('completedLabel');
+          return this.$tr('completedPercentLabel', {
+            score: this.examScore(exam.progress.score, exam.question_count),
+          });
         } else if (!this.examStarted(exam)) {
           return this.$tr('notStartedLabel');
         } else if (this.examStartedNotSubmitted(exam)) {
@@ -107,6 +109,13 @@
         }
         return examReportViewerLink(exam.id);
       },
+      examScore(correct, total) {
+        if (correct === 0 || correct === null) {
+          return '0';
+        } else {
+          return Math.round((correct / total) * 100) + '';
+        }
+      },
     },
     $trs: {
       examsHeader: 'Quizzes',
@@ -114,6 +123,10 @@
       notStartedLabel: 'Not started',
       questionsLeft:
         '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',
+      completedPercentLabel: {
+        message: 'Completed: {score}%',
+        context: 'A label shown to learners on a quiz card when the quiz is completed',
+      },
     },
   };
 
