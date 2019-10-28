@@ -1,13 +1,18 @@
 <template>
 
   <li>
+    <span
+      v-if="isDivider"
+      class="divider"
+      :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
+    >
+    </span>
     <a
-      v-if="!isDivider"
+      v-else
       :href="link"
       class="core-menu-option"
       role="menuitem"
       :class="coreMenuOptionClasses"
-      :tabindex="(isDivider || disabled) ? null : '0'"
       @click="conditionalEmit"
       @keydown.enter="conditionalEmit"
     >
@@ -28,12 +33,6 @@
         </div>
       </slot>
     </a>
-    <span
-      v-else
-      class="divider"
-      :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
-    >
-    </span>
   </li>
 
 </template>
@@ -49,17 +48,12 @@
       link: String,
       secondaryText: String,
       icon: String,
-      disabled: {
-        type: Boolean,
-        default: false,
-      },
     },
     inject: ['showActive'],
     computed: {
       coreMenuOptionClasses() {
         return {
           'is-divider': this.isDivider,
-          'is-disabled': this.disabled,
           'is-active': this.active,
           [this.$computedClass(this.optionStyle)]: true,
         };
@@ -76,8 +70,6 @@
         if (!this.isDivider) {
           if (this.active) {
             color = this.$themeTokens.primary;
-          } else if (this.disabled) {
-            color = this.$themeTokens.annotation;
           } else {
             color = this.$themeTokens.text;
           }
