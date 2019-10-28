@@ -504,7 +504,11 @@ class TasksViewSet(viewsets.ViewSet):
         """
         Delete all tasks that have succeeded, failed, or been cancelled.
         """
-        get_queue().clear()
+        task_id = request.data.get("task_id")
+        if task_id:
+            get_queue().clear_job(task_id)
+        else:
+            get_queue().clear()
         return Response({})
 
     @list_route(methods=["get"])
