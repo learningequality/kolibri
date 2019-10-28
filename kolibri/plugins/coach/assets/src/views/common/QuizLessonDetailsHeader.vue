@@ -14,7 +14,7 @@
         <h1 class="exam-title">
           <KLabeledIcon icon="quiz" :label="exam.title" />
         </h1>
-        <StatusElapsedTime :date="examCreatedDate" actionType="created" />
+        <StatusElapsedTime :date="createdDate" actionType="created" />
       </div>
       <div slot="options">
         <slot name="dropdown"></slot>
@@ -34,7 +34,7 @@
   import BackLink from './BackLink';
 
   export default {
-    name: 'QuizHeader',
+    name: 'QuizLessonDetailsHeader',
     components: {
       HeaderWithOptions,
       StatusElapsedTime,
@@ -49,15 +49,28 @@
         type: String,
         required: true,
       },
+      examOrLesson: {
+        type: String,
+        required: true,
+        validator(value) {
+          return ['exam', 'lesson'].includes(value);
+        },
+      },
     },
     computed: {
-      ...mapState('classSummary', ['examMap']),
+      ...mapState('classSummary', ['examMap', 'lessonMap']),
       exam() {
         return this.examMap[this.$route.params.quizId];
       },
-      examCreatedDate() {
-        if (this.exam.date_created) {
-          return new Date(this.exam.date_created);
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
+      resource() {
+        return this.examOrLesson === 'lesson' ? this.lesson : this.exam;
+      },
+      createdDate() {
+        if (this[this.examOrLesson].date_created) {
+          return new Date(this[this.examOrLesson].date_created);
         } else {
           return null;
         }

@@ -3,7 +3,7 @@
   <KDropdownMenu
     :text="coreString('optionsLabel')"
     :options="options"
-    appearance="raised-button"
+    appearance="flat-button"
     :primary="false"
     @select="$emit('select', $event.value)"
   />
