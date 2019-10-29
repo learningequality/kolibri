@@ -212,8 +212,6 @@
   import getUrlParameter from '../getUrlParameter';
   import FacilityModal from './FacilityModal';
 
-  const closeString = crossComponentTranslator(FacilityModal).$tr('close');
-
   export default {
     name: 'SignInPage',
     metaInfo() {
@@ -359,7 +357,7 @@
         return getUrlParameter('next');
       },
       closeString() {
-        return closeString;
+        return crossComponentTranslator(FacilityModal).$tr('close');
       },
     },
     watch: {
