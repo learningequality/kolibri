@@ -56,7 +56,16 @@ class Command(AsyncCommand):
 
     def handle_async(self, *args, **options):
 
-        baseurl, facility_id, chunk_size, username, password, no_push, no_pull, noninteractive = (
+        (
+            baseurl,
+            facility_id,
+            chunk_size,
+            username,
+            password,
+            no_push,
+            no_pull,
+            noninteractive,
+        ) = (
             options["baseurl"],
             options["facility"],
             options["chunk_size"],
