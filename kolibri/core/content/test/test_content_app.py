@@ -493,7 +493,7 @@ class ContentNodeAPITestCase(APITestCase):
         )
 
     def test_contentnode_descendants_assessments_exercise_parent_sum_siblings_one_unavailable(
-        self
+        self,
     ):
         c1 = content.ContentNode.objects.filter(kind=content_kinds.EXERCISE).first()
         c1.available = False
@@ -842,7 +842,7 @@ class ContentNodeAPITestCase(APITestCase):
         Q(kind="dummy"),
     )
     def test_channelmetadata_include_fields_filter_has_no_renderable_on_device_file_size(
-        self
+        self,
     ):
         content.ChannelMetadata.objects.all().update(published_size=4)
         response = self.client.get(

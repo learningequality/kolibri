@@ -171,7 +171,7 @@ class LearnerClassroomTestCase(APITestCase):
         self.assertEqual(len(get_response.data[0]["assignments"]["lessons"]), 0)
 
     def test_learner_only_sees_lessons_for_single_classroom_when_enrolled_in_multiple(
-        self
+        self,
     ):
         classroom = Classroom.objects.create(
             name="Other Classroom", parent=self.facility
