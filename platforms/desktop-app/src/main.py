@@ -109,6 +109,15 @@ class MenuEventHandler:
     def on_reload(self):
         self.reload()
 
+    def on_actual_size(self):
+        self.set_zoom_level(2)
+
+    def on_zoom_in(self):
+        self.set_zoom_level(self.get_zoom_level() + 1)
+
+    def on_zoom_out(self):
+        self.set_zoom_level(self.get_zoom_level() - 1)
+
     # FIXME: Remove these once the native menu handlers are restored
     def on_redo(self):
         self.webview.Redo()
@@ -195,6 +204,9 @@ class Application(pew.ui.PEWApp):
 
         view_menu = pew.ui.PEWMenu('View')
         view_menu.add('Reload', handler=window.on_reload)
+        view_menu.add('Actual Size', handler=window.on_actual_size, shortcut='CTRL+0')
+        view_menu.add('Zoom In', handler=window.on_zoom_in, shortcut='CTRL++')
+        view_menu.add('Zoom Out', handler=window.on_zoom_out, shortcut='CTRL+-')
         view_menu.add_separator()
         view_menu.add('Open in Browser', handler=window.on_open_in_browser)
         menu_bar.add_menu(view_menu)
