@@ -2,7 +2,9 @@
 
   <div>
     <BottomAppBar>
-      <div></div>
+      <template v-slot:default>
+        <slot></slot>
+      </template>
     </BottomAppBar>
   </div>
 
@@ -30,20 +32,18 @@
       },
       actionType: {
         type: String,
-      }
+      },
     },
-    computed: {
-
-    },
-    methods: {
-
-    },
+    computed: {},
+    methods: {},
     $trs: {
       zeroChannelsSelected: '0 channels selected',
-      someChannelsSelected: '{count} {count, plural, one {channel} other {channels}} selected, {bytesText}',
+      someChannelsSelected:
+        '{count} {count, plural, one {channel} other {channels}} selected ({bytesText})',
       zeroResourcesSelected: '0 resources selected',
-      someResourcesSelected: '{count} {count, plural, one {resource} other {resources}} selected, {bytesText}',
-    }
+      someResourcesSelected:
+        '{count} {count, plural, one {resource} other {resources}} selected ({bytesText})',
+    },
   };
 
 </script>

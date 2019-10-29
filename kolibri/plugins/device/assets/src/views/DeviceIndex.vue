@@ -20,6 +20,7 @@
 
     <KPageContainer>
       <component :is="currentPage" />
+      <router-view />
     </KPageContainer>
   </CoreBase>
 

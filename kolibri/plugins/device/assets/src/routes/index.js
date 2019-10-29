@@ -4,6 +4,7 @@ import { showManagePermissionsPage } from '../modules/managePermissions/handlers
 import { showManageContentPage } from '../modules/manageContent/handlers';
 import { showUserPermissionsPage } from '../modules/userPermissions/handlers';
 import { PageNames } from '../constants';
+import DeleteExportChannelsPage from '../views/ManageContentPage/DeleteExportChannelsPage';
 import wizardTransitionRoutes from './wizardTransitionRoutes';
 
 function hideLoadingScreen() {
@@ -59,6 +60,18 @@ const routes = [
     path: '/settings',
     handler: ({ name }) => {
       store.dispatch('preparePage', { name });
+      hideLoadingScreen();
+    },
+  },
+  {
+    name: 'DELETE_CHANNELS',
+    path: '/content/delete_channels',
+    component: DeleteExportChannelsPage,
+    props: {
+      actionType: 'delete',
+    },
+    handler() {
+      store.dispatch('preparePage', { name: 'DELETE_CHANNELS' });
       hideLoadingScreen();
     },
   },
