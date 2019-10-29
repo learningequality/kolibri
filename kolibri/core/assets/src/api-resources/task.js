@@ -36,11 +36,25 @@ export default new Resource({
    * @param {string} [params.baseurl] - URL of remote source (defaults to Kolibri Studio)
    * @param {Array<string>} [params.node_ids] -
    * @param {Array<string>} [params.exclude_node_ids] -
+   * @param {Number} [file_size] - Total file size for the transfer
+   * @param {Number} [resource_count] - Total resource count for the transfer
    * @returns {Promise}
    *
    */
   startRemoteContentImport(params) {
     return this.postListEndpoint('startremotecontentimport', pickBy(params));
+  },
+
+  /**
+   * Initiates a Task that imports multiple channels and their contents from a remote source
+   * Takes an array of params of the same signature as startRemoteContentImport as input
+   *
+   */
+  startRemoteBulkImport(paramsArray) {
+    return this.postListEndpoint(
+      'startremotebulkimport',
+      paramsArray.map(params => pickBy(params))
+    );
   },
 
   /**
@@ -50,6 +64,8 @@ export default new Resource({
    * @param {string} params.drive_id -
    * @param {Array<string>} [params.node_ids] -
    * @param {Array<string>} [params.exclude_node_ids] -
+   * @param {Number} [file_size] - Total file size for the transfer
+   * @param {Number} [resource_count] - Total resource count for the transfer
    * @returns {Promise}
    *
    */
@@ -58,7 +74,15 @@ export default new Resource({
   },
 
   /**
-   * Initiates a Task that exports) Channel Content to a local drive
+   * Initiates a Task that imports multiple channels and their contents from a local drive
+   * Takes an array of params of the same signature as startDiskContentImport as input
+   */
+  startDiskBulkImport(paramsArray) {
+    return this.postListEndpoint('startdiskbulkimport', paramsArray.map(params => pickBy(params)));
+  },
+
+  /**
+   * Initiates a Task that exports Channel Content to a local drive
    *
    * @param {string} params.channel_id -
    * @param {string} params.drive_id -
@@ -70,6 +94,15 @@ export default new Resource({
   startDiskContentExport(params) {
     // Not naming it after URL to keep internal consistency
     return this.postListEndpoint('startdiskexport', pickBy(params));
+  },
+
+  /**
+   * Initiates a Task that exports Multiple Channel Contents to a local drive
+   * Takes an array of params of the same signature as startDiskContentExport as input
+   */
+  startDiskBulkExport(paramsArray) {
+    // Not naming it after URL to keep internal consistency
+    return this.postListEndpoint('startdiskbulkexport', paramsArray.map(params => pickBy(params)));
   },
 
   /**
@@ -87,6 +120,12 @@ export default new Resource({
     return this.postListEndpoint('startdeletechannel', {
       channel_id: channelId,
     });
+  },
+  /**
+   * @param [Array<string>] channelIds
+   */
+  deleteBulkChannels({ channelIds }) {
+    return this.postListEndpoint('startbulkdelete', channelIds);
   },
 
   localDrives() {
@@ -106,5 +145,9 @@ export default new Resource({
 
   deleteFinishedTasks() {
     return this.postListEndpoint('deletefinishedtasks');
+  },
+
+  deleteFinishedTask(taskId) {
+    return this.postListEndpoint('deletefinishedtasks', { task_id: taskId });
   },
 });
