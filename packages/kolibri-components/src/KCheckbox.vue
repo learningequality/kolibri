@@ -43,6 +43,10 @@
 
       </div>
 
+      <div v-if="$slots.svg" class="k-checkbox-icon">
+        <slot name="svg"></slot>
+      </div>
+
       <label
         v-if="label"
         dir="auto"
@@ -208,6 +212,14 @@
     transform: translate(-50%, -50%);
   }
 
+  .k-checkbox-icon {
+    display: table-cell;
+    padding-left: 8px;
+    line-height: 24px;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+
   .k-checkbox-label {
     display: table-cell;
     padding-left: 8px;
@@ -219,7 +231,8 @@
   .k-checkbox-disabled {
     .k-checkbox,
     .k-checkbox-input,
-    .k-checkbox-label {
+    .k-checkbox-label,
+    .k-checkbox-icon {
       cursor: default;
     }
   }
