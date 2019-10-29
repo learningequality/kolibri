@@ -60,7 +60,7 @@ queue = Queue(app, connection=connection)
 
 
 def initialize_worker():
-    worker = Worker(app, connection=connection)
+    worker = Worker(app, connection=connection, num_workers=1)
     atexit.register(worker.shutdown)
 
 
