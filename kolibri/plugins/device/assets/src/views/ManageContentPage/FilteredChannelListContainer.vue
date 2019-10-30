@@ -1,25 +1,27 @@
 <template>
 
-  <div>
+  <div :class="{small: !windowIsLarge}">
 
     <slot name="header"></slot>
 
-    <div class="filters" :class="{'filters-sm': windowIsSmall}">
+    <div class="top-panel">
       <p class="count-msg">
         {{ channelsCountMsg }}
       </p>
-      <KSelect
-        v-model="languageFilter"
-        class="lang-filter"
-        :options="languageFilterOptions"
-        :label="$tr('languageFilterLabel')"
-        :inline="true"
-      />
-      <FilterTextbox
-        v-model="titleFilter"
-        class="search-box"
-        :placeholder="$tr('titleFilterPlaceholder')"
-      />
+      <div class="filters">
+        <KSelect
+          v-model="languageFilter"
+          class="filter-lang"
+          :options="languageFilterOptions"
+          :label="$tr('languageFilterLabel')"
+          :inline="true"
+        />
+        <FilterTextbox
+          v-model="titleFilter"
+          class="filter-title"
+          :placeholder="$tr('titleFilterPlaceholder')"
+        />
+      </div>
     </div>
 
     <slot :filteredItems="filteredItems"></slot>
@@ -124,38 +126,43 @@
 
 <style lang="scss" scoped>
 
-  .filters {
+  .top-panel {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
-  }
-
-  .filters-sm {
-    .lang-filter {
-      margin-right: 0;
-    }
-    .count-msg {
-      order: 1;
-      margin: 8px;
-    }
-  }
-
-  .count-msg {
-    flex-grow: 1;
-    margin: 0;
-  }
-
-  .lang-filter {
-    flex-grow: 3;
-  }
-
-  .top-matter {
     margin-bottom: 24px;
   }
 
-  .search-box {
+  .filters {
+    display: flex;
     flex-grow: 1;
-    max-width: 400px;
+    flex-wrap: wrap;
+    margin-left: 16px;
+  }
+
+  .filter-title {
+    flex-shrink: 1;
+  }
+
+  .small {
+    .top-panel {
+      flex-direction: column;
+      margin-bottom: 8px;
+    }
+
+    .filters {
+      align-self: stretch;
+      margin-left: 0;
+    }
+
+    .filter-title {
+      width: 100%;
+    }
+
+    .count-msg {
+      order: 1;
+      margin: 16px 0;
+    }
   }
 
   .no-match {

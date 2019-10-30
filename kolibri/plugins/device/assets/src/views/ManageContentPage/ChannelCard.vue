@@ -2,7 +2,7 @@
 
   <div
     class="channel-card"
-    :class="{'channel-card-sm': windowIsSmall}"
+    :class="{'small': windowIsSmall}"
     :style="{ borderTopColor: $themePalette.grey.v_200 }"
   >
     <div class="col-1">
@@ -11,7 +11,18 @@
         :label="channel.name"
         :showLabel="false"
       />
-      <img class="thumbnail" :src="channel.thumbnail">
+      <img
+        v-if="channel.thumbnail"
+        class="thumbnail"
+        :src="channel.thumbnail"
+      >
+      <mat-svg
+        v-else
+        category="navigation"
+        name="apps"
+        class="thumbnail-svg"
+        :style="{ backgroundColor: $themePalette.grey.v_200 }"
+      />
     </div>
 
     <div class="col-2">
@@ -78,6 +89,7 @@
 <style lang="scss" scoped>
 
   $thumbside: 128px;
+  $thumbside-sm: 64px;
 
   h2,
   p {
@@ -113,6 +125,11 @@
       height: auto;
       max-height: $thumbside;
     }
+
+    .thumbnail-svg {
+      width: $thumbside;
+      height: $thumbside;
+    }
   }
 
   // Col 2: Title, description, other texts
@@ -134,7 +151,7 @@
   }
 
   // Small-window layout
-  .channel-card-sm {
+  .small {
     flex-direction: column;
     font-size: 0.9rem;
 
@@ -144,18 +161,23 @@
     }
 
     .col-1 {
-      flex-direction: column;
+      // flex-direction: column;
       align-items: center;
       height: auto;
       margin-right: 0;
 
       .checkbox {
-        margin-right: 0;
+        margin-right: 16px;
       }
 
       .thumbnail {
-        max-width: 80px;
-        max-height: 80px;
+        max-width: $thumbside-sm;
+        max-height: $thumbside-sm;
+      }
+
+      .thumbnail-svg {
+        width: $thumbside-sm;
+        height: $thumbside-sm;
       }
     }
 
