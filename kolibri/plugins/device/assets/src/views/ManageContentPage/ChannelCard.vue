@@ -2,7 +2,7 @@
 
   <div
     class="channel-card"
-    :class="{'small': windowIsSmall}"
+    :class="{'channel-card-small': windowIsSmall}"
     :style="{ borderTopColor: $themePalette.grey.v_200 }"
   >
     <div class="col-1">
@@ -10,6 +10,7 @@
         class="checkbox"
         :label="channel.name"
         :showLabel="false"
+        :checked="$attrs.checked"
         @change="$emit('checkboxchange', { channel: channel, isSelected: $event })"
       />
       <img
@@ -36,9 +37,6 @@
             {{ $tr('versionNumber', { v: channel.version }) }}
           </p>
         </div>
-        <p v-if="selectedMessage" class="selected">
-          {{ selectedMessage }}
-        </p>
       </div>
       <div>
         <p v-if="resourcesOnDevice">
@@ -49,6 +47,11 @@
         </p>
       </div>
 
+    </div>
+    <div class="col-3">
+      <p v-if="selectedMessage" class="selected">
+        {{ selectedMessage }}
+      </p>
     </div>
 
   </div>
@@ -136,7 +139,7 @@
   // Col 2: Title, description, other texts
   .col-2 {
     flex-direction: column;
-    flex-grow: 1;
+    flex-grow: 2;
     align-items: stretch;
 
     .col-2-row-1 {
@@ -151,8 +154,16 @@
     }
   }
 
+  .col-3 {
+    min-width: 150px;
+
+    .selected {
+      text-align: right;
+    }
+  }
+
   // Small-window layout
-  .small {
+  .channel-card-small {
     flex-direction: column;
     font-size: 0.9rem;
 

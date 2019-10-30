@@ -25,6 +25,7 @@
             :layout12="{ span: 6, alignment: 'right' }"
           >
             <KDropdownMenu
+              v-if="deviceHasChannels"
               appearance="raised-button"
               :text="coreString('optionsLabel')"
               :options="dropdownOptions"

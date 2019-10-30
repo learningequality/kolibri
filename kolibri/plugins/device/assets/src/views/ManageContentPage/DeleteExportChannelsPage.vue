@@ -7,12 +7,20 @@
       </template>
 
       <template v-slot:default="{filteredItems}">
+        <KCheckbox
+          v-if="filteredItems.length > 0"
+          class="select-all-checkbox"
+          :label="$tr('selectAll')"
+          :checked="selectAllIsChecked(filteredItems)"
+          @change="handleChangeSelectAll($event, filteredItems)"
+        />
         <ChannelCard
           v-for="channel in allChannels"
           v-show="channelIsShown(channel, filteredItems)"
           :key="channel.id"
           :channel="channel"
           :selectedMessage="channelSelectedMessage(channel)"
+          :checked="channelIsSelected(channel)"
           @checkboxchange="handleChangeChannel"
         />
       </template>
@@ -42,6 +50,8 @@
 
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
+  import unionBy from 'lodash/unionBy';
+  import differenceBy from 'lodash/differenceBy';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { TaskResource } from 'kolibri.resources';
   import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
@@ -132,6 +142,9 @@
         const title = this.exportMode ? 'exportAppBarTitle' : 'deleteAppBarTitle';
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr(title));
       },
+      selectAllIsChecked(filteredItems) {
+        return differenceBy(filteredItems, this.selectedChannels, 'id').length === 0;
+      },
       fetchData() {
         DeviceChannelResource.fetchCollection({
           getParams: {
@@ -148,37 +161,35 @@
         this.showModal = true;
       },
       handleClickModalSubmit(params = {}) {
+        this.$store.dispatch('createSnackbar', 'Task started');
         this.showModal = false;
         if (this.deleteMode) {
           this.allChannels = this.allChannels.filter(
             c => !find(this.selectedChannels, { id: c.id })
           );
+          this.selectedChannels = [];
           TaskResource.deleteBulkChannels({
             channelIds: this.selectedChannels.map(({ id }) => ({ channel_id: id })),
-          }).then(() => {
-            this.handleDeleteSuccess();
           });
         } else {
+          this.selectedChannels = [];
           TaskResource.startDiskBulkExport(
             this.selectedChannels.map(({ id }) => ({
               channel_id: id,
               drive_id: params.driveId,
             }))
-          ).then(() => {
-            this.handleExportSuccess();
-          });
+          );
         }
-      },
-      handleExportSuccess() {
-        this.selectedChannels = [];
-        this.$store.dispatch('createSnackbar', 'Task started');
-      },
-      handleDeleteSuccess() {
-        this.selectedChannels = [];
-        this.$store.dispatch('createSnackbar', 'Task started');
       },
       channelIsSelected(channel) {
         return Boolean(find(this.selectedChannels, { id: channel.id }));
+      },
+      handleChangeSelectAll(isSelected, filteredItems) {
+        if (isSelected) {
+          this.selectedChannels = unionBy(this.selectedChannels, filteredItems, 'id');
+        } else {
+          this.selectedChannels = differenceBy(this.selectedChannels, filteredItems, 'id');
+        }
       },
       handleChangeChannel({ channel, isSelected }) {
         if (isSelected) {
@@ -206,10 +217,17 @@
       exportAppBarTitle: 'Export channels',
       channelsOnDevice: 'Channels on device',
       channelSelectedMessage: '{bytesText} selected',
+      selectAll: 'Select all on page',
     },
   };
 
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .select-all-checkbox {
+    margin-left: 16px;
+  }
+
+</style>
