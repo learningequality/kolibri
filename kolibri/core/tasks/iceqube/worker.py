@@ -191,7 +191,7 @@ class Worker(object):
         :param job_id: The job_id to check
         :param current_stage: Where the job currently is
 
-        :return: raises a CancelledError if we find out that we were cancelled.
+        :return: raises a UserCancelledError if we find out that we were cancelled.
         """
 
         future = self.future_job_mapping[job_id]

@@ -55,19 +55,45 @@ class Scheduler(StorageMixin):
     def __init__(self, queue=None, connection=None, interval=DEFAULT_INTERVAL):
         if connection is None and not isinstance(queue, Queue):
             raise ValueError("One of either connection or queue must be specified")
-        elif connection is not None and isinstance(queue, Queue):
-            raise ValueError(
-                "One of either connection or queue must be specified, but not both"
-            )
         elif isinstance(queue, Queue):
             self.queue = queue
-            connection = self.queue.storage.engine
+            if connection is None:
+                connection = self.queue.storage.engine
         elif connection:
             self.queue = queue(connection=connection)
 
         self.interval = interval
 
+        self._schedule_checker = None
+
         super(Scheduler, self).__init__(connection, Base=Base)
+
+    def __contains__(self, item):
+        """
+        Returns a boolean indicating whether the given job instance or job id
+        is scheduled for execution.
+        """
+        job_id = item
+        if isinstance(item, Job):
+            job_id = item.job_id
+        with self.session_scope() as session:
+            return session.query(
+                self._ns_query(session).filter_by(id=job_id).exists()
+            ).scalar()
+
+    def change_execution_time(self, job, date_time):
+        """
+        Change a job's execution time.
+        """
+        with self.session_scope() as session:
+            scheduled_job = (
+                session.query(ScheduledJob).filter_by(id=job.job_id).one_or_none()
+            )
+            if scheduled_job:
+                scheduled_job.scheduled_time = date_time
+                session.merge(scheduled_job)
+            else:
+                raise ValueError("Job not in scheduled jobs queue")
 
     def start_schedule_checker(self):
         """
@@ -91,7 +117,7 @@ class Scheduler(StorageMixin):
         thread.join()
 
     def start_scheduler(self):
-        if not self._schedule_checker or not self._schedule_checker.is_alive():
+        if not (self._schedule_checker and self._schedule_checker.is_alive()):
             self._schedule_checker = self.start_schedule_checker()
 
     def shutdown_scheduler(self):
@@ -155,7 +181,7 @@ class Scheduler(StorageMixin):
 
     def get_job(self, job_id):
         with self.session_scope() as session:
-            scheduled_job = self._ns_query(session).filter_by(id=job_id).one_or_none()
+            scheduled_job = self._ns_query(session).get(id=job_id)
             if scheduled_job is None:
                 raise JobNotFound()
             return scheduled_job.obj
@@ -172,6 +198,12 @@ class Scheduler(StorageMixin):
                 q = q.filter_by(id=job_id)
 
             q.delete(synchronize_session=False)
+
+    def clear_scheduler(self):
+        """
+        Clear all scheduled jobs
+        """
+        self.cancel(None)
 
     def check_schedule(self):
         start = time.time()

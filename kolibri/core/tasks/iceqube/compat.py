@@ -6,8 +6,14 @@ try:
     from multiprocessing import Process as Thread  # noqa
     from multiprocessing import Event  # noqa
 
+    # any variable is local to a process, so this is
+    # just a dummy
+    local = object
+
     MULTIPROCESS = True
 except ImportError:
-    from threading import Thread, Event  # noqa
+    from threading import Thread  # noqa
+    from threading import Event  # noqa
+    from threading import local  # noqa
 
     MULTIPROCESS = False

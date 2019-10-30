@@ -3,6 +3,7 @@ import logging
 import uuid
 from functools import partial
 
+from kolibri.core.tasks.iceqube.utils import current_job_tracker
 from kolibri.core.tasks.iceqube.utils import import_stringified_func
 from kolibri.core.tasks.iceqube.utils import stringify_func
 
@@ -115,6 +116,8 @@ class Job(object):
             :return: Any
             """
 
+            setattr(current_job_tracker, "job", self)
+
             func = import_stringified_func(self.func)
             extrafunckwargs = {}
 
@@ -132,7 +135,16 @@ class Job(object):
 
             kwargs.update(extrafunckwargs)
 
-            return func(*args, **kwargs)
+            try:
+                result = func(*args, **kwargs)
+            except Exception as e:
+                # If any error occurs, clear the job tracker and reraise
+                setattr(current_job_tracker, "job", None)
+                raise e
+
+            setattr(current_job_tracker, "job", None)
+
+            return result
 
         return y
 
