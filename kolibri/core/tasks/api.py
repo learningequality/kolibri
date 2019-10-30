@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from six import string_types
 
 from .queue import get_queue
+from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.permissions import CanExportLogs
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
@@ -36,6 +37,66 @@ NETWORK_ERROR_STRING = _("There was a network error.")
 DISK_IO_ERROR_STRING = _("There was a disk access error.")
 
 CATCHALL_SERVER_ERROR_STRING = _("There was an unknown error.")
+
+
+def validate_import_export_task(task_description):
+    try:
+        channel_id = task_description["channel_id"]
+    except KeyError:
+        raise serializers.ValidationError("The channel_ids field is required.")
+
+    file_size = task_description.get("file_size")
+
+    total_resources = task_description.get("total_resources")
+
+    node_ids = task_description.get("node_ids", None)
+    exclude_node_ids = task_description.get("exclude_node_ids", None)
+
+    if node_ids and not isinstance(node_ids, list):
+        raise serializers.ValidationError("node_ids must be a list.")
+
+    if exclude_node_ids and not isinstance(exclude_node_ids, list):
+        raise serializers.ValidationError("exclude_node_ids must be a list.")
+
+    return {
+        "channel_id": channel_id,
+        "file_size": file_size,
+        "total_resources": total_resources,
+        "exclude_node_ids": exclude_node_ids,
+        "node_ids": node_ids,
+    }
+
+
+def validate_remote_import_task(task_description):
+    import_task = validate_import_export_task(task_description)
+
+    baseurl = task_description.get(
+        "baseurl", conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
+    )
+
+    import_task.update({"baseurl": baseurl})
+
+    return import_task
+
+
+def validate_local_import_export_task(task_description):
+    import_task = validate_import_export_task(task_description)
+
+    try:
+        drive_id = task_description["drive_id"]
+    except KeyError:
+        raise serializers.ValidationError("The drive_id field is required.")
+
+    try:
+        drive = get_mounted_drive_by_id(drive_id)
+    except KeyError:
+        raise serializers.ValidationError(
+            "That drive_id was not found in the list of drives."
+        )
+
+    import_task.update({"drive_id": drive_id, "datafolder": drive.datafolder})
+
+    return import_task
 
 
 class TasksViewSet(viewsets.ViewSet):
@@ -72,26 +133,45 @@ class TasksViewSet(viewsets.ViewSet):
         pass
 
     @list_route(methods=["post"])
+    def startremotebulkimport(self, request):
+        if not isinstance(request.data, list):
+            raise serializers.ValidationError(
+                "POST data must be a list of task descriptions"
+            )
+
+        tasks = map(validate_remote_import_task, request.data)
+
+        job_ids = []
+
+        for task in tasks:
+            task.update({"type": "REMOTEIMPORT", "started_by": request.user.pk})
+            import_job_id = get_queue().enqueue(
+                _remoteimport,
+                task["channel_id"],
+                task["baseurl"],
+                extra_metadata=task,
+                cancellable=True,
+            )
+            job_ids.append(import_job_id)
+
+        resp = [_job_to_response(get_queue().fetch_job(job_id)) for job_id in job_ids]
+
+        return Response(resp)
+
+    @list_route(methods=["post"])
     def startremotechannelimport(self, request):
 
-        try:
-            channel_id = request.data["channel_id"]
-        except KeyError:
-            raise serializers.ValidationError("The channel_id field is required.")
+        task = validate_remote_import_task(request.data)
 
-        baseurl = request.data.get(
-            "baseurl", conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
-        )
-
-        job_metadata = {"type": "REMOTECHANNELIMPORT", "started_by": request.user.pk}
+        task.update({"type": "REMOTECHANNELIMPORT", "started_by": request.user.pk})
 
         job_id = get_queue().enqueue(
             call_command,
             "importchannel",
             "network",
-            channel_id,
-            baseurl=baseurl,
-            extra_metadata=job_metadata,
+            task["channel_id"],
+            baseurl=task["baseurl"],
+            extra_metadata=task,
             cancellable=True,
         )
         resp = _job_to_response(get_queue().fetch_job(job_id))
@@ -101,35 +181,19 @@ class TasksViewSet(viewsets.ViewSet):
     @list_route(methods=["post"])
     def startremotecontentimport(self, request):
 
-        try:
-            channel_id = request.data["channel_id"]
-        except KeyError:
-            raise serializers.ValidationError("The channel_id field is required.")
+        task = validate_remote_import_task(request.data)
 
-        # optional arguments
-        baseurl = request.data.get(
-            "baseurl", conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
-        )
-        node_ids = request.data.get("node_ids", None)
-        exclude_node_ids = request.data.get("exclude_node_ids", None)
-
-        if node_ids and not isinstance(node_ids, list):
-            raise serializers.ValidationError("node_ids must be a list.")
-
-        if exclude_node_ids and not isinstance(exclude_node_ids, list):
-            raise serializers.ValidationError("exclude_node_ids must be a list.")
-
-        job_metadata = {"type": "REMOTECONTENTIMPORT", "started_by": request.user.pk}
+        task.update({"type": "REMOTECONTENTIMPORT", "started_by": request.user.pk})
 
         job_id = get_queue().enqueue(
             call_command,
             "importcontent",
             "network",
-            channel_id,
-            baseurl=baseurl,
-            node_ids=node_ids,
-            exclude_node_ids=exclude_node_ids,
-            extra_metadata=job_metadata,
+            task["channel_id"],
+            baseurl=task["baseurl"],
+            node_ids=task["node_ids"],
+            exclude_node_ids=task["exclude_node_ids"],
+            extra_metadata=task,
             track_progress=True,
             cancellable=True,
         )
@@ -139,35 +203,44 @@ class TasksViewSet(viewsets.ViewSet):
         return Response(resp)
 
     @list_route(methods=["post"])
-    def startdiskchannelimport(self, request):
-
-        # Load the required parameters
-        try:
-            channel_id = request.data["channel_id"]
-        except KeyError:
-            raise serializers.ValidationError("The channel_id field is required.")
-
-        try:
-            drive_id = request.data["drive_id"]
-        except KeyError:
-            raise serializers.ValidationError("The drive_id field is required.")
-
-        try:
-            drive = get_mounted_drive_by_id(drive_id)
-        except KeyError:
+    def startdiskbulkimport(self, request):
+        if not isinstance(request.data, list):
             raise serializers.ValidationError(
-                "That drive_id was not found in the list of drives."
+                "POST data must be a list of task descriptions"
             )
 
-        job_metadata = {"type": "DISKCHANNELIMPORT", "started_by": request.user.pk}
+        tasks = map(validate_local_import_export_task, request.data)
+
+        job_ids = []
+
+        for task in tasks:
+            task.update({"type": "DISKIMPORT", "started_by": request.user.pk})
+            import_job_id = get_queue().enqueue(
+                _diskimport,
+                task["channel_id"],
+                task["datafolder"],
+                extra_metadata=task,
+                cancellable=True,
+            )
+            job_ids.append(import_job_id)
+
+        resp = [_job_to_response(get_queue().fetch_job(job_id)) for job_id in job_ids]
+
+        return Response(resp)
+
+    @list_route(methods=["post"])
+    def startdiskchannelimport(self, request):
+        task = validate_local_import_export_task(request.data)
+
+        task.update({"type": "DISKCHANNELIMPORT", "started_by": request.user.pk})
 
         job_id = get_queue().enqueue(
             call_command,
             "importchannel",
             "disk",
-            channel_id,
-            drive.datafolder,
-            extra_metadata=job_metadata,
+            task["channel_id"],
+            task["datafolder"],
+            extra_metadata=task,
             cancellable=True,
         )
 
@@ -176,50 +249,63 @@ class TasksViewSet(viewsets.ViewSet):
 
     @list_route(methods=["post"])
     def startdiskcontentimport(self, request):
+        task = validate_local_import_export_task(request.data)
 
-        try:
-            channel_id = request.data["channel_id"]
-        except KeyError:
-            raise serializers.ValidationError("The channel_id field is required.")
-
-        try:
-            drive_id = request.data["drive_id"]
-        except KeyError:
-            raise serializers.ValidationError("The drive_id field is required.")
-
-        try:
-            drive = get_mounted_drive_by_id(drive_id)
-        except KeyError:
-            raise serializers.ValidationError(
-                "That drive_id was not found in the list of drives."
-            )
-
-        # optional arguments
-        node_ids = request.data.get("node_ids", None)
-        exclude_node_ids = request.data.get("exclude_node_ids", None)
-
-        if node_ids and not isinstance(node_ids, list):
-            raise serializers.ValidationError("node_ids must be a list.")
-
-        if exclude_node_ids and not isinstance(exclude_node_ids, list):
-            raise serializers.ValidationError("exclude_node_ids must be a list.")
-
-        job_metadata = {"type": "DISKCONTENTIMPORT", "started_by": request.user.pk}
+        task.update({"type": "DISKCONTENTIMPORT", "started_by": request.user.pk})
 
         job_id = get_queue().enqueue(
             call_command,
             "importcontent",
             "disk",
-            channel_id,
-            drive.datafolder,
-            node_ids=node_ids,
-            exclude_node_ids=exclude_node_ids,
-            extra_metadata=job_metadata,
+            task["channel_id"],
+            task["datafolder"],
+            node_ids=task["node_ids"],
+            exclude_node_ids=task["exclude_node_ids"],
+            extra_metadata=task,
             track_progress=True,
             cancellable=True,
         )
 
         resp = _job_to_response(get_queue().fetch_job(job_id))
+
+        return Response(resp)
+
+    @list_route(methods=["post"])
+    def startbulkdelete(self, request):
+        if not isinstance(request.data, list):
+            raise serializers.ValidationError(
+                "POST data must be a list of task descriptions"
+            )
+
+        for task in request.data:
+            try:
+                task["channel_id"]
+            except KeyError:
+                raise serializers.ValidationError("The channel_id field is required.")
+
+        job_ids = []
+
+        for task in request.data:
+            try:
+                channel = ChannelMetadata.objects.get(id=task["channel_id"])
+                job_metadata = {
+                    "type": "DELETECHANNEL",
+                    "started_by": request.user.pk,
+                    "file_size": channel.published_size,
+                    "resource_count": channel.total_resource_count,
+                }
+                delete_job_id = get_queue().enqueue(
+                    call_command,
+                    "deletechannel",
+                    task["channel_id"],
+                    track_progress=True,
+                    extra_metadata=job_metadata,
+                )
+                job_ids.append(delete_job_id)
+            except ChannelMetadata.DoesNotExist:
+                continue
+
+        resp = [_job_to_response(get_queue().fetch_job(job_id)) for job_id in job_ids]
 
         return Response(resp)
 
@@ -234,7 +320,11 @@ class TasksViewSet(viewsets.ViewSet):
 
         channel_id = request.data["channel_id"]
 
-        job_metadata = {"type": "DELETECHANNEL", "started_by": request.user.pk}
+        job_metadata = {
+            "type": "DELETECHANNEL",
+            "started_by": request.user.pk,
+            "channel_id": channel_id,
+        }
 
         task_id = get_queue().enqueue(
             call_command,
@@ -250,44 +340,70 @@ class TasksViewSet(viewsets.ViewSet):
         return Response(resp)
 
     @list_route(methods=["post"])
+    def startdiskbulkexport(self, request):
+        if not isinstance(request.data, list):
+            raise serializers.ValidationError(
+                "POST data must be a list of task descriptions"
+            )
+
+        tasks = map(validate_local_import_export_task, request.data)
+
+        job_ids = []
+
+        for task in tasks:
+            try:
+                channel = ChannelMetadata.objects.get(id=task["channel_id"])
+                job_metadata = {
+                    "type": "DISKEXPORT",
+                    "started_by": request.user.pk,
+                    "file_size": channel.published_size,
+                    "resource_count": channel.total_resource_count,
+                }
+                export_job_id = get_queue().enqueue(
+                    _localexport,
+                    task["channel_id"],
+                    task["drive_id"],
+                    track_progress=True,
+                    cancellable=True,
+                    extra_metadata=job_metadata,
+                )
+                job_ids.append(export_job_id)
+            except ChannelMetadata.DoesNotExist:
+                continue
+
+        resp = [_job_to_response(get_queue().fetch_job(job_id)) for job_id in job_ids]
+
+        return Response(resp)
+
+    @list_route(methods=["post"])
     def startdiskexport(self, request):
         """
         Export a channel to a local drive, and copy content to the drive.
 
         """
 
-        # Load the required parameters
-        try:
-            channel_id = request.data["channel_id"]
-        except KeyError:
-            raise serializers.ValidationError("The channel_id field is required.")
+        task = validate_local_import_export_task(request.data)
 
-        try:
-            drive_id = request.data["drive_id"]
-        except KeyError:
-            raise serializers.ValidationError("The drive_id field is required.")
+        channel = ChannelMetadata.objects.get(id=task["channel_id"])
 
-        # optional arguments
-        node_ids = request.data.get("node_ids", None)
-        exclude_node_ids = request.data.get("exclude_node_ids", None)
-
-        if node_ids and not isinstance(node_ids, list):
-            raise serializers.ValidationError("node_ids must be a list.")
-
-        if exclude_node_ids and not isinstance(exclude_node_ids, list):
-            raise serializers.ValidationError("exclude_node_ids must be a list.")
-
-        job_metadata = {"type": "DISKEXPORT", "started_by": request.user.pk}
+        task.update(
+            {
+                "type": "DISKEXPORT",
+                "started_by": request.user.pk,
+                "file_size": channel.published_size,
+                "resource_count": channel.total_resource_count,
+            }
+        )
 
         task_id = get_queue().enqueue(
             _localexport,
-            channel_id,
-            drive_id,
+            task["channel_id"],
+            task["drive_id"],
             track_progress=True,
             cancellable=True,
-            node_ids=node_ids,
-            exclude_node_ids=exclude_node_ids,
-            extra_metadata=job_metadata,
+            node_ids=task["node_ids"],
+            exclude_node_ids=task["exclude_node_ids"],
+            extra_metadata=task,
         )
 
         # attempt to get the created Task, otherwise return pending status
@@ -326,7 +442,11 @@ class TasksViewSet(viewsets.ViewSet):
         """
         Delete all tasks that have succeeded, failed, or been cancelled.
         """
-        get_queue().clear()
+        task_id = request.data.get("task_id")
+        if task_id:
+            get_queue().clear_job(task_id)
+        else:
+            get_queue().clear()
         return Response({})
 
     @list_route(methods=["get"])
@@ -385,6 +505,66 @@ class TasksViewSet(viewsets.ViewSet):
         return Response(resp)
 
 
+def _remoteimport(
+    channel_id,
+    baseurl,
+    update_progress=None,
+    check_for_cancel=None,
+    node_ids=None,
+    exclude_node_ids=None,
+    extra_metadata=None,
+):
+
+    call_command(
+        "importchannel",
+        "network",
+        channel_id,
+        baseurl=baseurl,
+        update_progress=update_progress,
+        check_for_cancel=check_for_cancel,
+    )
+    call_command(
+        "importcontent",
+        "network",
+        channel_id,
+        baseurl=baseurl,
+        node_ids=node_ids,
+        exclude_node_ids=exclude_node_ids,
+        update_progress=update_progress,
+        check_for_cancel=check_for_cancel,
+    )
+
+
+def _diskimport(
+    channel_id,
+    drive_id,
+    update_progress=None,
+    check_for_cancel=None,
+    node_ids=None,
+    exclude_node_ids=None,
+    extra_metadata=None,
+):
+
+    call_command(
+        "importchannel",
+        "network",
+        channel_id,
+        drive_id,
+        update_progress=update_progress,
+        check_for_cancel=check_for_cancel,
+    )
+    call_command(
+        "importcontent",
+        "network",
+        channel_id,
+        drive_id,
+        node_ids=node_ids,
+        exclude_node_ids=exclude_node_ids,
+        update_progress=update_progress,
+        check_for_cancel=check_for_cancel,
+    )
+
+
 def _localexport(
     channel_id,
     drive_id,
@@ -435,9 +615,7 @@ def _job_to_response(job):
             "cancellable": False,
         }
     else:
-        return {
-            "type": getattr(job, "extra_metadata", {}).get("type"),
-            "started_by": getattr(job, "extra_metadata", {}).get("started_by"),
+        output = {
             "status": job.state,
             "exception": str(job.exception),
             "traceback": str(job.traceback),
@@ -445,3 +623,5 @@ def _job_to_response(job):
             "id": job.job_id,
             "cancellable": job.cancellable,
         }
+        output.update(job.extra_metadata)
+        return output

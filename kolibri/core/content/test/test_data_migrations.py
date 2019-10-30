@@ -122,7 +122,7 @@ class ChannelOrderTestCase(TestMigrations):
         ChannelMetadata = self.apps.get_model("content", "ChannelMetadata")
         channel = ChannelMetadata.objects.first()
         channel.published_size = (
-            2150000000
-        )  # out of range for integer field on postgres
+            2150000000  # out of range for integer field on postgres
+        )
         with self.assertRaises(DataError):
             channel.save()

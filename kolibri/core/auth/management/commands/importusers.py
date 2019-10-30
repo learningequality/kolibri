@@ -119,9 +119,10 @@ def create_user(user, default_facility=None):
 
     except FacilityUser.DoesNotExist:
         password = user.get("password", DEFAULT_PASSWORD) or DEFAULT_PASSWORD
+        full_name = user.get("full_name", "") or username
         try:
             new_user = FacilityUser.objects.create_user(
-                full_name=user.get("full_name", ""),
+                full_name=full_name,
                 username=username,
                 facility=facility,
                 password=password,

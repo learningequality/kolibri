@@ -591,7 +591,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
 
         # create the new account in that facility
         superuser = FacilityUser(
-            username=username, password=password, facility=facility
+            full_name=username, username=username, password=password, facility=facility
         )
         superuser.full_clean()
         superuser.set_password(password)

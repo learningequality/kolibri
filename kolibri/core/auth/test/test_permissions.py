@@ -412,7 +412,7 @@ class LearnerGroupPermissionsTestCase(TestCase):
         self.anon_user = KolibriAnonymousUser()
 
     def test_facility_or_classroom_admins_or_classroom_coach_can_create_learnergroup(
-        self
+        self,
     ):
         """ The FacilityUser who can create a LearnerGroup is a facility admin for the Facility or coach for the classroom"""
         new_learnergroup_data = {"name": "Cool Group", "parent": self.own_classroom}
@@ -589,7 +589,7 @@ class FacilityUserPermissionsTestCase(TestCase):
             self.assertIn(self.member, user.filter_readable(FacilityUser.objects.all()))
 
     def test_members_and_admins_and_coaches_for_other_classrooms_cannot_read_facility_users(
-        self
+        self,
     ):
         """ Users without admin/coach role for a specific FacilityUser cannot read that FacilityUser """
         for user in [
@@ -604,7 +604,7 @@ class FacilityUserPermissionsTestCase(TestCase):
             )
 
     def test_only_facility_admins_and_coaches_can_read_unaffiliated_facility_users(
-        self
+        self,
     ):
         """ Only Facility admins/coaches can read FacilityUser that is not a member of a Classroom or LearnerGroup """
         orphan = self.data["unattached_users"][0]

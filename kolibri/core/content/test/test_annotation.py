@@ -567,8 +567,8 @@ class CalculateChannelFieldsTestCase(TestCase):
 
     def test_published_size_big_integer_field(self):
         self.channel.published_size = (
-            2150000000
-        )  # out of range for integer field on postgres
+            2150000000  # out of range for integer field on postgres
+        )
         try:
             self.channel.save()
         except DataError:

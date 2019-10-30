@@ -55,7 +55,7 @@
             category="social"
             :style="{fill: $themeTokens.textInverted}"
           />
-          <span v-if="isUserLoggedIn" class="username">{{ dropdownName }}</span>
+          <span v-if="isUserLoggedIn" class="username" tabindex="-1">{{ dropdownName }}</span>
           <mat-svg
             name="arrow_drop_down"
             category="navigation"
@@ -275,6 +275,11 @@
     max-height: 48px;
     margin-right: 8px;
     vertical-align: middle;
+  }
+
+  // Hide the UiButton focus ring
+  /deep/ .ui-button__focus-ring {
+    display: none;
   }
 
 </style>

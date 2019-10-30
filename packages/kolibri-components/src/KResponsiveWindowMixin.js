@@ -111,6 +111,8 @@ export default {
       windowBreakpoint: undefined,
       windowIsPortrait: false,
       windowIsLandscape: false,
+      windowGutter: 16,
+      windowIsShort: false,
     };
   },
   watch: {
@@ -119,6 +121,8 @@ export default {
       this._updateOrientation();
     },
     windowHeight() {
+      this.windowIsShort = this.windowHeight < 600;
+      this._updateGutter();
       this._updateOrientation();
     },
   },
@@ -164,6 +168,16 @@ export default {
     _updateOrientation() {
       this.windowIsPortrait = this.windowWidth < this.windowHeight;
       this.windowIsLandscape = !this.windowIsPortrait;
+    },
+    _updateGutter() {
+      if (this.windowIsSmall) {
+        this.windowGutter = 16;
+      } else if (this.windowBreakpoint < 4 && Math.min(this.windowWidth, this.windowHeight) < 600) {
+        // 16px when the smallest dimension of the window is < 600
+        this.windowGutter = 16;
+      } else {
+        this.windowGutter = 24;
+      }
     },
   },
   mounted() {

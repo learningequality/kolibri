@@ -191,6 +191,16 @@ class LocalFileManager(models.Manager):
     def delete_orphan_file_objects(self):
         return self.get_orphan_files().delete()
 
+    def get_unavailable_stored_files(self):
+        return self.filter(files__contentnode__available=False, available=True)
+
+    def delete_unavailable_stored_files(self):
+        unavailable_stored_files = self.get_unavailable_stored_files()
+
+        for file in unavailable_stored_files:
+            deleted = file.delete_stored_file()
+            yield file, deleted
+
 
 @python_2_unicode_compatible
 class LocalFile(base_models.LocalFile):
@@ -221,6 +231,22 @@ class LocalFile(base_models.LocalFile):
             )
         else:
             return None
+
+    def delete_stored_file(self):
+        """
+        Delete the stored file from disk.
+        """
+        deleted = False
+
+        try:
+            os.remove(paths.get_content_storage_file_path(self.get_filename()))
+            deleted = True
+        except (IOError, OSError, InvalidStorageFilenameError):
+            deleted = False
+
+        self.available = False
+        self.save()
+        return deleted
 
 
 class AssessmentMetaData(base_models.AssessmentMetaData):
