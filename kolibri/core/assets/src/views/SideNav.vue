@@ -375,35 +375,6 @@
     border: 0;
   }
 
-  /deep/ .ui-menu-option {
-    &:not(.is-divider) {
-      padding-top: 4px;
-      padding-bottom: 4px;
-
-      .ui-menu-option-text {
-        overflow: visible;
-        font-size: 14px;
-        white-space: normal;
-      }
-
-      .ui-menu-option-icon {
-        font-size: 1.2em;
-      }
-
-      &.is-active {
-        .ui-menu-option-text {
-          font-weight: bold;
-          opacity: 1;
-        }
-      }
-    }
-
-    &.is-divider {
-      margin-top: 0;
-      margin-bottom: 0;
-    }
-  }
-
   .privacy-link {
     text-align: left;
   }

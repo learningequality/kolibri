@@ -28,6 +28,7 @@ export default function generateGlobalStyles() {
       '*html': htmlBodyStyles,
       '*body': htmlBodyStyles,
       '*:focus': themeOutlineStyle(),
+      '*:focus:hover': themeOutlineStyle(),
       '*::selection': {
         background: themeBrand().secondary.v_100,
       },
