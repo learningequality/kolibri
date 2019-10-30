@@ -11,7 +11,6 @@ import cherrypy
 import ifcfg
 import requests
 from django.conf import settings
-from django.core.management import call_command
 
 import kolibri
 from .system import kill_pid
@@ -75,11 +74,20 @@ class NotRunning(Exception):
 
 def run_services():
 
-    # start the pingback thread
-    PingbackThread.start_command()
+    # Initialize the iceqube scheduler to handle scheduled tasks
+    from kolibri.core.tasks.queue import scheduler
 
-    # Do a db vacuum periodically
-    VacuumThread.start_command()
+    scheduler.clear_scheduler()
+
+    # schedule the pingback job
+    from kolibri.core.analytics.utils import schedule_ping
+
+    schedule_ping()
+
+    # schedule the vacuum job
+    from kolibri.core.deviceadmin.utils import schedule_vacuum
+
+    schedule_vacuum()
 
     # This is run every time the server is started to clear all the tasks
     # in the queue
@@ -87,10 +95,12 @@ def run_services():
 
     queue.empty()
 
-    # Initialize the iceqube engine to handle scheduled tasks
+    # Initialize the iceqube engine to handle queued tasks
     from kolibri.core.tasks.queue import initialize_worker
 
     initialize_worker()
+
+    scheduler.start_scheduler()
 
 
 def _rm_pid_file():
@@ -163,29 +173,6 @@ def block():
         ):
             logger.debug("Waiting for thread %s." % t.getName())
             t.join()
-
-
-class PingbackThread(threading.Thread):
-    @classmethod
-    def start_command(cls):
-        thread = cls()
-        thread.daemon = True
-        thread.start()
-
-    def run(self):
-        call_command("ping")
-
-
-class VacuumThread(threading.Thread):
-    @classmethod
-    def start_command(cls):
-        thread = cls()
-        thread.daemon = True
-        thread.start()
-
-    def run(self):
-        # Do the vacuum every day at 3am local server time
-        call_command("vacuumsqlite", scheduled=True)
 
 
 def stop(pid=None, force=False):
