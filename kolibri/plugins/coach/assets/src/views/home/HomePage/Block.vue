@@ -66,6 +66,10 @@
     position: relative;
     top: 4px;
     right: -24px;
+    // Override inline-table rule to get focus outline to show.
+    // May not be safe to do everywhere, since it could cause
+    // vertical alignment issues like in #5606
+    display: inline-block !important;
   }
 
 </style>
