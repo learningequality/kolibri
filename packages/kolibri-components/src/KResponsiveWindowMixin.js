@@ -109,11 +109,18 @@ export default {
         If that issue ever gets addressed, we should make them computed props.
       */
       windowBreakpoint: undefined,
+      windowGutter: 16,
+      windowIsShort: false,
     };
   },
   watch: {
     windowWidth() {
       this._updateBreakpoint();
+      this._updateGutter();
+    },
+    windowHeight() {
+      this.windowIsShort = this.windowHeight < 600;
+      this._updateGutter();
     },
   },
   computed: {
@@ -153,6 +160,16 @@ export default {
         this.windowBreakpoint = 6;
       } else {
         this.windowBreakpoint = 7;
+      }
+    },
+    _updateGutter() {
+      if (this.windowIsSmall) {
+        this.windowGutter = 16;
+      } else if (this.windowBreakpoint < 4 && Math.min(this.windowWidth, this.windowHeight) < 600) {
+        // 16px when the smallest dimension of the window is < 600
+        this.windowGutter = 16;
+      } else {
+        this.windowGutter = 24;
       }
     },
   },

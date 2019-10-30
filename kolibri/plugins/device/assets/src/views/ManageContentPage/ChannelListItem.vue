@@ -2,7 +2,6 @@
 
   <component
     :is="componentTemplate"
-    class="channel-list-item"
     :style="[verticalPadding, { borderTop: `1px solid ${$themePalette.grey.v_200}` } ]"
   >
     <template slot="thumbnail">

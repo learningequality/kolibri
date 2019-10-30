@@ -69,17 +69,6 @@
         default: false,
       },
     },
-    data() {
-      /*
-        Implemented as data controlled by watchers to work around optimization issue:
-          https://github.com/vuejs/vue/issues/10344
-        If that issue ever gets addressed, we should make this a computed prop
-      */
-      return {
-        windowGutter: 16,
-        windowIsShort: false,
-      };
-    },
     computed: {
       actualNumCols() {
         return parseInt(this.numCols);
@@ -122,30 +111,6 @@
         get: () => this.debug,
       });
       return { gridMetrics };
-    },
-    watch: {
-      windowWidth() {
-        this._updateGutter();
-      },
-      windowHeight() {
-        this.windowIsShort = this.windowHeight < 600;
-        this._updateGutter();
-      },
-    },
-    methods: {
-      _updateGutter() {
-        if (this.windowIsSmall) {
-          this.windowGutter = 16;
-        } else if (
-          this.windowBreakpoint < 4 &&
-          Math.min(this.windowWidth, this.windowHeight) < 600
-        ) {
-          // 16px when the smallest dimension of the window is < 600
-          this.windowGutter = 16;
-        } else {
-          this.windowGutter = 24;
-        }
-      },
     },
   };
 

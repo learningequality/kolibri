@@ -68,7 +68,7 @@
         {{ coreString('channelsLabel') }}
       </div>
 
-      <div class="channels-list">
+      <div>
         <ChannelListItem
           v-for="channel in availableChannels"
           v-show="channelIsVisible(channel)"
