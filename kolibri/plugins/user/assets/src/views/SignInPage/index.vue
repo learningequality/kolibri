@@ -196,338 +196,338 @@
 
 <script>
 
-    import { mapState, mapGetters, mapActions } from 'vuex';
-    import { FacilityUsernameResource } from 'kolibri.resources';
-    import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-    import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
-    import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
-    import { validateUsername } from 'kolibri.utils.validators';
-    import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
-    import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
-    import branding from 'kolibri.utils.branding';
-    import UiAlert from 'keen-ui/src/UiAlert';
-    import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-    import urls from 'kolibri.urls';
-    import loginComponents from 'kolibri.utils.loginComponents';
-    import { PageNames } from '../../constants';
-    import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
-    import getUrlParameter from '../getUrlParameter';
-    import FacilityModal from './FacilityModal';
-    import plugin_data from 'plugin_data';
+  import { mapState, mapGetters, mapActions } from 'vuex';
+  import { FacilityUsernameResource } from 'kolibri.resources';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
+  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
+  import { validateUsername } from 'kolibri.utils.validators';
+  import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
+  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
+  import branding from 'kolibri.utils.branding';
+  import UiAlert from 'keen-ui/src/UiAlert';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import urls from 'kolibri.urls';
+  import loginComponents from 'kolibri.utils.loginComponents';
+  import { PageNames } from '../../constants';
+  import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
+  import getUrlParameter from '../getUrlParameter';
+  import FacilityModal from './FacilityModal';
+  import plugin_data from 'plugin_data';
 
-    export default {
-      name: 'SignInPage',
-      metaInfo() {
-        return {
-          title: this.$tr('documentTitle'),
-        };
+  export default {
+    name: 'SignInPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
+    components: {
+      FacilityModal,
+      CoreLogo,
+      UiAutocompleteSuggestion,
+      UiAlert,
+      LanguageSwitcherFooter,
+      PrivacyInfoModal,
+    },
+    mixins: [responsiveWindowMixin, commonCoreStrings],
+    data() {
+      return {
+        username: '',
+        password: '',
+        usernameSuggestions: [],
+        facilityModalVisible: this.$store.state.signIn.hasMultipleFacilities,
+        suggestionTerm: '',
+        showDropdown: true,
+        highlightedIndex: -1,
+        usernameBlurred: false,
+        passwordBlurred: false,
+        formSubmitted: false,
+        autoFilledByChromeAndNotEdited: false,
+        privacyModalVisible: false,
+        whatsThisModalVisible: false,
+      };
+    },
+    computed: {
+      ...mapGetters(['facilityConfig']),
+      // backend's default facility on load
+      ...mapState(['facilityId']),
+      ...mapState('signIn', ['hasMultipleFacilities']),
+      ...mapState({
+        passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
+        invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
+        busy: state => state.core.signInBusy,
+      }),
+      simpleSignIn() {
+        return this.facilityConfig.learner_can_login_with_no_password;
       },
-      components: {
-        FacilityModal,
-        CoreLogo,
-        UiAutocompleteSuggestion,
-        UiAlert,
-        LanguageSwitcherFooter,
-        PrivacyInfoModal,
+      suggestions() {
+        // Filter suggestions on the client side so we don't hammer the server
+        return this.usernameSuggestions.filter(sug =>
+          sug.toLowerCase().startsWith(this.username.toLowerCase())
+        );
       },
-      mixins: [responsiveWindowMixin, commonCoreStrings],
-      data() {
-        return {
-          username: '',
-          password: '',
-          usernameSuggestions: [],
-          facilityModalVisible: this.$store.state.signIn.hasMultipleFacilities,
-          suggestionTerm: '',
-          showDropdown: true,
-          highlightedIndex: -1,
-          usernameBlurred: false,
-          passwordBlurred: false,
-          formSubmitted: false,
-          autoFilledByChromeAndNotEdited: false,
-          privacyModalVisible: false,
-          whatsThisModalVisible: false,
-        };
+      usernameIsInvalidText() {
+        if (this.usernameBlurred || this.formSubmitted) {
+          if (this.username === '') {
+            return this.coreString('requiredFieldError');
+          } else if (!validateUsername(this.username)) {
+            return this.coreString('usernameNotAlphaNumError');
+          }
+        }
+        return '';
       },
-      computed: {
-        ...mapGetters(['facilityConfig']),
-        // backend's default facility on load
-        ...mapState(['facilityId']),
-        ...mapState('signIn', ['hasMultipleFacilities']),
-        ...mapState({
-          passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
-          invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
-          busy: state => state.core.signInBusy,
-        }),
-        simpleSignIn() {
-          return this.facilityConfig.learner_can_login_with_no_password;
-        },
-        suggestions() {
-          // Filter suggestions on the client side so we don't hammer the server
-          return this.usernameSuggestions.filter(sug =>
-            sug.toLowerCase().startsWith(this.username.toLowerCase())
-          );
-        },
-        usernameIsInvalidText() {
-          if (this.usernameBlurred || this.formSubmitted) {
-            if (this.username === '') {
-              return this.coreString('requiredFieldError');
-            } else if (!validateUsername(this.username)) {
-              return this.coreString('usernameNotAlphaNumError');
-            }
-          }
-          return '';
-        },
-        usernameIsInvalid() {
-          return Boolean(this.usernameIsInvalidText);
-        },
-        passwordIsInvalidText() {
-          if (this.passwordBlurred || this.formSubmitted) {
-            if (this.simpleSignIn && this.password === '') {
-              return this.$tr('requiredForCoachesAdmins');
-            } else if (this.password === '') {
-              return this.coreString('requiredFieldError');
-            }
-          }
-          return '';
-        },
-        passwordIsInvalid() {
-          // prevent validation from showing when we only think that the password is empty
-          if (this.autoFilledByChromeAndNotEdited) {
-            return false;
-          }
-          return Boolean(this.passwordIsInvalidText);
-        },
-        formIsValid() {
-          if (this.simpleSignIn) {
-            return !this.usernameIsInvalid;
-          }
-          return !this.usernameIsInvalid && !this.passwordIsInvalid;
-        },
-        canSignUp() {
-          return this.facilityConfig.learner_can_sign_up;
-        },
-        signUpPage() {
-          if (this.nextParam) {
-            return { name: PageNames.SIGN_UP, query: { next: this.nextParam } };
-          }
-          return { name: PageNames.SIGN_UP };
-        },
-        versionMsg() {
-          return this.$tr('poweredBy', { version: __version });
-        },
-        hasServerError() {
-          return Boolean(this.passwordMissing || this.invalidCredentials);
-        },
-        needPasswordField() {
-          return !this.simpleSignIn || this.hasServerError;
-        },
-        showGuestAccess() {
-          return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
-        },
-        logoText() {
-          return this.$kolibriBranding.signIn.title
-            ? this.$kolibriBranding.signIn.title
-            : this.coreString('kolibriLabel');
-        },
-        guestURL() {
-          return urls['kolibri:core:guest']();
-        },
-        backgroundImageStyle() {
-          if (this.$kolibriBranding.signIn.background) {
-            const scrimOpacity =
-              this.$kolibriBranding.signIn.scrimOpacity !== null
-                ? this.$kolibriBranding.signIn.scrimOpacity
-                : 0.7;
-            return {
-              backgroundColor: this.$themeTokens.primary,
-              backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.$kolibriBranding.signIn.background})`,
-            };
-          }
-          return { backgroundColor: this.$themeBrand.primary.v_900 };
-        },
-        oidcProviderFlow() {
-          return plugin_data.oidcProviderEnabled && this.nextParam;
-        },
-        nextParam() {
-          // query is after hash
-          if (this.$route.query.next) {
-            return this.$route.query.next;
-          }
-          // query is before hash
-          return getUrlParameter('next');
-        },
-        loginOptions() {
-          // POC, in the future sorting of different login options can be implemented
-          return [...loginComponents];
-        },
+      usernameIsInvalid() {
+        return Boolean(this.usernameIsInvalidText);
       },
-      watch: {
-        username(newVal) {
-          this.setSuggestionTerm(newVal);
-        },
+      passwordIsInvalidText() {
+        if (this.passwordBlurred || this.formSubmitted) {
+          if (this.simpleSignIn && this.password === '') {
+            return this.$tr('requiredForCoachesAdmins');
+          } else if (this.password === '') {
+            return this.coreString('requiredFieldError');
+          }
+        }
+        return '';
       },
-      created() {
-        this.$kolibriBranding = branding;
+      passwordIsInvalid() {
+        // prevent validation from showing when we only think that the password is empty
+        if (this.autoFilledByChromeAndNotEdited) {
+          return false;
+        }
+        return Boolean(this.passwordIsInvalidText);
       },
-      mounted() {
-        /*
-          Chrome has non-standard behavior with auto-filled text fields where
-          the value shows up as an empty string even though there is text in
-          the field:
-            https://bugs.chromium.org/p/chromium/issues/detail?id=669724
-          As super-brittle hack to detect the presence of auto-filled text and
-          work-around it, we look for a change in background color as described
-          here:
-            https://stackoverflow.com/a/35783761
-        */
-        setTimeout(() => {
-          const bgColor = window.getComputedStyle(this.$refs.username.$el.querySelector('input'))
-            .backgroundColor;
-
-          if (bgColor === 'rgb(250, 255, 189)') {
-            this.autoFilledByChromeAndNotEdited = true;
-          }
-        }, 250);
+      formIsValid() {
+        if (this.simpleSignIn) {
+          return !this.usernameIsInvalid;
+        }
+        return !this.usernameIsInvalid && !this.passwordIsInvalid;
       },
-      methods: {
-        ...mapActions(['kolibriLogin']),
-        closeFacilityModal() {
-          this.facilityModalVisible = false;
-          this.$nextTick().then(() => {
-            this.$refs.username.focus();
-          });
-        },
-        setSuggestionTerm(newVal) {
-          if (newVal !== null && typeof newVal !== 'undefined') {
-            // Only check if defined or not null
-            if (newVal.length < 3) {
-              // Don't search for suggestions if less than 3 characters entered
-              this.suggestionTerm = '';
-              this.usernameSuggestions = [];
-            } else if (
-              (!newVal.startsWith(this.suggestionTerm) && this.suggestionTerm.length) ||
-              !this.suggestionTerm.length
-            ) {
-              // We have already set a suggestion search term
-              // The currently set suggestion term does not match the current username
-              // Or we do not currently have a suggestion term set
-              // Set it to the new term and fetch new suggestions
-              this.suggestionTerm = newVal;
-              this.setSuggestions();
-            }
-          }
-        },
-        setSuggestions() {
-          FacilityUsernameResource.fetchCollection({
-            getParams: {
-              facility: this.facility,
-              search: this.suggestionTerm,
-            },
-          })
-            .then(users => {
-              this.usernameSuggestions = users.map(user => user.username);
-              this.showDropdown = true;
-            })
-            .catch(() => {
-              this.usernameSuggestions = [];
-            });
-        },
-        handleKeyboardNav(e) {
-          switch (e.code) {
-            case 'ArrowDown':
-              if (this.showDropdown && this.suggestions.length) {
-                this.highlightedIndex = Math.min(
-                  this.highlightedIndex + 1,
-                  this.suggestions.length - 1
-                );
-              }
-              break;
-            case 'ArrowUp':
-              if (this.showDropdown && this.suggestions.length) {
-                this.highlightedIndex = Math.max(this.highlightedIndex - 1, -1);
-              }
-              break;
-            case 'Escape':
-              this.showDropdown = false;
-              break;
-            case 'Enter':
-              if (this.highlightedIndex < 0) {
-                this.showDropdown = false;
-              } else {
-                this.fillUsername(this.suggestions[this.highlightedIndex]);
-                e.preventDefault();
-              }
-              break;
-            default:
-              this.showDropdown = true;
-          }
-        },
-        fillUsername(username) {
-          // Only do this if we have been passed a non-null value
-          if (username !== null && typeof username !== 'undefined') {
-            this.username = username;
-            this.showDropdown = false;
-            this.highlightedIndex = -1;
-            // focus on input after selection
-            this.$refs.username.focus();
-          }
-        },
-        handleUsernameBlur() {
-          this.usernameBlurred = true;
-          this.showDropdown = false;
-        },
-        signIn() {
-          this.formSubmitted = true;
-          if (this.formIsValid) {
-            const sessionPayload = {
-              username: this.username,
-              password: this.password,
-              facility: this.facilityId,
-            };
-            if (plugin_data.oidcProviderEnabled) {
-              sessionPayload['next'] = this.nextParam;
-            } else if (this.$route.query.redirect && !this.nextParam) {
-              // Go to URL in 'redirect' query param, if arriving from AuthMessage
-              sessionPayload['next'] = this.$route.query.redirect;
-            }
-            this.kolibriLogin(sessionPayload).catch();
-          } else {
-            this.focusOnInvalidField();
-          }
-        },
-        focusOnInvalidField() {
-          if (this.usernameIsInvalid) {
-            this.$refs.username.focus();
-          } else if (this.passwordIsInvalid) {
-            this.$refs.password.focus();
-          }
-        },
-        handlePasswordChanged() {
-          this.autoFilledByChromeAndNotEdited = false;
-        },
-        suggestionStyle(i) {
+      canSignUp() {
+        return this.facilityConfig.learner_can_sign_up;
+      },
+      signUpPage() {
+        if (this.nextParam) {
+          return { name: PageNames.SIGN_UP, query: { next: this.nextParam } };
+        }
+        return { name: PageNames.SIGN_UP };
+      },
+      versionMsg() {
+        return this.$tr('poweredBy', { version: __version });
+      },
+      hasServerError() {
+        return Boolean(this.passwordMissing || this.invalidCredentials);
+      },
+      needPasswordField() {
+        return !this.simpleSignIn || this.hasServerError;
+      },
+      showGuestAccess() {
+        return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
+      },
+      logoText() {
+        return this.$kolibriBranding.signIn.title
+          ? this.$kolibriBranding.signIn.title
+          : this.coreString('kolibriLabel');
+      },
+      guestURL() {
+        return urls['kolibri:core:guest']();
+      },
+      backgroundImageStyle() {
+        if (this.$kolibriBranding.signIn.background) {
+          const scrimOpacity =
+            this.$kolibriBranding.signIn.scrimOpacity !== null
+              ? this.$kolibriBranding.signIn.scrimOpacity
+              : 0.7;
           return {
-            backgroundColor: this.highlightedIndex === i ? this.$themePalette.grey.v_200 : '',
+            backgroundColor: this.$themeTokens.primary,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.$kolibriBranding.signIn.background})`,
           };
-        },
+        }
+        return { backgroundColor: this.$themeBrand.primary.v_900 };
       },
-      $trs: {
-        createAccountAction: 'Create an account',
-        poweredByKolibri: 'Powered by Kolibri',
-        whatsThis: "What's this?",
-        oidcGenericExplanation:
-          'Kolibri is an e-learning platform. You can also use your Kolibri account to log in to some third-party applications.',
-        // Disable the rule here because we will keep this unused string in case we need it later on.
-        // eslint-disable-next-line kolibri/vue-no-unused-translations
-        oidcSpecificExplanation:
-          "You were sent here from the application '{app_name}'. Kolibri is an e-learning platform, and you can also use your Kolibri account to access '{app_name}'.",
-        accessAsGuest: 'Explore without account',
-        signInError: 'Incorrect username or password',
-        poweredBy: 'Kolibri {version}',
-        requiredForCoachesAdmins: 'Password is required for coaches and admins',
-        documentTitle: 'User Sign In',
+      oidcProviderFlow() {
+        return plugin_data.oidcProviderEnabled && this.nextParam;
       },
-    };
+      nextParam() {
+        // query is after hash
+        if (this.$route.query.next) {
+          return this.$route.query.next;
+        }
+        // query is before hash
+        return getUrlParameter('next');
+      },
+      loginOptions() {
+        // POC, in the future sorting of different login options can be implemented
+        return [...loginComponents];
+      },
+    },
+    watch: {
+      username(newVal) {
+        this.setSuggestionTerm(newVal);
+      },
+    },
+    created() {
+      this.$kolibriBranding = branding;
+    },
+    mounted() {
+      /*
+        Chrome has non-standard behavior with auto-filled text fields where
+        the value shows up as an empty string even though there is text in
+        the field:
+          https://bugs.chromium.org/p/chromium/issues/detail?id=669724
+        As super-brittle hack to detect the presence of auto-filled text and
+        work-around it, we look for a change in background color as described
+        here:
+          https://stackoverflow.com/a/35783761
+      */
+      setTimeout(() => {
+        const bgColor = window.getComputedStyle(this.$refs.username.$el.querySelector('input'))
+          .backgroundColor;
+
+        if (bgColor === 'rgb(250, 255, 189)') {
+          this.autoFilledByChromeAndNotEdited = true;
+        }
+      }, 250);
+    },
+    methods: {
+      ...mapActions(['kolibriLogin']),
+      closeFacilityModal() {
+        this.facilityModalVisible = false;
+        this.$nextTick().then(() => {
+          this.$refs.username.focus();
+        });
+      },
+      setSuggestionTerm(newVal) {
+        if (newVal !== null && typeof newVal !== 'undefined') {
+          // Only check if defined or not null
+          if (newVal.length < 3) {
+            // Don't search for suggestions if less than 3 characters entered
+            this.suggestionTerm = '';
+            this.usernameSuggestions = [];
+          } else if (
+            (!newVal.startsWith(this.suggestionTerm) && this.suggestionTerm.length) ||
+            !this.suggestionTerm.length
+          ) {
+            // We have already set a suggestion search term
+            // The currently set suggestion term does not match the current username
+            // Or we do not currently have a suggestion term set
+            // Set it to the new term and fetch new suggestions
+            this.suggestionTerm = newVal;
+            this.setSuggestions();
+          }
+        }
+      },
+      setSuggestions() {
+        FacilityUsernameResource.fetchCollection({
+          getParams: {
+            facility: this.facility,
+            search: this.suggestionTerm,
+          },
+        })
+          .then(users => {
+            this.usernameSuggestions = users.map(user => user.username);
+            this.showDropdown = true;
+          })
+          .catch(() => {
+            this.usernameSuggestions = [];
+          });
+      },
+      handleKeyboardNav(e) {
+        switch (e.code) {
+          case 'ArrowDown':
+            if (this.showDropdown && this.suggestions.length) {
+              this.highlightedIndex = Math.min(
+                this.highlightedIndex + 1,
+                this.suggestions.length - 1
+              );
+            }
+            break;
+          case 'ArrowUp':
+            if (this.showDropdown && this.suggestions.length) {
+              this.highlightedIndex = Math.max(this.highlightedIndex - 1, -1);
+            }
+            break;
+          case 'Escape':
+            this.showDropdown = false;
+            break;
+          case 'Enter':
+            if (this.highlightedIndex < 0) {
+              this.showDropdown = false;
+            } else {
+              this.fillUsername(this.suggestions[this.highlightedIndex]);
+              e.preventDefault();
+            }
+            break;
+          default:
+            this.showDropdown = true;
+        }
+      },
+      fillUsername(username) {
+        // Only do this if we have been passed a non-null value
+        if (username !== null && typeof username !== 'undefined') {
+          this.username = username;
+          this.showDropdown = false;
+          this.highlightedIndex = -1;
+          // focus on input after selection
+          this.$refs.username.focus();
+        }
+      },
+      handleUsernameBlur() {
+        this.usernameBlurred = true;
+        this.showDropdown = false;
+      },
+      signIn() {
+        this.formSubmitted = true;
+        if (this.formIsValid) {
+          const sessionPayload = {
+            username: this.username,
+            password: this.password,
+            facility: this.facilityId,
+          };
+          if (plugin_data.oidcProviderEnabled) {
+            sessionPayload['next'] = this.nextParam;
+          } else if (this.$route.query.redirect && !this.nextParam) {
+            // Go to URL in 'redirect' query param, if arriving from AuthMessage
+            sessionPayload['next'] = this.$route.query.redirect;
+          }
+          this.kolibriLogin(sessionPayload).catch();
+        } else {
+          this.focusOnInvalidField();
+        }
+      },
+      focusOnInvalidField() {
+        if (this.usernameIsInvalid) {
+          this.$refs.username.focus();
+        } else if (this.passwordIsInvalid) {
+          this.$refs.password.focus();
+        }
+      },
+      handlePasswordChanged() {
+        this.autoFilledByChromeAndNotEdited = false;
+      },
+      suggestionStyle(i) {
+        return {
+          backgroundColor: this.highlightedIndex === i ? this.$themePalette.grey.v_200 : '',
+        };
+      },
+    },
+    $trs: {
+      createAccountAction: 'Create an account',
+      poweredByKolibri: 'Powered by Kolibri',
+      whatsThis: "What's this?",
+      oidcGenericExplanation:
+        'Kolibri is an e-learning platform. You can also use your Kolibri account to log in to some third-party applications.',
+      // Disable the rule here because we will keep this unused string in case we need it later on
+      // eslint-disable-next-line kolibri/vue-no-unused-translations
+      oidcSpecificExplanation:
+        "You were sent here from the application '{app_name}'. Kolibri is an e-learning platform, and you can also use your Kolibri account to access '{app_name}'.",
+      accessAsGuest: 'Explore without account',
+      signInError: 'Incorrect username or password',
+      poweredBy: 'Kolibri {version}',
+      requiredForCoachesAdmins: 'Password is required for coaches and admins',
+      documentTitle: 'User Sign In',
+    },
+  };
 
 </script>
 
