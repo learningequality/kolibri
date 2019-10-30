@@ -10,6 +10,14 @@
     @cancel="handleClickCancel"
   >
     <UiAlert
+      v-if="notEnoughFreeSpace"
+      type="error"
+      :dismissible="false"
+      :removeIcon="true"
+    >
+      {{ $tr('notEnoughFreeSpaceWarning') }}
+    </UiAlert>
+    <UiAlert
       v-if="driveStatus==='ERROR'"
       type="error"
       :dismissible="false"
@@ -42,6 +50,7 @@
 <script>
 
   import { mapActions, mapState, mapGetters, mapMutations } from 'vuex';
+  import find from 'lodash/find';
   import UiAlert from 'keen-ui/src/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TransferTypes } from '../../../constants';
@@ -54,6 +63,14 @@
       UiAlert,
     },
     mixins: [commonCoreStrings],
+    props: {
+      // For exports, provide the file size to show a warning if export size
+      // is more than the drive's freespace
+      exportFileSize: {
+        type: Number,
+        required: false,
+      },
+    },
     data() {
       return {
         driveStatus: '',
@@ -71,6 +88,11 @@
           return this.$tr('selectDrive');
         }
         return this.$tr('selectExportDestination');
+      },
+      notEnoughFreeSpace() {
+        if (!this.exportFileSize || !this.selectedDriveId) return false;
+
+        return find(this.driveList, { id: this.selectedDriveId }).freespace < this.exportFileSize;
       },
       enabledDrives() {
         return this.driveList.filter(drive =>
@@ -109,7 +131,6 @@
       },
       handleClickCancel() {
         this.resetContentWizardState();
-        this.$emit('cancel');
       },
     },
     $trs: {
@@ -117,6 +138,8 @@
       problemFindingLocalDrives: 'There was a problem finding local drives.',
       selectDrive: 'Select a drive',
       selectExportDestination: 'Select an export destination',
+      notEnoughFreeSpaceWarning:
+        'Not enough space available. Clear up space on the drive or select fewer channels',
     },
   };
 

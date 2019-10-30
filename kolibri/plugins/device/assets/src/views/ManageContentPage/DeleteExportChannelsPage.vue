@@ -21,13 +21,16 @@
     <component
       :is="exportMode ? 'SelectDriveModal' : 'DeleteChannelModal'"
       v-if="showModal"
+      v-bind="modalProps"
       @cancel="showModal = false"
+      @submit="handleClickModalSubmit"
     />
 
     <SelectionBottomBar
       objectType="channel"
       :actionType="actionType"
       :selectedObjects="selectedChannels"
+      :fileSize.sync="fileSize"
       @clickconfirm="handleClickConfirm"
     />
   </div>
@@ -39,6 +42,7 @@
 
   import find from 'lodash/find';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import { TaskResource } from 'kolibri.resources';
   import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import DeviceChannelResource from '../../apiResources/deviceChannel';
   import SelectionBottomBar from './SelectionBottomBar';
@@ -46,6 +50,26 @@
   import SelectDriveModal from './SelectTransferSourceModal/SelectDriveModal';
   import ChannelCard from './ChannelCard';
   import FilteredChannelListContainer from './FilteredChannelListContainer';
+
+  // Overwrite methods that are coupled to vuex in original SelectDriveModal
+  const SelectDrive = {
+    extends: SelectDriveModal,
+    computed: {
+      driveCanBeUsedForTransfer() {
+        return function isWritable({ drive }) {
+          return drive.writable;
+        };
+      },
+    },
+    methods: {
+      handleClickCancel() {
+        this.$emit('cancel');
+      },
+      goForward() {
+        this.$emit('submit', { driveId: this.selectedDriveId });
+      },
+    },
+  };
 
   // UI for simple bulk Deletion or Export of entire channels
   export default {
@@ -60,7 +84,7 @@
       FilteredChannelListContainer,
       SelectionBottomBar,
       DeleteChannelModal,
-      SelectDriveModal,
+      SelectDriveModal: SelectDrive,
     },
     mixins: [KResponsiveWindowMixin],
     props: {
@@ -78,6 +102,7 @@
         selectedChannels: [],
         showModal: false,
         loading: true,
+        fileSize: null,
       };
     },
     computed: {
@@ -86,6 +111,14 @@
       },
       deleteMode() {
         return this.actionType === 'delete';
+      },
+      modalProps() {
+        if (this.exportMode) {
+          return {
+            exportFileSize: this.fileSize,
+          };
+        }
+        return {};
       },
     },
     beforeMount() {
@@ -109,6 +142,32 @@
       },
       handleClickConfirm() {
         this.showModal = true;
+      },
+      handleClickModalSubmit(params = {}) {
+        this.showModal = false;
+        if (this.deleteMode) {
+          TaskResource.deleteBulkChannels({
+            channelIds: this.selectedChannels.map(({ id }) => id),
+          }).then(() => {
+            this.handleDeleteSuccess();
+          });
+        } else {
+          TaskResource.startDiskBulkExport(
+            this.selectedChannels.map(({ id }) => ({
+              channel_id: id,
+              drive_id: params.driveId,
+            }))
+          ).then(() => {
+            this.handleExportSuccess();
+          });
+        }
+      },
+      handleExportSuccess() {
+        this.$store.dispatch('createSnackbar', 'Task started');
+      },
+      handleDeleteSuccess() {
+        // Show a snackbar
+        // Remove the channels from the list (also need to put a filter on refresh)
       },
       channelIsSelected(channel) {
         return Boolean(find(this.selectedChannels, { id: channel.id }));

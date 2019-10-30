@@ -116,7 +116,7 @@ export default new Resource({
     return this.postListEndpoint('startexportlogcsv', pickBy(params));
   },
 
-  deleteChannel(channelId) {
+  deleteChannel({ channelId }) {
     return this.postListEndpoint('startdeletechannel', {
       channel_id: channelId,
     });

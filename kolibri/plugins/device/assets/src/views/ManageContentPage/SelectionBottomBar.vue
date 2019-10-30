@@ -4,6 +4,7 @@
     <BottomAppBar>
       <span class="message">{{ selectedMessage }}</span>
       <KButton
+        :disabled="selectedObjects.length === 0"
         :text="confirmButtonLabel"
         :primary="true"
         @click="$emit('clickconfirm')"
@@ -55,17 +56,20 @@
           delete: this.$tr('deleteAction'),
         }[this.actionType];
       },
-      bytesText() {
-        if (this.selectedObjects.length === 0) {
-          return '';
-        }
+      selectedObjectsFileSize() {
         if (
           this.objectType === 'channel' &&
           (this.actionType === 'export' || this.actionType === 'delete')
         ) {
-          return bytesForHumans(sumBy(this.selectedObjects, 'on_device_file_size'));
+          return sumBy(this.selectedObjects, 'on_device_file_size');
         }
-        return '';
+        return 0;
+      },
+      bytesText() {
+        if (this.selectedObjects.length === 0) {
+          return '';
+        }
+        return bytesForHumans(this.selectedObjectsFileSize);
       },
       selectedMessage() {
         const count = this.selectedObjects.length;
@@ -84,6 +88,11 @@
             return this.$tr('someResourcesSelected', { bytesText: '0', count });
           }
         }
+      },
+    },
+    watch: {
+      selectedObjectsFileSize(value) {
+        this.$emit('update:fileSize', value);
       },
     },
     $trs: {
