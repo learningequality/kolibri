@@ -181,7 +181,7 @@ class Scheduler(StorageMixin):
 
     def get_job(self, job_id):
         with self.session_scope() as session:
-            scheduled_job = self._ns_query(session).get(id=job_id)
+            scheduled_job = session.query(ScheduledJob).get(job_id)
             if scheduled_job is None:
                 raise JobNotFound()
             return scheduled_job.obj
