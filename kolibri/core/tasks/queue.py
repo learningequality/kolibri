@@ -7,6 +7,7 @@ from sqlalchemy import exc
 from sqlalchemy.pool import NullPool
 
 from kolibri.core.tasks.iceqube.queue import Queue
+from kolibri.core.tasks.iceqube.scheduler import Scheduler
 from kolibri.core.tasks.iceqube.worker import Worker
 from kolibri.utils import conf
 
@@ -57,6 +58,8 @@ def checkout(dbapi_connection, connection_record, connection_proxy):
 
 
 queue = Queue(app, connection=connection)
+
+scheduler = Scheduler(queue=queue, connection=connection)
 
 
 def initialize_worker():
