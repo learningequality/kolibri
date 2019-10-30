@@ -75,6 +75,18 @@ const routes = [
       hideLoadingScreen();
     },
   },
+  {
+    name: 'EXPORT_CHANNELS',
+    path: '/content/export_channels',
+    component: DeleteExportChannelsPage,
+    props: {
+      actionType: 'export',
+    },
+    handler() {
+      store.dispatch('preparePage', { name: 'EXPORT_CHANNELS' });
+      hideLoadingScreen();
+    },
+  },
   ...wizardTransitionRoutes,
   {
     path: '/content/*',

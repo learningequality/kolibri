@@ -77,6 +77,8 @@
       },
     },
     beforeMount() {
+      const title = this.exportMode ? 'exportAppBarTitle' : 'deleteAppBarTitle';
+      this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr(title));
       DeviceChannelResource.fetchCollection({}).then(channels => {
         this.allChannels = [...channels.filter(c => c.available)];
         this.loading = false;

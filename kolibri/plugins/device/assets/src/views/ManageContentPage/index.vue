@@ -24,6 +24,12 @@
             :layout8="{ span: 4, alignment: 'right' }"
             :layout12="{ span: 6, alignment: 'right' }"
           >
+            <KDropdownMenu
+              appearance="raised-button"
+              :text="coreString('optionsLabel')"
+              :options="dropdownOptions"
+              @select="handleSelect"
+            />
             <KButton
               :text="$tr('import')"
               :primary="true"
@@ -84,6 +90,13 @@
       ...mapState('manageContent', {
         deviceHasChannels: state => state.channelList.length > 0,
       }),
+      dropdownOptions() {
+        return [
+          { label: this.$tr('exportChannels'), value: 'EXPORT' },
+          { label: this.$tr('deleteChannels'), value: 'DELETE' },
+          { label: this.$tr('rearrangeChannels'), value: 'REARRANGE' },
+        ];
+      },
     },
     watch: {
       // If Tasks disappear from queue, assume that an addition/deletion has
@@ -109,6 +122,15 @@
       clearCompletedTasks() {
         return TaskResource.deleteFinishedTasks();
       },
+      handleSelect({ value }) {
+        if (value === 'DELETE') {
+          this.$router.push(this.$router.getRoute('DELETE_CHANNELS'));
+        } else if (value === 'EXPORT') {
+          this.$router.push(this.$router.getRoute('EXPORT_CHANNELS'));
+        } else {
+          console.log('go to rearrangeChannels');
+        }
+      },
     },
     $trs: {
       import: 'Import',
@@ -116,6 +138,9 @@
       noAccessDetails:
         'You must be signed in as a superuser or have content management permissions to view this page',
       documentTitle: 'Manage Device Channels',
+      exportChannels: 'Export channels',
+      deleteChannels: 'Delete channels',
+      rearrangeChannels: 'Re-arrange',
     },
   };
 
