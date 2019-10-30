@@ -102,6 +102,8 @@ def run_services():
 
     scheduler.start_scheduler()
 
+    atexit.register(scheduler.shutdown_scheduler)
+
 
 def _rm_pid_file():
     os.unlink(PID_FILE)
