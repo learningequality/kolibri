@@ -2,9 +2,12 @@
 
   <div>
     <BottomAppBar>
-      <template v-slot:default>
-        <slot></slot>
-      </template>
+      <span class="message">{{ selectedMessage }}</span>
+      <KButton
+        :text="confirmButtonLabel"
+        :primary="true"
+        @click="$emit('clickconfirm')"
+      />
     </BottomAppBar>
   </div>
 
@@ -13,30 +16,80 @@
 
 <script>
 
+  import sumBy from 'lodash/sumBy';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
 
+  // Shows a 'EXPORT', 'IMPORT', or 'DELETE' button next to a message
+  // of how many items are selected plus their size.
   export default {
     name: 'SelectionBottomBar',
     components: {
       BottomAppBar,
     },
     props: {
-      numObjects: {
-        type: String,
+      selectedObjects: {
+        type: Array,
+        default() {
+          return [];
+        },
       },
       objectType: {
         type: String,
-      },
-      fileSize: {
-        type: Number,
+        validator(value) {
+          return value === 'channel' || value === 'resource';
+        },
       },
       actionType: {
         type: String,
+        validator(value) {
+          return value === 'import' || value === 'export' || value === 'delete';
+        },
       },
     },
-    computed: {},
-    methods: {},
+    computed: {
+      confirmButtonLabel() {
+        return {
+          import: this.$tr('importAction'),
+          export: this.$tr('exportAction'),
+          delete: this.$tr('deleteAction'),
+        }[this.actionType];
+      },
+      bytesText() {
+        if (this.selectedObjects.length === 0) {
+          return '';
+        }
+        if (
+          this.objectType === 'channel' &&
+          (this.actionType === 'export' || this.actionType === 'delete')
+        ) {
+          return bytesForHumans(sumBy(this.selectedObjects, 'on_device_file_size'));
+        }
+        return '';
+      },
+      selectedMessage() {
+        const count = this.selectedObjects.length;
+        const forChannels = this.objectType === 'channel';
+        if (count === 0) {
+          return this.objectType === 'channel'
+            ? this.$tr('zeroChannelsSelected')
+            : this.$tr('zeroResourcesSelected');
+        } else {
+          if (forChannels) {
+            return this.$tr('someChannelsSelected', {
+              count,
+              bytesText: this.bytesText,
+            });
+          } else {
+            return this.$tr('someResourcesSelected', { bytesText: '0', count });
+          }
+        }
+      },
+    },
     $trs: {
+      importAction: 'Import',
+      exportAction: 'Export',
+      deleteAction: 'Delete',
       zeroChannelsSelected: '0 channels selected',
       someChannelsSelected:
         '{count} {count, plural, one {channel} other {channels}} selected ({bytesText})',
@@ -49,4 +102,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .message {
+    margin-right: 32px;
+  }
+
+</style>

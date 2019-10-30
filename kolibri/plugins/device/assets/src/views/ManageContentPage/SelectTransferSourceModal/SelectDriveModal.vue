@@ -7,7 +7,7 @@
     :cancelText="coreString('cancelAction')"
     :submitDisabled="selectedDriveId===''"
     @submit="goForward"
-    @cancel="resetContentWizardState"
+    @cancel="handleClickCancel"
   >
     <UiAlert
       v-if="driveStatus==='ERROR'"
@@ -106,6 +106,10 @@
           driveId: this.selectedDriveId,
           forExport: !this.inImportMode,
         });
+      },
+      handleClickCancel() {
+        this.resetContentWizardState();
+        this.$emit('cancel');
       },
     },
     $trs: {

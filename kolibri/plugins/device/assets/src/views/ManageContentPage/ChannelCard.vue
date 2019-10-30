@@ -10,6 +10,7 @@
         class="checkbox"
         :label="channel.name"
         :showLabel="false"
+        @change="$emit('checkboxchange', { channel: channel, isSelected: $event })"
       />
       <img
         v-if="channel.thumbnail"
@@ -34,10 +35,10 @@
           <p class="version" :style="{ color: $themeTokens.annotation }">
             {{ $tr('versionNumber', { v: channel.version }) }}
           </p>
-          <p class="selected">
-            {{ selectedMessage || '' }}
-          </p>
         </div>
+        <p class="selected">
+          {{ selectedMessage || '' }}
+        </p>
       </div>
       <div>
         <p v-if="resourcesOnDevice">
