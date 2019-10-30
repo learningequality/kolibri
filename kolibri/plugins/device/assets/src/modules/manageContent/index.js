@@ -47,6 +47,11 @@ export default {
         return find(state.channelList, { id: channelId });
       };
     },
+    channelIsBeingDeleted(state) {
+      return function beingDeleted(channelId) {
+        return Boolean(find(state.taskList, { type: 'DELETECHANNEL', channel_id: channelId }));
+      };
+    },
     // Tasks that are active, complete, or failed.
     // Canceling and canceled tasks are filtered here
     // to hide them from users, but still let us clean

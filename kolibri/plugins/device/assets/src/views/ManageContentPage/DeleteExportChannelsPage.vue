@@ -40,6 +40,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import find from 'lodash/find';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { TaskResource } from 'kolibri.resources';
@@ -106,6 +107,7 @@
       };
     },
     computed: {
+      ...mapGetters('manageContent', ['channelIsBeingDeleted']),
       exportMode() {
         return this.actionType === 'export';
       },
@@ -136,7 +138,9 @@
             include_fields: 'on_device_file_size',
           },
         }).then(channels => {
-          this.allChannels = [...channels.filter(c => c.available)];
+          this.allChannels = [
+            ...channels.filter(c => c.available && !this.channelIsBeingDeleted(c)),
+          ];
           this.loading = false;
         });
       },
@@ -146,8 +150,11 @@
       handleClickModalSubmit(params = {}) {
         this.showModal = false;
         if (this.deleteMode) {
+          this.allChannels = this.allChannels.filter(
+            c => !find(this.selectedChannels, { id: c.id })
+          );
           TaskResource.deleteBulkChannels({
-            channelIds: this.selectedChannels.map(({ id }) => id),
+            channelIds: this.selectedChannels.map(({ id }) => ({ channel_id: id })),
           }).then(() => {
             this.handleDeleteSuccess();
           });
@@ -163,11 +170,12 @@
         }
       },
       handleExportSuccess() {
+        this.selectedChannels = [];
         this.$store.dispatch('createSnackbar', 'Task started');
       },
       handleDeleteSuccess() {
-        // Show a snackbar
-        // Remove the channels from the list (also need to put a filter on refresh)
+        this.selectedChannels = [];
+        this.$store.dispatch('createSnackbar', 'Task started');
       },
       channelIsSelected(channel) {
         return Boolean(find(this.selectedChannels, { id: channel.id }));

@@ -36,8 +36,8 @@
             {{ $tr('versionNumber', { v: channel.version }) }}
           </p>
         </div>
-        <p class="selected">
-          {{ selectedMessage || '' }}
+        <p v-if="selectedMessage" class="selected">
+          {{ selectedMessage }}
         </p>
       </div>
       <div>

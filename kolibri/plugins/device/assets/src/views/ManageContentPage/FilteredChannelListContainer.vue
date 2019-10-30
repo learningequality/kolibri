@@ -133,6 +133,11 @@
     margin-bottom: 24px;
   }
 
+  .count-msg {
+    flex-grow: 1;
+    margin: 0;
+  }
+
   .filters {
     display: flex;
     flex-grow: 1;
@@ -141,7 +146,8 @@
   }
 
   .filter-title {
-    flex-shrink: 1;
+    flex-grow: 1;
+    width: auto;
   }
 
   .small {

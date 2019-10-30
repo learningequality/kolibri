@@ -122,7 +122,7 @@ export default new Resource({
     });
   },
   /**
-   * @param [Array<string>] channelIds
+   * @param {Array<Object>} params.channelIds
    */
   deleteBulkChannels({ channelIds }) {
     return this.postListEndpoint('startbulkdelete', channelIds);
