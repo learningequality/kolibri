@@ -675,14 +675,10 @@ def union(queries):
 
 @query_params_required(search=str, max_results=int, max_results__default=30)
 class ContentNodeSearchViewset(ContentNodeSlimViewset):
-    def list(self, request, **kwargs):
+    def search(self, value, max_results):
         """
         Implement various filtering strategies in order to get a wide range of search results.
         """
-
-        value = self.kwargs["search"]
-        MAX_RESULTS = self.kwargs["max_results"]
-
         queryset = self.filter_queryset(self.get_queryset())
 
         # all words with punctuation removed
@@ -712,7 +708,7 @@ class ContentNodeSearchViewset(ContentNodeSlimViewset):
 
         results = []
         content_ids = set()
-        BUFFER_SIZE = MAX_RESULTS * 2  # grab some extras, but not too many
+        BUFFER_SIZE = max_results * 2  # grab some extras, but not too many
 
         # iterate over each query type, and build up search results
         for query in all_queries:
@@ -731,10 +727,10 @@ class ContentNodeSearchViewset(ContentNodeSlimViewset):
                 results.append(match)
 
                 # bail out as soon as we reach the quota
-                if len(results) >= MAX_RESULTS:
+                if len(results) >= max_results:
                     break
             # bail out as soon as we reach the quota
-            if len(results) >= MAX_RESULTS:
+            if len(results) >= max_results:
                 break
 
         # If no queries, just use an empty Q.
@@ -764,6 +760,12 @@ class ContentNodeSearchViewset(ContentNodeSlimViewset):
             .distinct()
         )
 
+        return (results, channel_ids, content_kinds, total_results)
+
+    def list(self, request, **kwargs):
+        value = self.kwargs["search"]
+        max_results = self.kwargs["max_results"]
+        results, channel_ids, content_kinds, total_results = self.search(value, max_results)
         serializer = self.get_serializer(results, many=True)
         return Response(
             {
