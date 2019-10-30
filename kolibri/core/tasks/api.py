@@ -290,6 +290,7 @@ class TasksViewSet(viewsets.ViewSet):
                 channel = ChannelMetadata.objects.get(id=task["channel_id"])
                 job_metadata = {
                     "type": "DELETECHANNEL",
+                    "channel_id": task["channel_id"],
                     "started_by": request.user.pk,
                     "file_size": channel.published_size,
                     "resource_count": channel.total_resource_count,
@@ -355,6 +356,8 @@ class TasksViewSet(viewsets.ViewSet):
                 channel = ChannelMetadata.objects.get(id=task["channel_id"])
                 job_metadata = {
                     "type": "DISKEXPORT",
+                    "channel_id": task["channel_id"],
+                    "drive_id": task["drive_id"],
                     "started_by": request.user.pk,
                     "file_size": channel.published_size,
                     "resource_count": channel.total_resource_count,
