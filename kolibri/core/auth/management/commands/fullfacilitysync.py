@@ -165,9 +165,11 @@ class Command(AsyncCommand):
             )
             progress_update(1)
 
-            client_cert, server_cert, options[
-                "username"
-            ] = self.get_client_and_server_certs(
+            (
+                client_cert,
+                server_cert,
+                options["username"],
+            ) = self.get_client_and_server_certs(
                 options["username"],
                 options["password"],
                 options["dataset_id"],
