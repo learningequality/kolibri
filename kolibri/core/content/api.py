@@ -769,7 +769,9 @@ class ContentNodeSearchViewset(ContentNodeSlimViewset):
     def list(self, request, **kwargs):
         value = self.kwargs["search"]
         max_results = self.kwargs["max_results"]
-        results, channel_ids, content_kinds, total_results = self.search(value, max_results)
+        results, channel_ids, content_kinds, total_results = self.search(
+            value, max_results
+        )
         serializer = self.get_serializer(results, many=True)
         return Response(
             {
