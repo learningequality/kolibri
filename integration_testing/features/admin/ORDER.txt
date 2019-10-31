@@ -12,3 +12,4 @@ admin-change-facility-settings.feature
 admin-manage-content.feature
 admin-export-data.feature
 admin-sign-out.feature
+admin-rearrange-channels.feature

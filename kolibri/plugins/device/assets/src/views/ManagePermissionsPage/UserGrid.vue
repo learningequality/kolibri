@@ -14,16 +14,12 @@
       <tbody slot="tbody">
         <tr v-for="user in facilityUsers" :key="user.id">
           <td>
-            <KLabeledIcon>
+            <KLabeledIcon :label="fullNameLabel(user)">
               <PermissionsIcon
                 v-if="Boolean(getPermissionType(user.id))"
                 slot="icon"
                 :permissionType="getPermissionType(user.id)"
               />
-              <span dir="auto" class="maxwidth">
-                {{ user.full_name }}
-                <span v-if="isCurrentUser(user.username)"> ({{ $tr('you') }})</span>
-              </span>
             </KLabeledIcon>
           </td>
           <td>
@@ -82,6 +78,12 @@
       },
     },
     methods: {
+      fullNameLabel({ username, full_name }) {
+        if (this.isCurrentUser(username)) {
+          return this.$tr('selfUsernameLabel', { full_name });
+        }
+        return full_name;
+      },
       permissionsButtonText(username) {
         if (this.isCurrentUser(username)) {
           return this.$tr('viewPermissions');
@@ -110,7 +112,7 @@
       viewPermissions: 'View Permissions',
       editPermissions: 'Edit Permissions',
       noUsersMatching: 'No users matching "{searchFilter}"',
-      you: 'You',
+      selfUsernameLabel: '{full_name} (You)',
     },
   };
 
