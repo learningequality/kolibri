@@ -5,6 +5,7 @@
     :class="{'channel-detail-panel-sm': windowIsSmall}"
   >
     <div class="col-1">
+      <slot name="beforethumbnail"></slot>
       <img
         v-if="channel.thumbnail"
         class="thumbnail"
@@ -22,19 +23,21 @@
     <div class="col-2">
       <div class="col-2-row-1">
         <div>
-          <h2 dir="auto">
+          <h2 class="channel-name" dir="auto">
             {{ channel.name }}
           </h2>
+          <slot name="belowname"></slot>
           <p class="version" :style="{ color: $themeTokens.annotation }">
-            {{ $tr('versionNumber', { v: channel.version }) }}
+            {{ $tr('versionNumber', { v: channelVersion || channel.version }) }}
           </p>
         </div>
       </div>
       <div>
         <slot name="abovedescription"></slot>
         <p dir="auto">
-          {{ channel.description }}
+          {{ channel.description || $tr('defaultDescription') }}
         </p>
+        <slot name="belowdescription"></slot>
       </div>
     </div>
   </div>
@@ -48,20 +51,20 @@
 
   export default {
     name: 'ChannelDetailPanel',
-    components: {},
     mixins: [responsiveWindowMixin],
     props: {
       channel: {
         type: Object,
       },
+      // Used to override the version number in some cases
+      channelVersion: {
+        type: String,
+        required: false,
+      },
     },
-    data() {
-      return {};
-    },
-    computed: {},
-    methods: {},
     $trs: {
       versionNumber: 'Version {v}',
+      defaultDescription: '(No description)',
     },
   };
 
@@ -81,6 +84,10 @@
   .channel-detail-panel {
     display: flex;
     width: 100%;
+  }
+
+  .channel-name {
+    display: inline;
   }
 
   // Col 1: Checkbox and thumbnail

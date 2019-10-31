@@ -2,18 +2,20 @@
 
   <div
     class="channel-card"
-    :class="{'channel-card-small': windowIsSmall}"
+    :class="{'channel-card-sm': windowIsSmall}"
     :style="{ borderTopColor: $themePalette.grey.v_200 }"
   >
-    <KCheckbox
-      class="checkbox"
-      :label="channel.name"
-      :showLabel="false"
-      :checked="$attrs.checked"
-      @change="$emit('checkboxchange', { channel: channel, isSelected: $event })"
-    />
-
     <ChannelDetailPanel :channel="channel">
+      <template v-slot:beforethumbnail>
+        <KCheckbox
+          class="checkbox"
+          :label="channel.name"
+          :showLabel="false"
+          :checked="$attrs.checked"
+          @change="$emit('checkboxchange', { channel: channel, isSelected: $event })"
+        />
+      </template>
+
       <template v-slot:abovedescription>
         <p v-if="resourcesOnDevice">
           {{ $tr('resourcesOnDevice') }}
@@ -72,6 +74,10 @@
     display: flex;
     padding: 16px;
     border-top: 1px solid;
+  }
+
+  .channel-card-sm {
+    flex-direction: column;
   }
 
   .checkbox {

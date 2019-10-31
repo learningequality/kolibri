@@ -1,67 +1,48 @@
 <template>
 
-  <component
-    :is="componentTemplate"
+  <div
+    class="channel-list-item"
+    :class="{'channel-list-item-sm': windowIsSmall}"
     :style="[verticalPadding, { borderTop: `1px solid ${$themePalette.grey.v_200}` } ]"
   >
-    <template slot="thumbnail">
-      <div class="thumbnail-container" data-test="thumbnail">
-        <img
-          v-if="thumbnailImg"
-          :src="thumbnailImg"
-          class="thumbnail"
-        >
-        <div
-          v-else
-          class="default-icon"
-          :style="{ backgroundColor: $themePalette.grey.v_200 }"
-        >
-          <mat-svg category="navigation" name="apps" />
-        </div>
-      </div>
-    </template>
-
-    <template slot="header">
-      <div>
-        <h2 class="title" dir="auto">
-          {{ channel.name }}
-        </h2>
+    <ChannelDetailPanel
+      :channel="channel"
+      :versionNumber="versionNumber"
+    >
+      <template v-slot:belowname>
         <UiIcon v-if="isPrivateChannel" class="icon">
           <mat-svg name="lock_open" category="action" />
         </UiIcon>
-      </div>
-      <div class="version" :style="{ color: $themeTokens.annotation }">
-        {{ $tr('version', { version: versionNumber }) }}
-      </div>
-    </template>
+      </template>
 
-    <template slot="meta">
-      <div v-if="inImportMode && onDevice" class="spec-ref-on-device">
-        <UiIcon class="icon">
-          <mat-svg
-            category="action"
-            name="check_circle"
-            :style="{ fill: $themeTokens.success }"
-          />
-        </UiIcon>
-        <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
-      </div>
+      <template v-slot:abovedescription>
+        <div v-if="inImportMode && onDevice" class="on-device">
+          <UiIcon class="icon">
+            <mat-svg
+              category="action"
+              name="check_circle"
+              :style="{ fill: $themeTokens.success }"
+            />
+          </UiIcon>
+          <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
+        </div>
+      </template>
+
+      <template v-slot:belowdescription>
+        <CoachContentLabel
+          :value="channel.num_coach_contents"
+          :isTopic="true"
+        />
+      </template>
+    </ChannelDetailPanel>
+
+    <div class="col-2">
       <div v-if="inExportMode || inManageMode" dir="auto" class="spec-ref-resources-size">
         {{ resourcesSizeText }}
       </div>
-    </template>
+    </div>
 
-    <template slot="description">
-      <p dir="auto" class="spec-ref-description">
-        {{ channel.description || $tr('defaultDescription') }}
-      </p>
-      <CoachContentLabel
-        :value="channel.num_coach_contents"
-        :isTopic="true"
-      />
-    </template>
-
-    <template slot="buttons">
+    <div class="col-3">
       <KRouterLink
         v-if="inImportMode || inExportMode"
         :text="$tr('selectButton')"
@@ -76,8 +57,9 @@
         :options="manageChannelActions"
         @select="handleManageChannelAction($event.value)"
       />
-    </template>
-  </component>
+    </div>
+
+  </div>
 
 </template>
 
@@ -91,8 +73,7 @@
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { selectContentPageLink } from './manageContentLinks';
-  import ChannelListItemLarge from './ChannelListItemLarge';
-  import ChannelListItemSmall from './ChannelListItemSmall';
+  import ChannelDetailPanel from './ChannelDetailPanel';
 
   const Modes = {
     IMPORT: 'IMPORT',
@@ -109,6 +90,7 @@
     name: 'ChannelListItem',
     components: {
       CoachContentLabel,
+      ChannelDetailPanel,
       UiIcon,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
@@ -160,9 +142,6 @@
       resourcesSizeText() {
         return bytesForHumans(this.channel.on_device_file_size);
       },
-      thumbnailImg() {
-        return this.channel.thumbnail;
-      },
       tasksInQueue() {
         return this.activeTaskList.length > 0;
       },
@@ -187,12 +166,6 @@
           paddingTop: `${this.windowGutter}px`,
         };
       },
-      componentTemplate() {
-        if (this.windowIsLarge) {
-          return ChannelListItemLarge;
-        }
-        return ChannelListItemSmall;
-      },
     },
     methods: {
       handleManageChannelAction(action) {
@@ -203,11 +176,9 @@
       },
     },
     $trs: {
-      defaultDescription: '(No description)',
       importMoreFromChannel: 'Import more',
       onYourDevice: 'On your device',
       selectButton: 'Select',
-      version: 'Version {version}',
     },
   };
 
@@ -216,43 +187,51 @@
 
 <style lang="scss" scoped>
 
-  $thumbnail-side-length: 128px;
-
-  .title {
-    display: inline;
+  .channel-list-item {
+    display: flex;
+    padding: 16px;
   }
 
-  .version {
-    font-size: 0.85em;
-  }
+  .channel-list-item-sm {
+    flex-direction: column;
 
-  .thumbnail-container {
-    width: $thumbnail-side-length;
-    height: $thumbnail-side-length;
-  }
-
-  .thumbnail {
-    width: 100%;
-  }
-
-  .default-icon {
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    svg {
-      width: 50%;
-      height: 50%;
-      // Icon scaled to 0.5 of 128px = 64px, so midpoint need to be moved to 128 / 4 = 32 px
-      margin: ($thumbnail-side-length / 2 / 2) 0;
+    .col-3 {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      margin-top: 16px;
     }
+
+    .col-2 {
+      align-self: flex-end;
+      order: -1;
+      margin-right: 0;
+    }
+
+    .on-device {
+      font-size: 0.85rem;
+    }
+  }
+
+  .col-2 {
+    min-width: 80px;
+    margin-right: 16px;
+    text-align: right;
+  }
+
+  .col-3 {
+    // raises button to align better with other test
+    margin-top: -8px;
+  }
+
+  .on-device {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
   }
 
   .on-device-text {
     margin-left: 8px;
-  }
-
-  .icon {
-    vertical-align: text-bottom;
   }
 
 </style>
