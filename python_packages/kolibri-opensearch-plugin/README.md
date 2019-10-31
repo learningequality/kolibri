@@ -24,6 +24,6 @@ How can I install this plugin?
 
 2. Activate the plugin:
 
-    ``kolibri plugin kolibri_opensearch_plugin enable``
+    ``kolibri plugin enable kolibri_opensearch_plugin``
 
 3. Restart Kolibri.
