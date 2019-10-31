@@ -675,12 +675,16 @@ def union(queries):
 
 @query_params_required(search=str, max_results=int, max_results__default=30)
 class ContentNodeSearchViewset(ContentNodeSlimViewset):
-    def search(self, value, max_results):
+    def search(self, value, max_results, filter=True):
         """
         Implement various filtering strategies in order to get a wide range of search results.
+        When filter is used, this object must have a request attribute having
+        a 'query_params' QueryDict containing the filters to be applied
         """
-        queryset = self.filter_queryset(self.get_queryset())
-
+        if filter:
+            queryset = self.filter_queryset(self.get_queryset())
+        else:
+            queryset = self.get_queryset()
         # all words with punctuation removed
         all_words = [w for w in re.split('[?.,!";: ]', value) if w]
         # words in all_words that are not stopwords
