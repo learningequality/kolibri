@@ -109,9 +109,7 @@ def _validateScrimOpacity(theme):
     if SCRIM_OPACITY in theme[SIGN_IN]:
         opacity = theme[SIGN_IN][SCRIM_OPACITY]
         if opacity is None or opacity < 0 or opacity > 1:
-            logger.error(
-                "scrim opacity should be a value in the closed interval [0,1]"
-            )
+            logger.error("scrim opacity should be a value in the closed interval [0,1]")
             return
 
 
