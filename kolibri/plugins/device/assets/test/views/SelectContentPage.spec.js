@@ -1,14 +1,10 @@
-import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import SelectContentPage from '../../src/views/SelectContentPage';
 import ChannelContentsSummary from '../../src/views/SelectContentPage/ChannelContentsSummary';
 import { makeSelectContentPageStore } from '../utils/makeStore';
+import router from './testRouter';
 
 SelectContentPage.methods.getAvailableSpaceOnDrive = () => {};
-
-const router = new VueRouter({
-  routes: [],
-});
 
 function makeWrapper(options) {
   const { store, props = {} } = options;

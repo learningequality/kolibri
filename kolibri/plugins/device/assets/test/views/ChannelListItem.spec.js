@@ -1,8 +1,8 @@
-import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import ChannelListItem from '../../src/views/ManageContentPage/ChannelListItem';
 import { defaultChannel } from '../utils/data';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
+import router from './testRouter';
 
 const fakeImage = 'data:image/png;base64,abcd1234';
 
@@ -19,27 +19,20 @@ function makeWrapper(options = {}) {
   return mount(ChannelListItem, {
     propsData: { ...defaultProps, ...props },
     store: store || makeAvailableChannelsPageStore(),
-    router: new VueRouter({
-      routes: [
-        {
-          name: 'SELECT_CONTENT',
-          path: '/content/channel/:channel_id',
-        },
-      ],
-    }),
+    router,
   });
 }
 
 // prettier-ignore
 function getElements(wrapper) {
   return {
-    resourcesSizeText: () => wrapper.find('.spec-ref-resources-size').text().trim(),
-    resourcesSize: () => wrapper.find('.spec-ref-resources-size'),
-    onDevice: () => wrapper.find('.spec-ref-on-device'),
+    resourcesSizeText: () => wrapper.find('[data-test="resources-size"]').text().trim(),
+    resourcesSize: () => wrapper.find('[data-test="resources-size"]'),
+    onDevice: () => wrapper.find('[data-test="on-device"]'),
     selectButton: () => wrapper.find({ name: 'KRouterLink' }),
     title: () => wrapper.find('.title').text().trim(),
     version: () => wrapper.find('.version').text().trim(),
-    description: () => wrapper.find('.spec-ref-description').text().trim(),
+    description: () => wrapper.find('[data-test="description"]').text().trim(),
     thumbnail: () => wrapper.find('[data-test="thumbnail"]'),
     addTaskMutation: (task) => wrapper.vm.$store.commit('manageContent/SET_TASK_LIST', [task]),
     dropdownMenu: () => wrapper.find({ name: 'KDropdownMenu' }),

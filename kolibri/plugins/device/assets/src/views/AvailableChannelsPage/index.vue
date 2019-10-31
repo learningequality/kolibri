@@ -6,7 +6,7 @@
       :errorType="status"
     />
 
-    <h1 v-if="status === ''" class="spec-ref-title">
+    <h1 v-if="status === ''" data-test="title">
       <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
       <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
       <span v-else>{{ coreString('channelsLabel') }}</span>
@@ -14,7 +14,7 @@
 
     <KGrid v-if="channelsAreAvailable" class="top-matter">
       <KGridItem :layout12="{ span: 4 }">
-        <p :class="{ 'text-offset': windowIsLarge }" class="spec-ref-available">
+        <p :class="{ 'text-offset': windowIsLarge }" data-test="available">
           {{ $tr('channelsAvailable', { channels: availableChannels.length }) }}
         </p>
       </KGridItem>
@@ -192,7 +192,7 @@
     },
     beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
-      this.setQuery(this.$route.query);
+      this.$store.commit('coreBase/SET_QUERY', this.$route.query);
       if (this.status) {
         this.setAppBarTitle(this.$tr('pageLoadError'));
       } else {
@@ -202,7 +202,6 @@
     methods: {
       ...mapMutations('coreBase', {
         setAppBarTitle: 'SET_APP_BAR_TITLE',
-        setQuery: 'SET_QUERY',
       }),
       toolbarTitle(transferType) {
         switch (transferType) {

@@ -120,7 +120,7 @@
             value: ChannelActions.IMPORT_MORE_FROM_CHANNEL,
           },
           {
-            label: this.coreString('deleteAction'),
+            label: this.$tr('deleteChannelAction'),
             value: ChannelActions.DELETE_CHANNEL,
           },
         ];
@@ -177,6 +177,7 @@
     },
     $trs: {
       importMoreFromChannel: 'Import more',
+      deleteChannelAction: 'Delete channel',
       onYourDevice: 'On your device',
       selectButton: 'Select',
     },

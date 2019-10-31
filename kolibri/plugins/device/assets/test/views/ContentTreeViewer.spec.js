@@ -1,23 +1,20 @@
-import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import omit from 'lodash/fp/omit';
 import ContentTreeViewer from '../../src/views/SelectContentPage/ContentTreeViewer';
 import { makeNode } from '../utils/data';
 import { makeSelectContentPageStore } from '../utils/makeStore';
+import router from './testRouter';
 
 function simplePath(ids) {
   return ids.map(makeNode);
 }
 
-//
 function makeWrapper(options = {}) {
   const { props = {}, store } = options;
   return mount(ContentTreeViewer, {
     propsData: props,
     store: store || makeSelectContentPageStore(),
-    router: new VueRouter({
-      routes: [{ name: 'SELECT_CONTENT_TOPIC', path: 'topic' }],
-    }),
+    router,
   });
 }
 
@@ -28,7 +25,6 @@ function getElements(wrapper) {
     selectAllCheckbox: () => wrapper.findAll({ name: 'KCheckbox' }).filter(el => el.props().label === 'Select all').at(0),
     emptyState: () => wrapper.find('.no-contents'),
     contentsSection: () => wrapper.findAll('.contents'),
-    firstTopicButton: () => wrapper.find({ name: 'ContentNodeRow' }).find('a'),
     contentNodeRows: () => wrapper.findAll({ name: 'ContentNodeRow' }),
     addNodeForTransferMock: () => {
       const mock = wrapper.vm.addNodeForTransfer = jest.fn().mockResolvedValue();
@@ -131,15 +127,6 @@ describe('contentTreeViewer component', () => {
     const { contentsSection, emptyState } = getElements(wrapper);
     expect(contentsSection()).toHaveLength(0);
     expect(emptyState().is('div')).toEqual(true);
-  });
-
-  it('when clicking a topic-title button on a row, a "update topic" action is trigged', () => {
-    const wrapper = makeWrapper({ store });
-    const { firstTopicButton } = getElements(wrapper);
-    const { mock } = (wrapper.vm.updateCurrentTopicNode = jest.fn());
-    firstTopicButton().trigger('click');
-    expect(mock.calls).toHaveLength(1);
-    expect(mock.calls[0][0]).toEqual(wrapper.vm.annotatedChildNodes[0]);
   });
 
   it('child nodes are annotated with their full path', () => {

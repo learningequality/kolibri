@@ -18,8 +18,7 @@
       />
     </transition>
 
-    <KPageContainer>
-      <component :is="currentPage" />
+    <KPageContainer :style="containerStyles">
       <router-view />
     </KPageContainer>
   </CoreBase>
@@ -33,26 +32,7 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ContentWizardPages, PageNames } from '../constants';
   import DeviceTopNav from './DeviceTopNav';
-  import ManageContentPage from './ManageContentPage';
-  import ManagePermissionsPage from './ManagePermissionsPage';
-  import UserPermissionsPage from './UserPermissionsPage';
-  import DeviceInfoPage from './DeviceInfoPage';
   import WelcomeModal from './WelcomeModal';
-  import AvailableChannelsPage from './AvailableChannelsPage';
-  import SelectContentPage from './SelectContentPage';
-  import DeviceSettingsPage from './DeviceSettingsPage';
-  import RearrangeChannelsPage from './RearrangeChannelsPage';
-
-  const pageNameComponentMap = {
-    [PageNames.MANAGE_CONTENT_PAGE]: ManageContentPage,
-    [PageNames.MANAGE_PERMISSIONS_PAGE]: ManagePermissionsPage,
-    [PageNames.USER_PERMISSIONS_PAGE]: UserPermissionsPage,
-    [PageNames.DEVICE_INFO_PAGE]: DeviceInfoPage,
-    [ContentWizardPages.AVAILABLE_CHANNELS]: AvailableChannelsPage,
-    [ContentWizardPages.SELECT_CONTENT]: SelectContentPage,
-    [PageNames.DEVICE_SETTINGS_PAGE]: DeviceSettingsPage,
-    [PageNames.REARRANGE_CHANNELS]: RearrangeChannelsPage,
-  };
 
   export default {
     name: 'DeviceIndex',
@@ -71,8 +51,14 @@
         'immersivePageRoute',
         'inContentManagementPage',
       ]),
-      currentPage() {
-        return pageNameComponentMap[this.pageName];
+      containerStyles() {
+        // Need to override overflow rule for setting page
+        if (this.$route.name === PageNames.DEVICE_SETTINGS_PAGE) {
+          return {
+            overflowX: 'inherit',
+          };
+        }
+        return {};
       },
       currentPageAppBarTitle() {
         if (this.pageName === PageNames.USER_PERMISSIONS_PAGE) {

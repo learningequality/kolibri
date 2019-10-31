@@ -18,12 +18,11 @@
           slot="icon"
           :kind="node.kind"
         />
-        <KButton
+        <KRouterLink
           v-if="showButton"
-          :text="node.title"
-          appearance="basic-link"
           name="select-node"
-          @click="$emit('clicktopic', node)"
+          :text="node.title"
+          :to="getLinkObject(node)"
         />
         <span v-else>
           {{ node.title }}
@@ -50,6 +49,7 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { selectContentTopicLink } from '../ManageContentPage/manageContentLinks';
 
   export default {
     name: 'ContentNodeRow',
@@ -87,7 +87,11 @@
         return !this.disabled && this.node.kind === ContentNodeKinds.TOPIC;
       },
     },
-    $trs: {},
+    methods: {
+      getLinkObject(node) {
+        return selectContentTopicLink(node, this.$route.query, this.$route.params.channel_id);
+      },
+    },
   };
 
 </script>

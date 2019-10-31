@@ -1,11 +1,7 @@
-import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import AvailableChannelsPage from '../../src/views/AvailableChannelsPage';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
-
-const router = new VueRouter({
-  routes: [{ path: '/content/channel/:channel_id', name: 'SELECT_CONTENT' }],
-});
+import router from './testRouter';
 
 function makeWrapper(options = {}) {
   const { store, props = {} } = options;
@@ -22,12 +18,12 @@ function getElements(wrapper) {
   return {
     noChannels: () => wrapper.find('.no-channels'),
     channelsList: () => wrapper.find('.channels-list'),
-    channelsAvailableText: () => wrapper.find('.spec-ref-available').text().trim(),
+    channelsAvailableText: () => wrapper.find('[data-test="available"]').text().trim(),
     channelListItems: () => wrapper.findAll({ name: 'ChannelListItem' }),
     ChannelTokenModal: () => wrapper.find({ name: 'ChannelTokenModal' }),
     filters: () => wrapper.find('.filters'),
     languageFilter: () => wrapper.find({ name: 'KSelect' }),
-    titleText: () => wrapper.find('.spec-ref-title').text().trim(),
+    titleText: () => wrapper.find('[data-test="title"]').text().trim(),
     titleFilter: () => wrapper.find({ name: 'FilterTextbox' }),
     unlistedChannelsSection: () => wrapper.findAll('section.unlisted-channels'),
   }
