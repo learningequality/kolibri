@@ -5,6 +5,7 @@ import { showManageContentPage } from '../modules/manageContent/handlers';
 import { showUserPermissionsPage } from '../modules/userPermissions/handlers';
 import { PageNames } from '../constants';
 import DeleteExportChannelsPage from '../views/ManageContentPage/DeleteExportChannelsPage';
+import RearrangeChannelsPage from '../views/RearrangeChannelsPage';
 import wizardTransitionRoutes from './wizardTransitionRoutes';
 
 function hideLoadingScreen() {
@@ -82,17 +83,17 @@ const routes = [
     props: {
       actionType: 'export',
     },
-    handler() {
-      store.dispatch('preparePage', { name: 'EXPORT_CHANNELS' });
+    handler({ name }) {
+      store.dispatch('preparePage', { name });
       hideLoadingScreen();
     },
   },
   {
     name: 'REARRANGE_CHANNELS',
     path: '/content/rearrange_channels',
-    component: DeleteExportChannelsPage,
-    props: {
-      actionType: 'export',
+    component: RearrangeChannelsPage,
+    handler({ name }) {
+      store.dispatch('preparePage', { name });
     },
   },
   {
@@ -102,8 +103,8 @@ const routes = [
     props: {
       actionType: 'export',
     },
-    handler() {
-      store.dispatch('preparePage', { name: 'REARRANGE_CHANNELS' });
+    handler({ name }) {
+      store.dispatch('preparePage', { name });
     },
   },
   ...wizardTransitionRoutes,
