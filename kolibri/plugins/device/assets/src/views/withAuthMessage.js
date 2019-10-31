@@ -14,7 +14,9 @@ const roleToGetterMap = {
 // Higher-order component that will conditionally render the intended component
 // or AuthMessage, depending on whether a user has permissions
 export default function withAuthMessage(component, authorizedRole) {
+  const originalProps = component.props || [];
   return Vue.component('withAuthMessage', {
+    props: { ...originalProps },
     render(createElement) {
       let canAccess;
 
@@ -35,7 +37,7 @@ export default function withAuthMessage(component, authorizedRole) {
       // If withAuthMessage is configured incorrectly and canAccess ends up undefined,
       // we deny access by default.
       if (canAccess && canAccess()) {
-        return createElement(component);
+        return createElement(component, { props: { ...this.$props } });
       }
       return createElement(AuthMessage, { props: { authorizedRole } });
     },

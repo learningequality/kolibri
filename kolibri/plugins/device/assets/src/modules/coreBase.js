@@ -24,6 +24,7 @@ export default {
         'DELETE_CHANNELS',
         'EXPORT_CHANNELS',
         PageNames.REARRANGE_CHANNELS,
+        'MANAGE_TASKS',
       ].includes(rootState.pageName);
     },
     inContentManagementPage(state, getters, rootState) {
@@ -34,6 +35,7 @@ export default {
         'DELETE_CHANNELS',
         'EXPORT_CHANNELS',
         PageNames.REARRANGE_CHANNELS,
+        'MANAGE_TASKS',
       ].includes(rootState.pageName);
     },
     // NOTE: appBarTitle needs to be set imperatively in handlers and some components,

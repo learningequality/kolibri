@@ -5,11 +5,12 @@ import { showManageContentPage } from '../modules/manageContent/handlers';
 import { showUserPermissionsPage } from '../modules/userPermissions/handlers';
 import { PageNames } from '../constants';
 import DeleteExportChannelsPage from '../views/ManageContentPage/DeleteExportChannelsPage';
-import RearrangeChannelsPage from '../views/RearrangeChannelsPage';
 import DeviceInfoPage from '../views/DeviceInfoPage';
 import DeviceSettingsPage from '../views/DeviceSettingsPage';
 import ManageContentPage from '../views/ManageContentPage';
 import ManagePermissionsPage from '../views/ManagePermissionsPage';
+import ManageTasksPage from '../views/ManageTasksPage';
+import RearrangeChannelsPage from '../views/RearrangeChannelsPage';
 import UserPermissionsPage from '../views/UserPermissionsPage';
 import withAuthMessage from '../views/withAuthMessage';
 import wizardTransitionRoutes from './wizardTransitionRoutes';
@@ -105,17 +106,16 @@ const routes = [
     component: withAuthMessage(RearrangeChannelsPage, 'contentManager'),
     handler({ name }) {
       store.dispatch('preparePage', { name });
+      hideLoadingScreen();
     },
   },
   {
     name: 'MANAGE_TASKS',
     path: '/content/manage_tasks',
-    component: withAuthMessage(DeleteExportChannelsPage, 'contentManager'),
-    props: {
-      actionType: 'export',
-    },
+    component: withAuthMessage(ManageTasksPage, 'contentManager'),
     handler({ name }) {
       store.dispatch('preparePage', { name });
+      hideLoadingScreen();
     },
   },
   ...wizardTransitionRoutes,

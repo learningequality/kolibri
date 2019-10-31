@@ -441,6 +441,18 @@ class TasksViewSet(viewsets.ViewSet):
         return Response({})
 
     @list_route(methods=["post"])
+    def cleartask(self, request):
+        # Given a single task ID, clear it from the queue
+        task_id = request.data.get("task_id")
+        if task_id:
+            get_queue().clear_job(task_id)
+            return Response({
+                "task_id": task_id,
+            })
+        else:
+            return Response({})
+
+    @list_route(methods=["post"])
     def deletefinishedtasks(self, request):
         """
         Delete all tasks that have succeeded, failed, or been cancelled.

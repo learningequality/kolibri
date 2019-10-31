@@ -163,16 +163,15 @@
       handleClickModalSubmit(params = {}) {
         this.$store.dispatch('createTaskStartedSnackbar');
         this.showModal = false;
+
         if (this.deleteMode) {
           this.allChannels = this.allChannels.filter(
             c => !find(this.selectedChannels, { id: c.id })
           );
-          this.selectedChannels = [];
           TaskResource.deleteBulkChannels({
             channelIds: this.selectedChannels.map(({ id }) => ({ channel_id: id })),
           });
         } else {
-          this.selectedChannels = [];
           TaskResource.startDiskBulkExport(
             this.selectedChannels.map(({ id }) => ({
               channel_id: id,
@@ -180,6 +179,8 @@
             }))
           );
         }
+
+        this.selectedChannels = [];
       },
       channelIsSelected(channel) {
         return Boolean(find(this.selectedChannels, { id: channel.id }));
