@@ -64,25 +64,27 @@
 
           <div class="side-nav-scrollable-area-footer" :style="{ color: $themeTokens.annotation }">
             <!-- custom branded footer logo + text -->
-            <img
-              v-if="$theme.sideNav.brandedFooter.logo"
-              class="side-nav-scrollable-area-footer-logo"
-              :src="$theme.sideNav.brandedFooter.logo.src"
-              :alt="$theme.sideNav.brandedFooter.logo.alt"
-              :style="$theme.sideNav.brandedFooter.logo.style"
-            >
-            <div
-              v-if="$theme.sideNav.brandedFooter.paragraphArray
-                && $theme.sideNav.brandedFooter.paragraphArray.length"
-              class="side-nav-scrollable-area-footer-info"
-            >
-              <p
-                v-for="(line, index) in $theme.sideNav.brandedFooter.paragraphArray"
-                :key="index"
+            <template v-if="$theme.sideNav.brandedFooter">
+              <img
+                v-if="$theme.sideNav.brandedFooter.logo"
+                class="side-nav-scrollable-area-footer-logo"
+                :src="$theme.sideNav.brandedFooter.logo.src"
+                :alt="$theme.sideNav.brandedFooter.logo.alt"
+                :style="$theme.sideNav.brandedFooter.logo.style"
               >
-                {{ line }}
-              </p>
-            </div>
+              <div
+                v-if="$theme.sideNav.brandedFooter.paragraphArray
+                  && $theme.sideNav.brandedFooter.paragraphArray.length"
+                class="side-nav-scrollable-area-footer-info"
+              >
+                <p
+                  v-for="(line, index) in $theme.sideNav.brandedFooter.paragraphArray"
+                  :key="index"
+                >
+                  {{ line }}
+                </p>
+              </div>
+            </template>
             <!-- Kolibri footer logo -->
             <CoreLogo
               v-if="$theme.sideNav.showKolibriFooterLogo"
