@@ -94,6 +94,14 @@ const routes = [
     props: {
       actionType: 'export',
     },
+  },
+  {
+    name: 'MANAGE_TASKS',
+    path: '/content/manage_tasks',
+    component: DeleteExportChannelsPage,
+    props: {
+      actionType: 'export',
+    },
     handler() {
       store.dispatch('preparePage', { name: 'REARRANGE_CHANNELS' });
       hideLoadingScreen();

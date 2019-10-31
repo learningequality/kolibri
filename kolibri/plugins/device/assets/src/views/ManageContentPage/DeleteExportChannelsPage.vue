@@ -161,7 +161,7 @@
         this.showModal = true;
       },
       handleClickModalSubmit(params = {}) {
-        this.$store.dispatch('createSnackbar', 'Task started');
+        this.$store.dispatch('createTaskStartedSnackbar');
         this.showModal = false;
         if (this.deleteMode) {
           this.allChannels = this.allChannels.filter(
