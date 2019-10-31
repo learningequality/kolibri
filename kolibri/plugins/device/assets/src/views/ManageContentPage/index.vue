@@ -36,12 +36,6 @@
               :primary="true"
               @click="startImportWorkflow()"
             />
-            <KButton
-              v-if="deviceHasChannels"
-              :text="$tr('export')"
-              class="flush-right"
-              @click="startExportWorkflow()"
-            />
           </KGridItem>
         </KGrid>
 
@@ -109,12 +103,7 @@
       },
     },
     methods: {
-      ...mapActions('manageContent', [
-        'cancelTask',
-        'refreshChannelList',
-        'startImportWorkflow',
-        'startExportWorkflow',
-      ]),
+      ...mapActions('manageContent', ['cancelTask', 'refreshChannelList', 'startImportWorkflow']),
       cancelRunningTask(taskId) {
         this.cancelTask(taskId)
           // Handle failures silently in case of near-simultaneous cancels.
@@ -134,7 +123,6 @@
     },
     $trs: {
       import: 'Import',
-      export: 'Export',
       noAccessDetails:
         'You must be signed in as a superuser or have content management permissions to view this page',
       documentTitle: 'Manage Device Channels',
@@ -147,10 +135,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .flush-right {
-    margin-right: 0;
-  }
-
-</style>
+<style lang="scss" scoped></style>
