@@ -124,13 +124,12 @@
         return TaskResource.deleteFinishedTasks();
       },
       handleSelect({ value }) {
-        if (value === 'DELETE') {
-          this.$router.push(this.$router.getRoute('DELETE_CHANNELS'));
-        } else if (value === 'EXPORT') {
-          this.$router.push(this.$router.getRoute('EXPORT_CHANNELS'));
-        } else {
-          console.log('go to rearrangeChannels');
-        }
+        const nextRoute = {
+          DELETE: 'DELETE_CHANNELS',
+          EXPORT: 'EXPORT_CHANNELS',
+          REARRANGE: 'REARRANGE_CHANNELS',
+        }[value];
+        this.$router.push(this.$router.getRoute(nextRoute));
       },
     },
     $trs: {

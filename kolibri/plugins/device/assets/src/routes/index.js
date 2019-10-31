@@ -87,6 +87,18 @@ const routes = [
       hideLoadingScreen();
     },
   },
+  {
+    name: 'REARRANGE_CHANNELS',
+    path: '/content/rearrange_channels',
+    component: DeleteExportChannelsPage,
+    props: {
+      actionType: 'export',
+    },
+    handler() {
+      store.dispatch('preparePage', { name: 'REARRANGE_CHANNELS' });
+      hideLoadingScreen();
+    },
+  },
   ...wizardTransitionRoutes,
   {
     path: '/content/*',
