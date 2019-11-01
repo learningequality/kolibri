@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.views.generic import View
 from kolibri.core.content.api import ContentNodeSearchViewset
+from kolibri.core.decorators import query_params_required
 
 
 class Descriptor(View):
@@ -22,10 +23,13 @@ class Descriptor(View):
         return HttpResponse(xml, content_type="application/opensearchdescription+xml; charset=utf-8")
 
 
+
+@query_params_required(q=str)
 class Search(View):
     def get(self, request):
+        value = self.kwargs["q"]
         search_set = ContentNodeSearchViewset()
-        results, channel_ids, content_kinds, total_results = search_set.search("electricidad", 100, filter=False)
+        results, channel_ids, content_kinds, total_results = search_set.search(value, 100, filter=False)
         xml = ""
         for result in results:
             node_link = request.build_absolute_uri(
