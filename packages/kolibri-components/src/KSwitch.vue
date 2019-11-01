@@ -7,6 +7,7 @@
         ref="input"
         class="k-switch-input"
         type="checkbox"
+        dir="auto"
 
         :checked.prop="isChecked"
         :disabled="disabled"
@@ -92,6 +93,7 @@
           { 'is-active': this.isActive },
           { 'is-checked': this.isChecked },
           { 'is-disabled': this.disabled },
+          { 'is-rtl': this.isRtl },
         ];
       },
     },
@@ -141,9 +143,15 @@
     align-items: center;
     height: $k-switch-height;
 
-    &.is-checked {
+    &.is-checked:not(.is-rtl) {
       .k-switch-thumb {
         transform: translateX($k-switch-track-width - $k-switch-thumb-size);
+      }
+    }
+
+    &.is-checked.is-rtl {
+      .k-switch-thumb {
+        transform: translateX($k-switch-track-width - ($k-switch-thumb-size * 2.5));
       }
     }
 
@@ -162,6 +170,9 @@
         color: rgba(0, 0, 0, 0.38);
         cursor: default;
       }
+    }
+    &.is-rtl {
+      direction: rtl;
     }
   }
 
