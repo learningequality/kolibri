@@ -4,7 +4,6 @@
     v-bind="immersiveProperties"
     :appBarTitle="appBarTitle"
     :fullScreen="pageName === PageNames.SIGN_IN"
-    maxMainWidth="100%"
   >
     <component :is="currentPage" />
   </CoreBase>

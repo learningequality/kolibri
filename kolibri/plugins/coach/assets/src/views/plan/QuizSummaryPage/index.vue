@@ -5,7 +5,7 @@
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
-    maxMainWidth="1440px"
+    :maxMainWidth="1440"
   >
 
     <TopNavbar slot="sub-nav" />

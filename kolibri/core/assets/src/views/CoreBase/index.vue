@@ -274,9 +274,9 @@
         default: false,
       },
       maxMainWidth: {
-        type: String,
+        type: Number,
         required: false,
-        default: '1000px',
+        default: 1000,
       },
     },
     data() {
@@ -340,11 +340,14 @@
         };
       },
       mainStyles() {
-        return {
-          maxWidth: this.maxMainWidth,
+        let styles = {
           marginLeft: 'auto',
           marginRight: 'auto',
         };
+        if (!this.fullScreen) {
+          styles['maxWidth'] = this.maxMainWidth + 'px';
+        }
+        return styles;
       },
       fixedAppBar() {
         return this.windowIsLarge && !this.windowIsShort;
