@@ -6,7 +6,7 @@
       class="snackbar-backdrop"
     >
     </div>
-    <transition name="snackbar">
+    <transition name="snackbar" @leave-to="clearSnackbar">
       <UiSnackbar
         v-show="isVisible"
         ref="snackbar"
@@ -14,7 +14,7 @@
         :message="text"
         :action="actionText"
         tabindex="0"
-        @action-click="$emit('actionClicked')"
+        @action-click="handleActionClick"
       />
     </transition>
   </div>
@@ -77,7 +77,6 @@
       }
     },
     beforeDestroy() {
-      this.isVisible = false;
       if (this.timeout) {
         window.clearTimeout(this.timeout);
       }
@@ -89,8 +88,8 @@
     methods: {
       ...mapActions(['clearSnackbar']),
       hideSnackbar() {
+        this.isVisible = false;
         this.$emit('hide');
-        this.clearSnackbar();
       },
       containFocus(event) {
         if (event.target === window) {
@@ -100,6 +99,10 @@
           this.$refs.snackbar.$el.focus();
         }
       },
+      handleActionClick() {
+        this.isVisible = false;
+        this.$emit('actionClicked');
+      },
     },
   };
 
@@ -107,6 +110,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '~kolibri.styles.definitions';
 
   .snackbar {
     position: fixed;
@@ -126,9 +131,16 @@
     background-color: rgba(0, 0, 0, 0.7);
   }
 
+  .snackbar-enter-active {
+    @extend %md-decelerate-func;
+  }
+
+  .snackbar-leave-active {
+    @extend %md-accelerate-func;
+  }
+
   .snackbar-enter-active,
   .snackbar-leave-active {
-    transition-timing-function: ease;
     transition-duration: 0.4s;
     transition-property: transform, opacity;
   }
