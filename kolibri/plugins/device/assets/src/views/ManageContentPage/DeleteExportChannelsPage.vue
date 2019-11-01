@@ -6,7 +6,7 @@
         <h1>{{ $tr('channelsOnDevice') }}</h1>
       </template>
 
-      <template v-slot:default="{filteredItems}">
+      <template v-slot:default="{filteredItems, showItem}">
         <KCheckbox
           v-if="filteredItems.length > 0"
           class="select-all-checkbox"
@@ -16,7 +16,7 @@
         />
         <ChannelCard
           v-for="channel in allChannels"
-          v-show="channelIsShown(channel, filteredItems)"
+          v-show="showItem(channel)"
           :key="channel.id"
           :channel="channel"
           :selectedMessage="channelSelectedMessage(channel)"
@@ -200,9 +200,6 @@
         } else {
           this.selectedChannels = this.selectedChannels.filter(({ id }) => id !== channel.id);
         }
-      },
-      channelIsShown(channel, filteredItems) {
-        return Boolean(find(filteredItems, { id: channel.id }));
       },
       channelSelectedMessage(channel) {
         if (this.channelIsSelected(channel)) {

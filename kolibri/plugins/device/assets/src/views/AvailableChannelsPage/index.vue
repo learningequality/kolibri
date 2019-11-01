@@ -6,85 +6,61 @@
       :errorType="status"
     />
 
-    <h1 v-if="status === ''" data-test="title">
-      <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
-      <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
-      <span v-else>{{ coreString('channelsLabel') }}</span>
-    </h1>
+    <FilteredChannelListContainer :channels="availableChannels">
+      <template v-slot:header>
+        <h1 v-if="status === ''" data-test="title">
+          <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
+          <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
+          <span v-else>{{ coreString('channelsLabel') }}</span>
+        </h1>
+      </template>
 
-    <KGrid v-if="channelsAreAvailable" class="top-matter">
-      <KGridItem :layout12="{ span: 4 }">
-        <p :class="{ 'text-offset': windowIsLarge }" data-test="available">
-          {{ $tr('channelsAvailable', { channels: availableChannels.length }) }}
+      <template v-slot:abovechannels>
+        <section
+          v-if="showUnlistedChannels"
+          class="unlisted-channels"
+        >
+          <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
+
+          <KButton
+            :text="$tr('channelTokenButtonLabel')"
+            appearance="basic-link"
+            name="showtokenmodal"
+            @click="showTokenModal=true"
+          />
+        </section>
+      </template>
+
+      <template v-slot:default="{filteredItems, showItem}">
+        <p v-if="!channelsAreAvailable && !status">
+          {{ $tr('noChannelsAvailable') }}
         </p>
-      </KGridItem>
-      <KGridItem :layout8="{ span: 3 }" :layout12="{ span: 3, alignment: 'right' }">
-        <KSelect
-          v-model="languageFilter"
-          class="align-left"
-          :options="languageFilterOptions"
-          :label="$tr('languageFilterLabel')"
-          :inline="true"
-        />
-      </KGridItem>
-      <KGridItem :layout8="{ span: 5 }" :layout12="{ span: 5 }">
-        <FilterTextbox
-          v-model="titleFilter"
-          :class="{ 'search-box-offset': !windowIsSmall }"
-          :placeholder="$tr('titleFilterPlaceholder')"
-          class="seach-box"
-        />
-      </KGridItem>
-    </KGrid>
 
-    <section
-      v-if="showUnlistedChannels"
-      class="unlisted-channels"
-    >
-      <ChannelTokenModal
-        v-if="showTokenModal"
-        @cancel="showTokenModal=false"
-        @submit="goToSelectContentPageForChannel"
-      />
-      <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
+        <div v-else>
+          <ChannelListItem
+            v-for="channel in filteredItems"
+            v-show="showItem(channel)"
+            :key="channel.id"
+            :channel="channel"
+            :onDevice="channelIsOnDevice(channel)"
+            :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
+            @clickselect="goToSelectContentPageForChannel(channel)"
+          />
+        </div>
+      </template>
+    </FilteredChannelListContainer>
 
-      <KButton
-        :text="$tr('channelTokenButtonLabel')"
-        appearance="basic-link"
-        name="showtokenmodal"
-        @click="showTokenModal=true"
-      />
-    </section>
-
+    <ChannelTokenModal
+      v-if="showTokenModal"
+      @cancel="showTokenModal=false"
+      @submit="goToSelectContentPageForChannel"
+    />
     <KLinearLoader
       v-if="channelsAreLoading"
       type="indeterminate"
       :delay="false"
     />
 
-    <!-- Similar code in channels-grid -->
-    <div v-if="channelsAreAvailable">
-      <div class="channel-list-header" :style="{ color: $themeTokens.annotation }">
-        {{ coreString('channelsLabel') }}
-      </div>
-
-      <div>
-        <ChannelListItem
-          v-for="channel in availableChannels"
-          v-show="channelIsVisible(channel)"
-          :key="channel.id"
-          :channel="channel"
-          :onDevice="channelIsOnDevice(channel)"
-          :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
-          @clickselect="goToSelectContentPageForChannel(channel)"
-        />
-      </div>
-    </div>
-    <p v-else>
-      <span v-if="!status">
-        {{ $tr('noChannelsAvailable') }}
-      </span>
-    </p>
   </div>
 
 </template>
@@ -93,17 +69,14 @@
 <script>
 
   import { mapState, mapMutations, mapGetters } from 'vuex';
-  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import uniqBy from 'lodash/uniqBy';
   import ChannelListItem from '../ManageContentPage/ChannelListItem';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
   import { TransferTypes } from '../../constants';
+  import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
   import ChannelTokenModal from './ChannelTokenModal';
-
-  const ALL_FILTER = 'ALL';
 
   export default {
     name: 'AvailableChannelsPage',
@@ -116,13 +89,11 @@
       ChannelListItem,
       ChannelTokenModal,
       ContentWizardUiAlert,
-      FilterTextbox,
+      FilteredChannelListContainer,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
-        languageFilter: {},
-        titleFilter: '',
         showTokenModal: false,
       };
     },
@@ -162,26 +133,11 @@
       channelsAreLoading() {
         return this.status === 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO';
       },
-      languageFilterOptions() {
-        const codes = uniqBy(this.availableChannels, 'lang_code')
-          .map(({ lang_name, lang_code }) => ({
-            value: lang_code,
-            label: lang_name,
-          }))
-          .filter(x => x.value);
-        return [this.allLanguagesOption, ...codes];
-      },
       channelsAreAvailable() {
         return !this.channelsAreLoading && this.availableChannels.length > 0;
       },
       showUnlistedChannels() {
         return this.channelsAreAvailable && (this.inRemoteImportMode || this.isStudioApplication);
-      },
-      allLanguagesOption() {
-        return {
-          label: this.$tr('allLanguages'),
-          value: ALL_FILTER,
-        };
       },
     },
     watch: {
@@ -191,7 +147,6 @@
       },
     },
     beforeMount() {
-      this.languageFilter = { ...this.allLanguagesOption };
       this.$store.commit('coreBase/SET_QUERY', this.$route.query);
       if (this.status) {
         this.setAppBarTitle(this.$tr('pageLoadError'));
@@ -232,34 +187,12 @@
           })
         );
       },
-      channelIsVisible(channel) {
-        let languageMatches = true;
-        let titleMatches = true;
-        let isOnDevice = true;
-        if (this.inExportMode) {
-          isOnDevice = this.channelIsOnDevice(channel);
-        }
-        if (this.languageFilter.value !== ALL_FILTER) {
-          languageMatches = channel.lang_code === this.languageFilter.value;
-        }
-        if (this.titleFilter) {
-          // Similar code in userSearchUtils
-          const tokens = this.titleFilter.split(/\s+/).map(val => val.toLowerCase());
-          titleMatches = tokens.every(token => channel.name.toLowerCase().includes(token));
-        }
-        return languageMatches && titleMatches && isOnDevice;
-      },
     },
     $trs: {
-      allLanguages: 'All languages',
-      channelsAvailable:
-        '{channels, number, integer} {channels, plural, one {channel} other {channels} } available',
       exportToDisk: 'Export to {driveName}',
       importFromDisk: 'Import from {driveName}',
       importFromPeer: 'Import from {deviceName} ({address})',
       kolibriCentralServer: 'Kolibri Studio',
-      languageFilterLabel: 'Language',
-      titleFilterPlaceholder: 'Search for a channel…',
       yourChannels: 'Your channels',
       channelTokenButtonLabel: 'Try adding a token',
       channelNotListedExplanation: "Don't see your channel listed?",

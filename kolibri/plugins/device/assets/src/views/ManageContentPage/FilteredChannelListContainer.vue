@@ -20,11 +20,14 @@
           v-model="titleFilter"
           class="filter-title"
           :placeholder="$tr('titleFilterPlaceholder')"
+          :throttleInput="500"
         />
       </div>
     </div>
 
-    <slot :filteredItems="filteredItems"></slot>
+    <slot name="abovechannels"></slot>
+
+    <slot :filteredItems="filteredItems" :showItem="showItem"></slot>
 
     <div v-if="filteredItems.length === 0" class="no-match">
       {{ noMatchMsg }}
@@ -36,6 +39,7 @@
 
 <script>
 
+  import find from 'lodash/find';
   import uniqBy from 'lodash/uniqBy';
   import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
@@ -58,6 +62,11 @@
       };
     },
     computed: {
+      showItem() {
+        return function(channel) {
+          return Boolean(find(this.filteredItems, { id: channel.id }));
+        }.bind(this);
+      },
       allLanguagesOption() {
         return {
           label: this.$tr('allLanguages'),
@@ -135,6 +144,7 @@
 
   .count-msg {
     flex-grow: 1;
+    max-width: 200px;
     margin: 0;
   }
 
@@ -143,6 +153,10 @@
     flex-grow: 1;
     flex-wrap: wrap;
     margin-left: 16px;
+  }
+
+  .filter-lang {
+    min-width: 240px;
   }
 
   .filter-title {
