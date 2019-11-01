@@ -48,9 +48,10 @@ export default {
       store.commit('CORE_CREATE_SNACKBAR', {
         text: TaskSnackbarStrings.$tr('taskStarted'),
         autoDismiss: true,
+        duration: 5000,
         actionText: TaskSnackbarStrings.$tr('viewTasks'),
         actionCallback() {
-          router.push({ name: 'TASK_MANAGER_PAGE' });
+          router.push({ name: 'MANAGE_TASKS' });
         },
       });
     },

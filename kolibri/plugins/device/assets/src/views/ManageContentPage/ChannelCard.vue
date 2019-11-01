@@ -89,6 +89,7 @@
     min-width: 150px;
 
     .selected {
+      margin: 0;
       text-align: right;
     }
   }
