@@ -1,3 +1,4 @@
+import router from 'kolibri.coreVue.router';
 import { ContentWizardPages, PageNames } from '../constants';
 
 export default {
@@ -41,6 +42,11 @@ export default {
     // NOTE: appBarTitle needs to be set imperatively in handlers and some components,
     // but the back-button location should be a function of pageName.
     immersivePageRoute(state, getters, rootState, rootGetters) {
+      if (router.currentRoute.query.last) {
+        return {
+          name: router.currentRoute.query.last,
+        };
+      }
       // In all Import/Export pages, go back to ManageContentPage
       if (getters.inContentManagementPage) {
         // If a user is selecting content, they should return to the content

@@ -164,6 +164,10 @@
       }
     }
 
+    .col-2 {
+      margin-top: 8px;
+    }
+
     .col-2-row-1 {
       margin-bottom: 0;
 
