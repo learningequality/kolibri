@@ -1,0 +1,14 @@
+steps:
+  - block: "Build :android:?"
+  # TODO make this independantly triggerable
+  # Only block when build is triggered by another build
+  # - if: build.source == "trigger_job"
+  - label: "Downloading Kolibri WHL File"
+    commands:
+    - "mkdir whl"
+    - "buildkite-agent artifact download 'dist/*.whl' whl/ --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}"
+  - label: "Building the APK"
+    command:
+    - "make rundocker"
+  - label: "Upload Artifact"
+    command: buildkite-agent artifact upload '*-release.apk'
