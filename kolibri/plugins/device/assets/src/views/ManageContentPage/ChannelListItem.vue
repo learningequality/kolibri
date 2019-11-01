@@ -9,21 +9,20 @@
       :channel="channel"
       :versionNumber="versionNumber"
     >
-      <template v-slot:belowname>
-        <UiIcon v-if="isPrivateChannel" class="icon">
-          <mat-svg name="lock_open" category="action" />
-        </UiIcon>
+      <template v-if="isPrivateChannel" v-slot:belowname>
+        <KIcon
+          class="lock-icon"
+          icon="privatechannel"
+        />
       </template>
 
       <template v-slot:abovedescription>
         <div v-if="inImportMode && onDevice" class="on-device">
-          <UiIcon class="icon">
-            <mat-svg
-              category="action"
-              name="check_circle"
-              :style="{ fill: $themeTokens.success }"
-            />
-          </UiIcon>
+          <KIcon
+            class="check-icon"
+            icon="correct"
+            :style="{fill: $themeTokens.success}"
+          />
           <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
         </div>
       </template>
@@ -36,12 +35,6 @@
       </template>
     </ChannelDetailPanel>
 
-    <div class="col-2">
-      <div v-if="inExportMode || inManageMode" dir="auto" class="spec-ref-resources-size">
-        {{ resourcesSizeText }}
-      </div>
-    </div>
-
     <div class="col-3">
       <KRouterLink
         v-if="inImportMode || inExportMode"
@@ -49,13 +42,6 @@
         :disabled="tasksInQueue"
         :to="selectContentLink"
         appearance="raised-button"
-      />
-      <KDropdownMenu
-        v-if="inManageMode"
-        :text="coreString('optionsLabel')"
-        :disabled="tasksInQueue"
-        :options="manageChannelActions"
-        @select="handleManageChannelAction($event.value)"
       />
     </div>
 
@@ -66,11 +52,12 @@
 
 <script>
 
+  // ChannelPanel with Details, Select Topics Button
+  // Private Channel Icon
+  // Resources on Device Indicator
   import { mapGetters } from 'vuex';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import UiIcon from 'keen-ui/src/UiIcon';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { selectContentPageLink } from './manageContentLinks';
   import ChannelDetailPanel from './ChannelDetailPanel';
@@ -81,17 +68,11 @@
     MANAGE: 'MANAGE',
   };
 
-  const ChannelActions = {
-    DELETE_CHANNEL: 'DELETE_CHANNEL',
-    IMPORT_MORE_FROM_CHANNEL: 'IMPORT_MORE_FROM_CHANNEL',
-  };
-
   export default {
     name: 'ChannelListItem',
     components: {
       CoachContentLabel,
       ChannelDetailPanel,
-      UiIcon,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
@@ -113,34 +94,16 @@
     },
     computed: {
       ...mapGetters('manageContent', ['channelIsInstalled', 'activeTaskList']),
-      manageChannelActions() {
-        return [
-          {
-            label: this.$tr('importMoreFromChannel'),
-            value: ChannelActions.IMPORT_MORE_FROM_CHANNEL,
-          },
-          {
-            label: this.$tr('deleteChannelAction'),
-            value: ChannelActions.DELETE_CHANNEL,
-          },
-        ];
-      },
       inImportMode() {
         return this.mode === Modes.IMPORT;
       },
       inExportMode() {
         return this.mode === Modes.EXPORT;
       },
-      inManageMode() {
-        return this.mode === Modes.MANAGE;
-      },
       isPrivateChannel() {
         // This is only defined when entering a remote import workflow,
         // so false !== undefined.
         return this.channel.public === false;
-      },
-      resourcesSizeText() {
-        return bytesForHumans(this.channel.on_device_file_size);
       },
       tasksInQueue() {
         return this.activeTaskList.length > 0;
@@ -167,19 +130,9 @@
         };
       },
     },
-    methods: {
-      handleManageChannelAction(action) {
-        if (action === ChannelActions.DELETE_CHANNEL) {
-          return this.$emit('clickdelete');
-        }
-        return this.$emit('import_more', { ...this.channel });
-      },
-    },
     $trs: {
-      importMoreFromChannel: 'Import more',
-      deleteChannelAction: 'Delete channel',
-      onYourDevice: 'On your device',
-      selectButton: 'Select',
+      onYourDevice: 'Resources on device',
+      selectButton: 'Select topics',
     },
   };
 
@@ -190,45 +143,59 @@
 
   .channel-list-item {
     display: flex;
-    padding: 16px;
+    padding: 32px 0;
   }
 
   .channel-list-item-sm {
     flex-direction: column;
+    padding: 16px 0;
+  }
 
-    .col-3 {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      margin-top: 16px;
-    }
+  svg.lock-icon {
+    width: 24px;
+    height: 24px;
 
-    .col-2 {
-      align-self: flex-end;
-      order: -1;
-      margin-right: 0;
+    .channel-list-item-sm & {
+      width: 20px;
+      height: 20px;
     }
+  }
 
-    .on-device {
-      font-size: 0.85rem;
-    }
+  .check-icon {
+    margin-bottom: 2px;
   }
 
   .col-2 {
     min-width: 80px;
     margin-right: 16px;
     text-align: right;
+
+    .channel-list-item-sm & {
+      align-self: flex-end;
+      order: -1;
+      margin-right: 0;
+    }
   }
 
   .col-3 {
-    // raises button to align better with other test
-    margin-top: -8px;
+    display: flex;
+    align-items: center;
+
+    .channel-list-item-sm & {
+      flex-direction: column;
+      align-items: flex-end;
+      margin-top: 16px;
+    }
   }
 
   .on-device {
     display: flex;
     align-items: center;
     margin: 8px 0;
+
+    .channel-list-item-sm & {
+      font-size: 0.85rem;
+    }
   }
 
   .on-device-text {

@@ -20,10 +20,10 @@
       />
     </div>
 
-    <div class="col-2">
+    <div class="col-2" dir="auto">
       <div class="col-2-row-1">
         <div>
-          <h2 class="channel-name" dir="auto">
+          <h2 class="channel-name">
             {{ channel.name }}
           </h2>
           <slot name="belowname"></slot>
@@ -32,9 +32,10 @@
           </p>
         </div>
       </div>
+
       <div>
         <slot name="abovedescription"></slot>
-        <p dir="auto">
+        <p class="description">
           {{ channel.description || $tr('defaultDescription') }}
         </p>
         <slot name="belowdescription"></slot>
@@ -120,6 +121,10 @@
     flex-direction: column;
     flex-grow: 2;
     align-items: stretch;
+
+    .description {
+      max-width: 500px;
+    }
 
     .col-2-row-1 {
       display: flex;

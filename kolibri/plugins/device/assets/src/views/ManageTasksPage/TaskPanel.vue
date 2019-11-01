@@ -73,6 +73,7 @@
     DISKCONTENTIMPORT: 'importingChannel',
     DISKEXPORT: 'exportingChannel',
     DELETECHANNEL: 'deletingChannel',
+    UPDATECHANNEL: 'updatingChannelVersion',
   };
 
   const statusToTrMap = {

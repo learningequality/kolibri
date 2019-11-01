@@ -1,7 +1,6 @@
 <template>
 
   <div>
-    <SelectTransferSourceModal :pageName="pageName" />
 
     <div>
       <TaskProgress
@@ -24,7 +23,7 @@
           :layout12="{ span: 6, alignment: 'right' }"
         >
           <KDropdownMenu
-            v-if="deviceHasChannels"
+            v-if="installedChannelsWithResources.length > 0"
             appearance="raised-button"
             :text="coreString('optionsLabel')"
             :options="dropdownOptions"
@@ -38,8 +37,24 @@
         </KGridItem>
       </KGrid>
 
-      <ChannelsGrid />
+      <div class="channels-list">
+        <ChannelPanel
+          v-for="channel in installedChannelsWithResources"
+          :key="channel.id"
+          :channel="channel"
+          @select_delete="deleteChannelId = channel.id"
+          @select_manage="startImportWorkflow(channel)"
+        />
+      </div>
 
+      <SelectTransferSourceModal :pageName="pageName" />
+
+      <DeleteChannelModal
+        v-if="deleteChannelId"
+        :channelTitle="selectedChannelTitle"
+        @submit="handleDeleteChannel"
+        @cancel="deleteChannelId=null"
+      />
     </div>
   </div>
 
@@ -51,9 +66,10 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
-  import ChannelsGrid from './ChannelsGrid';
   import TaskProgress from './TaskProgress';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
+  import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
+  import DeleteChannelModal from './DeleteChannelModal';
 
   export default {
     name: 'ManageContentPage',
@@ -63,17 +79,20 @@
       };
     },
     components: {
-      ChannelsGrid,
+      ChannelPanel,
+      DeleteChannelModal,
       SelectTransferSourceModal,
       TaskProgress,
     },
     mixins: [commonCoreStrings],
+    data() {
+      return {
+        deleteChannelId: null,
+      };
+    },
     computed: {
-      ...mapGetters('manageContent', ['activeTaskList']),
+      ...mapGetters('manageContent', ['activeTaskList', 'installedChannelsWithResources']),
       ...mapState('manageContent/wizard', ['pageName']),
-      ...mapState('manageContent', {
-        deviceHasChannels: state => state.channelList.filter(c => c.available).length > 0,
-      }),
       dropdownOptions() {
         return [
           { label: this.$tr('exportChannels'), value: 'EXPORT' },
@@ -92,7 +111,12 @@
       },
     },
     methods: {
-      ...mapActions('manageContent', ['cancelTask', 'refreshChannelList', 'startImportWorkflow']),
+      ...mapActions('manageContent', [
+        'cancelTask',
+        'refreshChannelList',
+        'startImportWorkflow',
+        'triggerChannelDeleteTask',
+      ]),
       cancelRunningTask(taskId) {
         this.cancelTask(taskId)
           // Handle failures silently in case of near-simultaneous cancels.
@@ -108,6 +132,13 @@
           REARRANGE: 'REARRANGE_CHANNELS',
         }[value];
         this.$router.push(this.$router.getRoute(nextRoute));
+      },
+      handleDeleteChannel() {
+        if (this.deleteChannelId) {
+          const channelId = this.selectedChannelId;
+          this.deleteChannelId = null;
+          this.triggerChannelDeleteTask(channelId);
+        }
       },
     },
     $trs: {
