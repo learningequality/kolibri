@@ -26,6 +26,7 @@
   <mat-svg v-else-if="icon ==='video'" name="ondemand_video" category="notification" :style="style" />
   <mat-svg v-else-if="icon ==='slideshow'" name="photo_library" category="image" :style="style" />
   <mat-svg v-else-if="icon ==='privatechannel'" name="lock_open" category="action" :style="style" />
+  <mat-svg v-else-if="icon ==='multiple'" name="view_module" category="action" :style="style" />
   <!-- users -->
   <mat-svg v-else-if="icon ==='classroom'" name="business" category="communication" :style="style" />
   <mat-svg v-else-if="icon ==='group'" category="action" name="group_work" :style="style" />
@@ -87,6 +88,7 @@
     'html5',
     'slideshow',
     'privatechannel',
+    'multiple',
     // users
     'classroom',
     'group',

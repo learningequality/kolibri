@@ -29,6 +29,13 @@
             @click="showTokenModal=true"
           />
         </section>
+
+        <section class="import-multiple">
+          <KButton @click="goToImportMultiple">
+            <KIcon icon="multiple" class="multiple-icon" />
+            {{ $tr('importMultipleAction') }}
+          </KButton>
+        </section>
       </template>
 
       <template v-slot:default="{filteredItems, showItem}">
@@ -177,6 +184,9 @@
         const match = this.installedChannelsWithResources.find(({ id }) => id === channel.id);
         return Boolean(match);
       },
+      goToImportMultiple() {
+        console.log('import multiple');
+      },
       goToSelectContentPageForChannel(channel) {
         this.$router.push(
           selectContentPageLink({
@@ -192,7 +202,8 @@
       exportToDisk: 'Export to {driveName}',
       importFromDisk: 'Import from {driveName}',
       importFromPeer: 'Import from {deviceName} ({address})',
-      kolibriCentralServer: 'Kolibri Studio',
+      kolibriCentralServer: 'Kolibri Studio channels',
+      importMultipleAction: 'Import multiple',
       yourChannels: 'Your channels',
       channelTokenButtonLabel: 'Try adding a token',
       channelNotListedExplanation: "Don't see your channel listed?",
@@ -212,6 +223,20 @@
   .channel-list-header {
     padding: 16px 0;
     font-size: 14px;
+  }
+
+  svg.multiple-icon {
+    width: 24px;
+    height: 24px;
+    margin: 0 4px -5px -2px;
+  }
+
+  .import-multiple {
+    margin: 24px 0;
+
+    button {
+      margin: 0;
+    }
   }
 
   .top-matter {

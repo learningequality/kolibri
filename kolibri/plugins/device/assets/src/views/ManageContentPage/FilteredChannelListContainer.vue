@@ -147,7 +147,7 @@
     },
     $trs: {
       languageFilterLabel: 'Language',
-      titleFilterPlaceholder: 'Search for a channel…',
+      titleFilterPlaceholder: 'Search for a channel',
       allLanguages: 'All languages',
       numChannelsAvailable:
         '{count, number, integer} {count, plural, one {channel} other {channels}} available',
