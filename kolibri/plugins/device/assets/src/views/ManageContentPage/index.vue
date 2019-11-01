@@ -23,7 +23,7 @@
           :layout12="{ span: 6, alignment: 'right' }"
         >
           <KDropdownMenu
-            v-if="installedChannelsWithResources.length > 0"
+            v-if="channelsAreInstalled"
             appearance="raised-button"
             :text="coreString('optionsLabel')"
             :options="dropdownOptions"
@@ -36,6 +36,10 @@
           />
         </KGridItem>
       </KGrid>
+
+      <p v-if="!channelsAreInstalled">
+        {{ $tr('emptyChannelListMessage') }}
+      </p>
 
       <div class="channels-list">
         <ChannelPanel
@@ -63,6 +67,7 @@
 
 <script>
 
+  import find from 'lodash/find';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
@@ -93,6 +98,15 @@
     computed: {
       ...mapGetters('manageContent', ['activeTaskList', 'installedChannelsWithResources']),
       ...mapState('manageContent/wizard', ['pageName']),
+      channelsAreInstalled() {
+        return this.installedChannelsWithResources.length > 0;
+      },
+      selectedChannelTitle() {
+        if (this.deleteChannelId) {
+          return find(this.installedChannelsWithResources, { id: this.deleteChannelId });
+        }
+        return '';
+      },
       dropdownOptions() {
         return [
           { label: this.$tr('exportChannels'), value: 'EXPORT' },
@@ -147,6 +161,7 @@
       exportChannels: 'Export channels',
       deleteChannels: 'Delete channels',
       rearrangeChannels: 'Re-arrange',
+      emptyChannelListMessage: 'No channels installed',
     },
   };
 

@@ -5,14 +5,7 @@
     :class="{'panel-sm': windowIsSmall}"
     :style="{ borderTop: `1px solid ${$themePalette.grey.v_200}` }"
   >
-    <ChannelDetailPanel :channel="channel">
-      <template v-slot:belowdescription>
-        <CoachContentLabel
-          :value="channel.num_coach_contents"
-          :isTopic="true"
-        />
-      </template>
-    </ChannelDetailPanel>
+    <ChannelDetails :channel="channel" />
 
     <div
       class="col-2"
@@ -42,12 +35,12 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import ChannelDetailPanel from '../ChannelDetailPanel';
+  import ChannelDetails from './ChannelDetails';
 
   export default {
     name: 'WithSizeAndOptions',
     components: {
-      ChannelDetailPanel,
+      ChannelDetails,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {

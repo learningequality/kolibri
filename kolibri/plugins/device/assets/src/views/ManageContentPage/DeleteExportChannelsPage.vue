@@ -12,7 +12,7 @@
       </template>
 
       <template v-slot:default="{filteredItems, showItem}">
-        <ChannelCard
+        <ChanelPanel
           v-for="channel in allChannels"
           v-show="showItem(channel)"
           :key="channel.id"
@@ -57,7 +57,7 @@
   import SelectionBottomBar from './SelectionBottomBar';
   import DeleteChannelModal from './DeleteChannelModal';
   import SelectDriveModal from './SelectTransferSourceModal/SelectDriveModal';
-  import ChannelCard from './ChannelCard';
+  import ChanelPanel from './ChannelPanel/WithCheckbox';
   import FilteredChannelListContainer from './FilteredChannelListContainer';
 
   // Overwrite methods that are coupled to vuex in original SelectDriveModal
@@ -89,7 +89,7 @@
       };
     },
     components: {
-      ChannelCard,
+      ChanelPanel,
       FilteredChannelListContainer,
       SelectionBottomBar,
       DeleteChannelModal,

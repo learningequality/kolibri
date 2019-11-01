@@ -38,6 +38,12 @@
         <p class="description">
           {{ channel.description || $tr('defaultDescription') }}
         </p>
+        <p class="coach-content">
+          <CoachContentLabel
+            :value="channel.num_coach_contents"
+            :isTopic="true"
+          />
+        </p>
         <slot name="belowdescription"></slot>
       </div>
     </div>
@@ -49,9 +55,13 @@
 <script>
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
 
   export default {
-    name: 'ChannelDetailPanel',
+    name: 'ChannelDetails',
+    components: {
+      CoachContentLabel,
+    },
     mixins: [responsiveWindowMixin],
     props: {
       channel: {
@@ -79,7 +89,7 @@
 
   h2,
   p {
-    margin: 0;
+    margin: 8px 0;
   }
 
   .channel-detail-panel {

@@ -5,7 +5,7 @@
     :class="{'channel-list-item-sm': windowIsSmall}"
     :style="[verticalPadding, { borderTop: `1px solid ${$themePalette.grey.v_200}` } ]"
   >
-    <ChannelDetailPanel
+    <ChannelDetails
       :channel="channel"
       :versionNumber="versionNumber"
     >
@@ -26,19 +26,12 @@
           <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
         </div>
       </template>
-
-      <template v-slot:belowdescription>
-        <CoachContentLabel
-          :value="channel.num_coach_contents"
-          :isTopic="true"
-        />
-      </template>
-    </ChannelDetailPanel>
+    </ChannelDetails>
 
     <div class="col-3">
       <KRouterLink
         v-if="inImportMode || inExportMode"
-        :text="$tr('selectButton')"
+        :text="$tr('selectTopicsAction')"
         :disabled="tasksInQueue"
         :to="selectContentLink"
         appearance="raised-button"
@@ -56,11 +49,10 @@
   // Private Channel Icon
   // Resources on Device Indicator
   import { mapGetters } from 'vuex';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { selectContentPageLink } from './manageContentLinks';
-  import ChannelDetailPanel from './ChannelDetailPanel';
+  import { selectContentPageLink } from '../manageContentLinks';
+  import ChannelDetails from './ChannelDetails';
 
   const Modes = {
     IMPORT: 'IMPORT',
@@ -69,10 +61,9 @@
   };
 
   export default {
-    name: 'ChannelListItem',
+    name: 'WithImportDetails',
     components: {
-      CoachContentLabel,
-      ChannelDetailPanel,
+      ChannelDetails,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
@@ -132,7 +123,7 @@
     },
     $trs: {
       onYourDevice: 'Resources on device',
-      selectButton: 'Select topics',
+      selectTopicsAction: 'Select topics',
     },
   };
 

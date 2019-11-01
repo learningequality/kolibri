@@ -37,7 +37,7 @@
         </p>
 
         <div v-else>
-          <ChannelListItem
+          <ChannelPanel
             v-for="channel in filteredItems"
             v-show="showItem(channel)"
             :key="channel.id"
@@ -71,7 +71,7 @@
   import { mapState, mapMutations, mapGetters } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import ChannelListItem from '../ManageContentPage/ChannelListItem';
+  import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
   import { TransferTypes } from '../../constants';
@@ -86,7 +86,7 @@
       };
     },
     components: {
-      ChannelListItem,
+      ChannelPanel,
       ChannelTokenModal,
       ContentWizardUiAlert,
       FilteredChannelListContainer,

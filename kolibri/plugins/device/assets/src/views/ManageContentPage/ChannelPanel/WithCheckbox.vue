@@ -5,7 +5,7 @@
     :class="{'channel-card-sm': windowIsSmall}"
     :style="{ borderTopColor: $themePalette.grey.v_200 }"
   >
-    <ChannelDetailPanel :channel="channel">
+    <ChannelDetails :channel="channel">
       <template v-slot:beforethumbnail>
         <KCheckbox
           class="checkbox"
@@ -21,7 +21,7 @@
           {{ $tr('resourcesOnDevice') }}
         </p>
       </template>
-    </ChannelDetailPanel>
+    </ChannelDetails>
 
     <div class="col-3">
       <p v-if="selectedMessage" class="selected">
@@ -36,13 +36,15 @@
 
 <script>
 
+  // Channel Panel with Details and Checkbox
+
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import ChannelDetailPanel from './ChannelDetailPanel';
+  import ChannelDetails from './ChannelDetails';
 
   export default {
-    name: 'ChannelCard',
+    name: 'WithCheckbox',
     components: {
-      ChannelDetailPanel,
+      ChannelDetails,
     },
     mixins: [responsiveWindowMixin],
     props: {
