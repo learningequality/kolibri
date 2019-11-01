@@ -1,19 +1,17 @@
 <template>
 
   <div v-if="!loading">
-    <FilteredChannelListContainer :channels="allChannels">
+    <FilteredChannelListContainer
+      :channels="allChannels"
+      :selectedChannels="selectedChannels"
+      :selectAllCheckbox="true"
+      @changeselectall="handleChangeSelectAll"
+    >
       <template v-slot:header>
         <h1>{{ $tr('channelsOnDevice') }}</h1>
       </template>
 
       <template v-slot:default="{filteredItems, showItem}">
-        <KCheckbox
-          v-if="filteredItems.length > 0"
-          class="select-all-checkbox"
-          :label="$tr('selectAll')"
-          :checked="selectAllIsChecked(filteredItems)"
-          @change="handleChangeSelectAll($event, filteredItems)"
-        />
         <ChannelCard
           v-for="channel in allChannels"
           v-show="showItem(channel)"
@@ -142,9 +140,6 @@
         const title = this.exportMode ? 'exportAppBarTitle' : 'deleteAppBarTitle';
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr(title));
       },
-      selectAllIsChecked(filteredItems) {
-        return differenceBy(filteredItems, this.selectedChannels, 'id').length === 0;
-      },
       fetchData() {
         DeviceChannelResource.fetchCollection({
           getParams: {
@@ -185,7 +180,7 @@
       channelIsSelected(channel) {
         return Boolean(find(this.selectedChannels, { id: channel.id }));
       },
-      handleChangeSelectAll(isSelected, filteredItems) {
+      handleChangeSelectAll({ isSelected, filteredItems }) {
         if (isSelected) {
           this.selectedChannels = unionBy(this.selectedChannels, filteredItems, 'id');
         } else {
@@ -215,7 +210,6 @@
       exportAppBarTitle: 'Export channels',
       channelsOnDevice: 'Channels on device',
       channelSelectedMessage: '{bytesText} selected',
-      selectAll: 'Select all on page',
     },
   };
 

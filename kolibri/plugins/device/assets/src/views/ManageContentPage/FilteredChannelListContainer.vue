@@ -25,11 +25,24 @@
       </div>
     </div>
 
+    <template v-if="selectAllCheckbox">
+      <KCheckbox
+        v-if="filteredItems.length > 0"
+        class="select-all-checkbox"
+        :label="$tr('selectAll')"
+        :checked="selectAllIsChecked"
+        @change="$emit('changeselectall', {isSelected: $event, filteredItems})"
+      />
+    </template>
+
     <slot name="abovechannels"></slot>
 
-    <slot :filteredItems="filteredItems" :showItem="showItem"></slot>
+    <slot v-bind="{filteredItems,showItem}"></slot>
 
-    <div v-if="filteredItems.length === 0" class="no-match">
+    <div
+      v-if="filteredItems.length === 0"
+      class="no-match"
+    >
       {{ noMatchMsg }}
     </div>
   </div>
@@ -40,6 +53,7 @@
 <script>
 
   import find from 'lodash/find';
+  import differenceBy from 'lodash/differenceBy';
   import uniqBy from 'lodash/uniqBy';
   import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
@@ -54,6 +68,14 @@
       channels: {
         type: Array,
       },
+      selectAllCheckbox: {
+        type: Boolean,
+        default: false,
+      },
+      selectedChannels: {
+        type: Array,
+        required: false,
+      },
     },
     data() {
       return {
@@ -62,6 +84,9 @@
       };
     },
     computed: {
+      selectAllIsChecked() {
+        return differenceBy(this.filteredItems, this.selectedChannels, 'id').length === 0;
+      },
       showItem() {
         return function(channel) {
           return Boolean(find(this.filteredItems, { id: channel.id }));
@@ -127,6 +152,7 @@
       numChannelsAvailable:
         '{count, number, integer} {count, plural, one {channel} other {channels}} available',
       noMatchingItems: 'There are no channels matching these filters',
+      selectAll: 'Select all on page',
     },
   };
 

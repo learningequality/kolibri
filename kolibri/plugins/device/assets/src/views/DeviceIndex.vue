@@ -75,7 +75,7 @@
             this.pageName !== ContentWizardPages.SELECT_CONTENT) ||
           this.pageName === PageNames.REARRANGE_CHANNELS ||
           this.pageName === PageNames.DELETE_CHANNELS ||
-          this.pageName === PageNames.REARRANGE_CHANNELS
+          this.pageName === PageNames.EXPORT_CHANNELS
         );
       },
     },
