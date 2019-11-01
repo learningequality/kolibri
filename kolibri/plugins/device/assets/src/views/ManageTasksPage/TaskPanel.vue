@@ -66,6 +66,23 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
+  const typeToTrMap = {
+    REMOTECHANNELIMPORT: 'generatingChannelListing',
+    DISKCHANNELIMPORT: 'generatingChannelListing',
+    REMOTECONTENTIMPORT: 'importingChannel',
+    DISKCONTENTIMPORT: 'importingChannel',
+    DISKEXPORT: 'exportingChannel',
+    DELETECHANNEL: 'deletingChannel',
+  };
+
+  const statusToTrMap = {
+    COMPLETED: 'statusComplete',
+    FAILED: 'statusFailed',
+    RUNNING: 'statusInProgress',
+    QUEUED: 'statusInQueue',
+    CANCELED: 'statusCanceled',
+    CANCELING: 'statusCanceling',
+  };
   // Displays a single Task and its metadata, and provides buttons
   // to cancel or clear it.
   export default {
@@ -77,7 +94,6 @@
         type: Object,
         required: true,
         default() {
-  // KIcon 'inProgress', 'correct'
           return {};
         },
       },
@@ -100,6 +116,9 @@
       },
       descriptionText() {
         const trName = typeToTrMap[this.task.type];
+        return this.$tr(trName, {
+          channelName: this.task.channel_name || this.$tr('unknownChannelName'),
+        });
       },
       sizeText() {
         const { file_size, total_resources } = this.task;
@@ -116,10 +135,11 @@
         return this.$tr(trName);
       },
       startedByText() {
-        return this.$tr('startedByUser', { user: this.task.started_by });
+        return this.$tr('startedByUser', {
+          user: this.task.started_by_username || this.$tr('unknownUsername'),
+        });
       },
     },
-        return this.$tr(trName, { channelName: this.task.channel_id });
     methods: {
       handleClick() {
         if (this.taskIsCompleted) {
@@ -143,6 +163,9 @@
       deletingChannel: 'Deleting {channelName}',
       generatingChannelListing: 'Generating channel listing - {channelName}',
       updatingChannelVersion: 'Updating channel version - { channelName }',
+      // Catch-all strings if the channel or username doesn't get attached to Task
+      unknownUsername: 'Unknown user',
+      unknownChannelName: '(Channel name unavailable)',
     },
   };
 

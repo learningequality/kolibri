@@ -99,6 +99,19 @@ def validate_local_import_export_task(task_description):
     return import_task
 
 
+def add_channel_and_user_name(meta_dict, user):
+    try:
+        if meta_dict.get("channel_id"):
+            channel = ChannelMetadata.objects.get(id=meta_dict["channel_id"])
+            meta_dict.update({"channel_name": channel.name})
+    except ChannelMetadata.DoesNotExist:
+        pass
+    meta_dict.update({
+        "started_by": user.pk,
+        "started_by_username" : user.username
+    })
+
+
 class TasksViewSet(viewsets.ViewSet):
     def get_permissions(self):
         # task permissions shared between facility management and device management
@@ -232,7 +245,8 @@ class TasksViewSet(viewsets.ViewSet):
     def startdiskchannelimport(self, request):
         task = validate_local_import_export_task(request.data)
 
-        task.update({"type": "DISKCHANNELIMPORT", "started_by": request.user.pk})
+        add_channel_and_user_name(task, request.user)
+        task.update({"type": "DISKCHANNELIMPORT"})
 
         job_id = get_queue().enqueue(
             call_command,
@@ -251,7 +265,8 @@ class TasksViewSet(viewsets.ViewSet):
     def startdiskcontentimport(self, request):
         task = validate_local_import_export_task(request.data)
 
-        task.update({"type": "DISKCONTENTIMPORT", "started_by": request.user.pk})
+        add_channel_and_user_name(task, request.user)
+        task.update({"type": "DISKCONTENTIMPORT"})
 
         job_id = get_queue().enqueue(
             call_command,
@@ -291,7 +306,9 @@ class TasksViewSet(viewsets.ViewSet):
                 job_metadata = {
                     "type": "DELETECHANNEL",
                     "channel_id": task["channel_id"],
+                    "channel_name": channel.name,
                     "started_by": request.user.pk,
+                    "started_by_username": request.user.username,
                     "file_size": channel.published_size,
                     "resource_count": channel.total_resource_count,
                 }
@@ -323,9 +340,9 @@ class TasksViewSet(viewsets.ViewSet):
 
         job_metadata = {
             "type": "DELETECHANNEL",
-            "started_by": request.user.pk,
             "channel_id": channel_id,
         }
+        add_channel_and_user_name(job_metadata, request.user)
 
         task_id = get_queue().enqueue(
             call_command,
@@ -357,8 +374,10 @@ class TasksViewSet(viewsets.ViewSet):
                 job_metadata = {
                     "type": "DISKEXPORT",
                     "channel_id": task["channel_id"],
+                    "channel_name": channel.name,
                     "drive_id": task["drive_id"],
                     "started_by": request.user.pk,
+                    "started_by_username": request.user.username,
                     "file_size": channel.published_size,
                     "resource_count": channel.total_resource_count,
                 }
@@ -392,7 +411,10 @@ class TasksViewSet(viewsets.ViewSet):
         task.update(
             {
                 "type": "DISKEXPORT",
+                "channel_id": channel.id,
+                "channel_name": channel.name,
                 "started_by": request.user.pk,
+                "started_by_username": request.user.username,
                 "file_size": channel.published_size,
                 "resource_count": channel.total_resource_count,
             }
