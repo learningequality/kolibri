@@ -26,7 +26,7 @@
 
     <slot :filteredItems="filteredItems"></slot>
 
-    <div class="no-match">
+    <div v-if="filteredItems.length === 0" class="no-match">
       {{ noMatchMsg }}
     </div>
   </div>

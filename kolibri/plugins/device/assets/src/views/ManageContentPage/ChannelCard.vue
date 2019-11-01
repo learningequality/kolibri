@@ -72,12 +72,13 @@
 
   .channel-card {
     display: flex;
-    padding: 16px;
+    padding: 32px 0;
     border-top: 1px solid;
   }
 
   .channel-card-sm {
     flex-direction: column;
+    padding: 16px 0;
   }
 
   .checkbox {

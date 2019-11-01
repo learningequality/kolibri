@@ -225,10 +225,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .select-all-checkbox {
-    margin-left: 16px;
-  }
-
-</style>
+<style lang="scss" scoped></style>

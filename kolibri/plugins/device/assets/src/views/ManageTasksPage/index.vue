@@ -1,13 +1,13 @@
 <template>
 
   <div>
-    <p v-if="!loading && tasks.length ===0" class="no-tasks">
+    <p v-if="!loading && taskList.length === 0" class="no-tasks">
       {{ $tr('emptyTasksMessage') }}
     </p>
 
-    <div class="tasks">
+    <div class="tasks-panels">
       <TaskPanel
-        v-for="task in tasks"
+        v-for="task in taskList"
         :key="task.id"
         :task="task"
         @clickclear="handleClickClear(task)"
@@ -44,9 +44,7 @@
       };
     },
     computed: {
-      ...mapState('manageContent', {
-        tasks: 'taskList',
-      }),
+      ...mapState('manageContent', ['taskList']),
     },
     mounted() {
       // Wait some time for first poll from Tasks API
@@ -65,7 +63,7 @@
         TaskResource.postListEndpoint('cleartask', { task_id: task.id });
       },
       handleClickCancel(task) {
-        console.log(task);
+        TaskResource.cancelTask({ task_id: task.id });
       },
     },
     $trs: {
@@ -79,12 +77,13 @@
 
 <style lang="scss" scoped>
 
-  .tasks {
+  .task-panels {
     max-width: 780px;
   }
 
   .no-tasks {
     padding: 128px 0;
+    font-size: 24px;
     text-align: center;
   }
 
