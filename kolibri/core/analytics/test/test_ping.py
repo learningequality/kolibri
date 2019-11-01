@@ -7,7 +7,7 @@ import zlib
 
 import mock
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TransactionTestCase
 from requests.models import Response
 
 from .test_utils import BaseDeviceSetupMixin
@@ -39,7 +39,7 @@ def mocked_requests_post_wrapper(json_data, status_code):
     return mocked_requests_post
 
 
-class PingCommandTestCase(BaseDeviceSetupMixin, TestCase):
+class PingCommandTestCase(BaseDeviceSetupMixin, TransactionTestCase):
     @mock.patch(
         "requests.post", side_effect=mocked_requests_post_wrapper({"id": 17}, 200)
     )
