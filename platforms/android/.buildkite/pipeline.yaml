@@ -1,5 +1,5 @@
 steps:
-  - block: "Build :android:?"
+  # - block: "Build :android:?"
   # TODO make this independantly triggerable
   # Only block when build is triggered by another build
   # - if: build.source == "trigger_job"
