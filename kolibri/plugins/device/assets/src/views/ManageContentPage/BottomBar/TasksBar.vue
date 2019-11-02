@@ -1,0 +1,106 @@
+<template>
+
+  <BottomAppBar>
+    <div class="task-bar">
+      <div class="progress-bar">
+        <div class="message">
+          {{ tasksString }}
+        </div>
+        <KLinearLoader
+          v-if="totalTasks >0"
+          class="k-linear-loader"
+          :delay="false"
+          :progress="progress"
+          type="determinate"
+          :style="{backgroundColor: $themeTokens.fineLine}"
+        />
+      </div>
+      <KRouterLink
+        appearance="raised-button"
+        :primary="true"
+        :text="coreString('viewTasksAction')"
+        :to="{name: 'MANAGE_TASKS'}"
+      />
+    </div>
+  </BottomAppBar>
+
+</template>
+
+
+<script>
+
+  import { mapState } from 'vuex';
+  import countBy from 'lodash/countBy';
+  import sumBy from 'lodash/sumBy';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+
+  export default {
+    name: 'TasksBar',
+    components: {
+      BottomAppBar,
+    },
+    mixins: [commonCoreStrings],
+    props: {},
+    data() {
+      return {};
+    },
+    computed: {
+      ...mapState('manageContent', ['taskList']),
+      totalTasks() {
+        return this.taskList.length;
+      },
+      taskCounts() {
+        return countBy(this.taskList, 'status');
+      },
+      doneTasks() {
+        return this.taskCounts.COMPLETED || 0;
+      },
+      progress() {
+        return (sumBy(this.taskList, 'percentage') / this.totalTasks) * 100;
+      },
+      tasksString() {
+        if (this.totalTasks === 0) {
+          return this.$tr('noTasksStarted');
+        } else {
+          return this.$tr('someTasksComplete', { done: this.doneTasks, total: this.totalTasks });
+        }
+      },
+    },
+    methods: {},
+    $trs: {
+      someTasksComplete:
+        '{done, number} of {total, number} {done, plural, one {task} other {tasks}} complete',
+      noTasksStarted: 'No tasks started',
+    },
+  };
+
+</script>
+
+
+<style lang="scss" scoped>
+
+  .task-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .message {
+    padding: 4px 0;
+  }
+  .progress-bar {
+    max-width: 400px;
+    text-align: left;
+  }
+
+  // CSS overrides for linear loader
+  .k-linear-loader {
+    height: 10px;
+
+    /deep/ .ui-progress-linear-progress-bar {
+      height: 100%;
+    }
+  }
+
+</style>

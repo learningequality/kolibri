@@ -48,9 +48,11 @@
     },
     mounted() {
       // Wait some time for first poll from Tasks API
-      setTimeout(() => {
-        this.loading = false;
-      }, 2000);
+      if (this.taskList.length === 0) {
+        setTimeout(() => {
+          this.loading = false;
+        }, 2000);
+      }
     },
     beforeMount() {
       this.setAppBarTitle();

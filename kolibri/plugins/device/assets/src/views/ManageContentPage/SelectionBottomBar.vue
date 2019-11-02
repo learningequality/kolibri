@@ -1,16 +1,14 @@
 <template>
 
-  <div>
-    <BottomAppBar>
-      <span class="message">{{ selectedMessage }}</span>
-      <KButton
-        :disabled="selectedObjects.length === 0"
-        :text="confirmButtonLabel"
-        :primary="true"
-        @click="$emit('clickconfirm')"
-      />
-    </BottomAppBar>
-  </div>
+  <BottomAppBar>
+    <span class="message">{{ selectedMessage }}</span>
+    <KButton
+      :disabled="selectedObjects.length === 0"
+      :text="confirmButtonLabel"
+      :primary="true"
+      @click="$emit('clickconfirm')"
+    />
+  </BottomAppBar>
 
 </template>
 

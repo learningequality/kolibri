@@ -17,6 +17,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   selectAllOnPageAction: 'Select all on page',
   showAction: 'Show',
   updateAction: 'Update',
+  viewTasksAction: 'View tasks',
 
   // labels, phrases, titles, headers...
   adminLabel: 'Admin',
@@ -40,6 +41,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   learnerLabel: 'Learner',
   learnersLabel: 'Learners',
   lessonsLabel: 'Lessons',
+  loadingLabel: 'Loading…',
   noUsersExistLabel: 'No users exist',
   optionsLabel: 'Options',
   passwordLabel: 'Password',

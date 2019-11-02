@@ -3,13 +3,13 @@
   <div>
 
     <div>
-      <TaskProgress
-        v-if="activeTaskList[0]"
-        v-bind="activeTaskList[0]"
-        @cleartask="clearCompletedTasks"
-        @canceltask="cancelRunningTask(activeTaskList[0].id)"
-      />
-
+      <!-- <TaskProgress
+         v-if="activeTaskList[0]"
+         v-bind="activeTaskList[0]"
+         @cleartask="clearCompletedTasks"
+         @canceltask="cancelRunningTask(activeTaskList[0].id)"
+       />
+  -->
       <KGrid>
         <KGridItem
           :layout8="{ span: 4 }"
@@ -60,6 +60,9 @@
         @cancel="deleteChannelId=null"
       />
     </div>
+
+
+    <TasksBar />
   </div>
 
 </template>
@@ -75,6 +78,7 @@
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
+  import TasksBar from './BottomBar/TasksBar';
 
   export default {
     name: 'ManageContentPage',
@@ -87,7 +91,8 @@
       ChannelPanel,
       DeleteChannelModal,
       SelectTransferSourceModal,
-      TaskProgress,
+      // TaskProgress,
+      TasksBar,
     },
     mixins: [commonCoreStrings],
     data() {

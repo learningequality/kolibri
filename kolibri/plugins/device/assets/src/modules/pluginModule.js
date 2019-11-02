@@ -9,7 +9,7 @@ import coreBase from './coreBase';
 
 const TaskSnackbarStrings = createTranslator('TaskSnackbarStrings', {
   taskStarted: 'Task started…',
-  viewTasks: 'View tasks',
+  viewTasksAction: 'View tasks',
 });
 
 export default {
@@ -49,7 +49,7 @@ export default {
         text: TaskSnackbarStrings.$tr('taskStarted'),
         autoDismiss: true,
         duration: 10000,
-        actionText: TaskSnackbarStrings.$tr('viewTasks'),
+        actionText: TaskSnackbarStrings.$tr('viewTasksAction'),
         actionCallback() {
           return router.push(
             {
