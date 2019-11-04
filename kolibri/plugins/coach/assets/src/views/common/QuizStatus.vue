@@ -126,7 +126,7 @@
       },
       cancelStyleOverrides() {
         return {
-          color: '#fff',
+          color: this.$themeTokens.textInverted,
           'background-color': this.$themePalette.red.v_700,
           ':hover': { 'background-color': this.$themePalette.red.v_900 },
         };

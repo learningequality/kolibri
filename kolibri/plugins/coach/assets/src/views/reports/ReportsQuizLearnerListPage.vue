@@ -35,6 +35,7 @@
             <div
               v-if="tableRow.statusObj.status === STATUSES.completed"
               class="small-answered-count"
+              :style="answerCountColorStyles"
             >
               {{
                 completedQuestionsCountLabel(tableRow.statusObj.num_answered, exam.question_count)
@@ -119,6 +120,11 @@
           return tableRow;
         });
       },
+      answerCountColorStyles() {
+        return {
+          color: this.$themeTokens.annotation,
+        };
+      },
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
@@ -151,7 +157,6 @@
     display: block;
     margin-left: 28px;
     font-size: small;
-    color: gray;
   }
 
 </style>
