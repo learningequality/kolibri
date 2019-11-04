@@ -11,7 +11,7 @@
       {{ $tr('confirmationQuestion', { channelTitle }) }}
     </p>
     <p v-else>
-      {{ $tr('confirmationQuestionMultiChannels') }}
+      {{ $tr('confirmationQuestionMultipleChannels') }}
     </p>
   </KModal>
 
@@ -43,7 +43,7 @@
     },
     $trs: {
       confirmationQuestion: `Are you sure you want to delete '{ channelTitle }' from your device?`,
-      confirmationQuestionMultiChannels:
+      confirmationQuestionMultipleChannels:
         'Are you sure you want to delete these channels from your device?',
       title: 'Delete channel',
       titleMultipleChannels: 'Delete channels',
