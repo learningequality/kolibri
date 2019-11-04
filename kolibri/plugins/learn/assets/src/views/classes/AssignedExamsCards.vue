@@ -5,7 +5,7 @@
       <h2>
         {{ $tr('examsHeader') }}
       </h2>
-      <p v-if="visibleExams.length===0">
+      <p v-if="!visibleExams.length">
         {{ $tr('noExamsMessage') }}
       </p>
     </div>
