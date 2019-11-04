@@ -204,14 +204,14 @@ i18n-pretranslate-approve-all:
 	python build_tools/i18n/crowdin.py pretranslate ${branch} --approve-all
 
 i18n-convert:
-	python build_tools/i18n/crowdin.py convert
+	python build_tools/i18n/crowdin.py convert-files
 
 i18n-download:
-	python build_tools/i18n/crowdin.py rebuild ${branch}
-	python build_tools/i18n/crowdin.py download ${branch}
+	python build_tools/i18n/crowdin.py rebuild-translations ${branch}
+	python build_tools/i18n/crowdin.py download-translations ${branch}
 	node build_tools/i18n/intl_code_gen.js
 	$(MAKE) i18n-django-compilemessages
-	python build_tools/i18n/crowdin.py convert
+	python build_tools/i18n/crowdin.py convert-files
 
 i18n-download-source-fonts:
 	python build_tools/i18n/fonts.py download-source-fonts
@@ -223,7 +223,7 @@ i18n-regenerate-fonts:
 i18n-update: i18n-download i18n-regenerate-fonts
 
 i18n-stats:
-	python build_tools/i18n/crowdin.py stats ${branch}
+	python build_tools/i18n/crowdin.py translation-stats ${branch}
 
 i18n-install-font:
 	python build_tools/i18n/fonts.py add-source-font ${name}

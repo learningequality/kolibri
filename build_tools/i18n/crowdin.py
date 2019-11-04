@@ -176,7 +176,7 @@ Rebuild command
 
 @click.command()
 @click.argument("branch")
-def rebuild(branch):
+def rebuild_translations(branch):
     """
     Rebuild the given branch
     """
@@ -306,9 +306,9 @@ Convert CSV to JSON command
 """
 
 
-def _format_json_files():
+def _csv_to_json():
     """
-    re-print all json files to ensure consistent diffs with ordered keys
+    Convert all CSV json files to JSON and ensure consistent diffs with ordered keys
     """
 
     for lang_object in utils.supported_languages(include_in_context=True):
@@ -368,11 +368,11 @@ Convert command
 
 
 @click.command()
-def convert():
+def convert_files():
     """
-    Convert downloaded CSVs to JSON files
+    Convert downloaded CSV files to JSON
     """
-    _format_json_files()
+    _csv_to_json()
     logging.info("Kolibri: CSV to JSON conversion succeeded!")
 
 
@@ -390,7 +390,7 @@ def _wipe_translations(locale_path):
 
 @click.command()
 @click.argument("branch")
-def download(branch):
+def download_translations(branch):
     """
     Download translations from the given branch
     """
@@ -429,7 +429,7 @@ def download(branch):
             pass
 
     ## TODO Don't need to format here... going to do this in the new command.
-    _format_json_files()  # clean them up to make git diffs more meaningful
+    _csv_to_json()  # clean them up to make git diffs more meaningful
     logging.info("Crowdin: download succeeded!")
 
 
@@ -533,7 +533,7 @@ Branch: {branch}
 
 @click.command()
 @click.argument("branch")
-def stats(branch):
+def translation_stats(branch):
     """
     Print stats for the given branch
     """
@@ -632,11 +632,11 @@ def main():
     """
 
 
-main.add_command(convert)
-main.add_command(download)
+main.add_command(convert_files)
+main.add_command(download_translations)
 main.add_command(pretranslate)
-main.add_command(rebuild)
-main.add_command(stats)
+main.add_command(rebuild_translations)
+main.add_command(translation_stats)
 main.add_command(upload_sources)
 main.add_command(upload_translations)
 
