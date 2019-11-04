@@ -1,8 +1,8 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.views.generic import View
+from feedgenerator.django.utils import feedgenerator
 from kolibri.core.content.api import ContentNodeSearchViewset
-from kolibri.core.decorators import query_params_required
 
 
 class Descriptor(View):
@@ -12,25 +12,32 @@ class Descriptor(View):
         """
         absolute_url = request.build_absolute_uri()
         xml = (
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-            "<OpenSearchDescription xmlns=\"http://a9.com/-/spec/opensearch/1.1/\">"
-            "  <ShortName>Kolibri</ShortName>"
-            "  <Description>Kolibri Open Search Engine</Description>"
-            + ("  <Url type=\"application/atom+xml\" template=\"%s/opensearch/search?q={searchTerms}\"/>" % absolute_url)
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">'
+            "<ShortName>Kolibri</ShortName>"
+            "<Description>Kolibri Open Search Engine</Description>"
+            + ('<Url type="application/atom+xml" template="%s/opensearch/search?q={searchTerms}"/>' % absolute_url)
             + "</OpenSearchDescription>"
         )
 
         return HttpResponse(xml, content_type="application/opensearchdescription+xml; charset=utf-8")
 
 
-
-@query_params_required(q=str)
 class Search(View):
     def get(self, request):
-        value = self.kwargs["q"]
+        value = request.GET.get("q")
+        if not value:
+            return HttpResponse("The parameter 'q' is missing and is required", status=412)
+
         search_set = ContentNodeSearchViewset()
         results, channel_ids, content_kinds, total_results = search_set.search(value, 100, filter=False)
-        xml = ""
+
+        feed = feedgenerator.Atom1Feed(
+            title=u"Kolibri search results",
+            link=request.build_absolute_uri(),
+            description=u"Kolibri search results for query {value}".format(value=value),
+        )
+
         for result in results:
             node_link = request.build_absolute_uri(
                 "{url}?node_id={id}&channel_id={channel_id}&content_id={content_id}".format(
@@ -40,5 +47,8 @@ class Search(View):
                     content_id=result.content_id,
                 )
             )
-            xml += '<item><title>{result}</title><link>{link}</link></item>'.format(result=result.title, link=node_link)
-        return HttpResponse(xml, content_type="application/opensearchdescription+xml; charset=utf-8")
+            feed.add_item(result.title, node_link, result.description)
+
+        res = feed.writeString('utf-8')
+
+        return HttpResponse(res, content_type="application/atom+xml; charset=utf-8")

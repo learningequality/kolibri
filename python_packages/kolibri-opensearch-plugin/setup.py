@@ -56,7 +56,7 @@ setup(
     package_dir={'kolibri_opensearch_plugin': 'kolibri_opensearch_plugin'},
     include_package_data=True,
     license='MIT',
-    install_requires=[],
+    install_requires=['feedgenerator',],
     extras_require={
         'dev': [
             'setuptools',
