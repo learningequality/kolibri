@@ -49,7 +49,6 @@
       onActionClick() {
         this.$emit('action-click');
       },
-
     },
   };
 

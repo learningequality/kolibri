@@ -185,6 +185,7 @@
         return Boolean(match);
       },
       goToImportMultiple() {
+        // eslint-disable-next-line
         console.log('import multiple');
       },
       goToSelectContentPageForChannel(channel) {

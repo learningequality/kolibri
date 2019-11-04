@@ -97,6 +97,10 @@
       importAction: 'Import',
       exportAction: 'Export',
       deleteAction: 'Delete',
+      /* eslint-disable */
+      deleteFromDeviceAction: 'Delete from device',
+      exportToAction: 'Export to…',
+      /* eslint-enable */
       zeroChannelsSelected: '0 channels selected',
       someChannelsSelected:
         '{count} {count, plural, one {channel} other {channels}} selected ({bytesText})',

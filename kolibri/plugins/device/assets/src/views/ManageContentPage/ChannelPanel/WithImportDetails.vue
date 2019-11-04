@@ -124,6 +124,12 @@
     $trs: {
       onYourDevice: 'Resources on device',
       selectTopicsAction: 'Select topics',
+      /* eslint-disable */
+      newLabel: 'New',
+      privateChannelTooltip: 'Imported from channel token',
+      newVersionMessage: 'New version available with import',
+      moreInformationLabel: 'More information',
+      /* eslint-enable */
     },
   };
 
