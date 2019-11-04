@@ -4,8 +4,13 @@
     <div class="icon">
       <transition mode="out-in">
         <KIcon
-          v-if="taskIsCompleted"
-          icon="correct"
+          v-if="taskIsFailed"
+          icon="helpNeeded"
+          :style="{fill: $themeTokens.error}"
+        />
+        <KIcon
+          v-else-if="taskIsCompleted"
+          icon="done"
           :style="{fill: $themeTokens.success}"
         />
         <KCircularLoader
@@ -63,6 +68,9 @@
 
 <script>
 
+  // Displays a single Task and its metadata, and provides buttons
+  // to cancel or clear it.
+
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
@@ -84,8 +92,7 @@
     CANCELED: 'statusCanceled',
     CANCELING: 'statusCanceling',
   };
-  // Displays a single Task and its metadata, and provides buttons
-  // to cancel or clear it.
+
   export default {
     name: 'TaskPanel',
     components: {},
@@ -113,7 +120,10 @@
         return this.task.status === 'RUNNING';
       },
       taskIsCompleted() {
-        return this.task.status === 'COMPLETED' || this.task.status === 'CANCELED';
+        return this.task.status === 'COMPLETED';
+      },
+      taskIsFailed() {
+        return this.task.status === 'FAILED' || this.task.status === 'CANCELED';
       },
       descriptionText() {
         const trName = typeToTrMap[this.task.type];
@@ -143,7 +153,7 @@
     },
     methods: {
       handleClick() {
-        if (this.taskIsCompleted) {
+        if (this.taskIsCompleted || this.taskIsFailed) {
           this.$emit('clickclear');
         } else {
           this.$emit('clickcancel');
@@ -151,10 +161,10 @@
       },
     },
     $trs: {
-      startedByUser: 'Started by {user}',
+      startedByUser: `Started by '{user}'`,
       numResourcesAndSize: '{numResources} resources ({bytesText})',
       statusInProgress: 'In-progress',
-      statusInQueue: 'In-queue',
+      statusInQueue: 'Waiting',
       statusComplete: 'Complete',
       statusFailed: 'Failed',
       statusCanceled: 'Canceled',
