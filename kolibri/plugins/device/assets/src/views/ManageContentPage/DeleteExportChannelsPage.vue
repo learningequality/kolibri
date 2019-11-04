@@ -145,12 +145,38 @@
           getParams: {
             include_fields: 'on_device_file_size',
           },
+          force: true,
         }).then(channels => {
           this.allChannels = [
             ...channels.filter(c => c.available && !this.channelIsBeingDeleted(c)),
           ];
           this.loading = false;
         });
+      },
+      deleteChannels() {
+        const selectedCopy = [...this.selectedChannels];
+        this.allChannels = this.allChannels.filter(c => !find(this.selectedChannels, { id: c.id }));
+        TaskResource.deleteBulkChannels({
+          channelIds: this.selectedChannels.map(({ id }) => ({ channel_id: id })),
+        })
+          .then(() => {
+            this.selectedChannels = [];
+          })
+          .catch(err => {
+            // eslint-disable-next-line
+            console.log('error deleting channels', err);
+            this.selectedChannels = [...selectedCopy];
+            this.loading = true;
+            this.fetchData();
+          });
+      },
+      exportChannels(params) {
+        TaskResource.startDiskBulkExport(
+          this.selectedChannels.map(({ id }) => ({
+            channel_id: id,
+            drive_id: params.driveId,
+          }))
+        );
       },
       handleClickConfirm() {
         this.showModal = true;
@@ -160,22 +186,10 @@
         this.showModal = false;
 
         if (this.deleteMode) {
-          this.allChannels = this.allChannels.filter(
-            c => !find(this.selectedChannels, { id: c.id })
-          );
-          TaskResource.deleteBulkChannels({
-            channelIds: this.selectedChannels.map(({ id }) => ({ channel_id: id })),
-          });
+          this.deleteChannels();
         } else {
-          TaskResource.startDiskBulkExport(
-            this.selectedChannels.map(({ id }) => ({
-              channel_id: id,
-              drive_id: params.driveId,
-            }))
-          );
+          this.exportChannels(params);
         }
-
-        this.selectedChannels = [];
       },
       channelIsSelected(channel) {
         return Boolean(find(this.selectedChannels, { id: channel.id }));

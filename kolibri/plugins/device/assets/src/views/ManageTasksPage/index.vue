@@ -7,7 +7,7 @@
 
     <div class="tasks-panels">
       <TaskPanel
-        v-for="task in taskList"
+        v-for="task in sortedTaskList"
         :key="task.id"
         :task="task"
         @clickclear="handleClickClear(task)"
@@ -21,6 +21,7 @@
 
 <script>
 
+  import reverse from 'lodash/fp/reverse';
   import { mapState } from 'vuex';
   import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -45,6 +46,9 @@
     },
     computed: {
       ...mapState('manageContent', ['taskList']),
+      sortedTaskList() {
+        return reverse(this.taskList);
+      },
     },
     watch: {
       taskList(val) {

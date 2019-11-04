@@ -42,13 +42,12 @@
       DeviceTopNav,
     },
     computed: {
-      ...mapGetters(['canManageContent']),
+      ...mapGetters(['canManageContent', 'isSuperuser']),
       ...mapState(['pageName', 'welcomeModalVisible']),
       ...mapState('coreBase', ['appBarTitle']),
       ...mapGetters('coreBase', [
         'currentPageIsImmersive',
         'immersivePageIcon',
-        'immersivePageRoute',
         'inContentManagementPage',
       ]),
       containerStyles() {
@@ -65,6 +64,38 @@
           return this.$tr('permissionsLabel');
         } else {
           return this.appBarTitle || this.$tr('deviceManagementTitle');
+        }
+      },
+      immersivePageRoute() {
+        if (this.$route.query.last) {
+          return {
+            name: this.$route.query.last,
+          };
+        }
+        // In all Import/Export pages, go back to ManageContentPage
+        if (this.inContentManagementPage) {
+          // If a user is selecting content, they should return to the content
+          // source that they're importing from using the query string.
+          if (this.pageName === ContentWizardPages.SELECT_CONTENT) {
+            return {
+              name: ContentWizardPages.AVAILABLE_CHANNELS,
+              query: this.$store.state.coreBase.query,
+            };
+          } else {
+            return {
+              name: PageNames.MANAGE_CONTENT_PAGE,
+            };
+          }
+        } else if (this.pageName === PageNames.USER_PERMISSIONS_PAGE) {
+          // If Admin, goes back to ManagePermissionsPage
+          if (this.isSuperuser) {
+            return { name: PageNames.MANAGE_PERMISSIONS_PAGE };
+          } else {
+            // If Non-Admin, go to ManageContentPAge
+            return { name: PageNames.MANAGE_CONTENT_PAGE };
+          }
+        } else {
+          return {};
         }
       },
       immersivePagePrimary() {
