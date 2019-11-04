@@ -30,7 +30,7 @@
         />
       </KGridItem>
       <KGridItem :layout12="{ span: 8 }">
-        <KPageContainer v-if="!loading" topMargin="16">
+        <KPageContainer v-if="!loading" :topMargin="16">
           <section v-if="selectedQuestions">
             <h2>
               {{ coachString('numberOfQuestions', { value: selectedQuestions.length }) }}

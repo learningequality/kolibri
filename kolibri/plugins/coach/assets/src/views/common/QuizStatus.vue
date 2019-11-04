@@ -1,6 +1,6 @@
 <template>
 
-  <KPageContainer topMargin="16">
+  <KPageContainer :topMargin="16">
     <KButton
       v-if="!exam.active && !exam.archive"
       :primary="true"
@@ -65,20 +65,26 @@
       </KGridItem>
 
     </KGrid>
-    <QuizStatusModal
+    <KModal
       v-if="showConfirmationModal"
-      :modalHeader="coachString('openQuizLabel')"
-      :modalDetail="coachString('openQuizModalDetail')"
+      :title="coachString('openQuizLabel')"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
       @cancel="showConfirmationModal = false"
       @submit="handleOpenQuiz"
-    />
-    <QuizStatusModal
+    >
+      <div>{{ coachString('openQuizModalDetail') }}</div>
+    </KModal>
+    <KModal
       v-if="showCancellationModal"
-      :modalHeader="coachString('closeQuizLabel')"
-      :modalDetail="coachString('closeQuizModalDetail')"
+      :title="coachString('closeQuizLabel')"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
       @cancel="showCancellationModal = false"
       @submit="handleCloseQuiz"
-    />
+    >
+      <div>{{ coachString('closeQuizModalDetail') }}</div>
+    </KModal>
   </KPageContainer>
 
 </template>
@@ -87,17 +93,17 @@
 <script>
 
   import { ExamResource } from 'kolibri.resources';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from './commonCoachStrings';
   import Score from './Score';
   import Recipients from './Recipients';
-  import QuizStatusModal from './QuizStatusModal';
   import StatusElapsedTime from './StatusElapsedTime';
   import AverageScoreTooltip from './AverageScoreTooltip';
 
   export default {
     name: 'QuizStatus',
-    components: { Score, Recipients, QuizStatusModal, StatusElapsedTime, AverageScoreTooltip },
-    mixins: [coachStringsMixin],
+    components: { Score, Recipients, StatusElapsedTime, AverageScoreTooltip },
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       groupNames: {
         type: Array,

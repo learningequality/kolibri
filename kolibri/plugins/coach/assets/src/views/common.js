@@ -27,7 +27,6 @@ import TimeDuration from './common/TimeDuration';
 import QuizActive from './common/QuizActive';
 import QuizHeader from './common/QuizHeader';
 import QuizStatus from './common/QuizStatus';
-import QuizStatusModal from './common/QuizStatusModal';
 import HeaderTable from './common/HeaderTable';
 import HeaderTableRow from './common/HeaderTable/HeaderTableRow';
 import HeaderTabs from './common/HeaderTabs';
@@ -127,7 +126,6 @@ export default {
     QuizActive,
     QuizHeader,
     QuizStatus,
-    QuizStatusModal,
     HeaderTable,
     ElapsedTime,
     HeaderTableRow,

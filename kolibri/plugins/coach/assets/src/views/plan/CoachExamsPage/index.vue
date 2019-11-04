@@ -102,20 +102,26 @@
       </p>
 
       <!-- Modals for Close & Open of quiz from right-most column -->
-      <QuizStatusModal
+      <KModal
         v-if="showOpenConfirmationModal"
-        :modalHeader="coachString('openQuizLabel')"
-        :modalDetail="coachString('openQuizModalDetail')"
+        :title="coachString('openQuizLabel')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
         @cancel="showOpenConfirmationModal = false"
         @submit="handleOpenQuiz(modalQuizId)"
-      />
-      <QuizStatusModal
+      >
+        <div>{{ coachString('openQuizModalDetail') }}</div>
+      </KModal>
+      <KModal
         v-if="showCloseConfirmationModal"
-        :modalHeader="coachString('closeQuizLabel')"
-        :modalDetail="coachString('closeQuizModalDetail')"
+        :title="coachString('closeQuizLabel')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
         @cancel="showCloseConfirmationModal = false"
         @submit="handleCloseQuiz(modalQuizId)"
-      />
+      >
+        <div>{{ coachString('closeQuizModalDetail') }}</div>
+      </KModal>
     </KPageContainer>
 
   </CoreBase>
