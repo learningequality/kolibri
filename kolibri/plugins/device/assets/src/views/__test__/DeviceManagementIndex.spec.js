@@ -5,6 +5,8 @@ import router from '../../../test/views/testRouter';
 
 jest.mock('kolibri.urls');
 
+Index.computed.immersivePageRoute = () => ({});
+
 function makeStore() {
   return makeAvailableChannelsPageStore();
 }
@@ -12,7 +14,7 @@ function makeStore() {
 function makeWrapper(store) {
   const wrapper = mount(Index, {
     store: store || makeStore,
-    router,
+    ...router,
   });
   const els = {
     CoreBase: () => wrapper.find({ name: 'CoreBase' }),

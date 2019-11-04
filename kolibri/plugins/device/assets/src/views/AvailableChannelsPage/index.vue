@@ -45,7 +45,7 @@
 
         <div v-else>
           <ChannelPanel
-            v-for="channel in filteredItems"
+            v-for="channel in availableChannels"
             v-show="showItem(channel)"
             :key="channel.id"
             :channel="channel"

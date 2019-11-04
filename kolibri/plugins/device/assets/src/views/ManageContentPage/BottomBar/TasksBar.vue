@@ -90,6 +90,7 @@
     padding: 4px 0;
   }
   .progress-bar {
+    min-width: 300px;
     max-width: 400px;
     text-align: left;
   }

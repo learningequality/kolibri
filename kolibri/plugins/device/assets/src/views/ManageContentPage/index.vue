@@ -3,13 +3,6 @@
   <div>
 
     <div>
-      <!-- <TaskProgress
-         v-if="activeTaskList[0]"
-         v-bind="activeTaskList[0]"
-         @cleartask="clearCompletedTasks"
-         @canceltask="cancelRunningTask(activeTaskList[0].id)"
-       />
-  -->
       <KGrid>
         <KGridItem
           :layout8="{ span: 4 }"
@@ -18,7 +11,6 @@
           <h1>{{ coreString('channelsLabel') }}</h1>
         </KGridItem>
         <KGridItem
-          v-if="!activeTaskList.length"
           :layout8="{ span: 4, alignment: 'right' }"
           :layout12="{ span: 6, alignment: 'right' }"
         >
@@ -73,8 +65,6 @@
   import find from 'lodash/find';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { TaskResource } from 'kolibri.resources';
-  import TaskProgress from './TaskProgress';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -91,7 +81,6 @@
       ChannelPanel,
       DeleteChannelModal,
       SelectTransferSourceModal,
-      // TaskProgress,
       TasksBar,
     },
     mixins: [commonCoreStrings],
@@ -101,14 +90,14 @@
       };
     },
     computed: {
-      ...mapGetters('manageContent', ['activeTaskList', 'installedChannelsWithResources']),
+      ...mapGetters('manageContent', ['installedChannelsWithResources']),
       ...mapState('manageContent/wizard', ['pageName']),
       channelsAreInstalled() {
         return this.installedChannelsWithResources.length > 0;
       },
       selectedChannelTitle() {
         if (this.deleteChannelId) {
-          return find(this.installedChannelsWithResources, { id: this.deleteChannelId });
+          return find(this.installedChannelsWithResources, { id: this.deleteChannelId }).name;
         }
         return '';
       },
@@ -131,19 +120,10 @@
     },
     methods: {
       ...mapActions('manageContent', [
-        'cancelTask',
         'refreshChannelList',
         'startImportWorkflow',
         'triggerChannelDeleteTask',
       ]),
-      cancelRunningTask(taskId) {
-        this.cancelTask(taskId)
-          // Handle failures silently in case of near-simultaneous cancels.
-          .catch(() => {});
-      },
-      clearCompletedTasks() {
-        return TaskResource.deleteFinishedTasks();
-      },
       handleSelect({ value }) {
         const nextRoute = {
           DELETE: 'DELETE_CHANNELS',

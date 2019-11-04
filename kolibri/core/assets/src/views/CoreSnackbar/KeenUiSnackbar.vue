@@ -39,16 +39,6 @@
     props: {
       message: String,
       action: String,
-      transition: {
-        type: String,
-        default: 'slide', // 'slide' or 'fade'
-      },
-    },
-
-    computed: {
-      transitionName() {
-        return 'ui-snackbar--transition-' + this.transition;
-      },
     },
 
     methods: {
@@ -60,13 +50,6 @@
         this.$emit('action-click');
       },
 
-      onEnter() {
-        this.$emit('show');
-      },
-
-      onLeave() {
-        this.$emit('hide');
-      },
     },
   };
 

@@ -12,7 +12,7 @@ function makeWrapper(options) {
     propsData: props,
     store: store || makeSelectContentPageStore(),
     stubs: ['content-tree-viewer'],
-    router,
+    ...router,
   });
   // To avoid test failures
   wrapper.vm.refreshPage = () => {};
@@ -27,7 +27,7 @@ function updateMetaChannel(store, updates) {
   });
 }
 
-describe('selectContentPage', () => {
+describe('SelectContentPage', () => {
   let store;
 
   beforeEach(() => {

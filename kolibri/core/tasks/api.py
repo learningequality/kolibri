@@ -106,10 +106,7 @@ def add_channel_and_user_name(meta_dict, user):
             meta_dict.update({"channel_name": channel.name})
     except ChannelMetadata.DoesNotExist:
         pass
-    meta_dict.update({
-        "started_by": user.pk,
-        "started_by_username" : user.username
-    })
+    meta_dict.update({"started_by": user.pk, "started_by_username": user.username})
 
 
 class TasksViewSet(viewsets.ViewSet):
@@ -338,10 +335,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         channel_id = request.data["channel_id"]
 
-        job_metadata = {
-            "type": "DELETECHANNEL",
-            "channel_id": channel_id,
-        }
+        job_metadata = {"type": "DELETECHANNEL", "channel_id": channel_id}
         add_channel_and_user_name(job_metadata, request.user)
 
         task_id = get_queue().enqueue(
@@ -468,9 +462,7 @@ class TasksViewSet(viewsets.ViewSet):
         task_id = request.data.get("task_id")
         if task_id:
             get_queue().clear_job(task_id)
-            return Response({
-                "task_id": task_id,
-            })
+            return Response({"task_id": task_id})
         else:
             return Response({})
 

@@ -1,9 +1,12 @@
 import VueRouter from 'vue-router';
-import { mount } from '@vue/test-utils';
+import { mount, createLocalVue } from '@vue/test-utils';
 import LearnIndex from '../../src/views/LearnIndex';
 import makeStore from '../makeStore';
 
 jest.mock('kolibri.urls');
+
+const localVue = createLocalVue();
+localVue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
@@ -28,6 +31,7 @@ function makeWrapper(options) {
       topicsPage: true,
       TotalPoints: true,
     },
+    localVue,
     router,
   });
 }

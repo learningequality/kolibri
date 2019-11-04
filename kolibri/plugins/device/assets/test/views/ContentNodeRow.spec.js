@@ -17,7 +17,7 @@ function makeWrapper(props = {}) {
   return mount(ContentNodeRow, {
     propsData: { ...defaultProps, ...props },
     store,
-    router,
+    ...router,
   });
 }
 

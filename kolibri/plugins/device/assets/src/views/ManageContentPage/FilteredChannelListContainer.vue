@@ -5,10 +5,10 @@
     <slot name="header"></slot>
 
     <div class="top-panel">
-      <p class="count-msg">
+      <p class="count-msg" data-test="available">
         {{ channelsCountMsg }}
       </p>
-      <div class="filters">
+      <div v-if="channels.length > 0" class="filters">
         <KSelect
           v-model="languageFilter"
           class="filter-lang"
@@ -130,10 +130,6 @@
       channelPassesFilters(channel) {
         let languageMatches = true;
         let titleMatches = true;
-        let isOnDevice = true;
-        if (this.inExportMode) {
-          isOnDevice = this.channelIsOnDevice(channel);
-        }
         if (this.languageFilter.value !== 'ALL') {
           languageMatches = channel.lang_code === this.languageFilter.value;
         }
@@ -142,7 +138,7 @@
           const tokens = this.titleFilter.split(/\s+/).map(val => val.toLowerCase());
           titleMatches = tokens.every(token => channel.name.toLowerCase().includes(token));
         }
-        return languageMatches && titleMatches && isOnDevice;
+        return languageMatches && titleMatches;
       },
     },
     $trs: {

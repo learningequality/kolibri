@@ -1,14 +1,13 @@
 <template>
 
   <KModal
-    id="select-classroom"
     :title="modalTitle"
     v-bind="modalTexts"
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
     <!-- Classroom Selection Form -->
-    <template v-if="stage=== Stages.SELECT_CLASSROOM">
+    <div v-if="stage=== Stages.SELECT_CLASSROOM" id="select-classroom">
       <KRadioButton
         v-for="classroom in availableClassrooms"
         :key="classroom.id"
@@ -16,9 +15,9 @@
         :label="classroomLabel(classroom)"
         :value="classroom.id"
       />
-    </template>
+    </div>
     <!-- Learner Group Selection Form -->
-    <template v-else>
+    <div v-else id="select-learnergroup">
       <p>{{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}</p>
       <p>{{ assignmentQuestion }}</p>
       <RecipientSelector
@@ -26,7 +25,7 @@
         :groups="availableGroups"
         :classId="selectedClassroomId"
       />
-    </template>
+    </div>
   </KModal>
 
 </template>

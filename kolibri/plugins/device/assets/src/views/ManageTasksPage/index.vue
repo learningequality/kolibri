@@ -46,6 +46,13 @@
     computed: {
       ...mapState('manageContent', ['taskList']),
     },
+    watch: {
+      taskList(val) {
+        if (val.length > 0) {
+          this.loading = false;
+        }
+      },
+    },
     mounted() {
       // Wait some time for first poll from Tasks API
       if (this.taskList.length === 0) {
@@ -65,7 +72,7 @@
         TaskResource.postListEndpoint('cleartask', { task_id: task.id });
       },
       handleClickCancel(task) {
-        TaskResource.cancelTask({ task_id: task.id });
+        TaskResource.cancelTask(task.id);
       },
     },
     $trs: {

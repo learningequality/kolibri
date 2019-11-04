@@ -14,7 +14,7 @@ function makeWrapper(options = {}) {
   return mount(ContentTreeViewer, {
     propsData: props,
     store: store || makeSelectContentPageStore(),
-    router,
+    ...router,
   });
 }
 
@@ -37,7 +37,7 @@ function getElements(wrapper) {
   };
 }
 
-describe('contentTreeViewer component', () => {
+describe('ContentTreeViewer component', () => {
   let store;
 
   function setChildren(children) {
