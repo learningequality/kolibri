@@ -4,7 +4,7 @@
     <KIcon
       icon="error"
       :color="$themeTokens.primary"
-      style="position: relative; top:4px; left: 4px;"
+      style="position: relative; top: 4px; left: 4px; right: 4px;"
     />
     <KTooltip
       reference="icon"

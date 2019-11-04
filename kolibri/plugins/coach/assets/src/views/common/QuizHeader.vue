@@ -1,6 +1,6 @@
 <template>
 
-  <KPageContainer style="padding-top:16px;">
+  <KPageContainer style="padding-top: 16px;">
     <BackLink
       :to="backlink"
       :text="backlinkLabel"
@@ -11,7 +11,7 @@
     -->
     <BackLinkWithOptions>
       <div slot="backlink">
-        <h1>
+        <h1 class="exam-title">
           <KLabeledIcon icon="quiz" :label="exam.title" />
         </h1>
         <StatusElapsedTime :date="examCreatedDate" actionType="created" />
@@ -70,11 +70,7 @@
 
 <style lang="scss" scoped>
 
-  .stats {
-    margin-right: 16px;
-  }
-
-  h1 {
+  .exam-title {
     margin-bottom: 0;
     font-size: 1.5rem;
   }

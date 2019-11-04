@@ -149,7 +149,7 @@
 
   .small-answered-count {
     display: block;
-    margin-left: 1.75rem;
+    margin-left: 28px;
     font-size: small;
     color: gray;
   }

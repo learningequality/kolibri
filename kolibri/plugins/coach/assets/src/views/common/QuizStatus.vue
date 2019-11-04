@@ -1,30 +1,30 @@
 <template>
 
-  <KPageContainer>
+  <KPageContainer topMargin="8">
     <KButton
       v-if="!exam.active && !exam.archive"
       :primary="true"
       :text="coachString('openQuizLabel')"
       type="button"
-      style="margin-left: 0; margin-top: 1rem; margin-bottom: 0;"
+      style="margin-left: 0; margin-top: 16px; margin-bottom: 0;"
       @click="showConfirmationModal = true"
     />
     <div v-if="exam.active && !exam.archive">
       <KButton
         :text="coachString('closeQuizLabel')"
         type="submit"
-        style="margin-left: 0; margin-top: 1rem; margin-bottom: 0;"
+        style="margin-left: 0; margin-top: 16px; margin-bottom: 0;"
         :appearanceOverrides="cancelStyleOverrides"
         @click="showCancellationModal = true"
       />
-      <StatusElapsedTime :date="examDateOpened" actionType="opened" />
+      <StatusElapsedTime :date="examDateOpened" actionType="opened" style="margin-top: 8px;" />
     </div>
     <KGrid gutter="16">
       <KGridItem v-if="exam.archive" class="status-label">
         {{ coachString('quizClosedLabel') }}
       </KGridItem>
-      <KGridItem style="margin-bottom: 1rem">
-        <StatusElapsedTime :date="examDateArchived" />
+      <KGridItem style="margin-bottom: 16px">
+        <StatusElapsedTime :date="examDateArchived" style="margin-top: 8px;" />
       </KGridItem>
       <KGridItem v-if="exam.archive" class="status-label" :layout12="{ span: 8 }">
         {{ $tr('reportVisibleToLearnersLabel') }}
@@ -230,7 +230,7 @@
     font-size: 0.925rem;
   }
   .status-label {
-    padding-top: 1.5rem;
+    padding-top: 24px;
     font-weight: bold;
   }
 
