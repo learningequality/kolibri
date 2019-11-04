@@ -30,7 +30,7 @@
         />
       </KGridItem>
       <KGridItem :layout12="{ span: 8 }">
-        <KPageContainer>
+        <KPageContainer topMargin="16">
           <HeaderTabs>
             <HeaderTab
               :text="coachString('reportLabel')"

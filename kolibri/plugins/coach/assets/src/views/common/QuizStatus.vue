@@ -1,6 +1,6 @@
 <template>
 
-  <KPageContainer topMargin="8">
+  <KPageContainer topMargin="16">
     <KButton
       v-if="!exam.active && !exam.archive"
       :primary="true"
