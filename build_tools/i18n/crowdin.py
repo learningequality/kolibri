@@ -6,7 +6,8 @@ For usage instructions, see:
 This set of functions interacts with the crowdin API as documented here:
     https://support.crowdin.com/api/api-integration-setup/
 """
-import argparse
+
+import click
 import csv
 import io
 import json
@@ -25,9 +26,15 @@ logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
 
 
-if "CROWDIN_API_KEY" not in os.environ:
-    logging.error("The CROWDIN_API_KEY environment variable needs to be set")
-    sys.exit(1)
+"""
+Ensure that the API key is set
+"""
+
+
+def _checkApiKey():
+    if "CROWDIN_API_KEY" not in os.environ:
+        logging.error("The CROWDIN_API_KEY environment variable needs to be set")
+        sys.exit(1)
 
 
 """
@@ -47,14 +54,15 @@ https://kolibri-dev.readthedocs.io/en/develop/i18n.html#updating-the-perseus-plu
 """
 
 
-if not (os.path.exists(utils.PERSEUS_LOCALE_PATH)):
-    logging.error("Cannot find Perseus locale directory.")
-    logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
-    sys.exit(1)
-elif "/site-packages/" in utils.PERSEUS_LOCALE_PATH:
-    logging.error("It appears that Perseus is not installed for development.")
-    logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
-    sys.exit(1)
+def _checkPerseus():
+    if not (os.path.exists(utils.PERSEUS_LOCALE_PATH)):
+        logging.error("Cannot find Perseus locale directory.")
+        logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
+        sys.exit(1)
+    elif "/site-packages/" in utils.PERSEUS_LOCALE_PATH:
+        logging.warning("It appears that Perseus is not installed for development.")
+        logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
+        click.confirm("Continue anyway?", abort=True)
 
 
 """
@@ -166,10 +174,14 @@ Rebuild command
 """
 
 
-def command_rebuild(branch):
+@click.command()
+@click.argument("branch")
+def rebuild(branch):
     """
-    Rebuilds zip files for the given branch on Crowdin
+    Rebuild the given branch
     """
+    _checkApiKey()
+
     logging.info("Crowdin: rebuilding '{}'. This could take a while...".format(branch))
     r = requests.get(REBUILD_URL.format(branch=branch))
     r.raise_for_status()
@@ -186,10 +198,20 @@ Pre-translate command
 """
 
 
-def command_pretranslate(branch, approve_all=False):
+@click.command()
+@click.option(
+    "--approve-all",
+    is_flag=True,
+    default=False,
+    help="Automatically approve all string matches (default False)",
+)
+@click.argument("branch")
+def pretranslate(branch, approve_all=False):
     """
-    Applies pre-translation to the given branch on Crowdin
+    Apply pre-translation to the given branch
     """
+    _checkApiKey()
+
     params = []
     files = [
         "{}/{}".format(branch, f)
@@ -263,7 +285,15 @@ def _upload_translation(branch, lang_object):
     logging.info("Crowdin: upload succeeded!")
 
 
-def command_upload_translations(branch):
+@click.command()
+@click.argument("branch")
+def upload_translations(branch):
+    """
+    Upload translations to the given branch
+    """
+    _checkPerseus()
+    _checkApiKey()
+
     supported_languages = utils.supported_languages(
         include_in_context=False, include_english=False
     )
@@ -332,7 +362,16 @@ def _locale_data_from_csv(file_data):
     return json
 
 
-def command_convert():
+"""
+Convert command
+"""
+
+
+@click.command()
+def convert():
+    """
+    Convert downloaded CSVs to JSON files
+    """
     _format_json_files()
     logging.info("Kolibri: CSV to JSON conversion succeeded!")
 
@@ -349,10 +388,15 @@ def _wipe_translations(locale_path):
             shutil.rmtree(target)
 
 
-def command_download(branch):
+@click.command()
+@click.argument("branch")
+def download(branch):
     """
-    Downloads and updates the local translation files from the given branch on Crowdin
+    Download translations from the given branch
     """
+    _checkPerseus()
+    _checkApiKey()
+
     logging.info("Crowdin: downloading '{}'...".format(branch))
 
     # delete previous files
@@ -422,10 +466,15 @@ def _modify(url, file_names):
             ref[1].close()
 
 
-def command_upload_sources(branch):
+@click.command()
+@click.argument("branch")
+def upload_sources(branch):
     """
-    Uploads the English translation source files to the given branch on Crowdin
+    Upload English source files to the given branch
     """
+    _checkPerseus()
+    _checkApiKey()
+
     logging.info("Crowdin: uploading sources for '{}'...".format(branch))
     details = _get_crowdin_details()
     if _no_crowdin_branch(branch, details):
@@ -482,10 +531,14 @@ Branch: {branch}
 """
 
 
-def command_stats(branch):
+@click.command()
+@click.argument("branch")
+def stats(branch):
     """
-    Prints stats for the translation status of the given branch
+    Print stats for the given branch
     """
+    _checkApiKey()
+
     logging.info("Crowdin: getting details for '{}'...".format(branch))
 
     def _is_branch_node(node):
@@ -572,64 +625,20 @@ Main
 """
 
 
+@click.group()
 def main():
-    description = "\n\nProcess crowdin translations.\nSyntax: [command] [branch]\n\n"
-    parser = argparse.ArgumentParser(description=description)
-    subparsers = parser.add_subparsers(dest="command")
-    parser_download = subparsers.add_parser(
-        "download", help="Download translations from Crowdin"
-    )
-    parser_download.add_argument("branch", help="Branch name", type=str)
-    parser_convert = subparsers.add_parser(
-        "convert", help="Convert downloaded CSVs to JSON files"
-    )
-    parser_upload = subparsers.add_parser(
-        "upload-sources", help="Upload English sources to Crowdin"
-    )
-    parser_upload.add_argument("branch", help="Branch name", type=str)
-    parser_pretranslate = subparsers.add_parser(
-        "pretranslate", help="Apply translation memory on Crowdin"
-    )
-    parser_pretranslate.add_argument(
-        "--approve-all",
-        dest="approve",
-        action="store_true",
-        default=False,
-        help="Automatically approve all string matches on Crowdin",
-    )
-    parser_pretranslate.add_argument("branch", help="Branch name", type=str)
-    parser_rebuild = subparsers.add_parser(
-        "rebuild", help="Rebuild the translations on Crowdin"
-    )
-    parser_rebuild.add_argument("branch", help="Branch name", type=str)
-    parser_stats = subparsers.add_parser(
-        "stats", help="Stats for the translations on Crowdin"
-    )
-    parser_stats.add_argument("branch", help="Branch name", type=str)
-    parser_upload_translations = subparsers.add_parser(
-        "upload-translations", help="Upload a translation from a backup file"
-    )
-    parser_upload_translations.add_argument("branch", help="Branch name", type=str)
-    args = parser.parse_args()
+    """
+    Process crowdin translations
+    """
 
-    if args.command == "download":
-        command_download(args.branch)
-    elif args.command == "upload-sources":
-        command_upload_sources(args.branch)
-    elif args.command == "rebuild":
-        command_rebuild(args.branch)
-    elif args.command == "pretranslate":
-        command_pretranslate(args.branch, args.approve)
-    elif args.command == "stats":
-        command_stats(args.branch)
-    elif args.command == "upload-translations":
-        command_upload_translations(args.branch)
-    elif args.command == "convert":
-        command_convert()
-    else:
-        logging.warning("Unknown command\n")
-        parser.print_help(sys.stderr)
 
+main.add_command(convert)
+main.add_command(download)
+main.add_command(pretranslate)
+main.add_command(rebuild)
+main.add_command(stats)
+main.add_command(upload_sources)
+main.add_command(upload_translations)
 
 if __name__ == "__main__":
     main()
