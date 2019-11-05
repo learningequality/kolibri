@@ -94,6 +94,12 @@ DOWNLOAD_URL = CROWDIN_API_URL.format(
     cmd="download/all.zip",
     params="&branch={branch}",
 )
+DOWNLOAD_GLOSSRY_URL = CROWDIN_API_URL.format(
+    proj=CROWDIN_PROJECT,
+    key=CROWDIN_API_KEY,
+    cmd="download-glossary",
+    params="&include_assigned=0",
+)
 ADD_SOURCE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
@@ -137,6 +143,7 @@ UPLOAD_TRANSLATION_URL = CROWDIN_API_URL.format(
 
 PERSEUS_FILE = "exercise_perseus_render_module-messages.json"
 PERSEUS_CSV = "exercise_perseus_render_module-messages.csv"
+GLOSSARY_XML_FILE = "glossary.tbx"
 
 """
 Shared helpers
@@ -377,7 +384,7 @@ def convert_files():
 
 
 """
-Download command
+Download translations command
 """
 
 
@@ -430,6 +437,33 @@ def download_translations(branch):
 
     ## TODO Don't need to format here... going to do this in the new command.
     _csv_to_json()  # clean them up to make git diffs more meaningful
+    logging.info("Crowdin: download succeeded!")
+
+
+"""
+Glossary commands
+"""
+
+
+@click.command()
+def download_glossary():
+    """
+    Download glossary files
+    """
+    _checkApiKey()
+
+    logging.info("Crowdin: downloading glossary...")
+
+    response = requests.get(DOWNLOAD_GLOSSRY_URL)
+    response.raise_for_status()
+
+    # import ipdb
+    # ipdb.set_trace()
+
+    glossary_file = os.path.join(utils.LOCALE_PATH, GLOSSARY_XML_FILE)
+    with io.open(glossary_file, mode="w", encoding="utf-8") as f:
+        f.write(response.text)
+
     logging.info("Crowdin: download succeeded!")
 
 
@@ -639,6 +673,7 @@ main.add_command(rebuild_translations)
 main.add_command(translation_stats)
 main.add_command(upload_sources)
 main.add_command(upload_translations)
+main.add_command(download_glossary)
 
 if __name__ == "__main__":
     main()
