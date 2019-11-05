@@ -79,7 +79,7 @@
 
   .label {
     display: block;
-    margin-left: 1.925em;
+    margin-left: 1.925em; /* scale with parent font size */
   }
 
   .label svg {

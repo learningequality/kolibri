@@ -155,7 +155,7 @@
 
   .small-answered-count {
     display: block;
-    margin-left: 28px;
+    margin-left: 1.75rem; /* matches KLabeledIcon */
     font-size: small;
   }
 
