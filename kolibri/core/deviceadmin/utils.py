@@ -4,6 +4,7 @@ import os
 import re
 import sys
 from datetime import datetime
+from datetime import timedelta
 
 from django import db
 from django.conf import settings
@@ -212,6 +213,6 @@ def schedule_vacuum():
     vacuum_time = current_dt.replace(hour=3, minute=0, second=0, microsecond=0)
     if vacuum_time < current_dt:
         # If it is past 3AM, change the day to tomorrow.
-        vacuum_time = vacuum_time.replace(day=vacuum_time.day + 1)
+        vacuum_time = vacuum_time + timedelta(days=1)
     # Repeat indefinitely
     scheduler.schedule(vacuum_time, perform_vacuum, repeat=None, interval=24 * 60 * 60)
