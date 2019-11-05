@@ -517,7 +517,7 @@
       whatsThis: "What's this?",
       oidcGenericExplanation:
         'Kolibri is an e-learning platform. You can also use your Kolibri account to log in to some third-party applications.',
-      // Disable the rule here because we will keep this unused string in case we need it later on.
+      // Disable the rule here because we will keep this unused string in case we need it later on
       // eslint-disable-next-line kolibri/vue-no-unused-translations
       oidcSpecificExplanation:
         "You were sent here from the application '{app_name}'. Kolibri is an e-learning platform, and you can also use your Kolibri account to access '{app_name}'.",

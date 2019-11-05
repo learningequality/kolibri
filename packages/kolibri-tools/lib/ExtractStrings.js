@@ -405,8 +405,10 @@ function toCSV(path, messages) {
       translation: '',
     };
   });
-
-  csvWriter.writeRecords(sortBy(csvData, 'identifier')).then(() => logging.log('Wrote file!'));
+  const fileName = path.split('/')[path.split('/').length - 1];
+  csvWriter
+    .writeRecords(sortBy(csvData, 'identifier'))
+    .then(() => logging.log(`Generated CSV messages file: ${fileName}`));
 }
 
 module.exports = ExtractStrings;
