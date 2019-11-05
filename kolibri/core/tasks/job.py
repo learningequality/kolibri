@@ -3,9 +3,9 @@ import logging
 import uuid
 from functools import partial
 
-from kolibri.core.tasks.iceqube.utils import current_job_tracker
-from kolibri.core.tasks.iceqube.utils import import_stringified_func
-from kolibri.core.tasks.iceqube.utils import stringify_func
+from kolibri.core.tasks.utils import current_job_tracker
+from kolibri.core.tasks.utils import import_stringified_func
+from kolibri.core.tasks.utils import stringify_func
 
 logger = logging.getLogger(__name__)
 

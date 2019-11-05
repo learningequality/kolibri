@@ -4,10 +4,10 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
 
-from kolibri.core.tasks.iceqube.classes import Job
-from kolibri.core.tasks.iceqube.classes import State
-from kolibri.core.tasks.iceqube.storage import Storage
-from kolibri.core.tasks.iceqube.utils import stringify_func
+from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import State
+from kolibri.core.tasks.storage import Storage
+from kolibri.core.tasks.utils import stringify_func
 
 
 QUEUE = "pytest"

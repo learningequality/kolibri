@@ -75,7 +75,7 @@ class NotRunning(Exception):
 def run_services():
 
     # Initialize the iceqube scheduler to handle scheduled tasks
-    from kolibri.core.tasks.queue import scheduler
+    from kolibri.core.tasks.main import scheduler
 
     scheduler.clear_scheduler()
 
@@ -91,12 +91,12 @@ def run_services():
 
     # This is run every time the server is started to clear all the tasks
     # in the queue
-    from kolibri.core.tasks.queue import queue
+    from kolibri.core.tasks.main import queue
 
     queue.empty()
 
     # Initialize the iceqube engine to handle queued tasks
-    from kolibri.core.tasks.queue import initialize_worker
+    from kolibri.core.tasks.main import initialize_worker
 
     initialize_worker()
 

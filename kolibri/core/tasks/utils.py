@@ -3,7 +3,7 @@ import logging
 import time
 import uuid
 
-from kolibri.core.tasks.iceqube import compat
+from kolibri.core.tasks import compat
 
 
 # An object on which to store data about the current job
@@ -17,9 +17,10 @@ def get_current_job():
 
 
 def stringify_func(func):
-    assert callable(
-        func
-    ), "function {} passed to stringify_func isn't a function!".format(func)
+    if not callable(func):
+        raise TypeError(
+            "function {} passed to stringify_func isn't a function!".format(func)
+        )
 
     fqn = "{module}.{funcname}".format(module=func.__module__, funcname=func.__name__)
     return fqn
@@ -33,7 +34,8 @@ def import_stringified_func(funcstring):
     :param funcstring: String to try to import
     :return: callable
     """
-    assert isinstance(funcstring, str)
+    if not isinstance(funcstring, str):
+        raise TypeError("Argument must be a string")
 
     modulestring, funcname = funcstring.rsplit(".", 1)
 

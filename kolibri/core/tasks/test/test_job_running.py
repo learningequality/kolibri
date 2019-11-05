@@ -6,14 +6,14 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
 
-from kolibri.core.tasks.iceqube.classes import Job
-from kolibri.core.tasks.iceqube.classes import State
-from kolibri.core.tasks.iceqube.compat import Event
-from kolibri.core.tasks.iceqube.queue import Queue
-from kolibri.core.tasks.iceqube.storage import Storage
-from kolibri.core.tasks.iceqube.utils import import_stringified_func
-from kolibri.core.tasks.iceqube.utils import stringify_func
-from kolibri.core.tasks.iceqube.worker import Worker
+from kolibri.core.tasks.compat import Event
+from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import State
+from kolibri.core.tasks.queue import Queue
+from kolibri.core.tasks.storage import Storage
+from kolibri.core.tasks.utils import import_stringified_func
+from kolibri.core.tasks.utils import stringify_func
+from kolibri.core.tasks.worker import Worker
 
 
 @pytest.fixture

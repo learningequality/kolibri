@@ -4,7 +4,7 @@ from collections import namedtuple
 import click
 from django.core.management.base import BaseCommand
 
-from kolibri.core.tasks.iceqube.exceptions import UserCancelledError
+from kolibri.core.tasks.exceptions import UserCancelledError
 
 Progress = namedtuple(
     "Progress", ["progress_fraction", "message", "extra_data", "level"]

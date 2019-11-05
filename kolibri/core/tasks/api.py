@@ -16,10 +16,10 @@ from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.paths import get_content_database_file_path
-from kolibri.core.tasks.iceqube.classes import State
-from kolibri.core.tasks.iceqube.exceptions import JobNotFound
-from kolibri.core.tasks.iceqube.exceptions import UserCancelledError
-from kolibri.core.tasks.queue import queue
+from kolibri.core.tasks.exceptions import JobNotFound
+from kolibri.core.tasks.exceptions import UserCancelledError
+from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import queue
 from kolibri.utils import conf
 
 try:

@@ -10,7 +10,7 @@ from django import db
 from django.conf import settings
 
 import kolibri
-from kolibri.core.tasks.queue import scheduler
+from kolibri.core.tasks.main import scheduler
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.time_utils import local_now
 

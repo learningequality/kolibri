@@ -3,7 +3,7 @@ import time
 
 from mock import patch
 
-from kolibri.core.tasks.iceqube.utils import InfiniteLoopThread
+from kolibri.core.tasks.utils import InfiniteLoopThread
 
 
 class TestBaseCloseableThread(object):

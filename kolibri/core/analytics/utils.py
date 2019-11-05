@@ -37,8 +37,8 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import UserSessionLog
-from kolibri.core.tasks.iceqube.utils import get_current_job
-from kolibri.core.tasks.queue import scheduler
+from kolibri.core.tasks.main import scheduler
+from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 from kolibri.utils.server import installation_type
 

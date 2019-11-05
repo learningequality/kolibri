@@ -7,9 +7,9 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
-from kolibri.core.tasks.iceqube.classes import Job
-from kolibri.core.tasks.iceqube.classes import State
-from kolibri.core.tasks.iceqube.exceptions import JobNotFound
+from kolibri.core.tasks.exceptions import JobNotFound
+from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import State
 
 DUMMY_PASSWORD = "password"
 

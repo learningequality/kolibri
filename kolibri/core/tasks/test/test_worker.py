@@ -6,9 +6,9 @@ from mock import patch
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
 
-from kolibri.core.tasks.iceqube.classes import Job
-from kolibri.core.tasks.iceqube.classes import State
-from kolibri.core.tasks.iceqube.worker import Worker
+from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import State
+from kolibri.core.tasks.worker import Worker
 
 
 QUEUE = "pytest"

@@ -10,12 +10,12 @@ from sqlalchemy import PickleType
 from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
 
-from kolibri.core.tasks.iceqube.classes import Job
-from kolibri.core.tasks.iceqube.classes import State
-from kolibri.core.tasks.iceqube.exceptions import JobNotFound
-from kolibri.core.tasks.iceqube.queue import Queue
-from kolibri.core.tasks.iceqube.storage import StorageMixin
-from kolibri.core.tasks.iceqube.utils import InfiniteLoopThread
+from kolibri.core.tasks.exceptions import JobNotFound
+from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import State
+from kolibri.core.tasks.queue import Queue
+from kolibri.core.tasks.storage import StorageMixin
+from kolibri.core.tasks.utils import InfiniteLoopThread
 
 Base = declarative_base()
 

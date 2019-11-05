@@ -5,10 +5,10 @@ from concurrent.futures import CancelledError
 from concurrent.futures._base import CANCELLED
 from concurrent.futures._base import CANCELLED_AND_NOTIFIED
 
-from kolibri.core.tasks.iceqube.compat import MULTIPROCESS
-from kolibri.core.tasks.iceqube.exceptions import UserCancelledError
-from kolibri.core.tasks.iceqube.storage import Storage
-from kolibri.core.tasks.iceqube.utils import InfiniteLoopThread
+from kolibri.core.tasks.compat import MULTIPROCESS
+from kolibri.core.tasks.exceptions import UserCancelledError
+from kolibri.core.tasks.storage import Storage
+from kolibri.core.tasks.utils import InfiniteLoopThread
 
 logger = logging.getLogger(__name__)
 

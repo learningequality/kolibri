@@ -3,7 +3,7 @@ A file to contain specific logic to handle version upgrades in Kolibri.
 """
 import logging
 
-from kolibri.core.tasks.queue import queue
+from kolibri.core.tasks.main import queue
 from kolibri.core.upgrade import version_upgrade
 
 logger = logging.getLogger(__name__)

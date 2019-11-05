@@ -5,9 +5,9 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
 
-from kolibri.core.tasks.iceqube.exceptions import JobNotFound
-from kolibri.core.tasks.iceqube.queue import Queue
-from kolibri.core.tasks.iceqube.scheduler import Scheduler
+from kolibri.core.tasks.exceptions import JobNotFound
+from kolibri.core.tasks.queue import Queue
+from kolibri.core.tasks.scheduler import Scheduler
 
 
 @pytest.fixture

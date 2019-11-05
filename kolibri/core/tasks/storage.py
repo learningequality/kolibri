@@ -13,8 +13,8 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from kolibri.core.tasks.iceqube.classes import State
-from kolibri.core.tasks.iceqube.exceptions import JobNotFound
+from kolibri.core.tasks.exceptions import JobNotFound
+from kolibri.core.tasks.job import State
 
 Base = declarative_base()
 
