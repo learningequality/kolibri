@@ -5,3 +5,7 @@ steps:
   # - if: build.source == "trigger_job"
   - label: "Dev Build APK"
     command: ".buildkite/build.sh"
+
+    # Automatically uploads from this directory when step completes
+    artifact_paths:
+      - "dist/android/*release.apk"

@@ -19,5 +19,5 @@ echo "--- :android: Build APK"
 make run_docker
 
 echo "--- :gcloud: Uploading APK"
+
 # TODO upload directly to google cloud
-buildkite-agent artifact upload '*-release.apk'
