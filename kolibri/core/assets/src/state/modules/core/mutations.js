@@ -1,9 +1,17 @@
+import Vue from 'kolibri.lib.vue';
+
 export default {
   CORE_SET_FACILITY_CONFIG(state, facilityConfig) {
     state.facilityConfig = facilityConfig;
   },
   CORE_SET_FACILITIES(state, facilities) {
     state.facilities = facilities;
+  },
+  CORE_SET_REGISTERED(state, facility) {
+    const match = state.facilities.find(f => f.id === facility.id);
+    if (match) {
+      Vue.set(match.dataset, 'registered', true);
+    }
   },
   // Makes settings for wrong credentials 401 error
   CORE_SET_LOGIN_ERROR(state, value) {
