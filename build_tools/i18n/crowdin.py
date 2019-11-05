@@ -38,10 +38,12 @@ def _checkApiKey():
 
 
 """
-Ensure that these commands are only used when Perseus is installed for development
+Ensure that Perseus is installed for development
 """
 
 PERSEUS_NOT_INSTALLED_FOR_DEV = """
+Perseus strings must be updated during releases along with Kolibri.
+
 Clone https://github.com/learningequality/kolibri-exercise-perseus-plugin/
 and ensure that it has been checked out the the correct commit.
 
@@ -66,105 +68,37 @@ def _checkPerseus():
 
 
 """
-Constants
+Shared constants and helpers
 """
 
 CROWDIN_PROJECT = "kolibri"  # crowdin project name
 CROWDIN_API_KEY = os.environ["CROWDIN_API_KEY"]
 CROWDIN_API_URL = "https://api.crowdin.com/api/project/{proj}/{cmd}?key={key}{params}"
-DETAILS_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT, key=CROWDIN_API_KEY, cmd="info", params="&json"
-)
-
-LANG_STATUS_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="language-status",
-    params="&language={language}&json",
-)
-REBUILD_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="export",
-    params="&branch={branch}&json",
-)
-DOWNLOAD_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="download/all.zip",
-    params="&branch={branch}",
-)
-DOWNLOAD_GLOSSRY_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="download-glossary",
-    params="&include_assigned=0",
-)
-ADD_SOURCE_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="add-file",
-    params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0",
-)
-UPDATE_SOURCE_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="update-file",
-    params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0",
-)
-DELETE_SOURCE_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="delete-file",
-    params="&branch={branch}&json",
-)
-ADD_BRANCH_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="add-directory",
-    params="&name={branch}&is_branch=1&json",
-)
-# pre-translate all strings matches, and auto-approve only those with exact ID matches
-PRETRANSLATE_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="pre-translate",
-    # perfect_match=0 - apply TM to all identical strings, regardless of ID
-    # apply_untranslated_strings_only=1 - don't apply TM to strings that already have translations
-    # approve_translated=1 - auto-approve
-    params="&method=tm&approve_translated=1&auto_approve_option={approve_option}&json&apply_untranslated_strings_only=1&perfect_match=0",
-)
-UPLOAD_TRANSLATION_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="upload-translation",
-    params="&branch={branch}&language={language}&auto_approve_imported=1&import_duplicates=1&json",
-)
 
 PERSEUS_FILE = "exercise_perseus_render_module-messages.json"
 PERSEUS_CSV = "exercise_perseus_render_module-messages.csv"
 GLOSSARY_XML_FILE = "glossary.tbx"
 
-"""
-Shared helpers
-"""
+DETAILS_URL = CROWDIN_API_URL.format(
+    proj=CROWDIN_PROJECT, key=CROWDIN_API_KEY, cmd="info", params="&json"
+)
 
 
-def _get_crowdin_details():
+def get_crowdin_details():
     r = requests.get(DETAILS_URL)
     r.raise_for_status()
     return r.json()
 
 
-def _no_crowdin_branch(branch, details):
+def no_crowdin_branch(branch, details):
     branches = [
         node["name"] for node in details["files"] if node["node_type"] == "branch"
     ]
     return branch not in branches
 
 
-def _crowdin_files(branch, details):
-    if _no_crowdin_branch(branch, details):
+def crowdin_files(branch, details):
+    if no_crowdin_branch(branch, details):
         return set()
     branch_node = next(node for node in details["files"] if node["name"] == branch)
     return set(
@@ -172,13 +106,20 @@ def _crowdin_files(branch, details):
     )
 
 
-def _is_string_file(file_name):
+def is_string_file(file_name):
     return file_name.endswith(".po") or file_name.endswith("-messages.csv")
 
 
 """
-Rebuild command
+Rebuild
 """
+
+REBUILD_URL = CROWDIN_API_URL.format(
+    proj=CROWDIN_PROJECT,
+    key=CROWDIN_API_KEY,
+    cmd="export",
+    params="&branch={branch}&json",
+)
 
 
 @click.command()
@@ -204,6 +145,17 @@ def rebuild_translations(branch):
 Pre-translate command
 """
 
+# pre-translate all strings matches, and auto-approve only those with exact ID matches
+PRETRANSLATE_URL = CROWDIN_API_URL.format(
+    proj=CROWDIN_PROJECT,
+    key=CROWDIN_API_KEY,
+    cmd="pre-translate",
+    # perfect_match=0 - apply TM to all identical strings, regardless of ID
+    # apply_untranslated_strings_only=1 - don't apply TM to strings that already have translations
+    # approve_translated=1 - auto-approve
+    params="&method=tm&approve_translated=1&auto_approve_option={approve_option}&json&apply_untranslated_strings_only=1&perfect_match=0",
+)
+
 
 @click.command()
 @click.option(
@@ -221,8 +173,7 @@ def pretranslate(branch, approve_all=False):
 
     params = []
     files = [
-        "{}/{}".format(branch, f)
-        for f in _crowdin_files(branch, _get_crowdin_details())
+        "{}/{}".format(branch, f) for f in crowdin_files(branch, get_crowdin_details())
     ]
     params.extend([("files[]", file) for file in files])
     codes = [lang[utils.KEY_CROWDIN_CODE] for lang in utils.supported_languages()]
@@ -245,8 +196,15 @@ def pretranslate(branch, approve_all=False):
 
 
 """
-Upload translations command
+Upload translations
 """
+
+UPLOAD_TRANSLATION_URL = CROWDIN_API_URL.format(
+    proj=CROWDIN_PROJECT,
+    key=CROWDIN_API_KEY,
+    cmd="upload-translation",
+    params="&branch={branch}&language={language}&auto_approve_imported=1&import_duplicates=1&json",
+)
 
 
 def _translation_upload_ref(file_name, lang_object):
@@ -260,7 +218,7 @@ def _translation_upload_ref(file_name, lang_object):
 
 def _upload_translation(branch, lang_object):
 
-    if _no_crowdin_branch(branch, _get_crowdin_details()):
+    if no_crowdin_branch(branch, get_crowdin_details()):
         logging.error("Branch '{}' not found.".format(branch))
         sys.exit(1)
 
@@ -276,10 +234,10 @@ def _upload_translation(branch, lang_object):
 
     file_names = []
     for name in os.listdir(utils.local_locale_path(lang_object)):
-        if _is_string_file(name):
+        if is_string_file(name):
             file_names.append(name)
     for name in os.listdir(utils.local_perseus_locale_path(lang_object)):
-        if _is_string_file(name):
+        if is_string_file(name):
             file_names.append(name)
 
     for chunk in _chunks(file_names):
@@ -369,11 +327,6 @@ def _locale_data_from_csv(file_data):
     return json
 
 
-"""
-Convert command
-"""
-
-
 @click.command()
 def convert_files():
     """
@@ -384,8 +337,15 @@ def convert_files():
 
 
 """
-Download translations command
+Download translations
 """
+
+DOWNLOAD_URL = CROWDIN_API_URL.format(
+    proj=CROWDIN_PROJECT,
+    key=CROWDIN_API_KEY,
+    cmd="download/all.zip",
+    params="&branch={branch}",
+)
 
 
 def _wipe_translations(locale_path):
@@ -444,6 +404,13 @@ def download_translations(branch):
 Glossary commands
 """
 
+DOWNLOAD_GLOSSRY_URL = CROWDIN_API_URL.format(
+    proj=CROWDIN_PROJECT,
+    key=CROWDIN_API_KEY,
+    cmd="download-glossary",
+    params="&include_assigned=0",
+)
+
 
 @click.command()
 def download_glossary():
@@ -454,22 +421,57 @@ def download_glossary():
 
     logging.info("Crowdin: downloading glossary...")
 
-    response = requests.get(DOWNLOAD_GLOSSRY_URL)
-    response.raise_for_status()
-
-    # import ipdb
-    # ipdb.set_trace()
+    r = requests.get(DOWNLOAD_GLOSSRY_URL)
+    r.raise_for_status()
 
     glossary_file = os.path.join(utils.LOCALE_PATH, GLOSSARY_XML_FILE)
     with io.open(glossary_file, mode="w", encoding="utf-8") as f:
-        f.write(response.text)
+        f.write(r.text)
+
+    logging.info("Crowdin: download succeeded!")
+
+
+@click.command()
+def download_glossary():
+    """
+    Download glossary files
+    """
+    _checkApiKey()
+
+    logging.info("Crowdin: downloading glossary...")
+
+    r = requests.get(DOWNLOAD_GLOSSRY_URL)
+    r.raise_for_status()
+
+    glossary_file = os.path.join(utils.LOCALE_PATH, GLOSSARY_XML_FILE)
+    with io.open(glossary_file, mode="w", encoding="utf-8") as f:
+        f.write(r.text)
 
     logging.info("Crowdin: download succeeded!")
 
 
 """
-Upload command
+Upload source files
 """
+
+ADD_BRANCH_URL = CROWDIN_API_URL.format(
+    proj=CROWDIN_PROJECT,
+    key=CROWDIN_API_KEY,
+    cmd="add-directory",
+    params="&name={branch}&is_branch=1&json",
+)
+ADD_SOURCE_URL = CROWDIN_API_URL.format(
+    proj=CROWDIN_PROJECT,
+    key=CROWDIN_API_KEY,
+    cmd="add-file",
+    params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0",
+)
+UPDATE_SOURCE_URL = CROWDIN_API_URL.format(
+    proj=CROWDIN_PROJECT,
+    key=CROWDIN_API_KEY,
+    cmd="update-file",
+    params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0",
+)
 
 
 def _source_upload_ref(file_name):
@@ -510,8 +512,8 @@ def upload_sources(branch):
     _checkApiKey()
 
     logging.info("Crowdin: uploading sources for '{}'...".format(branch))
-    details = _get_crowdin_details()
-    if _no_crowdin_branch(branch, details):
+    details = get_crowdin_details()
+    if no_crowdin_branch(branch, details):
         logging.info("\tcreating branch '{}'...".format(branch))
         r = requests.post(ADD_BRANCH_URL.format(branch=branch))
         r.raise_for_status()
@@ -519,13 +521,13 @@ def upload_sources(branch):
     source_files = set(
         file_name
         for file_name in os.listdir(utils.SOURCE_PATH)
-        if _is_string_file(file_name)
+        if is_string_file(file_name)
     )
 
     # hack for perseus
     source_files.add(PERSEUS_FILE)
 
-    current_files = _crowdin_files(branch, details)
+    current_files = crowdin_files(branch, details)
     to_add = source_files.difference(current_files)
     to_update = source_files.intersection(current_files)
 
@@ -540,7 +542,7 @@ def upload_sources(branch):
 
 
 """
-Stats command
+Statistics
 """
 
 STATS_TEMPLATE = """
@@ -563,6 +565,13 @@ Branch: {branch}
 
 =================================================================
 """
+
+LANG_STATUS_URL = CROWDIN_API_URL.format(
+    proj=CROWDIN_PROJECT,
+    key=CROWDIN_API_KEY,
+    cmd="language-status",
+    params="&language={language}&json",
+)
 
 
 @click.command()
