@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <KPageContainer>
 
     <KGrid>
       <KGridItem
@@ -99,7 +99,7 @@
       @cancel="closeModal"
     />
 
-  </div>
+  </KPageContainer>
 
 </template>
 

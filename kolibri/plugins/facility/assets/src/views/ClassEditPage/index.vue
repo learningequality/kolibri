@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <KPageContainer>
 
     <div>
       <h1 class="title-header" dir="auto">
@@ -102,7 +102,7 @@
         />
       </template>
     </UserTable>
-  </div>
+  </KPageContainer>
 
 </template>
 
