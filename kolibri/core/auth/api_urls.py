@@ -10,6 +10,7 @@ from .api import MembershipViewSet
 from .api import RoleViewSet
 from .api import SessionViewSet
 from .api import SignUpViewSet
+from kolibri.core.api import PortalViewSet
 from kolibri.core.routers import BulkDeleteRouter
 
 router = routers.SimpleRouter()
@@ -24,6 +25,7 @@ router.register(r"session", SessionViewSet, base_name="session")
 router.register(r"classroom", ClassroomViewSet, base_name="classroom")
 router.register(r"learnergroup", LearnerGroupViewSet, base_name="learnergroup")
 router.register(r"signup", SignUpViewSet, base_name="signup")
+router.register(r"portal", PortalViewSet, base_name="portal")
 
 bulk_delete_router = BulkDeleteRouter()
 
