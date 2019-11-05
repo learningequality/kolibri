@@ -3,23 +3,22 @@
   <div v-if="!loading">
     <FilteredChannelListContainer
       :channels="allChannels"
-      :selectedChannels="selectedChannels"
+      :selectedChannels.sync="selectedChannels"
       :selectAllCheckbox="true"
-      @changeselectall="handleChangeSelectAll"
     >
       <template v-slot:header>
         <h1>{{ $tr('channelsOnDevice') }}</h1>
       </template>
 
-      <template v-slot:default="{filteredItems, showItem}">
+      <template v-slot:default="{filteredItems, showItem, handleChange, itemIsSelected}">
         <ChanelPanel
           v-for="channel in allChannels"
           v-show="showItem(channel)"
           :key="channel.id"
           :channel="channel"
           :selectedMessage="channelSelectedMessage(channel)"
-          :checked="channelIsSelected(channel)"
-          @checkboxchange="handleChangeChannel"
+          :checked="itemIsSelected(channel)"
+          @checkboxchange="handleChange"
         />
       </template>
     </FilteredChannelListContainer>
@@ -48,8 +47,6 @@
 
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
-  import unionBy from 'lodash/unionBy';
-  import differenceBy from 'lodash/differenceBy';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { TaskResource } from 'kolibri.resources';
   import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
@@ -193,22 +190,6 @@
       },
       channelIsSelected(channel) {
         return Boolean(find(this.selectedChannels, { id: channel.id }));
-      },
-      handleChangeSelectAll({ isSelected, filteredItems }) {
-        if (isSelected) {
-          this.selectedChannels = unionBy(this.selectedChannels, filteredItems, 'id');
-        } else {
-          this.selectedChannels = differenceBy(this.selectedChannels, filteredItems, 'id');
-        }
-      },
-      handleChangeChannel({ channel, isSelected }) {
-        if (isSelected) {
-          if (!this.channelIsSelected(channel)) {
-            this.selectedChannels.push(channel);
-          }
-        } else {
-          this.selectedChannels = this.selectedChannels.filter(({ id }) => id !== channel.id);
-        }
       },
       channelSelectedMessage(channel) {
         if (this.channelIsSelected(channel)) {

@@ -33,11 +33,11 @@
         class="select-all-checkbox"
         :label="$tr('selectAll')"
         :checked="selectAllIsChecked"
-        @change="$emit('changeselectall', {isSelected: $event, filteredItems})"
+        @change="handleChangeSelectAll({ isSelected:$event })"
       />
     </template>
 
-    <slot v-bind="{filteredItems,showItem}"></slot>
+    <slot v-bind="{filteredItems, showItem, itemIsSelected, handleChange}"></slot>
 
     <div
       v-if="filteredItems.length === 0"
@@ -54,6 +54,7 @@
 
   import find from 'lodash/find';
   import differenceBy from 'lodash/differenceBy';
+  import unionBy from 'lodash/unionBy';
   import uniqBy from 'lodash/uniqBy';
   import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
@@ -92,6 +93,11 @@
           return Boolean(find(this.filteredItems, { id: channel.id }));
         }.bind(this);
       },
+      itemIsSelected() {
+        return function(channel) {
+          return Boolean(find(this.selectedChannels, { id: channel.id }));
+        }.bind(this);
+      },
       allLanguagesOption() {
         return {
           label: this.$tr('allLanguages'),
@@ -127,6 +133,32 @@
       this.languageFilter = { ...this.allLanguagesOption };
     },
     methods: {
+      handleChange({ channel, isSelected }) {
+        if (isSelected) {
+          if (!this.itemIsSelected(channel)) {
+            this.$emit('update:selectedChannels', [...this.selectedChannels, channel]);
+          }
+        } else {
+          this.$emit(
+            'update:selectedChannels',
+            this.selectedChannels.filter(({ id }) => id !== channel.id)
+          );
+        }
+        this.$emit('update:selected');
+      },
+      handleChangeSelectAll({ isSelected }) {
+        if (isSelected) {
+          this.$emit(
+            'update:selectedChannels',
+            unionBy(this.selectedChannels, this.filteredItems, 'id')
+          );
+        } else {
+          this.$emit(
+            'update:selectedChannels',
+            differenceBy(this.selectedChannels, this.filteredItems, 'id')
+          );
+        }
+      },
       channelPassesFilters(channel) {
         let languageMatches = true;
         let titleMatches = true;

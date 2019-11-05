@@ -60,6 +60,8 @@
           (this.actionType === 'export' || this.actionType === 'delete')
         ) {
           return sumBy(this.selectedObjects, 'on_device_file_size');
+        } else if (this.objectType === 'channel' && this.actionType === 'import') {
+          return sumBy(this.selectedObjects, 'total_file_size');
         }
         return 0;
       },

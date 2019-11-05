@@ -8,7 +8,7 @@
 
     <FilteredChannelListContainer
       :channels="allChannels"
-      :selectedChannels="selectedChannels"
+      :selectedChannels.sync="selectedChannels"
       :selectAllCheckbox="multipleMode"
     >
       <template v-slot:header>
@@ -43,7 +43,7 @@
         </section>
       </template>
 
-      <template v-slot:default="{filteredItems, showItem}">
+      <template v-slot:default="{filteredItems, showItem, handleChange, itemIsSelected}">
         <p v-if="!channelsAreAvailable && !status">
           {{ $tr('noChannelsAvailable') }}
         </p>
@@ -57,7 +57,9 @@
             :onDevice="channelIsOnDevice(channel)"
             :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
             :multipleMode="multipleMode"
+            :checked="itemIsSelected(channel)"
             @clickselect="goToSelectContentPageForChannel(channel)"
+            @checkboxchange="handleChange"
           />
         </div>
       </template>
@@ -79,6 +81,7 @@
       v-if="multipleMode"
       objectType="channel"
       actionType="import"
+      :selectedObjects="selectedChannels"
     />
 
   </div>
