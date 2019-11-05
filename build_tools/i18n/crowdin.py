@@ -404,50 +404,44 @@ def download_translations(branch):
 Glossary commands
 """
 
-DOWNLOAD_GLOSSRY_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="download-glossary",
-    params="&include_assigned=0",
+DOWNLOAD_GLOSSARY_URL = CROWDIN_API_URL.format(
+    proj=CROWDIN_PROJECT, key=CROWDIN_API_KEY, cmd="download-glossary", params=""
 )
 
+UPLOAD_GLOSSARY_URL = CROWDIN_API_URL.format(
+    proj=CROWDIN_PROJECT, key=CROWDIN_API_KEY, cmd="upload-glossary", params=""
+)
 
-@click.command()
-def download_glossary():
-    """
-    Download glossary files
-    """
-    _checkApiKey()
-
-    logging.info("Crowdin: downloading glossary...")
-
-    r = requests.get(DOWNLOAD_GLOSSRY_URL)
-    r.raise_for_status()
-
-    glossary_file = os.path.join(utils.LOCALE_PATH, GLOSSARY_XML_FILE)
-    with io.open(glossary_file, mode="w", encoding="utf-8") as f:
-        f.write(r.text)
-
-    logging.info("Crowdin: download succeeded!")
+GLOSSARY_FILE = os.path.join(utils.LOCALE_PATH, GLOSSARY_XML_FILE)
 
 
 @click.command()
 def download_glossary():
     """
-    Download glossary files
+    Download glossary file
     """
     _checkApiKey()
 
     logging.info("Crowdin: downloading glossary...")
-
-    r = requests.get(DOWNLOAD_GLOSSRY_URL)
+    r = requests.get(DOWNLOAD_GLOSSARY_URL)
     r.raise_for_status()
-
-    glossary_file = os.path.join(utils.LOCALE_PATH, GLOSSARY_XML_FILE)
-    with io.open(glossary_file, mode="w", encoding="utf-8") as f:
+    with io.open(GLOSSARY_FILE, mode="w", encoding="utf-8") as f:
         f.write(r.text)
-
     logging.info("Crowdin: download succeeded!")
+
+
+@click.command()
+def upload_glossary():
+    """
+    Upload glossary file
+    """
+    _checkApiKey()
+
+    logging.info("Crowdin: uploading glossary...")
+    files = {"file": open(GLOSSARY_FILE, "rb")}
+    r = requests.post(UPLOAD_GLOSSARY_URL, files=files)
+    r.raise_for_status()
+    logging.info("Crowdin: upload succeeded!")
 
 
 """
@@ -683,6 +677,7 @@ main.add_command(translation_stats)
 main.add_command(upload_sources)
 main.add_command(upload_translations)
 main.add_command(download_glossary)
+main.add_command(upload_glossary)
 
 if __name__ == "__main__":
     main()
