@@ -21,6 +21,9 @@
       </template>
 
       <template v-slot:abovechannels>
+        <section v-if="notEnoughFreeSpace">
+          {{ deviceStrings.$tr('notEnoughSpaceWarning') }}
+        </section>
         <section
           v-if="showUnlistedChannels"
           class="unlisted-channels"
@@ -82,6 +85,8 @@
       objectType="channel"
       actionType="import"
       :selectedObjects="selectedChannels"
+      :fileSize.sync="fileSize"
+      @clickconfirm="handleClickConfirm"
     />
 
   </div>
@@ -100,6 +105,7 @@
   import { TransferTypes } from '../../constants';
   import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
+  import deviceStrings from '../commonDeviceStrings';
   import ChannelTokenModal from './ChannelTokenModal';
 
   export default {
@@ -122,6 +128,8 @@
         showTokenModal: false,
         newPrivateChannels: [],
         selectedChannels: [],
+        fileSize: 0,
+        freeSpace: null,
       };
     },
     computed: {
@@ -139,6 +147,9 @@
         'status',
         'transferType',
       ]),
+      deviceStrings() {
+        return deviceStrings;
+      },
       allChannels() {
         return [...this.newPrivateChannels, ...this.availableChannels];
       },
@@ -172,6 +183,12 @@
       },
       showUnlistedChannels() {
         return this.channelsAreAvailable && (this.inRemoteImportMode || this.isStudioApplication);
+      },
+      notEnoughFreeSpace() {
+        if (this.freeSpace === null) {
+          return false;
+        }
+        return this.freeSpace < this.fileSize;
       },
     },
     watch: {
@@ -241,6 +258,13 @@
             })
           );
         }
+      },
+      handleClickConfirm() {
+        // Disable button
+        // reset freeSpace
+        // Make call to deviceinfo
+        // Compare this.fileSize with deviceinfo content_storage_free_space
+        // toggle if notEnoughFreeSpace
       },
     },
     $trs: {

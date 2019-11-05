@@ -29,7 +29,7 @@
             class="lock-icon"
             icon="privatechannel"
           /><span
-            v-if="true || channel.newPrivateChannel"
+            v-if="channel.newPrivateChannel"
             class="new-label"
             :style="{
               color: $themeTokens.textInverted,
@@ -62,6 +62,11 @@
     </ChannelDetails>
 
     <div class="col-3">
+      <p v-if="multipleMode && $attrs.checked" class="selected-msg">
+        {{ deviceStrings.$tr('channelSelectedMessage', {
+          bytesText: bytesForHumans(channel.total_file_size)
+        }) }}
+      </p>
       <KRouterLink
         v-if="(inImportMode || inExportMode) && !multipleMode"
         :text="$tr('selectTopicsAction')"
@@ -82,9 +87,11 @@
   // Private Channel Icon
   // Resources on Device Indicator
   import { mapGetters } from 'vuex';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { selectContentPageLink } from '../manageContentLinks';
+  import deviceStrings from '../../commonDeviceStrings';
   import ChannelDetails from './ChannelDetails';
 
   const Modes = {
@@ -122,6 +129,9 @@
     },
     computed: {
       ...mapGetters('manageContent', ['channelIsInstalled', 'activeTaskList']),
+      deviceStrings() {
+        return deviceStrings;
+      },
       inImportMode() {
         return this.mode === Modes.IMPORT;
       },
@@ -161,15 +171,16 @@
         };
       },
     },
+    methods: {
+      bytesForHumans,
+    },
     $trs: {
       onYourDevice: 'Resources on device',
       selectTopicsAction: 'Select topics',
-      /* eslint-disable */
       newLabel: 'New',
       privateChannelTooltip: 'Imported from channel token',
       newVersionMessage: 'New version available with import.',
       moreInformationLabel: 'More information',
-      /* eslint-enable */
     },
   };
 
@@ -255,6 +266,19 @@
   .private-icons {
     position: relative;
     display: inline-block;
+  }
+
+  .selected-msg {
+    align-self: flex-start;
+    min-width: 150px;
+    margin: 0;
+    text-align: right;
+
+    .channel-list-item-sm & {
+      align-self: flex-end;
+      margin: 8px 0;
+      font-size: 14px;
+    }
   }
 
 </style>
