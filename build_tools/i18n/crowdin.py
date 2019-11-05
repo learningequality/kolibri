@@ -31,7 +31,7 @@ Ensure that the API key is set
 """
 
 
-def _checkApiKey():
+def checkApiKey():
     if "CROWDIN_API_KEY" not in os.environ:
         logging.error("The CROWDIN_API_KEY environment variable needs to be set")
         sys.exit(1)
@@ -56,7 +56,7 @@ https://kolibri-dev.readthedocs.io/en/develop/i18n.html#updating-the-perseus-plu
 """
 
 
-def _checkPerseus():
+def checkPerseus():
     if not (os.path.exists(utils.PERSEUS_LOCALE_PATH)):
         logging.error("Cannot find Perseus locale directory.")
         logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
@@ -128,7 +128,7 @@ def rebuild_translations(branch):
     """
     Rebuild the given branch
     """
-    _checkApiKey()
+    checkApiKey()
 
     logging.info("Crowdin: rebuilding '{}'. This could take a while...".format(branch))
     r = requests.get(REBUILD_URL.format(branch=branch))
@@ -169,7 +169,7 @@ def pretranslate(branch, approve_all=False):
     """
     Apply pre-translation to the given branch
     """
-    _checkApiKey()
+    checkApiKey()
 
     params = []
     files = [
@@ -256,8 +256,8 @@ def upload_translations(branch):
     """
     Upload translations to the given branch
     """
-    _checkPerseus()
-    _checkApiKey()
+    checkPerseus()
+    checkApiKey()
 
     supported_languages = utils.supported_languages(
         include_in_context=False, include_english=False
@@ -361,8 +361,8 @@ def download_translations(branch):
     """
     Download translations from the given branch
     """
-    _checkPerseus()
-    _checkApiKey()
+    checkPerseus()
+    checkApiKey()
 
     logging.info("Crowdin: downloading '{}'...".format(branch))
 
@@ -420,7 +420,7 @@ def download_glossary():
     """
     Download glossary file
     """
-    _checkApiKey()
+    checkApiKey()
 
     logging.info("Crowdin: downloading glossary...")
     r = requests.get(DOWNLOAD_GLOSSARY_URL)
@@ -435,7 +435,7 @@ def upload_glossary():
     """
     Upload glossary file
     """
-    _checkApiKey()
+    checkApiKey()
 
     logging.info("Crowdin: uploading glossary...")
     files = {"file": open(GLOSSARY_FILE, "rb")}
@@ -502,8 +502,8 @@ def upload_sources(branch):
     """
     Upload English source files to the given branch
     """
-    _checkPerseus()
-    _checkApiKey()
+    checkPerseus()
+    checkApiKey()
 
     logging.info("Crowdin: uploading sources for '{}'...".format(branch))
     details = get_crowdin_details()
@@ -574,7 +574,7 @@ def translation_stats(branch):
     """
     Print stats for the given branch
     """
-    _checkApiKey()
+    checkApiKey()
 
     logging.info("Crowdin: getting details for '{}'...".format(branch))
 
