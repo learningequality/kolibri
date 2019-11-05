@@ -28,6 +28,7 @@
 
 <script>
 
+  import omit from 'lodash/omit';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ContentWizardPages, PageNames } from '../constants';
@@ -61,6 +62,9 @@
           return this.appBarTitle || this.$tr('deviceManagementTitle');
         }
       },
+      inMultipleImportPage() {
+        return this.pageName === 'AVAILABLE_CHANNELS' && this.$route.query.multiple;
+      },
       immersivePageRoute() {
         if (this.$route.query.last) {
           return {
@@ -71,6 +75,9 @@
         if (this.inContentManagementPage) {
           // If a user is selecting content, they should return to the content
           // source that they're importing from using the query string.
+          if (this.inMultipleImportPage) {
+            return { query: omit(this.$route.query, ['multiple']) };
+          }
           if (this.pageName === ContentWizardPages.SELECT_CONTENT) {
             return {
               name: ContentWizardPages.AVAILABLE_CHANNELS,
@@ -96,6 +103,9 @@
       immersivePagePrimary() {
         // When the icon is an arrow, it should true for Primary with one
         // exception: The SELECT_CONTENT page.
+        if (this.inMultipleImportPage) {
+          return false;
+        }
         return (
           (this.immersivePageIcon === 'arrow_back' &&
             this.pageName !== ContentWizardPages.SELECT_CONTENT) ||
@@ -107,7 +117,8 @@
       immersivePageIcon() {
         if (
           this.pageName === PageNames.USER_PERMISSIONS_PAGE ||
-          this.pageName === ContentWizardPages.SELECT_CONTENT
+          this.pageName === ContentWizardPages.SELECT_CONTENT ||
+          this.inMultipleImportPage
         ) {
           return 'arrow_back';
         }

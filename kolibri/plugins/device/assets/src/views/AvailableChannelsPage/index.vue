@@ -6,10 +6,15 @@
       :errorType="status"
     />
 
-    <FilteredChannelListContainer :channels="availableChannels">
+    <FilteredChannelListContainer
+      :channels="allChannels"
+      :selectedChannels="selectedChannels"
+      :selectAllCheckbox="multipleMode"
+    >
       <template v-slot:header>
         <h1 v-if="status === ''" data-test="title">
-          <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
+          <span v-if="multipleMode">{{ $tr('selectEntireChannels') }}</span>
+          <span v-else-if="inExportMode">{{ $tr('yourChannels') }}</span>
           <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
           <span v-else>{{ coreString('channelsLabel') }}</span>
         </h1>
@@ -30,7 +35,7 @@
           />
         </section>
 
-        <section class="import-multiple">
+        <section v-if="!multipleMode" class="import-multiple">
           <KButton @click="goToImportMultiple">
             <KIcon icon="multiple" class="multiple-icon" />
             {{ $tr('importMultipleAction') }}
@@ -45,12 +50,13 @@
 
         <div v-else>
           <ChannelPanel
-            v-for="channel in availableChannels"
+            v-for="channel in allChannels"
             v-show="showItem(channel) && !channelIsBeingDeleted(channel.id)"
             :key="channel.id"
             :channel="channel"
             :onDevice="channelIsOnDevice(channel)"
             :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
+            :multipleMode="multipleMode"
             @clickselect="goToSelectContentPageForChannel(channel)"
           />
         </div>
@@ -59,6 +65,7 @@
 
     <ChannelTokenModal
       v-if="showTokenModal"
+      :disabled="disableModal"
       @cancel="showTokenModal=false"
       @submit="goToSelectContentPageForChannel"
     />
@@ -66,6 +73,12 @@
       v-if="channelsAreLoading"
       type="indeterminate"
       :delay="false"
+    />
+
+    <SelectionBottomBar
+      v-if="multipleMode"
+      objectType="channel"
+      actionType="import"
     />
 
   </div>
@@ -83,6 +96,7 @@
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
   import { TransferTypes } from '../../constants';
   import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
+  import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import ChannelTokenModal from './ChannelTokenModal';
 
   export default {
@@ -97,11 +111,14 @@
       ChannelTokenModal,
       ContentWizardUiAlert,
       FilteredChannelListContainer,
+      SelectionBottomBar,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
         showTokenModal: false,
+        newPrivateChannels: [],
+        selectedChannels: [],
       };
     },
     computed: {
@@ -119,6 +136,13 @@
         'status',
         'transferType',
       ]),
+      allChannels() {
+        return [...this.newPrivateChannels, ...this.availableChannels];
+      },
+      multipleMode() {
+        const { multiple } = this.$route.query;
+        return multiple === true || multiple === 'true';
+      },
       documentTitle() {
         switch (this.transferType) {
           case TransferTypes.LOCALEXPORT:
@@ -185,18 +209,35 @@
         return Boolean(match);
       },
       goToImportMultiple() {
-        // eslint-disable-next-line
-        console.log('import multiple');
+        this.$router.push({
+          query: {
+            multiple: true,
+          },
+        });
       },
       goToSelectContentPageForChannel(channel) {
-        this.$router.push(
-          selectContentPageLink({
-            addressId: this.$route.query.address_id,
-            channelId: channel.id,
-            driveId: this.$route.query.drive_id,
-            forExport: this.$route.query.for_export,
-          })
-        );
+        if (this.multipleMode) {
+          this.disableModal = true;
+          this.$store
+            .dispatch('manageContent/wizard/fetchPrivateChannelInfo', channel.id)
+            .then(channels => {
+              const newChannels = channels.map(x => Object.assign(x, { newPrivateChannel: true }));
+              this.newPrivateChannels = [...newChannels, ...this.newPrivateChannels];
+              this.showTokenModal = false;
+            })
+            .catch(error => {
+              this.$store.dispatch('handleApiError', error);
+            });
+        } else {
+          this.$router.push(
+            selectContentPageLink({
+              addressId: this.$route.query.address_id,
+              channelId: channel.id,
+              driveId: this.$route.query.drive_id,
+              forExport: this.$route.query.for_export,
+            })
+          );
+        }
       },
     },
     $trs: {
@@ -213,6 +254,7 @@
       documentTitleForRemoteImport: 'Available Channels on Kolibri Studio',
       documentTitleForExport: 'Available Channels on this device',
       noChannelsAvailable: 'No channels are available on this device',
+      selectEntireChannels: 'Select entire channels for import',
     },
   };
 

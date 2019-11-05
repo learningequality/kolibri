@@ -9,11 +9,34 @@
       :channel="channel"
       :versionNumber="versionNumber"
     >
-      <template v-if="isPrivateChannel" v-slot:belowname>
-        <KIcon
-          class="lock-icon"
-          icon="privatechannel"
+      <template v-if="multipleMode" v-slot:beforethumbnail>
+        <KCheckbox
+          class="checkbox"
+          :label="channel.name"
+          :showLabel="false"
+          :checked="$attrs.checked"
+          @change="$emit('checkboxchange', { channel: channel, isSelected: $event })"
         />
+      </template>
+
+      <template v-if="isPrivateChannel" v-slot:belowname>
+        <KTooltip reference="lockicon" :refs="$refs" placement="right">
+          {{ $tr('privateChannelTooltip') }}
+        </KTooltip>
+        <div class="private-icons">
+          <KIcon
+            ref="lockicon"
+            class="lock-icon"
+            icon="privatechannel"
+          /><span
+            v-if="true || channel.newPrivateChannel"
+            class="new-label"
+            :style="{
+              color: $themeTokens.textInverted,
+              backgroundColor: $themeTokens.success
+            }"
+          >{{ $tr('newLabel') }}</span>
+        </div>
       </template>
 
       <template v-slot:abovedescription>
@@ -40,7 +63,7 @@
 
     <div class="col-3">
       <KRouterLink
-        v-if="inImportMode || inExportMode"
+        v-if="(inImportMode || inExportMode) && !multipleMode"
         :text="$tr('selectTopicsAction')"
         :disabled="tasksInQueue"
         :to="selectContentLink"
@@ -89,6 +112,10 @@
         },
       },
       onDevice: {
+        type: Boolean,
+        default: false,
+      },
+      multipleMode: {
         type: Boolean,
         default: false,
       },
@@ -214,6 +241,20 @@
 
   .on-device-text {
     margin-left: 8px;
+  }
+
+  .new-label {
+    position: absolute;
+    top: 3px;
+    padding: 2px 5px 2px 4px;
+    margin-left: 8px;
+    font-size: 14px;
+    border-radius: 2px;
+  }
+
+  .private-icons {
+    position: relative;
+    display: inline-block;
   }
 
 </style>

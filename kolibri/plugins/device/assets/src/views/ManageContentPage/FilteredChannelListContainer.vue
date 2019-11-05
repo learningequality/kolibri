@@ -25,6 +25,8 @@
       </div>
     </div>
 
+    <slot name="abovechannels"></slot>
+
     <template v-if="selectAllCheckbox">
       <KCheckbox
         v-if="filteredItems.length > 0"
@@ -34,8 +36,6 @@
         @change="$emit('changeselectall', {isSelected: $event, filteredItems})"
       />
     </template>
-
-    <slot name="abovechannels"></slot>
 
     <slot v-bind="{filteredItems,showItem}"></slot>
 

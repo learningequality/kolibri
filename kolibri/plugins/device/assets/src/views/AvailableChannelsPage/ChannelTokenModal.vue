@@ -4,8 +4,8 @@
     :title="$tr('enterChannelToken')"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
-    :submitDisabled="formIsDisabled"
-    :cancelDisabled="formIsDisabled"
+    :submitDisabled="formIsDisabled || $attrs.disabled"
+    :cancelDisabled="formIsDisabled || $attrs.disabled"
     @submit="submitForm"
     @cancel="$emit('cancel')"
   >
@@ -25,7 +25,7 @@
       :invalid="!tokenIsValid"
       :invalidText="$tr('invalidTokenMessage')"
       autofocus
-      :disabled="formIsDisabled"
+      :disabled="formIsDisabled || $attrs.disabled"
       @blur="tokenIsBlurred=true"
     />
   </KModal>

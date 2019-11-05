@@ -26,3 +26,7 @@ export function getAllRemoteChannels(store, publicChannels) {
     return [...unlisted.filter(Boolean), ...publicChannels];
   });
 }
+
+export function fetchPrivateChannelInfo(store, channelId) {
+  return getRemoteChannelByToken(channelId).then(channels => Array(channels));
+}
