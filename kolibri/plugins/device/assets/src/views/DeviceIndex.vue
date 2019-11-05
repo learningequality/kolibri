@@ -109,6 +109,23 @@
           this.pageName === PageNames.EXPORT_CHANNELS
         );
       },
+      immersivePageIcon() {
+        if (
+          this.pageName === PageNames.USER_PERMISSIONS_PAGE ||
+          this.pageName === ContentWizardPages.SELECT_CONTENT
+        ) {
+          return 'arrow_back';
+        }
+        return 'close';
+      },
+      currentPageIsImmersive() {
+        return (
+          this.inContentManagementPage || [PageNames.USER_PERMISSIONS_PAGE].includes(this.pageName)
+        );
+      },
+      inContentManagementPage() {
+        return this.$route.path.includes('/content/');
+      },
     },
     watch: {
       inContentManagementPage(val) {

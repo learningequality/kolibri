@@ -77,7 +77,7 @@ const routes = [
     },
   },
   {
-    name: 'DELETE_CHANNELS',
+    name: PageNames.DELETE_CHANNELS,
     path: '/content/delete_channels',
     component: withAuthMessage(DeleteExportChannelsPage, 'contentManager'),
     props: {
@@ -89,7 +89,7 @@ const routes = [
     },
   },
   {
-    name: 'EXPORT_CHANNELS',
+    name: PageNames.EXPORT_CHANNELS,
     path: '/content/export_channels',
     component: withAuthMessage(DeleteExportChannelsPage, 'contentManager'),
     props: {
@@ -101,7 +101,7 @@ const routes = [
     },
   },
   {
-    name: 'REARRANGE_CHANNELS',
+    name: PageNames.REARRANGE_CHANNELS,
     path: '/content/rearrange_channels',
     component: withAuthMessage(RearrangeChannelsPage, 'contentManager'),
     handler({ name }) {
@@ -110,7 +110,7 @@ const routes = [
     },
   },
   {
-    name: 'MANAGE_TASKS',
+    name: PageNames.MANAGE_TASKS,
     path: '/content/manage_tasks',
     component: withAuthMessage(ManageTasksPage, 'contentManager'),
     handler({ name }) {

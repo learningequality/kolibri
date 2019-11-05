@@ -13,6 +13,7 @@
         <KGridItem
           :layout8="{ span: 4, alignment: 'right' }"
           :layout12="{ span: 6, alignment: 'right' }"
+          class="buttons"
         >
           <KDropdownMenu
             v-if="channelsAreInstalled"
@@ -153,4 +154,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .buttons {
+    margin: auto;
+  }
+
+</style>

@@ -7,6 +7,7 @@ export const PageNames = {
   REARRANGE_CHANNELS: 'REARRANGE_CHANNELS',
   DELETE_CHANNELS: 'DELETE_CHANNELS',
   EXPORT_CHANNELS: 'EXPORT_CHANNELS',
+  MANAGE_TASKS: 'MANAGE_TASKS',
 };
 
 export const ContentWizardPages = {
