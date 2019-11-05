@@ -46,7 +46,7 @@
         <div v-else>
           <ChannelPanel
             v-for="channel in availableChannels"
-            v-show="showItem(channel)"
+            v-show="showItem(channel) && !channelIsBeingDeleted(channel.id)"
             :key="channel.id"
             :channel="channel"
             :onDevice="channelIsOnDevice(channel)"
@@ -105,7 +105,7 @@
       };
     },
     computed: {
-      ...mapGetters('manageContent', ['installedChannelsWithResources']),
+      ...mapGetters('manageContent', ['installedChannelsWithResources', 'channelIsBeingDeleted']),
       ...mapGetters('manageContent/wizard', [
         'inLocalImportMode',
         'inRemoteImportMode',

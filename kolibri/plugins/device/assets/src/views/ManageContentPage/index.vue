@@ -39,6 +39,7 @@
           v-for="channel in installedChannelsWithResources"
           :key="channel.id"
           :channel="channel"
+          :disabled="channelIsBeingDeleted(channel.id)"
           @select_delete="deleteChannelId = channel.id"
           @select_manage="startImportWorkflow(channel)"
         />
@@ -91,7 +92,7 @@
       };
     },
     computed: {
-      ...mapGetters('manageContent', ['installedChannelsWithResources']),
+      ...mapGetters('manageContent', ['installedChannelsWithResources', 'channelIsBeingDeleted']),
       ...mapState('manageContent/wizard', ['pageName']),
       channelsAreInstalled() {
         return this.installedChannelsWithResources.length > 0;
@@ -135,7 +136,7 @@
       },
       handleDeleteChannel() {
         if (this.deleteChannelId) {
-          const channelId = this.selectedChannelId;
+          const channelId = this.deleteChannelId;
           this.deleteChannelId = null;
           this.triggerChannelDeleteTask(channelId);
         }

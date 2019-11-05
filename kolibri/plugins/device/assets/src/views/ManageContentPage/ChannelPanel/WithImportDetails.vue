@@ -26,6 +26,16 @@
           <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
         </div>
       </template>
+
+      <template v-if="newVersionAvailable" v-slot:belowdescription>
+        <KIcon
+          class="update-icon"
+          icon="error"
+          :style="{fill: $themeTokens.primary}"
+        />
+        {{ $tr('newVersionMessage') }}
+        <KRouterLink :to="{}" :text="$tr('moreInformationLabel')" />
+      </template>
     </ChannelDetails>
 
     <div class="col-3">
@@ -106,6 +116,9 @@
         }
         return this.channel.version;
       },
+      newVersionAvailable() {
+        return this.versionNumber < this.channel.latest_version;
+      },
       selectContentLink() {
         return selectContentPageLink({
           addressId: this.$route.query.address_id,
@@ -127,7 +140,7 @@
       /* eslint-disable */
       newLabel: 'New',
       privateChannelTooltip: 'Imported from channel token',
-      newVersionMessage: 'New version available with import',
+      newVersionMessage: 'New version available with import.',
       moreInformationLabel: 'More information',
       /* eslint-enable */
     },
@@ -158,8 +171,12 @@
     }
   }
 
+  .update-icon {
+    margin-bottom: -1px;
+  }
+
   .check-icon {
-    margin-bottom: 2px;
+    margin-bottom: 3px;
   }
 
   .col-2 {

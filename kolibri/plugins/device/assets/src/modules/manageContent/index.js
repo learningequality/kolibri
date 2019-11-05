@@ -49,7 +49,11 @@ export default {
     },
     channelIsBeingDeleted(state) {
       return function beingDeleted(channelId) {
-        return Boolean(find(state.taskList, { type: 'DELETECHANNEL', channel_id: channelId }));
+        const match = find(state.taskList, { type: 'DELETECHANNEL', channel_id: channelId });
+        if (match) {
+          return !['COMPLETED', 'CANCELED'].includes(match.status);
+        }
+        return false;
       };
     },
     // Tasks that are active, complete, or failed.

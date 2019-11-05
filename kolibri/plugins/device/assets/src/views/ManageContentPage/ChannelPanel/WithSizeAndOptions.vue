@@ -18,7 +18,7 @@
     <div class="col-3">
       <KDropdownMenu
         :text="coreString('optionsLabel')"
-        :disabled="tasksInQueue"
+        :disabled="disabled"
         :options="dropdownOptions"
         @select="handleManageChannelAction($event.value)"
       />
@@ -48,6 +48,10 @@
         type: Object,
         required: true,
       },
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {};
@@ -55,10 +59,6 @@
     computed: {
       resourcesSizeText() {
         return bytesForHumans(this.channel.on_device_file_size);
-      },
-      // TODO need to enforce certain rules
-      tasksInQueue() {
-        return false;
       },
       dropdownOptions() {
         return [

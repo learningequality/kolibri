@@ -192,8 +192,14 @@ class TasksViewSet(viewsets.ViewSet):
     def startremotecontentimport(self, request):
 
         task = validate_remote_import_task(request.data)
-
-        task.update({"type": "REMOTECONTENTIMPORT", "started_by": request.user.pk})
+        task.update(
+            {
+                "type": "REMOTECONTENTIMPORT",
+                "started_by": request.user.pk,
+                "channel_id": task["channel_id"],
+            }
+        )
+        add_channel_and_user_name(task, request.user)
 
         job_id = get_queue().enqueue(
             call_command,

@@ -45,11 +45,6 @@
       ...mapGetters(['canManageContent', 'isSuperuser']),
       ...mapState(['pageName', 'welcomeModalVisible']),
       ...mapState('coreBase', ['appBarTitle']),
-      ...mapGetters('coreBase', [
-        'currentPageIsImmersive',
-        'immersivePageIcon',
-        'inContentManagementPage',
-      ]),
       containerStyles() {
         // Need to override overflow rule for setting page
         if (this.$route.name === PageNames.DEVICE_SETTINGS_PAGE) {
@@ -119,12 +114,15 @@
         return 'close';
       },
       currentPageIsImmersive() {
+        if (this.pageName == PageNames.MANAGE_CONTENT_PAGE) {
+          return false;
+        }
         return (
           this.inContentManagementPage || [PageNames.USER_PERMISSIONS_PAGE].includes(this.pageName)
         );
       },
       inContentManagementPage() {
-        return this.$route.path.includes('/content/');
+        return this.$route.path.includes('/content');
       },
     },
     watch: {

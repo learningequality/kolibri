@@ -55,6 +55,7 @@
 
     <div class="buttons" :class="{'button-lift': taskIsRunning}">
       <KButton
+        :disabled="taskIsCanceling"
         :text="buttonLabel"
         :primary="true"
         appearance="flat-button"
@@ -108,7 +109,7 @@
     },
     computed: {
       buttonLabel() {
-        if (this.taskIsCompleted) {
+        if (this.taskIsCompleted || this.taskIsFailed) {
           return this.coreString('clearAction');
         }
         return this.coreString('cancelAction');
@@ -121,6 +122,9 @@
       },
       taskIsCompleted() {
         return this.task.status === 'COMPLETED';
+      },
+      taskIsCanceling() {
+        return this.task.status === 'CANCELING';
       },
       taskIsFailed() {
         return this.task.status === 'FAILED' || this.task.status === 'CANCELED';
