@@ -3,7 +3,7 @@
   <Block
     :allLinkText="coachString('viewAllAction')"
     :allLinkRoute="classRoute('ReportsLessonListPage', {})"
-    :showAllLink="table.length"
+    :showAllLink="table.length > 0"
   >
     <KLabeledIcon slot="title" icon="lesson" :label="coreString('lessonsLabel')" />
 

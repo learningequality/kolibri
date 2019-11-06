@@ -26,7 +26,14 @@
   import { mapGetters } from 'vuex';
   import urls from 'kolibri.urls';
 
-  const userRoles = ['admin', 'adminOrCoach', 'learner', 'registeredUser', 'superuser'];
+  const userRoles = [
+    'admin',
+    'adminOrCoach',
+    'learner',
+    'registeredUser',
+    'superuser',
+    'contentManager',
+  ];
 
   export default {
     name: 'AuthMessage',
@@ -83,6 +90,8 @@
       forgetToSignIn: 'Did you forget to sign in?',
       signInToKolibriAction: 'Sign in to Kolibri',
       goBackToHomeAction: 'Go to home page',
+      contentManager:
+        'You must be signed in as a superuser or have content management permissions to view this page',
     },
   };
 

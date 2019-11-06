@@ -1,7 +1,10 @@
-import { mount, RouterLinkStub } from '@vue/test-utils';
+import { mount, RouterLinkStub, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import ProfilePage from '../../src/views/ProfilePage';
 import makeStore from '../makeStore';
+
+const localVue = createLocalVue();
+localVue.use(VueRouter);
 
 ProfilePage.methods.fetchPoints = () => {};
 ProfilePage.methods.fetchFacilityUser = () => {};
@@ -13,6 +16,7 @@ function makeWrapper() {
   const store = makeStore();
   return mount(ProfilePage, {
     store,
+    localVue,
     router,
     stubs: {
       RouterLink: RouterLinkStub,

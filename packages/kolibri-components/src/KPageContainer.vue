@@ -57,6 +57,7 @@
 
   .page-container.small {
     padding: 8px 16px 16px;
+    margin-top: 0;
   }
 
 </style>

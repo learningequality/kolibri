@@ -3,7 +3,7 @@ import store from 'kolibri.coreVue.vuex.store';
 import ChannelTokenModal from '../../src/views/AvailableChannelsPage/ChannelTokenModal';
 
 function makeWrapper(options = {}) {
-  return mount(ChannelTokenModal, { store, ...options });
+  return mount(ChannelTokenModal, { store, ...options, attrs: { disabled: false } });
 }
 
 function getElements(wrapper) {

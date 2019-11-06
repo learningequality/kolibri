@@ -3,6 +3,7 @@ import { createTranslator } from 'kolibri.utils.i18n';
 export const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
   cancelAction: 'Cancel',
+  clearAction: 'Clear',
   closeAction: 'Close',
   confirmAction: 'Confirm',
   continueAction: 'Continue',
@@ -13,8 +14,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   removeAction: 'Remove',
   saveAction: 'Save',
   saveChangesAction: 'Save changes',
+  selectAllOnPageAction: 'Select all on page',
   showAction: 'Show',
   updateAction: 'Update',
+  viewTasksAction: 'View tasks',
 
   // labels, phrases, titles, headers...
   adminLabel: 'Admin',
@@ -38,6 +41,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   learnerLabel: 'Learner',
   learnersLabel: 'Learners',
   lessonsLabel: 'Lessons',
+  loadingLabel: 'Loading…',
   noUsersExistLabel: 'No users exist',
   optionsLabel: 'Options',
   passwordLabel: 'Password',

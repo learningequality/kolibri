@@ -1,4 +1,4 @@
-Feature: Admin create classes
+Feature: Admin can delete classes
   Admin needs to be able to delete classes from the facility
 
   Background:

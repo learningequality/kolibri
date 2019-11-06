@@ -80,8 +80,8 @@ def cache_forever(some_func):
 
 
 class ChannelMetadataFilter(FilterSet):
-    available = BooleanFilter(method="filter_available")
-    has_exercise = BooleanFilter(method="filter_has_exercise")
+    available = BooleanFilter(method="filter_available", label="Available")
+    has_exercise = BooleanFilter(method="filter_has_exercise", label="Has exercises")
 
     class Meta:
         model = models.ChannelMetadata

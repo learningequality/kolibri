@@ -1,7 +1,7 @@
 <template>
 
   <!-- Accessibility properties for the overlay -->
-  <transition name="fade">
+  <transition name="fade" appear>
     <div
       id="modal-window"
       ref="modal-overlay"

@@ -1,53 +1,62 @@
 <template>
 
   <div>
-    <template v-if="canManageContent">
+
+    <div>
+      <KGrid>
+        <KGridItem
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+        >
+          <h1>{{ coreString('channelsLabel') }}</h1>
+        </KGridItem>
+        <KGridItem
+          :layout8="{ span: 4, alignment: 'right' }"
+          :layout12="{ span: 6, alignment: 'right' }"
+          class="buttons"
+        >
+          <KDropdownMenu
+            v-if="channelsAreInstalled"
+            appearance="raised-button"
+            :text="coreString('optionsLabel')"
+            :options="dropdownOptions"
+            @select="handleSelect"
+          />
+          <KButton
+            :text="$tr('import')"
+            :primary="true"
+            @click="startImportWorkflow()"
+          />
+        </KGridItem>
+      </KGrid>
+
+      <p v-if="!channelsAreInstalled">
+        {{ $tr('emptyChannelListMessage') }}
+      </p>
+
+      <div class="channels-list">
+        <ChannelPanel
+          v-for="channel in installedChannelsWithResources"
+          :key="channel.id"
+          :channel="channel"
+          :disabled="channelIsBeingDeleted(channel.id)"
+          @select_delete="deleteChannelId = channel.id"
+          @select_manage="startImportWorkflow(channel)"
+        />
+      </div>
+
       <SelectTransferSourceModal :pageName="pageName" />
 
-      <div>
-        <TaskProgress
-          v-if="activeTaskList[0]"
-          v-bind="activeTaskList[0]"
-          @cleartask="clearCompletedTasks"
-          @canceltask="cancelRunningTask(activeTaskList[0].id)"
-        />
+      <DeleteChannelModal
+        v-if="deleteChannelId"
+        :channelTitle="selectedChannelTitle"
+        @submit="handleDeleteChannel"
+        @cancel="deleteChannelId=null"
+      />
+    </div>
 
-        <KGrid>
-          <KGridItem
-            :layout8="{ span: 4 }"
-            :layout12="{ span: 6 }"
-          >
-            <h1>{{ coreString('channelsLabel') }}</h1>
-          </KGridItem>
-          <KGridItem
-            v-if="!activeTaskList.length"
-            :layout8="{ span: 4, alignment: 'right' }"
-            :layout12="{ span: 6, alignment: 'right' }"
-          >
-            <KButton
-              :text="$tr('import')"
-              :primary="true"
-              @click="startImportWorkflow()"
-            />
-            <KButton
-              v-if="deviceHasChannels"
-              :text="$tr('export')"
-              class="flush-right"
-              @click="startExportWorkflow()"
-            />
-          </KGridItem>
-        </KGrid>
 
-        <ChannelsGrid />
-
-      </div>
-    </template>
-
-    <AuthMessage
-      v-else
-      :details="$tr('noAccessDetails')"
-    />
-
+    <TasksBar />
   </div>
 
 </template>
@@ -55,13 +64,13 @@
 
 <script>
 
+  import find from 'lodash/find';
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { TaskResource } from 'kolibri.resources';
-  import ChannelsGrid from './ChannelsGrid';
-  import TaskProgress from './TaskProgress';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
+  import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
+  import DeleteChannelModal from './DeleteChannelModal';
+  import TasksBar from './BottomBar/TasksBar';
 
   export default {
     name: 'ManageContentPage',
@@ -71,19 +80,36 @@
       };
     },
     components: {
-      AuthMessage,
-      ChannelsGrid,
+      ChannelPanel,
+      DeleteChannelModal,
       SelectTransferSourceModal,
-      TaskProgress,
+      TasksBar,
     },
     mixins: [commonCoreStrings],
+    data() {
+      return {
+        deleteChannelId: null,
+      };
+    },
     computed: {
-      ...mapGetters(['canManageContent']),
-      ...mapGetters('manageContent', ['activeTaskList']),
+      ...mapGetters('manageContent', ['installedChannelsWithResources', 'channelIsBeingDeleted']),
       ...mapState('manageContent/wizard', ['pageName']),
-      ...mapState('manageContent', {
-        deviceHasChannels: state => state.channelList.length > 0,
-      }),
+      channelsAreInstalled() {
+        return this.installedChannelsWithResources.length > 0;
+      },
+      selectedChannelTitle() {
+        if (this.deleteChannelId) {
+          return find(this.installedChannelsWithResources, { id: this.deleteChannelId }).name;
+        }
+        return '';
+      },
+      dropdownOptions() {
+        return [
+          { label: this.$tr('exportChannels'), value: 'EXPORT' },
+          { label: this.$tr('deleteChannels'), value: 'DELETE' },
+          { label: this.$tr('rearrangeChannels'), value: 'REARRANGE' },
+        ];
+      },
     },
     watch: {
       // If Tasks disappear from queue, assume that an addition/deletion has
@@ -96,26 +122,33 @@
     },
     methods: {
       ...mapActions('manageContent', [
-        'cancelTask',
         'refreshChannelList',
         'startImportWorkflow',
-        'startExportWorkflow',
+        'triggerChannelDeleteTask',
       ]),
-      cancelRunningTask(taskId) {
-        this.cancelTask(taskId)
-          // Handle failures silently in case of near-simultaneous cancels.
-          .catch(() => {});
+      handleSelect({ value }) {
+        const nextRoute = {
+          DELETE: 'DELETE_CHANNELS',
+          EXPORT: 'EXPORT_CHANNELS',
+          REARRANGE: 'REARRANGE_CHANNELS',
+        }[value];
+        this.$router.push(this.$router.getRoute(nextRoute));
       },
-      clearCompletedTasks() {
-        return TaskResource.deleteFinishedTasks();
+      handleDeleteChannel() {
+        if (this.deleteChannelId) {
+          const channelId = this.deleteChannelId;
+          this.deleteChannelId = null;
+          this.triggerChannelDeleteTask(channelId);
+        }
       },
     },
     $trs: {
       import: 'Import',
-      export: 'Export',
-      noAccessDetails:
-        'You must be signed in as a superuser or have content management permissions to view this page',
       documentTitle: 'Manage Device Channels',
+      exportChannels: 'Export channels',
+      deleteChannels: 'Delete channels',
+      rearrangeChannels: 'Re-arrange',
+      emptyChannelListMessage: 'No channels installed',
     },
   };
 
@@ -124,8 +157,8 @@
 
 <style lang="scss" scoped>
 
-  .flush-right {
-    margin-right: 0;
+  .buttons {
+    margin: auto;
   }
 
 </style>
