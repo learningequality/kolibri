@@ -21,8 +21,8 @@
       <transition-group slot="tbody" tag="tbody" name="list">
         <tr v-for="facility in facilities" :key="facility.id">
           <td>
-            <span class="name">
-              {{ facility.name }}
+            <span>
+              <h2 class="name">{{ facility.name }}</h2>
               <UiIcon v-if="facility.dataset.registered" ref="icon">
                 <mat-svg
                   name="verified_user"
@@ -38,19 +38,39 @@
               </KTooltip>
             </span>
             <span class="synced">
-              <span v-if="facility.last_synced === null">
-                {{ $tr('neverSynced') }}
+              <span>
+                <template v-if="facility.syncing">
+                  <KCircularLoader class="loader" :size="16" :delay="false" />
+                  {{ $tr('syncing') }}
+                </template>
+                <template v-else>
+                  <template v-if="facility.last_sync_failed">
+                    {{ $tr('syncFailed') }}
+                  </template>
+                  <template v-if="facility.last_synced === null">
+                    {{ $tr('neverSynced') }}
+                  </template>
+                  <template v-else>
+                    {{ $tr('lastSync') }} {{ formattedTime(facility.last_synced) }}
+                  </template>
+                </template>
               </span>
             </span>
-          </td>
-          <td>
           </td>
           <td>
             <KButton
               class="register"
               appearance="raised-button"
               :text="$tr('register')"
+              :disabled="facilityTaskId !== ''"
               @click="register(facility)"
+            />
+            <KButton
+              class="sync"
+              appearance="raised-button"
+              :text="$tr('sync')"
+              :disabled="facilityTaskId !== ''"
+              @click="sync(facility)"
             />
           </td>
         </tr>
@@ -85,6 +105,8 @@
   import { mapState, mapActions } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import UiIcon from 'keen-ui/src/UiIcon';
+  import { now } from 'kolibri.utils.serverClock';
+  import { TaskResource } from 'kolibri.resources';
   import { Modals } from '../../../constants';
   import PrivacyModal from './PrivacyModal';
   import RegisterFacilityModal from './RegisterFacilityModal';
@@ -101,19 +123,30 @@
       AlreadyRegisteredModal,
       UiIcon,
     },
+    data: () => ({
+      now: now(),
+    }),
     computed: {
-      ...mapState({
-        facilities: state => state.core.facilities,
-      }),
       ...mapState('manageSync', ['modalShown']),
+      ...mapState('manageCSV', ['facilityTaskId', 'facilities']),
       Modals: () => Modals,
     },
-    mounted() {},
     methods: {
       ...mapActions('manageSync', ['displayModal']),
       register(facility) {
         this.$store.commit('manageSync/SET_TARGET_FACILITY', facility);
         this.displayModal(Modals.REGISTER_FACILITY);
+      },
+      formattedTime(lastSyncedDate) {
+        if (this.now - new Date(lastSyncedDate) < 10000) {
+          return this.$tr('justNow');
+        }
+        return this.$formatRelative(lastSyncedDate, { now: this.now });
+      },
+      sync(facility) {
+        TaskResource.dataportalsync(facility.id).then(response => {
+          this.$store.commit('manageCSV/START_FACILITY_SYNC', response.entity);
+        });
       },
     },
     $trs: {
@@ -126,8 +159,10 @@
       registeredAlready: 'Registered to `Kolibri Data Portal`',
       sync: 'Sync',
       neverSynced: 'Never synced',
-      lastSynced: 'Last synced: {value, number, integer} days ago',
+      lastSync: 'Last successful sync:',
+      justNow: 'Just now',
       syncFailed: 'Most recent sync failed.',
+      syncing: 'Syncing',
     },
   };
 
@@ -140,12 +175,24 @@
     display: table-cell;
     font-size: 12px;
   }
+
   .sync {
     float: right;
   }
 
   .register {
     float: right;
+  }
+
+  .name {
+    display: inline;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  .loader {
+    top: 3px;
+    display: inline-block;
   }
 
 </style>

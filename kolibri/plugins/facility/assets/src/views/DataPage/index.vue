@@ -88,6 +88,7 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import urls from 'kolibri.urls';
+  import { FacilityResource } from 'kolibri.resources';
   import { PageNames } from '../../constants';
   import GeneratedElapsedTime from './GeneratedElapsedTime';
   import DataPageTaskProgress from './DataPageTaskProgress';
@@ -134,7 +135,12 @@
       },
     },
     mounted() {
-      this.inDataExportPage && this.refreshTaskList() && this.startTaskPolling();
+      // fetch task list after fetching facilities, to ensure proper syncing state
+      FacilityResource.fetchCollection({ force: true }).then(facilities => {
+        this.$store.commit('manageCSV/RESET_STATE');
+        this.$store.commit('manageCSV/SET_STATE', { facilities: facilities });
+        this.inDataExportPage && this.refreshTaskList() && this.startTaskPolling();
+      });
     },
     destroyed() {
       this.stopTaskPolling();

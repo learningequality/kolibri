@@ -6,7 +6,6 @@ function defaultState() {
     projectName: '',
     targetFacility: null,
     token: '',
-    facilities: [],
   };
 }
 

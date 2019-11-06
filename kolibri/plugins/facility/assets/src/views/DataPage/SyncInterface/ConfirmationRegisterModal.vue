@@ -47,7 +47,7 @@
               data: { registered: true },
               exists: true,
             }).then(() => {
-              this.$store.commit('CORE_SET_REGISTERED', this.targetFacility);
+              this.$store.commit('manageCSV/SET_REGISTERED', this.targetFacility);
               this.submitting = false;
               this.displayModal(false);
             });

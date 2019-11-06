@@ -25,7 +25,7 @@
     $trs: {
       syncToKDP: 'Sync to Kolibri Data Portal',
       privacyText:
-        'By doing this, you are granting access to your data to organization admins. It will be uploaded to cloud servers operated by Learning Equality.',
+        'By doing this, you are granting access to your data to organization admins on Kolibri Data Portal. It will be uploaded to cloud servers operated by Learning Equality, who will also have access to this data.',
       close: 'Close',
     },
   };

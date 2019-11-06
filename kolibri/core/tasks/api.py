@@ -412,6 +412,28 @@ class TasksViewSet(viewsets.ViewSet):
         return Response(resp)
 
     @list_route(methods=["post"])
+    def startdataportalsync(self, request):
+        """
+        Initiate a PUSH sync with Kolibri Data Portal.
+
+        """
+        task = {"facility": request.data["facility"], "type": "SYNCDATAPORTAL", "started_by": request.user.pk}
+
+        job_id = get_queue().enqueue(
+            call_command,
+            "sync",
+            facility=task["facility"],
+            noninteractive=True,
+            extra_metadata=task,
+            track_progress=False,
+            cancellable=False,
+        )
+        # attempt to get the created Task, otherwise return pending status
+        resp = _job_to_response(get_queue().fetch_job(job_id))
+
+        return Response(resp)
+
+    @list_route(methods=["post"])
     def canceltask(self, request):
         """
         Cancel a task with its task id given in the task_id parameter.

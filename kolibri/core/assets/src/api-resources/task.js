@@ -132,6 +132,10 @@ export default new Resource({
     return this.getListEndpoint('localdrive');
   },
 
+  dataportalsync(facility) {
+    return this.postListEndpoint('startdataportalsync', { facility: facility });
+  },
+
   // TODO: switch to Model.delete()
   cancelTask(taskId) {
     return this.postListEndpoint('canceltask', {

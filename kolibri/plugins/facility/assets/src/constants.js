@@ -45,6 +45,7 @@ export const pageNameToModuleMap = {
 export const TaskTypes = {
   EXPORTSESSIONLOGCSV: 'EXPORTSESSIONLOGCSV',
   EXPORTSUMMARYLOGCSV: 'EXPORTSUMMARYLOGCSV',
+  SYNCDATAPORTAL: 'SYNCDATAPORTAL',
 };
 
 export const TaskStatuses = {

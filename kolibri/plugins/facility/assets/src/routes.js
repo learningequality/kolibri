@@ -73,7 +73,6 @@ export default [
         name: PageNames.DATA_EXPORT_PAGE,
         isAsync: false,
       });
-      store.dispatch('getFacilities');
       store.commit('manageSync/RESET_STATE');
     },
   },
