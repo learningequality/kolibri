@@ -156,7 +156,7 @@ class _WindowsNullDevice:
 def get_free_space(path=KOLIBRI_HOME):
 
     while path and not os.path.exists(path):
-        path = os.path.dirname(path) # look to parent if it doesn't exist
+        path = os.path.dirname(path)  # look to parent if it doesn't exist
     if not path:
         raise Exception("Could not calculate free space")
 
