@@ -77,10 +77,6 @@
       font-size: 1rem;
       text-transform: none;
     }
-
-    li + li {
-      margin-top: 4px;
-    }
   }
 
 </style>

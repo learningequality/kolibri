@@ -1,17 +1,14 @@
 <template>
 
-  <li
-    class="vjs-menu-item vjs-languages-menu-item"
-    role="menuitem"
-    :aria-checked="selected.toString()"
-    tabindex="-1"
-  >
+  <li class="vjs-menu-item vjs-languages-menu-item">
     <KRadioButton
+      ref="kRadioButton"
       name="languages-menu-item"
       :label="label"
       :value="1"
       :currentValue="selected ? 1 : 0"
       @change="setLanguage(value)"
+      @keydown.enter="setLanguage(value), $emit('hide')"
     />
   </li>
 
@@ -42,6 +39,14 @@
     },
     methods: {
       ...mapActions('mediaPlayer/captions', ['setLanguage']),
+      /**
+       * @public
+       */
+      focus() {
+        // When focused, radio button should activate
+        this.setLanguage(this.value);
+        this.$nextTick(() => this.$refs.kRadioButton.focus());
+      },
     },
   };
 

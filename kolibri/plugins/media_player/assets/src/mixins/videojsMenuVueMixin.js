@@ -6,6 +6,17 @@ import videojsVueMixin from './videojsVueMixin';
 export default function videojsMenuVueMixin(vueComponent) {
   return class extends videojsVueMixin('Menu', vueComponent) {
     /**
+     * @param player
+     * @param options
+     */
+    constructor(player, options) {
+      super(player, options);
+
+      this.isLocked = false;
+      this.focusedChild_ = 0;
+    }
+
+    /**
      * `contentEl` is used when `addItem` is called, so this allows the addition of the text track
      * options (the languages) in the right spot
      *
@@ -27,13 +38,22 @@ export default function videojsMenuVueMixin(vueComponent) {
     }
 
     /**
-     * Disables default show/hide functionality, which is triggered on hover. `lockShowing()` gets
-     * called instead on click.
+     * Triggered by mouseenter of button container
      *
      * @override
      */
-    show() {}
-    hide() {}
+    show() {
+      this.doShow();
+    }
+
+    /**
+     * Triggered by mouseleave of button container
+     *
+     * @override
+     */
+    hide() {
+      this.doHide();
+    }
 
     /**
      * Triggered on click in ancestor
@@ -41,14 +61,7 @@ export default function videojsMenuVueMixin(vueComponent) {
      * @override
      */
     lockShowing() {
-      const component = this.getVueComponent();
-
-      if (!component || component.showing()) {
-        return;
-      }
-
-      component.show();
-      this.trigger('show');
+      this.doShow(true);
     }
 
     /**
@@ -57,14 +70,57 @@ export default function videojsMenuVueMixin(vueComponent) {
      * @override
      */
     unlockShowing() {
-      const component = this.getVueComponent();
+      this.doHide(true);
+    }
 
-      if (!component || !component.showing()) {
+    /**
+     * @param {Boolean} lock Whether or not to lock it open
+     */
+    doShow(lock = false) {
+      const component = this.getVueComponent();
+      this.isLocked = this.isLocked || lock;
+
+      if (!component || component.showing()) {
         return;
       }
 
-      component.hide();
-      this.trigger('hide');
+      component.show();
+    }
+
+    /**
+     * @param {Boolean} unlock Whether or not to unlock it if it's locked open
+     */
+    doHide(unlock = false) {
+      const component = this.getVueComponent();
+
+      if (!component || !component.showing() || (!unlock && this.isLocked)) {
+        return;
+      }
+
+      this.isLocked = false;
+      component.hide(unlock);
+    }
+
+    /**
+     * Called by Video.js key event handlers
+     */
+    focus(index) {
+      const children = this.children();
+
+      if (!children) {
+        return;
+      }
+
+      if (!index && index !== 0) {
+        index = this.focusedChild_;
+      } else if (index >= children.length) {
+        index = 0;
+      } else if (index < 0) {
+        index = children.length - 1;
+      }
+
+      this.focusedChild_ = index;
+      children[index].focus();
     }
   };
 }

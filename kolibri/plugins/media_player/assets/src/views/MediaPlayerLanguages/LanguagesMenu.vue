@@ -1,6 +1,6 @@
 <template>
 
-  <MediaPlayerMenu class="languages-menu">
+  <MediaPlayerMenu ref="menu" class="languages-menu">
     <!-- Languages get added dynamically through video.js -->
   </MediaPlayerMenu>
 
@@ -28,8 +28,8 @@
 
   /* for consistency, use `em` since video.js defines these that way */
   .vjs-menu {
-    left: -12em;
-    width: 20em;
+    left: -8em;
+    width: 16em;
     max-height: calc(#{$video-player-max-height} - #{$video-player-control-height});
     overflow-y: auto;
   }

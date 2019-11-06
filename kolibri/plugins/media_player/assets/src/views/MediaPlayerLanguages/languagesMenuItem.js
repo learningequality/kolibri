@@ -1,7 +1,7 @@
-import mixin from '../../mixins/videojsVueMixin';
+import mixin from '../../mixins/videojsMenuItemVueMixin';
 import languagesMenuItem from './LanguagesMenuItem.vue';
 
-class LanguagesMenuItem extends mixin('MenuItem', languagesMenuItem) {
+class LanguagesMenuItem extends mixin(languagesMenuItem) {
   /**
    * @param {Player} player
    * @param {Object} options
@@ -47,17 +47,6 @@ class LanguagesMenuItem extends mixin('MenuItem', languagesMenuItem) {
   getTrack() {
     return this.options_.track;
   }
-
-  /**
-   * @override
-   */
-  selected() {}
-
-  /**
-   * We don't need to handle clicks
-   * @override
-   */
-  handleClick() {}
 }
 
 export default LanguagesMenuItem;

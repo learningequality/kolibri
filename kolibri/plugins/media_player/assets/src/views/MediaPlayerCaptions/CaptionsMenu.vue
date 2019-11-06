@@ -1,22 +1,7 @@
 <template>
 
   <MediaPlayerMenu class="captions-menu">
-    <li class="vjs-menu-item" role="menuitem">
-      <KCheckbox
-        :label="$tr('subtitles')"
-        :checked="subtitles"
-        role="menuitem"
-        @change="toggleSubtitles"
-      />
-    </li>
-    <li class="vjs-menu-item" role="menuitem">
-      <KCheckbox
-        :label="$tr('transcript')"
-        :checked="transcript"
-        role="menuitem"
-        @change="toggleTranscript"
-      />
-    </li>
+    <!-- Items get added dynamically through video.js -->
   </MediaPlayerMenu>
 
 </template>
@@ -24,7 +9,6 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
   import MediaPlayerMenu from '../MediaPlayerMenu';
   import mediaPlayerMenuMixin from '../mixins/MediaPlayerMenu';
 
@@ -32,16 +16,6 @@
     name: 'CaptionsMenu',
     components: { MediaPlayerMenu },
     mixins: [mediaPlayerMenuMixin],
-    computed: {
-      ...mapState('mediaPlayer/captions', ['subtitles', 'transcript']),
-    },
-    methods: {
-      ...mapActions('mediaPlayer/captions', ['toggleSubtitles', 'toggleTranscript']),
-    },
-    $trs: {
-      subtitles: 'Subtitles',
-      transcript: 'Transcript',
-    },
   };
 
 </script>
@@ -56,6 +30,12 @@
   .vjs-menu {
     left: -5em;
     width: 15em;
+  }
+
+  .custom-skin .vjs-menu /deep/ ul {
+    li + li {
+      margin-top: 4px;
+    }
   }
 
 </style>

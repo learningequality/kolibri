@@ -19,6 +19,7 @@
           @click.stop="toggleCheck"
           @focus="isActive = true"
           @blur="markInactive"
+          @keydown="$emit('keydown', $event)"
         >
 
         <mat-svg
@@ -162,6 +163,12 @@
          * Emits blur event, useful for validation
          */
         this.$emit('blur');
+      },
+      /**
+       * @public
+       */
+      focus() {
+        this.$refs.kCheckboxInput.focus();
       },
     },
   };
