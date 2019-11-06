@@ -663,7 +663,10 @@ class ImportContentTestCase(TestCase):
             node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
         )
         annotation_mock.set_content_visibility.assert_called_with(
-            self.the_channel_id, []
+            self.the_channel_id,
+            [],
+            exclude_node_ids=[],
+            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
         )
 
 
@@ -800,16 +803,10 @@ class TestFilesToTransfer(TestCase):
             id=uuid.uuid4().hex, extension="mp4", available=False, file_size=10
         )
         File.objects.create(
-            id=uuid.uuid4().hex,
-            local_file=local_file,
-            available=False,
-            contentnode=node1,
+            id=uuid.uuid4().hex, local_file=local_file, contentnode=node1
         )
         File.objects.create(
-            id=uuid.uuid4().hex,
-            local_file=local_file,
-            available=False,
-            contentnode=node2,
+            id=uuid.uuid4().hex, local_file=local_file, contentnode=node2
         )
         files_to_transfer, _ = get_files_to_transfer(
             root_node.channel_id, [node1.id], [node2.id], False, False
