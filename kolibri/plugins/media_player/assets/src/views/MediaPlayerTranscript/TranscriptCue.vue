@@ -13,6 +13,7 @@
     :aria-current="active.toString()"
     @click="triggerSeekEvent"
     @keypress.enter="triggerSeekEvent"
+    @keypress.space="triggerSeekEvent"
   >
     <span
       class="transcript-cue-time"
