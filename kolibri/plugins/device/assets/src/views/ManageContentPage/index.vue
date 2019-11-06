@@ -41,7 +41,7 @@
           :channel="channel"
           :disabled="channelIsBeingDeleted(channel.id)"
           @select_delete="deleteChannelId = channel.id"
-          @select_manage="startImportWorkflow(channel)"
+          @select_manage="handleSelectManage(channel.id)"
         />
       </div>
 
@@ -140,6 +140,9 @@
           this.deleteChannelId = null;
           this.triggerChannelDeleteTask(channelId);
         }
+      },
+      handleSelectManage(channelId) {
+        this.$router.push({ name: 'MANAGE_CHANNEL', params: { channel_id: channelId } });
       },
     },
     $trs: {

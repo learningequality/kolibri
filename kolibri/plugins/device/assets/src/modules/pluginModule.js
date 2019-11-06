@@ -1,3 +1,4 @@
+import pick from 'lodash/pick';
 import { createTranslator } from 'kolibri.utils.i18n';
 import router from 'kolibri.coreVue.router';
 import { pageNameToModuleMap, PageNames, ContentWizardPages } from '../constants';
@@ -10,6 +11,7 @@ import coreBase from './coreBase';
 const TaskSnackbarStrings = createTranslator('TaskSnackbarStrings', {
   taskStarted: 'Task started…',
   viewTasksAction: 'View tasks',
+  taskFailed: 'Task could not be started',
 });
 
 export default {
@@ -44,6 +46,9 @@ export default {
         store.commit(`${moduleName}/RESET_STATE`);
       }
     },
+    createTaskFailedSnackbar(store) {
+      store.dispatch('createSnackbar', TaskSnackbarStrings.$tr('taskFailed'));
+    },
     createTaskStartedSnackbar(store) {
       store.commit('CORE_CREATE_SNACKBAR', {
         text: TaskSnackbarStrings.$tr('taskStarted'),
@@ -54,8 +59,8 @@ export default {
           return router.push(
             {
               name: 'MANAGE_TASKS',
-              query: {
-                last: router.currentRoute.name,
+              params: {
+                lastRoute: pick(router.currentRoute, ['name', 'params', 'query']),
               },
             },
             () => {

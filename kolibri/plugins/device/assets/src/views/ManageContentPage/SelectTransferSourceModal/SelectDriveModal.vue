@@ -5,7 +5,7 @@
     size="medium"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
-    :submitDisabled="selectedDriveId===''"
+    :submitDisabled="selectedDriveId === '' || notEnoughFreeSpace"
     @submit="goForward"
     @cancel="handleClickCancel"
   >
@@ -70,6 +70,10 @@
         type: Number,
         required: false,
       },
+      manageMode: {
+        type: Boolean,
+        required: false,
+      },
     },
     data() {
       return {
@@ -79,7 +83,14 @@
     },
     computed: {
       ...mapGetters('manageContent/wizard', ['driveCanBeUsedForTransfer', 'isImportingMore']),
-      ...mapState('manageContent/wizard', ['driveList', 'transferType']),
+      ...mapState('manageContent/wizard', ['driveList']),
+      transferType() {
+        if (this.manageMode) {
+          return TransferTypes.LOCALEXPORT;
+        } else {
+          return this.$store.state.manageContent.wizard.transferType;
+        }
+      },
       inImportMode() {
         return this.transferType === TransferTypes.LOCALIMPORT;
       },
@@ -124,13 +135,21 @@
         resetContentWizardState: 'RESET_STATE',
       }),
       goForward() {
-        this.goForwardFromSelectDriveModal({
-          driveId: this.selectedDriveId,
-          forExport: !this.inImportMode,
-        });
+        if (this.manageMode) {
+          this.$emit('submit', { driveId: this.selectedDriveId });
+        } else {
+          this.goForwardFromSelectDriveModal({
+            driveId: this.selectedDriveId,
+            forExport: !this.inImportMode,
+          });
+        }
       },
       handleClickCancel() {
-        this.resetContentWizardState();
+        if (this.manageMode) {
+          this.$emit('cancel');
+        } else {
+          this.resetContentWizardState();
+        }
       },
     },
     $trs: {

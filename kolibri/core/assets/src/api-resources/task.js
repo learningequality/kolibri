@@ -32,12 +32,12 @@ export default new Resource({
   /**
    * Initiates a Task that imports Channel Content from a remote source
    *
-   * @param {string} params.channel_id -
+   * @param {string} [params.channel_id] -
    * @param {string} [params.baseurl] - URL of remote source (defaults to Kolibri Studio)
    * @param {Array<string>} [params.node_ids] -
    * @param {Array<string>} [params.exclude_node_ids] -
-   * @param {Number} [file_size] - Total file size for the transfer
-   * @param {Number} [resource_count] - Total resource count for the transfer
+   * @param {Number} [params.file_size] - Total file size for the transfer
+   * @param {Number} [params.total_resources] - Total resource count for the transfer
    * @returns {Promise}
    *
    */

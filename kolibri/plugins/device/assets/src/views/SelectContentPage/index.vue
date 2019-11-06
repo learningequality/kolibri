@@ -85,10 +85,10 @@
       </template>
     </template>
     <SelectionBottomBar
-      :selectedObjects="[]"
       objectType="resource"
-      :actionType="actionType"
+      actionType="import"
       :resourceCounts="{count:nodeCounts.resources, fileSize:nodeCounts.fileSize}"
+      @clickconfirm="handleClickConfirm"
     />
   </div>
 
@@ -103,13 +103,14 @@
   import find from 'lodash/find';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import TaskProgress from '../ManageContentPage/TaskProgress';
-  import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
+  import { ContentWizardErrors, TaskTypes } from '../../constants';
   import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
   import { downloadChannelMetadata } from '../../modules/wizard/utils';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
+  import { startImportTask } from './api';
 
   export default {
     name: 'SelectContentPage',
@@ -127,12 +128,6 @@
       UiAlert,
     },
     mixins: [responsiveWindowMixin],
-    props: {
-      pageMode: {
-        type: String,
-        required: false,
-      },
-    },
     data() {
       return {
         showUpdateProgressBar: false,
@@ -148,6 +143,7 @@
       ...mapState('manageContent', ['taskList']),
       ...mapGetters('manageContent/wizard', [
         'nodeTransferCounts',
+        'inLocalImportMode',
         'inPeerImportMode',
         'inRemoteImportMode',
       ]),
@@ -159,24 +155,12 @@
         'transferType',
         'transferredChannel',
       ]),
-      actionType() {
-        if (this.pageMode === 'manage') {
-          return 'manage';
-        }
-        return 'import';
-      },
-      mode() {
-        if (this.pageMode) {
-          return this.pageMode;
-        }
-        return this.transferType === 'localexport' ? 'export' : 'import';
-      },
       mainAreaIsVisible() {
         // Don't show main area if page is about to refresh after updating (or cancelling update)
         if (this.pageWillRefresh) {
           return false;
         }
-        return !this.taskInProgress && this.onDeviceInfoIsReady;
+        return this.onDeviceInfoIsReady;
       },
       onDeviceInfoIsReady() {
         return !isEmpty(this.currentTopicNode);
@@ -187,15 +171,8 @@
           find(this.taskList, { type: TaskTypes.LOCALCHANNELIMPORT })
         );
       },
-      contentDownloadTask() {
-        return find(this.taskList, { type: TaskTypes.REMOTECONTENTIMPORT });
-      },
       // If this property is truthy, the entire UI is hidden and only the UiAlert is shown
       wholePageError() {
-        // Show error if a Channel Transfer is in progress
-        if (this.contentDownloadTask) {
-          return ContentWizardErrors.TRANSFER_IN_PROGRESS;
-        }
         // Show errors thrown during data fetching
         if (Object.values(ContentWizardErrors).includes(this.status)) {
           return this.status;
@@ -208,9 +185,6 @@
       },
       newVersionAvailable() {
         return this.transferredChannel.version > this.channelOnDevice.version;
-      },
-      taskInProgress() {
-        return this.taskList[0] && this.taskList[0].status !== TaskStatuses.COMPLETED;
       },
       nodeCounts() {
         return this.nodeTransferCounts(this.transferType);
@@ -230,31 +204,33 @@
         }
       },
     },
+    beforeRouteLeave(to, from, next) {
+      this.cancelMetadataDownloadTask();
+      this.$store.dispatch('manageContent/wizard/RESET_STATE');
+      next();
+    },
     mounted() {
+      let title;
       if (this.wholePageError) {
-        this.setAppBarTitle(this.$tr('pageLoadError'));
+        title = this.$tr('pageLoadError');
       } else {
         // Set app bar labels based on what kind of import/export the user is engaged in.
-        if (this.mode === 'export') {
-          this.setAppBarTitle(this.$tr('exportContent', { drive: this.selectedDrive.name }));
-        } else if (this.mode === 'import') {
-          if (this.inRemoteImportMode) {
-            this.setAppBarTitle(this.$tr('kolibriStudioLabel'));
-          } else if (this.inPeerImportMode) {
-            this.setAppBarTitle(`${this.selectedPeer.device_name} (${this.selectedPeer.base_url})`);
+        if (this.inRemoteImportMode) {
+          if (this.$route.query.last === 'MANAGE_CHANNEL') {
+            title = this.transferredChannel.name;
           } else {
-            this.setAppBarTitle(`${this.selectedDrive.name}`);
+            title = this.$tr('kolibriStudioLabel');
           }
+        } else if (this.inPeerImportMode) {
+          title = `${this.selectedPeer.device_name} (${this.selectedPeer.base_url})`;
+        } else {
+          title = this.selectedDrive.name;
         }
 
-        if (this.mode === 'manage') {
-          this.$store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'localexport');
-          this.setAppBarTitle(this.transferredChannel.name);
+        if (title) {
+          this.setAppBarTitle(title);
         }
       }
-    },
-    beforeDestroy() {
-      this.cancelMetadataDownloadTask();
     },
     methods: {
       ...mapMutations('coreBase', {
@@ -285,12 +261,50 @@
             }
           });
       },
-      // startContentTransfer() {
-      //   this.contentTransferError = false;
-      //   return this.transferChannelContent(this.returnToChannelsList).catch(() => {
-      //     this.contentTransferError = true;
-      //   });
-      // },
+      handleClickConfirm() {
+        let importSource;
+
+        // Lots of extra validation in case there are mistakes in refactor
+        if (this.inRemoteImportMode) {
+          importSource = { type: 'studio' };
+        } else if (this.inPeerImportMode) {
+          if (!this.selectedPeer.base_url) {
+            throw Error('Peer URL is not provided');
+          }
+          importSource = {
+            type: 'peer',
+            baseUrl: this.selectedPeer.base_url,
+          };
+        } else if (this.inLocalImportMode) {
+          if (!this.selectedDrive.id) {
+            throw Error('Drive ID is not provided');
+          }
+          importSource = {
+            type: 'drive',
+            driveId: this.selectedDrive.id,
+          };
+        } else {
+          throw Error('Import source is not provided');
+        }
+
+        const { nodesForTransfer } = this.$store.state.manageContent.wizard;
+
+        this.startImportTask({
+          importSource,
+          channelId: this.$route.params.channel_id,
+          included: nodesForTransfer.included.map(x => x.id),
+          excluded: nodesForTransfer.omitted.map(x => x.id),
+          fileSize: this.nodeCounts.fileSize,
+          totalResources: this.nodeCounts.resources,
+        })
+          .then(() => {
+            this.$store.dispatch('createTaskStartedSnackbar');
+          })
+          .catch(() => {
+            this.$store.dispatch('createTaskFailedSnackbar');
+          });
+      },
+      startImportTask,
       refreshPage() {
         this.$router.go();
       },
@@ -308,7 +322,6 @@
       problemTransferringContents: 'There was a problem transferring the selected contents',
       selectContent: "Select content from '{channelName}'",
       update: 'Update',
-      exportContent: 'Export to {drive}',
       kolibriStudioLabel: 'Kolibri Studio',
     },
   };

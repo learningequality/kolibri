@@ -49,7 +49,6 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { selectContentTopicLink } from '../ManageContentPage/manageContentLinks';
 
   export default {
     name: 'ContentNodeRow',
@@ -78,6 +77,10 @@
         type: String,
         required: true,
       },
+      getLinkObject: {
+        type: Function,
+        required: true,
+      },
     },
     computed: {
       isTopic() {
@@ -85,11 +88,6 @@
       },
       showButton() {
         return !this.disabled && this.node.kind === ContentNodeKinds.TOPIC;
-      },
-    },
-    methods: {
-      getLinkObject(node) {
-        return selectContentTopicLink(node, this.$route.query, this.$route.params.channel_id);
       },
     },
   };

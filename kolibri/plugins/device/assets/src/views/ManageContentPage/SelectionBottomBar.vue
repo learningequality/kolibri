@@ -6,14 +6,14 @@
       v-if="actionType === 'manage'"
       :text="coreString('optionsLabel')"
       :options="dropdownOptions"
-      :disabled="false"
+      :disabled="$attrs.disabled || buttonsDisabled"
       :primary="true"
       position="top center"
       @select="$emit('selectoption', $event.value)"
     />
     <KButton
       v-else
-      :disabled="selectedObjects.length === 0"
+      :disabled="$attrs.disabled || buttonsDisabled"
       :text="confirmButtonLabel"
       :primary="true"
       @click="$emit('clickconfirm')"
@@ -39,6 +39,7 @@
     },
     mixins: [commonCoreStrings],
     props: {
+      // TODO remove this and only pass in resourceCounts object
       selectedObjects: {
         type: Array,
         default() {
@@ -48,11 +49,8 @@
       resourceCounts: {
         type: Object,
         required: false,
-        default() {
-          return {
-            count: 0,
-            fileSize: 0,
-          };
+        validator(value) {
+          return typeof value.count === 'number' && typeof value.fileSize === 'number';
         },
       },
       objectType: {
@@ -77,6 +75,13 @@
           export: this.$tr('exportAction'),
           delete: this.$tr('deleteAction'),
         }[this.actionType];
+      },
+      buttonsDisabled() {
+        if (this.objectType === 'resource') {
+          return this.resourceCounts.count === 0;
+        } else {
+          return this.selectedObjects === 0;
+        }
       },
       selectedObjectsFileSize() {
         if (

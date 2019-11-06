@@ -74,6 +74,9 @@
             name: this.$route.query.last,
           };
         }
+        if (this.$route.name === 'MANAGE_TASKS') {
+          return this.$route.params.lastRoute || { name: PageNames.MANAGE_CONTENT_PAGE };
+        }
         if (this.pageName === 'MANAGE_CHANNEL') {
           return { name: PageNames.MANAGE_CONTENT_PAGE };
         }

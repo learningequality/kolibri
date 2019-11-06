@@ -1,6 +1,5 @@
 import omit from 'lodash/fp/omit';
 import * as availableChannelsActions from './actions/availableChannelsActions';
-import * as contentTransferActions from './actions/contentTransferActions';
 import * as contentTreeViewerActions from './actions/contentTreeViewerActions';
 import * as contentWizardActions from './actions/contentWizardActions';
 import * as selectContentActions from './actions/selectContentActions';
@@ -34,7 +33,6 @@ export default {
   state: defaultState(),
   actions: {
     ...availableChannelsActions,
-    ...contentTransferActions,
     ...contentTreeViewerActions,
     ...contentWizardActions,
     ...selectContentActions,

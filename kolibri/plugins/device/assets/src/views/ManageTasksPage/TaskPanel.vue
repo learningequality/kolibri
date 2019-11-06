@@ -166,7 +166,8 @@
     },
     $trs: {
       startedByUser: `Started by '{user}'`,
-      numResourcesAndSize: '{numResources} resources ({bytesText})',
+      numResourcesAndSize:
+        '{numResources} {numResources, plural, one {resource} other {resources}} ({bytesText})',
       statusInProgress: 'In-progress',
       statusInQueue: 'Waiting',
       statusComplete: 'Complete',
@@ -225,7 +226,7 @@
     display: flex;
     align-items: center;
     max-width: 450px;
-    margin-bottom: 32px;
+    margin-bottom: 16px;
   }
 
   // CSS overrides for linear loader
