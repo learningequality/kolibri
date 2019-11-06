@@ -30,6 +30,43 @@ CONTENT_APP_NAME = KolibriContentConfig.label
 CHUNKSIZE = 10000
 
 
+def _MPTT_descendant_ids_statement(ContentNodeTable, node_ids):
+    node_include = ContentNodeTable.alias()
+    return select([ContentNodeTable.c.id]).where(
+        and_(
+            node_include.c.id.in_(node_ids),
+            ContentNodeTable.c.lft >= node_include.c.lft,
+            ContentNodeTable.c.lft <= node_include.c.rght,
+            ContentNodeTable.c.tree_id == node_include.c.tree_id,
+        )
+    )
+
+
+def set_leaf_nodes_invisible(channel_id, node_ids):
+    bridge = Bridge(app_name=CONTENT_APP_NAME)
+
+    ContentNodeTable = bridge.get_table(ContentNode)
+
+    connection = bridge.get_connection()
+
+    node_ids_statement = _MPTT_descendant_ids_statement(ContentNodeTable, node_ids)
+
+    connection.execute(
+        ContentNodeTable.update()
+        .where(
+            and_(
+                ContentNodeTable.c.kind != content_kinds.TOPIC,
+                ContentNodeTable.c.channel_id == channel_id,
+            )
+        )
+        .where(ContentNodeTable.c.id.in_(node_ids_statement))
+        .values(available=False)
+        .execution_options(autocommit=True)
+    )
+
+    bridge.end()
+
+
 def set_leaf_node_availability_from_local_file_availability(
     channel_id, node_ids=None, exclude_node_ids=None
 ):
@@ -70,15 +107,7 @@ def set_leaf_node_availability_from_local_file_availability(
     include_update_statement = base_update_statement
 
     if node_ids is not None:
-        node_include = ContentNodeTable.alias()
-        node_ids_statement = select([ContentNodeTable.c.id]).where(
-            and_(
-                node_include.c.id.in_(node_ids),
-                ContentNodeTable.c.lft >= node_include.c.lft,
-                ContentNodeTable.c.rght <= node_include.c.rght,
-                ContentNodeTable.c.tree_id == node_include.c.tree_id,
-            )
-        )
+        node_ids_statement = _MPTT_descendant_ids_statement(ContentNodeTable, node_ids)
         include_update_statement = include_update_statement.where(
             ContentNodeTable.c.id.in_(node_ids_statement)
         )
@@ -90,14 +119,8 @@ def set_leaf_node_availability_from_local_file_availability(
     )
 
     if exclude_node_ids is not None:
-        node_exclude = ContentNodeTable.alias()
-        exclude_node_ids_statement = select([ContentNodeTable.c.id]).where(
-            and_(
-                node_exclude.c.id.in_(exclude_node_ids),
-                ContentNodeTable.c.lft >= node_exclude.c.lft,
-                ContentNodeTable.c.rght <= node_exclude.c.rght,
-                ContentNodeTable.c.tree_id == node_exclude.c.tree_id,
-            )
+        exclude_node_ids_statement = _MPTT_descendant_ids_statement(
+            ContentNodeTable, exclude_node_ids
         )
         connection.execute(
             base_update_statement.where(
@@ -359,6 +382,13 @@ def set_content_visibility(channel_id, checksums, node_ids=None, exclude_node_id
 def set_content_visibility_from_disk(channel_id):
     set_local_file_availability_from_disk()
     update_content_metadata(channel_id)
+
+
+def set_content_invisible(channel_id, node_ids):
+    set_leaf_nodes_invisible(channel_id, node_ids)
+    recurse_annotation_up_tree(channel_id)
+    calculate_channel_fields(channel_id)
+    ContentCacheKey.update_cache_key()
 
 
 def calculate_channel_fields(channel_id):

@@ -11,7 +11,6 @@ from .sqlalchemytesting import django_connection_engine
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.utils.delete_content import cleanup_unavailable_stored_files
 from kolibri.core.content.utils.paths import get_content_storage_file_path
 
 
@@ -62,16 +61,38 @@ class UnavailableContentDeletion(TransactionTestCase):
         tempfile.write("wow")
         tempfile.close()
 
+    def delete_content(self):
+        num_deleted = 0
+        freed_bytes = 0
+        for deleted, file in LocalFile.objects.delete_unused_files():
+            if deleted:
+                num_deleted += 1
+                freed_bytes += file.file_size
+        return num_deleted, freed_bytes
+
     def test_delete_unavailable_stored_files(self):
-        self.assertEqual(self.unavailable_contentnode.available, False)
-        self.assertEqual(self.stored_local_file.available, True)
-        self.assertEqual(os.path.exists(self.path), True)
-        self.assertEqual(len(LocalFile.objects.get_unavailable_stored_files()), 1)
-
-        deleted, freed_bytes = cleanup_unavailable_stored_files()
-
+        self.assertEqual(LocalFile.objects.get_unused_files().count(), 1)
+        deleted, freed_bytes = self.delete_content()
         self.assertEqual(deleted, 1)
         self.assertEqual(freed_bytes, self.stored_local_file.file_size)
 
         self.assertEqual(os.path.exists(self.path), False)
-        self.assertEqual(len(LocalFile.objects.get_unavailable_stored_files()), 0)
+        self.assertEqual(LocalFile.objects.get_unused_files().count(), 0)
+
+    def test_dont_delete_used_stored_files(self):
+        available_contentnode = ContentNode.objects.create(
+            title="wow",
+            available=True,
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+        )
+        File.objects.create(
+            local_file=self.stored_local_file,
+            contentnode=available_contentnode,
+            preset=format_presets.DOCUMENT,
+            id=uuid.uuid4().hex,
+        )
+        self.assertEqual(LocalFile.objects.get_unused_files().count(), 0)
+        deleted, freed_bytes = self.delete_content()
+        self.assertEqual(deleted, 0)

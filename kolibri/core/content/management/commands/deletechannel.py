@@ -5,6 +5,7 @@ from django.core.management.base import CommandError
 
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.annotation import set_content_invisible
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
@@ -14,9 +15,28 @@ logger = logging.getLogger(__name__)
 class Command(AsyncCommand):
     def add_arguments(self, parser):
         parser.add_argument("channel_id", type=str)
+        # However, some optional arguments apply to both groups. Add them here!
+        node_ids_help_text = """
+        Specify one or more node IDs to delete. Only these ContentNodes and descendants will be deleted.
+
+        e.g.
+
+        kolibri manage deletechannel --node_ids <id1>,<id2>, [<ids>,...] <channel id>
+        """
+        parser.add_argument(
+            "--node_ids",
+            "-n",
+            # Split the comma separated string we get, into a list of strings
+            type=lambda x: x.split(","),
+            default=[],
+            required=False,
+            dest="node_ids",
+            help=node_ids_help_text,
+        )
 
     def handle_async(self, *args, **options):
         channel_id = options["channel_id"]
+        node_ids = options["node_ids"]
 
         try:
             channel = ChannelMetadata.objects.get(pk=channel_id)
@@ -25,34 +45,40 @@ class Command(AsyncCommand):
                 "Channel matching id {id} does not exist".format(id=channel_id)
             )
 
-        logger.info("Deleting all channel metadata")
-        channel.delete_content_tree_and_files()
+        # Only delete all metadata if we are not doing selective deletion
+        delete_all_metadata = not bool(node_ids)
+
+        if node_ids:
+            # If we have been passed node ids do not do a full deletion pass
+            set_content_invisible(channel_id, node_ids)
+            # If everything has been made invisible, delete all the metadata
+            delete_all_metadata = not channel.root.available
+
+        if delete_all_metadata:
+            logger.info("Deleting all channel metadata")
+            channel.delete_content_tree_and_files()
 
         # Get orphan files that are being deleted
-        total_file_deletion_operations = (
-            LocalFile.objects.get_orphan_files().filter(available=True).count()
-        )
-
-        total_local_files_to_delete = LocalFile.objects.get_orphan_files().count()
-
+        total_file_deletion_operations = LocalFile.objects.get_unused_files().count()
         progress_extra_data = {"channel_id": channel_id}
 
         with self.start_progress(
-            total=total_file_deletion_operations + total_local_files_to_delete + 1
+            total=total_file_deletion_operations + (2 if delete_all_metadata else 1)
         ) as progress_update:
             logger.info("Deleting all channel metadata")
 
-            for file in LocalFile.objects.delete_orphan_files():
-                if file.available:
-                    progress_update(1, progress_extra_data)
+            for file in LocalFile.objects.delete_unused_files():
+                progress_update(1, progress_extra_data)
 
             LocalFile.objects.delete_orphan_file_objects()
 
-            progress_update(total_local_files_to_delete, progress_extra_data)
-
-            try:
-                os.remove(get_content_database_file_path(channel_id))
-            except OSError:
-                pass
-
             progress_update(1, progress_extra_data)
+
+            if delete_all_metadata:
+
+                try:
+                    os.remove(get_content_database_file_path(channel_id))
+                except OSError:
+                    pass
+
+                progress_update(1, progress_extra_data)
