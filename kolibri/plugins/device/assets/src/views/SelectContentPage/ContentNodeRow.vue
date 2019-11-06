@@ -24,7 +24,7 @@
           :text="node.title"
           :to="getLinkObject(node)"
         />
-        <span v-else>
+        <span v-else dir="auto">
           {{ node.title }}
         </span>
         <CoachContentLabel

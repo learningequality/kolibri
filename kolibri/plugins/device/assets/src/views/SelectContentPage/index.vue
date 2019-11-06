@@ -76,15 +76,7 @@
         >
           {{ $tr('problemTransferringContents') }}
         </UiAlert>
-        <!-- Contains size estimates + submit button -->
-        <!-- <SelectedResourcesSize
-          v-if="availableSpace !== null"
-          :mode="mode"
-          :fileSize="nodeCounts.fileSize"
-          :resourceCount="nodeCounts.resources"
-          :spaceOnDrive="availableSpace"
-          @clickconfirm="startContentTransfer()"
-        /> -->
+
         <ContentTreeViewer
           class="block-item"
           :class="{ small : windowIsSmall }"
@@ -117,7 +109,6 @@
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
-  import SelectedResourcesSize from './SelectedResourcesSize';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
 
   export default {
@@ -131,7 +122,6 @@
       ChannelContentsSummary,
       ContentTreeViewer,
       ContentWizardUiAlert,
-      SelectedResourcesSize,
       SelectionBottomBar,
       TaskProgress,
       UiAlert,
@@ -162,7 +152,6 @@
         'inRemoteImportMode',
       ]),
       ...mapState('manageContent/wizard', [
-        'availableSpace',
         'currentTopicNode',
         'selectedDrive',
         'selectedPeer',
@@ -271,7 +260,6 @@
       ...mapMutations('coreBase', {
         setAppBarTitle: 'SET_APP_BAR_TITLE',
       }),
-      ...mapActions('manageContent/wizard', ['transferChannelContent']),
       ...mapActions('manageContent', ['cancelTask']),
       downloadChannelMetadata,
       cancelUpdateChannel() {
@@ -297,12 +285,12 @@
             }
           });
       },
-      startContentTransfer() {
-        this.contentTransferError = false;
-        return this.transferChannelContent(this.returnToChannelsList).catch(() => {
-          this.contentTransferError = true;
-        });
-      },
+      // startContentTransfer() {
+      //   this.contentTransferError = false;
+      //   return this.transferChannelContent(this.returnToChannelsList).catch(() => {
+      //     this.contentTransferError = true;
+      //   });
+      // },
       refreshPage() {
         this.$router.go();
       },
