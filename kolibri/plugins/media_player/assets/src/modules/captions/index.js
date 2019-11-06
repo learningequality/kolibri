@@ -116,6 +116,11 @@ export default {
       settings.captionLanguage = language;
       store.dispatch('synchronizeTrackList');
 
+      // When changing language, and there is no format enabled, enable subtitles
+      if (!store.state.subtitles && !store.state.transcript) {
+        store.dispatch('toggleSubtitles');
+      }
+
       const track = store.getters.activeTrack;
       if (!track) {
         return;
