@@ -8,6 +8,7 @@ List of the most important changes for each release.
 
 - Database vacuum now works correctly
 - Fixes related to network detection
+- Improve performance of classroom API endpoint to prevent request timeouts
 
 ### Added
 
