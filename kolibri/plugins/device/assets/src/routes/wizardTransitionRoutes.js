@@ -25,6 +25,48 @@ export default [
     },
   },
   {
+    name: 'MANAGE_CHANNEL',
+    component: withAuthMessage(SelectContentPage, 'contentManager'),
+    path: '/content/manage_channel/:channel_id',
+    props: {
+      pageMode: 'manage',
+    },
+    handler: toRoute => {
+      const { query, params } = toRoute;
+      const { node_id } = query;
+      if (node_id) {
+        // If wizardState is not fully-hydrated, redirect to top-level channel page
+        if (!store.state.manageContent.wizard.transferType || node_id === params.channel_id) {
+          router.replace({ ...toRoute, query: omit(query, 'node_id') });
+        } else {
+          let nextNode;
+          if (!params.node) {
+            nextNode = {
+              // Works fine without title at the moment.
+              path: store.state.manageContent.wizard.pathCache[node_id],
+              id: node_id,
+            };
+          } else {
+            nextNode = params.node;
+          }
+          return updateTreeViewTopic(store, nextNode);
+        }
+      } else {
+        const cachedChannelPath = store.state.manageContent.wizard.pathCache[params.channel_id];
+        if (cachedChannelPath) {
+          updateTreeViewTopic(store, cachedChannelPath[0]);
+        } else {
+          return showSelectContentPage(store, {
+            channel_id: params.channel_id,
+            address_id: query.address_id,
+            drive_id: query.drive_id,
+            for_export: String(query.for_export) === 'true',
+          });
+        }
+      }
+    },
+  },
+  {
     name: ContentWizardPages.SELECT_CONTENT,
     component: withAuthMessage(SelectContentPage, 'contentManager'),
     path: '/content/channels/:channel_id',

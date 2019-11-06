@@ -2,7 +2,17 @@
 
   <BottomAppBar>
     <span class="message">{{ selectedMessage }}</span>
+    <KDropdownMenu
+      v-if="actionType === 'manage'"
+      :text="coreString('optionsLabel')"
+      :options="dropdownOptions"
+      :disabled="false"
+      :primary="true"
+      position="top center"
+      @select="$emit('selectoption', $event.value)"
+    />
     <KButton
+      v-else
       :disabled="selectedObjects.length === 0"
       :text="confirmButtonLabel"
       :primary="true"
@@ -16,6 +26,7 @@
 <script>
 
   import sumBy from 'lodash/sumBy';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
 
@@ -26,11 +37,22 @@
     components: {
       BottomAppBar,
     },
+    mixins: [commonCoreStrings],
     props: {
       selectedObjects: {
         type: Array,
         default() {
           return [];
+        },
+      },
+      resourceCounts: {
+        type: Object,
+        required: false,
+        default() {
+          return {
+            count: 0,
+            fileSize: 0,
+          };
         },
       },
       objectType: {
@@ -42,7 +64,9 @@
       actionType: {
         type: String,
         validator(value) {
-          return value === 'import' || value === 'export' || value === 'delete';
+          return (
+            value === 'import' || value === 'export' || value === 'delete' || value === 'manage'
+          );
         },
       },
     },
@@ -72,22 +96,34 @@
         return bytesForHumans(this.selectedObjectsFileSize);
       },
       selectedMessage() {
-        const count = this.selectedObjects.length;
         const forChannels = this.objectType === 'channel';
-        if (count === 0) {
-          return this.objectType === 'channel'
-            ? this.$tr('zeroChannelsSelected')
-            : this.$tr('zeroResourcesSelected');
-        } else {
-          if (forChannels) {
+        if (forChannels) {
+          const count = this.selectedObjects.length;
+          if (count === 0) {
+            return this.$tr('zeroChannelsSelected');
+          } else {
             return this.$tr('someChannelsSelected', {
               count,
               bytesText: this.bytesText,
             });
+          }
+        } else {
+          const { count, fileSize } = this.resourceCounts;
+          if (count === 0) {
+            return this.$tr('zeroResourcesSelected');
           } else {
-            return this.$tr('someResourcesSelected', { bytesText: '0', count });
+            return this.$tr('someResourcesSelected', {
+              bytesText: bytesForHumans(fileSize),
+              count,
+            });
           }
         }
+      },
+      dropdownOptions() {
+        return [
+          { label: this.$tr('exportToAction'), value: 'EXPORT' },
+          { label: this.$tr('deleteFromDeviceAction'), value: 'DELETE' },
+        ];
       },
     },
     watch: {
@@ -99,10 +135,8 @@
       importAction: 'Import',
       exportAction: 'Export',
       deleteAction: 'Delete',
-      /* eslint-disable */
       deleteFromDeviceAction: 'Delete from device',
       exportToAction: 'Export to…',
-      /* eslint-enable */
       zeroChannelsSelected: '0 channels selected',
       someChannelsSelected:
         '{count} {count, plural, one {channel} other {channels}} selected ({bytesText})',

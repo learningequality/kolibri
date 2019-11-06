@@ -77,14 +77,14 @@
           {{ $tr('problemTransferringContents') }}
         </UiAlert>
         <!-- Contains size estimates + submit button -->
-        <SelectedResourcesSize
+        <!-- <SelectedResourcesSize
           v-if="availableSpace !== null"
           :mode="mode"
           :fileSize="nodeCounts.fileSize"
           :resourceCount="nodeCounts.resources"
           :spaceOnDrive="availableSpace"
           @clickconfirm="startContentTransfer()"
-        />
+        /> -->
         <ContentTreeViewer
           class="block-item"
           :class="{ small : windowIsSmall }"
@@ -92,6 +92,12 @@
         />
       </template>
     </template>
+    <SelectionBottomBar
+      :selectedObjects="[]"
+      objectType="resource"
+      :actionType="actionType"
+      :resourceCounts="{count:nodeCounts.resources, fileSize:nodeCounts.fileSize}"
+    />
   </div>
 
 </template>
@@ -108,6 +114,7 @@
   import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
   import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
   import { downloadChannelMetadata } from '../../modules/wizard/utils';
+  import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import SelectedResourcesSize from './SelectedResourcesSize';
@@ -125,10 +132,17 @@
       ContentTreeViewer,
       ContentWizardUiAlert,
       SelectedResourcesSize,
+      SelectionBottomBar,
       TaskProgress,
       UiAlert,
     },
     mixins: [responsiveWindowMixin],
+    props: {
+      pageMode: {
+        type: String,
+        required: false,
+      },
+    },
     data() {
       return {
         showUpdateProgressBar: false,
@@ -156,7 +170,16 @@
         'transferType',
         'transferredChannel',
       ]),
+      actionType() {
+        if (this.pageMode === 'manage') {
+          return 'manage';
+        }
+        return 'import';
+      },
       mode() {
+        if (this.pageMode) {
+          return this.pageMode;
+        }
         return this.transferType === 'localexport' ? 'export' : 'import';
       },
       mainAreaIsVisible() {
@@ -233,6 +256,11 @@
           } else {
             this.setAppBarTitle(`${this.selectedDrive.name}`);
           }
+        }
+
+        if (this.mode === 'manage') {
+          this.$store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'localexport');
+          this.setAppBarTitle(this.transferredChannel.name);
         }
       }
     },

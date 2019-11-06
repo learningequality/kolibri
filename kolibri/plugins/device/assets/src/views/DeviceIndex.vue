@@ -44,8 +44,11 @@
     },
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
-      ...mapState(['pageName', 'welcomeModalVisible']),
+      ...mapState(['welcomeModalVisible']),
       ...mapState('coreBase', ['appBarTitle']),
+      pageName() {
+        return this.$route.name;
+      },
       containerStyles() {
         // Need to override overflow rule for setting page
         if (this.$route.name === PageNames.DEVICE_SETTINGS_PAGE) {
@@ -70,6 +73,9 @@
           return {
             name: this.$route.query.last,
           };
+        }
+        if (this.pageName === 'MANAGE_CHANNEL') {
+          return { name: PageNames.MANAGE_CONTENT_PAGE };
         }
         // In all Import/Export pages, go back to ManageContentPage
         if (this.inContentManagementPage) {

@@ -64,7 +64,7 @@
         type: String,
         required: true,
         validator(val) {
-          return val === 'import' || val === 'export';
+          return val === 'import' || val === 'export' || val === 'manage';
         },
       },
       fileSize: RequiredNumber,
