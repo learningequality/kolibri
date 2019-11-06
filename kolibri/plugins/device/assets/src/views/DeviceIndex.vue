@@ -101,18 +101,10 @@
         }
       },
       immersivePagePrimary() {
-        // When the icon is an arrow, it should true for Primary with one
-        // exception: The SELECT_CONTENT page.
-        if (this.inMultipleImportPage) {
+        if (this.pageName === PageNames.MANAGE_TASKS) {
           return false;
         }
-        return (
-          (this.immersivePageIcon === 'arrow_back' &&
-            this.pageName !== ContentWizardPages.SELECT_CONTENT) ||
-          this.pageName === PageNames.REARRANGE_CHANNELS ||
-          this.pageName === PageNames.DELETE_CHANNELS ||
-          this.pageName === PageNames.EXPORT_CHANNELS
-        );
+        return this.inContentManagementPage;
       },
       immersivePageIcon() {
         if (
