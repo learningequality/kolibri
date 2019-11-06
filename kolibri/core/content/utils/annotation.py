@@ -97,38 +97,32 @@ def set_leaf_node_availability_from_local_file_availability(
         "Setting availability of non-topic ContentNode objects based on LocalFile availability"
     )
 
-    base_update_statement = ContentNodeTable.update().where(
+    update_statement = ContentNodeTable.update().where(
         and_(
             ContentNodeTable.c.kind != content_kinds.TOPIC,
             ContentNodeTable.c.channel_id == channel_id,
         )
     )
 
-    include_update_statement = base_update_statement
-
     if node_ids is not None:
         node_ids_statement = _MPTT_descendant_ids_statement(ContentNodeTable, node_ids)
-        include_update_statement = include_update_statement.where(
+        update_statement = update_statement.where(
             ContentNodeTable.c.id.in_(node_ids_statement)
         )
-
-    connection.execute(
-        include_update_statement.values(
-            available=exists(contentnode_statement)
-        ).execution_options(autocommit=True)
-    )
 
     if exclude_node_ids is not None:
         exclude_node_ids_statement = _MPTT_descendant_ids_statement(
             ContentNodeTable, exclude_node_ids
         )
-        connection.execute(
-            base_update_statement.where(
-                ContentNodeTable.c.id.in_(exclude_node_ids_statement)
-            )
-            .values(available=False)
-            .execution_options(autocommit=True)
+        update_statement = update_statement.where(
+            ~ContentNodeTable.c.id.in_(exclude_node_ids_statement)
         )
+
+    connection.execute(
+        update_statement.values(
+            available=exists(contentnode_statement)
+        ).execution_options(autocommit=True)
+    )
 
     bridge.end()
 

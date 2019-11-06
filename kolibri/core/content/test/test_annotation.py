@@ -145,7 +145,7 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
         )
 
     def test_all_local_files_available_exclude_all(self):
-        ContentNode.objects.all().update(available=True)
+        ContentNode.objects.all().update(available=False)
         LocalFile.objects.all().update(available=True)
         exclude_ids = list(
             ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
@@ -164,7 +164,7 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
         )
 
     def test_all_local_files_available_exclude_root(self):
-        ContentNode.objects.all().update(available=True)
+        ContentNode.objects.all().update(available=False)
         LocalFile.objects.all().update(available=True)
         exclude_ids = list(
             ContentNode.objects.filter(parent__isnull=True).values_list("id", flat=True)
@@ -181,7 +181,7 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
         )
 
     def test_all_local_files_available_exclude_duplicate_topic(self):
-        ContentNode.objects.all().update(available=True)
+        ContentNode.objects.all().update(available=False)
         LocalFile.objects.all().update(available=True)
         parent = ContentNode.objects.get(title="c3")
         copy = ContentNode.objects.get(title="c2c1")
@@ -210,7 +210,7 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
         )
 
     def test_all_local_files_available_include_orignial_exclude_duplicate_topic(self):
-        ContentNode.objects.all().update(available=True)
+        ContentNode.objects.all().update(available=False)
         LocalFile.objects.all().update(available=True)
         parent = ContentNode.objects.get(title="c3")
         copy = ContentNode.objects.get(title="c2c1")
@@ -239,19 +239,19 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
         )
 
     def test_all_local_files_available_non_include_exclude_unaffected(self):
-        ContentNode.objects.all().update(available=True)
+        ContentNode.objects.all().update(available=False)
         LocalFile.objects.all().update(available=True)
         exclude = ContentNode.objects.get(title="c3")
         include = ContentNode.objects.get(title="c2")
         node = ContentNode.objects.get(title="copy", kind=content_kinds.VIDEO)
-        self.assertTrue(node.available)
-        node.available = False
+        self.assertFalse(node.available)
+        node.available = True
         node.save()
         set_leaf_node_availability_from_local_file_availability(
             test_channel_id, node_ids=[include.id], exclude_node_ids=[exclude.id]
         )
         node.refresh_from_db()
-        self.assertFalse(node.available)
+        self.assertTrue(node.available)
 
     def tearDown(self):
         call_command("flush", interactive=False)
