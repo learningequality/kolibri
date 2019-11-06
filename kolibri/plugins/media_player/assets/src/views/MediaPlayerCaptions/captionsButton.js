@@ -34,6 +34,15 @@ class CaptionsButton extends buttonMixin('TextTrackButton') {
    * @returns {TranscriptMenuItem[]|SubtitlesMenuItem[]}
    */
   createItems() {
+    // Use logic from parent to determine if we should fill menu
+    const length = super.createItems().length;
+
+    if (length <= 1) {
+      this.hideThreshold_ = 0;
+      return [];
+    }
+
+    this.hideThreshold_ = -1;
     const player = this.player();
     return [new SubtitlesMenuItem(player, {}), new TranscriptMenuItem(player, {})];
   }
