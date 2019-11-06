@@ -1,7 +1,7 @@
 <template>
 
   <BottomAppBar>
-    <div class="task-bar">
+    <div class="task-bar" :class="{'task-bar-sm': windowIsSmall}">
       <div class="progress-bar">
         <div class="message">
           {{ tasksString }}
@@ -30,6 +30,7 @@
 <script>
 
   import { mapState } from 'vuex';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import countBy from 'lodash/countBy';
   import sumBy from 'lodash/sumBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
@@ -40,7 +41,7 @@
     components: {
       BottomAppBar,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {},
     data() {
       return {};
@@ -93,11 +94,20 @@
     min-width: 300px;
     max-width: 400px;
     text-align: left;
+
+    .task-bar-sm & {
+      min-width: auto;
+      max-width: 200px;
+    }
   }
 
   // CSS overrides for linear loader
   .k-linear-loader {
     height: 10px;
+
+    .task-bar-sm & {
+      display: none;
+    }
 
     /deep/ .ui-progress-linear-progress-bar {
       height: 100%;
