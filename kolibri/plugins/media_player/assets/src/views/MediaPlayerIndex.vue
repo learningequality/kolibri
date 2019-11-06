@@ -274,6 +274,7 @@
               'captions off': this.$tr('captionsOff'),
               Transcript: this.$tr('transcript'),
               'Transcript off': this.$tr('transcriptOff'),
+              Languages: this.$tr('languages'),
               'Volume Level': this.$tr('volumeLevel'),
               'A network error caused the media download to fail part-way.': this.$tr(
                 'networkError'
@@ -456,6 +457,7 @@
       captionsOff: 'Captions off',
       transcript: 'Transcript',
       transcriptOff: 'Transcript off',
+      languages: 'Languages',
       volumeLevel: 'Volume level',
       networkError: 'A network error caused the media download to fail part-way',
       formatError:

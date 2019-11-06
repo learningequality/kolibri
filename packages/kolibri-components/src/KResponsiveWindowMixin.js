@@ -118,6 +118,7 @@ export default {
   watch: {
     windowWidth() {
       this._updateBreakpoint();
+      this._updateGutter();
       this._updateOrientation();
     },
     windowHeight() {
