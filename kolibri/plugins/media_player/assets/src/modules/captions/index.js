@@ -10,7 +10,7 @@ const { handleSelectedLanguageChange } = videojs.getComponent('TextTrackMenuItem
  */
 const defaultSettings = () => ({
   captionLanguage: vue.locale,
-  captionSubtitles: false,
+  captionSubtitles: true,
   captionTranscript: false,
 });
 
