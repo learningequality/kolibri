@@ -21,6 +21,33 @@ def test_filter_old_version():
         unfiltered_mock.assert_called_once()
 
 
+def test_not_filter_alpha_version():
+    unfiltered_mock = Mock()
+
+    not_filtered = VersionUpgrade(old_version="<1.1.1", upgrade=unfiltered_mock)
+    with patch("kolibri.core.upgrade.get_upgrades", return_value=[not_filtered]):
+        run_upgrades("1.1.1.a0", "1.1.2")
+        unfiltered_mock.assert_called_once()
+
+
+def test_not_filter_beta_version():
+    unfiltered_mock = Mock()
+
+    not_filtered = VersionUpgrade(old_version="<1.1.1", upgrade=unfiltered_mock)
+    with patch("kolibri.core.upgrade.get_upgrades", return_value=[not_filtered]):
+        run_upgrades("1.1.1.b0", "1.1.2")
+        unfiltered_mock.assert_called_once()
+
+
+def test_not_filter_dev_version():
+    unfiltered_mock = Mock()
+
+    not_filtered = VersionUpgrade(old_version="<1.1.1", upgrade=unfiltered_mock)
+    with patch("kolibri.core.upgrade.get_upgrades", return_value=[not_filtered]):
+        run_upgrades("1.1.1.dev0", "1.1.2")
+        unfiltered_mock.assert_called_once()
+
+
 def test_order_old_version():
     function = Mock()
 

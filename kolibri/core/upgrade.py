@@ -108,11 +108,9 @@ def version_upgrade(old_version=None, new_version=None):
 def matches_version(version, version_range):
     if version_range is None or not version:
         return True
-    version = normalize_version_to_semver(version)
-    # N.B. explicitly don't use the same version range comparison machinery
-    # as is used in the version utils, because that is intended for update
-    # notifications, and we block those from dev machines.
-    # Here we do want to run upgrades on dev versions.
+    # For the purposes of upgrade comparison, treat dev versions as alphas
+    version = normalize_version_to_semver(version).replace("dev", "a")
+    version_range = "".join(get_version_and_operator_from_range(version_range))
     return match(version, version_range)
 
 
