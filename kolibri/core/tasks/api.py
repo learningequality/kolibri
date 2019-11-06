@@ -320,7 +320,6 @@ class TasksViewSet(viewsets.ViewSet):
                 call_command,
                 "deletechannel",
                 task["channel_id"],
-                node_ids=task["node_ids"],
                 track_progress=True,
                 extra_metadata=task,
             )
@@ -338,6 +337,11 @@ class TasksViewSet(viewsets.ViewSet):
         task = validate_deletion_task(request, request.data)
 
         task.update({"type": "DELETECHANNEL"})
+
+        if task["node_ids"]:
+            # TODO: Update the job metadata during execution to assign this information
+            task["file_size"] = None
+            task["total_resources"] = None
 
         task_id = queue.enqueue(
             call_command,
