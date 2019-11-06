@@ -109,7 +109,10 @@ def matches_version(version, version_range):
     if version_range is None or not version:
         return True
     version = normalize_version_to_semver(version)
-    version_range = "".join(get_version_and_operator_from_range(version_range))
+    # N.B. explicitly don't use the same version range comparison machinery
+    # as is used in the version utils, because that is intended for update
+    # notifications, and we block those from dev machines.
+    # Here we do want to run upgrades on dev versions.
     return match(version, version_range)
 
 
