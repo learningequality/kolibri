@@ -1,8 +1,8 @@
 <template>
 
-  <p class="time-context">
+  <div class="time-context">
     {{ formattedTime }}
-  </p>
+  </div>
 
 </template>
 
@@ -15,12 +15,7 @@
   const HOUR = MINUTE * 60;
   const DAY = HOUR * 24;
 
-  const ACTION_TYPES = [
-    'created',
-    'closed',
-    'opened',
-    null, // Default to "n minutes ago"
-  ];
+  const ACTION_TYPES = ['created', 'closed', 'opened'];
 
   export default {
     name: 'StatusElapsedTime',
@@ -67,7 +62,7 @@
             case 'opened':
               return this.$tr('openedSecondsAgo', strParams);
             default:
-              return this.$tr('secondsAgo', strParams);
+              return '';
           }
         }
         // Minutes
@@ -81,7 +76,7 @@
             case 'opened':
               return this.$tr('openedMinutesAgo', strParams);
             default:
-              return this.$tr('minutesAgo', strParams);
+              return '';
           }
         }
         // Hours
@@ -95,7 +90,7 @@
             case 'opened':
               return this.$tr('openedHoursAgo', strParams);
             default:
-              return this.$tr('hoursAgo', strParams);
+              return '';
           }
         }
         // else, Days
@@ -108,7 +103,7 @@
           case 'opened':
             return this.$tr('openedDaysAgo', strParams);
           default:
-            return this.$tr('daysAgo', strParams);
+            return '';
         }
       },
     },
@@ -183,22 +178,6 @@
       openedDaysAgo: {
         message: 'Opened {days} {days, plural, one {day} other {days}} ago',
         context: 'Indicates that an item was opened a number of days prior to the current date.',
-      },
-      secondsAgo: {
-        message: '{seconds} {seconds, plural, one {second} other {seconds}} ago',
-        context: 'Indicates that something occurred seconds prior to the current time.',
-      },
-      minutesAgo: {
-        message: '{minutes} {minutes, plural, one {minute} other {minutes}} ago',
-        context: 'Indicates that something occurred minutes prior to the current time.',
-      },
-      hoursAgo: {
-        message: '{hours} {hours, plural, one {hour} other {hours}} ago',
-        context: 'Indicates that something occurred hours prior to the current time.',
-      },
-      daysAgo: {
-        message: '{days} {days, plural, one {day} other {days}} ago',
-        context: 'Indicates that something occurred days prior to the current time.',
       },
     },
   };

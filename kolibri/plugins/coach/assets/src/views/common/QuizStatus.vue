@@ -1,70 +1,101 @@
 <template>
 
   <KPageContainer :topMargin="16">
-    <KButton
-      v-if="!exam.active && !exam.archive"
-      :primary="true"
-      :text="coachString('openQuizLabel')"
-      type="button"
-      style="margin-left: 0; margin-top: 16px; margin-bottom: 0;"
-      @click="showConfirmationModal = true"
-    />
-    <div v-if="exam.active && !exam.archive">
-      <KButton
-        :text="coachString('closeQuizLabel')"
-        type="submit"
-        style="margin-left: 0; margin-top: 16px; margin-bottom: 0;"
-        :appearanceOverrides="cancelStyleOverrides"
-        @click="showCancellationModal = true"
-      />
-      <StatusElapsedTime :date="examDateOpened" actionType="opened" style="margin-top: 8px;" />
-    </div>
+
+
     <KGrid gutter="16">
-      <KGridItem v-if="exam.archive" class="status-label">
-        {{ coachString('quizClosedLabel') }}
-      </KGridItem>
-      <KGridItem style="margin-bottom: 16px">
-        <StatusElapsedTime :date="examDateArchived" style="margin-top: 8px;" />
-      </KGridItem>
-      <KGridItem v-if="exam.archive" class="status-label" :layout12="{ span: 8 }">
-        {{ $tr('reportVisibleToLearnersLabel') }}
-      </KGridItem>
-      <KGridItem v-if="exam.archive" class="status-label" :layout12="{ span: 4 }">
-        <KSwitch
-          name="toggle-quiz-visibility"
-          style="display:inline;"
-          :checked="exam.active"
-          :value="exam.active"
-          @change="handleToggleVisibility"
-        />
-      </KGridItem>
-      <KGridItem class="status-label">
-        {{ coachString('recipientsLabel') }}
-      </KGridItem>
-      <KGridItem>
-        <div>
-          <Recipients
-            slot="value"
-            :groupNames="groupNames"
-            :hasAssignments="exam.assignments.length > 0"
+      <!-- Quiz Open button -->
+      <div v-if="!exam.active && !exam.archive" class="status-item">
+        <KGridItem class="status-label" :layout4="{ span: 4 }" :layout8="{ span: 8 }" :layout12="{ span: 12 }">
+          <KButton
+            :primary="true"
+            :text="coachString('openQuizLabel')"
+            type="button"
+            style="margin: 0;"
+            @click="showConfirmationModal = true"
           />
-        </div>
-      </KGridItem>
-      <KGridItem class="status-label">
-        <span>{{ coachString('avgScoreLabel') }}</span>
-        <AverageScoreTooltip />
-      </KGridItem>
-      <KGridItem>
-        <Score :value="avgScore" />
-      </KGridItem>
-      <KGridItem class="status-label">
-        {{ $tr('questionOrderLabel') }}
-      </KGridItem>
-      <KGridItem>
-        {{ orderDescriptionString }}
-      </KGridItem>
+        </KGridItem>
+      </div>
+
+      <!-- Quiz Close button & time since opened -->
+      <div v-if="exam.active && !exam.archive" class="status-item">
+        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+          <KButton
+            :text="coachString('closeQuizLabel')"
+            type="submit"
+            style="margin: 0;"
+            :appearanceOverrides="cancelStyleOverrides"
+            @click="showCancellationModal = true"
+          />
+        </KGridItem>
+        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+          <StatusElapsedTime :date="examDateOpened" actionType="opened" style="margin-top: 8px; display: block;" />
+        </KGridItem>
+      </div>
+
+      <!-- Quiz Closed label & time since closed -->
+      <div v-if="exam.archive" class="status-item">
+        <KGridItem class="status-label" :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+          {{ coachString('quizClosedLabel') }}
+        </KGridItem>
+        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+          <ElapsedTime :date="examDateArchived" style="margin-top: 8px;" />
+        </KGridItem>
+      </div>
+      <div v-if="exam.archive" class="status-item">
+        <KGridItem class="status-label" :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+          {{ $tr('reportVisibleToLearnersLabel') }}
+        </KGridItem>
+        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+          <KSwitch
+            name="toggle-quiz-visibility"
+            style="display:inline;"
+            :checked="exam.active"
+            :value="exam.active"
+            @change="handleToggleVisibility"
+          />
+        </KGridItem>
+      </div>
+
+      <!-- Recipients  -->
+      <div class="status-item">
+        <KGridItem class="status-label" :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+          {{ coachString('recipientsLabel') }}
+        </KGridItem>
+        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+          <div>
+            <Recipients
+              slot="value"
+              :groupNames="groupNames"
+              :hasAssignments="exam.assignments.length > 0"
+            />
+          </div>
+        </KGridItem>
+      </div>
+
+      <!-- Average Score -->
+      <div class="status-item">
+        <KGridItem class="status-label" :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+          <span>{{ coachString('avgScoreLabel') }}</span>
+          <AverageScoreTooltip />
+        </KGridItem>
+        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+          <Score :value="avgScore" />
+        </KGridItem>
+      </div>
+
+      <!-- Question Order -->
+      <div class="status-item">
+        <KGridItem class="status-label" :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+          {{ $tr('questionOrderLabel') }}
+        </KGridItem>
+        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+          {{ orderDescriptionString }}
+        </KGridItem>
+      </div>
 
     </KGrid>
+
     <KModal
       v-if="showConfirmationModal"
       :title="coachString('openQuizLabel')"
@@ -75,6 +106,7 @@
     >
       <div>{{ coachString('openQuizModalDetail') }}</div>
     </KModal>
+
     <KModal
       v-if="showCancellationModal"
       :title="coachString('closeQuizLabel')"
@@ -85,6 +117,7 @@
     >
       <div>{{ coachString('closeQuizModalDetail') }}</div>
     </KModal>
+
   </KPageContainer>
 
 </template>
@@ -94,6 +127,7 @@
 
   import { ExamResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import { coachStringsMixin } from './commonCoachStrings';
   import Score from './Score';
   import Recipients from './Recipients';
@@ -102,7 +136,7 @@
 
   export default {
     name: 'QuizStatus',
-    components: { Score, Recipients, StatusElapsedTime, AverageScoreTooltip },
+    components: { Score, Recipients, ElapsedTime, StatusElapsedTime, AverageScoreTooltip },
     mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       groupNames: {
@@ -233,11 +267,15 @@
 <style scoped lang="scss">
 
   .grid-item {
-    font-size: 0.925rem;
+    font-size: 14px;
   }
   .status-label {
-    padding-top: 24px;
+    padding-bottom: 8px;
     font-weight: bold;
+  }
+  .status-item {
+    width: 100%;
+    padding-top: 16px;
   }
 
 </style>

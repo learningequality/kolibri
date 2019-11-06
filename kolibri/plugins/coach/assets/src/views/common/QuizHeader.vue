@@ -9,8 +9,8 @@
     <!-- Cheating to get the same layout effect but not
          using a backlink...
     -->
-    <BackLinkWithOptions>
-      <div slot="backlink">
+    <HeaderWithOptions>
+      <div slot="header">
         <h1 class="exam-title">
           <KLabeledIcon icon="quiz" :label="exam.title" />
         </h1>
@@ -19,7 +19,7 @@
       <div slot="options">
         <slot name="dropdown"></slot>
       </div>
-    </BackLinkWithOptions>
+    </HeaderWithOptions>
 
   </KPageContainer>
 
@@ -29,14 +29,14 @@
 <script>
 
   import { mapState } from 'vuex';
-  import BackLinkWithOptions from './BackLinkWithOptions';
+  import HeaderWithOptions from './HeaderWithOptions';
   import StatusElapsedTime from './StatusElapsedTime';
   import BackLink from './BackLink';
 
   export default {
     name: 'QuizHeader',
     components: {
-      BackLinkWithOptions,
+      HeaderWithOptions,
       StatusElapsedTime,
       BackLink,
     },

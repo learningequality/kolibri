@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <BackLinkWithOptions>
+    <HeaderWithOptions>
       <BackLink
-        slot="backlink"
+        slot="header"
         :to="classRoute('ReportsLessonListPage')"
         :text="coreString('allLessonsLabel')"
       />
@@ -12,7 +12,7 @@
         optionsFor="report"
         @select="handleSelectOption"
       />
-    </BackLinkWithOptions>
+    </HeaderWithOptions>
 
     <h1>
       <KLabeledIcon icon="lesson" :label="lesson.title" />
@@ -60,12 +60,12 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import LessonOptionsDropdownMenu from '../plan/LessonSummaryPage/LessonOptionsDropdownMenu';
-  import BackLinkWithOptions from '../common/BackLinkWithOptions';
+  import HeaderWithOptions from '../common/HeaderWithOptions';
 
   export default {
     name: 'ReportsLessonHeader',
     components: {
-      BackLinkWithOptions,
+      HeaderWithOptions,
       LessonOptionsDropdownMenu,
     },
     mixins: [commonCoach, commonCoreStrings],

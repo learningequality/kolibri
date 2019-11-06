@@ -11,9 +11,9 @@
 
     <KPageContainer>
       <section>
-        <BackLinkWithOptions>
+        <HeaderWithOptions>
           <BackLink
-            slot="backlink"
+            slot="header"
             :to="classRoute('ReportsLessonReportPage', {})"
             :text="coachString('backToLessonLabel', { lesson: lesson.title })"
           />
@@ -22,7 +22,7 @@
             :text="coachString('previewAction')"
             @click="onPreviewClick"
           />
-        </BackLinkWithOptions>
+        </HeaderWithOptions>
         <h1>
           <KLabeledIcon :icon="resource.kind" :label="resource.title" />
         </h1>
@@ -110,14 +110,14 @@
 
   import { LastPages } from '../../constants/lastPagesConstants';
   import commonCoach from '../common';
-  import BackLinkWithOptions from '../common/BackLinkWithOptions';
+  import HeaderWithOptions from '../common/HeaderWithOptions';
   import ReportsResourceLearners from './ReportsResourceLearners';
   import ReportsResourcesStats from './ReportsResourcesStats';
 
   export default {
     name: 'ReportsLessonResourceLearnerListPage',
     components: {
-      BackLinkWithOptions,
+      HeaderWithOptions,
       ReportsResourceLearners,
       ReportsResourcesStats,
     },
