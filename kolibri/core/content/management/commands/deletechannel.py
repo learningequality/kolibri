@@ -65,7 +65,6 @@ class Command(AsyncCommand):
         with self.start_progress(
             total=total_file_deletion_operations + (2 if delete_all_metadata else 1)
         ) as progress_update:
-            logger.info("Deleting all channel metadata")
 
             for file in LocalFile.objects.delete_unused_files():
                 progress_update(1, progress_extra_data)
@@ -75,7 +74,6 @@ class Command(AsyncCommand):
             progress_update(1, progress_extra_data)
 
             if delete_all_metadata:
-
                 try:
                     os.remove(get_content_database_file_path(channel_id))
                 except OSError:
