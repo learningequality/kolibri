@@ -7,6 +7,7 @@ import zlib
 
 import mock
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TransactionTestCase
 from requests.models import Response
 
@@ -41,7 +42,8 @@ def mocked_requests_post_wrapper(json_data, status_code):
 
 class PingCommandTestCase(BaseDeviceSetupMixin, TransactionTestCase):
     @mock.patch(
-        "requests.post", side_effect=mocked_requests_post_wrapper({"id": 17}, 200)
+        "kolibri.core.analytics.utils.requests.post",
+        side_effect=mocked_requests_post_wrapper({"id": 17}, 200),
     )
     def test_ping_succeeds(self, post_mock):
         call_command("ping", once=True)
@@ -50,8 +52,12 @@ class PingCommandTestCase(BaseDeviceSetupMixin, TransactionTestCase):
         assert post_mock.call_args_list[1][0][0].endswith("/statistics")
         assert load_zipped_json(post_mock.call_args_list[1][1]["data"])["pi"] == 17
 
-    @mock.patch("requests.post", side_effect=mocked_requests_post_wrapper({}, 400))
+    @mock.patch(
+        "kolibri.core.analytics.utils.requests.post",
+        side_effect=mocked_requests_post_wrapper({}, 400),
+    )
     def test_ping_fails(self, post_mock):
-        call_command("ping", once=True)
+        with self.assertRaises(CommandError):
+            call_command("ping", once=True)
         assert len(post_mock.call_args_list) == 1
         assert post_mock.call_args_list[0][0][0].endswith("/pingback")

@@ -1,37 +1,16 @@
-import json
 import logging
-import time
 from datetime import datetime
 
-import requests
 from django.core.management.base import BaseCommand
-from django.db import connection
-from django.utils.six.moves.urllib.parse import urljoin
-from django.utils.timezone import get_current_timezone
-from django.utils.timezone import localtime
-from morango.models import InstanceIDModel
-from requests.exceptions import ConnectionError
-from requests.exceptions import RequestException
-from requests.exceptions import Timeout
+from django.core.management.base import CommandError
 
-import kolibri
-from ...constants import nutrition_endpoints
-from ...utils import create_and_update_notifications
-from ...utils import dump_zipped_json
-from ...utils import extract_channel_statistics
-from ...utils import extract_facility_statistics
-from kolibri.core.auth.models import Facility
-from kolibri.core.content.models import ChannelMetadata
-from kolibri.core.device.models import DeviceSettings
-from kolibri.utils import conf
-from kolibri.utils.server import installation_type
-from kolibri.utils.server import vacuum_db_lock
+from kolibri.core.analytics.utils import DEFAULT_PING_CHECKRATE
+from kolibri.core.analytics.utils import DEFAULT_PING_INTERVAL
+from kolibri.core.analytics.utils import DEFAULT_SERVER_URL
+from kolibri.core.analytics.utils import ping_once
+from kolibri.core.analytics.utils import schedule_ping
 
 logger = logging.getLogger(__name__)
-
-DEFAULT_PING_INTERVAL = 24 * 60
-DEFAULT_PING_CHECKRATE = 15
-DEFAULT_SERVER_URL = "https://telemetry.learningequality.org"
 
 
 class Command(BaseCommand):
@@ -70,95 +49,11 @@ class Command(BaseCommand):
         server = options.get("server") or DEFAULT_SERVER_URL
         once = options.get("once") or False
 
-        self.started = datetime.now()
-
-        while True:
+        if once:
+            started = datetime.now()
             try:
-                logger.info("Attempting a ping.")
-                with vacuum_db_lock:
-                    data = self.perform_ping(server)
-                    logger.info("Ping succeeded! (response: {})".format(data))
-                    create_and_update_notifications(data, nutrition_endpoints.PINGBACK)
-                    if "id" in data:
-                        stat_data = self.perform_statistics(server, data["id"])
-                        create_and_update_notifications(
-                            stat_data, nutrition_endpoints.STATISTICS
-                        )
-                    connection.close()
-                if once:
-                    break
-                logger.info("Sleeping for {} minutes.".format(interval))
-                time.sleep(interval * 60)
-                continue
-            except ConnectionError:
-                logger.warn(
-                    "Ping failed (could not connect). Trying again in {} minutes.".format(
-                        checkrate
-                    )
-                )
-            except Timeout:
-                logger.warn(
-                    "Ping failed (connection timed out). Trying again in {} minutes.".format(
-                        checkrate
-                    )
-                )
-            except RequestException as e:
-                logger.warn(
-                    "Ping failed ({})! Trying again in {} minutes.".format(e, checkrate)
-                )
-            finally:
-                # if there are db errors, the connection must be closed too
-                connection.close()
-
-            if once:
-                break
-            time.sleep(checkrate * 60)
-
-    def perform_ping(self, server):
-
-        url = urljoin(server, "/api/v1/pingback")
-
-        instance, _ = InstanceIDModel.get_or_create_current_instance()
-
-        devicesettings = DeviceSettings.objects.first()
-        language = devicesettings.language_id if devicesettings else ""
-
-        try:
-            timezone = get_current_timezone().zone
-        except Exception:
-            timezone = ""
-
-        data = {
-            "instance_id": instance.id,
-            "version": kolibri.__version__,
-            "mode": conf.OPTIONS["Deployment"]["RUN_MODE"],
-            "platform": instance.platform,
-            "sysversion": instance.sysversion,
-            "database_id": instance.database.id,
-            "system_id": instance.system_id,
-            "node_id": instance.node_id,
-            "language": language,
-            "timezone": timezone,
-            "uptime": int((datetime.now() - self.started).total_seconds() / 60),
-            "timestamp": localtime(),
-            "installer": installation_type(),
-        }
-
-        logger.debug("Pingback data: {}".format(data))
-        jsondata = dump_zipped_json(data)
-        response = requests.post(url, data=jsondata, timeout=60)
-        response.raise_for_status()
-        return json.loads(response.content.decode() or "{}")
-
-    def perform_statistics(self, server, pingback_id):
-        url = urljoin(server, "/api/v1/statistics")
-        channels = [
-            extract_channel_statistics(c) for c in ChannelMetadata.objects.all()
-        ]
-        facilities = [extract_facility_statistics(f) for f in Facility.objects.all()]
-        data = {"pi": pingback_id, "c": channels, "f": facilities}
-        logger.debug("Statistics data: {}".format(data))
-        jsondata = dump_zipped_json(data)
-        response = requests.post(url, data=jsondata, timeout=60)
-        response.raise_for_status()
-        return json.loads(response.content.decode() or "{}")
+                ping_once(started, server)
+            except Exception as e:
+                raise CommandError(e)
+        else:
+            schedule_ping(server, checkrate, interval)
