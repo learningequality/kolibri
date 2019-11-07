@@ -467,7 +467,7 @@ class TasksViewSet(viewsets.ViewSet):
         # Given a single task ID, clear it from the queue
         task_id = request.data.get("task_id")
         if task_id:
-            get_queue().clear_job(task_id)
+            queue.clear_job(task_id)
             return Response({"task_id": task_id})
         else:
             return Response({})
