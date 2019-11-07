@@ -7,13 +7,13 @@ from kolibri.core.tasks import compat
 
 
 # An object on which to store data about the current job
-# So far the only use is to track the job_id, but other metadata
+# So far the only use is to track the job, but other metadata
 # could be added.
-current_job_tracker = compat.local()
+current_state_tracker = compat.local()
 
 
 def get_current_job():
-    return getattr(current_job_tracker, "job", None)
+    return getattr(current_state_tracker, "job", None)
 
 
 def stringify_func(func):

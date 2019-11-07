@@ -88,6 +88,15 @@ class StorageMixin(object):
 
 
 class Storage(StorageMixin):
+    def _add_save_meta_method(self, job):
+        """
+        Adds a save_meta method to a job object so that a job
+        can update itself.
+        """
+
+        job.save_meta_method = self.save_job_meta
+        return job
+
     def enqueue_job(self, j, queue):
         """
         Add the job given by j to the job queue.
@@ -139,7 +148,7 @@ class Storage(StorageMixin):
                 .first()
             )
             if orm_job:
-                job = orm_job.obj
+                job = self._add_save_meta_method(orm_job.obj)
             else:
                 job = None
             return job
@@ -152,12 +161,12 @@ class Storage(StorageMixin):
                 .filter_by(state=State.CANCELING)
                 .order_by(ORMJob.queue_order)
             )
-            return [job.obj for job in jobs]
+            return [self._add_save_meta_method(job.obj) for job in jobs]
 
     def get_all_jobs(self, queue):
         with self.session_scope() as s:
             orm_jobs = s.query(ORMJob).filter(ORMJob.queue == queue).all()
-            return [o.obj for o in orm_jobs]
+            return [self._add_save_meta_method(o.obj) for o in orm_jobs]
 
     def count_all_jobs(self, queue):
         with self.session_scope() as s:
@@ -230,6 +239,9 @@ class Storage(StorageMixin):
     def complete_job(self, job_id):
         self._update_job(job_id, State.COMPLETED)
 
+    def save_job_meta(self, job):
+        self._update_job(job.job_id, extra_metadata=job.extra_metadata)
+
     def _update_job(self, job_id, state=None, **kwargs):
         with self.session_scope() as session:
 
@@ -256,5 +268,5 @@ class Storage(StorageMixin):
         orm_job = session.query(ORMJob).filter_by(id=job_id).one_or_none()
         if orm_job is None:
             raise JobNotFound()
-        job = orm_job.obj
+        job = self._add_save_meta_method(orm_job.obj)
         return job, orm_job
