@@ -368,8 +368,9 @@ def recurse_annotation_up_tree(channel_id):
 
 
 def propagate_forced_localfile_removal(localfiles):
-    ContentNode.objects.filter(files__localfile__in=localfiles).update(available=False)
-    for channel_id in ChannelMetadata.objects.all().values("id", flat=True):
+    files = File.objects.filter(supplementary=False, local_file__in=localfiles)
+    ContentNode.objects.filter(files__in=files).update(available=False)
+    for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
         recurse_annotation_up_tree(channel_id)
 
 

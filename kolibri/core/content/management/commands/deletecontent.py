@@ -8,6 +8,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import propagate_forced_localfile_removal
 from kolibri.core.content.utils.annotation import set_content_invisible
+from kolibri.core.content.utils.import_export_content import get_files_to_transfer
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
@@ -15,7 +16,7 @@ from kolibri.core.tasks.utils import get_current_job
 logger = logging.getLogger(__name__)
 
 
-def delete_metadata(channel, node_ids, exclude_node_ids):
+def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
     # Only delete all metadata if we are not doing selective deletion
     delete_all_metadata = not (node_ids or exclude_node_ids)
 
@@ -24,6 +25,15 @@ def delete_metadata(channel, node_ids, exclude_node_ids):
         set_content_invisible(channel.id, node_ids, exclude_node_ids)
         # If everything has been made invisible, delete all the metadata
         delete_all_metadata = not channel.root.available
+
+    if force_delete:
+        # Do this before we delete all the metadata, as otherwise we lose
+        # track of which local files were associated with the channel we
+        # just deleted.
+        unused_files, _ = get_files_to_transfer(
+            channel.id, node_ids, exclude_node_ids, True, renderable_only=False
+        )
+        propagate_forced_localfile_removal(unused_files)
 
     if delete_all_metadata:
         logger.info("Deleting all channel metadata")
@@ -82,7 +92,7 @@ class Command(AsyncCommand):
     def handle_async(self, *args, **options):
         channel_id = options["channel_id"]
         node_ids = options["node_ids"]
-        exclude_node_ids = options["node_ids"]
+        exclude_node_ids = options["exclude_node_ids"]
         force_delete = options["force_delete"]
 
         try:
@@ -92,9 +102,12 @@ class Command(AsyncCommand):
                 "Channel matching id {id} does not exist".format(id=channel_id)
             )
 
-        delete_all_metadata = delete_metadata(channel, node_ids, exclude_node_ids)
+        delete_all_metadata = delete_metadata(
+            channel, node_ids, exclude_node_ids, force_delete
+        )
 
-        unused_files = LocalFile.objects.get_unused_files(force_delete=force_delete)
+        unused_files = LocalFile.objects.get_unused_files()
+
         # Get orphan files that are being deleted
         total_file_deletion_operations = unused_files.count()
         job = get_current_job()
@@ -108,23 +121,18 @@ class Command(AsyncCommand):
 
         progress_extra_data = {"channel_id": channel_id}
 
-        additional_progress = sum((1, bool(delete_all_metadata), bool(force_delete)))
+        additional_progress = sum((1, bool(delete_all_metadata)))
 
         with self.start_progress(
             total=total_file_deletion_operations + additional_progress
         ) as progress_update:
 
-            for file in LocalFile.objects.delete_unused_files(
-                force_delete=force_delete
-            ):
+            for file in LocalFile.objects.delete_unused_files():
                 progress_update(1, progress_extra_data)
 
             LocalFile.objects.delete_orphan_file_objects()
 
             progress_update(1, progress_extra_data)
-
-            if force_delete:
-                propagate_forced_localfile_removal(unused_files)
 
             if delete_all_metadata:
                 try:

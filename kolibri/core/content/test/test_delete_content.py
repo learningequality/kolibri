@@ -2,7 +2,9 @@ import hashlib
 import os
 import uuid
 
+from django.core.management import call_command
 from django.test import TransactionTestCase
+from le_utils.constants import content_kinds
 from le_utils.constants import file_formats
 from le_utils.constants import format_presets
 from mock import patch
@@ -16,6 +18,9 @@ from kolibri.core.content.utils.paths import get_content_storage_file_path
 
 def get_engine(connection_string):
     return django_connection_engine()
+
+
+test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
@@ -96,3 +101,124 @@ class UnavailableContentDeletion(TransactionTestCase):
         self.assertEqual(LocalFile.objects.get_unused_files().count(), 0)
         deleted, freed_bytes = self.delete_content()
         self.assertEqual(deleted, 0)
+
+    def tearDown(self):
+        call_command("flush", interactive=False)
+        super(UnavailableContentDeletion, self).tearDown()
+
+
+@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
+class DeleteContentTestCase(TransactionTestCase):
+    """
+    Testcase for delete content management command
+    """
+
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    @patch("kolibri.core.content.models.paths.get_content_storage_file_path")
+    @patch("kolibri.core.content.models.os.remove")
+    def test_include_all_nodes_all_deleted(self, os_remove_mock, content_file_path):
+        ContentNode.objects.all().update(available=True)
+        include_ids = list(
+            ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
+                "id", flat=True
+            )
+        )
+        call_command("deletecontent", test_channel_id, node_ids=include_ids)
+        self.assertEqual(ContentNode.objects.all().count(), 0)
+
+    @patch("kolibri.core.content.models.paths.get_content_storage_file_path")
+    @patch("kolibri.core.content.models.os.remove")
+    def test_include_all_nodes_other_channel_node_still_available(
+        self, os_remove_mock, content_file_path
+    ):
+        include_ids = list(
+            ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
+                "id", flat=True
+            )
+        )
+        test = ContentNode.objects.filter(kind=content_kinds.VIDEO).first()
+        original_id = test.id
+        test.id = uuid.uuid4().hex
+        test.channel_id = uuid.uuid4().hex
+        test.available = True
+        test.parent = None
+        test.save()
+        original = ContentNode.objects.get(id=original_id)
+        for file in original.files.all():
+            file.id = uuid.uuid4().hex
+            file.contentnode = test
+            file.supplementary = False
+            file.save()
+        call_command("deletecontent", test_channel_id, node_ids=include_ids)
+        test.refresh_from_db()
+        self.assertTrue(test.available)
+
+    @patch("kolibri.core.content.models.paths.get_content_storage_file_path")
+    @patch("kolibri.core.content.models.os.remove")
+    def test_include_all_nodes_force_delete_other_channel_node_not_available(
+        self, os_remove_mock, content_file_path
+    ):
+        include_ids = list(
+            ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
+                "id", flat=True
+            )
+        )
+        test = ContentNode.objects.filter(kind=content_kinds.VIDEO).first()
+        original_id = test.id
+        test.id = uuid.uuid4().hex
+        test.channel_id = uuid.uuid4().hex
+        test.available = True
+        test.parent = None
+        test.save()
+        original = ContentNode.objects.get(id=original_id)
+        for file in original.files.all():
+            file.id = uuid.uuid4().hex
+            file.contentnode = test
+            file.supplementary = False
+            file.save()
+        call_command(
+            "deletecontent", test_channel_id, node_ids=include_ids, force_delete=True
+        )
+        test.refresh_from_db()
+        self.assertFalse(test.available)
+
+    @patch("kolibri.core.content.models.paths.get_content_storage_file_path")
+    @patch("kolibri.core.content.models.os.remove")
+    def test_exclude_all_nodes_force_delete_other_channel_node_not_available_no_delete(
+        self, os_remove_mock, content_file_path
+    ):
+        exclude_ids = list(
+            ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
+                "id", flat=True
+            )
+        )
+        test = ContentNode.objects.filter(kind=content_kinds.VIDEO).first()
+        original_id = test.id
+        test.id = uuid.uuid4().hex
+        test.channel_id = uuid.uuid4().hex
+        test.available = False
+        test.parent = None
+        test.save()
+        original = ContentNode.objects.get(id=original_id)
+        for file in original.files.all():
+            file.id = uuid.uuid4().hex
+            file.contentnode = test
+            file.supplementary = False
+            file.save()
+        call_command(
+            "deletecontent",
+            test_channel_id,
+            exclude_node_ids=exclude_ids,
+            force_delete=True,
+        )
+        try:
+            original = ContentNode.objects.get(id=original_id)
+            self.assertTrue(original.available)
+        except ContentNode.DoesNotExist:
+            self.fail("Content node has been deleted")
+
+    def tearDown(self):
+        call_command("flush", interactive=False)
+        super(DeleteContentTestCase, self).tearDown()

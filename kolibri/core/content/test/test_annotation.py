@@ -155,7 +155,7 @@ class SetContentNodesInvisibleTestCase(TransactionTestCase):
             ContentNode.objects.filter(title="c2c1", available=False).count(), 1
         )
 
-    def test_all_nodes_available_include_orignial_exclude_duplicate_topic(self):
+    def test_all_nodes_available_include_original_exclude_duplicate_topic(self):
         ContentNode.objects.all().update(available=True)
         parent = ContentNode.objects.get(title="c3")
         copy = ContentNode.objects.get(title="c2c1")
