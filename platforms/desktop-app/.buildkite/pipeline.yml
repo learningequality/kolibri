@@ -1,6 +1,6 @@
 steps:
   - label: "Build Dev Package"
     command: ".buildkite/build.sh"
-    artifact_paths: "package/Kolibri*"
+    artifact_paths: "package/osx/kolibri*.dmg"
     agents:
       queue: "macos"
