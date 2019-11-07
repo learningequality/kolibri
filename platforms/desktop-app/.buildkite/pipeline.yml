@@ -1,6 +1,6 @@
 steps:
-  - label: "Dev Build app"
-    command: ".buildkite/build_app.sh"
-    artifact_paths: "dist/osx/Kolibri.app"
+  - label: "Build Dev Package"
+    command: ".buildkite/build.sh"
+    artifact_paths: "package/Kolibri*"
     agents:
       queue: "macos"
