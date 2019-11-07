@@ -6,7 +6,12 @@
     <KGrid gutter="16">
       <!-- Quiz Open button -->
       <div v-if="!exam.active && !exam.archive" class="status-item">
-        <KGridItem class="status-label" :layout4="{ span: 4 }" :layout8="{ span: 8 }" :layout12="{ span: 12 }">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 8 }"
+          :layout12="{ span: 12 }"
+        >
           <KButton
             :primary="true"
             :text="coachString('openQuizLabel')"
@@ -19,7 +24,11 @@
 
       <!-- Quiz Close button & time since opened -->
       <div v-if="exam.active && !exam.archive" class="status-item">
-        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
           <KButton
             :text="coachString('closeQuizLabel')"
             type="submit"
@@ -28,25 +37,51 @@
             @click="showCancellationModal = true"
           />
         </KGridItem>
-        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
-          <StatusElapsedTime :date="examDateOpened" actionType="opened" style="margin-top: 8px; display: block;" />
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
+          <StatusElapsedTime
+            :date="examDateOpened"
+            actionType="opened"
+            style="margin-top: 8px; display: block;"
+          />
         </KGridItem>
       </div>
 
       <!-- Quiz Closed label & time since closed -->
       <div v-if="exam.archive" class="status-item">
-        <KGridItem class="status-label" :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
           {{ coachString('quizClosedLabel') }}
         </KGridItem>
-        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
           <ElapsedTime :date="examDateArchived" style="margin-top: 8px;" />
         </KGridItem>
       </div>
       <div v-if="exam.archive" class="status-item">
-        <KGridItem class="status-label" :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
           {{ $tr('reportVisibleToLearnersLabel') }}
         </KGridItem>
-        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
           <KSwitch
             name="toggle-quiz-visibility"
             style="display:inline;"
@@ -59,10 +94,19 @@
 
       <!-- Recipients  -->
       <div class="status-item">
-        <KGridItem class="status-label" :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
           {{ coachString('recipientsLabel') }}
         </KGridItem>
-        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
           <div>
             <Recipients
               slot="value"
@@ -75,21 +119,39 @@
 
       <!-- Average Score -->
       <div class="status-item">
-        <KGridItem class="status-label" :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
           <span>{{ coachString('avgScoreLabel') }}</span>
           <AverageScoreTooltip />
         </KGridItem>
-        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
           <Score :value="avgScore" />
         </KGridItem>
       </div>
 
       <!-- Question Order -->
       <div class="status-item">
-        <KGridItem class="status-label" :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
           {{ $tr('questionOrderLabel') }}
         </KGridItem>
-        <KGridItem :layout4="{ span: 4 }" :layout8="{ span: 4 }" :layout12="{ span: 12 }">
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
           {{ orderDescriptionString }}
         </KGridItem>
       </div>
