@@ -178,14 +178,14 @@ class File(base_models.File):
 
 
 class LocalFileManager(models.Manager):
-    def delete_unused_files(self):
-        for file in self.get_unused_files():
+    def delete_unused_files(self, force_delete=False):
+        for file in self.get_unused_files(force_delete=force_delete):
             try:
                 os.remove(paths.get_content_storage_file_path(file.get_filename()))
                 yield True, file
             except (IOError, OSError, InvalidStorageFilenameError):
                 yield False, file
-        self.get_unused_files().update(available=False)
+        self.get_unused_files(force_delete=force_delete).update(available=False)
 
     def get_orphan_files(self):
         return self.filter(files__isnull=True)
@@ -193,7 +193,11 @@ class LocalFileManager(models.Manager):
     def delete_orphan_file_objects(self):
         return self.filter(files__isnull=True).delete()
 
-    def get_unused_files(self):
+    def get_unused_files(self, force_delete=False):
+        if force_delete:
+            return self.filter(
+                Q(files__contentnode__available=False) | Q(files__isnull=True)
+            ).filter(available=True)
         return self.filter(
             ~Q(files__contentnode__available=True) | Q(files__isnull=True)
         ).filter(available=True)

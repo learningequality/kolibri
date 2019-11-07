@@ -367,6 +367,12 @@ def recurse_annotation_up_tree(channel_id):
     bridge.end()
 
 
+def propagate_forced_localfile_removal(localfiles):
+    ContentNode.objects.filter(files__localfile__in=localfiles).update(available=False)
+    for channel_id in ChannelMetadata.objects.all().values("id", flat=True):
+        recurse_annotation_up_tree(channel_id)
+
+
 def update_content_metadata(channel_id, node_ids=None, exclude_node_ids=None):
     set_leaf_node_availability_from_local_file_availability(
         channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids
