@@ -3,7 +3,7 @@ import logging
 from django.core.management.base import BaseCommand
 from sqlalchemy.exc import DatabaseError
 
-from ...utils.annotation import annotate_content
+from ...utils.annotation import set_content_visibility_from_disk
 from ...utils.channel_import import FutureSchemaError
 from ...utils.channel_import import import_channel_from_local_db
 from ...utils.channel_import import InvalidSchemaVersionError
@@ -35,7 +35,7 @@ class Command(BaseCommand):
             if channel_id not in database_channel_ids:
                 try:
                     import_channel_from_local_db(channel_id)
-                    annotate_content(channel_id)
+                    set_content_visibility_from_disk(channel_id)
                 except (InvalidSchemaVersionError, FutureSchemaError):
                     logger.warning(
                         "Tried to import channel {channel_id}, but database file was incompatible".format(
@@ -49,4 +49,4 @@ class Command(BaseCommand):
                         )
                     )
             else:
-                annotate_content(channel_id)
+                set_content_visibility_from_disk(channel_id)

@@ -30,7 +30,56 @@ CONTENT_APP_NAME = KolibriContentConfig.label
 CHUNKSIZE = 10000
 
 
-def set_leaf_node_availability_from_local_file_availability(channel_id):
+def _MPTT_descendant_ids_statement(ContentNodeTable, node_ids):
+    node_include = ContentNodeTable.alias()
+    return select([ContentNodeTable.c.id]).where(
+        and_(
+            node_include.c.id.in_(node_ids),
+            ContentNodeTable.c.lft >= node_include.c.lft,
+            ContentNodeTable.c.lft <= node_include.c.rght,
+            ContentNodeTable.c.tree_id == node_include.c.tree_id,
+        )
+    )
+
+
+def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
+    bridge = Bridge(app_name=CONTENT_APP_NAME)
+
+    ContentNodeTable = bridge.get_table(ContentNode)
+
+    connection = bridge.get_connection()
+
+    update_statement = ContentNodeTable.update().where(
+        and_(
+            ContentNodeTable.c.kind != content_kinds.TOPIC,
+            ContentNodeTable.c.channel_id == channel_id,
+        )
+    )
+
+    if node_ids:
+        node_ids_statement = _MPTT_descendant_ids_statement(ContentNodeTable, node_ids)
+        update_statement = update_statement.where(
+            ContentNodeTable.c.id.in_(node_ids_statement)
+        )
+
+    if exclude_node_ids:
+        exclude_node_ids_statement = _MPTT_descendant_ids_statement(
+            ContentNodeTable, exclude_node_ids
+        )
+        update_statement = update_statement.where(
+            ~ContentNodeTable.c.id.in_(exclude_node_ids_statement)
+        )
+
+    connection.execute(
+        update_statement.values(available=False).execution_options(autocommit=True)
+    )
+
+    bridge.end()
+
+
+def set_leaf_node_availability_from_local_file_availability(
+    channel_id, node_ids=None, exclude_node_ids=None
+):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeTable = bridge.get_table(ContentNode)
@@ -39,45 +88,50 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
 
     connection = bridge.get_connection()
 
-    file_statement = (
-        select([LocalFileTable.c.available])
-        .where(FileTable.c.local_file_id == LocalFileTable.c.id)
-        .limit(1)
-    )
-
-    logger.info("Setting availability of File objects based on LocalFile availability")
-
-    connection.execute(
-        FileTable.update()
-        .values(available=file_statement)
-        .execution_options(autocommit=True)
-    )
-
     contentnode_statement = (
         select([FileTable.c.contentnode_id])
-        .where(
-            and_(
-                FileTable.c.available == True,  # noqa
-                FileTable.c.supplementary == False,
+        .select_from(
+            FileTable.join(
+                LocalFileTable,
+                and_(
+                    FileTable.c.local_file_id == LocalFileTable.c.id,
+                    LocalFileTable.c.available == True,  # noqa
+                ),
             )
         )
+        .where(FileTable.c.supplementary == False)
         .where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
     )
 
     logger.info(
-        "Setting availability of non-topic ContentNode objects based on File availability"
+        "Setting availability of non-topic ContentNode objects based on LocalFile availability"
     )
 
-    connection.execute(
-        ContentNodeTable.update()
-        .where(
-            and_(
-                ContentNodeTable.c.kind != content_kinds.TOPIC,
-                ContentNodeTable.c.channel_id == channel_id,
-            )
+    update_statement = ContentNodeTable.update().where(
+        and_(
+            ContentNodeTable.c.kind != content_kinds.TOPIC,
+            ContentNodeTable.c.channel_id == channel_id,
         )
-        .values(available=exists(contentnode_statement))
-        .execution_options(autocommit=True)
+    )
+
+    if node_ids is not None:
+        node_ids_statement = _MPTT_descendant_ids_statement(ContentNodeTable, node_ids)
+        update_statement = update_statement.where(
+            ContentNodeTable.c.id.in_(node_ids_statement)
+        )
+
+    if exclude_node_ids is not None:
+        exclude_node_ids_statement = _MPTT_descendant_ids_statement(
+            ContentNodeTable, exclude_node_ids
+        )
+        update_statement = update_statement.where(
+            ~ContentNodeTable.c.id.in_(exclude_node_ids_statement)
+        )
+
+    connection.execute(
+        update_statement.values(
+            available=exists(contentnode_statement)
+        ).execution_options(autocommit=True)
     )
 
     bridge.end()
@@ -313,20 +367,39 @@ def recurse_annotation_up_tree(channel_id):
     bridge.end()
 
 
-def update_content_metadata(channel_id):
-    set_leaf_node_availability_from_local_file_availability(channel_id)
+def propagate_forced_localfile_removal(localfiles):
+    files = File.objects.filter(supplementary=False, local_file__in=localfiles)
+    ContentNode.objects.filter(files__in=files).update(available=False)
+    for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
+        recurse_annotation_up_tree(channel_id)
+
+
+def update_content_metadata(channel_id, node_ids=None, exclude_node_ids=None):
+    set_leaf_node_availability_from_local_file_availability(
+        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids
+    )
     recurse_annotation_up_tree(channel_id)
     calculate_channel_fields(channel_id)
     ContentCacheKey.update_cache_key()
 
 
-def annotate_content(channel_id, checksums=None):
-    if checksums is None:
-        set_local_file_availability_from_disk()
-    else:
-        mark_local_files_as_available(checksums)
+def set_content_visibility(channel_id, checksums, node_ids=None, exclude_node_ids=None):
+    mark_local_files_as_available(checksums)
+    update_content_metadata(
+        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids
+    )
 
+
+def set_content_visibility_from_disk(channel_id):
+    set_local_file_availability_from_disk()
     update_content_metadata(channel_id)
+
+
+def set_content_invisible(channel_id, node_ids, exclude_node_ids):
+    set_leaf_nodes_invisible(channel_id, node_ids, exclude_node_ids)
+    recurse_annotation_up_tree(channel_id)
+    calculate_channel_fields(channel_id)
+    ContentCacheKey.update_cache_key()
 
 
 def calculate_channel_fields(channel_id):

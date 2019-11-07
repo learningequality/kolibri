@@ -143,6 +143,7 @@ class Worker(object):
             lambda_to_execute,
             update_progress_func=self.update_progress,
             cancel_job_func=self._check_for_cancel,
+            save_job_meta_func=self.storage.save_job_meta,
         )
 
         # assign the futures to a dict, mapping them to a job

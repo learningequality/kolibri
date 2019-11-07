@@ -1,4 +1,5 @@
 import os
+from functools import partial
 
 from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
@@ -39,15 +40,27 @@ DISK_IO_ERROR_STRING = _("There was a disk access error.")
 CATCHALL_SERVER_ERROR_STRING = _("There was an unknown error.")
 
 
-def validate_import_export_task(task_description):
+def validate_content_task(request, task_description, require_channel=False):
     try:
         channel_id = task_description["channel_id"]
     except KeyError:
         raise serializers.ValidationError("The channel_ids field is required.")
 
-    file_size = task_description.get("file_size")
+    try:
+        channel = ChannelMetadata.objects.get(id=channel_id)
+        channel_name = channel.name
+        file_size = (channel.published_size,)
+        total_resources = channel.total_resource_count
+    except ChannelMetadata.DoesNotExist:
+        if require_channel:
+            raise serializers.ValidationError("This channel does not exist")
+        channel_name = ""
+        file_size = None
+        total_resources = None
 
-    total_resources = task_description.get("total_resources")
+    file_size = task_description.get("file_size", file_size)
+
+    total_resources = task_description.get("total_resources", total_resources)
 
     node_ids = task_description.get("node_ids", None)
     exclude_node_ids = task_description.get("exclude_node_ids", None)
@@ -60,15 +73,18 @@ def validate_import_export_task(task_description):
 
     return {
         "channel_id": channel_id,
+        "channel_name": channel_name,
         "file_size": file_size,
         "total_resources": total_resources,
         "exclude_node_ids": exclude_node_ids,
         "node_ids": node_ids,
+        "started_by": request.user.pk,
+        "started_by_username": request.user.username,
     }
 
 
-def validate_remote_import_task(task_description):
-    import_task = validate_import_export_task(task_description)
+def validate_remote_import_task(request, task_description):
+    import_task = validate_content_task(request, task_description)
 
     baseurl = task_description.get(
         "baseurl", conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
@@ -79,9 +95,7 @@ def validate_remote_import_task(task_description):
     return import_task
 
 
-def validate_local_import_export_task(task_description):
-    import_task = validate_import_export_task(task_description)
-
+def _add_drive_info(import_task, task_description):
     try:
         drive_id = task_description["drive_id"]
     except KeyError:
@@ -99,14 +113,28 @@ def validate_local_import_export_task(task_description):
     return import_task
 
 
-def add_channel_and_user_name(meta_dict, user):
-    try:
-        if meta_dict.get("channel_id"):
-            channel = ChannelMetadata.objects.get(id=meta_dict["channel_id"])
-            meta_dict.update({"channel_name": channel.name})
-    except ChannelMetadata.DoesNotExist:
-        pass
-    meta_dict.update({"started_by": user.pk, "started_by_username": user.username})
+def validate_local_import_task(request, task_description):
+    import_task = validate_content_task(request, task_description)
+
+    import_task = _add_drive_info(import_task, task_description)
+
+    return import_task
+
+
+def validate_local_export_task(request, task_description):
+    import_task = validate_content_task(request, task_description, require_channel=True)
+
+    import_task = _add_drive_info(import_task, task_description)
+
+    return import_task
+
+
+def validate_deletion_task(request, task_description):
+    import_task = validate_content_task(request, task_description, require_channel=True)
+
+    import_task["force_delete"] = bool(task_description["force_delete"])
+
+    return import_task
 
 
 class TasksViewSet(viewsets.ViewSet):
@@ -149,12 +177,12 @@ class TasksViewSet(viewsets.ViewSet):
                 "POST data must be a list of task descriptions"
             )
 
-        tasks = map(validate_remote_import_task, request.data)
+        tasks = map(partial(validate_remote_import_task, request), request.data)
 
         job_ids = []
 
         for task in tasks:
-            task.update({"type": "REMOTEIMPORT", "started_by": request.user.pk})
+            task.update({"type": "REMOTEIMPORT"})
             import_job_id = queue.enqueue(
                 _remoteimport,
                 task["channel_id"],
@@ -171,9 +199,9 @@ class TasksViewSet(viewsets.ViewSet):
     @list_route(methods=["post"])
     def startremotechannelimport(self, request):
 
-        task = validate_remote_import_task(request.data)
+        task = validate_remote_import_task(request, request.data)
 
-        task.update({"type": "REMOTECHANNELIMPORT", "started_by": request.user.pk})
+        task.update({"type": "REMOTECHANNELIMPORT"})
 
         job_id = queue.enqueue(
             call_command,
@@ -191,15 +219,8 @@ class TasksViewSet(viewsets.ViewSet):
     @list_route(methods=["post"])
     def startremotecontentimport(self, request):
 
-        task = validate_remote_import_task(request.data)
-        task.update(
-            {
-                "type": "REMOTECONTENTIMPORT",
-                "started_by": request.user.pk,
-                "channel_id": task["channel_id"],
-            }
-        )
-        add_channel_and_user_name(task, request.user)
+        task = validate_remote_import_task(request, request.data)
+        task.update({"type": "REMOTECONTENTIMPORT"})
 
         job_id = queue.enqueue(
             call_command,
@@ -225,12 +246,12 @@ class TasksViewSet(viewsets.ViewSet):
                 "POST data must be a list of task descriptions"
             )
 
-        tasks = map(validate_local_import_export_task, request.data)
+        tasks = map(partial(validate_local_import_task, request), request.data)
 
         job_ids = []
 
         for task in tasks:
-            task.update({"type": "DISKIMPORT", "started_by": request.user.pk})
+            task.update({"type": "DISKIMPORT"})
             import_job_id = queue.enqueue(
                 _diskimport,
                 task["channel_id"],
@@ -246,9 +267,8 @@ class TasksViewSet(viewsets.ViewSet):
 
     @list_route(methods=["post"])
     def startdiskchannelimport(self, request):
-        task = validate_local_import_export_task(request.data)
+        task = validate_local_import_task(request, request.data)
 
-        add_channel_and_user_name(task, request.user)
         task.update({"type": "DISKCHANNELIMPORT"})
 
         job_id = queue.enqueue(
@@ -266,9 +286,8 @@ class TasksViewSet(viewsets.ViewSet):
 
     @list_route(methods=["post"])
     def startdiskcontentimport(self, request):
-        task = validate_local_import_export_task(request.data)
+        task = validate_local_import_task(request, request.data)
 
-        add_channel_and_user_name(task, request.user)
         task.update({"type": "DISKCONTENTIMPORT"})
 
         job_id = queue.enqueue(
@@ -295,36 +314,23 @@ class TasksViewSet(viewsets.ViewSet):
                 "POST data must be a list of task descriptions"
             )
 
-        for task in request.data:
-            try:
-                task["channel_id"]
-            except KeyError:
-                raise serializers.ValidationError("The channel_id field is required.")
+        tasks = map(partial(validate_deletion_task, request), request.data)
 
         job_ids = []
 
-        for task in request.data:
-            try:
-                channel = ChannelMetadata.objects.get(id=task["channel_id"])
-                job_metadata = {
-                    "type": "DELETECHANNEL",
-                    "channel_id": task["channel_id"],
-                    "channel_name": channel.name,
-                    "started_by": request.user.pk,
-                    "started_by_username": request.user.username,
-                    "file_size": channel.published_size,
-                    "resource_count": channel.total_resource_count,
-                }
-                delete_job_id = queue.enqueue(
-                    call_command,
-                    "deletechannel",
-                    task["channel_id"],
-                    track_progress=True,
-                    extra_metadata=job_metadata,
-                )
-                job_ids.append(delete_job_id)
-            except ChannelMetadata.DoesNotExist:
-                continue
+        for task in tasks:
+            task.update({"type": "DELETECHANNEL"})
+            if task["node_ids"] or task["exclude_node_ids"]:
+                task["file_size"] = None
+                task["total_resources"] = None
+            delete_job_id = queue.enqueue(
+                call_command,
+                "deletecontent",
+                task["channel_id"],
+                track_progress=True,
+                extra_metadata=task,
+            )
+            job_ids.append(delete_job_id)
 
         resp = [_job_to_response(queue.fetch_job(job_id)) for job_id in job_ids]
 
@@ -335,21 +341,23 @@ class TasksViewSet(viewsets.ViewSet):
         """
         Delete a channel and all its associated content from the server
         """
+        task = validate_deletion_task(request, request.data)
 
-        if "channel_id" not in request.data:
-            raise serializers.ValidationError("The 'channel_id' field is required.")
+        task.update({"type": "DELETECHANNEL"})
 
-        channel_id = request.data["channel_id"]
-
-        job_metadata = {"type": "DELETECHANNEL", "channel_id": channel_id}
-        add_channel_and_user_name(job_metadata, request.user)
+        if task["node_ids"] or task["exclude_node_ids"]:
+            task["file_size"] = None
+            task["total_resources"] = None
 
         task_id = queue.enqueue(
             call_command,
-            "deletechannel",
-            channel_id,
+            "deletecontent",
+            task["channel_id"],
+            node_ids=task["node_ids"],
+            exclude_node_ids=task["exclude_node_ids"],
+            force_delete=task["force_delete"],
             track_progress=True,
-            extra_metadata=job_metadata,
+            extra_metadata=task,
         )
 
         # attempt to get the created Task, otherwise return pending status
@@ -364,34 +372,21 @@ class TasksViewSet(viewsets.ViewSet):
                 "POST data must be a list of task descriptions"
             )
 
-        tasks = map(validate_local_import_export_task, request.data)
+        tasks = map(partial(validate_local_export_task, request), request.data)
 
         job_ids = []
 
         for task in tasks:
-            try:
-                channel = ChannelMetadata.objects.get(id=task["channel_id"])
-                job_metadata = {
-                    "type": "DISKEXPORT",
-                    "channel_id": task["channel_id"],
-                    "channel_name": channel.name,
-                    "drive_id": task["drive_id"],
-                    "started_by": request.user.pk,
-                    "started_by_username": request.user.username,
-                    "file_size": channel.published_size,
-                    "resource_count": channel.total_resource_count,
-                }
-                export_job_id = queue.enqueue(
-                    _localexport,
-                    task["channel_id"],
-                    task["drive_id"],
-                    track_progress=True,
-                    cancellable=True,
-                    extra_metadata=job_metadata,
-                )
-                job_ids.append(export_job_id)
-            except ChannelMetadata.DoesNotExist:
-                continue
+            task.update({"type": "DISKEXPORT"})
+            export_job_id = queue.enqueue(
+                _localexport,
+                task["channel_id"],
+                task["drive_id"],
+                track_progress=True,
+                cancellable=True,
+                extra_metadata=task,
+            )
+            job_ids.append(export_job_id)
 
         resp = [_job_to_response(queue.fetch_job(job_id)) for job_id in job_ids]
 
@@ -404,21 +399,9 @@ class TasksViewSet(viewsets.ViewSet):
 
         """
 
-        task = validate_local_import_export_task(request.data)
+        task = validate_local_export_task(request, request.data)
 
-        channel = ChannelMetadata.objects.get(id=task["channel_id"])
-
-        task.update(
-            {
-                "type": "DISKEXPORT",
-                "channel_id": channel.id,
-                "channel_name": channel.name,
-                "started_by": request.user.pk,
-                "started_by_username": request.user.username,
-                "file_size": channel.published_size,
-                "resource_count": channel.total_resource_count,
-            }
-        )
+        task.update({"type": "DISKEXPORT"})
 
         task_id = queue.enqueue(
             _localexport,

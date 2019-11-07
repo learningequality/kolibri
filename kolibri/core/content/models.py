@@ -29,6 +29,7 @@ from django.core.urlresolvers import reverse
 from django.db import connection
 from django.db import models
 from django.db.models import Min
+from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
 from le_utils.constants import content_kinds
@@ -177,29 +178,25 @@ class File(base_models.File):
 
 
 class LocalFileManager(models.Manager):
-    def delete_orphan_files(self):
-        for file in self.filter(files__isnull=True):
+    def delete_unused_files(self):
+        for file in self.get_unused_files():
             try:
                 os.remove(paths.get_content_storage_file_path(file.get_filename()))
+                yield True, file
             except (IOError, OSError, InvalidStorageFilenameError):
-                pass
-            yield file
+                yield False, file
+        self.get_unused_files().update(available=False)
 
     def get_orphan_files(self):
         return self.filter(files__isnull=True)
 
     def delete_orphan_file_objects(self):
-        return self.get_orphan_files().delete()
+        return self.filter(files__isnull=True).delete()
 
-    def get_unavailable_stored_files(self):
-        return self.filter(files__contentnode__available=False, available=True)
-
-    def delete_unavailable_stored_files(self):
-        unavailable_stored_files = self.get_unavailable_stored_files()
-
-        for file in unavailable_stored_files:
-            deleted = file.delete_stored_file()
-            yield file, deleted
+    def get_unused_files(self):
+        return self.filter(
+            ~Q(files__contentnode__available=True) | Q(files__isnull=True)
+        ).filter(available=True)
 
 
 @python_2_unicode_compatible

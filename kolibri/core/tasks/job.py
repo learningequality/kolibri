@@ -3,7 +3,7 @@ import logging
 import uuid
 from functools import partial
 
-from kolibri.core.tasks.utils import current_job_tracker
+from kolibri.core.tasks.utils import current_state_tracker
 from kolibri.core.tasks.utils import import_stringified_func
 from kolibri.core.tasks.utils import stringify_func
 
@@ -53,6 +53,23 @@ class Job(object):
     to the workers.
     """
 
+    def __getstate__(self):
+        keys = [
+            "job_id",
+            "state",
+            "traceback",
+            "exception",
+            "track_progress",
+            "cancellable",
+            "extra_metadata",
+            "progress",
+            "total_progress",
+            "args",
+            "kwargs",
+            "func",
+        ]
+        return {key: self.__dict__[key] for key in keys}
+
     def __init__(self, func, *args, **kwargs):
         """
         Create a new Job that will run func given the arguments passed to Job(). If the track_progress keyword parameter
@@ -81,6 +98,8 @@ class Job(object):
         self.args = args
         self.kwargs = kwargs
 
+        self.save_meta_method = None
+
         if callable(func):
             funcstring = stringify_func(func)
         elif isinstance(func, str):
@@ -92,6 +111,13 @@ class Job(object):
             )
 
         self.func = funcstring
+
+    def save_meta(self):
+        if self.save_meta_method is None:
+            raise ReferenceError(
+                "save_meta_method is not defined on this job, cannot save metadata"
+            )
+        self.save_meta_method(self)
 
     def get_lambda_to_execute(self):
         """
@@ -105,7 +131,7 @@ class Job(object):
         :return: a function that executes the original function assigned to this job.
         """
 
-        def y(update_progress_func, cancel_job_func):
+        def y(update_progress_func, cancel_job_func, save_job_meta_func):
             """
             Call the function stored in self.func, and passing in update_progress_func
             or cancel_job_func depending if self.track_progress or self.cancellable is defined,
@@ -116,7 +142,9 @@ class Job(object):
             :return: Any
             """
 
-            setattr(current_job_tracker, "job", self)
+            setattr(current_state_tracker, "job", self)
+
+            self.save_meta_method = save_job_meta_func
 
             func = import_stringified_func(self.func)
             extrafunckwargs = {}
@@ -139,10 +167,10 @@ class Job(object):
                 result = func(*args, **kwargs)
             except Exception as e:
                 # If any error occurs, clear the job tracker and reraise
-                setattr(current_job_tracker, "job", None)
+                setattr(current_state_tracker, "job", None)
                 raise e
 
-            setattr(current_job_tracker, "job", None)
+            setattr(current_state_tracker, "job", None)
 
             return result
 

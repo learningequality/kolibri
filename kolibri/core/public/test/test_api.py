@@ -35,7 +35,6 @@ class FileFactory(factory.DjangoModelFactory):
         model = File
 
     id = factory.LazyFunction(uuid.uuid4)
-    available = True
 
 
 class LocalFileFactory(factory.DjangoModelFactory):
