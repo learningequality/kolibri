@@ -30,5 +30,10 @@ export default function videojsMenuItemVueMixin(vueComponent) {
      * @override
      */
     handleClick() {}
+
+    /**
+     * Remove Video.js tap event handling so it doesn't mess with menu on mobile
+     */
+    emitTapEvents() {}
   };
 }

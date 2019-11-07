@@ -806,6 +806,10 @@
     .vjs-time-divider {
       display: block;
     }
+
+    .vjs-slider-bar::before {
+      z-index: 0;
+    }
   }
 
   /*** SMALL: < 480px ***/
