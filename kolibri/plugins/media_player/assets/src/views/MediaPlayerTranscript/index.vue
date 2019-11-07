@@ -151,12 +151,12 @@
 
         // Jump backwards to cue
         if (offsetTop < currentScrollTop) {
-          this.$el.scrollTo(0, offsetTop);
+          this.$el.scrollTop = offsetTop;
           return;
         }
 
         const scrollTo = currentScrollTop + (offsetMiddle - currentScrollMiddle);
-        this.$el.scrollTo(0, Math.min(scrollMax, scrollTo));
+        this.$el.scrollTop = Math.min(scrollMax, scrollTo);
 
         if (targetHeight <= height) {
           return;
