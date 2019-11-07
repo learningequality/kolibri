@@ -1,3 +1,10 @@
+kolibri-server (0.3.4-0ubuntu1) bionic; urgency=medium
+
+  * Check if redis is running to enable/disable its cache
+  * Changed animation on the error page
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 07 Nov 2019 13:33:43 +0100
+
 kolibri-server (0.3.3-0ubuntu1) bionic; urgency=medium
 
   * Create error page to automatically detect when the server is back

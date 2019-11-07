@@ -5,8 +5,8 @@ case "$1" in
   remove|purge)
     rm -f /etc/nginx/conf.d/kolibri.conf
     rm -Rf /etc/kolibri/nginx.d
-    service nginx reload
-    service kolibri restart
+    service nginx reload || true
+    service kolibri restart || true
     ;;
 
 

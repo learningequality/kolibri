@@ -83,6 +83,29 @@ def enable_redis_cache():
     """
     update_options_file('Cache', "CACHE_BACKEND",  "redis", KOLIBRI_HOME)
 
+def disable_redis_cache():
+    """
+    Set memory as the cache backend .
+    If redis is not active, enabling it will break kolibri
+    """
+    update_options_file('Cache', "CACHE_BACKEND",  "memory", KOLIBRI_HOME)
+
+
+def check_redis_service():
+    """
+    Checks if redis is running in the system
+    """
+    status = False
+    args = ['service', 'redis', 'status']
+    try:
+        subprocess.check_call(args, stdout=subprocess.PIPE)
+    except subprocess.CalledProcessError:
+        pass  # redis is not running
+    except FileNotFoundError:
+        pass  # 'service' is not an available command
+    else:
+        status = True
+    return status
 
 def save_nginx_conf_port(port, nginx_conf=None):
     """
@@ -171,9 +194,12 @@ if __name__ == '__main__':
         if args.debconfport:  # To be executed only when installing/reconfiguring the Debian package
             disable_cherrypy()
             set_port(args.debconfport)
-            enable_redis_cache()
         else:
             disable_cherrypy()
+            if check_redis_service():
+                enable_redis_cache()
+            else:
+                disable_redis_cache()
             save_nginx_conf_include(STATIC_ROOT)
             save_nginx_conf_port(port)
             # Let's update debconf, just in case the user has changed the port in options.ini:
