@@ -23,7 +23,7 @@ class Command(AsyncCommand):
 
         e.g.
 
-        kolibri manage deletechannel --node_ids <id1>,<id2>, [<ids>,...] <channel id>
+        kolibri manage deletecontent --node_ids <id1>,<id2>,[<ids>,...] <channel id>
         """
         parser.add_argument(
             "--node_ids",
@@ -41,7 +41,7 @@ class Command(AsyncCommand):
 
         e.g.
 
-        kolibri manage deletechannel --exclude_node_ids <id1>,<id2>, [<ids>,...] <channel id>
+        kolibri manage deletecontent --exclude_node_ids <id1>,<id2>,[<ids>,...] <channel id>
         """
         parser.add_argument(
             "--exclude_node_ids",

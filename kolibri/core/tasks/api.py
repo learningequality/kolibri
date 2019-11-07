@@ -130,7 +130,11 @@ def validate_local_export_task(request, task_description):
 
 
 def validate_deletion_task(request, task_description):
-    return validate_content_task(request, task_description, require_channel=True)
+    import_task = validate_content_task(request, task_description, require_channel=True)
+
+    import_task["force_delete"] = bool(task_description["force_delete"])
+
+    return import_task
 
 
 class TasksViewSet(viewsets.ViewSet):
@@ -321,7 +325,7 @@ class TasksViewSet(viewsets.ViewSet):
                 task["total_resources"] = None
             delete_job_id = queue.enqueue(
                 call_command,
-                "deletechannel",
+                "deletecontent",
                 task["channel_id"],
                 track_progress=True,
                 extra_metadata=task,
@@ -347,10 +351,11 @@ class TasksViewSet(viewsets.ViewSet):
 
         task_id = queue.enqueue(
             call_command,
-            "deletechannel",
+            "deletecontent",
             task["channel_id"],
             node_ids=task["node_ids"],
             exclude_node_ids=task["exclude_node_ids"],
+            force_delete=task["force_delete"],
             track_progress=True,
             extra_metadata=task,
         )
