@@ -35,8 +35,8 @@ export function fetchNodeWithAncestors(nodeId) {
       id: nodeId,
       getParams: {
         for_export: true,
-        force: true,
       },
+      force: true,
     }),
     ContentNodeSlimResource.fetchAncestors(nodeId),
   ]).then(([node, ancestors]) => {
@@ -55,6 +55,13 @@ export function startExportTask(params) {
 }
 
 export function startDeleteTask(params) {
-  const { channelId, included, omitted } = params;
-  Promise.resolve({ channelId, included, omitted });
+  const { channelId, included, excluded, deleteEverywhere } = params;
+  // NOTE: startdeletechannel with node_ids/exclude_node_ids only
+  // deletes sub-trees of channel
+  return TaskResource.postListEndpoint('startdeletechannel', {
+    channel_id: channelId,
+    node_ids: included,
+    exclude_node_ids: excluded,
+    force_delete: deleteEverywhere,
+  });
 }

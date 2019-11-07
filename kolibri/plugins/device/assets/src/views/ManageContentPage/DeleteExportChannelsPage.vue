@@ -154,14 +154,14 @@
         const selectedCopy = [...this.selectedChannels];
         this.allChannels = this.allChannels.filter(c => !find(this.selectedChannels, { id: c.id }));
         TaskResource.deleteBulkChannels({
-          channelIds: this.selectedChannels.map(({ id }) => ({ channel_id: id })),
+          channelIds: this.selectedChannels.map(x => x.id),
         })
           .then(() => {
+            this.$store.dispatch('createTaskStartedSnackbar');
             this.selectedChannels = [];
           })
-          .catch(err => {
-            // eslint-disable-next-line
-            console.log('error deleting channels', err);
+          .catch(() => {
+            this.$store.dispatch('createTaskFailedSnackbar');
             this.selectedChannels = [...selectedCopy];
             this.loading = true;
             this.fetchData();
@@ -169,17 +169,23 @@
       },
       exportChannels(params) {
         TaskResource.startDiskBulkExport(
-          this.selectedChannels.map(({ id }) => ({
-            channel_id: id,
-            drive_id: params.driveId,
-          }))
+          this.selectedChannels
+            .map(({ id }) => ({
+              channel_id: id,
+              drive_id: params.driveId,
+            }))
+            .then(() => {
+              this.$store.dispatch('createTaskStartedSnackbar');
+            })
+            .catch(() => {
+              this.$store.dispatch('createTaskFailedSnackbar');
+            })
         );
       },
       handleClickConfirm() {
         this.showModal = true;
       },
       handleClickModalSubmit(params = {}) {
-        this.$store.dispatch('createTaskStartedSnackbar');
         this.showModal = false;
 
         if (this.deleteMode) {

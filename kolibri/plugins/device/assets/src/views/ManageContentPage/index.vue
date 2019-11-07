@@ -67,6 +67,7 @@
   import find from 'lodash/find';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { TaskResource } from 'kolibri.resources';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -121,11 +122,7 @@
       },
     },
     methods: {
-      ...mapActions('manageContent', [
-        'refreshChannelList',
-        'startImportWorkflow',
-        'triggerChannelDeleteTask',
-      ]),
+      ...mapActions('manageContent', ['refreshChannelList', 'startImportWorkflow']),
       handleSelect({ value }) {
         const nextRoute = {
           DELETE: 'DELETE_CHANNELS',
@@ -138,7 +135,13 @@
         if (this.deleteChannelId) {
           const channelId = this.deleteChannelId;
           this.deleteChannelId = null;
-          this.triggerChannelDeleteTask(channelId);
+          return TaskResource.deleteChannel({ channelId })
+            .then(() => {
+              this.$store.dispatch('createTaskStartedSnackbar');
+            })
+            .catch(() => {
+              this.$store.dispatch('createTaskFailedSnackbar');
+            });
         }
       },
       handleSelectManage(channelId) {

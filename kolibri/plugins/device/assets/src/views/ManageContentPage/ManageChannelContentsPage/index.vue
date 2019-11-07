@@ -81,7 +81,7 @@
     metaInfo() {
       if (this.channel) {
         return {
-          title: this.$tr('title', { channelName: this.channel.name }),
+          title: this.title,
         };
       }
       return {};
@@ -113,8 +113,11 @@
         const nodes = this.$store.state.manageContent.wizard.nodesForTransfer;
         return {
           included: nodes.included.map(x => x.id),
-          omitted: nodes.omitted.map(x => x.id),
+          excluded: nodes.omitted.map(x => x.id),
         };
+      },
+      title() {
+        return this.$tr('title', { channelName: this.channel.name });
       },
       channelId() {
         return this.$route.params.channel_id;
@@ -144,6 +147,10 @@
         deep: true,
       },
     },
+    beforeRouteLeave(to, from, next) {
+      this.$store.commit('manageContent/wizard/RESET_NODE_LISTS');
+      next();
+    },
     beforeMount() {
       this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.coreString('loadingLabel'));
       this.fetchPageData(this.channelId)
@@ -161,7 +168,7 @@
         if (studioChannel) {
           this.studioChannel = { ...studioChannel };
         }
-        this.$store.commit('coreBase/SET_APP_BAR_TITLE', channel.name);
+        this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.title);
         return this.updateNode(this.$route.query.node || channel.root);
       },
       updateNode(newNodeId) {
@@ -187,7 +194,7 @@
           deleteEverywhere,
           channelId: this.channelId,
           included: this.selections.included,
-          omitted: this.selections.omitted,
+          excluded: this.selections.excluded,
         })
           .then(() => {
             this.$store.dispatch('createTaskStartedSnackbar');
@@ -202,7 +209,7 @@
           driveId,
           channelId: this.channelId,
           included: this.selections.included,
-          omitted: this.selections.omitted,
+          excluded: this.selections.excluded,
         })
           .then(() => {
             this.$store.dispatch('createTaskStartedSnackbar');

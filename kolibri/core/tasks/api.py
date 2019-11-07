@@ -132,7 +132,7 @@ def validate_local_export_task(request, task_description):
 def validate_deletion_task(request, task_description):
     import_task = validate_content_task(request, task_description, require_channel=True)
 
-    import_task["force_delete"] = bool(task_description["force_delete"])
+    import_task["force_delete"] = bool(task_description.get("force_delete"))
 
     return import_task
 

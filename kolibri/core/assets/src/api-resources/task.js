@@ -125,7 +125,12 @@ export default new Resource({
    * @param {Array<Object>} params.channelIds
    */
   deleteBulkChannels({ channelIds }) {
-    return this.postListEndpoint('startbulkdelete', channelIds);
+    return this.postListEndpoint(
+      'startbulkdelete',
+      channelIds.map(x => ({
+        channel_id: x,
+      }))
+    );
   },
 
   localDrives() {

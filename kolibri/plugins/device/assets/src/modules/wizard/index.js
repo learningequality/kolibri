@@ -83,6 +83,10 @@ export default {
     REPLACE_OMIT_LIST(state, newList) {
       state.nodesForTransfer.omitted = newList;
     },
+    RESET_NODE_LISTS(state) {
+      state.nodesForTransfer.included = [];
+      state.nodesForTransfer.omitted = [];
+    },
     SET_CURRENT_TOPIC_NODE(state, currentTopicNode) {
       state.currentTopicNode = currentTopicNode;
     },

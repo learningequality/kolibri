@@ -206,7 +206,7 @@
     },
     beforeRouteLeave(to, from, next) {
       this.cancelMetadataDownloadTask();
-      this.$store.dispatch('manageContent/wizard/RESET_STATE');
+      this.$store.commit('manageContent/wizard/RESET_NODE_LISTS');
       next();
     },
     mounted() {
