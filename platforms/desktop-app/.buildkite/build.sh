@@ -1,5 +1,5 @@
 #! /bin/bash
-set -euo pipefail
+# set -euo pipefail
 
 mkdir -p whl
 
@@ -30,7 +30,9 @@ echo "--- Build .app"
 echo "PYTHONPATH=$PWD/src/kolibri/dist" > .env
 
 # Save log for uploading, but filter out very verbose build logs. Errors should still output.
-pipenv run pew build | tee full_build_log.txt > /dev/null
+pipenv run pew build | tee full_app_build_log.txt > /dev/null
+
+buildkite-agent artifact upload full_app_build_log.txt
 
 echo "--- :mac: Build .pkg"
 
