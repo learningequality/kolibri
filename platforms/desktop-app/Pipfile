@@ -9,6 +9,7 @@ py2app = {version = "==0.14",sys_platform = "== 'darwin'"}
 [packages]
 pyeverywhere = {git = "https://github.com/kollivier/pyeverywhere",ref = "dev"}
 wxpython = "*"
+dmgbuild = "*"
 
 [requires]
 python_version = "3.6"
