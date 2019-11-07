@@ -27,7 +27,10 @@ echo "Downloading deps"
 pipenv sync --dev 
 
 echo "--- :mac: Build app"
-PYTHONPATH=$PWD/src/kolibri/dist && pipenv run pew build
+
+# Sets the environment variable needed for the build to find packages in from whl
+echo "PYTHONPATH=$PWD/src/kolibri/dist" > .env
+pipenv run pew build
 
 
 # TODO upload directly to google cloud
