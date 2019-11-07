@@ -42,26 +42,36 @@ def _MPTT_descendant_ids_statement(ContentNodeTable, node_ids):
     )
 
 
-def set_leaf_nodes_invisible(channel_id, node_ids):
+def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeTable = bridge.get_table(ContentNode)
 
     connection = bridge.get_connection()
 
-    node_ids_statement = _MPTT_descendant_ids_statement(ContentNodeTable, node_ids)
+    update_statement = ContentNodeTable.update().where(
+        and_(
+            ContentNodeTable.c.kind != content_kinds.TOPIC,
+            ContentNodeTable.c.channel_id == channel_id,
+        )
+    )
+
+    if node_ids:
+        node_ids_statement = _MPTT_descendant_ids_statement(ContentNodeTable, node_ids)
+        update_statement = update_statement.where(
+            ContentNodeTable.c.id.in_(node_ids_statement)
+        )
+
+    if exclude_node_ids:
+        exclude_node_ids_statement = _MPTT_descendant_ids_statement(
+            ContentNodeTable, exclude_node_ids
+        )
+        update_statement = update_statement.where(
+            ~ContentNodeTable.c.id.in_(exclude_node_ids_statement)
+        )
 
     connection.execute(
-        ContentNodeTable.update()
-        .where(
-            and_(
-                ContentNodeTable.c.kind != content_kinds.TOPIC,
-                ContentNodeTable.c.channel_id == channel_id,
-            )
-        )
-        .where(ContentNodeTable.c.id.in_(node_ids_statement))
-        .values(available=False)
-        .execution_options(autocommit=True)
+        update_statement.values(available=False).execution_options(autocommit=True)
     )
 
     bridge.end()
@@ -378,8 +388,8 @@ def set_content_visibility_from_disk(channel_id):
     update_content_metadata(channel_id)
 
 
-def set_content_invisible(channel_id, node_ids):
-    set_leaf_nodes_invisible(channel_id, node_ids)
+def set_content_invisible(channel_id, node_ids, exclude_node_ids):
+    set_leaf_nodes_invisible(channel_id, node_ids, exclude_node_ids)
     recurse_annotation_up_tree(channel_id)
     calculate_channel_fields(channel_id)
     ContentCacheKey.update_cache_key()

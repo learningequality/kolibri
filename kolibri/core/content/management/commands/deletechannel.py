@@ -34,9 +34,27 @@ class Command(AsyncCommand):
             help=node_ids_help_text,
         )
 
+        exclude_node_ids_help_text = """
+        Specify one or more node IDs to exclude. Descendants of these node IDs will be not be deleted.
+
+        e.g.
+
+        kolibri manage deletechannel --exclude_node_ids <id1>,<id2>, [<ids>,...] <channel id>
+        """
+        parser.add_argument(
+            "--exclude_node_ids",
+            # Split the comma separated string we get, into a list of string
+            type=lambda x: x.split(","),
+            default=[],
+            required=False,
+            dest="exclude_node_ids",
+            help=exclude_node_ids_help_text,
+        )
+
     def handle_async(self, *args, **options):
         channel_id = options["channel_id"]
         node_ids = options["node_ids"]
+        exclude_node_ids = options["node_ids"]
 
         try:
             channel = ChannelMetadata.objects.get(pk=channel_id)
@@ -46,11 +64,11 @@ class Command(AsyncCommand):
             )
 
         # Only delete all metadata if we are not doing selective deletion
-        delete_all_metadata = not bool(node_ids)
+        delete_all_metadata = not (node_ids or exclude_node_ids)
 
-        if node_ids:
+        if node_ids or exclude_node_ids:
             # If we have been passed node ids do not do a full deletion pass
-            set_content_invisible(channel_id, node_ids)
+            set_content_invisible(channel_id, node_ids, exclude_node_ids)
             # If everything has been made invisible, delete all the metadata
             delete_all_metadata = not channel.root.available
 

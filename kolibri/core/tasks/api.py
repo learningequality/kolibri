@@ -316,6 +316,9 @@ class TasksViewSet(viewsets.ViewSet):
 
         for task in tasks:
             task.update({"type": "DELETECHANNEL"})
+            if task["node_ids"] or task["exclude_node_ids"]:
+                task["file_size"] = None
+                task["total_resources"] = None
             delete_job_id = queue.enqueue(
                 call_command,
                 "deletechannel",
@@ -338,8 +341,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         task.update({"type": "DELETECHANNEL"})
 
-        if task["node_ids"]:
-            # TODO: Update the job metadata during execution to assign this information
+        if task["node_ids"] or task["exclude_node_ids"]:
             task["file_size"] = None
             task["total_resources"] = None
 
@@ -348,6 +350,7 @@ class TasksViewSet(viewsets.ViewSet):
             "deletechannel",
             task["channel_id"],
             node_ids=task["node_ids"],
+            exclude_node_ids=task["exclude_node_ids"],
             track_progress=True,
             extra_metadata=task,
         )

@@ -23,6 +23,7 @@ from kolibri.core.content.utils.annotation import recurse_annotation_up_tree
 from kolibri.core.content.utils.annotation import (
     set_leaf_node_availability_from_local_file_availability,
 )
+from kolibri.core.content.utils.annotation import set_leaf_nodes_invisible
 from kolibri.core.content.utils.annotation import set_local_file_availability_from_disk
 
 
@@ -31,6 +32,167 @@ def get_engine(connection_string):
 
 
 test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+
+@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
+class SetContentNodesInvisibleTestCase(TransactionTestCase):
+
+    fixtures = ["content_test.json"]
+
+    def test_all_leaves(self):
+        ContentNode.objects.all().update(available=True)
+        set_leaf_nodes_invisible(test_channel_id)
+        self.assertFalse(
+            any(
+                ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
+                    "available", flat=True
+                )
+            )
+        )
+
+    def test_other_channel_node_still_available(self):
+        test = ContentNode.objects.filter(kind=content_kinds.VIDEO).first()
+        test.id = uuid.uuid4().hex
+        test.channel_id = uuid.uuid4().hex
+        test.available = True
+        test.parent = None
+        test.save()
+        set_leaf_nodes_invisible(test_channel_id)
+        test.refresh_from_db()
+        self.assertTrue(test.available)
+
+    def test_all_nodes_available_include_all(self):
+        ContentNode.objects.all().update(available=True)
+        include_ids = list(
+            ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
+                "id", flat=True
+            )
+        )
+        set_leaf_nodes_invisible(test_channel_id, node_ids=include_ids)
+        self.assertFalse(
+            any(
+                ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
+                    "available", flat=True
+                )
+            )
+        )
+
+    def test_all_nodes_available_include_one(self):
+        # These nodes in the fixture have erroneous mptt metadata so break tests that depend on it.
+        ContentNode.objects.filter(title="copy").delete()
+        ContentNode.objects.all().update(available=True)
+        include_ids = [ContentNode.objects.exclude(kind=content_kinds.TOPIC).first().id]
+        set_leaf_nodes_invisible(test_channel_id, node_ids=include_ids)
+        self.assertEqual(ContentNode.objects.filter(available=False).count(), 1)
+
+    def test_all_nodes_available_include_duplicate_topic_only(self):
+        ContentNode.objects.all().update(available=True)
+        parent = ContentNode.objects.get(title="c3")
+        copy = ContentNode.objects.get(title="c2c1")
+        copy.id = uuid.uuid4().hex
+        copy.parent = None
+        copy.lft = None
+        copy.rght = None
+        copy.tree_id = None
+        copy.save()
+        copy.move_to(parent)
+        copy.save()
+        include_ids = [parent.id]
+
+        set_leaf_nodes_invisible(test_channel_id, node_ids=include_ids)
+        self.assertEqual(ContentNode.objects.filter(title="c2c1").count(), 2)
+        self.assertEqual(
+            ContentNode.objects.filter(title="c2c1", available=False).count(), 1
+        )
+
+    def test_all_nodes_available_exclude_all(self):
+        ContentNode.objects.all().update(available=True)
+        exclude_ids = list(
+            ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
+                "id", flat=True
+            )
+        )
+        set_leaf_nodes_invisible(test_channel_id, exclude_node_ids=exclude_ids)
+        self.assertTrue(
+            all(
+                ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
+                    "available", flat=True
+                )
+            )
+        )
+
+    def test_all_nodes_available_exclude_root(self):
+        ContentNode.objects.all().update(available=True)
+        exclude_ids = list(
+            ContentNode.objects.filter(parent__isnull=True).values_list("id", flat=True)
+        )
+        set_leaf_nodes_invisible(test_channel_id, exclude_node_ids=exclude_ids)
+        self.assertTrue(
+            all(
+                ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
+                    "available", flat=True
+                )
+            )
+        )
+
+    def test_all_nodes_available_exclude_duplicate_topic(self):
+        ContentNode.objects.all().update(available=True)
+        parent = ContentNode.objects.get(title="c3")
+        copy = ContentNode.objects.get(title="c2c1")
+        copy.id = uuid.uuid4().hex
+        copy.parent = None
+        copy.lft = None
+        copy.rght = None
+        copy.tree_id = None
+        copy.save()
+        copy.move_to(parent)
+        copy.save()
+        exclude_ids = [parent.id]
+
+        set_leaf_nodes_invisible(test_channel_id, exclude_node_ids=exclude_ids)
+        self.assertEqual(ContentNode.objects.filter(title="c2c1").count(), 2)
+        self.assertEqual(
+            ContentNode.objects.filter(title="c2c1", available=False).count(), 1
+        )
+
+    def test_all_nodes_available_include_orignial_exclude_duplicate_topic(self):
+        ContentNode.objects.all().update(available=True)
+        parent = ContentNode.objects.get(title="c3")
+        copy = ContentNode.objects.get(title="c2c1")
+        original_id = copy.id
+        copy.id = uuid.uuid4().hex
+        copy.parent = None
+        copy.lft = None
+        copy.rght = None
+        copy.tree_id = None
+        copy.save()
+        copy.move_to(parent)
+        copy.save()
+        original = ContentNode.objects.get(id=original_id)
+        exclude_ids = [parent.id]
+
+        set_leaf_nodes_invisible(
+            test_channel_id, node_ids=[original.parent.id], exclude_node_ids=exclude_ids
+        )
+        self.assertEqual(ContentNode.objects.filter(title="c2c1").count(), 2)
+        self.assertEqual(
+            ContentNode.objects.filter(title="c2c1", available=False).count(), 1
+        )
+
+    def test_all_nodes_available_non_include_exclude_unaffected(self):
+        ContentNode.objects.all().update(available=True)
+        exclude = ContentNode.objects.get(title="c3")
+        include = ContentNode.objects.get(title="c2")
+        node = ContentNode.objects.get(title="copy", kind=content_kinds.VIDEO)
+        set_leaf_nodes_invisible(
+            test_channel_id, node_ids=[include.id], exclude_node_ids=[exclude.id]
+        )
+        node.refresh_from_db()
+        self.assertTrue(node.available)
+
+    def tearDown(self):
+        call_command("flush", interactive=False)
+        super(SetContentNodesInvisibleTestCase, self).tearDown()
 
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
