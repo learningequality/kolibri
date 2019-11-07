@@ -1,0 +1,4 @@
+steps:
+  - label: "Dev Build app"
+    command: ".buildkite/build_app.sh"
+    artifact_paths: "dist/Kolibri*.app"
