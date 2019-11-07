@@ -30,7 +30,9 @@ echo "--- :mac: Build app"
 
 # Sets the environment variable needed for the build to find packages in from whl
 echo "PYTHONPATH=$PWD/src/kolibri/dist" > .env
-pipenv run pew build
+
+# Save log for uploading, but filter out very verbose build logs. Errors should still output.
+pipenv run pew build | tee full_build_log.txt > /dev/null
 
 
 # TODO upload directly to google cloud
