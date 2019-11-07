@@ -1,9 +1,12 @@
+import gettext
 import logging
 import os
 import subprocess
 import sys
 import time
 import webbrowser
+
+_ = gettext.gettext
 
 try:
     from urllib2 import urlopen, URLError
@@ -184,41 +187,41 @@ class Application(pew.ui.PEWApp):
         # create menu bar, we do this per-window for cross-platform purposes
         menu_bar = pew.ui.PEWMenuBar()
 
-        file_menu = pew.ui.PEWMenu('File')
-        file_menu.add('New Window', handler=window.on_new_window)
-        file_menu.add('Close Window', handler=window.on_close_window)
+        file_menu = pew.ui.PEWMenu(_('File'))
+        file_menu.add(_('New Window'), handler=window.on_new_window)
+        file_menu.add(_('Close Window'), handler=window.on_close_window)
         file_menu.add_separator()
-        file_menu.add('Open Kolibri Home Folder', handler=window.on_open_kolibri_home)
+        file_menu.add(_('Open Kolibri Home Folder'), handler=window.on_open_kolibri_home)
 
         menu_bar.add_menu(file_menu)
 
-        edit_menu = pew.ui.PEWMenu('Edit')
-        edit_menu.add('Undo', handler=window.on_undo, shortcut='CTRL+Z')
-        edit_menu.add('Redo', handler=window.on_redo, shortcut='CTRL+SHIFT+Z')
+        edit_menu = pew.ui.PEWMenu(_('Edit'))
+        edit_menu.add(_('Undo'), handler=window.on_undo, shortcut='CTRL+Z')
+        edit_menu.add(_('Redo'), handler=window.on_redo, shortcut='CTRL+SHIFT+Z')
         edit_menu.add_separator()
-        edit_menu.add('Cut', command='cut', shortcut='CTRL+X')
-        edit_menu.add('Copy', command='copy', shortcut='CTRL+C')
-        edit_menu.add('Paste', command='paste', shortcut='CTRL+V')
-        edit_menu.add('Select All', command='select-all', shortcut='CTRL+A')
+        edit_menu.add(_('Cut'), command='cut', shortcut='CTRL+X')
+        edit_menu.add(_('Copy'), command='copy', shortcut='CTRL+C')
+        edit_menu.add(_('Paste'), command='paste', shortcut='CTRL+V')
+        edit_menu.add(_('Select All'), command='select-all', shortcut='CTRL+A')
         menu_bar.add_menu(edit_menu)
 
-        view_menu = pew.ui.PEWMenu('View')
-        view_menu.add('Reload', handler=window.on_reload)
-        view_menu.add('Actual Size', handler=window.on_actual_size, shortcut='CTRL+0')
-        view_menu.add('Zoom In', handler=window.on_zoom_in, shortcut='CTRL++')
-        view_menu.add('Zoom Out', handler=window.on_zoom_out, shortcut='CTRL+-')
+        view_menu = pew.ui.PEWMenu(_('View'))
+        view_menu.add(_('Reload'), handler=window.on_reload)
+        view_menu.add(_('Actual Size'), handler=window.on_actual_size, shortcut='CTRL+0')
+        view_menu.add(_('Zoom In'), handler=window.on_zoom_in, shortcut='CTRL++')
+        view_menu.add(_('Zoom Out'), handler=window.on_zoom_out, shortcut='CTRL+-')
         view_menu.add_separator()
-        view_menu.add('Open in Browser', handler=window.on_open_in_browser)
+        view_menu.add(_('Open in Browser'), handler=window.on_open_in_browser)
         menu_bar.add_menu(view_menu)
 
-        history_menu = pew.ui.PEWMenu('History')
-        history_menu.add('Back', handler=window.on_back, shortcut='CTRL+[')
-        history_menu.add('Forward', handler=window.on_forward, shortcut='CTRL+]')
+        history_menu = pew.ui.PEWMenu(_('History'))
+        history_menu.add(_('Back'), handler=window.on_back, shortcut='CTRL+[')
+        history_menu.add(_('Forward'), handler=window.on_forward, shortcut='CTRL+]')
         menu_bar.add_menu(history_menu)
 
-        help_menu = pew.ui.PEWMenu('Help')
-        help_menu.add('Documentation', handler=window.on_documentation)
-        help_menu.add('Community Forums', handler=window.on_forums)
+        help_menu = pew.ui.PEWMenu(_('Help'))
+        help_menu.add(_('Documentation'), handler=window.on_documentation)
+        help_menu.add(_('Community Forums'), handler=window.on_forums)
         menu_bar.add_menu(help_menu)
 
         window.set_menubar(menu_bar)
