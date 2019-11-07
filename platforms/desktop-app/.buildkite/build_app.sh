@@ -12,7 +12,7 @@ then
   buildkite-agent artifact download 'dist/*.whl' whl/ --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}
 else
   echo "Downloading from pip"
-  pip download -d ./whl kolibri
+  pip3 download -d ./whl kolibri
 fi
 
 echo "--- Environment Prep"
