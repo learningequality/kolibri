@@ -33,8 +33,8 @@ export default {
       transcript: settings.captionTranscript,
 
       trackList: null,
-      cueList: null,
-      activeCueList: null,
+      cues: [],
+      activeCueIds: [],
 
       trackListeners: [],
     };
@@ -52,11 +52,17 @@ export default {
     SET_TRACK_LIST(state, trackList) {
       state.trackList = trackList;
     },
-    SET_CUE_LIST(state, cueList) {
-      state.cueList = cueList;
+    SET_CUES(state, cues) {
+      state.cues = cues;
     },
-    SET_ACTIVE_CUE_LIST(state, cueList) {
-      state.activeCueList = cueList;
+    DELETE_CUES(state) {
+      state.cues = [];
+    },
+    SET_ACTIVE_CUE_IDS(state, cueIds) {
+      state.activeCueIds = cueIds;
+    },
+    DELETE_ACTIVE_CUE_IDS(state) {
+      state.activeCueIds = [];
     },
     ADD_TRACK_LISTENERS(state, trackId, event, listeners) {
       state.trackListeners.push({ trackId, event, listeners });
@@ -73,23 +79,6 @@ export default {
     languageLabel(state) {
       const track = tracks(state).find(track => state.language === track.language);
       return track ? track.label : '';
-    },
-    /**
-     * @param state
-     * @return {TextTrackCue[]}
-     */
-    cues(state) {
-      return trackUtils.listToArray(state.cueList || []);
-    },
-    /**
-     * @param state
-     * @return {String[]}
-     */
-    activeCueIds(state) {
-      return trackUtils
-        .listToArray(state.activeCueList || [])
-        .map(cue => cue.id)
-        .filter(Boolean);
     },
     /**
      * @param state
@@ -188,14 +177,31 @@ export default {
       store.dispatch('synchronizeTrackList');
     },
     setCuesFromTrack(store, track) {
-      store.commit('SET_CUE_LIST', track.cues);
+      store.commit('DELETE_CUES');
+
+      const cues = trackUtils.listToArray(track.cues || []);
       // Ensure cues have ids
-      store.getters.cues.forEach((cue, i) => {
+      cues.forEach((cue, i) => {
         cue.id = track.id + '-cue-' + i;
       });
+
+      store.commit('SET_CUES', cues);
     },
     setActiveCuesFromTrack(store, track) {
-      store.commit('SET_ACTIVE_CUE_LIST', track.activeCues);
+      // In case we get triggered to set active cues but haven't added cues yet, do that now
+      // This helps an issue in Safari where we don't get an updated cue list
+      if (track.cues && track.cues.length !== store.state.cues.length) {
+        store.dispatch('setCuesFromTrack', track);
+      }
+
+      store.commit('DELETE_ACTIVE_CUE_IDS');
+      store.commit(
+        'SET_ACTIVE_CUE_IDS',
+        trackUtils
+          .listToArray(track.activeCues || [])
+          .map(cue => cue.id)
+          .filter(Boolean)
+      );
     },
     synchronizeTrackList(store) {
       const { language, subtitles, transcript } = store.state;
@@ -226,8 +232,8 @@ export default {
       store.dispatch('synchronizeTrackList');
     },
     resetState(store) {
-      store.commit('SET_CUE_LIST', null);
-      store.commit('SET_ACTIVE_CUE_LIST', null);
+      store.commit('DELETE_CUES');
+      store.commit('DELETE_ACTIVE_CUE_IDS');
     },
   },
 };

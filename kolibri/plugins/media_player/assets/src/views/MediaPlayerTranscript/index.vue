@@ -46,7 +46,7 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState } from 'vuex';
   import { throttle } from 'frame-throttle';
 
   import TranscriptCue from './TranscriptCue';
@@ -62,10 +62,9 @@
     }),
     computed: {
       ...mapState('mediaPlayer', ['player']),
-      ...mapState('mediaPlayer/captions', ['transcript', 'language']),
-      ...mapGetters('mediaPlayer/captions', ['cues', 'activeCueIds']),
+      ...mapState('mediaPlayer/captions', ['transcript', 'language', 'cues', 'activeCueIds']),
       showing() {
-        return this.player && this.transcript && this.cues.length;
+        return this.player && this.transcript;
       },
       mediaDuration() {
         return this.player ? this.player.duration() : 0;
