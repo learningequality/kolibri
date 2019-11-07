@@ -7,13 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('content', '0021_remove_contentnode_stemmed_metaphone'),
-    ]
+    dependencies = [("content", "0021_remove_contentnode_stemmed_metaphone")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='file',
-            name='available',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="file", name="available")]
