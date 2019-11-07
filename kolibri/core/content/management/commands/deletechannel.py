@@ -2,12 +2,14 @@ import logging
 import os
 
 from django.core.management.base import CommandError
+from django.db.models import Sum
 
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import set_content_invisible
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.utils import get_current_job
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +80,17 @@ class Command(AsyncCommand):
 
         # Get orphan files that are being deleted
         total_file_deletion_operations = LocalFile.objects.get_unused_files().count()
+        job = get_current_job()
+        if job:
+            total_file_deletion_size = (
+                LocalFile.objects.get_unused_files()
+                .aggregate(Sum("file_size"))
+                .get("file_size__sum", 0)
+            )
+            job.extra_metadata["file_size"] = total_file_deletion_size
+            job.extra_metadata["total_resources"] = total_file_deletion_operations
+            job.save_meta()
+
         progress_extra_data = {"channel_id": channel_id}
 
         with self.start_progress(
