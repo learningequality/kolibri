@@ -14,7 +14,7 @@ const filePresetStrings = {
   vector_video: 'Vectorized ({fileSize})',
   // Same 'thumbnail' string is used for video, audio, document, exercise, and topic
   thumbnail: 'Thumbnail ({fileSize})',
-  subtitle: 'Subtitles - {langCode} ({fileSize})',
+  video_subtitle: 'Subtitles - {langCode} ({fileSize})',
   audio: 'Audio ({fileSize})',
   document: 'Document ({fileSize})',
   exercise: 'Exercise ({fileSize})',
@@ -41,7 +41,7 @@ export function getFilePresetString(file) {
     return filePresetTranslator.$tr('thumbnail', params);
   }
   if (filePresetStrings[preset]) {
-    return filePresetTranslator.$tr(preset, { fileSize: bytesForHumans(file_size) });
+    return filePresetTranslator.$tr(preset, params);
   }
   logging.error(`Download translation string not defined for '${preset}'`);
   return preset;
