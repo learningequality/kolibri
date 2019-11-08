@@ -21,7 +21,6 @@ from kolibri.core.content.utils.file_availability import (
 from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_remote,
 )
-from kolibri.core.content.utils.import_export_content import get_num_coach_contents
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.fields import create_timezonestamp
 
@@ -575,7 +574,16 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         # If for exporting, only show what is available on server. For importing,
         # show all of the coach contents in the topic.
         for_export = self.context["request"].query_params.get("for_export", None)
-        return get_num_coach_contents(instance, filter_available=for_export)
+        if for_export:
+            return instance.num_coach_contents
+        return (
+            instance.get_descendants()
+            .filter(renderable_contentnodes_without_topics_q_filter)
+            .filter(coach_content=True)
+            .exclude(kind=content_kinds.TOPIC)
+            .distinct()
+            .count()
+        )
 
     def checksums_from_drive_id(self, drive_id, instance):
         try:
