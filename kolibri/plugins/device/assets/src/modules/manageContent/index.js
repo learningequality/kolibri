@@ -56,6 +56,18 @@ export default {
         return false;
       };
     },
+    taskFinished(state) {
+      return function taskFinished(taskId) {
+        if (!taskId) {
+          return null;
+        }
+        const match = find(state.taskList, { id: taskId });
+        if (match) {
+          return ['COMPLETED', 'CANCELED', 'FAILED'].includes(match.status) && match.id;
+        }
+        return null;
+      };
+    },
     // Tasks that are active, complete, or failed.
     // Canceling and canceled tasks are filtered here
     // to hide them from users, but still let us clean

@@ -22,14 +22,6 @@
       />
     </transition>
 
-    <SelectionBottomBar
-      objectType="resource"
-      actionType="manage"
-      :resourceCounts="resourceCounts"
-      :disabled="!Boolean(currentNode) || disableBottomBar"
-      @selectoption="shownModal = $event"
-    />
-
     <DeleteResourcesModal
       v-if="shownModal === 'DELETE'"
       @cancel="closeModal"
@@ -51,6 +43,15 @@
       @cancel="closeModal"
       @submit="handleSelectImportMoreSource"
     />
+
+    <SelectionBottomBar
+      objectType="resource"
+      actionType="manage"
+      :resourceCounts="resourceCounts"
+      :disabled="!Boolean(currentNode) || disableBottomBar"
+      @selectoption="shownModal = $event"
+    />
+
   </div>
 
 </template>
@@ -106,9 +107,16 @@
         studioChannel: null,
         selectSourcePageName: null,
         disableBottomBar: false,
+        watchTaskId: null,
       };
     },
     computed: {
+      channelId() {
+        return this.$route.params.channel_id;
+      },
+      channelDeleteTaskHasFinished() {
+        return this.$store.getters['manageContent/taskFinished'](this.watchTaskId);
+      },
       selections() {
         // TODO decouple this workflow entirely from vuex
         const nodes = this.$store.state.manageContent.wizard.nodesForTransfer;
@@ -119,9 +127,6 @@
       },
       title() {
         return this.$tr('title', { channelName: this.channel.name });
-      },
-      channelId() {
-        return this.$route.params.channel_id;
       },
       newVersionAvailable() {
         return get(this.studioChannel, 'version') > get(this.channel, 'version');
@@ -146,6 +151,14 @@
           this.updateNode(newVal);
         },
         deep: true,
+      },
+      channelDeleteTaskHasFinished(val) {
+        // When a watched deletion task has finished, refresh the page
+        if (val) {
+          this.$store.dispatch('createTaskFinishedSnackbar');
+          this.nodeCache = {};
+          this.updateNode(this.$route.query.node);
+        }
       },
     },
     beforeRouteLeave(to, from, next) {
@@ -196,6 +209,8 @@
             channelId: this.channelId,
             included: this.selections.included,
             excluded: this.selections.excluded,
+          }).then(({ entity }) => {
+            this.watchTaskId = entity.id;
           })
         );
       },

@@ -12,6 +12,7 @@ const TaskSnackbarStrings = createTranslator('TaskSnackbarStrings', {
   taskStarted: 'Task started…',
   viewTasksAction: 'View tasks',
   taskFailed: 'Task could not be started',
+  taskFinished: 'Task has finished',
 });
 
 export default {
@@ -48,6 +49,9 @@ export default {
     },
     createTaskFailedSnackbar(store) {
       store.dispatch('createSnackbar', TaskSnackbarStrings.$tr('taskFailed'));
+    },
+    createTaskFinishedSnackbar(store) {
+      store.dispatch('createSnackbar', TaskSnackbarStrings.$tr('taskFinished'));
     },
     createTaskStartedSnackbar(store) {
       store.commit('CORE_CREATE_SNACKBAR', {
