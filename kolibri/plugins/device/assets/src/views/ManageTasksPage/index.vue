@@ -5,6 +5,11 @@
       {{ $tr('emptyTasksMessage') }}
     </p>
 
+    <KButton
+      v-if="taskList.length > 0"
+      :text="$tr('clearAllAction')"
+      @click="handleClickClearAll"
+    />
     <div class="tasks-panels">
       <TaskPanel
         v-for="task in sortedTaskList"
@@ -78,10 +83,14 @@
       handleClickCancel(task) {
         TaskResource.cancelTask(task.id);
       },
+      handleClickClearAll() {
+        TaskResource.clearTasks();
+      },
     },
     $trs: {
       appBarTitle: 'Task manager',
       emptyTasksMessage: 'Tasks you initiate will appear here',
+      clearAllAction: 'Clear all',
     },
   };
 

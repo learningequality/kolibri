@@ -51,7 +51,7 @@ export default {
       return function beingDeleted(channelId) {
         const match = find(state.taskList, { type: 'DELETECHANNEL', channel_id: channelId });
         if (match) {
-          return !['COMPLETED', 'CANCELED'].includes(match.status);
+          return !['COMPLETED', 'CANCELED', 'FAILED'].includes(match.status);
         }
         return false;
       };
