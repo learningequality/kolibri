@@ -26,7 +26,7 @@
       objectType="resource"
       actionType="manage"
       :resourceCounts="resourceCounts"
-      :disabled="!Boolean(currentNode)"
+      :disabled="!Boolean(currentNode) || disableBottomBar"
       @selectoption="shownModal = $event"
     />
 
@@ -105,6 +105,7 @@
         nodeCache: {},
         studioChannel: null,
         selectSourcePageName: null,
+        disableBottomBar: false,
       };
     },
     computed: {
@@ -189,32 +190,35 @@
         }
       },
       handleDeleteSubmit({ deleteEverywhere }) {
-        this.closeModal();
-        this.startDeleteTask({
-          deleteEverywhere,
-          channelId: this.channelId,
-          included: this.selections.included,
-          excluded: this.selections.excluded,
-        })
-          .then(() => {
-            this.$store.dispatch('createTaskStartedSnackbar');
+        return this.runTask(
+          this.startDeleteTask({
+            deleteEverywhere,
+            channelId: this.channelId,
+            included: this.selections.included,
+            excluded: this.selections.excluded,
           })
-          .catch(() => {
-            this.$store.dispatch('createTaskFailedSnackbar');
-          });
+        );
       },
       handleExportSubmit({ driveId }) {
+        return this.runTask(
+          this.startExportTask({
+            driveId,
+            channelId: this.channelId,
+            included: this.selections.included,
+            excluded: this.selections.excluded,
+          })
+        );
+      },
+      runTask(task) {
         this.closeModal();
-        this.startExportTask({
-          driveId,
-          channelId: this.channelId,
-          included: this.selections.included,
-          excluded: this.selections.excluded,
-        })
+        this.disableBottomBar = true;
+        return task
           .then(() => {
+            this.disableBottomBar = false;
             this.$store.dispatch('createTaskStartedSnackbar');
           })
           .catch(() => {
+            this.disableBottomBar = false;
             this.$store.dispatch('createTaskFailedSnackbar');
           });
       },
