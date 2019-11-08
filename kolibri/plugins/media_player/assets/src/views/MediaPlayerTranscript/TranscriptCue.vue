@@ -14,6 +14,8 @@
     @click="triggerSeekEvent"
     @keypress.enter="triggerSeekEvent"
     @keypress.space="triggerSeekEvent"
+    @keydown.home.prevent="$emit('goTo', 'beginning')"
+    @keydown.end.prevent="$emit('goTo', 'end')"
   >
     <span
       class="transcript-cue-time"
@@ -116,6 +118,12 @@
        */
       offsetTop() {
         return this.$el.offsetTop;
+      },
+      /**
+       * @public
+       */
+      focus() {
+        return this.$el.focus();
       },
     },
     $trs: {

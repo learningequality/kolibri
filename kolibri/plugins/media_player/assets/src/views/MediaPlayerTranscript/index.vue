@@ -30,6 +30,7 @@
         :active="activeCueIds.indexOf(cue.id) >= 0"
         :mediaDuration="mediaDuration"
         @seek="handleSeekEvent"
+        @goTo="handleGoTo"
       />
     </template>
     <div
@@ -118,6 +119,28 @@
         // Add 10ms to cueTime to avoid triggering two cues if they overlap on end and start time
         this.player.currentTime(cueTime + 0.01);
       },
+      /**
+       * @param {String} place `beginning` or `end`
+       */
+      handleGoTo(place) {
+        if (!this.cues.length || !Object.keys(this.$refs).length) {
+          return;
+        }
+
+        const cueId = place === 'beginning' ? this.cues[0].id : this.cues[this.cues.length - 1].id;
+        const cue = this.getCue(cueId);
+
+        if (cue) {
+          cue.focus();
+        }
+      },
+      getCue(cueId) {
+        if (!(cueId in this.$refs) || !this.$refs[cueId]) {
+          return null;
+        }
+
+        return this.$refs[cueId][0];
+      },
       scrollTo(offsetTop, offsetBottom, duration) {
         const start = new Date().getTime();
 
@@ -178,11 +201,10 @@
        */
       cueReduce(callback) {
         return (reduced, cueId) => {
-          if (!(cueId in this.$refs) || !this.$refs[cueId]) {
+          const cue = this.getCue(cueId);
+          if (!cue) {
             return reduced;
           }
-
-          const [cue] = this.$refs[cueId];
 
           try {
             return callback(reduced, cue);
