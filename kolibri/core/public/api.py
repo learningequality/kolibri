@@ -20,6 +20,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import PublicChannelSerializer
+from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
 
 
 class InfoViewSet(viewsets.ViewSet):
@@ -144,10 +145,7 @@ def get_public_file_checksums(request, version):
             .distinct()
         )
         return HttpResponse(
-            sum(
-                int(checksum in available_checksums) << i
-                for i, checksum in enumerate(checksums)
-            ),
+            generate_checksum_integer_mask(checksums, available_checksums),
             content_type="application/octet-stream",
         )
     return HttpResponseNotFound(

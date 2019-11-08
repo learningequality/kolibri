@@ -15,30 +15,27 @@ from kolibri.core.content.utils.paths import get_file_checksums_url
 checksum_regex = re.compile("^([a-f0-9]{32})$")
 
 
-def _filter_checksums_by_channel(checksums, channel_id):
-    """
-    Helper function to filter checksums received to what is actually used by our
-    copy of the channel. Used by both module methods, as for a disk based import
-    there could be many files present that are not part of the channel, and for
-    remote import, the remote channel might be a different version and hence
-    have different local files associated with it.
-    """
-    return list(
-        set(
-            LocalFile.objects.filter(
-                files__contentnode__channel_id=channel_id
-            ).values_list("id", flat=True)
-        ).intersection(set(checksums))
+def generate_checksum_integer_mask(checksums, available_checksums):
+    return sum(
+        int(checksum in available_checksums) << i
+        for i, checksum in enumerate(checksums)
     )
 
 
-def _generate_mask(integer_mask):
+def _generate_mask_from_integer(integer_mask):
     while integer_mask:
         yield bool(integer_mask % 2)
         integer_mask /= 2
 
 
 def get_available_checksums_from_remote(channel_id, baseurl):
+    """
+    The current implementation prioritizes minimising requests to the remote server.
+    In order to achieve this, it caches based on the baseurl and the channel_id.
+    Also, it POSTs the complete list of non-supplementary files to the rmeote endpoint,
+    and thus can keep this representation cached regardless of how the availability on
+    the local server has changed in the interim.
+    """
     CACHE_KEY = "PEER_AVAILABLE_CHECKSUMS_{baseurl}_{channel_id}".format(
         baseurl=baseurl, channel_id=channel_id
     )
@@ -46,7 +43,7 @@ def get_available_checksums_from_remote(channel_id, baseurl):
 
         channel_checksums = (
             LocalFile.objects.filter(
-                available=False, files__contentnode__channel_id=channel_id
+                files__contentnode__channel_id=channel_id, files__supplementary=False
             )
             .values_list("id", flat=True)
             .distinct()
@@ -68,8 +65,10 @@ def get_available_checksums_from_remote(channel_id, baseurl):
                 integer_mask = int(response.content)
 
                 # Filter to avoid passing in bad checksums
-                checksums = list(
-                    compress(channel_checksums, _generate_mask(integer_mask))
+                checksums = set(
+                    compress(
+                        channel_checksums, _generate_mask_from_integer(integer_mask)
+                    )
                 )
                 cache.set(CACHE_KEY, checksums, 3600)
             except (ValueError, TypeError):
@@ -104,7 +103,11 @@ def get_available_checksums_from_disk(channel_id, basepath):
             cache.set(PER_DISK_CACHE_KEY, disk_checksums, 3600)
         else:
             disk_checksums = cache.get(PER_DISK_CACHE_KEY)
-        checksums = _filter_checksums_by_channel(disk_checksums, channel_id)
+        checksums = set(
+            LocalFile.objects.filter(
+                files__contentnode__channel_id=channel_id
+            ).values_list("id", flat=True)
+        ).intersection(set(disk_checksums))
         cache.set(PER_DISK_PER_CHANNEL_CACHE_KEY, checksums, 3600)
     else:
         checksums = cache.get(PER_DISK_PER_CHANNEL_CACHE_KEY)
