@@ -555,21 +555,27 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         )
 
     def get_total_resources(self, instance):
-        return (
-            instance.get_descendants(include_self=True)
-            .filter(renderable_contentnodes_without_topics_q_filter)
-            .distinct()
-            .count()
-        )
+        if instance.kind == content_kinds.TOPIC:
+            return (
+                instance.get_descendants(include_self=True)
+                .filter(renderable_contentnodes_without_topics_q_filter)
+                .distinct()
+                .count()
+            )
+        # Otherwise just return 1 because, we shouldn't be serializing any unrenderable leaf nodes
+        return 1
 
     def get_on_device_resources(self, instance):
-        return (
-            instance.get_descendants(include_self=True)
-            .filter(renderable_contentnodes_without_topics_q_filter)
-            .filter(available=True)
-            .distinct()
-            .count()
-        )
+        if instance.kind == content_kinds.TOPIC:
+            return (
+                instance.get_descendants(include_self=True)
+                .filter(renderable_contentnodes_without_topics_q_filter)
+                .filter(available=True)
+                .distinct()
+                .count()
+            )
+        # Either it's on the device, or it's not!
+        return int(instance.available)
 
     def get_num_coach_contents(self, instance):
         # If for exporting, only show what is available on server. For importing,
@@ -577,14 +583,16 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         for_export = self.context["request"].query_params.get("for_export", None)
         if for_export:
             return instance.num_coach_contents
-        return (
-            instance.get_descendants()
-            .filter(renderable_contentnodes_without_topics_q_filter)
-            .filter(coach_content=True)
-            .exclude(kind=content_kinds.TOPIC)
-            .distinct()
-            .count()
-        )
+        if instance.kind == content_kinds.TOPIC:
+            return (
+                instance.get_descendants()
+                .filter(renderable_contentnodes_without_topics_q_filter)
+                .filter(coach_content=True)
+                .exclude(kind=content_kinds.TOPIC)
+                .distinct()
+                .count()
+            )
+        return int(instance.coach_content)
 
     def checksums_from_drive_id(self, drive_id, instance):
         try:
