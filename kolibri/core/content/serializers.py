@@ -1,5 +1,3 @@
-import os
-
 from django.core.cache import cache
 from django.db.models import Manager
 from django.db.models import Sum
@@ -7,19 +5,24 @@ from django.db.models.query import RawQuerySet
 from le_utils.constants import content_kinds
 from rest_framework import serializers
 
-from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
+from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_without_topics_q_filter,
 )
+from kolibri.core.content.utils.file_availability import (
+    get_available_checksums_from_disk,
+)
+from kolibri.core.content.utils.file_availability import (
+    get_available_checksums_from_remote,
+)
 from kolibri.core.content.utils.import_export_content import get_num_coach_contents
-from kolibri.core.content.utils.paths import get_content_storage_file_path
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.fields import create_timezonestamp
 
 
@@ -574,51 +577,73 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         for_export = self.context["request"].query_params.get("for_export", None)
         return get_num_coach_contents(instance, filter_available=for_export)
 
+    def checksums_from_drive_id(self, drive_id, instance):
+        try:
+            datafolder = get_mounted_drive_by_id(drive_id)
+        except KeyError:
+            raise serializers.ValidationError(
+                "The external drive with given drive id {} does not exist.".format(
+                    drive_id
+                )
+            )
+
+        return get_available_checksums_from_disk(instance.channel_id, datafolder)
+
+    def checksums_from_peer_id(self, peer_id, instance):
+        try:
+            network_location = NetworkLocation.objects.values("base_url").get(
+                id=peer_id
+            )
+            base_url = network_location["base_url"]
+        except NetworkLocation.DoesNotExist:
+            raise serializers.ValidationError(
+                "The network location with the id {} does not exist".format(peer_id)
+            )
+
+        return get_available_checksums_from_remote(instance.channel_id, base_url)
+
     def get_importable(self, instance):
         drive_id = self.context["request"].query_params.get(
             "importing_from_drive_id", None
         )
+        peer_id = self.context["request"].query_params.get(
+            "importing_from_peer_id", None
+        )
 
-        # If node is from a remote source, assume it is importable.
-        # Topics are annotated as importable by default, but client may disable importing
-        # of the topic if it determines that the entire topic sub-tree is already on the device.
-        if drive_id is None or instance.kind == content_kinds.TOPIC:
+        # If import is from Studio, assume it is importable.
+        if drive_id is None and peer_id is None:
             return True
 
-        # If non-topic ContentNode has no files, then it is not importable.
-        content_files = instance.files.all()
-        if not content_files.exists():
+        if drive_id is not None and peer_id is not None:
+            raise serializers.ValidationError(
+                "Must specify at most one of importing_from_drive_id and importing_from_peer_id"
+            )
+        if drive_id is not None:
+            channel_checksums = self.checksums_from_drive_id(drive_id, instance)
+
+        elif peer_id is not None:
+            channel_checksums = self.checksums_from_peer_id(peer_id, instance)
+
+        if instance.kind == content_kinds.TOPIC:
+            descendants = instance.get_descendants().exclude(kind=content_kinds.TOPIC)
+            content_files = File.objects.filter(
+                supplementary=False, contentnode__in=descendants
+            )
+            file_requirement_operator = any
+        else:
+            content_files = instance.files.filter(supplementary=False)
+            file_requirement_operator = all
+        content_files = list(
+            content_files.values_list("local_file_id", flat=True).distinct()
+        )
+
+        # If ContentNode has no files, then it is not importable.
+        if not content_files:
             return False
 
-        # Inspecting the external drive's files
-        datafolder = cache.get(drive_id, None)
-
-        if datafolder is None:
-            drive_ids = get_mounted_drives_with_channel_info()
-            if drive_id in drive_ids:
-                datafolder = drive_ids[drive_id].datafolder
-                cache.set(drive_id, datafolder, 60)  # cache the datafolder for 1 minute
-            else:
-                raise serializers.ValidationError(
-                    "The external drive with given drive id {} does not exist.".format(
-                        drive_id
-                    )
-                )
-
-        importable = True
-        for f in content_files:
-            # Node is importable only if all of its Files are on the external drive
-            try:
-                file_path = get_content_storage_file_path(
-                    f.local_file.get_filename(), datafolder
-                )
-                importable = importable and os.path.exists(file_path)
-            except InvalidStorageFilenameError:
-                importable = False
-            if not importable:
-                break
-
-        return importable
+        return file_requirement_operator(
+            checksum in channel_checksums for checksum in content_files
+        )
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):

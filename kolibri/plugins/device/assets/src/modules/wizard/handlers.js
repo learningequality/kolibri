@@ -281,6 +281,10 @@ export function updateTreeViewTopic(store, topic) {
   if (store.getters['manageContent/wizard/inExportMode']) {
     fetchArgs.for_export = 'true';
   }
+  if (store.getters['manageContent/wizard/inPeerImportMode']) {
+    const { selectedPeer } = store.state.manageContent.wizard;
+    fetchArgs.importing_from_peer_id = selectedPeer.id;
+  }
   store.commit('CORE_SET_PAGE_LOADING', true);
   return ContentNodeGranularResource.fetchModel({
     id: topic.id,
