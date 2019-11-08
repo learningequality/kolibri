@@ -184,7 +184,7 @@ class PublicAPITestCase(APITestCase):
             data=[],
             format="json",
         )
-        self.assertEqual(response.content, "0")
+        self.assertEqual(int(response.content), 0)
 
     def test_public_checksum_lookup_not_available(self):
         LocalFile.objects.all().update(available=True)
@@ -196,7 +196,7 @@ class PublicAPITestCase(APITestCase):
             data=[test.id],
             format="json",
         )
-        self.assertEqual(response.content, "0")
+        self.assertEqual(int(response.content), 0)
 
     def test_public_checksum_lookup_two_available(self):
         LocalFile.objects.all().update(available=True)
@@ -206,7 +206,7 @@ class PublicAPITestCase(APITestCase):
             data=ids,
             format="json",
         )
-        self.assertEqual(response.content, "3")
+        self.assertEqual(int(response.content), 3)
 
     def test_public_checksum_lookup_one_available(self):
         LocalFile.objects.all().update(available=True)
@@ -219,4 +219,4 @@ class PublicAPITestCase(APITestCase):
             data=ids,
             format="json",
         )
-        self.assertEqual(response.content, "2")
+        self.assertEqual(int(response.content), 2)
