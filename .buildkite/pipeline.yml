@@ -7,6 +7,11 @@ steps:
 
   - wait
 
+  - trigger: "wip-kolibri-macos"
+    label: ":mac:"
+    build:
+      message: "${BUILDKITE_MESSAGE}"
+    
     # Android build only requires whl file
   - label: Build Android APK
     env:
