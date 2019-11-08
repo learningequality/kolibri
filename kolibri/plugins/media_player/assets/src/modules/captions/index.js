@@ -22,6 +22,14 @@ const tracks = state => {
   return trackUtils.listToArray(state.trackList || []);
 };
 
+/**
+ * @param state
+ * @return {TextTrack|null}
+ */
+const languageTrack = state => {
+  return tracks(state).find(track => state.language === track.language);
+};
+
 export default {
   namespaced: true,
   state: () => {
@@ -77,7 +85,7 @@ export default {
      * @return {string}
      */
     languageLabel(state) {
-      const track = tracks(state).find(track => state.language === track.language);
+      const track = languageTrack(state);
       return track ? track.label : '';
     },
     /**
@@ -92,8 +100,24 @@ export default {
     activeTrack(state) {
       return tracks(state).find(track => trackUtils.isEnabled(track));
     },
+    /**
+     * @param state
+     * @return {TextTrack|null}
+     */
+    languageTrack,
   },
   actions: {
+    initState(store) {
+      // If no track for saved language, disable subtitles and transcript
+      if (!store.getters.languageTrack) {
+        if (store.state.subtitles) {
+          store.commit('SET_SUBTITLES', false);
+        }
+        if (store.state.transcript) {
+          store.commit('SET_TRANSCRIPT', false);
+        }
+      }
+    },
     setLanguage(store, language) {
       if (store.state.language === language) {
         return;
@@ -204,7 +228,8 @@ export default {
       );
     },
     synchronizeTrackList(store) {
-      const { language, subtitles, transcript } = store.state;
+      const { subtitles, transcript } = store.state;
+      let { language } = store.state;
       const settings = new Settings(defaultSettings());
       settings.captionSubtitles = subtitles;
       settings.captionTranscript = transcript;
@@ -223,12 +248,32 @@ export default {
         }
       });
     },
+    checkLanguageTrack(store) {
+      const { subtitles, transcript } = store.state;
+      let language;
+
+      // When we enable either subtitles or transcript, ensure we have appropriate language track
+      if ((subtitles || transcript) && !store.getters.languageTrack) {
+        if (store.getters.activeTrack) {
+          language = store.getters.activeTrack.language;
+        } else {
+          // Just use language of first track as fallback
+          language = store.getters.tracks[0].language;
+        }
+      }
+
+      if (language && language !== store.state.language) {
+        store.commit('SET_LANGUAGE', language);
+      }
+    },
     toggleSubtitles(store) {
       store.commit('SET_SUBTITLES', !store.state.subtitles);
+      store.dispatch('checkLanguageTrack');
       store.dispatch('synchronizeTrackList');
     },
     toggleTranscript(store) {
       store.commit('SET_TRANSCRIPT', !store.state.transcript);
+      store.dispatch('checkLanguageTrack');
       store.dispatch('synchronizeTrackList');
     },
     resetState(store) {

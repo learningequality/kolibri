@@ -25,6 +25,10 @@ export default {
         player.on('dispose', () => player.off('texttrackchange', onTrackChange));
       });
 
+      player.one('play', () => {
+        store.dispatch('captions/initState');
+      });
+
       store.commit('SET_PLAYER', player);
     },
     withPlayer(store, callback) {
