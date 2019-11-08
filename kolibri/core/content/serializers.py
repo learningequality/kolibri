@@ -15,6 +15,7 @@ from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_without_topics_q_filter,
 )
+from kolibri.core.content.utils.content_types_tools import renderable_files_q_filter
 from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_disk,
 )
@@ -633,7 +634,11 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             channel_checksums = self.checksums_from_peer_id(peer_id, instance)
 
         if instance.kind == content_kinds.TOPIC:
-            descendants = instance.get_descendants().exclude(kind=content_kinds.TOPIC)
+            descendants = (
+                instance.get_descendants()
+                .exclude(kind=content_kinds.TOPIC)
+                .filter(renderable_contentnodes_without_topics_q_filter)
+            )
             content_files = File.objects.filter(
                 supplementary=False, contentnode__in=descendants
             )
@@ -642,7 +647,9 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             content_files = instance.files.filter(supplementary=False)
             file_requirement_operator = all
         content_files = list(
-            content_files.values_list("local_file_id", flat=True).distinct()
+            content_files.filter(renderable_files_q_filter)
+            .values_list("local_file_id", flat=True)
+            .distinct()
         )
 
         # If ContentNode has no files, then it is not importable.
