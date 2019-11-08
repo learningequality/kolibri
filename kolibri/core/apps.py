@@ -71,3 +71,4 @@ class KolibriCoreConfig(AppConfig):
             # and writes (vs. the default exclusive write lock)
             # at the cost of a slight penalty to all reads.
             cursor.execute(START_PRAGMAS)
+            connection.close()

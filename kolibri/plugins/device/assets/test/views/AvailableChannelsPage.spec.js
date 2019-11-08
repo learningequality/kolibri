@@ -1,11 +1,7 @@
-import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import AvailableChannelsPage from '../../src/views/AvailableChannelsPage';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
-
-const router = new VueRouter({
-  routes: [{ path: '/content/channel/:channel_id', name: 'SELECT_CONTENT' }],
-});
+import router from './testRouter';
 
 function makeWrapper(options = {}) {
   const { store, props = {} } = options;
@@ -13,7 +9,7 @@ function makeWrapper(options = {}) {
   return mount(AvailableChannelsPage, {
     propsData: { ...defaultProps, ...props },
     store: store || makeAvailableChannelsPageStore(),
-    router,
+    ...router,
   });
 }
 
@@ -22,14 +18,15 @@ function getElements(wrapper) {
   return {
     noChannels: () => wrapper.find('.no-channels'),
     channelsList: () => wrapper.find('.channels-list'),
-    channelsAvailableText: () => wrapper.find('.spec-ref-available').text().trim(),
-    channelListItems: () => wrapper.findAll({ name: 'ChannelListItem' }),
+    channelsAvailableText: () => wrapper.find('[data-test="available"]').text().trim(),
+    channelListItems: () => wrapper.findAll({ name: 'WithImportDetails' }),
     ChannelTokenModal: () => wrapper.find({ name: 'ChannelTokenModal' }),
     filters: () => wrapper.find('.filters'),
     languageFilter: () => wrapper.find({ name: 'KSelect' }),
-    titleText: () => wrapper.find('.spec-ref-title').text().trim(),
+    titleText: () => wrapper.find('[data-test="title"]').text().trim(),
     titleFilter: () => wrapper.find({ name: 'FilterTextbox' }),
     unlistedChannelsSection: () => wrapper.findAll('section.unlisted-channels'),
+    filterComponent: () => wrapper.find({name: 'FilteredChannelListContainer'}),
   }
 }
 
@@ -133,19 +130,13 @@ describe('availableChannelsPage', () => {
     expect(channelNProps(3).onDevice).toEqual(true);
   });
 
-  it('IN LOCALEXPORT, with no filters, all channels (with resources) appear', () => {
-    setTransferType('localexport');
-    const wrapper = makeWrapper({ store });
-    expect(wrapper.vm.titleFilter).toEqual('');
-    expect(wrapper.vm.languageFilter.value).toEqual('ALL');
-    testChannelVisibility(wrapper, [true, false, false, true]);
-  });
-
   it('IN LOCALIMPORT/REMOTEIMPORT, with no filters, all appear', () => {
     setTransferType('localimport');
     const wrapper = makeWrapper({ store });
-    expect(wrapper.vm.titleFilter).toEqual('');
-    expect(wrapper.vm.languageFilter.value).toEqual('ALL');
+    const { filterComponent } = getElements(wrapper);
+    const { titleFilter, languageFilter } = filterComponent().vm;
+    expect(titleFilter).toEqual('');
+    expect(languageFilter.value).toEqual('ALL');
     testChannelVisibility(wrapper, [true, true, true, true]);
   });
 
@@ -161,42 +152,38 @@ describe('availableChannelsPage', () => {
     expect(languageFilter().props().options).toEqual(expected);
   });
 
-  it('with language filter, the correct channels appear', () => {
+  it('with language filter, the correct channels appear', async () => {
     const wrapper = makeWrapper();
     const { languageFilter } = getElements(wrapper);
     const filter = languageFilter();
-    return wrapper.vm.$nextTick().then(() => {
-      filter.vm.selection = { label: 'English', value: 'en' };
-      return wrapper.vm.$nextTick().then(() => {
-        testChannelVisibility(wrapper, [true, false, false, false]);
-      });
-    });
+    await wrapper.vm.$nextTick();
+    filter.vm.selection = { label: 'English', value: 'en' };
+
+    await wrapper.vm.$nextTick();
+    testChannelVisibility(wrapper, [true, false, false, false]);
   });
 
-  it('with keyword filter, the correct channels appear', () => {
+  it('with keyword filter, the correct channels appear', async () => {
     const wrapper = makeWrapper();
-    const { titleFilter } = getElements(wrapper);
+    const { titleFilter, filterComponent } = getElements(wrapper);
     const filter = titleFilter();
     // Can't trigger 'input' event; need to set new value manually
     filter.vm.model = 'bir ch';
-    return wrapper.vm.$nextTick().then(() => {
-      expect(wrapper.vm.titleFilter).toEqual('bir ch');
-      testChannelVisibility(wrapper, [false, true, false, false]);
-    });
+    await wrapper.vm.$nextTick();
+    expect(filterComponent().vm.titleFilter).toEqual('bir ch');
+    testChannelVisibility(wrapper, [false, true, false, false]);
   });
 
-  it('with both filters, the correct channels appear', () => {
+  it('with both filters, the correct channels appear', async () => {
     const wrapper = makeWrapper();
     const { languageFilter, titleFilter } = getElements(wrapper);
     const lFilter = languageFilter();
     const tFilter = titleFilter();
     tFilter.vm.model = 'hund';
-    return wrapper.vm.$nextTick().then(() => {
-      lFilter.vm.selection = { label: 'German', value: 'de' };
-      return wrapper.vm.$nextTick().then(() => {
-        testChannelVisibility(wrapper, [false, false, true, false]);
-      });
-    });
+    await wrapper.vm.$nextTick();
+    lFilter.vm.selection = { label: 'German', value: 'de' };
+    await wrapper.vm.$nextTick();
+    testChannelVisibility(wrapper, [false, false, true, false]);
   });
 
   it('the "select" link goes to the correct place', () => {

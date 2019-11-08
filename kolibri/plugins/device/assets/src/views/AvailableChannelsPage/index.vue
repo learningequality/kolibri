@@ -6,85 +6,84 @@
       :errorType="status"
     />
 
-    <h1 v-if="status === ''" class="spec-ref-title">
-      <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
-      <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
-      <span v-else>{{ coreString('channelsLabel') }}</span>
-    </h1>
-
-    <KGrid v-if="channelsAreAvailable" class="top-matter">
-      <KGridItem :layout12="{ span: 4 }">
-        <p :class="{ 'text-offset': windowIsLarge }" class="spec-ref-available">
-          {{ $tr('channelsAvailable', { channels: availableChannels.length }) }}
-        </p>
-      </KGridItem>
-      <KGridItem :layout8="{ span: 3 }" :layout12="{ span: 3, alignment: 'right' }">
-        <KSelect
-          v-model="languageFilter"
-          class="align-left"
-          :options="languageFilterOptions"
-          :label="$tr('languageFilterLabel')"
-          :inline="true"
-        />
-      </KGridItem>
-      <KGridItem :layout8="{ span: 5 }" :layout12="{ span: 5 }">
-        <FilterTextbox
-          v-model="titleFilter"
-          :class="{ 'search-box-offset': !windowIsSmall }"
-          :placeholder="$tr('titleFilterPlaceholder')"
-          class="seach-box"
-        />
-      </KGridItem>
-    </KGrid>
-
-    <section
-      v-if="showUnlistedChannels"
-      class="unlisted-channels"
+    <FilteredChannelListContainer
+      :channels="allChannels"
+      :selectedChannels.sync="selectedChannels"
+      :selectAllCheckbox="multipleMode"
     >
-      <ChannelTokenModal
-        v-if="showTokenModal"
-        @cancel="showTokenModal=false"
-        @submit="goToSelectContentPageForChannel"
-      />
-      <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
+      <template v-slot:header>
+        <h1 v-if="status === ''" data-test="title">
+          <span v-if="multipleMode">{{ $tr('selectEntireChannels') }}</span>
+          <span v-else-if="inExportMode">{{ $tr('yourChannels') }}</span>
+          <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
+          <span v-else>{{ coreString('channelsLabel') }}</span>
+        </h1>
+      </template>
 
-      <KButton
-        :text="$tr('channelTokenButtonLabel')"
-        appearance="basic-link"
-        name="showtokenmodal"
-        @click="showTokenModal=true"
-      />
-    </section>
+      <template v-slot:abovechannels>
+        <section
+          v-if="showUnlistedChannels"
+          class="unlisted-channels"
+        >
+          <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
 
+          <KButton
+            :text="$tr('channelTokenButtonLabel')"
+            appearance="basic-link"
+            name="showtokenmodal"
+            @click="showTokenModal=true"
+          />
+        </section>
+
+        <section v-if="!multipleMode" class="import-multiple">
+          <KButton @click="goToImportMultiple">
+            <KIcon icon="multiple" class="multiple-icon" />
+            {{ $tr('importMultipleAction') }}
+          </KButton>
+        </section>
+      </template>
+
+      <template v-slot:default="{filteredItems, showItem, handleChange, itemIsSelected}">
+        <p v-if="!channelsAreAvailable && !status">
+          {{ $tr('noChannelsAvailable') }}
+        </p>
+
+        <div v-else>
+          <ChannelPanel
+            v-for="channel in allChannels"
+            v-show="showItem(channel) && !channelIsBeingDeleted(channel.id)"
+            :key="channel.id"
+            :channel="channel"
+            :onDevice="channelIsOnDevice(channel)"
+            :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
+            :multipleMode="multipleMode"
+            :checked="itemIsSelected(channel)"
+            @clickselect="goToSelectContentPageForChannel(channel)"
+            @checkboxchange="handleChange"
+          />
+        </div>
+      </template>
+    </FilteredChannelListContainer>
+
+    <ChannelTokenModal
+      v-if="showTokenModal"
+      :disabled="disableModal"
+      @cancel="showTokenModal=false"
+      @submit="goToSelectContentPageForChannel"
+    />
     <KLinearLoader
       v-if="channelsAreLoading"
       type="indeterminate"
       :delay="false"
     />
 
-    <!-- Similar code in channels-grid -->
-    <div v-if="channelsAreAvailable">
-      <div class="channel-list-header" :style="{ color: $themeTokens.annotation }">
-        {{ coreString('channelsLabel') }}
-      </div>
+    <SelectionBottomBar
+      v-if="multipleMode"
+      objectType="channel"
+      actionType="import"
+      :selectedObjects="selectedChannels"
+    />
 
-      <div>
-        <ChannelListItem
-          v-for="channel in availableChannels"
-          v-show="channelIsVisible(channel)"
-          :key="channel.id"
-          :channel="channel"
-          :onDevice="channelIsOnDevice(channel)"
-          :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
-          @clickselect="goToSelectContentPageForChannel(channel)"
-        />
-      </div>
-    </div>
-    <p v-else>
-      <span v-if="!status">
-        {{ $tr('noChannelsAvailable') }}
-      </span>
-    </p>
   </div>
 
 </template>
@@ -93,17 +92,15 @@
 <script>
 
   import { mapState, mapMutations, mapGetters } from 'vuex';
-  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import uniqBy from 'lodash/uniqBy';
-  import ChannelListItem from '../ManageContentPage/ChannelListItem';
+  import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
   import { TransferTypes } from '../../constants';
+  import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
+  import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import ChannelTokenModal from './ChannelTokenModal';
-
-  const ALL_FILTER = 'ALL';
 
   export default {
     name: 'AvailableChannelsPage',
@@ -113,21 +110,22 @@
       };
     },
     components: {
-      ChannelListItem,
+      ChannelPanel,
       ChannelTokenModal,
       ContentWizardUiAlert,
-      FilterTextbox,
+      FilteredChannelListContainer,
+      SelectionBottomBar,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
-        languageFilter: {},
-        titleFilter: '',
         showTokenModal: false,
+        newPrivateChannels: [],
+        selectedChannels: [],
       };
     },
     computed: {
-      ...mapGetters('manageContent', ['installedChannelsWithResources']),
+      ...mapGetters('manageContent', ['installedChannelsWithResources', 'channelIsBeingDeleted']),
       ...mapGetters('manageContent/wizard', [
         'inLocalImportMode',
         'inRemoteImportMode',
@@ -141,6 +139,13 @@
         'status',
         'transferType',
       ]),
+      allChannels() {
+        return [...this.newPrivateChannels, ...this.availableChannels];
+      },
+      multipleMode() {
+        const { multiple } = this.$route.query;
+        return multiple === true || multiple === 'true';
+      },
       documentTitle() {
         switch (this.transferType) {
           case TransferTypes.LOCALEXPORT:
@@ -162,26 +167,11 @@
       channelsAreLoading() {
         return this.status === 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO';
       },
-      languageFilterOptions() {
-        const codes = uniqBy(this.availableChannels, 'lang_code')
-          .map(({ lang_name, lang_code }) => ({
-            value: lang_code,
-            label: lang_name,
-          }))
-          .filter(x => x.value);
-        return [this.allLanguagesOption, ...codes];
-      },
       channelsAreAvailable() {
         return !this.channelsAreLoading && this.availableChannels.length > 0;
       },
       showUnlistedChannels() {
         return this.channelsAreAvailable && (this.inRemoteImportMode || this.isStudioApplication);
-      },
-      allLanguagesOption() {
-        return {
-          label: this.$tr('allLanguages'),
-          value: ALL_FILTER,
-        };
       },
     },
     watch: {
@@ -191,8 +181,7 @@
       },
     },
     beforeMount() {
-      this.languageFilter = { ...this.allLanguagesOption };
-      this.setQuery(this.$route.query);
+      this.$store.commit('coreBase/SET_QUERY', this.$route.query);
       if (this.status) {
         this.setAppBarTitle(this.$tr('pageLoadError'));
       } else {
@@ -202,7 +191,6 @@
     methods: {
       ...mapMutations('coreBase', {
         setAppBarTitle: 'SET_APP_BAR_TITLE',
-        setQuery: 'SET_QUERY',
       }),
       toolbarTitle(transferType) {
         switch (transferType) {
@@ -223,44 +211,44 @@
         const match = this.installedChannelsWithResources.find(({ id }) => id === channel.id);
         return Boolean(match);
       },
-      goToSelectContentPageForChannel(channel) {
-        this.$router.push(
-          selectContentPageLink({
-            addressId: this.$route.query.address_id,
-            channelId: channel.id,
-            driveId: this.$route.query.drive_id,
-            forExport: this.$route.query.for_export,
-          })
-        );
+      goToImportMultiple() {
+        this.$router.push({
+          query: {
+            multiple: true,
+          },
+        });
       },
-      channelIsVisible(channel) {
-        let languageMatches = true;
-        let titleMatches = true;
-        let isOnDevice = true;
-        if (this.inExportMode) {
-          isOnDevice = this.channelIsOnDevice(channel);
+      goToSelectContentPageForChannel(channel) {
+        if (this.multipleMode) {
+          this.disableModal = true;
+          this.$store
+            .dispatch('manageContent/wizard/fetchPrivateChannelInfo', channel.id)
+            .then(channels => {
+              const newChannels = channels.map(x => Object.assign(x, { newPrivateChannel: true }));
+              this.newPrivateChannels = [...newChannels, ...this.newPrivateChannels];
+              this.showTokenModal = false;
+            })
+            .catch(error => {
+              this.$store.dispatch('handleApiError', error);
+            });
+        } else {
+          this.$router.push(
+            selectContentPageLink({
+              addressId: this.$route.query.address_id,
+              channelId: channel.id,
+              driveId: this.$route.query.drive_id,
+              forExport: this.$route.query.for_export,
+            })
+          );
         }
-        if (this.languageFilter.value !== ALL_FILTER) {
-          languageMatches = channel.lang_code === this.languageFilter.value;
-        }
-        if (this.titleFilter) {
-          // Similar code in userSearchUtils
-          const tokens = this.titleFilter.split(/\s+/).map(val => val.toLowerCase());
-          titleMatches = tokens.every(token => channel.name.toLowerCase().includes(token));
-        }
-        return languageMatches && titleMatches && isOnDevice;
       },
     },
     $trs: {
-      allLanguages: 'All languages',
-      channelsAvailable:
-        '{channels, number, integer} {channels, plural, one {channel} other {channels} } available',
       exportToDisk: 'Export to {driveName}',
       importFromDisk: 'Import from {driveName}',
       importFromPeer: 'Import from {deviceName} ({address})',
-      kolibriCentralServer: 'Kolibri Studio',
-      languageFilterLabel: 'Language',
-      titleFilterPlaceholder: 'Search for a channel…',
+      kolibriCentralServer: 'Kolibri Studio channels',
+      importMultipleAction: 'Import multiple',
       yourChannels: 'Your channels',
       channelTokenButtonLabel: 'Try adding a token',
       channelNotListedExplanation: "Don't see your channel listed?",
@@ -269,6 +257,7 @@
       documentTitleForRemoteImport: 'Available Channels on Kolibri Studio',
       documentTitleForExport: 'Available Channels on this device',
       noChannelsAvailable: 'No channels are available on this device',
+      selectEntireChannels: 'Select entire channels for import',
     },
   };
 
@@ -280,6 +269,20 @@
   .channel-list-header {
     padding: 16px 0;
     font-size: 14px;
+  }
+
+  svg.multiple-icon {
+    width: 24px;
+    height: 24px;
+    margin: 0 4px -5px -2px;
+  }
+
+  .import-multiple {
+    margin: 24px 0;
+
+    button {
+      margin: 0;
+    }
   }
 
   .top-matter {

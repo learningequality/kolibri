@@ -2,29 +2,25 @@
 
   <div>
 
-    <AuthMessage v-if="!isSuperuser" authorizedRole="superuser" />
-
-    <div v-else>
-      <div class="description">
-        <h1>{{ coreString('devicePermissionsLabel') }}</h1>
-        <p>{{ $tr('devicePermissionsDescription') }}</p>
-      </div>
-
-      <PaginatedListContainer
-        :items="facilityUsers"
-        :filterFunction="filterUsers"
-        :filterPlaceholder="$tr('searchPlaceholder')"
-      >
-        <template v-slot:default="{items, filterInput}">
-          <UserGrid
-            :searchFilter="searchFilterText"
-            :facilityUsers="items"
-            :userPermissions="userPermissions"
-            :filterText="filterInput"
-          />
-        </template>
-      </PaginatedListContainer>
+    <div class="description">
+      <h1>{{ coreString('devicePermissionsLabel') }}</h1>
+      <p>{{ $tr('devicePermissionsDescription') }}</p>
     </div>
+
+    <PaginatedListContainer
+      :items="facilityUsers"
+      :filterFunction="filterUsers"
+      :filterPlaceholder="$tr('searchPlaceholder')"
+    >
+      <template v-slot:default="{items, filterInput}">
+        <UserGrid
+          :searchFilter="searchFilterText"
+          :facilityUsers="items"
+          :userPermissions="userPermissions"
+          :filterText="filterInput"
+        />
+      </template>
+    </PaginatedListContainer>
 
   </div>
 
@@ -33,8 +29,7 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
-  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
@@ -48,7 +43,6 @@
       };
     },
     components: {
-      AuthMessage,
       PaginatedListContainer,
       UserGrid,
     },
@@ -59,7 +53,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isSuperuser']),
       ...mapState('managePermissions', {
         facilityUsers: state => state.facilityUsers,
         userPermissions: state => userid => state.permissions[userid],

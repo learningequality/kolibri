@@ -141,16 +141,17 @@
     right: 0;
     left: 0;
     z-index: 4;
+    transition: transform 0.25s;
 
     // Use different transition timing functions depending on direction
     // to maintain some kind of symmetry. Curves are decelerate/accelerate
     // easing, respectively from https://material.io/design/motion/speed.html#easing.
     &.dir-up {
-      transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1);
+      @extend %md-decelerate-func;
     }
 
     &.dir-down {
-      transition: transform 0.25s cubic-bezier(0, 0, 0.2, 1);
+      @extend %md-accelerate-func;
     }
 
     &.is-hidden {

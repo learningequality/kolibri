@@ -1,15 +1,11 @@
 <template>
 
-  <div v-if="isUserLoggedIn">
-    <div ref="icon" class="points">
-      <div class="points-icon-background" :style="{ backgroundColor: $themeTokens.surface }">
-        <PointsIcon class="icon" />
-      </div>
-      <div v-show="!windowIsSmall" class="description">
-        <div class="description-value">
-          {{ $formatNumber(totalPoints) }}
-        </div>
-      </div>
+  <div v-if="isUserLoggedIn" ref="icon" class="points-wrapper">
+    <div class="icon-wrapper" :style="{ backgroundColor: $themeTokens.surface }">
+      <PointsIcon class="icon" />
+    </div>
+    <div v-show="!windowIsSmall" class="description">
+      {{ $formatNumber(totalPoints) }}
     </div>
     <KTooltip
       reference="icon"
@@ -56,28 +52,33 @@
 
 <style lang="scss" scoped>
 
-  .points {
-    padding: 8px 0;
+  .points-wrapper {
+    position: relative;
+  }
+
+  .icon-wrapper {
+    position: absolute;
+    top: -4px;
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    border-radius: 100%;
   }
 
   .icon {
     position: relative;
-    top: 2px;
+    top: 7px;
     display: inline-block;
     width: 16px;
     height: 16px;
   }
 
   .description {
+    position: relative;
     display: inline-block;
-    margin-left: 8px;
+    margin-left: 40px;
     font-size: 14px;
-  }
-
-  .points-icon-background {
-    display: inline;
-    padding: 4px 8px;
-    border-radius: 100%;
   }
 
 </style>

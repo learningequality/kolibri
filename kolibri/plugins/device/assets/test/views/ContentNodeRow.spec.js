@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 import store from 'kolibri.coreVue.vuex.store';
 import ContentNodeRow from '../../src/views/SelectContentPage/ContentNodeRow';
 import { makeNode } from '../utils/data';
+import router from './testRouter';
 
 const defaultProps = {
   node: {
@@ -16,6 +17,7 @@ function makeWrapper(props = {}) {
   return mount(ContentNodeRow, {
     propsData: { ...defaultProps, ...props },
     store,
+    ...router,
   });
 }
 
@@ -43,13 +45,6 @@ describe('contentNodeRow component', () => {
     expect(messageText()).toEqual('HELLO');
   });
 
-  it('when node is a topic, title is a button that emits "clicktopic" event', () => {
-    const wrapper = makeWrapper();
-    const { goToTopicButton } = getElements(wrapper);
-    goToTopicButton().trigger('click');
-    expect(wrapper.emitted().clicktopic).toEqual([[wrapper.vm.node]]);
-  });
-
   it('when node is not a topic, title is just text', () => {
     const wrapper = makeWrapper({
       node: makeNode('1', {
@@ -66,6 +61,17 @@ describe('contentNodeRow component', () => {
     const { goToTopicButton, titleText } = getElements(wrapper);
     expect(goToTopicButton()[0]).toEqual(undefined);
     expect(titleText()).toEqual('Awesome Content');
+  });
+
+  it('topic links have the correct route', () => {
+    const wrapper = makeWrapper({ store });
+    const { goToTopicButton } = getElements(wrapper);
+    expect(goToTopicButton().props().to).toMatchObject({
+      name: 'SELECT_CONTENT',
+      query: {
+        node_id: 'awesome_content',
+      },
+    });
   });
 
   it('when checkbox is changed, it emits a "changeselection" event', () => {

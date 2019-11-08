@@ -1,13 +1,16 @@
 import { ContentWizardPages, PageNames } from '../../constants';
 
-export function selectContentTopicLink(topicNode, query) {
+export function selectContentTopicLink(topicNode, query, channelId) {
   return {
-    name: ContentWizardPages.SELECT_CONTENT_TOPIC,
+    name: ContentWizardPages.SELECT_CONTENT,
     params: {
-      node_id: topicNode.id,
       node: topicNode,
     },
-    query,
+    query: {
+      ...query,
+      // If the linked node is the top-level channel remove the query param
+      node_id: channelId === topicNode.id ? undefined : topicNode.id,
+    },
   };
 }
 

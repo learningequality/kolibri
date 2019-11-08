@@ -18,8 +18,8 @@
       />
     </transition>
 
-    <KPageContainer>
-      <component :is="currentPage" />
+    <KPageContainer :style="containerStyles">
+      <router-view />
     </KPageContainer>
   </CoreBase>
 
@@ -28,28 +28,12 @@
 
 <script>
 
+  import omit from 'lodash/omit';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ContentWizardPages, PageNames } from '../constants';
   import DeviceTopNav from './DeviceTopNav';
-  import ManageContentPage from './ManageContentPage';
-  import ManagePermissionsPage from './ManagePermissionsPage';
-  import UserPermissionsPage from './UserPermissionsPage';
-  import DeviceInfoPage from './DeviceInfoPage';
   import WelcomeModal from './WelcomeModal';
-  import AvailableChannelsPage from './AvailableChannelsPage';
-  import SelectContentPage from './SelectContentPage';
-  import DeviceSettingsPage from './DeviceSettingsPage';
-
-  const pageNameComponentMap = {
-    [PageNames.MANAGE_CONTENT_PAGE]: ManageContentPage,
-    [PageNames.MANAGE_PERMISSIONS_PAGE]: ManagePermissionsPage,
-    [PageNames.USER_PERMISSIONS_PAGE]: UserPermissionsPage,
-    [PageNames.DEVICE_INFO_PAGE]: DeviceInfoPage,
-    [ContentWizardPages.AVAILABLE_CHANNELS]: AvailableChannelsPage,
-    [ContentWizardPages.SELECT_CONTENT]: SelectContentPage,
-    [PageNames.DEVICE_SETTINGS_PAGE]: DeviceSettingsPage,
-  };
 
   export default {
     name: 'DeviceIndex',
@@ -59,17 +43,17 @@
       DeviceTopNav,
     },
     computed: {
-      ...mapGetters(['canManageContent']),
+      ...mapGetters(['canManageContent', 'isSuperuser']),
       ...mapState(['pageName', 'welcomeModalVisible']),
       ...mapState('coreBase', ['appBarTitle']),
-      ...mapGetters('coreBase', [
-        'currentPageIsImmersive',
-        'immersivePageIcon',
-        'immersivePageRoute',
-        'inContentManagementPage',
-      ]),
-      currentPage() {
-        return pageNameComponentMap[this.pageName];
+      containerStyles() {
+        // Need to override overflow rule for setting page
+        if (this.$route.name === PageNames.DEVICE_SETTINGS_PAGE) {
+          return {
+            overflowX: 'inherit',
+          };
+        }
+        return {};
       },
       currentPageAppBarTitle() {
         if (this.pageName === PageNames.USER_PERMISSIONS_PAGE) {
@@ -78,13 +62,78 @@
           return this.appBarTitle || this.$tr('deviceManagementTitle');
         }
       },
+      inMultipleImportPage() {
+        return this.pageName === 'AVAILABLE_CHANNELS' && this.$route.query.multiple;
+      },
+      immersivePageRoute() {
+        if (this.$route.query.last) {
+          return {
+            name: this.$route.query.last,
+          };
+        }
+        // In all Import/Export pages, go back to ManageContentPage
+        if (this.inContentManagementPage) {
+          // If a user is selecting content, they should return to the content
+          // source that they're importing from using the query string.
+          if (this.inMultipleImportPage) {
+            return { query: omit(this.$route.query, ['multiple']) };
+          }
+          if (this.pageName === ContentWizardPages.SELECT_CONTENT) {
+            return {
+              name: ContentWizardPages.AVAILABLE_CHANNELS,
+              query: this.$store.state.coreBase.query,
+            };
+          } else {
+            return {
+              name: PageNames.MANAGE_CONTENT_PAGE,
+            };
+          }
+        } else if (this.pageName === PageNames.USER_PERMISSIONS_PAGE) {
+          // If Admin, goes back to ManagePermissionsPage
+          if (this.isSuperuser) {
+            return { name: PageNames.MANAGE_PERMISSIONS_PAGE };
+          } else {
+            // If Non-Admin, go to ManageContentPAge
+            return { name: PageNames.MANAGE_CONTENT_PAGE };
+          }
+        } else {
+          return {};
+        }
+      },
       immersivePagePrimary() {
         // When the icon is an arrow, it should true for Primary with one
         // exception: The SELECT_CONTENT page.
+        if (this.inMultipleImportPage) {
+          return false;
+        }
         return (
-          this.immersivePageIcon === 'arrow_back' &&
-          this.pageName !== ContentWizardPages.SELECT_CONTENT
+          (this.immersivePageIcon === 'arrow_back' &&
+            this.pageName !== ContentWizardPages.SELECT_CONTENT) ||
+          this.pageName === PageNames.REARRANGE_CHANNELS ||
+          this.pageName === PageNames.DELETE_CHANNELS ||
+          this.pageName === PageNames.EXPORT_CHANNELS
         );
+      },
+      immersivePageIcon() {
+        if (
+          this.pageName === PageNames.USER_PERMISSIONS_PAGE ||
+          this.pageName === ContentWizardPages.SELECT_CONTENT ||
+          this.inMultipleImportPage
+        ) {
+          return 'arrow_back';
+        }
+        return 'close';
+      },
+      currentPageIsImmersive() {
+        if (this.pageName == PageNames.MANAGE_CONTENT_PAGE) {
+          return false;
+        }
+        return (
+          this.inContentManagementPage || [PageNames.USER_PERMISSIONS_PAGE].includes(this.pageName)
+        );
+      },
+      inContentManagementPage() {
+        return this.$route.path.includes('/content');
       },
     },
     watch: {

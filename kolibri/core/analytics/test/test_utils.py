@@ -9,7 +9,7 @@ import os
 import random
 import uuid
 
-from django.test import TestCase
+from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
 
 from kolibri.core.analytics.constants.nutrition_endpoints import PINGBACK
@@ -164,7 +164,7 @@ class BaseDeviceSetupMixin(object):
                         )
 
 
-class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
+class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
     def test_extract_facility_statistics(self):
         facility = self.facilities[0]
         actual = extract_facility_statistics(facility)
@@ -230,7 +230,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
         assert actual["l"] is None
 
 
-class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
+class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
     def test_extract_channel_statistics(self):
         actual = extract_channel_statistics(self.channel)
         expected = {
@@ -251,7 +251,7 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
         assert actual == expected
 
 
-class CreateUpdateNotificationsTestCase(TestCase):
+class CreateUpdateNotificationsTestCase(TransactionTestCase):
     def setUp(self):
         self.msg = {
             "i18n": {},

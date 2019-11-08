@@ -4,8 +4,8 @@
     :title="$tr('enterChannelToken')"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
-    :submitDisabled="formIsDisabled"
-    :cancelDisabled="formIsDisabled"
+    :submitDisabled="formIsDisabled || $attrs.disabled"
+    :cancelDisabled="formIsDisabled || $attrs.disabled"
     @submit="submitForm"
     @cancel="$emit('cancel')"
   >
@@ -25,7 +25,7 @@
       :invalid="!tokenIsValid"
       :invalidText="$tr('invalidTokenMessage')"
       autofocus
-      :disabled="formIsDisabled"
+      :disabled="formIsDisabled || $attrs.disabled"
       @blur="tokenIsBlurred=true"
     />
   </KModal>
@@ -35,7 +35,6 @@
 
 <script>
 
-  import { mapMutations } from 'vuex';
   import UiAlert from 'keen-ui/src/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
@@ -65,9 +64,6 @@
       },
     },
     methods: {
-      ...mapMutations('manageContent/wizard', {
-        setAvailableChannels: 'SET_AVAILABLE_CHANNELS',
-      }),
       submitForm() {
         this.tokenLookupFailed = false;
         this.formIsSubmitted = true;
@@ -77,7 +73,7 @@
             .then(channels => {
               // tokens can return one or more channels
               if (channels.length > 1) {
-                this.setAvailableChannels(channels);
+                this.$store.commit('manageContent/wizard/SET_AVAILABLE_CHANNELS', channels);
                 this.$emit('cancel');
               } else {
                 this.$emit('submit', channels[0]);

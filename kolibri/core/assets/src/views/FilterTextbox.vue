@@ -40,6 +40,7 @@
 
 <script>
 
+  import throttle from 'lodash/throttle';
   import UiIcon from 'keen-ui/src/UiIcon';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   /**
@@ -72,8 +73,18 @@
         type: Boolean,
         default: false,
       },
+      // If provided, will throttle and use the prop as the delay value in msecs
+      throttleInput: {
+        type: Number,
+        required: false,
+      },
     },
     computed: {
+      throttledEmitInput() {
+        return throttle(val => {
+          this.$emit('input', val);
+        }, this.throttleInput);
+      },
       model: {
         get() {
           return this.value;
@@ -82,7 +93,11 @@
           /**
            * Emits input event with new value
            */
-          this.$emit('input', val);
+          if (this.throttleInput) {
+            this.throttledEmitInput(val);
+          } else {
+            this.$emit('input', val);
+          }
         },
       },
       kFilterPlaceHolderStyle() {

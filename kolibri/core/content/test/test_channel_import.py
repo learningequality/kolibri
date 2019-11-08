@@ -555,8 +555,6 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
             # after reloading, the files and their ancestor ContentNodes should all still be available
             channel.root.refresh_from_db()
             assert channel.root.available
-            assert channel.root.children.first().available
-            assert channel.root.children.first().files.all()[0].available
             assert channel.root.children.first().files.all()[0].local_file.available
 
 
