@@ -13,6 +13,7 @@
       :class="[
         'wrapper',
         {
+          'keyboard-modality': $inputModality === 'keyboard',
           'video-loading': loading,
           'transcript-visible': transcriptVisible,
           'transcript-wrap': windowIsPortrait || (!isFullscreen && windowIsSmall),
@@ -587,9 +588,13 @@
   }
 
   /* Hide control bar when playing & inactive */
-  /deep/ .vjs-has-started.vjs-playing.vjs-user-inactive {
-    .vjs-control-bar {
-      visibility: hidden;
+  /deep/ .vjs-has-started.vjs-playing.vjs-user-inactive .vjs-control-bar {
+    visibility: hidden;
+
+    /* Always show control bar in keyboard modality */
+    .keyboard-modality & {
+      visibility: visible;
+      opacity: 1;
     }
   }
 

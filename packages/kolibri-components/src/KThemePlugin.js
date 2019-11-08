@@ -41,6 +41,9 @@ export default function KThemePlugin(Vue) {
           outline: 'none',
         };
       },
+      $inputModality() {
+        return globalThemeState.inputModality;
+      },
     },
     /* eslint-enable kolibri/vue-no-unused-properties */
   });
