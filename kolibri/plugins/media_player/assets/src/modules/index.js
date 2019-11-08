@@ -25,7 +25,7 @@ export default {
         player.on('dispose', () => player.off('texttrackchange', onTrackChange));
       });
 
-      player.one('play', () => {
+      player.one('loadedmetadata', () => {
         store.dispatch('captions/initState');
       });
 
