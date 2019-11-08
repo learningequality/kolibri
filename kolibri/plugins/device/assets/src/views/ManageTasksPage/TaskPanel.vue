@@ -81,8 +81,7 @@
     REMOTECONTENTIMPORT: 'importingChannel',
     DISKCONTENTIMPORT: 'importingChannel',
     DISKEXPORT: 'exportingChannel',
-    DELETECHANNEL: 'deletingContents',
-    DELETEWHOLECHANNEL: 'deleteChannel', // not a real task
+    DELETECHANNEL: 'deletingChannel',
     UPDATECHANNEL: 'updatingChannelVersion',
   };
 
@@ -177,7 +176,6 @@
       statusCanceling: 'Canceling',
       importingChannel: `Importing '{channelName}'`,
       exportingChannel: `Exporting '{channelName}'`,
-      deletingContents: `Deleting contents from '{channelName}'`,
       deletingChannel: `Deleting '{channelName}'`,
       generatingChannelListing: `Generating channel listing - '{channelName}'`,
       updatingChannelVersion: `Updating channel version - { channelName }`,

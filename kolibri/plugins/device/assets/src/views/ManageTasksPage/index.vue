@@ -5,8 +5,9 @@
       {{ $tr('emptyTasksMessage') }}
     </p>
 
+    <!-- Secret clear all button until a proper clear all is implemented -->
     <KButton
-      v-if="taskList.length > 0"
+      v-if="false"
       :text="$tr('clearAllAction')"
       @click="handleClickClearAll"
     />

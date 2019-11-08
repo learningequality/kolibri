@@ -269,8 +269,8 @@
     },
     $trs: {
       exportToDisk: 'Export to {driveName}',
-      importFromDisk: 'Import from {driveName}',
-      importFromPeer: 'Import from {deviceName} ({address})',
+      importFromDisk: `Import from '{driveName}'`,
+      importFromPeer: `Import from '{deviceName}' ({address})`,
       kolibriCentralServer: 'Kolibri Studio channels',
       importMultipleAction: 'Import multiple',
       yourChannels: 'Your channels',

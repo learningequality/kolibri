@@ -74,6 +74,7 @@
   import SelectDriveModal from '../SelectTransferSourceModal/SelectDriveModal';
   import SelectionBottomBar from '../SelectionBottomBar';
   import SelectTransferSourceModal from '../SelectTransferSourceModal';
+  import taskNotificationMixin from '../../taskNotificationMixin';
 
   import { fetchPageData, fetchNodeWithAncestors, startExportTask, startDeleteTask } from './api';
 
@@ -96,7 +97,7 @@
       SelectionBottomBar,
       SelectTransferSourceModal,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, taskNotificationMixin],
     data() {
       return {
         channel: null,
@@ -107,15 +108,12 @@
         studioChannel: null,
         selectSourcePageName: null,
         disableBottomBar: false,
-        watchedTaskId: null,
+        watchedTaskType: null,
       };
     },
     computed: {
       channelId() {
         return this.$route.params.channel_id;
-      },
-      watchedTaskHasFinished() {
-        return this.$store.getters['manageContent/taskFinished'](this.watchedTaskId);
       },
       selections() {
         // TODO decouple this workflow entirely from vuex
@@ -151,22 +149,6 @@
           this.updateNode(newVal);
         },
         deep: true,
-      },
-      watchedTaskHasFinished(val) {
-        // When a watched deletion task has finished, update the page
-        if (val) {
-          this.$store.dispatch('createTaskFinishedSnackbar', this.watchedTaskId);
-          this.nodeCache = {};
-          this.$store.commit('manageContent/wizard/RESET_NODE_LISTS');
-          this.fetchPageData(this.channelId)
-            .then(this.setUpPage)
-            .catch(error => {
-              // If entire channel is deleted, redirect
-              if (error.status.code === 404) {
-                this.$router.replace({ name: 'MANAGE_CONTENT_PAGE' });
-              }
-            });
-        }
       },
     },
     beforeRouteLeave(to, from, next) {
@@ -211,39 +193,35 @@
         }
       },
       handleDeleteSubmit({ deleteEverywhere }) {
-        return this.runTask(
-          this.startDeleteTask({
-            deleteEverywhere,
-            channelId: this.channelId,
-            included: this.selections.included,
-            excluded: this.selections.excluded,
-          }).then(({ entity }) => {
-            this.watchedTaskId = entity.id;
-          })
-        );
+        this.beforeTask();
+        this.startDeleteTask({
+          deleteEverywhere,
+          channelId: this.channelId,
+          included: this.selections.included,
+          excluded: this.selections.excluded,
+        }).then(this.onTaskSuccess, this.onTaskFailure);
       },
       handleExportSubmit({ driveId }) {
-        return this.runTask(
-          this.startExportTask({
-            driveId,
-            channelId: this.channelId,
-            included: this.selections.included,
-            excluded: this.selections.excluded,
-          })
-        );
+        this.beforeTask();
+        this.startExportTask({
+          driveId,
+          channelId: this.channelId,
+          included: this.selections.included,
+          excluded: this.selections.excluded,
+        }).then(this.onTaskSuccess, this.onTaskFailure);
       },
-      runTask(task) {
+      beforeTask() {
         this.closeModal();
         this.disableBottomBar = true;
-        return task
-          .then(() => {
-            this.disableBottomBar = false;
-            this.$store.dispatch('createTaskStartedSnackbar');
-          })
-          .catch(() => {
-            this.disableBottomBar = false;
-            this.$store.dispatch('createTaskFailedSnackbar');
-          });
+      },
+      onTaskSuccess(task) {
+        this.disableBottomBar = false;
+        this.watchedTaskType = task.entity.type;
+        this.notifyAndWatchTask(task);
+      },
+      onTaskFailure() {
+        this.disableBottomBar = false;
+        this.createTaskFailedSnackbar();
       },
       handleSelectImportMoreSource(params) {
         if (params.source === 'network') {
@@ -260,6 +238,27 @@
       },
       closeModal() {
         this.shownModal = null;
+      },
+      // @public (used by taskNotificationMixin)
+      onWatchedTaskFinished() {
+        if (this.watchedTaskType !== 'DELETECHANNEL') return;
+
+        // clear out the nodeCache
+        this.nodeCache = {};
+        // clear out selections
+        this.$store.commit('manageContent/wizard/RESET_NODE_LISTS');
+        // refresh the data on this page. if the entire channel ends up
+        // being deleted, then redirect to upper page
+        this.fetchPageData(this.channelId)
+          .then(this.setUpPage)
+          .catch(error => {
+            // If entire channel is deleted, redirect
+            if (error.status.code === 404) {
+              this.$router.replace({ name: 'MANAGE_CONTENT_PAGE' });
+            } else {
+              this.$store.dispatch('handleApiError', error);
+            }
+          });
       },
       fetchPageData,
       fetchNodeWithAncestors,

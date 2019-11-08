@@ -159,8 +159,7 @@
           channelIds: this.selectedChannels.map(x => x.id),
         })
           .then(task => {
-            this.startWatchingTask(task);
-            this.createTaskStartedSnackbar();
+            this.notifyAndWatchTask(task);
             this.selectedChannels = [];
           })
           .catch(() => {
@@ -178,8 +177,7 @@
               drive_id: params.driveId,
             }))
             .then(task => {
-              this.startWatchingTask(task);
-              this.createTaskStartedSnackbar();
+              this.notifyAndWatchTask(task);
             })
             .catch(() => {
               this.createTaskFailedSnackbar();

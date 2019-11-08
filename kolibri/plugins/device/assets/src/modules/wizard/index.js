@@ -111,6 +111,9 @@ export default {
     SET_TRANSFERRED_CHANNEL(state, transferredChannel) {
       state.transferredChannel = transferredChannel;
     },
+    UPDATE_TRANSFERRED_CHANNEL(state, update) {
+      state.transferredChannel = { ...state.transferredChannel, ...update };
+    },
     SET_TRANSFER_TYPE(state, transferType) {
       state.transferType = transferType;
     },

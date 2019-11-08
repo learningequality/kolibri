@@ -14,6 +14,7 @@
       <KCheckbox
         v-model="deleteEverywhere"
         :label="$tr('deleteEverywhereLabel')"
+        @change="deleteEverywhere = $event"
       />
     </div>
   </KModal>

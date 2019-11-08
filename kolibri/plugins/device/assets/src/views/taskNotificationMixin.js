@@ -27,10 +27,18 @@ export default {
     watchedTaskHasFinished(val) {
       if (val && val === this.watchedTaskId) {
         this.createTaskFinishedSnackbar(val);
+        // Host component must implement this method
+        if (typeof this.onWatchedTaskFinished === 'function') {
+          this.onWatchedTaskFinished();
+        }
       }
     },
   },
   methods: {
+    notifyAndWatchTask(task) {
+      this.watchedTaskId = task.entity.id;
+      this.createTaskStartedSnackbar();
+    },
     createTaskFailedSnackbar() {
       this.$store.dispatch('createSnackbar', TaskSnackbarStrings.$tr('taskFailed'));
     },

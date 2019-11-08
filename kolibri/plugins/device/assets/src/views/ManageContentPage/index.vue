@@ -68,6 +68,7 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
+  import taskNotificationMixin from '../taskNotificationMixin';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -86,7 +87,7 @@
       SelectTransferSourceModal,
       TasksBar,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, taskNotificationMixin],
     data() {
       return {
         deleteChannelId: null,
@@ -112,15 +113,6 @@
         ];
       },
     },
-    watch: {
-      // If Tasks disappear from queue, assume that an addition/deletion has
-      // completed and refresh list.
-      tasksInQueue(val, oldVal) {
-        if (oldVal && !val) {
-          this.refreshChannelList();
-        }
-      },
-    },
     methods: {
       ...mapActions('manageContent', ['refreshChannelList', 'startImportWorkflow']),
       handleSelect({ value }) {
@@ -136,16 +128,20 @@
           const channelId = this.deleteChannelId;
           this.deleteChannelId = null;
           return TaskResource.deleteChannel({ channelId })
-            .then(() => {
-              this.$store.dispatch('createTaskStartedSnackbar');
+            .then(task => {
+              this.notifyAndWatchTask(task);
             })
             .catch(() => {
-              this.$store.dispatch('createTaskFailedSnackbar');
+              this.createTaskFailedSnackbar();
             });
         }
       },
       handleSelectManage(channelId) {
         this.$router.push({ name: 'MANAGE_CHANNEL', params: { channel_id: channelId } });
+      },
+      // @public (used by taskNotificationMixin)
+      onWatchedTaskFinished() {
+        this.refreshChannelList();
       },
     },
     $trs: {

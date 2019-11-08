@@ -88,6 +88,7 @@
       objectType="resource"
       actionType="import"
       :resourceCounts="{count:nodeCounts.resources, fileSize:nodeCounts.fileSize}"
+      :disabled="disableBottomBar"
       @clickconfirm="handleClickConfirm"
     />
   </div>
@@ -108,6 +109,8 @@
   import { downloadChannelMetadata } from '../../modules/wizard/utils';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
+  import { updateTreeViewTopic } from '../../modules/wizard/handlers';
+  import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
@@ -137,6 +140,7 @@
         // need to store ID in component to make sure cancellation works properly
         // in beforeDestroy
         metadataDownloadTaskId: '',
+        disableBottomBar: false,
       };
     },
     computed: {
@@ -156,6 +160,9 @@
         'transferType',
         'transferredChannel',
       ]),
+      channelId() {
+        return this.$route.params.channel_id;
+      },
       mainAreaIsVisible() {
         // Don't show main area if page is about to refresh after updating (or cancelling update)
         if (this.pageWillRefresh) {
@@ -224,7 +231,7 @@
           }
         } else if (this.inPeerImportMode) {
           title = `${this.selectedPeer.device_name} (${this.selectedPeer.base_url})`;
-        } else {
+        } else if (this.inLocalImportMode) {
           title = this.selectedDrive.name;
         }
 
@@ -290,19 +297,22 @@
 
         const { nodesForTransfer } = this.$store.state.manageContent.wizard;
 
+        this.disableBottomBar = true;
+
         this.startImportTask({
           importSource,
-          channelId: this.$route.params.channel_id,
+          channelId: this.channelId,
           included: nodesForTransfer.included.map(x => x.id),
           excluded: nodesForTransfer.omitted.map(x => x.id),
           fileSize: this.nodeCounts.fileSize,
           totalResources: this.nodeCounts.resources,
         })
           .then(task => {
-            this.startWatchingTask(task);
-            this.createTaskStartedSnackbar();
+            this.disableBottomBar = false;
+            this.notifyAndWatchTask(task);
           })
           .catch(() => {
+            this.disableBottomBar = false;
             this.createTaskFailedSnackbar();
           });
       },
@@ -312,6 +322,20 @@
       },
       returnToChannelsList() {
         this.$router.push(manageContentPageLink());
+      },
+      // @public (used by taskNotificationMixin)
+      onWatchedTaskFinished() {
+        // After import task has finished, refresh so those nodes will be disabled
+        updateTreeViewTopic(this.$store, this.currentTopicNode);
+        // Clear out selections
+        this.$store.commit('manageContent/wizard/RESET_NODE_LISTS');
+        // Update channel metadata
+        getChannelWithContentSizes(this.channelId).then(channel => {
+          this.$store.commit('manageContent/wizard/UPDATE_TRANSFERRED_CHANNEL', {
+            on_device_file_size: channel.on_device_file_size,
+            on_device_resources: channel.on_device_resources,
+          });
+        });
       },
     },
     $trs: {
