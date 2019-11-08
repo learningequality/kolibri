@@ -7,7 +7,8 @@ mkdir -p whl
 if [[ $BUILDKITE_TRIGGERED_FROM_BUILD_ID ]]
 then
   echo "--- Downloading from triggered build"
-  buildkite-agent artifact download 'dist/*.whl' whl/ --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}
+  buildkite-agent artifact download 'dist/*.whl' --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}
+  mv dist whl
 else
   echo "--- Downloading from pip"
   pip3 download -d ./whl kolibri
@@ -29,7 +30,10 @@ echo "--- Build .app"
 # Sets the environment variable needed for the build to find packages in from whl
 echo "PYTHONPATH=$PWD/src/kolibri/dist" > .env
 
-pipenv run pew build
+# Grepping '---' because of clutter in buildkite clutter
+pipenv run pew build | tee full_app_build_log.txt | grep --invert-match "\-\-\-"
+
+buildkite-agent artifact upload full_app_build_log.txt
 
 echo "--- :mac: Build .pkg"
 
