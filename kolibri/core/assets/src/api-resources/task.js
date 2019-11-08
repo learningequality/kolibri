@@ -147,7 +147,9 @@ export default new Resource({
       task_id: taskId,
     });
   },
-
+  clearTask(taskId) {
+    return this.postListEndpoint('cleartask', { task_id: taskId });
+  },
   clearTasks() {
     return this.postListEndpoint('cleartasks');
   },

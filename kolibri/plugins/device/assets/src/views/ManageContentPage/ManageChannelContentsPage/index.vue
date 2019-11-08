@@ -107,15 +107,15 @@
         studioChannel: null,
         selectSourcePageName: null,
         disableBottomBar: false,
-        watchTaskId: null,
+        watchedTaskId: null,
       };
     },
     computed: {
       channelId() {
         return this.$route.params.channel_id;
       },
-      channelDeleteTaskHasFinished() {
-        return this.$store.getters['manageContent/taskFinished'](this.watchTaskId);
+      watchedTaskHasFinished() {
+        return this.$store.getters['manageContent/taskFinished'](this.watchedTaskId);
       },
       selections() {
         // TODO decouple this workflow entirely from vuex
@@ -152,12 +152,20 @@
         },
         deep: true,
       },
-      channelDeleteTaskHasFinished(val) {
-        // When a watched deletion task has finished, refresh the page
+      watchedTaskHasFinished(val) {
+        // When a watched deletion task has finished, update the page
         if (val) {
-          this.$store.dispatch('createTaskFinishedSnackbar');
+          this.$store.dispatch('createTaskFinishedSnackbar', this.watchedTaskId);
           this.nodeCache = {};
-          this.updateNode(this.$route.query.node);
+          this.$store.commit('manageContent/wizard/RESET_NODE_LISTS');
+          this.fetchPageData(this.channelId)
+            .then(this.setUpPage)
+            .catch(error => {
+              // If entire channel is deleted, redirect
+              if (error.status.code === 404) {
+                this.$router.replace({ name: 'MANAGE_CONTENT_PAGE' });
+              }
+            });
         }
       },
     },
@@ -210,7 +218,7 @@
             included: this.selections.included,
             excluded: this.selections.excluded,
           }).then(({ entity }) => {
-            this.watchTaskId = entity.id;
+            this.watchedTaskId = entity.id;
           })
         );
       },

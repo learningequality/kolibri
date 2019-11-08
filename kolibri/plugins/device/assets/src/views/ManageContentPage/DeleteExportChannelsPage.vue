@@ -51,6 +51,7 @@
   import { TaskResource } from 'kolibri.resources';
   import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import DeviceChannelResource from '../../apiResources/deviceChannel';
+  import taskNotificationMixin from '../taskNotificationMixin';
   import SelectionBottomBar from './SelectionBottomBar';
   import DeleteChannelModal from './DeleteChannelModal';
   import SelectDriveModal from './SelectTransferSourceModal/SelectDriveModal';
@@ -60,6 +61,7 @@
   // Overwrite methods that are coupled to vuex in original SelectDriveModal
   const SelectDrive = {
     extends: SelectDriveModal,
+    mixins: [taskNotificationMixin],
     computed: {
       driveCanBeUsedForTransfer() {
         return function isWritable({ drive }) {
@@ -138,7 +140,7 @@
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr(title));
       },
       fetchData() {
-        DeviceChannelResource.fetchCollection({
+        return DeviceChannelResource.fetchCollection({
           getParams: {
             include_fields: 'on_device_file_size',
           },
@@ -153,32 +155,34 @@
       deleteChannels() {
         const selectedCopy = [...this.selectedChannels];
         this.allChannels = this.allChannels.filter(c => !find(this.selectedChannels, { id: c.id }));
-        TaskResource.deleteBulkChannels({
+        return TaskResource.deleteBulkChannels({
           channelIds: this.selectedChannels.map(x => x.id),
         })
-          .then(() => {
-            this.$store.dispatch('createTaskStartedSnackbar');
+          .then(task => {
+            this.startWatchingTask(task);
+            this.createTaskStartedSnackbar();
             this.selectedChannels = [];
           })
           .catch(() => {
-            this.$store.dispatch('createTaskFailedSnackbar');
+            this.createTaskFailedSnackbar();
             this.selectedChannels = [...selectedCopy];
             this.loading = true;
             this.fetchData();
           });
       },
       exportChannels(params) {
-        TaskResource.startDiskBulkExport(
+        return TaskResource.startDiskBulkExport(
           this.selectedChannels
             .map(({ id }) => ({
               channel_id: id,
               drive_id: params.driveId,
             }))
-            .then(() => {
-              this.$store.dispatch('createTaskStartedSnackbar');
+            .then(task => {
+              this.startWatchingTask(task);
+              this.createTaskStartedSnackbar();
             })
             .catch(() => {
-              this.$store.dispatch('createTaskFailedSnackbar');
+              this.createTaskFailedSnackbar();
             })
         );
       },

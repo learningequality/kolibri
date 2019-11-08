@@ -107,6 +107,7 @@
   import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
   import { downloadChannelMetadata } from '../../modules/wizard/utils';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
+  import taskNotificationMixin from '../taskNotificationMixin';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
@@ -127,7 +128,7 @@
       TaskProgress,
       UiAlert,
     },
-    mixins: [responsiveWindowMixin],
+    mixins: [responsiveWindowMixin, taskNotificationMixin],
     data() {
       return {
         showUpdateProgressBar: false,
@@ -297,11 +298,12 @@
           fileSize: this.nodeCounts.fileSize,
           totalResources: this.nodeCounts.resources,
         })
-          .then(() => {
-            this.$store.dispatch('createTaskStartedSnackbar');
+          .then(task => {
+            this.startWatchingTask(task);
+            this.createTaskStartedSnackbar();
           })
           .catch(() => {
-            this.$store.dispatch('createTaskFailedSnackbar');
+            this.createTaskFailedSnackbar();
           });
       },
       startImportTask,

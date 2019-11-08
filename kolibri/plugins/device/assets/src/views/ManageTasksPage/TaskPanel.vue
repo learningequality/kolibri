@@ -81,7 +81,8 @@
     REMOTECONTENTIMPORT: 'importingChannel',
     DISKCONTENTIMPORT: 'importingChannel',
     DISKEXPORT: 'exportingChannel',
-    DELETECHANNEL: 'deletingChannel',
+    DELETECHANNEL: 'deletingContents',
+    DELETEWHOLECHANNEL: 'deleteChannel', // not a real task
     UPDATECHANNEL: 'updatingChannelVersion',
   };
 
@@ -174,11 +175,12 @@
       statusFailed: 'Failed',
       statusCanceled: 'Canceled',
       statusCanceling: 'Canceling',
-      importingChannel: 'Importing {channelName}',
-      exportingChannel: 'Exporting {channelName}',
-      deletingChannel: 'Deleting {channelName}',
-      generatingChannelListing: 'Generating channel listing - {channelName}',
-      updatingChannelVersion: 'Updating channel version - { channelName }',
+      importingChannel: `Importing '{channelName}'`,
+      exportingChannel: `Exporting '{channelName}'`,
+      deletingContents: `Deleting contents from '{channelName}'`,
+      deletingChannel: `Deleting '{channelName}'`,
+      generatingChannelListing: `Generating channel listing - '{channelName}'`,
+      updatingChannelVersion: `Updating channel version - { channelName }`,
       // Catch-all strings if the channel or username doesn't get attached to Task
       unknownUsername: 'Unknown user',
       unknownChannelName: '(Channel name unavailable)',

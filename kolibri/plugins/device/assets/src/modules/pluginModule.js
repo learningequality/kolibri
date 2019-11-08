@@ -1,19 +1,9 @@
-import pick from 'lodash/pick';
-import { createTranslator } from 'kolibri.utils.i18n';
-import router from 'kolibri.coreVue.router';
 import { pageNameToModuleMap, PageNames, ContentWizardPages } from '../constants';
 import deviceInfo from './deviceInfo';
 import manageContent from './manageContent';
 import managePermissions from './managePermissions';
 import userPermissions from './userPermissions';
 import coreBase from './coreBase';
-
-const TaskSnackbarStrings = createTranslator('TaskSnackbarStrings', {
-  taskStarted: 'Task started…',
-  viewTasksAction: 'View tasks',
-  taskFailed: 'Task could not be started',
-  taskFinished: 'Task has finished',
-});
 
 export default {
   state: {
@@ -46,33 +36,6 @@ export default {
       if (moduleName) {
         store.commit(`${moduleName}/RESET_STATE`);
       }
-    },
-    createTaskFailedSnackbar(store) {
-      store.dispatch('createSnackbar', TaskSnackbarStrings.$tr('taskFailed'));
-    },
-    createTaskFinishedSnackbar(store) {
-      store.dispatch('createSnackbar', TaskSnackbarStrings.$tr('taskFinished'));
-    },
-    createTaskStartedSnackbar(store) {
-      store.commit('CORE_CREATE_SNACKBAR', {
-        text: TaskSnackbarStrings.$tr('taskStarted'),
-        autoDismiss: true,
-        duration: 10000,
-        actionText: TaskSnackbarStrings.$tr('viewTasksAction'),
-        actionCallback() {
-          return router.push(
-            {
-              name: 'MANAGE_TASKS',
-              params: {
-                lastRoute: pick(router.currentRoute, ['name', 'params', 'query']),
-              },
-            },
-            () => {
-              store.commit('CORE_CLEAR_SNACKBAR');
-            }
-          );
-        },
-      });
     },
   },
   modules: {
