@@ -46,6 +46,7 @@
           type="primary"
           color="clear"
           class="user-menu-button"
+          :class="$computedClass({':focus': $coreOutline})"
           :ariaLabel="$tr('userMenu')"
           @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
         >
