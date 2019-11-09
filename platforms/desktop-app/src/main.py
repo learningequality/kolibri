@@ -1,5 +1,6 @@
 import gettext
 import logging
+import multiprocessing
 import os
 import subprocess
 import sys
@@ -73,11 +74,11 @@ file_handler = KolibriTimedRotatingFileHandler(filename=log_filename, when='midn
 root_logger.addHandler(file_handler)
 
 
-def start_django():
+def start_django(port=5000):
     from kolibri.utils.cli import main
 
     logging.info("Starting server...")
-    main(["start", "--foreground", "--port=5000"])
+    main(["start", "--foreground", "--port={}".format(port)])
 
 
 class MenuEventHandler:
@@ -166,10 +167,10 @@ class Application(pew.ui.PEWApp):
 
         self.windows = [self.view]
 
-        # start thread
-        self.thread = pew.ui.PEWThread(target=start_django)
-        self.thread.daemon = True
-        self.thread.start()
+        # start server
+        self.server_thread = None
+        self.port = 5000
+        self.start_server()
 
         self.load_thread = pew.ui.PEWThread(target=self.wait_for_server)
         self.load_thread.daemon = True
@@ -180,6 +181,14 @@ class Application(pew.ui.PEWApp):
         # causing the app to shut down early
         self.view.show()
         return 0
+
+    def start_server(self):
+        if self.server_thread:
+            del self.server_thread
+
+        self.server_thread = pew.ui.PEWThread(target=start_django, kwargs={'port': self.port})
+        self.server_thread.daemon = True
+        self.server_thread.start()
 
     def create_kolibri_window(self, url):
         window = KolibriView("Kolibri", url, delegate=self)
@@ -228,6 +237,13 @@ class Application(pew.ui.PEWApp):
 
         return window
 
+    def should_load_url(self, url):
+        if url.startswith('http') and not url.startswith(KOLIBRI_ROOT_URL):
+            webbrowser.open(url)
+            return False
+
+        return True
+
     def page_loaded(self, url):
         """
         This is a PyEverywhere delegate method to let us know the WebView is ready to use.
@@ -242,9 +258,11 @@ class Application(pew.ui.PEWApp):
             self.view.clear_history()
 
     def wait_for_server(self):
-        from kolibri.utils import server
-
         home_url = KOLIBRI_ROOT_URL
+        timeout = 10
+        max_retries = 3
+        time_spent = 0
+        load_retries = 0
 
         # test url to see if servr has started
         def running():
@@ -260,6 +278,18 @@ class Application(pew.ui.PEWApp):
         while not running():
             logging.info('Kolibri server not yet started, checking again in one second...')
             time.sleep(1)
+            time_spent += 1
+            if time_spent > timeout:
+                if load_retries < max_retries:
+                    logging.warning('Kolibri server not starting, retrying...')
+                    # note, we're not actually restarting the server yet, due to some technical issues with that.
+                    # leaving the approach in place so we can just drop in the restart code when ready.
+                    pew.ui.run_on_main_thread(self.view.evaluate_javascript, 'show_retry()')
+                    load_retries += 1
+                else:
+                    pew.ui.run_on_main_thread(self.view.evaluate_javascript, 'show_error()')
+                    return
+
 
         # Check for saved URL, which exists when the app was put to sleep last time it ran
         saved_state = self.view.get_view_state()
@@ -269,7 +299,7 @@ class Application(pew.ui.PEWApp):
             pew.ui.run_on_main_thread(self.view.load_url, saved_state["URL"])
             return
 
-        pew.ui.run_on_main_thread(self.view.load_url(home_url))
+        pew.ui.run_on_main_thread(self.view.load_url, home_url)
 
     def get_main_window(self):
         return self.view
