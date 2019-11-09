@@ -1,9 +1,13 @@
+import gettext
 import logging
+import multiprocessing
 import os
 import subprocess
 import sys
 import time
 import webbrowser
+
+_ = gettext.gettext
 
 try:
     from urllib2 import urlopen, URLError
@@ -70,11 +74,11 @@ file_handler = KolibriTimedRotatingFileHandler(filename=log_filename, when='midn
 root_logger.addHandler(file_handler)
 
 
-def start_django():
+def start_django(port=5000):
     from kolibri.utils.cli import main
 
     logging.info("Starting server...")
-    main(["start", "--foreground", "--port=5000"])
+    main(["start", "--foreground", "--port={}".format(port)])
 
 
 class MenuEventHandler:
@@ -163,10 +167,10 @@ class Application(pew.ui.PEWApp):
 
         self.windows = [self.view]
 
-        # start thread
-        self.thread = pew.ui.PEWThread(target=start_django)
-        self.thread.daemon = True
-        self.thread.start()
+        # start server
+        self.server_thread = None
+        self.port = 5000
+        self.start_server()
 
         self.load_thread = pew.ui.PEWThread(target=self.wait_for_server)
         self.load_thread.daemon = True
@@ -178,52 +182,67 @@ class Application(pew.ui.PEWApp):
         self.view.show()
         return 0
 
+    def start_server(self):
+        if self.server_thread:
+            del self.server_thread
+
+        self.server_thread = pew.ui.PEWThread(target=start_django, kwargs={'port': self.port})
+        self.server_thread.daemon = True
+        self.server_thread.start()
+
     def create_kolibri_window(self, url):
         window = KolibriView("Kolibri", url, delegate=self)
 
         # create menu bar, we do this per-window for cross-platform purposes
         menu_bar = pew.ui.PEWMenuBar()
 
-        file_menu = pew.ui.PEWMenu('File')
-        file_menu.add('New Window', handler=window.on_new_window)
-        file_menu.add('Close Window', handler=window.on_close_window)
+        file_menu = pew.ui.PEWMenu(_('File'))
+        file_menu.add(_('New Window'), handler=window.on_new_window)
+        file_menu.add(_('Close Window'), handler=window.on_close_window)
         file_menu.add_separator()
-        file_menu.add('Open Kolibri Home Folder', handler=window.on_open_kolibri_home)
+        file_menu.add(_('Open Kolibri Home Folder'), handler=window.on_open_kolibri_home)
 
         menu_bar.add_menu(file_menu)
 
-        edit_menu = pew.ui.PEWMenu('Edit')
-        edit_menu.add('Undo', handler=window.on_undo, shortcut='CTRL+Z')
-        edit_menu.add('Redo', handler=window.on_redo, shortcut='CTRL+SHIFT+Z')
+        edit_menu = pew.ui.PEWMenu(_('Edit'))
+        edit_menu.add(_('Undo'), handler=window.on_undo, shortcut='CTRL+Z')
+        edit_menu.add(_('Redo'), handler=window.on_redo, shortcut='CTRL+SHIFT+Z')
         edit_menu.add_separator()
-        edit_menu.add('Cut', command='cut', shortcut='CTRL+X')
-        edit_menu.add('Copy', command='copy', shortcut='CTRL+C')
-        edit_menu.add('Paste', command='paste', shortcut='CTRL+V')
-        edit_menu.add('Select All', command='select-all', shortcut='CTRL+A')
+        edit_menu.add(_('Cut'), command='cut', shortcut='CTRL+X')
+        edit_menu.add(_('Copy'), command='copy', shortcut='CTRL+C')
+        edit_menu.add(_('Paste'), command='paste', shortcut='CTRL+V')
+        edit_menu.add(_('Select All'), command='select-all', shortcut='CTRL+A')
         menu_bar.add_menu(edit_menu)
 
-        view_menu = pew.ui.PEWMenu('View')
-        view_menu.add('Reload', handler=window.on_reload)
-        view_menu.add('Actual Size', handler=window.on_actual_size, shortcut='CTRL+0')
-        view_menu.add('Zoom In', handler=window.on_zoom_in, shortcut='CTRL++')
-        view_menu.add('Zoom Out', handler=window.on_zoom_out, shortcut='CTRL+-')
+        view_menu = pew.ui.PEWMenu(_('View'))
+        view_menu.add(_('Reload'), handler=window.on_reload)
+        view_menu.add(_('Actual Size'), handler=window.on_actual_size, shortcut='CTRL+0')
+        view_menu.add(_('Zoom In'), handler=window.on_zoom_in, shortcut='CTRL++')
+        view_menu.add(_('Zoom Out'), handler=window.on_zoom_out, shortcut='CTRL+-')
         view_menu.add_separator()
-        view_menu.add('Open in Browser', handler=window.on_open_in_browser)
+        view_menu.add(_('Open in Browser'), handler=window.on_open_in_browser)
         menu_bar.add_menu(view_menu)
 
-        history_menu = pew.ui.PEWMenu('History')
-        history_menu.add('Back', handler=window.on_back, shortcut='CTRL+[')
-        history_menu.add('Forward', handler=window.on_forward, shortcut='CTRL+]')
+        history_menu = pew.ui.PEWMenu(_('History'))
+        history_menu.add(_('Back'), handler=window.on_back, shortcut='CTRL+[')
+        history_menu.add(_('Forward'), handler=window.on_forward, shortcut='CTRL+]')
         menu_bar.add_menu(history_menu)
 
-        help_menu = pew.ui.PEWMenu('Help')
-        help_menu.add('Documentation', handler=window.on_documentation)
-        help_menu.add('Community Forums', handler=window.on_forums)
+        help_menu = pew.ui.PEWMenu(_('Help'))
+        help_menu.add(_('Documentation'), handler=window.on_documentation)
+        help_menu.add(_('Community Forums'), handler=window.on_forums)
         menu_bar.add_menu(help_menu)
 
         window.set_menubar(menu_bar)
 
         return window
+
+    def should_load_url(self, url):
+        if url.startswith('http') and not url.startswith(KOLIBRI_ROOT_URL):
+            webbrowser.open(url)
+            return False
+
+        return True
 
     def page_loaded(self, url):
         """
@@ -239,9 +258,11 @@ class Application(pew.ui.PEWApp):
             self.view.clear_history()
 
     def wait_for_server(self):
-        from kolibri.utils import server
-
         home_url = KOLIBRI_ROOT_URL
+        timeout = 10
+        max_retries = 3
+        time_spent = 0
+        load_retries = 0
 
         # test url to see if servr has started
         def running():
@@ -257,6 +278,18 @@ class Application(pew.ui.PEWApp):
         while not running():
             logging.info('Kolibri server not yet started, checking again in one second...')
             time.sleep(1)
+            time_spent += 1
+            if time_spent > timeout:
+                if load_retries < max_retries:
+                    logging.warning('Kolibri server not starting, retrying...')
+                    # note, we're not actually restarting the server yet, due to some technical issues with that.
+                    # leaving the approach in place so we can just drop in the restart code when ready.
+                    pew.ui.run_on_main_thread(self.view.evaluate_javascript, 'show_retry()')
+                    load_retries += 1
+                else:
+                    pew.ui.run_on_main_thread(self.view.evaluate_javascript, 'show_error()')
+                    return
+
 
         # Check for saved URL, which exists when the app was put to sleep last time it ran
         saved_state = self.view.get_view_state()
@@ -266,7 +299,7 @@ class Application(pew.ui.PEWApp):
             pew.ui.run_on_main_thread(self.view.load_url, saved_state["URL"])
             return
 
-        pew.ui.run_on_main_thread(self.view.load_url(home_url))
+        pew.ui.run_on_main_thread(self.view.load_url, home_url)
 
     def get_main_window(self):
         return self.view
