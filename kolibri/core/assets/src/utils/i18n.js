@@ -18,7 +18,12 @@ const logging = logger.getLogger(__filename);
 
 const languageGlobals = plugin_data['languageGlobals'] || {};
 
+let _i18nReady = false;
+
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
+  if (!_i18nReady) {
+    throw 'Translator used before i18n is ready';
+  }
   if (args) {
     if (!Array.isArray(args) && typeof args !== 'object') {
       logging.error(`The $tr functions take either an array of positional
@@ -188,6 +193,8 @@ function _setUpVueIntl() {
     vue.registerMessages(currentLanguage, languageGlobals.coreLanguageMessages);
   }
   importVueIntlLocaleData().forEach(localeData => VueIntl.addLocaleData(localeData));
+
+  _i18nReady = true;
 }
 
 function _loadDefaultFonts() {
