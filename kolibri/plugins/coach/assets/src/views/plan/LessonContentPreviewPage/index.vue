@@ -36,13 +36,13 @@
           {{ $tr('authorDataHeader') }}:
           {{ content.author }}
         </li>
-        <li v-if="content.license_name">
+        <li v-if="licenseName">
           {{ $tr('licenseDataHeader') }}:
-          {{ content.license_name }}
+          {{ licenseName }}
           <InfoIcon
-            v-if="content.license_description"
-            :tooltipText="licenseHelpText"
-            :iconAriaLabel="content.license_description"
+            v-if="licenseDescription"
+            :tooltipText="licenseDescription"
+            :iconAriaLabel="licenseDescription"
           />
         </li>
         <li v-if="content.license_owner">
@@ -80,7 +80,10 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
+  import {
+    licenseLongName,
+    licenseDescriptionForConsumer,
+  } from 'kolibri.utils.licenseTranslations';
   import markdownIt from 'markdown-it';
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
@@ -160,20 +163,14 @@
       content() {
         return this.currentContentNode;
       },
-      translatedLicense() {
-        if (
-          licenseTranslations[currentLanguage] &&
-          licenseTranslations[currentLanguage][this.content.license_name]
-        ) {
-          return licenseTranslations[currentLanguage][this.content.license_name];
-        }
-        return null;
+      licenseName() {
+        return licenseLongName(this.content.license_name);
       },
-      licenseHelpText() {
-        if (this.translatedLicense) {
-          return `${this.translatedLicense.name} – ${this.translatedLicense.description}`;
-        }
-        return this.content.license_description;
+      licenseDescription() {
+        return licenseDescriptionForConsumer(
+          this.content.license_name,
+          this.content.license_description
+        );
       },
     },
     methods: {

@@ -12,7 +12,6 @@ export {
   languageValidator,
   getContentLangDir,
 } from 'kolibri-components/src/utils/i18n';
-export { licenseTranslations } from './licenseTranslations';
 
 const logging = logger.getLogger(__filename);
 
