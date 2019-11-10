@@ -17,8 +17,32 @@ POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".perseus", ".zip", ".h5p"])
 # TODO: add ".epub" and ".epub3" if epub-equivalent of ZipContentView implemented
 
 
+def _obj_to_dict(obj):
+    if not isinstance(obj, dict):
+        return obj.__dict__
+    return obj
+
+
 def get_content_file_name(obj):
-    return "{checksum}.{extension}".format(checksum=obj.id, extension=obj.extension)
+    obj = _obj_to_dict(obj)
+    return "{checksum}.{extension}".format(
+        checksum=obj["id"], extension=obj["extension"]
+    )
+
+
+def get_local_content_storage_file_url(obj):
+    """
+    Return a url for the client side to retrieve the content file.
+    The same url will also be exposed by the file serializer.
+    """
+    obj = _obj_to_dict(obj)
+    if obj["available"]:
+        return get_content_storage_file_url(
+            filename=get_content_file_name(obj),
+            baseurl=conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"],
+        )
+    else:
+        return None
 
 
 # DISK PATHS

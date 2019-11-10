@@ -32,6 +32,7 @@ from rest_framework.decorators import list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.content import models
 from kolibri.core.content import serializers
@@ -51,6 +52,7 @@ from kolibri.core.content.utils.importability_annotation import (
 )
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_info_url
+from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
@@ -427,48 +429,62 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         )
 
 
+def process_thumbnail(obj):
+    file = {}
+    file["id"] = obj.pop("file_id")
+    file["extension"] = obj.pop("file_extension")
+    file["available"] = obj.pop("file_available")
+    file["thumbnail"] = obj.pop("file_thumbnail")
+    file["storage_url"] = get_local_content_storage_file_url(file)
+    if file["id"] is not None:
+        return [file]
+    else:
+        return []
+
+
 @method_decorator(cache_forever, name="dispatch")
-class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.ContentNodeSlimSerializer
+class ContentNodeSlimViewset(ValuesViewset):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeFilter
     pagination_class = OptionalPageNumberPagination
+    values = (
+        "id",
+        "parent",
+        "description",
+        "channel_id",
+        "content_id",
+        "kind",
+        "title",
+        "num_coach_contents",
+        "file_thumbnail",
+        "file_id",
+        "file_extension",
+        "file_available",
+    )
 
-    def prefetch_related(self, queryset):
-        return queryset.prefetch_related("files__local_file")
+    field_map = {"files": process_thumbnail}
 
-    def get_queryset(self, prefetch=True):
-        queryset = models.ContentNode.objects.filter(available=True)
-        if prefetch:
-            return self.prefetch_related(queryset)
-        return queryset
-
-    def get_object(self, prefetch=True):
-        """
-        Returns the object the view is displaying.
-        You may want to override this if you need to provide non-standard
-        queryset lookups. Eg if objects are referenced using multiple
-        keyword arguments in the url conf.
-        """
-        queryset = self.filter_queryset(self.get_queryset(prefetch=prefetch))
-
-        # Perform the lookup filtering.
-        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-
-        assert lookup_url_kwarg in self.kwargs, (
-            "Expected view %s to be called with a URL keyword argument "
-            'named "%s". Fix your URL conf, or set the `.lookup_field` '
-            "attribute on the view correctly."
-            % (self.__class__.__name__, lookup_url_kwarg)
+    def annotate_queryset(self, queryset):
+        thumbnail_query = models.File.objects.filter(
+            contentnode=OuterRef("id"), thumbnail=True
+        ).order_by()
+        return queryset.annotate(
+            file_thumbnail=Subquery(
+                thumbnail_query.values_list("thumbnail", flat=True)[:1]
+            ),
+            file_id=Subquery(
+                thumbnail_query.values_list("local_file__id", flat=True)[:1]
+            ),
+            file_extension=Subquery(
+                thumbnail_query.values_list("local_file__extension", flat=True)[:1]
+            ),
+            file_available=Subquery(
+                thumbnail_query.values_list("local_file__available", flat=True)[:1]
+            ),
         )
 
-        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
-        obj = get_object_or_404(queryset, **filter_kwargs)
-
-        # May raise a permission denied
-        self.check_object_permissions(self.request, obj)
-
-        return obj
+    def get_queryset(self):
+        return models.ContentNode.objects.filter(available=True)
 
     @detail_route(methods=["get"])
     def ancestors(self, request, **kwargs):
@@ -477,9 +493,7 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
 
-        ancestors = list(
-            self.get_object(prefetch=False).get_ancestors().values("id", "title")
-        )
+        ancestors = list(self.get_object().get_ancestors().values("id", "title"))
 
         cache.set(cache_key, ancestors, 60 * 10)
 
@@ -490,17 +504,15 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         """
         Recommend items that are similar to this piece of content.
         """
-        # Only using this to get a node reference, not being returned, so don't prefetch.
-        queryset = self.filter_queryset(self.get_queryset(prefetch=False))
+        queryset = self.filter_queryset(self.get_queryset())
         pk = kwargs.get("pk", None)
         node = get_object_or_404(queryset, pk=pk)
-        queryset = self.filter_queryset(self.get_queryset(prefetch=False))
-        queryset = self.prefetch_related(
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.prefetch_queryset(
             queryset
             & node.get_siblings(include_self=False).exclude(kind=content_kinds.TOPIC)
         )
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return Response(self.serialize(queryset))
 
     @detail_route(methods=["get"])
     def next_steps(self, request, **kwargs):
@@ -516,7 +528,7 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         """
         user = request.user
         user_id = kwargs.get("pk", None)
-        queryset = self.get_queryset(prefetch=True)
+        queryset = self.prefetch_queryset(self.get_queryset())
         # if user is anonymous, don't return any nodes
         # if person requesting is not the data they are requesting for, also return no nodes
         if not user.is_facility_user or user.id != user_id:
@@ -559,8 +571,7 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
                 ):  # must have coach role or higher
                     queryset = queryset.exclude(coach_content=True)
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return Response(self.serialize(queryset))
 
     @list_route(methods=["get"])
     def popular(self, request, **kwargs):
@@ -584,7 +595,7 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
 
-        queryset = self.get_queryset(prefetch=True)
+        queryset = self.prefetch_queryset(self.get_queryset())
 
         if ContentSessionLog.objects.count() < 50:
             # return 25 random content nodes if not enough session logs
@@ -619,12 +630,12 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
             )
             queryset = most_popular.dedupe_by_content_id()
 
-        serializer = self.get_serializer(queryset, many=True)
+        data = self.serialize(queryset)
 
         # cache the popular results queryset for 10 minutes, for efficiency
-        cache.set(cache_key, serializer.data, 60 * 10)
+        cache.set(cache_key, data, 60 * 10)
 
-        return Response(serializer.data)
+        return Response(data)
 
     @detail_route(methods=["get"])
     def resume(self, request, **kwargs):
@@ -640,7 +651,7 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         """
         user = request.user
         user_id = kwargs.get("pk", None)
-        queryset = self.get_queryset(prefetch=True)
+        queryset = self.prefetch_queryset(self.get_queryset())
         # if user is anonymous, don't return any nodes
         # if person requesting is not the data they are requesting for, also return no nodes
         if not user.is_facility_user or user.id != user_id:
@@ -668,8 +679,7 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
                 resume = queryset.filter(content_id__in=list(content_ids[:10]))
                 queryset = resume.dedupe_by_content_id()
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return Response(self.serialize(queryset))
 
 
 # return the result of and-ing a list of queries
