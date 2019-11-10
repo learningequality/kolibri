@@ -55,14 +55,14 @@ class LocalFileByDisk(TransactionTestCase):
         checksums = get_available_checksums_from_disk(
             test_channel_id, self.mock_home_dir
         )
-        self.assertEqual(checksums, [file_id_1])
+        self.assertEqual(checksums, set([file_id_1]))
 
     def test_set_one_file_not_in_channel(self):
         self.createmock_content_file(uuid.uuid4().hex)
         checksums = get_available_checksums_from_disk(
             test_channel_id, self.mock_home_dir
         )
-        self.assertEqual(checksums, [])
+        self.assertEqual(checksums, set())
 
     def test_set_two_files_in_channel(self):
         self.createmock_content_file1()
@@ -70,7 +70,7 @@ class LocalFileByDisk(TransactionTestCase):
         checksums = get_available_checksums_from_disk(
             test_channel_id, self.mock_home_dir
         )
-        self.assertEqual(set(checksums), set([file_id_1, file_id_2]))
+        self.assertEqual(checksums, set([file_id_1, file_id_2]))
 
     def test_set_two_files_one_in_channel(self):
         self.createmock_content_file1()
@@ -78,7 +78,7 @@ class LocalFileByDisk(TransactionTestCase):
         checksums = get_available_checksums_from_disk(
             test_channel_id, self.mock_home_dir
         )
-        self.assertEqual(checksums, [file_id_1])
+        self.assertEqual(checksums, set([file_id_1]))
 
     def test_set_two_files_none_in_channel(self):
         self.createmock_content_file(uuid.uuid4().hex)
@@ -86,11 +86,20 @@ class LocalFileByDisk(TransactionTestCase):
         checksums = get_available_checksums_from_disk(
             test_channel_id, self.mock_home_dir
         )
-        self.assertEqual(checksums, [])
+        self.assertEqual(checksums, set())
 
     def tearDown(self):
         shutil.rmtree(self.mock_home_dir)
         super(LocalFileByDisk, self).tearDown()
+
+
+local_file_qs = (
+    LocalFile.objects.filter(
+        files__contentnode__channel_id=test_channel_id, files__supplementary=False
+    )
+    .values_list("id", flat=True)
+    .distinct()
+)
 
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
@@ -100,28 +109,35 @@ class LocalFileRemote(TransactionTestCase):
 
     @patch("kolibri.core.content.utils.file_availability.requests")
     def test_set_one_file(self, requests_mock):
-        LocalFile.objects.all().update(available=True)
-        LocalFile.objects.filter(id=file_id_1).update(available=False)
+        id_1 = local_file_qs[0]
         requests_mock.post.return_value.status_code = 200
         requests_mock.post.return_value.content = "1"
         checksums = get_available_checksums_from_remote(test_channel_id, "test")
-        self.assertEqual(checksums, [file_id_1])
+        self.assertEqual(checksums, set([id_1]))
 
     @patch("kolibri.core.content.utils.file_availability.requests")
     def test_set_two_files_in_channel(self, requests_mock):
-        LocalFile.objects.all().update(available=True)
-        LocalFile.objects.filter(id__in=[file_id_1, file_id_2]).update(available=False)
+        local_file_qs = (
+            LocalFile.objects.filter(
+                files__contentnode__channel_id=test_channel_id,
+                files__supplementary=False,
+            )
+            .values_list("id", flat=True)
+            .distinct()
+        )
+        id_1 = local_file_qs[0]
+        id_2 = local_file_qs[1]
         requests_mock.post.return_value.status_code = 200
         requests_mock.post.return_value.content = "3"
         checksums = get_available_checksums_from_remote(test_channel_id, "test")
-        self.assertEqual(set(checksums), set([file_id_1, file_id_2]))
+        self.assertEqual(checksums, set([id_1, id_2]))
 
     @patch("kolibri.core.content.utils.file_availability.requests")
     def test_set_two_files_none_in_channel(self, requests_mock):
         requests_mock.post.return_value.status_code = 200
         requests_mock.post.return_value.content = "0"
         checksums = get_available_checksums_from_remote(test_channel_id, "test")
-        self.assertEqual(checksums, [])
+        self.assertEqual(checksums, set())
 
     @patch("kolibri.core.content.utils.file_availability.requests")
     def test_404_remote_checksum_response(self, requests_mock):
