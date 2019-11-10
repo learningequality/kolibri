@@ -25,7 +25,7 @@ def generate_checksum_integer_mask(checksums, available_checksums):
 def _generate_mask_from_integer(integer_mask):
     while integer_mask:
         yield bool(integer_mask % 2)
-        integer_mask /= 2
+        integer_mask //= 2
 
 
 def get_available_checksums_from_remote(channel_id, baseurl):
