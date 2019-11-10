@@ -2,17 +2,19 @@
 
   <KGrid>
     <KGridItem
-      :layout8="{ span: 4 }"
-      :layout12="{ span: 6 }"
+      :layout4="{ span: 4 }"
+      :layout8="{ span: 5 }"
+      :layout12="{ span: 8 }"
     >
       <p>
-        <slot name="backlink"></slot>
+        <slot name="header"></slot>
       </p>
     </KGridItem>
     <KGridItem
       :layout="{ alignment: 'right' }"
-      :layout8="{ span: 4 }"
-      :layout12="{ span: 6 }"
+      :layout4="{ alignment: 'left', span: 4 }"
+      :layout8="{ span: 3 }"
+      :layout12="{ span: 4 }"
       class="pad-button"
     >
       <slot name="options"></slot>
@@ -27,7 +29,7 @@
   // Lays out a back button on the left with an options button on the right,
   // as used in many different pages
   export default {
-    name: 'BackLinkWithOptions',
+    name: 'HeaderWithOptions',
   };
 
 </script>

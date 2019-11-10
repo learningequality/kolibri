@@ -10,9 +10,9 @@
 
     <KPageContainer v-if="!loading">
 
-      <BackLinkWithOptions>
+      <HeaderWithOptions>
         <BackLink
-          slot="backlink"
+          slot="header"
           :to="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
           :text="coreString('allLessonsLabel')"
         />
@@ -21,7 +21,7 @@
           optionsFor="plan"
           @select="handleSelectOption"
         />
-      </BackLinkWithOptions>
+      </HeaderWithOptions>
 
       <div class="lesson-summary">
 
@@ -99,7 +99,7 @@
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
   import Recipients from '../../common/Recipients';
   import LessonActive from '../../common/LessonActive';
-  import BackLinkWithOptions from '../../common/BackLinkWithOptions';
+  import HeaderWithOptions from '../../common/HeaderWithOptions';
   import ManageLessonModals from './ManageLessonModals';
   import ResourceListTable from './ResourceListTable';
   import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
@@ -116,7 +116,7 @@
       HeaderTableRow,
       Recipients,
       LessonActive,
-      BackLinkWithOptions,
+      HeaderWithOptions,
       ResourceListTable,
       ManageLessonModals,
       LessonOptionsDropdownMenu,

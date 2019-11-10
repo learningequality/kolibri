@@ -3,7 +3,7 @@
   <KDropdownMenu
     :text="coreString('optionsLabel')"
     :options="options"
-    appearance="raised-button"
+    appearance="flat-button"
     :primary="false"
     @select="$emit('select', $event.value)"
   />
@@ -24,6 +24,9 @@
       optionsFor: {
         type: String,
         required: true,
+        validator(opt) {
+          return ['plan', 'report'].includes(opt);
+        },
       },
     },
     computed: {

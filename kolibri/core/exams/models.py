@@ -1,6 +1,7 @@
 from django.db import models
 from jsonfield import JSONField
 
+from django.utils import timezone
 from .permissions import UserCanReadExamAssignmentData
 from .permissions import UserCanReadExamData
 from kolibri.core.auth.constants import role_kinds
@@ -102,7 +103,15 @@ class Exam(AbstractFacilityDataModel):
     creator = models.ForeignKey(
         FacilityUser, related_name="exams", blank=False, null=False
     )
+
+    # To be set True when the quiz is first set to active=True
+    date_activated = models.DateTimeField(default=None, null=True, blank=True)
+
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
+
+    # archive will be used on the frontend to indicate if a quiz is "closed"
     archive = models.BooleanField(default=False)
+    date_archived = models.DateTimeField(default=None, null=True, blank=True)
 
     def delete(self, using=None, keep_parents=False):
         """
@@ -110,6 +119,14 @@ class Exam(AbstractFacilityDataModel):
         """
         LearnerProgressNotification.objects.filter(quiz_id=self.id).delete()
         super(Exam, self).delete(using, keep_parents)
+
+    def save(self, *args, **kwargs):
+        # If archive is True during the save op, but there is no date_archived then
+        # this is the save that is archiving the object and we need to datestamp it
+        if getattr(self, "archive", False) is True:
+            if getattr(self, "date_archived") is None:
+                self.date_archived = timezone.now()
+        super(Exam, self).save(*args, **kwargs)
 
     """
     As we evolve this model in ways that migrations can't handle, certain fields may
