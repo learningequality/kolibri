@@ -210,8 +210,8 @@ class PublicAPITestCase(APITestCase):
 
     def test_public_checksum_lookup_one_available(self):
         LocalFile.objects.all().update(available=True)
-        ids = LocalFile.objects.all()[:2].values_list("id", flat=True)
-        test = LocalFile.objects.all().first()
+        ids = LocalFile.objects.all().order_by("id")[:2].values_list("id", flat=True)
+        test = LocalFile.objects.all().order_by("id")[0]
         test.available = False
         test.save()
         response = self.client.post(
