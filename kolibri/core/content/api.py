@@ -16,6 +16,7 @@ from django.http.request import HttpRequest
 from django.utils.cache import patch_response_headers
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
+from django.views.decorators.http import etag
 from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
@@ -42,6 +43,7 @@ from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
+from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 
@@ -783,6 +785,11 @@ class ContentNodeSearchViewset(ContentNodeSlimViewset):
         )
 
 
+def get_cache_key(*args, **kwargs):
+    return str(ContentCacheKey.get_cache_key())
+
+
+@method_decorator(etag(get_cache_key), name="retrieve")
 class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = serializers.ContentNodeGranularSerializer
 
