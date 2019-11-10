@@ -1,5 +1,5 @@
 /*
-  Look up translations based on LE Utils license names
+  Define translations using LE Utils license names as keys
 */
 
 import { createTranslator } from 'kolibri.utils.i18n';
@@ -97,55 +97,55 @@ const licenseLongNameStrings = {
 const licenseDescriptionConsumerStrings = {
   'CC BY': {
     message:
-      'You may distribute, remix, tweak, and build upon this work, even commercially, as long as you give credit to the creator.',
+      'You may distribute, adapt, and build upon this resource – even commercially – as long as you give credit to the author.',
     context:
-      'License details from the perspective of the content consumer or end-user.\nFor more info, see https://creativecommons.org/licenses/by-sa/2.0/',
+      'License details from the perspective of the content consumer or end-user.\nFor more info, see https://creativecommons.org/licenses/by/2.0/',
   },
   'CC BY-SA': {
     message:
-      'You may remix, tweak, and build upon this work, even for commercial purposes, as long as you give credit and license your new creations under identical terms. This license is often compared to “copyleft” free and open source software licenses. All new works based on yours will carry the same license, so any derivatives will also allow commercial use.',
+      'You may adapt and build upon this resource – even commercially – as long as you credit the author and license your new resources under identical terms. All new resources based on yours must also carry the same license.',
     context:
-      'License details from the perspective of the content consumer or end-user.\nFor more info, see https://creativecommons.org/licenses/by-nd/2.0/',
+      'License details from the perspective of the content consumer or end-user.\nFor more info, see https://creativecommons.org/licenses/by-sa/2.0/',
   },
   'CC BY-ND': {
     message:
-      'You may reuse the work for any purpose, including commercially; however, it cannot be shared with others in adapted form, and credit must be provided to the creator.',
+      'You may reuse the resource for any purpose, including commercially. However it cannot be adapted, and credit must be provided to the author.',
     context:
-      'License details from the perspective of the content consumer or end-user.\nFor more info, see https://creativecommons.org/licenses/by-nc/2.0/',
+      'License details from the perspective of the content consumer or end-user.\nFor more info, see https://creativecommons.org/licenses/by-nd/2.0/',
   },
   'CC BY-NC': {
     message:
-      'You may remix, tweak, and build upon this work non-commercially. Although your new works must also acknowledge the creator and be non-commercial, they don’t have to license their derivative works on the same terms.',
+      'You may adapt and build upon this resource non-commercially. Your new resources must credit the author and also be non-commercial.',
     context:
-      'License details from the perspective of the content consumer or end-user.\nFor more info, see https://creativecommons.org/licenses/by-nc-sa/2.0/',
+      'License details from the perspective of the content consumer or end-user.\nFor more info, see https://creativecommons.org/licenses/by-nc/2.0/',
   },
   'CC BY-NC-SA': {
     message:
-      'You may remix, tweak, and build upon this work non-commercially, as long as you give credit to the creator and license your new creations under the identical terms.',
+      'You may adapt, and build upon this resource non-commercially, as long as you give credit to the author and license your new resources under identical terms.',
     context:
-      'License details from the perspective of the content consumer or end-user.\nFor more info, see https://creativecommons.org/licenses/by-nc-nd/2.0/',
+      'License details from the perspective of the content consumer or end-user.\nFor more info, see https://creativecommons.org/licenses/by-nc-sa/2.0/',
   },
   'CC BY-NC-ND': {
     message:
-      'You may download this work and share it with others as long as you give credit to the creator. You may not change it in any way or use it commercially.',
+      'You may download this resource and share it with others as long as you give credit to the author. You may not adapt it in any way or use it commercially.',
     context:
-      'License details from the perspective of the content consumer or end-user.\nFor more info, see https://en.wikipedia.org/wiki/All_rights_reserved',
+      'License details from the perspective of the content consumer or end-user.\nFor more info, see https://creativecommons.org/licenses/by-nc-sd/2.0/',
   },
   'All Rights Reserved': {
     message:
-      'The copyright holder reserves, or holds for their own use, all the rights provided by copyright law. You may not distribute, remix, tweak, or build upon this work without permission from the copyright owner.',
+      'You may not distribute, adapt, or build upon this resource without permission from the copyright owner.',
     context:
       'License details from the perspective of the content consumer or end-user.\nFor more info, see https://en.wikipedia.org/wiki/All_rights_reserved',
   },
   'Public Domain': {
     message:
-      'This work is free of known restrictions under copyright law, including all related and neighboring rights. You may distribute, remix, tweak, and build upon this work, even commercially',
+      'This resource is free of known restrictions under copyright law. You may distribute, adapt, and build upon this resource, even commercially.',
     context:
       'License details from the perspective of the content consumer or end-user.\nFor more info, see https://en.wikipedia.org/wiki/Public_domain',
   },
   'Special Permissions': {
     message:
-      'This content has a special license. Contact the owner of this license for a description of what this license entails.',
+      'This resource has a special license. Contact the owner of this license for a description of what you are allowed to do with it.',
     context:
       'License details from the perspective of the content consumer or end-user.\nA special licensing arrangement was reached with the copyright owner',
   },
@@ -154,54 +154,54 @@ const licenseDescriptionConsumerStrings = {
 const licenseDescriptionCreatorStrings = {
   'CC BY': {
     message:
-      'This license lets others distribute, remix, tweak, and build upon your work, even commercially, as long as they credit you for the original creation. This is the most accommodating of the Creative Commons licenses. Recommended for maximum dissemination and use of licensed materials.',
+      'This license lets others distribute, adapt, and build upon your resource – even commercially – as long as they credit you for the original creation. This is the most accommodating of the Creative Commons licenses. Recommended for maximum dissemination and use of licensed materials.',
     context:
-      'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://creativecommons.org/licenses/by-sa/2.0/',
+      'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://creativecommons.org/licenses/by/2.0/',
   },
   'CC BY-SA': {
     message:
-      'This license lets others remix, tweak, and build upon your work even for commercial purposes, as long as they credit you and license their new creations under the identical terms. This license is often compared to “copyleft” free and open source software licenses. All new works based on yours will carry the same license, so any derivatives will also allow commercial use. This is the license used by Wikipedia, and is recommended for materials that would benefit from incorporating content from Wikipedia and similarly licensed projects.',
+      'This license lets others adapt and build upon your resource – even commercially – as long as they credit you and license their new resources under identical terms. This license is often compared to “copyleft” free and open source software licenses. All new resources based on yours will carry the same license, so any derivatives will also allow commercial use. This is the license used by Wikipedia, and is recommended for materials that would benefit from incorporating content from Wikipedia and similarly licensed projects.',
     context:
-      'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://creativecommons.org/licenses/by-nd/2.0/',
+      'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://creativecommons.org/licenses/by-sa/2.0/',
   },
   'CC BY-ND': {
     message:
-      'This license lets others reuse the work for any purpose, including commercially; however, it cannot be shared with others in adapted form, and credit must be provided to you.',
+      'This license lets others reuse the resource for any purpose, including commercially. However it cannot be shared with others in adapted form, and credit must be provided to you.',
     context:
-      'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://creativecommons.org/licenses/by-nc/2.0/',
+      'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://creativecommons.org/licenses/by-nd/2.0/',
   },
   'CC BY-NC': {
     message:
-      'This license lets others remix, tweak, and build upon your work non-commercially, and although their new works must also acknowledge you and be non-commercial, they don’t have to license their derivative works on the same terms.',
+      'This license lets others adapt and build upon your resource non-commercially. Although their new derivative resources must credit you and be non-commercial, they don’t have to be licensed under the same terms.',
     context:
-      'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://creativecommons.org/licenses/by-nc-sa/2.0/',
+      'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://creativecommons.org/licenses/by-nc/2.0/',
   },
   'CC BY-NC-SA': {
     message:
-      'This license lets others remix, tweak, and build upon your work non-commercially, as long as they credit you and license their new creations under the identical terms.',
+      'This license lets others adapt and build upon your resource non-commercially, as long as they credit you and license their new resources under the identical terms.',
     context:
-      'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://creativecommons.org/licenses/by-nc-nd/2.0/',
+      'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://creativecommons.org/licenses/by-nc-sa/2.0/',
   },
   'CC BY-NC-ND': {
     message:
-      'This license is the most restrictive of the six main Creative Commons licenses, only allowing others to download your works and share them with others as long as they credit you, but they can’t change them in any way or use them commercially.',
+      'This license is the most restrictive of the six main Creative Commons licenses. It only allows others to download your resources and share them with others as long as they credit you, but they can’t change them in any way or use them commercially.',
     context:
-      'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://en.wikipedia.org/wiki/All_rights_reserved',
+      'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://creativecommons.org/licenses/by-nc-nd/2.0/',
   },
   'All Rights Reserved': {
-    message: 'You reserve, or holds for your own use, all the rights provided by copyright law.',
+    message:
+      'You reserve all the rights provided by copyright law, and others may not legally distribute, adapt, or build upon this resource without your permission.',
     context:
       'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://en.wikipedia.org/wiki/All_rights_reserved',
   },
   'Public Domain': {
-    message:
-      'This work has been identified as being free of known restrictions under copyright law, including all related and neighboring rights.',
+    message: 'This resource is free of known restrictions under copyright law.',
     context:
       'License details from the perspective of the content creator, author, or copyright owner.\nFor more info, see https://en.wikipedia.org/wiki/Public_domain',
   },
   'Special Permissions': {
     message:
-      'Special Permissions is a custom license to use when the current licenses do not apply to the content. You are responsible for creating a description of what this license entails.',
+      'This is a custom license to use when the other options do not apply. You are responsible for creating a description of what this license entails and communicating it with users.',
     context:
       'License details from the perspective of the content creator, author, or copyright owner.\nA special licensing arrangement was reached with the copyright owner',
   },
