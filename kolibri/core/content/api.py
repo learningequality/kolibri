@@ -740,17 +740,19 @@ class ContentNodeSearchViewset(ContentNodeSlimViewset):
         for query in all_queries:
 
             # in each pass, don't take any items already in the result set
-            matches = queryset.exclude(content_id__in=list(content_ids)).filter(query)[
-                :BUFFER_SIZE
-            ]
+            matches = (
+                queryset.exclude(content_id__in=list(content_ids))
+                .filter(query)
+                .values("content_id", "id")[:BUFFER_SIZE]
+            )
 
             for match in matches:
                 # filter the dupes
-                if match.content_id in content_ids:
+                if match["content_id"] in content_ids:
                     continue
                 # add new, unique results
-                content_ids.add(match.content_id)
-                results.append(match)
+                content_ids.add(match["content_id"])
+                results.append(match["id"])
 
                 # bail out as soon as we reach the quota
                 if len(results) >= max_results:
@@ -758,6 +760,8 @@ class ContentNodeSearchViewset(ContentNodeSlimViewset):
             # bail out as soon as we reach the quota
             if len(results) >= max_results:
                 break
+
+        results = queryset.filter(id__in=results)
 
         # If no queries, just use an empty Q.
         all_queries_filter = union(all_queries) or Q()
@@ -794,12 +798,12 @@ class ContentNodeSearchViewset(ContentNodeSlimViewset):
         results, channel_ids, content_kinds, total_results = self.search(
             value, max_results
         )
-        serializer = self.get_serializer(results, many=True)
+        data = self.serialize(results)
         return Response(
             {
                 "channel_ids": channel_ids,
                 "content_kinds": content_kinds,
-                "results": serializer.data,
+                "results": data,
                 "total_results": total_results,
             }
         )
