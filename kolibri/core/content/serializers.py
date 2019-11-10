@@ -596,7 +596,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
 
     def checksums_from_drive_id(self, drive_id, instance):
         try:
-            datafolder = get_mounted_drive_by_id(drive_id)
+            datafolder = get_mounted_drive_by_id(drive_id).datafolder
         except KeyError:
             raise serializers.ValidationError(
                 "The external drive with given drive id {} does not exist.".format(
