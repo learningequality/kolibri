@@ -28,7 +28,7 @@
     },
     $trs: {
       registerFacility: 'Register facility',
-      alreadyRegistered: 'Already registered with `{name}`',
+      alreadyRegistered: "Already registered with '{name}'",
       close: 'Close',
     },
   };

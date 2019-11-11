@@ -425,9 +425,13 @@ class TasksViewSet(viewsets.ViewSet):
         Initiate a PUSH sync with Kolibri Data Portal.
 
         """
-        task = {"facility": request.data["facility"], "type": "SYNCDATAPORTAL", "started_by": request.user.pk}
+        task = {
+            "facility": request.data["facility"],
+            "type": "SYNCDATAPORTAL",
+            "started_by": request.user.pk,
+        }
 
-        job_id = get_queue().enqueue(
+        job_id = queue.enqueue(
             call_command,
             "sync",
             facility=task["facility"],
@@ -437,7 +441,7 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=False,
         )
         # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(get_queue().fetch_job(job_id))
+        resp = _job_to_response(queue.fetch_job(job_id))
 
         return Response(resp)
 

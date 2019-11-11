@@ -61,7 +61,9 @@
             this.displayModal(Modals.CONFIRMATION_REGISTER);
           })
           .catch(error => {
-            const errorsCaught = CatchErrors(error, [ERROR_CONSTANTS.INVALID_TOKEN]);
+            const errorsCaught = CatchErrors(error, [
+              ERROR_CONSTANTS.INVALID_KDP_REGISTRATION_TOKEN,
+            ]);
             if (errorsCaught) {
               this.invalid = true;
               this.submitting = false;

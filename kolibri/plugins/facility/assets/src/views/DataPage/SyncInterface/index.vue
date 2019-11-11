@@ -24,20 +24,20 @@
             <div>
               <h2 class="name">
                 {{ facility.name }}
+                <UiIcon v-if="facility.dataset.registered" ref="icon">
+                  <mat-svg
+                    name="verified_user"
+                    category="action"
+                    :style="{fill: $themePalette.green.v_500}"
+                  />
+                </UiIcon>
+                <KTooltip
+                  reference="icon"
+                  :refs="$refs"
+                >
+                  {{ $tr('registeredAlready') }}
+                </KTooltip>
               </h2>
-              <UiIcon v-if="facility.dataset.registered" ref="icon">
-                <mat-svg
-                  name="verified_user"
-                  category="action"
-                  :style="{fill: $themePalette.green.v_500}"
-                />
-              </UiIcon>
-              <KTooltip
-                reference="icon"
-                :refs="$refs"
-              >
-                {{ $tr('registeredAlready') }}
-              </KTooltip>
             </div>
             <div>
               <span>
@@ -70,7 +70,7 @@
               class="sync"
               appearance="raised-button"
               :text="$tr('sync')"
-              :disabled="facilityTaskId !== ''"
+              :disabled="facilityTaskId !== '' || !facility.dataset.registered"
               @click="sync(facility)"
             />
           </td>

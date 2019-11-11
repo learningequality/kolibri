@@ -9,13 +9,13 @@ from django.db import models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('kolibriauth', '0014_auto_20190815_1421'),
+        ("kolibriauth", "0014_auto_20190815_1421"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='facilitydataset',
-            name='registered',
+            model_name="facilitydataset",
+            name="registered",
             field=models.BooleanField(default=False),
         ),
     ]

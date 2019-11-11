@@ -120,18 +120,14 @@ class FacilitySerializer(serializers.ModelSerializer):
 
         # when facilities are synced, the dataset_id is used as the filter
         last_synced = (
-            TransferSession.objects.filter(
-                filter=OuterRef("casted_dataset_id"),
-            )
+            TransferSession.objects.filter(filter=OuterRef("casted_dataset_id"),)
             .order_by("-last_activity_timestamp")
             .values("last_activity_timestamp")[:1]
         )
 
         # get last synced date
         last_synced_date = (
-            Facility.objects.filter(
-                id=instance.id
-            )
+            Facility.objects.filter(id=instance.id)
             .annotate(casted_dataset_id=Cast("dataset_id", TextField()))
             .annotate(last_synced=Subquery(last_synced))
             .values_list("last_synced", flat=True)

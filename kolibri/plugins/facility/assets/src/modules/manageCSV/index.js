@@ -51,7 +51,7 @@ export default {
     RESET_STATE(state) {
       Object.assign(state, defaultState());
     },
-    /*CSV TASKS STATE*/
+    /*State for CSV tasks*/
     START_SUMMARY_CSV_EXPORT(state, payload) {
       state.summaryLogStatus = CSVGenerationStatuses.GENERATING;
       state.summaryTaskId = payload.id;
@@ -70,7 +70,7 @@ export default {
       state.sessionTaskId = '';
       state.sessionDateCreated = payload;
     },
-    /*SYNC TASKS STATE*/
+    /*State for sync tasks*/
     START_FACILITY_SYNC(state, payload) {
       const match = state.facilities.find(f => f.id === payload.facility);
       if (match) {

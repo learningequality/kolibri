@@ -68,7 +68,7 @@
     $trs: {
       registerFacility: 'Register facility',
       register: 'Register',
-      registerWith: 'Register with `{name}`?',
+      registerWith: "Register with '{name}'?",
       dataSaved: 'Data will be saved to the cloud',
       cancel: 'Cancel',
     },
