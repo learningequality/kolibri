@@ -328,8 +328,6 @@ class ContentNodeAPITestCase(APITestCase):
     @mock.patch("kolibri.core.content.serializers.get_available_checksums_from_remote")
     @mock.patch("kolibri.core.content.serializers.get_mounted_drive_by_id")
     def test_contentnode_granular_remote_import(self, drive_mock, checksums_mock):
-        DriveData = namedtuple("DriveData", ["id", "datafolder"])
-        drive_mock.return_value = DriveData(id="123", datafolder="test/")
         content.LocalFile.objects.update(available=False)
         content.ContentNode.objects.update(available=False)
 
@@ -369,6 +367,66 @@ class ContentNodeAPITestCase(APITestCase):
                         "total_resources": 1,
                         "on_device_resources": 0,
                         "importable": False,
+                        "coach_content": False,
+                        "num_coach_contents": 0,
+                    },
+                    {
+                        "id": c3_id,
+                        "title": "c2",
+                        "kind": "topic",
+                        "available": False,
+                        "total_resources": 1,
+                        "on_device_resources": 0,
+                        "importable": True,
+                        "coach_content": False,
+                        "num_coach_contents": 0,
+                    },
+                ],
+            },
+        )
+
+    @mock.patch("kolibri.core.content.serializers.get_available_checksums_from_remote")
+    @mock.patch("kolibri.core.content.serializers.get_mounted_drive_by_id")
+    def test_contentnode_granular_remote_import_checksum_error(
+        self, drive_mock, checksums_mock
+    ):
+        content.LocalFile.objects.update(available=False)
+        content.ContentNode.objects.update(available=False)
+
+        c1_id = content.ContentNode.objects.get(title="root").id
+        c2_id = content.ContentNode.objects.get(title="c1").id
+        c3_id = content.ContentNode.objects.get(title="c2").id
+        # If there is an error fetching the checksums for whatever reason
+        # the checksums function returns None, make sure we are robust to that.
+        checksums_mock.return_value = None
+
+        location = NetworkLocation.objects.create(base_url="test", instance_id="123")
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
+            {"importing_from_peer_id": location.id},
+        )
+        self.assertEqual(
+            response.data,
+            {
+                "id": c1_id,
+                "title": "root",
+                "kind": "topic",
+                "available": False,
+                "total_resources": 2,
+                "on_device_resources": 0,
+                "importable": True,
+                "coach_content": False,
+                "num_coach_contents": 0,
+                "children": [
+                    {
+                        "id": c2_id,
+                        "title": "c1",
+                        "kind": "video",
+                        "available": False,
+                        "total_resources": 1,
+                        "on_device_resources": 0,
+                        "importable": True,
                         "coach_content": False,
                         "num_coach_contents": 0,
                     },

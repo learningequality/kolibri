@@ -641,6 +641,13 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         elif peer_id is not None:
             channel_checksums = self.checksums_from_peer_id(peer_id, instance)
 
+        if channel_checksums is None:
+            # This happens if channel_checksums was not inferrable for some reason
+            # either because the remote peer does not have the endpoint required
+            # or because there was an error in fetching.
+            # Just assume importability in this case as we have no information.
+            return True
+
         if instance.kind == content_kinds.TOPIC:
             descendants = (
                 instance.get_descendants()
