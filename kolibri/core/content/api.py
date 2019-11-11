@@ -36,14 +36,25 @@ from kolibri.core.auth.constants import user_kinds
 from kolibri.core.content import models
 from kolibri.core.content import serializers
 from kolibri.core.content.permissions import CanManageContent
+from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    get_channel_stats_from_disk,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    get_channel_stats_from_peer,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    get_channel_stats_from_studio,
 )
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 
@@ -801,9 +812,45 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
             .distinct()
         )
 
+    def get_serializer_context(self):
+        context = super(ContentNodeGranularViewset, self).get_serializer_context()
+        context.update({"channel_stats": self.channel_stats})
+        return context
+
     def retrieve(self, request, pk):
         queryset = self.get_queryset()
         instance = get_object_or_404(queryset, pk=pk)
+        channel_id = instance.channel_id
+        drive_id = self.request.query_params.get("importing_from_drive_id", None)
+        peer_id = self.request.query_params.get("importing_from_peer_id", None)
+        for_export = self.request.query_params.get("for_export", None)
+        flag_count = sum(int(bool(flag)) for flag in (drive_id, peer_id, for_export))
+        if flag_count > 1:
+            raise serializers.ValidationError(
+                "Must specify at most one of importing_from_drive_id, importing_from_peer_id, and for_export"
+            )
+        if not flag_count:
+            self.channel_stats = get_channel_stats_from_studio(channel_id)
+        if for_export:
+            self.channel_stats = None
+        if drive_id:
+            try:
+                get_mounted_drive_by_id(drive_id).datafolder
+            except KeyError:
+                raise serializers.ValidationError(
+                    "The external drive with given drive id {} does not exist.".format(
+                        drive_id
+                    )
+                )
+            self.channel_stats = get_channel_stats_from_disk(channel_id, drive_id)
+        if peer_id:
+            try:
+                NetworkLocation.objects.values("base_url").get(id=peer_id)
+            except NetworkLocation.DoesNotExist:
+                raise serializers.ValidationError(
+                    "The network location with the id {} does not exist".format(peer_id)
+                )
+            self.channel_stats = get_channel_stats_from_peer(channel_id, peer_id)
         children = queryset.filter(parent=instance)
 
         parent_serializer = self.get_serializer(instance)

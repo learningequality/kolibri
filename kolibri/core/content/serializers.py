@@ -11,18 +11,9 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_without_topics_q_filter,
 )
-from kolibri.core.content.utils.content_types_tools import renderable_files_q_filter
-from kolibri.core.content.utils.file_availability import (
-    get_available_checksums_from_disk,
-)
-from kolibri.core.content.utils.file_availability import (
-    get_available_checksums_from_remote,
-)
-from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.fields import create_timezonestamp
 
 
@@ -536,8 +527,8 @@ class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
     num_coach_contents = serializers.SerializerMethodField()
+    coach_content = serializers.SerializerMethodField()
     total_resources = serializers.SerializerMethodField()
-    on_device_resources = serializers.SerializerMethodField()
     importable = serializers.SerializerMethodField()
 
     class Meta:
@@ -554,126 +545,41 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             "total_resources",
         )
 
-    def get_total_resources(self, instance):
-        if instance.kind == content_kinds.TOPIC:
-            return (
-                instance.get_descendants(include_self=True)
-                .filter(renderable_contentnodes_without_topics_q_filter)
-                .distinct()
-                .count()
-            )
-        # Otherwise just return 1 because, we shouldn't be serializing any unrenderable leaf nodes
-        return 1
+    @property
+    def channel_stats(self):
+        return self.context["channel_stats"]
 
-    def get_on_device_resources(self, instance):
-        if instance.kind == content_kinds.TOPIC:
-            return (
-                instance.get_descendants(include_self=True)
-                .filter(renderable_contentnodes_without_topics_q_filter)
-                .filter(available=True)
-                .distinct()
-                .count()
-            )
-        # Either it's on the device, or it's not!
-        return int(instance.available)
+    def get_total_resources(self, instance):
+        # channel_stats is None for export
+        if self.channel_stats is None:
+            return instance.on_device_resources
+        return self.channel_stats.get(instance.id, {"total_resources": 0})[
+            "total_resources"
+        ]
 
     def get_num_coach_contents(self, instance):
         # If for exporting, only show what is available on server. For importing,
         # show all of the coach contents in the topic.
-        for_export = self.context["request"].query_params.get("for_export", None)
-        if for_export:
+        if self.channel_stats is None:
             return instance.num_coach_contents
-        if instance.kind == content_kinds.TOPIC:
-            return (
-                instance.get_descendants()
-                .filter(renderable_contentnodes_without_topics_q_filter)
-                .filter(coach_content=True)
-                .exclude(kind=content_kinds.TOPIC)
-                .distinct()
-                .count()
-            )
-        return int(instance.coach_content)
+        return self.channel_stats.get(instance.id, {"num_coach_contents": 0})[
+            "num_coach_contents"
+        ]
 
-    def checksums_from_drive_id(self, drive_id, instance):
-        try:
-            datafolder = get_mounted_drive_by_id(drive_id).datafolder
-        except KeyError:
-            raise serializers.ValidationError(
-                "The external drive with given drive id {} does not exist.".format(
-                    drive_id
-                )
-            )
-
-        return get_available_checksums_from_disk(instance.channel_id, datafolder)
-
-    def checksums_from_peer_id(self, peer_id, instance):
-        try:
-            network_location = NetworkLocation.objects.values("base_url").get(
-                id=peer_id
-            )
-            base_url = network_location["base_url"]
-        except NetworkLocation.DoesNotExist:
-            raise serializers.ValidationError(
-                "The network location with the id {} does not exist".format(peer_id)
-            )
-
-        return get_available_checksums_from_remote(instance.channel_id, base_url)
+    def get_coach_content(self, instance):
+        # If for exporting, only show what is on server. For importing,
+        # show all of the coach contents in the topic.
+        if self.channel_stats is None:
+            return instance.coach_content
+        return self.channel_stats.get(instance.id, {"coach_content": False})[
+            "coach_content"
+        ]
 
     def get_importable(self, instance):
-        drive_id = self.context["request"].query_params.get(
-            "importing_from_drive_id", None
-        )
-        peer_id = self.context["request"].query_params.get(
-            "importing_from_peer_id", None
-        )
-
-        # If import is from Studio, assume it is importable.
-        if drive_id is None and peer_id is None:
-            return True
-
-        if drive_id is not None and peer_id is not None:
-            raise serializers.ValidationError(
-                "Must specify at most one of importing_from_drive_id and importing_from_peer_id"
-            )
-        if drive_id is not None:
-            channel_checksums = self.checksums_from_drive_id(drive_id, instance)
-
-        elif peer_id is not None:
-            channel_checksums = self.checksums_from_peer_id(peer_id, instance)
-
-        if channel_checksums is None:
-            # This happens if channel_checksums was not inferrable for some reason
-            # either because the remote peer does not have the endpoint required
-            # or because there was an error in fetching.
-            # Just assume importability in this case as we have no information.
-            return True
-
-        if instance.kind == content_kinds.TOPIC:
-            descendants = (
-                instance.get_descendants()
-                .exclude(kind=content_kinds.TOPIC)
-                .filter(renderable_contentnodes_without_topics_q_filter)
-            )
-            content_files = File.objects.filter(
-                supplementary=False, contentnode__in=descendants
-            )
-            file_requirement_operator = any
-        else:
-            content_files = instance.files.filter(supplementary=False)
-            file_requirement_operator = all
-        content_files = list(
-            content_files.filter(renderable_files_q_filter)
-            .values_list("local_file_id", flat=True)
-            .distinct()
-        )
-
-        # If ContentNode has no files, then it is not importable.
-        if not content_files:
-            return False
-
-        return file_requirement_operator(
-            checksum in channel_checksums for checksum in content_files
-        )
+        # If for export, just return None
+        if self.channel_stats is None:
+            return None
+        return instance.id in self.channel_stats
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):
