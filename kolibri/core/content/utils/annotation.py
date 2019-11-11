@@ -261,6 +261,7 @@ def recurse_annotation_up_tree(channel_id):
     start = datetime.datetime.now()
 
     # Update all leaf ContentNodes to have num_coach_content to 1 or 0
+    # Update all leaf ContentNodes to have on_device_resources to 1 or 0
     connection.execute(
         ContentNodeTable.update()
         .where(
@@ -271,7 +272,10 @@ def recurse_annotation_up_tree(channel_id):
                 ContentNodeTable.c.kind != content_kinds.TOPIC,
             )
         )
-        .values(num_coach_contents=cast(ContentNodeTable.c.coach_content, Integer()))
+        .values(
+            num_coach_contents=cast(ContentNodeTable.c.coach_content, Integer()),
+            on_device_resources=cast(ContentNodeTable.c.available, Integer()),
+        )
     )
 
     # Before starting set availability to False on all topics.
@@ -328,6 +332,15 @@ def recurse_annotation_up_tree(channel_id):
         )
     )
 
+    # Expression that sums the total number of on_device_resources for each child node
+    # of a contentnode
+    on_device_num = select([func.sum(child.c.on_device_resources)]).where(
+        and_(
+            child.c.available == True,  # noqa
+            ContentNodeTable.c.id == child.c.parent_id,
+        )
+    )
+
     # Go from the deepest level to the shallowest
     for level in range(node_depth, 0, -1):
 
@@ -353,6 +366,7 @@ def recurse_annotation_up_tree(channel_id):
                 available=exists(available_nodes),
                 coach_content=coach_content_nodes,
                 num_coach_contents=coach_content_num,
+                on_device_resources=on_device_num,
             )
         )
 
