@@ -20,14 +20,14 @@
       </template>
 
       <template v-if="isPrivateChannel" v-slot:belowname>
-        <KTooltip reference="lockicon" :refs="$refs" placement="right">
-          {{ $tr('privateChannelTooltip') }}
+        <KTooltip reference="lockicon" :refs="$refs" placement="top">
+          {{ $tr('unlistedChannelTooltip') }}
         </KTooltip>
         <div class="private-icons">
           <KIcon
             ref="lockicon"
             class="lock-icon"
-            icon="privatechannel"
+            icon="unlistedchannel"
           /><span
             v-if="true || channel.newPrivateChannel"
             class="new-label"
@@ -164,12 +164,10 @@
     $trs: {
       onYourDevice: 'Resources on device',
       selectTopicsAction: 'Select topics',
-      /* eslint-disable */
       newLabel: 'New',
-      privateChannelTooltip: 'Imported from channel token',
+      unlistedChannelTooltip: 'Unlisted channel',
       newVersionMessage: 'New version available with import.',
       moreInformationLabel: 'More information',
-      /* eslint-enable */
     },
   };
 
