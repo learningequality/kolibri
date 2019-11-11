@@ -21,8 +21,10 @@
       <transition-group slot="tbody" tag="tbody" name="list">
         <tr v-for="facility in facilities" :key="facility.id">
           <td>
-            <span>
-              <h2 class="name">{{ facility.name }}</h2>
+            <div>
+              <h2 class="name">
+                {{ facility.name }}
+              </h2>
               <UiIcon v-if="facility.dataset.registered" ref="icon">
                 <mat-svg
                   name="verified_user"
@@ -36,8 +38,8 @@
               >
                 {{ $tr('registeredAlready') }}
               </KTooltip>
-            </span>
-            <span class="synced">
+            </div>
+            <div>
               <span>
                 <template v-if="facility.syncing">
                   <KCircularLoader class="loader" :size="16" :delay="false" />
@@ -55,11 +57,10 @@
                   </template>
                 </template>
               </span>
-            </span>
+            </div>
           </td>
-          <td>
+          <td class="button-col">
             <KButton
-              class="register"
               appearance="raised-button"
               :text="$tr('register')"
               :disabled="facilityTaskId !== ''"
@@ -171,28 +172,26 @@
 
 <style lang="scss" scoped>
 
-  .synced {
-    display: table-cell;
-    font-size: 12px;
-  }
+  /* derived from .core-table-button-col */
+  .button-col {
+    padding: 4px;
+    padding-top: 8px;
+    text-align: right;
 
-  .sync {
-    float: right;
-  }
-
-  .register {
-    float: right;
+    .sync {
+      margin-right: 0;
+    }
   }
 
   .name {
-    display: inline;
+    display: inline-block;
     margin-right: 8px;
-    vertical-align: middle;
   }
 
   .loader {
     top: 3px;
     display: inline-block;
+    margin-right: 8px;
   }
 
 </style>
