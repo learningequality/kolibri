@@ -3,14 +3,14 @@
   <KPageContainer>
 
     <h1>{{ $tr('syncData') }}</h1>
-    <span>
-      {{ $tr('access') }}
+    <p>{{ $tr('access') }}</p>
+    <p>
       <KButton
         appearance="basic-link"
         :text="$tr('learnMore')"
         @click="displayModal(Modals.PRIVACY)"
       />
-    </span>
+    </p>
 
     <CoreTable>
       <thead slot="thead">
@@ -150,10 +150,10 @@
       },
     },
     $trs: {
-      syncData: 'Sync usage data',
+      syncData: 'Sync facility data',
       access:
-        '(Experimental feature) If you have access to register to Kolibri Data Portal, sync your data here',
-      learnMore: 'Learn more',
+        'This is an experimental feature. You can use it if you have access to register to the Kolibri Data Portal.',
+      learnMore: 'Usage and privacy',
       facility: 'Facility',
       register: 'Register',
       registeredAlready: 'Registered to `Kolibri Data Portal`',
