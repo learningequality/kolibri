@@ -2,8 +2,10 @@
 
   <KModal
     :title="$tr('syncToKDP')"
-    :cancelText="$tr('close')"
+    :submitText="$tr('close')"
+    size="medium"
     @cancel="closeModal"
+    @submit="closeModal"
   >
     {{ $tr('privacyText') }}
 
@@ -23,9 +25,9 @@
       },
     },
     $trs: {
-      syncToKDP: 'Sync to Kolibri Data Portal',
+      syncToKDP: 'Kolibri Data Portal',
       privacyText:
-        'By doing this, you are granting access to your data to organization admins on Kolibri Data Portal. It will be uploaded to cloud servers operated by Learning Equality, who will also have access to this data.',
+        'By syncing this facility with the Kolibri Data Portal, you are granting access to your data to organization admins on Kolibri Data Portal. It will be uploaded to cloud servers operated by Learning Equality, who will also have access to this data.',
       close: 'Close',
     },
   };
