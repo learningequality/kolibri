@@ -30,6 +30,7 @@ class File(object):
     )
     file_size = models.IntegerField(blank=True, null=True)
     checksum = models.CharField(max_length=400, blank=True)
+    available = models.BooleanField(default=False)
 
 
 class ContentNode(object):

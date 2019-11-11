@@ -211,6 +211,7 @@ class FileSerializer(serializers.ModelSerializer):
     extension = serializers.SerializerMethodField()
     file_size = serializers.SerializerMethodField()
     lang = LanguageSerializer()
+    available = serializers.BooleanField(source="local_file.available")
 
     def get_storage_url(self, target_node):
         return target_node.get_storage_url()
@@ -248,6 +249,7 @@ class FileThumbnailSerializer(serializers.ModelSerializer):
     for frontend to be able to render thumbnails for content browsing
     """
 
+    available = serializers.BooleanField(source="local_file.available")
     storage_url = serializers.SerializerMethodField()
 
     def get_storage_url(self, target_node):

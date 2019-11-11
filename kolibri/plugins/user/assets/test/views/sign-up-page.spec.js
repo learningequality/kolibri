@@ -1,7 +1,10 @@
 import VueRouter from 'vue-router';
-import { mount } from '@vue/test-utils';
+import { mount, createLocalVue } from '@vue/test-utils';
 import SignUpPage from '../../src/views/SignUpPage';
 import makeStore from '../makeStore';
+
+const localVue = createLocalVue();
+localVue.use(VueRouter);
 
 function makeWrapper() {
   const store = makeStore();

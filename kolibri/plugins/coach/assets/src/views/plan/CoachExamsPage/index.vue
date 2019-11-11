@@ -30,9 +30,7 @@
           <tr>
             <th>{{ coachString('titleLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th>
-              {{ coachString('statusLabel') }}
-            </th>
+            <th>{{ coachString('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -58,7 +56,29 @@
             </td>
 
             <td>
-              <QuizActive :active="exam.active" />
+              <!-- Open quiz button -->
+              <KButton
+                v-if="!exam.active && !exam.archive"
+                :text="coachString('openQuizLabel')"
+                appearance="flat-button"
+                class="table-left-aligned-button"
+                @click="showOpenConfirmationModal = true; modalQuizId=exam.id"
+              />
+              <!-- Close quiz button -->
+              <KButton
+                v-if="exam.active && !exam.archive"
+                :text="coachString('closeQuizLabel')"
+                appearance="flat-button"
+                class="table-left-aligned-button"
+                @click="showCloseConfirmationModal = true; modalQuizId=exam.id;"
+              />
+              <!-- Closed quiz label -->
+              <div
+                v-if="exam.archive"
+                class="quiz-closed-label"
+              >
+                {{ coachString('quizClosedLabel') }}
+              </div>
             </td>
 
           </tr>
@@ -80,6 +100,28 @@
       >
         {{ $tr('noInactiveExams') }}
       </p>
+
+      <!-- Modals for Close & Open of quiz from right-most column -->
+      <KModal
+        v-if="showOpenConfirmationModal"
+        :title="coachString('openQuizLabel')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        @cancel="showOpenConfirmationModal = false"
+        @submit="handleOpenQuiz(modalQuizId)"
+      >
+        <div>{{ coachString('openQuizModalDetail') }}</div>
+      </KModal>
+      <KModal
+        v-if="showCloseConfirmationModal"
+        :title="coachString('closeQuizLabel')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        @cancel="showCloseConfirmationModal = false"
+        @submit="handleCloseQuiz(modalQuizId)"
+      >
+        <div>{{ coachString('closeQuizModalDetail') }}</div>
+      </KModal>
     </KPageContainer>
 
   </CoreBase>
@@ -91,10 +133,10 @@
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ExamResource } from 'kolibri.resources';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
-  import QuizActive from '../../common/QuizActive';
 
   export default {
     name: 'CoachExamsPage',
@@ -106,7 +148,6 @@
     components: {
       PlanHeader,
       CoreTable,
-      QuizActive,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {
@@ -115,6 +156,8 @@
           label: this.coachString('allQuizzesLabel'),
           value: this.coachString('allQuizzesLabel'),
         },
+        showOpenConfirmationModal: false,
+        showCloseConfirmationModal: false,
       };
     },
     computed: {
@@ -156,6 +199,48 @@
         return { name: PageNames.EXAM_CREATION_ROOT };
       },
     },
+    methods: {
+      handleOpenQuiz(quizId) {
+        let promise = ExamResource.saveModel({
+          id: quizId,
+          data: {
+            active: true,
+            date_activated: new Date(),
+          },
+          exists: true,
+        });
+
+        return promise
+          .then(() => {
+            this.$store.dispatch('classSummary/refreshClassSummary');
+            this.showOpenConfirmationModal = false;
+            this.$store.dispatch('createSnackbar', this.coachString('quizOpenedMessage'));
+          })
+          .catch(() => {
+            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToOpenMessage'));
+          });
+      },
+      handleCloseQuiz(quizId) {
+        let promise = ExamResource.saveModel({
+          id: quizId,
+          data: {
+            archive: true,
+            date_archived: new Date(),
+          },
+          exists: true,
+        });
+
+        return promise
+          .then(() => {
+            this.$store.dispatch('classSummary/refreshClassSummary');
+            this.showCloseConfirmationModal = false;
+            this.$store.dispatch('createSnackbar', this.coachString('quizClosedMessage'));
+          })
+          .catch(() => {
+            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
+          });
+      },
+    },
     $trs: {
       noExams: 'You do not have any quizzes',
       noActiveExams: 'No active quizzes',
@@ -179,6 +264,11 @@
 
   .center-text {
     text-align: center;
+  }
+
+  .table-left-aligned-button {
+    // Remove all margins except a new negative left margin
+    margin: 0 0 0 -1rem;
   }
 
 </style>

@@ -1,54 +1,49 @@
 <template>
 
   <div>
-    <template v-if="canManageContent">
-      <h1>{{ $tr('header') }}</h1>
-      <table>
-        <tr>
-          <th>
-            {{ $tr('url', { count: deviceInfo.urls.length }) }}
-          </th>
-          <td>
-            <KExternalLink
-              v-for="(url, index) in deviceInfo.urls"
-              :key="index"
-              :text="url"
-              :href="url"
-              :primary="true"
-              target="_blank"
-              appearance="basic-link"
-            />
-          </td>
-        </tr>
-        <tr>
-          <th>{{ $tr('freeDisk') }}</th>
-          <td>{{ deviceInfo.content_storage_free_space }}</td>
-        </tr>
-        <tr>
-          <th>{{ $tr('kolibriVersion') }}</th>
-          <td>{{ deviceInfo.version }}</td>
-        </tr>
-      </table>
+    <h1>{{ $tr('header') }}</h1>
+    <table>
+      <tr>
+        <th>
+          {{ $tr('url', { count: deviceInfo.urls.length }) }}
+        </th>
+        <td>
+          <KExternalLink
+            v-for="(url, index) in deviceInfo.urls"
+            :key="index"
+            :text="url"
+            :href="url"
+            :primary="true"
+            target="_blank"
+            appearance="basic-link"
+          />
+        </td>
+      </tr>
+      <tr>
+        <th>{{ $tr('freeDisk') }}</th>
+        <td>{{ deviceInfo.content_storage_free_space }}</td>
+      </tr>
+      <tr>
+        <th>{{ $tr('kolibriVersion') }}</th>
+        <td>{{ deviceInfo.version }}</td>
+      </tr>
+    </table>
 
-      <h1>{{ $tr('advanced') }}</h1>
-      <p>{{ $tr('advancedDescription') }}</p>
-      <div>
-        <KButton
-          :text="buttonText"
-          appearance="basic-link"
-          @click="advancedShown = !advancedShown"
-        />
-      </div>
-      <TechnicalTextBlock
-        v-if="advancedShown"
-        dir="auto"
-        :text="infoText"
-        class="bottom-section"
+    <h1>{{ $tr('advanced') }}</h1>
+    <p>{{ $tr('advancedDescription') }}</p>
+    <div>
+      <KButton
+        :text="buttonText"
+        appearance="basic-link"
+        @click="advancedShown = !advancedShown"
       />
-    </template>
-
-    <!-- TODO: Update to: Anyone who can manage content -->
-    <AuthMessage v-else authorizedRole="admin" />
+    </div>
+    <TechnicalTextBlock
+      v-if="advancedShown"
+      dir="auto"
+      :text="infoText"
+      class="bottom-section"
+    />
   </div>
 
 </template>
@@ -56,8 +51,7 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
-  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import { mapState } from 'vuex';
   import TechnicalTextBlock from 'kolibri.coreVue.components.TechnicalTextBlock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
@@ -69,7 +63,6 @@
       };
     },
     components: {
-      AuthMessage,
       TechnicalTextBlock,
     },
     mixins: [commonCoreStrings],
@@ -79,7 +72,6 @@
       };
     },
     computed: {
-      ...mapGetters(['canManageContent']),
       ...mapState('deviceInfo', ['deviceInfo']),
       buttonText() {
         return this.advancedShown ? this.$tr('hide') : this.coreString('showAction');

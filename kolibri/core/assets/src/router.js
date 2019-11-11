@@ -108,6 +108,10 @@ class Router {
     this.initRouter();
     return this._vueRouter.beforeEach(func);
   }
+
+  get currentRoute() {
+    return this._vueRouter.currentRoute;
+  }
 }
 
 const router = new Router();

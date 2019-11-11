@@ -1,10 +1,7 @@
 <template>
 
   <div>
-    <!-- TODO should I try and use the baked in auth page? Does this have a URL-->
-    <AuthMessage v-if="!isSuperuser" authorizedRole="superuser" />
-
-    <h1 v-else-if="user === null">
+    <h1 v-if="user === null">
       {{ $tr('userDoesNotExist') }}
     </h1>
 
@@ -109,7 +106,6 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserType from 'kolibri.utils.UserType';
-  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
 
@@ -125,7 +121,6 @@
       };
     },
     components: {
-      AuthMessage,
       PermissionsIcon,
       UserTypeDisplay,
     },
@@ -139,7 +134,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isSuperuser', 'facilities']),
+      ...mapGetters(['facilities']),
       ...mapState('userPermissions', ['user', 'permissions']),
       ...mapState({
         currentUsername: state => state.core.session.username,
@@ -215,7 +210,7 @@
           });
       },
       goBack() {
-        this.$router.push({ path: '/permissions' });
+        this.$router.push({ name: 'MANAGE_PERMISSIONS_PAGE' });
       },
       UserType,
     },

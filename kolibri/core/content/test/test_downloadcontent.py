@@ -37,10 +37,7 @@ class DownloadContentTestCase(TestCase):
             id=self.hash, extension=self.extension, available=self.available
         )
         self.file = File(
-            local_file=self.local_file,
-            available=self.available,
-            contentnode=self.contentnode,
-            preset=self.preset,
+            local_file=self.local_file, contentnode=self.contentnode, preset=self.preset
         )
 
         self.path = get_content_storage_file_path(self.filename)

@@ -35,27 +35,6 @@
         />
       </fieldset>
 
-      <fieldset v-if="assignmentType !== 'new_lesson'">
-        <legend>
-          {{ coachString('statusLabel') }}
-        </legend>
-        <p>
-          {{ assignmentStrings.statusExplanation }}
-        </p>
-        <KRadioButton
-          v-model="activeIsSelected"
-          :label="assignmentStrings.activeStatus"
-          :value="true"
-          :disabled="disabled || formIsSubmitted"
-        />
-        <KRadioButton
-          v-model="activeIsSelected"
-          :label="assignmentStrings.inactiveStatus"
-          :value="false"
-          :disabled="disabled || formIsSubmitted"
-        />
-      </fieldset>
-
       <fieldset>
         <legend>
           {{ coachString('recipientsLabel') }}
@@ -209,20 +188,6 @@
       assignmentIsQuiz() {
         return this.assignmentType === 'quiz';
       },
-      assignmentStrings() {
-        if (this.assignmentIsQuiz) {
-          return {
-            activeStatus: this.coachString('activeLabel'),
-            inactiveStatus: this.coachString('inactiveLabel'),
-            statusExplanation: this.$tr('activeQuizzesExplanation'),
-          };
-        }
-        return {
-          activeStatus: this.coachString('activeLabel'),
-          inactiveStatus: this.coachString('inactiveLabel'),
-          statusExplanation: this.$tr('activeLessonsExplanation'),
-        };
-      },
       showDescriptionField() {
         // Quizzes don't have descriptions
         return !this.assignmentIsQuiz;
@@ -281,10 +246,6 @@
         this.formIsSubmitted = false;
         this.showTitleError = true;
       },
-    },
-    $trs: {
-      activeQuizzesExplanation: 'Learners can only see active quizzes',
-      activeLessonsExplanation: 'Learners can only see active lessons',
     },
   };
 

@@ -3,9 +3,9 @@
   <div>
 
     <section>
-      <BackLinkWithOptions>
+      <HeaderWithOptions>
         <BackLink
-          slot="backlink"
+          slot="header"
           :to="classRoute('ReportsLessonReportPage')"
           :text="coachString('backToLessonLabel', { lesson: lesson.title })"
         />
@@ -14,7 +14,7 @@
           :text="coachString('previewAction')"
           @click="$emit('previewClick')"
         />
-      </BackLinkWithOptions>
+      </HeaderWithOptions>
       <h1>
         <KLabeledIcon icon="exercise" :label="exercise.title" />
       </h1>
@@ -39,12 +39,12 @@
 <script>
 
   import commonCoach from '../common';
-  import BackLinkWithOptions from '../common/BackLinkWithOptions';
+  import HeaderWithOptions from '../common/HeaderWithOptions';
 
   export default {
     name: 'ReportsLessonExerciseHeader',
     components: {
-      BackLinkWithOptions,
+      HeaderWithOptions,
     },
     mixins: [commonCoach],
     computed: {

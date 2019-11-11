@@ -36,7 +36,6 @@
             :indeterminate="nodeIsIndeterminate(node)"
             :message="node.message"
             :node="node"
-            @clicktopic="updateCurrentTopicNode(node)"
             @changeselection="toggleSelection(node)"
           />
         </transition-group>
@@ -61,7 +60,6 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import every from 'lodash/every';
   import omit from 'lodash/omit';
-  import { navigateToTopicUrl } from '../../routes/wizardTransitionRoutes';
   import { TransferTypes } from '../../constants';
   import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
   import ContentNodeRow from './ContentNodeRow';
@@ -91,7 +89,7 @@
         'transferType',
       ]),
       breadcrumbs() {
-        return this.path.map(x => transformBreadrumb(x, this.$route.query));
+        return this.path.map(x => transformBreadrumb(x, this.$route));
       },
       childNodes() {
         // Guard against when state is reset going back to manage content page
@@ -174,9 +172,6 @@
         }
         // If there are no resources at all within the node, do not display at all
         return node.importable && node.total_resources;
-      },
-      updateCurrentTopicNode(node) {
-        return navigateToTopicUrl.call(this, node, this.$route.query);
       },
       toggleSelectAll() {
         this.toggleSelection(this.annotatedTopicNode);

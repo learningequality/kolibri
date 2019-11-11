@@ -17,10 +17,16 @@ export function getAllRemoteChannels(store, publicChannels) {
   );
   const promises = privateChannels.map(privateChannel =>
     getRemoteChannelByToken(privateChannel.id)
-      .then(([channel]) => Promise.resolve({ ...channel, ...privateChannel }))
+      .then(([channel]) =>
+        Promise.resolve({ ...channel, ...privateChannel, latest_version: channel.version })
+      )
       .catch(() => Promise.resolve())
   );
   return Promise.all(promises).then(unlisted => {
     return [...unlisted.filter(Boolean), ...publicChannels];
   });
+}
+
+export function fetchPrivateChannelInfo(store, channelId) {
+  return getRemoteChannelByToken(channelId).then(channels => Array(channels));
 }

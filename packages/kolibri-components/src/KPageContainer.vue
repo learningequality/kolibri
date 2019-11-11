@@ -3,7 +3,7 @@
   <div
     class="page-container"
     :class="classes"
-    :style="{backgroundColor: $themeTokens.surface}"
+    :style="{backgroundColor: $themeTokens.surface, marginTop: `${topMargin}px`}"
   >
     <slot></slot>
   </div>
@@ -23,6 +23,10 @@
       noPadding: {
         type: Boolean,
         default: false,
+      },
+      topMargin: {
+        type: Number,
+        default: 24,
       },
     },
     computed: {
@@ -46,7 +50,6 @@
     @extend %dropshadow-1dp;
 
     padding: 8px 24px 24px;
-    margin-top: 24px;
     overflow-x: auto;
     border-radius: 4px;
   }
@@ -57,6 +60,7 @@
 
   .page-container.small {
     padding: 8px 16px 16px;
+    margin-top: 0;
   }
 
 </style>

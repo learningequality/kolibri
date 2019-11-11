@@ -13,6 +13,7 @@
       class="core-menu-option"
       role="menuitem"
       :class="$computedClass(optionStyle)"
+      :tabindex="link ? false : '0'"
       @click="conditionalEmit"
       @keydown.enter="conditionalEmit"
     >

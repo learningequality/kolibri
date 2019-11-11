@@ -46,7 +46,7 @@ function triggerTask(store, taskPromise) {
 }
 
 export function triggerChannelDeleteTask(store, channelId) {
-  return triggerTask(store, TaskResource.deleteChannel(channelId))
+  return triggerTask(store, TaskResource.deleteChannel({ channelId }))
     .then(response => waitForTaskToComplete(response.entity.id))
     .then(() => store.dispatch('refreshChannelList'));
 }

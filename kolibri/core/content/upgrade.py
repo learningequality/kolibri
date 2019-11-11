@@ -4,6 +4,7 @@ A file to contain specific logic to handle version upgrades in Kolibri.
 import logging
 import os
 
+from le_utils.constants import content_kinds
 from sqlalchemy import and_
 from sqlalchemy import cast
 from sqlalchemy import exists
@@ -12,11 +13,10 @@ from sqlalchemy import Integer
 from sqlalchemy import select
 from sqlalchemy.exc import DatabaseError
 
-from le_utils.constants import content_kinds
 from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
-from kolibri.core.content.utils.annotation import annotate_content
+from kolibri.core.content.utils.annotation import set_content_visibility_from_disk
 from kolibri.core.content.utils.channel_import import FutureSchemaError
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
 from kolibri.core.content.utils.channel_import import InvalidSchemaVersionError
@@ -47,7 +47,7 @@ def import_external_content_dbs():
         if not ChannelMetadata.objects.filter(id=channel_id).exists():
             try:
                 import_channel_from_local_db(channel_id)
-                annotate_content(channel_id)
+                set_content_visibility_from_disk(channel_id)
             except (InvalidSchemaVersionError, FutureSchemaError):
                 logger.warning(
                     "Tried to import channel {channel_id}, but database file was incompatible".format(
