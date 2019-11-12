@@ -1,5 +1,6 @@
 import logging
 
+from django.core.cache import cache
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
 from sqlalchemy import cast
@@ -246,17 +247,39 @@ def get_channel_annotation_stats(channel_id, checksums=None):
 
 
 def get_channel_stats_from_disk(channel_id, drive_id):
-    datafolder = get_mounted_drive_by_id(drive_id).datafolder
-    checksums = get_available_checksums_from_disk(channel_id, datafolder)
-    return get_channel_annotation_stats(channel_id, checksums)
+    CACHE_KEY = "DISK_CHANNEL_STATS_{drive_id}_{channel_id}".format(
+        drive_id=drive_id, channel_id=channel_id
+    )
+    if CACHE_KEY not in cache:
+        datafolder = get_mounted_drive_by_id(drive_id).datafolder
+        checksums = get_available_checksums_from_disk(channel_id, datafolder)
+        channel_stats = get_channel_annotation_stats(channel_id, checksums)
+        cache.set(CACHE_KEY, channel_stats, 3600)
+    else:
+        channel_stats = cache.get(CACHE_KEY)
+    return channel_stats
 
 
 def get_channel_stats_from_peer(channel_id, peer_id):
-    network_location = NetworkLocation.objects.values("base_url").get(id=peer_id)
-    base_url = network_location["base_url"]
-    checksums = get_available_checksums_from_remote(channel_id, base_url)
-    return get_channel_annotation_stats(channel_id, checksums)
+    CACHE_KEY = "PEER_CHANNEL_STATS_{peer_id}_{channel_id}".format(
+        peer_id=peer_id, channel_id=channel_id
+    )
+    if CACHE_KEY not in cache:
+        network_location = NetworkLocation.objects.values("base_url").get(id=peer_id)
+        base_url = network_location["base_url"]
+        checksums = get_available_checksums_from_remote(channel_id, base_url)
+        channel_stats = get_channel_annotation_stats(channel_id, checksums)
+        cache.set(CACHE_KEY, channel_stats, 3600)
+    else:
+        channel_stats = cache.get(CACHE_KEY)
+    return channel_stats
 
 
 def get_channel_stats_from_studio(channel_id):
-    return get_channel_annotation_stats(channel_id)
+    CACHE_KEY = "STUDIO_CHANNEL_STATS_{channel_id}".format(channel_id=channel_id)
+    if CACHE_KEY not in cache:
+        channel_stats = get_channel_annotation_stats(channel_id)
+        cache.set(CACHE_KEY, channel_stats, 3600)
+    else:
+        channel_stats = cache.get(CACHE_KEY)
+    return channel_stats
