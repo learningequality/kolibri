@@ -6,16 +6,11 @@
     </h1>
 
     <form @submit.prevent="$emit('submit')">
-      <fieldset class="onboarding-form-fields">
-        <legend class="onboarding-form-legend">
-          <span v-if="hasDescription" class="onboardng-form-description">
-            <slot name="description">{{ description }}</slot>
-          </span>
-          <span v-else class="visuallyhidden">{{ header }}</span>
-        </legend>
-
+      <OnboardingFormFieldset :header="header" :description="description">
         <slot></slot>
-      </fieldset>
+      </OnboardingFormFieldset>
+
+      <slot name="additional-fields"></slot>
 
       <div class="form-footer">
         <slot name="footer"></slot>
@@ -35,8 +30,11 @@
 
 <script>
 
+  import OnboardingFormFieldset from './OnboardingFormFieldset';
+
   export default {
     name: 'OnboardingForm',
+    components: { OnboardingFormFieldset },
     props: {
       header: {
         type: String,
@@ -51,11 +49,6 @@
         required: true,
       },
     },
-    computed: {
-      hasDescription() {
-        return this.description || this.$slots.description;
-      },
-    },
   };
 
 </script>
@@ -63,27 +56,10 @@
 
 <style lang="scss" scoped>
 
-  .onboarding-form-fields {
-    padding: 0;
-    margin: 0;
-    margin-bottom: 24px;
-    border: 0;
-  }
-
   .onboarding-form-header {
     margin-top: 0;
     margin-bottom: 16px;
     font-size: 21px;
-  }
-
-  .onboarding-form-legend {
-    // Fixes issue in IE11 where the description span would not be broken up
-    width: 100%;
-    margin-bottom: 8px;
-  }
-
-  .onboarding-form-description {
-    margin-bottom: 8px;
   }
 
   .onboarding-form-submit {

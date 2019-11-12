@@ -1,6 +1,7 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import { currentLanguage } from 'kolibri.utils.i18n';
+import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
 
 export default {
   state: {
@@ -28,8 +29,8 @@ export default {
         full_name: '',
         username: '',
         password: '',
-        gender: '',
-        birthYear: '',
+        gender: DemographicConstants.NOT_SPECIFIED,
+        birthYear: DemographicConstants.NOT_SPECIFIED,
       },
     },
     loading: false,

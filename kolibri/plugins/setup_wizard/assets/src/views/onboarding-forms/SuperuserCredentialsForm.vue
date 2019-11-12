@@ -31,17 +31,21 @@
       autocomplete="new-password"
     />
 
-    <GenderSelect
-      :value.sync="gender"
-      class="select"
-    />
+    <template slot="additional-fields">
+      <OnboardingFormFieldset :description="$tr('demographicInfoDescription')">
+        <GenderSelect
+          :value.sync="gender"
+          class="select"
+        />
 
-    <BirthYearSelect
-      :value.sync="birthYear"
-      class="select"
-    />
+        <BirthYearSelect
+          :value.sync="birthYear"
+          class="select"
+        />
 
-    <PrivacyLinkAndModal />
+        <PrivacyLinkAndModal />
+      </OnboardingFormFieldset>
+    </template>
 
     <div slot="footer" class="reminder">
       <div class="icon">
@@ -69,6 +73,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
   import OnboardingForm from './OnboardingForm';
+  import OnboardingFormFieldset from './OnboardingFormFieldset';
 
   const { DEFERRED } = DemographicConstants;
 
@@ -76,6 +81,7 @@
     name: 'SuperuserCredentialsForm',
     components: {
       OnboardingForm,
+      OnboardingFormFieldset,
       FullNameTextbox,
       UsernameTextbox,
       PasswordTextbox,
@@ -99,7 +105,7 @@
         usernameValid: false,
         password: superuser.password,
         passwordValid: false,
-        birthYear: superuser.birth_year,
+        birthYear: superuser.birthYear,
         gender: superuser.gender,
         formSubmitted: false,
       };
@@ -154,6 +160,8 @@
       adminAccountCreationHeader: 'Create super admin account',
       adminAccountCreationDescription:
         'This account allows you to manage the facility, content, and user accounts on this device',
+      demographicInfoDescription:
+        'The following information is optional. It is used to help with user administration.',
       rememberThisAccountInformation:
         'Important: please remember this account information. Write it down if needed',
     },
