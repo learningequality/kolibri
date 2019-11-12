@@ -1,0 +1,12 @@
+/** COLOR PALLETTE **/
+$video-player-color: #212121;
+// tint if $video-player-color = black-ish, shade if $video-player-color = white-ish
+$video-player-color-2: tint($video-player-color, 7%);
+$video-player-color-3: tint($video-player-color, 15%);
+
+$video-player-control-height: 3.25em;
+
+$video-player-font-color: white;
+
+$video-player-font-size: 12px;
+$video-player-max-height: 562px;

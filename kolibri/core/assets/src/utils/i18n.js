@@ -52,13 +52,13 @@ export let currentLanguage = defaultLocale;
 // Default to ltr
 export let languageDirection = languageDirections.LTR;
 
-export const getLangDir = id => {
+export function getLangDir(id) {
   return (availableLanguages[id] || {}).lang_direction || languageDirections.LTR;
-};
+}
 
-export const isRtl = id => {
+export function isRtl(id) {
   return getLangDir(id) === languageDirections.RTL;
-};
+}
 
 export const languageDensities = {
   englishLike: 'english_like',
@@ -93,7 +93,7 @@ const languageDensityMapping = {
   zh: languageDensities.dense,
 };
 
-function languageIdToCode(id) {
+export function languageIdToCode(id) {
   return id.split('-')[0].toLowerCase();
 }
 
