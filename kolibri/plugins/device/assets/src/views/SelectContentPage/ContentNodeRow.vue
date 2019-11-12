@@ -19,7 +19,7 @@
           :kind="node.kind"
         />
         <KRouterLink
-          v-if="showButton"
+          v-if="isTopic"
           name="select-node"
           :text="node.title"
           :to="getLinkObject(node)"
@@ -85,9 +85,6 @@
     computed: {
       isTopic() {
         return this.node.kind === ContentNodeKinds.TOPIC;
-      },
-      showButton() {
-        return !this.disabled && this.node.kind === ContentNodeKinds.TOPIC;
       },
     },
   };
