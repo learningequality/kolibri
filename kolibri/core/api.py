@@ -27,4 +27,4 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
             urljoin(PORTAL_URL, "portal/api/public/v1/registerfacility/validate_token"),
             params=request.query_params,
         )
-        return Response(response.json(), status=response.status_code)
+        return Response(response.text, status=response.status_code)
