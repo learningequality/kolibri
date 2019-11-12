@@ -7,6 +7,7 @@
     />
 
     <FilteredChannelListContainer
+      v-if="status === ''"
       :channels="allChannels"
       :selectedChannels.sync="selectedChannels"
       :selectAllCheckbox="multipleMode"

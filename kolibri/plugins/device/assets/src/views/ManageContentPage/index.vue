@@ -65,6 +65,7 @@
 <script>
 
   import find from 'lodash/find';
+  import get from 'lodash/get';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
@@ -131,8 +132,14 @@
             .then(task => {
               this.notifyAndWatchTask(task);
             })
-            .catch(() => {
-              this.createTaskFailedSnackbar();
+            .catch(err => {
+              // Silently handle double-deletions
+              // TODO make double-deletion return a 404 error
+              if (get(err, 'entity[0]') === 'This channel does not exist') {
+                this.refreshChannelList();
+              } else {
+                this.createTaskFailedSnackbar();
+              }
             });
         }
       },

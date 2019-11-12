@@ -220,7 +220,13 @@ export function showSelectContentPage(store, params) {
           channels => {
             resolve({ ...channels[0] });
           },
-          () => reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO })
+          error => {
+            if (error.status.code === 404) {
+              reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO });
+            } else {
+              reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE });
+            }
+          }
         );
     });
   }
