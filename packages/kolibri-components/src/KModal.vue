@@ -343,6 +343,7 @@
   .title {
     padding: 24px;
     margin: 0;
+    font-size: 24px;
   }
 
   .content {

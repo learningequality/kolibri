@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <KPageContainer>
     <h1>{{ $tr('pageHeader', {className}) }}</h1>
     <p>{{ $tr('pageSubheader') }}</p>
     <ClassEnrollForm
@@ -8,7 +8,7 @@
       :classUsers="classUsers"
       @submit="enrollLearners"
     />
-  </div>
+  </KPageContainer>
 
 </template>
 

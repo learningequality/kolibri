@@ -5,6 +5,7 @@ import classManagement from './classManagement';
 import facilityConfig from './facilityConfig';
 import userManagement from './userManagement';
 import manageCSV from './manageCSV';
+import manageSync from './manageSync';
 
 export default {
   state: {
@@ -46,5 +47,6 @@ export default {
     userManagement,
     facilityConfig,
     manageCSV,
+    manageSync,
   },
 };

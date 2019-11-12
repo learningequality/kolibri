@@ -1,3 +1,4 @@
+import Vue from 'kolibri.lib.vue';
 import { CSVGenerationStatuses } from '../../constants';
 import actions from './actions';
 
@@ -9,6 +10,8 @@ function defaultState() {
     sessionLogStatus: CSVGenerationStatuses.NO_LOGS_CREATED,
     sessionTaskId: '',
     sessionDateCreated: null,
+    facilities: [],
+    facilityTaskId: '',
   };
 }
 
@@ -48,13 +51,14 @@ export default {
     RESET_STATE(state) {
       Object.assign(state, defaultState());
     },
+    /*State for CSV tasks*/
     START_SUMMARY_CSV_EXPORT(state, payload) {
       state.summaryLogStatus = CSVGenerationStatuses.GENERATING;
-      state.summaryTaskId = payload;
+      state.summaryTaskId = payload.id;
     },
     START_SESSION_CSV_EXPORT(state, payload) {
       state.sessionLogStatus = CSVGenerationStatuses.GENERATING;
-      state.sessionTaskId = payload;
+      state.sessionTaskId = payload.id;
     },
     SET_FINISHED_SUMMARY_CSV_CREATION(state, payload) {
       state.summaryLogStatus = CSVGenerationStatuses.AVAILABLE;
@@ -65,6 +69,28 @@ export default {
       state.sessionLogStatus = CSVGenerationStatuses.AVAILABLE;
       state.sessionTaskId = '';
       state.sessionDateCreated = payload;
+    },
+    /*State for sync tasks*/
+    START_FACILITY_SYNC(state, payload) {
+      const match = state.facilities.find(f => f.id === payload.facility);
+      if (match) {
+        Vue.set(match, 'syncing', true);
+      }
+      state.facilityTaskId = payload.id;
+    },
+    SET_FINISH_FACILITY_SYNC(state, payload) {
+      state.facilityTaskId = '';
+      const match = state.facilities.find(f => f.syncing === true);
+      if (match) {
+        Vue.set(match, 'last_synced', payload);
+        Vue.set(match, 'syncing', false);
+      }
+    },
+    SET_REGISTERED(state, facility) {
+      const match = state.facilities.find(f => f.id === facility.id);
+      if (match) {
+        Vue.set(match.dataset, 'registered', true);
+      }
     },
   },
   actions,

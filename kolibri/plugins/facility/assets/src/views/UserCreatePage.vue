@@ -1,6 +1,6 @@
 <template>
 
-  <div class="narrow-container">
+  <KPageContainer class="narrow-container">
 
     <form class="form" @submit.prevent="submitForm">
       <h1>
@@ -94,7 +94,7 @@
       </div>
 
     </form>
-  </div>
+  </KPageContainer>
 
 </template>
 
