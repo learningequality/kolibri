@@ -8,6 +8,7 @@ function defaultState() {
     channelList: [],
     channelListLoading: false,
     taskList: [],
+    watchedTaskId: null,
   };
 }
 
@@ -29,6 +30,9 @@ export default {
     },
     SET_TASK_LIST(state, taskList) {
       state.taskList = [...taskList];
+    },
+    SET_WATCHED_TASK_ID(state, taskId) {
+      state.watchedTaskId = taskId;
     },
     ADD_TO_CHANNEL_LIST(state, channel) {
       state.channelList.push(channel);

@@ -11,12 +11,10 @@ const TaskSnackbarStrings = createTranslator('TaskSnackbarStrings', {
 });
 
 export default {
-  data() {
-    return {
-      watchedTaskId: null,
-    };
-  },
   computed: {
+    watchedTaskId() {
+      return this.$store.state.manageContent.watchedTaskId;
+    },
     watchedTaskHasFinished() {
       // Should switch between null and the taskIds, and can be watched
       // by component to trigger side effects when a task finishes.
@@ -36,7 +34,7 @@ export default {
   },
   methods: {
     notifyAndWatchTask(task) {
-      this.watchedTaskId = task.entity.id;
+      this.startWatchingTask(task);
       this.createTaskStartedSnackbar();
     },
     createTaskFailedSnackbar() {
@@ -77,7 +75,7 @@ export default {
       });
     },
     startWatchingTask(task) {
-      this.watchedTaskId = task.entity.id;
+      this.$store.commit('manageContent/SET_WATCHED_TASK_ID', task.entity.id);
     },
   },
 };
