@@ -259,7 +259,7 @@ class Application(pew.ui.PEWApp):
 
     def wait_for_server(self):
         home_url = KOLIBRI_ROOT_URL
-        timeout = 10
+        timeout = 20
         max_retries = 3
         time_spent = 0
         load_retries = 0
@@ -286,6 +286,7 @@ class Application(pew.ui.PEWApp):
                     # leaving the approach in place so we can just drop in the restart code when ready.
                     pew.ui.run_on_main_thread(self.view.evaluate_javascript, 'show_retry()')
                     load_retries += 1
+                    time_spent = 0
                 else:
                     pew.ui.run_on_main_thread(self.view.evaluate_javascript, 'show_error()')
                     return
