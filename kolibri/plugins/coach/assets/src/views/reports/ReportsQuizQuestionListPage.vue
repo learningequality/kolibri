@@ -1,31 +1,19 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-    :showSubNav="true"
-  >
-
-    <TopNavbar slot="sub-nav" />
-
-    <KPageContainer>
-
-      <ReportsQuizHeader />
-
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <CoreTable :emptyMessage="coachStrings.$tr('questionListEmptyState')">
+  <ReportsQuizBaseListPage>
+    <div>
+      <h2>{{ coachString('overallLabel') }}</h2>
+      <CoreTable :emptyMessage="coachString('questionListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('questionLabel') }}</th>
-            <th>{{ coachStrings.$tr('helpNeededLabel') }}</th>
+            <th>{{ coachString('questionLabel') }}</th>
+            <th>{{ coachString('helpNeededLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="(tableRow, index) in table" :key="tableRow.question_id + index">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" question />
+              <KLabeledIcon icon="question">
                 <KRouterLink
                   :text="tableRow.title"
                   :to="questionLink(tableRow.question_id)"
@@ -44,8 +32,8 @@
           </tr>
         </transition-group>
       </CoreTable>
-    </KPageContainer>
-  </CoreBase>
+    </div>
+  </ReportsQuizBaseListPage>
 
 </template>
 
@@ -55,14 +43,14 @@
   import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
-  import ReportsQuizHeader from './ReportsQuizHeader';
+  import ReportsQuizBaseListPage from './ReportsQuizBaseListPage';
   import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsQuizQuestionListPage',
     components: {
-      ReportsQuizHeader,
       LearnerProgressRatio,
+      ReportsQuizBaseListPage,
     },
     mixins: [commonCoach],
     computed: {
@@ -83,9 +71,7 @@
         });
       },
     },
-    $trs: {
-      avgTimeSpentLabel: 'Average time spent',
-    },
+    $trs: {},
   };
 
 </script>

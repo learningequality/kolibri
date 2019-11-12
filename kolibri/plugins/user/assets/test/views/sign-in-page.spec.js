@@ -28,7 +28,7 @@ describe('signInPage component', () => {
   it('will set the validation text to required if the username is empty and blurred', () => {
     const wrapper = makeWrapper();
     wrapper.setData({ username: '', usernameBlurred: true });
-    expect(wrapper.vm.usernameIsInvalidText).toEqual(wrapper.vm.$options.$trs.required);
+    expect(wrapper.vm.usernameIsInvalidText).toEqual(wrapper.vm.coreString('requiredFieldError'));
   });
   it('will set the validation text to empty if the username is empty and not blurred', () => {
     const wrapper = makeWrapper();

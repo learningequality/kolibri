@@ -5,22 +5,22 @@
       <BackLink
         v-if="classListPageEnabled"
         :to="$router.getRoute('HomePage')"
-        :text="navStrings.$tr('home')"
+        :text="$tr('home')"
       />
     </p>
     <h1>{{ $tr('planYourClassLabel') }}</h1>
     <p>{{ $tr('planYourClassDescription') }}</p>
     <HeaderTabs>
       <HeaderTab
-        :text="coachStrings.$tr('lessonsLabel')"
+        :text="coreString('lessonsLabel')"
         :to="classRoute(LessonsPageNames.PLAN_LESSONS_ROOT)"
       />
       <HeaderTab
-        :text="coachStrings.$tr('quizzesLabel')"
+        :text="coreString('quizzesLabel')"
         :to="classRoute(PageNames.EXAMS)"
       />
       <HeaderTab
-        :text="coachStrings.$tr('groupsLabel')"
+        :text="coachString('groupsLabel')"
         :to="classRoute('GroupsPage')"
       />
     </HeaderTabs>
@@ -31,31 +31,25 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { mapGetters } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { LessonsPageNames } from '../../constants/lessonsConstants';
-  import TopNavbar from '../TopNavbar';
-
-  const navStrings = crossComponentTranslator(TopNavbar);
 
   export default {
     name: 'PlanHeader',
     components: {},
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       ...mapGetters(['classListPageEnabled']),
       LessonsPageNames() {
         return LessonsPageNames;
       },
-      navStrings() {
-        return navStrings;
-      },
     },
     $trs: {
-      back: 'All classes',
       planYourClassLabel: 'Plan your class',
       planYourClassDescription: 'Create and manage your lessons, quizzes, and groups',
+      home: 'Class Home',
     },
   };
 

@@ -3,9 +3,9 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="arrow_back"
-    immersivePagePrimary
+    :immersivePagePrimary="false"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="$tr('preview')"
+    :appBarTitle="$tr('appBarLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :marginBottom="72"
@@ -13,13 +13,13 @@
 
     <KPageContainer>
       <h1>{{ $tr('preview') }}</h1>
-      <h2>{{ coachStrings.$tr('detailsLabel') }}</h2>
+      <h2>{{ coachString('detailsLabel') }}</h2>
       <KGrid>
-        <KGridItem sizes="100, 100, 50" percentage>
+        <KGridItem :layout12="{ span: 6 }">
           <KTextbox
             ref="title"
             v-model.trim="examTitle"
-            :label="moreStrings.$tr('title')"
+            :label="coachString('titleLabel')"
             :autofocus="true"
             :maxlength="100"
             :invalid="Boolean(showError && titleIsInvalidText)"
@@ -27,14 +27,14 @@
             @input="showTitleError = false"
           />
         </KGridItem>
-        <KGridItem sizes="100, 100, 50" percentage class="number-input-grid-item">
+        <KGridItem :layout12="{ span: 6 }" class="number-input-grid-item">
           <KTextbox
             ref="numQuest"
             v-model.trim.number="numQuestions"
             type="number"
             :min="1"
             :max="maxQs"
-            :label="moreStrings.$tr('numQuestions')"
+            :label="$tr('numQuestions')"
             :invalid="Boolean(showError && numQuestIsInvalidText)"
             :invalidText="numQuestIsInvalidText"
             class="number-field"
@@ -77,25 +77,25 @@
         />
       </div>
       <h2 class="header-margin">
-        {{ $tr('questionOrder') }}
+        {{ coachString('questionOrderLabel') }}
       </h2>
       <div>
         <KRadioButton
           v-model="fixedOrder"
-          :label="coachStrings.$tr('orderRandomLabel')"
-          :description="coachStrings.$tr('orderRandomDescription')"
+          :label="coachString('orderRandomLabel')"
+          :description="coachString('orderRandomDescription')"
           :value="false"
         />
         <KRadioButton
           v-model="fixedOrder"
-          :label="coachStrings.$tr('orderFixedLabel')"
-          :description="coachStrings.$tr('orderFixedDescription')"
+          :label="coachString('orderFixedLabel')"
+          :description="coachString('orderFixedDescription')"
           :value="true"
         />
       </div>
 
       <h2 class="header-margin">
-        {{ $tr('questions') }}
+        {{ $tr('questionsLabel') }}
       </h2>
 
       <QuestionListPreview
@@ -105,19 +105,19 @@
         :selectedExercises="selectedExercises"
       />
 
-      <KBottomAppBar>
+      <BottomAppBar>
         <KRouterLink
           appearance="flat-button"
-          :text="coachStrings.$tr('goBackAction')"
+          :text="coreString('goBackAction')"
           :to="toolbarRoute"
         />
         <KButton
-          :text="coachStrings.$tr('finishAction')"
+          :text="coreString('finishAction')"
           :disabled="loadingNewQuestions"
           primary
           @click="submit"
         />
-      </KBottomAppBar>
+      </BottomAppBar>
     </KPageContainer>
 
   </CoreBase>
@@ -130,23 +130,14 @@
   import { mapState } from 'vuex';
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import QuestionListPreview from './QuestionListPreview';
-  import CreateExamPage from './index';
-
-  const createExamPageStrings = crossComponentTranslator(CreateExamPage);
 
   export default {
     name: 'CreateExamPreview',
@@ -157,16 +148,10 @@
     },
     components: {
       UiIconButton,
-      KRouterLink,
-      KButton,
-      KRadioButton,
-      KGrid,
-      KGridItem,
-      KBottomAppBar,
-      KTextbox,
+      BottomAppBar,
       QuestionListPreview,
     },
-    mixins: [responsiveWindow, commonCoach],
+    mixins: [responsiveWindowMixin, commonCoach, commonCoreStrings],
     data() {
       return {
         showError: false,
@@ -183,9 +168,6 @@
       ]),
       maxQs() {
         return MAX_QUESTIONS;
-      },
-      moreStrings() {
-        return createExamPageStrings;
       },
       examTitle: {
         get() {
@@ -216,25 +198,25 @@
       },
       titleIsInvalidText() {
         if (this.examTitle === '') {
-          return createExamPageStrings.$tr('examRequiresTitle');
+          return this.coreString('requiredFieldError');
         }
         if (this.showTitleError) {
-          return this.coachStrings.$tr('quizDuplicateTitleError');
+          return this.coachString('quizDuplicateTitleError');
         }
         return null;
       },
       numQuestIsInvalidText() {
         if (this.numQuestions === '') {
-          return createExamPageStrings.$tr('numQuestionsBetween');
+          return this.$tr('numQuestionsBetween');
         }
         if (this.numQuestions < 1 || this.numQuestions > 50) {
-          return createExamPageStrings.$tr('numQuestionsBetween');
+          return this.$tr('numQuestionsBetween');
         }
         if (!Number.isInteger(this.numQuestions)) {
-          return createExamPageStrings.$tr('numQuestionsBetween');
+          return this.$tr('numQuestionsBetween');
         }
         if (this.numQuestions > this.availableQuestions) {
-          return createExamPageStrings.$tr('numQuestionsExceed', {
+          return this.$tr('numQuestionsExceed', {
             inputNumQuestions: this.numQuestions,
             maxQuestionsFromSelection: this.availableQuestions,
           });
@@ -270,13 +252,14 @@
     },
     $trs: {
       title: 'Select questions',
-      backLabel: 'Select topics or exercises',
-      exercise: 'Exercise { num }',
+      appBarLabel: 'Select exercises',
       randomize: 'Choose a different set of questions',
-      questionOrder: 'Question order',
-      questions: 'Questions',
-      newQuestions: 'New question set created',
+      questionsLabel: 'Questions',
       preview: 'Preview quiz',
+      numQuestionsBetween: 'Enter a number between 1 and 50',
+      numQuestionsExceed:
+        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+      numQuestions: 'Number of questions',
     },
   };
 

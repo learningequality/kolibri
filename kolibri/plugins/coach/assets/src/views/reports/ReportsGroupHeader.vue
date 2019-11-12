@@ -8,26 +8,23 @@
       />
     </p>
     <h1>
-      <KLabeledIcon>
-        <KIcon slot="icon" group />
-        {{ group.name }}
-      </KLabeledIcon>
+      <KLabeledIcon icon="group" :label="group.name" />
     </h1>
 
     <!-- TODO COACH
     <HeaderTable>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachStrings.$tr('avgQuizScoreLabel') }}
+          {{ coachString('avgQuizScoreLabel') }}
         </template>
         <template slot="value">
-          {{ coachStrings.$tr('percentage', {value: avgScore}) }}
+          {{ coachString('percentage', {value: avgScore}) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>
     <HeaderTable>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('learnersLabel') }}</template>
+        <template slot="key">{{ coreString('learnersLabel') }}</template>
         <template slot="value">
           <TruncatedItemList
             :items="[
@@ -50,15 +47,15 @@
 
     <HeaderTabs>
       <HeaderTab
-        :text="coachStrings.$tr('reportsLabel')"
+        :text="coachString('reportsLabel')"
         :to="classRoute('ReportsGroupReportPage', {})"
       />
       <HeaderTab
-        :text="coachStrings.$tr('membersLabel')"
+        :text="coachString('membersLabel')"
         :to="classRoute('ReportsGroupLearnerListPage', {})"
       />
       <HeaderTab
-        :text="coachStrings.$tr('activityLabel')"
+        :text="coachString('activityLabel')"
         :to="classRoute('ReportsGroupActivityPage', {})"
       />
     </HeaderTabs>
@@ -69,12 +66,13 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
 
   export default {
     name: 'ReportsGroupHeader',
     components: {},
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       group() {
         return this.groupMap[this.$route.params.groupId];

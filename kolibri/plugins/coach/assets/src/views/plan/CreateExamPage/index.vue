@@ -2,19 +2,19 @@
 
   <CoreBase
     :immersivePage="true"
-    immersivePageIcon="arrow_back"
-    immersivePagePrimary
+    immersivePageIcon="close"
+    :immersivePagePrimary="false"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="$tr('createNewExam')"
+    :appBarTitle="$tr('createNewExamLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :pageTitle="$tr('documentTitle')"
+    :pageTitle="$tr('createNewExamLabel')"
     :marginBottom="72"
   >
 
     <KPageContainer>
 
-      <h1>{{ $tr('createNewExam') }}</h1>
+      <h1>{{ $tr('createNewExamLabel') }}</h1>
 
       <UiAlert
         v-if="showError && !inSearchMode"
@@ -24,19 +24,19 @@
         {{ selectionIsInvalidText }}
       </UiAlert>
 
-      <h2>{{ coachStrings.$tr('detailsLabel') }}</h2>
+      <h2>{{ coachString('detailsLabel') }}</h2>
 
       <KGrid>
-        <KGridItem sizes="100, 100, 50" percentage>
+        <KGridItem :layout12="{ span: 6 }">
           <KTextbox
             ref="title"
             v-model.trim="examTitle"
-            :label="$tr('title')"
+            :label="coachString('titleLabel')"
             :autofocus="true"
             :maxlength="100"
           />
         </KGridItem>
-        <KGridItem sizes="100, 100, 50" percentage>
+        <KGridItem :layout12="{ span: 6 }">
           <KTextbox
             ref="questionsInput"
             v-model.trim.number="numQuestions"
@@ -109,26 +109,26 @@
         @moreresults="handleMoreResults"
       />
 
-      <KBottomAppBar v-if="inSearchMode">
+      <BottomAppBar v-if="inSearchMode">
         <KRouterLink
           appearance="raised-button"
           :text="$tr('exitSearchButtonLabel')"
           primary
           :to="toolbarRoute"
         />
-      </KBottomAppBar>
-      <KBottomAppBar v-else>
+      </BottomAppBar>
+      <BottomAppBar v-else>
         <KRouterLink
           appearance="flat-button"
-          :text="coachStrings.$tr('goBackAction')"
+          :text="coreString('goBackAction')"
           :to="toolbarRoute"
         />
         <KButton
-          :text="coachStrings.$tr('continueAction')"
+          :text="coreString('continueAction')"
           primary
           @click="continueProcess"
         />
-      </KBottomAppBar>
+      </BottomAppBar>
 
     </KPageContainer>
 
@@ -141,17 +141,13 @@
 
   import { mapState, mapActions, mapGetters } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
@@ -164,20 +160,15 @@
     // TODO: Rename this to 'ExamCreationPage'
     name: 'CreateExamPage',
     components: {
-      KTextbox,
-      KRouterLink,
-      KButton,
       UiAlert,
       LessonsSearchBox,
       LessonsSearchFilters,
       ResourceSelectionBreadcrumbs,
       ContentCardList,
-      KGrid,
-      KGridItem,
       UiIconButton,
-      KBottomAppBar,
+      BottomAppBar,
     },
-    mixins: [responsiveWindow, commonCoach],
+    mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     data() {
       return {
         showError: false,
@@ -192,7 +183,7 @@
       };
     },
     computed: {
-      ...mapState(['pageName', 'toolbarRoute']),
+      ...mapState(['toolbarRoute']),
       ...mapGetters('examCreation', ['numRemainingSearchResults']),
       ...mapState('examCreation', [
         'numberOfQuestions',
@@ -202,6 +193,9 @@
         'searchResults',
         'ancestors',
       ]),
+      pageName() {
+        return this.$route.name;
+      },
       maxQs() {
         return MAX_QUESTIONS;
       },
@@ -492,26 +486,23 @@
       },
     },
     $trs: {
-      createNewExam: 'Create new quiz',
+      createNewExamLabel: 'Create new quiz',
       chooseExercises: 'Select topics or exercises',
-      title: 'Title',
       numQuestions: 'Number of questions',
-      examRequiresTitle: 'This field is required',
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
-      numQuestionsNotMet:
-        'Add more exercises to reach 40 questions. Alternately, lower the number of quiz questions.',
       noneSelected: 'No exercises are selected',
-      // TODO: Interpolate strings correctly
-      added: "Added '{item}'",
-      removed: "Removed '{item}'",
-      selected: '{count, number, integer} total selected',
-      documentTitle: 'Create new quiz',
       exitSearchButtonLabel: 'Exit search',
       // TODO: Handle singular/plural
       selectionInformation:
         '{count, number, integer} of {total, number, integer} resources selected',
+      // TODO: Interpolate strings correctly
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      /* The items below are referred to dynamically */
+      added: "Added '{item}'",
+      removed: "Removed '{item}'",
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 

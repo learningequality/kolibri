@@ -1,20 +1,17 @@
-import { createTranslator } from 'kolibri.utils.i18n';
 import { mapState } from 'vuex';
+import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 import { ClassesPageNames } from '../../constants';
 import { classAssignmentsLink, lessonPlaylistLink } from './classPageLinks';
 
-const translator = createTranslator('ClassesBreadcrumbItems', {
-  allClassesBreadcrumb: 'Classes',
-});
-
 // A mixin intended for use inside of learn plugin breadcrumbs
 export default {
+  mixins: [commonCoreStrings],
   computed: {
     classesBreadcrumbs() {
       const defaultCrumbs = [
         // Link to All Classes Page
         {
-          text: translator.$tr('allClassesBreadcrumb'),
+          text: this.coreString('classesLabel'),
           link: {
             name: ClassesPageNames.ALL_CLASSES,
           },

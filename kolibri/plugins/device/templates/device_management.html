@@ -1,0 +1,6 @@
+{% extends "kolibri/base.html" %}
+{% load webpack_tags %}
+
+{% block content %}
+  {% webpack_asset 'kolibri.plugins.device.app' %}
+{% endblock %}

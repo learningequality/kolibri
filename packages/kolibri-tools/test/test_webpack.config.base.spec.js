@@ -16,15 +16,27 @@ jest.mock('../lib/logging', () => ({
   },
 }));
 
+jest.mock(
+  'test',
+  () => ({
+    webpack_config: {
+      entry: 'test',
+    },
+  }),
+  { virtual: true }
+);
+
 const baseData = {
   name: 'kolibri.plugin.test.test_plugin',
-  src_file: 'src/file.js',
+  bundle_id: 'test_plugin',
   stats_file: 'output.json',
   static_url_root: 'static',
   static_dir: 'kolibri/plugin/test',
   locale_data_folder: 'kolibri/locale/test',
   version: 'test',
   plugin_path: 'kolibri/plugin',
+  config_path: 'test',
+  index: null,
 };
 
 describe('webpackConfigBase', function() {
@@ -35,14 +47,6 @@ describe('webpackConfigBase', function() {
   describe('input is valid, bundles output', function() {
     it('should have one entry', function() {
       expect(Object.keys(webpackConfigBase(data).entry)).toHaveLength(1);
-    });
-    it('should set the entry name to data.name', function() {
-      expect(Object.keys(webpackConfigBase(data).entry)[0]).toEqual(data.name);
-    });
-    it('should set the entry path to the path to the source file', function() {
-      expect(webpackConfigBase(data).entry[data.name]).toEqual(
-        path.join(data.plugin_path, data.src_file)
-      );
     });
     it('should add plugin node modules to resolve paths', function() {
       expect(webpackConfigBase(data).resolve.modules).toContain(
@@ -90,9 +94,9 @@ describe('webpackConfigBase', function() {
       expectParsedDataIsUndefined(data);
     });
   });
-  describe('input is missing src_file, bundles output', function() {
+  describe('input is missing config_path, bundles output', function() {
     it('should be undefined', function() {
-      delete data.src_file;
+      delete data.config_path;
       expectParsedDataIsUndefined(data);
     });
   });

@@ -1,28 +1,30 @@
 <template>
 
-  <CoreTable :emptyMessage="coachStrings.$tr('activityListEmptyState')">
+  <CoreTable :emptyMessage="coachString('activityListEmptyState')">
     <thead slot="thead">
       <tr>
-        <th>{{ coachStrings.$tr('nameLabel') }}</th>
-        <th>{{ coachStrings.$tr('progressLabel') }}</th>
-        <th>{{ coachStrings.$tr('timeSpentLabel') }}</th>
+        <th>{{ coachString('nameLabel') }}</th>
+        <th>{{ coreString('progressLabel') }}</th>
+        <th>{{ coachString('timeSpentLabel') }}</th>
         <th v-if="showGroupsColumn">
-          {{ coachStrings.$tr('groupsLabel') }}
+          {{ coachString('groupsLabel') }}
         </th>
-        <th>{{ coachStrings.$tr('lastActivityLabel') }}</th>
+        <th>{{ coachString('lastActivityLabel') }}</th>
       </tr>
     </thead>
     <transition-group slot="tbody" tag="tbody" name="list">
       <tr v-for="entry in entries" :key="entry.id" data-test="entry">
         <td>
-          <KRouterLink
-            v-if="showLink(entry)"
-            :text="entry.name"
-            :to="entry.exerciseLearnerLink"
-          />
-          <template v-else>
-            {{ entry.name }}
-          </template>
+          <KLabeledIcon icon="person">
+            <KRouterLink
+              v-if="showLink(entry)"
+              :text="entry.name"
+              :to="entry.exerciseLearnerLink"
+            />
+            <template v-else>
+              {{ entry.name }}
+            </template>
+          </KLabeledIcon>
         </td>
         <td>
           <StatusSimple :status="entry.statusObj.status" />
@@ -51,8 +53,7 @@
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSimple from '../common/status/StatusSimple';
   import TimeDuration from '../common/TimeDuration';
@@ -64,12 +65,11 @@
     components: {
       CoreTable,
       ElapsedTime,
-      KRouterLink,
       StatusSimple,
       TimeDuration,
       TruncatedItemList,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       entries: {
         type: Array,

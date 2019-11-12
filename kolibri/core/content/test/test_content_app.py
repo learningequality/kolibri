@@ -232,7 +232,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "title": "root",
                 "kind": "topic",
                 "available": False,
-                "total_resources": 1,
+                "total_resources": 2,
                 "on_device_resources": 0,
                 "coach_content": False,
                 "importable": True,
@@ -254,7 +254,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "title": "c2",
                         "kind": "topic",
                         "available": False,
-                        "total_resources": 0,
+                        "total_resources": 1,
                         "on_device_resources": 0,
                         "importable": True,
                         "coach_content": False,
@@ -287,7 +287,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "title": "root",
                 "kind": "topic",
                 "available": False,
-                "total_resources": 1,
+                "total_resources": 2,
                 "on_device_resources": 0,
                 "importable": True,
                 "coach_content": False,
@@ -309,7 +309,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "title": "c2",
                         "kind": "topic",
                         "available": False,
-                        "total_resources": 0,
+                        "total_resources": 1,
                         "on_device_resources": 0,
                         "importable": True,
                         "coach_content": False,
@@ -493,7 +493,7 @@ class ContentNodeAPITestCase(APITestCase):
         )
 
     def test_contentnode_descendants_assessments_exercise_parent_sum_siblings_one_unavailable(
-        self
+        self,
     ):
         c1 = content.ContentNode.objects.filter(kind=content_kinds.EXERCISE).first()
         c1.available = False
@@ -737,9 +737,9 @@ class ContentNodeAPITestCase(APITestCase):
             reverse("kolibri:core:channel-detail", kwargs={"pk": data["id"]}),
             get_params,
         )
-        # N.B. Because of our not very good fixture data, all of our content nodes are by default not renderable
-        # Hence this will return None if everything is deduped properly.
-        self.assertEqual(response.data["total_resources"], 0)
+        # N.B. Because of our not very good fixture data, most of our content nodes are by default not renderable
+        # Hence this will return 1 if everything is deduped properly.
+        self.assertEqual(response.data["total_resources"], 1)
         self.assertEqual(response.data["total_file_size"], 0)
         self.assertEqual(response.data["on_device_resources"], 4)
         self.assertEqual(response.data["on_device_file_size"], 0)
@@ -794,12 +794,12 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data[0]["available"], False)
 
     def test_channelmetadata_include_fields_filter_has_total_resources(self):
-        # N.B. Because of our not very good fixture data, all of our content nodes are by default not renderable
-        # Hence this will return None if everything is deduped properly.
+        # N.B. Because of our not very good fixture data, most of our content nodes are by default not renderable
+        # Hence this will return 1 if everything is deduped properly.
         response = self.client.get(
             reverse("kolibri:core:channel-list"), {"include_fields": "total_resources"}
         )
-        self.assertEqual(response.data[0]["total_resources"], 0)
+        self.assertEqual(response.data[0]["total_resources"], 1)
 
     def test_channelmetadata_include_fields_filter_has_total_file_size(self):
         content.LocalFile.objects.filter(
@@ -808,7 +808,7 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(
             reverse("kolibri:core:channel-list"), {"include_fields": "total_file_size"}
         )
-        self.assertEqual(response.data[0]["total_file_size"], 2)
+        self.assertEqual(response.data[0]["total_file_size"], 5)
 
     def test_channelmetadata_include_fields_filter_has_on_device_resources(self):
         content.ChannelMetadata.objects.all().update(total_resource_count=5)
@@ -842,7 +842,7 @@ class ContentNodeAPITestCase(APITestCase):
         Q(kind="dummy"),
     )
     def test_channelmetadata_include_fields_filter_has_no_renderable_on_device_file_size(
-        self
+        self,
     ):
         content.ChannelMetadata.objects.all().update(published_size=4)
         response = self.client.get(
@@ -884,7 +884,7 @@ class ContentNodeAPITestCase(APITestCase):
                 kwargs={"pk": "6bdfea4a01830fdd4a585181c0b8068c"},
             )
         )
-        self.assertEqual(response.data["preset"], "High Resolution")
+        self.assertEqual(response.data["preset"], "high_res_video")
 
     def _setup_contentnode_progress(self):
         # set up data for testing progress_fraction field on content node endpoint

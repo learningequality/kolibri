@@ -2,7 +2,7 @@
 
   <div
     class="bar-wrapper"
-    :style="{ backgroundColor: $themeColors.palette.grey.v_300 }"
+    :style="{ backgroundColor: $themePalette.grey.v_300 }"
   >
     <div class="bar help" :style="helpLineStyle"></div>
     <div class="bar" :style="barStyleStarted"></div>
@@ -14,12 +14,11 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import tallyMixin from './tallyMixin';
 
   export default {
     name: 'ProgressSummaryBar',
-    mixins: [tallyMixin, themeMixin],
+    mixins: [tallyMixin],
     computed: {
       barStyleCompleted() {
         return {

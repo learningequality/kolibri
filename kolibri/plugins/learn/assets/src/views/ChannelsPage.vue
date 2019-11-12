@@ -2,7 +2,7 @@
 
   <div>
     <PageHeader
-      :title="$tr('channels')"
+      :title="coreString('channelsLabel')"
       class="visuallyhidden"
     />
     <ContentCardGroupGrid
@@ -19,6 +19,7 @@
 <script>
 
   import { mapState } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import PageHeader from './PageHeader';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
@@ -34,6 +35,7 @@
       PageHeader,
       ContentCardGroupGrid,
     },
+    mixins: [commonCoreStrings],
     computed: {
       ...mapState('topicsRoot', { channels: 'rootNodes' }),
     },
@@ -46,7 +48,6 @@
       },
     },
     $trs: {
-      channels: 'Channels',
       documentTitle: 'All channels',
     },
   };

@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('deleteLearnerGroup')"
-    :submitText="$tr('deleteGroup')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreString('deleteAction')"
+    :cancelText="coreString('cancelAction')"
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
@@ -16,13 +16,11 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import KModal from 'kolibri.coreVue.components.KModal';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'DeleteGroupModal',
-    components: {
-      KModal,
-    },
+    mixins: [commonCoreStrings],
     props: {
       groupName: {
         type: String,
@@ -44,8 +42,6 @@
     $trs: {
       deleteLearnerGroup: 'Delete group',
       areYouSure: "Are you sure you want to delete '{ groupName }'?",
-      cancel: 'Cancel',
-      deleteGroup: 'Delete',
     },
   };
 

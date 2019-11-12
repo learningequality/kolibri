@@ -5,6 +5,7 @@ import sys
 from configobj import ConfigObj
 from configobj import flatten_errors
 from configobj import get_extra_values
+from django.utils.functional import SimpleLazyObject
 from validate import Validator
 
 try:
@@ -12,6 +13,10 @@ try:
 except NotImplementedError:
     # This module can't work on this OS
     psutil = None
+
+
+from kolibri.utils.logger import get_base_logging_config
+from kolibri.plugins.utils.options import extend_config_spec
 
 
 def calculate_thread_pool():
@@ -44,7 +49,7 @@ def calculate_thread_pool():
     return MIN_POOL
 
 
-option_spec = {
+base_option_spec = {
     "Cache": {
         "CACHE_BACKEND": {
             "type": "option",
@@ -157,20 +162,6 @@ option_spec = {
             "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
         },
     },
-    "Debug": {
-        "SENTRY_BACKEND_DSN": {
-            "type": "string",
-            "envvars": ("KOLIBRI_DEBUG_SENTRY_BACKEND_DSN",),
-        },
-        "SENTRY_FRONTEND_DSN": {
-            "type": "string",
-            "envvars": ("KOLIBRI_DEBUG_SENTRY_FRONTEND_DSN",),
-        },
-        "SENTRY_ENVIRONMENT": {
-            "type": "string",
-            "envvars": ("KOLIBRI_DEBUG_SENTRY_ENVIRONMENT",),
-        },
-    },
 }
 
 
@@ -178,45 +169,20 @@ def get_logger(KOLIBRI_HOME):
     """
     We define a minimal default logger config here, since we can't yet load up Django settings.
     """
-    config = {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {
-            "simple_date_file": {
-                "()": "kolibri.core.logger.utils.formatter.KolibriLogFileFormatter",
-                "format": "%(levelname)s %(asctime)s %(module)s %(message)s",
-            },
-            "color": {
-                "()": "colorlog.ColoredFormatter",
-                "format": "%(log_color)s%(levelname)-8s %(message)s",
-            },
-        },
-        "handlers": {
-            "console": {
-                "level": "INFO",
-                "class": "logging.StreamHandler",
-                "formatter": "color",
-            },
-            "file": {
-                "level": "INFO",
-                "class": "kolibri.core.logger.utils.handler.KolibriTimedRotatingFileHandler",
-                "filename": os.path.join(KOLIBRI_HOME, "logs", "kolibri.txt"),
-                "formatter": "simple_date_file",
-                "when": "midnight",
-                "backupCount": 30,
-            },
-        },
-        "loggers": {
-            "kolibri": {
-                "handlers": ["console", "file"],
-                "level": "INFO",
-                "propagate": False,
-            }
-        },
-    }
+    from kolibri.utils.conf import LOG_ROOT
 
-    logging.config.dictConfig(config)
+    logging.config.dictConfig(get_base_logging_config(LOG_ROOT))
     return logging.getLogger(__name__)
+
+
+def __get_option_spec():
+    """
+    Combine the default option spec with any options that are defined in plugins
+    """
+    return extend_config_spec(base_option_spec)
+
+
+option_spec = SimpleLazyObject(__get_option_spec)
 
 
 def get_configspec():

@@ -15,24 +15,23 @@ from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.http import Http404
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from django.http.response import FileResponse
 from django.http.response import HttpResponseNotModified
 from django.template import loader
 from django.templatetags.static import static
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import etag
 from django.views.generic.base import View
-from le_utils.constants import exercises
-from six.moves.urllib.parse import urlunparse
 
 from .api import cache_forever
 from .decorators import add_security_headers
-from .decorators import get_referrer_url
+from .models import ContentNode
 from .utils.paths import get_content_storage_file_path
 from kolibri import __version__ as kolibri_version
 from kolibri.core.content.errors import InvalidStorageFilenameError
+from kolibri.core.content.hooks import ContentNodeDisplayHook
 
 # Do this to prevent import of broken Windows filetype registry that makes guesstype not work.
 # https://www.thecodingforums.com/threads/mimetypes-guess_type-broken-in-windows-on-py2-7-and-python-3-x.952693/
@@ -51,19 +50,6 @@ def get_hashi_filename():
         ) as f:
             HASHI_FILENAME = f.read().strip()
     return HASHI_FILENAME
-
-
-def generate_image_prefix_url(request, zipped_filename):
-    parsed_referrer_url = get_referrer_url(request)
-    # Remove trailing slash
-    zipcontent = reverse(
-        "kolibri:core:zipcontent",
-        kwargs={"zipped_filename": zipped_filename, "embedded_filepath": ""},
-    )[:-1]
-    if parsed_referrer_url:
-        # Reconstruct the parsed URL using a blank scheme and host + port(1)
-        zipcontent = urlunparse(("", parsed_referrer_url[1], zipcontent, "", "", ""))
-    return zipcontent.encode()
 
 
 def calculate_zip_content_etag(request, *args, **kwargs):
@@ -231,18 +217,10 @@ def get_embedded_file(request, zf, zipped_filename, embedded_filepath):
         html = parse_html(content)
         response = HttpResponse(html, content_type=content_type)
         file_size = len(response.content)
-    elif not os.path.splitext(embedded_filepath)[1] == ".json":
+    else:
         # generate a streaming response object, pulling data from within the zip  file
         response = FileResponse(zf.open(info), content_type=content_type)
         file_size = info.file_size
-    else:
-        image_prefix_url = generate_image_prefix_url(request, zipped_filename)
-        # load the stream from json file into memory, replace the path_place_holder.
-        content = zf.open(info).read()
-        str_to_be_replaced = ("$" + exercises.IMG_PLACEHOLDER).encode()
-        content_with_path = content.replace(str_to_be_replaced, image_prefix_url)
-        response = HttpResponse(content_with_path, content_type=content_type)
-        file_size = len(response.content)
 
     # set the content-length header to the size of the embedded file
     if file_size:
@@ -319,3 +297,69 @@ class DownloadContentView(View):
         response["Content-Length"] = os.path.getsize(path)
 
         return response
+
+
+def get_by_node_id(node_id):
+    """
+    Function to return a content node based on a node id
+    """
+    if node_id:
+        try:
+            return ContentNode.objects.get(id=node_id)
+        except (ContentNode.DoesNotExist, ValueError):
+            # not found, or the id is invalid
+            pass
+
+
+def get_by_channel_id_and_content_id(channel_id, content_id):
+    """
+    Function to return a content node based on a channel_id and content_id
+    """
+    if channel_id and content_id:
+        try:
+            return ContentNode.objects.filter(
+                channel_id=channel_id, content_id=content_id
+            ).first()
+        except ValueError:
+            # Raised if a malformed UUID is passed
+            pass
+
+
+def get_by_content_id(content_id):
+    """
+    Function to return a content node based on a content_id
+    """
+    if content_id:
+        try:
+            return ContentNode.objects.filter(content_id=content_id).first()
+        except ValueError:
+            # Raised if a malformed UUID is passed
+            pass
+
+
+class ContentPermalinkRedirect(View):
+    def get(self, request, *args, **kwargs):
+
+        # extract the GET parameters
+        channel_id = request.GET.get("channel_id")
+        node_id = request.GET.get("node_id")
+        content_id = request.GET.get("content_id")
+
+        # first, try to get the node by the unique node_id
+        node = get_by_node_id(node_id)
+
+        # fall back to looking for the content_id in the channel if None
+        node = node or get_by_channel_id_and_content_id(channel_id, content_id)
+
+        # if it's still not found, see if we can find anything with the content_id across any channel
+        node = node or get_by_content_id(content_id)
+
+        # build up the target topic/content page URL
+        if node:
+            url = None
+            for hook in ContentNodeDisplayHook.registered_hooks:
+                url = hook.node_url(node)
+            if url:
+                return HttpResponseRedirect(url)
+
+        raise Http404

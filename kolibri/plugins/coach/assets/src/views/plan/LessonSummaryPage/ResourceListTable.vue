@@ -1,23 +1,23 @@
 <template>
 
-  <KDragContainer
+  <DragContainer
     :items="workingResources"
     @sort="handleDrag"
   >
     <transition-group tag="div" name="list" class="wrapper">
-      <KDraggable
+      <Draggable
         v-for="(resourceId, index) in workingResources"
         :key="resourceId"
       >
-        <KDragHandle>
-          <KGrid
+        <DragHandle>
+          <KFixedGrid
             class="row"
             :style="{ backgroundColor: $themeTokens.surface }"
-            cols="8"
+            numCols="8"
           >
-            <KGridItem size="1" class="relative">
+            <KFixedGridItem span="1" class="relative">
               <div class="move-handle">
-                <KDragSortWidget
+                <DragSortWidget
                   :moveUpText="$tr('moveResourceUpButtonDescription')"
                   :moveDownText="$tr('moveResourceDownButtonDescription')"
                   :isFirst="index === 0"
@@ -26,8 +26,8 @@
                   @moveDown="moveDownOne(index)"
                 />
               </div>
-            </KGridItem>
-            <KGridItem size="4">
+            </KFixedGridItem>
+            <KFixedGridItem span="4">
               <div class="resource-title">
                 <ContentIcon :kind="resourceKind(resourceId)" />
                 <KRouterLink
@@ -44,19 +44,19 @@
                 :value="getCachedResource(resourceId).num_coach_contents"
                 :isTopic="false"
               />
-            </KGridItem>
-            <KGridItem size="3" alignment="right">
+            </KFixedGridItem>
+            <KFixedGridItem span="3" alignment="right">
               <KButton
-                :text="$tr('resourceRemovalButtonLabel')"
+                :text="coreString('removeAction')"
                 appearance="flat-button"
                 @click="removeResource(resourceId)"
               />
-            </KGridItem>
-          </KGrid>
-        </KDragHandle>
-      </KDraggable>
+            </KFixedGridItem>
+          </KFixedGrid>
+        </DragHandle>
+      </Draggable>
     </transition-group>
-  </KDragContainer>
+  </DragContainer>
 
 </template>
 
@@ -64,35 +64,27 @@
 <script>
 
   import { mapActions, mapState, mapMutations } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KDragSortWidget from 'kolibri.coreVue.components.KDragSortWidget';
-  import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
-  import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
-  import KDraggable from 'kolibri.coreVue.components.KDraggable';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
+  import DragContainer from 'kolibri.coreVue.components.DragContainer';
+  import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  import Draggable from 'kolibri.coreVue.components.Draggable';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const removalSnackbarTime = 5000;
 
   export default {
     name: 'ResourceListTable',
     components: {
-      KDraggable,
-      KDragContainer,
-      KDragHandle,
-      KDragSortWidget,
-      KRouterLink,
+      Draggable,
+      DragContainer,
+      DragHandle,
+      DragSortWidget,
       CoachContentLabel,
-      KButton,
-      KGrid,
-      KGridItem,
       ContentIcon,
     },
-    mixins: [themeMixin],
+    mixins: [commonCoreStrings],
     data() {
       const workingResourcesIds = this.$store.state.lessonSummary.workingResources;
       const resourceContentNodes = this.$store.state.lessonSummary.resourceCache;
@@ -222,13 +214,6 @@
     $trs: {
       resourceReorderConfirmationMessage: 'New lesson order saved',
       undoActionPrompt: 'Undo',
-      resourceReorderColumnHeaderForTable:
-        'Use buttons in this column to re-order resources in the lesson',
-      resourceTypeColumnHeaderForTable: 'Resource type',
-      lessonTitleColumnHeaderForTable: 'Title',
-      resourceRemovalColumnHeaderForTable:
-        'Use buttons in this column to remove resources from the lesson',
-      resourceRemovalButtonLabel: 'Remove',
       singleResourceRemovalConfirmationMessage: 'Removed { resourceTitle }',
       multipleResourceRemovalsConfirmationMessage: 'Removed { numberOfRemovals } resources',
       moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',

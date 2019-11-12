@@ -19,7 +19,6 @@ from __future__ import unicode_literals
 from django import template
 
 from .. import hooks
-from kolibri.core.webpack.utils import webpack_asset_render
 
 register = template.Library()
 
@@ -34,4 +33,4 @@ def content_renderer_assets():
 
     :return: HTML of script tags to insert into template
     """
-    return webpack_asset_render(hooks.ContentRendererHook, is_async=True)
+    return hooks.ContentRendererHook.html()

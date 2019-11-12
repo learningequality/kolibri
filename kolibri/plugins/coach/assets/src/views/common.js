@@ -1,25 +1,13 @@
 import { mapState, mapGetters } from 'vuex';
 import CoreBase from 'kolibri.coreVue.components.CoreBase';
 import CoreTable from 'kolibri.coreVue.components.CoreTable';
-import KModal from 'kolibri.coreVue.components.KModal';
-import KButton from 'kolibri.coreVue.components.KButton';
-import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
-import KGrid from 'kolibri.coreVue.components.KGrid';
-import KGridItem from 'kolibri.coreVue.components.KGridItem';
-import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
-import KSelect from 'kolibri.coreVue.components.KSelect';
-import KIcon from 'kolibri.coreVue.components.KIcon';
-import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-import KBasicContentIcon from 'kolibri.coreVue.components.KBasicContentIcon';
 import router from 'kolibri.coreVue.router';
 import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import meanBy from 'lodash/meanBy';
 import maxBy from 'lodash/maxBy';
 import map from 'lodash/map';
 import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
 import filter from 'lodash/filter';
 import sortBy from 'lodash/sortBy';
 import { PageNames } from '../constants';
@@ -28,6 +16,7 @@ import { STATUSES } from '../modules/classSummary/constants';
 import TopNavbar from './TopNavbar';
 import { coachStrings, coachStringsMixin } from './common/commonCoachStrings';
 import Answer from './common/Answer';
+import AverageScoreTooltip from './common/AverageScoreTooltip';
 import BackLink from './common/BackLink';
 import TruncatedItemList from './common/TruncatedItemList';
 import LessonActive from './common/LessonActive';
@@ -36,6 +25,8 @@ import Recipients from './common/Recipients';
 import Score from './common/Score';
 import TimeDuration from './common/TimeDuration';
 import QuizActive from './common/QuizActive';
+import QuizHeader from './common/QuizHeader';
+import QuizStatus from './common/QuizStatus';
 import HeaderTable from './common/HeaderTable';
 import HeaderTableRow from './common/HeaderTable/HeaderTableRow';
 import HeaderTabs from './common/HeaderTabs';
@@ -44,6 +35,7 @@ import StatusSummary from './common/status/StatusSummary';
 import StatusSimple from './common/status/StatusSimple';
 import HelpNeeded from './common/status/HelpNeeded';
 import Placeholder from './common/Placeholder';
+import StatusElapsedTime from './common/StatusElapsedTime';
 import { VERBS, ICONS } from './common/status/constants';
 
 function formatPageTitle() {
@@ -88,11 +80,14 @@ function formatPageTitle() {
 
 export const CoachCoreBase = {
   extends: CoreBase,
+  mixins: [coachStringsMixin],
   props: {
     // Gives each Coach page a default title of 'Coach – [Class Name]'
     appBarTitle: {
       type: String,
       default() {
+        // Using coachStrings.$tr() here because mixins are not applied
+        // prior to props being processed.
         const coachLabel = coachStrings.$tr('coachLabel');
         const classroomName = this.$store.state.classSummary.name;
         if (!classroomName) {
@@ -119,18 +114,8 @@ export default {
     CoreTable,
     ContentIcon,
     TopNavbar,
-    KModal,
-    KButton,
-    KCheckbox,
-    KDropdownMenu,
-    KGrid,
-    KGridItem,
-    KRouterLink,
-    KSelect,
-    KIcon,
-    KLabeledIcon,
-    KBasicContentIcon,
     Answer,
+    AverageScoreTooltip,
     BackLink,
     TruncatedItemList,
     LessonActive,
@@ -139,9 +124,10 @@ export default {
     Score,
     TimeDuration,
     QuizActive,
+    QuizHeader,
+    QuizStatus,
     HeaderTable,
     ElapsedTime,
-    KPageContainer,
     HeaderTableRow,
     HeaderTabs,
     HeaderTab,
@@ -149,6 +135,7 @@ export default {
     StatusSimple,
     HelpNeeded,
     Placeholder,
+    StatusElapsedTime,
   },
   mixins: [coachStringsMixin],
   computed: {

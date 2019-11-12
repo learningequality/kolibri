@@ -1,54 +1,48 @@
 <template>
 
   <OnboardingForm
+    class="credentials-form"
     :header="$tr('adminAccountCreationHeader')"
     :description="$tr('adminAccountCreationDescription')"
     :submitText="submitText"
-    @submit="submitSuperuserCredentials"
+    @submit="submitForm"
   >
-
-    <KTextbox
-      ref="name"
-      v-model="name"
-      :label="$tr('adminNameFieldLabel')"
+    <FullNameTextbox
+      ref="fullNameTextbox"
+      :value.sync="fullName"
+      :isValid.sync="fullNameValid"
+      :shouldValidate="formSubmitted"
       :autofocus="true"
       autocomplete="name"
-      :maxlength="120"
-      :invalid="nameIsInvalid"
-      :invalidText="nameErrorMessage"
-      @blur="visitedFields.name = true"
     />
-    <KTextbox
-      ref="username"
-      v-model="username"
-      :label="$tr('adminUsernameFieldLabel')"
-      type="username"
-      autocomplete="username"
-      :maxlength="30"
-      :invalid="usernameIsInvalid"
-      :invalidText="usernameErrorMessage"
-      @blur="visitedFields.username = true"
+
+    <UsernameTextbox
+      ref="usernameTextbox"
+      :value.sync="username"
+      :isValid.sync="usernameValid"
+      :shouldValidate="formSubmitted"
     />
-    <KTextbox
-      ref="password"
-      v-model="password"
-      :label="$tr('adminPasswordFieldLabel')"
-      type="password"
+
+    <PasswordTextbox
+      ref="passwordTextbox"
+      :value.sync="password"
+      :isValid.sync="passwordValid"
+      :shouldValidate="formSubmitted"
       autocomplete="new-password"
-      :invalid="passwordIsInvalid"
-      :invalidText="passwordErrorMessage"
-      @blur="visitedFields.password = true"
     />
-    <KTextbox
-      ref="passwordConfirm"
-      v-model="passwordConfirm"
-      :label="$tr('adminPasswordConfirmationFieldLabel')"
-      type="password"
-      autocomplete="new-password"
-      :invalid="passwordConfirmIsInvalid"
-      :invalidText="passwordConfirmErrorMessage"
-      @blur="visitedFields.passwordConfirm = true"
+
+    <GenderSelect
+      :value.sync="gender"
+      class="select"
     />
+
+    <BirthYearSelect
+      :value.sync="birthYear"
+      class="select"
+    />
+
+    <PrivacyLinkAndModal />
+
     <div slot="footer" class="reminder">
       <div class="icon">
         <mat-svg category="alert" name="warning" />
@@ -65,16 +59,31 @@
 <script>
 
   import { mapMutations } from 'vuex';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import { validateUsername } from 'kolibri.utils.validators';
+  import every from 'lodash/every';
+  import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
+  import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
+  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
+  import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
+  import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
+  import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
   import OnboardingForm from './OnboardingForm';
+
+  const { DEFERRED } = DemographicConstants;
 
   export default {
     name: 'SuperuserCredentialsForm',
     components: {
       OnboardingForm,
-      KTextbox,
+      FullNameTextbox,
+      UsernameTextbox,
+      PasswordTextbox,
+      BirthYearSelect,
+      GenderSelect,
+      PrivacyLinkAndModal,
     },
+    mixins: [commonCoreStrings],
     props: {
       submitText: {
         type: String,
@@ -82,64 +91,22 @@
       },
     },
     data() {
+      const { superuser } = this.$store.state.onboardingData;
       return {
-        name: this.$store.state.onboardingData.superuser.full_name,
-        username: this.$store.state.onboardingData.superuser.username,
-        password: this.$store.state.onboardingData.superuser.password,
-        passwordConfirm: this.$store.state.onboardingData.superuser.password,
-        visitedFields: {
-          name: false,
-          username: false,
-          password: false,
-          passwordConfirm: false,
-        },
+        fullName: superuser.full_name,
+        fullNameValid: false,
+        username: superuser.username,
+        usernameValid: false,
+        password: superuser.password,
+        passwordValid: false,
+        birthYear: superuser.birth_year,
+        gender: superuser.gender,
+        formSubmitted: false,
       };
     },
     computed: {
-      nameErrorMessage() {
-        if (this.name === '') {
-          return this.$tr('nameFieldEmptyErrorMessage');
-        }
-        return '';
-      },
-      usernameErrorMessage() {
-        if (this.username === '') {
-          return this.$tr('usernameFieldEmptyErrorMessage');
-        }
-        if (!validateUsername(this.username)) {
-          return this.$tr('usernameCharacterErrorMessage');
-        }
-        return '';
-      },
-      passwordErrorMessage() {
-        if (this.password === '') {
-          return this.$tr('passwordFieldEmptyErrorMessage');
-        }
-        return '';
-      },
-      passwordConfirmErrorMessage() {
-        if (this.passwordConfirm === '') {
-          return this.$tr('passwordFieldEmptyErrorMessage');
-        }
-        if (this.passwordConfirm !== this.password) {
-          return this.$tr('passwordsMismatchErrorMessage');
-        }
-        return '';
-      },
-      nameIsInvalid() {
-        return this.visitedFields.name && Boolean(this.nameErrorMessage);
-      },
-      usernameIsInvalid() {
-        return this.visitedFields.username && Boolean(this.usernameErrorMessage);
-      },
-      passwordIsInvalid() {
-        return this.visitedFields.password && Boolean(this.passwordErrorMessage);
-      },
-      passwordConfirmIsInvalid() {
-        return this.visitedFields.passwordConfirm && Boolean(this.passwordConfirmErrorMessage);
-      },
       formIsValid() {
-        return !this.usernameIsInvalid && !this.passwordIsInvalid && !this.passwordConfirmIsInvalid;
+        return every([this.usernameValid, this.fullNameValid, this.passwordValid]);
       },
     },
     beforeDestroy() {
@@ -152,47 +119,43 @@
       }),
       saveSuperuserCredentials() {
         this.setSuperuser({
-          name: this.name,
+          full_name: this.fullName,
           username: this.username,
           password: this.password,
+          birth_year: this.birthYear || DEFERRED,
+          gender: this.gender || DEFERRED,
         });
       },
-      submitSuperuserCredentials() {
-        for (const field in this.visitedFields) {
-          this.visitedFields[field] = true;
-        }
-        if (this.formIsValid) {
-          this.saveSuperuserCredentials();
-          this.$emit('submit');
-        } else if (this.nameIsInvalid) {
-          this.$refs.name.focus();
-        } else if (this.usernameIsInvalid) {
-          this.$refs.username.focus();
-        } else if (this.passwordIsInvalid) {
-          this.$refs.password.focus();
-        } else if (this.passwordConfirmIsInvalid) {
-          this.$refs.passwordConfirm.focus();
-        }
+      submitForm() {
+        this.formSubmitted = true;
+        // Have to wait a tick to let inputs react to this.formSubmitted
+        this.$nextTick().then(() => {
+          if (this.formIsValid) {
+            this.saveSuperuserCredentials();
+            this.$emit('submit');
+          } else {
+            this.focusOnInvalidField();
+          }
+        });
+      },
+      focusOnInvalidField() {
+        this.$nextTick().then(() => {
+          if (!this.fullNameValid) {
+            this.$refs.fullNameTextbox.focus();
+          } else if (!this.usernameValid) {
+            this.$refs.usernameTextbox.focus();
+          } else if (!this.passwordValid) {
+            this.$refs.passwordTextbox.focus();
+          }
+        });
       },
     },
     $trs: {
       adminAccountCreationHeader: 'Create super admin account',
       adminAccountCreationDescription:
         'This account allows you to manage the facility, content, and user accounts on this device',
-      adminNameFieldLabel: 'Full name',
-      adminUsernameFieldLabel: 'Username',
-      adminPasswordFieldLabel: 'Password',
-      adminPasswordConfirmationFieldLabel: 'Enter password again',
       rememberThisAccountInformation:
         'Important: please remember this account information. Write it down if needed',
-      // error messages
-      nameFieldEmptyErrorMessage: 'Full name cannot be empty',
-      usernameFieldEmptyErrorMessage: 'Username cannot be empty',
-      usernameCharacterErrorMessage: 'Username can only contain letters, numbers, and underscores',
-      passwordFieldEmptyErrorMessage: 'Password cannot be empty',
-      passwordsMismatchErrorMessage: 'Passwords do not match',
-      facilityFieldEmptyErrorMessage: 'Facility cannot be empty',
-      setupProgressFeedback: 'Setting up your device...',
     },
   };
 
@@ -200,6 +163,11 @@
 
 
 <style lang="scss" scoped>
+
+  // Need to make this form narrower to fit Keen-UI components
+  .credentials-form {
+    width: 400px !important;
+  }
 
   .reminder {
     display: table;
@@ -215,6 +183,10 @@
       width: 90%;
       vertical-align: top;
     }
+  }
+
+  .select {
+    margin: 18px 0 36px;
   }
 
 </style>

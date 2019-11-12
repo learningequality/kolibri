@@ -5,14 +5,11 @@
     <p>
       <BackLink
         :to="classRoute('ReportsGroupReportLessonPage', {})"
-        :text="$tr('back', { lesson: lesson.title })"
+        :text="coachString('backToLessonLabel', { lesson: lesson.title })"
       />
     </p>
     <h1>
-      <KLabeledIcon>
-        <KIcon slot="icon" exercise />
-        {{ exercise.title }}
-      </KLabeledIcon>
+      <KLabeledIcon icon="exercise" :label="exercise.title" />
     </h1>
 
     <!--
@@ -21,16 +18,16 @@
       <MasteryModel model="num_correct_in_a_row_5" />
     </p>
 
-    <KButton :text="coachStrings.$tr('previewAction')" />
+    <KButton :text="coachString('previewAction')" />
     -->
 
     <HeaderTabs>
       <HeaderTab
-        :text="coachStrings.$tr('reportLabel')"
+        :text="coachString('reportLabel')"
         :to="classRoute('ReportsGroupReportLessonExerciseLearnerListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('difficultQuestionsLabel')"
+        :text="coachString('difficultQuestionsLabel')"
         :to="classRoute('ReportsGroupReportLessonExerciseQuestionListPage')"
       />
     </HeaderTabs>
@@ -56,9 +53,7 @@
         return this.contentMap[this.$route.params.exerciseId];
       },
     },
-    $trs: {
-      back: "Back to '{lesson}'",
-    },
+    $trs: {},
   };
 
 </script>

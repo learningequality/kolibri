@@ -13,25 +13,27 @@
       <ReportsHeader />
       <KSelect
         v-model="filter"
-        :label="$tr('show')"
+        :label="coreString('showAction')"
         :options="filterOptions"
         :inline="true"
       />
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('avgScoreLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('recipientsLabel') }}</th>
-            <th>{{ coachStrings.$tr('statusLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th style="position:relative;">
+              {{ coachString('avgScoreLabel') }}
+              <AverageScoreTooltip />
+            </th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
+            <th>{{ coachString('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" quiz />
+              <KLabeledIcon icon="quiz">
                 <KRouterLink
                   :text="tableRow.title"
                   :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.id })"
@@ -45,6 +47,7 @@
               <StatusSummary
                 :tally="tableRow.tally"
                 :verbose="true"
+                :includeNotStarted="true"
               />
             </td>
             <td>
@@ -53,12 +56,54 @@
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>
-            <td>
-              <QuizActive :active="tableRow.active" />
+            <td class="status">
+              <!-- Open quiz button -->
+              <KButton
+                v-if="!tableRow.active && !tableRow.archive"
+                :text="coachString('openQuizLabel')"
+                appearance="flat-button"
+                class="table-left-aligned-button"
+                @click="showOpenConfirmationModal = true; modalQuizId=tableRow.id"
+              />
+              <!-- Close quiz button -->
+              <KButton
+                v-if="tableRow.active && !tableRow.archive"
+                :text="coachString('closeQuizLabel')"
+                appearance="flat-button"
+                class="table-left-aligned-button"
+                @click="showCloseConfirmationModal = true; modalQuizId=tableRow.id;"
+              />
+              <div
+                v-if="tableRow.archive"
+                class="quiz-closed-label"
+              >
+                {{ coachString('quizClosedLabel') }}
+              </div>
             </td>
           </tr>
         </transition-group>
       </CoreTable>
+      <!-- Modals for Close & Open of quiz from right-most column -->
+      <KModal
+        v-if="showOpenConfirmationModal"
+        :title="coachString('openQuizLabel')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        @cancel="showOpenConfirmationModal = false"
+        @submit="handleOpenQuiz(modalQuizId)"
+      >
+        <div>{{ coachString('openQuizModalDetail') }}</div>
+      </KModal>
+      <KModal
+        v-if="showCloseConfirmationModal"
+        :title="coachString('closeQuizLabel')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        @cancel="showCloseConfirmationModal = false"
+        @submit="handleCloseQuiz(modalQuizId)"
+      >
+        <div>{{ coachString('closeQuizModalDetail') }}</div>
+      </KModal>
     </KPageContainer>
   </CoreBase>
 
@@ -67,34 +112,35 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ExamResource } from 'kolibri.resources';
   import commonCoach from '../common';
-  import CoachExamsPage from '../plan/CoachExamsPage';
   import ReportsHeader from './ReportsHeader';
-
-  const CoachExamsPageStrings = crossComponentTranslator(CoachExamsPage);
 
   export default {
     name: 'ReportsQuizListPage',
     components: {
       ReportsHeader,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         filter: 'allQuizzes',
+        showOpenConfirmationModal: false,
+        showCloseConfirmationModal: false,
+        modalQuizId: null,
       };
     },
     computed: {
       emptyMessage() {
         if (this.filter.value === 'allQuizzes') {
-          return this.coachStrings.$tr('quizListEmptyState');
+          return this.coachString('quizListEmptyState');
         }
         if (this.filter.value === 'activeQuizzes') {
-          return CoachExamsPageStrings.$tr('noActiveExams');
+          return this.$tr('noActiveExams');
         }
         if (this.filter.value === 'inactiveQuizzes') {
-          return CoachExamsPageStrings.$tr('noInactiveExams');
+          return this.$tr('noInactiveExams');
         }
 
         return '';
@@ -102,15 +148,17 @@
       filterOptions() {
         return [
           {
-            label: this.$tr('allQuizzes'),
+            label: this.coachString('allQuizzesLabel'),
             value: 'allQuizzes',
+            noActiveExams: 'No active quizzes',
+            noInactiveExams: 'No inactive quizzes',
           },
           {
-            label: this.$tr('activeQuizzes'),
+            label: this.coachString('activeQuizzesLabel'),
             value: 'activeQuizzes',
           },
           {
-            label: this.$tr('inactiveQuizzes'),
+            label: this.coachString('inactiveQuizzesLabel'),
             value: 'inactiveQuizzes',
           },
         ];
@@ -143,15 +191,70 @@
     beforeMount() {
       this.filter = this.filterOptions[0];
     },
+    methods: {
+      handleOpenQuiz(quizId) {
+        let promise = ExamResource.saveModel({
+          id: quizId,
+          data: {
+            active: true,
+            date_activated: new Date(),
+          },
+          exists: true,
+        });
+
+        return promise
+          .then(() => {
+            this.$store.dispatch('classSummary/refreshClassSummary');
+            this.showOpenConfirmationModal = false;
+            this.$store.dispatch('createSnackbar', this.coachString('quizOpenedMessage'));
+          })
+          .catch(() => {
+            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToOpenMessage'));
+          });
+      },
+      handleCloseQuiz(quizId) {
+        let promise = ExamResource.saveModel({
+          id: quizId,
+          data: {
+            archive: true,
+            date_archived: new Date(),
+          },
+          exists: true,
+        });
+
+        return promise
+          .then(() => {
+            this.$store.dispatch('classSummary/refreshClassSummary');
+            this.showCloseConfirmationModal = false;
+            this.$store.dispatch('createSnackbar', this.coachString('quizClosedMessage'));
+          })
+          .catch(() => {
+            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
+          });
+      },
+    },
     $trs: {
-      show: 'Show',
-      allQuizzes: 'All quizzes',
-      activeQuizzes: 'Active quizzes',
-      inactiveQuizzes: 'Inactive quizzes',
+      noActiveExams: 'No active quizzes',
+      noInactiveExams: 'No inactive quizzes',
     },
   };
 
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  td.status {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .quiz-closed-label {
+    padding: 0;
+    margin: 0.75rem 0;
+  }
+
+  .table-left-aligned-button {
+    margin: 0.5rem 0 0.5rem -1rem;
+  }
+
+</style>

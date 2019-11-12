@@ -13,33 +13,38 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import DUMMY_PASSWORD
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
+from kolibri.core.device.translation import get_settings_language
 from kolibri.deployment.default.urls import urlpatterns
 
 
 class KolibriTagNavigationTestCase(APITestCase):
     def test_redirect_to_setup_wizard(self):
         with patch("kolibri.core.views.is_provisioned", return_value=False):
-            response = self.client.get("/")
+            response = self.client.get(reverse("kolibri:core:root_redirect"))
             self.assertEqual(response.status_code, 302)
             self.assertEqual(
                 response.get("location"),
-                reverse("kolibri:setupwizardplugin:setupwizard"),
+                reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard"),
             )
 
     def test_redirect_root_to_user_if_not_logged_in(self):
         provision_device()
-        response = self.client.get("/")
+        response = self.client.get(reverse("kolibri:core:root_redirect"))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.get("location"), reverse("kolibri:user:user"))
+        self.assertEqual(
+            response.get("location"), reverse("kolibri:kolibri.plugins.user:user")
+        )
 
     def test_redirect_root_to_learn_if_logged_in(self):
         facility = FacilityFactory.create()
         do = create_superuser(facility)
         provision_device()
         self.client.login(username=do.username, password=DUMMY_PASSWORD)
-        response = self.client.get("/")
+        response = self.client.get(reverse("kolibri:core:root_redirect"))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.get("location"), reverse("kolibri:learn:learn"))
+        self.assertEqual(
+            response.get("location"), reverse("kolibri:kolibri.plugins.learn:learn")
+        )
 
 
 class AllUrlsTest(APITestCase):
@@ -122,7 +127,9 @@ class AllUrlsTest(APITestCase):
         # Patch this so that no tasks get started.
         with patch(
             "kolibri.core.webpack.hooks.WebpackBundleHook.bundle", return_value=[]
-        ), patch("kolibri.core.tasks.api.get_queue"):
+        ), patch("kolibri.core.tasks.api.queue"), patch(
+            "kolibri.core.webpack.hooks.WebpackBundleHook.get_by_unique_id"
+        ):
             check_urls(urlpatterns)
 
     def test_anonymous_responses(self):
@@ -154,3 +161,46 @@ class AllUrlsTest(APITestCase):
         self.check_responses(
             credentials={"username": user.username, "password": DUMMY_PASSWORD}
         )
+
+
+class LogoutLanguagePersistenceTest(APITestCase):
+    def setUp(self):
+        provision_device()
+        facility = FacilityFactory.create()
+        user = create_superuser(facility)
+        self.credentials = {"username": user.username, "password": DUMMY_PASSWORD}
+
+    def test_persistent_language_on_namespaced_logout(self):
+        # Test that namespaced /{lang_code}/logout persists that namespace.
+        # Test a few language codes
+        for lang_code in ["sw-tz", "fr-fr", "es-es"]:
+            self.client.login(**self.credentials)
+            response = self.client.post("/{}/logout".format(lang_code))
+            self.assertTrue(lang_code in response.url)
+
+    def test_default_language_without_namespaced_logout(self):
+        # Test /logout without any in-path language code. Expect default language setting.
+        self.client.login(**self.credentials)
+        response = self.client.get("/logout")
+        self.assertTrue(get_settings_language() in response.url)
+
+    def test_persistent_cookie_language_setting_on_logout(self):
+        # Test when set on a cookie.
+        from django.http.cookie import SimpleCookie
+        from django.conf import settings
+
+        self.client.login(**self.credentials)
+        self.client.cookies = SimpleCookie({settings.LANGUAGE_COOKIE_NAME: "fr-fr"})
+        response = self.client.post("/logout")
+        self.assertTrue("fr-fr" in response.url)
+
+    def test_persistent_session_language_setting_on_logout(self):
+        # Test when set on a session.
+        from django.utils.translation import LANGUAGE_SESSION_KEY
+
+        self.client.login(**self.credentials)
+        session = self.client.session
+        session[LANGUAGE_SESSION_KEY] = "sw-tz"
+        session.save()
+        response = self.client.post("/logout")
+        self.assertTrue("sw-tz" in response.url)

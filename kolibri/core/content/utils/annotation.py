@@ -2,7 +2,6 @@ import datetime
 import logging
 import os
 
-from django.db import connection
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
 from sqlalchemy import cast
@@ -10,10 +9,7 @@ from sqlalchemy import exists
 from sqlalchemy import func
 from sqlalchemy import Integer
 from sqlalchemy import select
-from sqlalchemy.exc import DatabaseError
 
-from .channels import get_channel_ids_for_content_database_dir
-from .paths import get_content_database_file_path
 from .paths import get_content_file_name
 from .paths import get_content_storage_file_path
 from .sqlalchemybridge import Bridge
@@ -25,7 +21,6 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import _files_for_nodes
 from kolibri.core.content.serializers import _total_file_size
-from kolibri.core.content.utils.paths import get_content_database_dir_path
 from kolibri.core.device.models import ContentCacheKey
 
 logger = logging.getLogger(__name__)
@@ -35,189 +30,56 @@ CONTENT_APP_NAME = KolibriContentConfig.label
 CHUNKSIZE = 10000
 
 
-def update_channel_metadata():
-    """
-    If we are potentially moving from a version of Kolibri that did not import its content data,
-    scan through the content database folder for all channel content databases,
-    and pull the data from each database if we have not already imported it.
-    Additionally, fix any potential issues that might be in the current content database from bugs
-    in a previous version.
-    """
-    from .channel_import import (
-        import_channel_from_local_db,
-        InvalidSchemaVersionError,
-        FutureSchemaError,
+def _MPTT_descendant_ids_statement(ContentNodeTable, node_ids):
+    node_include = ContentNodeTable.alias()
+    return select([ContentNodeTable.c.id]).where(
+        and_(
+            node_include.c.id.in_(node_ids),
+            ContentNodeTable.c.lft >= node_include.c.lft,
+            ContentNodeTable.c.lft <= node_include.c.rght,
+            ContentNodeTable.c.tree_id == node_include.c.tree_id,
+        )
     )
 
-    channel_ids = get_channel_ids_for_content_database_dir(
-        get_content_database_dir_path()
-    )
-    for channel_id in channel_ids:
-        if not ChannelMetadata.objects.filter(id=channel_id).exists():
-            try:
-                import_channel_from_local_db(channel_id)
-                annotate_content(channel_id)
-            except (InvalidSchemaVersionError, FutureSchemaError):
-                logger.warning(
-                    "Tried to import channel {channel_id}, but database file was incompatible".format(
-                        channel_id=channel_id
-                    )
-                )
-            except DatabaseError:
-                logger.warning(
-                    "Tried to import channel {channel_id}, but database file was corrupted.".format(
-                        channel_id=channel_id
-                    )
-                )
-    fix_multiple_trees_with_id_one()
-    update_num_coach_contents()
-    connection.close()
 
-
-def fix_multiple_trees_with_id_one():
-    # Do a check for improperly imported ContentNode trees
-    # These trees have been naively imported, and so there are multiple trees
-    # with tree_ids set to 1. Just check the root nodes to reduce the query size.
-    tree_id_one_channel_ids = ContentNode.objects.filter(
-        parent=None, tree_id=1
-    ).values_list("channel_id", flat=True)
-    if len(tree_id_one_channel_ids) > 1:
-        logger.warning("Improperly imported channels discovered")
-        # There is more than one channel with a tree_id of 1
-        # Find which channel has the most content nodes, and then delete and reimport the rest.
-        channel_sizes = {}
-        for channel_id in tree_id_one_channel_ids:
-            channel_sizes[channel_id] = ContentNode.objects.filter(
-                channel_id=channel_id
-            ).count()
-        # Get sorted list of ids by increasing number of nodes
-        sorted_channel_ids = sorted(channel_sizes, key=channel_sizes.get)
-        # Loop through all but the largest channel, delete and reimport
-        count = 0
-        from .channel_import import import_channel_from_local_db
-
-        for channel_id in sorted_channel_ids[:-1]:
-            # Double check that we have a content db to import from before deleting any metadata
-            if os.path.exists(get_content_database_file_path(channel_id)):
-                logger.warning(
-                    "Deleting and reimporting channel metadata for {channel_id}".format(
-                        channel_id=channel_id
-                    )
-                )
-                ChannelMetadata.objects.get(
-                    id=channel_id
-                ).delete_content_tree_and_files()
-                import_channel_from_local_db(channel_id)
-                logger.info(
-                    "Successfully reimported channel metadata for {channel_id}".format(
-                        channel_id=channel_id
-                    )
-                )
-                count += 1
-            else:
-                logger.warning(
-                    "Attempted to reimport channel metadata for channel {channel_id} but no content database found".format(
-                        channel_id=channel_id
-                    )
-                )
-        if count:
-            logger.info(
-                "Successfully reimported channel metadata for {count} channels".format(
-                    count=count
-                )
-            )
-        failed_count = len(sorted_channel_ids) - 1 - count
-        if failed_count:
-            logger.warning(
-                "Failed to reimport channel metadata for {count} channels".format(
-                    count=failed_count
-                )
-            )
-
-
-def update_num_coach_contents():
-    """
-    Function to set num_coach_content on all topic trees to account for
-    those that were imported before annotations were performed
-    """
+def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
-
-    ContentNodeClass = bridge.get_class(ContentNode)
 
     ContentNodeTable = bridge.get_table(ContentNode)
 
     connection = bridge.get_connection()
 
-    child = ContentNodeTable.alias()
+    update_statement = ContentNodeTable.update().where(
+        and_(
+            ContentNodeTable.c.kind != content_kinds.TOPIC,
+            ContentNodeTable.c.channel_id == channel_id,
+        )
+    )
 
-    logger.info("Updating num_coach_content on existing channels")
+    if node_ids:
+        node_ids_statement = _MPTT_descendant_ids_statement(ContentNodeTable, node_ids)
+        update_statement = update_statement.where(
+            ContentNodeTable.c.id.in_(node_ids_statement)
+        )
 
-    # start a transaction
+    if exclude_node_ids:
+        exclude_node_ids_statement = _MPTT_descendant_ids_statement(
+            ContentNodeTable, exclude_node_ids
+        )
+        update_statement = update_statement.where(
+            ~ContentNodeTable.c.id.in_(exclude_node_ids_statement)
+        )
 
-    trans = connection.begin()
-
-    # Update all leaf ContentNodes to have num_coach_content to 1 or 0
     connection.execute(
-        ContentNodeTable.update()
-        .where(
-            # That are not topics
-            ContentNodeTable.c.kind
-            != content_kinds.TOPIC
-        )
-        .values(num_coach_contents=cast(ContentNodeTable.c.coach_content, Integer()))
+        update_statement.values(available=False).execution_options(autocommit=True)
     )
-
-    # Expression to capture all available child nodes of a contentnode
-    available_nodes = select([child.c.available]).where(
-        and_(
-            child.c.available == True,  # noqa
-            ContentNodeTable.c.id == child.c.parent_id,
-        )
-    )
-
-    # Expression that sums the total number of coach contents for each child node
-    # of a contentnode
-    coach_content_num = select([func.sum(child.c.num_coach_contents)]).where(
-        and_(
-            child.c.available == True,  # noqa
-            ContentNodeTable.c.id == child.c.parent_id,
-        )
-    )
-
-    for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
-
-        node_depth = (
-            bridge.session.query(func.max(ContentNodeClass.level))
-            .filter_by(channel_id=channel_id)
-            .scalar()
-        )
-
-        # Go from the deepest level to the shallowest
-        for level in range(node_depth, 0, -1):
-
-            # Only modify topic availability here
-            connection.execute(
-                ContentNodeTable.update()
-                .where(
-                    and_(
-                        ContentNodeTable.c.level == level - 1,
-                        ContentNodeTable.c.channel_id == channel_id,
-                        ContentNodeTable.c.kind == content_kinds.TOPIC,
-                    )
-                )
-                # Because we have set availability to False on all topics as a starting point
-                # we only need to make updates to topics with available children.
-                .where(exists(available_nodes))
-                .values(num_coach_contents=coach_content_num)
-            )
-
-    # commit the transaction
-    trans.commit()
 
     bridge.end()
 
 
-def set_leaf_node_availability_from_local_file_availability(channel_id):
+def set_leaf_node_availability_from_local_file_availability(
+    channel_id, node_ids=None, exclude_node_ids=None
+):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeTable = bridge.get_table(ContentNode)
@@ -226,45 +88,50 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
 
     connection = bridge.get_connection()
 
-    file_statement = (
-        select([LocalFileTable.c.available])
-        .where(FileTable.c.local_file_id == LocalFileTable.c.id)
-        .limit(1)
-    )
-
-    logger.info("Setting availability of File objects based on LocalFile availability")
-
-    connection.execute(
-        FileTable.update()
-        .values(available=file_statement)
-        .execution_options(autocommit=True)
-    )
-
     contentnode_statement = (
         select([FileTable.c.contentnode_id])
-        .where(
-            and_(
-                FileTable.c.available == True,  # noqa
-                FileTable.c.supplementary == False,
+        .select_from(
+            FileTable.join(
+                LocalFileTable,
+                and_(
+                    FileTable.c.local_file_id == LocalFileTable.c.id,
+                    LocalFileTable.c.available == True,  # noqa
+                ),
             )
         )
+        .where(FileTable.c.supplementary == False)
         .where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
     )
 
     logger.info(
-        "Setting availability of non-topic ContentNode objects based on File availability"
+        "Setting availability of non-topic ContentNode objects based on LocalFile availability"
     )
 
-    connection.execute(
-        ContentNodeTable.update()
-        .where(
-            and_(
-                ContentNodeTable.c.kind != content_kinds.TOPIC,
-                ContentNodeTable.c.channel_id == channel_id,
-            )
+    update_statement = ContentNodeTable.update().where(
+        and_(
+            ContentNodeTable.c.kind != content_kinds.TOPIC,
+            ContentNodeTable.c.channel_id == channel_id,
         )
-        .values(available=exists(contentnode_statement))
-        .execution_options(autocommit=True)
+    )
+
+    if node_ids is not None:
+        node_ids_statement = _MPTT_descendant_ids_statement(ContentNodeTable, node_ids)
+        update_statement = update_statement.where(
+            ContentNodeTable.c.id.in_(node_ids_statement)
+        )
+
+    if exclude_node_ids is not None:
+        exclude_node_ids_statement = _MPTT_descendant_ids_statement(
+            ContentNodeTable, exclude_node_ids
+        )
+        update_statement = update_statement.where(
+            ~ContentNodeTable.c.id.in_(exclude_node_ids_statement)
+        )
+
+    connection.execute(
+        update_statement.values(
+            available=exists(contentnode_statement)
+        ).execution_options(autocommit=True)
     )
 
     bridge.end()
@@ -500,20 +367,39 @@ def recurse_annotation_up_tree(channel_id):
     bridge.end()
 
 
-def update_content_metadata(channel_id):
-    set_leaf_node_availability_from_local_file_availability(channel_id)
+def propagate_forced_localfile_removal(localfiles):
+    files = File.objects.filter(supplementary=False, local_file__in=localfiles)
+    ContentNode.objects.filter(files__in=files).update(available=False)
+    for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
+        recurse_annotation_up_tree(channel_id)
+
+
+def update_content_metadata(channel_id, node_ids=None, exclude_node_ids=None):
+    set_leaf_node_availability_from_local_file_availability(
+        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids
+    )
     recurse_annotation_up_tree(channel_id)
     calculate_channel_fields(channel_id)
     ContentCacheKey.update_cache_key()
 
 
-def annotate_content(channel_id, checksums=None):
-    if checksums is None:
-        set_local_file_availability_from_disk()
-    else:
-        mark_local_files_as_available(checksums)
+def set_content_visibility(channel_id, checksums, node_ids=None, exclude_node_ids=None):
+    mark_local_files_as_available(checksums)
+    update_content_metadata(
+        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids
+    )
 
+
+def set_content_visibility_from_disk(channel_id):
+    set_local_file_availability_from_disk()
     update_content_metadata(channel_id)
+
+
+def set_content_invisible(channel_id, node_ids, exclude_node_ids):
+    set_leaf_nodes_invisible(channel_id, node_ids, exclude_node_ids)
+    recurse_annotation_up_tree(channel_id)
+    calculate_channel_fields(channel_id)
+    ContentCacheKey.update_cache_key()
 
 
 def calculate_channel_fields(channel_id):

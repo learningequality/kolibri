@@ -28,6 +28,8 @@ export default {
         full_name: '',
         username: '',
         password: '',
+        gender: '',
+        birthYear: '',
       },
     },
     loading: false,
@@ -62,10 +64,10 @@ export default {
     SET_FACILITY_NAME(state, name) {
       state.onboardingData.facility.name = name;
     },
-    SET_SU(state, { name, username, password }) {
-      state.onboardingData.superuser.username = username;
-      state.onboardingData.superuser.full_name = name;
-      state.onboardingData.superuser.password = password;
+    SET_SU(state, payload) {
+      state.onboardingData.superuser = {
+        ...payload,
+      };
     },
     SET_FACILITY_PRESET(state, preset) {
       state.onboardingData.preset = preset;

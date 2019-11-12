@@ -12,8 +12,8 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from morango.models import UUIDField
 
-from kolibri.core.content.models import UUIDField
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time_utils import local_now
 
@@ -96,6 +96,7 @@ class NotificationEventType(myEnum):
     Started = "Started"
     Completed = "Completed"
     Help = "HelpNeeded"
+    Answered = "Answered"
 
 
 class HelpReason(myEnum):
@@ -121,6 +122,7 @@ class LearnerProgressNotification(models.Model):
     lesson_id = UUIDField(null=True)
     quiz_id = UUIDField(null=True)
     quiz_num_correct = models.IntegerField(null=True)
+    quiz_num_answered = models.IntegerField(null=True)
     reason = models.CharField(max_length=200, choices=HelpReason.choices(), blank=True)
     timestamp = DateTimeTzField(default=local_now)
 

@@ -13,21 +13,20 @@
 
       <ReportsLessonHeader />
 
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
+      <h2>{{ coachString('overallLabel') }}</h2>
 
-      <CoreTable :emptyMessage="coachStrings.$tr('learnerListEmptyState')">
+      <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('nameLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('groupsLabel') }}</th>
+            <th>{{ coachString('nameLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('groupsLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" person />
+              <KLabeledIcon icon="person">
                 <KRouterLink
                   :text="tableRow.name"
                   :to="classRoute('ReportsLessonLearnerPage', { learnerId: tableRow.id })"
@@ -51,6 +50,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import ReportsLessonHeader from './ReportsLessonHeader';
 
@@ -59,7 +59,7 @@
     components: {
       ReportsLessonHeader,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -80,12 +80,7 @@
         });
       },
     },
-    $trs: {
-      averageScore: 'Average score: {score, number, percent}',
-      allQuizzes: 'All quizzes',
-      activeQuizzes: 'Active quizzes',
-      inactiveQuizzes: 'Inactive quizzes',
-    },
+    $trs: {},
   };
 
 </script>

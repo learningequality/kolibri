@@ -1,0 +1,11 @@
+{
+  "DemoServerBannerContent.demoServerA1": "설명서 보기",
+  "DemoServerBannerContent.demoServerA2": "최신버전을 다운로드하여 설치하세요",
+  "DemoServerBannerContent.demoServerHeader": "Kolibri 데모 사이트에 오신 것을 환영합니다",
+  "DemoServerBannerContent.demoServerL1": "학생 ({user}/{pass} 혹은 게스트로 접속하기)",
+  "DemoServerBannerContent.demoServerL2": "코치 ({user}/{pass})",
+  "DemoServerBannerContent.demoServerL3": "운영자 ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "세가지 사용자 유형중 하나로 탐색해 보세요",
+  "DemoServerBannerContent.demoServerP2": "Kolibri의 온라인버전은 데모용으로만 활용해 주시기 바랍니다. 사용자 및 데이터는 정기적으로 삭제됩니다. 데모는 최신버전의 Kolibri 기능을 제공하며 관련 모든 자료는 샘플형태로만 보여집니다.",
+  "DemoServerBannerContent.demoServerP3": "Kolibri의 오프라인 활용법에 대해 더 알고 싶으시면"
+}

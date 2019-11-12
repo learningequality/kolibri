@@ -162,9 +162,13 @@ class MetricsMiddleware(MiddlewareMixin):
 
         if not MetricsMiddleware.disabled and hasattr(self, "metrics"):
             path = request.get_full_path()
-            duration, memory_before, memory, load_before, load = (
-                self.metrics.get_stats()
-            )
+            (
+                duration,
+                memory_before,
+                memory,
+                load_before,
+                load,
+            ) = self.metrics.get_stats()
             max_time = False
             if float(duration) > MetricsMiddleware.slowest_request_time:
                 MetricsMiddleware.slowest_request_time = float(duration)

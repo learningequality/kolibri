@@ -114,6 +114,7 @@ class LearnerNotificationSerializer(serializers.ModelSerializer):
         if instance.notification_object == NotificationObjectType.Quiz:
             value["quiz_id"] = instance.quiz_id
             value["quiz_num_correct"] = instance.quiz_num_correct
+            value["quiz_num_answered"] = instance.quiz_num_answered
             value["quiz"] = get_quiz_title(instance.quiz_id)
 
         if instance.notification_object == NotificationObjectType.Lesson:

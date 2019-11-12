@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, RouterLinkStub } from '@vue/test-utils';
 import NotificationCard from '../NotificationCard';
 
 NotificationCard.methods.getRoute = x => x;
@@ -10,10 +10,7 @@ function makeWrapper(options) {
         props: ['icon'],
         template: '<div></div>',
       },
-      KRouterLink: {
-        props: ['to', 'text'],
-        template: '<div></div>',
-      },
+      RouterLink: RouterLinkStub,
     },
     propsData: {
       eventType: 'Completed',
@@ -53,26 +50,26 @@ describe('NotificationCard component', () => {
     expect(wrapper.text()).toEqual('JB finished a lesson');
   });
 
-  it('has a single KGridItem if no time is provided', () => {
+  it('has a single KFixedGridItem if no time is provided', () => {
     const { wrapper } = makeWrapper({
       propsData: {},
     });
-    const gridItems = wrapper.findAll({ name: 'KGridItem' });
+    const gridItems = wrapper.findAll({ name: 'KFixedGridItem' });
     expect(gridItems.length).toEqual(1);
-    expect(gridItems.at(0).props().sizes).toEqual([4, 8, 12]);
+    expect(gridItems.at(0).props().span).toEqual(4);
   });
 
-  it('has a second KGridItem with the time if it is provided', () => {
+  it('has a second KFixedGridItem with the time if it is provided', () => {
     const timeString = '2019-01-17 01:29:04.016364';
     const { wrapper } = makeWrapper({
       propsData: {
         time: timeString,
       },
     });
-    const gridItems = wrapper.findAll({ name: 'KGridItem' });
+    const gridItems = wrapper.findAll({ name: 'KFixedGridItem' });
     expect(gridItems.length).toEqual(2);
-    expect(gridItems.at(0).props().sizes).toEqual([3, 6, 9]);
-    expect(gridItems.at(1).props().sizes).toEqual([1, 2, 3]);
+    expect(gridItems.at(0).props().span).toEqual(3);
+    expect(gridItems.at(1).props().span).toEqual(1);
 
     const elapsedTime = wrapper.find({ name: 'ElapsedTime' });
     const timeObject = new Date(timeString).getTime();

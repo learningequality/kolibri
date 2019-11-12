@@ -16,7 +16,7 @@
           :style="{
             height: headerHeight + 'px',
             width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px',
-            backgroundColor: $themeTokens.text,
+            backgroundColor: $themeTokens.primary,
           }"
         >
           <UiIconButton
@@ -37,7 +37,7 @@
           <span
             class="side-nav-header-name"
             :style="{ color: $themeTokens.textInverted }"
-          >{{ $tr('kolibri') }}</span>
+          >{{ coreString('kolibriLabel') }}</span>
         </div>
 
         <div
@@ -45,11 +45,11 @@
           :style="{ top: `${headerHeight}px`, width: `${width}px` }"
         >
           <img
-            v-if="$theme.sideNav.topLogo"
+            v-if="$kolibriBranding.sideNav.topLogo"
             class="logo"
-            :src="$theme.sideNav.topLogo.src"
-            :alt="$theme.sideNav.topLogo.alt"
-            :style="$theme.sideNav.topLogo.style"
+            :src="$kolibriBranding.sideNav.topLogo.src"
+            :alt="$kolibriBranding.sideNav.topLogo.alt"
+            :style="$kolibriBranding.sideNav.topLogo.style"
           >
           <CoreMenu
             role="navigation"
@@ -63,8 +63,31 @@
           </CoreMenu>
 
           <div class="side-nav-scrollable-area-footer" :style="{ color: $themeTokens.annotation }">
+            <!-- custom branded footer logo + text -->
+            <template v-if="$kolibriBranding.sideNav.brandedFooter">
+              <img
+                v-if="$kolibriBranding.sideNav.brandedFooter.logo"
+                class="side-nav-scrollable-area-footer-logo"
+                :src="$kolibriBranding.sideNav.brandedFooter.logo.src"
+                :alt="$kolibriBranding.sideNav.brandedFooter.logo.alt"
+                :style="$kolibriBranding.sideNav.brandedFooter.logo.style"
+              >
+              <div
+                v-if="$kolibriBranding.sideNav.brandedFooter.paragraphArray
+                  && $kolibriBranding.sideNav.brandedFooter.paragraphArray.length"
+                class="side-nav-scrollable-area-footer-info"
+              >
+                <p
+                  v-for="(line, index) in $kolibriBranding.sideNav.brandedFooter.paragraphArray"
+                  :key="index"
+                >
+                  {{ line }}
+                </p>
+              </div>
+            </template>
+            <!-- Kolibri footer logo -->
             <CoreLogo
-              v-if="$theme.sideNav.showKolibriFooterLogo"
+              v-if="$kolibriBranding.sideNav.showKolibriFooterLogo"
               class="side-nav-scrollable-area-footer-logo"
             />
             <div class="side-nav-scrollable-area-footer-info">
@@ -74,7 +97,7 @@
               <p>
                 <KButton
                   ref="privacyLink"
-                  :text="$tr('privacyLink')"
+                  :text="coreString('usageAndPrivacyLabel')"
                   class="privacy-link"
                   appearance="basic-link"
                   @click="handleClickPrivacyLink"
@@ -97,6 +120,7 @@
     <PrivacyInfoModal
       v-if="privacyModalVisible"
       @cancel="privacyModalVisible = false"
+      @submit="privacyModalVisible = false"
     />
 
   </div>
@@ -106,16 +130,16 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import navComponents from 'kolibri.utils.navComponents';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
+  import branding from 'kolibri.utils.branding';
   import navComponentsMixin from '../mixins/nav-components';
   import logout from './LogoutSideNavEntry';
   import SideNavDivider from './SideNavDivider';
@@ -137,10 +161,9 @@
       UiIconButton,
       CoreLogo,
       SideNavDivider,
-      KButton,
       PrivacyInfoModal,
     },
-    mixins: [responsiveWindow, responsiveElement, navComponentsMixin, themeMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
     props: {
       navShown: {
         type: Boolean,
@@ -193,6 +216,9 @@
         });
       },
     },
+    created() {
+      this.$kolibriBranding = branding;
+    },
     methods: {
       toggleNav() {
         this.$emit('toggleSideNav');
@@ -230,11 +256,9 @@
       },
     },
     $trs: {
-      kolibri: 'Kolibri',
       navigationLabel: 'Main user navigation',
       closeNav: 'Close navigation',
       poweredBy: 'Kolibri {version}',
-      privacyLink: 'Usage and privacy',
     },
   };
 
@@ -244,6 +268,11 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+
+  // Matches the Keen-UI/UiToolbar box-shadow property
+  %ui-toolbar-box-shadow {
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+  }
 
   .side-nav-wrapper {
     overflow-x: hidden;
@@ -346,35 +375,6 @@
     max-height: none;
     padding: 0;
     border: 0;
-  }
-
-  /deep/ .ui-menu-option {
-    &:not(.is-divider) {
-      padding-top: 4px;
-      padding-bottom: 4px;
-
-      .ui-menu-option-text {
-        overflow: visible;
-        font-size: 14px;
-        white-space: normal;
-      }
-
-      .ui-menu-option-icon {
-        font-size: 1.2em;
-      }
-
-      &.is-active {
-        .ui-menu-option-text {
-          font-weight: bold;
-          opacity: 1;
-        }
-      }
-    }
-
-    &.is-divider {
-      margin-top: 0;
-      margin-bottom: 0;
-    }
   }
 
   .privacy-link {

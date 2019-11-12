@@ -2,12 +2,20 @@
 
   <KPageContainer class="block">
     <KGrid>
-      <KGridItem sizes="100, 50, 50" percentage>
+      <KGridItem
+        :layout8="{ span: showAllLink ? 5 : 8 }"
+        :layout12="{ span: showAllLink ? 8 : 12 }"
+      >
         <h2>
           <slot name="title"></slot>
         </h2>
       </KGridItem>
-      <KGridItem sizes="100, 50, 50" percentage alignment="right">
+      <KGridItem
+        v-if="showAllLink"
+        :layout="{ alignment: 'right' }"
+        :layout8="{ span: 3 }"
+        :layout12="{ span: 4 }"
+      >
         <KRouterLink
           appearance="flat-button"
           :text="allLinkText"
@@ -38,6 +46,10 @@
         type: Object,
         required: true,
       },
+      showAllLink: {
+        type: Boolean,
+        default: true,
+      },
     },
   };
 
@@ -54,6 +66,10 @@
     position: relative;
     top: 4px;
     right: -24px;
+    // Override inline-table rule to get focus outline to show.
+    // May not be safe to do everywhere, since it could cause
+    // vertical alignment issues like in #5606
+    display: inline-block !important;
   }
 
 </style>

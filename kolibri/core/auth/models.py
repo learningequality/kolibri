@@ -36,16 +36,17 @@ from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
-from morango.certificates import Certificate
-from morango.manager import SyncableModelManager
+from morango.models import Certificate
+from morango.models import MorangoMPTTModel
+from morango.models import MorangoMPTTTreeManager
 from morango.models import SyncableModel
-from morango.utils.morango_mptt import MorangoMPTTModel
-from morango.utils.morango_mptt import MorangoMPTTTreeManager
+from morango.models import SyncableModelManager
 from mptt.models import TreeForeignKey
 
 from .constants import collection_kinds
 from .constants import facility_presets
 from .constants import role_kinds
+from .constants import user_kinds
 from .errors import InvalidRoleKind
 from .errors import UserDoesNotHaveRoleError
 from .errors import UserHasRoleOnlyIndirectlyThroughHierarchyError
@@ -65,6 +66,7 @@ from .permissions.general import IsAdminForOwnFacility
 from .permissions.general import IsFromSameFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
+from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
 from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.constants.morango_scope_definitions import SINGLE_USER
 from kolibri.core.errors import KolibriValidationError
@@ -120,6 +122,7 @@ class FacilityDataset(FacilityDataSyncableModel):
     learner_can_login_with_no_password = models.BooleanField(default=False)
     show_download_button_in_learn = models.BooleanField(default=True)
     allow_guest_access = models.BooleanField(default=True)
+    registered = models.BooleanField(default=False)
 
     def __str__(self):
         facilities = self.collection_set.filter(kind=collection_kinds.FACILITY)
@@ -182,7 +185,10 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         )
         dataset_id = cache.get(key)
         if dataset_id is None:
-            dataset_id = getattr(self, related_obj_name).dataset_id
+            try:
+                dataset_id = getattr(self, related_obj_name).dataset_id
+            except ObjectDoesNotExist as e:
+                raise ValidationError(e)
             cache.set(key, dataset_id, 60 * 10)
         return dataset_id
 
@@ -281,6 +287,15 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
 
     def get_short_name(self):
         return self.full_name.split(" ", 1)[0]
+
+    @property
+    def session_data(self):
+        """
+        Data that is added to the session data at login and during session updates.
+        """
+        raise NotImplementedError(
+            "Subclasses of KolibriAbstractBaseUser must override the `session_data` property."
+        )
 
     def is_member_of(self, coll):
         """
@@ -482,6 +497,16 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
     class Meta:
         abstract = True
 
+    @property
+    def session_data(self):
+        return {
+            "username": "",
+            "full_name": "",
+            "user_id": None,
+            "facility_id": getattr(Facility.get_default_facility(), "id", None),
+            "kind": [user_kinds.ANONYMOUS],
+        }
+
     def is_member_of(self, coll):
         return False
 
@@ -567,7 +592,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
 
         # create the new account in that facility
         superuser = FacilityUser(
-            username=username, password=password, facility=facility
+            full_name=username, username=username, password=password, facility=facility
         )
         superuser.full_clean()
         superuser.set_password(password)
@@ -578,6 +603,30 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
 
         # make the user into a superuser on this device
         DevicePermissions.objects.create(user=superuser, is_superuser=True)
+
+
+def validate_birth_year(value):
+    error = ""
+
+    if value == "NOT_SPECIFIED" or value == "DEFERRED":
+        return
+
+    try:
+        if int(value) < 1900:
+            error = "Birth year {value} is invalid, as it is prior to the year 1900".format(
+                value=value
+            )
+
+        elif int(value) > 3000:
+            error = "Birth year {value} is invalid, as it is after the year 3000".format(
+                value=value
+            )
+
+    except ValueError:
+        error = "{value} is not a valid value for birth_year".format(value=value)
+
+    if error != "":
+        raise ValidationError(error)
 
 
 @python_2_unicode_compatible
@@ -609,6 +658,16 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     facility = models.ForeignKey("Facility")
 
     is_facility_user = True
+
+    gender = models.CharField(
+        max_length=16, choices=GENDER_CHOICES, default="", blank=True
+    )
+
+    birth_year = models.CharField(
+        max_length=16, default="", validators=[validate_birth_year], blank=True
+    )
+
+    id_number = models.CharField(max_length=64, default="", blank=True)
 
     def calculate_partition(self):
         return "{dataset_id}:user-ro:{user_id}".format(
@@ -647,6 +706,25 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
                 return True
             return False
         return False
+
+    @property
+    def session_data(self):
+        roles = list(self.roles.values_list("kind", flat=True).distinct())
+
+        if self.is_superuser:
+            roles.insert(0, user_kinds.SUPERUSER)
+
+        if not roles:
+            roles = [user_kinds.LEARNER]
+
+        return {
+            "username": self.username,
+            "full_name": self.full_name,
+            "user_id": self.id,
+            "kind": roles,
+            "can_manage_content": self.can_manage_content,
+            "facility_id": self.facility_id,
+        }
 
     @property
     def can_manage_content(self):
@@ -1070,8 +1148,6 @@ class Membership(AbstractFacilityDataModel):
     def infer_dataset(self, *args, **kwargs):
         user_dataset_id = self.cached_related_dataset_lookup("user")
         collection_dataset_id = self.cached_related_dataset_lookup("collection")
-        # user_dataset_id = self.user.dataset_id
-        # collection_dataset_id = self.collection.dataset_id
         if user_dataset_id != collection_dataset_id:
             raise KolibriValidationError(
                 "Collection and user for a Membership object must be in same dataset."

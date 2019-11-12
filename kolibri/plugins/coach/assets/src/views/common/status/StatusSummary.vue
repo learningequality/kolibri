@@ -87,7 +87,7 @@
         debug="ratio; has some needing help"
       />
       <LearnerProgressCount
-        v-if="showItem(!verbose)"
+        v-if="showItem(!verbose) || includeNotStarted"
         class="item"
         :style="{ color: $themeTokens.textDisabled }"
         :verb="VERBS.notStarted"
@@ -139,7 +139,6 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { VERBS, ICONS } from './constants';
   import LearnerProgressCount from './LearnerProgressCount';
   import LearnerProgressRatio from './LearnerProgressRatio';
@@ -152,7 +151,7 @@
       // eslint-disable-next-line vue/no-unused-components
       LearnerProgressRatio, // it is used, it's just referenced dynamically
     },
-    mixins: [tallyMixin, themeMixin],
+    mixins: [tallyMixin],
     props: {
       verbose: {
         type: Boolean,
@@ -169,6 +168,10 @@
       showNeedsHelp: {
         type: Boolean,
         default: true,
+      },
+      includeNotStarted: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {

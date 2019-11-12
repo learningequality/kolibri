@@ -11,28 +11,25 @@
 
     <KPageContainer>
       <section>
-        <BackLinkWithOptions>
+        <HeaderWithOptions>
           <BackLink
-            slot="backlink"
+            slot="header"
             :to="classRoute('ReportsLessonReportPage', {})"
-            :text="$tr('back', { lesson: lesson.title })"
+            :text="coachString('backToLessonLabel', { lesson: lesson.title })"
           />
           <KButton
             slot="options"
-            :text="coachStrings.$tr('previewAction')"
+            :text="coachString('previewAction')"
             @click="onPreviewClick"
           />
-        </BackLinkWithOptions>
+        </HeaderWithOptions>
         <h1>
-          <KLabeledIcon>
-            <KBasicContentIcon slot="icon" :kind="resource.kind" />
-            {{ resource.title }}
-          </KLabeledIcon>
+          <KLabeledIcon :icon="resource.kind" :label="resource.title" />
         </h1>
       </section>
 
       <KCheckbox
-        :label="coachStrings.$tr('viewByGroupsLabel')"
+        :label="coachString('viewByGroupsLabel')"
         :checked="viewByGroups"
         @change="toggleGroupsView"
       />
@@ -48,24 +45,21 @@
             class="group-title"
             data-test="group-title"
           >
-            <KLabeledIcon>
-              <KIcon slot="icon" group />
-              {{ group.name }}
-            </KLabeledIcon>
+            <KLabeledIcon icon="group" :label="group.name" />
           </h2>
 
-          <KGrid cols="2">
-            <KGridItem size="1">
+          <KFixedGrid numCols="2">
+            <KFixedGridItem span="1">
               <StatusSummary
                 :tally="getGroupTally(group.id)"
                 :showNeedsHelp="false"
                 :verbose="false"
               />
-            </KGridItem>
-            <KGridItem size="1">
+            </KFixedGridItem>
+            <KFixedGridItem span="1">
               <ReportsResourcesStats :avgTime="getGroupRecipientsAvgTime(group.id)" />
-            </KGridItem>
-          </KGrid>
+            </KFixedGridItem>
+          </KFixedGrid>
 
           <ReportsResourceLearners
             :entries="getGroupEntries(group.id)"
@@ -81,7 +75,7 @@
             class="group-title"
             data-test="group-title"
           >
-            {{ coachStrings.$tr('ungroupedLearnersLabel') }}
+            {{ coachString('ungroupedLearnersLabel') }}
           </h2>
 
           <ReportsResourceLearners
@@ -116,14 +110,14 @@
 
   import { LastPages } from '../../constants/lastPagesConstants';
   import commonCoach from '../common';
-  import BackLinkWithOptions from '../common/BackLinkWithOptions';
+  import HeaderWithOptions from '../common/HeaderWithOptions';
   import ReportsResourceLearners from './ReportsResourceLearners';
   import ReportsResourcesStats from './ReportsResourcesStats';
 
   export default {
     name: 'ReportsLessonResourceLearnerListPage',
     components: {
-      BackLinkWithOptions,
+      HeaderWithOptions,
       ReportsResourceLearners,
       ReportsResourcesStats,
     },
@@ -230,10 +224,7 @@
         );
       },
     },
-    $trs: {
-      back: "Back to '{lesson}'",
-      avgNumViews: 'Average number of views',
-    },
+    $trs: {},
   };
 
 </script>

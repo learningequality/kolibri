@@ -2,6 +2,66 @@
 
 List of the most important changes for each release.
 
+## 0.13.0 (unreleased)
+
+### Changed or fixed
+
+- Fixed: Unclean shutdowns on very large databases, due to prolonged database cleanup
+
+## 0.12.9
+
+### Changed or fixed
+
+- Database vacuum now works correctly
+- Fixes related to network detection
+- Improve performance of classroom API endpoint to prevent request timeouts
+
+### Added
+
+- Improved error reporting in Windows
+
+([0.12.9 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.9))
+
+### Internationalization and localization
+
+- Added Korean
+
+## 0.12.8
+
+### Changed or fixed
+
+- Fixed: users creating accounts for themselves not being placed in their selected facility
+- Fixed: images in Khan Academy exercises not appearing on occasion
+- Fixed: "Usage and Privacy" modal not closing when clicking the "Close" button
+
+([0.12.8 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.8))
+
+## 0.12.7
+
+(Note: 0.12.6 contained a regression and was superseded by 0.12.7)
+
+### Changed or fixed
+
+- Facility user table is now paginated to improve performance for facilities with large numbers of users.
+- Various usability and visual improvements, including improved layout when using a RTL language
+- On Windows, `kolibri.exe` is automatically added to the path in the command prompt
+- Improved system clean-up when uninstalling on Windows
+
+
+### Internationalization and localization
+
+- Added Latin American Spanish (ES-419)
+
+([0.12.7 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.7))
+
+([0.12.6 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.6))
+
+## 0.12.5
+
+- Upgraded Morango to 0.4.6, fixing startup errors for some users.
+
+([0.12.5 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.5))
+
 ## 0.12.4
 
 ### Changed or fixed
@@ -19,7 +79,7 @@ List of the most important changes for each release.
 - Added a new theming system for customizing various colors that appear in Kolibri.
 
 
-View all [0.12.4 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.4)
+([0.12.4 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.4))
 
 ## 0.12.3
 
@@ -31,7 +91,7 @@ View all [0.12.4 changes on Github](https://github.com/learningequality/kolibri/
 - Improved PostgreSQL support
 - Added fixes related to coach tools
 
-View all [0.12.3 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.3)
+([0.12.3 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.3))
 
 
 ## 0.12.2
@@ -65,7 +125,7 @@ View all [0.12.3 changes on Github](https://github.com/learningequality/kolibri/
 - Added Gujarati
 - Fixed missing translations in coach group management
 
-View all [0.12.2 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.2)
+([0.12.2 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.2))
 
 
 ## 0.12.1
@@ -85,7 +145,7 @@ View all [0.12.2 changes on Github](https://github.com/learningequality/kolibri/
 
 - Added Burmese
 
-View all [0.12.1 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.1)
+([0.12.1 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.1))
 
 
 ## 0.12.0
@@ -123,7 +183,7 @@ View all [0.12.1 changes on Github](https://github.com/learningequality/kolibri/
 
 - Languages: English, Arabic, Bengali, Bulgarian, Chinyanja, Farsi, French, Fulfulde Mbororoore, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Telugu, Urdu, Vietnamese, and Yoruba
 
-View all [0.12.0 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.0)
+([0.12.0 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.0))
 
 
 ## 0.11.1
@@ -148,7 +208,7 @@ View all [0.12.0 changes on Github](https://github.com/learningequality/kolibri/
 
 - Added Fufulde Mboroore
 
-View all [0.11.1 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.11.1)
+([0.11.1 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.11.1))
 
 ## 0.11.0
 
@@ -181,7 +241,7 @@ View all [0.11.1 changes on Github](https://github.com/learningequality/kolibri/
 - Many fixes to translation and localization
 - Consistent font rendering across all languages
 
-View all [0.11.0 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.11.0)
+([0.11.0 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.11.0))
 
 
 ## 0.10.3
@@ -196,14 +256,14 @@ View all [0.11.0 changes on Github](https://github.com/learningequality/kolibri/
 - Channel import listing of USB devices when non-US locale
 - Counts for coach-specific content would in some cases be wrongly displayed
 
-View all [0.10.3 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.10.3)
+([0.10.3 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.10.3))
 
 ## 0.10.2
 
 - Performance improvements and bug fixes for content import
 - Exam creation optimizations
 
-View all [0.10.2 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.10.2)
+([0.10.2 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.10.2))
 
 ## 0.10.1
 
@@ -212,7 +272,7 @@ View all [0.10.2 changes on Github](https://github.com/learningequality/kolibri/
 - Fixes for SSL issues on low-spec devices / unstable connectivity
 - Compatibility fixes for older system libraries
 
-View all [0.10.1 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.10.1)
+([0.10.1 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.10.1))
 
 ## 0.10.0
 
@@ -229,7 +289,7 @@ View all [0.10.1 changes on Github](https://github.com/learningequality/kolibri/
 - Command to migrate content directory location
 - Languages: English, Arabic, Bengali, Chinyanja, Farsi, French, Hindi, Kannada, Marathi, Burmese, Portuguese (Brazilian), Spanish, Swahili, Tamil, Telugu, Urdu, Yoruba, and Zulu
 
-View all [0.10.0 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.10.0)
+([0.10.0 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.10.0))
 
 0.9.3
 -----
@@ -237,7 +297,7 @@ View all [0.10.0 changes on Github](https://github.com/learningequality/kolibri/
 - Compressed database upload
 - Various bug fixes
 
-View all [0.9.3 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.9.3)
+([0.9.3 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.9.3))
 
 0.9.2
 -----
@@ -245,7 +305,7 @@ View all [0.9.3 changes on Github](https://github.com/learningequality/kolibri/i
 - Various bug fixes
 - Languages: English, Arabic, Bengali, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Tamil, Telugu, Urdu, Yoruba, and Zulu
 
-View all [0.9.2 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.9.2)
+([0.9.2 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.9.2))
 
 0.9.1
 -----
@@ -259,7 +319,7 @@ View all [0.9.2 changes on Github](https://github.com/learningequality/kolibri/i
 - Various other fixes
 - Languages: English, Arabic, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Tamil, Telugu, and Urdu
 
-View all [0.9.1 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.9.1)
+([0.9.1 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.9.1))
 
 0.9.0
 -----
@@ -277,7 +337,7 @@ View all [0.9.1 changes on Github](https://github.com/learningequality/kolibri/i
 - Added icon next to language-switching functionality
 - Languages: English, Arabic, Farsi, French, Hindi, Spanish, Swahili, and Urdu
 
-View all [0.9.0 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.9.0)
+([0.9.0 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.9.0))
 
 0.8.0
 -----
@@ -289,7 +349,7 @@ View all [0.9.0 changes on Github](https://github.com/learningequality/kolibri/i
 - Languages: English, Spanish, Arabic, Farsi, Urdu, French, Haitian Creole, and Burmese
 - Various bug fixes
 
-View all [0.8.0 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.8.0)
+([0.8.0 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.8.0))
 
 0.7.2
 -----

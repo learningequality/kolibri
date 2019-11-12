@@ -121,6 +121,9 @@ const baseAliasSourcePaths = {
     __dirname,
     '../../../kolibri/core/assets/src/content_renderer_module'
   ),
+  plugin_data: path.resolve(__dirname, '../../../kolibri/core/assets/src/utils/plugin_data'),
+  // To clean up - once we allow for core API elements to be defined as either bundled or not bundled
+  // into the default frontend code bundle, we should amalgamate all of these into the main API spec.
 };
 
 const baseAliasDistPath = path.resolve(__dirname, '../dist');
@@ -129,6 +132,7 @@ const baseAliasDistPaths = {
   kolibri_module: path.resolve(baseAliasDistPath, 'kolibri_module'),
   kolibri_app: path.resolve(baseAliasDistPath, 'kolibri_app'),
   content_renderer_module: path.resolve(baseAliasDistPath, 'content_renderer_module'),
+  plugin_data: path.resolve(baseAliasDistPath, 'plugin_data'),
 };
 
 // Assume if kolibri_module is not available on the source path, then we need to use the dist
@@ -371,7 +375,7 @@ const __builder = {
      * Function for creating an exported copy of the API spec and all associated modules
      * to allow building of frontend plugins that need to import files that cannot be referenced
      * in the frontend, e.g. scss files (required during build time) or for standalone apps that
-     * wish to use our component library but do not want to import the entire kolibriGlobal object.
+     * wish to use our component library but do not want to import the entire kolibriCoreAppGlobal object.
      */
     this.checkSrc();
 

@@ -5,10 +5,11 @@ import isEqual from 'lodash/isEqual';
 import urls from 'kolibri.urls';
 import cloneDeep from './cloneDeep';
 import ConditionalPromise from './conditionalPromise';
+import plugin_data from 'plugin_data';
 
 export const logging = logger.getLogger(__filename);
 
-const contentCacheKey = global.contentCacheKey;
+const contentCacheKey = plugin_data.contentCacheKey;
 
 /** Class representing a single API resource object */
 export class Model {
@@ -137,11 +138,11 @@ export class Model {
             if (!this.new || exists) {
               // If this Model is not new, then can do a PATCH against the Model
               url = this.url;
-              clientObj = { path: url, method: 'PATCH', entity: payload };
+              clientObj = { path: url, method: 'PATCH', entity: payload, params: this.getParams };
             } else {
               // Otherwise, must POST to the Collection endpoint to create the Model
               url = this.resource.collectionUrl();
-              clientObj = { path: url, entity: payload };
+              clientObj = { path: url, entity: payload, params: this.getParams };
             }
             // Do a save on the URL.
             this.resource.client(clientObj).then(
@@ -195,7 +196,7 @@ export class Model {
             reject('Can not delete model that we do not have an id for');
           } else {
             // Otherwise, DELETE the Model
-            const clientObj = { path: this.url, method: 'DELETE' };
+            const clientObj = { path: this.url, method: 'DELETE', params: this.getParams };
             this.resource.client(clientObj).then(
               () => {
                 // delete this instance

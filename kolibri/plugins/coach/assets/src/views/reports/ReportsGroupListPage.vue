@@ -11,22 +11,21 @@
 
     <KPageContainer>
       <ReportsHeader />
-      <CoreTable :emptyMessage="coachStrings.$tr('groupListEmptyState')">
+      <CoreTable :emptyMessage="coachString('groupListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('groupNameLabel') }}</th>
-            <th>{{ coachStrings.$tr('lessonsLabel') }}</th>
-            <th>{{ coachStrings.$tr('quizzesLabel') }}</th>
-            <th>{{ coachStrings.$tr('learnersLabel') }}</th>
-            <th>{{ coachStrings.$tr('avgQuizScoreLabel') }}</th>
-            <th>{{ coachStrings.$tr('lastActivityLabel') }}</th>
+            <th>{{ coachString('groupNameLabel') }}</th>
+            <th>{{ coreString('lessonsLabel') }}</th>
+            <th>{{ coreString('quizzesLabel') }}</th>
+            <th>{{ coreString('learnersLabel') }}</th>
+            <th>{{ coachString('avgQuizScoreLabel') }}</th>
+            <th>{{ coachString('lastActivityLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" group />
+              <KLabeledIcon icon="group">
                 <KRouterLink
                   :text="tableRow.name"
                   :to="classRoute('ReportsGroupReportPage', { groupId: tableRow.id })"
@@ -34,13 +33,13 @@
               </KLabeledIcon>
             </td>
             <td>
-              {{ coachStrings.$tr('integer', {value: tableRow.numLessons}) }}
+              {{ coachString('integer', {value: tableRow.numLessons}) }}
             </td>
             <td>
-              {{ coachStrings.$tr('integer', {value: tableRow.numQuizzes}) }}
+              {{ coachString('integer', {value: tableRow.numQuizzes}) }}
             </td>
             <td>
-              {{ coachStrings.$tr('integer', {value: tableRow.numLearners}) }}
+              {{ coachString('integer', {value: tableRow.numLearners}) }}
             </td>
             <td><Score :value="tableRow.avgScore" /></td>
             <td><ElapsedTime :date="tableRow.lastActivity" /></td>
@@ -56,6 +55,7 @@
 <script>
 
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -65,7 +65,7 @@
       ReportsHeader,
       ElapsedTime,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       table() {
         const sorted = this._.sortBy(this.groups, ['name']);

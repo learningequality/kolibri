@@ -20,20 +20,16 @@
 
 <script>
 
-  import KTooltip from 'kolibri.coreVue.components.KTooltip';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import { coachStrings } from '../commonCoachStrings';
+  import { coachStringsMixin } from '../commonCoachStrings';
   import CoachStatusIcon from './CoachStatusIcon';
   import { statusStringsMixin, isValidVerb } from './statusStrings';
 
   export default {
     name: 'LearnerProgressCount',
     components: {
-      KTooltip,
       CoachStatusIcon,
-      KLabeledIcon,
     },
-    mixins: [statusStringsMixin],
+    mixins: [statusStringsMixin, coachStringsMixin],
     props: {
       verb: {
         type: String,
@@ -55,7 +51,7 @@
       },
       text() {
         if (!this.verbosityNumber) {
-          return coachStrings.$tr('integer', { value: this.count });
+          return this.coachString('integer', { value: this.count });
         }
         return this.strings.$tr(this.shorten('count', this.verbosityNumber), { count: this.count });
       },

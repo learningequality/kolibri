@@ -1,12 +1,22 @@
 import FontFaceObserver from 'fontfaceobserver';
 import vue from 'kolibri.lib.vue';
 import logger from 'kolibri.lib.logging';
+import { languageDirections, defaultLanguage } from 'kolibri-components/src/utils/i18n';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
+import plugin_data from 'plugin_data';
 
+export {
+  languageDirections,
+  defaultLanguage,
+  languageValidator,
+  getContentLangDir,
+} from 'kolibri-components/src/utils/i18n';
 export { licenseTranslations } from './licenseTranslations';
 
 const logging = logger.getLogger(__filename);
+
+const languageGlobals = plugin_data['languageGlobals'] || {};
 
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   if (args) {
@@ -15,7 +25,14 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
                       arguments or an object of named options.`);
     }
   }
-  const defaultMessageText = defaultMessages[messageId];
+
+  // Handle the possibility that the message is defined with an object including context.
+  const messageValue = defaultMessages[messageId];
+  const defaultMessageText =
+    typeof messageValue === 'object' && messageValue.hasOwnProperty('message')
+      ? messageValue.message
+      : messageValue;
+
   const message = {
     id: `${nameSpace}.${messageId}`,
     defaultMessage: defaultMessageText,
@@ -24,25 +41,10 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   return formatter(message, args);
 }
 
-export const languageDirections = {
-  LTR: 'ltr',
-  RTL: 'rtl',
-};
-
-const defaultLocale = 'en';
-
-export const defaultLanguage = {
-  id: 'en',
-  lang_name: 'English',
-  lang_direction: languageDirections.LTR,
-};
-
-export const languageValidator = language => {
-  return ['id', 'lang_name', 'lang_direction'].reduce((valid, key) => valid && language[key], true);
-};
+const defaultLocale = defaultLanguage.id;
 
 export const availableLanguages = {
-  en: defaultLanguage,
+  [defaultLocale]: defaultLanguage,
 };
 
 export let currentLanguage = defaultLocale;
@@ -50,17 +52,13 @@ export let currentLanguage = defaultLocale;
 // Default to ltr
 export let languageDirection = languageDirections.LTR;
 
-export const getContentLangDir = language => {
-  return (language || {}).lang_direction || languageDirections.LTR;
-};
-
-export const getLangDir = id => {
+export function getLangDir(id) {
   return (availableLanguages[id] || {}).lang_direction || languageDirections.LTR;
-};
+}
 
-export const isRtl = id => {
+export function isRtl(id) {
   return getLangDir(id) === languageDirections.RTL;
-};
+}
 
 export const languageDensities = {
   englishLike: 'english_like',
@@ -95,7 +93,7 @@ const languageDensityMapping = {
   zh: languageDensities.dense,
 };
 
-function languageIdToCode(id) {
+export function languageIdToCode(id) {
   return id.split('-')[0].toLowerCase();
 }
 
@@ -186,8 +184,8 @@ function _setUpVueIntl() {
   };
 
   vue.setLocale(currentLanguage);
-  if (global.coreLanguageMessages) {
-    vue.registerMessages(currentLanguage, global.coreLanguageMessages);
+  if (languageGlobals.coreLanguageMessages) {
+    vue.registerMessages(currentLanguage, languageGlobals.coreLanguageMessages);
   }
   importVueIntlLocaleData().forEach(localeData => VueIntl.addLocaleData(localeData));
 }
@@ -245,15 +243,15 @@ export function i18nSetup(skipPolyfill = false) {
    **/
 
   // Set up exported module variable
-  if (global.languageCode) {
-    currentLanguage = global.languageCode;
+  if (languageGlobals.languageCode) {
+    currentLanguage = languageGlobals.languageCode;
   }
 
-  if (global.languages) {
-    Object.assign(availableLanguages, global.languages);
+  if (languageGlobals.languages) {
+    Object.assign(availableLanguages, languageGlobals.languages);
   }
 
-  languageDirection = global.languageDir || languageDirection;
+  languageDirection = languageGlobals.languageDir || languageDirection;
 
   // Set up typography
   setLanguageDensity(currentLanguage);
@@ -276,7 +274,7 @@ export function i18nSetup(skipPolyfill = false) {
             'intl'
           );
         }),
-        importIntlLocale(global.languageCode),
+        importIntlLocale(currentLanguage),
       ]).then(
         // eslint-disable-line
         ([requireIntl, requireIntlLocaleData]) => {

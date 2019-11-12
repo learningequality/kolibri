@@ -1,16 +1,14 @@
 <template>
 
   <Block
-    :allLinkText="viewAllString"
+    :allLinkText="coachString('viewAllAction')"
     :allLinkRoute="classRoute('ReportsLessonListPage', {})"
+    :showAllLink="table.length > 0"
   >
-    <KLabeledIcon slot="title">
-      <KIcon slot="icon" lesson />
-      {{ coachStrings.$tr('lessonsLabel') }}
-    </KLabeledIcon>
+    <KLabeledIcon slot="title" icon="lesson" :label="coreString('lessonsLabel')" />
 
     <p v-if="table.length === 0">
-      {{ coachStrings.$tr('lessonListEmptyState') }}
+      {{ coachString('lessonListEmptyState') }}
     </p>
 
     <BlockItem
@@ -34,16 +32,13 @@
 <script>
 
   import orderBy from 'lodash/orderBy';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import Block from './Block';
   import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
-  import ActivityBlock from './ActivityBlock';
 
   const MAX_LESSONS = 3;
-
-  const translator = crossComponentTranslator(ActivityBlock);
 
   export default {
     name: 'LessonsBlock',
@@ -52,7 +47,7 @@
       Block,
       BlockItem,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       table() {
         const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);
@@ -66,9 +61,6 @@
             hasAssignments: assigned.length > 0,
           };
         });
-      },
-      viewAllString() {
-        return translator.$tr('viewAll');
       },
     },
     methods: {
@@ -87,9 +79,7 @@
         return last;
       },
     },
-    $trs: {
-      viewAll: 'All lessons',
-    },
+    $trs: {},
   };
 
 </script>

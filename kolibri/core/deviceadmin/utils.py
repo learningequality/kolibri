@@ -4,12 +4,15 @@ import os
 import re
 import sys
 from datetime import datetime
+from datetime import timedelta
 
 from django import db
 from django.conf import settings
 
 import kolibri
+from kolibri.core.tasks.main import scheduler
 from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.time_utils import local_now
 
 # Import db instead of db.connections because we want to use an instance of
 # connections that might be updated from outside.
@@ -43,7 +46,10 @@ def get_dtm_from_backup_name(fname):
     p = re.compile(r"^db\-v[^_]+_(?P<dtm>[\d\-_]+).*\.dump$")
     m = p.search(fname)
     if m:
-        return m.groups("dtm")[0]
+        label = m.groups("dtm")[0]
+        date = label.split("_")[0]
+        time = label.split("_")[1]
+        return "{date} {time}".format(date=date, time=time.replace("-", ":"))
     raise ValueError(
         "Tried to get date component of unparsed filename: {}".format(fname)
     )
@@ -176,3 +182,37 @@ def search_latest(search_root, fallback_version):
 
     if newest:
         return os.path.join(search_root, newest)
+
+
+def perform_vacuum(database=db.DEFAULT_DB_ALIAS):
+    connection = db.connections[database]
+    if connection.vendor == "sqlite":
+        try:
+            db.close_old_connections()
+            db.connections.close_all()
+            cursor = connection.cursor()
+            cursor.execute("vacuum;")
+            connection.close()
+        except Exception as e:
+            logger.error(e)
+            new_msg = (
+                "Vacuum of database {db_name} couldn't be executed. Possible reasons:\n"
+                "  * There is an open transaction in the db.\n"
+                "  * There are one or more active SQL statements.\n"
+                "The full error: {error_msg}"
+            ).format(
+                db_name=db.connections[database].settings_dict["NAME"], error_msg=e
+            )
+            logger.error(new_msg)
+        else:
+            logger.info("Sqlite database Vacuum finished.")
+
+
+def schedule_vacuum():
+    current_dt = local_now()
+    vacuum_time = current_dt.replace(hour=3, minute=0, second=0, microsecond=0)
+    if vacuum_time < current_dt:
+        # If it is past 3AM, change the day to tomorrow.
+        vacuum_time = vacuum_time + timedelta(days=1)
+    # Repeat indefinitely
+    scheduler.schedule(vacuum_time, perform_vacuum, repeat=None, interval=24 * 60 * 60)

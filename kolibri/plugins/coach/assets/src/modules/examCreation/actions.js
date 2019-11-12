@@ -100,6 +100,8 @@ export function createExamAndRoute(store, classId) {
     question_sources: store.state.selectedQuestions,
     assignments: [{ collection: classId }],
     learners_see_fixed_order: store.state.learnersSeeFixedOrder,
+    date_archived: null,
+    date_activated: null,
   };
 
   return createExam(store, exam).then(() => {

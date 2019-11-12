@@ -25,6 +25,8 @@ recursive-exclude kolibri/* *pyc
 recursive-exclude kolibri/core/assets *
 recursive-exclude kolibri/plugins/*/assets *
 recursive-exclude kolibri/plugins/*/node_modules *
+exclude kolibri/*/buildConfig.js
+exclude kolibri/plugins/*/buildConfig.js
 
 recursive-exclude kolibri/dist *pyc
 prune kolibri/dist/*/__pycache___

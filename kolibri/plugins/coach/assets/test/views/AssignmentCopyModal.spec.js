@@ -14,8 +14,8 @@ const defaultProps = {
 function makeWrapper(options) {
   const wrapper = mount(AssignmentCopyModal, options)
   const els = {
-    selectClassroomForm: () => wrapper.find('#select-classroom form'),
-    selectLearnerGroupForm: () => wrapper.find('#select-learnergroup form'),
+    selectClassroomForm: () => wrapper.find('#select-classroom'),
+    selectLearnerGroupForm: () => wrapper.find('#select-learnergroup'),
     submitButton: () => wrapper.find('button[type="submit"]')
   };
   return { wrapper, els }

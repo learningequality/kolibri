@@ -13,24 +13,21 @@
       <p>
         <BackLink
           :to="classRoute('ReportsGroupReportLessonPage', {})"
-          :text="$tr('back', { lesson: lesson.title })"
+          :text="coachString('backToLessonLabel', { lesson: lesson.title })"
         />
       </p>
       <h1>
-        <KLabeledIcon>
-          <KBasicContentIcon slot="icon" :kind="resource.kind" />
-          {{ resource.title }}
-        </KLabeledIcon>
+        <KLabeledIcon :icon="resource.kind" :label="resource.title" />
       </h1>
 
       <!-- TODO COACH
-      <KButton :text="coachStrings.$tr('previewAction')" />
+      <KButton :text="coachString('previewAction')" />
       -->
 
       <HeaderTable>
         <HeaderTableRow>
           <template slot="key">
-            {{ coachStrings.$tr('avgTimeSpentLabel') }}
+            {{ coachString('avgTimeSpentLabel') }}
           </template>
           <template slot="value">
             <TimeDuration :seconds="360" />
@@ -41,23 +38,20 @@
       <p>
         <StatusSummary :tally="tally" />
       </p>
-      <CoreTable :emptyMessage="coachStrings.$tr('activityListEmptyState')">
+      <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('nameLabel') }}</th>
-            <th>{{ coachStrings.$tr('statusLabel') }}</th>
-            <th>{{ coachStrings.$tr('timeSpentLabel') }}</th>
-            <th>{{ coachStrings.$tr('groupsLabel') }}</th>
-            <th>{{ coachStrings.$tr('lastActivityLabel') }}</th>
+            <th>{{ coachString('nameLabel') }}</th>
+            <th>{{ coachString('statusLabel') }}</th>
+            <th>{{ coachString('timeSpentLabel') }}</th>
+            <th>{{ coachString('groupsLabel') }}</th>
+            <th>{{ coachString('lastActivityLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" person />
-                {{ tableRow.name }}
-              </KLabeledIcon>
+              <KLabeledIcon icon="person" :label="tableRow.name" />
             </td>
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />
@@ -117,10 +111,7 @@
         });
       },
     },
-    $trs: {
-      back: "Back to '{lesson}'",
-      avgNumViews: 'Average number of views',
-    },
+    $trs: {},
   };
 
 </script>

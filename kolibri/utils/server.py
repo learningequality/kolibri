@@ -11,7 +11,6 @@ import cherrypy
 import ifcfg
 import requests
 from django.conf import settings
-from django.core.management import call_command
 
 import kolibri
 from .system import kill_pid
@@ -75,22 +74,35 @@ class NotRunning(Exception):
 
 def run_services(port):
 
-    # start the pingback thread
-    PingbackThread.start_command()
+    # Initialize the iceqube scheduler to handle scheduled tasks
+    from kolibri.core.tasks.main import scheduler
 
-    # Do a db vacuum periodically
-    VacuumThread.start_command()
+    scheduler.clear_scheduler()
+
+    # schedule the pingback job
+    from kolibri.core.analytics.utils import schedule_ping
+
+    schedule_ping()
+
+    # schedule the vacuum job
+    from kolibri.core.deviceadmin.utils import schedule_vacuum
+
+    schedule_vacuum()
 
     # This is run every time the server is started to clear all the tasks
     # in the queue
-    from kolibri.core.tasks.queue import get_queue
+    from kolibri.core.tasks.main import queue
 
-    get_queue().empty()
+    queue.empty()
 
-    # Initialize the iceqube engine to handle scheduled tasks
-    from kolibri.core.tasks.queue import initialize_worker
+    # Initialize the iceqube engine to handle queued tasks
+    from kolibri.core.tasks.main import initialize_worker
 
     initialize_worker()
+
+    scheduler.start_scheduler()
+
+    atexit.register(scheduler.shutdown_scheduler)
 
     # Register the Kolibri zeroconf service so it will be discoverable on the network
     from morango.models import InstanceIDModel
@@ -98,6 +110,10 @@ def run_services(port):
 
     instance, _ = InstanceIDModel.get_or_create_current_instance()
     register_zeroconf_service(port=port, id=instance.id[:4])
+
+
+def _rm_pid_file():
+    os.unlink(PID_FILE)
 
 
 def start(port=8080, run_cherrypy=True):
@@ -112,17 +128,7 @@ def start(port=8080, run_cherrypy=True):
     # Write the new PID
     _write_pid_file(PID_FILE, port=port)
 
-    # This should be run every time the server is started for now.
-    # Events to trigger it are hard, because of copying a content folder into
-    # ~/.kolibri, or deleting a channel DB on disk
-    from kolibri.core.content.utils.annotation import update_channel_metadata
-
-    update_channel_metadata()
-
-    def rm_pid_file():
-        os.unlink(PID_FILE)
-
-    atexit.register(rm_pid_file)
+    atexit.register(_rm_pid_file)
 
     logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
 
@@ -142,10 +148,7 @@ def services(port):
     # Write the new PID
     _write_pid_file(PID_FILE)
 
-    def rm_pid_file():
-        os.unlink(PID_FILE)
-
-    atexit.register(rm_pid_file)
+    atexit.register(_rm_pid_file)
 
     block()
 
@@ -181,29 +184,6 @@ def block():
             t.join()
 
 
-class PingbackThread(threading.Thread):
-    @classmethod
-    def start_command(cls):
-        thread = cls()
-        thread.daemon = True
-        thread.start()
-
-    def run(self):
-        call_command("ping")
-
-
-class VacuumThread(threading.Thread):
-    @classmethod
-    def start_command(cls):
-        thread = cls()
-        thread.daemon = True
-        thread.start()
-
-    def run(self):
-        # Do the vacuum every day at 3am local server time
-        call_command("vacuumsqlite", scheduled=True)
-
-
 def stop(pid=None, force=False):
     """
     Stops the kolibri server, either from PID or through a management command
@@ -228,7 +208,7 @@ def stop(pid=None, force=False):
     # raise an error...
 
     # Finally, remove the PID file
-    os.unlink(PID_FILE)
+    _rm_pid_file()
 
 
 def calculate_cache_size():
@@ -487,9 +467,12 @@ def get_urls(listen_port=None):
             __, __, port = get_status()
         urls = []
         if port:
-            interfaces = ifcfg.interfaces()
-            for interface in filter(lambda i: i["inet"], interfaces.values()):
-                urls.append("http://{}:{}/".format(interface["inet"], port))
+            try:
+                interfaces = ifcfg.interfaces()
+                for interface in filter(lambda i: i["inet"], interfaces.values()):
+                    urls.append("http://{}:{}/".format(interface["inet"], port))
+            except RuntimeError:
+                logger.error("Error retrieving network interface list!")
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []

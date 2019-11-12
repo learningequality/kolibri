@@ -17,41 +17,43 @@
         />
       </p>
       <h1>
-        <KLabeledIcon>
-          <KIcon slot="icon" lesson />
+        <KLabeledIcon icon="lesson">
           {{ lesson.title }}
         </KLabeledIcon>
       </h1>
       <HeaderTable>
         <HeaderTableRow>
           <template slot="key">
-            {{ coachStrings.$tr('statusLabel') }}
+            {{ coachString('statusLabel') }}
           </template>
           <template slot="value">
             <LessonActive :active="lesson.active" />
           </template>
         </HeaderTableRow>
-        <!-- TODO COACH
         <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('descriptionLabel') }}</template>
-          <template slot="value">Ipsum lorem</template>
+          <template slot="key">
+            {{ coachString('descriptionLabel') }}
+          </template>
+          <template slot="value">
+            <span dir="auto">
+              {{ lesson.description || coachString('descriptionMissingLabel') }}
+            </span>
+          </template>
         </HeaderTableRow>
-         -->
       </HeaderTable>
 
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('timeSpentLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('timeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
-              <KLabeledIcon>
-                <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
+              <KLabeledIcon :icon="tableRow.kind">
                 <KRouterLink
                   v-if="showLink(tableRow)"
                   :text="tableRow.title"
@@ -84,18 +86,15 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
-  import LessonSummaryPage from '../plan/LessonSummaryPage';
-
-  const LessonSummaryPageStrings = crossComponentTranslator(LessonSummaryPage);
 
   export default {
     name: 'ReportsLearnerReportLessonPage',
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       emptyMessage() {
-        return LessonSummaryPageStrings.$tr('noResourcesInLesson');
+        return this.coachString('noResourcesInLessonLabel');
       },
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -129,9 +128,7 @@
         return undefined;
       },
     },
-    $trs: {
-      lessonProgressLabel: "'{lesson}' progress",
-    },
+    $trs: {},
   };
 
 </script>

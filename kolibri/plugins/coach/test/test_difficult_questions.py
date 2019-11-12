@@ -97,7 +97,9 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
             assigned_by=self.facility_and_classroom_coach,
             collection=self.classroom,
         )
-        self.exercise_difficulties_basename = "kolibri:coach:exercisedifficulties"
+        self.exercise_difficulties_basename = (
+            "kolibri:kolibri.plugins.coach:exercisedifficulties"
+        )
 
     def test_learner_cannot_access_by_classroom_id(self):
         self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
@@ -486,60 +488,63 @@ class QuizDifficultQuestionTestCase(APITestCase):
             learner_group=self.group,
         )
 
+        self.classroom_group_learner_2 = helpers.create_learner(
+            username="classroom_group_learner_2",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+            classroom=self.classroom,
+            learner_group=self.group,
+        )
+
         self.quiz = Exam.objects.create(
             title="My Lesson",
             creator=self.facility_and_classroom_coach,
             collection=self.classroom,
             question_count=5,
+            active=False,
         )
         self.assignment_1 = ExamAssignment.objects.create(
             exam=self.quiz,
             assigned_by=self.facility_and_classroom_coach,
             collection=self.classroom,
         )
-        self.quiz_difficulties_basename = "kolibri:coach:quizdifficulties"
+        self.quiz_difficulties_basename = (
+            "kolibri:kolibri.plugins.coach:quizdifficulties"
+        )
         self.content_id = "25f32edcec565396a1840c5413c92451"
+
+    def _get_quiz_difficulties(self, for_group=False):
+        data = {"group_id": self.group.id} if for_group else {}
+        return self.client.get(
+            reverse(
+                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
+            ),
+            data=data,
+        )
+
+    def _login_as_coach(self):
+        self.client.login(
+            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+        )
 
     def test_learner_cannot_access(self):
         self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
-        response = self.client.get(
-            reverse(
-                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
-            )
-        )
+        response = self._get_quiz_difficulties()
         self.assertEqual(response.status_code, 403)
 
     def test_learner_cannot_access_by_group_id(self):
         self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
-        response = self.client.get(
-            reverse(
-                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
-            ),
-            data={"group_id": self.group.id},
-        )
+        response = self._get_quiz_difficulties(for_group=True)
         self.assertEqual(response.status_code, 403)
 
     def test_coach_no_progress(self):
-        self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
-        )
-        response = self.client.get(
-            reverse(
-                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
-            )
-        )
+        self._login_as_coach()
+        response = self._get_quiz_difficulties()
         self.assertEqual(len(response.data), 0)
 
     def test_coach_no_progress_by_group_id(self):
-        self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
-        )
-        response = self.client.get(
-            reverse(
-                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
-            ),
-            data={"group_id": self.group.id},
-        )
+        self._login_as_coach()
+        response = self._get_quiz_difficulties(for_group=True)
         self.assertEqual(len(response.data), 0)
 
     def _set_one_difficult(self, user):
@@ -558,28 +563,63 @@ class QuizDifficultQuestionTestCase(APITestCase):
 
     def test_coach_one_difficult(self):
         self._set_one_difficult(self.classroom_group_learner)
-        self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
-        )
-        response = self.client.get(
-            reverse(
-                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
-            )
-        )
+        self._login_as_coach()
+        response = self._get_quiz_difficulties()
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["total"], 1)
         self.assertEqual(response.data[0]["correct"], 0)
 
+    def test_active_and_unsubmitted_quizzes_are_not_returned(self):
+        self._set_one_difficult(self.classroom_group_learner)
+
+        # Reactivate exam, but flag learner as not having submitted it
+        self.quiz.active = True
+        self.quiz.save()
+        self.examlog.closed = False
+        self.examlog.save()
+
+        self._login_as_coach()
+        response = self._get_quiz_difficulties()
+        self.assertEqual(len(response.data), 0)
+
+    def test_active_and_submtted_quizzes_are_returned(self):
+        self._set_one_difficult(self.classroom_group_learner)
+
+        # Reactivate exam, and flag learner as having submitted it
+        self.quiz.active = True
+        self.quiz.save()
+        self.examlog.closed = True
+        self.examlog.save()
+
+        self._login_as_coach()
+        response = self._get_quiz_difficulties()
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["total"], 1)
+        self.assertEqual(response.data[0]["correct"], 0)
+
+    def test_submitted_quizzes_are_in_total(self):
+        self._set_one_difficult(self.classroom_group_learner)
+
+        self._login_as_coach()
+
+        # Reactivate quiz and simulate 2 quiz submissions.
+        self.quiz.active = True
+        self.quiz.save()
+        self.examlog.closed = True
+        self.examlog.save()
+        ExamLog.objects.create(
+            user=self.classroom_group_learner_2, exam=self.quiz, closed=True
+        )
+
+        response = self._get_quiz_difficulties()
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["total"], 2)
+        self.assertEqual(response.data[0]["correct"], 0)
+
     def test_coach_one_two_started_difficult(self):
         self._set_one_difficult(self.classroom_group_learner)
-        self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
-        )
-        response = self.client.get(
-            reverse(
-                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
-            )
-        )
+        self._login_as_coach()
+        response = self._get_quiz_difficulties()
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["total"], 1)
         self.assertEqual(response.data[0]["correct"], 0)
@@ -591,29 +631,16 @@ class QuizDifficultQuestionTestCase(APITestCase):
             collection=self.group,
         )
         self._set_one_difficult(self.classroom_group_learner)
-        self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
-        )
-        response = self.client.get(
-            reverse(
-                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
-            )
-        )
+        self._login_as_coach()
+        response = self._get_quiz_difficulties()
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["total"], 1)
         self.assertEqual(response.data[0]["correct"], 0)
 
     def test_coach_one_difficult_by_group_id(self):
         self._set_one_difficult(self.classroom_group_learner)
-        self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
-        )
-        response = self.client.get(
-            reverse(
-                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
-            ),
-            data={"group_id": self.group.id},
-        )
+        self._login_as_coach()
+        response = self._get_quiz_difficulties(for_group=True)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["total"], 1)
         self.assertEqual(response.data[0]["correct"], 0)
@@ -630,14 +657,8 @@ class QuizDifficultQuestionTestCase(APITestCase):
             item="notatest",
             content_id=self.content_id,
         )
-        self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
-        )
-        response = self.client.get(
-            reverse(
-                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
-            )
-        )
+        self._login_as_coach()
+        response = self._get_quiz_difficulties()
         self.assertEqual(len(response.data), 2)
         self.assertEqual(response.data[0]["total"], 1)
         self.assertEqual(response.data[0]["correct"], 0)
@@ -656,14 +677,8 @@ class QuizDifficultQuestionTestCase(APITestCase):
             item="notatest",
             content_id=self.content_id,
         )
-        self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
-        )
-        response = self.client.get(
-            reverse(
-                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
-            )
-        )
+        self._login_as_coach()
+        response = self._get_quiz_difficulties()
         self.assertEqual(len(response.data), 2)
         self.assertTrue(
             any(map(lambda x: x["total"] == 1 and x["correct"] == 0, response.data))
@@ -684,15 +699,8 @@ class QuizDifficultQuestionTestCase(APITestCase):
             item="notatest",
             content_id=self.content_id,
         )
-        self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
-        )
-        response = self.client.get(
-            reverse(
-                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
-            ),
-            data={"group_id": self.group.id},
-        )
+        self._login_as_coach()
+        response = self._get_quiz_difficulties(for_group=True)
         self.assertEqual(len(response.data), 2)
         self.assertTrue(
             any(map(lambda x: x["total"] == 1 and x["correct"] == 0, response.data))
@@ -708,15 +716,8 @@ class QuizDifficultQuestionTestCase(APITestCase):
         )
         self.classroom.add_member(learner2)
         self._set_one_difficult(learner2)
-        self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
-        )
-        response = self.client.get(
-            reverse(
-                self.quiz_difficulties_basename + "-detail", kwargs={"pk": self.quiz.id}
-            ),
-            data={"group_id": self.group.id},
-        )
+        self._login_as_coach()
+        response = self._get_quiz_difficulties(for_group=True)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["total"], 1)
         self.assertEqual(response.data[0]["correct"], 0)

@@ -13,19 +13,18 @@
 
       <ReportsGroupReportQuizHeader />
 
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <CoreTable :emptyMessage="coachStrings.$tr('questionListEmptyState')">
+      <h2>{{ coachString('overallLabel') }}</h2>
+      <CoreTable :emptyMessage="coachString('questionListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('questionLabel') }}</th>
-            <th>{{ coachStrings.$tr('helpNeededLabel') }}</th>
+            <th>{{ coachString('questionLabel') }}</th>
+            <th>{{ coachString('helpNeededLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.question_id">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" question />
+              <KLabeledIcon icon="question">
                 <KRouterLink
                   :text="tableRow.title"
                   :to="questionLink(tableRow.question_id)"
@@ -83,9 +82,7 @@
         });
       },
     },
-    $trs: {
-      avgTimeSpentLabel: 'Average time spent',
-    },
+    $trs: {},
   };
 
 </script>

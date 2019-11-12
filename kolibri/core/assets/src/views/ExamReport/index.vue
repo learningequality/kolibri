@@ -23,10 +23,10 @@
       class="exercise-container"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
-      <h3>{{ $tr('question', {questionNumber: questionNumber + 1}) }}</h3>
+      <h3>{{ coreString('questionNumberLabel', {questionNumber: questionNumber + 1}) }}</h3>
 
       <KCheckbox
-        :label="$tr('showCorrectAnswerLabel')"
+        :label="coreString('showCorrectAnswerLabel')"
         :checked="showCorrectAnswer"
         @change="toggleShowCorrectAnswer"
       />
@@ -36,7 +36,7 @@
         :selectedInteractionIndex="selectedInteractionIndex"
         @select="navigateToQuestionAttempt"
       />
-      <ContentRenderer
+      <KContentRenderer
         v-if="exercise"
         :itemId="itemId"
         :allowHints="false"
@@ -61,26 +61,22 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PageStatus from './PageStatus';
 
   export default {
     name: 'ExamReport',
     components: {
-      ContentRenderer,
       PageStatus,
       AttemptLogList,
       InteractionList,
-      KCheckbox,
       MultiPaneLayout,
     },
-    mixins: [themeMixin],
+    mixins: [commonCoreStrings],
     props: {
       examAttempts: {
         type: Array,
@@ -187,12 +183,6 @@
       },
     },
     $trs: {
-      backTo: 'Back to quiz report for { title }',
-      correctAnswer: 'Correct answer',
-      yourAnswer: 'Your answer',
-      correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
-      question: 'Question { questionNumber, number }',
-      showCorrectAnswerLabel: 'Show correct answer',
       noItemId: 'This question has an error, please move on to the next question',
     },
   };

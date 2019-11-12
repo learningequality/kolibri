@@ -11,11 +11,16 @@ exports[`ReportsExerciseLearners doesn't render groups information when show gro
         <!---->
         <th>Last activity</th>
       </tr>
-    </thead><span tag="tbody" name="list"><tr data-test="entry"><td><div>learner1</div></td> <td><div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div dir="auto" class="label">
+    </thead><span tag="tbody" name="list"><tr data-test="entry"><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto"><a dir="auto" class="KRouterLink-noKey-0_1eg6lrk link">
+  learner1
+</a></span>
+</div></span></td>
+<td>
+  <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto">
     Completed
-  </div></span>
-    <!---->
-</div>
+  </span></div></span>
+  <!---->
+  </div>
 </td>
 <td><span>92 seconds</span></td>
 <!---->
@@ -24,14 +29,14 @@ exports[`ReportsExerciseLearners doesn't render groups information when show gro
 </span></td>
 </tr>
 <tr data-test="entry">
+  <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto"><a dir="auto" class="KRouterLink-noKey-0_1eg6lrk link">
+  learner2
+</a></span></div></span></td>
   <td>
-    <div>learner2</div>
-  </td>
-  <td>
-    <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
+    <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto">
     Started
-  </div></span>
-      <!---->
+  </span></div></span>
+    <!---->
     </div>
   </td>
   <td><span>17 seconds</span></td>
@@ -56,11 +61,16 @@ exports[`ReportsExerciseLearners renders all entries 1`] = `
         </th>
         <th>Last activity</th>
       </tr>
-    </thead><span tag="tbody" name="list"><tr data-test="entry"><td><div>learner1</div></td> <td><div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div dir="auto" class="label">
+    </thead><span tag="tbody" name="list"><tr data-test="entry"><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto"><a dir="auto" class="KRouterLink-noKey-0_1eg6lrk link">
+  learner1
+</a></span>
+</div></span></td>
+<td>
+  <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto">
     Completed
-  </div></span>
-    <!---->
-</div>
+  </span></div></span>
+  <!---->
+  </div>
 </td>
 <td><span>92 seconds</span></td>
 <td>
@@ -73,14 +83,14 @@ exports[`ReportsExerciseLearners renders all entries 1`] = `
 </span></td>
 </tr>
 <tr data-test="entry">
+  <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto"><a dir="auto" class="KRouterLink-noKey-0_1eg6lrk link">
+  learner2
+</a></span></div></span></td>
   <td>
-    <div>learner2</div>
-  </td>
-  <td>
-    <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
+    <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto">
     Started
-  </div></span>
-      <!---->
+  </span></div></span>
+    <!---->
     </div>
   </td>
   <td><span>17 seconds</span></td>

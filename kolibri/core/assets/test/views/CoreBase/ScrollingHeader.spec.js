@@ -3,142 +3,63 @@ import ScrollingHeader from '../../../src/views/CoreBase/ScrollingHeader';
 
 jest.useFakeTimers();
 
-const HEIGHT = 100;
-
-function createWrapper(scrollPosition = 0) {
+function makeWrapper(params = {}) {
+  const { scrollPosition = 0, isHidden } = params;
   return mount(ScrollingHeader, {
     propsData: {
-      height: HEIGHT,
+      mainWrapperScrollHeight: 1000,
       scrollPosition,
+      isHidden,
     },
   });
 }
 
-describe('Scrolling header movement logic', () => {
-  it('should mount', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.exists()).toBe(true);
-  });
-  it('should be pinned to the top by default', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.vm.pinned).toBe(true);
-    expect(wrapper.vm.offset).toBe(0);
-  });
-  it("should stay pinned pinned when it's currently pinned onscreen and we scroll up", () => {
-    const wrapper = createWrapper(500);
-    wrapper.setData({ pinned: true, offset: 0 });
-    wrapper.setProps({ scrollPosition: 495 });
-    expect(wrapper.vm.pinned).toBe(true);
-    expect(wrapper.vm.offset).toBe(0);
-    wrapper.vm.scrollingStopped();
-    jest.runOnlyPendingTimers();
-    expect(wrapper.vm.pinned).toBe(true);
-    expect(wrapper.vm.offset).toBe(0);
-  });
-  it("should attach to content when it's currently pinned onscreen and we scroll down and then re-pin", () => {
-    const wrapper = createWrapper(500);
-    wrapper.setData({ pinned: true, offset: 0 });
-    wrapper.setProps({ scrollPosition: 505 });
-    expect(wrapper.vm.pinned).toBe(false);
-    expect(wrapper.vm.offset).toBe(505);
-    wrapper.vm.scrollingStopped();
-    jest.runOnlyPendingTimers();
-    expect(wrapper.vm.pinned).toBe(true);
-    expect(wrapper.vm.offset).toBe(0);
-  });
-  it("should stay hidden when it's currently hidden and we scroll down", () => {
-    const wrapper = createWrapper(500);
-    wrapper.setData({ pinned: true, offset: -HEIGHT });
-    wrapper.setProps({ scrollPosition: 505 });
-    expect(wrapper.vm.pinned).toBe(true);
-    expect(wrapper.vm.offset).toBe(-HEIGHT);
-    wrapper.vm.scrollingStopped();
-    jest.runOnlyPendingTimers();
-    expect(wrapper.vm.pinned).toBe(true);
-    expect(wrapper.vm.offset).toBe(-HEIGHT);
+describe('ScrollingHeader component', () => {
+  it('should not do anything if it is hidden and user continues to go down', () => {
+    const wrapper = makeWrapper({ isHidden: true, scrollPosition: 10 });
+    wrapper.setProps({
+      scrollPosition: 20,
+    });
+    expect(wrapper.emitted('update:isHidden')).toBeUndefined();
   });
 
-  describe('scrolling down and currently attached to content', () => {
-    it('should become pinned offscreen when after it scrolls offscreen', () => {
-      const wrapper = createWrapper(500);
-      wrapper.setData({ pinned: false, offset: 450 });
-      wrapper.setProps({ scrollPosition: 650 });
-      expect(wrapper.vm.pinned).toBe(true);
-      expect(wrapper.vm.offset).toBe(-HEIGHT);
-      wrapper.vm.scrollingStopped();
-      jest.runOnlyPendingTimers();
-      expect(wrapper.vm.pinned).toBe(true);
-      expect(wrapper.vm.offset).toBe(-HEIGHT);
+  it('should not do anything if it is shown and user continues to go up', () => {
+    const wrapper = makeWrapper({ isHidden: false, scrollPosition: 100 });
+    wrapper.setProps({
+      scrollPosition: 50,
     });
-    it("should stay attached to content when it's partially visible and then pin", () => {
-      const wrapper = createWrapper(500);
-      wrapper.setData({ pinned: false, offset: 450 });
-      wrapper.setProps({ scrollPosition: 505 });
-      expect(wrapper.vm.pinned).toBe(false);
-      expect(wrapper.vm.offset).toBe(450);
-      wrapper.vm.scrollingStopped();
-      jest.runOnlyPendingTimers();
-      expect(wrapper.vm.pinned).toBe(true);
-      expect(wrapper.vm.offset).toBe(-HEIGHT);
-    });
+    expect(wrapper.emitted('update:isHidden')).toBeUndefined();
   });
 
-  describe('scrolling up and currently attached to content', () => {
-    it('should stay attached to content when partially visible and scrolling is slow and then pin', () => {
-      const wrapper = createWrapper(500);
-      wrapper.setData({ pinned: false, offset: 450 });
-      wrapper.setProps({ scrollPosition: 495 });
-      expect(wrapper.vm.pinned).toBe(false);
-      expect(wrapper.vm.offset).toBe(450);
-      wrapper.vm.scrollingStopped();
-      jest.runOnlyPendingTimers();
-      expect(wrapper.vm.pinned).toBe(true);
-      expect(wrapper.vm.offset).toBe(-HEIGHT);
+  it('should not do anything if hidden and scrolling up under the distance threshold', () => {
+    const wrapper = makeWrapper({ isHidden: true, scrollPosition: 500 });
+    wrapper.setProps({
+      scrollPosition: 450,
     });
-    it('should become visibly pinned when scrolling is fast', () => {
-      const wrapper = createWrapper(500);
-      wrapper.setData({ pinned: false, offset: 450 });
-      wrapper.setProps({ scrollPosition: 480 });
-      expect(wrapper.vm.pinned).toBe(true);
-      expect(wrapper.vm.offset).toBe(0);
-      wrapper.vm.scrollingStopped();
-      jest.runOnlyPendingTimers();
-      expect(wrapper.vm.pinned).toBe(true);
-      expect(wrapper.vm.offset).toBe(0);
-    });
-    it("should become visibly pinned when it's too low", () => {
-      const wrapper = createWrapper(500);
-      wrapper.setData({ pinned: false, offset: 550 });
-      wrapper.setProps({ scrollPosition: 495 });
-      expect(wrapper.vm.pinned).toBe(true);
-      expect(wrapper.vm.offset).toBe(0);
-    });
+    expect(wrapper.emitted('update:isHidden')).toBeUndefined();
   });
 
-  describe('stop scrolling with bar partially on screen', () => {
-    it("should become visibly pinned if we're near the top of the screen", () => {
-      const wrapper = createWrapper(10);
-      wrapper.setData({ pinned: false, offset: 0 });
-      wrapper.vm.scrollingStopped();
-      jest.runOnlyPendingTimers();
-      expect(wrapper.vm.pinned).toBe(true);
-      expect(wrapper.vm.offset).toBe(0);
+  it('should not do anything if shown and scrolling down under the distance threshold', () => {
+    const wrapper = makeWrapper({ isHidden: false, scrollPosition: 500 });
+    wrapper.setProps({
+      scrollPosition: 520,
     });
-    it('should become fully hidden if the app bar is 50% of the way on screen', () => {
-      const wrapper = createWrapper(500);
-      wrapper.setData({ pinned: false, offset: 450 });
-      wrapper.vm.scrollingStopped();
-      jest.runOnlyPendingTimers();
-      expect(wrapper.vm.pinned).toBe(true);
-      expect(wrapper.vm.offset).toBe(-HEIGHT);
+    expect(wrapper.emitted('update:isHidden')).toBeUndefined();
+  });
+
+  it('should hide itself if going past the distance threshold', () => {
+    const wrapper = makeWrapper({ isHidden: false, scrollPosition: 100 });
+    wrapper.setProps({
+      scrollPosition: 200,
     });
-    it('should become fully visible if the app bar is 90% of the way on screen', () => {
-      const wrapper = createWrapper(500);
-      wrapper.setData({ pinned: false, offset: 495 });
-      wrapper.vm.scrollingStopped();
-      jest.runOnlyPendingTimers();
-      expect(wrapper.vm.pinned).toBe(true);
-      expect(wrapper.vm.offset).toBe(0);
+    expect(wrapper.emitted('update:isHidden')[0]).toEqual([true]);
+  });
+
+  it('should unhide itself if going past the distance threshold', () => {
+    const wrapper = makeWrapper({ isHidden: true, scrollPosition: 500 });
+    wrapper.setProps({
+      scrollPosition: 200,
     });
+    expect(wrapper.emitted('update:isHidden')[0]).toEqual([false]);
   });
 });

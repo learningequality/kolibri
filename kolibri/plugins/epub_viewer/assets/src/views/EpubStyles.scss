@@ -1,0 +1,63 @@
+@import '~kolibri.styles.definitions';
+
+$top-bar-height: 36px;
+$bottom-bar-height: 54px;
+
+@mixin toc-list {
+  padding: 0;
+  margin: 8px 0 0;
+}
+
+@mixin toc-list-item {
+  padding: 0;
+  margin-bottom: 8px;
+  list-style-type: none;
+}
+
+@mixin epub-basic-link {
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+  word-break: break-word;
+  white-space: normal;
+  transition: none;
+}
+
+@mixin d-t {
+  display: table;
+}
+
+@mixin d-t-r {
+  display: table-row;
+}
+
+@mixin d-t-c {
+  display: table-cell;
+}
+
+@mixin navigation-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  margin: 0;
+  border-radius: unset;
+  transform: translate(-50%, -50%);
+
+  /deep/ .ui-icon-button__focus-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) !important;
+  }
+  svg {
+    border: 2px solid;
+    border-radius: 50%;
+  }
+}
+
+@mixin truncate-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

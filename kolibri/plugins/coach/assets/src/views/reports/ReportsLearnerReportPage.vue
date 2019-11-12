@@ -14,20 +14,19 @@
       <ReportsLearnerHeader />
 
       <KGrid>
-        <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachStrings.$tr('lessonsAssignedLabel') }}</h2>
-          <CoreTable :emptyMessage="coachStrings.$tr('lessonListEmptyState')">
+        <KGridItem :layout12="{ span: 6 }">
+          <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
+          <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
             <thead slot="thead">
               <tr>
-                <th>{{ coachStrings.$tr('titleLabel') }}</th>
-                <th>{{ coachStrings.$tr('progressLabel') }}</th>
+                <th>{{ coachString('titleLabel') }}</th>
+                <th>{{ coreString('progressLabel') }}</th>
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
               <tr v-for="tableRow in lessonsTable" :key="tableRow.id">
                 <td>
-                  <KLabeledIcon>
-                    <KIcon slot="icon" lesson />
+                  <KLabeledIcon icon="lesson">
                     <KRouterLink
                       :to="classRoute('ReportsLearnerReportLessonPage', { lessonId: tableRow.id })"
                       :text="tableRow.title"
@@ -41,21 +40,20 @@
             </transition-group>
           </CoreTable>
         </KGridItem>
-        <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachStrings.$tr('quizzesAssignedLabel') }}</h2>
-          <CoreTable :emptyMessage="coachStrings.$tr('quizListEmptyState')">
+        <KGridItem :layout12="{ span: 6 }">
+          <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
+          <CoreTable :emptyMessage="coachString('quizListEmptyState')">
             <thead slot="thead">
               <tr>
-                <th>{{ coachStrings.$tr('titleLabel') }}</th>
-                <th>{{ coachStrings.$tr('progressLabel') }}</th>
-                <th>{{ coachStrings.$tr('scoreLabel') }}</th>
+                <th>{{ coachString('titleLabel') }}</th>
+                <th>{{ coreString('progressLabel') }}</th>
+                <th>{{ coachString('scoreLabel') }}</th>
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
               <tr v-for="tableRow in examsTable" :key="tableRow.id">
                 <td>
-                  <KLabeledIcon>
-                    <KIcon slot="icon" quiz />
+                  <KLabeledIcon icon="quiz">
                     <KRouterLink
                       :to="quizLink(tableRow.id)"
                       :text="tableRow.title"
@@ -80,6 +78,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import ReportsLearnerHeader from './ReportsLearnerHeader';
@@ -89,7 +88,7 @@
     components: {
       ReportsLearnerHeader,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       learner() {
         return this.learnerMap[this.$route.params.learnerId];

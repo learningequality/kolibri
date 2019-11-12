@@ -3,10 +3,10 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="arrow_back"
-    :immersivePagePrimary="false"
+    :immersivePagePrimary="true"
     :primary="true"
-    :toolbarTitle="groupsPageStrings.$tr('classGroups')"
-    :appBarTitle="groupsPageStrings.$tr('classGroups')"
+    :toolbarTitle="currentGroup.name"
+    :appBarTitle="currentGroup.name"
     :immersivePageRoute="$router.getRoute('GroupMembersPage')"
     :pageTitle="pageTitle"
   >
@@ -16,7 +16,7 @@
       </h1>
       <form @submit.prevent="addSelectedUsersToGroup">
         <div class="actions-header">
-          <KFilterTextbox
+          <FilterTextbox
             v-model.trim="filterInput"
             :placeholder="$tr('searchForUser')"
             @input="pageNum = 1"
@@ -29,8 +29,6 @@
           v-model="selectedUsers"
           :users="visibleFilteredUsers"
           :selectable="true"
-          :selectAllLabel="$tr('selectAllOnPage')"
-          :userCheckboxLabel="$tr('selectUser')"
           :emptyMessage="emptyMessage"
           :infoDescriptor="$tr('learnerGroups')"
         >
@@ -87,7 +85,7 @@
 
         <div class="footer">
           <KButton
-            :text="$tr('confirmSelectionButtonLabel')"
+            :text="coreString('confirmAction')"
             :primary="true"
             type="submit"
             :disabled="selectedUsers.length === 0"
@@ -106,37 +104,31 @@
 
   import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import {
     userMatchesFilter,
     filterAndSortUsers,
-  } from '../../../../../../facility_management/assets/src/userSearchUtils';
-  import UserTable from '../../../../../../facility_management/assets/src/views/UserTable';
-  import GroupsPage from '../GroupsPage';
-
-  const groupsPageStrings = crossComponentTranslator(GroupsPage);
+  } from '../../../../../../facility/assets/src/userSearchUtils';
+  import UserTable from '../../../../../../facility/assets/src/views/UserTable';
 
   export default {
     name: 'GroupEnrollPage',
     components: {
-      KButton,
       UiIconButton,
-      KFilterTextbox,
+      FilterTextbox,
       UserTable,
     },
-    mixins: [responsiveWindow, commonCoach],
+    mixins: [responsiveWindowMixin, commonCoach, commonCoreStrings],
     data() {
       return {
         filterInput: '',
         perPage: 10,
         pageNum: 1,
         selectedUsers: [],
-        groupsPageStrings,
       };
     },
     computed: {
@@ -185,7 +177,7 @@
       },
       emptyMessage() {
         if (this.classUsers.length === 0) {
-          return this.$tr('noUsersExist');
+          return this.coreString('noUsersExistLabel');
         }
         if (this.usersNotInClass.length === 0) {
           return this.$tr('allUsersAlready');
@@ -207,7 +199,7 @@
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
-            this.createSnackbar(this.coachStrings.$tr('updatedNotification'));
+            this.createSnackbar(this.coachString('updatedNotification'));
           });
         });
       },
@@ -220,16 +212,12 @@
     },
     $trs: {
       pageHeader: "Enroll learners into '{className}'",
-      confirmSelectionButtonLabel: 'Confirm',
       searchForUser: 'Search for a user',
       userTableLabel: 'User List',
-      noUsersExist: 'No users exist',
       noUsersMatch: 'No users match',
       previousResults: 'Previous results',
       nextResults: 'Next results',
-      selectAllOnPage: 'Select all on page',
       allUsersAlready: 'All users are already enrolled in this class',
-      selectUser: 'Select user',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
       learnerGroups: 'Current groups',

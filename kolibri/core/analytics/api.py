@@ -5,9 +5,9 @@ from .models import PingbackNotification
 from .models import PingbackNotificationDismissed
 from .serializers import PingbackNotificationDismissedSerializer
 from .serializers import PingbackNotificationSerializer
-from .utils import version_matches_range
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from kolibri.utils.version import version_matches_range
 
 
 class PingbackNotificationViewSet(viewsets.ReadOnlyModelViewSet):

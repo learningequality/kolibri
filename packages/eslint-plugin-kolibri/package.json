@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-kolibri",
-  "version": "0.12.0-beta.3.2",
+  "version": "0.13.0-dev.9",
   "description": "Custom rules.",
   "author": "Learning Equality",
   "main": "lib/index.js",
@@ -8,7 +8,7 @@
     "requireindex": "^1.1.0"
   },
   "devDependencies": {
-    "eslint": "^3.9.1"
+    "eslint": "^4.18.2"
   },
   "engines": {
     "node": ">=0.10.0"

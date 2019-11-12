@@ -5,27 +5,27 @@
       <BackLink
         v-if="classListPageEnabled"
         :to="$router.getRoute('HomePage')"
-        :text="navStrings.$tr('home')"
+        :text="$tr('home')"
       />
     </p>
-    <h1>{{ coachStrings.$tr('reportsLabel') }}</h1>
+    <h1>{{ coachString('reportsLabel') }}</h1>
     <p>{{ $tr('description') }}</p>
     <HeaderTabs>
 
       <HeaderTab
-        :text="coachStrings.$tr('lessonsLabel')"
+        :text="coreString('lessonsLabel')"
         :to="classRoute('ReportsLessonListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('quizzesLabel')"
+        :text="coreString('quizzesLabel')"
         :to="classRoute('ReportsQuizListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('groupsLabel')"
+        :text="coachString('groupsLabel')"
         :to="classRoute('ReportsGroupListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('learnersLabel')"
+        :text="coreString('learnersLabel')"
         :to="classRoute('ReportsLearnerListPage')"
       />
     </HeaderTabs>
@@ -36,25 +36,19 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { mapGetters } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
-  import TopNavbar from '../TopNavbar';
-
-  const navStrings = crossComponentTranslator(TopNavbar);
 
   export default {
     name: 'ReportsHeader',
     components: {},
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       ...mapGetters(['classListPageEnabled']),
-      navStrings() {
-        return navStrings;
-      },
     },
     $trs: {
-      back: 'All classes',
+      home: 'Class Home',
       description: 'View reports for your learners and class materials',
     },
   };

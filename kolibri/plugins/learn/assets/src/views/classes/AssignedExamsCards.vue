@@ -5,12 +5,12 @@
       <h2>
         {{ $tr('examsHeader') }}
       </h2>
-      <p v-if="exams.length===0">
+      <p v-if="!visibleExams.length">
         {{ $tr('noExamsMessage') }}
       </p>
     </div>
     <ContentCard
-      v-for="exam in exams"
+      v-for="exam in visibleExams"
       :key="exam.id"
       class="content-card"
       :link="genExamLink(exam)"
@@ -29,6 +29,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { canViewExam } from '../../utils/exams';
   import ContentCard from '../ContentCard';
   import { examViewerLink, examReportViewerLink } from './classPageLinks';
@@ -38,6 +39,7 @@
     components: {
       ContentCard,
     },
+    mixins: [commonCoreStrings],
     props: {
       exams: {
         type: Array,
@@ -50,6 +52,16 @@
     },
     computed: {
       EXAM: () => ContentNodeKinds.EXAM,
+      visibleExams() {
+        return this.exams.filter(exam => {
+          let showIfActive = true;
+          if (exam.archive) {
+            // Closed (archived) exams only show if the learner started/submitted
+            showIfActive = this.examStarted(exam) || this.examSubmitted(exam);
+          }
+          return showIfActive && exam.active;
+        });
+      },
     },
     methods: {
       examStarted(exam) {
@@ -80,9 +92,11 @@
       },
       genExamSubtitle(exam) {
         if (this.examSubmitted(exam)) {
-          return this.$tr('completed');
+          return this.$tr('completedPercentLabel', {
+            score: this.examScore(exam.progress.score, exam.question_count),
+          });
         } else if (!this.examStarted(exam)) {
-          return this.$tr('notStarted');
+          return this.$tr('notStartedLabel');
         } else if (this.examStartedNotSubmitted(exam)) {
           return this.$tr('questionsLeft', {
             questionsLeft: exam.question_count - exam.progress.answer_count,
@@ -95,14 +109,24 @@
         }
         return examReportViewerLink(exam.id);
       },
+      examScore(correct, total) {
+        if (correct === 0 || correct === null) {
+          return '0';
+        } else {
+          return Math.round((correct / total) * 100) + '';
+        }
+      },
     },
     $trs: {
       examsHeader: 'Quizzes',
       noExamsMessage: 'You have no quizzes assigned',
-      notStarted: 'Not started',
+      notStartedLabel: 'Not started',
       questionsLeft:
         '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',
-      completed: 'Completed',
+      completedPercentLabel: {
+        message: 'Completed: {score}%',
+        context: 'A label shown to learners on a quiz card when the quiz is completed',
+      },
     },
   };
 

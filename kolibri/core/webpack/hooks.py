@@ -14,10 +14,12 @@ import io
 import json
 import logging
 import os
+import re
 import time
+from abc import abstractproperty
 from functools import partial
 
-from django.conf import settings as django_settings
+from django.conf import settings
 from django.contrib.staticfiles.finders import find as find_staticfiles
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import caches
@@ -30,13 +32,15 @@ from django.utils.translation import to_locale
 from pkg_resources import resource_filename
 from six import text_type
 
-import kolibri
-from . import settings
 from kolibri.plugins import hooks
-from kolibri.utils import conf
 
 # Use the cache specifically for built files
-cache = caches["built_files"]
+# Only reference the specific cache inside methods
+# to allow this file to be imported without initiating
+# Django settings configuration.
+CACHE_NAMESPACE = "built_files"
+
+IGNORE_PATTERNS = (re.compile(I) for I in [r".+\.hot-update.js", r".+\.map"])
 
 
 class BundleNotFound(Exception):
@@ -59,6 +63,7 @@ def filter_by_bidi(bidi, chunk):
         return chunk["name"].split(".")[-2] != "rtl"
 
 
+@hooks.define_hook
 class WebpackBundleHook(hooks.KolibriHook):
     """
     This is the abstract hook class that all plugins that wish to load any
@@ -66,58 +71,44 @@ class WebpackBundleHook(hooks.KolibriHook):
     the webpack asset loading pipeline.
     """
 
-    # : You should set a unique human readable name
-    unique_slug = ""
-
-    # : Relative path to js source file for webpack to use as entry point
-    # : For instance: "kolibri/core/assets/src/kolibri_core_app.js"
-    src_file = ""
-
-    # : Kolibri version for build hashes
-    version = kolibri.__version__
+    # : You should set a human readable name that is unique within the
+    # : plugin in which this is defined.
+    @abstractproperty
+    def bundle_id(self):
+        pass
 
     # : When being included for synchronous loading, should the source files
     # : for this be inlined?
     inline = False
 
-    def __init__(self, *args, **kwargs):
-        super(WebpackBundleHook, self).__init__(*args, **kwargs)
+    # : A mapping of key to JSON serializable value.
+    # : This plugin_data will be bootstrapped into a global object on window
+    # : with a key of the unique_id as a Javascript object
+    plugin_data = {}
 
-        # Verify the uniqueness of the slug
-        # It can be '0' in the parent class constructor
-        assert (
-            len([x for x in self.registered_hooks if x.unique_slug == self.unique_slug])
-            <= 1
-        ), "Non-unique slug found: '{}'".format(self.unique_slug)
-        if not self._meta.abstract:
-            assert self.src_file, "No source JS defined"
-
-    @hooks.abstract_method
-    def get_by_slug(self, slug):
+    @classmethod
+    def get_by_unique_id(cls, unique_id):
         """
-        Fetch a registered hook instance by its unique slug
+        Fetch a registered hook instance by its unique_id
         """
-        for hook in self.registered_hooks:
-            if hook.unique_slug == slug:
-                return hook
-        raise BundleNotFound("No bundle with that name is loaded: {}".format(slug))
+        hook = cls.get_hook(unique_id)
+        if hook:
+            return hook
+        raise BundleNotFound("No bundle with that name is loaded: {}".format(unique_id))
 
     @cached_property
-    @hooks.registered_method
     def _stats_file_content(self):
         """
         :returns: A dict of the data contained in the JSON files which are
           written by Webpack.
         """
-        cache_key = "json_stats_file_cache_{slug}".format(slug=self.unique_slug)
+        cache_key = "json_stats_file_cache_{unique_id}".format(unique_id=self.unique_id)
         try:
-            stats_file_content = cache.get(cache_key)
-            if not stats_file_content or getattr(
-                django_settings, "DEVELOPER_MODE", False
-            ):
+            stats_file_content = caches[CACHE_NAMESPACE].get(cache_key)
+            if not stats_file_content or getattr(settings, "DEVELOPER_MODE", False):
                 with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
                     stats = json.load(f)
-                if getattr(django_settings, "DEVELOPER_MODE", False):
+                if getattr(settings, "DEVELOPER_MODE", False):
                     timeout = 0
                     while stats["status"] == "compiling":
                         time.sleep(0.1)
@@ -129,12 +120,12 @@ class WebpackBundleHook(hooks.KolibriHook):
                     if stats["status"] == "error":
                         raise WebpackError("Webpack compilation has errored")
                 stats_file_content = {
-                    "files": stats.get("chunks", {}).get(self.unique_slug, []),
+                    "files": stats.get("chunks", {}).get(self.unique_id, []),
                     "hasMessages": stats.get("messages", False),
                 }
                 # Don't invalidate during runtime.
                 # Might need to change this if we move to a different cache backend.
-                cache.set(cache_key, stats_file_content, None)
+                caches[CACHE_NAMESPACE].set(cache_key, stats_file_content, None)
             return stats_file_content
         except IOError as e:
             if hasattr(e, "filename"):
@@ -148,7 +139,6 @@ class WebpackBundleHook(hooks.KolibriHook):
             )
 
     @property
-    @hooks.registered_method
     def bundle(self):
         """
         :returns: a generator yielding dict objects with properties of the built
@@ -156,13 +146,11 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         for f in self._stats_file_content["files"]:
             filename = f["name"]
-            if not getattr(django_settings, "DEVELOPER_MODE", False):
-                if any(
-                    list(regex.match(filename) for regex in settings.IGNORE_PATTERNS)
-                ):
+            if not getattr(settings, "DEVELOPER_MODE", False):
+                if any(list(regex.match(filename) for regex in IGNORE_PATTERNS)):
                     continue
-            relpath = "{0}/{1}".format(self.unique_slug, filename)
-            if getattr(django_settings, "DEVELOPER_MODE", False):
+            relpath = "{0}/{1}".format(self.unique_id, filename)
+            if getattr(settings, "DEVELOPER_MODE", False):
                 try:
                     f["url"] = f["publicPath"]
                 except KeyError:
@@ -172,54 +160,14 @@ class WebpackBundleHook(hooks.KolibriHook):
             yield f
 
     @property
-    @hooks.registered_method
-    def webpack_bundle_data(self):
+    def unique_id(self):
         """
-        This is the main interface to the NPM Webpack building util. It is
-        used by the webpack_json management command. Inheritors may wish to
-        customize this.
-
-        :returns: A dict with information expected by webpack parsing process,
-            or None if the src_file does not exist.
-
+        Returns a globally unique id for the frontend module bundle.
+        This is created by appending the locally unique bundle_id to the
+        Python module path. This should give a globally unique id for the module
+        and prevent accidental or malicious collisions.
         """
-        if os.path.exists(
-            os.path.join(os.path.dirname(self._build_path), self.src_file)
-        ):
-            return {
-                "name": self.unique_slug,
-                "src_file": self.src_file,
-                "static_dir": self._static_dir,
-                "plugin_path": self._module_file_path,
-                "stats_file": self._stats_file,
-                "locale_data_folder": self.locale_data_folder,
-                "version": self.version,
-            }
-        else:
-            logger.warn(
-                "{src_file} not found for plugin {name}.".format(
-                    src_file=self.src_file, name=self.unique_slug
-                )
-            )
-
-    @property
-    def locale_data_folder(self):
-        if self._module_path.startswith("kolibri."):
-            return os.path.join(
-                getattr(django_settings, "LOCALE_PATHS")[0], "en", "LC_MESSAGES"
-            )
-        # Is an external plugin, do otherwise!
-        else:
-            return os.path.join(
-                os.path.dirname(self._build_path),
-                getattr(self, "locale_path", "locale"),
-                "en",
-                "LC_MESSAGES",
-            )
-
-    @property
-    def _module_path(self):
-        return ".".join(self.__module__.split(".")[:-1])
+        return "{}.{}".format(self._module_path, self.bundle_id)
 
     @property
     def _build_path(self):
@@ -230,17 +178,13 @@ class WebpackBundleHook(hooks.KolibriHook):
         return resource_filename(self._module_path, "build")
 
     @property
-    def _static_dir(self):
-        return resource_filename(self._module_path, "static")
-
-    @property
     def _stats_file(self):
         """
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """
         return os.path.join(
-            self._build_path, "{plugin}_stats.json".format(plugin=self.unique_slug)
+            self._build_path, "{plugin}_stats.json".format(plugin=self.unique_id)
         )
 
     @property
@@ -251,8 +195,8 @@ class WebpackBundleHook(hooks.KolibriHook):
         return os.path.dirname(self._build_path)
 
     def frontend_message_file(self, lang_code):
-        message_file_name = "{name}-messages.json".format(name=self.unique_slug)
-        for path in getattr(django_settings, "LOCALE_PATHS", []):
+        message_file_name = "{name}-messages.json".format(name=self.unique_id)
+        for path in getattr(settings, "LOCALE_PATHS", []):
             file_path = os.path.join(
                 path, to_locale(lang_code), "LC_MESSAGES", message_file_name
             )
@@ -261,21 +205,16 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     def frontend_messages(self):
         lang_code = get_language()
-        cache_key = "json_stats_file_cache_{slug}_{lang}".format(
-            slug=self.unique_slug, lang=lang_code
+        cache_key = "json_message_file_cache_{unique_id}_{lang}".format(
+            unique_id=self.unique_id, lang=lang_code
         )
-        message_file_content = cache.get(cache_key)
-        if not message_file_content or getattr(
-            django_settings, "DEVELOPER_MODE", False
-        ):
+        message_file_content = caches[CACHE_NAMESPACE].get(cache_key, {})
+        if not message_file_content or getattr(settings, "DEVELOPER_MODE", False):
             frontend_message_file = self.frontend_message_file(lang_code)
             if frontend_message_file:
                 with io.open(frontend_message_file, mode="r", encoding="utf-8") as f:
-                    # Load JSON file, then immediately convert it to a string in minified form.
-                    message_file_content = json.dumps(
-                        json.load(f), separators=(",", ":")
-                    )
-                cache.set(cache_key, message_file_content, None)
+                    message_file_content = json.load(f)
+                caches[CACHE_NAMESPACE].set(cache_key, message_file_content, None)
         return message_file_content
 
     def sorted_chunks(self):
@@ -323,11 +262,38 @@ class WebpackBundleHook(hooks.KolibriHook):
     def frontend_message_tag(self):
         if self.frontend_messages():
             return [
-                '<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", {messages});</script>'.format(
-                    kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
-                    bundle=self.unique_slug,
+                '<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", JSON.parse("{messages}"));</script>'.format(
+                    kolibri_name="kolibriCoreAppGlobal",
+                    bundle=self.unique_id,
                     lang_code=get_language(),
-                    messages=self.frontend_messages(),
+                    messages=json.dumps(
+                        self.frontend_messages(),
+                        separators=(",", ":"),
+                        ensure_ascii=False,
+                    )
+                    .replace("'", "\\'")
+                    .replace('"', '\\"'),
+                )
+            ]
+        else:
+            return []
+
+    def plugin_data_tag(self):
+        if self.plugin_data:
+            return [
+                """
+                <script>
+                    window["{name}"] = window["{name}"] || {{}};
+                    window["{name}"]["{bundle}"] = JSON.parse('{plugin_data}');
+                </script>
+                """.format(
+                    name="kolibriPluginDataGlobal",
+                    bundle=self.unique_id,
+                    plugin_data=json.dumps(
+                        self.plugin_data, separators=(",", ":"), ensure_ascii=False
+                    )
+                    .replace("'", "\\'")
+                    .replace('"', '\\"'),
                 )
             ]
         else:
@@ -363,7 +329,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         # First try finding the file using the storage class.
         # This is skipped in DEVELOPER_MODE mode as files might be outdated
         # Or may not even be on disk.
-        if not getattr(django_settings, "DEVELOPER_MODE", False):
+        if not getattr(settings, "DEVELOPER_MODE", False):
             filename = staticfiles_storage.path(basename)
             if not staticfiles_storage.exists(basename):
                 filename = None
@@ -377,7 +343,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         Reads file contents using given `charset` and returns it as text.
         """
         cache_key = "inline_static_file_content_{url}".format(url=url)
-        content = cache.get(cache_key)
+        content = caches[CACHE_NAMESPACE].get(cache_key)
         if content is None:
             # Removes Byte Oorder Mark
             charset = "utf-8-sig"
@@ -394,7 +360,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             with codecs.open(filename, "r", charset) as fd:
                 content = fd.read()
             # Cache this forever, as URLs will update for new files
-            cache.set(cache_key, content, None)
+            caches[CACHE_NAMESPACE].set(cache_key, content, None)
         return content
 
     def render_to_page_load_sync_html(self):
@@ -405,7 +371,11 @@ class WebpackBundleHook(hooks.KolibriHook):
         :param bundle_data: The data returned from
         :return: HTML of script tags for insertion into a page.
         """
-        tags = self.frontend_message_tag() + list(self.js_and_css_tags())
+        tags = (
+            self.plugin_data_tag()
+            + self.frontend_message_tag()
+            + list(self.js_and_css_tags())
+        )
 
         return mark_safe("\n".join(tags))
 
@@ -425,126 +395,48 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: HTML of a script tag to insert into a page.
         """
         urls = [chunk["url"] for chunk in self.sorted_chunks()]
-        tags = self.frontend_message_tag() + [
-            '<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
-                kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
-                bundle=self.unique_slug,
-                urls='","'.join(urls),
-            )
-        ]
-        return mark_safe("\n".join(tags))
-
-    class Meta:
-        abstract = True
-
-
-class WebpackInclusionHook(hooks.KolibriHook):
-    """
-    To define an asset target of inclusing in some html template, you must
-    define an inheritor of ``WebpackBundleHook`` for the asset files themselves
-    and then a ``WebpackInclusionHook`` to define where the inclusion takes
-    place.
-
-    This abstract hook does nothing, it's just the universal inclusion hook, and
-    no templates intend to include ALL assets at once.
-    """
-
-    #: Should define an instance of ``WebpackBundleHook``, likely abstract
-    bundle_class = None
-
-    def __init__(self, *args, **kwargs):
-        super(WebpackInclusionHook, self).__init__(*args, **kwargs)
-        if not self._meta.abstract:
-            assert (
-                self.bundle_class is not None
-            ), "Must specify bundle_class property, this one did not: {} ({})".format(
-                type(self), type(self.bundle_class)
-            )
-
-    def render_to_page_load_sync_html(self):
-        html = ""
-        bundle = self.bundle_class()
-        if not bundle._meta.abstract:
-            html = bundle.render_to_page_load_sync_html()
-        else:
-            for hook in bundle.registered_hooks:
-                html += hook.render_to_page_load_sync_html()
-        return mark_safe(html)
-
-    def render_to_page_load_async_html(self):
-        html = ""
-        bundle = self.bundle_class()
-        if not bundle._meta.abstract:
-            html = bundle.render_to_page_load_async_html()
-        else:
-            for hook in bundle.registered_hooks:
-                html += hook.render_to_page_load_async_html()
-        return mark_safe(html)
-
-    class Meta:
-        abstract = True
-
-
-class FrontEndCoreAssetHook(WebpackBundleHook):
-    def render_to_page_load_sync_html(self):
-        """
-        Generates the appropriate script tags for the core bundle, be they JS or CSS
-        files.
-
-        :return: HTML of script tags for insertion into a page.
-        """
-        tags = []
-        if self.frontend_messages():
-            tags = [
-                "<script>var coreLanguageMessages = {messages};</script>".format(
-                    messages=self.frontend_messages()
+        tags = (
+            self.plugin_data_tag()
+            + self.frontend_message_tag()
+            + [
+                '<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
+                    kolibri_name="kolibriCoreAppGlobal",
+                    bundle=self.unique_id,
+                    urls='","'.join(urls),
                 )
             ]
-
-        tags += list(self.js_and_css_tags())
-
+        )
         return mark_safe("\n".join(tags))
 
-    class Meta:
-        abstract = True
+
+class WebpackInclusionMixin(object):
+    @abstractproperty
+    def bundle_html(self):
+        pass
+
+    @abstractproperty
+    def bundle_class(self):
+        pass
+
+    @classmethod
+    def html(cls):
+        tags = []
+        for hook in cls.registered_hooks:
+            tags.append(hook.bundle_html)
+        return mark_safe("\n".join(tags))
 
 
-class FrontEndCoreHook(WebpackInclusionHook):
-    """
-    A hook that asserts its only applied once, namely to load the core. This
-    should only be inherited once which is also an enforced property for now.
-
-    This is loaded before everything else.
-    """
-
-    bundle = FrontEndCoreAssetHook
-
-    def __init__(self, *args, **kwargs):
-        super(FrontEndCoreHook, self).__init__(*args, **kwargs)
-        assert len(list(self.registered_hooks)) <= 1, "Only one core asset allowed"
-        assert isinstance(
-            self.bundle, FrontEndCoreAssetHook
-        ), "Only allows a FrontEndCoreAssetHook instance as bundle"
-
-    class Meta:
-        abstract = True
+class WebpackInclusionSyncMixin(hooks.KolibriHook, WebpackInclusionMixin):
+    @property
+    def bundle_html(self):
+        bundle = self.bundle_class()
+        html = bundle.render_to_page_load_sync_html()
+        return mark_safe(html)
 
 
-class FrontEndBaseSyncHook(WebpackInclusionHook):
-    """
-    Inherit a hook defining assets to be loaded in kolibri/base.html, that means
-    ALL pages. Use with care.
-    """
-
-    class Meta:
-        abstract = True
-
-
-class FrontEndBaseASyncHook(WebpackInclusionHook):
-    """
-    Inherit a hook defining assets to be loaded in kolibri/base.html, that means
-    ALL pages. Use with care.
-    """
-
-    class Meta:
-        abstract = True
+class WebpackInclusionASyncMixin(hooks.KolibriHook, WebpackInclusionMixin):
+    @property
+    def bundle_html(self):
+        bundle = self.bundle_class()
+        html = bundle.render_to_page_load_async_html()
+        return mark_safe(html)

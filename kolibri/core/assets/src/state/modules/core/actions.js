@@ -164,14 +164,6 @@ export function handleError(store, errorString) {
   logging.debug(errorString);
   store.commit('CORE_SET_ERROR', errorString);
   store.commit('CORE_SET_PAGE_LOADING', false);
-
-  // optionally log to sentry
-  if (global.sentryDSN) {
-    require.ensure(['@sentry/browser'], function(require) {
-      const Sentry = require('@sentry/browser');
-      Sentry.captureException(errorString);
-    });
-  }
 }
 
 export function clearError(store) {
@@ -212,24 +204,6 @@ export function setSession(store, { session, clientNow }) {
   }
   session = pick(session, Object.keys(baseSessionState));
   store.commit('CORE_SET_SESSION', session);
-  // optionally set user context info
-  if (global.sentryDSN) {
-    // hack - delay this to give time for logging to be set up
-    setTimeout(() => {
-      require.ensure(['@sentry/browser'], function(require) {
-        const Sentry = require('@sentry/browser');
-        Sentry.configureScope(scope => {
-          scope.setUser({
-            id: session.user_id,
-            full_name: session.full_name,
-            username: session.username,
-            facility_id: session.facility_id,
-            type: JSON.stringify(session.kind),
-          });
-        });
-      });
-    }, 500);
-  }
 }
 
 /**
@@ -243,8 +217,14 @@ export function kolibriLogin(store, sessionPayload) {
   Lockr.set(UPDATE_MODAL_DISMISSED, false);
   return SessionResource.saveModel({ data: sessionPayload })
     .then(() => {
-      // Redirect on login
-      redirectBrowser();
+      // OIDC redirect
+      if (sessionPayload.next) {
+        redirectBrowser(sessionPayload.next);
+      }
+      // Normal redirect on login
+      else {
+        redirectBrowser();
+      }
     })
     .catch(error => {
       store.commit('CORE_SET_SIGN_IN_BUSY', false);

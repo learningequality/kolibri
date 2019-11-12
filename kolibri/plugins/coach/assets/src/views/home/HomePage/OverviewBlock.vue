@@ -5,33 +5,28 @@
       <BackLink
         v-if="classListPageEnabled"
         :to="$router.getRoute('CoachClassListPage')"
-        :text="$tr('back')"
+        :text="$tr('allClassesLabel')"
       />
     </p>
 
     <h1>
-      <KLabeledIcon>
-        <KIcon slot="icon" classroom />
-        {{ $store.state.classSummary.name }}
-      </KLabeledIcon>
+      <KLabeledIcon icon="classroom" :label="$store.state.classSummary.name" />
     </h1>
     <HeaderTable>
       <HeaderTableRow>
-        <KLabeledIcon slot="key">
-          <KIcon slot="icon" coach />
-          {{ $tr('coach', {count: coachNames.length}) }}
-        </KLabeledIcon>
+        <KLabeledIcon slot="key" icon="coach" :label="$tr('coach', {count: coachNames.length})" />
         <template slot="value">
           <TruncatedItemList :items="coachNames" />
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <KLabeledIcon slot="key">
-          <KIcon slot="icon" people />
-          {{ $tr('learner', {count: learnerNames.length}) }}
-        </KLabeledIcon>
+        <KLabeledIcon
+          slot="key"
+          icon="people"
+          :label="$tr('learner', {count: learnerNames.length})"
+        />
         <template slot="value">
-          {{ coachStrings.$tr('integer', {value: learnerNames.length}) }}
+          {{ coachString('integer', {value: learnerNames.length}) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>
@@ -59,8 +54,7 @@
       },
     },
     $trs: {
-      back: 'All classes',
-      changeClass: 'Change class',
+      allClassesLabel: 'All classes',
       coach: '{count, plural, one {Coach} other {Coaches}}',
       learner: '{count, plural, one {Learner} other {Learners}}',
     },

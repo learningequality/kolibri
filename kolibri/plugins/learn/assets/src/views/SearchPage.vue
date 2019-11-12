@@ -2,9 +2,9 @@
 
   <div>
 
-    <h3>{{ $tr('searchPageHeader') }}</h3>
+    <h3>{{ coreString('searchLabel') }}</h3>
 
-    <SearchBox :filters="true" />
+    <SearchBox ref="searchBox" :filters="contents.length > 0" />
 
     <p v-if="!searchTerm">
       {{ $tr('noSearch') }}
@@ -29,7 +29,7 @@
 
       <KButton
         v-if="contents.length < total_results && !loading"
-        :text="$tr('viewMore')"
+        :text="coreString('viewMoreAction')"
         @click="loadMore"
       />
       <KCircularLoader
@@ -47,8 +47,7 @@
 
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import SearchBox from './SearchBox';
@@ -57,15 +56,14 @@
     name: 'SearchPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.coreString('searchLabel'),
       };
     },
     components: {
       ContentCardGroupGrid,
-      KButton,
-      KCircularLoader,
       SearchBox,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         loading: false,
@@ -74,25 +72,28 @@
     computed: {
       ...mapState('search', ['contents', 'searchTerm', 'total_results']),
     },
+    beforeDestroy() {
+      // TODO do this clean up in a beforeRouteLeave once SearchPage is rendered in router-link
+      this.$store.commit('search/RESET_STATE');
+    },
+    mounted() {
+      // TODO when beforeRouteEnter is available, focus on filter or text input depending on what
+      // was changed (e.g. if type filter was changed, focus on it after refresh)
+      if (this.$refs.searchBox.$refs.searchInput) {
+        this.$refs.searchBox.$refs.searchInput.focus();
+        // If there are no contents, then select the whole input, so user can try something else
+        if (this.contents.length === 0) {
+          this.$refs.searchBox.$refs.searchInput.select();
+        }
+      }
+    },
     methods: {
       genContentLink(contentId, contentKind) {
+        const params = { id: contentId };
         if (contentKind === ContentNodeKinds.TOPIC || contentKind === ContentNodeKinds.CHANNEL) {
-          return {
-            name: PageNames.TOPICS_TOPIC,
-            params: {
-              id: contentId,
-            },
-          };
+          return this.$router.getRoute(PageNames.TOPICS_TOPIC, params);
         }
-        return {
-          name: PageNames.TOPICS_CONTENT,
-          params: {
-            id: contentId,
-          },
-          query: {
-            searchTerm: this.searchTerm,
-          },
-        };
+        return this.$router.getRoute(PageNames.TOPICS_CONTENT, params, this.$route.query);
       },
       loadMore() {
         if (!this.loading) {
@@ -104,13 +105,10 @@
       },
     },
     $trs: {
-      searchPageHeader: 'Search',
       noSearch: 'Search by typing in the box above',
       showingResultsFor:
         "{totalResults, plural, one {{totalResults} result} other {{totalResults} results}} for '{searchTerm}'",
       noResultsMsg: "No results for '{searchTerm}'",
-      documentTitle: 'Search',
-      viewMore: 'View more',
     },
   };
 

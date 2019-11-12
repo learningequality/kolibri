@@ -39,7 +39,7 @@
       <p class="ancestors">
         <KRouterLink
           v-if="!isTopic"
-          :text="$tr('previewButtonLabel')"
+          :text="$tr('viewLabel')"
           :to="link"
         />
       </p>
@@ -52,9 +52,7 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
@@ -66,9 +64,7 @@
       CardThumbnail,
       TextTruncator,
       CoachContentLabel,
-      KRouterLink,
     },
-    mixins: [themeMixin],
     props: {
       title: {
         type: String,
@@ -111,11 +107,10 @@
     },
     $trs: {
       // These strings are not used yet
-      resourcesInTopic: '{count} {count, plural, one {resource} other {resources}}',
-      selectedResourcesInTopic: '{selected} of {total} selected',
-      previewButtonLabel: 'View',
-      topic: 'Topic:',
-      channel: 'Channel:',
+      viewLabel: 'View',
+      // Commented because unused above and not deleted for a reason - topic unused.
+      // topic: 'Topic:',
+      // channel: 'Channel:',
     },
   };
 

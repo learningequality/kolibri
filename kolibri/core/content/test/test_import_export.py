@@ -9,6 +9,7 @@ from le_utils.constants import content_kinds
 from mock import call
 from mock import MagicMock
 from mock import patch
+from requests import Response
 from requests import Session
 from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError
@@ -301,7 +302,7 @@ class ImportContentTestCase(TestCase):
         cancel_mock.assert_called_with()
         # Check that the temp file we created where the first file was being downloaded to has not been deleted
         self.assertTrue(os.path.exists(local_path_1))
-        annotation_mock.annotate_content.assert_called()
+        annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.transfer.FileCopy")
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
@@ -353,7 +354,7 @@ class ImportContentTestCase(TestCase):
         FileCopyMock.assert_called_with(local_src_path, local_dest_path)
         FileCopyMock.assert_has_calls([call().cancel()])
         cancel_mock.assert_called_with()
-        annotation_mock.annotate_content.assert_called()
+        annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.len")
     @patch(
@@ -382,7 +383,7 @@ class ImportContentTestCase(TestCase):
         )
         cancel_mock.assert_called_with()
         len_mock.assert_not_called()
-        annotation_mock.annotate_content.assert_called()
+        annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.logger.error")
     @patch(
@@ -411,41 +412,63 @@ class ImportContentTestCase(TestCase):
         self.assertTrue("404" in logger_mock.call_args_list[0][0][0])
 
     @patch("kolibri.core.content.management.commands.importcontent.sleep")
-    @patch("kolibri.core.content.management.commands.importcontent.logger.error")
     @patch(
-        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_remote_url"
+        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload"
     )
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
     @patch(
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
         side_effect=[False, True, True, True],
     )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path",
+        return_value="test",
+    )
     def test_remote_import_httperror_502(
         self,
+        content_storage_file_path_mock,
         is_cancelled_mock,
         cancel_mock,
-        url_mock,
-        logger_mock,
+        file_download_mock,
         sleep_mock,
         annotation_mock,
     ):
-        url_mock.return_value = "http://httpbin.org/status/502"
+        response = Response()
+        response.status_code = 502
+        file_download_mock.return_value.__enter__.side_effect = HTTPError(
+            response=response
+        )
+        file_download_mock.return_value.dest = "test"
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
         call_command("importcontent", "network", self.the_channel_id)
         cancel_mock.assert_called_with()
-        annotation_mock.annotate_content.assert_called()
+        annotation_mock.set_content_visibility.assert_called()
         sleep_mock.assert_called_once()
-        self.assertTrue("502" in logger_mock.call_args_list[0][0][0])
 
-    @patch("kolibri.core.content.management.commands.importcontent.logger.error")
     @patch(
-        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_remote_url"
+        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload"
     )
-    def test_remote_import_httperror_500(self, url_mock, logger_mock, annotation_mock):
-        url_mock.return_value = "http://httpbin.org/status/500"
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path",
+        return_value="test",
+    )
+    def test_remote_import_httperror_500(
+        self, content_storage_file_path_mock, file_download_mock, annotation_mock
+    ):
+        response = Response()
+        response.status_code = 500
+        file_download_mock.return_value.__enter__.side_effect = HTTPError(
+            response=response
+        )
+        file_download_mock.return_value.dest = "test"
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
         with self.assertRaises(HTTPError):
             call_command("importcontent", "network", self.the_channel_id)
-            self.assertTrue("500" in logger_mock.call_args_list[0][0][0])
-        annotation_mock.annotate_content.assert_called()
+        annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.len")
     @patch(
@@ -474,7 +497,7 @@ class ImportContentTestCase(TestCase):
         )
         cancel_mock.assert_called_with()
         len_mock.assert_not_called()
-        annotation_mock.annotate_content.assert_called()
+        annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.logger.error")
     @patch(
@@ -497,7 +520,7 @@ class ImportContentTestCase(TestCase):
         self.assertTrue(
             "No such file or directory" in logger_mock.call_args_list[0][0][0]
         )
-        annotation_mock.annotate_content.assert_called()
+        annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.logger.error")
     @patch("kolibri.core.content.utils.transfer.os.path.getsize")
@@ -513,7 +536,7 @@ class ImportContentTestCase(TestCase):
         with self.assertRaises(OSError):
             call_command("importcontent", "disk", self.the_channel_id, "destination")
             self.assertTrue("Permission denied" in logger_mock.call_args_list[0][0][0])
-            annotation_mock.annotate_content.assert_called()
+            annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.os.remove")
     @patch(
@@ -639,7 +662,12 @@ class ImportContentTestCase(TestCase):
             self.the_channel_id,
             node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
         )
-        annotation_mock.annotate_content.assert_called_with(self.the_channel_id, [])
+        annotation_mock.set_content_visibility.assert_called_with(
+            self.the_channel_id,
+            [],
+            exclude_node_ids=[],
+            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+        )
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
@@ -775,16 +803,10 @@ class TestFilesToTransfer(TestCase):
             id=uuid.uuid4().hex, extension="mp4", available=False, file_size=10
         )
         File.objects.create(
-            id=uuid.uuid4().hex,
-            local_file=local_file,
-            available=False,
-            contentnode=node1,
+            id=uuid.uuid4().hex, local_file=local_file, contentnode=node1
         )
         File.objects.create(
-            id=uuid.uuid4().hex,
-            local_file=local_file,
-            available=False,
-            contentnode=node2,
+            id=uuid.uuid4().hex, local_file=local_file, contentnode=node2
         )
         files_to_transfer, _ = get_files_to_transfer(
             root_node.channel_id, [node1.id], [node2.id], False, False

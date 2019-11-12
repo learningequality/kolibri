@@ -14,10 +14,12 @@
     "coverage": "yarn run test-jest-cov",
     "build": "kolibri-tools build prod --file ./build_tools/build_plugins.txt && yarn run hashi-build",
     "makemessages": "kolibri-tools build i18n --file ./build_tools/build_plugins.txt",
+    "combineprofiles": "node ./packages/kolibri-tools/lib/combineStringProfiles.js ./kolibri/locale/en/LC_MESSAGES/profiles/",
+    "transfercontext": "node ./packages/kolibri-tools/lib/i18nSyncContext.js run && yarn lint-frontend:format",
     "watch": "kolibri-tools build dev --file ./build_tools/build_plugins.txt",
     "watch-hot": "yarn run watch --hot",
-    "django-devserver": "kolibri --debug manage runserver --settings=kolibri.deployment.default.settings.dev \"0.0.0.0:8000\" ",
-    "services": "kolibri services --foreground --skipupdate",
+    "django-devserver": "kolibri manage --debug runserver --settings=kolibri.deployment.default.settings.dev \"0.0.0.0:8000\" ",
+    "services": "kolibri services --foreground --skip-update",
     "devserver": "npm-run-all --parallel django-devserver lint-frontend:watch:format hashi-dev watch services",
     "devserver-warn": "npm-run-all --parallel django-devserver lint-frontend:watch hashi-dev watch services",
     "devserver-hot": "npm-run-all --parallel django-devserver lint-frontend:watch:format hashi-dev watch-hot services",
@@ -47,11 +49,13 @@
     "url": "https://github.com/learningequality/kolibri/issues"
   },
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "espree": "5.0.1"
+  },
   "devDependencies": {
     "@types/jest": "^24.0.12",
     "black-fmt": "https://github.com/learningequality/black-fmt#v0.1.3",
-    "kolibri-tools": "0.12.0-beta.3.2",
+    "kolibri-tools": "0.13.0-dev.9",
     "yarn-run-all": "^3.1.1"
   },
   "optionalDependencies": {

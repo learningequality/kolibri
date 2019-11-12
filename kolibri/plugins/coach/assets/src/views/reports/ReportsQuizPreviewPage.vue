@@ -8,10 +8,7 @@
   >
     <KPageContainer v-if="!loading">
       <h1>
-        <KLabeledIcon>
-          <KIcon slot="icon" quiz />
-          {{ quiz.title }}
-        </KLabeledIcon>
+        <KLabeledIcon icon="quiz" :label="quiz.title" />
       </h1>
       <p>
         {{ orderDescriptionString }}
@@ -63,8 +60,8 @@
       },
       orderDescriptionString() {
         return this.quizIsRandomized
-          ? this.coachStrings.$tr('orderRandomDescription')
-          : this.coachStrings.$tr('orderFixedDescription');
+          ? this.coachString('orderRandomDescription')
+          : this.coachString('orderFixedDescription');
       },
       immersivePageProps() {
         const title = this.$tr('pageTitle', { title: this.quiz.title });
@@ -104,7 +101,6 @@
       },
     },
     $trs: {
-      backToQuizAction: 'Back to quiz',
       pageTitle: `Preview of quiz '{title}'`,
     },
   };

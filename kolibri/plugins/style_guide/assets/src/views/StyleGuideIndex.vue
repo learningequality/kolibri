@@ -2,7 +2,11 @@
 
   <div>
     <SideNav />
-    <router-view class="content" />
+    <div :style="{ marginLeft: `${navWidth}px` }" class="content">
+      <transition name="fade">
+        <router-view />
+      </transition>
+    </div>
   </div>
 
 </template>
@@ -10,21 +14,18 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
-  import VueRouter from 'vue-router';
-  import SideNav from './shell/SideNav';
-
-  // To illustrate how user-facing text should always be translated, we will
-  // set up a fake $tr, and use it in the code example.
-  FullVue.prototype.$tr = text => text;
-
-  // Some components (e.g. <KNavbarLink>) need the router.
-  FullVue.use(VueRouter);
+  import state from '../state';
+  import SideNav from './common/SideNav';
 
   export default {
     name: 'StyleGuideIndex',
     components: {
       SideNav,
+    },
+    computed: {
+      navWidth() {
+        return state.navWidth;
+      },
     },
   };
 
@@ -33,13 +34,20 @@
 
 <style lang="scss" scoped>
 
-  @import '../styles/style-guide';
+  @import './common/globals';
 
   .content {
-    max-width: 50em;
-    margin-top: 24px;
-    margin-right: auto;
-    margin-left: $sidenav-width + 32;
+    padding-left: 32px;
+    border-left: 1px solid $border-color;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.1s;
+  }
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
   }
 
 </style>
@@ -47,48 +55,50 @@
 
 <style lang="scss">
 
-  // NOT SCOPED
+  @import './common/globals';
 
-  // Reset some of the styles inherited from the main Kolibri theme.
-  // TODO: Remove that inheritance and have a clean slate style-wise.
-  html,
-  body {
-    height: auto;
-    font-size: 14px;
-    color: #424242;
-    background: white;
-  }
-
-  html {
-    overflow: initial;
-  }
-
+  // match Prism font family
   code {
-    padding: 4px;
-    font-size: smaller;
-    color: #268bd2;
+    font-family: $code-font-stack;
+    color: $code-color;
     white-space: nowrap;
-    background: rgba(253, 246, 227, 0.5);
   }
 
-  @import '~vuep/dist/vuep.css';
-  @import '~kolibri.styles.definitions';
+  a code {
+    color: $link-color;
+    &:hover {
+      color: $link-hover-color;
+    }
+  }
 
-  .vuep {
-    // TODO: vuep pullutes the font-family
-    @include font-family-noto;
+  a {
+    display: inline-block; // prevents trailing spaces
+    color: $link-color;
+    transition: $basic-transition;
 
-    display: initial;
-    height: initial;
-
-    .vuep-preview,
-    .vuep-editor {
-      width: 100%;
+    svg {
+      fill: $link-color;
+      transition: $basic-transition;
     }
 
-    .vuep-preview {
-      padding: 8px;
+    &:hover {
+      color: $link-hover-color;
+      svg {
+        fill: $link-hover-color;
+      }
     }
+  }
+
+  *:focus {
+    outline-color: #757575;
+  }
+
+  *::selection {
+    background: $selection-color;
+  }
+
+  body {
+    background-color: white;
   }
 
 </style>

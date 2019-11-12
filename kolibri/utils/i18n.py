@@ -6,19 +6,6 @@ import os
 
 import kolibri
 
-EXTERNAL_PLUGINS_PREFIX = "kolibri_"
-
-
-def is_external_plugin(appname):
-    """
-    Returns true when the given app is an external plugin.
-
-    Implementation note: does a simple check on the name to see if it's
-    prefixed with "kolibri_". If so, we think it's a plugin.
-    """
-
-    return appname.startswith(EXTERNAL_PLUGINS_PREFIX)
-
 
 def get_installed_app_locale_path(appname):
     """
@@ -26,13 +13,16 @@ def get_installed_app_locale_path(appname):
 
     Note that the module is imported to determine its location.
     """
+    try:
+        m = importlib.import_module(appname)
+        module_path = os.path.dirname(m.__file__)
+        module_locale_path = os.path.join(module_path, "locale")
 
-    m = importlib.import_module(appname)
-    module_path = os.path.dirname(m.__file__)
-    module_locale_path = os.path.join(module_path, "locale")
-
-    if os.path.isdir(module_locale_path):
-        return module_locale_path
+        if os.path.isdir(module_locale_path):
+            return module_locale_path
+    except ImportError:
+        pass
+    return None
 
 
 def _get_supported_language_info():

@@ -19,7 +19,7 @@
 
       <ActivityList
         :notificationParams="notificationParams"
-        :noActivityString="$tr('noActivity')"
+        :noActivityString="$tr('noActivityLabel')"
         embeddedPageName="HomeActivityPage"
       />
 
@@ -50,9 +50,7 @@
     },
     $trs: {
       back: 'Class home',
-      classActivity: 'Class activity',
-      noActivity: 'No activity in your class',
-      viewMore: 'View more',
+      noActivityLabel: 'No activity in your class',
     },
   };
 

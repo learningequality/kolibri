@@ -1,34 +1,31 @@
 <template>
 
   <div>
-    <BackLinkWithOptions>
+    <HeaderWithOptions>
       <BackLink
-        slot="backlink"
+        slot="header"
         :to="classRoute('ReportsLessonListPage')"
-        :text="$tr('back')"
+        :text="coreString('allLessonsLabel')"
       />
       <LessonOptionsDropdownMenu
         slot="options"
         optionsFor="report"
         @select="handleSelectOption"
       />
-    </BackLinkWithOptions>
+    </HeaderWithOptions>
 
     <h1>
-      <KLabeledIcon>
-        <KIcon slot="icon" lesson />
-        {{ lesson.title }}
-      </KLabeledIcon>
+      <KLabeledIcon icon="lesson" :label="lesson.title" />
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+      <HeaderTableRow :keyText="coachString('statusLabel')">
         <LessonActive
           slot="value"
           :active="lesson.active"
         />
       </HeaderTableRow>
-      <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+      <HeaderTableRow :keyText="coachString('recipientsLabel')">
         <Recipients
           slot="value"
           :groupNames="getGroupNames(lesson.groups)"
@@ -36,19 +33,19 @@
         />
       </HeaderTableRow>
       <HeaderTableRow
-        :keyText="coachStrings.$tr('descriptionLabel')"
-        :valueText="lesson.description || coachStrings.$tr('descriptionMissingLabel')"
+        :keyText="coachString('descriptionLabel')"
+        :valueText="lesson.description || coachString('descriptionMissingLabel')"
       />
     </HeaderTable>
 
     <HeaderTabs>
 
       <HeaderTab
-        :text="coachStrings.$tr('reportLabel')"
+        :text="coachString('reportLabel')"
         :to="classRoute('ReportsLessonReportPage', {})"
       />
       <HeaderTab
-        :text="coachStrings.$tr('learnersLabel')"
+        :text="coreString('learnersLabel')"
         :to="classRoute('ReportsLessonLearnerListPage', {})"
       />
     </HeaderTabs>
@@ -60,17 +57,18 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import LessonOptionsDropdownMenu from '../plan/LessonSummaryPage/LessonOptionsDropdownMenu';
-  import BackLinkWithOptions from '../common/BackLinkWithOptions';
+  import HeaderWithOptions from '../common/HeaderWithOptions';
 
   export default {
     name: 'ReportsLessonHeader',
     components: {
-      BackLinkWithOptions,
+      HeaderWithOptions,
       LessonOptionsDropdownMenu,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -93,9 +91,7 @@
         }
       },
     },
-    $trs: {
-      back: 'All lessons',
-    },
+    $trs: {},
   };
 
 </script>

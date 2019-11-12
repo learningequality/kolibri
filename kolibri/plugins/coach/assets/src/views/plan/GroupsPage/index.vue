@@ -13,7 +13,7 @@
       <div class="ta-r">
         <KButton
           class="new-group-button"
-          :text="$tr('newGroup')"
+          :text="$tr('newGroupAction')"
           :primary="true"
           @click="openCreateGroupModal"
         />
@@ -23,10 +23,10 @@
         <thead slot="thead">
           <tr>
             <th>
-              {{ coachStrings.$tr('nameLabel') }}
+              {{ coachString('nameLabel') }}
             </th>
             <th>
-              {{ coachStrings.$tr('learnersLabel') }}
+              {{ coreString('learnersLabel') }}
             </th>
             <th></th>
           </tr>
@@ -80,8 +80,8 @@
 
   import { mapState, mapActions } from 'vuex';
   import orderBy from 'lodash/orderBy';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import { GroupModals } from '../../../constants';
@@ -95,13 +95,12 @@
     components: {
       CoreTable,
       PlanHeader,
-      KButton,
       GroupRowTr,
       CreateGroupModal,
       RenameGroupModal,
       DeleteGroupModal,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         selectedGroup: {
@@ -149,19 +148,17 @@
         this.displayModal(GroupModals.DELETE_GROUP);
       },
       handleSuccessCreateGroup() {
-        this.createSnackbar(this.coachStrings.$tr('createdNotification'));
+        this.createSnackbar(this.coachString('createdNotification'));
         this.displayModal(false);
       },
       handleSuccessDeleteGroup() {
-        this.createSnackbar(this.coachStrings.$tr('deletedNotification'));
+        this.createSnackbar(this.coachString('deletedNotification'));
         this.displayModal(false);
       },
     },
     $trs: {
-      classGroups: 'Groups',
-      newGroup: 'New group',
+      newGroupAction: 'New group',
       noGroups: 'You do not have any groups',
-      documentTitle: 'Groups',
     },
   };
 

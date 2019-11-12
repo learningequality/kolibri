@@ -2,18 +2,20 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from . import hooks
 from kolibri.core.auth.constants.user_kinds import COACH
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack import hooks as webpack_hooks
-from kolibri.plugins.base import KolibriPluginBase
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
 
 
 class Coach(KolibriPluginBase):
-    pass
+    untranslated_view_urls = "api_urls"
+    translated_view_urls = "urls"
 
 
+@register_hook
 class CoachRedirect(RoleBasedRedirectHook):
     role = COACH
 
@@ -22,15 +24,11 @@ class CoachRedirect(RoleBasedRedirectHook):
         return self.plugin_url(Coach, "coach")
 
 
-class CoachNavItem(NavigationHook, webpack_hooks.WebpackBundleHook):
-    unique_slug = "coach_side_nav"
-    src_file = "assets/src/views/CoachSideNavEntry.vue"
+@register_hook
+class CoachNavItem(NavigationHook):
+    bundle_id = "side_nav"
 
 
+@register_hook
 class CoachAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "coach_module"
-    src_file = "assets/src/app.js"
-
-
-class CoachInclusionHook(hooks.CoachSyncHook):
-    bundle_class = CoachAsset
+    bundle_id = "app"

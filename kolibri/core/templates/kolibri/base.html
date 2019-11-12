@@ -1,4 +1,4 @@
-{% load i18n kolibri_tags webpack_tags content_tags cache %}
+{% load i18n core_tags webpack_tags content_tags cache %}
 {% load staticfiles %}
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 {% get_current_language as LANGUAGE_CODE %}
@@ -22,22 +22,16 @@
     <script src="{% static 'rest_framework/js/coreapi-0.1.1.js' %}"></script>
     <script src="{% url 'api-docs:schema-js' %}"></script>
   {% endif %}
-  {% kolibri_language_globals %}
-  {% kolibri_theme %}
-  {% kolibri_set_urls %}
-  {% webpack_asset 'user_agent' %}
+  {% webpack_asset 'kolibri.core.user_agent' %}
 </head>
 <body>
 <rootvue>
   {% include "kolibri/loading_snippet.html" %}
 </rootvue>
 {% block frontend_assets %}
-{% kolibri_sentry_error_reporting %}
-{% kolibri_content_cache_key %}
-{% webpack_asset 'default_frontend' %}
-{% kolibri_navigation_actions %}
-{% webpack_base_assets %}
-{% webpack_base_async_assets %}
+{% webpack_asset 'kolibri.core.default_frontend' %}
+{% frontend_base_assets %}
+{% frontend_base_async_assets %}
 {% content_renderer_assets %}
 {% endblock %}
 

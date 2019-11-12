@@ -351,6 +351,7 @@ const translations = {
         '{count, number, integer} of {total, number, integer} {total, plural, one {learner} other {learners}} {count, plural, one {has started} other {have started}}',
       ratioShort:
         '{count, number, integer} of {total, number, integer} {count, plural, one {has started} other {have started}}',
+      questionsStarted: '{answeredQuestionsCount} of {totalQuestionsCount} answered',
     }),
   },
 };

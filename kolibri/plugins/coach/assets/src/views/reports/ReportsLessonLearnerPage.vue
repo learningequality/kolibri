@@ -17,25 +17,21 @@
         />
       </p>
       <h1>
-        <KLabeledIcon>
-          <KIcon slot="icon" person />
-          {{ learner.name }}
-        </KLabeledIcon>
+        <KLabeledIcon icon="person" :label="learner.name" />
       </h1>
 
-      <CoreTable :emptyMessage="coachStrings.$tr('activityListEmptyState')">
+      <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('timeSpentLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('timeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
-              <KLabeledIcon>
-                <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
+              <KLabeledIcon :icon="tableRow.kind">
                 <KRouterLink
                   v-if="showLink(tableRow)"
                   :text="tableRow.title"
@@ -65,13 +61,14 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsLessonLearnerPage',
     components: {},
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -108,9 +105,7 @@
         return undefined;
       },
     },
-    $trs: {
-      lessonProgressLabel: "'{lesson}' progress",
-    },
+    $trs: {},
   };
 
 </script>

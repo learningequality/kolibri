@@ -10,34 +10,31 @@
 
     <KPageContainer v-if="!loading">
 
-      <BackLinkWithOptions>
+      <HeaderWithOptions>
         <BackLink
-          slot="backlink"
+          slot="header"
           :to="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
-          :text="backLinkString"
+          :text="coreString('allLessonsLabel')"
         />
         <LessonOptionsDropdownMenu
           slot="options"
           optionsFor="plan"
           @select="handleSelectOption"
         />
-      </BackLinkWithOptions>
+      </HeaderWithOptions>
 
       <div class="lesson-summary">
 
         <div>
           <h1 dir="auto">
-            <KLabeledIcon>
-              <KIcon slot="icon" lesson />
-              {{ currentLesson.title }}
-            </KLabeledIcon>
+            <KLabeledIcon icon="lesson" :label="currentLesson.title" />
           </h1>
 
           <HeaderTable>
-            <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+            <HeaderTableRow :keyText="coachString('statusLabel')">
               <LessonActive slot="value" :active="currentLesson.is_active" />
             </HeaderTableRow>
-            <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+            <HeaderTableRow :keyText="coachString('recipientsLabel')">
               <template slot="value">
                 <Recipients
                   :groupNames="groupNames"
@@ -46,8 +43,8 @@
               </template>
             </HeaderTableRow>
             <HeaderTableRow
-              :keyText="coachStrings.$tr('descriptionLabel')"
-              :valueText="currentLesson.description || coachStrings.$tr('descriptionMissingLabel')"
+              :keyText="coachString('descriptionLabel')"
+              :valueText="currentLesson.description || coachString('descriptionMissingLabel')"
             />
           </HeaderTable>
         </div>
@@ -57,13 +54,13 @@
             <div class="resource-list-header">
               <div class="resource-list-header-title-block">
                 <h2 class="resource-list-header-title">
-                  {{ $tr('resources') }}
+                  {{ coreString('resourcesLabel') }}
                 </h2>
               </div>
               <div class="resource-list-header-add-resource-button">
                 <KRouterLink
                   :to="lessonSelectionRootPage"
-                  :text="$tr('manageResourcesButton')"
+                  :text="coachString('manageResourcesAction')"
                   :primary="true"
                   appearance="raised-button"
                 />
@@ -74,7 +71,7 @@
           <ResourceListTable v-if="workingResources.length" />
 
           <p v-else class="no-resources-message">
-            {{ $tr('noResourcesInLesson') }}
+            {{ coachString('noResourcesInLessonLabel') }}
           </p>
 
           <ManageLessonModals
@@ -95,23 +92,17 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
   import HeaderTable from '../../common/HeaderTable';
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
   import Recipients from '../../common/Recipients';
   import LessonActive from '../../common/LessonActive';
-  import ReportsLessonHeader from '../../reports/ReportsLessonHeader';
-  import BackLinkWithOptions from '../../common/BackLinkWithOptions';
+  import HeaderWithOptions from '../../common/HeaderWithOptions';
   import ManageLessonModals from './ManageLessonModals';
   import ResourceListTable from './ResourceListTable';
   import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
-
-  const ReportsLessonHeaderStrings = crossComponentTranslator(ReportsLessonHeader);
 
   export default {
     name: 'LessonSummaryPage',
@@ -121,28 +112,22 @@
       };
     },
     components: {
-      KIcon,
-      KLabeledIcon,
       HeaderTable,
       HeaderTableRow,
       Recipients,
       LessonActive,
-      BackLinkWithOptions,
+      HeaderWithOptions,
       ResourceListTable,
       ManageLessonModals,
-      KRouterLink,
       LessonOptionsDropdownMenu,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         currentAction: '',
       };
     },
     computed: {
-      backLinkString() {
-        return ReportsLessonHeaderStrings.$tr('back');
-      },
       ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
       loading() {
@@ -174,12 +159,7 @@
         }
       },
     },
-    $trs: {
-      noResourcesInLesson: 'No resources in this lesson',
-      resources: 'Resources',
-      manageResourcesButton: 'Manage resources',
-      noOne: 'No one',
-    },
+    $trs: {},
   };
 
 </script>

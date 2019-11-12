@@ -82,12 +82,10 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { MaxPointsPerContent, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import UiAlert from 'keen-ui/src/UiAlert';
   import Snackbar from './Snackbar';
 
@@ -99,11 +97,9 @@
       PointsIcon,
       ProgressIcon,
       ContentIcon,
-      KRouterLink,
       Snackbar,
       UiAlert,
     },
-    mixins: [themeMixin],
     props: {
       nextContent: {
         type: Object,
@@ -174,7 +170,6 @@
       plusPoints: '+ { maxPoints, number } Points',
       next: 'Next:',
       signIn: 'Sign in or create an account to save points you earn',
-      askForHelp: 'Having trouble? Try asking someone for help',
     },
   };
 

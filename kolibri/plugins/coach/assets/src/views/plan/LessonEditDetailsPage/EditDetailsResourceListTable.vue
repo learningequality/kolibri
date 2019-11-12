@@ -1,11 +1,11 @@
 <template>
 
-  <KDragContainer
+  <DragContainer
     :items="resources"
     @sort="handleDrag"
   >
     <p v-if="resources.length === 0">
-      {{ $tr('noResources') }}
+      {{ coachString('noResourcesInLessonLabel') }}
     </p>
     <transition-group
       v-else
@@ -13,19 +13,19 @@
       name="list"
       class="wrapper"
     >
-      <KDraggable
+      <Draggable
         v-for="(resource, index) in resourceListItems"
         :key="resource.id"
       >
-        <KDragHandle>
-          <KGrid
+        <DragHandle>
+          <KFixedGrid
             class="row"
             :style="{ backgroundColor: $themeTokens.surface }"
-            cols="8"
+            numCols="8"
           >
-            <KGridItem size="1" class="relative">
+            <KFixedGridItem span="1" class="relative">
               <div class="move-handle">
-                <KDragSortWidget
+                <DragSortWidget
                   :moveUpText="$tr('moveResourceUpButtonDescription')"
                   :moveDownText="$tr('moveResourceDownButtonDescription')"
                   :isFirst="index === 0"
@@ -34,8 +34,8 @@
                   @moveDown="moveDownOne(index)"
                 />
               </div>
-            </KGridItem>
-            <KGridItem size="4">
+            </KFixedGridItem>
+            <KFixedGridItem span="4">
               <div class="resource-title">
                 <ContentIcon :kind="resource.kind" />
                 <KRouterLink
@@ -49,19 +49,19 @@
                   {{ resource.channelTitle }}
                 </p>
               </div>
-            </KGridItem>
-            <KGridItem size="3" alignment="right">
+            </KFixedGridItem>
+            <KFixedGridItem span="3" alignment="right">
               <KButton
-                :text="$tr('resourceRemovalButtonLabel')"
+                :text="coreString('removeAction')"
                 appearance="flat-button"
                 @click="removeResource(resource)"
               />
-            </KGridItem>
-          </KGrid>
-        </KDragHandle>
-      </KDraggable>
+            </KFixedGridItem>
+          </KFixedGrid>
+        </DragHandle>
+      </Draggable>
     </transition-group>
-  </KDragContainer>
+  </DragContainer>
 
 </template>
 
@@ -69,33 +69,26 @@
 <script>
 
   import { mapActions, mapState } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KDragSortWidget from 'kolibri.coreVue.components.KDragSortWidget';
-  import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
-  import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KDraggable from 'kolibri.coreVue.components.KDraggable';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
+  import DragContainer from 'kolibri.coreVue.components.DragContainer';
+  import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  import Draggable from 'kolibri.coreVue.components.Draggable';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   // This is a simplified version of ResourceListTable that is supposed to work
   // outside of the LessonSummaryPage workflow.
   export default {
     name: 'EditDetailsResourceListTable',
     components: {
-      KDraggable,
-      KDragContainer,
-      KDragHandle,
-      KDragSortWidget,
-      KRouterLink,
-      KButton,
-      KGrid,
-      KGridItem,
+      Draggable,
+      DragContainer,
+      DragHandle,
+      DragSortWidget,
       ContentIcon,
     },
-    mixins: [themeMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       // Array<{ contentnode_id, content_id, channel_id }>
       resources: {
@@ -195,15 +188,7 @@
       },
     },
     $trs: {
-      noResources: 'No resources in this lesson',
       undoActionPrompt: 'Undo',
-      resourceReorderColumnHeaderForTable:
-        'Use buttons in this column to re-order resources in the lesson',
-      resourceTypeColumnHeaderForTable: 'Resource type',
-      lessonTitleColumnHeaderForTable: 'Title',
-      resourceRemovalColumnHeaderForTable:
-        'Use buttons in this column to remove resources from the lesson',
-      resourceRemovalButtonLabel: 'Remove',
       singleResourceRemovalConfirmationMessage: `Removed '{resourceTitle}'`,
       multipleResourceRemovalsConfirmationMessage: 'Removed { numberOfRemovals } resources',
       moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',

@@ -31,12 +31,12 @@ export default [
   {
     name: PageNames.SIGN_UP,
     path: '/create_account',
-    handler: () => {
+    handler: (toRoute, fromRoute) => {
       if (store.getters.isUserLoggedIn) {
         router.replace({ name: PageNames.PROFILE });
         return Promise.resolve();
       } else {
-        return showSignUpPage(store);
+        return showSignUpPage(store, fromRoute);
       }
     },
   },
@@ -48,6 +48,17 @@ export default [
         router.replace({ name: PageNames.SIGN_IN });
       } else {
         showProfilePage(store);
+      }
+    },
+  },
+  {
+    name: PageNames.PROFILE_EDIT,
+    path: '/profile/edit',
+    handler: () => {
+      if (!store.getters.isUserLoggedIn) {
+        router.replace({ name: PageNames.SIGN_IN });
+      } else {
+        store.dispatch('resetAndSetPageName', { pageName: PageNames.PROFILE_EDIT });
       }
     },
   },

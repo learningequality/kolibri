@@ -107,6 +107,14 @@ Collecting client and server errors using Sentry
 
 `Sentry <https://docs.sentry.io/>`__ clients are available for both backend and frontend error reporting. This can be particularly useful to have running on beta and demo servers in order to catch errors "in the wild".
 
+This behaviour is activated by installing the `Kolibri Sentry Plugin <https://github.com/learningequality/kolibri-sentry-plugin>`__. Once installed, the options below become available for configuration.
+
+.. code-block:: bash
+
+    pip install kolibri-sentry-plugin  # might need to run with sudo
+
+If you're running Kolibri using a pex file, you'll need to make sure that the pex inherits a Python path with `kolibri_sentry_plugin` available. To do this without inheriting the full system path, run the pex from an active virtual environment with `PEX_INHERIT_PATH=1 python kolibri.pex`.
+
 To set up error reporting, you'll need a `Sentry DSN <https://docs.sentry.io/error-reporting/quickstart>`__. These are available from your project settings at ``https://sentry.io/settings/[org_name]/[project_name]/keys/``
 
 You can set these either in options.ini or as environment variables.

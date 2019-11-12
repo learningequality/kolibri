@@ -1,0 +1,110 @@
+{
+  "View learner progress and class performance": {
+    "definitions": [
+      {
+        "namespace": "TestComponent",
+        "key": "classPageSubheader"
+      }
+    ],
+    "uses": []
+  },
+  "Class name": {
+    "definitions": [
+      {
+        "namespace": "TestComponent",
+        "key": "classNameLabel"
+      }
+    ],
+    "uses": []
+  },
+  "You aren't assigned to any classes": {
+    "definitions": [
+      {
+        "namespace": "TestComponent",
+        "key": "noAssignedClassesHeader"
+      }
+    ],
+    "uses": []
+  },
+  "Please consult your Kolibri administrator to be assigned to a class": {
+    "definitions": [
+      {
+        "namespace": "TestComponent",
+        "key": "noAssignedClassesDetails"
+      }
+    ],
+    "uses": []
+  },
+  "Create a class and enroll learners": {
+    "definitions": [
+      {
+        "namespace": "TestComponent",
+        "key": "noClassesDetailsForAdmin"
+      }
+    ],
+    "uses": []
+  },
+  "Please consult your Kolibri administrator": {
+    "definitions": [
+      {
+        "namespace": "TestComponent",
+        "key": "noClassesDetailsForFacilityCoach"
+      }
+    ],
+    "uses": []
+  },
+  "There are no classes yet": {
+    "definitions": [
+      {
+        "namespace": "TestComponent",
+        "key": "noClassesInFacility"
+      }
+    ],
+    "uses": []
+  },
+  "Classes": {
+    "definitions": [
+      {
+        "namespace": "CommonCoachStrings",
+        "key": "classesLabel"
+      }
+    ],
+    "uses": []
+  },
+  "Learners": {
+    "definitions": [
+      {
+        "namespace": "CommonCoachStrings",
+        "key": "learnersLabel"
+      }
+    ],
+    "uses": []
+  },
+  "{value, number, integer}": {
+    "definitions": [
+      {
+        "namespace": "CommonCoachStrings",
+        "key": "integer"
+      }
+    ],
+    "uses": []
+  },
+  "Coach": {
+    "definitions": [
+      {
+        "namespace": "CommonCoreStrings",
+        "key": "coachLabel"
+      }
+    ],
+    "uses": []
+  },
+  "Coaches": {
+    "definitions": [
+      {
+        "namespace": "CommonCoachStrings",
+        "key": "coachesLabel"
+      }
+    ],
+    "uses": []
+  }
+}

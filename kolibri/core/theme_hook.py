@@ -3,12 +3,14 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
+import os
+
+from abc import abstractproperty
 
 from kolibri.plugins import hooks
 import kolibri
 from django.utils.six.moves.urllib import parse
 from django.conf import settings
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +38,20 @@ SIGN_IN = "signIn"
 SIDE_NAV = "sideNav"
 APP_BAR = "appBar"
 BACKGROUND = "background"
+SCRIM_OPACITY = "scrimOpacity"
 TITLE = "title"
+TITLE_STYLE = "titleStyle"
 TOP_LOGO = "topLogo"
+LOGO = "logo"
+BRANDED_FOOTER = "brandedFooter"
+PARAGRAPH_ARRAY = "paragraphArray"
 IMG_SRC = "src"
 IMG_STYLE = "style"
 IMG_ALT = "alt"
+SHOW_TITLE = "showTitle"
 SHOW_K_FOOTER_LOGO = "showKolibriFooterLogo"
+SHOW_POWERED_BY = "showPoweredBy"
+POWERED_BY_STYLE = "poweredByStyle"
 
 # This is the image file name that will be used when customizing the sign-in background
 # image using the 'kolibri manage background' command. It does not attempt to use a file
@@ -96,6 +106,14 @@ def _validateBrandColors(theme):
                 logger.error("{} '{}' not defined by theme".format(color, name))
 
 
+def _validateScrimOpacity(theme):
+    if SCRIM_OPACITY in theme[SIGN_IN]:
+        opacity = theme[SIGN_IN][SCRIM_OPACITY]
+        if opacity is None or opacity < 0 or opacity > 1:
+            logger.error("scrim opacity should be a value in the closed interval [0,1]")
+            return
+
+
 def _initFields(theme):
     """
     set up top-level dicts if they don't exist
@@ -110,37 +128,34 @@ def _initFields(theme):
         theme[APP_BAR] = {}
 
 
+@hooks.define_hook(only_one_registered=True)
 class ThemeHook(hooks.KolibriHook):
     """
     A hook to allow custom theming of Kolibri
     Use this tool to help generate your brand colors: https://materialpalettes.com/
     """
 
-    class Meta:
-        abstract = True
-
-    @property
-    @hooks.only_one_registered
-    def cacheKey(self):
-        theme = list(self.registered_hooks)[0].theme
+    @classmethod
+    def cacheKey(cls):
+        theme = list(cls.registered_hooks)[0].theme
         return parse.quote(
             "{}-{}-{}".format(
                 kolibri.__version__, theme[THEME_NAME], theme[THEME_VERSION]
             )
         )
 
-    @property
-    @hooks.only_one_registered
-    def theme(self):
-        theme = list(self.registered_hooks)[0].theme
+    @classmethod
+    def get_theme(cls):
+        theme = list(cls.registered_hooks)[0].theme
 
         # some validation and initialization
         _initFields(theme)
         _validateMetadata(theme)
         _validateBrandColors(theme)
+        _validateScrimOpacity(theme)
 
         # set up cache busting
-        bust = "?" + self.cacheKey
+        bust = "?" + cls.cacheKey()
         if _isSet(theme, [SIGN_IN, BACKGROUND]):
             theme[SIGN_IN][BACKGROUND] += bust
         if _isSet(theme, [SIGN_IN, TOP_LOGO, IMG_SRC]):
@@ -149,6 +164,8 @@ class ThemeHook(hooks.KolibriHook):
             theme[SIDE_NAV][TOP_LOGO][IMG_SRC] += bust
         if _isSet(theme, [APP_BAR, TOP_LOGO, IMG_SRC]):
             theme[APP_BAR][TOP_LOGO][IMG_SRC] += bust
+        if _isSet(theme, [SIDE_NAV, BRANDED_FOOTER, LOGO, IMG_SRC]):
+            theme[SIDE_NAV][BRANDED_FOOTER][LOGO][IMG_SRC] += bust
 
         # if a background image has been locally set using the `manage background` command, use it
         bg_img = os.path.join(settings.MEDIA_ROOT, DEFAULT_BG_IMAGE_FILE)
@@ -163,3 +180,7 @@ class ThemeHook(hooks.KolibriHook):
                     theme[SIGN_IN][BACKGROUND] += "?{}".format(f.read())
 
         return theme
+
+    @abstractproperty
+    def theme(self):
+        pass

@@ -9,40 +9,37 @@
       />
     </p>
     <h1>
-      <KLabeledIcon>
-        <KIcon slot="icon" quiz />
-        {{ exam.title }}
-      </KLabeledIcon>
+      <KLabeledIcon icon="quiz" :label="exam.title" />
     </h1>
 
     <HeaderTable>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachStrings.$tr('statusLabel') }}
+          {{ coachString('statusLabel') }}
         </template>
         <QuizActive slot="value" :active="exam.active" />
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachStrings.$tr('avgScoreLabel') }}
+          {{ coachString('avgScoreLabel') }}
         </template>
         <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
       <!-- TODO COACH
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('questionOrderLabel') }}</template>
-        <template slot="value">{{ coachStrings.$tr('orderRandomLabel') }}</template>
+        <template slot="key">{{ coachString('questionOrderLabel') }}</template>
+        <template slot="value">{{ coachString('orderRandomLabel') }}</template>
       </HeaderTableRow>
        -->
     </HeaderTable>
 
     <HeaderTabs>
       <HeaderTab
-        :text="coachStrings.$tr('reportLabel')"
+        :text="coachString('reportLabel')"
         :to="classRoute('ReportsGroupReportQuizLearnerListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('difficultQuestionsLabel')"
+        :text="coachString('difficultQuestionsLabel')"
         :to="classRoute('ReportsGroupReportQuizQuestionListPage')"
       />
     </HeaderTabs>
@@ -74,10 +71,7 @@
         return this.getLearnersForGroups([this.$route.params.groupId]);
       },
     },
-    $trs: {
-      back: 'All quizzes',
-      quizPerformanceLabel: "'{quiz}' performance",
-    },
+    $trs: {},
   };
 
 </script>

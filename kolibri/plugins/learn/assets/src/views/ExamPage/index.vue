@@ -2,7 +2,7 @@
 
   <div>
     <KGrid :gridStyle="gridStyle">
-      <KGridItem v-if="windowIsLarge" size="4" class="column-pane">
+      <KGridItem v-if="windowIsLarge" :layout12="{ span: 4 }" class="column-pane">
         <div class="column-contents-wrapper">
           <KPageContainer>
             <AnswerHistory
@@ -12,13 +12,13 @@
           </KPageContainer>
         </div>
       </KGridItem>
-      <KGridItem sizes="4, 8, 8" class="column-pane">
+      <KGridItem :layout12="{ span: 8 }" class="column-pane">
         <div :class="{'column-contents-wrapper' : !windowIsSmall}">
           <KPageContainer>
             <h1>
               {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
             </h1>
-            <ContentRenderer
+            <KContentRenderer
               v-if="content && itemId"
               ref="contentRenderer"
               :kind="content.kind"
@@ -37,7 +37,7 @@
           </KPageContainer>
 
           <!-- contents displayed in reverse-order for semantic ordering -->
-          <KBottomAppBar :dir="isRtl ? 'ltr' : 'rtl'" :maxWidth="null">
+          <BottomAppBar :dir="isRtl ? 'ltr' : 'rtl'" :maxWidth="null">
             <KButton
               :disabled="questionNumber===exam.question_count-1"
               :primary="true"
@@ -45,7 +45,7 @@
               @click="goToQuestion(questionNumber + 1)"
             >
               {{ $tr('nextQuestion') }}
-              <KIcon forward color="white" class="forward-icon" />
+              <KIcon icon="forward" color="white" class="forward-icon" />
             </KButton>
             <KButton
               :disabled="questionNumber===0"
@@ -54,7 +54,7 @@
               :class="{ 'left-align': windowIsSmall }"
               @click="goToQuestion(questionNumber - 1)"
             >
-              <KIcon back color="white" class="back-icon" />
+              <KIcon icon="back" color="white" class="back-icon" />
               {{ $tr('previousQuestion') }}
             </KButton>
 
@@ -71,7 +71,7 @@
               />
             </div>
 
-          </KBottomAppBar>
+          </BottomAppBar>
 
           <!-- below prev/next buttons in tab and DOM order, in page -->
           <KPageContainer v-if="!windowIsLarge">
@@ -100,7 +100,7 @@
       v-if="submitModalOpen"
       :title="$tr('submitExam')"
       :submitText="$tr('submitExam')"
-      :cancelText="$tr('goBack')"
+      :cancelText="coreString('goBackAction')"
       @submit="finishExam"
       @cancel="toggleModal"
     >
@@ -117,21 +117,14 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
   import debounce from 'lodash/debounce';
-  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KModal from 'kolibri.coreVue.components.KModal';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames } from '../../constants';
   import AnswerHistory from './AnswerHistory';
 
@@ -143,18 +136,11 @@
       };
     },
     components: {
-      ContentRenderer,
-      KButton,
-      KPageContainer,
       AnswerHistory,
-      KIcon,
-      KModal,
       UiAlert,
-      KGrid,
-      KGridItem,
-      KBottomAppBar,
+      BottomAppBar,
     },
-    mixins: [themeMixin, responsiveWindow],
+    mixins: [responsiveWindowMixin, commonCoreStrings],
     data() {
       return {
         submitModalOpen: false,
@@ -291,12 +277,10 @@
     },
     $trs: {
       submitExam: 'Submit quiz',
-      backToExamList: 'Back to quiz list',
       questionsAnswered:
         '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
       previousQuestion: 'Previous',
       nextQuestion: 'Next',
-      goBack: 'Go back',
       areYouSure: 'You cannot change your answers after you submit',
       unanswered:
         'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',

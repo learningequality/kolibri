@@ -1,16 +1,13 @@
 <template>
 
-  <div>
+  <KModal
+    :title="modalTitle"
+    v-bind="modalTexts"
+    @submit="handleSubmit"
+    @cancel="$emit('cancel')"
+  >
     <!-- Classroom Selection Form -->
-    <KModal
-      v-if="stage === Stages.SELECT_CLASSROOM"
-      id="select-classroom"
-      :title="modalTitle"
-      :submitText="coachStrings.$tr('continueAction')"
-      :cancelText="coachStrings.$tr('cancelAction')"
-      @submit="goToAvailableGroups"
-      @cancel="$emit('cancel')"
-    >
+    <div v-if="stage=== Stages.SELECT_CLASSROOM" id="select-classroom">
       <KRadioButton
         v-for="classroom in availableClassrooms"
         :key="classroom.id"
@@ -18,18 +15,9 @@
         :label="classroomLabel(classroom)"
         :value="classroom.id"
       />
-    </KModal>
-
+    </div>
     <!-- Learner Group Selection Form -->
-    <KModal
-      v-else
-      id="select-learnergroup"
-      :title="modalTitle"
-      :submitText="coachStrings.$tr('copyAction')"
-      :cancelText="coachStrings.$tr('cancelAction')"
-      @submit="$emit('submit', selectedClassroomId, selectedCollectionIds)"
-      @cancel="$emit('cancel')"
-    >
+    <div v-else id="select-learnergroup">
       <p>{{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}</p>
       <p>{{ assignmentQuestion }}</p>
       <RecipientSelector
@@ -37,8 +25,8 @@
         :groups="availableGroups"
         :classId="selectedClassroomId"
       />
-    </KModal>
-  </div>
+    </div>
+  </KModal>
 
 </template>
 
@@ -48,9 +36,8 @@
   import sortBy from 'lodash/sortBy';
   import find from 'lodash/find';
   import { error as logError } from 'kolibri.lib.logging';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { LearnerGroupResource } from 'kolibri.resources';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
 
@@ -62,11 +49,9 @@
   export default {
     name: 'AssignmentCopyModal',
     components: {
-      KModal,
-      KRadioButton,
       RecipientSelector,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       modalTitle: {
         type: String,
@@ -106,6 +91,18 @@
         // put current classroom on the top
         return sortBy(this.classList, classroom => (this.isCurrentClassroom(classroom) ? -1 : 1));
       },
+      modalTexts() {
+        if (this.stage === this.Stages.SELECT_CLASSROOM) {
+          return {
+            submitText: this.coreString('continueAction'),
+            cancelText: this.coreString('cancelAction'),
+          };
+        }
+        return {
+          submitText: this.coachString('copyAction'),
+          cancelText: this.coreString('cancelAction'),
+        };
+      },
     },
     created() {
       this.selectedClassroomId = this.classId;
@@ -113,6 +110,13 @@
     methods: {
       getLearnerGroupsForClassroom(classroomId) {
         return LearnerGroupResource.fetchCollection({ getParams: { parent: classroomId } });
+      },
+      handleSubmit() {
+        if (this.stage === this.Stages.SELECT_CLASSROOM) {
+          this.goToAvailableGroups();
+        } else {
+          this.$emit('submit', this.selectedClassroomId, this.selectedCollectionIds);
+        }
       },
       goToAvailableGroups() {
         // Do nothing if user presses Continue more than once

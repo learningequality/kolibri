@@ -14,12 +14,11 @@
       <ReportsGroupHeader />
 
       <KGrid>
-        <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachStrings.$tr('lessonsAssignedLabel') }}</h2>
+        <KGridItem :layout12="{ span: 6 }">
+          <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="lesson in lessonsList" :key="lesson.id">
-              <KLabeledIcon>
-                <KIcon slot="icon" lesson />
+              <KLabeledIcon icon="lesson">
                 <KRouterLink
                   :to="classRoute('ReportsGroupReportLessonPage', { lessonId: lesson.id })"
                   :text="lesson.title"
@@ -28,15 +27,14 @@
             </li>
           </ul>
           <p v-if="lessonsList.length === 0">
-            {{ coachStrings.$tr('lessonListEmptyState') }}
+            {{ coachString('lessonListEmptyState') }}
           </p>
         </KGridItem>
-        <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachStrings.$tr('quizzesAssignedLabel') }}</h2>
+        <KGridItem :layout12="{ span: 6 }">
+          <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="exam in examsList" :key="exam.id">
-              <KLabeledIcon>
-                <KIcon slot="icon" quiz />
+              <KLabeledIcon icon="quiz">
                 <KRouterLink
                   :to="classRoute('ReportsGroupReportQuizLearnerListPage', { quizId: exam.id })"
                   :text="exam.title"
@@ -45,7 +43,7 @@
             </li>
           </ul>
           <p v-if="examsList.length === 0">
-            {{ coachStrings.$tr('quizListEmptyState') }}
+            {{ coachString('quizListEmptyState') }}
           </p>
         </KGridItem>
       </KGrid>

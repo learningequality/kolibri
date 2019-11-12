@@ -7,15 +7,19 @@
     <div class="banner-inner">
       <KGrid>
         <!-- Grid Content -->
-        <KGridItem :sizes="bannerClosed ? [4, 6, 10] : [4, 8, 12]">
+        <KGridItem
+          :layout8="{ span: bannerClosed ? 6 : 8 }"
+          :layout12="{ span: bannerClosed ? 10 : 12 }"
+        >
           <slot :bannerClosed="bannerClosed"></slot>
         </KGridItem>
 
         <!-- Grid Buttons -->
         <KGridItem
           v-if="bannerClosed"
-          sizes="4, 2, 2"
-          alignment="right"
+          :layout="{ alignment: 'right' }"
+          :layout8="{ span: 2 }"
+          :layout12="{ span: 2 }"
         >
           <KButton
             class="open-button"
@@ -25,15 +29,10 @@
             @click="toggleBanner"
           />
         </KGridItem>
-        <KGridItem
-          v-else
-          size="100"
-          percentage
-          alignment="right"
-        >
+        <KGridItem v-else :layout="{ alignment: 'right' }">
           <KButton
             class="close-button"
-            :text="$tr('closeButton')"
+            :text="coreString('closeAction')"
             appearance="flat-button"
             :primary="true"
             @click="toggleBanner"
@@ -48,15 +47,11 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'CoreBanner',
-    components: { KButton, KGrid, KGridItem },
-    mixins: [themeMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         bannerClosed: false,
@@ -69,7 +64,6 @@
     },
     $trs: {
       openButton: 'More Info',
-      closeButton: 'Close',
     },
   };
 

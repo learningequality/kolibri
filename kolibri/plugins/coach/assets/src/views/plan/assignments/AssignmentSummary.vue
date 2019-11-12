@@ -2,17 +2,14 @@
 
   <div>
     <h1 dir="auto">
-      <KLabeledIcon>
-        <KIcon slot="icon" lesson />
-        {{ title }}
-      </KLabeledIcon>
+      <KLabeledIcon icon="lesson" :label="title" />
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+      <HeaderTableRow :keyText="coachString('statusLabel')">
         <LessonActive slot="value" :active="active" />
       </HeaderTableRow>
-      <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+      <HeaderTableRow :keyText="coachString('recipientsLabel')">
         <template slot="value">
           <Recipients
             :groupNames="groupNames"
@@ -21,8 +18,8 @@
         </template>
       </HeaderTableRow>
       <HeaderTableRow
-        :keyText="coachStrings.$tr('descriptionLabel')"
-        :valueText="description || coachStrings.$tr('descriptionMissingLabel')"
+        :keyText="coachString('descriptionLabel')"
+        :valueText="description || coachString('descriptionMissingLabel')"
       />
     </HeaderTable>
 
@@ -33,8 +30,6 @@
 
 <script>
 
-  import KIcon from 'kolibri.coreVue.components.KIcon';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import HeaderTable from '../../common/HeaderTable';
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
   import Recipients from '../../common/Recipients';
@@ -47,8 +42,6 @@
     name: 'AssignmentSummary',
     components: {
       LessonActive,
-      KIcon,
-      KLabeledIcon,
       HeaderTable,
       HeaderTableRow,
       Recipients,
@@ -89,9 +82,7 @@
         return names;
       },
     },
-    $trs: {
-      noOne: 'No one',
-    },
+    $trs: {},
   };
 
 </script>

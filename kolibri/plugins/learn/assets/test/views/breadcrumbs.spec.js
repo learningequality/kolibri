@@ -1,11 +1,13 @@
 import VueRouter from 'vue-router';
-import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
-import { mount } from '@vue/test-utils';
+import KBreadcrumbs from 'kolibri-components/src/KBreadcrumbs';
+import { mount, createLocalVue } from '@vue/test-utils';
 import Breadcrumbs from '../../src/views/Breadcrumbs';
 import makeStore from '../makeStore';
 import { PageNames } from '../../src/constants';
 
-//
+const localVue = createLocalVue();
+localVue.use(VueRouter);
+
 const router = new VueRouter({
   routes: [
     { path: '/recommended', name: PageNames.RECOMMENDED },
@@ -26,7 +28,7 @@ const router = new VueRouter({
 });
 
 function makeWrapper(options = {}) {
-  return mount(Breadcrumbs, { ...options, router });
+  return mount(Breadcrumbs, { ...options, localVue, router });
 }
 
 function getElements(wrapper) {

@@ -10,8 +10,6 @@ As a platform intended for use around the world, Kolibri has a strong mandate fo
 Writing localized strings
 -------------------------
 
-For strings in python files, we are using standard Django tools (``gettext`` and associated functions). See the `Django i18n documentation <https://docs.djangoproject.com/en/1.10/topics/i18n/>`__ for more information.
-
 For strings in the frontend, we are using `Vue-Intl <https://www.npmjs.com/package/vue-intl>`__, an in house port of `React-intl <https://www.npmjs.com/package/react-intl>`__. Strings are collected during the build process, and bundled into exported JSON files.
 
 Messages will be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the frontend are based off the current Django language for the HTTP request.
@@ -108,6 +106,102 @@ Dynamic values are passed into translation strings as named arguments in an obje
     },
   };
 
+.py files
+~~~~~~~~~
+
+For any user-facing strings in python files, we are using standard Django tools (``gettext`` and associated functions). See the `Django i18n documentation <https://docs.djangoproject.com/en/1.10/topics/i18n/>`__ for more information.
+
+
+RTL language support
+--------------------
+
+Kolibri has full support for right-to-left languages, and all functionality should work equally well when displayed in both LTR and RTL languages.
+
+There are a number of important considerations to take into account with RTL content. `Material Design has an excellent article <https://material.io/design/usability/bidirectionality.html>`_ that covers most important topics at a high level.
+
+.. warning::
+
+  Right-to-left support is broken when running the development server with hot reloading enabled (``yarn run devserver-hot``)
+
+
+Text alignment
+~~~~~~~~~~~~~~
+
+Alignment of application text  (i.e. text using ``$tr`` syntax) is mostly handled "automagically" by the `RTLCSS framework <https://rtlcss.com/>`_. This means that application text should have CSS applied to it  as though it is written in English. For example, if you want the text aligned left for LTR languages and right for RTL, simply use ``text-align: left``. This will be automatically flipped to ``text-align: right`` by the webpack plugin. Since the application is only ever viewed in one language at a time, RTLCSS can apply these changes to all CSS at once.
+
+On the other hand, alignment of user-generated text (from databases or from content) is inherently unknown beforehand. Therefore all user-generated text must have ``dir="auto"`` set on a parent DOM node. This can get especially complicated when LTR and RTL content are `mixed inline bidirectionally <https://www.w3.org/International/articles/inline-bidi-markup/>`_. Read more about the `Unicode Bidirectional algorithm <https://www.w3.org/International/articles/inline-bidi-markup/uba-basics>`_.
+
+A rule of thumb for inline bidirectional text:
+
+* if user-generated text is on its own in a block-level DOM element, it should be aligned based on the text's language using ``dir="auto"`` on the block-level element.
+* if user-generated text is displayed inline with application text (such as "App Label: user text"), it should be aligned using CSS ``text-align`` on the block-level element, and ``dir="auto"`` on a ``span`` wrapping the inline user text.
+
+
+Behavior
+~~~~~~~~
+
+Occasionally it is necessary to perform different logic depending on the directionalty of the the currently-selected language. For example, the handling of a button that changes horizontal scroll position would need to flip direction.
+
+In the frontend, we provide a ``isRtl`` property attached to every Vue instance. For example, you could write Vue methods like:
+
+.. code-block:: javascript
+
+  previous() {
+    if (this.isRtl) this.scrollRight();
+    else this.scrollLeft();
+  },
+  next() {
+    if (this.isRtl) this.scrollLeft();
+    else this.scrollRight();
+  },
+
+If you need to get the current language directionality on the backend, you can use ``django.utils.translation.get_language_bidi``.
+
+
+Iconography
+~~~~~~~~~~~
+
+Choosing whether or not to mirror icons in RTL languages is a subtle decision. Some icons should be flipped, but not others. From the `Material guidelines <https://google.github.io/material-design-icons/#icons-in-rtl>`_:
+
+    *anything that relates to time should be depicted as moving from right to left. For example, forward points to the left, and backwards points to the right*
+
+It is recommended to use the ``KIcon`` component when possible, as this will handle RTL flipping for you and apply it when appropriate, as well as taking care of other details:
+
+.. code-block:: html
+
+  <KIcon icon="forward" />
+
+
+If ``KIcon`` does not have the icon you need or is not usable for some reason, we also provide a global CSS class ``rtl-icon`` which will flip the icon. This can be applied conditionally with the ``isRtl`` property, e.g.:
+
+.. code-block:: html
+
+  <img src="forward.png" :class="{ 'is-rtl': isRtl }" alt="" />
+
+
+Content rendererers
+~~~~~~~~~~~~~~~~~~~
+
+User interfaces that are tightly coupled to embedded content, such as the 'next page' and 'previous page' buttons in a book, need to be flipped to match the language direction of that content. UIs that are not tightly integrated with the content should match the overall application language, not the content.
+
+Information about content language direction is available in the computed props ``contentDirection`` and ``contentIsRtl`` from ``kolibri.coreVue.mixins.contentRendererMixin``. These can be used to change styling and directionality dynamically, similar to the application-wide ``isRtl`` value.
+
+In situations where we are using third-party libraries it might be necessary to flip the entire content renderer UI automatically using the RTLCSS framework rather than make targeted changes to the DOM. To handle these cases, it's possible to dynamically load the correct CSS webpack bundle using a promise:
+
+.. code-block:: javascript
+
+  export default {
+    name: 'SomeContentRenderer',
+    created() {
+      // load alternate CSS
+      this.cssPromise = this.$options.contentModule.loadDirectionalCSS(this.contentDirection);
+    },
+    mounted() {
+      this.cssPromise.then(() => {
+        // initialize third-party library when the vue is mounted AND the CSS is loaded
+      });
+    },
+  };
 
 
 .. _crowdin:

@@ -46,10 +46,8 @@ else:
 
 
 class ParamValidator(object):
-    # name
-    param_name = (
-        None
-    )  # the name of the param in the request, e.g. 'user_id' (even if we pass 'user' to the Fn)
+    # the name of the param in the request, e.g. 'user_id' (even if we pass 'user' to the Fn)
+    param_name = None
 
     # type
     param_type = None
@@ -322,7 +320,7 @@ def calculate_spa_etag(*args, **kwargs):
     return hashlib.md5(
         kolibri_version.encode("utf-8")
         + str(ContentCacheKey.get_cache_key()).encode("utf-8")
-        + str(ThemeHook().cacheKey).encode("utf-8")
+        + str(ThemeHook.cacheKey()).encode("utf-8")
     ).hexdigest()
 
 

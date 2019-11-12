@@ -13,6 +13,20 @@ Feature: Super admin change user interface language
     Then the modal closes
       And I see Kolibri UI in <language> language
 
+  Scenario: Super admin has changed their own language from <device_language> to <language> prior to logging in
+    When I log in
+    Then Kolibri is in <language>
+    When I log out
+    Then I am redirected to the sign in page and Kolibri is in <language>
+    When I open a new tab and open Kolibri
+    Then Kolibri is shown in <language>
+    When I refresh the page
+    Then Kolibri is shown in <language>
+    When I navigate between and within Coach, Learn, Device and Facility sections of Kolibri
+    Then Kolibri remains in <language>
+    When I open a fresh Incognito or Private Browsing window and go to Kolibri's root server URL
+    Then Kolibri is shown in <device_language>
+
 Examples:
   | language  |
   | Kiswahili |

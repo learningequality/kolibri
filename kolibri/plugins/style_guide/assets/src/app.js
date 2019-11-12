@@ -1,34 +1,44 @@
-import Vue from 'kolibri.lib.vue';
 import router from 'kolibri.coreVue.router';
-import Vuep from 'vuep';
+import urls from 'kolibri.urls';
+import { scrollBehavior, initializeScrollBehavior } from './scrolling.js';
 import RootVue from './views/StyleGuideIndex';
-import { navMenuRoutes } from './views/shell/nav-menu';
-import KolibriModule from 'kolibri_module';
+import { allRoutes } from './routes';
+import pluginModule from './modules/pluginModule';
+import KolibriApp from 'kolibri_app';
 
-Vue.use(Vuep, { lineNumbers: false });
-
-class StyleGuideModule extends KolibriModule {
+class StyleGuideModule extends KolibriApp {
+  get routes() {
+    return allRoutes;
+  }
+  get RootVue() {
+    return RootVue;
+  }
+  get pluginModule() {
+    return pluginModule;
+  }
   ready() {
-    document.title = 'Kolibri Style Guide';
-    this.rootvue = new Vue({
-      el: 'rootvue',
-      name: 'StyleGuideRoot',
-      render: createElement => createElement(RootVue),
-      router: router.init(navMenuRoutes, {
-        // Enable the anchor scrolling behavior (which requires the vue-router
-        // to use the HTML5 History API).
-        mode: 'history',
-        scrollBehavior(to, from, savedPosition) {
-          if (to.hash) {
-            return { selector: to.hash };
-          } else if (savedPosition) {
-            return savedPosition;
-          }
-
-          return { x: 0, y: 0 };
-        },
-      }),
+    // make a router that lets us use anchor links (hash IDs)
+    router.initRouter({
+      mode: 'history',
+      base: urls['style_guide'](),
+      scrollBehavior,
     });
+
+    router.afterEach(to => {
+      const name = 'Kolibri Design System';
+      if (to.meta && to.meta.title) {
+        document.title = `${to.meta.title} - ${name}`;
+      } else if (to.meta && to.meta.componentAPI) {
+        document.title = `${to.meta.componentAPI.name} - ${name}`;
+      } else {
+        document.title = name;
+      }
+    });
+
+    initializeScrollBehavior();
+
+    // people get ready
+    super.ready();
   }
 }
 

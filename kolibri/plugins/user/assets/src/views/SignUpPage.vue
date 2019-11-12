@@ -2,105 +2,97 @@
 
   <div class="signup-page">
 
-    <form
-      ref="form"
-      class="signup-form"
-      @submit.prevent="signUp"
-    >
-      <h1>{{ $tr('createAccount') }}</h1>
+    <KPageContainer class="narrow-container">
+      <form
+        ref="form"
+        class="signup-form"
+        @submit.prevent="handleSubmit"
+      >
+        <h1>{{ $tr('createAccount') }}</h1>
 
-      <KTextbox
-        id="name"
-        ref="name"
-        v-model="name"
-        type="text"
-        autocomplete="name"
-        :label="$tr('name')"
-        :maxlength="120"
-        :autofocus="true"
-        :invalid="nameIsInvalid"
-        :invalidText="nameIsInvalidText"
-        @blur="nameBlurred = true"
-      />
+        <div v-show="atFirstStep">
+          <FullNameTextbox
+            ref="fullNameTextbox"
+            autocomplete="name"
+            :value.sync="name"
+            :isValid.sync="nameValid"
+            :autofocus="true"
+            :shouldValidate="formSubmitted"
+            :disabled="busy"
+          />
 
-      <KTextbox
-        id="username"
-        ref="username"
-        v-model="username"
-        type="text"
-        autocomplete="username"
-        :label="$tr('username')"
-        :maxlength="30"
-        :invalid="usernameIsInvalid"
-        :invalidText="usernameIsInvalidText"
-        @blur="usernameBlurred = true"
-        @input="resetSignUpState"
-      />
+          <UsernameTextbox
+            ref="usernameTextbox"
+            autocomplete="username"
+            :value.sync="username"
+            :isValid.sync="usernameValid"
+            :shouldValidate="formSubmitted"
+            :errors.sync="caughtErrors"
+            :disabled="busy"
+          />
 
-      <KTextbox
-        id="password"
-        ref="password"
-        v-model="password"
-        type="password"
-        autocomplete="new-password"
-        :label="$tr('password')"
-        :invalid="passwordIsInvalid"
-        :invalidText="passwordIsInvalidText"
-        @blur="passwordBlurred = true"
-      />
+          <PasswordTextbox
+            ref="passwordTextbox"
+            autocomplete="new-password"
+            :value.sync="password"
+            :isValid.sync="passwordValid"
+            :shouldValidate="formSubmitted"
+            :disabled="busy"
+          />
 
-      <KTextbox
-        id="confirmed-password"
-        ref="confirmedPassword"
-        v-model="confirmedPassword"
-        type="password"
-        autocomplete="new-password"
-        :label="$tr('reEnterPassword')"
-        :invalid="confirmedPasswordIsInvalid"
-        :invalidText="confirmedPasswordIsInvalidText"
-        @blur="confirmedPasswordBlurred = true"
-      />
+          <template v-if="currentFacility">
+            <h2>
+              {{ coreString('facilityLabel') }}
+            </h2>
+            <p>
+              {{ currentFacility.label }}
+            </p>
+          </template>
+        </div>
 
-      <KSelect
-        v-model="selectedFacility"
-        :label="$tr('facility')"
-        :options="facilityList"
-        :invalid="facilityIsInvalid"
-        :invalidText="facilityIsInvalidText"
-        :disabled="facilityList.length === 1"
-        @blur="facilityBlurred = true"
-      />
+        <div v-show="!atFirstStep">
+          <p>
+            {{ $tr('demographicInfoExplanation') }}
+          </p>
+          <GenderSelect
+            class="select"
+            :value.sync="gender"
+            :disabled="busy"
+          />
+          <BirthYearSelect
+            class="select"
+            :value.sync="birthYear"
+            :disabled="busy"
+          />
+        </div>
 
-      <p class="privacy-link">
-        <KButton
-          :text="$tr('privacyLink')"
-          appearance="basic-link"
-          @click="privacyModalVisible = true"
+        <PrivacyLinkAndModal
+          class="privacy-link"
+          :modalProps="{ hideOwnersSection: true }"
         />
-      </p>
 
-      <p>
-        <KButton
-          :disabled="busy"
-          :primary="true"
-          :text="$tr('finish')"
-          type="submit"
-          class="submit"
-        />
-      </p>
+        <p>
+          <KButton
+            :disabled="busy"
+            :primary="true"
+            :text="atFirstStep ? coreString('continueAction') : coreString('finishAction')"
+            type="submit"
+            class="submit"
+          />
+        </p>
 
-    </form>
+      </form>
+    </KPageContainer>
 
-    <div class="footer">
+    <div v-if="atFirstStep" class="footer">
       <LanguageSwitcherFooter />
     </div>
 
-    <PrivacyInfoModal
-      v-if="privacyModalVisible"
-      hideOwnersSection
-      @cancel="privacyModalVisible = false"
+    <FacilityModal
+      v-if="facilityModalVisible"
+      @cancel="closeFacilityModal"
+      @submit="closeFacilityModal"
     />
-
   </div>
 
 </template>
@@ -108,14 +100,27 @@
 
 <script>
 
-  import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
-  import { validateUsername } from 'kolibri.utils.validators';
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
-  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import { mapGetters } from 'vuex';
+  import every from 'lodash/every';
+  import find from 'lodash/find';
+  import { FacilityUsernameResource } from 'kolibri.resources';
+  import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
+  import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
+  import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
+  import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
+  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
+  import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
+  import { redirectBrowser } from 'kolibri.utils.browser';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { SignUpResource } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
+  import FacilityModal from './SignInPage/FacilityModal';
+  import getUrlParameter from './getUrlParameter';
+  import plugin_data from 'plugin_data';
+
+  const { DEFERRED } = DemographicConstants;
 
   export default {
     name: 'SignUpPage',
@@ -125,171 +130,188 @@
       };
     },
     components: {
-      KButton,
-      KTextbox,
-      KSelect,
+      FacilityModal,
       LanguageSwitcherFooter,
-      PrivacyInfoModal,
+      GenderSelect,
+      BirthYearSelect,
+      FullNameTextbox,
+      PasswordTextbox,
+      UsernameTextbox,
+      PrivacyLinkAndModal,
     },
-    data: () => ({
-      name: '',
-      username: '',
-      password: '',
-      confirmedPassword: '',
-      selectedFacility: {},
-      nameBlurred: false,
-      usernameBlurred: false,
-      passwordBlurred: false,
-      confirmedPasswordBlurred: false,
-      facilityBlurred: false,
-      formSubmitted: false,
-      privacyModalVisible: false,
-    }),
+    mixins: [commonCoreStrings],
+    data() {
+      return {
+        name: '',
+        nameValid: true,
+        username: '',
+        usernameValid: true,
+        password: '',
+        passwordValid: true,
+        formSubmitted: false,
+        gender: '',
+        birthYear: '',
+        caughtErrors: [],
+        busy: false,
+        facilityModalVisible: false,
+        currentFacility: null,
+      };
+    },
     computed: {
       ...mapGetters(['facilities']),
-      ...mapState('signUp', ['errors', 'busy']),
+      atFirstStep() {
+        return !this.$route.query.step;
+      },
       facilityList() {
-        return this.facilities.map(facility => ({
-          label: facility.name,
-          value: facility.id,
+        return this.facilities.map(({ name, id }) => ({
+          label: name,
+          value: id,
         }));
       },
-      nameIsInvalidText() {
-        if (this.nameBlurred || this.formSubmitted) {
-          if (this.name === '') {
-            return this.$tr('required');
-          }
+      firstStepIsValid() {
+        return every([this.nameValid, this.usernameValid, this.passwordValid]);
+      },
+      nextParam() {
+        // query is after hash
+        if (this.$route.query.next) {
+          return this.$route.query.next;
         }
-        return '';
-      },
-      nameIsInvalid() {
-        return Boolean(this.nameIsInvalidText);
-      },
-      usernameDoesNotExistYet() {
-        if (this.errors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
-          return false;
-        }
-        return true;
-      },
-      usernameIsInvalidText() {
-        if (this.usernameBlurred || this.formSubmitted) {
-          if (this.username === '') {
-            return this.$tr('required');
-          }
-          if (!validateUsername(this.username) || this.errors.includes(ERROR_CONSTANTS.INVALID)) {
-            return this.$tr('usernameAlphaNumError');
-          }
-          if (!this.usernameDoesNotExistYet) {
-            return this.$tr('usernameAlreadyExistsError');
-          }
-        }
-        return '';
-      },
-      usernameIsInvalid() {
-        return Boolean(this.usernameIsInvalidText);
-      },
-      passwordIsInvalidText() {
-        if (this.passwordBlurred || this.formSubmitted) {
-          if (this.password === '') {
-            return this.$tr('required');
-          }
-        }
-        return '';
-      },
-      passwordIsInvalid() {
-        return Boolean(this.passwordIsInvalidText);
-      },
-      confirmedPasswordIsInvalidText() {
-        if (this.confirmedPasswordBlurred || this.formSubmitted) {
-          if (this.confirmedPassword === '') {
-            return this.$tr('required');
-          }
-          if (this.confirmedPassword !== this.password) {
-            return this.$tr('passwordMatchError');
-          }
-        }
-        return '';
-      },
-      confirmedPasswordIsInvalid() {
-        return Boolean(this.confirmedPasswordIsInvalidText);
-      },
-      noFacilitySelected() {
-        return !this.selectedFacility.value;
-      },
-      facilityIsInvalidText() {
-        if (this.facilityBlurred || this.formSubmitted) {
-          if (this.noFacilitySelected) {
-            return this.$tr('required');
-          }
-        }
-        return '';
-      },
-      facilityIsInvalid() {
-        return Boolean(this.facilityIsInvalidText);
-      },
-      formIsValid() {
-        return (
-          !this.nameIsInvalid &&
-          !this.usernameIsInvalid &&
-          !this.passwordIsInvalid &&
-          !this.confirmedPasswordIsInvalid &&
-          !this.facilityIsInvalid
-        );
+        // query is before hash
+        return getUrlParameter('next');
       },
     },
     beforeMount() {
-      if (this.facilityList.length === 1) {
-        this.selectedFacility = this.facilityList[0];
+      // If no user input is in memory, reset the wizard
+      if (!this.username) {
+        this.goToFirstStep();
+      }
+      if (!this.$store.state.facilityId) {
+        if (this.facilityList.length === 1) {
+          this.currentFacility = this.facilityList[0];
+        } else {
+          this.facilityModalVisible = true;
+        }
+      } else {
+        this.currentFacility = this.facilityList.find(
+          ({ value }) => value === this.$store.state.facilityId
+        );
       }
     },
     methods: {
-      ...mapActions('signUp', ['signUpNewUser']),
-      ...mapMutations('signUp', {
-        resetSignUpState: 'RESET_STATE',
-      }),
-      signUp() {
-        this.formSubmitted = true;
-        const canSubmit = this.formIsValid && !this.busy;
-        if (canSubmit) {
-          this.signUpNewUser({
-            facility: this.selectedFacility.value,
-            full_name: this.name,
-            username: this.username,
-            password: this.password,
+      closeFacilityModal() {
+        this.facilityModalVisible = false;
+        this.currentFacility = this.facilityList.find(
+          ({ value }) => value === this.$store.state.facilityId
+        );
+        this.$nextTick().then(() => {
+          this.$refs.fullNameTextbox.focus();
+        });
+      },
+      checkForDuplicateUsername(username) {
+        if (!username) {
+          return Promise.resolve();
+        }
+        // NOTE: the superuser will not be returned in this search.
+        // TODO: create an specialized endpoint that only checks to see if a username
+        // already exists in a facility
+        return FacilityUsernameResource.fetchCollection({
+          getParams: {
+            facility: this.currentFacility.value,
+            search: username,
+          },
+          force: true,
+        })
+          .then(results => {
+            if (find(results, { username })) {
+              this.caughtErrors.push(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
+            }
+          })
+          .catch(() => {
+            // Silently handle search errors, idk
+          });
+      },
+      handleSubmit() {
+        if (this.atFirstStep) {
+          this.formSubmitted = true;
+          this.goToSecondStep();
+        } else {
+          this.submitNewFacilityUser();
+        }
+      },
+      goToFirstStep() {
+        this.$router.replace({ query: {} });
+      },
+      goToSecondStep() {
+        if (this.firstStepIsValid) {
+          this.checkForDuplicateUsername(this.username).then(() => {
+            if (this.firstStepIsValid) {
+              this.$router.push({ query: { step: 2 } });
+            } else {
+              this.focusOnInvalidField();
+            }
           });
         } else {
           this.focusOnInvalidField();
         }
       },
-      focusOnInvalidField() {
-        if (this.nameIsInvalid) {
-          this.$refs.name.focus();
-        } else if (this.usernameIsInvalid) {
-          this.$refs.username.focus();
-        } else if (this.passwordIsInvalid) {
-          this.$refs.password.focus();
-        } else if (this.confirmedPasswordIsInvalid) {
-          this.$refs.confirmedPassword.focus();
+      submitNewFacilityUser() {
+        this.formSubmitted = true;
+        const canSubmit = this.firstStepIsValid && !this.busy;
+        if (canSubmit) {
+          this.busy = true;
+          const payload = {
+            facility: this.currentFacility.value,
+            full_name: this.name,
+            username: this.username,
+            password: this.password,
+            // If user skips this part, these fields are marked as 'DEFERRED'
+            // so they don't see a notification after logging in.
+            gender: this.gender || DEFERRED,
+            birth_year: this.birthYear || DEFERRED,
+          };
+          if (plugin_data.oidcProviderEnabled) {
+            payload['next'] = this.nextParam;
+          }
+          SignUpResource.saveModel({ data: payload })
+            .then(() => {
+              redirectBrowser();
+            })
+            .catch(error => {
+              this.busy = false;
+              this.caughtErrors = CatchErrors(error, [
+                ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS,
+                ERROR_CONSTANTS.INVALID,
+              ]);
+              if (this.caughtErrors.length > 0) {
+                this.goToFirstStep();
+                this.focusOnInvalidField();
+              } else {
+                this.$store.dispatch('handleApiError', error);
+              }
+            });
+        } else {
+          this.busy = false;
+          this.goToFirstStep();
+          this.focusOnInvalidField();
         }
+      },
+      focusOnInvalidField() {
+        this.$nextTick().then(() => {
+          if (!this.nameValid) {
+            this.$refs.fullNameTextbox.focus();
+          } else if (!this.usernameValid) {
+            this.$refs.usernameTextbox.focus();
+          } else if (!this.passwordValid) {
+            this.$refs.passwordTextbox.focus();
+          }
+        });
       },
     },
     $trs: {
       createAccount: 'Create an account',
-      name: 'Full name',
-      username: 'Username',
-      password: 'Password',
-      reEnterPassword: 'Re-enter password',
-      passwordMatchError: 'Passwords do not match',
-      genericError: 'Something went wrong during sign up',
-      usernameAlphaNumError: 'Username can only contain letters, numbers, and underscores',
-      usernameAlreadyExistsError: 'An account with that username already exists',
-      logIn: 'Sign in',
-      kolibri: 'Kolibri',
-      finish: 'Finish',
-      facility: 'Facility',
-      required: 'This field is required',
-      documentTitle: 'User Sign Up',
-      privacyLink: 'Usage and privacy in Kolibri',
+      documentTitle: 'Create account',
+      demographicInfoExplanation:
+        'This information is optional. It is used to help with user administration.',
     },
   };
 
@@ -301,9 +323,15 @@
   $iphone-5-width: 320px;
   $vertical-page-margin: 100px;
 
+  .narrow-container {
+    max-width: 600px;
+    margin: auto;
+  }
+
   // Form
   .signup-form {
-    max-width: $iphone-5-width - 20;
+    max-width: 400px;
+    min-height: 500px;
     margin-right: auto;
     margin-left: auto;
   }
@@ -319,6 +347,10 @@
 
   .submit {
     margin-left: 0;
+  }
+
+  .select {
+    margin: 18px 0 36px;
   }
 
 </style>

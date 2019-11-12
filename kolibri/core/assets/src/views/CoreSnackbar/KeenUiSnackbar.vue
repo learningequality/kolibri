@@ -9,51 +9,36 @@
    functionality.
   -->
 
-  <transition :name="transitionName" @after-enter="onEnter" @after-leave="onLeave">
-    <div class="ui-snackbar" @click="onClick">
-      <div
-        class="ui-snackbar-message"
-        :style="{color: $themeTokens.textInverted}"
-      >
-        <slot>{{ message }}</slot>
-      </div>
-
-      <div class="ui-snackbar-action">
-        <button
-          v-if="action"
-          class="ui-snackbar-action-button"
-          :style="{ color: $themeTokens.textInverted }"
-          @click.stop="onActionClick"
-        >
-          {{ action }}
-        </button>
-      </div>
+  <div class="ui-snackbar" @click="onClick">
+    <div
+      class="ui-snackbar-message"
+      :style="{color: $themeTokens.textInverted}"
+    >
+      <slot>{{ message }}</slot>
     </div>
-  </transition>
+
+    <div class="ui-snackbar-action">
+      <button
+        v-if="action"
+        class="ui-snackbar-action-button"
+        :style="{ color: $themeTokens.textInverted }"
+        @click.stop="onActionClick"
+      >
+        {{ action }}
+      </button>
+    </div>
+  </div>
 
 </template>
 
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-
   export default {
     name: 'KeenUiSnackbar',
-    mixins: [themeMixin],
     props: {
       message: String,
       action: String,
-      transition: {
-        type: String,
-        default: 'slide', // 'slide' or 'fade'
-      },
-    },
-
-    computed: {
-      transitionName() {
-        return 'ui-snackbar--transition-' + this.transition;
-      },
     },
 
     methods: {
@@ -63,14 +48,6 @@
 
       onActionClick() {
         this.$emit('action-click');
-      },
-
-      onEnter() {
-        this.$emit('show');
-      },
-
-      onLeave() {
-        this.$emit('hide');
       },
     },
   };

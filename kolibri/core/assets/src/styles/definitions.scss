@@ -11,23 +11,8 @@
     @import '~kolibri.styles.definitions';
 */
 
-@import './materialDesignElevations';
-
-$radius: 4px;
-$core-time: 0.25s;
-
-// from http://nicolasgallagher.com/micro-clearfix-hack/
-@mixin clearfix() {
-  zoom: 1;
-  &::after,
-  &::before {
-    display: table;
-    content: '';
-  }
-  &::after {
-    clear: both;
-  }
-}
+// Add items from the design system
+@import '~kolibri-components/src/styles/styleDefinitions';
 
 /*
   Mixins for font-family to ensure that the full fonts are not referenced until they've
@@ -47,11 +32,6 @@ $core-time: 0.25s;
   }
 }
 
-// Matches the Keen-UI/UiToolbar box-shadow property
-%ui-toolbar-box-shadow {
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
-}
-
 /*
   Use of this mixin can help prompt the browser to use the GPU for certain DOM elements.
   This can help with certain CSS animations and other transitions.
@@ -62,4 +42,20 @@ $core-time: 0.25s;
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 10000px;
+}
+
+// Use this mixin in select containers where the content is likely going to be
+// very large and mobile users may benefit from a smooth touch scroll experience.
+%momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+// Accelerate and decelerate easing functions from
+// from https://material.io/design/motion/speed.html#easing.
+%md-accelerate-func {
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+%md-decelerate-func {
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
 }

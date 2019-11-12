@@ -17,35 +17,31 @@
         />
       </p>
       <h1>
-        <KLabeledIcon>
-          <KIcon slot="icon" lesson />
-          {{ lesson.title }}
-        </KLabeledIcon>
+        <KLabeledIcon icon="lesson" :label="lesson.title" />
       </h1>
       <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
       <HeaderTable>
-        <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+        <HeaderTableRow :keyText="coachString('statusLabel')">
           <LessonActive slot="value" :active="lesson.active" />
         </HeaderTableRow>
         <HeaderTableRow
-          :keyText="coachStrings.$tr('descriptionLabel')"
-          :valueText="lesson.description || coachStrings.$tr('descriptionMissingLabel')"
+          :keyText="coachString('descriptionLabel')"
+          :valueText="lesson.description || coachString('descriptionMissingLabel')"
         />
       </HeaderTable>
 
-      <CoreTable :emptyMessage="coachStrings.$tr('lessonListEmptyState')">
+      <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('avgTimeSpentLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('avgTimeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
-              <KLabeledIcon>
-                <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
+              <KLabeledIcon :icon="tableRow.kind">
                 <KRouterLink
                   v-if="tableRow.kind === 'exercise'"
                   :text="tableRow.title"
@@ -84,12 +80,13 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
 
   export default {
     name: 'ReportsGroupReportLessonPage',
     components: {},
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];

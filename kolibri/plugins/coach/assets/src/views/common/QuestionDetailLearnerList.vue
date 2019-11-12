@@ -2,7 +2,7 @@
 
   <div :style="{ backgroundColor: $themeTokens.surface }">
     <h3 class="header">
-      {{ coachStrings.$tr('learnersLabel') }}
+      {{ coreString('learnersLabel') }}
     </h3>
 
     <ul ref="learnerList" class="history-list">
@@ -52,12 +52,11 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import { coachStringsMixin } from './commonCoachStrings';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'QuestionDetailLearnerList',
-    mixins: [coachStringsMixin, themeMixin],
+    mixins: [commonCoreStrings],
     props: {
       learners: {
         type: Array,

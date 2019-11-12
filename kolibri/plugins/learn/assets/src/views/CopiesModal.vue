@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('copies')"
-    :submitText="$tr('close')"
+    :submitText="coreString('closeAction')"
     @submit="$emit('submit')"
   >
     <transition mode="out-in">
@@ -45,19 +45,13 @@
 
   import toArray from 'lodash/toArray';
   import { mapActions } from 'vuex';
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import sortBy from 'lodash/sortBy';
   import { PageNames } from '../constants';
 
   export default {
     name: 'CopiesModal',
-    components: {
-      KModal,
-      KCircularLoader,
-      KRouterLink,
-    },
+    mixins: [commonCoreStrings],
     props: {
       uniqueId: {
         type: String,
@@ -98,7 +92,6 @@
     },
     $trs: {
       copies: 'Locations',
-      close: 'Close',
     },
   };
 

@@ -12,19 +12,20 @@ from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge
 from .sqlalchemybridge import ClassNotFoundError
 from kolibri.core.content.apps import KolibriContentConfig
+from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
+from kolibri.core.content.constants.schema_versions import NO_VERSION
+from kolibri.core.content.constants.schema_versions import V020BETA1
+from kolibri.core.content.constants.schema_versions import V040BETA3
+from kolibri.core.content.constants.schema_versions import VERSION_1
+from kolibri.core.content.constants.schema_versions import VERSION_2
+from kolibri.core.content.constants.schema_versions import VERSION_3
 from kolibri.core.content.legacy_models import License
 from kolibri.core.content.models import ChannelMetadata
-from kolibri.core.content.models import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentTag
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.models import NO_VERSION
-from kolibri.core.content.models import V020BETA1
-from kolibri.core.content.models import V040BETA3
-from kolibri.core.content.models import VERSION_1
-from kolibri.core.content.models import VERSION_2
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -100,7 +101,9 @@ class ChannelImport(object):
         File: {"per_row": {"available": "default_to_not_available"}},
     }
 
-    def __init__(self, channel_id, channel_version=None, cancel_check=None):
+    def __init__(
+        self, channel_id, channel_version=None, cancel_check=None, destination=None
+    ):
         self.channel_id = channel_id
         self.channel_version = channel_version
 
@@ -112,9 +115,19 @@ class ChannelImport(object):
 
         # Explicitly set the destination schema version to our latest published schema version
         # Not the current schema of the DB, as we do our mapping to the published versions.
-        self.destination = Bridge(
-            schema_version=CONTENT_SCHEMA_VERSION, app_name=CONTENT_APP_NAME
-        )
+        if destination is None:
+            # If no destination is set then we are targeting the default database
+            self.destination = Bridge(
+                schema_version=CONTENT_SCHEMA_VERSION, app_name=CONTENT_APP_NAME
+            )
+        else:
+            # If a destination is set then pass that explicitly. At the moment, this only supports
+            # importing to an arbitrary SQLite file path.
+            self.destination = Bridge(
+                sqlite_file_path=destination,
+                schema_version=CONTENT_SCHEMA_VERSION,
+                app_name=CONTENT_APP_NAME,
+            )
 
         content_app = apps.get_app_config(CONTENT_APP_NAME)
 
@@ -130,6 +143,8 @@ class ChannelImport(object):
         self.available_tree_id = self.find_unique_tree_id()
 
         self.default_to_not_available = 0
+
+        self.set_blank_text = ""
 
     def get_none(self, source_object):
         return None
@@ -433,10 +448,10 @@ class ChannelImport(object):
         self.destination.session.merge(RowEntry)
 
     def check_and_delete_existing_channel(self):
-        try:
-            existing_channel = ChannelMetadata.objects.get(id=self.channel_id)
-        except ChannelMetadata.DoesNotExist:
-            existing_channel = None
+        ChannelMetadataClass = self.destination.get_class(ChannelMetadata)
+        existing_channel = self.destination.session.query(ChannelMetadataClass).get(
+            self.channel_id
+        )
 
         if existing_channel:
 
@@ -452,7 +467,12 @@ class ChannelImport(object):
                         new_channel_version=self.channel_version,
                     )
                 )
-                self.delete_old_channel_data(existing_channel.root.tree_id)
+
+                root_node = self.destination.session.query(
+                    self.destination.get_class(ContentNode)
+                ).get(existing_channel.root_id)
+
+                self.delete_old_channel_data(root_node.tree_id)
             else:
                 # We have previously loaded this channel, with the same or newer version, so our work here is done
                 logger.warn(
@@ -530,7 +550,7 @@ class ChannelImport(object):
                 self.check_cancelled()
 
                 # execute the actual query
-                self.destination.session.execute(text(query))
+                self.destination.get_connection().execute(text(query))
 
     def check_cancelled(self):
         if callable(self.cancel_check):
@@ -587,6 +607,8 @@ class ChannelImport(object):
         except (SQLAlchemyError, ImportCancelError) as e:
             # Rollback the transaction if any error occurs during the transaction
             self.destination.session.rollback()
+            if self.destination.engine.name == "postgresql":
+                self.destination.get_raw_connection().rollback()
             self.try_detaching_sqlite_database()
             # Reraise the exception to prevent other errors occuring due to the non-completion
             raise e
@@ -704,6 +726,7 @@ mappings = {
     NO_VERSION: NoVersionChannelImport,
     VERSION_1: ChannelImport,
     VERSION_2: ChannelImport,
+    VERSION_3: ChannelImport,
 }
 
 

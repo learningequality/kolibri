@@ -31,7 +31,7 @@ class LearnerClassroomTestCase(APITestCase):
         )
         self.learner_user.set_password("password")
         self.learner_user.save()
-        self.basename = "kolibri:learn:learnerclassroom"
+        self.basename = "kolibri:kolibri.plugins.learn:learnerclassroom"
         self.own_classroom = Classroom.objects.create(
             name="Own Classroom", parent=self.facility
         )
@@ -171,7 +171,7 @@ class LearnerClassroomTestCase(APITestCase):
         self.assertEqual(len(get_response.data[0]["assignments"]["lessons"]), 0)
 
     def test_learner_only_sees_lessons_for_single_classroom_when_enrolled_in_multiple(
-        self
+        self,
     ):
         classroom = Classroom.objects.create(
             name="Other Classroom", parent=self.facility

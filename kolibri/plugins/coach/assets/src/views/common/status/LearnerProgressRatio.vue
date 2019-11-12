@@ -20,9 +20,7 @@
 
 <script>
 
-  import KTooltip from 'kolibri.coreVue.components.KTooltip';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import { coachStrings } from '../commonCoachStrings';
+  import { coachStringsMixin } from '../commonCoachStrings';
   import CoachStatusIcon from './CoachStatusIcon';
   import { statusStringsMixin, isValidVerb } from './statusStrings';
 
@@ -30,10 +28,8 @@
     name: 'LearnerProgressRatio',
     components: {
       CoachStatusIcon,
-      KLabeledIcon,
-      KTooltip,
     },
-    mixins: [statusStringsMixin],
+    mixins: [statusStringsMixin, coachStringsMixin],
     props: {
       verb: {
         type: String,
@@ -51,7 +47,7 @@
       },
       text() {
         if (!this.verbosityNumber) {
-          return coachStrings.$tr('ratioShort', { value: this.count, total: this.total });
+          return this.coachString('ratioShort', { value: this.count, total: this.total });
         }
         if (this.count === this.total && this.total > 2 && this.verb != 'notStarted') {
           return this.strings.$tr(this.shorten('allOfMoreThanTwo', this.verbosityNumber), {

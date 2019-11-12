@@ -97,7 +97,7 @@
   "DeviceTopNav.settingsLabel": "सेटिंग",
   "DriveList.drivesFound": "ड्राइव मिल गईं",
   "DriveList.noDriveWithSelectedChannelError": "चयनित चैनल के साथ की कोई ड्राइव सर्वर से जुड़ी नहीं है",
-  "DriveList.noExportableDrives": "जिनपर लिखा जा सकता है ऐसी कोई ड्राइव सर्वर से जुड़ी हुई नहीं है",
+  "DriveList.noExportableDrives": "सुरक्षित करने हेतु ड्राइव उपलब्ध नहीं है।",
   "DriveList.noImportableDrives": "कोलिब्री सामग्री वाली कोई ड्राइव सर्वर से जुड़ी नहीं है",
   "ManageContentPage.documentTitle": "उपकरण चैनल प्रबंधित करें",
   "ManageContentPage.export": "निर्यात",

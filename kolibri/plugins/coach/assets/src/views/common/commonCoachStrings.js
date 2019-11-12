@@ -2,156 +2,163 @@ import { createTranslator } from 'kolibri.utils.i18n';
 
 const coachStrings = createTranslator('CommonCoachStrings', {
   // actions
-  cancelAction: 'Cancel',
-  closeAction: 'Close',
-  continueAction: 'Continue',
   copyAction: 'Copy',
-  createAction: 'Create',
-  deleteAction: 'Delete',
-  editDetailsAction: 'Edit details',
-  finishAction: 'Finish',
-  goBackAction: 'Go back',
   manageResourcesAction: 'Manage resources',
-  newGroupAction: 'New group',
   newLessonAction: 'New lesson',
   newQuizAction: 'New quiz',
   previewAction: 'Preview',
-  saveAction: 'Save',
-  saveChangesAction: 'Save changes',
   renameAction: 'Rename',
-  showAction: 'Show',
+  viewAllAction: 'View all',
   showMoreAction: 'Show more',
-  sortedAscendingAction: 'Sort in ascending order',
-  sortedDescendingAction: 'Sort in descending order',
 
   // labels, phrases, titles, headers...
+  activeLabel: 'Active',
+  activeQuizzesLabel: 'Active quizzes',
   activityLabel: 'Activity',
-  answerLabel: 'Answer',
-  answersLabel: 'Answers',
-  answerHistoryLabel: 'Answer history',
-  attemptLabel: 'Attempt',
-  attemptsLabel: 'Attempts',
+  allQuizzesLabel: 'All quizzes',
   avgScoreLabel: 'Average score',
   avgTimeSpentLabel: 'Average time spent',
   avgQuizScoreLabel: 'Average quiz score',
-  channelLabel: 'Channel',
-  channelsLabel: 'Channels',
-  classLabel: 'Class',
-  classesLabel: 'Classes',
-  completedLabel: 'Completed',
-  coachLabel: 'Coach',
-  coachesLabel: 'Coaches',
+  backToLessonLabel: "Back to '{lesson}'",
+  classesLabel: 'Classes', // Kept for use in common.js
+  coachLabel: 'Coach', // Kept here for use in common.js
   descriptionLabel: 'Description',
   descriptionMissingLabel: 'No description',
   detailsLabel: 'Details',
   difficultQuestionsLabel: 'Difficult questions',
   entireClassLabel: 'Entire class',
   exercisesCompletedLabel: 'Exercises completed',
-  groupLabel: 'Group',
   groupNameLabel: 'Group name',
   groupsLabel: 'Groups',
   helpNeededLabel: 'Help needed',
-  inProgressLabel: 'In progress',
+  inactiveQuizzesLabel: 'Inactive quizzes',
   lastActivityLabel: 'Last activity',
-  learnerLabel: 'Learner',
-  learnersLabel: 'Learners',
-  lessonLabel: 'Lesson',
-  lessonActiveLabel: 'Active',
-  lessonInactiveLabel: 'Inactive',
-  lessonsLabel: 'Lessons',
+  inactiveLabel: 'Inactive',
+  learnersLabel: 'Learners', // Kept here for use in common.js
+  lessonsLabel: 'Lessons', // Kept here for use in common.js
   lessonsAssignedLabel: 'Lessons assigned',
-  lessonsCompletedLabel: 'Lessons completed',
   masteryModelLabel: 'Completion requirement',
   membersLabel: 'Members',
   nameLabel: 'Name',
-  namesLabel: 'Names',
-  notEnoughInformationLabel: 'Not enough information yet',
-  notStartedLabel: 'Not started',
-  optionsLabel: 'Options',
+  noResourcesInLessonLabel: 'No resources in this lesson',
   orderFixedLabel: 'Fixed',
-  orderFixedLabelLong: 'Fixed: each learner sees the same question order',
   orderFixedDescription: 'Each learner sees the same question order',
   orderRandomLabel: 'Randomized',
-  orderRandomLabelLong: 'Randomized: each learner sees a different question order',
   orderRandomDescription: 'Each learner sees a different question order',
   overallLabel: 'Overall',
   previewLabel: 'Preview',
-  progressLabel: 'Progress',
   questionLabel: 'Question',
+  questionsLabel: 'Questions', // Kept here for use in common.js
   questionOrderLabel: 'Question order',
-  questionsCorrectLabel: 'Questions correct',
-  questionsLabel: 'Questions',
-  quizLabel: 'Quiz',
-  quizActiveLabel: 'Active',
-  quizInactiveLabel: 'Inactive',
-  quizScoreLabel: 'Quiz score',
-  quizzesLabel: 'Quizzes',
+  quizClosedLabel: {
+    message: 'Quiz closed',
+    context:
+      'A label indicating that the currently viewed quiz is closed - meaning that learners may no longer give answers to the quiz.',
+  },
+  quizzesLabel: 'Quizzes', // Kept here for use in common.js
   quizzesAssignedLabel: 'Quizzes assigned',
-  quizzesCompletedLabel: 'Quizzes completed',
-  recipientLabel: 'Recipient',
   recipientsLabel: 'Recipients',
   reportLabel: 'Report',
   reportsLabel: 'Reports',
-  resourceTitleLabel: 'Resource title',
   resourcesViewedLabel: 'Resources viewed',
   scoreLabel: 'Score',
-  sortedAscendingLabel: '(sorted ascending)',
-  sortedDescendingLabel: '(sorted descending)',
   startedLabel: 'Started',
   statusLabel: 'Status',
   titleLabel: 'Title',
-  timeLabel: 'Time',
   timeSpentLabel: 'Time spent',
   ungroupedLearnersLabel: 'Ungrouped learners',
-  usernameLabel: 'Username',
-  viewsLabel: 'Views',
 
   // notifications
   updatedNotification: 'Updated',
   createdNotification: 'Created',
   deletedNotification: 'Deleted',
-  savedNotification: 'Saved',
 
   // empty states
   activityListEmptyState: 'There is no activity',
-  answerListEmptyState: 'There are no answers',
-  attemptListEmptyState: 'There are no attempts',
-  classListEmptyState: 'There are no classes',
   groupListEmptyState: 'There are no groups',
   learnerListEmptyState: 'There are no learners',
   lessonListEmptyState: 'There are no lessons',
-  recentActivityListEmptyState: 'There is no recent activity',
   questionListEmptyState: 'There are no questions',
   quizListEmptyState: 'There are no quizzes',
 
   // toggles
-  showCorrectAnswerLabel: 'Show correct answer',
   viewByGroupsLabel: 'View by groups',
 
   // formatted values
   integer: '{value, number, integer}',
-  combinedLabel: '{firstItem} / {secondItem}',
-  number: '{value, number}',
-  numberOfClasses: '{value, number, integer} {value, plural, one {class} other {classes}}',
-  numberOfCoaches: '{value, number, integer} {value, plural, one {coach} other {coaches}}',
-  numberOfGroups: '{value, number, integer} {value, plural, one {group} other {groups}}',
+  nthExerciseName: '{name} ({number, number, integer})',
   numberOfLearners: '{value, number, integer} {value, plural, one {learner} other {learners}}',
   numberOfQuestions: '{value, number, integer} {value, plural, one {question} other {questions}}',
   numberOfResources: '{value, number, integer} {value, plural, one {resource} other {resources}}',
-  numberOfViews: '{value, number, integer} {value, plural, one {view} other {views}}',
   percentage: '{value, number, percent}',
-  ratio: '{value, number, integer} out of {total, number, integer}',
   ratioShort: '{value, number, integer} of {total, number, integer}',
 
   // Errors
   quizDuplicateTitleError: 'A quiz with that name already exists',
   lessonDuplicateTitleError: 'A lesson with this name already exists',
+
+  // Quiz activation / closing / etc
+  reportVisibleLabel: {
+    message: 'Report visible',
+    context:
+      'A label used on a switch indicating that the learners can see their reports when the switch is turned "on"',
+  },
+  quizOpenedMessage: {
+    message: 'Quiz is open',
+    context: 'A brief snackbar message notifying the user that the quiz was successfully opened.',
+  },
+  quizFailedToOpenMessage: {
+    message: 'There was a problem opening the quiz. The quiz was not opened.',
+    context:
+      'A brief snackbar message notifying the user that there was an error trying to open the quiz and that the quiz is not open.',
+  },
+  quizClosedMessage: {
+    message: 'Quiz is closed',
+    context: 'A brief snackbar message notifying the user that the quiz was successfully closed.',
+  },
+  quizFailedToCloseMessage: {
+    message: 'There was a problem closing the quiz. The quiz was not closed.',
+    context:
+      'A brief snackbar message notifying the user that there was an error trying to close the quiz and that the quiz is not closed.',
+  },
+  quizVisibleToLearners: {
+    message: 'Quiz report is visible to learners',
+    context:
+      'A brief snackbar message notifying the user that learners may view their quiz report. It will show when the user changes a setting to make the quiz visible.',
+  },
+  quizNotVisibleToLearners: {
+    message: 'Quiz report is not visible to learners',
+    context:
+      'A brief snackbar message notifying the user that learners may no longer view their quiz report. It will show when the user changes a setting to make the quiz no longer visible.',
+  },
+  openQuizLabel: {
+    message: 'Open quiz',
+    context:
+      "Label for a button that, when clicked, will 'open' a quiz - making it active so that Learners may take the quiz.",
+  },
+  openQuizModalDetail: {
+    message:
+      'Opening the quiz will make it visible to learners and they will be able to answer questions',
+    context:
+      "Text shown on a modal pop-up window when the user clicks the 'Open Quiz' button. This explains what will happen when the user confirms the action of opening the quiz.",
+  },
+  closeQuizLabel: {
+    message: 'Close quiz',
+    context:
+      "Label for a button that, when clicked, will 'close' a quiz. This makes the quiz inactive and Learners will no longer be able to give answers.",
+  },
+  closeQuizModalDetail: {
+    message:
+      'All learners will be given a final score and a quiz report. Unfinished questions will be counted as incorrect.',
+    context:
+      "Text shown on a modal pop-up window when the user clicks the 'Close Quiz' button. This explains what will happen when the modal window is confirmed.",
+  },
 });
 
 const coachStringsMixin = {
-  computed: {
-    coachStrings() {
-      return coachStrings;
+  methods: {
+    coachString(key, args) {
+      return coachStrings.$tr(key, args);
     },
   },
 };

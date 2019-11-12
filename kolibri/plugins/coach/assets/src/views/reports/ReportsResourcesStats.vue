@@ -3,7 +3,7 @@
   <HeaderTable v-if="avgTime">
     <HeaderTableRow>
       <template slot="key">
-        {{ coachStrings.$tr('avgTimeSpentLabel') }}
+        {{ coachString('avgTimeSpentLabel') }}
       </template>
       <template slot="value">
         <TimeDuration :seconds="avgTime" />

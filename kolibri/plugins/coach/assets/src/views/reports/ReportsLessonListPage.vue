@@ -12,24 +12,23 @@
       <ReportsHeader />
       <KSelect
         v-model="filter"
-        :label="$tr('show')"
+        :label="coreString('showAction')"
         :options="filterOptions"
         :inline="true"
       />
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('recipientsLabel') }}</th>
-            <th>{{ coachStrings.$tr('statusLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
+            <th>{{ coachString('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" lesson />
+              <KLabeledIcon icon="lesson">
                 <KRouterLink
                   :text="tableRow.title"
                   :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
@@ -60,19 +59,16 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
-  import LessonsRootPage from '../plan/LessonsRootPage';
   import ReportsHeader from './ReportsHeader';
-
-  const LessonsRootPageStrings = crossComponentTranslator(LessonsRootPage);
 
   export default {
     name: 'ReportsLessonListPage',
     components: {
       ReportsHeader,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         filter: 'allLessons',
@@ -81,13 +77,13 @@
     computed: {
       emptyMessage() {
         if (this.filter.value === 'allLessons') {
-          return this.coachStrings.$tr('lessonListEmptyState');
+          return this.coachString('lessonListEmptyState');
         }
         if (this.filter.value === 'activeLessons') {
-          return LessonsRootPageStrings.$tr('noActiveLessons');
+          return this.$tr('noActiveLessons');
         }
         if (this.filter.value === 'inactiveLessons') {
-          return LessonsRootPageStrings.$tr('noInactiveLessons');
+          return this.$tr('noInactiveLessons');
         }
 
         return '';
@@ -95,7 +91,7 @@
       filterOptions() {
         return [
           {
-            label: this.$tr('allLessons'),
+            label: this.coreString('allLessonsLabel'),
             value: 'allLessons',
           },
           {
@@ -136,10 +132,10 @@
       this.filter = this.filterOptions[0];
     },
     $trs: {
-      show: 'Show',
-      allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
+      noActiveLessons: 'No active lessons',
+      noInactiveLessons: 'No inactive lessons',
     },
   };
 

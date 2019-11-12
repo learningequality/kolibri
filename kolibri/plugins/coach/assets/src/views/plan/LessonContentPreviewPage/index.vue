@@ -3,15 +3,19 @@
   <MultiPaneLayout>
     <div slot="header">
       <KGrid>
-        <KGridItem sizes="100, 50, 50" percentage>
+        <KGridItem
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+        >
           <h1>
-            <KLabeledIcon>
-              <KBasicContentIcon slot="icon" :kind="content.kind" />
-              {{ content.title }}
-            </KLabeledIcon>
+            <KLabeledIcon :icon="content.kind" :label="content.title" />
           </h1>
         </KGridItem>
-        <KGridItem sizes="100, 50, 50" percentage alignment="right">
+        <KGridItem
+          :layout="{ alignment: 'right' }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+        >
           <SelectOptions
             v-if="displaySelectOptions"
             class="select-options ib"
@@ -74,11 +78,8 @@
 
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KBasicContentIcon from 'kolibri.coreVue.components.KBasicContentIcon';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
   import markdownIt from 'markdown-it';
   import QuestionList from './QuestionList';
@@ -93,17 +94,14 @@
       };
     },
     components: {
-      KBasicContentIcon,
-      KLabeledIcon,
       QuestionList,
       ContentArea,
       SelectOptions,
       CoachContentLabel,
       InfoIcon,
-      KGrid,
-      KGridItem,
       MultiPaneLayout,
     },
+    mixins: [commonCoreStrings],
     props: {
       currentContentNode: {
         type: Object,
@@ -184,13 +182,11 @@
           return '';
         }
         const questionNumber = questionIndex + 1;
-        return this.$tr('questionLabel', { questionNumber });
+        return this.coreString('questionNumberLabel', { questionNumber });
       },
     },
     $trs: {
-      questionLabel: 'Question { questionNumber, number }',
       completionRequirements: 'Completion: {correct, number} out of {total, number} correct',
-      descriptionDataHeader: 'Description',
       authorDataHeader: 'Author',
       licenseDataHeader: 'License',
       copyrightHolderDataHeader: 'Copyright holder',

@@ -23,29 +23,6 @@ PERSEUS_LOCALE_PATH = os.path.join(
 )
 PERSEUS_SOURCE_PATH = os.path.join(PERSEUS_LOCALE_PATH, "en", "LC_MESSAGES")
 
-PERSEUS_NOT_INSTALLED_FOR_DEV = """
-Clone https://github.com/learningequality/kolibri-exercise-perseus-plugin/
-and ensure that it has been checked out the the correct commit.
-
-Install it in Kolibri in development mode:
-
-    pip install -e [local_path_to_perseus_repo]
-
-For more information see:
-https://kolibri-dev.readthedocs.io/en/develop/i18n.html#updating-the-perseus-plugin
-"""
-
-
-if not (os.path.exists(PERSEUS_LOCALE_PATH)):
-    logging.error("Cannot find Perseus locale directory.")
-    logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
-    sys.exit(1)
-elif "/site-packages/" in PERSEUS_LOCALE_PATH:
-    logging.error("It appears that Perseus is not installed for development.")
-    logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
-    sys.exit(1)
-
-
 # Keys used in supported_languages.json
 KEY_CROWDIN_CODE = "crowdin_code"
 KEY_INTL_CODE = "intl_code"
@@ -113,25 +90,59 @@ def local_locale_path(lang_object):
 
 
 @memoize
+def local_locale_csv_path():
+    return os.path.join(LOCALE_PATH, "CSV_FILES")
+
+
+@memoize
 def local_perseus_locale_path(lang_object):
     return os.path.join(
         PERSEUS_LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
     )
 
 
-def json_dump_formatted(data, file_path):
+@memoize
+def local_perseus_locale_csv_path():
+    return os.path.join(PERSEUS_LOCALE_PATH, "CSV_FILES")
+
+
+def json_dump_formatted(data, file_path, file_name):
     """
     dump json in a way that plays nicely with source control and our precommit hooks:
     - prevents trailing whitespace
     - sorted keys
     - make sure it's utf-8
     """
-    with io.open(file_path, mode="w", encoding="utf-8") as file_object:
-        json.dump(
-            data,
-            file_object,
-            sort_keys=True,
-            indent=2,
-            separators=(",", ": "),
-            ensure_ascii=False,
-        )
+
+    # Ensure that the directory exists for the file to be opened inside of.
+    try:
+        os.makedirs(file_path)
+    except:
+        # Path already exists
+        pass
+
+    # Join the filename to the path which we now know exists for sure.
+    file_path_with_file_name = os.path.join(file_path, file_name)
+
+    # Format and write the JSON file
+    with io.open(file_path_with_file_name, mode="w+", encoding="utf-8") as file_object:
+        # Manage unicode for the JSON dumping
+        if sys.version_info[0] < 3:
+            output = json.dumps(
+                data,
+                sort_keys=True,
+                indent=2,
+                separators=(",", ": "),
+                ensure_ascii=False,
+            )
+            output = unicode(output, "utf-8")
+            file_object.write(output)
+        else:
+            json.dump(
+                data,
+                file_object,
+                sort_keys=True,
+                indent=2,
+                separators=(",", ": "),
+                ensure_ascii=False,
+            )

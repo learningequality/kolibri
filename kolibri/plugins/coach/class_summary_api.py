@@ -1,4 +1,6 @@
 from django.db.models import Count
+from django.db.models import Case
+from django.db.models import When
 from django.db.models import Max
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
@@ -28,7 +30,7 @@ HELP_NEEDED = "HelpNeeded"
 COMPLETED = "Completed"
 
 
-def content_status_serializer(lesson_data, learners_data, classroom):
+def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C901
 
     # First generate a unique set of content node ids from all the lessons
     lesson_node_ids = set()
@@ -36,11 +38,12 @@ def content_status_serializer(lesson_data, learners_data, classroom):
         lesson_node_ids |= set(lesson.get("node_ids"))
 
     # Now create a map of content_id to node_id so that we can map between lessons, and notifications
-    # which use the node id, and summary logs, which use content_id
+    # which use the node id, and summary logs, which use content_id. Note that many node_ids may map
+    # to the same content_id.
     content_map = {
         n[0]: n[1]
         for n in ContentNode.objects.filter(id__in=lesson_node_ids).values_list(
-            "content_id", "id"
+            "id", "content_id"
         )
     }
 
@@ -48,7 +51,7 @@ def content_status_serializer(lesson_data, learners_data, classroom):
     # relevant content items.
     content_log_values = (
         logger_models.ContentSummaryLog.objects.filter(
-            content_id__in=set(content_map.keys()),
+            content_id__in=set(content_map.values()),
             user__in=[learner["id"] for learner in learners_data],
         )
         .annotate(attempts=Count("masterylogs__attemptlogs"))
@@ -96,17 +99,19 @@ def content_status_serializer(lesson_data, learners_data, classroom):
         current progress.
         """
         content_id = log["content_id"]
-        if content_id in content_map:
+        if content_id in content_map.values():
             # Don't try to lookup anything if we don't know the content_id
             # node_id mapping - might happen if a channel has since been deleted
-            key = lookup_key.format(
-                user_id=log["user_id"], node_id=content_map[content_id]
-            )
-            if key in needs_help:
-                # Now check if we have not already registered completion of the content node
-                # or if we have and the timestamp is earlier than that on the needs_help event
-                if key not in completed or completed[key] < needs_help[key]:
-                    return HELP_NEEDED
+            content_ids = [
+                key for key, value in content_map.items() if value == content_id
+            ]
+            for c_id in content_ids:
+                key = lookup_key.format(user_id=log["user_id"], node_id=c_id)
+                if key in needs_help:
+                    # Now check if we have not already registered completion of the content node
+                    # or if we have and the timestamp is earlier than that on the needs_help event
+                    if key not in completed or completed[key] < needs_help[key]:
+                        return HELP_NEEDED
         if log["progress"] == 1:
             return COMPLETED
         if log["kind"] == content_kinds.EXERCISE:
@@ -136,6 +141,7 @@ class ExamStatusSerializer(KolibriModelSerializer):
     learner_id = serializers.PrimaryKeyRelatedField(source="user", read_only=True)
     last_activity = DateTimeTzField()
     num_correct = serializers.SerializerMethodField()
+    num_answered = serializers.SerializerMethodField()
 
     def get_status(self, exam_log):
         if exam_log.closed:
@@ -145,16 +151,34 @@ class ExamStatusSerializer(KolibriModelSerializer):
 
     def get_num_correct(self, exam_log):
         return (
-            exam_log.attemptlogs.values_list("item")
+            exam_log.attemptlogs.values_list("item", "content_id")
             .order_by("completion_timestamp")
             .distinct()
             .aggregate(Sum("correct"))
             .get("correct__sum")
         )
 
+    def get_num_answered(self, exam_log):
+        return (
+            exam_log.attemptlogs.values_list("item", "content_id")
+            .order_by("completion_timestamp")
+            .distinct()
+            .aggregate(
+                complete__sum=Count(Case(When(complete=True, then=1), default=0))
+            )
+            .get("complete__sum")
+        )
+
     class Meta:
         model = logger_models.ExamLog
-        fields = ("exam_id", "learner_id", "status", "last_activity", "num_correct")
+        fields = (
+            "exam_id",
+            "learner_id",
+            "status",
+            "last_activity",
+            "num_correct",
+            "num_answered",
+        )
 
 
 class GroupSerializer(KolibriModelSerializer):
@@ -221,6 +245,9 @@ class ExamAssignmentsField(serializers.RelatedField):
 class ExamSerializer(KolibriModelSerializer):
 
     question_sources = ExamQuestionSourcesField(default=[])
+    date_created = DateTimeTzField()
+    date_archived = DateTimeTzField()
+    date_activated = DateTimeTzField()
 
     # classes are in here, and filtered out later to create `groups`
     assignments = ExamAssignmentsField(many=True, read_only=True)
@@ -239,6 +266,11 @@ class ExamSerializer(KolibriModelSerializer):
             "data_model_version",
             "question_count",
             "learners_see_fixed_order",
+            "seed",
+            "date_created",
+            "date_archived",
+            "date_activated",
+            "archive",
         )
 
 

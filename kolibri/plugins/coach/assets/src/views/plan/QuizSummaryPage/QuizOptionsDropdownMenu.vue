@@ -1,9 +1,9 @@
 <template>
 
   <KDropdownMenu
-    :text="coachStrings.$tr('optionsLabel')"
+    :text="coreString('optionsLabel')"
     :options="options"
-    appearance="raised-button"
+    appearance="flat-button"
     :primary="false"
     @select="$emit('select', $event.value)"
   />
@@ -13,26 +13,26 @@
 
 <script>
 
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'QuizOptionsDropdownMenu',
-    components: {
-      KDropdownMenu,
-    },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       // Should be either 'report' or 'plan',
       optionsFor: {
         type: String,
         required: true,
+        validator(opt) {
+          return ['plan', 'report'].includes(opt);
+        },
       },
     },
     computed: {
       options() {
         const editDetails = {
-          label: this.coachStrings.$tr('editDetailsAction'),
+          label: this.coreString('editDetailsAction'),
           value: 'EDIT_DETAILS',
         };
         if (this.optionsFor === 'plan') {
@@ -42,12 +42,12 @@
               label: this.$tr('copyQuizAction'),
               value: 'COPY',
             },
-            { label: this.coachStrings.$tr('deleteAction'), value: 'DELETE' },
+            { label: this.coreString('deleteAction'), value: 'DELETE' },
           ];
         }
         return [
           {
-            label: this.coachStrings.$tr('previewAction'),
+            label: this.coachString('previewAction'),
             value: 'PREVIEW',
           },
           editDetails,

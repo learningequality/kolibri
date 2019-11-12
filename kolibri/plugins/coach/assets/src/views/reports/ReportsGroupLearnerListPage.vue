@@ -11,21 +11,20 @@
 
     <KPageContainer>
       <ReportsGroupHeader />
-      <CoreTable :emptyMessage="coachStrings.$tr('learnerListEmptyState')">
+      <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('nameLabel') }}</th>
-            <th>{{ coachStrings.$tr('avgQuizScoreLabel') }}</th>
-            <th>{{ coachStrings.$tr('exercisesCompletedLabel') }}</th>
-            <th>{{ coachStrings.$tr('resourcesViewedLabel') }}</th>
-            <th>{{ coachStrings.$tr('lastActivityLabel') }}</th>
+            <th>{{ coachString('nameLabel') }}</th>
+            <th>{{ coachString('avgQuizScoreLabel') }}</th>
+            <th>{{ coachString('exercisesCompletedLabel') }}</th>
+            <th>{{ coachString('resourcesViewedLabel') }}</th>
+            <th>{{ coachString('lastActivityLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" person />
+              <KLabeledIcon icon="person">
                 <KRouterLink
                   :text="tableRow.name"
                   :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
@@ -33,8 +32,8 @@
               </KLabeledIcon>
             </td>
             <td><Score :value="tableRow.avgScore" /></td>
-            <td>{{ coachStrings.$tr('integer', {value: tableRow.exercises}) }}</td>
-            <td>{{ coachStrings.$tr('integer', {value: tableRow.resources}) }}</td>
+            <td>{{ coachString('integer', {value: tableRow.exercises}) }}</td>
+            <td>{{ coachString('integer', {value: tableRow.resources}) }}</td>
             <td><ElapsedTime :date="tableRow.lastActivity" /></td>
           </tr>
         </transition-group>
