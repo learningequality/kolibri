@@ -105,9 +105,12 @@
         if (forChannels) {
           const count = this.selectedObjects.length;
           if (count === 0) {
-            return this.$tr('zeroChannelsSelected');
+            return this.$tr('channelsSelectedNoFileSize', { count: 0 });
+          } else if (!this.selectedObjectsFileSize) {
+            // NOTE: when importing from drive, file sizes aren't known for whole channels
+            return this.$tr('channelsSelectedNoFileSize', { count });
           } else {
-            return this.$tr('someChannelsSelected', {
+            return this.$tr('channelsSelectedWithFileSize', {
               count,
               bytesText: this.bytesText,
             });
@@ -142,8 +145,9 @@
       deleteAction: 'Delete',
       deleteFromDeviceAction: 'Delete from device',
       exportToAction: 'Export to…',
-      zeroChannelsSelected: '0 channels selected',
-      someChannelsSelected:
+      channelsSelectedNoFileSize:
+        '{count, number} {count, plural, one {channel} other {channels}} selected',
+      channelsSelectedWithFileSize:
         '{count} {count, plural, one {channel} other {channels}} selected ({bytesText})',
       zeroResourcesSelected: '0 resources selected',
       someResourcesSelected:

@@ -232,6 +232,7 @@
       goToImportMultiple() {
         this.$router.push({
           query: {
+            ...this.$route.query,
             multiple: true,
           },
         });

@@ -5,5 +5,6 @@ export default createTranslator('CommonDeviceStrings', {
   notEnoughSpaceWarning:
     'Not enough space available on your device. Clear up disk space or select fewer channels',
   importMoreAction: 'Import more',
-  channelSelectedMessage: '{bytesText} selected',
+  channelSelectedWithFileSize: '{bytesText} selected',
+  channelSelectedNoFileSize: 'Selected',
 });

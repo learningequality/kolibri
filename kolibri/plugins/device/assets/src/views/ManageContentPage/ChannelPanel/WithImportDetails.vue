@@ -63,9 +63,7 @@
 
     <div class="col-3">
       <p v-if="multipleMode && $attrs.checked" class="selected-msg">
-        {{ deviceStrings.$tr('channelSelectedMessage', {
-          bytesText: bytesForHumans(channel.total_file_size)
-        }) }}
+        {{ channelSelectedMessage }}
       </p>
       <KRouterLink
         v-if="(inImportMode || inExportMode) && !multipleMode"
@@ -131,6 +129,18 @@
       ...mapGetters('manageContent', ['channelIsInstalled', 'activeTaskList']),
       deviceStrings() {
         return deviceStrings;
+      },
+      channelSelectedMessage() {
+        // Can't show file sizes when importing from drive
+        if (this.channel.total_file_size) {
+          // eslint-disable-next-line
+          return this.deviceStrings.$tr('channelSelectedWithFileSize', {
+            bytesText: this.bytesForHumans(this.channel.total_file_size),
+          });
+        } else {
+          // eslint-disable-next-line
+          return this.deviceStrings.$tr('channelSelectedNoFileSize');
+        }
       },
       inImportMode() {
         return this.mode === Modes.IMPORT;
