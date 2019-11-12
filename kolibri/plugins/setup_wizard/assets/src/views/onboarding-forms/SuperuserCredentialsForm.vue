@@ -105,7 +105,7 @@
         usernameValid: false,
         password: superuser.password,
         passwordValid: false,
-        birthYear: superuser.birthYear,
+        birthYear: superuser.birth_year,
         gender: superuser.gender,
         formSubmitted: false,
       };

@@ -30,7 +30,7 @@ export default {
         username: '',
         password: '',
         gender: DemographicConstants.NOT_SPECIFIED,
-        birthYear: DemographicConstants.NOT_SPECIFIED,
+        birth_year: DemographicConstants.NOT_SPECIFIED,
       },
     },
     loading: false,
