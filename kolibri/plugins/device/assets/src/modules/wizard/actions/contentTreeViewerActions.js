@@ -17,8 +17,17 @@ function isDescendantOrSelf(testNode, selfNode) {
  * @returns {Promise<{total_file_size, on_device_file_size}>}
  *
  */
-export function getContentNodeFileSize(node) {
-  return ContentNodeFileSizeResource.fetchModel({ id: node.id });
+function getContentNodeFileSize(store, node) {
+  const fetchArgs = {};
+  if (store.getters['inLocalImportMode']) {
+    const { selectedDrive } = store.state;
+    fetchArgs.importing_from_drive_id = selectedDrive.id;
+  }
+  if (store.getters['inPeerImportMode']) {
+    const { selectedPeer } = store.state;
+    fetchArgs.importing_from_peer_id = selectedPeer.id;
+  }
+  return ContentNodeFileSizeResource.fetchModel({ id: node.id, getParams: fetchArgs });
 }
 
 /**
@@ -42,7 +51,7 @@ export function addNodeForTransfer(store, node) {
   if (notToIncluded.length > 0) {
     store.commit('REPLACE_INCLUDE_LIST', toInclude);
   }
-  return getContentNodeFileSize(node).then(fileSizes => {
+  return getContentNodeFileSize(store, node).then(fileSizes => {
     store.commit('ADD_NODE_TO_INCLUDE_LIST', {
       ...node,
       ...fileSizes,
@@ -77,7 +86,7 @@ export function removeNodeForTransfer(store, node) {
     if (notToOmit.length > 0) {
       store.commit('REPLACE_OMIT_LIST', toOmit);
     }
-    promise = getContentNodeFileSize(node)
+    promise = getContentNodeFileSize(store, node)
       .then(fileSizes => {
         store.commit('ADD_NODE_TO_OMIT_LIST', {
           ...node,
