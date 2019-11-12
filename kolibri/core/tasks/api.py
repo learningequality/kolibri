@@ -581,7 +581,7 @@ def _remoteimport(
 
 def _diskimport(
     channel_id,
-    drive_id,
+    directory,
     update_progress=None,
     check_for_cancel=None,
     node_ids=None,
@@ -591,17 +591,17 @@ def _diskimport(
 
     call_command(
         "importchannel",
-        "network",
+        "disk",
         channel_id,
-        drive_id,
+        directory,
         update_progress=update_progress,
         check_for_cancel=check_for_cancel,
     )
     call_command(
         "importcontent",
-        "network",
+        "disk",
         channel_id,
-        drive_id,
+        directory,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         update_progress=update_progress,

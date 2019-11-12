@@ -85,6 +85,7 @@
       v-if="multipleMode"
       objectType="channel"
       actionType="import"
+      :disabled="disableBottomBar"
       :selectedObjects="selectedChannels"
       :fileSize.sync="fileSize"
       @clickconfirm="handleClickConfirm"
@@ -100,6 +101,7 @@
   import { mapState, mapMutations, mapGetters } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { TaskResource } from 'kolibri.resources';
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
@@ -131,6 +133,7 @@
         selectedChannels: [],
         fileSize: 0,
         freeSpace: null,
+        disableBottomBar: false,
       };
     },
     computed: {
@@ -263,10 +266,29 @@
       },
       handleClickConfirm() {
         // Disable button
+        this.disableBottomBar = true;
         // reset freeSpace
+
         // Make call to deviceinfo
         // Compare this.fileSize with deviceinfo content_storage_free_space
         // toggle if notEnoughFreeSpace
+        // start import
+        this.startMultipleChannelImport();
+      },
+      startMultipleChannelImport() {
+        const taskParams = this.selectedChannels.map(x => ({
+          channel_id: x.id,
+          drive_id: this.$route.query.drive_id,
+        }));
+        return TaskResource.startDiskBulkImport(taskParams)
+          .then(tasks => {
+            console.log(tasks);
+            this.disableBottomBar = false;
+          })
+          .catch(err => {
+            console.log(err);
+            this.disableBottomBar = false;
+          });
       },
     },
     $trs: {
