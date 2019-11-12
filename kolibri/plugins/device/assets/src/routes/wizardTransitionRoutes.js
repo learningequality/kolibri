@@ -37,6 +37,7 @@ export default [
   {
     name: ContentWizardPages.SELECT_CONTENT,
     component: withAuthMessage(SelectContentPage, 'contentManager'),
+    // Also has optional queries for ?node, ?drive_id, ?address_id
     path: '/content/channels/:channel_id',
     handler: toRoute => {
       const { query, params } = toRoute;

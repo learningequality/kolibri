@@ -36,6 +36,12 @@
       AddAddressForm,
       SelectAddressForm,
     },
+    props: {
+      manageMode: {
+        type: Boolean,
+        required: false,
+      },
+    },
     data() {
       return {
         stage: Stages.SELECT_ADDRESS,
@@ -65,12 +71,19 @@
         this.createSnackbar(this.$tr('removeAddressSnackbarText'));
       },
       handleSelectAddressSubmit(address) {
-        if (this.isImportingMore) {
-          this.$router.push(
-            selectContentPageLink({ addressId: address.id, channelId: this.transferredChannel.id })
-          );
+        if (this.manageMode) {
+          this.$emit('submit', { addressId: address.id });
         } else {
-          this.$router.push(availableChannelsPageLink({ addressId: address.id }));
+          if (this.isImportingMore) {
+            this.$router.push(
+              selectContentPageLink({
+                addressId: address.id,
+                channelId: this.transferredChannel.id,
+              })
+            );
+          } else {
+            this.$router.push(availableChannelsPageLink({ addressId: address.id }));
+          }
         }
       },
     },

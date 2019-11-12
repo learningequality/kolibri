@@ -230,9 +230,12 @@
             title = this.$tr('kolibriStudioLabel');
           }
         } else if (this.inPeerImportMode) {
-          title = `${this.selectedPeer.device_name} (${this.selectedPeer.base_url})`;
+          title = this.$tr('importingFromPeer', {
+            deviceName: this.selectedPeer.device_name,
+            url: this.selectedPeer.base_url,
+          });
         } else if (this.inLocalImportMode) {
-          title = this.selectedDrive.name;
+          title = this.$tr('importingFromDrive', { driveName: this.selectedDrive.name });
         }
 
         if (title) {
@@ -349,6 +352,8 @@
       selectContent: "Select content from '{channelName}'",
       update: 'Update',
       kolibriStudioLabel: 'Kolibri Studio',
+      importingFromDrive: `Importing from drive '{driveName}'`,
+      importingFromPeer: `Importing from '{deviceName}' ({url})`,
     },
   };
 

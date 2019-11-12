@@ -7,8 +7,19 @@
       @submit="nextState"
       @cancel="emitCancel"
     />
-    <SelectDriveModal v-if="atSelectDrive" :manageMode="manageMode" />
-    <SelectNetworkAddressModal v-if="atSelectNetworkAddress" :manageMode="manageMode" />
+    <SelectDriveModal
+      v-if="atSelectDrive"
+      :manageMode="manageMode"
+      @submit="nextState"
+      @cancel="emitCancel"
+    />
+    <SelectNetworkAddressModal
+      v-if="atSelectNetworkAddress"
+      :manageMode="manageMode"
+      @submit="nextState"
+      @cancel="emitCancel"
+    />
+
   </div>
 
 </template>
@@ -57,12 +68,24 @@
       emitCancel() {
         this.$emit('cancel');
       },
-      // In manage mode, 'pageName' is synced with ManageChannelsPage
+      // Modals will only trigger this callback in manage mode. In vuex-based top-level
+      // workflow, the child modals still trigger vuex actions to progress in wizard.
       nextState(data) {
-        if (this.pageName === ContentWizardPages.SELECT_IMPORT_SOURCE) {
+        if (this.atSelectImportSource) {
           if (data.source === ContentSources.KOLIBRI_STUDIO) {
             this.$emit('submit', { source: ContentSources.KOLIBRI_STUDIO });
+          } else if (data.source === ContentSources.LOCAL_DRIVE) {
+            this.$emit('update:pageName', ContentWizardPages.SELECT_DRIVE);
+          } else if (data.source === ContentSources.PEER_KOLIBRI_SERVER) {
+            this.$emit('update:pageName', ContentWizardPages.SELECT_NETWORK_ADDRESS);
           }
+        } else if (this.atSelectDrive) {
+          this.$emit('submit', { source: ContentSources.LOCAL_DRIVE, drive_id: data.driveId });
+        } else if (this.atSelectNetworkAddress) {
+          this.$emit('submit', {
+            source: ContentSources.PEER_KOLIBRI_SERVER,
+            address_id: data.addressId,
+          });
         }
       },
     },

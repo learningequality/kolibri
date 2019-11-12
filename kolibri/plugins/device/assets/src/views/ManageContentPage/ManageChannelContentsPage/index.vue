@@ -75,6 +75,7 @@
   import SelectionBottomBar from '../SelectionBottomBar';
   import SelectTransferSourceModal from '../SelectTransferSourceModal';
   import taskNotificationMixin from '../../taskNotificationMixin';
+  import { ContentSources } from '../../../constants';
 
   import { fetchPageData, fetchNodeWithAncestors, startExportTask, startDeleteTask } from './api';
 
@@ -224,23 +225,34 @@
         this.createTaskFailedSnackbar();
       },
       handleSelectImportMoreSource(params) {
-        if (params.source === 'network') {
-          this.$router.push({
-            name: 'SELECT_CONTENT',
-            params: {
-              channel_id: this.channelId,
-            },
-            query: {
-              last: 'MANAGE_CHANNEL',
-            },
-          });
+        // The modal will only emit 'submit' events at the very end of the wizard.
+        // This method will send user to the correct URL for SELECT_CONTENT, depending
+        // on whether we are importing more from studio/drive/p2p.
+        // Page changes for multi-step wizards are handled by the modal's nextStep method.
+        const baseLinkObject = {
+          name: 'SELECT_CONTENT',
+          params: {
+            channel_id: this.channelId,
+          },
+          query: {
+            last: 'MANAGE_CHANNEL',
+          },
+        };
+
+        if (params.source === ContentSources.LOCAL_DRIVE) {
+          baseLinkObject.query.drive_id = params.drive_id;
+        } else if (params.source === ContentSources.PEER_KOLIBRI_SERVER) {
+          baseLinkObject.query.address_id = params.address_id;
         }
+
+        this.$router.push(baseLinkObject);
       },
       closeModal() {
         this.shownModal = null;
       },
       // @public (used by taskNotificationMixin)
       onWatchedTaskFinished() {
+        // For exports, there are no side effects once task has finished.
         if (this.watchedTaskType !== 'DELETECHANNEL') return;
 
         // clear out the nodeCache

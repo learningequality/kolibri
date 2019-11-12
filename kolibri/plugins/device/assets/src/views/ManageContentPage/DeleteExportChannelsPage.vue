@@ -171,18 +171,17 @@
       },
       exportChannels(params) {
         return TaskResource.startDiskBulkExport(
-          this.selectedChannels
-            .map(({ id }) => ({
-              channel_id: id,
-              drive_id: params.driveId,
-            }))
-            .then(task => {
-              this.notifyAndWatchTask(task);
-            })
-            .catch(() => {
-              this.createTaskFailedSnackbar();
-            })
-        );
+          this.selectedChannels.map(({ id }) => ({
+            channel_id: id,
+            drive_id: params.driveId,
+          }))
+        )
+          .then(task => {
+            this.notifyAndWatchTask(task);
+          })
+          .catch(() => {
+            this.createTaskFailedSnackbar();
+          });
       },
       handleClickConfirm() {
         this.showModal = true;
