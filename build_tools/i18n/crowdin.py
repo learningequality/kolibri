@@ -75,7 +75,9 @@ CROWDIN_PROJECT = "kolibri"  # crowdin project name
 CROWDIN_API_KEY = os.environ["CROWDIN_API_KEY"]
 CROWDIN_API_URL = "https://api.crowdin.com/api/project/{proj}/{cmd}?key={key}{params}"
 
-PERSEUS_CSV = "kolibri_exercise_perseus_plugin.exercise_perseus_render_module-messages.csv"
+PERSEUS_CSV = (
+    "kolibri_exercise_perseus_plugin.exercise_perseus_render_module-messages.csv"
+)
 GLOSSARY_XML_FILE = "glossary.tbx"
 
 DETAILS_URL = CROWDIN_API_URL.format(
@@ -301,7 +303,6 @@ def _csv_to_json():
             else:
                 csv_path = os.path.join(csv_locale_dir_path, file_name)
 
-
             # Account for csv reading differences in Pythons 2 and 3
             try:
                 if sys.version_info[0] < 3:
@@ -393,7 +394,9 @@ def download_translations(branch):
         z.extractall(target)
 
         # hack for perseus
-        perseus_target = os.path.join(utils.local_perseus_locale_csv_path(), lang_object["crowdin_code"])
+        perseus_target = os.path.join(
+            utils.local_perseus_locale_csv_path(), lang_object["crowdin_code"]
+        )
         ## TODO - Update this to work with perseus properly - likely to need to update
         ## the kolibri-exercise-perseus-plugin repo directly to produce a CSV for its
         ## translations.
