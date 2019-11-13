@@ -94,9 +94,6 @@
     },
     computed: {
       ...mapState('manageContent/wizard', ['nodesForTransfer']),
-      inExportMode() {
-        return this.manageMode;
-      },
       currentTopicNode() {
         if (this.node) {
           return this.node;
@@ -172,7 +169,7 @@
       },
       annotatedChildNodes() {
         return this.childNodesWithPath.map(n =>
-          annotateNode(n, this.nodesForTransfer, !this.inExportMode)
+          annotateNode(n, this.nodesForTransfer, !this.manageMode)
         );
       },
       showableAnnotatedChildNodes() {
@@ -192,7 +189,7 @@
         return annotateNode(
           { ...this.currentTopicNode, path: [...this.path] },
           selections,
-          !this.inExportMode
+          !this.manageMode
         );
       },
     },

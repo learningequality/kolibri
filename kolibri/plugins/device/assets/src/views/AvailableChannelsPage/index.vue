@@ -25,16 +25,9 @@
 
       <template v-slot:abovechannels>
         <KButton
-          v-if="!multipleMode"
           appearance="basic-link"
-          :text="$tr('selectEntireChannels')"
-          @click="goToImportMultiple"
-        />
-        <KButton
-          v-else
-          appearance="basic-link"
-          :text="$tr('selectTopicsAndResources')"
-          @click="goToImportSingle"
+          :text="multipleMode ? $tr('selectTopicsAndResources') : $tr('selectEntireChannels')"
+          @click="toggleMultipleMode"
         />
         <section v-if="notEnoughFreeSpace">
           {{ $tr('notEnoughSpaceForChannelsWarning') }}
@@ -65,7 +58,6 @@
             :key="channel.id"
             :channel="channel"
             :onDevice="channelIsOnDevice(channel)"
-            :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
             :multipleMode="multipleMode"
             :checked="itemIsSelected(channel)"
             @clickselect="goToSelectContentPageForChannel(channel)"
@@ -150,7 +142,6 @@
         'inLocalImportMode',
         'inRemoteImportMode',
         'inPeerImportMode',
-        'inExportMode',
         'isStudioApplication',
       ]),
       ...mapState('manageContent/wizard', [
@@ -169,8 +160,6 @@
       },
       documentTitle() {
         switch (this.transferType) {
-          case TransferTypes.LOCALEXPORT:
-            return this.$tr('documentTitleForExport');
           case TransferTypes.LOCALIMPORT:
             return this.$tr('documentTitleForLocalImport', {
               driveName: this.selectedDrive.name,
@@ -221,8 +210,6 @@
       }),
       toolbarTitle(transferType) {
         switch (transferType) {
-          case TransferTypes.LOCALEXPORT:
-            return this.$tr('exportToDisk', { driveName: this.selectedDrive.name });
           case TransferTypes.LOCALIMPORT:
             return this.$tr('importFromDisk', { driveName: this.selectedDrive.name });
           case TransferTypes.PEERIMPORT:
@@ -238,20 +225,17 @@
         const match = this.installedChannelsWithResources.find(({ id }) => id === channel.id);
         return Boolean(match);
       },
-      goToImportMultiple() {
-        this.$router.push({
-          query: {
+      toggleMultipleMode() {
+        let newQuery;
+        if (this.multipleMode) {
+          newQuery = omit(this.$route.query, 'multiple');
+        } else {
+          newQuery = {
             ...this.$route.query,
             multiple: true,
-          },
-        });
-      },
-      goToImportSingle() {
-        this.$router.push({
-          query: {
-            ...omit(this.$route.query, 'multiple'),
-          },
-        });
+          };
+        }
+        this.$route.push(newQuery);
       },
       goToSelectContentPageForChannel(channel) {
         if (this.multipleMode) {
@@ -324,7 +308,6 @@
     $trs: {
       importChannelsHeader: 'Select channels for import',
       importResourcesHeader: 'Select resources  for import',
-      exportToDisk: 'Export to {driveName}',
       importFromDisk: `Import from '{driveName}'`,
       importFromPeer: `Import from '{deviceName}' ({address})`,
       kolibriCentralServer: 'Kolibri Studio channels',
@@ -332,7 +315,6 @@
       pageLoadError: 'There was a problem loading this page…',
       documentTitleForLocalImport: "Available Channels on '{driveName}'",
       documentTitleForRemoteImport: 'Available Channels on Kolibri Studio',
-      documentTitleForExport: 'Available Channels on this device',
       noChannelsAvailable: 'No channels are available on this device',
       selectEntireChannels: 'Select entire channels instead',
       selectTopicsAndResources: 'Select topics and resources instead',

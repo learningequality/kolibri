@@ -19,7 +19,7 @@
       },
     },
     $trs: {
-      versionAvailable: 'Version {version} is available!',
+      versionAvailable: 'Version {version} is available',
       viewChangesAction: 'View changes',
     },
   };

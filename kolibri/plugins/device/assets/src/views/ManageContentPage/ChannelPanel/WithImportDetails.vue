@@ -40,7 +40,7 @@
       </template>
 
       <template v-slot:abovedescription>
-        <div v-if="inImportMode && onDevice" class="on-device">
+        <div v-if="onDevice" class="on-device">
           <KIcon
             class="check-icon"
             icon="correct"
@@ -66,7 +66,7 @@
         {{ channelSelectedMessage }}
       </p>
       <KRouterLink
-        v-if="(inImportMode || inExportMode) && !multipleMode"
+        v-if="!multipleMode"
         :text="$tr('selectTopicsAction')"
         :disabled="tasksInQueue"
         :to="selectContentLink"
@@ -91,12 +91,6 @@
   import { selectContentPageLink } from '../manageContentLinks';
   import ChannelDetails from './ChannelDetails';
 
-  const Modes = {
-    IMPORT: 'IMPORT',
-    EXPORT: 'EXPORT',
-    MANAGE: 'MANAGE',
-  };
-
   export default {
     name: 'WithImportDetails',
     components: {
@@ -107,13 +101,6 @@
       channel: {
         type: Object,
         required: true,
-      },
-      mode: {
-        type: String, // 'IMPORT' | 'EXPORT' | 'MANAGE'
-        required: true,
-        validator(val) {
-          return Object.keys(Modes).includes(val);
-        },
       },
       onDevice: {
         type: Boolean,
@@ -135,12 +122,6 @@
         } else {
           return this.$tr('channelSelectedNoFileSize');
         }
-      },
-      inImportMode() {
-        return this.mode === Modes.IMPORT;
-      },
-      inExportMode() {
-        return this.mode === Modes.EXPORT;
       },
       isPrivateChannel() {
         // This is only defined when entering a remote import workflow,
