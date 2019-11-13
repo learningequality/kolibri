@@ -11,16 +11,17 @@
     <TopNavbar slot="sub-nav" />
     <KGrid gutter="16">
       <KGridItem>
-        <QuizHeader
+        <QuizLessonDetailsHeader
           :backlink="$router.getRoute('EXAMS')"
           :backlinkLabel="coachString('allQuizzesLabel')"
+          examOrLesson="exam"
         >
           <QuizOptionsDropdownMenu
             slot="dropdown"
             optionsFor="plan"
             @select="setCurrentAction"
           />
-        </QuizHeader>
+        </QuizLessonDetailsHeader>
       </KGridItem>
       <KGridItem :layout12="{ span: 4 }">
         <QuizStatus

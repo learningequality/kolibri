@@ -20,12 +20,13 @@ import AverageScoreTooltip from './common/AverageScoreTooltip';
 import BackLink from './common/BackLink';
 import TruncatedItemList from './common/TruncatedItemList';
 import LessonActive from './common/LessonActive';
+import LessonStatus from './common/LessonStatus';
 import MasteryModel from './common/MasteryModel';
 import Recipients from './common/Recipients';
 import Score from './common/Score';
 import TimeDuration from './common/TimeDuration';
 import QuizActive from './common/QuizActive';
-import QuizHeader from './common/QuizHeader';
+import QuizLessonDetailsHeader from './common/QuizLessonDetailsHeader';
 import QuizStatus from './common/QuizStatus';
 import HeaderTable from './common/HeaderTable';
 import HeaderTableRow from './common/HeaderTable/HeaderTableRow';
@@ -119,12 +120,13 @@ export default {
     BackLink,
     TruncatedItemList,
     LessonActive,
+    LessonStatus,
     MasteryModel,
     Recipients,
     Score,
     TimeDuration,
     QuizActive,
-    QuizHeader,
+    QuizLessonDetailsHeader,
     QuizStatus,
     HeaderTable,
     ElapsedTime,

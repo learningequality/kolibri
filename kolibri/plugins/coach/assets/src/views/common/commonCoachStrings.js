@@ -153,6 +153,16 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "Text shown on a modal pop-up window when the user clicks the 'Close Quiz' button. This explains what will happen when the modal window is confirmed.",
   },
+  lessonNotVisibleToLearnersLabel: {
+    message: 'Lesson is not visible to learners',
+    context:
+      'Snackbar message telling the user that the lesson is now not visible to learners. This will display whenever the user changes the lesson from visible to not visible.',
+  },
+  lessonVisibleToLearnersLabel: {
+    message: 'Lesson is visible to learners',
+    context:
+      'Snackbar message telling the user that the lesson is now visible to learners. This will display whenever the user changes the lesson from not visible to visible.',
+  },
 });
 
 const coachStringsMixin = {

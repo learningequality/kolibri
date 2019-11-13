@@ -208,6 +208,7 @@ class LessonAssignmentsField(serializers.RelatedField):
 class LessonSerializer(KolibriModelSerializer):
     active = serializers.BooleanField(source="is_active")
     node_ids = serializers.SerializerMethodField()
+    date_created = DateTimeTzField(required=False)
 
     # classrooms are in here, and filtered out later to create `groups`
     assignments = LessonAssignmentsField(
@@ -226,6 +227,7 @@ class LessonSerializer(KolibriModelSerializer):
             "assignments",
             "groups",
             "description",
+            "date_created",
         )
 
     def get_node_ids(self, obj):

@@ -31,7 +31,7 @@
             <th>{{ coachString('titleLabel') }}</th>
             <th>{{ $tr('size') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th>{{ coachString('statusLabel') }}</th>
+            <th>{{ $tr('visibleToLearnersLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -56,7 +56,12 @@
               />
             </td>
             <td>
-              <LessonActive :active="lesson.is_active" />
+              <KSwitch
+                name="toggle-lesson-visibility"
+                :checked="lesson.is_active"
+                :value="lesson.is_active"
+                @change="handleToggleVisibility(lesson)"
+              />
             </td>
           </tr>
         </transition-group>
@@ -107,12 +112,12 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import { LessonResource } from 'kolibri.resources';
   import countBy from 'lodash/countBy';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { CollectionKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import LessonActive from '../../common/LessonActive';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
@@ -123,7 +128,6 @@
     components: {
       PlanHeader,
       CoreTable,
-      LessonActive,
       AssignmentDetailsModal,
     },
     mixins: [commonCoach, commonCoreStrings],
@@ -189,6 +193,25 @@
             this.detailsModalIsDisabled = false;
           });
       },
+      handleToggleVisibility(lesson) {
+        const newActiveState = !lesson.is_active;
+        const snackbarMessage = newActiveState
+          ? this.coachString('lessonVisibleToLearnersLabel')
+          : this.coachString('lessonNotVisibleToLearnersLabel');
+
+        let promise = LessonResource.saveModel({
+          id: lesson.id,
+          data: {
+            is_active: newActiveState,
+          },
+          exists: true,
+        });
+
+        return promise.then(() => {
+          this.$store.dispatch('lessonsRoot/refreshClassLessons', this.$route.params.classId);
+          this.$store.dispatch('createSnackbar', snackbarMessage);
+        });
+      },
     },
     $trs: {
       allLessons: 'All lessons',
@@ -201,6 +224,11 @@
       noInactiveLessons: 'No inactive lessons',
       saveLessonError: 'There was a problem saving this lesson',
       duplicateTitle: 'A lesson with that name already exists',
+      visibleToLearnersLabel: {
+        message: 'Visible to learners',
+        context:
+          'Column header for table of lessons which will include a toggle switch the user can use to set the visibility status of a lesson.',
+      },
     },
   };
 
