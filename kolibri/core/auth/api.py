@@ -412,6 +412,18 @@ class IndividualLearnersGroupViewSet(viewsets.ModelViewSet):
     queryset = IndividualLearnersGroup.objects.all()
     serializer_class = IndividualLearnersGroupSerializer
 
+    filter_fields = ("parent",)
+
+    values = ("id", "name", "parent", "user_ids")
+
+    field_map = {"user_ids": partial(process_uuid_aggregate, key="user_ids")}
+
+    def annotate_queryset(self, queryset):
+        if connection.vendor == "postgresql" and ArrayAgg is not None:
+            return queryset.annotate(user_ids=ArrayAgg("membership__user__id"))
+        return queryset.values("id").annotate(
+            user_ids=GroupConcat("membership__user__id", output_field=CharField())
+        )
 
 class SignUpViewSet(viewsets.ViewSet):
 

@@ -108,7 +108,7 @@ class FacilitySerializer(serializers.ModelSerializer):
 
         # when facilities are synced, the dataset_id is used as the filter
         last_synced = (
-            TransferSession.objects.filter(filter=OuterRef("casted_dataset_id"),)
+            TransferSession.objects.filter(filter=OuterRef("casted_dataset_id"))
             .order_by("-last_activity_timestamp")
             .values("last_activity_timestamp")[:1]
         )
@@ -153,6 +153,7 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
             )
         ]
 
+
 class IndividualLearnersGroupSerializer(serializers.ModelSerializer):
 
     user_ids = serializers.SerializerMethodField()
@@ -166,6 +167,7 @@ class IndividualLearnersGroupSerializer(serializers.ModelSerializer):
 
         validators = [
             UniqueTogetherValidator(
-                queryset=IndividualLearnersGroup.objects.all(), fields=("parent", "name")
+                queryset=IndividualLearnersGroup.objects.all(),
+                fields=("parent", "name"),
             )
         ]

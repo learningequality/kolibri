@@ -1,15 +1,16 @@
 import { IndividualLearnersGroupResource } from 'kolibri.resources';
 import { addUsersToGroup, removeUsersFromGroup } from '../groups/actions';
 
+/*
 function _individualLearnersState(group) {
   return {
     id: group.id,
     users: [],
   };
 }
+*/
 
 export function createIndividualLearnersGroup(store, { classId }) {
-  console.log(classId);
   return IndividualLearnersGroupResource.saveModel({
     data: {
       parent: classId,

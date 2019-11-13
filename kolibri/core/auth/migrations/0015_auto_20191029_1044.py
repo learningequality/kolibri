@@ -7,24 +7,26 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('kolibriauth', '0014_auto_20190815_1421'),
-    ]
+    dependencies = [("kolibriauth", "0014_auto_20190815_1421")]
 
     operations = [
         migrations.CreateModel(
-            name='IndividualLearnersGroup',
-            fields=[
-            ],
-            options={
-                'proxy': True,
-                'indexes': [],
-            },
-            bases=('kolibriauth.collection',),
+            name="IndividualLearnersGroup",
+            fields=[],
+            options={"proxy": True, "indexes": []},
+            bases=("kolibriauth.collection",),
         ),
         migrations.AlterField(
-            model_name='collection',
-            name='kind',
-            field=models.CharField(choices=[('facility', 'Facility'), ('classroom', 'Classroom'), ('learnergroup', 'Learner group'), ('individuallearnersgroup', 'Individual learners group')], max_length=23),
+            model_name="collection",
+            name="kind",
+            field=models.CharField(
+                choices=[
+                    ("facility", "Facility"),
+                    ("classroom", "Classroom"),
+                    ("learnergroup", "Learner group"),
+                    ("individuallearnersgroup", "Individual learners group"),
+                ],
+                max_length=23,
+            ),
         ),
     ]

@@ -1415,6 +1415,7 @@ class LearnerGroup(Collection):
     def __str__(self):
         return self.name
 
+
 @python_2_unicode_compatible
 class IndividualLearnersGroup(Collection):
 

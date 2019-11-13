@@ -45,7 +45,10 @@
           :classId="classId"
           :disabled="disabled || formIsSubmitted"
         />
-        <IndividualLearnerSelector :selectedGroupIds="selectedCollectionIds" />
+        <IndividualLearnerSelector
+          v-if="assignmentType == 'quiz'"
+          :selectedGroupIds="selectedCollectionIds"
+        />
       </fieldset>
 
       <slot name="resourceTable"></slot>
