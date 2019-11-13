@@ -1,13 +1,15 @@
 #! /bin/bash
-# set -euo pipefail
+set -euo pipefail
 
 mkdir -p whl
 
+# Setting for debug purposes
+set -x
 # Allows for building directly from pipeline or trigger
 if [[ $BUILDKITE_TRIGGERED_FROM_BUILD_ID ]]
 then
   echo "--- Downloading from triggered build"
-  buildkite-agent artifact download 'dist/*.whl' --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}
+  buildkite-agent artifact download 'dist/*.whl' --build $BUILDKITE_TRIGGERED_FROM_BUILD_ID
   mv dist whl
 else
   echo "--- Downloading from pip"
