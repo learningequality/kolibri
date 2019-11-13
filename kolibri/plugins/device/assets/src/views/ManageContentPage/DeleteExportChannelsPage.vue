@@ -11,7 +11,7 @@
       </template>
 
       <template v-slot:default="{filteredItems, showItem, handleChange, itemIsSelected}">
-        <ChanelPanel
+        <ChannelPanel
           v-for="channel in allChannels"
           v-show="showItem(channel)"
           :key="channel.id"
@@ -33,6 +33,7 @@
 
     <SelectionBottomBar
       objectType="channel"
+      :disabled="selectedChannels.length === 0"
       :actionType="actionType"
       :selectedObjects="selectedChannels"
       :fileSize.sync="fileSize"
@@ -55,7 +56,7 @@
   import SelectionBottomBar from './SelectionBottomBar';
   import DeleteChannelModal from './DeleteChannelModal';
   import SelectDriveModal from './SelectTransferSourceModal/SelectDriveModal';
-  import ChanelPanel from './ChannelPanel/WithCheckbox';
+  import ChannelPanel from './ChannelPanel/WithCheckbox';
   import FilteredChannelListContainer from './FilteredChannelListContainer';
 
   // Overwrite methods that are coupled to vuex in original SelectDriveModal
@@ -88,7 +89,7 @@
       };
     },
     components: {
-      ChanelPanel,
+      ChannelPanel,
       FilteredChannelListContainer,
       SelectionBottomBar,
       DeleteChannelModal,
@@ -127,7 +128,9 @@
             exportFileSize: this.fileSize,
           };
         }
-        return {};
+        return {
+          numberOfChannels: this.selectedChannels.length,
+        };
       },
     },
     beforeMount() {
