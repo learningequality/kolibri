@@ -8,8 +8,11 @@ from django.core.cache import cache
 from django.utils.text import compress_string
 
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.channels import get_mounted_drive_by_id
+from kolibri.core.content.utils.import_export_content import LocationError
 from kolibri.core.content.utils.paths import get_content_storage_dir_path
 from kolibri.core.content.utils.paths import get_file_checksums_url
+from kolibri.core.discovery.models import NetworkLocation
 
 
 checksum_regex = re.compile("^([a-f0-9]{32})$")
@@ -28,7 +31,7 @@ def _generate_mask_from_integer(integer_mask):
         integer_mask //= 2
 
 
-def get_available_checksums_from_remote(channel_id, baseurl):
+def get_available_checksums_from_remote(channel_id, peer_id):
     """
     The current implementation prioritizes minimising requests to the remote server.
     In order to achieve this, it caches based on the baseurl and the channel_id.
@@ -36,6 +39,13 @@ def get_available_checksums_from_remote(channel_id, baseurl):
     and thus can keep this representation cached regardless of how the availability on
     the local server has changed in the interim.
     """
+    try:
+        baseurl = NetworkLocation.objects.values_list("base_url", flat=True).get(
+            id=peer_id
+        )
+    except NetworkLocation.DoesNotExist:
+        raise LocationError("Peer with id {} does not exist".format(peer_id))
+
     CACHE_KEY = "PEER_AVAILABLE_CHECKSUMS_{baseurl}_{channel_id}".format(
         baseurl=baseurl, channel_id=channel_id
     )
@@ -81,7 +91,11 @@ def get_available_checksums_from_remote(channel_id, baseurl):
     return checksums
 
 
-def get_available_checksums_from_disk(channel_id, basepath):
+def get_available_checksums_from_disk(channel_id, drive_id):
+    try:
+        basepath = get_mounted_drive_by_id(drive_id).datafolder
+    except KeyError:
+        raise LocationError("Drive with id {} does not exist".format(drive_id))
     PER_DISK_CACHE_KEY = "DISK_AVAILABLE_CHECKSUMS_{basepath}".format(basepath=basepath)
     PER_DISK_PER_CHANNEL_CACHE_KEY = "DISK_AVAILABLE_CHECKSUMS_{basepath}_{channel_id}".format(
         basepath=basepath, channel_id=channel_id

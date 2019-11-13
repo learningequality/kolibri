@@ -15,7 +15,6 @@ from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.content_types_tools import renderable_files_presets
 from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_disk,
@@ -23,7 +22,6 @@ from kolibri.core.content.utils.file_availability import (
 from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_remote,
 )
-from kolibri.core.discovery.models import NetworkLocation
 
 logger = logging.getLogger(__name__)
 
@@ -251,8 +249,7 @@ def get_channel_stats_from_disk(channel_id, drive_id):
         drive_id=drive_id, channel_id=channel_id
     )
     if CACHE_KEY not in cache:
-        datafolder = get_mounted_drive_by_id(drive_id).datafolder
-        checksums = get_available_checksums_from_disk(channel_id, datafolder)
+        checksums = get_available_checksums_from_disk(channel_id, drive_id)
         channel_stats = get_channel_annotation_stats(channel_id, checksums)
         cache.set(CACHE_KEY, channel_stats, 3600)
     else:
@@ -265,9 +262,7 @@ def get_channel_stats_from_peer(channel_id, peer_id):
         peer_id=peer_id, channel_id=channel_id
     )
     if CACHE_KEY not in cache:
-        network_location = NetworkLocation.objects.values("base_url").get(id=peer_id)
-        base_url = network_location["base_url"]
-        checksums = get_available_checksums_from_remote(channel_id, base_url)
+        checksums = get_available_checksums_from_remote(channel_id, peer_id)
         channel_stats = get_channel_annotation_stats(channel_id, checksums)
         cache.set(CACHE_KEY, channel_stats, 3600)
     else:

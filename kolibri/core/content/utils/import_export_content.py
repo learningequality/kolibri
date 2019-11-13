@@ -24,6 +24,14 @@ except ImportError:
 RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
 
 
+class LocationError(Exception):
+    """
+    An exception raised when an import location is invalid.
+    """
+
+    pass
+
+
 def get_nodes_to_transfer(
     channel_id, node_ids, exclude_node_ids, available, renderable_only=True
 ):

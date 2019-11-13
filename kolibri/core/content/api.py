@@ -36,7 +36,6 @@ from kolibri.core.auth.constants import user_kinds
 from kolibri.core.content import models
 from kolibri.core.content import serializers
 from kolibri.core.content.permissions import CanManageContent
-from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
@@ -46,6 +45,7 @@ from kolibri.core.content.utils.file_availability import (
 from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_remote,
 )
+from kolibri.core.content.utils.import_export_content import LocationError
 from kolibri.core.content.utils.importability_annotation import (
     get_channel_stats_from_disk,
 )
@@ -60,7 +60,6 @@ from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
-from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 
@@ -841,24 +840,21 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
             self.channel_stats = None
         if drive_id:
             try:
-                get_mounted_drive_by_id(drive_id).datafolder
-            except KeyError:
+                self.channel_stats = get_channel_stats_from_disk(channel_id, drive_id)
+            except LocationError:
                 raise serializers.ValidationError(
                     "The external drive with given drive id {} does not exist.".format(
                         drive_id
                     )
                 )
-            self.channel_stats = get_channel_stats_from_disk(channel_id, drive_id)
         if peer_id:
             try:
-                NetworkLocation.objects.values("base_url").get(id=peer_id)
-            except NetworkLocation.DoesNotExist:
+                self.channel_stats = get_channel_stats_from_peer(channel_id, peer_id)
+            except LocationError:
                 raise serializers.ValidationError(
                     "The network location with the id {} does not exist".format(peer_id)
                 )
-            self.channel_stats = get_channel_stats_from_peer(channel_id, peer_id)
         children = queryset.filter(parent=instance)
-
         parent_serializer = self.get_serializer(instance)
         parent_data = parent_serializer.data
         child_serializer = self.get_serializer(children, many=True)
@@ -1019,28 +1015,26 @@ class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):
         checksums = None
         if drive_id:
             try:
-                datafolder = get_mounted_drive_by_id(drive_id).datafolder
-            except KeyError:
+                checksums = get_available_checksums_from_disk(
+                    instance.channel_id, drive_id
+                )
+            except LocationError:
                 raise serializers.ValidationError(
                     "The external drive with given drive id {} does not exist.".format(
                         drive_id
                     )
                 )
-            checksums = get_available_checksums_from_disk(
-                instance.channel_id, datafolder
-            )
+
         if peer_id:
             try:
-                base_url = NetworkLocation.objects.values_list(
-                    "base_url", flat=True
-                ).get(id=peer_id)
-            except NetworkLocation.DoesNotExist:
+                checksums = get_available_checksums_from_remote(
+                    instance.channel_id, peer_id
+                )
+            except LocationError:
                 raise serializers.ValidationError(
                     "The network location with the id {} does not exist".format(peer_id)
                 )
-            checksums = get_available_checksums_from_remote(
-                instance.channel_id, base_url
-            )
+
         logger.info(peer_id)
         files = models.LocalFile.objects.filter(
             files__contentnode__in=instance.get_descendants(include_self=True)
