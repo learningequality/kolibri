@@ -29,6 +29,7 @@ export const TaskTypes = {
   DISKFULLIMPORT: 'DISKIMPORT',
   LOCAL_EXPORT: 'DISKEXPORT',
   DELETE_CHANNEL: 'DELETECHANNEL',
+  UPDATECHANNEL: 'UPDATECHANNEL', // not a real task type
 };
 
 export const TaskStatuses = {
@@ -42,6 +43,10 @@ export const TaskStatuses = {
   CANCELED: 'CANCELED',
   CANCELING: 'CANCELING',
 };
+
+export function taskIsClearable(task) {
+  return [TaskStatuses.COMPLETED, TaskStatuses.CANCELED, TaskStatuses.FAILED].includes(task.status);
+}
 
 export const TransferTypes = {
   LOCALEXPORT: 'localexport',

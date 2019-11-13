@@ -7,7 +7,7 @@
 
     <!-- Secret clear all button until a proper clear all is implemented -->
     <KButton
-      v-if="false"
+      v-if="showClearAllButton"
       :text="$tr('clearAllAction')"
       @click="handleClickClearAll"
     />
@@ -28,9 +28,11 @@
 <script>
 
   import reverse from 'lodash/fp/reverse';
+  import some from 'lodash/some';
   import { mapState } from 'vuex';
   import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { taskIsClearable } from '../../constants';
   import TaskPanel from './TaskPanel';
 
   // A page to view content import/export/deletion tasks
@@ -54,6 +56,9 @@
       ...mapState('manageContent', ['taskList']),
       sortedTaskList() {
         return reverse(this.taskList);
+      },
+      showClearAllButton() {
+        return some(this.taskList, taskIsClearable);
       },
     },
     watch: {
@@ -79,13 +84,13 @@
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr('appBarTitle'));
       },
       handleClickClear(task) {
-        TaskResource.clearTask(task.id);
+        TaskResource.deleteFinishedTask({ task_id: task.id });
       },
       handleClickCancel(task) {
         TaskResource.cancelTask(task.id);
       },
       handleClickClearAll() {
-        TaskResource.clearTasks();
+        TaskResource.deleteFinishedTasks();
       },
     },
     $trs: {
