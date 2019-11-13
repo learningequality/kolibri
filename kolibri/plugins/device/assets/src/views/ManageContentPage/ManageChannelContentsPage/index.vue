@@ -24,6 +24,7 @@
 
     <DeleteResourcesModal
       v-if="shownModal === 'DELETE'"
+      :numberOfResources="resourceCounts.count"
       @cancel="closeModal"
       @submit="handleDeleteSubmit"
     />
