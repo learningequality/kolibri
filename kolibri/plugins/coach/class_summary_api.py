@@ -368,6 +368,7 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             ),
             "learners": learners_data,
             "groups": serialize_groups(classroom.get_learner_groups()),
+            "individuallearners": serialize_groups(classroom.get_individual_learners_group()),
             "exams": exam_data,
             "exam_learner_status": serialize_exam_status(query_exam_logs),
             "content": query_content.values(

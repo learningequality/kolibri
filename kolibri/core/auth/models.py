@@ -937,7 +937,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     parent = TreeForeignKey(
         "self", null=True, blank=True, related_name="children", db_index=True
     )
-    kind = models.CharField(max_length=20, choices=collection_kinds.choices)
+    kind = models.CharField(max_length=23, choices=collection_kinds.choices)
 
     def __init__(self, *args, **kwargs):
         if self._KIND:
@@ -1346,6 +1346,14 @@ class Classroom(Collection):
         """
         return LearnerGroup.objects.filter(parent=self)
 
+    def get_individual_learners_group(self):
+        """
+        Returns a ``QuerySet`` of ``IndividualLearnerGroups``.
+
+        :return A ``IndividualLearnersGroup`` ``QuerySet``.
+        """
+        return IndividualLearnersGroup.objects.filter(parent=self)
+
     def add_admin(self, user):
         return self.add_role(user, role_kinds.ADMIN)
 
@@ -1390,6 +1398,45 @@ class LearnerGroup(Collection):
     def get_classroom(self):
         """
         Gets the ``LearnerGroup``'s parent ``Classroom``.
+
+        :return: A ``Classroom`` instance.
+        """
+        return Classroom.objects.get(id=self.parent_id)
+
+    def add_learner(self, user):
+        return self.add_member(user)
+
+    def add_learners(self, users):
+        return [self.add_learner(user) for user in users]
+
+    def remove_learner(self, user):
+        return self.remove_member(user)
+
+    def __str__(self):
+        return self.name
+
+@python_2_unicode_compatible
+class IndividualLearnersGroup(Collection):
+
+    morango_model_name = "individuallearnersgroup"
+    morango_model_dependencies = (Classroom,)
+    _KIND = collection_kinds.INDIVIDUALLEARNERSGROUP
+
+    objects = CollectionProxyManager()
+
+    class Meta:
+        proxy = True
+
+    def save(self, *args, **kwargs):
+        if not self.parent:
+            raise IntegrityError(
+                "IndividualLearnersGroup cannot be the root of a collection tree, and must have a parent."
+            )
+        super(IndividualLearnersGroup, self).save(*args, **kwargs)
+
+    def get_classroom(self):
+        """
+        Gets the ``IndividualLearnersGroup``'s parent ``Classroom``.
 
         :return: A ``Classroom`` instance.
         """

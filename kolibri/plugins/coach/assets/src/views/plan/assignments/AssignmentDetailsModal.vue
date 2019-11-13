@@ -45,6 +45,7 @@
           :classId="classId"
           :disabled="disabled || formIsSubmitted"
         />
+        <IndividualLearnerSelector :selectedGroupIds="selectedCollectionIds" />
       </fieldset>
 
       <slot name="resourceTable"></slot>
@@ -78,11 +79,13 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
+  import IndividualLearnerSelector from './IndividualLearnerSelector';
 
   export default {
     name: 'AssignmentDetailsModal',
     components: {
       BottomAppBar,
+      IndividualLearnerSelector,
       RecipientSelector,
       UiAlert,
     },
@@ -261,7 +264,7 @@
   }
 
   legend {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
   }
 

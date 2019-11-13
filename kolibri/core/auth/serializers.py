@@ -15,6 +15,7 @@ from .models import Facility
 from .models import FacilityDataset
 from .models import FacilityUser
 from .models import LearnerGroup
+from .models import IndividualLearnersGroup
 from .models import Membership
 from .models import Role
 from kolibri.core import error_constants
@@ -149,5 +150,22 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=LearnerGroup.objects.all(), fields=("parent", "name")
+            )
+        ]
+
+class IndividualLearnersGroupSerializer(serializers.ModelSerializer):
+
+    user_ids = serializers.SerializerMethodField()
+
+    def get_user_ids(self, group):
+        return [str(user_id["id"]) for user_id in group.get_members().values("id")]
+
+    class Meta:
+        model = IndividualLearnersGroup
+        fields = ("id", "name", "parent", "user_ids")
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=IndividualLearnersGroup.objects.all(), fields=("parent", "name")
             )
         ]

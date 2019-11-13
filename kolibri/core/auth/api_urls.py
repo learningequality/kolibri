@@ -5,6 +5,7 @@ from .api import FacilityDatasetViewSet
 from .api import FacilityUsernameViewSet
 from .api import FacilityUserViewSet
 from .api import FacilityViewSet
+from .api import IndividualLearnersGroupViewSet
 from .api import LearnerGroupViewSet
 from .api import MembershipViewSet
 from .api import RoleViewSet
@@ -24,6 +25,7 @@ router.register(r"facility", FacilityViewSet, base_name="facility")
 router.register(r"session", SessionViewSet, base_name="session")
 router.register(r"classroom", ClassroomViewSet, base_name="classroom")
 router.register(r"learnergroup", LearnerGroupViewSet, base_name="learnergroup")
+router.register(r"individuallearnersgroup", IndividualLearnersGroupViewSet, base_name="individuallearnersgroup")
 router.register(r"signup", SignUpViewSet, base_name="signup")
 router.register(r"portal", KolibriDataPortalViewSet, base_name="portal")
 

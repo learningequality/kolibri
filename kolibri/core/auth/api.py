@@ -38,6 +38,7 @@ from .models import Collection
 from .models import Facility
 from .models import FacilityDataset
 from .models import FacilityUser
+from .models import IndividualLearnersGroup
 from .models import LearnerGroup
 from .models import Membership
 from .models import Role
@@ -45,6 +46,7 @@ from .serializers import ClassroomSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
 from .serializers import FacilityUserSerializer
+from .serializers import IndividualLearnersGroupSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
@@ -402,6 +404,13 @@ class LearnerGroupViewSet(ValuesViewset):
         return queryset.values("id").annotate(
             user_ids=GroupConcat("membership__user__id", output_field=CharField())
         )
+
+
+class IndividualLearnersGroupViewSet(viewsets.ModelViewSet):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
+    queryset = IndividualLearnersGroup.objects.all()
+    serializer_class = IndividualLearnersGroupSerializer
 
 
 class SignUpViewSet(viewsets.ViewSet):
