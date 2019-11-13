@@ -29,20 +29,26 @@
           :text="multipleMode ? $tr('selectTopicsAndResources') : $tr('selectEntireChannels')"
           @click="toggleMultipleMode"
         />
-        <section v-if="notEnoughFreeSpace">
-          {{ $tr('notEnoughSpaceForChannelsWarning') }}
-        </section>
         <section
           v-if="showUnlistedChannels"
           class="unlisted-channels"
         >
           <KButton
+            class="token-button"
             :text="$tr('channelTokenButtonLabel')"
             appearance="raised-button"
             name="showtokenmodal"
             @click="showTokenModal=true"
           />
         </section>
+
+        <UiAlert
+          v-show="notEnoughFreeSpace"
+          :dismissible="false"
+          type="error"
+        >
+          {{ $tr('notEnoughSpaceForChannelsWarning') }}
+        </UiAlert>
 
       </template>
 
@@ -101,6 +107,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
+  import UiAlert from 'keen-ui/src/UiAlert';
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
@@ -109,6 +116,7 @@
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
   import ChannelTokenModal from './ChannelTokenModal';
+  import { getFreeSpaceOnServer } from './api';
 
   export default {
     name: 'AvailableChannelsPage',
@@ -123,6 +131,7 @@
       ContentWizardUiAlert,
       FilteredChannelListContainer,
       SelectionBottomBar,
+      UiAlert,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, taskNotificationMixin],
     data() {
@@ -262,15 +271,16 @@
         }
       },
       handleClickConfirm() {
-        // Disable button
         this.disableBottomBar = true;
-        // reset freeSpace
-
-        // Make call to deviceinfo
-        // Compare this.fileSize with deviceinfo content_storage_free_space
-        // toggle if notEnoughFreeSpace
-        // start import
-        this.startMultipleChannelImport();
+        getFreeSpaceOnServer().then(({ freeSpace }) => {
+          this.freeSpace = freeSpace;
+          if (this.notEnoughFreeSpace) {
+            this.createTaskFailedSnackbar();
+            this.disableBottomBar = false;
+          } else {
+            this.startMultipleChannelImport();
+          }
+        });
       },
       startMultipleChannelImport() {
         if (this.inLocalImportMode) {
@@ -333,42 +343,12 @@
     font-size: 14px;
   }
 
-  svg.multiple-icon {
-    width: 24px;
-    height: 24px;
-    margin: 0 4px -5px -2px;
-  }
-
-  .import-multiple {
-    margin: 24px 0;
-
-    button {
-      margin: 0;
-    }
-  }
-
-  .top-matter {
-    margin-bottom: 24px;
+  .token-button {
+    margin-left: 0;
   }
 
   .unlisted-channels {
     padding: 16px 0;
-  }
-
-  .text-offset {
-    margin-top: 24px;
-  }
-
-  .align-left {
-    text-align: left;
-  }
-
-  .seach-box {
-    width: 100%;
-  }
-
-  .search-box-offset {
-    margin-top: 12px;
   }
 
 </style>

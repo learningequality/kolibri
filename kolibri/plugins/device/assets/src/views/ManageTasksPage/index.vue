@@ -83,7 +83,9 @@
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr('appBarTitle'));
       },
       handleClickClear(task) {
-        TaskResource.deleteFinishedTask({ task_id: task.id });
+        TaskResource.deleteFinishedTask({ task_id: task.id }).catch(() => {
+          // error silently
+        });
       },
       handleClickCancel(task) {
         TaskResource.cancelTask(task.id);
