@@ -12,7 +12,7 @@
     <HeaderWithOptions>
       <div slot="header">
         <h1 class="exam-title">
-          <KLabeledIcon icon="quiz" :label="exam.title" />
+          <KLabeledIcon icon="quiz" :label="resource.title" />
         </h1>
         <StatusElapsedTime :date="createdDate" actionType="created" />
       </div>
