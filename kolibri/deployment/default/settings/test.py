@@ -12,3 +12,9 @@ if "KOLIBRI_HOME" not in os.environ:
 
 
 from .base import *  # noqa isort:skip @UnusedWildImport
+
+# Create a dummy cache for each cache
+CACHES = {
+    key: {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}
+    for key in CACHES.keys()  # noqa F405
+}

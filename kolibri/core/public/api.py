@@ -1,9 +1,14 @@
+import gzip
+import io
 import json
 import platform
 
 from django.db.models import Q
 from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotFound
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.gzip import gzip_page
 from morango.models import InstanceIDModel
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
@@ -13,7 +18,9 @@ import kolibri
 from .. import error_constants
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import PublicChannelSerializer
+from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
 
 
 class InfoViewSet(viewsets.ViewSet):
@@ -115,5 +122,33 @@ def get_public_channel_lookup(request, version, identifier):
         )
     return HttpResponse(
         json.dumps(PublicChannelSerializer(channel_list, many=True).data),
+        content_type="application/json",
+    )
+
+
+@csrf_exempt
+@gzip_page
+def get_public_file_checksums(request, version):
+    """ Endpoint: /public/<version>/file_checksums/ """
+    if version == "v1":
+        if request.content_type == "application/json":
+            data = request.body
+        elif request.content_type == "application/gzip":
+            with gzip.GzipFile(fileobj=io.BytesIO(request.body)) as f:
+                data = f.read()
+        else:
+            return HttpResponseBadRequest("POST body must be either json or gzip")
+        checksums = json.loads(data.decode("utf-8"))
+        available_checksums = set(
+            LocalFile.objects.filter(available=True, id__in=checksums)
+            .values_list("id", flat=True)
+            .distinct()
+        )
+        return HttpResponse(
+            generate_checksum_integer_mask(checksums, available_checksums),
+            content_type="application/octet-stream",
+        )
+    return HttpResponseNotFound(
+        json.dumps({"id": error_constants.NOT_FOUND, "metadata": {"view": ""}}),
         content_type="application/json",
     )

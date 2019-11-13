@@ -1,7 +1,6 @@
 import hashlib
 
 from django.db.models import Sum
-from le_utils.constants import content_kinds
 from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
@@ -81,26 +80,6 @@ def _get_node_ids(node_ids):
         .get_descendants(include_self=True)
         .values_list("id", flat=True)
     )
-
-
-def get_num_coach_contents(contentnode, filter_available=True):
-    """
-    Given a ContentNode model, return the number of Coach Contents underneath it
-    """
-    if contentnode.coach_content:
-        if contentnode.kind == content_kinds.TOPIC:
-            queryset = contentnode.get_descendants().filter(coach_content=True)
-
-            if filter_available:
-                queryset = queryset.filter(available=True)
-
-            return queryset.exclude(kind=content_kinds.TOPIC).distinct().count()
-        else:
-            # if the content kind is not a topic but it is marked as coach content the total
-            # coach content count has to be 1 since this is the last node in the tree
-            return 1
-    else:
-        return 1 if contentnode.coach_content else 0
 
 
 def retry_import(e, **kwargs):
