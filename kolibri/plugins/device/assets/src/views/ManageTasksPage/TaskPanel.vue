@@ -1,6 +1,6 @@
 <template>
 
-  <div class="task-panel">
+  <div class="task-panel" :class="{'task-panel-sm': windowIsSmall}">
     <div class="icon">
       <transition mode="out-in">
         <KIcon
@@ -72,19 +72,23 @@
   // Displays a single Task and its metadata, and provides buttons
   // to cancel or clear it.
 
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+
   import { taskIsClearable, TaskStatuses, TaskTypes } from '../../constants';
 
   const typeToTrMap = {
     [TaskTypes.REMOTECHANNELIMPORT]: 'generatingChannelListing',
-    [TaskTypes.LOCALCHANNELIMPORT]: 'generatingChannelListing',
-    [TaskTypes.REMOTECONTENTIMPORT]: 'importingChannel',
-    [TaskTypes.LOCAL_IMPORT]: 'importingChannel',
-    [TaskTypes.REMOTEFULLIMPORT]: 'importingChannel',
-    [TaskTypes.DISKFULLIMPORT]: 'importingChannel',
-    [TaskTypes.LOCAL_EXPORT]: 'exportingChannel',
-    [TaskTypes.DELETE_CHANNEL]: 'deletingChannel',
+    [TaskTypes.DISKCHANNELIMPORT]: 'generatingChannelListing',
+    [TaskTypes.REMOTECONTENTIMPORT]: 'importChannelPartial',
+    [TaskTypes.DISKCONTENTIMPORT]: 'importChannelPartial',
+    [TaskTypes.REMOTEIMPORT]: 'importChannelWhole',
+    [TaskTypes.DISKIMPORT]: 'importChannelWhole',
+    [TaskTypes.DISKEXPORT]: 'exportChannelWhole',
+    [TaskTypes.DISKCONTENTEXPORT]: 'exportChannelPartial',
+    [TaskTypes.DELETECHANNEL]: 'deleteChannelWhole',
+    [TaskTypes.DELETECONTENT]: 'deleteChannelPartial',
     [TaskTypes.UPDATECHANNEL]: 'updatingChannelVersion',
   };
 
@@ -99,7 +103,7 @@
 
   export default {
     name: 'TaskPanel',
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       task: {
         type: Object,
@@ -172,15 +176,21 @@
       statusFailed: 'Failed',
       statusCanceled: 'Canceled',
       statusCanceling: 'Canceling',
-      importingChannel: `Importing '{channelName}'`,
-      exportingChannel: `Exporting '{channelName}'`,
-      deletingChannel: `Deleting '{channelName}'`,
+      importChannelWhole: `Import '{channelName}'`,
+      importChannelPartial: `Import resources from '{channelName}'`,
+      exportChannelWhole: `Export '{channelName}'`,
+      exportChannelPartial: `Export resources from '{channelName}'`,
+      deleteChannelWhole: `Delete '{channelName}'`,
+      deleteChannelPartial: `Delete resources from '{channelName}'`,
       generatingChannelListing: `Generating channel listing - '{channelName}'`,
-      updatingChannelVersion: `Updating channel version - { channelName }`,
+      updatingChannelVersion: `Update {channelName} to version {newVersion}`,
       // Catch-all strings if the channel or username doesn't get attached to Task
       unknownUsername: 'Unknown user',
       unknownChannelName: '(Channel name unavailable)',
       progressPercentage: '{progress, number, percent}',
+      // unused messages
+      /* eslint-disable */
+      /* eslint-enable */
     },
   };
 
@@ -200,6 +210,10 @@
 
   .icon {
     padding: 0 16px;
+
+    .task-panel-sm & {
+      align-self: flex-start;
+    }
   }
 
   .icon svg {
@@ -210,6 +224,10 @@
   .task-panel {
     display: flex;
     align-items: center;
+  }
+
+  .task-panel-sm {
+    flex-direction: column;
   }
 
   .details {
@@ -252,6 +270,12 @@
 
   .details-startedby {
     font-size: $fs0;
+  }
+
+  .buttons {
+    .task-panel-sm & {
+      align-self: flex-end;
+    }
   }
 
   .buttons-lift {

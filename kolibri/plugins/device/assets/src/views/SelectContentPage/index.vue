@@ -176,7 +176,7 @@
       metadataDownloadTask() {
         return (
           find(this.taskList, { type: TaskTypes.REMOTECHANNELIMPORT }) ||
-          find(this.taskList, { type: TaskTypes.LOCALCHANNELIMPORT })
+          find(this.taskList, { type: TaskTypes.DISKCHANNELIMPORT })
         );
       },
       // If this property is truthy, the entire UI is hidden and only the UiAlert is shown

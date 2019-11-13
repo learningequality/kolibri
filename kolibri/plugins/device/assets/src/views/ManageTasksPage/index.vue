@@ -5,13 +5,12 @@
       {{ $tr('emptyTasksMessage') }}
     </p>
 
-    <!-- Secret clear all button until a proper clear all is implemented -->
     <KButton
       v-if="showClearAllButton"
       :text="$tr('clearAllAction')"
       @click="handleClickClearAll"
     />
-    <div class="tasks-panels">
+    <div class="task-panels">
       <TaskPanel
         v-for="task in sortedTaskList"
         :key="task.id"
@@ -107,6 +106,7 @@
 
   .task-panels {
     max-width: 780px;
+    margin-top: 32px;
   }
 
   .no-tasks {

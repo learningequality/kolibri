@@ -335,7 +335,7 @@ class TasksViewSet(viewsets.ViewSet):
         """
         task = validate_deletion_task(request, request.data)
 
-        task.update({"type": "DELETECHANNEL"})
+        task.update({"type": "DELETECONTENT"})
 
         if task["node_ids"] or task["exclude_node_ids"]:
             task["file_size"] = None
@@ -393,7 +393,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         task = validate_local_export_task(request, request.data)
 
-        task.update({"type": "DISKEXPORT"})
+        task.update({"type": "DISKCONTENTEXPORT"})
 
         task_id = queue.enqueue(
             _localexport,

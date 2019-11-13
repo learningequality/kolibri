@@ -53,13 +53,13 @@
 
     <KModal
       v-if="showModal"
-      :title="$tr('modalTitle')"
+      :title="$tr('updateChannelAction')"
       :submitText="coreString('continueAction')"
       :cancelText="coreString('cancelAction')"
       @submit="handleSubmit"
       @cancel="showModal = false"
     >
-      <p>{{ $tr('modalQuestion', { version: nextVersion }) }}</p>
+      <p>{{ $tr('updateConfirmationQuestion', { version: nextVersion }) }}</p>
     </KModal>
   </div>
 
@@ -98,14 +98,13 @@
       resourcesAvailableForImport: 'New resources available:',
       resourcesToBeDeleted: 'Resources that will be deleted:',
       resourcesToBeDeletedTooltip:
-        'Warning! When you update this channel, some resources will be deleted. This may affect lessons or quizzes that are using the deleted resources.',
+        'When you update this channel, some resources will be deleted. This may affect lessons or quizzes that are using the deleted resources.',
       resourcesToBeUpdated: 'Resources to be updated:',
       updateChannelAction: 'Update channel',
       versionNumberHeader: 'Version {version}',
-      modalTitle: 'Update version',
-      modalQuestion: 'Are you sure you want to update to version {version}?',
+      updateConfirmationQuestion: `Are you sure you want to update '{channelName}' to version {version}?`,
       channelIsIncomplete:
-        'Note: this copy of the channel is incomplete. It has {available} of {total} resources',
+        'This channel source is incomplete. It has {available} of {total} resources',
     },
   };
 
