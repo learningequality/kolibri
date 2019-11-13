@@ -82,13 +82,22 @@
       };
     },
     computed: {
-      ...mapGetters('manageContent/wizard', ['driveCanBeUsedForTransfer', 'isImportingMore']),
+      ...mapGetters('manageContent/wizard', ['isImportingMore']),
       ...mapState('manageContent/wizard', ['driveList']),
       transferType() {
         if (this.manageMode) {
           return TransferTypes.LOCALEXPORT;
         } else {
           return this.$store.state.manageContent.wizard.transferType;
+        }
+      },
+      driveCanBeUsedForTransfer() {
+        if (this.manageMode) {
+          return function isWritable({ drive }) {
+            return drive.writable;
+          };
+        } else {
+          return this.$store.getters['manageContent/wizard/driveCanBeUsedForTransfer'];
         }
       },
       inImportMode() {

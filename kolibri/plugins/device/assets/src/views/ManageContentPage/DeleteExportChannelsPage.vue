@@ -59,27 +59,6 @@
   import ChannelPanel from './ChannelPanel/WithCheckbox';
   import FilteredChannelListContainer from './FilteredChannelListContainer';
 
-  // Overwrite methods that are coupled to vuex in original SelectDriveModal
-  const SelectDrive = {
-    extends: SelectDriveModal,
-    mixins: [taskNotificationMixin],
-    computed: {
-      driveCanBeUsedForTransfer() {
-        return function isWritable({ drive }) {
-          return drive.writable;
-        };
-      },
-    },
-    methods: {
-      handleClickCancel() {
-        this.$emit('cancel');
-      },
-      goForward() {
-        this.$emit('submit', { driveId: this.selectedDriveId });
-      },
-    },
-  };
-
   // UI for simple bulk Deletion or Export of entire channels
   export default {
     name: 'DeleteExportChannelsPage',
@@ -93,9 +72,9 @@
       FilteredChannelListContainer,
       SelectionBottomBar,
       DeleteChannelModal,
-      SelectDriveModal: SelectDrive,
+      SelectDriveModal,
     },
-    mixins: [KResponsiveWindowMixin],
+    mixins: [KResponsiveWindowMixin, taskNotificationMixin],
     props: {
       actionType: {
         type: String,
@@ -126,6 +105,7 @@
         if (this.exportMode) {
           return {
             exportFileSize: this.fileSize,
+            manageMode: true,
           };
         }
         return {

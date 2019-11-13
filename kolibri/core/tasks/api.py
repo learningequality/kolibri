@@ -257,6 +257,7 @@ class TasksViewSet(viewsets.ViewSet):
                 task["channel_id"],
                 task["datafolder"],
                 extra_metadata=task,
+                track_progress=True,
                 cancellable=True,
             )
             job_ids.append(import_job_id)

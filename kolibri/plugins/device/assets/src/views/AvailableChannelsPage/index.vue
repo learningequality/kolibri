@@ -228,14 +228,14 @@
       toggleMultipleMode() {
         let newQuery;
         if (this.multipleMode) {
-          newQuery = omit(this.$route.query, 'multiple');
+          newQuery = omit(this.$route.query, ['multiple']);
         } else {
           newQuery = {
             ...this.$route.query,
             multiple: true,
           };
         }
-        this.$route.push(newQuery);
+        this.$router.push({ query: newQuery });
       },
       goToSelectContentPageForChannel(channel) {
         if (this.multipleMode) {
