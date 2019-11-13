@@ -7,6 +7,9 @@
         {{ $tr('versionIsAvailable', { channelName, nextVersion }) }}
       </h1>
       <p> {{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
+      <p v-if="channelIsIncomplete">
+        {{ $tr('channelIsIncomplete', { available, total }) }}
+      </p>
     </section>
 
     <section>
@@ -77,7 +80,11 @@
         showModal: false,
       };
     },
-    computed: {},
+    computed: {
+      channelIsIncomplete() {
+        return false;
+      },
+    },
     methods: {
       handleSubmit() {
         // Create the import channel task
@@ -97,6 +104,8 @@
       versionNumberHeader: 'Version {version}',
       modalTitle: 'Update version',
       modalQuestion: 'Are you sure you want to update to version {version}?',
+      channelIsIncomplete:
+        'Note: this copy of the channel is incomplete. It has {available} of {total} resources',
     },
   };
 

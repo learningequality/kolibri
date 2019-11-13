@@ -49,7 +49,7 @@ def validate_content_task(request, task_description, require_channel=False):
     try:
         channel = ChannelMetadata.objects.get(id=channel_id)
         channel_name = channel.name
-        file_size = (channel.published_size,)
+        file_size = channel.published_size
         total_resources = channel.total_resource_count
     except ChannelMetadata.DoesNotExist:
         if require_channel:
