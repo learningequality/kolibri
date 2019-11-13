@@ -16,10 +16,10 @@ const defaultProps = {
     return {
       name: 'SELECT_CONTENT',
       query: {
-        node_id: node.id
-      }
-    }
-  }
+        node_id: node.id,
+      },
+    };
+  },
 };
 
 function makeWrapper(props = {}) {

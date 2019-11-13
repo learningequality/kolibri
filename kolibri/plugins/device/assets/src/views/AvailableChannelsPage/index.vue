@@ -317,7 +317,7 @@
     },
     $trs: {
       importChannelsHeader: 'Select channels for import',
-      importResourcesHeader: 'Select resources  for import',
+      importResourcesHeader: 'Select resources for import',
       importFromDisk: `Import from '{driveName}'`,
       importFromPeer: `Import from '{deviceName}' ({address})`,
       kolibriCentralServer: 'Kolibri Studio channels',
