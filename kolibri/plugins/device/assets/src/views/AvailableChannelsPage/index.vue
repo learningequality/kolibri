@@ -14,37 +14,43 @@
     >
       <template v-slot:header>
         <h1 v-if="status === ''" data-test="title">
-          <span v-if="multipleMode">{{ $tr('selectEntireChannels') }}</span>
-          <span v-else-if="inExportMode">{{ $tr('yourChannels') }}</span>
-          <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
-          <span v-else>{{ coreString('channelsLabel') }}</span>
+          <span v-if="multipleMode">
+            {{ $tr('importChannelsHeader') }}
+          </span>
+          <span v-else>
+            {{ $tr('importResourcesHeader') }}
+          </span>
         </h1>
       </template>
 
       <template v-slot:abovechannels>
+        <KButton
+          v-if="!multipleMode"
+          appearance="basic-link"
+          :text="$tr('selectEntireChannels')"
+          @click="goToImportMultiple"
+        />
+        <KButton
+          v-else
+          appearance="basic-link"
+          :text="$tr('selectTopicsAndResources')"
+          @click="goToImportSingle"
+        />
         <section v-if="notEnoughFreeSpace">
-          {{ deviceStrings.$tr('notEnoughSpaceWarning') }}
+          {{ $tr('notEnoughSpaceForChannelsWarning') }}
         </section>
         <section
           v-if="showUnlistedChannels"
           class="unlisted-channels"
         >
-          <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
-
           <KButton
             :text="$tr('channelTokenButtonLabel')"
-            appearance="basic-link"
+            appearance="raised-button"
             name="showtokenmodal"
             @click="showTokenModal=true"
           />
         </section>
 
-        <section v-if="!multipleMode" class="import-multiple">
-          <KButton @click="goToImportMultiple">
-            <KIcon icon="multiple" class="multiple-icon" />
-            {{ $tr('importMultipleAction') }}
-          </KButton>
-        </section>
       </template>
 
       <template v-slot:default="{filteredItems, showItem, handleChange, itemIsSelected}">
@@ -99,6 +105,7 @@
 <script>
 
   import { mapState, mapMutations, mapGetters } from 'vuex';
+  import omit from 'lodash/omit';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
@@ -108,7 +115,6 @@
   import { TransferTypes } from '../../constants';
   import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
-  import deviceStrings from '../commonDeviceStrings';
   import taskNotificationMixin from '../taskNotificationMixin';
   import ChannelTokenModal from './ChannelTokenModal';
 
@@ -135,6 +141,7 @@
         fileSize: 0,
         freeSpace: null,
         disableBottomBar: false,
+        disableModal: false,
       };
     },
     computed: {
@@ -153,9 +160,6 @@
         'status',
         'transferType',
       ]),
-      deviceStrings() {
-        return deviceStrings;
-      },
       allChannels() {
         return [...this.newPrivateChannels, ...this.availableChannels];
       },
@@ -242,6 +246,13 @@
           },
         });
       },
+      goToImportSingle() {
+        this.$router.push({
+          query: {
+            ...omit(this.$route.query, 'multiple'),
+          },
+        });
+      },
       goToSelectContentPageForChannel(channel) {
         if (this.multipleMode) {
           this.disableModal = true;
@@ -311,20 +322,22 @@
       },
     },
     $trs: {
+      importChannelsHeader: 'Select channels for import',
+      importResourcesHeader: 'Select resources  for import',
       exportToDisk: 'Export to {driveName}',
       importFromDisk: `Import from '{driveName}'`,
       importFromPeer: `Import from '{deviceName}' ({address})`,
       kolibriCentralServer: 'Kolibri Studio channels',
-      importMultipleAction: 'Import multiple',
-      yourChannels: 'Your channels',
-      channelTokenButtonLabel: 'Try adding a token',
-      channelNotListedExplanation: "Don't see your channel listed?",
+      channelTokenButtonLabel: 'Import with token',
       pageLoadError: 'There was a problem loading this page…',
       documentTitleForLocalImport: "Available Channels on '{driveName}'",
       documentTitleForRemoteImport: 'Available Channels on Kolibri Studio',
       documentTitleForExport: 'Available Channels on this device',
       noChannelsAvailable: 'No channels are available on this device',
-      selectEntireChannels: 'Select entire channels for import',
+      selectEntireChannels: 'Select entire channels instead',
+      selectTopicsAndResources: 'Select topics and resources instead',
+      notEnoughSpaceForChannelsWarning:
+        'Not enough space available on your device. Free up disk space or select fewer resources',
     },
   };
 

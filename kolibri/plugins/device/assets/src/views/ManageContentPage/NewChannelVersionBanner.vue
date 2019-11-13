@@ -2,7 +2,7 @@
 
   <div>
     {{ $tr('versionAvailable', { version }) }}
-    <KButton :text="$tr('seeWhatsNewAction')" />
+    <KButton :text="$tr('viewChangesAction')" />
   </div>
 
 </template>
@@ -20,7 +20,7 @@
     },
     $trs: {
       versionAvailable: 'Version {version} is available!',
-      seeWhatsNewAction: `See what's new`,
+      viewChangesAction: 'View changes',
     },
   };
 

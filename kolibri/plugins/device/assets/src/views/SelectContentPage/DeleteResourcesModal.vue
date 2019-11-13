@@ -8,7 +8,10 @@
     @cancel="$emit('cancel')"
   >
     <div>
-      <p>
+      <p v-if="numberDeleted === 1">
+        {{ $tr('deleteSingleResourceConfirmation') }}
+      </p>
+      <p v-else>
         {{ $tr('deleteConfirmation') }}
       </p>
       <KCheckbox
@@ -29,6 +32,12 @@
   export default {
     name: 'DeleteResourcesModal',
     mixins: [commonCoreStrings],
+    props: {
+      numberDeleted: {
+        type: Number,
+        required: false,
+      },
+    },
     data() {
       return {
         deleteEverywhere: false,
@@ -37,6 +46,8 @@
     $trs: {
       deleteResourcesTitle: 'Delete resources',
       deleteConfirmation: 'Are you sure you want to delete these resources from your device?',
+      deleteSingleResourceConfirmation:
+        'Are you sure you want to delete this resource from your device?',
       deleteEverywhereLabel: 'Also delete any copies found in other locations and channels',
     },
   };

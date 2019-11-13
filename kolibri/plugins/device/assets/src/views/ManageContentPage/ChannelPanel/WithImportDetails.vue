@@ -89,7 +89,6 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { selectContentPageLink } from '../manageContentLinks';
-  import deviceStrings from '../../commonDeviceStrings';
   import ChannelDetails from './ChannelDetails';
 
   const Modes = {
@@ -127,19 +126,14 @@
     },
     computed: {
       ...mapGetters('manageContent', ['channelIsInstalled', 'activeTaskList']),
-      deviceStrings() {
-        return deviceStrings;
-      },
       channelSelectedMessage() {
         // Can't show file sizes when importing from drive
         if (this.channel.total_file_size) {
-          // eslint-disable-next-line
-          return this.deviceStrings.$tr('channelSelectedWithFileSize', {
+          return this.$tr('channelSelectedWithFileSize', {
             bytesText: this.bytesForHumans(this.channel.total_file_size),
           });
         } else {
-          // eslint-disable-next-line
-          return this.deviceStrings.$tr('channelSelectedNoFileSize');
+          return this.$tr('channelSelectedNoFileSize');
         }
       },
       inImportMode() {
@@ -188,9 +182,11 @@
       onYourDevice: 'Resources on device',
       selectTopicsAction: 'Select topics',
       newLabel: 'New',
-      privateChannelTooltip: 'Imported from channel token',
-      newVersionMessage: 'New version available with import.',
+      privateChannelTooltip: 'Unlisted channel',
+      newVersionMessage: 'New version available',
       moreInformationLabel: 'More information',
+      channelSelectedNoFileSize: 'Selected',
+      channelSelectedWithFileSize: '{bytesText} selected',
     },
   };
 

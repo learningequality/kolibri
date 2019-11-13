@@ -130,7 +130,7 @@
       dropdownOptions() {
         return [
           { label: this.$tr('exportToAction'), value: 'EXPORT' },
-          { label: this.$tr('deleteFromDeviceAction'), value: 'DELETE' },
+          { label: this.$tr('deleteAction'), value: 'DELETE' },
         ];
       },
     },
@@ -143,7 +143,6 @@
       importAction: 'Import',
       exportAction: 'Export',
       deleteAction: 'Delete',
-      deleteFromDeviceAction: 'Delete from device',
       exportToAction: 'Export to…',
       channelsSelectedNoFileSize:
         '{count, number} {count, plural, one {channel} other {channels}} selected',

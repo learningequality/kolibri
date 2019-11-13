@@ -10,7 +10,7 @@
     </section>
 
     <section>
-      <h3>{{ $tr('updateFromTo', { currentVersion, nextVersion }) }}</h3>
+      <h3>{{ $tr('versionChangesHeader', { currentVersion, nextVersion }) }}</h3>
       <KTooltip>
         {{ $tr('resourcesToBeDeletedTooltip') }}
       </KTooltip>
@@ -31,7 +31,7 @@
       </table>
 
       <KButton
-        :text="$tr('updateVersionAction')"
+        :text="$tr('updateChannelAction')"
         appearance="raised-button"
         :primary="true"
       />
@@ -85,15 +85,15 @@
       },
     },
     $trs: {
-      versionIsAvailable: `Version {nextVersion} of '{channelName}' is available!`,
+      versionIsAvailable: `Version {nextVersion} of '{channelName}' is available`,
       youAreCurrentlyOnVersion: 'You are currently on version {currentVersion}',
-      updateFromTo: 'Update from Version {currentVersion} to {nextVersion}',
-      resourcesAvailableForImport: 'New resources available for import:',
-      resourcesToBeDeleted: 'Resources to be deleted from device:',
+      versionChangesHeader: 'Changes if you update from version {currentVersion} to {nextVersion}',
+      resourcesAvailableForImport: 'New resources available:',
+      resourcesToBeDeleted: 'Resources that will be deleted:',
       resourcesToBeDeletedTooltip:
-        'If you update versions, some resources on your device may be deleted. This may have an effect on any active lessons, quizzes, or learner resources that use the deleted resources',
-      resourcesToBeUpdated: 'Resources to be automatically updated:',
-      updateVersionAction: 'Update version',
+        'Warning! When you update this channel, some resources will be deleted. This may affect lessons or quizzes that are using the deleted resources.',
+      resourcesToBeUpdated: 'Resources to be updated:',
+      updateChannelAction: 'Update channel',
       versionNumberHeader: 'Version {version}',
       modalTitle: 'Update version',
       modalQuestion: 'Are you sure you want to update to version {version}?',

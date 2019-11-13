@@ -158,7 +158,7 @@
       selectDrive: 'Select a drive',
       selectExportDestination: 'Select an export destination',
       notEnoughFreeSpaceWarning:
-        'Not enough space available. Clear up space on the drive or select fewer channels',
+        'Not enough space available. Free up space on the drive or select fewer resources',
     },
   };
 

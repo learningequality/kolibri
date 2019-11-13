@@ -10,6 +10,9 @@
     <p v-if="channelTitle">
       {{ $tr('confirmationQuestion', { channelTitle }) }}
     </p>
+    <p v-else-if="numberOfChannels === 1">
+      {{ $tr('confirmationQuestionOneChannel') }}
+    </p>
     <p v-else>
       {{ $tr('confirmationQuestionMultipleChannels') }}
     </p>
@@ -30,6 +33,10 @@
         type: String,
         required: false,
       },
+      numberOfChannels: {
+        type: Number,
+        required: false,
+      },
     },
     computed: {
       title() {
@@ -43,6 +50,8 @@
     },
     $trs: {
       confirmationQuestion: `Are you sure you want to delete '{ channelTitle }' from your device?`,
+      confirmationQuestionOneChannel:
+        'Are you sure you want to delete this channel from your device?',
       confirmationQuestionMultipleChannels:
         'Are you sure you want to delete these channels from your device?',
       title: 'Delete channel',

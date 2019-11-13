@@ -110,7 +110,7 @@
         return [
           { label: this.$tr('exportChannels'), value: 'EXPORT' },
           { label: this.$tr('deleteChannels'), value: 'DELETE' },
-          { label: this.$tr('rearrangeChannels'), value: 'REARRANGE' },
+          { label: this.$tr('editChannelOrder'), value: 'REARRANGE' },
         ];
       },
     },
@@ -156,7 +156,7 @@
       documentTitle: 'Manage Device Channels',
       exportChannels: 'Export channels',
       deleteChannels: 'Delete channels',
-      rearrangeChannels: 'Re-arrange',
+      editChannelOrder: 'Edit channel order',
       emptyChannelListMessage: 'No channels installed',
     },
   };
