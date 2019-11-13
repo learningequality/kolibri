@@ -80,6 +80,8 @@
     DISKCHANNELIMPORT: 'generatingChannelListing',
     REMOTECONTENTIMPORT: 'importingChannel',
     DISKCONTENTIMPORT: 'importingChannel',
+    REMOTEIMPORT: 'importingChannel',
+    DISKIMPORT: 'importingChannel',
     DISKEXPORT: 'exportingChannel',
     DELETECHANNEL: 'deletingChannel',
     UPDATECHANNEL: 'updatingChannelVersion',

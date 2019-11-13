@@ -109,6 +109,7 @@
   import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import deviceStrings from '../commonDeviceStrings';
+  import taskNotificationMixin from '../taskNotificationMixin';
   import ChannelTokenModal from './ChannelTokenModal';
 
   export default {
@@ -125,7 +126,7 @@
       FilteredChannelListContainer,
       SelectionBottomBar,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin, taskNotificationMixin],
     data() {
       return {
         showTokenModal: false,
@@ -141,6 +142,7 @@
       ...mapGetters('manageContent/wizard', [
         'inLocalImportMode',
         'inRemoteImportMode',
+        'inPeerImportMode',
         'inExportMode',
         'isStudioApplication',
       ]),
@@ -276,19 +278,36 @@
         this.startMultipleChannelImport();
       },
       startMultipleChannelImport() {
-        const taskParams = this.selectedChannels.map(x => ({
-          channel_id: x.id,
-          drive_id: this.$route.query.drive_id,
-        }));
-        return TaskResource.startDiskBulkImport(taskParams)
-          .then(tasks => {
-            console.log(tasks);
-            this.disableBottomBar = false;
-          })
-          .catch(err => {
-            console.log(err);
-            this.disableBottomBar = false;
-          });
+        if (this.inLocalImportMode) {
+          const taskParams = this.selectedChannels.map(x => ({
+            channel_id: x.id,
+            drive_id: this.selectedDrive.id,
+          }));
+          return TaskResource.startDiskBulkImport(taskParams)
+            .then(tasks => {
+              this.notifyAndWatchTask(tasks);
+              this.disableBottomBar = false;
+            })
+            .catch(() => {
+              this.createTaskFailedSnackbar();
+              this.disableBottomBar = false;
+            });
+        } else {
+          const baseurl = this.inPeerImportMode ? this.selectedPeer.base_url : null;
+          const taskParams = this.selectedChannels.map(x => ({
+            channel_id: x.id,
+            baseurl,
+          }));
+          return TaskResource.startRemoteBulkImport(taskParams)
+            .then(tasks => {
+              this.notifyAndWatchTask(tasks);
+              this.disableBottomBar = false;
+            })
+            .catch(() => {
+              this.createTaskFailedSnackbar();
+              this.disableBottomBar = false;
+            });
+        }
       },
     },
     $trs: {

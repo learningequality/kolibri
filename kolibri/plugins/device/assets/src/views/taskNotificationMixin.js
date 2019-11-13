@@ -33,8 +33,8 @@ export default {
     },
   },
   methods: {
-    notifyAndWatchTask(task) {
-      this.startWatchingTask(task);
+    notifyAndWatchTask(taskResponse) {
+      this.startWatchingTask(taskResponse);
       this.createTaskStartedSnackbar();
     },
     createTaskFailedSnackbar() {
@@ -74,8 +74,12 @@ export default {
         actionCallback,
       });
     },
-    startWatchingTask(task) {
-      this.$store.commit('manageContent/SET_WATCHED_TASK_ID', task.entity.id);
+    startWatchingTask(taskResponse) {
+      if (Array.isArray(taskResponse.entity)) {
+        this.$store.commit('manageContent/SET_WATCHED_TASK_ID', taskResponse.entity[0].id);
+      } else {
+        this.$store.commit('manageContent/SET_WATCHED_TASK_ID', taskResponse.entity.id);
+      }
     },
   },
 };

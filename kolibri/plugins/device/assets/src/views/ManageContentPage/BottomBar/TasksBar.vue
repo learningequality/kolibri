@@ -58,7 +58,8 @@
         return this.taskCounts.COMPLETED || 0;
       },
       progress() {
-        return (sumBy(this.taskList, 'percentage') / this.totalTasks) * 100;
+        const inProgressTasks = this.taskList.filter(t => t.status !== 'COMPLETED');
+        return (this.doneTasks + sumBy(inProgressTasks, 'percentage') / this.totalTasks) * 100;
       },
       tasksString() {
         if (this.totalTasks === 0) {
