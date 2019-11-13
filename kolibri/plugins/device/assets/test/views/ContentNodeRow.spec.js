@@ -4,6 +4,7 @@ import ContentNodeRow from '../../src/views/SelectContentPage/ContentNodeRow';
 import { makeNode } from '../utils/data';
 import router from './testRouter';
 
+//
 const defaultProps = {
   node: {
     title: 'Awesome Content',
@@ -11,6 +12,14 @@ const defaultProps = {
     id: 'awesome_content',
   },
   message: 'HELLO',
+  getLinkObject(node) {
+    return {
+      name: 'SELECT_CONTENT',
+      query: {
+        node_id: node.id
+      }
+    }
+  }
 };
 
 function makeWrapper(props = {}) {
