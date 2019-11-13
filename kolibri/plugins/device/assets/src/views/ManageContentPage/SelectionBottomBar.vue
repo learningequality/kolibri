@@ -2,15 +2,22 @@
 
   <BottomAppBar>
     <span class="message">{{ selectedMessage }}</span>
-    <KDropdownMenu
-      v-if="actionType === 'manage'"
-      :text="coreString('optionsLabel')"
-      :options="dropdownOptions"
-      :disabled="$attrs.disabled || buttonsDisabled"
-      :primary="true"
-      position="top center"
-      @select="$emit('selectoption', $event.value)"
-    />
+
+    <template v-if="actionType === 'manage'">
+      <KButton
+        :disabled="$attrs.disabled || buttonsDisabled"
+        :text="coreString('deleteAction')"
+        :primary="false"
+        @click="$emit('selectoption', 'DELETE')"
+      />
+      <KButton
+        :disabled="$attrs.disabled || buttonsDisabled"
+        :text="$tr('exportAction')"
+        :primary="true"
+        @click="$emit('selectoption', 'EXPORT')"
+      />
+    </template>
+
     <KButton
       v-else
       :disabled="$attrs.disabled || buttonsDisabled"
@@ -127,12 +134,6 @@
           }
         }
       },
-      dropdownOptions() {
-        return [
-          { label: this.$tr('exportToAction'), value: 'EXPORT' },
-          { label: this.$tr('deleteAction'), value: 'DELETE' },
-        ];
-      },
     },
     watch: {
       selectedObjectsFileSize(value) {
@@ -143,7 +144,6 @@
       importAction: 'Import',
       exportAction: 'Export',
       deleteAction: 'Delete',
-      exportToAction: 'Export to…',
       channelsSelectedNoFileSize:
         '{count, number} {count, plural, one {channel} other {channels}} selected',
       channelsSelectedWithFileSize:
