@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 
+from django.db.models import Sum
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
 from sqlalchemy import cast
@@ -19,8 +20,6 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.serializers import _files_for_nodes
-from kolibri.core.content.serializers import _total_file_size
 from kolibri.core.device.models import ContentCacheKey
 
 logger = logging.getLogger(__name__)
@@ -424,10 +423,24 @@ def calculate_channel_fields(channel_id):
     calculate_next_order(channel)
 
 
+def files_for_nodes(nodes):
+    return LocalFile.objects.filter(files__contentnode__in=nodes)
+
+
+def total_file_size(files_or_nodes):
+    if issubclass(files_or_nodes.model, LocalFile):
+        localfiles = files_or_nodes
+    elif issubclass(files_or_nodes.model, ContentNode):
+        localfiles = files_for_nodes(files_or_nodes)
+    else:
+        raise TypeError("Expected queryset for LocalFile or ContentNode")
+    return localfiles.distinct().aggregate(Sum("file_size"))["file_size__sum"] or 0
+
+
 def calculate_published_size(channel):
     content_nodes = ContentNode.objects.filter(channel_id=channel.id)
-    channel.published_size = _total_file_size(
-        _files_for_nodes(content_nodes).filter(available=True)
+    channel.published_size = total_file_size(
+        files_for_nodes(content_nodes).filter(available=True)
     )
     channel.save()
 

@@ -4,13 +4,17 @@ from __future__ import unicode_literals
 
 import uuid
 
+import mock
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from rest_framework.test import APITestCase
 
+import kolibri.plugins.device.api
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import setup_device
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import LocalFile
 from kolibri.core.device.models import DevicePermissions
 
 DUMMY_PASSWORD = "password"
@@ -141,3 +145,94 @@ class ChannelOrderTestCase(APITestCase):
         channel.refresh_from_db()
         self.assertEqual(channel.order, 1)
         self.assertEqual(new_channel.order, 2)
+
+
+class DeviceChannelMetadataAPITestCase(APITestCase):
+    """
+    Testcase for channel API methods
+    """
+
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def test_channelmetadata_resource_info(self):
+        ChannelMetadata.objects.all().update(total_resource_count=4, published_size=0)
+        data = ChannelMetadata.objects.values()[0]
+        c1_id = ContentNode.objects.get(title="c1").id
+        ContentNode.objects.filter(pk=c1_id).update(available=False)
+        get_params = {
+            "include_fields": "total_resources,total_file_size,on_device_resources,on_device_file_size"
+        }
+        response = self.client.get(
+            reverse(
+                "kolibri:kolibri.plugins.device:device_channel-detail",
+                kwargs={"pk": data["id"]},
+            ),
+            get_params,
+        )
+        # N.B. Because of our not very good fixture data, most of our content nodes are by default not renderable
+        # Hence this will return 1 if everything is deduped properly.
+        self.assertEqual(response.data["total_resources"], 1)
+        self.assertEqual(response.data["total_file_size"], 0)
+        self.assertEqual(response.data["on_device_resources"], 4)
+        self.assertEqual(response.data["on_device_file_size"], 0)
+
+    def test_channelmetadata_include_fields_filter_has_total_resources(self):
+        # N.B. Because of our not very good fixture data, most of our content nodes are by default not renderable
+        # Hence this will return 1 if everything is deduped properly.
+        response = self.client.get(
+            reverse("kolibri:kolibri.plugins.device:device_channel-list"),
+            {"include_fields": "total_resources"},
+        )
+        self.assertEqual(response.data[0]["total_resources"], 1)
+
+    def test_channelmetadata_include_fields_filter_has_total_file_size(self):
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
+        response = self.client.get(
+            reverse("kolibri:kolibri.plugins.device:device_channel-list"),
+            {"include_fields": "total_file_size"},
+        )
+        self.assertEqual(response.data[0]["total_file_size"], 5)
+
+    def test_channelmetadata_include_fields_filter_has_on_device_resources(self):
+        ChannelMetadata.objects.all().update(total_resource_count=5)
+        response = self.client.get(
+            reverse("kolibri:kolibri.plugins.device:device_channel-list"),
+            {"include_fields": "on_device_resources"},
+        )
+        self.assertEqual(response.data[0]["on_device_resources"], 5)
+
+    def test_channelmetadata_include_fields_filter_has_on_device_file_size(self):
+        ChannelMetadata.objects.all().update(published_size=4)
+        response = self.client.get(
+            reverse("kolibri:kolibri.plugins.device:device_channel-list"),
+            {"include_fields": "on_device_file_size"},
+        )
+        self.assertEqual(response.data[0]["on_device_file_size"], 4)
+
+    def test_channelmetadata_include_fields_filter_has_no_on_device_file_size(self):
+        ChannelMetadata.objects.all().update(published_size=0)
+        response = self.client.get(
+            reverse("kolibri:kolibri.plugins.device:device_channel-list"),
+            {
+                "include_fields": "total_resources,total_file_size,on_device_resources,on_device_file_size"
+            },
+        )
+        self.assertEqual(response.data[0]["on_device_file_size"], 0)
+
+    @mock.patch.object(
+        kolibri.plugins.device.api,
+        "renderable_contentnodes_without_topics_q_filter",
+        Q(kind="dummy"),
+    )
+    def test_channelmetadata_include_fields_filter_has_no_renderable_on_device_file_size(
+        self,
+    ):
+        ChannelMetadata.objects.all().update(published_size=4)
+        response = self.client.get(
+            reverse("kolibri:kolibri.plugins.device:device_channel-list"),
+            {"include_fields": "on_device_file_size"},
+        )
+        self.assertEqual(response.data[0]["on_device_file_size"], 4)
