@@ -138,7 +138,7 @@ def start(port=8080, run_cherrypy=True):
         block()
 
 
-def services(port):
+def services(port=8080):
     """
     Runs the background services.
     """

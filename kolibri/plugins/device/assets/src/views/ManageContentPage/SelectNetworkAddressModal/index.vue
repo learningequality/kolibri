@@ -14,11 +14,6 @@
       @cancel="goToSelectAddress"
       @added_address="handleAddedAddress"
     />
-    <SearchAddressForm
-      v-if="stage === Stages.SEARCH_ADDRESS"
-      @cancel="goToSelectAddress"
-      @submit="handleSelectAddressSubmit"
-    />
   </div>
 
 </template>
@@ -30,12 +25,10 @@
   import { availableChannelsPageLink, selectContentPageLink } from '../manageContentLinks';
   import AddAddressForm from './AddAddressForm';
   import SelectAddressForm from './SelectAddressForm';
-  import SearchAddressForm from './SearchAddressForm';
 
   const Stages = {
     ADD_ADDRESS: 'ADD_ADDRESS',
     SELECT_ADDRESS: 'SELECT_ADDRESS',
-    SEARCH_ADDRESS: 'SEARCH_ADDRESS',
   };
 
   export default {
@@ -43,7 +36,6 @@
     components: {
       AddAddressForm,
       SelectAddressForm,
-      SearchAddressForm,
     },
     data() {
       return {

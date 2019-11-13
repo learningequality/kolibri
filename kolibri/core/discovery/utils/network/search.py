@@ -143,6 +143,7 @@ def get_available_instances(timeout=2, include_local=True):
             ZEROCONF_STATE["service"] and ZEROCONF_STATE["service"].id == instance["id"]
         )
         instances.append(instance)
+    logger.info(str(instances))
     return instances
 
 
