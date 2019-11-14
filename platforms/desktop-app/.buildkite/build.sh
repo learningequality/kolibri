@@ -32,13 +32,16 @@ echo "--- Build .app"
 echo "PYTHONPATH=$PWD/src/kolibri/dist" > .env
 
 # Putting output in file, errors stil log to stderr 
-pipenv run pew build | tee full_app_build_log.txt > /dev/null
+mkdir -p logs
+pipenv run pew build | tee logs/full_app_build_log.txt > /dev/null
 
-buildkite-agent artifact upload full_app_build_log.txt
+buildkite-agent artifact upload logs/full_app_build_log.txt
 
 echo "--- :mac: Build .dmg"
 
 pipenv run pew package
+
+echo "--- Uploading"
 
 # This doesn't actually exist, so we have to manually pass it.
 if buildkite-agent meta-data exists triggered_from_job_id
@@ -46,7 +49,6 @@ then
   echo "Overwriting job to upload to locally"
   BUILDKITE_JOB_ID = $(buildkite agent met-data get triggered_from_job_id)
 fi
-
 
 buildkite-agent artifact upload "package/osx/kolibri*.dmg" --job $BUILDKITE_JOB_ID
 
