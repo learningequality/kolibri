@@ -1,0 +1,11 @@
+{
+  "DemoServerBannerContent.demoServerA1": "ডকুমেন্টেশন পড়ুন",
+  "DemoServerBannerContent.demoServerA2": "সাম্প্রতিকতম রিলিজটি ডাইনলোড করে ইনস্টল করুন",
+  "DemoServerBannerContent.demoServerHeader": "কলিব্রির ডেমো সাইটে স্বাগতম",
+  "DemoServerBannerContent.demoServerL1": "শিক্ষার্থী ({user}/{pass} বা অতিথি হিসেবে ব্যবহার করে দেখুন)",
+  "DemoServerBannerContent.demoServerL2": "প্রশিক্ষক ({user}/{pass})",
+  "DemoServerBannerContent.demoServerL3": "অ্যাডমিন ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "প্রধান তিন ধরণের ব্যবহারকারীর যেকোনো একটি ব্যবহার করে দেখুন:",
+  "DemoServerBannerContent.demoServerP2": "কলিব্রির এই অনলাইন সংস্করণটি শুধুমাত্র ব্যবহার করে দেখার জন্য। ব্যবহারকারী এবং তথ্য কিছু সময় অন্তর মুছে ফেলা হবে। এই ডেমোতে সাম্প্রতিক কলিব্রি সংস্করণের বৈশিষ্ট্যগুলি দেখানো হয়েছে এবং এখানে প্রদত্ত সমস্ত উপকরণ নমুনা মাত্র।",
+  "DemoServerBannerContent.demoServerP3": "কলিব্রির অফলাইন ব্যবহার সম্পর্কে আরও জানতে এবং এই প্ল্যাটফর্মটিকে আরো ভালভাবে বুঝতে:"
+}
