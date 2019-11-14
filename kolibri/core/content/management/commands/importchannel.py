@@ -103,10 +103,13 @@ class Command(AsyncCommand):
 
         # if upgraded db has previously been downloaded, just change the name
         if os.path.exists(upgrade_dest) and not upgrade:
-            os.rename(upgrade_dest, dest)
+            with self.start_progress(total=100) as progress_update:
+                os.rename(upgrade_dest, dest)
+                progress_update(100)
             logger.info(
                 "Renaming {old} path to {new} path".format(old=upgrade_dest, new=dest)
             )
+            progress_update(100, 100)
         else:
             # determine where we're downloading/copying from, and create appropriate transfer object
             if method == DOWNLOAD_METHOD:
