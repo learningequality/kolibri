@@ -43,15 +43,11 @@ pipenv run pew package
 
 echo "--- Uploading"
 
-# This doesn't actually exist, so we have to manually pass it.
-if buildkite-agent meta-data exists triggered_from_job_id
-then
-  echo "Overwriting job to upload to locally"
-  BUILDKITE_JOB_ID=$(buildkite-agent meta-data get triggered_from_job_id)
-fi
 
 # Clear dist so that the dmg is in the same dir as the rest of the packages
 rm -r dist/* && mv package/osx/kolibri*.dmg dist/
-buildkite-agent artifact upload "dist/kolibri*.dmg" --job $BUILDKITE_JOB_ID
+
+# Environment var doesn't exist my default, so we have to manually pass it.
+buildkite-agent artifact upload "dist/kolibri*.dmg" --job $(buildkite-agent meta-data get triggered_from_job_id --default $BUILDKITE_JOB_ID)
 
 # TODO upload directly to google cloud
