@@ -29,14 +29,15 @@
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <ContentNodeRow
-            v-for="node in showableAnnotatedChildNodes"
-            :key="node.id"
-            :checked="nodeIsChecked(node)"
-            :disabled="disableAll || node.disabled"
-            :indeterminate="nodeIsIndeterminate(node)"
-            :message="node.message"
-            :node="node"
-            @changeselection="toggleSelection(node)"
+            v-for="cNode in showableAnnotatedChildNodes"
+            :key="cNode.id"
+            :checked="nodeIsChecked(cNode)"
+            :disabled="disabled || disableAll || cNode.disabled"
+            :indeterminate="nodeIsIndeterminate(cNode)"
+            :message="cNode.message"
+            :node="cNode"
+            :getLinkObject="topicLinkObject"
+            @changeselection="toggleSelection(cNode)"
           />
         </transition-group>
       </CoreTable>
@@ -55,12 +56,13 @@
 
 <script>
 
-  import { mapState, mapActions, mapGetters } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import every from 'lodash/every';
   import omit from 'lodash/omit';
   import { TransferTypes } from '../../constants';
+  import { selectContentTopicLink } from '../ManageContentPage/manageContentLinks';
   import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
   import ContentNodeRow from './ContentNodeRow';
 
@@ -75,21 +77,63 @@
       ContentNodeRow,
       CoreTable,
     },
+    props: {
+      node: {
+        type: Object,
+        required: false,
+      },
+      manageMode: {
+        type: Boolean,
+        default: false,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
+    },
     data() {
       return {
         disableAll: false,
       };
     },
     computed: {
-      ...mapGetters('manageContent/wizard', ['inExportMode']),
-      ...mapState('manageContent/wizard', [
-        'currentTopicNode',
-        'nodesForTransfer',
-        'path',
-        'transferType',
-      ]),
+      ...mapState('manageContent/wizard', ['nodesForTransfer']),
+      currentTopicNode() {
+        if (this.node) {
+          return this.node;
+        } else {
+          return this.$store.state.manageContent.wizard.currentTopicNode;
+        }
+      },
+      transferType() {
+        if (this.manageMode) {
+          return TransferTypes.LOCALEXPORT;
+        } else {
+          return this.$store.state.manageContent.wizard.transferType;
+        }
+      },
+      path() {
+        if (this.manageMode) {
+          return [...this.node.ancestors, this.node];
+        } else {
+          return this.$store.state.manageContent.wizard.path;
+        }
+      },
       breadcrumbs() {
-        return this.path.map(x => transformBreadrumb(x, this.$route));
+        if (this.manageMode) {
+          return this.path.map(x => {
+            let query = {};
+            if (x.id !== this.$route.params.channel_id) {
+              query.node = x.id;
+            }
+            return {
+              text: x.title,
+              link: { query },
+            };
+          });
+        } else {
+          return this.path.map(x => transformBreadrumb(x, this.$route));
+        }
       },
       childNodes() {
         // Guard against when state is reset going back to manage content page
@@ -113,7 +157,12 @@
         }
       },
       disableSelectAll() {
-        return this.disableAll || this.annotatedTopicNode.disabled || this.noSelectableNodes;
+        return (
+          this.disabled ||
+          this.disableAll ||
+          this.annotatedTopicNode.disabled ||
+          this.noSelectableNodes
+        );
       },
       childNodesWithPath() {
         return this.childNodes.map(node => ({
@@ -129,7 +178,7 @@
       },
       annotatedChildNodes() {
         return this.childNodesWithPath.map(n =>
-          annotateNode(n, this.nodesForTransfer, !this.inExportMode)
+          annotateNode(n, this.nodesForTransfer, !this.manageMode)
         );
       },
       showableAnnotatedChildNodes() {
@@ -149,7 +198,7 @@
         return annotateNode(
           { ...this.currentTopicNode, path: [...this.path] },
           selections,
-          !this.inExportMode
+          !this.manageMode
         );
       },
     },
@@ -194,6 +243,17 @@
           this.disableAll = false;
           this.$forceUpdate();
         });
+      },
+      topicLinkObject(node) {
+        if (this.manageMode) {
+          return {
+            query: {
+              node: node.id,
+            },
+          };
+        } else {
+          return selectContentTopicLink(node, this.$route.query, this.$route.params.channel_id);
+        }
       },
     },
     $trs: {

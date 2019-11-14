@@ -11,12 +11,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   editDetailsAction: 'Edit details',
   finishAction: 'Finish',
   goBackAction: 'Go back',
+  retryAction: 'Retry',
   removeAction: 'Remove',
   saveAction: 'Save',
   saveChangesAction: 'Save changes',
   selectAllOnPageAction: 'Select all on page',
   showAction: 'Show',
   updateAction: 'Update',
+  viewAction: 'View',
   viewTasksAction: 'View tasks',
 
   // labels, phrases, titles, headers...

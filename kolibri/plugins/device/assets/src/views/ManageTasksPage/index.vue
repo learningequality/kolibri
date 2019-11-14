@@ -5,7 +5,12 @@
       {{ $tr('emptyTasksMessage') }}
     </p>
 
-    <div class="tasks-panels">
+    <KButton
+      v-if="showClearAllButton"
+      :text="$tr('clearAllAction')"
+      @click="handleClickClearAll"
+    />
+    <div class="task-panels">
       <TaskPanel
         v-for="task in sortedTaskList"
         :key="task.id"
@@ -22,9 +27,11 @@
 <script>
 
   import reverse from 'lodash/fp/reverse';
+  import some from 'lodash/some';
   import { mapState } from 'vuex';
   import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { taskIsClearable } from '../../constants';
   import TaskPanel from './TaskPanel';
 
   // A page to view content import/export/deletion tasks
@@ -48,6 +55,9 @@
       ...mapState('manageContent', ['taskList']),
       sortedTaskList() {
         return reverse(this.taskList);
+      },
+      showClearAllButton() {
+        return some(this.taskList, taskIsClearable);
       },
     },
     watch: {
@@ -73,15 +83,21 @@
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr('appBarTitle'));
       },
       handleClickClear(task) {
-        TaskResource.postListEndpoint('cleartask', { task_id: task.id });
+        TaskResource.deleteFinishedTask({ task_id: task.id }).catch(() => {
+          // error silently
+        });
       },
       handleClickCancel(task) {
         TaskResource.cancelTask(task.id);
+      },
+      handleClickClearAll() {
+        TaskResource.deleteFinishedTasks();
       },
     },
     $trs: {
       appBarTitle: 'Task manager',
       emptyTasksMessage: 'Tasks you initiate will appear here',
+      clearAllAction: 'Clear all',
     },
   };
 
@@ -92,6 +108,7 @@
 
   .task-panels {
     max-width: 780px;
+    margin-top: 32px;
   }
 
   .no-tasks {

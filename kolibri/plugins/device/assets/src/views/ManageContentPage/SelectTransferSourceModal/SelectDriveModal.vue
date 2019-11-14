@@ -5,7 +5,7 @@
     size="medium"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
-    :submitDisabled="selectedDriveId===''"
+    :submitDisabled="selectedDriveId === '' || notEnoughFreeSpace"
     @submit="goForward"
     @cancel="handleClickCancel"
   >
@@ -70,6 +70,10 @@
         type: Number,
         required: false,
       },
+      manageMode: {
+        type: Boolean,
+        required: false,
+      },
     },
     data() {
       return {
@@ -78,8 +82,24 @@
       };
     },
     computed: {
-      ...mapGetters('manageContent/wizard', ['driveCanBeUsedForTransfer', 'isImportingMore']),
-      ...mapState('manageContent/wizard', ['driveList', 'transferType']),
+      ...mapGetters('manageContent/wizard', ['isImportingMore']),
+      ...mapState('manageContent/wizard', ['driveList']),
+      transferType() {
+        if (this.manageMode) {
+          return TransferTypes.LOCALEXPORT;
+        } else {
+          return this.$store.state.manageContent.wizard.transferType;
+        }
+      },
+      driveCanBeUsedForTransfer() {
+        if (this.manageMode) {
+          return function isWritable({ drive }) {
+            return drive.writable;
+          };
+        } else {
+          return this.$store.getters['manageContent/wizard/driveCanBeUsedForTransfer'];
+        }
+      },
       inImportMode() {
         return this.transferType === TransferTypes.LOCALIMPORT;
       },
@@ -124,13 +144,21 @@
         resetContentWizardState: 'RESET_STATE',
       }),
       goForward() {
-        this.goForwardFromSelectDriveModal({
-          driveId: this.selectedDriveId,
-          forExport: !this.inImportMode,
-        });
+        if (this.manageMode) {
+          this.$emit('submit', { driveId: this.selectedDriveId });
+        } else {
+          this.goForwardFromSelectDriveModal({
+            driveId: this.selectedDriveId,
+            forExport: !this.inImportMode,
+          });
+        }
       },
       handleClickCancel() {
-        this.resetContentWizardState();
+        if (this.manageMode) {
+          this.$emit('cancel');
+        } else {
+          this.resetContentWizardState();
+        }
       },
     },
     $trs: {
@@ -139,7 +167,7 @@
       selectDrive: 'Select a drive',
       selectExportDestination: 'Select an export destination',
       notEnoughFreeSpaceWarning:
-        'Not enough space available. Clear up space on the drive or select fewer channels',
+        'Not enough space available. Free up space on the drive or select fewer resources',
     },
   };
 

@@ -20,10 +20,10 @@
       />
     </div>
 
-    <div class="col-2" dir="auto">
+    <div class="col-2">
       <div class="col-2-row-1">
         <div>
-          <h2 class="channel-name">
+          <h2 class="channel-name" dir="auto">
             {{ channel.name }}
           </h2>
           <slot name="belowname"></slot>
@@ -35,7 +35,7 @@
 
       <div>
         <slot name="abovedescription"></slot>
-        <p class="description">
+        <p class="description" dir="auto">
           {{ channel.description || $tr('defaultDescription') }}
         </p>
         <p class="coach-content">

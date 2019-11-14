@@ -95,6 +95,10 @@
       margin: 0;
       text-align: right;
     }
+
+    .channel-card-sm & {
+      font-size: 14px;
+    }
   }
 
 </style>
