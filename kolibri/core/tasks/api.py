@@ -576,6 +576,11 @@ class TasksViewSet(viewsets.ViewSet):
         """
         channel_id = request.data.get("channel_id")
         method = request.data.get("method")
+        drive_id = request.data.get("drive_id")
+        if not channel_id:
+            raise serializers.ValidationError("The channel_id field is required.")
+        if not method:
+            raise serializers.ValidationError("The method field is required.")
         if method == "network":
             call_command(
                 "importchannel",
@@ -586,10 +591,18 @@ class TasksViewSet(viewsets.ViewSet):
                 ),
                 upgrade=True,
             )
-        else:
-            drive = get_mounted_drive_by_id(request.data.get("drive_id"))
+        elif method == "disk":
+            if not drive_id:
+                raise serializers.ValidationError(
+                    "The drive_id field is required when using 'disk' method."
+                )
+            drive = get_mounted_drive_by_id(drive_id)
             call_command(
                 "importchannel", "disk", channel_id, drive, upgrade=True,
+            )
+        else:
+            raise serializers.ValidationError(
+                "'method' field should either be 'network' or 'disk'."
             )
         # upgraded content database path
         source_path = paths.get_upgrade_content_database_file_path(channel_id)
