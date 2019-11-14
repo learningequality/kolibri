@@ -12,7 +12,7 @@ then
 else
   echo "--- Downloading from pip"
   mkdir -p dist
-  pip3 download -d ./whl kolibri
+  pip3 download -d ./dist kolibri
 fi
 
 echo "--- Preparing Environment"
@@ -41,7 +41,7 @@ echo "--- :mac: Build .pkg"
 pipenv run pew package
 
 # This doesn't actually exist, so we have to manually pass it.
-if [[ $(buildkite agent meta-data exists triggered_from_job_id) ]]
+if [[ "$(buildkite-agent meta-data exists triggered_from_job_id)" ]]
 then
   echo "Overwriting job to upload to locally"
   BUILDKITE_JOB_ID = $(buildkite agent met-data get triggered_from_job_id)
