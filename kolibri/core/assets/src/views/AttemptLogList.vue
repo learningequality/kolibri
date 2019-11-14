@@ -5,17 +5,34 @@
       {{ $tr('answerHistoryLabel') }}
     </h3>
 
-    <ul ref="attemptList" class="history-list">
+    <ul
+      ref="attemptList"
+      class="history-list"
+      role="listbox"
+      @keydown.home="setSelectedAttemptLog(0)"
+      @keydown.end="setSelectedAttemptLog(attemptLogs.length - 1)"
+      @keydown.up.prevent="setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
+      @keydown.left.prevent="setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
+      @keydown.down.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
+      @keydown.right.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
+    >
       <template v-for="(attemptLog, index) in attemptLogs">
         <li
           :key="index"
-          class="clickable attempt-item"
+          class="attempt-item"
           :style="{
             backgroundColor: isSelected(index) ? $themeTokens.textDisabled : '',
           }"
-          @click="setSelectedAttemptLog(index)"
         >
-          <div class="title">
+          <a
+            ref="attemptListOption"
+            role="option"
+            :aria-selected="isSelected(index).toString()"
+            :tabindex="isSelected(index) ? 0 : -1"
+            @click.prevent="setSelectedAttemptLog(index)"
+            @keydown.enter="setSelectedAttemptLog(index)"
+            @keydown.space.prevent="setSelectedAttemptLog(index)"
+          >
             <mat-svg
               v-if="attemptLog.noattempt"
               class="item svg-item"
@@ -52,14 +69,14 @@
               name="lightbulb_outline"
             />
             <p class="item">
-              {{ 
+              {{
                 coreString(
-                  'questionNumberLabel', 
+                  'questionNumberLabel',
                   {questionNumber: attemptLog.questionNumber}
-                ) 
+                )
               }}
             </p>
-          </div>
+          </a>
           <CoachContentLabel
             class="coach-content-label"
             :value="attemptLog.num_coach_contents || 0"
@@ -101,6 +118,9 @@
     },
     methods: {
       setSelectedAttemptLog(questionNumber) {
+        const listOption = this.$refs.attemptListOption[questionNumber];
+        listOption.focus();
+
         this.$emit('select', questionNumber);
         this.scrollToSelectedAttemptLog(questionNumber);
       },
@@ -115,6 +135,12 @@
             selectedElement.offsetHeight * (questionNumber + 1) - parent.offsetHeight / 2;
         }
       },
+      previousQuestion(questionNumber) {
+        return questionNumber - 1 >= 0 ? questionNumber - 1 : this.attemptLogs.length - 1;
+      },
+      nextQuestion(questionNumber) {
+        return questionNumber + 1 < this.attemptLogs.length ? questionNumber + 1 : 0;
+      },
     },
     $trs: {
       answerHistoryLabel: 'Answer history',
@@ -125,10 +151,6 @@
 
 
 <style lang="scss" scoped>
-
-  .title {
-    display: inline-block;
-  }
 
   .coach-content-label {
     display: inline-block;
@@ -166,12 +188,12 @@
   .attempt-item {
     display: block;
     min-width: 120px;
-    padding-left: 20px;
     clear: both;
   }
 
-  .clickable {
+  .attempt-item > a {
     display: block;
+    padding-left: 20px;
     cursor: pointer;
   }
 
