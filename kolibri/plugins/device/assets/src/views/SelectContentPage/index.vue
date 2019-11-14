@@ -26,34 +26,15 @@
       />
 
       <template v-if="mainAreaIsVisible">
-        <section class="notifications">
-          <UiAlert
-            v-if="newVersionAvailable"
-            type="info"
-            :removeIcon="true"
-            :dismissible="false"
-          >
-            {{ $tr('newVersionAvailableNotification') }}
-          </UiAlert>
-        </section>
         <section
           v-if="transferredChannel && onDeviceInfoIsReady"
           class="updates"
         >
-          <div
+          <NewChannelVersionBanner
             v-if="newVersionAvailable"
-            class="updates-available"
-          >
-            <span>
-              {{ $tr('newVersionAvailable', { version: transferredChannel.version }) }}
-            </span>
-            <KButton
-              :text="$tr('update')"
-              :primary="true"
-              name="update"
-              @click="updateChannelMetadata()"
-            />
-          </div>
+            class="banner"
+            :version="availableVersions.source"
+          />
           <span v-else>{{ $tr('channelUpToDate') }}</span>
         </section>
         <ChannelContentsSummary
@@ -108,11 +89,11 @@
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import { ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
   import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
-  import { downloadChannelMetadata } from '../../modules/wizard/utils';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';
   import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
+  import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
@@ -129,6 +110,7 @@
       ChannelContentsSummary,
       ContentTreeViewer,
       ContentWizardUiAlert,
+      NewChannelVersionBanner,
       SelectionBottomBar,
       TaskProgress,
       UiAlert,
@@ -196,8 +178,14 @@
       channelOnDevice() {
         return this.channelIsInstalled(this.transferredChannel.id) || {};
       },
+      availableVersions() {
+        return {
+          source: this.transferredChannel.version,
+          installed: this.channelOnDevice.version,
+        };
+      },
       newVersionAvailable() {
-        return this.transferredChannel.version > this.channelOnDevice.version;
+        return this.availableVersions.source > this.availableVersions.installed;
       },
       nodeCounts() {
         return this.nodeTransferCounts(this.transferType);
@@ -253,7 +241,6 @@
         setAppBarTitle: 'SET_APP_BAR_TITLE',
       }),
       ...mapActions('manageContent', ['cancelTask']),
-      downloadChannelMetadata,
       cancelUpdateChannel() {
         this.showUpdateProgressBar = false;
         this.cancelMetadataDownloadTask().then(this.refreshPage);
@@ -263,19 +250,6 @@
           return this.cancelTask(this.metadataDownloadTaskId);
         }
         return Promise.resolve();
-      },
-      updateChannelMetadata() {
-        // NOTE: This only updates the metadata, not the underlying content.
-        // This could produced unexpected behavior for users.
-        this.showUpdateProgressBar = true;
-        this.pageWillRefresh = true;
-        return this.downloadChannelMetadata(this.$store)
-          .then(() => this.refreshPage())
-          .catch(error => {
-            if (error.errorType !== 'CHANNEL_TASK_ERROR') {
-              this.contentTransferError = true;
-            }
-          });
       },
       handleClickConfirm() {
         let importSource;
@@ -349,13 +323,9 @@
     $trs: {
       channelUpToDate: 'Channel up-to-date',
       pageLoadError: 'There was a problem loading this page…',
-      newVersionAvailable: 'Version {version, number} available',
-      newVersionAvailableNotification:
-        'New channel version available. Some of your files may be outdated or deleted.',
       problemFetchingChannel: 'There was a problem getting the contents of this channel',
       problemTransferringContents: 'There was a problem transferring the selected contents',
       selectContent: "Select content from '{channelName}'",
-      update: 'Update',
       kolibriStudioLabel: 'Kolibri Studio',
       importingFromDrive: `Importing from drive '{driveName}'`,
       importingFromPeer: `Importing from '{deviceName}' ({url})`,
@@ -392,6 +362,10 @@
     padding-left: 16px;
     margin-right: -16px;
     margin-left: -16px;
+  }
+
+  .banner {
+    margin-bottom: 24px;
   }
 
 </style>
