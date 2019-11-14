@@ -1035,7 +1035,6 @@ class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):
                     "The network location with the id {} does not exist".format(peer_id)
                 )
 
-        logger.info(peer_id)
         files = models.LocalFile.objects.filter(
             files__contentnode__in=instance.get_descendants(include_self=True)
         ).distinct()

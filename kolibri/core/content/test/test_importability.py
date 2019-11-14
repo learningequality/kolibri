@@ -31,6 +31,13 @@ class ImportabilityStats(TransactionTestCase):
         stats = get_channel_annotation_stats(test_channel_id, checksums)
         self.assertEqual(len(stats), ContentNode.objects.all().count())
 
+    def test_all_files_available_no_files_remote(self):
+        LocalFile.objects.update(available=True)
+        File.objects.update(supplementary=False)
+        checksums = []
+        stats = get_channel_annotation_stats(test_channel_id, checksums)
+        self.assertEqual(len(stats), ContentNode.objects.all().count())
+
     def tearDown(self):
         call_command("flush", interactive=False)
         super(ImportabilityStats, self).tearDown()

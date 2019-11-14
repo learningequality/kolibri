@@ -40,7 +40,10 @@ def get_channel_annotation_stats(channel_id, checksums=None):
             LocalFileTable,
             and_(
                 FileTable.c.local_file_id == LocalFileTable.c.id,
-                LocalFileTable.c.id.in_(checksums),
+                or_(
+                    LocalFileTable.c.id.in_(checksums),
+                    LocalFileTable.c.available == True,  # noqa
+                ),
             ),
         )
     else:
