@@ -332,7 +332,7 @@
           'Text explaining to the user how demographic information requested in a visible form will be utilized.',
       },
       privacyLinkText: {
-        message: 'Learn more about usage and privacy.',
+        message: 'Learn more about usage and privacy',
         context:
           'Text shown in a link to open the Kolibri usage and privacy modal. This is shown alongside other text describing collection of demographic user information.',
       },
