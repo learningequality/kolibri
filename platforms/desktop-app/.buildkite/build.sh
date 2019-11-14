@@ -47,7 +47,7 @@ echo "--- Uploading"
 if buildkite-agent meta-data exists triggered_from_job_id
 then
   echo "Overwriting job to upload to locally"
-  BUILDKITE_JOB_ID = $(buildkite agent met-data get triggered_from_job_id)
+  BUILDKITE_JOB_ID=$(buildkite-agent met-data get triggered_from_job_id)
 fi
 
 buildkite-agent artifact upload "package/osx/kolibri*.dmg" --job $BUILDKITE_JOB_ID
