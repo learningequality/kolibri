@@ -78,7 +78,7 @@
         </UiAlert>
 
         <ContentTreeViewer
-          :disabled="newVersionAvailable"
+          v-if="!newVersionAvailable"
           class="block-item"
           :class="{ small : windowIsSmall }"
           :style="{ borderBottomColor: $themeTokens.fineLine }"
@@ -86,6 +86,7 @@
       </template>
     </template>
     <SelectionBottomBar
+      v-if="!newVersionAvailable"
       objectType="resource"
       actionType="import"
       :resourceCounts="{count:nodeCounts.resources, fileSize:nodeCounts.fileSize}"
