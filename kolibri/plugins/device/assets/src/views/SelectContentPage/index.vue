@@ -78,6 +78,7 @@
         </UiAlert>
 
         <ContentTreeViewer
+          :disabled="newVersionAvailable"
           class="block-item"
           :class="{ small : windowIsSmall }"
           :style="{ borderBottomColor: $themeTokens.fineLine }"
@@ -88,7 +89,7 @@
       objectType="resource"
       actionType="import"
       :resourceCounts="{count:nodeCounts.resources, fileSize:nodeCounts.fileSize}"
-      :disabled="disableBottomBar"
+      :disabled="disableBottomBar || newVersionAvailable"
       @clickconfirm="handleClickConfirm"
     />
   </div>

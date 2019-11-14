@@ -32,7 +32,7 @@
             v-for="cNode in showableAnnotatedChildNodes"
             :key="cNode.id"
             :checked="nodeIsChecked(cNode)"
-            :disabled="disableAll || cNode.disabled"
+            :disabled="disabled || disableAll || cNode.disabled"
             :indeterminate="nodeIsIndeterminate(cNode)"
             :message="cNode.message"
             :node="cNode"
@@ -83,6 +83,10 @@
         required: false,
       },
       manageMode: {
+        type: Boolean,
+        default: false,
+      },
+      disabled: {
         type: Boolean,
         default: false,
       },
@@ -153,7 +157,12 @@
         }
       },
       disableSelectAll() {
-        return this.disableAll || this.annotatedTopicNode.disabled || this.noSelectableNodes;
+        return (
+          this.disabled ||
+          this.disableAll ||
+          this.annotatedTopicNode.disabled ||
+          this.noSelectableNodes
+        );
       },
       childNodesWithPath() {
         return this.childNodes.map(node => ({
