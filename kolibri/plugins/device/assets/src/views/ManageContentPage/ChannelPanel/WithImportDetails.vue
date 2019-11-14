@@ -29,7 +29,7 @@
             class="lock-icon"
             icon="unlistedchannel"
           /><span
-            v-if="true || channel.newPrivateChannel"
+            v-if="channel.newPrivateChannel"
             class="new-label"
             :style="{
               color: $themeTokens.textInverted,
@@ -40,7 +40,7 @@
       </template>
 
       <template v-slot:abovedescription>
-        <div v-if="inImportMode && onDevice" class="on-device">
+        <div v-if="onDevice" class="on-device">
           <KIcon
             class="check-icon"
             icon="correct"
@@ -62,8 +62,11 @@
     </ChannelDetails>
 
     <div class="col-3">
+      <p v-if="multipleMode && $attrs.checked" class="selected-msg">
+        {{ channelSelectedMessage }}
+      </p>
       <KRouterLink
-        v-if="(inImportMode || inExportMode) && !multipleMode"
+        v-if="!multipleMode"
         :text="$tr('selectTopicsAction')"
         :disabled="tasksInQueue"
         :to="selectContentLink"
@@ -82,16 +85,11 @@
   // Private Channel Icon
   // Resources on Device Indicator
   import { mapGetters } from 'vuex';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { selectContentPageLink } from '../manageContentLinks';
   import ChannelDetails from './ChannelDetails';
-
-  const Modes = {
-    IMPORT: 'IMPORT',
-    EXPORT: 'EXPORT',
-    MANAGE: 'MANAGE',
-  };
 
   export default {
     name: 'WithImportDetails',
@@ -104,13 +102,6 @@
         type: Object,
         required: true,
       },
-      mode: {
-        type: String, // 'IMPORT' | 'EXPORT' | 'MANAGE'
-        required: true,
-        validator(val) {
-          return Object.keys(Modes).includes(val);
-        },
-      },
       onDevice: {
         type: Boolean,
         default: false,
@@ -122,11 +113,15 @@
     },
     computed: {
       ...mapGetters('manageContent', ['channelIsInstalled', 'activeTaskList']),
-      inImportMode() {
-        return this.mode === Modes.IMPORT;
-      },
-      inExportMode() {
-        return this.mode === Modes.EXPORT;
+      channelSelectedMessage() {
+        // Can't show file sizes when importing from drive
+        if (this.channel.total_file_size) {
+          return this.$tr('channelSelectedWithFileSize', {
+            bytesText: this.bytesForHumans(this.channel.total_file_size),
+          });
+        } else {
+          return this.$tr('channelSelectedNoFileSize');
+        }
       },
       isPrivateChannel() {
         // This is only defined when entering a remote import workflow,
@@ -161,13 +156,18 @@
         };
       },
     },
+    methods: {
+      bytesForHumans,
+    },
     $trs: {
       onYourDevice: 'Resources on device',
       selectTopicsAction: 'Select topics',
       newLabel: 'New',
       unlistedChannelTooltip: 'Unlisted channel',
-      newVersionMessage: 'New version available with import.',
+      newVersionMessage: 'New version available',
       moreInformationLabel: 'More information',
+      channelSelectedNoFileSize: 'Selected',
+      channelSelectedWithFileSize: '{bytesText} selected',
     },
   };
 
@@ -253,6 +253,19 @@
   .private-icons {
     position: relative;
     display: inline-block;
+  }
+
+  .selected-msg {
+    align-self: flex-start;
+    min-width: 150px;
+    margin: 0;
+    text-align: right;
+
+    .channel-list-item-sm & {
+      align-self: flex-end;
+      margin: 8px 0;
+      font-size: 14px;
+    }
   }
 
 </style>

@@ -1,6 +1,5 @@
 import omit from 'lodash/fp/omit';
 import * as availableChannelsActions from './actions/availableChannelsActions';
-import * as contentTransferActions from './actions/contentTransferActions';
 import * as contentTreeViewerActions from './actions/contentTreeViewerActions';
 import * as contentWizardActions from './actions/contentWizardActions';
 import * as selectContentActions from './actions/selectContentActions';
@@ -34,7 +33,6 @@ export default {
   state: defaultState(),
   actions: {
     ...availableChannelsActions,
-    ...contentTransferActions,
     ...contentTreeViewerActions,
     ...contentWizardActions,
     ...selectContentActions,
@@ -85,6 +83,10 @@ export default {
     REPLACE_OMIT_LIST(state, newList) {
       state.nodesForTransfer.omitted = newList;
     },
+    RESET_NODE_LISTS(state) {
+      state.nodesForTransfer.included = [];
+      state.nodesForTransfer.omitted = [];
+    },
     SET_CURRENT_TOPIC_NODE(state, currentTopicNode) {
       state.currentTopicNode = currentTopicNode;
     },
@@ -108,6 +110,9 @@ export default {
     },
     SET_TRANSFERRED_CHANNEL(state, transferredChannel) {
       state.transferredChannel = transferredChannel;
+    },
+    UPDATE_TRANSFERRED_CHANNEL(state, update) {
+      state.transferredChannel = { ...state.transferredChannel, ...update };
     },
     SET_TRANSFER_TYPE(state, transferType) {
       state.transferType = transferType;

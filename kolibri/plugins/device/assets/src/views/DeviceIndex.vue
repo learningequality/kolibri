@@ -44,8 +44,11 @@
     },
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
-      ...mapState(['pageName', 'welcomeModalVisible']),
+      ...mapState(['welcomeModalVisible']),
       ...mapState('coreBase', ['appBarTitle']),
+      pageName() {
+        return this.$route.name;
+      },
       containerStyles() {
         // Need to override overflow rule for setting page
         if (this.$route.name === PageNames.DEVICE_SETTINGS_PAGE) {
@@ -70,6 +73,12 @@
           return {
             name: this.$route.query.last,
           };
+        }
+        if (this.pageName === PageNames.MANAGE_TASKS) {
+          return this.$route.params.lastRoute || { name: PageNames.MANAGE_CONTENT_PAGE };
+        }
+        if (this.pageName === PageNames.MANAGE_CHANNEL) {
+          return { name: PageNames.MANAGE_CONTENT_PAGE };
         }
         // In all Import/Export pages, go back to ManageContentPage
         if (this.inContentManagementPage) {
@@ -101,18 +110,10 @@
         }
       },
       immersivePagePrimary() {
-        // When the icon is an arrow, it should true for Primary with one
-        // exception: The SELECT_CONTENT page.
-        if (this.inMultipleImportPage) {
+        if (this.pageName === PageNames.MANAGE_TASKS) {
           return false;
         }
-        return (
-          (this.immersivePageIcon === 'arrow_back' &&
-            this.pageName !== ContentWizardPages.SELECT_CONTENT) ||
-          this.pageName === PageNames.REARRANGE_CHANNELS ||
-          this.pageName === PageNames.DELETE_CHANNELS ||
-          this.pageName === PageNames.EXPORT_CHANNELS
-        );
+        return this.inContentManagementPage;
       },
       immersivePageIcon() {
         if (

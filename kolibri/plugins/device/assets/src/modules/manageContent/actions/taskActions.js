@@ -3,7 +3,6 @@ import coreStore from 'kolibri.coreVue.vuex.store';
 import { TaskResource } from 'kolibri.resources';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/fp/pick';
-import { waitForTaskToComplete } from '../utils';
 import { TaskStatuses, TaskTypes } from '../../../constants';
 
 const logging = logger.getLogger(__filename);
@@ -26,29 +25,6 @@ export function cancelTask(store, taskId) {
 function updateTasks(store, tasks) {
   const contentTasks = tasks.filter(task => Object.values(TaskTypes).includes(task.type));
   store.commit('SET_TASK_LIST', contentTasks);
-}
-
-function triggerTask(store, taskPromise) {
-  return taskPromise
-    .then(function onSuccess(response) {
-      updateTasks(store, [response.entity]);
-      return response;
-    })
-    .catch(function onFailure(error) {
-      let errorText;
-      if (error.status.code === 404) {
-        errorText = 'That ID was not found on our server.';
-      } else {
-        errorText = error.status.text;
-      }
-      store.commit('wizard/SET_CONTENT_PAGE_WIZARD_ERROR', errorText);
-    });
-}
-
-export function triggerChannelDeleteTask(store, channelId) {
-  return triggerTask(store, TaskResource.deleteChannel({ channelId }))
-    .then(response => waitForTaskToComplete(response.entity.id))
-    .then(() => store.dispatch('refreshChannelList'));
 }
 
 const simplifyTask = pick(['id', 'status', 'percentage']);

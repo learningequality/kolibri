@@ -20,6 +20,7 @@
       category="navigation"
       name="arrow_drop_down"
       class="dropdown-arrow"
+      :style="arrowStyles"
     />
   </component>
 
@@ -78,6 +79,14 @@
           return 'a';
         }
         return 'button';
+      },
+      arrowStyles() {
+        if (this.primary) {
+          return {
+            fill: this.$themeTokens.textInverted,
+          };
+        }
+        return {};
       },
     },
     methods: {

@@ -11,7 +11,7 @@
       </template>
 
       <template v-slot:default="{filteredItems, showItem, handleChange, itemIsSelected}">
-        <ChanelPanel
+        <ChannelPanel
           v-for="channel in allChannels"
           v-show="showItem(channel)"
           :key="channel.id"
@@ -33,6 +33,7 @@
 
     <SelectionBottomBar
       objectType="channel"
+      :disabled="selectedChannels.length === 0"
       :actionType="actionType"
       :selectedObjects="selectedChannels"
       :fileSize.sync="fileSize"
@@ -51,31 +52,12 @@
   import { TaskResource } from 'kolibri.resources';
   import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import DeviceChannelResource from '../../apiResources/deviceChannel';
+  import taskNotificationMixin from '../taskNotificationMixin';
   import SelectionBottomBar from './SelectionBottomBar';
   import DeleteChannelModal from './DeleteChannelModal';
   import SelectDriveModal from './SelectTransferSourceModal/SelectDriveModal';
-  import ChanelPanel from './ChannelPanel/WithCheckbox';
+  import ChannelPanel from './ChannelPanel/WithCheckbox';
   import FilteredChannelListContainer from './FilteredChannelListContainer';
-
-  // Overwrite methods that are coupled to vuex in original SelectDriveModal
-  const SelectDrive = {
-    extends: SelectDriveModal,
-    computed: {
-      driveCanBeUsedForTransfer() {
-        return function isWritable({ drive }) {
-          return drive.writable;
-        };
-      },
-    },
-    methods: {
-      handleClickCancel() {
-        this.$emit('cancel');
-      },
-      goForward() {
-        this.$emit('submit', { driveId: this.selectedDriveId });
-      },
-    },
-  };
 
   // UI for simple bulk Deletion or Export of entire channels
   export default {
@@ -86,13 +68,13 @@
       };
     },
     components: {
-      ChanelPanel,
+      ChannelPanel,
       FilteredChannelListContainer,
       SelectionBottomBar,
       DeleteChannelModal,
-      SelectDriveModal: SelectDrive,
+      SelectDriveModal,
     },
-    mixins: [KResponsiveWindowMixin],
+    mixins: [KResponsiveWindowMixin, taskNotificationMixin],
     props: {
       actionType: {
         type: String,
@@ -123,9 +105,12 @@
         if (this.exportMode) {
           return {
             exportFileSize: this.fileSize,
+            manageMode: true,
           };
         }
-        return {};
+        return {
+          numberOfChannels: this.selectedChannels.length,
+        };
       },
     },
     beforeMount() {
@@ -138,7 +123,7 @@
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr(title));
       },
       fetchData() {
-        DeviceChannelResource.fetchCollection({
+        return DeviceChannelResource.fetchCollection({
           getParams: {
             include_fields: 'on_device_file_size',
           },
@@ -153,33 +138,38 @@
       deleteChannels() {
         const selectedCopy = [...this.selectedChannels];
         this.allChannels = this.allChannels.filter(c => !find(this.selectedChannels, { id: c.id }));
-        TaskResource.deleteBulkChannels({
-          channelIds: this.selectedChannels.map(({ id }) => ({ channel_id: id })),
+        return TaskResource.deleteBulkChannels({
+          channelIds: this.selectedChannels.map(x => x.id),
         })
-          .then(() => {
+          .then(task => {
+            this.notifyAndWatchTask(task);
             this.selectedChannels = [];
           })
-          .catch(err => {
-            // eslint-disable-next-line
-            console.log('error deleting channels', err);
+          .catch(() => {
+            this.createTaskFailedSnackbar();
             this.selectedChannels = [...selectedCopy];
             this.loading = true;
             this.fetchData();
           });
       },
       exportChannels(params) {
-        TaskResource.startDiskBulkExport(
+        return TaskResource.startDiskBulkExport(
           this.selectedChannels.map(({ id }) => ({
             channel_id: id,
             drive_id: params.driveId,
           }))
-        );
+        )
+          .then(task => {
+            this.notifyAndWatchTask(task);
+          })
+          .catch(() => {
+            this.createTaskFailedSnackbar();
+          });
       },
       handleClickConfirm() {
         this.showModal = true;
       },
       handleClickModalSubmit(params = {}) {
-        this.$store.dispatch('createTaskStartedSnackbar');
         this.showModal = false;
 
         if (this.deleteMode) {

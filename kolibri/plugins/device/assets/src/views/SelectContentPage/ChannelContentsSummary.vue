@@ -23,7 +23,7 @@
       <p class="version">
         {{ $tr('version', { version: versionNumber }) }}
       </p>
-      <p>
+      <p dir="auto">
         {{ channel.description }}
       </p>
     </div>

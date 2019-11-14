@@ -75,8 +75,9 @@ CROWDIN_PROJECT = "kolibri"  # crowdin project name
 CROWDIN_API_KEY = os.environ["CROWDIN_API_KEY"]
 CROWDIN_API_URL = "https://api.crowdin.com/api/project/{proj}/{cmd}?key={key}{params}"
 
-PERSEUS_FILE = "exercise_perseus_render_module-messages.json"
-PERSEUS_CSV = "exercise_perseus_render_module-messages.csv"
+PERSEUS_CSV = (
+    "kolibri_exercise_perseus_plugin.exercise_perseus_render_module-messages.csv"
+)
 GLOSSARY_XML_FILE = "glossary.tbx"
 
 DETAILS_URL = CROWDIN_API_URL.format(
@@ -208,7 +209,7 @@ UPLOAD_TRANSLATION_URL = CROWDIN_API_URL.format(
 
 
 def _translation_upload_ref(file_name, lang_object):
-    if file_name == PERSEUS_FILE:  # hack for perseus, assumes the same file name
+    if file_name == PERSEUS_CSV:  # hack for perseus, assumes the same file name
         source_path = utils.local_perseus_locale_path(lang_object)
     else:
         source_path = utils.local_locale_path(lang_object)
@@ -283,36 +284,48 @@ def _csv_to_json():
         csv_locale_dir_path = os.path.join(
             utils.local_locale_csv_path(), lang_object["crowdin_code"]
         )
-        for file_name in os.listdir(csv_locale_dir_path):
-            if file_name.endswith("json"):
-                # Then it is a Perseus JSON file - just copy it.
-                source = os.path.join(csv_locale_dir_path, file_name)
-                target = os.path.join(perseus_path, file_name)
-                try:
-                    os.makedirs(perseus_path)
-                except:
-                    pass
-                shutil.copyfile(source, target)
-                continue
-            elif not file_name.endswith("csv"):
+        perseus_locale_dir_path = os.path.join(
+            utils.local_perseus_locale_csv_path(), lang_object["crowdin_code"]
+        )
+
+        # Make sure that the Perseus directory for CSV_FILES/{lang_code} exists
+        if not os.path.exists(perseus_locale_dir_path):
+            os.makedirs(perseus_locale_dir_path)
+
+        csv_dirs = os.listdir(csv_locale_dir_path) + os.listdir(perseus_locale_dir_path)
+
+        for file_name in csv_dirs:
+            if "csv" not in file_name:
                 continue
 
-            csv_path = os.path.join(csv_locale_dir_path, file_name)
+            if file_name is PERSEUS_CSV:
+                csv_path = os.path.join(perseus_locale_dir_path, file_name)
+            else:
+                csv_path = os.path.join(csv_locale_dir_path, file_name)
 
             # Account for csv reading differences in Pythons 2 and 3
-            if sys.version_info[0] < 3:
-                csv_file = open(csv_path, "rb")
-            else:
-                csv_file = open(csv_path, "r", newline="")
+            try:
+                if sys.version_info[0] < 3:
+                    csv_file = open(csv_path, "rb")
+                else:
+                    csv_file = open(csv_path, "r", newline="")
+            except FileNotFoundError as e:
+                logging.info("Failed to find CSV file in: {}".format(csv_path))
+                continue
 
             with csv_file as f:
                 csv_data = list(row for row in csv.DictReader(f))
 
             data = _locale_data_from_csv(csv_data)
 
-            utils.json_dump_formatted(
-                data, locale_path, file_name.replace("csv", "json")
-            )
+            if file_name is PERSEUS_CSV:
+                utils.json_dump_formatted(
+                    data, perseus_path, file_name.replace("csv", "json")
+                )
+            else:
+                utils.json_dump_formatted(
+                    data, locale_path, file_name.replace("csv", "json")
+                )
 
 
 def _locale_data_from_csv(file_data):
@@ -381,7 +394,9 @@ def download_translations(branch):
         z.extractall(target)
 
         # hack for perseus
-        perseus_target = utils.local_perseus_locale_csv_path()
+        perseus_target = os.path.join(
+            utils.local_perseus_locale_csv_path(), lang_object["crowdin_code"]
+        )
         ## TODO - Update this to work with perseus properly - likely to need to update
         ## the kolibri-exercise-perseus-plugin repo directly to produce a CSV for its
         ## translations.
@@ -389,7 +404,7 @@ def download_translations(branch):
             os.makedirs(perseus_target)
         try:
             shutil.move(
-                os.path.join(target, PERSEUS_CSV),
+                os.path.join(target, lang_object["crowdin_code"], PERSEUS_CSV),
                 os.path.join(perseus_target, PERSEUS_CSV),
             )
         except:
@@ -469,7 +484,7 @@ UPDATE_SOURCE_URL = CROWDIN_API_URL.format(
 
 
 def _source_upload_ref(file_name):
-    if file_name == PERSEUS_FILE:  # hack for perseus, assumes the same file name
+    if file_name == PERSEUS_CSV:  # hack for perseus, assumes the same file name
         file_pointer = open(os.path.join(utils.PERSEUS_SOURCE_PATH, file_name), "rb")
     else:
         file_pointer = open(os.path.join(utils.SOURCE_PATH, file_name), "rb")
@@ -519,7 +534,7 @@ def upload_sources(branch):
     )
 
     # hack for perseus
-    source_files.add(PERSEUS_FILE)
+    source_files.add(PERSEUS_CSV)
 
     current_files = crowdin_files(branch, details)
     to_add = source_files.difference(current_files)

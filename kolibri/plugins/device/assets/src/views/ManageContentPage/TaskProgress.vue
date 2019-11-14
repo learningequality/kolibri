@@ -104,12 +104,12 @@
 
         if (this.status === this.TaskStatuses.RUNNING) {
           switch (this.type) {
-            case TaskTypes.REMOTE_IMPORT:
-            case TaskTypes.LOCAL_IMPORT:
+            case TaskTypes.REMOTECONTENTIMPORT:
+            case TaskTypes.DISKCONTENTIMPORT:
               return this.$tr('importingContent');
-            case TaskTypes.LOCAL_EXPORT:
+            case TaskTypes.DISKEXPORT:
               return this.$tr('exportingContent');
-            case TaskTypes.DELETE_CHANNEL:
+            case TaskTypes.DELETECHANNEL:
               return this.$tr('deletingChannel');
             default:
               return '';
@@ -117,7 +117,7 @@
         }
         if (this.taskHasFailed) {
           switch (this.type) {
-            case TaskTypes.DELETE_CHANNEL:
+            case TaskTypes.DELETECHANNEL:
               return this.$tr('deleteTaskHasFailed');
             default:
               return this.$tr('taskHasFailed');

@@ -54,27 +54,16 @@ describe('availableChannelsPage', () => {
     const wrapper = makeWrapper({ store });
     const { unlistedChannelsSection, ChannelTokenModal } = getElements(wrapper);
     // prettier-ignore
-    const button = unlistedChannelsSection().at(0).find('a');
+    const button = unlistedChannelsSection().at(0).find('.token-button');
     button.trigger('click');
     expect(ChannelTokenModal().isVueInstance()).toEqual(true);
   });
 
-  it('in LOCALIMPORT and LOCALEXPORT mode, the unlisted channel button is not available', () => {
+  it('in LOCALIMPORT mode, the unlisted channel button is not available', () => {
     setTransferType('localexport');
     const wrapper = makeWrapper({ store });
     const { unlistedChannelsSection } = getElements(wrapper);
     expect(unlistedChannelsSection().length).toEqual(0);
-  });
-
-  it('in LOCALEXPORT mode, the back link text and title are correct', () => {
-    setTransferType('localexport');
-    const selectedDrive = store.state.manageContent.wizard.driveList.find(
-      ({ id }) => id === 'f9e29616935fbff37913ed46bf20e2c1'
-    );
-    store.state.manageContent.wizard.selectedDrive = selectedDrive;
-    const wrapper = makeWrapper({ store });
-    const { titleText } = getElements(wrapper);
-    expect(titleText()).toEqual('Your channels');
   });
 
   it('in LOCALIMPORT mode, the back link text and title are correct', () => {
@@ -85,22 +74,14 @@ describe('availableChannelsPage', () => {
     store.state.manageContent.wizard.selectedDrive = selectedDrive;
     const wrapper = makeWrapper({ store });
     const { titleText } = getElements(wrapper);
-    expect(titleText()).toEqual('SANDISK (G:)');
+    expect(titleText()).toEqual('Select resources for import');
   });
 
   it('in REMOTEIMPORT mode, the back link text and title are correct', () => {
     setTransferType('remoteimport');
     const wrapper = makeWrapper({ store });
     const { titleText } = getElements(wrapper);
-    expect(titleText()).toEqual('Channels');
-  });
-
-  it('in LOCALEXPORT shows the correct number of channels available message', () => {
-    setTransferType('localexport');
-    const wrapper = makeWrapper({ store });
-    const { channelsAvailableText, noChannels } = getElements(wrapper);
-    expect(channelsAvailableText()).toEqual('4 channels available');
-    expect(noChannels().exists()).toEqual(false);
+    expect(titleText()).toEqual('Select resources for import');
   });
 
   it('in REMOTEIMPORT/LOCALIMPORT shows the correct number of channels available message', () => {
@@ -123,7 +104,6 @@ describe('availableChannelsPage', () => {
     const { channelListItems } = getElements(wrapper);
     const channels = channelListItems();
     const channelNProps = n => channels.at(n).props();
-    expect(channelNProps(0).mode).toEqual('IMPORT');
     expect(channelNProps(0).onDevice).toEqual(true);
     expect(channelNProps(1).onDevice).toEqual(false);
     expect(channelNProps(2).onDevice).toEqual(false);
