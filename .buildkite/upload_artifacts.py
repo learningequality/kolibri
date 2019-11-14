@@ -54,6 +54,12 @@ file_manifest = {
         "category": INSTALLER_CAT,
         "content_type": "application/vnd.debian.binary-package",
     },
+    "dmg": {
+        "extension": "dmg",
+        "description": "Mac Package",
+        "category": INSTALLER_CAT,
+        "content_type": "application/x-apple-diskimage",
+    },
     "unsigned-exe": {
         "extension": "exe",
         "description": "Unsigned Windows installer",
