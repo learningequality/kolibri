@@ -102,14 +102,19 @@ class ChannelImport(object):
     }
 
     def __init__(
-        self, channel_id, channel_version=None, cancel_check=None, destination=None
+        self,
+        channel_id,
+        channel_version=None,
+        cancel_check=None,
+        source=None,
+        destination=None,
     ):
         self.channel_id = channel_id
         self.channel_version = channel_version
 
         self.cancel_check = cancel_check
 
-        self.source_db_path = get_content_database_file_path(self.channel_id)
+        self.source_db_path = source or get_content_database_file_path(self.channel_id)
 
         self.source = Bridge(sqlite_file_path=self.source_db_path)
 
@@ -317,6 +322,8 @@ class ChannelImport(object):
         else:
             method = "REPLACE"
 
+        # wrap column names in parentheses in case names are sql keywords (ex. order)
+        dest_columns = ["'{}'".format(col) for col in dest_columns]
         # build and execute a raw SQL query to transfer the data in one fell swoop
         query = """{method} INTO {table} ({destcols}) SELECT {sourcevals} FROM sourcedb.{table} AS source""".format(
             method=method,
@@ -472,7 +479,8 @@ class ChannelImport(object):
                     self.destination.get_class(ContentNode)
                 ).get(existing_channel.root_id)
 
-                self.delete_old_channel_data(root_node.tree_id)
+                if root_node:
+                    self.delete_old_channel_data(root_node.tree_id)
             else:
                 # We have previously loaded this channel, with the same or newer version, so our work here is done
                 logger.warn(
@@ -738,9 +746,11 @@ class InvalidSchemaVersionError(Exception):
     pass
 
 
-def initialize_import_manager(channel_id, cancel_check=None):
+def initialize_import_manager(
+    channel_id, cancel_check=None, source=None, destination=None
+):
     channel_metadata = read_channel_metadata_from_db_file(
-        get_content_database_file_path(channel_id)
+        source or get_content_database_file_path(channel_id)
     )
     # For old versions of content databases, we can only infer the schema version
     min_version = getattr(
@@ -773,8 +783,13 @@ def initialize_import_manager(channel_id, cancel_check=None):
                     version=min_version
                 )
             )
+
     return ImportClass(
-        channel_id, channel_version=channel_metadata.version, cancel_check=cancel_check
+        channel_id,
+        channel_version=channel_metadata.version,
+        cancel_check=cancel_check,
+        source=source,
+        destination=destination,
     )
 
 
