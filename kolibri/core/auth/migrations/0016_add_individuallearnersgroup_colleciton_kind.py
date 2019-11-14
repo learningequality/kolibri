@@ -7,7 +7,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [("kolibriauth", "0014_auto_20190815_1421")]
+    dependencies = [("kolibriauth", "0015_facilitydataset_registered")]
 
     operations = [
         migrations.CreateModel(
