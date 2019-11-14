@@ -284,6 +284,10 @@ export function updateTreeViewTopic(store, topic) {
     const { selectedDrive } = store.state.manageContent.wizard;
     fetchArgs.importing_from_drive_id = selectedDrive.id;
   }
+  if (store.getters['manageContent/wizard/inPeerImportMode']) {
+    const { selectedPeer } = store.state.manageContent.wizard;
+    fetchArgs.importing_from_peer_id = selectedPeer.id;
+  }
   store.commit('CORE_SET_PAGE_LOADING', true);
   return ContentNodeGranularResource.fetchModel({
     id: topic.id,

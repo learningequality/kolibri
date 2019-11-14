@@ -53,6 +53,7 @@ import * as validators from '../validators';
 import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
+import * as licenseTranslations from '../utils/licenseTranslations';
 import * as browser from '../utils/browser';
 import bytesForHumans from '../utils/bytesForHumans';
 import UserType from '../utils/UserType';
@@ -192,6 +193,7 @@ export default {
     validators,
     serverClock,
     i18n,
+    licenseTranslations,
     loginComponents,
     navComponents,
     coreBannerContent,

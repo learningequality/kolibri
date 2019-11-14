@@ -61,10 +61,10 @@
       <p v-if="content.author">
         {{ $tr('author', {author: content.author}) }}
       </p>
-      <p v-if="content.license_name">
-        {{ $tr('license', {license: content.license_name}) }}
+      <p v-if="licenseShortName">
+        {{ $tr('license', {license: licenseShortName}) }}
 
-        <template v-if="content.license_description">
+        <template v-if="licenseDescription">
           <UiIconButton
             :ariaLabel="$tr('toggleLicenseDescription')"
             size="small"
@@ -75,15 +75,10 @@
             <mat-svg v-else name="expand_more" category="navigation" />
           </UiIconButton>
           <div v-if="licenceDescriptionIsVisible" dir="auto" class="license-details">
-            <template v-if="translatedLicense">
-              <p class="license-details-name">
-                {{ licenseName }}
-              </p>
-              <p>{{ licenseDescription }}</p>
-            </template>
-            <p v-else>
-              {{ content.license_description }}
+            <p class="license-details-name">
+              {{ licenseLongName }}
             </p>
+            <p>{{ licenseDescription }}</p>
           </div>
         </template>
       </p>
@@ -138,7 +133,11 @@
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
-  import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
+  import {
+    licenseShortName,
+    licenseLongName,
+    licenseDescriptionForConsumer,
+  } from 'kolibri.utils.licenseTranslations';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import PageHeader from './PageHeader';
@@ -248,26 +247,17 @@
           params: { id: this.content.next_content.id },
         };
       },
-      translatedLicense() {
-        if (
-          licenseTranslations[currentLanguage] &&
-          licenseTranslations[currentLanguage][this.content.license_name]
-        ) {
-          return licenseTranslations[currentLanguage][this.content.license_name];
-        }
-        return null;
+      licenseShortName() {
+        return licenseShortName(this.content.license_name);
       },
-      licenseName() {
-        if (this.translatedLicense) {
-          return this.translatedLicense.name;
-        }
-        return this.content.license_name;
+      licenseLongName() {
+        return licenseLongName(this.content.license_name);
       },
       licenseDescription() {
-        if (this.translatedLicense) {
-          return this.translatedLicense.description;
-        }
-        return this.content.license_description;
+        return licenseDescriptionForConsumer(
+          this.content.license_name,
+          this.content.license_description
+        );
       },
     },
     created() {

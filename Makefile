@@ -137,6 +137,7 @@ staticdeps: clean-staticdeps
 	test "${SKIP_PY_CHECK}" = "1" || python --version 2>&1 | grep -q 2.7 || ( echo "Only intended to run on Python 2.7" && exit 1 )
 	pip2 install -t kolibri/dist -r "requirements.txt"
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	rm -rf kolibri/dist/*.egg-info
 	rm -r kolibri/dist/man kolibri/dist/bin || true # remove the two folders introduced by pip 10
 	# Remove unnecessary python2-syntax'ed file
 	# https://github.com/learningequality/kolibri/issues/3152
@@ -150,6 +151,7 @@ staticdeps-cext:
 	pip install -t kolibri/dist/cext -r "requirements/cext_noarch.txt" --no-deps
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	rm -rf kolibri/dist/cext/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	rm -rf kolibri/dist/*.egg-info
 	make test-namespaced-packages
 
 staticdeps-compileall:

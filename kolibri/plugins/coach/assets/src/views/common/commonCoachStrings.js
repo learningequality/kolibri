@@ -3,10 +3,12 @@ import { createTranslator } from 'kolibri.utils.i18n';
 const coachStrings = createTranslator('CommonCoachStrings', {
   // actions
   copyAction: 'Copy',
+  exportCSVAction: 'Export as CSV', // TODO: stubbed for downloadable reports
   manageResourcesAction: 'Manage resources',
   newLessonAction: 'New lesson',
   newQuizAction: 'New quiz',
   previewAction: 'Preview',
+  printReportAction: 'Print report', // TODO: stubbed for downloadable reports
   renameAction: 'Rename',
   viewAllAction: 'View all',
   showMoreAction: 'Show more',
@@ -20,6 +22,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   avgTimeSpentLabel: 'Average time spent',
   avgQuizScoreLabel: 'Average quiz score',
   backToLessonLabel: "Back to '{lesson}'",
+  classLabel: 'Class', // TODO: stubbed for downloadable reports
   classesLabel: 'Classes', // Kept for use in common.js
   coachLabel: 'Coach', // Kept here for use in common.js
   descriptionLabel: 'Description',
@@ -35,6 +38,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   lastActivityLabel: 'Last activity',
   inactiveLabel: 'Inactive',
   learnersLabel: 'Learners', // Kept here for use in common.js
+  lessonLabel: 'Lesson', // TODO: stubbed for downloadable reports
   lessonsLabel: 'Lessons', // Kept here for use in common.js
   lessonsAssignedLabel: 'Lessons assigned',
   masteryModelLabel: 'Completion requirement',
@@ -152,6 +156,16 @@ const coachStrings = createTranslator('CommonCoachStrings', {
       'All learners will be given a final score and a quiz report. Unfinished questions will be counted as incorrect.',
     context:
       "Text shown on a modal pop-up window when the user clicks the 'Close Quiz' button. This explains what will happen when the modal window is confirmed.",
+  },
+  lessonNotVisibleToLearnersLabel: {
+    message: 'Lesson is not visible to learners',
+    context:
+      'Snackbar message telling the user that the lesson is now not visible to learners. This will display whenever the user changes the lesson from visible to not visible.',
+  },
+  lessonVisibleToLearnersLabel: {
+    message: 'Lesson is visible to learners',
+    context:
+      'Snackbar message telling the user that the lesson is now visible to learners. This will display whenever the user changes the lesson from not visible to visible.',
   },
 });
 

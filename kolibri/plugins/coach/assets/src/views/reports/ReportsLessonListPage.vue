@@ -22,7 +22,7 @@
             <th>{{ coachString('titleLabel') }}</th>
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th>{{ coachString('statusLabel') }}</th>
+            <th>{{ $tr('visibleToLearnersLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -47,7 +47,14 @@
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>
-            <td><LessonActive :active="tableRow.active" /></td>
+            <td>
+              <KSwitch
+                name="toggle-lesson-visibility"
+                :checked="tableRow.active"
+                :value="tableRow.active"
+                @change="handleToggleVisibility(tableRow)"
+              />
+            </td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -59,6 +66,7 @@
 
 <script>
 
+  import { LessonResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
@@ -131,11 +139,37 @@
     beforeMount() {
       this.filter = this.filterOptions[0];
     },
+    methods: {
+      handleToggleVisibility(lesson) {
+        const newActiveState = !lesson.active;
+        const snackbarMessage = newActiveState
+          ? this.coachString('lessonVisibleToLearnersLabel')
+          : this.coachString('lessonNotVisibleToLearnersLabel');
+
+        let promise = LessonResource.saveModel({
+          id: lesson.id,
+          data: {
+            is_active: newActiveState,
+          },
+          exists: true,
+        });
+
+        return promise.then(() => {
+          this.$store.dispatch('classSummary/refreshClassSummary');
+          this.$store.dispatch('createSnackbar', snackbarMessage);
+        });
+      },
+    },
     $trs: {
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
       noActiveLessons: 'No active lessons',
       noInactiveLessons: 'No inactive lessons',
+      visibleToLearnersLabel: {
+        message: 'Visible to learners',
+        context:
+          'Column header for table of lessons which will include a toggle switch the user can use to set the visibility status of a lesson.',
+      },
     },
   };
 

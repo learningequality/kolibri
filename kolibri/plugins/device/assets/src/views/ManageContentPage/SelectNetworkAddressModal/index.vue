@@ -5,6 +5,7 @@
       v-if="stage === Stages.SELECT_ADDRESS"
       @cancel="resetContentWizardState"
       @click_add_address="goToAddAddress"
+      @click_search_address="goToSearchAddress"
       @removed_address="handleRemovedAddress"
       @submit="handleSelectAddressSubmit"
     />
@@ -59,6 +60,9 @@
       }),
       goToAddAddress() {
         this.stage = Stages.ADD_ADDRESS;
+      },
+      goToSearchAddress() {
+        this.stage = Stages.SEARCH_ADDRESS;
       },
       goToSelectAddress() {
         this.stage = Stages.SELECT_ADDRESS;

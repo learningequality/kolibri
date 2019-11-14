@@ -380,6 +380,14 @@ def update(old_version, new_version):
     cache.clear()
 
 
+def _cleanup_before_quitting(signum, frame):
+    from kolibri.core.discovery.utils.network.search import unregister_zeroconf_service
+
+    unregister_zeroconf_service()
+    signal.signal(signum, signal.SIG_DFL)
+    os.kill(os.getpid(), signum)
+
+
 main_help = """Kolibri management commands
 
 For more information, see:
@@ -403,7 +411,12 @@ def main(ctx):
         click.echo(ctx.get_help())
         ctx.exit(1)
 
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    try:
+        signal.signal(signal.SIGINT, _cleanup_before_quitting)
+        signal.signal(signal.SIGTERM, _cleanup_before_quitting)
+        logger.info("Added signal handlers for cleaning up on exit...")
+    except ValueError:
+        logger.warn("Error adding signal handlers for cleaning up on exit...")
 
 
 def create_startup_lock(port):
