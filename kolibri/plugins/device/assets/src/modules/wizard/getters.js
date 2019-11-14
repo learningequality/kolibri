@@ -1,6 +1,5 @@
 import find from 'lodash/find';
 import isEmpty from 'lodash/isEmpty';
-import sumBy from 'lodash/sumBy';
 import { ApplicationTypes, TransferTypes } from '../../constants';
 
 export function cachedTopicPath(state) {
@@ -12,27 +11,6 @@ export function cachedTopicPath(state) {
 export function getDriveById(state) {
   return function getDrive(driveId) {
     return find(state.driveList, { id: driveId });
-  };
-}
-
-export function nodeTransferCounts(state) {
-  return function(transferType) {
-    const { included, omitted } = state.nodesForTransfer;
-    const getDifference = key => (sumBy(included, key) || 0) - (sumBy(omitted, key) || 0);
-    if (transferType === TransferTypes.LOCALEXPORT) {
-      return {
-        resources: getDifference('on_device_resources'),
-        fileSize: getDifference('on_device_file_size'),
-      };
-    } else {
-      // For REMOTE/LOCAL/PEERIMPORT
-      // This will overestimate transfer size, since it counts items under topic that may not
-      // be on the USB drive
-      return {
-        resources: getDifference('total_resources') - getDifference('on_device_resources'),
-        fileSize: getDifference('total_file_size') - getDifference('on_device_file_size'),
-      };
-    }
   };
 }
 

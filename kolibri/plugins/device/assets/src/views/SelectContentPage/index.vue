@@ -57,7 +57,6 @@
         >
           {{ $tr('problemTransferringContents') }}
         </UiAlert>
-
         <ContentTreeViewer
           v-if="!newVersionAvailable"
           class="block-item"
@@ -70,7 +69,7 @@
       v-if="!newVersionAvailable"
       objectType="resource"
       actionType="import"
-      :resourceCounts="{count:nodeCounts.resources, fileSize:nodeCounts.fileSize}"
+      :resourceCounts="{count:transferResourceCount, fileSize:transferFileSize}"
       :disabled="disableBottomBar || newVersionAvailable"
       @clickconfirm="handleClickConfirm"
     />
@@ -131,7 +130,6 @@
       ...mapGetters('manageContent', ['channelIsInstalled']),
       ...mapState('manageContent', ['taskList']),
       ...mapGetters('manageContent/wizard', [
-        'nodeTransferCounts',
         'inLocalImportMode',
         'inPeerImportMode',
         'inRemoteImportMode',
@@ -143,6 +141,8 @@
         'status',
         'transferType',
         'transferredChannel',
+        'transferFileSize',
+        'transferResourceCount',
       ]),
       channelId() {
         return this.$route.params.channel_id;
@@ -186,9 +186,6 @@
       },
       newVersionAvailable() {
         return this.availableVersions.source > this.availableVersions.installed;
-      },
-      nodeCounts() {
-        return this.nodeTransferCounts(this.transferType);
       },
     },
     watch: {

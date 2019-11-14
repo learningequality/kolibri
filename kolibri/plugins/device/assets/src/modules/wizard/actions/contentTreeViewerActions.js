@@ -2,7 +2,8 @@ import sumBy from 'lodash/sumBy';
 import map from 'lodash/fp/map';
 import partition from 'lodash/partition';
 import find from 'lodash/find';
-import { ContentNodeFileSizeResource } from 'kolibri.resources';
+import client from 'kolibri.client';
+import urls from 'kolibri.urls';
 
 const pluckIds = map('id');
 
@@ -11,23 +12,41 @@ function isDescendantOrSelf(testNode, selfNode) {
 }
 
 /**
- * Queries the server for a ContentNode's file sizes
+ * Queries the server for the current total file size and resource count
+ * and then sets it to the store.
  *
- * @param node {Node} - (sanitized) Node, which has resource, but not file sizes
- * @returns {Promise<{total_file_size, on_device_file_size}>}
+ * @returns {Promise}
  *
  */
-function getContentNodeFileSize(store, node) {
-  const fetchArgs = {};
+function setImportExportFileSizeAndResourceCount(store) {
+  const { transferredChannel, nodesForTransfer } = store.state;
+  const postArgs = {
+    channel_id: transferredChannel.id,
+    node_ids: nodesForTransfer.included.map(node => node.id),
+    exclude_node_ids: nodesForTransfer.omitted.map(node => node.id),
+  };
   if (store.getters['inLocalImportMode']) {
     const { selectedDrive } = store.state;
-    fetchArgs.importing_from_drive_id = selectedDrive.id;
+    postArgs.drive_id = selectedDrive.id;
   }
   if (store.getters['inPeerImportMode']) {
     const { selectedPeer } = store.state;
-    fetchArgs.importing_from_peer_id = selectedPeer.id;
+    postArgs.peer_id = selectedPeer.id;
   }
-  return ContentNodeFileSizeResource.fetchModel({ id: node.id, getParams: fetchArgs });
+  if (store.getters['inExportMode']) {
+    postArgs.export = true;
+  }
+  return client({
+    path: urls['kolibri:kolibri.plugins.device:importexportsizeview'](),
+    method: 'POST',
+    entity: postArgs,
+  }).then(response => {
+    const { file_size, resource_count } = response.entity;
+    store.commit('SET_TRANSFER_SIZE', {
+      transferFileSize: file_size,
+      transferResourceCount: resource_count,
+    });
+  });
 }
 
 /**
@@ -51,12 +70,8 @@ export function addNodeForTransfer(store, node) {
   if (notToIncluded.length > 0) {
     store.commit('REPLACE_INCLUDE_LIST', toInclude);
   }
-  return getContentNodeFileSize(store, node).then(fileSizes => {
-    store.commit('ADD_NODE_TO_INCLUDE_LIST', {
-      ...node,
-      ...fileSizes,
-    });
-  });
+  store.commit('ADD_NODE_TO_INCLUDE_LIST', node);
+  return setImportExportFileSizeAndResourceCount(store);
 }
 
 /**
@@ -66,7 +81,6 @@ export function addNodeForTransfer(store, node) {
  *
  */
 export function removeNodeForTransfer(store, node) {
-  let promise = Promise.resolve();
   const forImport = !store.getters.inExportMode;
   const { included, omitted } = store.state.nodesForTransfer;
   // remove nodes in "include" that are either descendants of the removed node or the node itself
@@ -86,43 +100,37 @@ export function removeNodeForTransfer(store, node) {
     if (notToOmit.length > 0) {
       store.commit('REPLACE_OMIT_LIST', toOmit);
     }
-    promise = getContentNodeFileSize(store, node)
-      .then(fileSizes => {
-        store.commit('ADD_NODE_TO_OMIT_LIST', {
-          ...node,
-          ...fileSizes,
-        });
-      })
-      .then(() => {
-        // loop through the ancestor list and remove any that have been completely un-selected
-        includedAncestors.forEach(ancestor => {
-          let omittedResources;
-          let ancestorResources;
-          const omittedDescendants = omitted.filter(n => pluckIds(n.path).includes(ancestor.id));
-          if (forImport) {
-            // When total_resources === on_device_resources, then that node is not selectable.
-            // So we need to compare the difference (i.e  # of transferrable nodes) when
-            // deciding whether parent is fully omitted.
-            ancestorResources = ancestor.total_resources - ancestor.on_device_resources;
-            omittedResources =
-              sumBy(omittedDescendants, 'total_resources') -
-              sumBy(omittedDescendants, 'on_device_resources');
-          } else {
-            ancestorResources = ancestor.on_device_resources;
-            omittedResources = sumBy(omittedDescendants, 'on_device_resources');
-          }
-          if (ancestorResources === omittedResources) {
-            // remove the ancestor from "include"
-            store.commit('REPLACE_INCLUDE_LIST', included.filter(n => n.id !== ancestor.id));
-            // remove all desceandants from "omit"
-            store.commit(
-              'REPLACE_OMIT_LIST',
-              omitted.filter(n => !pluckIds(n.path).includes(ancestor.id))
-            );
-          }
-        });
+    store.commit('ADD_NODE_TO_OMIT_LIST', node);
+    return setImportExportFileSizeAndResourceCount(store).then(() => {
+      // loop through the ancestor list and remove any that have been completely un-selected
+      includedAncestors.forEach(ancestor => {
+        let omittedResources;
+        let ancestorResources;
+        const omittedDescendants = omitted.filter(n => pluckIds(n.path).includes(ancestor.id));
+        if (forImport) {
+          // When total_resources === on_device_resources, then that node is not selectable.
+          // So we need to compare the difference (i.e  # of transferrable nodes) when
+          // deciding whether parent is fully omitted.
+          ancestorResources = ancestor.total_resources - ancestor.on_device_resources;
+          omittedResources =
+            sumBy(omittedDescendants, 'total_resources') -
+            sumBy(omittedDescendants, 'on_device_resources');
+        } else {
+          ancestorResources = ancestor.on_device_resources;
+          omittedResources = sumBy(omittedDescendants, 'on_device_resources');
+        }
+        if (ancestorResources === omittedResources) {
+          // remove the ancestor from "include"
+          store.commit('REPLACE_INCLUDE_LIST', included.filter(n => n.id !== ancestor.id));
+          // remove all desceandants from "omit"
+          store.commit(
+            'REPLACE_OMIT_LIST',
+            omitted.filter(n => !pluckIds(n.path).includes(ancestor.id))
+          );
+        }
       });
+    });
   }
 
-  return promise;
+  return Promise.resolve();
 }
