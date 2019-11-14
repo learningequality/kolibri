@@ -6,7 +6,7 @@ import {
   showSelectContentPage,
   updateTreeViewTopic,
 } from '../modules/wizard/handlers';
-import { ContentWizardPages } from '../constants';
+import { ContentWizardPages, PageNames } from '../constants';
 import AvailableChannelsPage from '../views/AvailableChannelsPage';
 import SelectContentPage from '../views/SelectContentPage';
 import ManageChannelContentsPage from '../views/ManageContentPage/ManageChannelContentsPage';
@@ -26,7 +26,7 @@ export default [
     },
   },
   {
-    name: 'MANAGE_CHANNEL',
+    name: PageNames.MANAGE_CHANNEL,
     component: withAuthMessage(ManageChannelContentsPage, 'contentManager'),
     path: '/content/manage_channel/:channel_id',
     handler: ({ name }) => {

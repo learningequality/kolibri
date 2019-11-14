@@ -1,6 +1,7 @@
 import pick from 'lodash/pick';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { TaskResource } from 'kolibri.resources';
+import { PageNames } from '../constants';
 
 const TaskSnackbarStrings = createTranslator('TaskSnackbarStrings', {
   taskStarted: 'Task started…',
@@ -55,7 +56,7 @@ export default {
       const actionCallback = function() {
         return this.$router.push(
           {
-            name: 'MANAGE_TASKS',
+            name: PageNames.MANAGE_TASKS,
             params: {
               lastRoute: pick(this.$router.currentRoute, ['name', 'params', 'query']),
             },

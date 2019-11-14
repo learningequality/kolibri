@@ -76,7 +76,7 @@
   import SelectionBottomBar from '../SelectionBottomBar';
   import SelectTransferSourceModal from '../SelectTransferSourceModal';
   import taskNotificationMixin from '../../taskNotificationMixin';
-  import { ContentSources } from '../../../constants';
+  import { ContentSources, PageNames, TaskTypes } from '../../../constants';
 
   import { fetchPageData, fetchNodeWithAncestors, startExportTask, startDeleteTask } from './api';
 
@@ -231,12 +231,12 @@
         // on whether we are importing more from studio/drive/p2p.
         // Page changes for multi-step wizards are handled by the modal's nextStep method.
         const baseLinkObject = {
-          name: 'SELECT_CONTENT',
+          name: PageNames.SELECT_CONTENT,
           params: {
             channel_id: this.channelId,
           },
           query: {
-            last: 'MANAGE_CHANNEL',
+            last: PageNames.MANAGE_CHANNEL,
           },
         };
 
@@ -254,7 +254,7 @@
       // @public (used by taskNotificationMixin)
       onWatchedTaskFinished() {
         // For exports, there are no side effects once task has finished.
-        if (this.watchedTaskType !== 'DELETECHANNEL') return;
+        if (this.watchedTaskType !== TaskTypes.DELETECHANNEL) return;
 
         // clear out the nodeCache
         this.nodeCache = {};
@@ -267,7 +267,7 @@
           .catch(error => {
             // If entire channel is deleted, redirect
             if (error.status.code === 404) {
-              this.$router.replace({ name: 'MANAGE_CONTENT_PAGE' });
+              this.$router.replace({ name: PageNames.MANAGE_CONTENT_PAGE });
             } else {
               this.$store.dispatch('handleApiError', error);
             }

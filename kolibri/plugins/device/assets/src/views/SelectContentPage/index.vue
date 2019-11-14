@@ -106,7 +106,7 @@
   import find from 'lodash/find';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import TaskProgress from '../ManageContentPage/TaskProgress';
-  import { ContentWizardErrors, TaskTypes } from '../../constants';
+  import { ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
   import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
   import { downloadChannelMetadata } from '../../modules/wizard/utils';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
@@ -226,7 +226,7 @@
       } else {
         // Set app bar labels based on what kind of import/export the user is engaged in.
         if (this.inRemoteImportMode) {
-          if (this.$route.query.last === 'MANAGE_CHANNEL') {
+          if (this.$route.query.last === PageNames.MANAGE_CHANNEL) {
             title = this.transferredChannel.name;
           } else {
             title = this.$tr('kolibriStudioLabel');

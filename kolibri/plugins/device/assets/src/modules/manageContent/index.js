@@ -1,6 +1,6 @@
 import find from 'lodash/find';
 import wizard from '../wizard';
-import { TaskStatuses } from '../../constants';
+import { TaskStatuses, taskIsClearable } from '../../constants';
 import actions from './actions';
 
 function defaultState() {
@@ -55,7 +55,7 @@ export default {
       return function beingDeleted(channelId) {
         const match = find(state.taskList, { type: 'DELETECHANNEL', channel_id: channelId });
         if (match) {
-          return !['COMPLETED', 'CANCELED', 'FAILED'].includes(match.status);
+          return !taskIsClearable(match);
         }
         return false;
       };
@@ -66,8 +66,8 @@ export default {
           return null;
         }
         const match = find(state.taskList, { id: taskId });
-        if (match) {
-          return ['COMPLETED', 'CANCELED', 'FAILED'].includes(match.status) && match.id;
+        if (match && taskIsClearable(match)) {
+          return match.id;
         }
         return null;
       };

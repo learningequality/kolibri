@@ -70,6 +70,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import taskNotificationMixin from '../taskNotificationMixin';
+  import { PageNames } from '../../constants';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -118,9 +119,9 @@
       ...mapActions('manageContent', ['refreshChannelList', 'startImportWorkflow']),
       handleSelect({ value }) {
         const nextRoute = {
-          DELETE: 'DELETE_CHANNELS',
-          EXPORT: 'EXPORT_CHANNELS',
-          REARRANGE: 'REARRANGE_CHANNELS',
+          DELETE: PageNames.DELETE_CHANNELS,
+          EXPORT: PageNames.EXPORT_CHANNELS,
+          REARRANGE: PageNames.REARRANGE_CHANNELS,
         }[value];
         this.$router.push(this.$router.getRoute(nextRoute));
       },
@@ -144,7 +145,7 @@
         }
       },
       handleSelectManage(channelId) {
-        this.$router.push({ name: 'MANAGE_CHANNEL', params: { channel_id: channelId } });
+        this.$router.push({ name: PageNames.MANAGE_CHANNEL, params: { channel_id: channelId } });
       },
       // @public (used by taskNotificationMixin)
       onWatchedTaskFinished() {

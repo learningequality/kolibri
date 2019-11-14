@@ -188,9 +188,6 @@
       unknownUsername: 'Unknown user',
       unknownChannelName: '(Channel name unavailable)',
       progressPercentage: '{progress, number, percent}',
-      // unused messages
-      /* eslint-disable */
-      /* eslint-enable */
     },
   };
 
