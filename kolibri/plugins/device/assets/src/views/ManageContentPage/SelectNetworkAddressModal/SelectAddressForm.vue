@@ -20,7 +20,7 @@
         v-if="requestsFailed"
         appearance="basic-link"
         :text="$tr('refreshAddressesButtonLabel')"
-        @click="refreshAddressList"
+        @click="refreshSavedAddressList"
       />
     </UiAlert>
 
@@ -32,7 +32,7 @@
       @click="$emit('click_add_address')"
     />
 
-    <template v-for="(a, idx) in addresses">
+    <template v-for="(a, idx) in savedAddresses">
       <div :key="`div-${idx}`">
         <KRadioButton
           :key="idx"
@@ -47,10 +47,31 @@
           :key="`forget-${idx}`"
           :text="$tr('forgetAddressButtonLabel')"
           appearance="basic-link"
-          @click="removeAddress(a.id)"
+          @click="removeSavedAddress(a.id)"
         />
       </div>
     </template>
+
+    <hr v-if="discoveredAddresses.length > 0">
+
+    <template v-for="d in discoveredAddresses">
+      <div :key="`div-${d.id}`">
+        <KRadioButton
+          :key="d.id"
+          v-model="selectedDeviceId"
+          class="radio-button"
+          :value="d.id"
+          :label="$tr('peerDeviceName', {identifier: d.id})"
+          :description="d.base_url"
+          :disabled="d.disabled"
+        />
+      </div>
+    </template>
+
+    <template>
+      {{ $tr('searchingText') }}
+    </template>
+
   </KModal>
 
 </template>
@@ -62,7 +83,7 @@
   import find from 'lodash/find';
   import UiAlert from 'keen-ui/src/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { deleteAddress, fetchAddresses } from './api';
+  import { deleteAddress, fetchAddresses, fetchDevices } from './api';
 
   const Stages = {
     FETCHING_ADDRESSES: 'FETCHING_ADDRESSES',
@@ -82,7 +103,8 @@
     props: {},
     data() {
       return {
-        addresses: [],
+        savedAddresses: [],
+        discoveredAddresses: [],
         selectedAddressId: '',
         showUiAlerts: false,
         stage: '',
@@ -92,6 +114,9 @@
     computed: {
       ...mapGetters('manageContent/wizard', ['isImportingMore']),
       ...mapState('manageContent/wizard', ['transferredChannel']),
+      addresses() {
+        return this.savedAddresses.concat(this.discoveredAddresses);
+      },
       submitDisabled() {
         return (
           this.selectedAddressId === '' ||
@@ -142,7 +167,7 @@
       },
     },
     beforeMount() {
-      return this.refreshAddressList();
+      return this.refreshSavedAddressList();
     },
     mounted() {
       // Wait a little bit of time before showing UI alerts so there is no flash
@@ -150,14 +175,19 @@
       setTimeout(() => {
         this.showUiAlerts = true;
       }, 100);
+
+      this.startDiscoveryPolling();
+    },
+    destroyed() {
+      this.stopDiscoveryPolling();
     },
     methods: {
-      refreshAddressList() {
+      refreshSavedAddressList() {
         this.stage = this.Stages.FETCHING_ADDRESSES;
-        this.addresses = [];
+        this.savedAddresses = [];
         return fetchAddresses(this.isImportingMore ? this.transferredChannel.id : '')
           .then(addresses => {
-            this.addresses = addresses;
+            this.savedAddresses = addresses;
             this.resetSelectedAddress();
             this.stage = this.Stages.FETCHING_SUCCESSFUL;
           })
@@ -173,12 +203,12 @@
           this.selectedAddressId = '';
         }
       },
-      removeAddress(id) {
+      removeSavedAddress(id) {
         this.stage = this.Stages.DELETING_ADDRESS;
         return deleteAddress(id)
           .then(() => {
-            this.addresses = this.addresses.filter(a => a.id !== id);
-            this.resetSelectedAddress(this.addresses);
+            this.savedAddresses = this.savedAddresses.filter(a => a.id !== id);
+            this.resetSelectedAddress(this.savedAddresses);
             this.stage = this.Stages.DELETING_SUCCESSFUL;
             this.$emit('removed_address');
           })
@@ -186,9 +216,34 @@
             this.stage = this.Stages.DELETING_FAILED;
           });
       },
+
+      discoverPeers() {
+        this.$parent.$emit('started_peer_discovery');
+        return fetchDevices(this.isImportingMore ? this.transferredChannel.id : '')
+          .then(devices => {
+            this.$parent.$emit('finished_peer_discovery');
+            this.devices = devices;
+          })
+          .catch(() => {
+            this.$parent.$emit('peer_discovery_failed');
+          });
+      },
+
+      startDiscoveryPolling() {
+        if (!this.intervalId) {
+          this.intervalId = setInterval(this.discoverPeers, 5000);
+        }
+      },
+
+      stopDiscoveryPolling() {
+        if (this.intervalId) {
+          this.intervalId = clearInterval(this.intervalId);
+        }
+      },
+
       handleSubmit() {
         if (this.selectedAddressId) {
-          this.$emit('submit', find(this.addresses, { id: this.selectedAddressId }));
+          this.$emit('submit', find(this.savedAddresses, { id: this.selectedAddressId }));
         }
       },
     },
@@ -201,6 +256,8 @@
       newAddressButtonLabel: 'Add new address',
       noAddressText: 'There are no addresses yet',
       refreshAddressesButtonLabel: 'Refresh addresses',
+      peerDeviceName: 'Local Kolibri ({ identifier })',
+      searchingText: 'Searching',
     },
   };
 

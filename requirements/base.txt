@@ -16,6 +16,8 @@ metafone==0.5
 le-utils==0.1.20
 kolibri_exercise_perseus_plugin==1.2.2a3
 jsonfield==2.0.2
+requests-toolbelt==0.8.0
+clint==0.5.1
 morango==0.4.9
 tzlocal==1.5.1
 pytz==2018.5
@@ -26,5 +28,6 @@ semver==2.8.1
 django-redis-cache==2.0.0
 redis==3.2.1
 html5lib==1.0.1
+zeroconf-py2compat==0.19.3
 django-oidc-provider==0.7.0
 Click==7.0
