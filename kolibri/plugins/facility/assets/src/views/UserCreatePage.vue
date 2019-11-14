@@ -103,7 +103,7 @@
 
   import every from 'lodash/every';
   import { mapState, mapGetters } from 'vuex';
-  import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import { UserKinds, ERROR_CONSTANTS, DemographicConstants } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
@@ -112,6 +112,8 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import IdentifierTextbox from './IdentifierTextbox';
+
+  const { NOT_SPECIFIED } = DemographicConstants;
 
   export default {
     name: 'UserCreatePage',
@@ -137,8 +139,8 @@
         usernameValid: false,
         password: '',
         passwordValid: false,
-        gender: '',
-        birthYear: '',
+        gender: NOT_SPECIFIED,
+        birthYear: NOT_SPECIFIED,
         idNumber: '',
         kind: {
           label: this.coreString('learnerLabel'),
