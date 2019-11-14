@@ -30,6 +30,12 @@
         </KGridItem>
       </KGrid>
 
+      <p>
+        <a href="#">
+          {{ $tr('taskManagerLink') }}
+        </a>
+      </p>
+
       <p v-if="!channelsAreInstalled">
         {{ $tr('emptyChannelListMessage') }}
       </p>
@@ -149,6 +155,7 @@
       deleteChannels: 'Delete channels',
       rearrangeChannels: 'Re-arrange',
       emptyChannelListMessage: 'No channels installed',
+      taskManagerLink: 'View task manager',
     },
   };
 
