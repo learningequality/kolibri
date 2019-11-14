@@ -9,8 +9,8 @@ echo "--- Downloading whl file"
 if [[ $BUILDKITE_TRIGGERED_FROM_BUILD_ID ]]
 then
   echo "Downloading from triggered build"
-  buildkite-agent artifact download 'dist/*.whl' --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}
-  mv dist whl
+  buildkite-agent artifact download 'dist/*.whl' . --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}
+  mv dist/* whl
 else
   echo "Downloading from pip"
   pip download -d ./whl kolibri
