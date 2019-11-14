@@ -31,12 +31,12 @@ echo "--- Build .app"
 # Sets the environment variable needed for the build to find packages in from whl
 echo "PYTHONPATH=$PWD/src/kolibri/dist" > .env
 
-# Grepping '---' because of clutter in buildkite clutter
-pipenv run pew build | tee full_app_build_log.txt | grep --invert-match "\-\-\-"
+# Putting output in file, errors stil log to stderr 
+pipenv run pew build | tee full_app_build_log.txt > /dev/null
 
 buildkite-agent artifact upload full_app_build_log.txt
 
-echo "--- :mac: Build .pkg"
+echo "--- :mac: Build .dmg"
 
 pipenv run pew package
 
