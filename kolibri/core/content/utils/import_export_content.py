@@ -65,7 +65,10 @@ def get_files_to_transfer(
     nodes_to_include = get_nodes_to_transfer(
         channel_id, node_ids, exclude_node_ids, available, renderable_only
     )
+    return calculate_files_to_transfer(nodes_to_include, available)
 
+
+def calculate_files_to_transfer(nodes_to_include, available):
     files_to_transfer = LocalFile.objects.filter(
         available=available, files__contentnode__in=nodes_to_include
     )

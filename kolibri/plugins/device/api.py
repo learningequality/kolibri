@@ -3,9 +3,11 @@ import uuid
 from django.db.models import Case
 from django.db.models import When
 from django_filters.rest_framework import DjangoFilterBackend
+from le_utils.constants import content_kinds
 from rest_framework import viewsets
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
 
 from kolibri.core.content.api import ChannelMetadataFilter
@@ -16,6 +18,15 @@ from kolibri.core.content.serializers import ChannelMetadataSerializer
 from kolibri.core.content.utils.annotation import total_file_size
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_without_topics_q_filter,
+)
+from kolibri.core.content.utils.import_export_content import calculate_files_to_transfer
+from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
+from kolibri.core.content.utils.import_export_content import LocationError
+from kolibri.core.content.utils.importability_annotation import (
+    get_channel_stats_from_disk,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    get_channel_stats_from_peer,
 )
 from kolibri.core.device.models import ContentCacheKey
 
@@ -69,9 +80,82 @@ class DeviceChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DeviceChannelMetadataSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = ChannelMetadataFilter
+    permission_classes = (CanManageContent,)
 
     def get_queryset(self):
         return ChannelMetadata.objects.all().select_related("root__lang")
+
+
+def _node_id_list(channel_id, drive_id, peer_id):
+    # By default don't filter node ids by their underlying file importability
+    file_based_node_id_list = None
+    if drive_id:
+        try:
+            file_based_node_id_list = get_channel_stats_from_disk(
+                channel_id, drive_id
+            ).keys()
+        except LocationError:
+            raise ValidationError(
+                "The external drive with given drive id {} does not exist.".format(
+                    drive_id
+                )
+            )
+
+    if peer_id:
+        try:
+            file_based_node_id_list = get_channel_stats_from_peer(
+                channel_id, peer_id
+            ).keys()
+        except LocationError:
+            raise ValidationError(
+                "The network location with the id {} does not exist".format(peer_id)
+            )
+    return file_based_node_id_list
+
+
+class CalculateImportExportSizeView(APIView):
+    permission_classes = (CanManageContent,)
+
+    def post(self, request):
+        try:
+            channel_id = self.request.data["channel_id"]
+        except KeyError:
+            raise ValidationError(
+                "channel_id is required for calculating file size and resource counts"
+            )
+        drive_id = self.request.data.get("drive_id")
+        peer_id = self.request.data.get("peer_id")
+        for_export = self.request.data.get("export")
+        node_ids = self.request.data.get("node_ids")
+        exclude_node_ids = self.request.data.get("exclude_node_ids")
+        flag_count = sum(int(bool(flag)) for flag in (drive_id, peer_id, for_export))
+        if flag_count > 1:
+            raise ValidationError(
+                "Must specify at most one of drive_id, peer_id, and export"
+            )
+        # By default filter to unavailable files
+        available = False
+        if for_export:
+            available = True
+        file_based_node_id_list = _node_id_list(channel_id, drive_id, peer_id)
+        nodes_for_transfer = get_nodes_to_transfer(
+            channel_id, node_ids, exclude_node_ids, available
+        )
+        if file_based_node_id_list:
+            nodes_for_transfer = nodes_for_transfer.filter(
+                pk__in=file_based_node_id_list
+            )
+        total_resource_count = (
+            nodes_for_transfer.exclude(kind=content_kinds.TOPIC)
+            .values("content_id")
+            .distinct()
+            .count()
+        )
+        _, total_file_size = calculate_files_to_transfer(nodes_for_transfer, available)
+
+        return Response(
+            {"resource_count": total_resource_count, "file_size": total_file_size}
+        )
 
 
 def validate_uuid(value):
