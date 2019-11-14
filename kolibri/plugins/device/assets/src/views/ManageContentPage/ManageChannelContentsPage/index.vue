@@ -1,7 +1,12 @@
 <template>
 
   <div v-if="channel" class="manage-channel-page">
-    <NewChannelVersionBanner v-if="newVersionAvailable" />
+    <NewChannelVersionBanner
+      v-if="availableVersions.studioLatest > availableVersions.installed"
+      class="banner"
+      :version="availableVersions.studioLatest"
+      @click="handleClickViewNewVersion"
+    />
 
     <div style="text-align: right">
       <KButton
@@ -128,8 +133,14 @@
       title() {
         return this.$tr('title', { channelName: this.channel.name });
       },
-      newVersionAvailable() {
-        return get(this.studioChannel, 'version') > get(this.channel, 'version');
+      availableVersions() {
+        // If offline, we shouldn't see an upgrade notification
+        const studioLatest = get(this.studioChannel, 'version', -Infinity);
+        const installed = get(this.channel, 'version');
+        return {
+          studioLatest,
+          installed,
+        };
       },
       currentNode() {
         return this.nodeCache[this.currentNodeId];
@@ -225,6 +236,10 @@
         this.disableBottomBar = false;
         this.createTaskFailedSnackbar();
       },
+      handleClickViewNewVersion() {
+        // TODO navigate to NewChannelVersionPage
+        this.$router.go();
+      },
       handleSelectImportMoreSource(params) {
         // The modal will only emit 'submit' events at the very end of the wizard.
         // This method will send user to the correct URL for SELECT_CONTENT, depending
@@ -291,6 +306,10 @@
 
   .manage-channel-page {
     min-height: 80vh;
+  }
+
+  .banner {
+    margin-bottom: 24px;
   }
 
 </style>

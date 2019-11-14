@@ -77,7 +77,7 @@
       v-if="showTokenModal"
       :disabled="disableModal"
       @cancel="showTokenModal=false"
-      @submit="goToSelectContentPageForChannel"
+      @submit="handleSubmitToken"
     />
     <KLinearLoader
       v-if="channelsAreLoading"
@@ -246,7 +246,7 @@
         }
         this.$router.push({ query: newQuery });
       },
-      goToSelectContentPageForChannel(channel) {
+      handleSubmitToken(channel) {
         if (this.multipleMode) {
           this.disableModal = true;
           this.$store
@@ -255,20 +255,24 @@
               const newChannels = channels.map(x => Object.assign(x, { newPrivateChannel: true }));
               this.newPrivateChannels = [...newChannels, ...this.newPrivateChannels];
               this.showTokenModal = false;
+              this.disableModal = false;
             })
             .catch(error => {
               this.$store.dispatch('handleApiError', error);
             });
         } else {
-          this.$router.push(
-            selectContentPageLink({
-              addressId: this.$route.query.address_id,
-              channelId: channel.id,
-              driveId: this.$route.query.drive_id,
-              forExport: this.$route.query.for_export,
-            })
-          );
+          this.goToSelectContentPageForChannel(channel);
         }
+      },
+      goToSelectContentPageForChannel(channel) {
+        this.$router.push(
+          selectContentPageLink({
+            addressId: this.$route.query.address_id,
+            channelId: channel.id,
+            driveId: this.$route.query.drive_id,
+            forExport: this.$route.query.for_export,
+          })
+        );
       },
       handleClickConfirm() {
         this.disableBottomBar = true;
