@@ -257,7 +257,7 @@
       noAddressText: 'There are no addresses yet',
       refreshAddressesButtonLabel: 'Refresh addresses',
       peerDeviceName: 'Local Kolibri ({ identifier })',
-      searchingText: 'Searching...',
+      searchingText: 'Searching',
     },
   };
 
