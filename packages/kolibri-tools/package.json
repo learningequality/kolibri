@@ -1,6 +1,6 @@
 {
   "name": "kolibri-tools",
-  "version": "0.13.0-dev.9",
+  "version": "0.13.0-dev.10",
   "description": "Tools for building Kolibri frontend plugins",
   "main": "lib/cli.js",
   "repository": "github.com/learningequality/kolibri",
@@ -34,7 +34,7 @@
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jest": "^21.26.1",
-    "eslint-plugin-kolibri": "0.13.0-dev.9",
+    "eslint-plugin-kolibri": "0.13.0-dev.10",
     "eslint-plugin-vue": "^5.2.2",
     "espree": "^5.0.1",
     "esquery": "^1.0.1",
@@ -95,6 +95,6 @@
     "readline-sync": "^1.4.9"
   },
   "optionalDependencies": {
-    "kolibri": "0.13.0-dev.9"
+    "kolibri": "0.13.0-dev.10"
   }
 }
