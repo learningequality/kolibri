@@ -1,30 +1,37 @@
 <template>
 
   <BottomAppBar>
-    <span class="message">{{ selectedMessage }}</span>
+    <div
+      class="selection-bottom-bar"
+      :class="{'selection-bottom-bar-sm': windowIsSmall}"
+    >
+      <span class="message">{{ selectedMessage }}</span>
 
-    <template v-if="actionType === 'manage'">
-      <KButton
-        :disabled="$attrs.disabled || buttonsDisabled"
-        :text="coreString('deleteAction')"
-        :primary="false"
-        @click="$emit('selectoption', 'DELETE')"
-      />
-      <KButton
-        :disabled="$attrs.disabled || buttonsDisabled"
-        :text="$tr('exportAction')"
-        :primary="true"
-        @click="$emit('selectoption', 'EXPORT')"
-      />
-    </template>
+      <div>
+        <template v-if="actionType === 'manage'">
+          <KButton
+            :disabled="$attrs.disabled || buttonsDisabled"
+            :text="coreString('deleteAction')"
+            :primary="false"
+            @click="$emit('selectoption', 'DELETE')"
+          />
+          <KButton
+            :disabled="$attrs.disabled || buttonsDisabled"
+            :text="$tr('exportAction')"
+            :primary="true"
+            @click="$emit('selectoption', 'EXPORT')"
+          />
+        </template>
 
-    <KButton
-      v-else
-      :disabled="$attrs.disabled || buttonsDisabled"
-      :text="confirmButtonLabel"
-      :primary="true"
-      @click="$emit('clickconfirm')"
-    />
+        <KButton
+          v-else
+          :disabled="$attrs.disabled || buttonsDisabled"
+          :text="confirmButtonLabel"
+          :primary="true"
+          @click="$emit('clickconfirm')"
+        />
+      </div>
+    </div>
   </BottomAppBar>
 
 </template>
@@ -36,6 +43,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   // Shows a 'EXPORT', 'IMPORT', or 'DELETE' button next to a message
   // of how many items are selected plus their size.
@@ -44,7 +52,7 @@
     components: {
       BottomAppBar,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       // TODO remove this and only pass in resourceCounts object
       selectedObjects: {
@@ -158,6 +166,20 @@
 
 
 <style lang="scss" scoped>
+
+  .selection-bottom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .selection-bottom-bar-sm {
+    flex-direction: column;
+
+    .message {
+      margin: 0;
+    }
+  }
 
   .message {
     margin-right: 32px;

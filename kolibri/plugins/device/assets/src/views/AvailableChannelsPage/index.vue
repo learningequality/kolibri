@@ -89,7 +89,7 @@
       v-if="multipleMode"
       objectType="channel"
       actionType="import"
-      :disabled="disableBottomBar"
+      :disabled="disableBottomBar || selectedChannels.length === 0"
       :selectedObjects="selectedChannels"
       :fileSize.sync="fileSize"
       @clickconfirm="handleClickConfirm"
