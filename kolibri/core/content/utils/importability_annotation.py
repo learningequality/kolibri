@@ -206,15 +206,16 @@ def get_channel_annotation_stats(channel_id, checksums=None):
                 and_(
                     ContentNodeTable.c.level == level,
                     ContentNodeTable.c.channel_id == channel_id,
+                    ContentNodeTable.c.available == True,  # noqa
                 )
             )
         )
 
         for stat in level_stats:
             stats[stat[0]] = {
-                "coach_content": stat[1],
-                "num_coach_contents": stat[2],
-                "total_resources": stat[3],
+                "coach_content": bool(stat[1]),
+                "num_coach_contents": stat[2] or 0,
+                "total_resources": stat[3] or 0,
             }
 
     root_node_stats = connection.execute(
