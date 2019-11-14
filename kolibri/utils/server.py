@@ -72,7 +72,7 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
-def run_services():
+def run_services(port):
 
     # Initialize the iceqube scheduler to handle scheduled tasks
     from kolibri.core.tasks.main import scheduler
@@ -104,6 +104,13 @@ def run_services():
 
     atexit.register(scheduler.shutdown_scheduler)
 
+    # Register the Kolibri zeroconf service so it will be discoverable on the network
+    from morango.models import InstanceIDModel
+    from kolibri.core.discovery.utils.network.search import register_zeroconf_service
+
+    instance, _ = InstanceIDModel.get_or_create_current_instance()
+    register_zeroconf_service(port=port, id=instance.id[:4])
+
 
 def _rm_pid_file():
     os.unlink(PID_FILE)
@@ -116,7 +123,7 @@ def start(port=8080, run_cherrypy=True):
     :param: port: Port number (default: 8080)
     """
 
-    run_services()
+    run_services(port=port)
 
     # Write the new PID
     _write_pid_file(PID_FILE, port=port)
@@ -131,12 +138,12 @@ def start(port=8080, run_cherrypy=True):
         block()
 
 
-def services():
+def services(port=8080):
     """
     Runs the background services.
     """
 
-    run_services()
+    run_services(port=port)
 
     # Write the new PID
     _write_pid_file(PID_FILE)

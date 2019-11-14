@@ -31,16 +31,6 @@
       autocomplete="new-password"
     />
 
-    <GenderSelect
-      :value.sync="gender"
-      class="select"
-    />
-
-    <BirthYearSelect
-      :value.sync="birthYear"
-      class="select"
-    />
-
     <PrivacyLinkAndModal />
 
     <div slot="footer" class="reminder">
@@ -63,14 +53,9 @@
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
-  import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
-  import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
   import OnboardingForm from './OnboardingForm';
-
-  const { DEFERRED } = DemographicConstants;
 
   export default {
     name: 'SuperuserCredentialsForm',
@@ -79,8 +64,6 @@
       FullNameTextbox,
       UsernameTextbox,
       PasswordTextbox,
-      BirthYearSelect,
-      GenderSelect,
       PrivacyLinkAndModal,
     },
     mixins: [commonCoreStrings],
@@ -99,8 +82,6 @@
         usernameValid: false,
         password: superuser.password,
         passwordValid: false,
-        birthYear: superuser.birth_year,
-        gender: superuser.gender,
         formSubmitted: false,
       };
     },
@@ -122,8 +103,6 @@
           full_name: this.fullName,
           username: this.username,
           password: this.password,
-          birth_year: this.birthYear || DEFERRED,
-          gender: this.gender || DEFERRED,
         });
       },
       submitForm() {

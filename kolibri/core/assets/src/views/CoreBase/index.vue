@@ -88,7 +88,14 @@
         <AppError />
       </KPageContainer>
 
-      <div v-else id="main" role="main" tabindex="-1" class="main">
+      <div
+        v-else
+        id="main"
+        role="main"
+        tabindex="-1"
+        class="main"
+        :style="mainStyles"
+      >
         <slot></slot>
       </div>
     </div>
@@ -266,6 +273,11 @@
         type: Boolean,
         default: false,
       },
+      maxMainWidth: {
+        type: Number,
+        required: false,
+        default: 1000,
+      },
     },
     data() {
       return {
@@ -326,6 +338,16 @@
           top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
           padding: `${this.windowIsSmall ? 16 : 32}px`,
         };
+      },
+      mainStyles() {
+        let styles = {
+          marginLeft: 'auto',
+          marginRight: 'auto',
+        };
+        if (!this.fullScreen) {
+          styles['maxWidth'] = this.maxMainWidth + 'px';
+        }
+        return styles;
       },
       fixedAppBar() {
         return this.windowIsLarge && !this.windowIsShort;
@@ -515,7 +537,6 @@
   }
 
   .content {
-    max-width: 1000px;
     margin-right: auto;
     margin-bottom: 128px;
     margin-left: auto;

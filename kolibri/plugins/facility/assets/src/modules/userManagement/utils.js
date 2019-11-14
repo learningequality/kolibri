@@ -1,6 +1,4 @@
 import find from 'lodash/find';
-import map from 'lodash/map';
-import filter from 'lodash/filter';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import { RoleResource } from 'kolibri.resources';
 
@@ -42,14 +40,7 @@ export function updateFacilityLevelRoles(facilityUser, newRoleKind) {
 
   // Downgrading Role to LEARNER
   if (newRoleKind === UserKinds.LEARNER) {
-    const roleDeletionPromises = [
-      RoleResource.deleteModel({ id: currentFacilityRole.id }),
-      // Manually have to delete all Roles downstream in Classrooms
-      map(filter(roles, { collection_parent: facility, kind: UserKinds.COACH }), role =>
-        RoleResource.deleteModel({ id: role.id })
-      ),
-    ];
-    return Promise.all(roleDeletionPromises);
+    return RoleResource.deleteCollection({ user: id });
   }
 
   // Changing from one Facility-Level Role to another. Any Classroom-Level Roles

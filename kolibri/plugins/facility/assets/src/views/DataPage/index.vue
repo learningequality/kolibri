@@ -1,78 +1,84 @@
 <template>
 
-  <KGrid gutter="48">
+  <div>
+    <KPageContainer>
+      <KGrid gutter="48">
 
-    <KGridItem>
-      <h1>{{ $tr('pageHeading') }}</h1>
-    </KGridItem>
+        <KGridItem>
+          <h1>{{ $tr('pageHeading') }}</h1>
+        </KGridItem>
 
-    <KGridItem>
-      <p>{{ $tr('pageSubHeading') }}</p>
-    </KGridItem>
+        <KGridItem>
+          <p>{{ $tr('pageSubHeading') }}</p>
+        </KGridItem>
 
-    <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }">
-      <h2>{{ $tr('detailsHeading') }}</h2>
-      <p>{{ $tr('detailsSubHeading') }}</p>
-      <p>
-        <KButton
-          :text="$tr('download')"
-          :disabled="!availableSessionCSVLog"
-          class="download-button"
-          @click="downloadSessionLog"
-        />
-      </p>
-      <p v-if="cannotDownload" :style="noDlStyle">
-        {{ $tr('noDownload') }}
-      </p>
-      <p v-else-if="inSessionCSVCreation">
-        <DataPageTaskProgress />
-      </p>
-      <p v-else>
-        <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }} </span>
-        <GeneratedElapsedTime v-else :date="sessionDateCreated" />
-        <KButton
-          appearance="basic-link"
-          :text="noSessionLogs ? $tr('generateLog') : $tr('regenerateLog')"
-          @click="generateSessionLog"
-        />
-      </p>
-      <p class="infobox">
-        <b>{{ $tr('note') }}</b> {{ $tr('detailsInfo') }}
-      </p>
-    </KGridItem>
+        <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }">
+          <h2>{{ $tr('detailsHeading') }}</h2>
+          <p>{{ $tr('detailsSubHeading') }}</p>
+          <p>
+            <KButton
+              :text="$tr('download')"
+              :disabled="!availableSessionCSVLog"
+              class="download-button"
+              @click="downloadSessionLog"
+            />
+          </p>
+          <p v-if="cannotDownload" :style="noDlStyle">
+            {{ $tr('noDownload') }}
+          </p>
+          <p v-else-if="inSessionCSVCreation">
+            <DataPageTaskProgress />
+          </p>
+          <p v-else>
+            <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }} </span>
+            <GeneratedElapsedTime v-else :date="sessionDateCreated" />
+            <KButton
+              appearance="basic-link"
+              :text="noSessionLogs ? $tr('generateLog') : $tr('regenerateLog')"
+              @click="generateSessionLog"
+            />
+          </p>
+          <p class="infobox">
+            <b>{{ $tr('note') }}</b> {{ $tr('detailsInfo') }}
+          </p>
+        </KGridItem>
 
-    <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }">
-      <h2>{{ $tr('summaryHeading') }}</h2>
-      <p>{{ $tr('summarySubHeading') }}</p>
-      <p>
-        <KButton
-          :text="$tr('download')"
-          :disabled="!availableSummaryCSVLog"
-          class="download-button"
-          @click="downloadSummaryLog"
-        />
-      </p>
-      <p v-if="cannotDownload" :style="noDlStyle">
-        {{ $tr('noDownload') }}
-      </p>
-      <p v-else-if="inSummaryCSVCreation">
-        <DataPageTaskProgress />
-      </p>
-      <p v-else>
-        <span v-if="noSummaryLogs"> {{ $tr('noLogsYet') }} </span>
-        <GeneratedElapsedTime v-else :date="summaryDateCreated" />
-        <KButton
-          appearance="basic-link"
-          :text="noSummaryLogs ? $tr('generateLog') : $tr('regenerateLog')"
-          @click="generateSummaryLog"
-        />
-      </p>
-      <p class="infobox">
-        <b>{{ $tr('note') }}</b> {{ $tr('summaryInfo') }}
-      </p>
-    </KGridItem>
+        <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }">
+          <h2>{{ $tr('summaryHeading') }}</h2>
+          <p>{{ $tr('summarySubHeading') }}</p>
+          <p>
+            <KButton
+              :text="$tr('download')"
+              :disabled="!availableSummaryCSVLog"
+              class="download-button"
+              @click="downloadSummaryLog"
+            />
+          </p>
+          <p v-if="cannotDownload" :style="noDlStyle">
+            {{ $tr('noDownload') }}
+          </p>
+          <p v-else-if="inSummaryCSVCreation">
+            <DataPageTaskProgress />
+          </p>
+          <p v-else>
+            <span v-if="noSummaryLogs"> {{ $tr('noLogsYet') }} </span>
+            <GeneratedElapsedTime v-else :date="summaryDateCreated" />
+            <KButton
+              appearance="basic-link"
+              :text="noSummaryLogs ? $tr('generateLog') : $tr('regenerateLog')"
+              @click="generateSummaryLog"
+            />
+          </p>
+          <p class="infobox">
+            <b>{{ $tr('note') }}</b> {{ $tr('summaryInfo') }}
+          </p>
+        </KGridItem>
 
-  </KGrid>
+      </KGrid>
+    </KPageContainer>
+
+    <SyncInterface />
+  </div>
 
 </template>
 
@@ -82,9 +88,11 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import urls from 'kolibri.urls';
+  import { FacilityResource } from 'kolibri.resources';
   import { PageNames } from '../../constants';
   import GeneratedElapsedTime from './GeneratedElapsedTime';
   import DataPageTaskProgress from './DataPageTaskProgress';
+  import SyncInterface from './SyncInterface';
 
   export default {
     name: 'DataPage',
@@ -96,6 +104,7 @@
     components: {
       GeneratedElapsedTime,
       DataPageTaskProgress,
+      SyncInterface,
     },
     computed: {
       ...mapGetters('manageCSV', [
@@ -126,7 +135,12 @@
       },
     },
     mounted() {
-      this.inDataExportPage && this.refreshTaskList() && this.startTaskPolling();
+      // fetch task list after fetching facilities, to ensure proper syncing state
+      FacilityResource.fetchCollection({ force: true }).then(facilities => {
+        this.$store.commit('manageCSV/RESET_STATE');
+        this.$store.commit('manageCSV/SET_STATE', { facilities: facilities });
+        this.inDataExportPage && this.refreshTaskList() && this.startTaskPolling();
+      });
     },
     destroyed() {
       this.stopTaskPolling();

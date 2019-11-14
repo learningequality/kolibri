@@ -12,13 +12,17 @@ export {
   languageValidator,
   getContentLangDir,
 } from 'kolibri-components/src/utils/i18n';
-export { licenseTranslations } from './licenseTranslations';
 
 const logging = logger.getLogger(__filename);
 
 const languageGlobals = plugin_data['languageGlobals'] || {};
 
+let _i18nReady = false;
+
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
+  if (!_i18nReady) {
+    throw 'Translator used before i18n is ready';
+  }
   if (args) {
     if (!Array.isArray(args) && typeof args !== 'object') {
       logging.error(`The $tr functions take either an array of positional
@@ -52,13 +56,13 @@ export let currentLanguage = defaultLocale;
 // Default to ltr
 export let languageDirection = languageDirections.LTR;
 
-export const getLangDir = id => {
+export function getLangDir(id) {
   return (availableLanguages[id] || {}).lang_direction || languageDirections.LTR;
-};
+}
 
-export const isRtl = id => {
+export function isRtl(id) {
   return getLangDir(id) === languageDirections.RTL;
-};
+}
 
 export const languageDensities = {
   englishLike: 'english_like',
@@ -93,7 +97,7 @@ const languageDensityMapping = {
   zh: languageDensities.dense,
 };
 
-function languageIdToCode(id) {
+export function languageIdToCode(id) {
   return id.split('-')[0].toLowerCase();
 }
 
@@ -188,6 +192,8 @@ function _setUpVueIntl() {
     vue.registerMessages(currentLanguage, languageGlobals.coreLanguageMessages);
   }
   importVueIntlLocaleData().forEach(localeData => VueIntl.addLocaleData(localeData));
+
+  _i18nReady = true;
 }
 
 function _loadDefaultFonts() {

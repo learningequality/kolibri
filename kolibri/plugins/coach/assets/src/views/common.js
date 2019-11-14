@@ -16,14 +16,18 @@ import { STATUSES } from '../modules/classSummary/constants';
 import TopNavbar from './TopNavbar';
 import { coachStrings, coachStringsMixin } from './common/commonCoachStrings';
 import Answer from './common/Answer';
+import AverageScoreTooltip from './common/AverageScoreTooltip';
 import BackLink from './common/BackLink';
 import TruncatedItemList from './common/TruncatedItemList';
 import LessonActive from './common/LessonActive';
+import LessonStatus from './common/LessonStatus';
 import MasteryModel from './common/MasteryModel';
 import Recipients from './common/Recipients';
 import Score from './common/Score';
 import TimeDuration from './common/TimeDuration';
 import QuizActive from './common/QuizActive';
+import QuizLessonDetailsHeader from './common/QuizLessonDetailsHeader';
+import QuizStatus from './common/QuizStatus';
 import HeaderTable from './common/HeaderTable';
 import HeaderTableRow from './common/HeaderTable/HeaderTableRow';
 import HeaderTabs from './common/HeaderTabs';
@@ -32,6 +36,7 @@ import StatusSummary from './common/status/StatusSummary';
 import StatusSimple from './common/status/StatusSimple';
 import HelpNeeded from './common/status/HelpNeeded';
 import Placeholder from './common/Placeholder';
+import StatusElapsedTime from './common/StatusElapsedTime';
 import { VERBS, ICONS } from './common/status/constants';
 
 function formatPageTitle() {
@@ -111,14 +116,18 @@ export default {
     ContentIcon,
     TopNavbar,
     Answer,
+    AverageScoreTooltip,
     BackLink,
     TruncatedItemList,
     LessonActive,
+    LessonStatus,
     MasteryModel,
     Recipients,
     Score,
     TimeDuration,
     QuizActive,
+    QuizLessonDetailsHeader,
+    QuizStatus,
     HeaderTable,
     ElapsedTime,
     HeaderTableRow,
@@ -128,6 +137,7 @@ export default {
     StatusSimple,
     HelpNeeded,
     Placeholder,
+    StatusElapsedTime,
   },
   mixins: [coachStringsMixin],
   computed: {

@@ -19,6 +19,7 @@ import KPageContainer from './KPageContainer';
 import KRadioButton from './KRadioButton';
 import KRouterLink from './buttons-and-links/KRouterLink';
 import KSelect from './KSelect';
+import KSwitch from './KSwitch';
 import KTextbox from './KTextbox';
 import KTooltip from './KTooltip';
 
@@ -40,6 +41,9 @@ export default function KThemePlugin(Vue) {
         return {
           outline: 'none',
         };
+      },
+      $inputModality() {
+        return globalThemeState.inputModality;
       },
     },
     /* eslint-enable kolibri/vue-no-unused-properties */
@@ -69,6 +73,7 @@ export default function KThemePlugin(Vue) {
   Vue.component('KRadioButton', KRadioButton);
   Vue.component('KRouterLink', KRouterLink);
   Vue.component('KSelect', KSelect);
+  Vue.component('KSwitch', KSwitch);
   Vue.component('KTextbox', KTextbox);
   Vue.component('KTooltip', KTooltip);
 }

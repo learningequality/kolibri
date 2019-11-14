@@ -11,6 +11,7 @@ from kolibri.core import error_constants
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.logger.models import ExamLog
 from kolibri.core.auth.test.helpers import provision_device
 
 
@@ -44,6 +45,8 @@ class ExamAPITestCase(APITestCase):
             "learners_see_fixed_order": False,
             "question_sources": [],
             "assignments": [],
+            "date_activated": None,
+            "date_archived": None,
         }
 
     def post_new_exam(self, exam):
@@ -151,6 +154,45 @@ class ExamAPITestCase(APITestCase):
         self.assertEqual(
             models.Exam.objects.get(id=self.exam.id).title, "updated title"
         )
+
+    def test_close_exam_logs_when_exam_is_closed(self):
+        self.login_as_admin()
+        group = LearnerGroup.objects.create(name="test", parent=self.facility)
+
+        import datetime
+
+        EXAM_LOGS = 0
+        for i in range(10):
+            user = FacilityUser.objects.create(
+                username="u{}".format(i), facility=self.facility
+            )
+
+            # Add the user to the learner group
+            group.add_learner(user)
+
+            # Half of the students will _start_ the exam, half won't. So we will have
+            # 5 ExamLogs for this exam.
+            if i <= 5:
+                ExamLog.objects.create(
+                    closed=False,
+                    exam_id=self.exam.id,
+                    user_id=user.id,
+                    completion_timestamp=datetime.datetime.now(),
+                    dataset_id=self.exam.dataset_id,
+                )
+                EXAM_LOGS = EXAM_LOGS + 1
+
+        open_exam_logs = ExamLog.objects.filter(exam_id=self.exam.id, closed=False)
+        # Make sure that the open exams in the DB match that which we counted above.
+        self.assertEquals(EXAM_LOGS, len(open_exam_logs))
+
+        # Finally - make the request.
+        self.put_updated_exam(self.exam.id, {"archive": True})
+        exam_logs = ExamLog.objects.filter(exam_id=self.exam.id)
+        closed_exam_logs = ExamLog.objects.filter(exam_id=self.exam.id, closed=True)
+        # No new ExamLogs made - but all that were made previously are closed.
+        self.assertEquals(len(closed_exam_logs), len(exam_logs))
+        self.assertEquals(EXAM_LOGS, len(closed_exam_logs))
 
     def test_logged_in_user_exam_no_update(self):
         self.login_as_learner()

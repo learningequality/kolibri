@@ -5,66 +5,52 @@
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
+    :maxMainWidth="1440"
   >
 
     <TopNavbar slot="sub-nav" />
-
-    <KPageContainer v-if="!loading">
-      <section>
-        <BackLinkWithOptions>
-          <BackLink
-            slot="backlink"
-            :to="$router.getRoute('EXAMS')"
-            :text="coachString('allQuizzesLabel')"
-          />
+    <KGrid gutter="16">
+      <KGridItem>
+        <QuizLessonDetailsHeader
+          :backlink="$router.getRoute('EXAMS')"
+          :backlinkLabel="coachString('allQuizzesLabel')"
+          examOrLesson="exam"
+        >
           <QuizOptionsDropdownMenu
-            slot="options"
+            slot="dropdown"
             optionsFor="plan"
             @select="setCurrentAction"
           />
-        </BackLinkWithOptions>
-        <h1>
-          <KLabeledIcon icon="quiz" :label="quiz.title" />
-        </h1>
-      </section>
-
-      <section>
-        <HeaderTable>
-          <HeaderTableRow :keyText="coachString('statusLabel')">
-            <QuizActive slot="value" :active="quiz.active" />
-          </HeaderTableRow>
-          <HeaderTableRow :keyText="coachString('recipientsLabel')">
-            <Recipients
-              slot="value"
-              :groupNames="learnerGroupNames"
-              :hasAssignments="quiz.assignments.length > 0"
-            />
-          </HeaderTableRow>
-          <HeaderTableRow
-            :keyText="coachString('questionOrderLabel')"
-            :valueText="questionOrderValueString"
-          />
-        </HeaderTable>
-      </section>
-
-      <section v-if="selectedQuestions">
-        <h2>
-          {{ coachString('numberOfQuestions', { value: selectedQuestions.length }) }}
-        </h2>
-
-        <p>
-          {{ orderDescriptionString }}
-        </p>
-
-        <QuestionListPreview
-          :fixedOrder="!quizIsRandomized"
-          :readOnly="true"
-          :selectedQuestions="selectedQuestions"
-          :selectedExercises="selectedExercises"
+        </QuizLessonDetailsHeader>
+      </KGridItem>
+      <KGridItem :layout12="{ span: 4 }">
+        <QuizStatus
+          :avgScore="avgScore"
+          :groupNames="getGroupNames(exam.groups)"
+          :exam="exam"
         />
-      </section>
-    </KPageContainer>
+      </KGridItem>
+      <KGridItem :layout12="{ span: 8 }">
+        <KPageContainer v-if="!loading" :topMargin="16">
+          <section v-if="selectedQuestions">
+            <h2>
+              {{ coachString('numberOfQuestions', { value: selectedQuestions.length }) }}
+            </h2>
 
+            <p>
+              {{ orderDescriptionString }}
+            </p>
+
+            <QuestionListPreview
+              :fixedOrder="!quizIsRandomized"
+              :readOnly="true"
+              :selectedQuestions="selectedQuestions"
+              :selectedExercises="selectedExercises"
+            />
+          </section>
+        </KPageContainer>
+      </KGridItem>
+    </KGrid>
     <ManageExamModals
       :currentAction="currentAction"
       :quiz="quiz"
@@ -85,16 +71,10 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { CoachCoreBase } from '../../common';
-  import BackLink from '../../common/BackLink';
-  import HeaderTable from '../../common/HeaderTable';
-  import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
-  import QuizActive from '../../common/QuizActive';
-  import Recipients from '../../common/Recipients';
+  import commonCoach, { CoachCoreBase } from '../../common';
   import TopNavbar from '../../TopNavbar';
   import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
-  import BackLinkWithOptions from '../../common/BackLinkWithOptions';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';
   import {
@@ -107,19 +87,13 @@
   export default {
     name: 'QuizSummaryPage',
     components: {
-      BackLink,
-      BackLinkWithOptions,
       CoreBase: CoachCoreBase,
-      HeaderTable,
-      HeaderTableRow,
       ManageExamModals,
       QuestionListPreview,
-      QuizActive,
-      QuizOptionsDropdownMenu,
-      Recipients,
       TopNavbar,
+      QuizOptionsDropdownMenu,
     },
-    mixins: [coachStringsMixin, commonCoreStrings],
+    mixins: [commonCoach, coachStringsMixin, commonCoreStrings],
     data() {
       return {
         quiz: {
@@ -136,6 +110,9 @@
     },
     computed: {
       ...mapState(['classList']),
+      // Removing the classSummary groupMap state mapping breaks things.
+      // Maybe it should live elsewhere?
+      /* eslint-disable-next-line kolibri/vue-no-unused-vuex-properties */
       ...mapState('classSummary', ['groupMap']),
       selectedQuestions() {
         return this.quiz.question_sources;
@@ -143,10 +120,14 @@
       quizIsRandomized() {
         return !this.quiz.learners_see_fixed_order;
       },
-      questionOrderValueString() {
-        return this.quizIsRandomized
-          ? this.coachString('orderRandomLabel')
-          : this.coachString('orderFixedLabel');
+      avgScore() {
+        return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
+      },
+      exam() {
+        return this.examMap[this.$route.params.quizId];
+      },
+      recipients() {
+        return this.getLearnersForExam(this.exam);
       },
       orderDescriptionString() {
         return this.quizIsRandomized
@@ -155,17 +136,6 @@
       },
       classId() {
         return this.$route.params.classId;
-      },
-      learnerGroupNames() {
-        const names = [];
-        const { assignments = [] } = this.quiz;
-        assignments.forEach(({ collection }) => {
-          const match = this.groupMap[collection];
-          if (match) {
-            return names.push(match.name);
-          }
-        });
-        return names;
       },
     },
     beforeRouteEnter(to, from, next) {
@@ -218,6 +188,8 @@
               question_count: this.quiz.question_count,
               question_sources: this.quiz.question_sources,
               assignments: serverAssignmentPayload(groupIds, this.classId),
+              date_archived: null,
+              date_activated: null,
             },
             className,
           })

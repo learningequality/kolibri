@@ -3,7 +3,7 @@
   <div>
 
     <KButton
-      :text="coreString('usageAndPrivacyLabel')"
+      :text="text || coreString('usageAndPrivacyLabel')"
       appearance="basic-link"
       @click="privacyModalVisible = true"
     />
@@ -30,6 +30,10 @@
     },
     mixins: [commonCoreStrings],
     props: {
+      text: {
+        type: String,
+        required: false,
+      },
       modalProps: {
         type: Object,
         required: false,

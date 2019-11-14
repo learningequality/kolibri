@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <KPageContainer>
 
     <Notifications
       :notification="notification"
@@ -59,7 +59,7 @@
       @submit="resetToDefaultSettings"
       @cancel="showModal=false"
     />
-  </div>
+  </KPageContainer>
 
 </template>
 

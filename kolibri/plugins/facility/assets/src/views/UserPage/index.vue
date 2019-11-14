@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <KPageContainer>
     <KGrid>
       <KGridItem
         :layout8="{ span: 4 }"
@@ -72,7 +72,7 @@
       :username="selectedUser.username"
       @cancel="closeModal"
     />
-  </div>
+  </KPageContainer>
 
 </template>
 

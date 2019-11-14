@@ -59,12 +59,18 @@ class ExamViewset(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         was_active = serializer.instance.active
+        was_archived = serializer.instance.archive
         serializer.save()
+
         if was_active and not serializer.instance.active:
             # Has changed from active to not active, set completion_timestamps on all non closed examlogs
             serializer.instance.examlogs.filter(
                 completion_timestamp__isnull=True
             ).update(completion_timestamp=now())
+
+        if not was_archived and serializer.instance.archive:
+            # It was not archived (closed), but now it is - so we close all ExamLogs
+            serializer.instance.examlogs.update(closed=True)
 
 
 class ExamAssignmentViewset(viewsets.ModelViewSet):

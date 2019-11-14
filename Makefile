@@ -1,5 +1,5 @@
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
-.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font docker-clean docker-whl docker-deb docker-deb-test docker-windows docker-demoserver docker-devserver docker-envlist
+.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-glossary i18n-upload-glossary docker-clean docker-whl docker-deb docker-deb-test docker-windows docker-demoserver docker-devserver docker-envlist
 
 help:
 	@echo "Usage:"
@@ -47,6 +47,8 @@ help:
 	@echo "i18n-stats branch=<crowdin-branch>: output information about translation status"
 	@echo "i18n-django-compilemessages: compiles .po files to .mo files for Django"
 	@echo "i18n-install-font name=<noto-font>: Downloads and installs a new or updated font"
+	@echo "i18n-download-glossary: Download the glossary file from crowdin and update locally
+	@echo "i18n-upload-glossary: Upload the local file to crowdin
 
 
 clean: clean-build clean-pyc clean-assets clean-staticdeps
@@ -135,6 +137,7 @@ staticdeps: clean-staticdeps
 	test "${SKIP_PY_CHECK}" = "1" || python --version 2>&1 | grep -q 2.7 || ( echo "Only intended to run on Python 2.7" && exit 1 )
 	pip2 install -t kolibri/dist -r "requirements.txt"
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	rm -rf kolibri/dist/*.egg-info
 	rm -r kolibri/dist/man kolibri/dist/bin || true # remove the two folders introduced by pip 10
 	# Remove unnecessary python2-syntax'ed file
 	# https://github.com/learningequality/kolibri/issues/3152
@@ -148,6 +151,7 @@ staticdeps-cext:
 	pip install -t kolibri/dist/cext -r "requirements/cext_noarch.txt" --no-deps
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	rm -rf kolibri/dist/cext/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
+	rm -rf kolibri/dist/*.egg-info
 	make test-namespaced-packages
 
 staticdeps-compileall:
@@ -204,14 +208,14 @@ i18n-pretranslate-approve-all:
 	python build_tools/i18n/crowdin.py pretranslate ${branch} --approve-all
 
 i18n-convert:
-	python build_tools/i18n/crowdin.py convert
+	python build_tools/i18n/crowdin.py convert-files
 
 i18n-download:
-	python build_tools/i18n/crowdin.py rebuild ${branch}
-	python build_tools/i18n/crowdin.py download ${branch}
+	python build_tools/i18n/crowdin.py rebuild-translations ${branch}
+	python build_tools/i18n/crowdin.py download-translations ${branch}
 	node build_tools/i18n/intl_code_gen.js
 	$(MAKE) i18n-django-compilemessages
-	python build_tools/i18n/crowdin.py convert
+	python build_tools/i18n/crowdin.py convert-files
 
 i18n-download-source-fonts:
 	python build_tools/i18n/fonts.py download-source-fonts
@@ -223,10 +227,16 @@ i18n-regenerate-fonts:
 i18n-update: i18n-download i18n-regenerate-fonts
 
 i18n-stats:
-	python build_tools/i18n/crowdin.py stats ${branch}
+	python build_tools/i18n/crowdin.py translation-stats ${branch}
 
 i18n-install-font:
 	python build_tools/i18n/fonts.py add-source-font ${name}
+
+i18n-download-glossary:
+	python build_tools/i18n/crowdin.py download-glossary
+
+i18n-upload-glossary:
+	python build_tools/i18n/crowdin.py upload-glossary
 
 docker-clean:
 	docker container prune -f
