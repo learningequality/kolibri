@@ -262,17 +262,20 @@ class WebpackBundleHook(hooks.KolibriHook):
     def frontend_message_tag(self):
         if self.frontend_messages():
             return [
-                '<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", JSON.parse("{messages}"));</script>'.format(
+                """
+                <script>
+                    {kolibri_name}.registerLanguageAssets('{bundle}', '{lang_code}', JSON.parse({messages}));
+                </script>""".format(
                     kolibri_name="kolibriCoreAppGlobal",
                     bundle=self.unique_id,
                     lang_code=get_language(),
                     messages=json.dumps(
-                        self.frontend_messages(),
-                        separators=(",", ":"),
-                        ensure_ascii=False,
-                    )
-                    .replace("'", "\\'")
-                    .replace('"', '\\"'),
+                        json.dumps(
+                            self.frontend_messages(),
+                            separators=(",", ":"),
+                            ensure_ascii=False,
+                        )
+                    ),
                 )
             ]
         else:
@@ -283,17 +286,17 @@ class WebpackBundleHook(hooks.KolibriHook):
             return [
                 """
                 <script>
-                    window["{name}"] = window["{name}"] || {{}};
-                    window["{name}"]["{bundle}"] = JSON.parse('{plugin_data}');
+                    window['{name}'] = window['{name}'] || {{}};
+                    window['{name}']['{bundle}'] = JSON.parse({plugin_data});
                 </script>
                 """.format(
                     name="kolibriPluginDataGlobal",
                     bundle=self.unique_id,
                     plugin_data=json.dumps(
-                        self.plugin_data, separators=(",", ":"), ensure_ascii=False
-                    )
-                    .replace("'", "\\'")
-                    .replace('"', '\\"'),
+                        json.dumps(
+                            self.plugin_data, separators=(",", ":"), ensure_ascii=False
+                        )
+                    ),
                 )
             ]
         else:
