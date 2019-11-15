@@ -136,13 +136,13 @@
       },
     },
     $trs: {
-      instructions: 'Control the order channels are displayed to learners and coaches',
+      instructions: 'Control the order in which channels will be displayed to learners and coaches',
       successNotification: 'Channel order saved',
       failureNotification: 'There was a problem reordering the channels',
       noChannels: 'There are no channels',
       upLabel: 'Move {name} up one',
       downLabel: 'Move {name} down one',
-      title: 'Rearrange channels',
+      title: 'Edit channel order',
     },
   };
 

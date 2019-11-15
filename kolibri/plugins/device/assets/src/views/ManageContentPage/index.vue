@@ -41,7 +41,7 @@
           :channel="channel"
           :disabled="channelIsBeingDeleted(channel.id)"
           @select_delete="deleteChannelId = channel.id"
-          @select_manage="startImportWorkflow(channel)"
+          @select_manage="handleSelectManage(channel.id)"
         />
       </div>
 
@@ -65,8 +65,12 @@
 <script>
 
   import find from 'lodash/find';
+  import get from 'lodash/get';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { TaskResource } from 'kolibri.resources';
+  import taskNotificationMixin from '../taskNotificationMixin';
+  import { PageNames } from '../../constants';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -85,7 +89,7 @@
       SelectTransferSourceModal,
       TasksBar,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, taskNotificationMixin],
     data() {
       return {
         deleteChannelId: null,
@@ -107,30 +111,17 @@
         return [
           { label: this.$tr('exportChannels'), value: 'EXPORT' },
           { label: this.$tr('deleteChannels'), value: 'DELETE' },
-          { label: this.$tr('rearrangeChannels'), value: 'REARRANGE' },
+          { label: this.$tr('editChannelOrder'), value: 'REARRANGE' },
         ];
       },
     },
-    watch: {
-      // If Tasks disappear from queue, assume that an addition/deletion has
-      // completed and refresh list.
-      tasksInQueue(val, oldVal) {
-        if (oldVal && !val) {
-          this.refreshChannelList();
-        }
-      },
-    },
     methods: {
-      ...mapActions('manageContent', [
-        'refreshChannelList',
-        'startImportWorkflow',
-        'triggerChannelDeleteTask',
-      ]),
+      ...mapActions('manageContent', ['refreshChannelList', 'startImportWorkflow']),
       handleSelect({ value }) {
         const nextRoute = {
-          DELETE: 'DELETE_CHANNELS',
-          EXPORT: 'EXPORT_CHANNELS',
-          REARRANGE: 'REARRANGE_CHANNELS',
+          DELETE: PageNames.DELETE_CHANNELS,
+          EXPORT: PageNames.EXPORT_CHANNELS,
+          REARRANGE: PageNames.REARRANGE_CHANNELS,
         }[value];
         this.$router.push(this.$router.getRoute(nextRoute));
       },
@@ -138,8 +129,27 @@
         if (this.deleteChannelId) {
           const channelId = this.deleteChannelId;
           this.deleteChannelId = null;
-          this.triggerChannelDeleteTask(channelId);
+          return TaskResource.deleteChannel({ channelId })
+            .then(task => {
+              this.notifyAndWatchTask(task);
+            })
+            .catch(err => {
+              // Silently handle double-deletions
+              // TODO make double-deletion return a 404 error
+              if (get(err, 'entity[0]') === 'This channel does not exist') {
+                this.refreshChannelList();
+              } else {
+                this.createTaskFailedSnackbar();
+              }
+            });
         }
+      },
+      handleSelectManage(channelId) {
+        this.$router.push({ name: PageNames.MANAGE_CHANNEL, params: { channel_id: channelId } });
+      },
+      // @public (used by taskNotificationMixin)
+      onWatchedTaskFinished() {
+        this.refreshChannelList();
       },
     },
     $trs: {
@@ -147,7 +157,7 @@
       documentTitle: 'Manage Device Channels',
       exportChannels: 'Export channels',
       deleteChannels: 'Delete channels',
-      rearrangeChannels: 'Re-arrange',
+      editChannelOrder: 'Edit channel order',
       emptyChannelListMessage: 'No channels installed',
     },
   };

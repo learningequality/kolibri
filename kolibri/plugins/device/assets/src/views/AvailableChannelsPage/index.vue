@@ -7,40 +7,49 @@
     />
 
     <FilteredChannelListContainer
+      v-if="status === ''"
       :channels="allChannels"
       :selectedChannels.sync="selectedChannels"
       :selectAllCheckbox="multipleMode"
     >
       <template v-slot:header>
         <h1 v-if="status === ''" data-test="title">
-          <span v-if="multipleMode">{{ $tr('selectEntireChannels') }}</span>
-          <span v-else-if="inExportMode">{{ $tr('yourChannels') }}</span>
-          <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
-          <span v-else>{{ coreString('channelsLabel') }}</span>
+          <span v-if="multipleMode">
+            {{ $tr('importChannelsHeader') }}
+          </span>
+          <span v-else>
+            {{ $tr('importResourcesHeader') }}
+          </span>
         </h1>
       </template>
 
       <template v-slot:abovechannels>
+        <KButton
+          appearance="basic-link"
+          :text="multipleMode ? $tr('selectTopicsAndResources') : $tr('selectEntireChannels')"
+          @click="toggleMultipleMode"
+        />
         <section
           v-if="showUnlistedChannels"
           class="unlisted-channels"
         >
-          <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
-
           <KButton
+            class="token-button"
             :text="$tr('channelTokenButtonLabel')"
-            appearance="basic-link"
+            appearance="raised-button"
             name="showtokenmodal"
             @click="showTokenModal=true"
           />
         </section>
 
-        <section v-if="!multipleMode" class="import-multiple">
-          <KButton @click="goToImportMultiple">
-            <KIcon icon="multiple" class="multiple-icon" />
-            {{ $tr('importMultipleAction') }}
-          </KButton>
-        </section>
+        <UiAlert
+          v-show="notEnoughFreeSpace"
+          :dismissible="false"
+          type="error"
+        >
+          {{ $tr('notEnoughSpaceForChannelsWarning') }}
+        </UiAlert>
+
       </template>
 
       <template v-slot:default="{filteredItems, showItem, handleChange, itemIsSelected}">
@@ -55,7 +64,6 @@
             :key="channel.id"
             :channel="channel"
             :onDevice="channelIsOnDevice(channel)"
-            :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
             :multipleMode="multipleMode"
             :checked="itemIsSelected(channel)"
             @clickselect="goToSelectContentPageForChannel(channel)"
@@ -69,7 +77,7 @@
       v-if="showTokenModal"
       :disabled="disableModal"
       @cancel="showTokenModal=false"
-      @submit="goToSelectContentPageForChannel"
+      @submit="handleSubmitToken"
     />
     <KLinearLoader
       v-if="channelsAreLoading"
@@ -81,7 +89,10 @@
       v-if="multipleMode"
       objectType="channel"
       actionType="import"
+      :disabled="disableBottomBar || selectedChannels.length === 0"
       :selectedObjects="selectedChannels"
+      :fileSize.sync="fileSize"
+      @clickconfirm="handleClickConfirm"
     />
 
   </div>
@@ -92,15 +103,20 @@
 <script>
 
   import { mapState, mapMutations, mapGetters } from 'vuex';
+  import omit from 'lodash/omit';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { TaskResource } from 'kolibri.resources';
+  import UiAlert from 'keen-ui/src/UiAlert';
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
   import { TransferTypes } from '../../constants';
   import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
+  import taskNotificationMixin from '../taskNotificationMixin';
   import ChannelTokenModal from './ChannelTokenModal';
+  import { getFreeSpaceOnServer } from './api';
 
   export default {
     name: 'AvailableChannelsPage',
@@ -115,13 +131,18 @@
       ContentWizardUiAlert,
       FilteredChannelListContainer,
       SelectionBottomBar,
+      UiAlert,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin, taskNotificationMixin],
     data() {
       return {
         showTokenModal: false,
         newPrivateChannels: [],
         selectedChannels: [],
+        fileSize: 0,
+        freeSpace: null,
+        disableBottomBar: false,
+        disableModal: false,
       };
     },
     computed: {
@@ -129,7 +150,7 @@
       ...mapGetters('manageContent/wizard', [
         'inLocalImportMode',
         'inRemoteImportMode',
-        'inExportMode',
+        'inPeerImportMode',
         'isStudioApplication',
       ]),
       ...mapState('manageContent/wizard', [
@@ -148,8 +169,6 @@
       },
       documentTitle() {
         switch (this.transferType) {
-          case TransferTypes.LOCALEXPORT:
-            return this.$tr('documentTitleForExport');
           case TransferTypes.LOCALIMPORT:
             return this.$tr('documentTitleForLocalImport', {
               driveName: this.selectedDrive.name,
@@ -173,6 +192,12 @@
       showUnlistedChannels() {
         return this.channelsAreAvailable && (this.inRemoteImportMode || this.isStudioApplication);
       },
+      notEnoughFreeSpace() {
+        if (this.freeSpace === null) {
+          return false;
+        }
+        return this.freeSpace < this.fileSize;
+      },
     },
     watch: {
       // HACK doing it here to avoid moving $trs out of the component
@@ -194,8 +219,6 @@
       }),
       toolbarTitle(transferType) {
         switch (transferType) {
-          case TransferTypes.LOCALEXPORT:
-            return this.$tr('exportToDisk', { driveName: this.selectedDrive.name });
           case TransferTypes.LOCALIMPORT:
             return this.$tr('importFromDisk', { driveName: this.selectedDrive.name });
           case TransferTypes.PEERIMPORT:
@@ -211,14 +234,19 @@
         const match = this.installedChannelsWithResources.find(({ id }) => id === channel.id);
         return Boolean(match);
       },
-      goToImportMultiple() {
-        this.$router.push({
-          query: {
+      toggleMultipleMode() {
+        let newQuery;
+        if (this.multipleMode) {
+          newQuery = omit(this.$route.query, ['multiple']);
+        } else {
+          newQuery = {
+            ...this.$route.query,
             multiple: true,
-          },
-        });
+          };
+        }
+        this.$router.push({ query: newQuery });
       },
-      goToSelectContentPageForChannel(channel) {
+      handleSubmitToken(channel) {
         if (this.multipleMode) {
           this.disableModal = true;
           this.$store
@@ -227,37 +255,85 @@
               const newChannels = channels.map(x => Object.assign(x, { newPrivateChannel: true }));
               this.newPrivateChannels = [...newChannels, ...this.newPrivateChannels];
               this.showTokenModal = false;
+              this.disableModal = false;
             })
             .catch(error => {
               this.$store.dispatch('handleApiError', error);
             });
         } else {
-          this.$router.push(
-            selectContentPageLink({
-              addressId: this.$route.query.address_id,
-              channelId: channel.id,
-              driveId: this.$route.query.drive_id,
-              forExport: this.$route.query.for_export,
+          this.goToSelectContentPageForChannel(channel);
+        }
+      },
+      goToSelectContentPageForChannel(channel) {
+        this.$router.push(
+          selectContentPageLink({
+            addressId: this.$route.query.address_id,
+            channelId: channel.id,
+            driveId: this.$route.query.drive_id,
+            forExport: this.$route.query.for_export,
+          })
+        );
+      },
+      handleClickConfirm() {
+        this.disableBottomBar = true;
+        getFreeSpaceOnServer().then(({ freeSpace }) => {
+          this.freeSpace = freeSpace;
+          if (this.notEnoughFreeSpace) {
+            this.createTaskFailedSnackbar();
+            this.disableBottomBar = false;
+          } else {
+            this.startMultipleChannelImport();
+          }
+        });
+      },
+      startMultipleChannelImport() {
+        if (this.inLocalImportMode) {
+          const taskParams = this.selectedChannels.map(x => ({
+            channel_id: x.id,
+            drive_id: this.selectedDrive.id,
+          }));
+          return TaskResource.startDiskBulkImport(taskParams)
+            .then(tasks => {
+              this.notifyAndWatchTask(tasks);
+              this.disableBottomBar = false;
             })
-          );
+            .catch(() => {
+              this.createTaskFailedSnackbar();
+              this.disableBottomBar = false;
+            });
+        } else {
+          const baseurl = this.inPeerImportMode ? this.selectedPeer.base_url : null;
+          const taskParams = this.selectedChannels.map(x => ({
+            channel_id: x.id,
+            baseurl,
+          }));
+          return TaskResource.startRemoteBulkImport(taskParams)
+            .then(tasks => {
+              this.notifyAndWatchTask(tasks);
+              this.disableBottomBar = false;
+            })
+            .catch(() => {
+              this.createTaskFailedSnackbar();
+              this.disableBottomBar = false;
+            });
         }
       },
     },
     $trs: {
-      exportToDisk: 'Export to {driveName}',
-      importFromDisk: 'Import from {driveName}',
-      importFromPeer: 'Import from {deviceName} ({address})',
+      importChannelsHeader: 'Select channels for import',
+      importResourcesHeader: 'Select resources for import',
+      importFromDisk: `Import from '{driveName}'`,
+      importFromPeer: `Import from '{deviceName}' ({address})`,
       kolibriCentralServer: 'Kolibri Studio channels',
-      importMultipleAction: 'Import multiple',
-      yourChannels: 'Your channels',
-      channelTokenButtonLabel: 'Try adding a token',
-      channelNotListedExplanation: "Don't see your channel listed?",
+      channelTokenButtonLabel: 'Import with token',
       pageLoadError: 'There was a problem loading this page…',
       documentTitleForLocalImport: "Available Channels on '{driveName}'",
       documentTitleForRemoteImport: 'Available Channels on Kolibri Studio',
-      documentTitleForExport: 'Available Channels on this device',
       noChannelsAvailable: 'No channels are available on this device',
-      selectEntireChannels: 'Select entire channels for import',
+      selectEntireChannels: 'Select entire channels instead',
+      selectTopicsAndResources: 'Select topics and resources instead',
+      notEnoughSpaceForChannelsWarning:
+        'Not enough space available on your device. Free up disk space or select fewer resources',
     },
   };
 
@@ -271,42 +347,12 @@
     font-size: 14px;
   }
 
-  svg.multiple-icon {
-    width: 24px;
-    height: 24px;
-    margin: 0 4px -5px -2px;
-  }
-
-  .import-multiple {
-    margin: 24px 0;
-
-    button {
-      margin: 0;
-    }
-  }
-
-  .top-matter {
-    margin-bottom: 24px;
+  .token-button {
+    margin-left: 0;
   }
 
   .unlisted-channels {
     padding: 16px 0;
-  }
-
-  .text-offset {
-    margin-top: 24px;
-  }
-
-  .align-left {
-    text-align: left;
-  }
-
-  .seach-box {
-    width: 100%;
-  }
-
-  .search-box-offset {
-    margin-top: 12px;
   }
 
 </style>

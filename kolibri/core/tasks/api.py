@@ -49,7 +49,7 @@ def validate_content_task(request, task_description, require_channel=False):
     try:
         channel = ChannelMetadata.objects.get(id=channel_id)
         channel_name = channel.name
-        file_size = (channel.published_size,)
+        file_size = channel.published_size
         total_resources = channel.total_resource_count
     except ChannelMetadata.DoesNotExist:
         if require_channel:
@@ -85,13 +85,10 @@ def validate_content_task(request, task_description, require_channel=False):
 
 def validate_remote_import_task(request, task_description):
     import_task = validate_content_task(request, task_description)
-
     baseurl = task_description.get(
         "baseurl", conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
     )
-
     import_task.update({"baseurl": baseurl})
-
     return import_task
 
 
@@ -114,27 +111,21 @@ def _add_drive_info(import_task, task_description):
 
 
 def validate_local_import_task(request, task_description):
-    import_task = validate_content_task(request, task_description)
-
-    import_task = _add_drive_info(import_task, task_description)
-
-    return import_task
+    task = validate_content_task(request, task_description)
+    task = _add_drive_info(task, task_description)
+    return task
 
 
 def validate_local_export_task(request, task_description):
-    import_task = validate_content_task(request, task_description, require_channel=True)
-
-    import_task = _add_drive_info(import_task, task_description)
-
-    return import_task
+    task = validate_content_task(request, task_description, require_channel=True)
+    task = _add_drive_info(task, task_description)
+    return task
 
 
 def validate_deletion_task(request, task_description):
-    import_task = validate_content_task(request, task_description, require_channel=True)
-
-    import_task["force_delete"] = bool(task_description["force_delete"])
-
-    return import_task
+    task = validate_content_task(request, task_description, require_channel=True)
+    task["force_delete"] = bool(task_description.get("force_delete"))
+    return task
 
 
 class TasksViewSet(viewsets.ViewSet):
@@ -257,6 +248,7 @@ class TasksViewSet(viewsets.ViewSet):
                 task["channel_id"],
                 task["datafolder"],
                 extra_metadata=task,
+                track_progress=True,
                 cancellable=True,
             )
             job_ids.append(import_job_id)
@@ -343,7 +335,7 @@ class TasksViewSet(viewsets.ViewSet):
         """
         task = validate_deletion_task(request, request.data)
 
-        task.update({"type": "DELETECHANNEL"})
+        task.update({"type": "DELETECONTENT"})
 
         if task["node_ids"] or task["exclude_node_ids"]:
             task["file_size"] = None
@@ -401,7 +393,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         task = validate_local_export_task(request, request.data)
 
-        task.update({"type": "DISKEXPORT"})
+        task.update({"type": "DISKCONTENTEXPORT"})
 
         task_id = queue.enqueue(
             _localexport,
@@ -581,7 +573,7 @@ def _remoteimport(
 
 def _diskimport(
     channel_id,
-    drive_id,
+    directory,
     update_progress=None,
     check_for_cancel=None,
     node_ids=None,
@@ -591,17 +583,17 @@ def _diskimport(
 
     call_command(
         "importchannel",
-        "network",
+        "disk",
         channel_id,
-        drive_id,
+        directory,
         update_progress=update_progress,
         check_for_cancel=check_for_cancel,
     )
     call_command(
         "importcontent",
-        "network",
+        "disk",
         channel_id,
-        drive_id,
+        directory,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         update_progress=update_progress,

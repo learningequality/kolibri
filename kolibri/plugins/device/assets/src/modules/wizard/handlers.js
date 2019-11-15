@@ -220,7 +220,13 @@ export function showSelectContentPage(store, params) {
           channels => {
             resolve({ ...channels[0] });
           },
-          () => reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO })
+          error => {
+            if (error.status.code === 404) {
+              reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO });
+            } else {
+              reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE });
+            }
+          }
         );
     });
   }
@@ -277,9 +283,6 @@ export function updateTreeViewTopic(store, topic) {
   if (store.getters['manageContent/wizard/inLocalImportMode']) {
     const { selectedDrive } = store.state.manageContent.wizard;
     fetchArgs.importing_from_drive_id = selectedDrive.id;
-  }
-  if (store.getters['manageContent/wizard/inExportMode']) {
-    fetchArgs.for_export = 'true';
   }
   if (store.getters['manageContent/wizard/inPeerImportMode']) {
     const { selectedPeer } = store.state.manageContent.wizard;

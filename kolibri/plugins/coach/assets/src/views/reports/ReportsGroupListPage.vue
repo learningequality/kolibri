@@ -10,7 +10,7 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsHeader />
+      <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
       <CoreTable :emptyMessage="coachString('groupListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -111,6 +111,9 @@
 
         return statuses.length ? this.maxLastActivity(statuses) : null;
       },
+    },
+    $trs: {
+      printLabel: '{className} Groups',
     },
   };
 

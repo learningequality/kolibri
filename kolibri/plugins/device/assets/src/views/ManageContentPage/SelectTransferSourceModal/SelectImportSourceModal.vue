@@ -6,8 +6,8 @@
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
     :submitDisabled="formIsDisabled"
-    @submit="goForward"
-    @cancel="resetContentWizardState"
+    @submit="handleSubmit"
+    @cancel="handleCancel"
   >
     <UiAlert
       v-if="formIsDisabled && !initialDelay"
@@ -87,9 +87,20 @@
       ...mapMutations('manageContent/wizard', {
         resetContentWizardState: 'RESET_STATE',
       }),
-      goForward() {
+      handleSubmit() {
         if (!this.formIsDisabled) {
-          this.goForwardFromSelectImportSourceModal(this.source);
+          if (this.$attrs.manageMode) {
+            this.$emit('submit', { source: this.source });
+          } else {
+            this.goForwardFromSelectImportSourceModal(this.source);
+          }
+        }
+      },
+      handleCancel() {
+        if (this.$attrs.manageMode) {
+          this.$emit('cancel');
+        } else {
+          this.resetContentWizardState();
         }
       },
     },

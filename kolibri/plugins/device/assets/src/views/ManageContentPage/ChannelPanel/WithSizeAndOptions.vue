@@ -83,7 +83,7 @@
     },
     $trs: {
       manageChannelAction: 'Manage',
-      deleteChannelAction: 'Delete channel',
+      deleteChannelAction: 'Delete',
     },
   };
 
