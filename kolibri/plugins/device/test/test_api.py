@@ -155,6 +155,10 @@ class DeviceChannelMetadataAPITestCase(APITestCase):
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
+    def setUp(self):
+        self.facility, self.superuser = setup_device()
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
     def test_channelmetadata_resource_info(self):
         ChannelMetadata.objects.all().update(total_resource_count=4, published_size=0)
         data = ChannelMetadata.objects.values()[0]
