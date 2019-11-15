@@ -32,9 +32,7 @@ class LocationError(Exception):
     pass
 
 
-def get_nodes_to_transfer(
-    channel_id, node_ids, exclude_node_ids, available, renderable_only=True
-):
+def get_nodes_to_transfer(channel_id, node_ids, exclude_node_ids, renderable_only=True):
     nodes_to_include = ContentNode.objects.filter(channel_id=channel_id)
 
     # if requested, filter down to only include particular topics/nodes
@@ -63,7 +61,7 @@ def get_files_to_transfer(
     channel_id, node_ids, exclude_node_ids, available, renderable_only=True
 ):
     nodes_to_include = get_nodes_to_transfer(
-        channel_id, node_ids, exclude_node_ids, available, renderable_only
+        channel_id, node_ids, exclude_node_ids, renderable_only
     )
     return calculate_files_to_transfer(nodes_to_include, available)
 

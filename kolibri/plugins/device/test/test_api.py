@@ -240,3 +240,208 @@ class DeviceChannelMetadataAPITestCase(APITestCase):
             {"include_fields": "on_device_file_size"},
         )
         self.assertEqual(response.data[0]["on_device_file_size"], 4)
+
+
+class CalculateImportExportSizeViewTestCase(APITestCase):
+    """
+    Testcase for channel API methods
+    """
+
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def setUp(self):
+        self.facility, self.superuser = setup_device()
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+        LocalFile.objects.update(file_size=5)
+
+    def test_all_nodes_present_studio(self):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        response = self.client.post(
+            reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
+            data={"channel_id": self.the_channel_id},
+        )
+        self.assertEqual(response.data["resource_count"], 2)
+        self.assertEqual(
+            response.data["file_size"],
+            sum(
+                LocalFile.objects.filter(available=False).values_list(
+                    "file_size", flat=True
+                )
+            ),
+        )
+
+    def test_include_nodes_studio(self):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        obj = ContentNode.objects.get(title="c2c1")
+        response = self.client.post(
+            reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
+            data={"channel_id": self.the_channel_id, "node_ids": [obj.id]},
+            format="json",
+        )
+        self.assertEqual(response.data["resource_count"], 1)
+        self.assertEqual(response.data["file_size"], obj.files.count() * 5)
+
+    def test_include_exclude_nodes_studio(self):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        parent = ContentNode.objects.get(title="c2")
+        obj = ContentNode.objects.get(title="c2c1")
+        response = self.client.post(
+            reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
+            data={
+                "channel_id": self.the_channel_id,
+                "node_ids": [parent.id],
+                "exclude_node_ids": [obj.id],
+            },
+            format="json",
+        )
+        self.assertEqual(response.data["resource_count"], 3)
+        self.assertEqual(response.data["file_size"], 0)
+
+    def test_all_nodes_present_export(self):
+        ContentNode.objects.update(available=True)
+        LocalFile.objects.update(available=True)
+        response = self.client.post(
+            reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
+            data={"channel_id": self.the_channel_id, "export": True},
+        )
+        self.assertEqual(response.data["resource_count"], 2)
+        self.assertEqual(
+            response.data["file_size"],
+            sum(
+                LocalFile.objects.filter(available=True).values_list(
+                    "file_size", flat=True
+                )
+            ),
+        )
+
+    def test_no_nodes_present_export(self):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        response = self.client.post(
+            reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
+            data={"channel_id": self.the_channel_id, "export": True},
+        )
+        self.assertEqual(response.data["resource_count"], 0)
+        self.assertEqual(response.data["file_size"], 0)
+
+    @mock.patch("kolibri.plugins.device.api.get_channel_stats_from_disk")
+    def test_all_nodes_present_disk(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        stats = {
+            key: {} for key in ContentNode.objects.all().values_list("id", flat=True)
+        }
+        channel_stats_mock.return_value = stats
+        response = self.client.post(
+            reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
+            data={"channel_id": self.the_channel_id, "drive_id": 1},
+        )
+        self.assertEqual(response.data["resource_count"], 2)
+        self.assertEqual(
+            response.data["file_size"],
+            sum(
+                LocalFile.objects.filter(available=False).values_list(
+                    "file_size", flat=True
+                )
+            ),
+        )
+
+    @mock.patch("kolibri.plugins.device.api.get_channel_stats_from_disk")
+    def test_one_node_present_disk(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        obj = ContentNode.objects.get(title="c2c1")
+        stats = {obj.id: {}}
+        channel_stats_mock.return_value = stats
+        response = self.client.post(
+            reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
+            data={"channel_id": self.the_channel_id, "drive_id": 1},
+        )
+        self.assertEqual(response.data["resource_count"], 1)
+        self.assertEqual(response.data["file_size"], obj.files.count() * 5)
+
+    @mock.patch("kolibri.plugins.device.api.get_channel_stats_from_disk")
+    def test_include_one_available_nodes_disk(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        parent = ContentNode.objects.get(title="c2")
+        obj = ContentNode.objects.get(title="c2c1")
+        stats = {obj.id: {}, parent.id: {}}
+        channel_stats_mock.return_value = stats
+        response = self.client.post(
+            reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
+            data={
+                "channel_id": self.the_channel_id,
+                "node_ids": [parent.id],
+                "drive_id": 1,
+            },
+            format="json",
+        )
+        self.assertEqual(response.data["resource_count"], 1)
+        self.assertEqual(response.data["file_size"], 15)
+
+    @mock.patch("kolibri.plugins.device.api.get_channel_stats_from_disk")
+    def test_no_nodes_present_disk(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        stats = {}
+        channel_stats_mock.return_value = stats
+        response = self.client.post(
+            reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
+            data={"channel_id": self.the_channel_id, "drive_id": 1},
+        )
+        self.assertEqual(response.data["resource_count"], 0)
+        self.assertEqual(response.data["file_size"], 0)
+
+    @mock.patch("kolibri.plugins.device.api.get_channel_stats_from_peer")
+    def test_all_nodes_present_peer(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        stats = {
+            key: {} for key in ContentNode.objects.all().values_list("id", flat=True)
+        }
+        channel_stats_mock.return_value = stats
+        response = self.client.post(
+            reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
+            data={"channel_id": self.the_channel_id, "peer_id": 1},
+        )
+        self.assertEqual(response.data["resource_count"], 2)
+        self.assertEqual(
+            response.data["file_size"],
+            sum(
+                LocalFile.objects.filter(available=False).values_list(
+                    "file_size", flat=True
+                )
+            ),
+        )
+
+    @mock.patch("kolibri.plugins.device.api.get_channel_stats_from_peer")
+    def test_one_node_present_peer(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        obj = ContentNode.objects.get(title="c2c1")
+        stats = {obj.id: {}}
+        channel_stats_mock.return_value = stats
+        response = self.client.post(
+            reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
+            data={"channel_id": self.the_channel_id, "peer_id": 1},
+        )
+        self.assertEqual(response.data["resource_count"], 1)
+        self.assertEqual(response.data["file_size"], obj.files.count() * 5)
+
+    @mock.patch("kolibri.plugins.device.api.get_channel_stats_from_peer")
+    def test_no_nodes_present_peer(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        stats = {}
+        channel_stats_mock.return_value = stats
+        response = self.client.post(
+            reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
+            data={"channel_id": self.the_channel_id, "peer_id": 1},
+        )
+        self.assertEqual(response.data["resource_count"], 0)
+        self.assertEqual(response.data["file_size"], 0)

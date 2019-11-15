@@ -139,9 +139,9 @@ class CalculateImportExportSizeView(APIView):
             available = True
         file_based_node_id_list = _node_id_list(channel_id, drive_id, peer_id)
         nodes_for_transfer = get_nodes_to_transfer(
-            channel_id, node_ids, exclude_node_ids, available
-        )
-        if file_based_node_id_list:
+            channel_id, node_ids, exclude_node_ids
+        ).filter(available=available)
+        if file_based_node_id_list is not None:
             nodes_for_transfer = nodes_for_transfer.filter(
                 pk__in=file_based_node_id_list
             )
