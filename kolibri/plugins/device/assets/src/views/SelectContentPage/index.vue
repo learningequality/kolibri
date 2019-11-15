@@ -139,7 +139,6 @@
         'selectedDrive',
         'selectedPeer',
         'status',
-        'transferType',
         'transferredChannel',
         'transferFileSize',
         'transferResourceCount',
