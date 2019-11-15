@@ -6,7 +6,7 @@ from kolibri.utils.conf import OPTIONS
 cache_options = OPTIONS["Cache"]
 
 
-def CrossProcessCache(object):
+class CrossProcessCache(object):
     def __init__(self, default_timeout=cache_options["CACHE_TIMEOUT"]):
         self.default_timeout = default_timeout
 

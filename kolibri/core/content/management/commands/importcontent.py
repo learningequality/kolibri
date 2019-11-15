@@ -106,11 +106,16 @@ class Command(AsyncCommand):
             "--baseurl", type=str, default=default_studio_url, dest="baseurl"
         )
 
+        network_subparser.add_argument(
+            "--peer_id", type=str, default="", dest="peer_id"
+        )
+
         disk_subparser = subparsers.add_parser(
             name="disk", cmd=self, help="Copy the content from the given folder."
         )
         disk_subparser.add_argument("channel_id", type=str)
         disk_subparser.add_argument("directory", type=str)
+        disk_subparser.add_argument("--drive_id", type=str, dest="drive_id", default="")
 
     def download_content(
         self,
@@ -118,6 +123,7 @@ class Command(AsyncCommand):
         node_ids=None,
         exclude_node_ids=None,
         baseurl=None,
+        peer_id=None,
         renderable_only=True,
     ):
         self._transfer(
@@ -126,6 +132,7 @@ class Command(AsyncCommand):
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             baseurl=baseurl,
+            peer_id=peer_id,
             renderable_only=renderable_only,
         )
 
@@ -133,6 +140,7 @@ class Command(AsyncCommand):
         self,
         channel_id,
         path,
+        drive_id=None,
         node_ids=None,
         exclude_node_ids=None,
         renderable_only=True,
@@ -141,22 +149,41 @@ class Command(AsyncCommand):
             COPY_METHOD,
             channel_id,
             path=path,
+            drive_id=drive_id,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             renderable_only=renderable_only,
         )
 
-    # fmt: off
-    # HACK - turning off auto-formatting because the method is too complex. Should be refactored!
-    def _transfer(self, method, channel_id, path=None, node_ids=None, exclude_node_ids=None, baseurl=None, renderable_only=True):  # noqa: max-complexity=16
+    def _transfer(  # noqa: max-complexity=16
+        self,
+        method,
+        channel_id,
+        path=None,
+        drive_id=None,
+        node_ids=None,
+        exclude_node_ids=None,
+        baseurl=None,
+        peer_id=None,
+        renderable_only=True,
+    ):
 
         files_to_download, total_bytes_to_transfer = import_export_content.get_files_to_transfer(
-            channel_id, node_ids, exclude_node_ids, False, renderable_only=renderable_only)
+            channel_id,
+            node_ids,
+            exclude_node_ids,
+            False,
+            renderable_only=renderable_only,
+            drive_id=drive_id,
+            peer_id=peer_id,
+        )
 
         number_of_skipped_files = 0
         file_checksums_to_annotate = []
 
-        with self.start_progress(total=total_bytes_to_transfer) as overall_progress_update:
+        with self.start_progress(
+            total=total_bytes_to_transfer
+        ) as overall_progress_update:
             exception = None  # Exception that is not caught by the retry logic
 
             if method == DOWNLOAD_METHOD:
@@ -183,11 +210,15 @@ class Command(AsyncCommand):
 
                 # determine where we're downloading/copying from, and create appropriate transfer object
                 if method == DOWNLOAD_METHOD:
-                    url = paths.get_content_storage_remote_url(filename, baseurl=baseurl)
+                    url = paths.get_content_storage_remote_url(
+                        filename, baseurl=baseurl
+                    )
                     filetransfer = transfer.FileDownload(url, dest, session=session)
                 elif method == COPY_METHOD:
                     try:
-                        srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
+                        srcpath = paths.get_content_storage_file_path(
+                            filename, datafolder=path
+                        )
                     except InvalidStorageFilenameError:
                         # If the source file name is malformed, just stop now.
                         overall_progress_update(f.file_size)
@@ -198,7 +229,8 @@ class Command(AsyncCommand):
                 try:
                     while not finished:
                         finished, status = self._start_file_transfer(
-                            f, filetransfer, overall_progress_update)
+                            f, filetransfer, overall_progress_update
+                        )
 
                         if self.is_cancelled():
                             break
@@ -211,18 +243,26 @@ class Command(AsyncCommand):
                     exception = e
                     break
 
-            annotation.set_content_visibility(channel_id, file_checksums_to_annotate, node_ids=node_ids, exclude_node_ids=exclude_node_ids)
+            annotation.set_content_visibility(
+                channel_id,
+                file_checksums_to_annotate,
+                node_ids=node_ids,
+                exclude_node_ids=exclude_node_ids,
+            )
 
             if number_of_skipped_files > 0:
                 logger.warning(
                     "{} files are skipped, because errors occurred during the import.".format(
-                        number_of_skipped_files))
+                        number_of_skipped_files
+                    )
+                )
 
             if exception:
                 raise exception
 
             if self.is_cancelled():
                 self.cancel()
+
     # fmt: on
 
     def _start_file_transfer(self, f, filetransfer, overall_progress_update):
@@ -307,12 +347,14 @@ class Command(AsyncCommand):
                 node_ids=options["node_ids"],
                 exclude_node_ids=options["exclude_node_ids"],
                 baseurl=options["baseurl"],
+                peer_id=options["peer_id"],
                 renderable_only=options["renderable_only"],
             )
         elif options["command"] == "disk":
             self.copy_content(
                 options["channel_id"],
                 options["directory"],
+                drive_id=options["drive_id"],
                 node_ids=options["node_ids"],
                 exclude_node_ids=options["exclude_node_ids"],
                 renderable_only=options["renderable_only"],

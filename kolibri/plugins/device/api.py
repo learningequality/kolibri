@@ -19,15 +19,9 @@ from kolibri.core.content.utils.annotation import total_file_size
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_without_topics_q_filter,
 )
+from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.import_export_content import calculate_files_to_transfer
 from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
-from kolibri.core.content.utils.import_export_content import LocationError
-from kolibri.core.content.utils.importability_annotation import (
-    get_channel_stats_from_disk,
-)
-from kolibri.core.content.utils.importability_annotation import (
-    get_channel_stats_from_peer,
-)
 from kolibri.core.device.models import ContentCacheKey
 
 
@@ -86,33 +80,6 @@ class DeviceChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
         return ChannelMetadata.objects.all().select_related("root__lang")
 
 
-def _node_id_list(channel_id, drive_id, peer_id):
-    # By default don't filter node ids by their underlying file importability
-    file_based_node_id_list = None
-    if drive_id:
-        try:
-            file_based_node_id_list = get_channel_stats_from_disk(
-                channel_id, drive_id
-            ).keys()
-        except LocationError:
-            raise ValidationError(
-                "The external drive with given drive id {} does not exist.".format(
-                    drive_id
-                )
-            )
-
-    if peer_id:
-        try:
-            file_based_node_id_list = get_channel_stats_from_peer(
-                channel_id, peer_id
-            ).keys()
-        except LocationError:
-            raise ValidationError(
-                "The network location with the id {} does not exist".format(peer_id)
-            )
-    return file_based_node_id_list
-
-
 class CalculateImportExportSizeView(APIView):
     permission_classes = (CanManageContent,)
 
@@ -137,14 +104,27 @@ class CalculateImportExportSizeView(APIView):
         available = False
         if for_export:
             available = True
-        file_based_node_id_list = _node_id_list(channel_id, drive_id, peer_id)
-        nodes_for_transfer = get_nodes_to_transfer(
-            channel_id, node_ids, exclude_node_ids
-        ).filter(available=available)
-        if file_based_node_id_list is not None:
-            nodes_for_transfer = nodes_for_transfer.filter(
-                pk__in=file_based_node_id_list
+        try:
+            nodes_for_transfer = get_nodes_to_transfer(
+                channel_id,
+                node_ids,
+                exclude_node_ids,
+                available,
+                drive_id=drive_id,
+                peer_id=peer_id,
             )
+        except LocationError:
+            if drive_id:
+                raise ValidationError(
+                    "The external drive with given drive id {} does not exist.".format(
+                        drive_id
+                    )
+                )
+            if peer_id:
+                raise ValidationError(
+                    "The network location with the id {} does not exist".format(peer_id)
+                )
+
         total_resource_count = (
             nodes_for_transfer.exclude(kind=content_kinds.TOPIC)
             .values("content_id")

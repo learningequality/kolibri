@@ -39,7 +39,7 @@ from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
-from kolibri.core.content.utils.import_export_content import LocationError
+from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.importability_annotation import (
     get_channel_stats_from_disk,
 )

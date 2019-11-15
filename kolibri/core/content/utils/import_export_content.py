@@ -11,6 +11,12 @@ from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
+from kolibri.core.content.utils.importability_annotation import (
+    get_channel_stats_from_disk,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    get_channel_stats_from_peer,
+)
 
 try:
     import OpenSSL
@@ -24,15 +30,15 @@ except ImportError:
 RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
 
 
-class LocationError(Exception):
-    """
-    An exception raised when an import location is invalid.
-    """
-
-    pass
-
-
-def get_nodes_to_transfer(channel_id, node_ids, exclude_node_ids, renderable_only=True):
+def get_nodes_to_transfer(
+    channel_id,
+    node_ids,
+    exclude_node_ids,
+    available,
+    renderable_only=True,
+    drive_id=None,
+    peer_id=None,
+):
     nodes_to_include = ContentNode.objects.filter(channel_id=channel_id)
 
     # if requested, filter down to only include particular topics/nodes
@@ -54,14 +60,41 @@ def get_nodes_to_transfer(channel_id, node_ids, exclude_node_ids, renderable_onl
         nodes_to_include = nodes_to_include.order_by().difference(
             nodes_to_exclude.order_by()
         )
-    return nodes_to_include.order_by()
+
+    # By default don't filter node ids by their underlying file importability
+    file_based_node_id_list = None
+    if drive_id:
+        file_based_node_id_list = get_channel_stats_from_disk(
+            channel_id, drive_id
+        ).keys()
+
+    if peer_id:
+        file_based_node_id_list = get_channel_stats_from_peer(
+            channel_id, peer_id
+        ).keys()
+    if file_based_node_id_list is not None:
+        nodes_to_include = nodes_to_include.filter(pk__in=file_based_node_id_list)
+    return nodes_to_include.filter(available=available).order_by()
 
 
 def get_files_to_transfer(
-    channel_id, node_ids, exclude_node_ids, available, renderable_only=True
+    channel_id,
+    node_ids,
+    exclude_node_ids,
+    available,
+    renderable_only=True,
+    drive_id=None,
+    peer_id=None,
 ):
+
     nodes_to_include = get_nodes_to_transfer(
-        channel_id, node_ids, exclude_node_ids, renderable_only
+        channel_id,
+        node_ids,
+        exclude_node_ids,
+        renderable_only,
+        available,
+        drive_id=drive_id,
+        peer_id=peer_id,
     )
     return calculate_files_to_transfer(nodes_to_include, available)
 

@@ -398,9 +398,12 @@ class ImportContentTestCase(TestCase):
             local_dest_path_2,
             local_dest_path_3,
         ]
+        ContentNode.objects.filter(pk="2b6926ed22025518a8b9da91745b51d3").update(
+            available=False
+        )
         LocalFile.objects.filter(
             files__contentnode__pk="2b6926ed22025518a8b9da91745b51d3"
-        ).update(file_size=1)
+        ).update(file_size=1, available=False)
         call_command(
             "importcontent",
             "network",
@@ -812,3 +815,106 @@ class TestFilesToTransfer(TestCase):
             root_node.channel_id, [node1.id], [node2.id], False, False
         )
         self.assertEqual(files_to_transfer.filter(id=local_file.id).count(), 1)
+
+    @patch(
+        "kolibri.core.content.utils.import_export_content.get_channel_stats_from_disk"
+    )
+    def test_all_nodes_present_disk(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        stats = {
+            key: {} for key in ContentNode.objects.all().values_list("id", flat=True)
+        }
+        channel_stats_mock.return_value = stats
+        files_to_transfer, _ = get_files_to_transfer(
+            self.the_channel_id, [], [], False, False, drive_id="1"
+        )
+        self.assertEqual(
+            files_to_transfer.count(), LocalFile.objects.filter(available=False).count()
+        )
+
+    @patch(
+        "kolibri.core.content.utils.import_export_content.get_channel_stats_from_disk"
+    )
+    def test_one_node_present_disk(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        obj = ContentNode.objects.get(title="c2c1")
+        stats = {obj.id: {}}
+        channel_stats_mock.return_value = stats
+        files_to_transfer, _ = get_files_to_transfer(
+            self.the_channel_id, [], [], False, False, drive_id="1"
+        )
+        self.assertEqual(files_to_transfer.count(), obj.files.count())
+
+    @patch(
+        "kolibri.core.content.utils.import_export_content.get_channel_stats_from_disk"
+    )
+    def test_include_one_available_nodes_disk(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        parent = ContentNode.objects.get(title="c2")
+        obj = ContentNode.objects.get(title="c2c1")
+        stats = {obj.id: {}, parent.id: {}}
+        channel_stats_mock.return_value = stats
+        files_to_transfer, _ = get_files_to_transfer(
+            self.the_channel_id, [parent.id], [], False, False, drive_id="1"
+        )
+        self.assertEqual(files_to_transfer.count(), obj.files.count())
+
+    @patch(
+        "kolibri.core.content.utils.import_export_content.get_channel_stats_from_disk"
+    )
+    def test_no_nodes_present_disk(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        stats = {}
+        channel_stats_mock.return_value = stats
+        files_to_transfer, _ = get_files_to_transfer(
+            self.the_channel_id, [], [], False, False, drive_id="1"
+        )
+        self.assertEqual(files_to_transfer.count(), 0)
+
+    @patch(
+        "kolibri.core.content.utils.import_export_content.get_channel_stats_from_peer"
+    )
+    def test_all_nodes_present_peer(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        stats = {
+            key: {} for key in ContentNode.objects.all().values_list("id", flat=True)
+        }
+        channel_stats_mock.return_value = stats
+        files_to_transfer, _ = get_files_to_transfer(
+            self.the_channel_id, [], [], False, False, peer_id="1"
+        )
+        self.assertEqual(
+            files_to_transfer.count(), LocalFile.objects.filter(available=False).count()
+        )
+
+    @patch(
+        "kolibri.core.content.utils.import_export_content.get_channel_stats_from_peer"
+    )
+    def test_one_node_present_peer(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        obj = ContentNode.objects.get(title="c2c1")
+        stats = {obj.id: {}}
+        channel_stats_mock.return_value = stats
+        files_to_transfer, _ = get_files_to_transfer(
+            self.the_channel_id, [], [], False, False, peer_id="1"
+        )
+        self.assertEqual(files_to_transfer.count(), obj.files.count())
+
+    @patch(
+        "kolibri.core.content.utils.import_export_content.get_channel_stats_from_peer"
+    )
+    def test_no_nodes_present_peer(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        stats = {}
+        channel_stats_mock.return_value = stats
+        files_to_transfer, _ = get_files_to_transfer(
+            self.the_channel_id, [], [], False, False, peer_id="1"
+        )
+        self.assertEqual(files_to_transfer.count(), 0)
