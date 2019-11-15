@@ -21,7 +21,7 @@ file, located at `$KOLIBRI_HOME/options.ini`. By default, `$KOLIBRI_HOME` is
 If you are unsure which `$KOLIBRI_HOME` is defined for your Kolibri instance,
 this command will print it:
 
-  sudo su -l `cat /etc/kolibri/username` -c "kolibri manage shell -c 'import os; print(\"KOLIBRI_HOME is: {}\".format(os.environ[\"KOLIBRI_HOME\"]))'"
+  sudo su -l `cat /etc/kolibri/username` -c "source /etc/default/kolibri && kolibri manage shell -c 'import os; print(\"KOLIBRI_HOME is: {}\".format(os.environ[\"KOLIBRI_HOME\"]))'"
 
 
 ## Configuring the system service

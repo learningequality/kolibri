@@ -13,6 +13,10 @@
 #    .conf scripts are loaded in alphanumeric order
 ########################################################
 
+# This is used in order for calling shells to  read the environment defined by
+# the debian environment
+set -o allexport
+
 # Set the default values
 
 if [ -f /etc/kolibri/username ]
@@ -58,3 +62,6 @@ if [ -e /etc/kolibri/daemon.conf ]
 then
   . /etc/kolibri/daemon.conf
 fi
+
+# Switch off the allexport behavior
+set -o allexport
