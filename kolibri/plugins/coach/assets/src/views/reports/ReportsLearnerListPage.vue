@@ -10,7 +10,7 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsHeader />
+      <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
       <!-- TODO COACH
       <KCheckbox :label="coachString('viewByGroupsLabel')" />
       <h2>{{ coachString('overallLabel') }}</h2>
@@ -119,6 +119,9 @@
         );
         return statuses.length;
       },
+    },
+    $trs: {
+      printLabel: '{className} Learners',
     },
   };
 

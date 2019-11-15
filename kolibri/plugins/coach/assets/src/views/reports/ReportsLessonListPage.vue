@@ -9,7 +9,7 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsHeader />
+      <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
       <KSelect
         v-model="filter"
         :label="coreString('showAction')"
@@ -170,6 +170,7 @@
         context:
           'Column header for table of lessons which will include a toggle switch the user can use to set the visibility status of a lesson.',
       },
+      printLabel: '{className} Lessons',
     },
   };
 

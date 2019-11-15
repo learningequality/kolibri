@@ -8,7 +8,7 @@
         :text="$tr('home')"
       />
     </p>
-    <h1>{{ coachString('reportsLabel') }}</h1>
+    <h1>{{ reportTitle }}</h1>
     <p>{{ $tr('description') }}</p>
     <HeaderTabs>
 
@@ -44,8 +44,17 @@
     name: 'ReportsHeader',
     components: {},
     mixins: [commonCoach, commonCoreStrings],
+    props: {
+      title: {
+        type: String,
+        required: false,
+      },
+    },
     computed: {
       ...mapGetters(['classListPageEnabled']),
+      reportTitle() {
+        return this.title || this.coachString('reportsLabel');
+      },
     },
     $trs: {
       home: 'Class Home',

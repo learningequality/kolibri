@@ -210,6 +210,10 @@ export default {
         filter,
       };
     },
+    isPrint() {
+      // TODO: stubbed for downloadable/printable reports project
+      return false;
+    },
   },
   methods: {
     classRoute(name, params = {}, query = {}) {
