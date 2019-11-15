@@ -39,12 +39,6 @@ from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
-from kolibri.core.content.utils.file_availability import (
-    get_available_checksums_from_disk,
-)
-from kolibri.core.content.utils.file_availability import (
-    get_available_checksums_from_remote,
-)
 from kolibri.core.content.utils.import_export_content import LocationError
 from kolibri.core.content.utils.importability_annotation import (
     get_channel_stats_from_disk,
@@ -999,56 +993,4 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         language = request.GET.get("language", None)
         return self._make_channel_endpoint_request(
             identifier=pk, baseurl=baseurl, keyword=keyword, language=language
-        )
-
-
-class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.ContentNodeGranularSerializer
-
-    def get_queryset(self):
-        return models.ContentNode.objects.all()
-
-    def retrieve(self, request, pk):
-        instance = self.get_object()
-        drive_id = self.request.query_params.get("importing_from_drive_id", None)
-        peer_id = self.request.query_params.get("importing_from_peer_id", None)
-        checksums = None
-        if drive_id:
-            try:
-                checksums = get_available_checksums_from_disk(
-                    instance.channel_id, drive_id
-                )
-            except LocationError:
-                raise serializers.ValidationError(
-                    "The external drive with given drive id {} does not exist.".format(
-                        drive_id
-                    )
-                )
-
-        if peer_id:
-            try:
-                checksums = get_available_checksums_from_remote(
-                    instance.channel_id, peer_id
-                )
-            except LocationError:
-                raise serializers.ValidationError(
-                    "The network location with the id {} does not exist".format(peer_id)
-                )
-
-        files = models.LocalFile.objects.filter(
-            files__contentnode__in=instance.get_descendants(include_self=True)
-        ).distinct()
-        if checksums is not None:
-            files = files.filter(id__in=checksums)
-        total_file_size = files.aggregate(Sum("file_size"))["file_size__sum"] or 0
-        on_device_file_size = (
-            files.filter(available=True).aggregate(Sum("file_size"))["file_size__sum"]
-            or 0
-        )
-
-        return Response(
-            {
-                "total_file_size": total_file_size,
-                "on_device_file_size": on_device_file_size,
-            }
         )
