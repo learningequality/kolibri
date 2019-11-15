@@ -25,7 +25,9 @@ PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
 . /lib/lsb/init-functions
 
+set -o allexport
 . /etc/default/kolibri
+set +o allexport
 
 # We wanted this pattern, but it doesn't work on Ubuntu 14.04
 # because $HOME is unavailable when preserving the env with -p.

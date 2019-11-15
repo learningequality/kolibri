@@ -1,0 +1,53 @@
+# Configuring Kolibri
+
+This Debian package runs Kolibri as a system service containing the kolibri
+runtime instance. The runtime process and its data is owned by a defined user
+account. The name of this user account is configured in `/etc/kolibri/username`.
+
+Kolibri is intended to be controlled through the system service interface, for
+instance:
+
+  # systemd (default on Ubuntu 16.04+ and Debian Jessie, Stretch, Buster+)
+  sudo systemctl start/stop/restart kolibri
+  # sys-v-init (Other systems, Devuan)
+  sudo service kolibri start/stop/restart
+
+The local kolibri instance can be configured using the `options.ini` config
+file, located at `$KOLIBRI_HOME/options.ini`. By default, `$KOLIBRI_HOME` is
+`~/.kolibri`. For more information, see:
+
+  https://kolibri.readthedocs.io/en/latest/advanced.html
+
+If you are unsure which `$KOLIBRI_HOME` is defined for your Kolibri instance,
+this command will print it:
+
+  sudo su -l `cat /etc/kolibri/username` -c "source /etc/default/kolibri && kolibri manage shell -c 'import os; print(\"KOLIBRI_HOME is: {}\".format(os.environ[\"KOLIBRI_HOME\"]))'"
+
+
+## Configuring the system service
+
+If you would like to change the location of `$KOLIBRI_HOME`, you can add a file
+`/etc/kolibri/conf.d/kolibri_home.conf` with the contents:
+
+  KOLIBRI_HOME=/location/of/your/choice
+
+Tip: If you only want to change where content is stored, you can do that
+using the Kolibri `movedirectory` command:
+
+  # Remember to change to the configured system service user account firstly
+  su -l `cat /etc/kolibri/username`
+
+  # Move current content folder to <destination>
+  kolibri manage content movedirectory <destination>
+
+You can configure Kolibri using environment variables rather than
+`options.ini`. Any option can be configured in conf.d files by prefixing the
+option name with "KOLIBRI_". For example, HTTP_PORT can be configured as
+
+  KOLIBRI_HTTP_PORT=1234
+
+Files in `/etc/kolibri/conf.d/<filename>.conf` will be loaded in alphabetical
+order. For more examples, see the file `/etc/kolibri/daemon.conf`.
+
+The `/etc/kolibri/daemon.conf` configuration file is the final one that will be
+loaded.

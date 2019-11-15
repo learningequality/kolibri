@@ -1,3 +1,11 @@
+kolibri-source (0.12.8-0ubuntu2) trusty; urgency=medium
+
+  * Removing unnecessary DJANGO_SETTINGS_MODULE default from /etc/default/kolibri
+  * Replacing export statements in /etc/default/kolibri with -o allexport
+  * Adding /etc/kolibri/README
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 14 Oct 2019 10:18:24 +0200
+
 kolibri-source (0.12.8-0ubuntu1) trusty; urgency=medium
 
   * Kolibri v0.12.8 is released! Read the changes here: https://github.com/learningequality/kolibri/blob/v0.12.8/CHANGELOG.md#0128

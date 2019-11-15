@@ -2,12 +2,20 @@
 # Sets the environment for the Kolibri system service
 # Do not change this script!
 #
+# This script must always be invoked with set -o allexport
+# Ref:
+# https://github.com/learningequality/kolibri-installer-debian/issues/84
+#
 # To configure the system service, please either
 
 # 1) Edit /etc/kolibri/daemon.conf
 # 2) Add your own scripts to /etc/kolibri/conf.d/*.conf
 #    .conf scripts are loaded in alphanumeric order
 ########################################################
+
+# This is used in order for calling shells to  read the environment defined by
+# the debian environment
+set -o allexport
 
 # Set the default values
 
@@ -24,7 +32,15 @@ fi
 
 KOLIBRI_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')/.kolibri"
 KOLIBRI_COMMAND="kolibri"
-DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
+
+# Additional environment variables could be defined here, but be careful
+# not to define the environment for the sake of taking control over defaults,
+# as the Debian package may be used to package other source distributions
+# of Kolibri.
+# Ref:
+# https://github.com/learningequality/kolibri-installer-debian/issues/84
+# Removed:
+# DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
 
 # Load conf.d directory
 
@@ -47,29 +63,5 @@ then
   . /etc/kolibri/daemon.conf
 fi
 
-# Finally, to ensure that they are available to subprocesses, export them
-# This has been a problem in Ubuntu 14.04 despite the use of `su -p`
-# Will be investigated in 0.8.x when setting a path relative to "~" is
-# supported.
-export KOLIBRI_USER
-export KOLIBRI_COMMAND
-export DJANGO_SETTINGS_MODULE
-export KOLIBRI_HOME
-
-# Other env vars that we don't define by default, but because of issues
-# propagating environment in Ubuntu 14.04, we are exporting them for now
-export KOLIBRI_LISTEN_PORT # This is deprecated
-export KOLIBRI_HTTP_PORT # Use this
-export KOLIBRI_DATABASE_ENGINE
-export KOLIBRI_DATABASE_NAME
-export KOLIBRI_DATABASE_PASSWORD
-export KOLIBRI_DATABASE_USER
-export KOLIBRI_DATABASE_HOST
-export KOLIBRI_DATABASE_PORT
-export KOLIBRI_CHERRYPY_THREAD_POOL
-export KOLIBRI_CHERRYPY_SOCKET_TIMEOUT
-export KOLIBRI_CHERRYPY_QUEUE_SIZE
-export KOLIBRI_CHERRYPY_QUEUE_TIMEOUT
-export KOLIBRI_CONTENT_DIR
-export KOLIBRI_CENTRAL_CONTENT_BASE_URL
-export KOLIBRI_RUN_MODE
+# Switch off the allexport behavior
+set -o allexport
