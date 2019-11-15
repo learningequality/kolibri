@@ -24,7 +24,15 @@ fi
 
 KOLIBRI_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')/.kolibri"
 KOLIBRI_COMMAND="kolibri"
-DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
+
+# Additional environment variables could be defined here, but be careful
+# not to define the environment for the sake of taking control over defaults,
+# as the Debian package may be used to package other source distributions
+# of Kolibri.
+# Ref:
+# https://github.com/learningequality/kolibri-installer-debian/issues/84
+# Removed:
+# DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
 
 # Load conf.d directory
 
