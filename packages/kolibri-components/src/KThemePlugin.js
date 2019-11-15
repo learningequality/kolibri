@@ -45,6 +45,9 @@ export default function KThemePlugin(Vue) {
       $inputModality() {
         return globalThemeState.inputModality;
       },
+      $mediaType() {
+        return globalThemeState.mediaType;
+      },
     },
     /* eslint-enable kolibri/vue-no-unused-properties */
   });
