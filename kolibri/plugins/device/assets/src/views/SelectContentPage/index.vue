@@ -260,7 +260,7 @@
           }
           importSource = {
             type: 'peer',
-            baseUrl: this.selectedPeer.base_url,
+            id: this.selectedPeer.id,
           };
         } else if (this.inLocalImportMode) {
           if (!this.selectedDrive.id) {
