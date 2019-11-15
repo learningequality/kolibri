@@ -11,18 +11,21 @@
     <KPageContainer>
       <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
       <KSelect
+        v-show="!isPrint"
         v-model="filter"
         :label="coreString('showAction')"
         :options="filterOptions"
         :inline="true"
       />
-      <CoreTable :emptyMessage="emptyMessage">
+      <CoreTable :class="{'print': isPrint}" :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
             <th>{{ coachString('titleLabel') }}</th>
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th>{{ $tr('visibleToLearnersLabel') }}</th>
+            <th v-show="!isPrint">
+              {{ $tr('visibleToLearnersLabel') }}
+            </th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -47,7 +50,7 @@
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>
-            <td>
+            <td v-show="!isPrint">
               <KSwitch
                 name="toggle-lesson-visibility"
                 :checked="tableRow.active"
@@ -180,5 +183,6 @@
 <style lang="scss" scoped>
 
   @import '../common/list-transition';
+  @import '../common/print-table';
 
 </style>

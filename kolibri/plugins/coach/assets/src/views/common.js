@@ -211,8 +211,7 @@ export default {
       };
     },
     isPrint() {
-      // TODO: stubbed for downloadable/printable reports project
-      return false;
+      return this.$mediaType === 'print';
     },
   },
   methods: {

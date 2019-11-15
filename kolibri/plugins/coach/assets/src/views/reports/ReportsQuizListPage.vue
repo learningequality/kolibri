@@ -9,9 +9,10 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <KPageContainer>
+    <KPageContainer :class="{'print': isPrint}">
       <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
       <KSelect
+        v-show="!isPrint"
         v-model="filter"
         :label="coreString('showAction')"
         :options="filterOptions"
@@ -23,11 +24,13 @@
             <th>{{ coachString('titleLabel') }}</th>
             <th style="position:relative;">
               {{ coachString('avgScoreLabel') }}
-              <AverageScoreTooltip />
+              <AverageScoreTooltip v-show="!isPrint" />
             </th>
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th>{{ coachString('statusLabel') }}</th>
+            <th v-show="!isPrint">
+              {{ coachString('statusLabel') }}
+            </th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -56,7 +59,7 @@
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>
-            <td class="status">
+            <td v-show="!isPrint" class="status">
               <!-- Open quiz button -->
               <KButton
                 v-if="!tableRow.active && !tableRow.archive"
@@ -244,6 +247,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   td.status {
     padding-top: 0;

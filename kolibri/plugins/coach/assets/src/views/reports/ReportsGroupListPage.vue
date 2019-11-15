@@ -11,7 +11,7 @@
 
     <KPageContainer>
       <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <CoreTable :emptyMessage="coachString('groupListEmptyState')">
+      <CoreTable :class="{'print': isPrint}" :emptyMessage="coachString('groupListEmptyState')">
         <thead slot="thead">
           <tr>
             <th>{{ coachString('groupNameLabel') }}</th>
@@ -120,4 +120,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/print-table';
+
+</style>

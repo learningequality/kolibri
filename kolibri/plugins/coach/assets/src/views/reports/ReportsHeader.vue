@@ -9,8 +9,10 @@
       />
     </p>
     <h1>{{ reportTitle }}</h1>
-    <p>{{ $tr('description') }}</p>
-    <HeaderTabs>
+    <p v-show="!isPrint">
+      {{ $tr('description') }}
+    </p>
+    <HeaderTabs v-show="!isPrint">
 
       <HeaderTab
         :text="coreString('lessonsLabel')"

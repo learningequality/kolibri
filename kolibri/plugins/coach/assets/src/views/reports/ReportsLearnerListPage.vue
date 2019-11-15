@@ -15,7 +15,7 @@
       <KCheckbox :label="coachString('viewByGroupsLabel')" />
       <h2>{{ coachString('overallLabel') }}</h2>
        -->
-      <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
+      <CoreTable :class="{'print': isPrint}" :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
             <th>{{ coachString('nameLabel') }}</th>
@@ -128,4 +128,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/print-table';
+
+</style>
