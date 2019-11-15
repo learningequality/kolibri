@@ -1,13 +1,24 @@
 <template>
 
   <div>
-    <p v-if="!loading && taskList.length === 0" class="no-tasks">
+
+    <!-- Stubbed out in case we need it -->
+    <template v-if="false">
+      <h1>
+        {{ $tr('tasksHeader') }}
+      </h1>
+      <p>
+        <!-- Stubbed out in case we need it -->
+        <a href="#">{{ $tr('backToChannelsAction') }}</a>
+      </p>
+    </template>
+    <p v-if="!loading && taskList.length === 0">
       {{ $tr('emptyTasksMessage') }}
     </p>
 
     <KButton
-      v-if="showClearAllButton"
-      :text="$tr('clearAllAction')"
+      v-if="showClearCompletedButton"
+      :text="$tr('clearCompletedAction')"
       @click="handleClickClearAll"
     />
     <div class="task-panels">
@@ -56,7 +67,7 @@
       sortedTaskList() {
         return reverse(this.taskList);
       },
-      showClearAllButton() {
+      showClearCompletedButton() {
         return some(this.taskList, taskIsClearable);
       },
     },
@@ -95,9 +106,11 @@
       },
     },
     $trs: {
+      backToChannelsAction: 'Back to channels',
+      tasksHeader: 'Tasks',
       appBarTitle: 'Task manager',
-      emptyTasksMessage: 'Tasks you initiate will appear here',
-      clearAllAction: 'Clear all',
+      emptyTasksMessage: 'There are no tasks to display',
+      clearCompletedAction: 'Clear completed',
     },
   };
 
@@ -109,12 +122,6 @@
   .task-panels {
     max-width: 780px;
     margin-top: 32px;
-  }
-
-  .no-tasks {
-    padding: 128px 0;
-    font-size: 24px;
-    text-align: center;
   }
 
 </style>
