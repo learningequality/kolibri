@@ -320,6 +320,10 @@
         return !this.authorized;
       },
       mainWrapperStyles() {
+        if (this.$mediaType === 'print') {
+          return {};
+        }
+
         return {
           backgroundColor: this.$themePalette.grey.v_100,
           paddingTop: `${this.appbarHeight}px`,
@@ -327,7 +331,7 @@
         };
       },
       contentStyles() {
-        if (this.fullScreen) {
+        if (this.fullScreen || this.$mediaType === 'print') {
           return {
             marginTop: '0px',
             marginBottom: '0px',

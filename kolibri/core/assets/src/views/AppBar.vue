@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="{ backgroundColor: $themeTokens.appBar }">
+  <div v-show="$mediaType !== 'print'" :style="{ backgroundColor: $themeTokens.appBar }">
 
     <SkipNavigationLink />
 
