@@ -123,10 +123,11 @@ def start(port=8080, run_cherrypy=True):
     :param: port: Port number (default: 8080)
     """
 
-    run_services(port=port)
-
     # Write the new PID
+    # Note: to prevent a race condition on some setups, this needs to happen first
     _write_pid_file(PID_FILE, port=port)
+
+    run_services(port=port)
 
     atexit.register(_rm_pid_file)
 
@@ -143,10 +144,11 @@ def services(port=8080):
     Runs the background services.
     """
 
-    run_services(port=port)
-
     # Write the new PID
+    # Note: to prevent a race condition on some setups, this needs to happen first
     _write_pid_file(PID_FILE)
+
+    run_services(port=port)
 
     atexit.register(_rm_pid_file)
 
