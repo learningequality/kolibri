@@ -1,6 +1,5 @@
 import logging
 
-from django.core.cache import cache
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
 from sqlalchemy import cast
@@ -22,6 +21,7 @@ from kolibri.core.content.utils.file_availability import (
 from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_remote,
 )
+from kolibri.core.utils.cache import CrossProcessCache
 
 logger = logging.getLogger(__name__)
 
@@ -246,6 +246,9 @@ def get_channel_annotation_stats(channel_id, checksums=None):
     bridge.end()
 
     return stats
+
+
+cache = CrossProcessCache(3600)
 
 
 def get_channel_stats_from_disk(channel_id, drive_id):

@@ -4,7 +4,6 @@ import re
 from itertools import compress
 
 import requests
-from django.core.cache import cache
 from django.utils.text import compress_string
 
 from kolibri.core.content.models import LocalFile
@@ -13,7 +12,7 @@ from kolibri.core.content.utils.import_export_content import LocationError
 from kolibri.core.content.utils.paths import get_content_storage_dir_path
 from kolibri.core.content.utils.paths import get_file_checksums_url
 from kolibri.core.discovery.models import NetworkLocation
-
+from kolibri.core.utils.cache import CrossProcessCache
 
 checksum_regex = re.compile("^([a-f0-9]{32})$")
 
@@ -29,6 +28,9 @@ def _generate_mask_from_integer(integer_mask):
     while integer_mask:
         yield bool(integer_mask % 2)
         integer_mask //= 2
+
+
+cache = CrossProcessCache(3600)
 
 
 def get_available_checksums_from_remote(channel_id, peer_id):
