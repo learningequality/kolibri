@@ -101,39 +101,40 @@ class Command(AsyncCommand):
         upgrade_dest = paths.get_upgrade_content_database_file_path(channel_id)
         dest = upgrade_dest if upgrade else dest
 
-        # if upgraded db has previously been downloaded, just change the name
+        # if upgraded db has previously been downloaded, just copy it over
         if os.path.exists(upgrade_dest) and not upgrade:
-            with self.start_progress(total=100) as progress_update:
-                os.rename(upgrade_dest, dest)
-                progress_update(100)
-            logger.info(
-                "Renaming {old} path to {new} path".format(old=upgrade_dest, new=dest)
+            method = COPY_METHOD
+        # determine where we're downloading/copying from, and create appropriate transfer object
+        if method == DOWNLOAD_METHOD:
+            url = paths.get_content_database_file_url(channel_id, baseurl=baseurl)
+            logger.debug("URL to fetch: {}".format(url))
+            filetransfer = transfer.FileDownload(url, dest)
+        elif method == COPY_METHOD:
+            # if there is an upgraded database, set that as source path
+            srcpath = (
+                upgrade_dest
+                if os.path.exists(upgrade_dest)
+                else paths.get_content_database_file_path(channel_id, datafolder=path)
             )
-            progress_update(100, 100)
-        else:
-            # determine where we're downloading/copying from, and create appropriate transfer object
-            if method == DOWNLOAD_METHOD:
-                url = paths.get_content_database_file_url(channel_id, baseurl=baseurl)
-                logger.debug("URL to fetch: {}".format(url))
-                filetransfer = transfer.FileDownload(url, dest)
-            elif method == COPY_METHOD:
-                srcpath = paths.get_content_database_file_path(
-                    channel_id, datafolder=path
-                )
-                filetransfer = transfer.FileCopy(srcpath, dest)
+            filetransfer = transfer.FileCopy(srcpath, dest)
 
-            logger.debug("Destination: {}".format(dest))
+        logger.debug("Destination: {}".format(dest))
 
-            finished = False
-            while not finished:
-                finished = self._start_file_transfer(
-                    filetransfer, channel_id, dest, upgrade=upgrade
-                )
-                if self.is_cancelled():
-                    self.cancel()
-                    break
+        finished = False
+        while not finished:
+            finished = self._start_file_transfer(
+                filetransfer, channel_id, dest, upgrade=upgrade
+            )
+            if self.is_cancelled():
+                self.cancel()
+                break
+        # if we are not trying to upgrade, remove upgraded db
+        if os.path.exists(upgrade_dest) and not upgrade:
+            os.remove(upgrade_dest)
 
-    def _start_file_transfer(self, filetransfer, channel_id, dest, upgrade=False):  # noqa: C901
+    def _start_file_transfer(
+        self, filetransfer, channel_id, dest, upgrade=False
+    ):  # noqa: C901
         progress_extra_data = {"channel_id": channel_id}
 
         try:
