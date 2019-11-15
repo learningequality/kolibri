@@ -64,4 +64,4 @@ then
 fi
 
 # Switch off the allexport behavior
-set -o allexport
+set +o allexport
