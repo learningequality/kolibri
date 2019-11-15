@@ -10,7 +10,7 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsHeader />
+      <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
       <KSelect
         v-model="filter"
         :label="coreString('showAction')"
@@ -236,6 +236,7 @@
     $trs: {
       noActiveExams: 'No active quizzes',
       noInactiveExams: 'No inactive quizzes',
+      printLabel: '{className} Quizzes',
     },
   };
 
