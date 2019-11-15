@@ -3,7 +3,6 @@ from django.test import TransactionTestCase
 from mock import patch
 
 from .sqlalchemytesting import django_connection_engine
-from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.importability_annotation import (
@@ -29,14 +28,14 @@ class ImportabilityStats(TransactionTestCase):
         File.objects.update(supplementary=False)
         checksums = list(LocalFile.objects.all().values_list("id", flat=True))
         stats = get_channel_annotation_stats(test_channel_id, checksums)
-        self.assertEqual(len(stats), ContentNode.objects.all().count())
+        self.assertEqual(len(stats), 4)
 
     def test_all_files_available_no_files_remote(self):
         LocalFile.objects.update(available=True)
         File.objects.update(supplementary=False)
         checksums = []
         stats = get_channel_annotation_stats(test_channel_id, checksums)
-        self.assertEqual(len(stats), ContentNode.objects.all().count())
+        self.assertEqual(len(stats), 4)
 
     def tearDown(self):
         call_command("flush", interactive=False)
