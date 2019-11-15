@@ -30,26 +30,43 @@
         </KGridItem>
       </KGrid>
 
-      <p>
-        <a href="#">
-          {{ $tr('taskManagerLink') }}
-        </a>
-      </p>
+      <!-- Stubbed out in case we need it -->
+      <template v-if="false">
+        <h2>
+          {{ $tr('tasksHeader') }}
+        </h2>
+        <p>
+          <a href="#">
+            {{ $tr('taskManagerLink') }}
+          </a>
+        </p>
+        <h2>
+          {{ $tr('resourcesHeader') }}
+        </h2>
+      </template>
 
       <p v-if="!channelsAreInstalled">
         {{ $tr('emptyChannelListMessage') }}
       </p>
 
-      <div class="channels-list">
-        <ChannelPanel
-          v-for="channel in installedChannelsWithResources"
-          :key="channel.id"
-          :channel="channel"
-          :disabled="channelIsBeingDeleted(channel.id)"
-          @select_delete="deleteChannelId = channel.id"
-          @select_manage="handleSelectManage(channel.id)"
-        />
-      </div>
+      <CoreTable>
+
+        <transition-group slot="tbody" tag="tbody" name="list">
+          <tr
+            v-for="channel in installedChannelsWithResources"
+            :key="channel.id"
+          >
+            <td>
+              <ChannelPanel
+                :channel="channel"
+                :disabled="channelIsBeingDeleted(channel.id)"
+                @select_delete="deleteChannelId = channel.id"
+                @select_manage="handleSelectManage(channel.id)"
+              />
+            </td>
+          </tr>
+        </transition-group>
+      </CoreTable>
 
       <SelectTransferSourceModal :pageName="pageName" />
 
@@ -165,6 +182,8 @@
       deleteChannels: 'Delete channels',
       editChannelOrder: 'Edit channel order',
       emptyChannelListMessage: 'No channels installed',
+      tasksHeader: 'Tasks',
+      resourcesHeader: 'Resources',
       taskManagerLink: 'View task manager',
     },
   };
