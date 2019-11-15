@@ -67,7 +67,7 @@
       </p>
       <KRouterLink
         v-if="!multipleMode"
-        :text="$tr('selectTopicsAction')"
+        :text="$tr('selectResourcesAction')"
         :disabled="tasksInQueue"
         :to="selectContentLink"
         appearance="raised-button"
@@ -161,7 +161,7 @@
     },
     $trs: {
       onYourDevice: 'Resources on device',
-      selectTopicsAction: 'Select topics',
+      selectResourcesAction: 'Select resources',
       newLabel: 'New',
       unlistedChannelTooltip: 'Unlisted channel',
       newVersionMessage: 'New version available',
