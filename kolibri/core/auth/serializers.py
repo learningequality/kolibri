@@ -65,12 +65,6 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             )
 
 
-class FacilityUsernameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FacilityUser
-        fields = ("username",)
-
-
 class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membership

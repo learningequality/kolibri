@@ -41,7 +41,6 @@ from .models import Role
 from .serializers import ClassroomSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
-from .serializers import FacilityUsernameSerializer
 from .serializers import FacilityUserSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
@@ -211,11 +210,14 @@ class FacilityUserViewSet(ValuesViewset):
         self.set_password_if_needed(instance, serializer)
 
 
-class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
+class FacilityUsernameViewSet(ValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    serializer_class = FacilityUsernameSerializer
     filter_fields = ("facility",)
     search_fields = ("^username",)
+
+    read_only = True
+
+    values = ("username",)
 
     def get_queryset(self):
         return FacilityUser.objects.filter(
