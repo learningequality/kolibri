@@ -2,6 +2,7 @@ import requests
 from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED
 from six.moves.urllib.parse import urljoin
@@ -44,6 +45,9 @@ class ValuesViewset(viewsets.ModelViewSet):
     # A map of target_key, source_key where target_key is the final target_key that will be set
     # and source_key is the key on the object retrieved from the values call.
     field_map = {}
+
+    # Create a read only property rather than creating separate viewsets
+    read_only = False
 
     def __init__(self, *args, **kwargs):
         viewset = super(ValuesViewset, self).__init__(*args, **kwargs)
@@ -105,6 +109,8 @@ class ValuesViewset(viewsets.ModelViewSet):
         return Response(self.serialize_object(pk))
 
     def create(self, request, *args, **kwargs):
+        if self.read_only:
+            raise MethodNotAllowed
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -115,6 +121,8 @@ class ValuesViewset(viewsets.ModelViewSet):
         )
 
     def update(self, request, *args, **kwargs):
+        if self.read_only:
+            raise MethodNotAllowed
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
