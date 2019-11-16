@@ -49,24 +49,16 @@
         {{ $tr('emptyChannelListMessage') }}
       </p>
 
-      <CoreTable>
-
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr
-            v-for="channel in installedChannelsWithResources"
-            :key="channel.id"
-          >
-            <td>
-              <ChannelPanel
-                :channel="channel"
-                :disabled="channelIsBeingDeleted(channel.id)"
-                @select_delete="deleteChannelId = channel.id"
-                @select_manage="handleSelectManage(channel.id)"
-              />
-            </td>
-          </tr>
-        </transition-group>
-      </CoreTable>
+      <div class="channels-list">
+        <ChannelPanel
+          v-for="channel in installedChannelsWithResources"
+          :key="channel.id"
+          :channel="channel"
+          :disabled="channelIsBeingDeleted(channel.id)"
+          @select_delete="deleteChannelId = channel.id"
+          @select_manage="handleSelectManage(channel.id)"
+        />
+      </div>
 
       <SelectTransferSourceModal :pageName="pageName" />
 
