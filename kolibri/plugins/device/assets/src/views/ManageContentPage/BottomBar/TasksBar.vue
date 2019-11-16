@@ -29,7 +29,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import countBy from 'lodash/countBy';
   import sumBy from 'lodash/sumBy';
@@ -47,18 +47,18 @@
       return {};
     },
     computed: {
-      ...mapState('manageContent', ['taskList']),
+      ...mapGetters('manageContent', ['managedTasks']),
       totalTasks() {
-        return this.taskList.length;
+        return this.managedTasks.length;
       },
       taskCounts() {
-        return countBy(this.taskList, 'status');
+        return countBy(this.managedTasks, 'status');
       },
       doneTasks() {
         return this.taskCounts.COMPLETED || 0;
       },
       progress() {
-        const inProgressTasks = this.taskList.filter(t => t.status !== 'COMPLETED');
+        const inProgressTasks = this.managedTasks.filter(t => t.status !== 'COMPLETED');
         return (this.doneTasks + sumBy(inProgressTasks, 'percentage') / this.totalTasks) * 100;
       },
       tasksString() {
