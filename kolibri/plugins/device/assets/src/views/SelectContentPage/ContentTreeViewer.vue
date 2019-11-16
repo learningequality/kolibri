@@ -136,7 +136,7 @@
         }
       },
       childNodes() {
-        // Guard against when state is reset going back to manage content page
+        // Guard against when state is reset going back to manage resources page
         return this.currentTopicNode.children || [];
       },
       noSelectableNodes() {

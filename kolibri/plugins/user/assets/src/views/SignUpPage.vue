@@ -327,7 +327,7 @@
       },
       demographicInfoExplanation: {
         message:
-          'It will be visible to administrators. It will also be used to help improve the software and content for different learner types and needs.',
+          'It will be visible to administrators. It will also be used to help improve the software and resources for different learner types and needs.',
         context:
           'Text explaining to the user how demographic information requested in a visible form will be utilized.',
       },

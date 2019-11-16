@@ -45,8 +45,8 @@ describe('facility config page view', () => {
       'Allow learners and coaches to edit their full name',
       'Allow learners to create accounts',
       'Allow learners to sign in with no password',
-      "Show 'download' button with content",
-      'Allow users to access content without signing in',
+      "Show 'download' button with resources",
+      'Allow users to access resources without signing in',
     ];
     labels.forEach((label, idx) => {
       expect(checkboxes.at(idx).props().label).toEqual(label);

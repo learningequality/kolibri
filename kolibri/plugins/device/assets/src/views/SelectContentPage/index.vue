@@ -325,7 +325,7 @@
       pageLoadError: 'There was a problem loading this page…',
       problemFetchingChannel: 'There was a problem getting the contents of this channel',
       problemTransferringContents: 'There was a problem transferring the selected contents',
-      selectContent: "Select content from '{channelName}'",
+      selectContent: "Select resources from '{channelName}'",
       kolibriStudioLabel: 'Kolibri Studio',
       importingFromDrive: `Importing from drive '{driveName}'`,
       importingFromPeer: `Importing from '{deviceName}' ({url})`,
