@@ -215,7 +215,7 @@
       UserType,
     },
     $trs: {
-      devicePermissionsDetails: 'Can manage content on this device',
+      devicePermissionsDetails: 'Can manage resources on this device',
       documentTitle: "{ name }'s Device Permissions",
       makeSuperAdmin: 'Make super admin',
       permissionChangeConfirmation: 'Changes saved',

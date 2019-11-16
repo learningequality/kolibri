@@ -179,13 +179,13 @@
     $trs: {
       pageHeading: 'Export usage data',
       pageSubHeading:
-        'Download CSV (comma-separated value) files containing information about users and their interactions with the content on this device',
+        'Download CSV (comma-separated value) files containing information about users and their interactions with the resources on this device',
       detailsHeading: 'Session logs',
       detailsSubHeading: 'Individual visits to each resource',
       summaryHeading: 'Summary logs',
       summarySubHeading: 'Total time/progress for each resource',
       detailsInfo:
-        'When a user views content, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific resource. This includes anonymous usage, when no user is signed in.',
+        'When a user views a resource, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific resource. This includes anonymous usage, when no user is signed in.',
       summaryInfo:
         'A user may visit the same resource multiple times. This file records the total time and progress each user has achieved for each resource, summarized across possibly more than one visit. Anonymous usage is not included.',
       generateLog: 'Generate log file',

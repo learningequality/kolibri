@@ -95,7 +95,7 @@
       upgradeMessageImportant:
         'We have released an important update with fixes to this version of Kolibri.',
       upgradeMessage0130:
-        'Kolibri version 0.13.0 is available! It contains major improvements to content management, coach tools, and much more.',
+        'Kolibri version 0.13.0 is available! It contains major improvements to resource management, coach tools, and much more.',
       upgradeDownload: 'Download it here',
       upgradeLearnAndDownload: 'Learn more and download it here',
       /* eslint-enable kolibri/vue-no-unused-translations */

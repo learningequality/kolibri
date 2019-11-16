@@ -163,8 +163,8 @@
       learnerCanEditUsername: 'Allow learners and coaches to edit their username',
       learnerCanSignUp: 'Allow learners to create accounts',
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
-      showDownloadButtonInLearn: "Show 'download' button with content",
-      allowGuestAccess: 'Allow users to access content without signing in',
+      showDownloadButtonInLearn: "Show 'download' button with resources",
+      allowGuestAccess: 'Allow users to access resources without signing in',
       /* eslint-enable kolibri/vue-no-unused-translations */
       pageDescription: 'Configure facility settings here.',
       deviceSettings: 'You can also configure device settings',

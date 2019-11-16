@@ -91,7 +91,7 @@
       signInToKolibriAction: 'Sign in to Kolibri',
       goBackToHomeAction: 'Go to home page',
       contentManager:
-        'You must be signed in as a superuser or have content management permissions to view this page',
+        'You must be signed in as a superuser or have resource management permissions to view this page',
     },
   };
 

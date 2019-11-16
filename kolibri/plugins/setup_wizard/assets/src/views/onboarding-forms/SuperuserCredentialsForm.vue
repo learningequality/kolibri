@@ -132,7 +132,7 @@
     $trs: {
       adminAccountCreationHeader: 'Create super admin account',
       adminAccountCreationDescription:
-        'This account allows you to manage the facility, content, and user accounts on this device',
+        'This account allows you to manage the facility, resources, and user accounts on this device',
       rememberThisAccountInformation:
         'Important: please remember this account information. Write it down if needed',
     },

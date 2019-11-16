@@ -155,12 +155,12 @@
       saveSuccessNotification: 'Settings have been updated',
       selectedLanguageLabel: 'Default language',
       facilitySettings: 'You can also configure facility settings',
-      allowGuestAccess: 'Allow users to access content without signing in',
+      allowGuestAccess: 'Allow users to access resources without signing in',
       landingPageLabel: 'Landing page',
       signInPageChoice: 'Sign-in page',
       learnerAppPageChoice: 'Learn page',
       unlistedChannels: 'Allow other computers on this network to import my unlisted channels',
-      lockedContent: 'Learners should only see content assigned to them in classes',
+      lockedContent: 'Learners should only see resources assigned to them in classes',
     },
   };
 

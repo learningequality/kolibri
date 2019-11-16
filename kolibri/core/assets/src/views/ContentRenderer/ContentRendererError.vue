@@ -17,7 +17,7 @@
       UiAlert,
     },
     $trs: {
-      rendererNotAvailable: 'Kolibri is unable to render this content',
+      rendererNotAvailable: 'Kolibri is unable to render this resource',
     },
   };
 
