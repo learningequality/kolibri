@@ -168,7 +168,10 @@ class Command(AsyncCommand):
         renderable_only=True,
     ):
 
-        files_to_download, total_bytes_to_transfer = import_export_content.get_files_to_transfer(
+        (
+            files_to_download,
+            total_bytes_to_transfer,
+        ) = import_export_content.get_files_to_transfer(
             channel_id,
             node_ids,
             exclude_node_ids,
