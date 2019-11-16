@@ -3,8 +3,6 @@ from django.utils.translation import check_for_language
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
-from .models import DevicePermissions
-from .models import DeviceSettings
 from kolibri.core.auth.constants.facility_presets import choices
 from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.auth.constants.role_kinds import ADMIN
@@ -12,6 +10,8 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import FacilitySerializer
 from kolibri.core.auth.serializers import FacilityUserSerializer
+from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.utils import provision_device
 
 
 class DevicePermissionsSerializer(serializers.ModelSerializer):
@@ -80,11 +80,7 @@ class DeviceProvisionSerializer(serializers.Serializer):
             facility.add_role(superuser, ADMIN)
             DevicePermissions.objects.create(user=superuser, is_superuser=True)
             language_id = validated_data.pop("language_id")
-            device_settings, created = DeviceSettings.objects.get_or_create()
-            device_settings.is_provisioned = True
-            device_settings.language_id = language_id
-            device_settings.default_facility = facility
-            device_settings.save()
+            provision_device(language_id=language_id, default_facility=facility)
             return {
                 "facility": facility,
                 "preset": preset,

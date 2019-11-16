@@ -14,8 +14,8 @@ from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
-from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import device_provisioned
+from kolibri.core.device.utils import provision_device
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
@@ -185,10 +185,7 @@ def create_superuser_and_provision_device(username, dataset_id, noninteractive=F
     facility = Facility.objects.get(dataset_id=dataset_id)
     # if device has not been provisioned, set it up
     if not device_provisioned():
-        device_settings, created = DeviceSettings.objects.get_or_create()
-        device_settings.is_provisioned = True
-        device_settings.default_facility = facility
-        device_settings.save()
+        provision_device(default_facility=facility)
 
     # Prompt user to pick a superuser if one does not currently exist
     while not DevicePermissions.objects.filter(is_superuser=True).exists():
