@@ -44,6 +44,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             "gender",
             "birth_year",
         )
+        read_only_fields = ("is_superuser",)
 
     def validate(self, attrs):
         username = attrs.get("username")

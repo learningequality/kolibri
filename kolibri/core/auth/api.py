@@ -150,12 +150,47 @@ class FacilityUserFilter(FilterSet):
         fields = ["member_of"]
 
 
-class FacilityUserViewSet(viewsets.ModelViewSet):
+class FacilityUserViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
     filter_class = FacilityUserFilter
+
+    values = (
+        "id",
+        "username",
+        "full_name",
+        "password",
+        "facility",
+        "roles__kind",
+        "roles__collection",
+        "devicepermissions__is_superuser",
+        "id_number",
+        "gender",
+        "birth_year",
+    )
+
+    field_map = {"devicepermissions__is_superuser": "is_superuser"}
+
+    def consolidate(self, items):
+        output = []
+        items = sorted(items, key=lambda x: x["id"])
+        for key, group in groupby(items, lambda x: x["id"]):
+            roles = []
+            for item in group:
+                if item["roles__collection"]:
+                    # Our values call will return null for users with no assigned roles
+                    # So filter them here.
+                    roles.append(
+                        {
+                            "collection": item.pop("roles__collection"),
+                            "kind": item.pop("roles__kind"),
+                        }
+                    )
+            item["roles"] = roles
+            output.append(item)
+        return output
 
     def set_password_if_needed(self, instance, serializer):
         with transaction.atomic():
