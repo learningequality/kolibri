@@ -1,9 +1,10 @@
 import requests
 from django.http import Http404
 from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.status import HTTP_201_CREATED
+from rest_framework.viewsets import GenericViewSet
 from six.moves.urllib.parse import urljoin
 
 from .utils.portal import registerfacility
@@ -71,31 +72,52 @@ class ValuesViewset(GenericViewSet):
                 item[key] = value
         return item
 
+    def consolidate(self, items):
+        return items
+
     def _serialize_queryset(self, queryset):
         queryset = self.annotate_queryset(queryset)
         return queryset.values(*self._values)
 
     def serialize(self, queryset):
-        return map(self._map_fields, self._serialize_queryset(queryset) or [])
+        return self.consolidate(
+            map(self._map_fields, self._serialize_queryset(queryset) or [])
+        )
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.prefetch_queryset(self.get_queryset()))
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            data = map(self._map_fields, self._serialize_queryset(page) or [])
-            return self.get_paginated_response(data)
+            return self.get_paginated_response(self.serialize(page))
 
         return Response(self.serialize(queryset))
 
     def serialize_object(self, pk):
         queryset = self.filter_queryset(self.prefetch_queryset(self.get_queryset()))
         try:
-            return self._map_fields(self._serialize_queryset(queryset).get(pk=pk))
-        except queryset.model.DoesNotExist:
+            return self.consolidate(
+                self._map_fields(self._serialize_queryset(queryset).filter(pk=pk))
+            )[0]
+        except IndexError:
             raise Http404(
                 "No %s matches the given query." % queryset.model._meta.object_name
             )
 
     def retrieve(self, request, pk, *args, **kwargs):
         return Response(self.serialize_object(pk))
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        return Response(self.serialize_object(instance.id), status=HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(self.serialize_object(instance.id))
