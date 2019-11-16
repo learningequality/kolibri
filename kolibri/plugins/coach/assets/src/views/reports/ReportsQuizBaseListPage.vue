@@ -23,16 +23,17 @@
           />
         </QuizLessonDetailsHeader>
       </KGridItem>
-      <KGridItem :layout12="{ span: 4 }">
+      <KGridItem :layout12="{ span: isPrint ? 12 : 4 }">
         <QuizStatus
+          :className="className"
           :avgScore="avgScore"
           :groupNames="getGroupNames(exam.groups)"
           :exam="exam"
         />
       </KGridItem>
-      <KGridItem :layout12="{ span: 8 }">
-        <KPageContainer :topMargin="16">
-          <HeaderTabs>
+      <KGridItem :layout12="{ span: isPrint ? 12 : 8 }">
+        <KPageContainer :topMargin="isPrint ? 0 : 16">
+          <HeaderTabs :enablePrint="true">
             <HeaderTab
               :text="coachString('reportLabel')"
               :to="classRoute('ReportsQuizLearnerListPage')"

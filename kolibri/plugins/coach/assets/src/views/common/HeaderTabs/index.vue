@@ -1,9 +1,10 @@
 <template>
 
   <div
+    v-show="enablePrint || $mediaType !== 'print'"
     class="tab-block"
     :class="{ small: windowIsSmall }"
-    :style="{ borderBottomColor: $themeTokens.fineLine }"
+    :style="{ borderBottomColor: $mediaType !== 'print' ? $themeTokens.fineLine : 'transparent' }"
   >
     <slot></slot>
   </div>
@@ -18,6 +19,13 @@
   export default {
     name: 'HeaderTabs',
     mixins: [responsiveWindowMixin],
+    props: {
+      enablePrint: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+    },
   };
 
 </script>

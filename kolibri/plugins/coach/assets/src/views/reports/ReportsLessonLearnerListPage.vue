@@ -22,18 +22,17 @@
           />
         </QuizLessonDetailsHeader>
       </KGridItem>
-      <KGridItem :layout12="{ span: 4 }">
+      <KGridItem :layout12="{ span: isPrint ? 12 : 4 }">
         <LessonStatus
           activeKey="active"
+          :className="className"
           :lesson="lesson"
           :groupNames="getGroupNames(lesson.groups)"
         />
       </KGridItem>
-      <KGridItem :layout12="{ span: 8 }">
-
-        <KPageContainer>
-          <HeaderTabs>
-
+      <KGridItem :layout12="{ span: isPrint ? 12 : 8 }">
+        <KPageContainer :topMargin="isPrint ? 0 : 24">
+          <HeaderTabs :enablePrint="true">
             <HeaderTab
               :text="coachString('reportLabel')"
               :to="classRoute('ReportsLessonReportPage', {})"
@@ -44,7 +43,9 @@
             />
           </HeaderTabs>
 
-          <h2>{{ coachString('overallLabel') }}</h2>
+          <h2 v-show="!isPrint">
+            {{ coachString('overallLabel') }}
+          </h2>
 
           <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
             <thead slot="thead">
@@ -136,4 +137,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/print-table';
+
+</style>

@@ -6,9 +6,7 @@
       :layout8="{ span: 5 }"
       :layout12="{ span: 8 }"
     >
-      <p>
-        <slot name="header"></slot>
-      </p>
+      <slot name="header"></slot>
     </KGridItem>
     <KGridItem
       :layout="{ alignment: 'right' }"

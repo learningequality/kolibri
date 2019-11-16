@@ -17,7 +17,7 @@
         :options="filterOptions"
         :inline="true"
       />
-      <CoreTable :class="{'print': isPrint}" :emptyMessage="emptyMessage">
+      <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
             <th>{{ coachString('titleLabel') }}</th>

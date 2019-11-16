@@ -11,7 +11,7 @@
 
     <KPageContainer>
 
-      <ReportsGroupHeader />
+      <ReportsGroupHeader :enablePrint="true" />
 
       <ActivityList
         :notificationParams="notificationParams"

@@ -42,7 +42,7 @@
         </KGridItem>
         <KGridItem :layout12="{ span: 6 }">
           <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
-          <CoreTable :emptyMessage="coachString('quizListEmptyState')">
+          <CoreTable :class="{print: isPrint}" :emptyMessage="coachString('quizListEmptyState')">
             <thead slot="thead">
               <tr>
                 <th>{{ coachString('titleLabel') }}</th>
@@ -130,6 +130,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   table {
     min-width: 0;

@@ -2,6 +2,7 @@
 
   <KPageContainer style="padding-top: 16px;">
     <BackLink
+      v-show="!isPrint"
       :to="backlink"
       :text="backlinkLabel"
     />
@@ -14,9 +15,9 @@
         <h1 class="exam-title">
           <KLabeledIcon icon="quiz" :label="resource.title" />
         </h1>
-        <StatusElapsedTime :date="createdDate" actionType="created" />
+        <StatusElapsedTime v-show="!isPrint" :date="createdDate" actionType="created" />
       </div>
-      <div slot="options">
+      <div v-show="!isPrint" slot="options">
         <slot name="dropdown"></slot>
       </div>
     </HeaderWithOptions>
@@ -75,6 +76,9 @@
           return null;
         }
       },
+      isPrint() {
+        return this.$mediaType === 'print';
+      },
     },
   };
 
@@ -86,6 +90,10 @@
   .exam-title {
     margin-bottom: 0;
     font-size: 1.5rem;
+  }
+
+  /deep/ .time-context {
+    margin-bottom: 0;
   }
 
 </style>

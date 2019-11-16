@@ -10,7 +10,7 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsGroupHeader />
+      <ReportsGroupHeader :enablePrint="true" />
       <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -118,4 +118,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/print-table';
+
+</style>

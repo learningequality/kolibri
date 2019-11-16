@@ -153,6 +153,8 @@
 
 <style lang="scss" scoped>
 
+  @import '../common/print-table';
+
   .small-answered-count {
     display: block;
     margin-left: 1.75rem; /* matches KLabeledIcon */

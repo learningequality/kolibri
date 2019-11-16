@@ -12,7 +12,7 @@
     <p v-show="!isPrint">
       {{ $tr('description') }}
     </p>
-    <HeaderTabs v-show="!isPrint">
+    <HeaderTabs>
 
       <HeaderTab
         :text="coreString('lessonsLabel')"
