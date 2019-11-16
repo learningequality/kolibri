@@ -39,7 +39,7 @@ def set_device_settings(**kwargs):
 
     try:
         device_settings = DeviceSettings.objects.get()
-        for key, value in kwargs:
+        for key, value in kwargs.items():
             setattr(device_settings, key, value)
         device_settings.save()
     except DeviceSettings.DoesNotExist:

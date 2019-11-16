@@ -178,15 +178,14 @@ class FacilityUserViewSet(ValuesViewset):
         for key, group in groupby(items, lambda x: x["id"]):
             roles = []
             for item in group:
-                if item["roles__collection"]:
+                role = {
+                    "collection": item.pop("roles__collection"),
+                    "kind": item.pop("roles__kind"),
+                }
+                if role["collection"]:
                     # Our values call will return null for users with no assigned roles
                     # So filter them here.
-                    roles.append(
-                        {
-                            "collection": item.pop("roles__collection"),
-                            "kind": item.pop("roles__kind"),
-                        }
-                    )
+                    roles.append(role)
             item["roles"] = roles
             output.append(item)
         return output
@@ -347,23 +346,23 @@ class ClassroomViewSet(ValuesViewset):
         for key, group in groupby(items, lambda x: x["id"]):
             coaches = []
             for item in group:
-                coaches.append(
-                    {
-                        "id": item.pop("role__user__id"),
-                        "facility": item["parent"],
-                        "is_superuser": item.pop(
-                            "role__user__devicepermissions__is_superuser"
-                        ),
-                        "full_name": item.pop("role__user__full_name"),
-                        "username": item.pop("role__user__username"),
-                        "birth_year": item.pop("role__user__birth_year"),
-                        "gender": item.pop("role__user__gender"),
-                        "id_number": item.pop("role__user__id_number"),
-                        "roles": [
-                            {"collection": item["id"], "kind": item.pop("role__kind")}
-                        ],
-                    }
-                )
+                coach = {
+                    "id": item.pop("role__user__id"),
+                    "facility": item["parent"],
+                    "is_superuser": item.pop(
+                        "role__user__devicepermissions__is_superuser"
+                    ),
+                    "full_name": item.pop("role__user__full_name"),
+                    "username": item.pop("role__user__username"),
+                    "birth_year": item.pop("role__user__birth_year"),
+                    "gender": item.pop("role__user__gender"),
+                    "id_number": item.pop("role__user__id_number"),
+                    "roles": [
+                        {"collection": item["id"], "kind": item.pop("role__kind")}
+                    ],
+                }
+                if coach["id"]:
+                    coaches.append(coach)
             item["coaches"] = coaches
             output.append(item)
         return output

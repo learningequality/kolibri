@@ -188,7 +188,7 @@ class ClassroomAPITestCase(APITestCase):
                     ("coaches", []),
                 )
             )
-            for classroom in self.classrooms
+            for classroom in sorted(self.classrooms, key=lambda x: x.id)
         ]
         self.assertItemsEqual(response.data, expected)
 
