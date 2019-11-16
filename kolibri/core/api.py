@@ -4,7 +4,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED
-from rest_framework.viewsets import GenericViewSet
 from six.moves.urllib.parse import urljoin
 
 from .utils.portal import registerfacility
@@ -33,7 +32,7 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
         return Response(response.text, status=response.status_code)
 
 
-class ValuesViewset(GenericViewSet):
+class ValuesViewset(viewsets.ModelViewSet):
     """
     A viewset that uses a values call to get all model/queryset data in
     a single database query, rather than delegating serialization to a
@@ -96,9 +95,7 @@ class ValuesViewset(GenericViewSet):
     def serialize_object(self, pk):
         queryset = self.filter_queryset(self.prefetch_queryset(self.get_queryset()))
         try:
-            return self.consolidate(
-                self._map_fields(self._serialize_queryset(queryset).filter(pk=pk))
-            )[0]
+            return self.serialize(queryset.filter(pk=pk))[0]
         except IndexError:
             raise Http404(
                 "No %s matches the given query." % queryset.model._meta.object_name
@@ -110,8 +107,12 @@ class ValuesViewset(GenericViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
-        return Response(self.serialize_object(instance.id), status=HTTP_201_CREATED)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        instance = serializer.instance
+        return Response(
+            self.serialize_object(instance.id), status=HTTP_201_CREATED, headers=headers
+        )
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
