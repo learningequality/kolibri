@@ -66,7 +66,7 @@ class ValuesViewset(viewsets.ModelViewSet):
         return queryset
 
     def _map_fields(self, item):
-        for key, value in self._field_map.iteritems():
+        for key, value in self._field_map.items():
             if callable(value):
                 item[key] = value(item)
             elif value in item:
@@ -83,8 +83,10 @@ class ValuesViewset(viewsets.ModelViewSet):
         return queryset.values(*self._values)
 
     def serialize(self, queryset):
-        return self.consolidate(
-            map(self._map_fields, self._serialize_queryset(queryset) or [])
+        return list(
+            self.consolidate(
+                map(self._map_fields, self._serialize_queryset(queryset) or [])
+            )
         )
 
     def list(self, request, *args, **kwargs):
