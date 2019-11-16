@@ -10,7 +10,7 @@
         <h1 class="title">
           <KLabeledIcon icon="person" :label="userName" />
         </h1>
-        <KLabeledIcon icon="quiz" :label="$tr('title', { name: contentName })" />
+        <KLabeledIcon icon="quiz" :label="contentName" />
       </div>
 
       <table class="scores">
@@ -106,7 +106,6 @@
       },
     },
     $trs: {
-      title: `'{name}' performance`,
       overallScore: 'Overall score',
       questionsCorrectLabel: 'Questions correct',
       questionsCorrectValue: '{correct, number} out of {total, number}',
