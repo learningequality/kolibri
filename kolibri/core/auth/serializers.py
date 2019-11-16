@@ -134,18 +134,10 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
 
 
 class ClassroomSerializer(serializers.ModelSerializer):
-    learner_count = serializers.SerializerMethodField()
-    coaches = serializers.SerializerMethodField()
-
-    def get_learner_count(self, instance):
-        return instance.get_members().count()
-
-    def get_coaches(self, instance):
-        return FacilityUserSerializer(instance.get_coaches(), many=True).data
-
     class Meta:
         model = Classroom
-        fields = ("id", "name", "parent", "learner_count", "coaches")
+        fields = ("id", "name", "parent")
+        read_only_fields = ("id",)
 
         validators = [
             UniqueTogetherValidator(

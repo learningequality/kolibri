@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import time
+from itertools import groupby
 
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
@@ -10,6 +11,7 @@ from django.contrib.auth import logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
 from django.db import transaction
+from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models.query import F
 from django.utils.decorators import method_decorator
@@ -46,9 +48,11 @@ from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
+from kolibri.core.api import ValuesViewset
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
+from kolibri.core.query import SQCount
 
 
 class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
@@ -270,12 +274,62 @@ class ClassroomFilter(FilterSet):
         fields = ["role", "parent"]
 
 
-class ClassroomViewSet(viewsets.ModelViewSet):
+class ClassroomViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = Classroom.objects.all()
     serializer_class = ClassroomSerializer
     filter_class = ClassroomFilter
+
+    values = (
+        "id",
+        "name",
+        "parent",
+        "learner_count",
+        "role__user__id",
+        "role__user__devicepermissions__is_superuser",
+        "role__user__full_name",
+        "role__user__username",
+        "role__user__birth_year",
+        "role__user__gender",
+        "role__user__id_number",
+        "role__kind",
+    )
+
+    def annotate_queryset(self, queryset):
+        return queryset.annotate(
+            learner_count=SQCount(
+                FacilityUser.objects.filter(memberships__collection=OuterRef("id")),
+                field="id",
+            )
+        )
+
+    def consolidate(self, items):
+        output = []
+        items = sorted(items, key=lambda x: x["id"])
+        for key, group in groupby(items, lambda x: x["id"]):
+            coaches = []
+            for item in group:
+                coaches.append(
+                    {
+                        "id": item.pop("role__user__id"),
+                        "facility": item["parent"],
+                        "is_superuser": item.pop(
+                            "role__user__devicepermissions__is_superuser"
+                        ),
+                        "full_name": item.pop("role__user__full_name"),
+                        "username": item.pop("role__user__username"),
+                        "birth_year": item.pop("role__user__birth_year"),
+                        "gender": item.pop("role__user__gender"),
+                        "id_number": item.pop("role__user__id_number"),
+                        "roles": [
+                            {"collection": item["id"], "kind": item.pop("role__kind")}
+                        ],
+                    }
+                )
+            item["coaches"] = coaches
+            output.append(item)
+        return output
 
 
 class LearnerGroupViewSet(viewsets.ModelViewSet):
