@@ -5,7 +5,6 @@ from random import sample
 
 import requests
 from django.core.cache import cache
-from django.db.models import IntegerField
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
@@ -58,6 +57,7 @@ from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.query import SQSum
 
 logger = logging.getLogger(__name__)
 
@@ -235,12 +235,6 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
 
     page_size = None
     page_size_query_param = "page_size"
-
-
-class SQSum(Subquery):
-    # Include ALIAS at the end to support Postgres
-    template = "(SELECT SUM(%(field)s) FROM (%(subquery)s) AS %(field)s__sum)"
-    output_field = IntegerField()
 
 
 @method_decorator(cache_forever, name="dispatch")

@@ -9,5 +9,11 @@ class SQCount(Subquery):
     output_field = IntegerField()
 
 
+class SQSum(Subquery):
+    # Include ALIAS at the end to support Postgres
+    template = "(SELECT SUM(%(field)s) FROM (%(subquery)s) AS %(field)s__sum)"
+    output_field = IntegerField()
+
+
 class GroupConcat(Aggregate):
     template = "GROUP_CONCAT(%(field)s)"
