@@ -142,15 +142,9 @@ class ClassroomSerializer(serializers.ModelSerializer):
 
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
-
-    user_ids = serializers.SerializerMethodField()
-
-    def get_user_ids(self, group):
-        return [str(user_id["id"]) for user_id in group.get_members().values("id")]
-
     class Meta:
         model = LearnerGroup
-        fields = ("id", "name", "parent", "user_ids")
+        fields = ("id", "name", "parent")
 
         validators = [
             UniqueTogetherValidator(

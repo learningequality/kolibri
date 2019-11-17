@@ -10,7 +10,14 @@ from django.contrib.auth import login
 from django.contrib.auth import logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
+
+try:
+    from django.contrib.postgres.aggregates import ArrayAgg
+except ImportError:
+    ArrayAgg = None
+from django.db import connection
 from django.db import transaction
+from django.db.models import CharField
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models.query import F
@@ -51,6 +58,7 @@ from kolibri.core.api import ValuesViewset
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
+from kolibri.core.query import GroupConcat
 from kolibri.core.query import SQCount
 
 
@@ -368,13 +376,30 @@ class ClassroomViewSet(ValuesViewset):
         return output
 
 
-class LearnerGroupViewSet(viewsets.ModelViewSet):
+def _process_user_ids(item):
+    if connection.vendor == "postgresql" and ArrayAgg is not None:
+        return item["user_ids"]
+    return item["user_ids"].split(",") if item["user_ids"] else []
+
+
+class LearnerGroupViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = LearnerGroup.objects.all()
     serializer_class = LearnerGroupSerializer
 
     filter_fields = ("parent",)
+
+    values = ("id", "name", "parent", "user_ids")
+
+    field_map = {"user_ids": _process_user_ids}
+
+    def annotate_queryset(self, queryset):
+        if connection.vendor == "postgresql" and ArrayAgg is not None:
+            return queryset.annotate(user_ids=ArrayAgg("membership__user__id"))
+        return queryset.values("id").annotate(
+            user_ids=GroupConcat("membership__user__id", output_field=CharField())
+        )
 
 
 class SignUpViewSet(viewsets.ViewSet):
