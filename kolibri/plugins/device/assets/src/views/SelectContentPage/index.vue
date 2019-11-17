@@ -282,8 +282,8 @@
           channelId: this.channelId,
           included: nodesForTransfer.included.map(x => x.id),
           excluded: nodesForTransfer.omitted.map(x => x.id),
-          fileSize: this.nodeCounts.fileSize,
-          totalResources: this.nodeCounts.resources,
+          fileSize: this.transferFileSize,
+          totalResources: this.transferResources,
         })
           .then(task => {
             this.disableBottomBar = false;
