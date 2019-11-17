@@ -1,26 +1,36 @@
+import json
+
+from django.db.models import CharField
 from django.db.models import Count
-from django.db.models import Case
-from django.db.models import When
+from django.db.models import F
 from django.db.models import Max
+from django.db.models import OuterRef
+from django.db.models import Q
+from django.db.models import Subquery
 from django.db.models import Sum
+
+try:
+    from django.contrib.postgres.aggregates import ArrayAgg
+except ImportError:
+    ArrayAgg = None
+from django.db import connection
 from django.shortcuts import get_object_or_404
 from le_utils.constants import content_kinds
 from rest_framework import permissions
-from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.response import Response
 
 from kolibri.core.auth import models as auth_models
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Collection
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger import models as logger_models
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
-from kolibri.core.serializers import DateTimeTzField
-from kolibri.core.serializers import KolibriModelSerializer
+from kolibri.core.query import GroupConcat
 
 
 # Intended to match  NotificationEventType
@@ -71,24 +81,26 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
     # existence of this key in the set in order to see whether this user has been flagged as needing
     # help.
     lookup_key = "{user_id}-{node_id}"
+
+    notifications = LearnerProgressNotification.objects.filter(
+        Q(notification_event=NotificationEventType.Completed)
+        | Q(notification_event=NotificationEventType.Help),
+        classroom_id=classroom.id,
+        lesson_id__in=[lesson["id"] for lesson in lesson_data],
+    ).values_list("user_id", "contentnode_id", "timestamp", "notification_event")
+
     needs_help = {
         lookup_key.format(user_id=n[0], node_id=n[1]): n[2]
-        for n in LearnerProgressNotification.objects.filter(
-            classroom_id=classroom.id,
-            notification_event=NotificationEventType.Help,
-            lesson_id__in=[lesson["id"] for lesson in lesson_data],
-        ).values_list("user_id", "contentnode_id", "timestamp")
+        for n in notifications
+        if n[3] == NotificationEventType.Help
     }
 
     # In case a previously flagged learner has since completed an exercise, check all the completed
     # notifications also
     completed = {
         lookup_key.format(user_id=n[0], node_id=n[1]): n[2]
-        for n in LearnerProgressNotification.objects.filter(
-            classroom_id=classroom.id,
-            notification_event=NotificationEventType.Completed,
-            lesson_id__in=[lesson["id"] for lesson in lesson_data],
-        ).values_list("user_id", "contentnode_id", "timestamp")
+        for n in notifications
+        if n[3] == NotificationEventType.Completed
     }
 
     def get_status(log):
@@ -135,157 +147,147 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
     return map(map_content_logs, content_log_values)
 
 
-class ExamStatusSerializer(KolibriModelSerializer):
-    status = serializers.SerializerMethodField()
-    exam_id = serializers.PrimaryKeyRelatedField(source="exam", read_only=True)
-    learner_id = serializers.PrimaryKeyRelatedField(source="user", read_only=True)
-    last_activity = DateTimeTzField()
-    num_correct = serializers.SerializerMethodField()
-    num_answered = serializers.SerializerMethodField()
+def _map_exam_status(item):
+    closed = item.pop("closed")
+    item["status"] = COMPLETED if closed else STARTED
+    return item
 
-    def get_status(self, exam_log):
-        if exam_log.closed:
-            return COMPLETED
-        else:
-            return STARTED
 
-    def get_num_correct(self, exam_log):
-        return (
-            exam_log.attemptlogs.values_list("item", "content_id")
-            .order_by("completion_timestamp")
-            .distinct()
-            .aggregate(Sum("correct"))
-            .get("correct__sum")
-        )
-
-    def get_num_answered(self, exam_log):
-        return (
-            exam_log.attemptlogs.values_list("item", "content_id")
-            .order_by("completion_timestamp")
-            .distinct()
-            .aggregate(
-                complete__sum=Count(Case(When(complete=True, then=1), default=0))
+def serialize_exam_status(queryset):
+    return list(
+        map(
+            _map_exam_status,
+            queryset.annotate(
+                last_activity=Max("attemptlogs__end_timestamp"),
+                num_correct=Subquery(
+                    logger_models.ExamAttemptLog.objects.filter(examlog=OuterRef("id"))
+                    .order_by()
+                    .values_list("item", "content_id")
+                    .distinct()
+                    .values("examlog")
+                    .annotate(total_correct=Sum("correct"))
+                    .values("total_correct"),
+                ),
+                num_answered=Subquery(
+                    logger_models.ExamAttemptLog.objects.filter(examlog=OuterRef("id"))
+                    .order_by()
+                    .values_list("item", "content_id")
+                    .distinct()
+                    .values("examlog")
+                    .annotate(total_complete=Count("id"))
+                    .values("total_complete"),
+                ),
             )
-            .get("complete__sum")
+            .values(
+                "exam_id",
+                "closed",
+                "last_activity",
+                "num_correct",
+                "num_answered",
+                learner_id=F("user_id"),
+            )
+            .order_by(),
         )
-
-    class Meta:
-        model = logger_models.ExamLog
-        fields = (
-            "exam_id",
-            "learner_id",
-            "status",
-            "last_activity",
-            "num_correct",
-            "num_answered",
-        )
-
-
-class GroupSerializer(KolibriModelSerializer):
-    member_ids = serializers.SerializerMethodField()
-
-    def get_member_ids(self, group):
-        return group.get_members().values_list("id", flat=True)
-
-    class Meta:
-        model = auth_models.LearnerGroup
-        fields = ("id", "name", "member_ids")
-
-
-class UserSerializer(KolibriModelSerializer):
-    name = serializers.CharField(source="full_name")
-
-    class Meta:
-        model = auth_models.FacilityUser
-        fields = ("id", "name", "username")
-
-
-class LessonAssignmentsField(serializers.RelatedField):
-    def to_representation(self, assignment):
-        return assignment.collection.id
-
-
-class LessonSerializer(KolibriModelSerializer):
-    active = serializers.BooleanField(source="is_active")
-    node_ids = serializers.SerializerMethodField()
-    date_created = DateTimeTzField(required=False)
-
-    # classrooms are in here, and filtered out later to create `groups`
-    assignments = LessonAssignmentsField(
-        many=True, read_only=True, source="lesson_assignments"
     )
 
-    groups = serializers.ListField(default=[])
 
-    class Meta:
-        model = Lesson
-        fields = (
-            "id",
-            "title",
-            "active",
-            "node_ids",
-            "assignments",
-            "groups",
-            "description",
-            "date_created",
+def _split_member_ids(item):
+    if not (connection.vendor == "postgresql" and ArrayAgg is not None):
+        item["member_ids"] = item["member_ids"].split(",") if item["member_ids"] else []
+    return item
+
+
+def serialize_groups(queryset):
+    if connection.vendor == "postgresql" and ArrayAgg is not None:
+        queryset = queryset.annotate(member_ids=ArrayAgg("membership__user__id"))
+    else:
+        queryset = queryset.values("id").annotate(
+            member_ids=GroupConcat("membership__user__id", output_field=CharField())
         )
-
-    def get_node_ids(self, obj):
-        return [resource["contentnode_id"] for resource in obj.resources]
+    return list(map(_split_member_ids, queryset.values("id", "name", "member_ids")))
 
 
-class ExamQuestionSourcesField(serializers.Field):
-    def to_representation(self, values):
-        return values
+def serialize_users(queryset):
+    return list(queryset.values("id", "username", name=F("full_name")))
 
 
-class ExamAssignmentsField(serializers.RelatedField):
-    def to_representation(self, assignment):
-        return assignment.collection.id
-
-
-class ExamSerializer(KolibriModelSerializer):
-
-    question_sources = ExamQuestionSourcesField(default=[])
-    date_created = DateTimeTzField()
-    date_archived = DateTimeTzField()
-    date_activated = DateTimeTzField()
-
-    # classes are in here, and filtered out later to create `groups`
-    assignments = ExamAssignmentsField(many=True, read_only=True)
-
-    groups = serializers.ListField(default=[])
-
-    class Meta:
-        model = Exam
-        fields = (
-            "id",
-            "title",
-            "active",
-            "question_sources",
-            "assignments",
-            "groups",
-            "data_model_version",
-            "question_count",
-            "learners_see_fixed_order",
-            "seed",
-            "date_created",
-            "date_archived",
-            "date_activated",
-            "archive",
+def _map_lesson(item):
+    item["resources"] = json.loads(item["resources"])
+    item["node_ids"] = [resource["contentnode_id"] for resource in item["resources"]]
+    if not (connection.vendor == "postgresql" and ArrayAgg is not None):
+        item["assignments"] = (
+            item["assignments"].split(",") if item["assignments"] else []
         )
+    return item
 
 
-class ContentSerializer(KolibriModelSerializer):
-    node_id = serializers.CharField(source="id")
+def serialize_lessons(queryset):
+    if connection.vendor == "postgresql" and ArrayAgg is not None:
+        queryset = queryset.annotate(
+            assignments=ArrayAgg("lesson_assignments__collection")
+        )
+    else:
+        queryset = queryset.values("id").annotate(
+            assignments=GroupConcat(
+                "lesson_assignments__collection", output_field=CharField()
+            )
+        )
+    return list(
+        map(
+            _map_lesson,
+            queryset.values(
+                "id",
+                "title",
+                "resources",
+                "assignments",
+                "description",
+                "date_created",
+                active=F("is_active"),
+            ),
+        )
+    )
 
-    class Meta:
-        model = ContentNode
-        fields = ("node_id", "content_id", "title", "kind", "channel_id")
+
+def _map_exam(item):
+    item["question_sources"] = json.loads(item["question_sources"])
+    if not (connection.vendor == "postgresql" and ArrayAgg is not None):
+        item["assignments"] = (
+            item["assignments"].split(",") if item["assignments"] else []
+        )
+    return item
 
 
-def data(Serializer, queryset):
-    return Serializer(queryset, many=True).data
+def serialize_exams(queryset):
+    if connection.vendor == "postgresql" and ArrayAgg is not None:
+        queryset = queryset.annotate(
+            exam_assignments=ArrayAgg("assignments__collection")
+        )
+    else:
+        queryset = queryset.values("id").annotate(
+            exam_assignments=GroupConcat(
+                "assignments__collection", output_field=CharField()
+            )
+        )
+    return list(
+        map(
+            _map_exam,
+            queryset.values(
+                "id",
+                "title",
+                "active",
+                "question_sources",
+                "data_model_version",
+                "question_count",
+                "learners_see_fixed_order",
+                "seed",
+                "date_created",
+                "date_archived",
+                "date_activated",
+                "archive",
+                assignments=F("exam_assignments"),
+            ),
+        )
+    )
 
 
 class ClassSummaryPermissions(permissions.BasePermission):
@@ -310,15 +312,15 @@ class ClassSummaryViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk):
         classroom = get_object_or_404(auth_models.Classroom, id=pk)
-        query_learners = classroom.get_members()
+        query_learners = FacilityUser.objects.filter(memberships__collection=classroom)
         query_lesson = Lesson.objects.filter(collection=pk)
         query_exams = Exam.objects.filter(collection=pk)
         query_exam_logs = logger_models.ExamLog.objects.filter(
             exam__in=query_exams
-        ).annotate(last_activity=Max("attemptlogs__end_timestamp"))
+        ).order_by()
 
-        lesson_data = data(LessonSerializer, query_lesson)
-        exam_data = data(ExamSerializer, query_exams)
+        lesson_data = serialize_lessons(query_lesson)
+        exam_data = serialize_exams(query_exams)
 
         # filter classes out of exam assignments
         for exam in exam_data:
@@ -340,8 +342,8 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         # map node ids => content_ids so we can replace missing nodes, if another matching content_id node exists
         content_id_map = {
             resource["contentnode_id"]: resource["content_id"]
-            for lesson in query_lesson
-            for resource in lesson.resources
+            for lesson in lesson_data
+            for resource in lesson.pop("resources")
         }
         query_content = ContentNode.objects.filter(id__in=all_node_ids)
         # final list of available nodes
@@ -363,17 +365,23 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             # point to new list of node ids
             lesson["node_ids"] = node_ids
 
-        learners_data = data(UserSerializer, query_learners)
+        learners_data = serialize_users(query_learners)
 
         output = {
             "id": pk,
             "name": classroom.name,
-            "coaches": data(UserSerializer, classroom.get_coaches()),
+            "coaches": serialize_users(
+                FacilityUser.objects.filter(
+                    roles__collection=classroom, roles__kind=role_kinds.COACH
+                )
+            ),
             "learners": learners_data,
-            "groups": data(GroupSerializer, classroom.get_learner_groups()),
+            "groups": serialize_groups(classroom.get_learner_groups()),
             "exams": exam_data,
-            "exam_learner_status": data(ExamStatusSerializer, query_exam_logs),
-            "content": data(ContentSerializer, query_content),
+            "exam_learner_status": serialize_exam_status(query_exam_logs),
+            "content": query_content.values(
+                "content_id", "title", "kind", "channel_id", node_id=F("id")
+            ),
             "content_learner_status": content_status_serializer(
                 lesson_data, learners_data, classroom
             ),
