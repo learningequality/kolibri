@@ -21,6 +21,7 @@ echo "Unpacking whl"
 # Duped from Android installer's makefile
 # Only unpacks kolibri, ignores useless c extensions to reduce size
 unzip -q "dist/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
+rm -rf ./src/kolibri/dist/enum
 
 
 echo "Downloading deps"
