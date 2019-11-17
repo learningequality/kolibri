@@ -1,6 +1,7 @@
 import atexit
 import logging
 import os
+import signal
 import sys
 import threading
 import time
@@ -72,6 +73,14 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
+def _cleanup_before_quitting(signum, frame):
+    from kolibri.core.discovery.utils.network.search import unregister_zeroconf_service
+
+    unregister_zeroconf_service()
+    signal.signal(signum, signal.SIG_DFL)
+    os.kill(os.getpid(), signum)
+
+
 def run_services(port):
 
     # Initialize the iceqube scheduler to handle scheduled tasks
@@ -110,6 +119,13 @@ def run_services(port):
 
     instance, _ = InstanceIDModel.get_or_create_current_instance()
     register_zeroconf_service(port=port, id=instance.id[:4])
+
+    try:
+        signal.signal(signal.SIGINT, _cleanup_before_quitting)
+        signal.signal(signal.SIGTERM, _cleanup_before_quitting)
+        logger.info("Added signal handlers for cleaning up on exit...")
+    except ValueError:
+        logger.warn("Error adding signal handlers for cleaning up on exit...")
 
 
 def _rm_pid_file():
