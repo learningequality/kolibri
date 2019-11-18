@@ -253,6 +253,7 @@ def serialize_lessons(queryset):
 
 def _map_exam(item):
     item["question_sources"] = json.loads(item["question_sources"])
+    item["assignments"] = item.pop("exam_assignments")
     if not (connection.vendor == "postgresql" and ArrayAgg is not None):
         item["assignments"] = (
             item["assignments"].split(",") if item["assignments"] else []
@@ -287,7 +288,7 @@ def serialize_exams(queryset):
                 "date_archived",
                 "date_activated",
                 "archive",
-                assignments=F("exam_assignments"),
+                "exam_assignments",
             ),
         )
     )
