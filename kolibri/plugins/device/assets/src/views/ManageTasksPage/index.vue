@@ -1,11 +1,27 @@
 <template>
 
   <div>
-    <p v-if="!loading && taskList.length === 0" class="no-tasks">
+
+    <!-- Stubbed out in case we need it -->
+    <template v-if="false">
+      <h1>
+        {{ $tr('tasksHeader') }}
+      </h1>
+      <p>
+        <!-- Stubbed out in case we need it -->
+        <a href="#">{{ $tr('backToChannelsAction') }}</a>
+      </p>
+    </template>
+    <p v-if="!loading && taskList.length === 0">
       {{ $tr('emptyTasksMessage') }}
     </p>
 
-    <div class="tasks-panels">
+    <KButton
+      v-if="showClearCompletedButton"
+      :text="$tr('clearCompletedAction')"
+      @click="handleClickClearAll"
+    />
+    <div class="task-panels">
       <TaskPanel
         v-for="task in sortedTaskList"
         :key="task.id"
@@ -22,9 +38,11 @@
 <script>
 
   import reverse from 'lodash/fp/reverse';
+  import some from 'lodash/some';
   import { mapState } from 'vuex';
   import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { taskIsClearable } from '../../constants';
   import TaskPanel from './TaskPanel';
 
   // A page to view content import/export/deletion tasks
@@ -48,6 +66,9 @@
       ...mapState('manageContent', ['taskList']),
       sortedTaskList() {
         return reverse(this.taskList);
+      },
+      showClearCompletedButton() {
+        return some(this.taskList, taskIsClearable);
       },
     },
     watch: {
@@ -73,15 +94,23 @@
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr('appBarTitle'));
       },
       handleClickClear(task) {
-        TaskResource.postListEndpoint('cleartask', { task_id: task.id });
+        TaskResource.deleteFinishedTask({ task_id: task.id }).catch(() => {
+          // error silently
+        });
       },
       handleClickCancel(task) {
         TaskResource.cancelTask(task.id);
       },
+      handleClickClearAll() {
+        TaskResource.deleteFinishedTasks();
+      },
     },
     $trs: {
+      backToChannelsAction: 'Back to channels',
+      tasksHeader: 'Tasks',
       appBarTitle: 'Task manager',
-      emptyTasksMessage: 'Tasks you initiate will appear here',
+      emptyTasksMessage: 'There are no tasks to display',
+      clearCompletedAction: 'Clear completed',
     },
   };
 
@@ -92,12 +121,7 @@
 
   .task-panels {
     max-width: 780px;
-  }
-
-  .no-tasks {
-    padding: 128px 0;
-    font-size: 24px;
-    text-align: center;
+    margin-top: 32px;
   }
 
 </style>

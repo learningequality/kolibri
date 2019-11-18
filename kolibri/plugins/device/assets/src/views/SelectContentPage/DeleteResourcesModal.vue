@@ -1,19 +1,25 @@
 <template>
 
   <KModal
-    :title="$tr('deleteResourcesTitle')"
+    :title="title"
     :submitText="coreString('deleteAction')"
     :cancelText="coreString('cancelAction')"
     @submit="$emit('submit', { deleteEverywhere })"
     @cancel="$emit('cancel')"
   >
     <div>
-      <p>
-        {{ $tr('deleteConfirmation') }}
-      </p>
+      <template v-if="numberOfResources === 1">
+        <p>{{ $tr('confirmationQuestionOneResource') }}</p>
+        <p>{{ $tr('deleteEverywhereExplanationOneResource') }}</p>
+      </template>
+      <template v-else>
+        <p>{{ $tr('confirmationQuestionMultipleResources') }}</p>
+        <p>{{ $tr('deleteEverywhereExplanationMultipleResources') }}</p>
+      </template>
       <KCheckbox
         v-model="deleteEverywhere"
         :label="$tr('deleteEverywhereLabel')"
+        @change="deleteEverywhere = $event"
       />
     </div>
   </KModal>
@@ -28,15 +34,36 @@
   export default {
     name: 'DeleteResourcesModal',
     mixins: [commonCoreStrings],
+    props: {
+      numberOfResources: {
+        type: Number,
+        required: true,
+      },
+    },
     data() {
       return {
         deleteEverywhere: false,
       };
     },
+    computed: {
+      title() {
+        return this.numberOfResources === 1
+          ? this.$tr('titleSingleResource')
+          : this.$tr('titleMultipleResources');
+      },
+    },
     $trs: {
-      deleteResourcesTitle: 'Delete resources',
-      deleteConfirmation: 'Are you sure you want to delete these resources from your device?',
+      titleMultipleResources: 'Delete resources',
+      titleSingleResource: 'Delete resource',
+      confirmationQuestionOneResource:
+        'Are you sure you want to delete this resource from your device?',
+      confirmationQuestionMultipleResources:
+        'Are you sure you want to delete these resources from your device?',
       deleteEverywhereLabel: 'Also delete any copies found in other locations and channels',
+      deleteEverywhereExplanationOneResource:
+        'Some copies of this resource may be in other locations on your device',
+      deleteEverywhereExplanationMultipleResources:
+        'Some copies of these resources may be in other locations on your device',
     },
   };
 

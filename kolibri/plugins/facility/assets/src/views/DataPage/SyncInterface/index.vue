@@ -153,7 +153,7 @@
     $trs: {
       syncData: 'Sync facility data',
       access:
-        'This is an experimental feature. You can use it if you have access to register to the Kolibri Data Portal.',
+        'This is an experimental feature. You can use it if you have access to the Kolibri Data Portal.',
       learnMore: 'Usage and privacy',
       facility: 'Facility',
       register: 'Register',

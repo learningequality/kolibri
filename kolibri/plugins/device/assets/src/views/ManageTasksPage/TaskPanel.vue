@@ -1,6 +1,6 @@
 <template>
 
-  <div class="task-panel">
+  <div class="task-panel" :class="{'task-panel-sm': windowIsSmall}">
     <div class="icon">
       <transition mode="out-in">
         <KIcon
@@ -42,7 +42,7 @@
           :style="{backgroundColor: $themeTokens.fineLine}"
         />
         <span class="details-percentage">
-          {{ percentageText }}
+          {{ $tr('progressPercentage', { progress: task.percentage }) }}
         </span>
       </div>
       <p v-if="sizeText" class="details-size">
@@ -72,62 +72,64 @@
   // Displays a single Task and its metadata, and provides buttons
   // to cancel or clear it.
 
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
+  import { taskIsClearable, TaskStatuses, TaskTypes } from '../../constants';
+
   const typeToTrMap = {
-    REMOTECHANNELIMPORT: 'generatingChannelListing',
-    DISKCHANNELIMPORT: 'generatingChannelListing',
-    REMOTECONTENTIMPORT: 'importingChannel',
-    DISKCONTENTIMPORT: 'importingChannel',
-    DISKEXPORT: 'exportingChannel',
-    DELETECHANNEL: 'deletingChannel',
-    UPDATECHANNEL: 'updatingChannelVersion',
+    [TaskTypes.REMOTECHANNELIMPORT]: 'generatingChannelListing',
+    [TaskTypes.DISKCHANNELIMPORT]: 'generatingChannelListing',
+    [TaskTypes.REMOTECONTENTIMPORT]: 'importChannelPartial',
+    [TaskTypes.DISKCONTENTIMPORT]: 'importChannelPartial',
+    [TaskTypes.REMOTEIMPORT]: 'importChannelWhole',
+    [TaskTypes.DISKIMPORT]: 'importChannelWhole',
+    [TaskTypes.DISKEXPORT]: 'exportChannelWhole',
+    [TaskTypes.DISKCONTENTEXPORT]: 'exportChannelPartial',
+    [TaskTypes.DELETECHANNEL]: 'deleteChannelWhole',
+    [TaskTypes.DELETECONTENT]: 'deleteChannelPartial',
+    [TaskTypes.UPDATECHANNEL]: 'updatingChannelVersion',
   };
 
   const statusToTrMap = {
-    COMPLETED: 'statusComplete',
-    FAILED: 'statusFailed',
-    RUNNING: 'statusInProgress',
-    QUEUED: 'statusInQueue',
-    CANCELED: 'statusCanceled',
-    CANCELING: 'statusCanceling',
+    [TaskStatuses.COMPLETED]: 'statusComplete',
+    [TaskStatuses.FAILED]: 'statusFailed',
+    [TaskStatuses.RUNNING]: 'statusInProgress',
+    [TaskStatuses.QUEUED]: 'statusInQueue',
+    [TaskStatuses.CANCELED]: 'statusCanceled',
+    [TaskStatuses.CANCELING]: 'statusCanceling',
   };
 
   export default {
     name: 'TaskPanel',
-    components: {},
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       task: {
         type: Object,
         required: true,
-        default() {
-          return {};
-        },
       },
     },
     computed: {
       buttonLabel() {
-        if (this.taskIsCompleted || this.taskIsFailed) {
+        if (taskIsClearable(this.task)) {
           return this.coreString('clearAction');
         }
         return this.coreString('cancelAction');
       },
-      percentageText() {
-        return (this.task.percentage * 100).toFixed(2) + '%';
-      },
       taskIsRunning() {
-        return this.task.status === 'RUNNING';
+        return this.task.status === TaskStatuses.RUNNING;
       },
       taskIsCompleted() {
-        return this.task.status === 'COMPLETED';
+        return this.task.status === TaskStatuses.COMPLETED;
       },
       taskIsCanceling() {
-        return this.task.status === 'CANCELING';
+        return this.task.status === TaskStatuses.CANCELING;
       },
       taskIsFailed() {
-        return this.task.status === 'FAILED' || this.task.status === 'CANCELED';
+        return (
+          this.task.status === TaskStatuses.FAILED || this.task.status === TaskStatuses.CANCELED
+        );
       },
       descriptionText() {
         const trName = typeToTrMap[this.task.type];
@@ -166,21 +168,26 @@
     },
     $trs: {
       startedByUser: `Started by '{user}'`,
-      numResourcesAndSize: '{numResources} resources ({bytesText})',
+      numResourcesAndSize:
+        '{numResources} {numResources, plural, one {resource} other {resources}} ({bytesText})',
       statusInProgress: 'In-progress',
       statusInQueue: 'Waiting',
-      statusComplete: 'Complete',
+      statusComplete: 'Finished',
       statusFailed: 'Failed',
       statusCanceled: 'Canceled',
       statusCanceling: 'Canceling',
-      importingChannel: 'Importing {channelName}',
-      exportingChannel: 'Exporting {channelName}',
-      deletingChannel: 'Deleting {channelName}',
-      generatingChannelListing: 'Generating channel listing - {channelName}',
-      updatingChannelVersion: 'Updating channel version - { channelName }',
+      importChannelWhole: `Import '{channelName}'`,
+      importChannelPartial: `Import resources from '{channelName}'`,
+      exportChannelWhole: `Export '{channelName}'`,
+      exportChannelPartial: `Export resources from '{channelName}'`,
+      deleteChannelWhole: `Delete '{channelName}'`,
+      deleteChannelPartial: `Delete resources from '{channelName}'`,
+      generatingChannelListing: `Generating channel listing - '{channelName}'`,
+      updatingChannelVersion: `Update {channelName} to version {newVersion}`,
       // Catch-all strings if the channel or username doesn't get attached to Task
       unknownUsername: 'Unknown user',
       unknownChannelName: '(Channel name unavailable)',
+      progressPercentage: '{progress, number, percent}',
     },
   };
 
@@ -200,6 +207,10 @@
 
   .icon {
     padding: 0 16px;
+
+    .task-panel-sm & {
+      align-self: flex-start;
+    }
   }
 
   .icon svg {
@@ -210,6 +221,10 @@
   .task-panel {
     display: flex;
     align-items: center;
+  }
+
+  .task-panel-sm {
+    flex-direction: column;
   }
 
   .details {
@@ -225,7 +240,7 @@
     display: flex;
     align-items: center;
     max-width: 450px;
-    margin-bottom: 32px;
+    margin-bottom: 16px;
   }
 
   // CSS overrides for linear loader
@@ -252,6 +267,12 @@
 
   .details-startedby {
     font-size: $fs0;
+  }
+
+  .buttons {
+    .task-panel-sm & {
+      align-self: flex-end;
+    }
   }
 
   .buttons-lift {

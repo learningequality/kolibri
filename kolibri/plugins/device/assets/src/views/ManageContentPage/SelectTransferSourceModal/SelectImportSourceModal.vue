@@ -6,8 +6,8 @@
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
     :submitDisabled="formIsDisabled"
-    @submit="goForward"
-    @cancel="resetContentWizardState"
+    @submit="handleSubmit"
+    @cancel="handleCancel"
   >
     <UiAlert
       v-if="formIsDisabled && !initialDelay"
@@ -87,9 +87,20 @@
       ...mapMutations('manageContent/wizard', {
         resetContentWizardState: 'RESET_STATE',
       }),
-      goForward() {
+      handleSubmit() {
         if (!this.formIsDisabled) {
-          this.goForwardFromSelectImportSourceModal(this.source);
+          if (this.$attrs.manageMode) {
+            this.$emit('submit', { source: this.source });
+          } else {
+            this.goForwardFromSelectImportSourceModal(this.source);
+          }
+        }
+      },
+      handleCancel() {
+        if (this.$attrs.manageMode) {
+          this.$emit('cancel');
+        } else {
+          this.resetContentWizardState();
         }
       },
     },
@@ -100,11 +111,11 @@
       selectLocalRemoteSourceTitle: 'Select a source',
       loadingMessage: 'Loading connections…',
       studioDescription:
-        "Import content channels from Learning Equality's library if you are connected to the internet",
+        "Import resources from Learning Equality's library if you are connected to the internet",
       networkDescription:
-        'Import content channels from Kolibri running on another device, either in the same local network or on the internet',
+        'Import resources from another instance of Kolibri running on another device, either in the same local network or on the internet',
       localDescription:
-        'Import content channels from a drive. Channels must first be exported onto the drive from another Kolibri device with existing content',
+        'Import resources from a drive. Channels must have first been exported onto the drive from another instance of Kolibri',
     },
   };
 

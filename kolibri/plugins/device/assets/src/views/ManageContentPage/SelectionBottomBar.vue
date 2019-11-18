@@ -1,13 +1,37 @@
 <template>
 
   <BottomAppBar>
-    <span class="message">{{ selectedMessage }}</span>
-    <KButton
-      :disabled="selectedObjects.length === 0"
-      :text="confirmButtonLabel"
-      :primary="true"
-      @click="$emit('clickconfirm')"
-    />
+    <div
+      class="selection-bottom-bar"
+      :class="{'selection-bottom-bar-sm': windowIsSmall}"
+    >
+      <span class="message">{{ selectedMessage }}</span>
+
+      <div>
+        <template v-if="actionType === 'manage'">
+          <KButton
+            :disabled="$attrs.disabled || buttonsDisabled"
+            :text="coreString('deleteAction')"
+            :primary="false"
+            @click="$emit('selectoption', 'DELETE')"
+          />
+          <KButton
+            :disabled="$attrs.disabled || buttonsDisabled"
+            :text="$tr('exportAction')"
+            :primary="true"
+            @click="$emit('selectoption', 'EXPORT')"
+          />
+        </template>
+
+        <KButton
+          v-else
+          :disabled="$attrs.disabled || buttonsDisabled"
+          :text="confirmButtonLabel"
+          :primary="true"
+          @click="$emit('clickconfirm')"
+        />
+      </div>
+    </div>
   </BottomAppBar>
 
 </template>
@@ -16,8 +40,10 @@
 <script>
 
   import sumBy from 'lodash/sumBy';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   // Shows a 'EXPORT', 'IMPORT', or 'DELETE' button next to a message
   // of how many items are selected plus their size.
@@ -26,11 +52,20 @@
     components: {
       BottomAppBar,
     },
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
+      // TODO remove this and only pass in resourceCounts object
       selectedObjects: {
         type: Array,
         default() {
           return [];
+        },
+      },
+      resourceCounts: {
+        type: Object,
+        required: false,
+        validator(value) {
+          return typeof value.count === 'number' && typeof value.fileSize === 'number';
         },
       },
       objectType: {
@@ -42,7 +77,9 @@
       actionType: {
         type: String,
         validator(value) {
-          return value === 'import' || value === 'export' || value === 'delete';
+          return (
+            value === 'import' || value === 'export' || value === 'delete' || value === 'manage'
+          );
         },
       },
     },
@@ -53,6 +90,13 @@
           export: this.$tr('exportAction'),
           delete: this.$tr('deleteAction'),
         }[this.actionType];
+      },
+      buttonsDisabled() {
+        if (this.objectType === 'resource') {
+          return this.resourceCounts.count === 0;
+        } else {
+          return this.selectedObjects === 0;
+        }
       },
       selectedObjectsFileSize() {
         if (
@@ -72,20 +116,29 @@
         return bytesForHumans(this.selectedObjectsFileSize);
       },
       selectedMessage() {
-        const count = this.selectedObjects.length;
         const forChannels = this.objectType === 'channel';
-        if (count === 0) {
-          return this.objectType === 'channel'
-            ? this.$tr('zeroChannelsSelected')
-            : this.$tr('zeroResourcesSelected');
-        } else {
-          if (forChannels) {
-            return this.$tr('someChannelsSelected', {
+        if (forChannels) {
+          const count = this.selectedObjects.length;
+          if (count === 0) {
+            return this.$tr('channelsSelectedNoFileSize', { count: 0 });
+          } else if (!this.selectedObjectsFileSize) {
+            // NOTE: when importing from drive, file sizes aren't known for whole channels
+            return this.$tr('channelsSelectedNoFileSize', { count });
+          } else {
+            return this.$tr('channelsSelectedWithFileSize', {
               count,
               bytesText: this.bytesText,
             });
+          }
+        } else {
+          const { count, fileSize } = this.resourceCounts;
+          if (count === 0) {
+            return this.$tr('zeroResourcesSelected');
           } else {
-            return this.$tr('someResourcesSelected', { bytesText: '0', count });
+            return this.$tr('someResourcesSelected', {
+              bytesText: bytesForHumans(fileSize),
+              count,
+            });
           }
         }
       },
@@ -99,12 +152,9 @@
       importAction: 'Import',
       exportAction: 'Export',
       deleteAction: 'Delete',
-      /* eslint-disable */
-      deleteFromDeviceAction: 'Delete from device',
-      exportToAction: 'Export to…',
-      /* eslint-enable */
-      zeroChannelsSelected: '0 channels selected',
-      someChannelsSelected:
+      channelsSelectedNoFileSize:
+        '{count, number} {count, plural, one {channel} other {channels}} selected',
+      channelsSelectedWithFileSize:
         '{count} {count, plural, one {channel} other {channels}} selected ({bytesText})',
       zeroResourcesSelected: '0 resources selected',
       someResourcesSelected:
@@ -116,6 +166,20 @@
 
 
 <style lang="scss" scoped>
+
+  .selection-bottom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .selection-bottom-bar-sm {
+    flex-direction: column;
+
+    .message {
+      margin: 0;
+    }
+  }
 
   .message {
     margin-right: 32px;

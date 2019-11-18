@@ -1,6 +1,7 @@
 import atexit
 import logging
 import os
+import signal
 import sys
 import threading
 import time
@@ -72,6 +73,14 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
+def _cleanup_before_quitting(signum, frame):
+    from kolibri.core.discovery.utils.network.search import unregister_zeroconf_service
+
+    unregister_zeroconf_service()
+    signal.signal(signum, signal.SIG_DFL)
+    os.kill(os.getpid(), signum)
+
+
 def run_services(port):
 
     # Initialize the iceqube scheduler to handle scheduled tasks
@@ -111,6 +120,13 @@ def run_services(port):
     instance, _ = InstanceIDModel.get_or_create_current_instance()
     register_zeroconf_service(port=port, id=instance.id[:4])
 
+    try:
+        signal.signal(signal.SIGINT, _cleanup_before_quitting)
+        signal.signal(signal.SIGTERM, _cleanup_before_quitting)
+        logger.info("Added signal handlers for cleaning up on exit...")
+    except ValueError:
+        logger.warn("Error adding signal handlers for cleaning up on exit...")
+
 
 def _rm_pid_file():
     os.unlink(PID_FILE)
@@ -123,10 +139,11 @@ def start(port=8080, run_cherrypy=True):
     :param: port: Port number (default: 8080)
     """
 
-    run_services(port=port)
-
     # Write the new PID
+    # Note: to prevent a race condition on some setups, this needs to happen first
     _write_pid_file(PID_FILE, port=port)
+
+    run_services(port=port)
 
     atexit.register(_rm_pid_file)
 
@@ -143,10 +160,11 @@ def services(port=8080):
     Runs the background services.
     """
 
-    run_services(port=port)
-
     # Write the new PID
+    # Note: to prevent a race condition on some setups, this needs to happen first
     _write_pid_file(PID_FILE)
+
+    run_services(port=port)
 
     atexit.register(_rm_pid_file)
 
