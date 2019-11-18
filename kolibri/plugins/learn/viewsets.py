@@ -140,7 +140,7 @@ class LearnerClassroomViewset(ValuesViewset):
                     "closed": None,
                     "started": False,
                 }
-
+        out_items = []
         for item in items:
             item["assignments"] = {
                 "exams": [exam for exam in exams if exam["collection"] == item["id"]],
@@ -148,7 +148,8 @@ class LearnerClassroomViewset(ValuesViewset):
                     lesson for lesson in lessons if lesson["collection"] == item["id"]
                 ],
             }
-        return items
+            out_items.append(item)
+        return out_items
 
 
 def _map_lesson_classroom(item):
