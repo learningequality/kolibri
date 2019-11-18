@@ -21,7 +21,7 @@
       :text="$tr('clearCompletedAction')"
       @click="handleClickClearAll"
     />
-    <div class="task-panels">
+    <transition-group name="fade" class="task-panels">
       <TaskPanel
         v-for="task in sortedTaskList"
         :key="task.id"
@@ -31,7 +31,7 @@
         @clickclear="handleClickClear(task)"
         @clickcancel="handleClickCancel(task)"
       />
-    </div>
+    </transition-group>
   </div>
 
 </template>
@@ -96,7 +96,7 @@
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr('appBarTitle'));
       },
       handleClickClear(task) {
-        TaskResource.deleteFinishedTask({ task_id: task.id }).catch(() => {
+        TaskResource.deleteFinishedTask(task.id).catch(() => {
           // error silently
         });
       },
@@ -131,6 +131,16 @@
     &:last-of-type {
       border-bottom-style: none;
     }
+  }
+
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.5s;
   }
 
 </style>

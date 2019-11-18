@@ -15,7 +15,7 @@
       </KGridItem>
 
       <KGridItem
-        :layout12="{span: 4}"
+        :layout12="{span: buttonsGridSpan}"
         :layout4="{span: 4}"
         :layout="{alignment: 'right'}"
         class="buttons"
@@ -102,6 +102,9 @@
           export: this.$tr('exportAction'),
           delete: this.$tr('deleteAction'),
         }[this.actionType];
+      },
+      buttonsGridSpan() {
+        return this.actionType === 'manage' ? 4 : 2;
       },
       buttonsDisabled() {
         if (this.objectType === 'resource') {
