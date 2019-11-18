@@ -26,6 +26,8 @@
 
 <script>
 
+  import channelUpdateStrings from './channelUpdateStrings.js';
+
   export default {
     name: 'NewChannelVersionBanner',
     components: {},
@@ -35,8 +37,18 @@
         required: true,
       },
     },
+    computed: {
+      // Stubbed out
+      strings() {
+        return channelUpdateStrings;
+      },
+    },
     $trs: {
-      versionAvailable: 'Version {version} is available',
+      versionAvailable: {
+        message: 'Version {version} is available',
+        context:
+          '\nWhen a new version of the channel is available, this message alerts the user that they can update. ',
+      },
       viewChangesAction: 'View changes',
     },
   };
