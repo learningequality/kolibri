@@ -12,7 +12,7 @@
         <a href="#">{{ $tr('backToChannelsAction') }}</a>
       </p>
     </template>
-    <p v-if="!loading && taskList.length === 0">
+    <p v-if="!loading && taskList.length === 0" class="empty-tasks-message">
       {{ $tr('emptyTasksMessage') }}
     </p>
 
@@ -26,6 +26,8 @@
         v-for="task in sortedTaskList"
         :key="task.id"
         :task="task"
+        class="task-panel"
+        :style="{ borderBottomColor: $themePalette.grey.v_200 }"
         @clickclear="handleClickClear(task)"
         @clickcancel="handleClickCancel(task)"
       />
@@ -120,8 +122,15 @@
 <style lang="scss" scoped>
 
   .task-panels {
-    max-width: 780px;
     margin-top: 32px;
+  }
+
+  .task-panel {
+    border-bottom: 1px solid;
+
+    &:last-of-type {
+      border-bottom-style: none;
+    }
   }
 
 </style>
