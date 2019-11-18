@@ -68,7 +68,7 @@
       </div>
     </template>
 
-    <template>
+    <template v-if="false">
       {{ $tr('searchingText') }}
     </template>
 
