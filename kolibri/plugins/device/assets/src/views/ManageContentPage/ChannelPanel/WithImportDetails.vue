@@ -162,7 +162,10 @@
     $trs: {
       onYourDevice: 'Resources on device',
       selectResourcesAction: 'Select resources',
-      newLabel: 'New',
+      newLabel: {
+        message: 'New',
+        context: '\nIndicator that channel was recently updated, imported, and unlocked',
+      },
       unlistedChannelTooltip: 'Unlisted channel',
       newVersionMessage: 'New version available',
       moreInformationLabel: 'More information',

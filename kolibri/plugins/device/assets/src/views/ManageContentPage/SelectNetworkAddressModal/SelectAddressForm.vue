@@ -257,7 +257,11 @@
       noAddressText: 'There are no addresses yet',
       refreshAddressesButtonLabel: 'Refresh addresses',
       peerDeviceName: 'Local Kolibri ({ identifier })',
-      searchingText: 'Searching',
+      searchingText: {
+        message: 'Searching',
+        context:
+          '\nKolibri will search for nearby Kolibri devices every so often. While doing so, this text will be presented to the user',
+      },
     },
   };
 

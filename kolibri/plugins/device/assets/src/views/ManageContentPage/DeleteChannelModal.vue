@@ -52,8 +52,10 @@
       confirmationQuestion: `Are you sure you want to delete '{channelTitle}' from your device?`,
       confirmationQuestionOneChannel:
         'Are you sure you want to delete this channel from your device?',
-      confirmationQuestionMultipleChannels:
-        'Are you sure you want to delete these channels from your device?',
+      confirmationQuestionMultipleChannels: {
+        message: 'Are you sure you want to delete these channels from your device?',
+        context: '\nA confirmation that appears when a user tries to delete multiple channels',
+      },
       titleSingleChannel: 'Delete channel',
       titleMultipleChannels: 'Delete channels',
     },
