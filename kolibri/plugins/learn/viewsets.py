@@ -5,18 +5,13 @@ from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models import Sum
-from django.db.models.query import F
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
-from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import Classroom
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
-from kolibri.core.lessons.models import LessonAssignment
-from kolibri.core.lessons.serializers import LessonSerializer
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
@@ -156,21 +151,43 @@ class LearnerClassroomViewset(ValuesViewset):
         return items
 
 
-class LearnerLessonViewset(ReadOnlyModelViewSet):
+def _map_lesson_classroom(item):
+    return {
+        "id": item.pop("collection__id"),
+        "name": item.pop("collection__name"),
+        "parent": item.pop("collection__parent_id"),
+    }
+
+
+class LearnerLessonViewset(ValuesViewset):
     """
     Special Viewset for Learners to view Lessons to which they are assigned.
     The core Lesson Viewset is locked down to Admin users only.
     """
 
-    serializer_class = LessonSerializer
     permission_classes = (IsAuthenticated,)
 
+    read_only = True
+
+    values = (
+        "id",
+        "title",
+        "description",
+        "resources",
+        "is_active",
+        "collection",
+        "collection__id",
+        "collection__name",
+        "collection__parent_id",
+    )
+
+    field_map = {
+        "classroom": _map_lesson_classroom,
+        "resources": lambda x: json.loads(x["resources"]),
+    }
+
     def get_queryset(self):
-        assignments = HierarchyRelationsFilter(
-            LessonAssignment.objects.all()
-        ).filter_by_hierarchy(
-            target_user=self.request.user, ancestor_collection=F("collection")
-        )
         return Lesson.objects.filter(
-            lesson_assignments__in=assignments, is_active=True
-        ).distinct()
+            lesson_assignments__collection__membership__user=self.request.user,
+            is_active=True,
+        )
