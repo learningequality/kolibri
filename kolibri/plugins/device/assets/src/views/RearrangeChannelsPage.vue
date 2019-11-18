@@ -14,7 +14,11 @@
         <transition-group tag="div" name="list" class="wrapper">
           <Draggable v-for="(channel, index) in channels" :key="channel.id">
             <DragHandle>
-              <div :class="$computedClass(itemClass)" class="item">
+              <div
+                :class="$computedClass(itemClass)"
+                class="item"
+                :style="{ backgroundColor: $themeTokens.surface }"
+              >
                 <DragSortWidget
                   class="sort-widget"
                   :moveUpText="$tr('upLabel', { name: channel.name })"
