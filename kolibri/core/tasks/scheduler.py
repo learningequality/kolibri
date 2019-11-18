@@ -121,8 +121,8 @@ class Scheduler(StorageMixin):
             self._schedule_checker = self.start_schedule_checker()
 
     def shutdown_scheduler(self):
-        if self._scheduler_checker:
-            self._scheduler_checker.stop()
+        if self._schedule_checker:
+            self._schedule_checker.stop()
 
     def enqueue_at(self, dt, func, *args, **kwargs):
         """

@@ -1,4 +1,3 @@
-import atexit
 import os
 
 from sqlalchemy import create_engine
@@ -63,5 +62,4 @@ scheduler = Scheduler(queue=queue, connection=connection)
 
 
 def initialize_worker():
-    worker = Worker(app, connection=connection, num_workers=1)
-    atexit.register(worker.shutdown)
+    return Worker(app, connection=connection, num_workers=1)
