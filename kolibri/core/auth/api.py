@@ -378,7 +378,8 @@ class ClassroomViewSet(ValuesViewset):
 
 def _process_user_ids(item):
     if connection.vendor == "postgresql" and ArrayAgg is not None:
-        return item["user_ids"]
+        # Filter out null values
+        return list(filter(lambda x: x, item["user_ids"]))
     return item["user_ids"].split(",") if item["user_ids"] else []
 
 

@@ -192,7 +192,10 @@ def serialize_exam_status(queryset):
 
 
 def _split_member_ids(item):
-    if not (connection.vendor == "postgresql" and ArrayAgg is not None):
+    if connection.vendor == "postgresql" and ArrayAgg is not None:
+        # Filter out null values
+        item["member_ids"] = list(filter(lambda x: x, item["member_ids"]))
+    else:
         item["member_ids"] = item["member_ids"].split(",") if item["member_ids"] else []
     return item
 
