@@ -334,9 +334,6 @@ class ClassroomViewSet(ValuesViewset):
         "role__user__devicepermissions__is_superuser",
         "role__user__full_name",
         "role__user__username",
-        "role__user__birth_year",
-        "role__user__gender",
-        "role__user__id_number",
         "role__kind",
     )
 
@@ -362,9 +359,6 @@ class ClassroomViewSet(ValuesViewset):
                     ),
                     "full_name": item.pop("role__user__full_name"),
                     "username": item.pop("role__user__username"),
-                    "birth_year": item.pop("role__user__birth_year"),
-                    "gender": item.pop("role__user__gender"),
-                    "id_number": item.pop("role__user__id_number"),
                     "roles": [
                         {"collection": item["id"], "kind": item.pop("role__kind")}
                     ],
