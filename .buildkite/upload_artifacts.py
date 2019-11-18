@@ -100,6 +100,7 @@ file_manifest = {
 
 file_order = [
     "deb",
+    "dmg",
     "unsigned-exe",
     "signed-exe",
     # 'apk',
