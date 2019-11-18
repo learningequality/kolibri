@@ -1,13 +1,25 @@
 <template>
 
   <BottomAppBar>
-    <div
+    <KGrid
       class="selection-bottom-bar"
       :class="{'selection-bottom-bar-sm': windowIsSmall}"
     >
-      <span class="message">{{ selectedMessage }}</span>
+      <KGridItem
+        :layout12="{span: 8}"
+        :layout4="{span: 4}"
+        :layout="{alignment: 'right'}"
+        class="message"
+      >
+        <span>{{ selectedMessage }}</span>
+      </KGridItem>
 
-      <div>
+      <KGridItem
+        :layout12="{span: 4}"
+        :layout4="{span: 4}"
+        :layout="{alignment: 'right'}"
+        class="buttons"
+      >
         <template v-if="actionType === 'manage'">
           <KButton
             :disabled="$attrs.disabled || buttonsDisabled"
@@ -30,8 +42,8 @@
           :primary="true"
           @click="$emit('clickconfirm')"
         />
-      </div>
-    </div>
+      </KGridItem>
+    </KGrid>
   </BottomAppBar>
 
 </template>
@@ -167,22 +179,20 @@
 
 <style lang="scss" scoped>
 
-  .selection-bottom-bar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+  .message {
+    margin: auto;
   }
 
-  .selection-bottom-bar-sm {
-    flex-direction: column;
-
-    .message {
-      margin: 0;
+  .buttons {
+    .selection-bottom-bar-sm & {
+      margin-right: 0;
     }
   }
 
-  .message {
-    margin-right: 32px;
+  .selection-bottom-bar-sm {
+    button:last-of-type {
+      margin-right: 0;
+    }
   }
 
 </style>
