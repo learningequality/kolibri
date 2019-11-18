@@ -4,6 +4,13 @@
     class="new-version-banner"
     :style="{backgroundColor: $themePalette.lightblue.v_100}"
   >
+    <!-- stubs -->
+    <template v-if="false">
+      <UpdateChannelModal />
+      <NewChannelVersionPage />
+      {{ strings }}
+    </template>
+    <!-- end stubs -->
     <span class="version">
       <KIcon
         class="icon"
@@ -27,10 +34,15 @@
 <script>
 
   import channelUpdateStrings from './channelUpdateStrings.js';
+  import UpdateChannelModal from './UpdateChannelModal';
+  import NewChannelVersionPage from './NewChannelVersionPage';
 
   export default {
     name: 'NewChannelVersionBanner',
-    components: {},
+    components: {
+      UpdateChannelModal,
+      NewChannelVersionPage,
+    },
     props: {
       version: {
         type: Number,
