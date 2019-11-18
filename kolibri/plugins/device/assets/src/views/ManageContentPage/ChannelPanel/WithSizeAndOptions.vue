@@ -20,6 +20,7 @@
         :text="coreString('optionsLabel')"
         :disabled="disabled"
         :options="dropdownOptions"
+        :position="dropdownPosition"
         @select="handleManageChannelAction($event.value)"
       />
     </div>
@@ -53,12 +54,14 @@
         default: false,
       },
     },
-    data() {
-      return {};
-    },
     computed: {
       resourcesSizeText() {
         return bytesForHumans(this.channel.on_device_file_size);
+      },
+      dropdownPosition() {
+        // On small screens, position to the left so it doesn't overflow the
+        // window and mess up the global layout.
+        return this.windowIsSmall ? 'bottom left' : 'bottom right';
       },
       dropdownOptions() {
         return [
