@@ -1,5 +1,6 @@
 import json
 
+from django.db import connection
 from django.db.models import CharField
 from django.db.models import Count
 from django.db.models import F
@@ -8,12 +9,6 @@ from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models import Sum
-
-try:
-    from django.contrib.postgres.aggregates import ArrayAgg
-except ImportError:
-    ArrayAgg = None
-from django.db import connection
 from django.shortcuts import get_object_or_404
 from le_utils.constants import content_kinds
 from rest_framework import permissions
@@ -30,6 +25,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger import models as logger_models
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
+from kolibri.core.query import ArrayAgg
 from kolibri.core.query import GroupConcat
 
 

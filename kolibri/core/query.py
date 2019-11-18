@@ -2,6 +2,11 @@ from django.db.models import Aggregate
 from django.db.models import IntegerField
 from django.db.models import Subquery
 
+try:
+    from django.contrib.postgres.aggregates import ArrayAgg
+except ImportError:
+    ArrayAgg = None
+
 
 class SQCount(Subquery):
     # Include ALIAS at the end to support Postgres

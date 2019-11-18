@@ -10,11 +10,6 @@ from django.contrib.auth import login
 from django.contrib.auth import logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
-
-try:
-    from django.contrib.postgres.aggregates import ArrayAgg
-except ImportError:
-    ArrayAgg = None
 from django.db import connection
 from django.db import transaction
 from django.db.models import CharField
@@ -58,6 +53,7 @@ from kolibri.core.api import ValuesViewset
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
+from kolibri.core.query import ArrayAgg
 from kolibri.core.query import GroupConcat
 from kolibri.core.query import SQCount
 
