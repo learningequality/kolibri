@@ -80,6 +80,7 @@ class ValuesViewset(viewsets.ModelViewSet):
 
     def _serialize_queryset(self, queryset):
         queryset = self.annotate_queryset(queryset)
+        self.queryset = queryset
         return queryset.values(*self._values)
 
     def serialize(self, queryset):
