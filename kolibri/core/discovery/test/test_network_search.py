@@ -21,6 +21,7 @@ from ..utils.network.search import ZEROCONF_STATE
 MOCK_INTERFACE_IP = "111.222.111.222"
 MOCK_PORT = 555
 MOCK_ID = "abba"
+MOCK_PROPERTIES = {b"version": '[0, 13, 0, "alpha", 0]'}
 
 
 class MockServiceBrowser(object):
@@ -48,8 +49,9 @@ class MockZeroconf(Zeroconf):
             server=".".join([id, LOCAL_DOMAIN, ""]),
             address=socket.inet_aton(MOCK_INTERFACE_IP),
             port=MOCK_PORT,
-            properties={"facilities": "[]", "channels": "[]"},
+            properties=MOCK_PROPERTIES,
         )
+
         return info
 
     def add_service_listener(self, type_, listener):
@@ -114,7 +116,7 @@ class TestNetworkSearch(TestCase):
                 "self": True,
                 "port": MOCK_PORT,
                 "host": ".".join([MOCK_ID, LOCAL_DOMAIN]),
-                "data": {"facilities": [], "channels": []},
+                "data": {"version": [0, 13, 0, "alpha", 0]},
                 "base_url": "http://{ip}:{port}/".format(
                     ip=MOCK_INTERFACE_IP, port=MOCK_PORT
                 ),
