@@ -81,7 +81,7 @@
   import SelectionBottomBar from '../SelectionBottomBar';
   import SelectTransferSourceModal from '../SelectTransferSourceModal';
   import taskNotificationMixin from '../../taskNotificationMixin';
-  import { ContentSources, PageNames, TaskTypes } from '../../../constants';
+  import { ContentSources, PageNames, TaskTypes, TransferTypes } from '../../../constants';
 
   import { fetchPageData, fetchNodeWithAncestors, startExportTask, startDeleteTask } from './api';
 
@@ -183,7 +183,10 @@
         if (studioChannel) {
           this.studioChannel = { ...studioChannel };
         }
+        // These need to be set for setImportExportFileSizeAndResourceCount to work
         this.$store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', this.channel);
+        this.$store.commit('manageContent/wizard/SET_TRANSFER_TYPE', TransferTypes.LOCALEXPORT);
+
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.title);
         return this.updateNode(this.$route.query.node || channel.root);
       },
