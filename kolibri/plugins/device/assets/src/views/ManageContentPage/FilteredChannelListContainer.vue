@@ -1,32 +1,30 @@
 <template>
 
   <div :class="{'fclc-sm': !windowIsLarge}">
+    <slot name="header"></slot>
     <KGrid class="top-panel">
-      <KGridItem :layout12="{span: 4}">
-        <slot name="header"></slot>
+      <template v-if="channels.length > 0">
+        <KGridItem :layout12="{span: 4}">
+          <KSelect
+            v-model="languageFilter"
+            class="filter-lang"
+            :options="languageFilterOptions"
+            :label="$tr('languageFilterLabel')"
+            :inline="true"
+          />
+        </KGridItem>
+        <KGridItem :layout12="{span: 5}" class="filter-title">
+          <FilterTextbox
+            v-model="titleFilter"
+            :placeholder="$tr('titleFilterPlaceholder')"
+            :throttleInput="500"
+          />
+        </KGridItem>
+      </template>
+      <KGridItem :layout12="{span: 3}">
         <p class="count-msg" data-test="available">
           {{ channelsCountMsg }}
         </p>
-      </KGridItem>
-      <KGridItem v-if="channels.length > 0" :layout12="{span: 8}" class="filters">
-        <KGrid>
-          <KGridItem :layout12="{span: 6}">
-            <KSelect
-              v-model="languageFilter"
-              class="filter-lang"
-              :options="languageFilterOptions"
-              :label="$tr('languageFilterLabel')"
-              :inline="true"
-            />
-          </KGridItem>
-          <KGridItem :layout12="{span: 6}" class="filter-title">
-            <FilterTextbox
-              v-model="titleFilter"
-              :placeholder="$tr('titleFilterPlaceholder')"
-              :throttleInput="500"
-            />
-          </KGridItem>
-        </KGrid>
       </KGridItem>
     </KGrid>
 
@@ -202,16 +200,10 @@
     }
   }
 
-  .filters {
-    margin: auto;
-
-    .fclc-sm & {
-      margin-left: 0;
-    }
-  }
-
   .filter-lang {
+    width: 100%;
     min-width: 240px;
+    max-width: 300px;
   }
 
   .filter-title {
