@@ -43,7 +43,12 @@
 
       </div>
 
-      <slot v-if="$slots.default"></slot>
+      <div
+        v-if="!label && $slots.default"
+        class="k-checkbox-label"
+      >
+        <slot></slot>
+      </div>
 
       <label
         v-else-if="label && !$slots.default"
