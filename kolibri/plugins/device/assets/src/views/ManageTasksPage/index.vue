@@ -12,7 +12,7 @@
         <a href="#">{{ $tr('backToChannelsAction') }}</a>
       </p>
     </template>
-    <p v-if="!loading && managedTasks.length === 0">
+    <p v-if="!loading && managedTasks.length === 0" class="empty-tasks-message">
       {{ $tr('emptyTasksMessage') }}
     </p>
 
@@ -21,15 +21,17 @@
       :text="$tr('clearCompletedAction')"
       @click="handleClickClearAll"
     />
-    <div class="task-panels">
+    <transition-group name="fade" class="task-panels">
       <TaskPanel
         v-for="task in sortedTaskList"
         :key="task.id"
         :task="task"
+        class="task-panel"
+        :style="{ borderBottomColor: $themePalette.grey.v_200 }"
         @clickclear="handleClickClear(task)"
         @clickcancel="handleClickCancel(task)"
       />
-    </div>
+    </transition-group>
   </div>
 
 </template>
@@ -94,7 +96,7 @@
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr('appBarTitle'));
       },
       handleClickClear(task) {
-        TaskResource.deleteFinishedTask({ task_id: task.id }).catch(() => {
+        TaskResource.deleteFinishedTask(task.id).catch(() => {
           // error silently
         });
       },
@@ -120,8 +122,25 @@
 <style lang="scss" scoped>
 
   .task-panels {
-    max-width: 780px;
     margin-top: 32px;
+  }
+
+  .task-panel {
+    border-bottom: 1px solid;
+
+    &:last-of-type {
+      border-bottom-style: none;
+    }
+  }
+
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.5s;
   }
 
 </style>

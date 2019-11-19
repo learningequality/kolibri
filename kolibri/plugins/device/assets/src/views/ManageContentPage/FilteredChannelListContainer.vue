@@ -1,29 +1,34 @@
 <template>
 
-  <div :class="{small: !windowIsLarge}">
-
-    <slot name="header"></slot>
-
-    <div class="top-panel">
-      <p class="count-msg" data-test="available">
-        {{ channelsCountMsg }}
-      </p>
-      <div v-if="channels.length > 0" class="filters">
-        <KSelect
-          v-model="languageFilter"
-          class="filter-lang"
-          :options="languageFilterOptions"
-          :label="$tr('languageFilterLabel')"
-          :inline="true"
-        />
-        <FilterTextbox
-          v-model="titleFilter"
-          class="filter-title"
-          :placeholder="$tr('titleFilterPlaceholder')"
-          :throttleInput="500"
-        />
-      </div>
-    </div>
+  <div :class="{'fclc-sm': !windowIsLarge}">
+    <KGrid class="top-panel">
+      <KGridItem :layout12="{span: 4}">
+        <slot name="header"></slot>
+        <p class="count-msg" data-test="available">
+          {{ channelsCountMsg }}
+        </p>
+      </KGridItem>
+      <KGridItem v-if="channels.length > 0" :layout12="{span: 8}" class="filters">
+        <KGrid>
+          <KGridItem :layout12="{span: 6}">
+            <KSelect
+              v-model="languageFilter"
+              class="filter-lang"
+              :options="languageFilterOptions"
+              :label="$tr('languageFilterLabel')"
+              :inline="true"
+            />
+          </KGridItem>
+          <KGridItem :layout12="{span: 6}" class="filter-title">
+            <FilterTextbox
+              v-model="titleFilter"
+              :placeholder="$tr('titleFilterPlaceholder')"
+              :throttleInput="500"
+            />
+          </KGridItem>
+        </KGrid>
+      </KGridItem>
+    </KGrid>
 
     <slot name="abovechannels"></slot>
 
@@ -190,23 +195,19 @@
 <style lang="scss" scoped>
 
   .top-panel {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
     margin-bottom: 24px;
-  }
 
-  .count-msg {
-    flex-grow: 1;
-    max-width: 200px;
-    margin: 0;
+    .fclc-sm & {
+      margin-bottom: 8px;
+    }
   }
 
   .filters {
-    display: flex;
-    flex-grow: 1;
-    flex-wrap: wrap;
-    margin-left: 16px;
+    margin: auto;
+
+    .fclc-sm & {
+      margin-left: 0;
+    }
   }
 
   .filter-lang {
@@ -214,28 +215,10 @@
   }
 
   .filter-title {
-    flex-grow: 1;
-    width: auto;
-  }
+    padding-top: 8px;
 
-  .small {
-    .top-panel {
-      flex-direction: column;
+    .fclc-sm & {
       margin-bottom: 8px;
-    }
-
-    .filters {
-      align-self: stretch;
-      margin-left: 0;
-    }
-
-    .filter-title {
-      width: 100%;
-    }
-
-    .count-msg {
-      order: 1;
-      margin: 16px 0;
     }
   }
 

@@ -19,6 +19,7 @@
             v-if="channelsAreInstalled"
             appearance="raised-button"
             :text="coreString('optionsLabel')"
+            position="bottom left"
             :options="dropdownOptions"
             @select="handleSelect"
           />

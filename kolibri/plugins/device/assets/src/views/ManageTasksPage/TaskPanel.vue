@@ -225,11 +225,19 @@
 
   .task-panel-sm {
     flex-direction: column;
+    padding-top: 16px;
+    padding-bottom: 16px;
   }
 
   .details {
     flex-grow: 1;
+    width: 100%;
     padding: 16px;
+
+    .task-panel-sm & {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
   }
 
   .details-description {
