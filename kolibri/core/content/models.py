@@ -96,6 +96,9 @@ class ContentNode(base_models.ContentNode):
     # Fields used only on Kolibri and not imported from a content database
     # Total number of coach only resources for this node
     num_coach_contents = models.IntegerField(default=0, null=True, blank=True)
+    # Total number of available resources on the device under this topic - if this is not a topic
+    # then it is 1 or 0 depending on availability
+    on_device_resources = models.IntegerField(default=0, null=True, blank=True)
 
     objects = ContentNodeManager()
 

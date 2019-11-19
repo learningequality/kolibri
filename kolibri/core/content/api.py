@@ -39,6 +39,16 @@ from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
+from kolibri.core.content.utils.file_availability import LocationError
+from kolibri.core.content.utils.importability_annotation import (
+    get_channel_stats_from_disk,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    get_channel_stats_from_peer,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    get_channel_stats_from_studio,
+)
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.stopwords import stopwords_set
@@ -801,11 +811,44 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
             .distinct()
         )
 
+    def get_serializer_context(self):
+        context = super(ContentNodeGranularViewset, self).get_serializer_context()
+        context.update({"channel_stats": self.channel_stats})
+        return context
+
     def retrieve(self, request, pk):
         queryset = self.get_queryset()
         instance = get_object_or_404(queryset, pk=pk)
+        channel_id = instance.channel_id
+        drive_id = self.request.query_params.get("importing_from_drive_id", None)
+        peer_id = self.request.query_params.get("importing_from_peer_id", None)
+        for_export = self.request.query_params.get("for_export", None)
+        flag_count = sum(int(bool(flag)) for flag in (drive_id, peer_id, for_export))
+        if flag_count > 1:
+            raise serializers.ValidationError(
+                "Must specify at most one of importing_from_drive_id, importing_from_peer_id, and for_export"
+            )
+        if not flag_count:
+            self.channel_stats = get_channel_stats_from_studio(channel_id)
+        if for_export:
+            self.channel_stats = None
+        if drive_id:
+            try:
+                self.channel_stats = get_channel_stats_from_disk(channel_id, drive_id)
+            except LocationError:
+                raise serializers.ValidationError(
+                    "The external drive with given drive id {} does not exist.".format(
+                        drive_id
+                    )
+                )
+        if peer_id:
+            try:
+                self.channel_stats = get_channel_stats_from_peer(channel_id, peer_id)
+            except LocationError:
+                raise serializers.ValidationError(
+                    "The network location with the id {} does not exist".format(peer_id)
+                )
         children = queryset.filter(parent=instance)
-
         parent_serializer = self.get_serializer(instance)
         parent_data = parent_serializer.data
         child_serializer = self.get_serializer(children, many=True)
@@ -950,29 +993,4 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         language = request.GET.get("language", None)
         return self._make_channel_endpoint_request(
             identifier=pk, baseurl=baseurl, keyword=keyword, language=language
-        )
-
-
-class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.ContentNodeGranularSerializer
-
-    def get_queryset(self):
-        return models.ContentNode.objects.all()
-
-    def retrieve(self, request, pk):
-        instance = self.get_object()
-        files = models.LocalFile.objects.filter(
-            files__contentnode__in=instance.get_descendants(include_self=True)
-        ).distinct()
-        total_file_size = files.aggregate(Sum("file_size"))["file_size__sum"] or 0
-        on_device_file_size = (
-            files.filter(available=True).aggregate(Sum("file_size"))["file_size__sum"]
-            or 0
-        )
-
-        return Response(
-            {
-                "total_file_size": total_file_size,
-                "on_device_file_size": on_device_file_size,
-            }
         )

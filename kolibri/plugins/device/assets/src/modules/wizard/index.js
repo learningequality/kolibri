@@ -17,6 +17,8 @@ function defaultState() {
     selectedDrive: {},
     selectedPeer: {},
     availableSpace: null,
+    transferFileSize: 0,
+    transferResourceCount: 0,
     transferredChannel: {},
     currentTopicNode: {},
     path: [],
@@ -98,6 +100,10 @@ export default {
     },
     SET_AVAILABLE_SPACE(state, space) {
       state.availableSpace = space;
+    },
+    SET_TRANSFER_SIZE(state, { transferFileSize, transferResourceCount }) {
+      state.transferFileSize = transferFileSize;
+      state.transferResourceCount = transferResourceCount;
     },
     SET_WIZARD_PAGENAME(state, pageName) {
       state.pageName = pageName;

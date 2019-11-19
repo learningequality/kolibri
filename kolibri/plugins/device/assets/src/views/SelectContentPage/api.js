@@ -12,8 +12,8 @@ export function startImportTask(params) {
   };
 
   if (importSource.type === 'peer' || importSource.type === 'studio') {
-    if (importSource.baseUrl) {
-      taskParams.base_url = importSource.baseUrl;
+    if (importSource.id) {
+      taskParams.peer_id = importSource.id;
     }
     return TaskResource.startRemoteContentImport(taskParams);
   } else if (importSource.type === 'drive') {

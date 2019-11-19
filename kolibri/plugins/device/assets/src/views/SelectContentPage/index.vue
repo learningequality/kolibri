@@ -57,7 +57,6 @@
         >
           {{ $tr('problemTransferringContents') }}
         </UiAlert>
-
         <ContentTreeViewer
           v-if="!newVersionAvailable"
           class="block-item"
@@ -70,7 +69,7 @@
       v-if="!newVersionAvailable"
       objectType="resource"
       actionType="import"
-      :resourceCounts="{count:nodeCounts.resources, fileSize:nodeCounts.fileSize}"
+      :resourceCounts="{count:transferResourceCount, fileSize:transferFileSize}"
       :disabled="disableBottomBar || newVersionAvailable"
       @clickconfirm="handleClickConfirm"
     />
@@ -131,7 +130,6 @@
       ...mapGetters('manageContent', ['channelIsInstalled']),
       ...mapState('manageContent', ['taskList']),
       ...mapGetters('manageContent/wizard', [
-        'nodeTransferCounts',
         'inLocalImportMode',
         'inPeerImportMode',
         'inRemoteImportMode',
@@ -141,8 +139,9 @@
         'selectedDrive',
         'selectedPeer',
         'status',
-        'transferType',
         'transferredChannel',
+        'transferFileSize',
+        'transferResourceCount',
       ]),
       channelId() {
         return this.$route.params.channel_id;
@@ -186,9 +185,6 @@
       },
       newVersionAvailable() {
         return this.availableVersions.source > this.availableVersions.installed;
-      },
-      nodeCounts() {
-        return this.nodeTransferCounts(this.transferType);
       },
     },
     watch: {
@@ -263,7 +259,7 @@
           }
           importSource = {
             type: 'peer',
-            baseUrl: this.selectedPeer.base_url,
+            id: this.selectedPeer.id,
           };
         } else if (this.inLocalImportMode) {
           if (!this.selectedDrive.id) {
@@ -286,8 +282,8 @@
           channelId: this.channelId,
           included: nodesForTransfer.included.map(x => x.id),
           excluded: nodesForTransfer.omitted.map(x => x.id),
-          fileSize: this.nodeCounts.fileSize,
-          totalResources: this.nodeCounts.resources,
+          fileSize: this.transferFileSize,
+          totalResources: this.transferResources,
         })
           .then(task => {
             this.disableBottomBar = false;
