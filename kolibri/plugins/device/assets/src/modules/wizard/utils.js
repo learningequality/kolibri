@@ -45,6 +45,7 @@ export function downloadChannelMetadata(store = coreStore) {
   } else {
     return Error('Channel Metadata is only downloaded when importing');
   }
+  store.commit('CORE_SET_PAGE_LOADING', false);
   promise = promise.catch(() => Promise.reject({ errorType: ErrorTypes.CONTENT_DB_LOADING_ERROR }));
 
   return promise
