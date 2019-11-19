@@ -22,3 +22,30 @@ How can I install this plugin?
     ``kolibri plugin kolibri_oidc_client_plugin enable``
 
 3. Restart Kolibri.
+
+Plugin configuration
+--------------------
+This plugin is based on the [Mozilla Django OIDC library](https://mozilla-django-oidc.readthedocs.io/en/stable/)
+The plugin has been set to work with a standard OpenID Connect provider, so most of the library options have already been set and are not optional.
+
+These are the only available settings to configure it:
+
+1.  The url for the OIDC provider. It can be set with one of these two methods:
+   - Adding in `$KOLIBRI_HOME/options.ini` a section:
+   ```
+   [OIDCClient]
+   PROVIDER_URL=url of the OIDC provider
+   ```
+   - This PROVIDER_URL option setting can also be supplied by exporting an environment variable
+     called `KOLIBRI_OIDC_CLIENT_URL`
+
+   If this setting is not configured, the plugin will use the default value  `http://127.0.0.1:5002/oauth`.
+
+
+2. Credentials to be authorized by the OIDC provider
+   In order to the client requests to be authorized by the OIDC provider, a client ID and a client password must be used. The values for this ID and password must have been provided by the OIDC server provider.
+   They must be set using these two environment variables:
+   `CLIENT_ID` and `CLIENT_SECRET`
+   If they are not set, this plugin use the value `kolibri.app` for both settings.
+
+
