@@ -1,7 +1,11 @@
 <template>
 
   <div :class="{'fclc-sm': !windowIsLarge}">
+
     <slot name="header"></slot>
+
+    <slot name="abovechannels"></slot>
+
     <KGrid class="top-panel">
       <template v-if="channels.length > 0">
         <KGridItem :layout12="{span: 4}">
@@ -27,8 +31,6 @@
         </p>
       </KGridItem>
     </KGrid>
-
-    <slot name="abovechannels"></slot>
 
     <template v-if="selectAllCheckbox">
       <KCheckbox
