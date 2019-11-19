@@ -147,12 +147,10 @@
       },
       resourceCounts() {
         // TODO decouple this workflow entirely from vuex
-        const { resources, fileSize } = this.$store.getters[
-          'manageContent/wizard/nodeTransferCounts'
-        ]('localexport');
+        const { transferResourceCount, transferFileSize } = this.$store.state.manageContent.wizard;
         return {
-          count: resources,
-          fileSize,
+          count: transferResourceCount,
+          fileSize: transferFileSize,
         };
       },
     },
@@ -185,6 +183,7 @@
         if (studioChannel) {
           this.studioChannel = { ...studioChannel };
         }
+        this.$store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', this.channel);
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.title);
         return this.updateNode(this.$route.query.node || channel.root);
       },
