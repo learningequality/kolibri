@@ -19,6 +19,7 @@ RUN apt-get update && \
 
 RUN adduser --system --shell /bin/bash --home "/kolibribuild" kolibribuild && \
     cd /kolibribuild && \
+    apt-get update && \
     su kolibribuild -c "apt-get -y source kolibri"
 
 # Build an unsigned package
