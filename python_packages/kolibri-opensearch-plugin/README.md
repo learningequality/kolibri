@@ -16,7 +16,17 @@ The [OpenSearch response elements](https://github.com/dewitt/opensearch/blob/mas
 
 This package provides Kolibri users with the needed endpoints to use a compatible OpenSearch interface.
 
-How can I install this plugin?
+
+Limitations
+-----------
+This plugin has been developed with the following constraints of the Open Search implementations:
+
+- There are not custom parameter in the search urls
+- Pagination is not supported
+- Results are returned in Atom format
+
+
+How can I install and use this plugin?
 ------------------------------
 
 1. Inside your Kolibri virtual environment:
@@ -27,3 +37,6 @@ How can I install this plugin?
     ``kolibri plugin enable kolibri_opensearch_plugin``
 
 3. Restart Kolibri.
+
+4. The endpoint to download the Open Search XML descriptor in the usual application
+   descriptor is http://your_kolibri_server:port/opensearch
