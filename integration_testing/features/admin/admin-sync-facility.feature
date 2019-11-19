@@ -19,6 +19,6 @@ Feature: Admin syncs facility
     Then I see *Last successful sync: Just now* underneath the facility name
 
   Scenario: Failed sync
-    When I click *Sync*
-    When the sync fails
+    When I set KOLIBRI_DATA_PORTAL_SYNCING_BASE_URL to a fake URL so the sync will fail
+    And I click *Sync*
     Then I see *Most recent sync failed* underneath the facility name
