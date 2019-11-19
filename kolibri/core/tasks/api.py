@@ -17,6 +17,7 @@ from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.paths import get_content_database_file_path
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.job import State
@@ -85,10 +86,20 @@ def validate_content_task(request, task_description, require_channel=False):
 
 def validate_remote_import_task(request, task_description):
     import_task = validate_content_task(request, task_description)
-    baseurl = task_description.get(
-        "baseurl", conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
-    )
-    import_task.update({"baseurl": baseurl})
+    try:
+        peer_id = task_description["peer_id"]
+        baseurl = NetworkLocation.objects.values_list("base_url", flat=True).get(
+            id=peer_id
+        )
+    except NetworkLocation.DoesNotExist:
+        raise serializers.ValidationError(
+            "Peer with id {} does not exist".format(peer_id)
+        )
+    except KeyError:
+        baseurl = conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
+        peer_id = None
+
+    import_task.update({"baseurl": baseurl, "peer_id": peer_id})
     return import_task
 
 
@@ -178,6 +189,7 @@ class TasksViewSet(viewsets.ViewSet):
                 _remoteimport,
                 task["channel_id"],
                 task["baseurl"],
+                peer_id=task["peer_id"],
                 extra_metadata=task,
                 cancellable=True,
             )
@@ -200,6 +212,7 @@ class TasksViewSet(viewsets.ViewSet):
             "network",
             task["channel_id"],
             baseurl=task["baseurl"],
+            peer_id=task["peer_id"],
             extra_metadata=task,
             cancellable=True,
         )
@@ -219,6 +232,7 @@ class TasksViewSet(viewsets.ViewSet):
             "network",
             task["channel_id"],
             baseurl=task["baseurl"],
+            peer_id=task["peer_id"],
             node_ids=task["node_ids"],
             exclude_node_ids=task["exclude_node_ids"],
             extra_metadata=task,
@@ -247,6 +261,7 @@ class TasksViewSet(viewsets.ViewSet):
                 _diskimport,
                 task["channel_id"],
                 task["datafolder"],
+                drive_id=task["drive_id"],
                 extra_metadata=task,
                 track_progress=True,
                 cancellable=True,
@@ -269,6 +284,7 @@ class TasksViewSet(viewsets.ViewSet):
             "disk",
             task["channel_id"],
             task["datafolder"],
+            drive_id=task["drive_id"],
             extra_metadata=task,
             cancellable=True,
         )
@@ -288,6 +304,7 @@ class TasksViewSet(viewsets.ViewSet):
             "disk",
             task["channel_id"],
             task["datafolder"],
+            drive_id=task["drive_id"],
             node_ids=task["node_ids"],
             exclude_node_ids=task["exclude_node_ids"],
             extra_metadata=task,
@@ -544,6 +561,7 @@ class TasksViewSet(viewsets.ViewSet):
 def _remoteimport(
     channel_id,
     baseurl,
+    peer_id=None,
     update_progress=None,
     check_for_cancel=None,
     node_ids=None,
@@ -564,6 +582,7 @@ def _remoteimport(
         "network",
         channel_id,
         baseurl=baseurl,
+        peer_id=peer_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         update_progress=update_progress,
@@ -574,6 +593,7 @@ def _remoteimport(
 def _diskimport(
     channel_id,
     directory,
+    drive_id=None,
     update_progress=None,
     check_for_cancel=None,
     node_ids=None,
@@ -594,6 +614,7 @@ def _diskimport(
         "disk",
         channel_id,
         directory,
+        drive_id=drive_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         update_progress=update_progress,

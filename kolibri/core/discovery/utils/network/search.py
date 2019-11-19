@@ -11,8 +11,7 @@ from zeroconf import ServiceInfo
 from zeroconf import USE_IP_OF_OUTGOING_INTERFACE
 from zeroconf import Zeroconf
 
-from kolibri.core.auth.models import Facility
-from kolibri.core.content.models import ChannelMetadata
+import kolibri
 
 logger = logging.getLogger(__name__)
 
@@ -106,13 +105,17 @@ class KolibriZeroconfListener(object):
         info = zeroconf.get_service_info(type, name)
         id = _id_from_name(name)
         ip = socket.inet_ntoa(info.address)
+
         self.instances[id] = {
             "id": id,
             "ip": ip,
             "local": ip in get_all_addresses(),
             "port": info.port,
             "host": info.server.strip("."),
-            "data": {key: json.loads(val) for (key, val) in info.properties.items()},
+            "data": {
+                bytes.decode(key): json.loads(val)
+                for (key, val) in info.properties.items()
+            },
             "base_url": "http://{ip}:{port}/".format(ip=ip, port=info.port),
         }
         logger.info(
@@ -150,12 +153,7 @@ def register_zeroconf_service(port, id):
     if ZEROCONF_STATE["service"] is not None:
         unregister_zeroconf_service()
     logger.info("Registering ourselves to zeroconf network with id '%s'..." % id)
-    data = {
-        "facilities": list(Facility.objects.values("id", "dataset_id", "name")),
-        "channels": list(
-            ChannelMetadata.objects.filter(root__available=True).values("id", "name")
-        ),
-    }
+    data = {"version": kolibri.VERSION}
     ZEROCONF_STATE["service"] = KolibriZeroconfService(id=id, port=port, data=data)
     ZEROCONF_STATE["service"].register()
 

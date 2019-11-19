@@ -302,10 +302,10 @@
               this.disableBottomBar = false;
             });
         } else {
-          const baseurl = this.inPeerImportMode ? this.selectedPeer.base_url : null;
+          const peer_id = this.inPeerImportMode ? this.selectedPeer.id : null;
           const taskParams = this.selectedChannels.map(x => ({
             channel_id: x.id,
-            baseurl,
+            peer_id,
           }));
           return TaskResource.startRemoteBulkImport(taskParams)
             .then(tasks => {

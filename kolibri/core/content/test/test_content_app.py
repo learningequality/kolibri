@@ -3,19 +3,16 @@ To run this test, type this in command line <kolibri manage test -- kolibri.core
 """
 import datetime
 import uuid
-from collections import namedtuple
 
 import mock
 import requests
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
-from django.db.models import Q
 from django.utils import timezone
 from le_utils.constants import content_kinds
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-import kolibri.core.content.serializers
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -23,7 +20,6 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content import models as content
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
-from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 
@@ -218,11 +214,30 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(reverse("kolibri:core:contentnode-list"))
         self.assertEqual(len(response.data), expected_output)
 
-    def test_contentnode_granular_network_import(self):
+    @mock.patch("kolibri.core.content.api.get_channel_stats_from_studio")
+    def test_contentnode_granular_network_import(self, stats_mock):
         c1_id = content.ContentNode.objects.get(title="root").id
         c2_id = content.ContentNode.objects.get(title="c1").id
         c3_id = content.ContentNode.objects.get(title="c2").id
         content.ContentNode.objects.all().update(available=False)
+        stats = {
+            c1_id: {
+                "total_resources": 2,
+                "coach_content": False,
+                "num_coach_contents": 0,
+            },
+            c2_id: {
+                "total_resources": 1,
+                "coach_content": False,
+                "num_coach_contents": 0,
+            },
+            c3_id: {
+                "total_resources": 1,
+                "coach_content": False,
+                "num_coach_contents": 0,
+            },
+        }
+        stats_mock.return_value = stats
         response = self.client.get(
             reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id})
         )
@@ -265,22 +280,28 @@ class ContentNodeAPITestCase(APITestCase):
             },
         )
 
-    @mock.patch("kolibri.core.content.serializers.get_available_checksums_from_disk")
-    @mock.patch("kolibri.core.content.serializers.get_mounted_drive_by_id")
-    def test_contentnode_granular_local_import(self, drive_mock, checksums_mock):
-        DriveData = namedtuple("DriveData", ["id", "datafolder"])
-        drive_mock.return_value = DriveData(id="123", datafolder="test/")
+    @mock.patch("kolibri.core.content.api.get_channel_stats_from_disk")
+    def test_contentnode_granular_local_import(self, stats_mock):
         content.LocalFile.objects.update(available=False)
         content.ContentNode.objects.update(available=False)
 
         c1_id = content.ContentNode.objects.get(title="root").id
         c2_id = content.ContentNode.objects.get(title="c1").id
         c3_id = content.ContentNode.objects.get(title="c2").id
-        checksums = content.File.objects.filter(
-            contentnode__in=content.ContentNode.objects.get(id=c3_id).get_descendants(),
-            supplementary=False,
-        ).values_list("local_file_id", flat=True)
-        checksums_mock.return_value = set(checksums)
+
+        stats = {
+            c1_id: {
+                "total_resources": 1,
+                "coach_content": False,
+                "num_coach_contents": 0,
+            },
+            c3_id: {
+                "total_resources": 1,
+                "coach_content": False,
+                "num_coach_contents": 0,
+            },
+        }
+        stats_mock.return_value = stats
 
         response = self.client.get(
             reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
@@ -293,7 +314,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "title": "root",
                 "kind": "topic",
                 "available": False,
-                "total_resources": 2,
+                "total_resources": 1,
                 "on_device_resources": 0,
                 "importable": True,
                 "coach_content": False,
@@ -304,7 +325,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "title": "c1",
                         "kind": "video",
                         "available": False,
-                        "total_resources": 1,
+                        "total_resources": 0,
                         "on_device_resources": 0,
                         "importable": False,
                         "coach_content": False,
@@ -325,26 +346,31 @@ class ContentNodeAPITestCase(APITestCase):
             },
         )
 
-    @mock.patch("kolibri.core.content.serializers.get_available_checksums_from_remote")
-    @mock.patch("kolibri.core.content.serializers.get_mounted_drive_by_id")
-    def test_contentnode_granular_remote_import(self, drive_mock, checksums_mock):
+    @mock.patch("kolibri.core.content.api.get_channel_stats_from_peer")
+    def test_contentnode_granular_remote_import(self, stats_mock):
         content.LocalFile.objects.update(available=False)
         content.ContentNode.objects.update(available=False)
 
         c1_id = content.ContentNode.objects.get(title="root").id
         c2_id = content.ContentNode.objects.get(title="c1").id
         c3_id = content.ContentNode.objects.get(title="c2").id
-        checksums = content.File.objects.filter(
-            contentnode__in=content.ContentNode.objects.get(id=c3_id).get_descendants(),
-            supplementary=False,
-        ).values_list("local_file_id", flat=True)
-        checksums_mock.return_value = set(checksums)
-
-        location = NetworkLocation.objects.create(base_url="test", instance_id="123")
+        stats = {
+            c1_id: {
+                "total_resources": 1,
+                "coach_content": False,
+                "num_coach_contents": 0,
+            },
+            c3_id: {
+                "total_resources": 1,
+                "coach_content": False,
+                "num_coach_contents": 0,
+            },
+        }
+        stats_mock.return_value = stats
 
         response = self.client.get(
             reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
-            {"importing_from_peer_id": location.id},
+            {"importing_from_peer_id": "test"},
         )
         self.assertEqual(
             response.data,
@@ -353,7 +379,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "title": "root",
                 "kind": "topic",
                 "available": False,
-                "total_resources": 2,
+                "total_resources": 1,
                 "on_device_resources": 0,
                 "importable": True,
                 "coach_content": False,
@@ -364,69 +390,9 @@ class ContentNodeAPITestCase(APITestCase):
                         "title": "c1",
                         "kind": "video",
                         "available": False,
-                        "total_resources": 1,
+                        "total_resources": 0,
                         "on_device_resources": 0,
                         "importable": False,
-                        "coach_content": False,
-                        "num_coach_contents": 0,
-                    },
-                    {
-                        "id": c3_id,
-                        "title": "c2",
-                        "kind": "topic",
-                        "available": False,
-                        "total_resources": 1,
-                        "on_device_resources": 0,
-                        "importable": True,
-                        "coach_content": False,
-                        "num_coach_contents": 0,
-                    },
-                ],
-            },
-        )
-
-    @mock.patch("kolibri.core.content.serializers.get_available_checksums_from_remote")
-    @mock.patch("kolibri.core.content.serializers.get_mounted_drive_by_id")
-    def test_contentnode_granular_remote_import_checksum_error(
-        self, drive_mock, checksums_mock
-    ):
-        content.LocalFile.objects.update(available=False)
-        content.ContentNode.objects.update(available=False)
-
-        c1_id = content.ContentNode.objects.get(title="root").id
-        c2_id = content.ContentNode.objects.get(title="c1").id
-        c3_id = content.ContentNode.objects.get(title="c2").id
-        # If there is an error fetching the checksums for whatever reason
-        # the checksums function returns None, make sure we are robust to that.
-        checksums_mock.return_value = None
-
-        location = NetworkLocation.objects.create(base_url="test", instance_id="123")
-
-        response = self.client.get(
-            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
-            {"importing_from_peer_id": location.id},
-        )
-        self.assertEqual(
-            response.data,
-            {
-                "id": c1_id,
-                "title": "root",
-                "kind": "topic",
-                "available": False,
-                "total_resources": 2,
-                "on_device_resources": 0,
-                "importable": True,
-                "coach_content": False,
-                "num_coach_contents": 0,
-                "children": [
-                    {
-                        "id": c2_id,
-                        "title": "c1",
-                        "kind": "video",
-                        "available": False,
-                        "total_resources": 1,
-                        "on_device_resources": 0,
-                        "importable": True,
                         "coach_content": False,
                         "num_coach_contents": 0,
                     },
@@ -447,8 +413,10 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_contentnode_granular_export_available(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
+        content.ContentNode.objects.filter(title="c1").update(on_device_resources=1)
         response = self.client.get(
-            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id})
+            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
+            data={"for_export": True},
         )
         self.assertEqual(
             response.data,
@@ -459,7 +427,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "available": True,
                 "total_resources": 1,
                 "on_device_resources": 1,
-                "importable": True,
+                "importable": None,
                 "children": [],
                 "coach_content": False,
                 "num_coach_contents": 0,
@@ -470,7 +438,8 @@ class ContentNodeAPITestCase(APITestCase):
         c1_id = content.ContentNode.objects.get(title="c1").id
         content.ContentNode.objects.filter(title="c1").update(available=False)
         response = self.client.get(
-            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id})
+            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
+            data={"for_export": True},
         )
         self.assertEqual(
             response.data,
@@ -479,46 +448,13 @@ class ContentNodeAPITestCase(APITestCase):
                 "title": "c1",
                 "kind": "video",
                 "available": False,
-                "total_resources": 1,
+                "total_resources": 0,
                 "on_device_resources": 0,
-                "importable": True,
+                "importable": None,
                 "children": [],
                 "coach_content": False,
                 "num_coach_contents": 0,
             },
-        )
-
-    def test_contentnodefilesize_resourcenode(self):
-        c1_id = content.ContentNode.objects.get(title="c1").id
-        content.LocalFile.objects.filter(pk="6bdfea4a01830fdd4a585181c0b8068c").update(
-            file_size=2
-        )
-        content.LocalFile.objects.filter(pk="211523265f53825b82f70ba19218a02e").update(
-            file_size=1, available=False
-        )
-        response = self.client.get(
-            reverse("kolibri:core:contentnodefilesize-detail", kwargs={"pk": c1_id})
-        )
-        self.assertEqual(
-            response.data, {"total_file_size": 3, "on_device_file_size": 2}
-        )
-
-    def test_contentnodefilesize_topicnode(self):
-        root_id = content.ContentNode.objects.get(title="root").id
-        content.LocalFile.objects.filter(pk="6bdfea4a01830fdd4a585181c0b8068c").update(
-            file_size=2
-        )
-        content.LocalFile.objects.filter(pk="211523265f53825b82f70ba19218a02e").update(
-            file_size=1, available=False
-        )
-        content.LocalFile.objects.filter(pk="e00699f859624e0f875ac6fe1e13d648").update(
-            file_size=3
-        )
-        response = self.client.get(
-            reverse("kolibri:core:contentnodefilesize-detail", kwargs={"pk": root_id})
-        )
-        self.assertEqual(
-            response.data, {"total_file_size": 6, "on_device_file_size": 2}
         )
 
     def test_contentnode_retrieve(self):
@@ -849,27 +785,6 @@ class ContentNodeAPITestCase(APITestCase):
         )
         self.assertEqual(response.data["name"], "testing")
 
-    def test_channelmetadata_resource_info(self):
-        content.ChannelMetadata.objects.all().update(
-            total_resource_count=4, published_size=0
-        )
-        data = content.ChannelMetadata.objects.values()[0]
-        c1_id = content.ContentNode.objects.get(title="c1").id
-        content.ContentNode.objects.filter(pk=c1_id).update(available=False)
-        get_params = {
-            "include_fields": "total_resources,total_file_size,on_device_resources,on_device_file_size"
-        }
-        response = self.client.get(
-            reverse("kolibri:core:channel-detail", kwargs={"pk": data["id"]}),
-            get_params,
-        )
-        # N.B. Because of our not very good fixture data, most of our content nodes are by default not renderable
-        # Hence this will return 1 if everything is deduped properly.
-        self.assertEqual(response.data["total_resources"], 1)
-        self.assertEqual(response.data["total_file_size"], 0)
-        self.assertEqual(response.data["on_device_resources"], 4)
-        self.assertEqual(response.data["on_device_file_size"], 0)
-
     def test_channelmetadata_langfield(self):
         data = content.ChannelMetadata.objects.first()
         root_lang = content.Language.objects.get(pk=1)
@@ -918,64 +833,6 @@ class ContentNodeAPITestCase(APITestCase):
         content.ContentNode.objects.filter(title="root").update(available=False)
         response = self.client.get(reverse("kolibri:core:channel-list"))
         self.assertEqual(response.data[0]["available"], False)
-
-    def test_channelmetadata_include_fields_filter_has_total_resources(self):
-        # N.B. Because of our not very good fixture data, most of our content nodes are by default not renderable
-        # Hence this will return 1 if everything is deduped properly.
-        response = self.client.get(
-            reverse("kolibri:core:channel-list"), {"include_fields": "total_resources"}
-        )
-        self.assertEqual(response.data[0]["total_resources"], 1)
-
-    def test_channelmetadata_include_fields_filter_has_total_file_size(self):
-        content.LocalFile.objects.filter(
-            files__contentnode__channel_id=self.the_channel_id
-        ).update(file_size=1)
-        response = self.client.get(
-            reverse("kolibri:core:channel-list"), {"include_fields": "total_file_size"}
-        )
-        self.assertEqual(response.data[0]["total_file_size"], 5)
-
-    def test_channelmetadata_include_fields_filter_has_on_device_resources(self):
-        content.ChannelMetadata.objects.all().update(total_resource_count=5)
-        response = self.client.get(
-            reverse("kolibri:core:channel-list"),
-            {"include_fields": "on_device_resources"},
-        )
-        self.assertEqual(response.data[0]["on_device_resources"], 5)
-
-    def test_channelmetadata_include_fields_filter_has_on_device_file_size(self):
-        content.ChannelMetadata.objects.all().update(published_size=4)
-        response = self.client.get(
-            reverse("kolibri:core:channel-list"),
-            {"include_fields": "on_device_file_size"},
-        )
-        self.assertEqual(response.data[0]["on_device_file_size"], 4)
-
-    def test_channelmetadata_include_fields_filter_has_no_on_device_file_size(self):
-        content.ChannelMetadata.objects.all().update(published_size=0)
-        response = self.client.get(
-            reverse("kolibri:core:channel-list"),
-            {
-                "include_fields": "total_resources,total_file_size,on_device_resources,on_device_file_size"
-            },
-        )
-        self.assertEqual(response.data[0]["on_device_file_size"], 0)
-
-    @mock.patch.object(
-        kolibri.core.content.serializers,
-        "renderable_contentnodes_without_topics_q_filter",
-        Q(kind="dummy"),
-    )
-    def test_channelmetadata_include_fields_filter_has_no_renderable_on_device_file_size(
-        self,
-    ):
-        content.ChannelMetadata.objects.all().update(published_size=4)
-        response = self.client.get(
-            reverse("kolibri:core:channel-list"),
-            {"include_fields": "on_device_file_size"},
-        )
-        self.assertEqual(response.data[0]["on_device_file_size"], 4)
 
     def test_channelmetadata_has_exercises_filter(self):
         # Has nothing else for that matter...

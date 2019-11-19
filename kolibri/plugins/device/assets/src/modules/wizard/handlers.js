@@ -253,7 +253,6 @@ export function showSelectContentPage(store, params) {
         transferType,
         transferredChannel,
       });
-      store.commit('CORE_SET_PAGE_LOADING', false);
 
       const isSamePage = samePageCheckGenerator(store);
       return loadChannelMetadata(store).then(() => {

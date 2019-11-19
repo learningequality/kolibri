@@ -1,11 +1,8 @@
 //
 import omit from 'lodash/fp/omit';
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
-import {
-  ContentNodeFileSizeResource,
-  ContentNodeGranularResource,
-  TaskResource,
-} from 'kolibri.resources';
+import { ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
+import client from 'kolibri.client';
 import { makeNode, contentNodeGranularPayload } from '../utils/data';
 import { updateTreeViewTopic } from '../../src/modules/wizard/handlers';
 import ChannelResource from '../../src/apiResources/deviceChannel';
@@ -13,8 +10,10 @@ import { makeSelectContentPageStore } from '../utils/makeStore';
 
 const simplePath = (...ids) => ids.map(id => ({ id, title: `node_${id}` }));
 
+jest.mock('kolibri.urls');
+jest.mock('kolibri.client');
+
 jestMockResource(ChannelResource);
-jestMockResource(ContentNodeFileSizeResource);
 jestMockResource(ContentNodeGranularResource);
 jestMockResource(TaskResource);
 
@@ -26,58 +25,34 @@ describe('contentTreeViewer actions', () => {
 
   function assertIncludeEquals(expected) {
     // HACK add the hard-coded file sizes to the expected array
-    expect(store.state.manageContent.wizard.nodesForTransfer.included).toEqual(
-      expected.map(addFileSizes)
-    );
+    expect(store.state.manageContent.wizard.nodesForTransfer.included).toEqual(expected);
   }
 
   function assertOmitEquals(expected) {
-    expect(store.state.manageContent.wizard.nodesForTransfer.omitted).toEqual(
-      expected.map(addFileSizes)
-    );
-  }
-
-  function assertFilesResourcesEqual(
-    expectedFiles,
-    expectedResources,
-    transferType = 'remoteimport'
-  ) {
-    const { fileSize, resources } = store.getters['manageContent/wizard/nodeTransferCounts'](
-      transferType
-    );
-    expect(fileSize).toEqual(expectedFiles);
-    expect(resources).toEqual(expectedResources);
+    expect(store.state.manageContent.wizard.nodesForTransfer.omitted).toEqual(expected);
   }
 
   function setIncludedNodes(nodes) {
-    store.state.manageContent.wizard.nodesForTransfer.included = nodes.map(addFileSizes);
+    store.state.manageContent.wizard.nodesForTransfer.included = nodes;
   }
 
   function setOmittedNodes(nodes) {
-    store.state.manageContent.wizard.nodesForTransfer.omitted = nodes.map(addFileSizes);
+    store.state.manageContent.wizard.nodesForTransfer.omitted = nodes;
   }
 
   beforeEach(() => {
     // For now, just keep it simple and make the file size result 0/1
     // TODO extend this mock to return arbitrary file sizes
-    ContentNodeFileSizeResource.__getModelFetchReturns({
-      total_file_size: 1,
-      on_device_file_size: 0,
+    client.__setPayload({
+      file_size: 1,
+      resource_count: 1,
     });
     store = makeSelectContentPageStore();
   });
 
   afterEach(() => {
-    ContentNodeFileSizeResource.__resetMocks();
+    client.__reset();
   });
-
-  function addFileSizes(node) {
-    return {
-      ...node,
-      total_file_size: 1,
-      on_device_file_size: 0,
-    };
-  }
 
   /**
    * Notes:
@@ -96,9 +71,6 @@ describe('contentTreeViewer actions', () => {
       return store.dispatch(ADD_NODE_ACTION, node_1).then(() => {
         assertIncludeEquals([node_1]);
         assertOmitEquals([]);
-        assertFilesResourcesEqual(1, 150, 'remoteimport');
-        assertFilesResourcesEqual(0, 50, 'localexport');
-        assertFilesResourcesEqual(1, 150, 'localimport');
       });
     });
 
@@ -122,9 +94,6 @@ describe('contentTreeViewer actions', () => {
         .then(() => {
           assertIncludeEquals([node_1, node_2]);
           assertOmitEquals([]);
-          assertFilesResourcesEqual(2, 325, 'remoteimport');
-          assertFilesResourcesEqual(0, 75, 'localexport');
-          assertFilesResourcesEqual(2, 325, 'localimport');
         });
     });
 
@@ -145,9 +114,6 @@ describe('contentTreeViewer actions', () => {
           assertIncludeEquals([ancestorNode]);
           assertOmitEquals([]);
           // files/resources are not double counted
-          assertFilesResourcesEqual(1, 7, 'remoteimport');
-          assertFilesResourcesEqual(0, 3, 'localexport');
-          assertFilesResourcesEqual(1, 7, 'localimport');
         });
     });
 
@@ -165,9 +131,6 @@ describe('contentTreeViewer actions', () => {
       return store.dispatch(ADD_NODE_ACTION, node).then(() => {
         assertIncludeEquals([node]);
         assertOmitEquals([]);
-        assertFilesResourcesEqual(1, 235, 'remoteimport');
-        assertFilesResourcesEqual(0, 518, 'localexport');
-        assertFilesResourcesEqual(1, 235, 'localimport');
       });
     });
 
@@ -190,9 +153,6 @@ describe('contentTreeViewer actions', () => {
         .then(() => {
           assertIncludeEquals([]);
           assertOmitEquals([]);
-          assertFilesResourcesEqual(0, 0, 'remoteimport');
-          assertFilesResourcesEqual(0, 0, 'localexport');
-          assertFilesResourcesEqual(0, 0, 'localimport');
         });
     });
 
@@ -216,9 +176,6 @@ describe('contentTreeViewer actions', () => {
         .then(() => {
           assertIncludeEquals([parentNode]);
           assertOmitEquals([childNode]);
-          assertFilesResourcesEqual(0, 20, 'remoteimport');
-          assertFilesResourcesEqual(0, 10, 'localexport');
-          assertFilesResourcesEqual(0, 20, 'localimport');
         });
     });
 
@@ -240,9 +197,6 @@ describe('contentTreeViewer actions', () => {
         .then(() => {
           assertIncludeEquals([node_1]);
           assertOmitEquals([]);
-          assertFilesResourcesEqual(1, 697, 'remoteimport');
-          assertFilesResourcesEqual(0, 525, 'localexport');
-          assertFilesResourcesEqual(1, 697, 'localimport');
         });
     });
 
@@ -269,9 +223,6 @@ describe('contentTreeViewer actions', () => {
       return store.dispatch(REMOVE_NODE_ACTION, node).then(() => {
         assertIncludeEquals([]);
         assertOmitEquals([]);
-        assertFilesResourcesEqual(0, 0, 'remoteimport');
-        assertFilesResourcesEqual(0, 0, 'localexport');
-        assertFilesResourcesEqual(0, 0, 'localimport');
       });
     });
 
@@ -300,9 +251,6 @@ describe('contentTreeViewer actions', () => {
       return store.dispatch(REMOVE_NODE_ACTION, childNode).then(() => {
         assertIncludeEquals([topNode]);
         assertOmitEquals([childNode]);
-        assertFilesResourcesEqual(0, 5, 'remoteimport');
-        assertFilesResourcesEqual(0, 5, 'localexport');
-        assertFilesResourcesEqual(0, 5, 'localimport');
       });
     });
 
@@ -331,9 +279,6 @@ describe('contentTreeViewer actions', () => {
       return store.dispatch(REMOVE_NODE_ACTION, siblingNode).then(() => {
         assertIncludeEquals([]);
         assertOmitEquals([]);
-        assertFilesResourcesEqual(0, 0, 'remoteimport');
-        assertFilesResourcesEqual(0, 0, 'localexport');
-        assertFilesResourcesEqual(0, 0, 'localimport');
       });
     });
 
@@ -360,9 +305,6 @@ describe('contentTreeViewer actions', () => {
       return store.dispatch(REMOVE_NODE_ACTION, siblingNode).then(() => {
         assertIncludeEquals([]);
         assertOmitEquals([]);
-        assertFilesResourcesEqual(0, 0, 'remoteimport');
-        assertFilesResourcesEqual(0, 0, 'localexport');
-        assertFilesResourcesEqual(0, 0, 'localimport');
       });
     });
   });
