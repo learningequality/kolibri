@@ -43,12 +43,10 @@
 
       </div>
 
-      <div v-if="$slots.svg" class="k-checkbox-icon">
-        <slot name="svg"></slot>
-      </div>
+      <slot v-if="$slots.default"></slot>
 
       <label
-        v-if="label"
+        v-else-if="label && !$slots.default"
         dir="auto"
         class="k-checkbox-label"
         :for="id"
@@ -78,7 +76,7 @@
        */
       label: {
         type: String,
-        required: true,
+        required: false,
       },
       /**
        * Whether to show label
@@ -212,14 +210,6 @@
     transform: translate(-50%, -50%);
   }
 
-  .k-checkbox-icon {
-    display: table-cell;
-    padding-left: 8px;
-    line-height: 24px;
-    vertical-align: middle;
-    cursor: pointer;
-  }
-
   .k-checkbox-label {
     display: table-cell;
     padding-left: 8px;
@@ -231,8 +221,7 @@
   .k-checkbox-disabled {
     .k-checkbox,
     .k-checkbox-input,
-    .k-checkbox-label,
-    .k-checkbox-icon {
+    .k-checkbox-label {
       cursor: default;
     }
   }
