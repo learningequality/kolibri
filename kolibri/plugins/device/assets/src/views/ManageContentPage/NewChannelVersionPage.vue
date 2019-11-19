@@ -95,7 +95,7 @@
       versionIsAvailable: `Version {nextVersion} of '{channelName}' is available`,
       youAreCurrentlyOnVersion: 'You are currently on version {currentVersion}',
       versionChangesHeader: {
-        message: 'Changes if you choose to update from version {oldVersion} to {newVersion}:',
+        message: 'Changes if you choose to update from version {currentVersion} to {nextVersion}:',
         context:
           'Header above a table that lists what the consequences of updating the channel would be',
       },
@@ -123,7 +123,7 @@
       updateConfirmationQuestion: `Are you sure you want to update '{channelName}' to version {version}?`,
       channelIsIncomplete: {
         message:
-          "This copy of '{channel}' is incomplete. It contains {resourcesInChannel} of {totalResources} resources from the original channel",
+          'This copy of the channel is incomplete. It contains {available} of {total} resources from the original channel',
         context:
           'Warning indicating that the source does not have all content from the original channel',
       },
