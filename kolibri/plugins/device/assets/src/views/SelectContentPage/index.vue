@@ -288,6 +288,7 @@
           .then(task => {
             this.disableBottomBar = false;
             this.notifyAndWatchTask(task);
+            this.$router.push({ name: 'MANAGE_TASKS' });
           })
           .catch(() => {
             this.disableBottomBar = false;

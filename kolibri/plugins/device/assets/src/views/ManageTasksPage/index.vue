@@ -2,25 +2,33 @@
 
   <div>
 
-    <!-- Stubbed out in case we need it -->
-    <template v-if="false">
-      <h1>
-        {{ $tr('tasksHeader') }}
-      </h1>
-      <p>
-        <!-- Stubbed out in case we need it -->
-        <a href="#">{{ $tr('backToChannelsAction') }}</a>
-      </p>
-    </template>
+    <p>
+      <BackLink
+        :to="$router.getRoute(homeRoute)"
+        :text="$tr('backToChannelsAction')"
+      />
+    </p>
+    <KGrid>
+      <KGridItem :layout8="{ span: 5 }" :layout12="{ span: 8 }">
+        <h1>
+          {{ $tr('tasksHeader') }}
+        </h1>
+      </KGridItem>
+      <KGridItem
+        :layout8="{ span: 3, alignment: 'right' }"
+        :layout12="{ span: 4, alignment: 'right' }"
+      >
+        <KButton
+          v-if="showClearCompletedButton"
+          :text="$tr('clearCompletedAction')"
+          :class="{ 'button-offset': windowIsLarge }"
+          @click="handleClickClearAll"
+        />
+      </KGridItem>
+    </KGrid>
     <p v-if="!loading && managedTasks.length === 0" class="empty-tasks-message">
       {{ $tr('emptyTasksMessage') }}
     </p>
-
-    <KButton
-      v-if="showClearCompletedButton"
-      :text="$tr('clearCompletedAction')"
-      @click="handleClickClearAll"
-    />
     <transition-group name="fade" class="task-panels">
       <TaskPanel
         v-for="task in sortedTaskList"
@@ -44,8 +52,11 @@
   import { mapGetters } from 'vuex';
   import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { taskIsClearable } from '../../constants';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { PageNames, taskIsClearable } from '../../constants';
+
   import TaskPanel from './TaskPanel';
+  import BackLink from './BackLink';
 
   // A page to view content import/export/deletion tasks
   export default {
@@ -57,8 +68,9 @@
     },
     components: {
       TaskPanel,
+      BackLink,
     },
-    mixins: [commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings],
     data() {
       return {
         loading: true,
@@ -71,6 +83,9 @@
       },
       showClearCompletedButton() {
         return some(this.managedTasks, taskIsClearable);
+      },
+      homeRoute() {
+        return PageNames.MANAGE_CONTENT_PAGE;
       },
     },
     watch: {
@@ -120,6 +135,10 @@
 
 
 <style lang="scss" scoped>
+
+  .button-offset {
+    margin-top: 24px;
+  }
 
   .task-panels {
     margin-top: 32px;
