@@ -45,13 +45,6 @@ export default {
       this.$store.commit('CORE_CREATE_SNACKBAR', {
         text: TaskSnackbarStrings.$tr('taskFinished'),
         autoDismiss: true,
-        duration: 10000,
-        actionText: TaskSnackbarStrings.$tr('clearTaskAction'),
-        // HACK make the snackbar appear really high to clear the bottom bar
-        // bottomPosition: 80,
-        actionCallback() {
-          return TaskResource.clearTask(taskId);
-        },
       });
     },
     createTaskStartedSnackbar() {
@@ -72,11 +65,6 @@ export default {
       this.$store.commit('CORE_CREATE_SNACKBAR', {
         text: TaskSnackbarStrings.$tr('taskStarted'),
         autoDismiss: true,
-        duration: 10000,
-        actionText: TaskSnackbarStrings.$tr('viewTasksAction'),
-        actionCallback,
-        // HACK make the snackbar appear really high to clear the bottom bar
-        // bottomPosition: 80,
       });
     },
     startWatchingTask(taskResponse) {
