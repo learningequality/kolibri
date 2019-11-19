@@ -37,6 +37,7 @@ export default {
     notifyAndWatchTask(taskResponse) {
       this.startWatchingTask(taskResponse);
       this.createTaskStartedSnackbar();
+      this.$router.push({ name: 'MANAGE_TASKS' });
     },
     createTaskFailedSnackbar() {
       this.$store.dispatch('createSnackbar', TaskSnackbarStrings.$tr('taskFailed'));
@@ -48,20 +49,6 @@ export default {
       });
     },
     createTaskStartedSnackbar() {
-      const actionCallback = function() {
-        return this.$router.push(
-          {
-            name: PageNames.MANAGE_TASKS,
-            params: {
-              lastRoute: pick(this.$router.currentRoute, ['name', 'params', 'query']),
-            },
-          },
-          () => {
-            this.$store.commit('CORE_CLEAR_SNACKBAR');
-          }
-        );
-      }.bind(this);
-
       this.$store.commit('CORE_CREATE_SNACKBAR', {
         text: TaskSnackbarStrings.$tr('taskStarted'),
         autoDismiss: true,
