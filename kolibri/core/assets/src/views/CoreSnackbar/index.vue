@@ -14,6 +14,7 @@
         :message="text"
         :action="actionText"
         tabindex="0"
+        :style="styles"
         @action-click="handleActionClick"
       />
     </transition>
@@ -59,12 +60,29 @@
         type: Boolean,
         default: false,
       },
+      /* Integer that over-rides the default 'bottom: 0' CSS */
+      bottomPosition: {
+        type: Number,
+        required: false,
+      },
     },
-    data: () => ({
-      timeout: null,
-      isVisible: false,
-      previouslyFocusedElement: null,
-    }),
+    data() {
+      return {
+        timeout: null,
+        isVisible: false,
+        previouslyFocusedElement: null,
+      };
+    },
+    computed: {
+      styles() {
+        if (this.bottomPosition) {
+          return {
+            bottom: `${this.bottomPosition}px`,
+          };
+        }
+        return {};
+      },
+    },
     mounted() {
       this.isVisible = true;
       if (this.autoDismiss) {

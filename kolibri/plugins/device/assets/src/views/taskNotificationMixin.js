@@ -47,6 +47,8 @@ export default {
         autoDismiss: true,
         duration: 10000,
         actionText: TaskSnackbarStrings.$tr('clearTaskAction'),
+        // HACK make the snackbar appear really high to clear the bottom bar
+        bottomPosition: 80,
         actionCallback() {
           return TaskResource.clearTask(taskId);
         },
@@ -73,6 +75,8 @@ export default {
         duration: 10000,
         actionText: TaskSnackbarStrings.$tr('viewTasksAction'),
         actionCallback,
+        // HACK make the snackbar appear really high to clear the bottom bar
+        bottomPosition: 80,
       });
     },
     startWatchingTask(taskResponse) {
