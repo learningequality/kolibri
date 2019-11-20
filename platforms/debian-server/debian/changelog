@@ -1,3 +1,9 @@
+kolibri-server (0.3.5-0ubuntu1) UNRELEASED; urgency=medium
+
+  * Some optimizations in nginx configuration
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 20 Nov 2019 20:38:03 +0100
+
 kolibri-server (0.3.4-0ubuntu1) bionic; urgency=medium
 
   * Check if redis is running to enable/disable its cache

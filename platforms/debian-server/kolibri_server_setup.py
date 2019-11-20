@@ -160,9 +160,13 @@ def save_nginx_conf_include(static_root, nginx_conf=None):
             "\n"
             "location {path_prefix}static {{\n"
             "    alias  {static_dir};\n"
+            "    expires 365d;\n"
+            "    add_header Cache-Control \"public\";\n"
             "}}\n"
             "location {path_prefix}content {{\n"
             "    alias  {content_dir}/;\n"
+            "    expires 365d;\n"
+            "    add_header Cache-Control \"public\";\n"
             "}}\n"
         ).format(static_dir=static_root,
                  content_dir=get_content_dir_path(),
