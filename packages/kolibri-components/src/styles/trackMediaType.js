@@ -5,16 +5,16 @@ export default function trackMediaType() {
     globalThemeState.mediaType = isPrint ? 'print' : null;
   };
 
-  try {
+  if (window.matchMedia) {
     // All supported browsers should have `matchMedia`
     const mediaQueryList = window.matchMedia('print');
 
     // Listen for print
     mediaQueryList.addListener(e => listener(e.matches));
     listener(mediaQueryList.matches);
-  } catch (e) {
-    // Fallback
-    window.addEventListener('beforeprint', () => listener(true));
-    window.addEventListener('afterprint', () => listener(false));
   }
+
+  // Fallback
+  window.addEventListener('beforeprint', () => listener(true));
+  window.addEventListener('afterprint', () => listener(false));
 }
