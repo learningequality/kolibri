@@ -34,7 +34,7 @@
         window.open(file.url, '_blank');
       },
     },
-    $trs: { downloadContent: 'Download content' },
+    $trs: { downloadContent: 'Download resource' },
   };
 
 </script>

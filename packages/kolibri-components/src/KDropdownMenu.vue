@@ -21,7 +21,7 @@
       ref="popover"
       trigger="buttonContainer"
       :containFocus="false"
-      :position="position"
+      :dropdownPosition="position"
       @close="handleClose"
       @open="handleOpen"
     >

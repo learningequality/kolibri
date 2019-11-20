@@ -20,14 +20,14 @@
       </template>
 
       <template v-if="isPrivateChannel" v-slot:belowname>
-        <KTooltip reference="lockicon" :refs="$refs" placement="right">
-          {{ $tr('privateChannelTooltip') }}
+        <KTooltip reference="lockicon" :refs="$refs" placement="top">
+          {{ $tr('unlistedChannelTooltip') }}
         </KTooltip>
         <div class="private-icons">
           <KIcon
             ref="lockicon"
             class="lock-icon"
-            icon="privatechannel"
+            icon="unlistedchannel"
           /><span
             v-if="channel.newPrivateChannel"
             class="new-label"
@@ -67,7 +67,7 @@
       </p>
       <KRouterLink
         v-if="!multipleMode"
-        :text="$tr('selectTopicsAction')"
+        :text="$tr('selectResourcesAction')"
         :disabled="tasksInQueue"
         :to="selectContentLink"
         appearance="raised-button"
@@ -161,9 +161,9 @@
     },
     $trs: {
       onYourDevice: 'Resources on device',
-      selectTopicsAction: 'Select topics',
+      selectResourcesAction: 'Select resources',
       newLabel: 'New',
-      privateChannelTooltip: 'Unlisted channel',
+      unlistedChannelTooltip: 'Unlisted channel',
       newVersionMessage: 'New version available',
       moreInformationLabel: 'More information',
       channelSelectedNoFileSize: 'Selected',

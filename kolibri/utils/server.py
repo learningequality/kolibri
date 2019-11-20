@@ -1,9 +1,11 @@
 import atexit
 import logging
 import os
+import signal
 import sys
 import threading
 import time
+from functools import partial
 from subprocess import CalledProcessError
 from subprocess import check_output
 
@@ -72,6 +74,20 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
+def _cleanup_before_quitting(signum, frame, worker=None):
+    from kolibri.core.discovery.utils.network.search import unregister_zeroconf_service
+    from kolibri.core.tasks.main import scheduler
+
+    logger.info("Cleaning up background services before exiting")
+
+    if worker is not None:
+        worker.shutdown()
+    scheduler.shutdown_scheduler()
+    unregister_zeroconf_service()
+    signal.signal(signum, signal.SIG_DFL)
+    os.kill(os.getpid(), signum)
+
+
 def run_services(port):
 
     # Initialize the iceqube scheduler to handle scheduled tasks
@@ -98,11 +114,9 @@ def run_services(port):
     # Initialize the iceqube engine to handle queued tasks
     from kolibri.core.tasks.main import initialize_worker
 
-    initialize_worker()
+    worker = initialize_worker()
 
     scheduler.start_scheduler()
-
-    atexit.register(scheduler.shutdown_scheduler)
 
     # Register the Kolibri zeroconf service so it will be discoverable on the network
     from morango.models import InstanceIDModel
@@ -110,6 +124,15 @@ def run_services(port):
 
     instance, _ = InstanceIDModel.get_or_create_current_instance()
     register_zeroconf_service(port=port, id=instance.id[:4])
+
+    cleanup_func = partial(_cleanup_before_quitting, worker=worker)
+
+    try:
+        signal.signal(signal.SIGINT, cleanup_func)
+        signal.signal(signal.SIGTERM, cleanup_func)
+        logger.info("Added signal handlers for cleaning up on exit")
+    except ValueError:
+        logger.warn("Error adding signal handlers for cleaning up on exit")
 
 
 def _rm_pid_file():
@@ -123,10 +146,11 @@ def start(port=8080, run_cherrypy=True):
     :param: port: Port number (default: 8080)
     """
 
-    run_services(port=port)
-
     # Write the new PID
+    # Note: to prevent a race condition on some setups, this needs to happen first
     _write_pid_file(PID_FILE, port=port)
+
+    run_services(port=port)
 
     atexit.register(_rm_pid_file)
 
@@ -143,10 +167,11 @@ def services(port=8080):
     Runs the background services.
     """
 
-    run_services(port=port)
-
     # Write the new PID
+    # Note: to prevent a race condition on some setups, this needs to happen first
     _write_pid_file(PID_FILE)
+
+    run_services(port=port)
 
     atexit.register(_rm_pid_file)
 

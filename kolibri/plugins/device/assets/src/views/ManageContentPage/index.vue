@@ -19,6 +19,7 @@
             v-if="channelsAreInstalled"
             appearance="raised-button"
             :text="coreString('optionsLabel')"
+            position="bottom left"
             :options="dropdownOptions"
             @select="handleSelect"
           />
@@ -29,6 +30,21 @@
           />
         </KGridItem>
       </KGrid>
+
+      <!-- Stubbed out in case we need it -->
+      <template v-if="false">
+        <h2>
+          {{ $tr('tasksHeader') }}
+        </h2>
+        <p>
+          <a href="#">
+            {{ $tr('taskManagerLink') }}
+          </a>
+        </p>
+        <h2>
+          {{ $tr('resourcesHeader') }}
+        </h2>
+      </template>
 
       <p v-if="!channelsAreInstalled">
         {{ $tr('emptyChannelListMessage') }}
@@ -159,6 +175,9 @@
       deleteChannels: 'Delete channels',
       editChannelOrder: 'Edit channel order',
       emptyChannelListMessage: 'No channels installed',
+      tasksHeader: 'Tasks',
+      resourcesHeader: 'Resources',
+      taskManagerLink: 'View task manager',
     },
   };
 

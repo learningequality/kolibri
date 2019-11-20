@@ -182,8 +182,8 @@
       },
     },
     $trs: {
-      importingContent: 'Importing content…',
-      exportingContent: 'Exporting content…',
+      importingContent: 'Importing resources…',
+      exportingContent: 'Exporting resources…',
       finished: 'Finished! Click "Close" button to see changes.',
       preparingTask: 'Preparing…',
       taskHasFailed: 'Transfer failed. Please try again.',

@@ -1,31 +1,36 @@
 <template>
 
-  <div :class="{small: !windowIsLarge}">
+  <div :class="{'fclc-sm': !windowIsLarge}">
 
     <slot name="header"></slot>
 
-    <div class="top-panel">
-      <p class="count-msg" data-test="available">
-        {{ channelsCountMsg }}
-      </p>
-      <div v-if="channels.length > 0" class="filters">
-        <KSelect
-          v-model="languageFilter"
-          class="filter-lang"
-          :options="languageFilterOptions"
-          :label="$tr('languageFilterLabel')"
-          :inline="true"
-        />
-        <FilterTextbox
-          v-model="titleFilter"
-          class="filter-title"
-          :placeholder="$tr('titleFilterPlaceholder')"
-          :throttleInput="500"
-        />
-      </div>
-    </div>
-
     <slot name="abovechannels"></slot>
+
+    <KGrid class="top-panel">
+      <template v-if="channels.length > 0">
+        <KGridItem :layout12="{span: 4}">
+          <KSelect
+            v-model="languageFilter"
+            class="filter-lang"
+            :options="languageFilterOptions"
+            :label="$tr('languageFilterLabel')"
+            :inline="true"
+          />
+        </KGridItem>
+        <KGridItem :layout12="{span: 5}" class="filter-title">
+          <FilterTextbox
+            v-model="titleFilter"
+            :placeholder="$tr('titleFilterPlaceholder')"
+            :throttleInput="500"
+          />
+        </KGridItem>
+      </template>
+      <KGridItem :layout12="{span: 3}">
+        <p class="count-msg" data-test="available">
+          {{ channelsCountMsg }}
+        </p>
+      </KGridItem>
+    </KGrid>
 
     <template v-if="selectAllCheckbox">
       <KCheckbox
@@ -190,52 +195,24 @@
 <style lang="scss" scoped>
 
   .top-panel {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
     margin-bottom: 24px;
-  }
 
-  .count-msg {
-    flex-grow: 1;
-    max-width: 200px;
-    margin: 0;
-  }
-
-  .filters {
-    display: flex;
-    flex-grow: 1;
-    flex-wrap: wrap;
-    margin-left: 16px;
+    .fclc-sm & {
+      margin-bottom: 8px;
+    }
   }
 
   .filter-lang {
+    width: 100%;
     min-width: 240px;
+    max-width: 300px;
   }
 
   .filter-title {
-    flex-grow: 1;
-    width: auto;
-  }
+    padding-top: 8px;
 
-  .small {
-    .top-panel {
-      flex-direction: column;
+    .fclc-sm & {
       margin-bottom: 8px;
-    }
-
-    .filters {
-      align-self: stretch;
-      margin-left: 0;
-    }
-
-    .filter-title {
-      width: 100%;
-    }
-
-    .count-msg {
-      order: 1;
-      margin: 16px 0;
     }
   }
 

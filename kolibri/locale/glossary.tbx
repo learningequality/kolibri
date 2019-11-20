@@ -32,7 +32,7 @@
         <langSet xml:lang="en">
           <tig>
             <term id="642e92efb79421734881b53e1e1b18b648-en">license</term>
-            <descrip type="definition">A legal mechanism which defines the terms under which the content resources can be shared, reused, and modified. The license is chosen by the copyright holder</descrip>
+            <descrip type="definition">A legal mechanism which defines the terms under which the resources can be shared, reused, and modified. The license is chosen by the copyright holder</descrip>
           </tig>
         </langSet>
         <langSet xml:lang="vi">
@@ -46,7 +46,7 @@
           <tig>
             <term id="f457c545a9ded88f18ecee47145a72c049-en">copyright holder</term>
             <termNote type="partOfSpeech">noun</termNote>
-            <descrip type="definition">Person or organization who has legal ownership over a content resource</descrip>
+            <descrip type="definition">Person or organization who has legal ownership over a resource</descrip>
           </tig>
         </langSet>
         <langSet xml:lang="vi">
@@ -103,7 +103,7 @@
         <langSet xml:lang="en">
           <tig>
             <term id="ea5d2f1c4608232e07d3aa3d998e513564-en">learner</term>
-            <descrip type="definition">An account type that has limited permissions. Learners can be enrolled in classes, get assigned content through lessons and quizzes, and navigate channels directly. We intentionally did not use the term "student" to be more inclusive of non-formal educational contexts.</descrip>
+            <descrip type="definition">An account type that has limited permissions. Learners can be enrolled in classes, get assigned resources through lessons and quizzes, and navigate channels directly. We intentionally did not use the term "student" to be more inclusive of non-formal educational contexts.</descrip>
           </tig>
         </langSet>
         <langSet xml:lang="vi">
@@ -193,7 +193,7 @@
           <tig>
             <term id="f0935e4cd5920aa6c7c996a5ee53a70f106-en">channel</term>
             <termNote type="partOfSpeech">noun</termNote>
-            <descrip type="definition">A set of content resources that can be imported to and exported from Kolibri. It is often curated in order to achieve certain pre-defined learning objectives. Channels are originally created within Kolibri Studio</descrip>
+            <descrip type="definition">A set of resources that can be imported to and exported from Kolibri. It is often curated in order to achieve certain pre-defined learning objectives. Channels are originally created within Kolibri Studio</descrip>
           </tig>
         </langSet>
         <langSet xml:lang="fv">
@@ -208,10 +208,9 @@
           <tig>
             <term id="a3c65c2974270fd093ee8a9bf8ae7d0b108-en">assign</term>
             <termNote type="partOfSpeech">verb</termNote>
-            <descrip type="definition">1. to assign a coach to a class
-An admin will assign a user to serve as the coach for a class. This is technically distinct from the coach account type: the assigned user may have a coach account, but that user can also be an admin or super admin
-2. to assign a quiz or a lesson to learners
-A coach can assign content to learners in their classes</descrip>
+            <descrip type="definition">1. to assign a coach to a class. An admin will assign a user to serve as the coach for a class. This is technically distinct from the coach account type: the assigned user may have a coach account, but that user can also be an admin or super admin
+
+2. to assign a quiz or a lesson to learners. A coach can assign resources to learners in their classes</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -220,7 +219,7 @@ A coach can assign content to learners in their classes</descrip>
           <tig>
             <term id="5f93f983524def3dca464469d2cf9f3e110-en">account</term>
             <termNote type="partOfSpeech">noun</termNote>
-            <descrip type="definition">A set of data associated with a particular user, including their name, username, password, and logs of their interactions with content. Most users will have an account in order to track their progress as a learner, manage Kolibri as an admin, or manage their classes as a coach.</descrip>
+            <descrip type="definition">A set of data associated with a particular user, including their name, username, password, and logs of their interactions with resources. Most users will have an account in order to track their progress as a learner, manage Kolibri as an admin, or manage their classes as a coach.</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -238,7 +237,7 @@ A coach can assign content to learners in their classes</descrip>
           <tig>
             <term id="c45147dee729311ef5b5c3003946c48f116-en">app</term>
             <termNote type="partOfSpeech">noun</termNote>
-            <descrip type="definition">In Kolibri, an app is a certain kind of content resource. Specifically, apps are generally self-contained, interactive HTML and Javascript applications.</descrip>
+            <descrip type="definition">In Kolibri, an app is a certain kind of resource. Specifically, apps are generally self-contained, interactive HTML and Javascript applications.</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -265,7 +264,7 @@ A coach can assign content to learners in their classes</descrip>
           <tig>
             <term id="a0a080f42e6f13b3a2df133f073095dd122-en">assign (a quiz or a lesson to learners)</term>
             <termNote type="partOfSpeech">verb</termNote>
-            <descrip type="definition">A coach can assign content to learners in their classes</descrip>
+            <descrip type="definition">A coach can assign a resource to learners in their classes</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -298,18 +297,9 @@ A coach can assign content to learners in their classes</descrip>
       <termEntry id="9b8619251a19057cff70779273e95aa6130">
         <langSet xml:lang="en">
           <tig>
-            <term id="9b8619251a19057cff70779273e95aa6130-en">coach content, coach resource</term>
+            <term id="9b8619251a19057cff70779273e95aa6130-en">coach resource</term>
             <termNote type="partOfSpeech">noun</termNote>
-            <descrip type="definition">Content that is only visible to accounts with type coach, facility coach, admin, or super admin. Coach content might be answer keys, teacher training, or other similar materials</descrip>
-          </tig>
-        </langSet>
-      </termEntry>
-      <termEntry id="65ded5353c5ee48d0b7d48c591b8f430132">
-        <langSet xml:lang="en">
-          <tig>
-            <term id="65ded5353c5ee48d0b7d48c591b8f430132-en">content</term>
-            <termNote type="partOfSpeech">noun</termNote>
-            <descrip type="definition">Content is a general term for the videos, exercises, apps, and other materials available in the learning platform. It is used synonymously with resources. Note: in English, the word “content” is an uncountable collective singular noun: "Import the content". Therefore when a singular or countable word is needed, we use the word “resource”, e.g. "Import 3 resources" or "Remove resource".</descrip>
+            <descrip type="definition">A resource that is only visible to accounts with type coach, facility coach, admin, or super admin. Coach resources might be answer keys, teacher training, or other similar materials</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -318,7 +308,7 @@ A coach can assign content to learners in their classes</descrip>
           <tig>
             <term id="02522a2b2726fb0a03bb19f2d8d9524d134-en">data</term>
             <termNote type="partOfSpeech">noun</termNote>
-            <descrip type="definition">Refers to information associated with users' accounts contained in their profile, which classes and facilities they are in, and the logs showing how they have interacted with content. Data does not contain content, but may contain references to it.</descrip>
+            <descrip type="definition">Refers to information associated with users' accounts contained in their profile, which classes and facilities they are in, and the logs showing how they have interacted with resources. Data does not contain resources, but may contain references to them.</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -327,7 +317,7 @@ A coach can assign content to learners in their classes</descrip>
           <tig>
             <term id="42a0e188f5033bc65bf8d78622277c4e136-en">demo site</term>
             <termNote type="partOfSpeech">noun</termNote>
-            <descrip type="definition">An online "demonstration" version of Kolibri that can be accessed publicly. All data and content on the demo site is liable to be deleted or changed periodically</descrip>
+            <descrip type="definition">An online "demonstration" version of Kolibri that can be accessed publicly. All data and resources on the demo site is liable to be deleted or changed periodically</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -407,7 +397,7 @@ A coach can assign content to learners in their classes</descrip>
         <langSet xml:lang="en">
           <tig>
             <term id="1d7f7abc18fcb43975065399b0d1e48e154-en">lesson</term>
-            <descrip type="definition">A lesson is a linear learning pathway defined by a coach. The coach can select content from any channel, add it to the lesson, define the ordering, and assign it to learners in their class</descrip>
+            <descrip type="definition">A lesson is a linear learning pathway defined by a coach. The coach can select resources from any channel, add them to the lesson, define the ordering, and assign the lesson to learners in their class</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -415,7 +405,7 @@ A coach can assign content to learners in their classes</descrip>
         <langSet xml:lang="en">
           <tig>
             <term id="1c9ac0159c94d8d0cbedc973445af2da156-en">logs</term>
-            <descrip type="definition">A subset of data stored on the device which contains information about the way that users have interacted with content, especially their progress and performance</descrip>
+            <descrip type="definition">A subset of data stored on the device which contains information about the way that users have interacted with resources, especially their progress and performance</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -423,7 +413,9 @@ A coach can assign content to learners in their classes</descrip>
         <langSet xml:lang="en">
           <tig>
             <term id="06409663226af2f3114485aa4e0a23b4158-en">mastery, mastery model</term>
-            <descrip type="definition">When a learner has sufficiently internalized and understood some material, they are said to have at least temporarily achieved mastery. Content curators on Kolibri Studio assign a mastery model- the number of correct answers considered to communicate mastery- across either entire content sources or individual content nodes. Mastery measures progress, not performance. For example, a mastery model might say that the learner must correctly answer 3 questions in a row before they can move on, or perhaps that they must get 7 out of the last 10 questions correct on the first attempt before moving on.</descrip>
+            <descrip type="definition">When a learner has sufficiently internalized and understood some material, they are said to have at least temporarily achieved mastery. Educational resource curators on Kolibri Studio assign a mastery model- the number of correct answers considered to communicate mastery- across either entire channels or individual resources.
+
+Mastery measures progress, not performance. For example, a mastery model might say that the learner must correctly answer 3 questions in a row before they can move on, or perhaps that they must get 7 out of the last 10 questions correct on the first attempt before moving on.</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -463,7 +455,7 @@ A coach can assign content to learners in their classes</descrip>
         <langSet xml:lang="en">
           <tig>
             <term id="006f52e9102a8d3be2fe5614f42ba989168-en">points</term>
-            <descrip type="definition">Points are an abstract reward given to learners as they make progress through content resources</descrip>
+            <descrip type="definition">Points are an abstract reward given to learners as they make progress through resources</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -479,7 +471,7 @@ A coach can assign content to learners in their classes</descrip>
         <langSet xml:lang="en">
           <tig>
             <term id="1ff8a7b5dc7a7d1f0ed65aaa29c04b1e172-en">progress</term>
-            <descrip type="definition">This is a rough measure of how much a learner has engaged with content, quizzes, and lessons. Progress is approximated differently depending on the type of content. For example, documents factor in how many pages the document has and how long the learner has had the document open in the browser. For exercises, progress is directly related to the mastery model.</descrip>
+            <descrip type="definition">This is a rough measure of how much a learner has engaged with resources, quizzes, and lessons. Progress is approximated differently depending on the type of resource. For example, documents factor in how many pages the document has and how long the learner has had the document open in the browser. For exercises, progress is directly related to the mastery model.</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -495,7 +487,8 @@ A coach can assign content to learners in their classes</descrip>
         <langSet xml:lang="en">
           <tig>
             <term id="38af86134b65d0f10fe33d30dd76442e176-en">resource</term>
-            <descrip type="definition">Resources, or content resources, are synonymous with the term content</descrip>
+            <termNote type="partOfSpeech">noun</termNote>
+            <descrip type="definition">A resource is a general term for the videos, exercises, apps, and other materials available in the learning platform.</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -519,7 +512,7 @@ A coach can assign content to learners in their classes</descrip>
         <langSet xml:lang="en">
           <tig>
             <term id="6cdd60ea0045eb7a6ec44c54d29ed402184-en">topic</term>
-            <descrip type="definition">A collection of content and other topics within a channel. Nested topics are like folders, and allow a channel to be organized as a tree or hierarchy</descrip>
+            <descrip type="definition">A collection of resources and other topics within a channel. Nested topics are like folders, and allow a channel to be organized as a tree or hierarchy</descrip>
           </tig>
         </langSet>
       </termEntry>
@@ -544,6 +537,15 @@ A coach can assign content to learners in their classes</descrip>
           <tig>
             <term id="cfecdb276f634854f3ef915e2e980c31190-en">username</term>
             <descrip type="definition">A name that uniquely identifies an account within a facility.</descrip>
+          </tig>
+        </langSet>
+      </termEntry>
+      <termEntry id="58a2fc6ed39fd083f55d4182bf88826d192">
+        <langSet xml:lang="en">
+          <tig>
+            <term id="58a2fc6ed39fd083f55d4182bf88826d192-en">test</term>
+            <termNote type="partOfSpeech">noun</termNote>
+            <descrip type="definition">test 22222</descrip>
           </tig>
         </langSet>
       </termEntry>

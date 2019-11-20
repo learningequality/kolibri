@@ -8,6 +8,8 @@ renderable_contentnodes_without_topics_q_filter = Q()
 
 renderable_files_q_filter = Q()
 
+renderable_files_presets = set()
+
 # loop through all the registered content renderer hooks
 for hook in ContentRendererHook.registered_hooks:
     for preset in hook.presets:
@@ -15,6 +17,7 @@ for hook in ContentRendererHook.registered_hooks:
         # Extend the q filter by ORing with a q filter for this preset
         renderable_contentnodes_without_topics_q_filter |= Q(files__preset=preset)
         renderable_files_q_filter |= Q(preset=preset)
+        renderable_files_presets.add(preset)
 
 # Regardless of which renderers are installed, we can render topics!
 renderable_contentnodes_q_filter = (

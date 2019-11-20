@@ -1,6 +1,6 @@
 import find from 'lodash/find';
 import wizard from '../wizard';
-import { TaskStatuses, taskIsClearable } from '../../constants';
+import { TaskTypes, TaskStatuses, taskIsClearable } from '../../constants';
 import actions from './actions';
 
 function defaultState() {
@@ -53,7 +53,10 @@ export default {
     },
     channelIsBeingDeleted(state) {
       return function beingDeleted(channelId) {
-        const match = find(state.taskList, { type: 'DELETECHANNEL', channel_id: channelId });
+        const match = find(state.taskList, {
+          type: TaskTypes.DELETECHANNEL,
+          channel_id: channelId,
+        });
         if (match) {
           return !taskIsClearable(match);
         }
@@ -79,6 +82,12 @@ export default {
     activeTaskList(state) {
       return state.taskList.filter(
         task => task.status !== TaskStatuses.CANCELING && task.status !== TaskStatuses.CANCELED
+      );
+    },
+    managedTasks(state) {
+      // Tasks that we want to show in the task manager - ignore channel metadata tasks here.
+      return state.taskList.filter(
+        task => ![TaskTypes.REMOTECHANNELIMPORT, TaskTypes.DISKCHANNELIMPORT].includes(task.type)
       );
     },
   },

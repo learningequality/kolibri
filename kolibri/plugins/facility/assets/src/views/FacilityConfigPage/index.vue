@@ -9,7 +9,14 @@
 
     <div class="mb">
       <h1>{{ $tr('pageHeader') }}</h1>
-      <p>{{ $tr('pageDescription') }}</p>
+      <p>
+        {{ $tr('pageDescription') }}
+        <KExternalLink
+          v-if="isSuperuser && deviceSettingsUrl"
+          :text="$tr('deviceSettings')"
+          :href="deviceSettingsUrl"
+        />
+      </p>
     </div>
 
     <template v-if="settings!==null">
@@ -66,10 +73,11 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import camelCase from 'lodash/camelCase';
   import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import urls from 'kolibri.urls';
   import ConfirmResetModal from './ConfirmResetModal';
   import Notifications from './ConfigPageNotifications';
 
@@ -104,9 +112,17 @@
     },
     computed: {
       ...mapState('facilityConfig', ['facilityName', 'settings', 'notification']),
+      ...mapGetters(['isSuperuser']),
       settingsList: () => settingsList,
       settingsHaveChanged() {
         return !isEqual(this.settings, this.settingsCopy);
+      },
+      deviceSettingsUrl() {
+        const getUrl = urls['kolibri:kolibri.plugins.device:device_management'];
+        if (getUrl) {
+          return getUrl() + '#/settings';
+        }
+        return null;
       },
     },
     mounted() {
@@ -147,10 +163,11 @@
       learnerCanEditUsername: 'Allow learners and coaches to edit their username',
       learnerCanSignUp: 'Allow learners to create accounts',
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
-      showDownloadButtonInLearn: "Show 'download' button with content",
-      allowGuestAccess: 'Allow users to access content without signing in',
+      showDownloadButtonInLearn: "Show 'download' button with resources",
+      allowGuestAccess: 'Allow users to access resources without signing in',
       /* eslint-enable kolibri/vue-no-unused-translations */
-      pageDescription: 'Configure various settings',
+      pageDescription: 'Configure facility settings here.',
+      deviceSettings: 'You can also configure device settings',
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to defaults',
       documentTitle: 'Configure Facility',

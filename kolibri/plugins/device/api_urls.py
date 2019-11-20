@@ -2,6 +2,7 @@ from django.conf.urls import include
 from django.conf.urls import url
 from rest_framework import routers
 
+from .api import CalculateImportExportSizeView
 from .api import DeviceChannelMetadataViewSet
 from .api import DeviceChannelOrderView
 
@@ -17,5 +18,10 @@ urlpatterns = [
         r"devicechannelorder",
         DeviceChannelOrderView.as_view(),
         name="devicechannelorder",
+    ),
+    url(
+        r"importexportsizeview",
+        CalculateImportExportSizeView.as_view(),
+        name="importexportsizeview",
     ),
 ]
