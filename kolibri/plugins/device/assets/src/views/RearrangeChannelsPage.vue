@@ -161,6 +161,11 @@
     margin-bottom: 32px;
   }
 
+  .sort-widget {
+    width: 24px;
+    height: 24px;
+  }
+
   .item {
     display: flex;
     padding: 8px;
