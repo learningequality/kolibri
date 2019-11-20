@@ -168,8 +168,6 @@
       deleteChannels: 'Delete channels',
       editChannelOrder: 'Edit channel order',
       emptyChannelListMessage: 'No channels installed',
-      tasksHeader: 'Tasks',
-      resourcesHeader: 'Resources',
       taskManagerLink: 'View task manager',
     },
   };

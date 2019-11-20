@@ -1,6 +1,4 @@
-import pick from 'lodash/pick';
 import { createTranslator } from 'kolibri.utils.i18n';
-import { TaskResource } from 'kolibri.resources';
 import { PageNames } from '../constants';
 
 const TaskSnackbarStrings = createTranslator('TaskSnackbarStrings', {
@@ -25,7 +23,7 @@ export default {
   watch: {
     watchedTaskHasFinished(val) {
       if (val && val === this.watchedTaskId) {
-        this.createTaskFinishedSnackbar(val);
+        this.createTaskFinishedSnackbar();
         // Host component must implement this method
         if (typeof this.onWatchedTaskFinished === 'function') {
           this.onWatchedTaskFinished();
@@ -37,12 +35,12 @@ export default {
     notifyAndWatchTask(taskResponse) {
       this.startWatchingTask(taskResponse);
       this.createTaskStartedSnackbar();
-      this.$router.push({ name: 'MANAGE_TASKS' });
+      this.$router.push({ name: PageNames.MANAGE_TASKS });
     },
     createTaskFailedSnackbar() {
       this.$store.dispatch('createSnackbar', TaskSnackbarStrings.$tr('taskFailed'));
     },
-    createTaskFinishedSnackbar(taskId) {
+    createTaskFinishedSnackbar() {
       this.$store.commit('CORE_CREATE_SNACKBAR', {
         text: TaskSnackbarStrings.$tr('taskFinished'),
         autoDismiss: true,
