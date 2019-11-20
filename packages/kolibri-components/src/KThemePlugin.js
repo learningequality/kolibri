@@ -50,6 +50,25 @@ export default function KThemePlugin(Vue) {
       },
     },
     /* eslint-enable kolibri/vue-no-unused-properties */
+    /* eslint-disable kolibri/vue-no-unused-methods */
+    methods: {
+      /**
+       * Because `window.print()` blocks in most browsers, we need to manually update our
+       * `mediaType` before calling it so that the printable version of the page is as we expect.
+       *
+       * Triggering a print from Ctrl+P or the menu does not have this problem.
+       */
+      $print() {
+        const mediaType = globalThemeState.mediaType;
+        globalThemeState.mediaType = 'print';
+
+        this.$nextTick(() => {
+          window.print();
+          globalThemeState.mediaType = mediaType;
+        });
+      },
+    },
+    /* eslint-enable kolibri/vue-no-unused-methods */
   });
   Vue.prototype.$themeBrand = themeBrand();
   Vue.prototype.$themeTokens = themeTokens();

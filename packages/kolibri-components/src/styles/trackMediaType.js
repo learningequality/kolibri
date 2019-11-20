@@ -1,12 +1,20 @@
 import globalThemeState from './globalThemeState';
 
 export default function trackMediaType() {
-  const mediaQueryList = window.matchMedia('print');
-  const listener = e => {
-    globalThemeState.mediaType = e.matches ? 'print' : null;
+  const listener = isPrint => {
+    globalThemeState.mediaType = isPrint ? 'print' : null;
   };
 
-  // Listen for print
-  mediaQueryList.addListener(listener);
-  listener(mediaQueryList);
+  try {
+    // All supported browsers should have `matchMedia`
+    const mediaQueryList = window.matchMedia('print');
+
+    // Listen for print
+    mediaQueryList.addListener(e => listener(e.matches));
+    listener(mediaQueryList.matches);
+  } catch (e) {
+    // Fallback
+    window.addEventListener('beforeprint', () => listener(true));
+    window.addEventListener('afterprint', () => listener(false));
+  }
 }
