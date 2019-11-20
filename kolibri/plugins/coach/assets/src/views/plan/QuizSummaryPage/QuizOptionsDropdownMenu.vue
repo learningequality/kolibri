@@ -51,6 +51,10 @@
             value: 'PREVIEW',
           },
           editDetails,
+          {
+            label: this.coachString('printReportAction'),
+            value: 'PRINT_REPORT',
+          },
         ];
       },
     },

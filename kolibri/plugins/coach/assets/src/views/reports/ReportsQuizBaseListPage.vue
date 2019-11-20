@@ -33,6 +33,7 @@
       </KGridItem>
       <KGridItem :layout12="{ span: isPrint ? 12 : 8 }">
         <KPageContainer :topMargin="isPrint ? 0 : 16">
+          <ReportsControls />
           <HeaderTabs :enablePrint="true">
             <HeaderTab
               :text="coachString('reportLabel')"
@@ -57,10 +58,12 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import QuizOptionsDropdownMenu from '../plan/QuizSummaryPage/QuizOptionsDropdownMenu';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsQuizBaseListPage',
     components: {
+      ReportsControls,
       QuizOptionsDropdownMenu,
     },
     mixins: [commonCoach, commonCoreStrings],
@@ -107,6 +110,9 @@
         if (option === 'PREVIEW') {
           this.$router.push(this.$router.getRoute('ReportsQuizPreviewPage'));
         }
+        if (option === 'PRINT_REPORT') {
+          this.$print();
+        }
       },
     },
     $trs: {
@@ -119,4 +125,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/three-card-layout';
+
+</style>

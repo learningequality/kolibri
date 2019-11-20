@@ -2,7 +2,15 @@
 
   <div v-show="$mediaType !== 'print'" class="report-controls">
     <slot></slot>
-    <ReportsControlButtons />
+    <div class="report-controls-buttons">
+      <UiIconButton
+        type="flat"
+        :title="coachString('printReportAction')"
+        @click.prevent="$print()"
+      >
+        <mat-svg name="print" category="action" />
+      </UiIconButton>
+    </div>
   </div>
 
 </template>
@@ -10,11 +18,13 @@
 
 <script>
 
-  import ReportsControlButtons from './ReportsControlButtons';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import commonCoach from '../common';
 
   export default {
     name: 'ReportsControls',
-    components: { ReportsControlButtons },
+    components: { UiIconButton },
+    mixins: [commonCoach],
   };
 
 </script>
@@ -28,7 +38,7 @@
     padding-right: 80px;
   }
 
-  /deep/ .report-controls-buttons {
+  .report-controls-buttons {
     position: absolute;
     top: 50%;
     right: 0;
