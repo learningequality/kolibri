@@ -11,7 +11,8 @@
 
     <KPageContainer>
       <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <CoreTable :class="{'print': isPrint}" :emptyMessage="coachString('groupListEmptyState')">
+      <ReportsControls />
+      <CoreTable :emptyMessage="coachString('groupListEmptyState')">
         <thead slot="thead">
           <tr>
             <th>{{ coachString('groupNameLabel') }}</th>
@@ -57,11 +58,13 @@
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import ReportsControls from './ReportsControls';
   import ReportsHeader from './ReportsHeader';
 
   export default {
     name: 'ReportsGroupListPage',
     components: {
+      ReportsControls,
       ReportsHeader,
       ElapsedTime,
     },

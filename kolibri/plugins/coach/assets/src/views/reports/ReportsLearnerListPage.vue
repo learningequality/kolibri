@@ -11,10 +11,12 @@
 
     <KPageContainer>
       <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <!-- TODO COACH
-      <KCheckbox :label="coachString('viewByGroupsLabel')" />
-      <h2>{{ coachString('overallLabel') }}</h2>
-       -->
+      <ReportsControls>
+        <!-- TODO COACH
+        <KCheckbox :label="coachString('viewByGroupsLabel')" />
+        <h2>{{ coachString('overallLabel') }}</h2>
+         -->
+      </ReportsControls>
       <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -54,11 +56,13 @@
 
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoach from '../common';
+  import ReportsControls from './ReportsControls';
   import ReportsHeader from './ReportsHeader';
 
   export default {
     name: 'ReportsLearnerListPage',
     components: {
+      ReportsControls,
       ReportsHeader,
       ElapsedTime,
     },

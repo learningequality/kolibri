@@ -10,13 +10,14 @@
 
     <KPageContainer>
       <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <KSelect
-        v-show="!isPrint"
-        v-model="filter"
-        :label="coreString('showAction')"
-        :options="filterOptions"
-        :inline="true"
-      />
+      <ReportsControls>
+        <KSelect
+          v-model="filter"
+          :label="coreString('showAction')"
+          :options="filterOptions"
+          :inline="true"
+        />
+      </ReportsControls>
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
@@ -72,11 +73,13 @@
   import { LessonResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import ReportsControls from './ReportsControls';
   import ReportsHeader from './ReportsHeader';
 
   export default {
     name: 'ReportsLessonListPage',
     components: {
+      ReportsControls,
       ReportsHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
