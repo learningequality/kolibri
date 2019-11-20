@@ -95,7 +95,7 @@
       versionIsAvailable: `Version {nextVersion} of '{channelName}' is available`,
       youAreCurrentlyOnVersion: 'You are currently on version {currentVersion}',
       versionChangesHeader: {
-        message: 'Changes if you choose to update from version {currentVersion} to {nextVersion}:',
+        message: 'Changes if you choose to update from version {currentVersion} to {nextVersion}',
         context:
           'Header above a table that lists what the consequences of updating the channel would be',
       },
