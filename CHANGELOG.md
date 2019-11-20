@@ -25,14 +25,14 @@ List of the most important changes for each release.
 
 - Fixed: Unclean shutdowns on very large databases, due to prolonged database cleanup
 
+([0.13.0 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.13.0))
+
 
 ## 0.12.9
 
 ### Added
 
 - Improved error reporting in Windows
-
-([0.12.9 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.9))
 
 ### Changed or fixed
 
@@ -43,6 +43,8 @@ List of the most important changes for each release.
 ### Internationalization and localization
 
 - Added Korean
+
+([0.12.9 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.9))
 
 ## 0.12.8
 
