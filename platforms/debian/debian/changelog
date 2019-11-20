@@ -1,3 +1,10 @@
+kolibri-source (0.12.9-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release. Read the changes here:
+    - https://github.com/learningequality/kolibri/blob/release-v0.12.x/CHANGELOG.md
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 20 Nov 2019 08:05:12 +0100
+
 kolibri-source (0.12.8-0ubuntu3) trusty; urgency=medium
 
   * Missing +o allimport in /etc/default/kolibri
