@@ -78,8 +78,6 @@
   import { taskIsClearable, TaskStatuses, TaskTypes } from '../../constants';
 
   const typeToTrMap = {
-    [TaskTypes.REMOTECHANNELIMPORT]: 'generatingChannelListing',
-    [TaskTypes.DISKCHANNELIMPORT]: 'generatingChannelListing',
     [TaskTypes.REMOTECONTENTIMPORT]: 'importChannelPartial',
     [TaskTypes.DISKCONTENTIMPORT]: 'importChannelPartial',
     [TaskTypes.REMOTEIMPORT]: 'importChannelWhole',
@@ -181,7 +179,6 @@
       exportChannelPartial: `Export resources from '{channelName}'`,
       deleteChannelWhole: `Delete '{channelName}'`,
       deleteChannelPartial: `Delete resources from '{channelName}'`,
-      generatingChannelListing: `Generating channel listing - '{channelName}'`,
       updatingChannelVersion: `Update {channelName} to version {newVersion}`,
       // Catch-all strings if the channel or username doesn't get attached to Task
       unknownUsername: 'Unknown user',
