@@ -13,7 +13,10 @@
 
       <ReportsGroupReportLessonExerciseHeader />
 
-      <h2>{{ coachString('overallLabel') }}</h2>
+      <ReportsControls>
+        <h2>{{ coachString('overallLabel') }}</h2>
+      </ReportsControls>
+
       <CoreTable :emptyMessage="coachString('questionListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -55,12 +58,14 @@
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
   import ReportsGroupReportLessonExerciseHeader from './ReportsGroupReportLessonExerciseHeader';
+  import ReportsControls from './ReportsControls';
   import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsGroupReportLessonExerciseQuestionListPage',
     components: {
       ReportsGroupReportLessonExerciseHeader,
+      ReportsControls,
       LearnerProgressRatio,
     },
     mixins: [commonCoach],
@@ -89,6 +94,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   .stats {
     margin-right: 16px;

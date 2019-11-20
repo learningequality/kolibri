@@ -21,7 +21,26 @@
     <KButton :text="coachString('previewAction')" />
     -->
 
-    <HeaderTabs>
+    <HeaderTable v-if="isPrint">
+      <HeaderTableRow>
+        <template slot="key">
+          {{ coachString('groupNameLabel') }}
+        </template>
+        <template slot="value">
+          {{ group.name }}
+        </template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">
+          {{ coachString('lessonLabel') }}
+        </template>
+        <template slot="value">
+          {{ lesson.title }}
+        </template>
+      </HeaderTableRow>
+    </HeaderTable>
+
+    <HeaderTabs :enablePrint="true">
       <HeaderTab
         :text="coachString('reportLabel')"
         :to="classRoute('ReportsGroupReportLessonExerciseLearnerListPage')"
@@ -51,6 +70,9 @@
       },
       exercise() {
         return this.contentMap[this.$route.params.exerciseId];
+      },
+      group() {
+        return this.groupMap[this.$route.params.groupId];
       },
     },
     $trs: {},

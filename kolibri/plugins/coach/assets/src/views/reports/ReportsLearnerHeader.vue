@@ -3,7 +3,6 @@
   <div>
     <p>
       <BackLink
-        v-show="!isPrint"
         :to="classRoute('ReportsLearnerListPage')"
         :text="$tr('back')"
       />

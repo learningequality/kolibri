@@ -25,6 +25,22 @@
       -->
 
       <HeaderTable>
+        <HeaderTableRow v-if="isPrint">
+          <template slot="key">
+            {{ coachString('groupNameLabel') }}
+          </template>
+          <template slot="value">
+            {{ group.name }}
+          </template>
+        </HeaderTableRow>
+        <HeaderTableRow v-if="isPrint">
+          <template slot="key">
+            {{ coachString('lessonLabel') }}
+          </template>
+          <template slot="value">
+            {{ lesson.title }}
+          </template>
+        </HeaderTableRow>
         <HeaderTableRow>
           <template slot="key">
             {{ coachString('avgTimeSpentLabel') }}
@@ -35,9 +51,12 @@
         </HeaderTableRow>
       </HeaderTable>
 
-      <p>
-        <StatusSummary :tally="tally" />
-      </p>
+      <ReportsControls>
+        <p>
+          <StatusSummary :tally="tally" />
+        </p>
+      </ReportsControls>
+
       <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -77,10 +96,13 @@
 <script>
 
   import commonCoach from '../common';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsGroupReportLessonResourceLearnerListPage',
-    components: {},
+    components: {
+      ReportsControls,
+    },
     mixins: [commonCoach],
     computed: {
       lesson() {
@@ -88,6 +110,9 @@
       },
       resource() {
         return this.contentMap[this.$route.params.resourceId];
+      },
+      group() {
+        return this.groupMap[this.$route.params.groupId];
       },
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);
@@ -118,6 +143,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   .stats {
     margin-right: 16px;

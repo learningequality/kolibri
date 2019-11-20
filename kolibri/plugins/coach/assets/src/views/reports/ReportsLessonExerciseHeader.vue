@@ -20,7 +20,7 @@
       </h1>
     </section>
 
-    <HeaderTabs>
+    <HeaderTabs :enablePrint="true">
       <HeaderTab
         :to="classRoute('ReportsLessonExerciseLearnerListPage')"
         :text="coachString('reportLabel')"

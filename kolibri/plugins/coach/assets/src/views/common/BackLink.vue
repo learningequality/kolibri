@@ -1,6 +1,6 @@
 <template>
 
-  <span class="offset">
+  <span v-show="$mediaType !== 'print'" class="offset">
     <UiIconButton
       type="flat"
       class="icon"

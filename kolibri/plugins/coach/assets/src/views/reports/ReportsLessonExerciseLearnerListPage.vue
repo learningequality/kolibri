@@ -13,11 +13,13 @@
 
       <ReportsLessonExerciseHeader @previewClick="onPreviewClick" />
 
-      <KCheckbox
-        :label="coachString('viewByGroupsLabel')"
-        :checked="viewByGroups"
-        @change="toggleGroupsView"
-      />
+      <ReportsControls>
+        <KCheckbox
+          :label="coachString('viewByGroupsLabel')"
+          :checked="viewByGroups"
+          @change="toggleGroupsView"
+        />
+      </ReportsControls>
 
       <div v-if="viewByGroups">
         <div
@@ -87,12 +89,14 @@
   import { LastPages } from '../../constants/lastPagesConstants';
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
   import ReportsExerciseLearners from './ReportsExerciseLearners';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsLessonExerciseLearnerListPage',
     components: {
       ReportsLessonExerciseHeader,
       ReportsExerciseLearners,
+      ReportsControls,
     },
     mixins: [commonCoach],
     data() {
@@ -215,6 +219,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   .group:not(:first-child) {
     margin-top: 42px;

@@ -2,7 +2,6 @@
 
   <KPageContainer style="padding-top: 16px;">
     <BackLink
-      v-show="!isPrint"
       :to="backlink"
       :text="backlinkLabel"
     />
@@ -17,7 +16,7 @@
         </h1>
         <StatusElapsedTime v-show="!isPrint" :date="createdDate" actionType="created" />
       </div>
-      <div v-show="!isPrint" slot="options">
+      <div slot="options">
         <slot name="dropdown"></slot>
       </div>
     </HeaderWithOptions>

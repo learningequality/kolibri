@@ -13,7 +13,15 @@
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow>
+      <HeaderTableRow v-if="isPrint">
+        <template slot="key">
+          {{ coachString('groupNameLabel') }}
+        </template>
+        <template slot="value">
+          {{ group.name }}
+        </template>
+      </HeaderTableRow>
+      <HeaderTableRow v-show="!isPrint">
         <template slot="key">
           {{ coachString('statusLabel') }}
         </template>
@@ -26,14 +34,14 @@
         <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
       <!-- TODO COACH
-      <HeaderTableRow>
+      <HeaderTableRow v-show="!isPrint">
         <template slot="key">{{ coachString('questionOrderLabel') }}</template>
         <template slot="value">{{ coachString('orderRandomLabel') }}</template>
       </HeaderTableRow>
        -->
     </HeaderTable>
 
-    <HeaderTabs>
+    <HeaderTabs :enablePrint="true">
       <HeaderTab
         :text="coachString('reportLabel')"
         :to="classRoute('ReportsGroupReportQuizLearnerListPage')"

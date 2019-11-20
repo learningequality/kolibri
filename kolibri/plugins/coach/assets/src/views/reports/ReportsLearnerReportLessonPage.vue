@@ -22,7 +22,15 @@
         </KLabeledIcon>
       </h1>
       <HeaderTable>
-        <HeaderTableRow>
+        <HeaderTableRow v-if="isPrint">
+          <template slot="key">
+            {{ coreString('learnerLabel') }}
+          </template>
+          <template slot="value">
+            {{ learner.name }}
+          </template>
+        </HeaderTableRow>
+        <HeaderTableRow v-show="!isPrint">
           <template slot="key">
             {{ coachString('statusLabel') }}
           </template>
@@ -30,7 +38,7 @@
             <LessonActive :active="lesson.active" />
           </template>
         </HeaderTableRow>
-        <HeaderTableRow>
+        <HeaderTableRow v-show="!isPrint">
           <template slot="key">
             {{ coachString('descriptionLabel') }}
           </template>
@@ -41,6 +49,8 @@
           </template>
         </HeaderTableRow>
       </HeaderTable>
+
+      <ReportsControls />
 
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
@@ -88,9 +98,13 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsLearnerReportLessonPage',
+    components: {
+      ReportsControls,
+    },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       emptyMessage() {
@@ -134,4 +148,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/print-table';
+
+</style>

@@ -13,6 +13,8 @@
 
       <ReportsGroupReportQuizHeader />
 
+      <ReportsControls />
+
       <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -54,11 +56,13 @@
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import ReportsGroupReportQuizHeader from './ReportsGroupReportQuizHeader';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsGroupReportQuizLearnerListPage',
     components: {
       ReportsGroupReportQuizHeader,
+      ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {
@@ -118,4 +122,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/print-table';
+
+</style>

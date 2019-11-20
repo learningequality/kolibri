@@ -11,6 +11,7 @@
 
     <KPageContainer>
       <ReportsGroupHeader :enablePrint="true" />
+      <ReportsControls />
       <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -48,11 +49,13 @@
 
   import commonCoach from '../common';
   import ReportsGroupHeader from './ReportsGroupHeader';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsGroupLearnerListPage',
     components: {
       ReportsGroupHeader,
+      ReportsControls,
     },
     mixins: [commonCoach],
     computed: {

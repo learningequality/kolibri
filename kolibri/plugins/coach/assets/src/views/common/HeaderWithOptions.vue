@@ -9,6 +9,7 @@
       <slot name="header"></slot>
     </KGridItem>
     <KGridItem
+      v-show="$mediaType !== 'print'"
       :layout="{ alignment: 'right' }"
       :layout4="{ alignment: 'left', span: 4 }"
       :layout8="{ span: 3 }"
