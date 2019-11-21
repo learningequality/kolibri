@@ -330,10 +330,22 @@
       documentTitleForLocalImport: "Available Channels on '{driveName}'",
       documentTitleForRemoteImport: 'Available Channels on Kolibri Studio',
       noChannelsAvailable: 'No channels are available on this device',
-      selectEntireChannels: 'Select entire channels instead',
-      selectTopicsAndResources: 'Select topics and resources instead',
-      notEnoughSpaceForChannelsWarning:
-        'Not enough space available on your device. Free up disk space or select fewer resources',
+      selectEntireChannels: {
+        message: 'Select entire channels instead',
+        context:
+          '\nAllow the user to select entire channels instead of individual topics/resources within a channel',
+      },
+      selectTopicsAndResources: {
+        message: 'Select topics and resources instead',
+        context:
+          '\nAllow the user to select individual topics/resources within a channel instead of entire channels',
+      },
+      notEnoughSpaceForChannelsWarning: {
+        message:
+          'Not enough space available on your device. Free up disk space or select fewer resources',
+        context:
+          '\nWarning that appears when there is not enough space on the user’s device for the selected resources',
+      },
     },
   };
 

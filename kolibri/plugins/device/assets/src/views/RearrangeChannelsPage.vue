@@ -140,8 +140,14 @@
       },
     },
     $trs: {
-      instructions: 'Control the order in which channels will be displayed to learners and coaches',
-      successNotification: 'Channel order saved',
+      instructions: {
+        message: 'Control the order in which channels will be displayed to learners and coaches',
+        context: '\nText explaining how the channel reordering feature works',
+      },
+      successNotification: {
+        message: 'Channel order saved',
+        context: '\nSuccess message shown when the admin re-orders channels',
+      },
       failureNotification: 'There was a problem reordering the channels',
       noChannels: 'There are no channels',
       upLabel: 'Move {name} up one',

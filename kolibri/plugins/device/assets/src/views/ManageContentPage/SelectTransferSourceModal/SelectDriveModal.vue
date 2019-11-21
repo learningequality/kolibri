@@ -166,8 +166,11 @@
       problemFindingLocalDrives: 'There was a problem finding local drives.',
       selectDrive: 'Select a drive',
       selectExportDestination: 'Select an export destination',
-      notEnoughFreeSpaceWarning:
-        'Not enough space available. Free up space on the drive or select fewer resources',
+      notEnoughFreeSpaceWarning: {
+        message: 'Not enough space available. Free up space on the drive or select fewer resources',
+        context:
+          '\nWarning that appears when a user has selected a drive without enough space for the selected resources',
+      },
     },
   };
 

@@ -59,11 +59,21 @@
         'Are you sure you want to delete this resource from your device?',
       confirmationQuestionMultipleResources:
         'Are you sure you want to delete these resources from your device?',
-      deleteEverywhereLabel: 'Also delete any copies found in other locations and channels',
-      deleteEverywhereExplanationOneResource:
-        'Some copies of this resource may be in other locations on your device',
-      deleteEverywhereExplanationMultipleResources:
-        'Some copies of these resources may be in other locations on your device',
+      deleteEverywhereLabel: {
+        message: 'Also delete any copies found in other locations and channels',
+        context:
+          '\nWhen some of the resources admin selected are present in multiple channels, Kolibri will provide an option for the admin to delete all instances ',
+      },
+      deleteEverywhereExplanationOneResource: {
+        message: 'Some copies of this resource may be in other locations on your device',
+        context:
+          '\nWhen some of the resources admin selected are present in multiple channels, Kolibri will provide an option for the admin to delete all instances ',
+      },
+      deleteEverywhereExplanationMultipleResources: {
+        message: 'Some copies of these resources may be in other locations on your device',
+        context:
+          '\nWhen some of the resources admin selected are present in multiple channels, Kolibri will provide an option for the admin to delete all instances ',
+      },
     },
   };
 

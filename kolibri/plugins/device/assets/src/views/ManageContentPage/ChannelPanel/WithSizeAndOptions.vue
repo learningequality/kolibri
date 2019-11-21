@@ -85,7 +85,10 @@
       },
     },
     $trs: {
-      manageChannelAction: 'Manage',
+      manageChannelAction: {
+        message: 'Manage',
+        context: '\nOperation that can be performed on a channel',
+      },
       deleteChannelAction: 'Delete',
     },
   };
