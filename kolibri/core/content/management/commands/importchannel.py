@@ -132,9 +132,9 @@ class Command(AsyncCommand):
         if os.path.exists(upgrade_dest) and not upgrade:
             os.remove(upgrade_dest)
 
-    def _start_file_transfer(
+    def _start_file_transfer(  # noqa: C901
         self, filetransfer, channel_id, dest, upgrade=False
-    ):  # noqa: C901
+    ):
         progress_extra_data = {"channel_id": channel_id}
 
         try:

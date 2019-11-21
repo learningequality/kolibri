@@ -20,11 +20,12 @@ from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils import annotation
 from kolibri.core.content.utils import channel_import
 from kolibri.core.content.utils import paths
+from kolibri.core.content.utils import upgrade
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.paths import get_content_database_file_path
-from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.content.utils.sqlalchemybridge import Bridge
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.job import State
@@ -631,15 +632,15 @@ class TasksViewSet(viewsets.ViewSet):
                 destination=destination_path
             )
             # get the diff count between whats on the default db and the annotated db
-            new_resources_count = annotation.count_new_resources_available_for_import(
+            new_resources_count = upgrade.count_new_resources_available_for_import(
                 destination_path, channel_id
             )
             # get the count for leaf nodes which are in the default db, but not in the annotated db
-            resources_to_be_deleted_count = annotation.count_removed_resources(
+            resources_to_be_deleted_count = upgrade.count_removed_resources(
                 destination_path, channel_id
             )
             # get the ids of leaf nodes which are now incomplete due to missing local files
-            updated_resources_ids = annotation.automatically_updated_resource_ids(
+            updated_resources_ids = upgrade.automatically_updated_resource_ids(
                 destination_path, channel_id
             )
             data = {
