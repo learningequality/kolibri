@@ -44,6 +44,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             "gender",
             "birth_year",
         )
+        read_only_fields = ("is_superuser",)
 
     def validate(self, attrs):
         username = attrs.get("username")
@@ -62,12 +63,6 @@ class FacilityUserSerializer(serializers.ModelSerializer):
                 "An account with that username already exists.",
                 code=error_constants.USERNAME_ALREADY_EXISTS,
             )
-
-
-class FacilityUsernameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FacilityUser
-        fields = ("username",)
 
 
 class MembershipSerializer(serializers.ModelSerializer):
@@ -134,18 +129,10 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
 
 
 class ClassroomSerializer(serializers.ModelSerializer):
-    learner_count = serializers.SerializerMethodField()
-    coaches = serializers.SerializerMethodField()
-
-    def get_learner_count(self, instance):
-        return instance.get_members().count()
-
-    def get_coaches(self, instance):
-        return FacilityUserSerializer(instance.get_coaches(), many=True).data
-
     class Meta:
         model = Classroom
-        fields = ("id", "name", "parent", "learner_count", "coaches")
+        fields = ("id", "name", "parent")
+        read_only_fields = ("id",)
 
         validators = [
             UniqueTogetherValidator(
@@ -155,15 +142,9 @@ class ClassroomSerializer(serializers.ModelSerializer):
 
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
-
-    user_ids = serializers.SerializerMethodField()
-
-    def get_user_ids(self, group):
-        return [str(user_id["id"]) for user_id in group.get_members().values("id")]
-
     class Meta:
         model = LearnerGroup
-        fields = ("id", "name", "parent", "user_ids")
+        fields = ("id", "name", "parent")
 
         validators = [
             UniqueTogetherValidator(

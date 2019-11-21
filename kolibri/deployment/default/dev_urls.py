@@ -2,11 +2,9 @@ from django.conf import settings
 from django.conf.urls import include
 from django.conf.urls import url
 from django.http.response import HttpResponseRedirect
-from rest_framework.documentation import include_docs_urls
 from rest_framework_swagger.views import get_swagger_view
 
 from kolibri.deployment.default.urls import urlpatterns
-from kolibri.utils.api import Generator
 
 
 def webpack_redirect_view(request):
@@ -20,7 +18,6 @@ def webpack_redirect_view(request):
 schema_view = get_swagger_view(title="Kolibri API")
 
 urlpatterns = urlpatterns + [
-    url(r"^docs/", include_docs_urls(title="Kolibri API", generator_class=Generator)),
     url(r"^__open-in-editor/", webpack_redirect_view),
     url(r"^api_explorer/", schema_view),
 ]

@@ -69,6 +69,9 @@ from .permissions.general import IsSelf
 from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
 from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.constants.morango_scope_definitions import SINGLE_USER
+from kolibri.core.device.utils import DeviceNotProvisioned
+from kolibri.core.device.utils import get_device_setting
+from kolibri.core.device.utils import set_device_settings
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time_utils import local_now
@@ -1245,12 +1248,9 @@ class Facility(Collection):
 
     @classmethod
     def get_default_facility(cls):
-        from kolibri.core.device.models import DeviceSettings
-
         try:
-            device_settings = DeviceSettings.objects.get()
-            default_facility = device_settings.default_facility
-        except DeviceSettings.DoesNotExist:
+            default_facility = get_device_setting("default_facility")
+        except DeviceNotProvisioned:
             # device has not been provisioned yet, so just return None in this case
             return None
         if not default_facility:
@@ -1259,8 +1259,7 @@ class Facility(Collection):
             # predictable, even if incorrect.
             default_facility = cls.objects.all().first()
             if default_facility:
-                device_settings.default_facility = default_facility
-                device_settings.save()
+                set_device_settings(default_facility=default_facility)
         return default_facility
 
     def save(self, *args, **kwargs):

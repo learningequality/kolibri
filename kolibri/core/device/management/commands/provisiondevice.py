@@ -10,7 +10,7 @@ from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.auth.constants.facility_presets import presets
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.utils import provision_device
 
 logger = logging.getLogger(__name__)
 
@@ -104,11 +104,7 @@ def create_device_settings(language_id=None, facility=None, interactive=False):
             ),
             valid_answers=languages,
         )
-    device_settings, created = DeviceSettings.objects.get_or_create()
-    device_settings.is_provisioned = True
-    device_settings.language_id = language_id or device_settings.language_id
-    device_settings.default_facility = device_settings.default_facility or facility
-    device_settings.save()
+    provision_device(language_id=language_id, default_facility=facility)
 
 
 class Command(BaseCommand):
