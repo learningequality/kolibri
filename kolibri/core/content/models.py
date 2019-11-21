@@ -41,6 +41,8 @@ from .utils import paths
 from kolibri.core.content import base_models
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.mixins import FilterByUUIDQuerysetMixin
+from kolibri.utils.conf import OPTIONS
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
@@ -51,7 +53,7 @@ class ContentTag(base_models.ContentTag):
         return self.tag_name
 
 
-class ContentNodeQueryset(TreeQuerySet):
+class ContentNodeQueryset(TreeQuerySet, FilterByUUIDQuerysetMixin):
     def dedupe_by_content_id(self):
         # remove duplicate content nodes based on content_id
         if connection.vendor == "sqlite":

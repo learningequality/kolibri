@@ -15,7 +15,6 @@ from six import string_types
 
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
 from kolibri.core.content.models import ChannelMetadata
-from kolibri.core.content.models import ContentNode
 from kolibri.core.content.permissions import CanExportLogs
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils import annotation
@@ -631,29 +630,17 @@ class TasksViewSet(viewsets.ViewSet):
             annotation.set_local_file_availability_from_disk(
                 destination=destination_path
             )
-            # get all leaf node ids on the default db
-            all_leaf_node_ids = (
-                ContentNode.objects.filter(channel_id=channel_id)
-                .exclude(kind="topic")
-                .values_list("id", flat=True)
-            )
             # get the diff count between whats on the default db and the annotated db
             new_resources_count = annotation.count_new_resources_available_for_import(
-                destination_path, all_leaf_node_ids,
-            )
-            # get available leaf node ids on the default db
-            available_leaf_node_ids = (
-                ContentNode.objects.filter(channel_id=channel_id, available=True)
-                .exclude(kind="topic")
-                .values_list("id", flat=True)
+                destination_path, channel_id
             )
             # get the count for leaf nodes which are in the default db, but not in the annotated db
-            resources_to_be_deleted_count = annotation.count_missing_resources(
-                destination_path, available_leaf_node_ids,
+            resources_to_be_deleted_count = annotation.count_removed_resources(
+                destination_path, channel_id
             )
             # get the ids of leaf nodes which are now incomplete due to missing local files
             updated_resources_ids = annotation.automatically_updated_resource_ids(
-                destination_path, available_leaf_node_ids,
+                destination_path, channel_id
             )
             data = {
                 "new_resources_count": new_resources_count,
