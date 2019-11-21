@@ -284,7 +284,7 @@ kolibri_configure()
     # Remove because we might re-register as systemd during an upgrade
     update-rc.d -f kolibri remove
 
-    KERNEL_RASPBERRY=`uname -a|grep arm`
+    KERNEL_RASPBERRY=`uname -a|grep arm` || true
     [ ! -z "$KERNEL_RASPBERRY" ] && echo "\n\n  NB! This operation can take some time, please be patient!"
 
     if $ENABLE_INIT_D
