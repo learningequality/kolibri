@@ -1,4 +1,5 @@
 import json
+from functools import partial
 from itertools import chain
 
 from django.db import connection
@@ -13,6 +14,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.query import ArrayAgg
 from kolibri.core.query import GroupConcat
+from kolibri.core.query import process_uuid_aggregate
 
 
 def _ensure_raw_dict(d):
@@ -43,20 +45,6 @@ def _map_lesson_classroom(item):
     }
 
 
-def _process_learner_ids(item):
-    if connection.vendor == "postgresql" and ArrayAgg is not None:
-        # Filter out null values
-        return list(filter(lambda x: x, item["learner_ids"]))
-    return item["learner_ids"].split(",") if item["learner_ids"] else []
-
-
-def _process_assignment_ids(item):
-    if connection.vendor == "postgresql" and ArrayAgg is not None:
-        # Filter out null values
-        return list(filter(lambda x: x, item["assignment_ids"]))
-    return item["assignment_ids"].split(",") if item["assignment_ids"] else []
-
-
 class LessonViewset(ValuesViewset):
     serializer_class = LessonSerializer
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
@@ -81,7 +69,7 @@ class LessonViewset(ValuesViewset):
     field_map = {
         "classroom": _map_lesson_classroom,
         "resources": lambda x: json.loads(x["resources"]),
-        "assignment_ids": _process_assignment_ids,
+        "assignment_ids": partial(process_uuid_aggregate, key="assignment_ids"),
     }
 
     def consolidate(self, items):
@@ -95,7 +83,9 @@ class LessonViewset(ValuesViewset):
             )
 
             def _process_item(item):
-                item["learner_ids"] = filter(lambda x: x, item["learner_ids"])
+                item["learner_ids"] = map(
+                    lambda x: x.hex, filter(lambda x: x, item["learner_ids"])
+                )
                 return item
 
         else:

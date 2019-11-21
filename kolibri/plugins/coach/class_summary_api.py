@@ -1,4 +1,5 @@
 import json
+from functools import partial
 
 from django.db import connection
 from django.db.models import CharField
@@ -27,6 +28,7 @@ from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
 from kolibri.core.query import ArrayAgg
 from kolibri.core.query import GroupConcat
+from kolibri.core.query import process_uuid_aggregate
 
 
 # Intended to match  NotificationEventType
@@ -187,15 +189,6 @@ def serialize_exam_status(queryset):
     )
 
 
-def _split_member_ids(item):
-    if connection.vendor == "postgresql" and ArrayAgg is not None:
-        # Filter out null values
-        item["member_ids"] = list(filter(lambda x: x, item["member_ids"]))
-    else:
-        item["member_ids"] = item["member_ids"].split(",") if item["member_ids"] else []
-    return item
-
-
 def serialize_groups(queryset):
     if connection.vendor == "postgresql" and ArrayAgg is not None:
         queryset = queryset.annotate(member_ids=ArrayAgg("membership__user__id"))
@@ -203,7 +196,12 @@ def serialize_groups(queryset):
         queryset = queryset.values("id").annotate(
             member_ids=GroupConcat("membership__user__id", output_field=CharField())
         )
-    return list(map(_split_member_ids, queryset.values("id", "name", "member_ids")))
+    return list(
+        map(
+            partial(process_uuid_aggregate, key="member_ids"),
+            queryset.values("id", "name", "member_ids"),
+        )
+    )
 
 
 def serialize_users(queryset):
@@ -213,10 +211,7 @@ def serialize_users(queryset):
 def _map_lesson(item):
     item["resources"] = json.loads(item["resources"])
     item["node_ids"] = [resource["contentnode_id"] for resource in item["resources"]]
-    if not (connection.vendor == "postgresql" and ArrayAgg is not None):
-        item["assignments"] = (
-            item["assignments"].split(",") if item["assignments"] else []
-        )
+    item["assignments"] = process_uuid_aggregate(item, "assignments")
     return item
 
 
@@ -250,10 +245,7 @@ def serialize_lessons(queryset):
 def _map_exam(item):
     item["question_sources"] = json.loads(item["question_sources"])
     item["assignments"] = item.pop("exam_assignments")
-    if not (connection.vendor == "postgresql" and ArrayAgg is not None):
-        item["assignments"] = (
-            item["assignments"].split(",") if item["assignments"] else []
-        )
+    item["assignments"] = process_uuid_aggregate(item, "assignments")
     return item
 
 

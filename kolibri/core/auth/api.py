@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import time
+from functools import partial
 from itertools import groupby
 
 from django.contrib.auth import authenticate
@@ -55,6 +56,7 @@ from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
 from kolibri.core.query import ArrayAgg
 from kolibri.core.query import GroupConcat
+from kolibri.core.query import process_uuid_aggregate
 from kolibri.core.query import SQCount
 
 
@@ -366,13 +368,6 @@ class ClassroomViewSet(ValuesViewset):
         return output
 
 
-def _process_user_ids(item):
-    if connection.vendor == "postgresql" and ArrayAgg is not None:
-        # Filter out null values
-        return list(filter(lambda x: x, item["user_ids"]))
-    return item["user_ids"].split(",") if item["user_ids"] else []
-
-
 class LearnerGroupViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
@@ -383,7 +378,7 @@ class LearnerGroupViewSet(ValuesViewset):
 
     values = ("id", "name", "parent", "user_ids")
 
-    field_map = {"user_ids": _process_user_ids}
+    field_map = {"user_ids": partial(process_uuid_aggregate, key="user_ids")}
 
     def annotate_queryset(self, queryset):
         if connection.vendor == "postgresql" and ArrayAgg is not None:
