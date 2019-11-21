@@ -1,28 +1,20 @@
 <template>
 
-  <BottomAppBar>
-    <div class="task-bar" :class="{'task-bar-sm': windowIsSmall}">
-      <div class="progress-bar">
-        <div class="message">
-          {{ tasksString }}
-        </div>
-        <KLinearLoader
-          v-if="totalTasks >0"
-          class="k-linear-loader"
-          :delay="false"
-          :progress="progress"
-          type="determinate"
-          :style="{backgroundColor: $themeTokens.fineLine}"
-        />
+  <div class="task-bar" :class="{'task-bar-sm': windowIsSmall}">
+    <div class="progress-bar">
+      <div class="message">
+        {{ tasksString }}
       </div>
-      <KRouterLink
-        appearance="raised-button"
-        :primary="true"
-        :text="coreString('viewTasksAction')"
-        :to="{name: 'MANAGE_TASKS'}"
+      <KLinearLoader
+        v-if="totalTasks >0"
+        class="k-linear-loader"
+        :delay="false"
+        :progress="progress"
+        type="determinate"
+        :style="{backgroundColor: $themeTokens.fineLine}"
       />
     </div>
-  </BottomAppBar>
+  </div>
 
 </template>
 
@@ -33,14 +25,11 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import countBy from 'lodash/countBy';
   import sumBy from 'lodash/sumBy';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'TasksBar',
-    components: {
-      BottomAppBar,
-    },
+    components: {},
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {},
     data() {
