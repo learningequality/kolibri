@@ -159,7 +159,6 @@ def register_zeroconf_service(port, id):
 
 
 def unregister_zeroconf_service():
-    logger.info("Unregistering ourselves from zeroconf network...")
     if ZEROCONF_STATE["service"] is not None:
         ZEROCONF_STATE["service"].cleanup()
     ZEROCONF_STATE["service"] = None

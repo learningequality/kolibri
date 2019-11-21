@@ -75,10 +75,10 @@ class NotRunning(Exception):
 
 
 def _cleanup_before_quitting(signum, frame, worker=None):
+    # the IO stack is not thread safe:
+    # make sure not to do any logging in here!
     from kolibri.core.discovery.utils.network.search import unregister_zeroconf_service
     from kolibri.core.tasks.main import scheduler
-
-    logger.info("Cleaning up background services before exiting")
 
     if worker is not None:
         worker.shutdown()
