@@ -20,6 +20,9 @@ from requests.exceptions import SSLError
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.content_types_tools import (
+    renderable_contentnodes_q_filter,
+)
 from kolibri.core.content.utils.import_export_content import get_files_to_transfer
 from kolibri.utils.tests.helpers import override_option
 
@@ -815,6 +818,29 @@ class TestFilesToTransfer(TestCase):
             root_node.channel_id, [node1.id], [node2.id], False, False
         )
         self.assertEqual(files_to_transfer.filter(id=local_file.id).count(), 1)
+
+    @patch(
+        "kolibri.core.content.utils.import_export_content.get_channel_stats_from_disk"
+    )
+    def test_all_nodes_present_disk_renderable_only(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        stats = {
+            key: {} for key in ContentNode.objects.all().values_list("id", flat=True)
+        }
+        channel_stats_mock.return_value = stats
+        files_to_transfer, _ = get_files_to_transfer(
+            self.the_channel_id, [], [], False, True, drive_id="1"
+        )
+        self.assertEqual(
+            files_to_transfer.count(),
+            LocalFile.objects.filter(
+                available=False,
+                files__contentnode__in=ContentNode.objects.filter(
+                    renderable_contentnodes_q_filter
+                ),
+            ).count(),
+        )
 
     @patch(
         "kolibri.core.content.utils.import_export_content.get_channel_stats_from_disk"
