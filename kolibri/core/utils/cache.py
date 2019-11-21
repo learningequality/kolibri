@@ -20,9 +20,13 @@ class CrossProcessCache(object):
     def get(self, key, default=None, version=None):
         if key in caches["default"] or cache_options["CACHE_BACKEND"] == "redis":
             return caches["default"].get(key, default=default, version=version)
-        item = caches["process_cache"].get(key, default=None, version=None)
-        caches["default"].set(key, item, timeout=self.default_timeout, version=version)
-        return item
+        if key in caches["process_cache"]:
+            item = caches["process_cache"].get(key, default=None, version=None)
+            caches["default"].set(
+                key, item, timeout=self.default_timeout, version=version
+            )
+            return item
+        return default
 
     def set(self, key, value, timeout=None, version=None):
         caches["default"].set(
