@@ -41,7 +41,7 @@ class LearnerClassroomViewset(ValuesViewset):
             Lesson.objects.filter(
                 lesson_assignments__collection__membership__user=self.request.user,
                 is_active=True,
-                collection__in=self.queryset,
+                collection__in=(c["id"] for c in items),
             )
             .distinct()
             .values(
@@ -76,7 +76,7 @@ class LearnerClassroomViewset(ValuesViewset):
         exams = (
             Exam.objects.filter(
                 assignments__collection__membership__user=self.request.user,
-                collection__in=self.queryset,
+                collection__in=(c["id"] for c in items),
             )
             .filter(Q(active=True) | Q(examlogs__user=self.request.user))
             .annotate(

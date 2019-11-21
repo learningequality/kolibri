@@ -86,7 +86,6 @@ class LessonViewset(ValuesViewset):
 
     def consolidate(self, items):
         assignment_ids = []
-        items = list(items)
         for item in items:
             assignment_ids.extend(item["assignment_ids"])
         assignments = LessonAssignment.objects.filter(id__in=assignment_ids)

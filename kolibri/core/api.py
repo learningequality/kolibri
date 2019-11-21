@@ -80,14 +80,11 @@ class ValuesViewset(viewsets.ModelViewSet):
 
     def _serialize_queryset(self, queryset):
         queryset = self.annotate_queryset(queryset)
-        self.queryset = queryset
         return queryset.values(*self._values)
 
     def serialize(self, queryset):
-        return list(
-            self.consolidate(
-                map(self._map_fields, self._serialize_queryset(queryset) or [])
-            )
+        return self.consolidate(
+            list(map(self._map_fields, self._serialize_queryset(queryset) or []))
         )
 
     def list(self, request, *args, **kwargs):
