@@ -322,19 +322,17 @@
       documentTitle: 'Create account',
       demographicInfoOptional: {
         message: 'Providing this information is optional.',
-        context:
-          'Text informing the user that form fields requesting demographic information are optional.',
+        context: '\nClarifying information that providing the demographic information is optional.',
       },
       demographicInfoExplanation: {
         message:
           'It will be visible to administrators. It will also be used to help improve the software and resources for different learner types and needs.',
-        context:
-          'Text explaining to the user how demographic information requested in a visible form will be utilized.',
+        context: '\nDetails on how the demographic information requested in the form will be used.',
       },
       privacyLinkText: {
         message: 'Learn more about usage and privacy',
         context:
-          'Text shown in a link to open the Kolibri usage and privacy modal. This is shown alongside other text describing collection of demographic user information.',
+          '\nLink to open the Kolibri usage and privacy modal. It will be displayed alongside the text describing collection of demographic user information.',
       },
     },
   };

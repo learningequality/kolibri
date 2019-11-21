@@ -112,7 +112,10 @@
       tasksHeader: 'Tasks',
       appBarTitle: 'Task manager',
       emptyTasksMessage: 'There are no tasks to display',
-      clearCompletedAction: 'Clear completed',
+      clearCompletedAction: {
+        message: 'Clear completed',
+        context: '\nButton to clear the completed tasks',
+      },
     },
   };
 
