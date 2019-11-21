@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "Неуспешно зареждане на мултимедията заради сървърна или мрежова грешка или защото този формат не се поддържа",
   "MediaPlayerIndex.forward": "10 секунди напред",
   "MediaPlayerIndex.fullscreen": "Цял екран",
+  "MediaPlayerIndex.languages": "Езици",
   "MediaPlayerIndex.loaded": "Заредено",
   "MediaPlayerIndex.mute": "Изключи звука",
   "MediaPlayerIndex.networkError": "Заради мрежова грешка изтеглянето на мултимедията беше неуспешно",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "Лента на напредъка",
   "MediaPlayerIndex.replay": "10 секунди назад",
   "MediaPlayerIndex.sourceError": "За тази мултимедия няма намерен съвместим източник",
+  "MediaPlayerIndex.transcript": "Запис",
+  "MediaPlayerIndex.transcriptOff": "Изключване на запис",
   "MediaPlayerIndex.unmute": "Включи звука",
-  "MediaPlayerIndex.volumeLevel": "Ниво на звука"
+  "MediaPlayerIndex.volumeLevel": "Ниво на звука",
+  "MediaPlayerTranscript.label": "Запис",
+  "MediaPlayerTranscript.transcriptBeginning": "Начало на записа",
+  "MediaPlayerTranscript.transcriptEnd": "Край на записа",
+  "SubtitlesMenuItem.subtitles": "Субтитри",
+  "TranscriptCue.textLabel": "Текст на легендата за записа",
+  "TranscriptCue.timeLabel": "Начален час на записа",
+  "TranscriptCue.title": "Отиди на {startTime}",
+  "TranscriptMenuItem.transcript": "Запис"
 }

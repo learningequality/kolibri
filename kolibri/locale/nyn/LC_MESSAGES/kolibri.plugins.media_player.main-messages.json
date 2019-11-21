@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "Simungathe kuonera mwina chifukwa cha vuto la seva kapena netiweki kapenanso chifukwa mtundu wa failo ndi wosagwirizana",
   "MediaPlayerIndex.forward": "Pitani patsogolo ndi masekondi 10",
   "MediaPlayerIndex.fullscreen": "Sikilini yonse",
+  "MediaPlayerIndex.languages": "",
   "MediaPlayerIndex.loaded": "Yatheka",
   "MediaPlayerIndex.mute": "Tsekani mawu",
   "MediaPlayerIndex.networkError": "Vuto la netiweki lapangitsa kuti zimene mumapanga dawunilodi zidukire panjira",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "Kamzere kosonyeza mmene zikuyendera",
   "MediaPlayerIndex.replay": "Bwererani ndi masekondi 10",
   "MediaPlayerIndex.sourceError": "Sitinapeze zothandiza kuti muonere vidiyoyi",
+  "MediaPlayerIndex.transcript": "",
+  "MediaPlayerIndex.transcriptOff": "",
   "MediaPlayerIndex.unmute": "Tsegulani mawu",
-  "MediaPlayerIndex.volumeLevel": "Voliyomu"
+  "MediaPlayerIndex.volumeLevel": "Voliyomu",
+  "MediaPlayerTranscript.label": "",
+  "MediaPlayerTranscript.transcriptBeginning": "",
+  "MediaPlayerTranscript.transcriptEnd": "",
+  "SubtitlesMenuItem.subtitles": "",
+  "TranscriptCue.textLabel": "",
+  "TranscriptCue.timeLabel": "",
+  "TranscriptCue.title": "",
+  "TranscriptMenuItem.transcript": ""
 }

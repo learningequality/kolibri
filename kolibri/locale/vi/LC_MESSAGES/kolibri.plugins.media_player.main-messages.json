@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "Không thể tải video này do lỗi máy chủ, lỗi mạng hoặc do không hỗ trợ định dạng này",
   "MediaPlayerIndex.forward": "Tiến 10 giây",
   "MediaPlayerIndex.fullscreen": "Trọn màn hình",
+  "MediaPlayerIndex.languages": "",
   "MediaPlayerIndex.loaded": "Đã tải",
   "MediaPlayerIndex.mute": "Tắt âm thanh",
   "MediaPlayerIndex.networkError": "Lỗi mạng khiến việc tải video này thất bại giữa chừng",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "Thanh tiến độ",
   "MediaPlayerIndex.replay": "Lùi 10 giây",
   "MediaPlayerIndex.sourceError": "Không tìm thấy nguồn tương thích cho video này",
+  "MediaPlayerIndex.transcript": "",
+  "MediaPlayerIndex.transcriptOff": "",
   "MediaPlayerIndex.unmute": "Mở âm thanh",
-  "MediaPlayerIndex.volumeLevel": "Âm lượng"
+  "MediaPlayerIndex.volumeLevel": "Âm lượng",
+  "MediaPlayerTranscript.label": "",
+  "MediaPlayerTranscript.transcriptBeginning": "",
+  "MediaPlayerTranscript.transcriptEnd": "",
+  "SubtitlesMenuItem.subtitles": "",
+  "TranscriptCue.textLabel": "",
+  "TranscriptCue.timeLabel": "",
+  "TranscriptCue.title": "",
+  "TranscriptMenuItem.transcript": ""
 }

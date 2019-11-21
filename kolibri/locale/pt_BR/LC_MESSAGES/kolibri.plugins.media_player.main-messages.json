@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "O conteúdo não pôde ser carregado por uma falha no servidor, na rede ou porque este formato não é compatível",
   "MediaPlayerIndex.forward": "Avançar 10 segundos",
   "MediaPlayerIndex.fullscreen": "Tela cheia",
+  "MediaPlayerIndex.languages": "",
   "MediaPlayerIndex.loaded": "Carregado",
   "MediaPlayerIndex.mute": "Mudo",
   "MediaPlayerIndex.networkError": "Um erro de conexão causou uma falha em parte do download do conteúdo",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "Barra de progresso",
   "MediaPlayerIndex.replay": "Voltar 10 segundos",
   "MediaPlayerIndex.sourceError": "Nenhuma fonte compatível foi encontrada para este conteúdo",
+  "MediaPlayerIndex.transcript": "",
+  "MediaPlayerIndex.transcriptOff": "",
   "MediaPlayerIndex.unmute": "Ativar som",
-  "MediaPlayerIndex.volumeLevel": "Volume"
+  "MediaPlayerIndex.volumeLevel": "Volume",
+  "MediaPlayerTranscript.label": "",
+  "MediaPlayerTranscript.transcriptBeginning": "",
+  "MediaPlayerTranscript.transcriptEnd": "",
+  "SubtitlesMenuItem.subtitles": "Legendas",
+  "TranscriptCue.textLabel": "",
+  "TranscriptCue.timeLabel": "",
+  "TranscriptCue.title": "",
+  "TranscriptMenuItem.transcript": ""
 }

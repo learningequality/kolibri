@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "मीडिया लोड नहीं किया जा सका, क्योंकि सर्वर या नेटवर्क में कोई विफलता है या प्रारूप समर्थित नहीं है",
   "MediaPlayerIndex.forward": "10 सेकंड आगे जाइये",
   "MediaPlayerIndex.fullscreen": "पूर्ण स्क्रीन",
+  "MediaPlayerIndex.languages": "",
   "MediaPlayerIndex.loaded": "लोड कर दिया गया है",
   "MediaPlayerIndex.mute": "मूक करें",
   "MediaPlayerIndex.networkError": "किसी नेटवर्क त्रुटि के कारण मीडिया का डाउनलोड बीच में असफल हो गया है",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "प्रगति पट्टी",
   "MediaPlayerIndex.replay": "10 सेकंड पीछे जाएँ",
   "MediaPlayerIndex.sourceError": "इस मीडिया के लिए कोई अनुकूल स्रोत नहीं मिला",
+  "MediaPlayerIndex.transcript": "",
+  "MediaPlayerIndex.transcriptOff": "",
   "MediaPlayerIndex.unmute": "अनम्यूट करें",
-  "MediaPlayerIndex.volumeLevel": "आवाज़ का स्तर"
+  "MediaPlayerIndex.volumeLevel": "आवाज़ का स्तर",
+  "MediaPlayerTranscript.label": "",
+  "MediaPlayerTranscript.transcriptBeginning": "",
+  "MediaPlayerTranscript.transcriptEnd": "",
+  "SubtitlesMenuItem.subtitles": "",
+  "TranscriptCue.textLabel": "",
+  "TranscriptCue.timeLabel": "",
+  "TranscriptCue.title": "",
+  "TranscriptMenuItem.transcript": ""
 }
