@@ -431,6 +431,7 @@ Mastery measures progress, not performance. For example, a mastery model might s
         <langSet xml:lang="en">
           <tig>
             <term id="82aa4b0af34c2313a562076992e50aa3162-en">network</term>
+            <termNote type="partOfSpeech">noun</termNote>
             <descrip type="definition">A network is a set of computers that can communicate with each other. This is how a Kolibri server installed on one device can communicate with client devices running web browsers</descrip>
           </tig>
         </langSet>
@@ -512,6 +513,7 @@ Mastery measures progress, not performance. For example, a mastery model might s
         <langSet xml:lang="en">
           <tig>
             <term id="6cdd60ea0045eb7a6ec44c54d29ed402184-en">topic</term>
+            <termNote type="partOfSpeech">noun</termNote>
             <descrip type="definition">A collection of resources and other topics within a channel. Nested topics are like folders, and allow a channel to be organized as a tree or hierarchy</descrip>
           </tig>
         </langSet>
@@ -546,6 +548,15 @@ Mastery measures progress, not performance. For example, a mastery model might s
             <term id="58a2fc6ed39fd083f55d4182bf88826d192-en">test</term>
             <termNote type="partOfSpeech">noun</termNote>
             <descrip type="definition">test 22222</descrip>
+          </tig>
+        </langSet>
+      </termEntry>
+      <termEntry id="a597e50502f5ff68e3e25b9114205d4a194">
+        <langSet xml:lang="en">
+          <tig>
+            <term id="a597e50502f5ff68e3e25b9114205d4a194-en">unlisted channel</term>
+            <termNote type="partOfSpeech">noun</termNote>
+            <descrip type="definition">A channel that is not available publicly through Kolibri Studio. It must be imported using a channel token.</descrip>
           </tig>
         </langSet>
       </termEntry>

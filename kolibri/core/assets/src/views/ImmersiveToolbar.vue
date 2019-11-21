@@ -119,16 +119,17 @@
         return Boolean(this.route);
       },
       linkStyle() {
-        const hoverAndFocus = {
-          backgroundColor: this.isFullscreen
-            ? this.$themeTokens.appBarDark
-            : this.$themeTokens.appBarFullscreenDark,
-        };
+        const hoverBg = this.isFullscreen
+          ? this.$themeTokens.appBarDark
+          : this.$themeTokens.appBarFullscreenDark;
+        const defaultBg = this.isFullscreen
+          ? this.$themeTokens.appBar
+          : this.$themeTokens.appBarFullscreen;
         return {
-          backgroundColor: this.isFullscreen
-            ? this.$themeTokens.appBar
-            : this.$themeTokens.appBarFullscreen,
-          ':hover': hoverAndFocus,
+          backgroundColor: defaultBg,
+          ':hover': {
+            backgroundColor: hoverBg,
+          },
         };
       },
     },

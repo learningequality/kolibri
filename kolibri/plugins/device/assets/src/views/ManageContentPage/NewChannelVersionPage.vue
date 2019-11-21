@@ -94,17 +94,39 @@
     $trs: {
       versionIsAvailable: `Version {nextVersion} of '{channelName}' is available`,
       youAreCurrentlyOnVersion: 'You are currently on version {currentVersion}',
-      versionChangesHeader: 'Changes if you update from version {currentVersion} to {nextVersion}',
-      resourcesAvailableForImport: 'New resources available:',
-      resourcesToBeDeleted: 'Resources that will be deleted:',
-      resourcesToBeDeletedTooltip:
-        'When you update this channel, some resources will be deleted. This may affect lessons or quizzes that are using the deleted resources.',
-      resourcesToBeUpdated: 'Resources to be updated:',
+      versionChangesHeader: {
+        message: 'Changes if you choose to update from version {currentVersion} to {nextVersion}',
+        context:
+          'Header above a table that lists what the consequences of updating the channel would be',
+      },
+      resourcesAvailableForImport: {
+        message: 'New resources available',
+        context:
+          'Label associated with the number of resources that would become available for importing if the channel is updated',
+      },
+      resourcesToBeDeleted: {
+        message: 'Resources that will be deleted',
+        context:
+          'Label associated with the number of resources that would be deleted if the channel is updated',
+      },
+      resourcesToBeDeletedTooltip: {
+        message:
+          'When you update this channel, some resources will be deleted. This may affect lessons or quizzes that are using the deleted resources',
+        context: 'Warning about the effects of updating the channel',
+      },
+      resourcesToBeUpdated: {
+        message: 'Resources to be updated',
+        context: 'Label associated with the number of resources would be updated',
+      },
       updateChannelAction: 'Update channel',
       versionNumberHeader: 'Version {version}',
       updateConfirmationQuestion: `Are you sure you want to update '{channelName}' to version {version}?`,
-      channelIsIncomplete:
-        'This channel source is incomplete. It has {available} of {total} resources',
+      channelIsIncomplete: {
+        message:
+          'This copy of the channel is incomplete. It contains {available} of {total} resources from the original channel',
+        context:
+          'Warning indicating that the source does not have all content from the original channel',
+      },
     },
   };
 

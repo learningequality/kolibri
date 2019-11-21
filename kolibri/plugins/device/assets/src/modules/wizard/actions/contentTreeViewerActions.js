@@ -20,6 +20,15 @@ function isDescendantOrSelf(testNode, selfNode) {
  */
 function setImportExportFileSizeAndResourceCount(store) {
   const { transferredChannel, nodesForTransfer } = store.state;
+
+  if (nodesForTransfer.included.length === 0 && nodesForTransfer.omitted.length === 0) {
+    store.commit('SET_TRANSFER_SIZE', {
+      transferFileSize: 0,
+      transferResourceCount: 0,
+    });
+    return Promise.resolve();
+  }
+
   const postArgs = {
     channel_id: transferredChannel.id,
     node_ids: nodesForTransfer.included.map(node => node.id),
@@ -132,5 +141,5 @@ export function removeNodeForTransfer(store, node) {
     });
   }
 
-  return Promise.resolve();
+  return setImportExportFileSizeAndResourceCount(store);
 }
