@@ -397,7 +397,15 @@ class ImportContentTestCase(TestCase):
         LocalFile.objects.filter(pk="211523265f53825b82f70ba19218a02e").update(
             file_size=336974
         )
-        files_to_transfer_mock.return_value = (LocalFile.objects.all(), 10)
+        files_to_transfer_mock.return_value = (
+            LocalFile.objects.filter(
+                pk__in=[
+                    "6bdfea4a01830fdd4a585181c0b8068c",
+                    "211523265f53825b82f70ba19218a02e",
+                ]
+            ),
+            10,
+        )
         call_command(
             "importcontent",
             "network",
@@ -536,7 +544,15 @@ class ImportContentTestCase(TestCase):
         LocalFile.objects.filter(pk="211523265f53825b82f70ba19218a02e").update(
             file_size=336974
         )
-        files_to_transfer_mock.return_value = (LocalFile.objects.all(), 10)
+        files_to_transfer_mock.return_value = (
+            LocalFile.objects.filter(
+                pk__in=[
+                    "6bdfea4a01830fdd4a585181c0b8068c",
+                    "211523265f53825b82f70ba19218a02e",
+                ]
+            ),
+            10,
+        )
         call_command(
             "importcontent",
             "network",
@@ -628,7 +644,12 @@ class ImportContentTestCase(TestCase):
             files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c"
         ).update(file_size=1)
         path_mock.side_effect = [local_dest_path, local_src_path]
-        files_to_transfer_mock.return_value = (LocalFile.objects.all(), 10)
+        files_to_transfer_mock.return_value = (
+            LocalFile.objects.filter(
+                files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c"
+            ),
+            10,
+        )
         call_command(
             "importcontent",
             "disk",
