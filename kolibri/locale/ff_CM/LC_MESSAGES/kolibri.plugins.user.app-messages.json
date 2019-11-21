@@ -28,9 +28,11 @@
   "SignInPage.whatsThis": "",
   "SignUpPage.createAccount": "Waɗu desirɗum",
   "SignUpPage.demographicInfoExplanation": "",
+  "SignUpPage.demographicInfoOptional": "",
   "SignUpPage.documentTitle": "",
-  "UserIndex.signUpStep1Title": "",
-  "UserIndex.signUpStep2Title": "",
+  "SignUpPage.privacyLinkText": "",
+  "UserIndex.signUpStep1Title": "Palannde 1 nder 2",
+  "UserIndex.signUpStep2Title": "Palannde 2 nder 2",
   "UserIndex.userProfileTitle": "Tinndinoore",
   "UserPageSnackbars.dismiss": "Riiwu",
   "UserPageSnackbars.signedOut": "A wayrii huwugo, ɗum wurtiniima"

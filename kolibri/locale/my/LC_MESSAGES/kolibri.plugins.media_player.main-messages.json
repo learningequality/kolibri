@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "မီဒီယာကိုမဖွင့်နိုင်ပါ ဆာဗာ သို့မဟုတ် ကွန်ရက် မချိတ်ဆက်နို်င်မှု သို့မဟုတ် format ပုံစံကိုမထောက်ပ့ံသောကြောင့်ဖြစ်နိုင်သည်",
   "MediaPlayerIndex.forward": "၁၀ စက္ကန့် ရှေ့သို့သွားမည်",
   "MediaPlayerIndex.fullscreen": "စာမျက်နှာအပြည့်မှထွက်မည်",
+  "MediaPlayerIndex.languages": "ဘာသာစကားများ",
   "MediaPlayerIndex.loaded": "ဖွင့်ခဲ့သည်",
   "MediaPlayerIndex.mute": "အသံပိတ်မည်",
   "MediaPlayerIndex.networkError": "ကွန်ရက်မကောင်းမှုကြောင့် မီဒီယာများဒေါင်းလုတ်ဆွဲမှုမအောင်မြင်ပါ",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "လုပ်ဆောင်ချက်ဘား",
   "MediaPlayerIndex.replay": "၁၀ စက္ကန့်နောက်သို့ပြန်သွားမည်",
   "MediaPlayerIndex.sourceError": "ဒီမီဒီယာအတွက် သင့်တော်သော ရင်းမြစ် ကိုမတွေ့ရှိပါ ",
+  "MediaPlayerIndex.transcript": "",
+  "MediaPlayerIndex.transcriptOff": "",
   "MediaPlayerIndex.unmute": "အသံဖွင့်မည်",
-  "MediaPlayerIndex.volumeLevel": "အသံအနိမ့်အမြင့်"
+  "MediaPlayerIndex.volumeLevel": "အသံအနိမ့်အမြင့်",
+  "MediaPlayerTranscript.label": "",
+  "MediaPlayerTranscript.transcriptBeginning": "",
+  "MediaPlayerTranscript.transcriptEnd": "",
+  "SubtitlesMenuItem.subtitles": "စာတန်းထိုးများ",
+  "TranscriptCue.textLabel": "",
+  "TranscriptCue.timeLabel": "",
+  "TranscriptCue.title": "",
+  "TranscriptMenuItem.transcript": ""
 }

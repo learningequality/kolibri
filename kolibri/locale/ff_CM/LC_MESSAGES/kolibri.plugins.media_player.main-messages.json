@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "Miidiya ronndaaki ngam senndirɗum koo henndu kompiita e woodi fitina, koo ngam iri saawirɗum miidiya ɗu'um yaadataa bee kompiita ɗu'um",
   "MediaPlayerIndex.forward": "Yahu yeeso sekond 10",
   "MediaPlayerIndex.fullscreen": "Daarirɗum mawɗum",
+  "MediaPlayerIndex.languages": "Ɗemle",
   "MediaPlayerIndex.loaded": "Ronndake",
   "MediaPlayerIndex.mute": "Walaa sawtu",
   "MediaPlayerIndex.networkError": "Fitina henndu kompiita haɗi ronndaago miidiya, huwi reeta tan",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "Diidol hollugo njahal-yeeso",
   "MediaPlayerIndex.replay": "So''a sekond 10",
   "MediaPlayerIndex.sourceError": "To miidiya ɗu'um ƴiwroyi wooɗa",
+  "MediaPlayerIndex.transcript": "",
+  "MediaPlayerIndex.transcriptOff": "",
   "MediaPlayerIndex.unmute": "Waɗu sawtu",
-  "MediaPlayerIndex.volumeLevel": "Semmbe sawtu"
+  "MediaPlayerIndex.volumeLevel": "Semmbe sawtu",
+  "MediaPlayerTranscript.label": "",
+  "MediaPlayerTranscript.transcriptBeginning": "",
+  "MediaPlayerTranscript.transcriptEnd": "",
+  "SubtitlesMenuItem.subtitles": "",
+  "TranscriptCue.textLabel": "",
+  "TranscriptCue.timeLabel": "",
+  "TranscriptCue.title": "",
+  "TranscriptMenuItem.transcript": ""
 }

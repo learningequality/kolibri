@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "Le média n'a pas pu être chargé, soit à cause d'une défaillance du serveur ou du réseau, soit parce que le format n'est pas pris en charge",
   "MediaPlayerIndex.forward": "Avancer de 10 secondes",
   "MediaPlayerIndex.fullscreen": "Mode Plein écran",
+  "MediaPlayerIndex.languages": "Langages",
   "MediaPlayerIndex.loaded": "Chargé",
   "MediaPlayerIndex.mute": "Rendre muet",
   "MediaPlayerIndex.networkError": "Une erreur du réseau a entraîné l'échec du téléchargement du média en cours",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "Barre de progression",
   "MediaPlayerIndex.replay": "Retourner 10 secondes en arrière",
   "MediaPlayerIndex.sourceError": "Aucune source compatible n'a été trouvée pour ce média",
+  "MediaPlayerIndex.transcript": "Transcription",
+  "MediaPlayerIndex.transcriptOff": "Transcriptions off",
   "MediaPlayerIndex.unmute": "Réactiver le son",
-  "MediaPlayerIndex.volumeLevel": "Niveau du volume"
+  "MediaPlayerIndex.volumeLevel": "Niveau du volume",
+  "MediaPlayerTranscript.label": "Transcription",
+  "MediaPlayerTranscript.transcriptBeginning": "Début de la transcription",
+  "MediaPlayerTranscript.transcriptEnd": "Fin de la transcription",
+  "SubtitlesMenuItem.subtitles": "Sous-titres",
+  "TranscriptCue.textLabel": "Texte de la légende de la transcription",
+  "TranscriptCue.timeLabel": "Heure de début de la transcription",
+  "TranscriptCue.title": "Pointer vers {startTime}",
+  "TranscriptMenuItem.transcript": "Transcription"
 }
