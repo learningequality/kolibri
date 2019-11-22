@@ -111,7 +111,7 @@
       selectLocalRemoteSourceTitle: 'Select a source',
       loadingMessage: 'Loading connections…',
       studioDescription:
-        "Import resources from Learning Equality's library if you are connected to the internet",
+        'Import resources from the Kolibri Content Library if you are connected to the internet',
       networkDescription:
         'Import resources from another instance of Kolibri running on another device, either in the same local network or on the internet',
       localDescription:
