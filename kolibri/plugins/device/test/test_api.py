@@ -261,6 +261,7 @@ class CalculateImportExportSizeViewTestCase(APITestCase):
         response = self.client.post(
             reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
             data={"channel_id": self.the_channel_id},
+            format="json",
         )
         self.assertEqual(response.data["resource_count"], 2)
         self.assertEqual(
@@ -307,6 +308,7 @@ class CalculateImportExportSizeViewTestCase(APITestCase):
         response = self.client.post(
             reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
             data={"channel_id": self.the_channel_id, "export": True},
+            format="json",
         )
         self.assertEqual(response.data["resource_count"], 2)
         self.assertEqual(
@@ -324,6 +326,7 @@ class CalculateImportExportSizeViewTestCase(APITestCase):
         response = self.client.post(
             reverse("kolibri:kolibri.plugins.device:importexportsizeview"),
             data={"channel_id": self.the_channel_id, "export": True},
+            format="json",
         )
         self.assertEqual(response.data["resource_count"], 0)
         self.assertEqual(response.data["file_size"], 0)

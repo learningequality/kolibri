@@ -11,8 +11,8 @@ from kolibri.core import error_constants
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
-from kolibri.core.logger.models import ExamLog
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.logger.models import ExamLog
 
 
 DUMMY_PASSWORD = "password"
@@ -301,5 +301,6 @@ class ExamAssignmentAPITestCase(APITestCase):
         response = self.client.post(
             reverse("kolibri:core:examassignment-list"),
             {"exam": self.exam.id, "collection": self.facility.id},
+            format="json",
         )
         self.assertEqual(response.status_code, 201)
