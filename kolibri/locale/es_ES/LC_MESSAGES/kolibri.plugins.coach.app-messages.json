@@ -221,7 +221,7 @@
   "LearnersStarted.countShort": "{count, number, integer} {count, plural, one {ha iniciado} other {han iniciado}}",
   "LearnersStarted.label": "{count, plural, one {Estudiante ha iniciado} other {Estudiantes han iniciado}}",
   "LearnersStarted.labelShort": "{count, plural, one {Ha iniciado} other {Han iniciado}}",
-  "LearnersStarted.questionsStarted": "",
+  "LearnersStarted.questionsStarted": "{answeredQuestionsCount} de {totalQuestionsCount} respondidas",
   "LearnersStarted.ratio": "{count, number, integer} de {total, number, integer} {total, plural, one {estudiante} other {estudiantes}} {count, plural, one {ha iniciado} other {han iniciado}}",
   "LearnersStarted.ratioShort": "{count, number, integer} de {total, number, integer} {count, plural, one {ha iniciado} other {han iniciado}}",
   "LessonActive.lessonActiveLabel": "Activa",

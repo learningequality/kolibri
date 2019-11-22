@@ -1,5 +1,5 @@
 {
-  "AlreadyRegisteredModal.alreadyRegistered": "",
+  "AlreadyRegisteredModal.alreadyRegistered": "Centro ya registrado con el proyecto '{name}'",
   "AlreadyRegisteredModal.close": "Cerrar",
   "AlreadyRegisteredModal.registerFacility": "Registrar el centro educativo",
   "ClassCreateModal.createNewClassHeader": "Crear nueva clase",
@@ -33,7 +33,7 @@
   "ConfirmationRegisterModal.dataSaved": "Los datos se guardarán en la nube",
   "ConfirmationRegisterModal.register": "Registrar",
   "ConfirmationRegisterModal.registerFacility": "Registrar el centro educativo",
-  "ConfirmationRegisterModal.registerWith": "",
+  "ConfirmationRegisterModal.registerWith": "Confirma que deseas registrar el centro con el proyecto '{name}'",
   "DataPage.detailsHeading": "Registros de sesión",
   "DataPage.detailsInfo": "Cuando usuario visiona el recurso, se registra cuánto tiempo pasa usándolo y el progreso que hace. Cada fila de este archivo registra una sola visita de un usuario a un recurso específico. Esto incluye el uso anónimo, cuando ningún usuario haya iniciado sesión.",
   "DataPage.detailsSubHeading": "Visitas individuales a cada ítem de contenido.",

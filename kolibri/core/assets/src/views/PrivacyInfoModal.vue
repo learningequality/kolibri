@@ -105,7 +105,7 @@
       kolibriOwnersP2:
         'You should also follow best information security practices for protecting your users’ data. This includes keeping the device physically secure, encrypting the hard drive, using strong and unique passwords, keeping the operating system up-to-date, and having a properly-configured firewall.',
       kolibriOwnersP3:
-        'If you choose to sync your facility data to the Kolibri Data Portal, you are granting access to your data to organization administrators on Kolibri Data Portal. It will be uploaded to cloud servers operated by Learning Equality, who will also have access to this data.',
+        'If you choose to sync your facility data to the Kolibri Data Portal, you would be granting Kolibri Data Portal organization administrators access to your data. You would also be granting access to Learning Equality, who operates the servers.',
       kolibriOwnersP4:
         'Please ensure that your users have way of getting in touch with you if they have concerns about their accounts.',
       kolibriAboutTitle: 'About Kolibri',
