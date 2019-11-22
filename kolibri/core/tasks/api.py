@@ -7,24 +7,18 @@ from django.core.management import call_command
 from django.http.response import Http404
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
-from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from six import string_types
 
-from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.permissions import CanExportLogs
 from kolibri.core.content.permissions import CanManageContent
-from kolibri.core.content.utils import annotation
-from kolibri.core.content.utils import channel_import
-from kolibri.core.content.utils import paths
-from kolibri.core.content.utils import upgrade
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.paths import get_content_database_file_path
-from kolibri.core.content.utils.sqlalchemybridge import Bridge
+from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import UserCancelledError
@@ -569,100 +563,53 @@ class TasksViewSet(viewsets.ViewSet):
 
     @list_route(methods=["post"])
     def channeldiffstats(self, request):
-        """
-        Download the channel database to an upgraded path.
-        Annotate the local file availability of the upgraded channel db.
-        Calculate diff stats comparing default db and annotated channel db.
-        """
+        job_metadata = {}
         channel_id = request.data.get("channel_id")
         method = request.data.get("method")
         drive_id = request.data.get("drive_id")
+        baseurl = request.data.get("baseurl")
+
+        # request validation and job metadata info
         if not channel_id:
             raise serializers.ValidationError("The channel_id field is required.")
         if not method:
             raise serializers.ValidationError("The method field is required.")
+
         if method == "network":
-            call_command(
-                "importchannel",
-                "network",
-                channel_id,
-                baseurl=request.data.get(
-                    "baseurl", conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
-                ),
-                upgrade=True,
-            )
+            baseurl = baseurl or conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
+            job_metadata["baseurl"] = baseurl
         elif method == "disk":
             if not drive_id:
                 raise serializers.ValidationError(
                     "The drive_id field is required when using 'disk' method."
                 )
-            drive = get_mounted_drive_by_id(drive_id)
-            call_command(
-                "importchannel", "disk", channel_id, drive, upgrade=True,
-            )
+            job_metadata = _add_drive_info(job_metadata, request.data)
         else:
             raise serializers.ValidationError(
                 "'method' field should either be 'network' or 'disk'."
             )
-        # upgraded content database path
-        source_path = paths.get_upgrade_content_database_file_path(channel_id)
-        # annotated db to be used for calculating diff stats
-        destination_path = paths.get_annotated_content_database_file_path(channel_id)
-        try:
-            # create all fields/tables at the annotated destination db, based on the current schema version
-            bridge = Bridge(
-                sqlite_file_path=destination_path, schema_version=CURRENT_SCHEMA_VERSION
-            )
-            bridge.Base.metadata.create_all(bridge.engine)
 
-            # initialize import manager based on annotated destination path, pulling from source db path
-            import_manager = channel_import.initialize_import_manager(
-                channel_id,
-                cancel_check=False,
-                source=source_path,
-                destination=destination_path,
-            )
-
-            # import channel data from source db path
-            import_manager.import_channel_data()
-            import_manager.end()
-
-            # annotate file availability on destination db
-            annotation.set_local_file_availability_from_disk(
-                destination=destination_path
-            )
-            # get the diff count between whats on the default db and the annotated db
-            new_resources_count = upgrade.count_new_resources_available_for_import(
-                destination_path, channel_id
-            )
-            # get the count for leaf nodes which are in the default db, but not in the annotated db
-            resources_to_be_deleted_count = upgrade.count_removed_resources(
-                destination_path, channel_id
-            )
-            # get the ids of leaf nodes which are now incomplete due to missing local files
-            updated_resources_ids = upgrade.automatically_updated_resource_ids(
-                destination_path, channel_id
-            )
-            data = {
-                "new_resources_count": new_resources_count,
-                "deleted_resources_count": resources_to_be_deleted_count,
-                "updated_node_ids": updated_resources_ids,
+        job_metadata.update(
+            {
+                "type": "CHANNELDIFFSTATS",
+                "started_by": request.user.pk,
+                "channel_id": channel_id,
             }
-            # remove the annotated database
-            try:
-                os.remove(destination_path)
-            except OSError as e:
-                logger.info(
-                    "Tried to remove {}, but exception {} occurred.".format(
-                        destination_path, e
-                    )
-                )
-        except (
-            channel_import.InvalidSchemaVersionError,
-            channel_import.FutureSchemaError,
-        ) as e:
-            return Response(e, status=status.HTTP_400_BAD_REQUEST)
-        return Response(data)
+        )
+
+        job_id = queue.enqueue(
+            diff_stats,
+            channel_id,
+            method,
+            drive_id=drive_id,
+            baseurl=baseurl,
+            extra_metadata=job_metadata,
+            track_progress=False,
+        )
+
+        resp = _job_to_response(queue.fetch_job(job_id))
+
+        return Response(resp)
 
 
 def _remoteimport(

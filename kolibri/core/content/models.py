@@ -42,7 +42,6 @@ from kolibri.core.content import base_models
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.mixins import FilterByUUIDQuerysetMixin
-from kolibri.utils.conf import OPTIONS
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
