@@ -166,7 +166,6 @@ class FacilityUserViewSet(ValuesViewset):
         "id",
         "username",
         "full_name",
-        "password",
         "facility",
         "roles__kind",
         "roles__collection",
@@ -346,20 +345,33 @@ class ClassroomViewSet(ValuesViewset):
     def consolidate(self, items):
         output = []
         items = sorted(items, key=lambda x: x["id"])
+        coach_ids = list(set([item["role__user__id"] for item in items]))
+        facility_roles = {
+            obj["user"]: obj
+            for obj in Role.objects.filter(
+                user_id__in=coach_ids, collection__kind=collection_kinds.FACILITY
+            ).values("user", "kind", "collection")
+        }
         for key, group in groupby(items, lambda x: x["id"]):
             coaches = []
             for item in group:
+                user_id = item.pop("role__user__id")
+                if (
+                    user_id in facility_roles
+                    and facility_roles[user_id]["collection"] == item["parent"]
+                ):
+                    roles = [facility_roles[user_id]]
+                else:
+                    roles = []
                 coach = {
-                    "id": item.pop("role__user__id"),
+                    "id": user_id,
                     "facility": item["parent"],
                     "is_superuser": item.pop(
                         "role__user__devicepermissions__is_superuser"
                     ),
                     "full_name": item.pop("role__user__full_name"),
                     "username": item.pop("role__user__username"),
-                    "roles": [
-                        {"collection": item["id"], "kind": item.pop("role__kind")}
-                    ],
+                    "roles": roles,
                 }
                 if coach["id"]:
                     coaches.append(coach)
