@@ -63,7 +63,7 @@ elif not 'KOLIBRI_HOME' in os.environ:
     os.environ["KOLIBRI_HOME"] = os.path.join(app_data_dir, "kolibri_data")
 
 
-from kolibri.core.logger.utils.handler import KolibriTimedRotatingFileHandler
+from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 
 log_basename = "kolibri-app.txt"
 log_dir = os.path.join(os.environ['KOLIBRI_HOME'], 'logs')
