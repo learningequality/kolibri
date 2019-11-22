@@ -126,7 +126,10 @@
         return 'close';
       },
       currentPageIsImmersive() {
-        if (this.pageName == PageNames.MANAGE_CONTENT_PAGE) {
+        if (
+          this.pageName == PageNames.MANAGE_CONTENT_PAGE ||
+          this.pageName === PageNames.MANAGE_TASKS
+        ) {
           return false;
         }
         return (

@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "No se pudieron cargar los elementos multimedia, bien por un fallo del servidor o de la red, bien porque no se admite el formato",
   "MediaPlayerIndex.forward": "Avanzar 10 segundos",
   "MediaPlayerIndex.fullscreen": "Pantalla completa",
+  "MediaPlayerIndex.languages": "Idiomas",
   "MediaPlayerIndex.loaded": "Cargado",
   "MediaPlayerIndex.mute": "Silencio",
   "MediaPlayerIndex.networkError": "Un error en la red hizo que fallase el proceso de descarga de elementos multimedia",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "Barra de progreso",
   "MediaPlayerIndex.replay": "Retroceder 10 segundos",
   "MediaPlayerIndex.sourceError": "No se encontró una fuente compatible para este elemento multimedia",
+  "MediaPlayerIndex.transcript": "Transcripción",
+  "MediaPlayerIndex.transcriptOff": "Cerrar la transcripción",
   "MediaPlayerIndex.unmute": "Activar sonido",
-  "MediaPlayerIndex.volumeLevel": "Nivel de volumen"
+  "MediaPlayerIndex.volumeLevel": "Nivel de volumen",
+  "MediaPlayerTranscript.label": "Transcripción",
+  "MediaPlayerTranscript.transcriptBeginning": "Inicio de la transcripción",
+  "MediaPlayerTranscript.transcriptEnd": "Final de la transcripción",
+  "SubtitlesMenuItem.subtitles": "Subtítulos",
+  "TranscriptCue.textLabel": "",
+  "TranscriptCue.timeLabel": "",
+  "TranscriptCue.title": "",
+  "TranscriptMenuItem.transcript": "Transcripción"
 }

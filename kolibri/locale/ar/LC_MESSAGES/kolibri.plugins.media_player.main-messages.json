@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "لا يمكن تحميل الوسيط المطلوب إما لمشكلة في الخادم أو الشبكة أو لأن الصيغة غير مدعومة",
   "MediaPlayerIndex.forward": "الانتقال 10 ثوانٍ إلى الأمام",
   "MediaPlayerIndex.fullscreen": "شاشة كاملة",
+  "MediaPlayerIndex.languages": "",
   "MediaPlayerIndex.loaded": "تمّ تحميله",
   "MediaPlayerIndex.mute": "كتم الصوت",
   "MediaPlayerIndex.networkError": "أدّى خطأ ما في الشبكة إلى عدم إتمام تنزيل الملف بنجاح",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "شريط التقدم المُحرز",
   "MediaPlayerIndex.replay": "العودة 10 ثوانٍ للوراء",
   "MediaPlayerIndex.sourceError": "لم يتم العثور على مصدر متوافق لهذا الملف",
+  "MediaPlayerIndex.transcript": "",
+  "MediaPlayerIndex.transcriptOff": "",
   "MediaPlayerIndex.unmute": "إلغاء كتم الصوت",
-  "MediaPlayerIndex.volumeLevel": "مستوى الصوت"
+  "MediaPlayerIndex.volumeLevel": "مستوى الصوت",
+  "MediaPlayerTranscript.label": "",
+  "MediaPlayerTranscript.transcriptBeginning": "",
+  "MediaPlayerTranscript.transcriptEnd": "",
+  "SubtitlesMenuItem.subtitles": "",
+  "TranscriptCue.textLabel": "",
+  "TranscriptCue.timeLabel": "",
+  "TranscriptCue.title": "",
+  "TranscriptMenuItem.transcript": ""
 }

@@ -41,7 +41,6 @@ from .utils import paths
 from kolibri.core.content import base_models
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.device.models import ContentCacheKey
-from kolibri.utils.conf import OPTIONS
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
@@ -224,13 +223,7 @@ class LocalFile(base_models.LocalFile):
         Return a url for the client side to retrieve the content file.
         The same url will also be exposed by the file serializer.
         """
-        if self.available:
-            return paths.get_content_storage_file_url(
-                filename=self.get_filename(),
-                baseurl=OPTIONS["Deployment"]["URL_PATH_PREFIX"],
-            )
-        else:
-            return None
+        return paths.get_local_content_storage_file_url(self)
 
     def delete_stored_file(self):
         """

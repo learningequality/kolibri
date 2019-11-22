@@ -31,20 +31,14 @@
         </KGridItem>
       </KGrid>
 
-      <!-- Stubbed out in case we need it -->
-      <template v-if="false">
-        <h2>
-          {{ $tr('tasksHeader') }}
-        </h2>
-        <p>
-          <a href="#">
-            {{ $tr('taskManagerLink') }}
-          </a>
-        </p>
-        <h2>
-          {{ $tr('resourcesHeader') }}
-        </h2>
-      </template>
+      <TasksBar />
+      <p>
+        <KRouterLink
+          appearance="basic-link"
+          :text="$tr('taskManagerLink')"
+          :to="{name: 'MANAGE_TASKS'}"
+        />
+      </p>
 
       <p v-if="!channelsAreInstalled">
         {{ $tr('emptyChannelListMessage') }}
@@ -72,7 +66,6 @@
     </div>
 
 
-    <TasksBar />
   </div>
 
 </template>
@@ -175,8 +168,6 @@
       deleteChannels: 'Delete channels',
       editChannelOrder: 'Edit channel order',
       emptyChannelListMessage: 'No channels installed',
-      tasksHeader: 'Tasks',
-      resourcesHeader: 'Resources',
       taskManagerLink: 'View task manager',
     },
   };

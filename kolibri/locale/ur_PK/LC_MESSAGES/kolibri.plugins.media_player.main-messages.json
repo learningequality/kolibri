@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "میڈیا کا لوڈ نہیں ہوسکتا ہے،یہ سرور یا نیٹورک کے مسلے کی وجہ سے ہے یا اس کی فورمٹ کا سہارا نہیں ہے",
   "MediaPlayerIndex.forward": "10 سیکنڈز اگے کریں",
   "MediaPlayerIndex.fullscreen": "مکمل سکرین",
+  "MediaPlayerIndex.languages": "",
   "MediaPlayerIndex.loaded": "لوڈ ہوگیا",
   "MediaPlayerIndex.mute": "آوازکو بند کریں",
   "MediaPlayerIndex.networkError": "نیٹ ورک کے خطا کی وجہ سے میڈیا ڈاون لوڈ رک گیا",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "ترقی کا بار",
   "MediaPlayerIndex.replay": "10 سیکنڈز پیچھے کریں",
   "MediaPlayerIndex.sourceError": "اس میڈیا کے لئے مطابق سورس نہیں ملا",
+  "MediaPlayerIndex.transcript": "",
+  "MediaPlayerIndex.transcriptOff": "",
   "MediaPlayerIndex.unmute": "آوازکو بند نہ کریں",
-  "MediaPlayerIndex.volumeLevel": "آواز کی سطح"
+  "MediaPlayerIndex.volumeLevel": "آواز کی سطح",
+  "MediaPlayerTranscript.label": "",
+  "MediaPlayerTranscript.transcriptBeginning": "",
+  "MediaPlayerTranscript.transcriptEnd": "",
+  "SubtitlesMenuItem.subtitles": "",
+  "TranscriptCue.textLabel": "",
+  "TranscriptCue.timeLabel": "",
+  "TranscriptCue.title": "",
+  "TranscriptMenuItem.transcript": ""
 }

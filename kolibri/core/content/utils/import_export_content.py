@@ -91,8 +91,8 @@ def get_files_to_transfer(
         channel_id,
         node_ids,
         exclude_node_ids,
-        renderable_only,
         available,
+        renderable_only=renderable_only,
         drive_id=drive_id,
         peer_id=peer_id,
     )

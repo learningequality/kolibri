@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "મીડિયા લોડ કરી શકાયું નથી, કારણ કે સર્વર અથવા નેટવર્કમાં નિષ્ફળતા છે અથવા ફોર્મેટ સપોર્ટેડ નથી",
   "MediaPlayerIndex.forward": "10 સેકન્ડ આગળ જાઓ",
   "MediaPlayerIndex.fullscreen": "પૂર્ણ સ્ક્રીન",
+  "MediaPlayerIndex.languages": "",
   "MediaPlayerIndex.loaded": "લોડ કરવામાં આવી છે",
   "MediaPlayerIndex.mute": "અવાજ બંધ કરો",
   "MediaPlayerIndex.networkError": "નેટવર્ક ભૂલથી મીડિયા ડાઉનલોડ ભાગ રૂપે નિષ્ફળ થવાનું કારણ બને છે",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "પ્રગતિ પટ્ટી",
   "MediaPlayerIndex.replay": "10 સેકન્ડ પાછા જાઓ",
   "MediaPlayerIndex.sourceError": "આ મીડિયા માટે યોગ્ય સ્રોતો મળ્યા નથી",
+  "MediaPlayerIndex.transcript": "",
+  "MediaPlayerIndex.transcriptOff": "",
   "MediaPlayerIndex.unmute": "અવાજ ચાલો કરો",
-  "MediaPlayerIndex.volumeLevel": "અવાજનો સ્તર"
+  "MediaPlayerIndex.volumeLevel": "અવાજનો સ્તર",
+  "MediaPlayerTranscript.label": "",
+  "MediaPlayerTranscript.transcriptBeginning": "",
+  "MediaPlayerTranscript.transcriptEnd": "",
+  "SubtitlesMenuItem.subtitles": "",
+  "TranscriptCue.textLabel": "",
+  "TranscriptCue.timeLabel": "",
+  "TranscriptCue.title": "",
+  "TranscriptMenuItem.transcript": ""
 }

@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "సర్వర్ లేదా నెట్‌వర్క్ విఫలమైనందున లేదా రకానికి మద్దతు ఇవ్వనందున, మీడియాని లోడ్ చేయలేకున్నాము",
   "MediaPlayerIndex.forward": "10 సెకన్లు ముందుకు వెళ్ళు",
   "MediaPlayerIndex.fullscreen": "పూర్తి స్క్రీన్",
+  "MediaPlayerIndex.languages": "",
   "MediaPlayerIndex.loaded": "లోడ్ చేయబడింది",
   "MediaPlayerIndex.mute": "మ్యూట్ చేయి",
   "MediaPlayerIndex.networkError": "ఒక నెట్‌వర్క్ దోషం వల్ల మీడియో ఫైల్ డౌన్‌లోడ్ మధ్యలో విఫలమైంది",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "పురోగతి బార్",
   "MediaPlayerIndex.replay": "10 సెకన్లు వెనుకకు వెళ్ళు",
   "MediaPlayerIndex.sourceError": "ఈ మీడియాకి అనుకూలమైన వనరు ఏదీ కనుగొనబడలేదు",
+  "MediaPlayerIndex.transcript": "",
+  "MediaPlayerIndex.transcriptOff": "",
   "MediaPlayerIndex.unmute": "మ్యూట్ తీసివేయి",
-  "MediaPlayerIndex.volumeLevel": "వాల్యూమ్ లెవల్"
+  "MediaPlayerIndex.volumeLevel": "వాల్యూమ్ లెవల్",
+  "MediaPlayerTranscript.label": "",
+  "MediaPlayerTranscript.transcriptBeginning": "",
+  "MediaPlayerTranscript.transcriptEnd": "",
+  "SubtitlesMenuItem.subtitles": "",
+  "TranscriptCue.textLabel": "",
+  "TranscriptCue.timeLabel": "",
+  "TranscriptCue.title": "",
+  "TranscriptMenuItem.transcript": ""
 }

@@ -70,10 +70,18 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   genderOptionOther: 'Other',
   genderOptionNotSpecified: 'Not specified',
   birthYearNotSpecified: 'Not specified',
-  identifierInputTooltip:
-    'Examples: a student ID number or an existing user identification number. Avoid using highly sensitive personal information because it might put your users at risk.',
+  identifierInputTooltip: {
+    message:
+      'Examples: a student ID number or an existing user identification number. Avoid using highly sensitive personal information because it might put your users at risk.',
+    context:
+      "Tooltip with information referring to the optional 'Identifier' field in the 'Create new user' form.\n",
+  },
   identifierTooltip: 'Examples: a student ID number or an existing user identification number.',
-  identifierAriaLabel: 'About providing an identifier or ID number',
+  identifierAriaLabel: {
+    message: 'About providing an identifier or ID number',
+    context:
+      "\nCould also be translated as \"View information about providing identifier\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
+  },
 });
 
 export default {

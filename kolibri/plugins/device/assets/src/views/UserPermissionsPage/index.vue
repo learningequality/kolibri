@@ -215,7 +215,11 @@
       UserType,
     },
     $trs: {
-      devicePermissionsDetails: 'Can manage resources on this device',
+      devicePermissionsDetails: {
+        message: 'Can manage resources on this device',
+        context:
+          '\nLabel for the checkbox to confirm granting a user permissions to manage content on the device.',
+      },
       documentTitle: "{ name }'s Device Permissions",
       makeSuperAdmin: 'Make super admin',
       permissionChangeConfirmation: 'Changes saved',

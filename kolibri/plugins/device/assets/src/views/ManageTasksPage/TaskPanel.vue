@@ -57,7 +57,6 @@
       <KButton
         :disabled="taskIsCanceling"
         :text="buttonLabel"
-        :primary="true"
         appearance="flat-button"
         @click="handleClick"
       />

@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "Midia haikuweza kupakiwa, kwa sababu seva au mtandao umeshindwa kutambua muundo wa midia",
   "MediaPlayerIndex.forward": "Peleka sekunde 10 mbele",
   "MediaPlayerIndex.fullscreen": "Skrini nzima",
+  "MediaPlayerIndex.languages": "",
   "MediaPlayerIndex.loaded": "Imewekwa",
   "MediaPlayerIndex.mute": "Nyamazisha",
   "MediaPlayerIndex.networkError": "Hitilafu ya mtandao imesababisha kushindwa kupakua sehemu ya midia",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "Muambaa wa maendeleo",
   "MediaPlayerIndex.replay": "Rudisha sekunde 10 nyuma",
   "MediaPlayerIndex.sourceError": "Hakuna chanzo tangamanifu kilichopatikana katika midia hii",
+  "MediaPlayerIndex.transcript": "",
+  "MediaPlayerIndex.transcriptOff": "",
   "MediaPlayerIndex.unmute": "Acha kunyamazisha",
-  "MediaPlayerIndex.volumeLevel": "Kiwango cha sauti"
+  "MediaPlayerIndex.volumeLevel": "Kiwango cha sauti",
+  "MediaPlayerTranscript.label": "",
+  "MediaPlayerTranscript.transcriptBeginning": "",
+  "MediaPlayerTranscript.transcriptEnd": "",
+  "SubtitlesMenuItem.subtitles": "",
+  "TranscriptCue.textLabel": "",
+  "TranscriptCue.timeLabel": "",
+  "TranscriptCue.title": "",
+  "TranscriptMenuItem.transcript": ""
 }

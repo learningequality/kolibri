@@ -8,6 +8,7 @@
   "MediaPlayerIndex.formatError": "미디어를 로드할 수 없습니다. 서버 또는 네트워크에 오류가 있거나 지원되지 않는 형식의 미디어이기 때문입니다.",
   "MediaPlayerIndex.forward": "10초 전으로 돌아가기",
   "MediaPlayerIndex.fullscreen": "전체 화면",
+  "MediaPlayerIndex.languages": "",
   "MediaPlayerIndex.loaded": "로드",
   "MediaPlayerIndex.mute": "음소거",
   "MediaPlayerIndex.networkError": "네트워크 오류로 미디어 다운로드가 도중에 실패했습니다.",
@@ -18,6 +19,16 @@
   "MediaPlayerIndex.progressBar": "진행 표시줄",
   "MediaPlayerIndex.replay": "10초 전으로 돌아가기",
   "MediaPlayerIndex.sourceError": "본 미디어와 호환되는 소스가 없습니다.",
+  "MediaPlayerIndex.transcript": "",
+  "MediaPlayerIndex.transcriptOff": "",
   "MediaPlayerIndex.unmute": "음소거 해제",
-  "MediaPlayerIndex.volumeLevel": "음량 조절"
+  "MediaPlayerIndex.volumeLevel": "음량 조절",
+  "MediaPlayerTranscript.label": "",
+  "MediaPlayerTranscript.transcriptBeginning": "",
+  "MediaPlayerTranscript.transcriptEnd": "",
+  "SubtitlesMenuItem.subtitles": "",
+  "TranscriptCue.textLabel": "",
+  "TranscriptCue.timeLabel": "",
+  "TranscriptCue.title": "",
+  "TranscriptMenuItem.transcript": ""
 }
