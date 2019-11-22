@@ -331,7 +331,6 @@ class ClassroomViewSet(ValuesViewset):
         "role__user__devicepermissions__is_superuser",
         "role__user__full_name",
         "role__user__username",
-        "role__kind",
     )
 
     def annotate_queryset(self, queryset):
@@ -366,8 +365,9 @@ class ClassroomViewSet(ValuesViewset):
                 coach = {
                     "id": user_id,
                     "facility": item["parent"],
-                    "is_superuser": item.pop(
-                        "role__user__devicepermissions__is_superuser"
+                    # Coerce to bool if None
+                    "is_superuser": bool(
+                        item.pop("role__user__devicepermissions__is_superuser")
                     ),
                     "full_name": item.pop("role__user__full_name"),
                     "username": item.pop("role__user__username"),
