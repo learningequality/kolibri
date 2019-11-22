@@ -189,8 +189,12 @@
       taskHasFailed: 'Transfer failed. Please try again.',
       deleteTaskHasFailed: 'Attempt to delete channel failed. Please try again.',
       deletingChannel: 'Deleting channel…',
-      downloadingChannelContents: 'Generating channel listing. This could take a few minutes…',
+      downloadingChannelContents: 'Generating channel listing. This could take a few minutes',
       updatingChannel: 'Updating channel…',
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      comparingChannelContents:
+        'Comparing resources on device with new channel version. This could take a few minutes',
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 

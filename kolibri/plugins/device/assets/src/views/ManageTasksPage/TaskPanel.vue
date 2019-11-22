@@ -184,6 +184,22 @@
       unknownUsername: 'Unknown user',
       unknownChannelName: '(Channel name unavailable)',
       progressPercentage: '{progress, number, percent}',
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      // stubs
+      stopAction: 'Stop',
+      importPartialRatio:
+        '{currentResources} of {totalResources} {totalResources, plural, one {resource} other {resources}} ({currentSize} of {totalSize}) imported',
+      exportPartialRatio:
+        '{currentResources} of {totalResources} {totalResources, plural, one {resource} other {resources}} ({currentSize} of {totalSize}) exported',
+      deletePartialRatio:
+        '{currentResources} of {totalResources} {totalResources, plural, one {resource} other {resources}} ({currentSize} of {totalSize}) deleted',
+      importSuccess:
+        '{totalResources} {totalResources, plural, one {resource} other {resources}} ({totalSize}) successfully imported',
+      exportSuccess:
+        '{totalResources} {totalResources, plural, one {resource} other {resources}} ({totalSize}) successfully exported',
+      deleteSuccess:
+        '{totalResources} {totalResources, plural, one {resource} other {resources}} ({totalSize}) successfully deleted',
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 
