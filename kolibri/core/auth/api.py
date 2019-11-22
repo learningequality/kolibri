@@ -175,7 +175,7 @@ class FacilityUserViewSet(ValuesViewset):
         "birth_year",
     )
 
-    field_map = {"devicepermissions__is_superuser": "is_superuser"}
+    field_map = {"is_superuser": "devicepermissions__is_superuser"}
 
     def consolidate(self, items):
         output = []
