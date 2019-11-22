@@ -44,6 +44,7 @@ class NetworkLocationAPITestCase(APITestCase):
         response = self.client.post(
             reverse("kolibri:core:networklocation-list"),
             data={"base_url": "kolibrihappyurl.qqq"},
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["application"], "kolibri")
@@ -59,6 +60,7 @@ class NetworkLocationAPITestCase(APITestCase):
         response = self.client.post(
             reverse("kolibri:core:networklocation-list"),
             data={"base_url": "timeoutonport80url.qqq"},
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["application"], "kolibri")
@@ -76,6 +78,7 @@ class NetworkLocationAPITestCase(APITestCase):
         response = self.client.post(
             reverse("kolibri:core:networklocation-list"),
             data={"base_url": "nonkolibrihappyurl.qqq"},
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -102,6 +105,7 @@ class NetworkLocationAPITestCase(APITestCase):
         response = self.client.post(
             reverse("kolibri:core:networklocation-list"),
             data={"base_url": "kolibrihappyurl.qqq"},
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -110,5 +114,6 @@ class NetworkLocationAPITestCase(APITestCase):
         response = self.client.post(
             reverse("kolibri:core:networklocation-list"),
             data={"base_url": "kolibrihappyurl.qqq"},
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

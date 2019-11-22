@@ -17,3 +17,13 @@ CACHES = {
     key: {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}
     for key in CACHES.keys()  # noqa F405
 }
+
+
+REST_FRAMEWORK = {
+    "UNAUTHENTICATED_USER": "kolibri.core.auth.models.KolibriAnonymousUser",
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ),
+    "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
+}

@@ -1,5 +1,4 @@
 import json
-from functools import partial
 
 from django.db import connection
 from django.db.models import CharField
@@ -189,6 +188,11 @@ def serialize_exam_status(queryset):
     )
 
 
+def _map_group(item):
+    item["member_ids"] = process_uuid_aggregate(item, "member_ids")
+    return item
+
+
 def serialize_groups(queryset):
     if connection.vendor == "postgresql" and ArrayAgg is not None:
         queryset = queryset.annotate(member_ids=ArrayAgg("membership__user__id"))
@@ -196,12 +200,7 @@ def serialize_groups(queryset):
         queryset = queryset.values("id").annotate(
             member_ids=GroupConcat("membership__user__id", output_field=CharField())
         )
-    return list(
-        map(
-            partial(process_uuid_aggregate, key="member_ids"),
-            queryset.values("id", "name", "member_ids"),
-        )
-    )
+    return list(map(_map_group, queryset.values("id", "name", "member_ids"),))
 
 
 def serialize_users(queryset):
