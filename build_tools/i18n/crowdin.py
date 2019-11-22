@@ -74,7 +74,7 @@ def checkPerseus():
         logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
         click.confirm("Continue anyway?", abort=True)
 
-    if not (os.path.exists(os.path.join(utils.PERSEUS_LOCALE_PATH, PERSEUS_CSV))):
+    if not (os.path.exists(os.path.join(utils.PERSEUS_SOURCE_PATH, PERSEUS_CSV))):
         logging.warning("Perseus strings are not available as CSVs")
         logging.info(PERSEUS_CSV_NOT_AVAILABLE)
         click.confirm("Continue anyway?", abort=True)
