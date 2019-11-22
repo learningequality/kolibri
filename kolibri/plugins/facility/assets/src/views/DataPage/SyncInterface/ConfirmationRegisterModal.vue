@@ -68,7 +68,11 @@
     $trs: {
       registerFacility: 'Register facility',
       register: 'Register',
-      registerWith: "Register with '{name}'?",
+      registerWith: {
+        message: "Register with '{name}'?",
+        context:
+          '\nKolibri is asking for a confirmation before registering the facility with a project called {name}.',
+      },
       dataSaved: 'Data will be saved to the cloud',
       cancel: 'Cancel',
     },
