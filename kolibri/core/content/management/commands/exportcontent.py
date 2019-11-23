@@ -1,11 +1,15 @@
 import logging
 import os
 
-from ...utils import import_export_content
+from le_utils.constants import content_kinds
+
 from ...utils import paths
 from ...utils import transfer
 from kolibri.core.content.errors import InvalidStorageFilenameError
+from kolibri.core.content.utils.import_export_content import calculate_files_to_transfer
+from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
 from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.utils import get_current_job
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +55,13 @@ class Command(AsyncCommand):
         parser.add_argument("channel_id", type=str)
         parser.add_argument("destination", type=str)
 
+    def update_job_metadata(self, total_bytes_to_transfer, total_resource_count):
+        job = get_current_job()
+        if job:
+            job.extra_metadata["file_size"] = total_bytes_to_transfer
+            job.extra_metadata["total_resources"] = total_resource_count
+            job.save_meta()
+
     def handle_async(self, *args, **options):
         channel_id = options["channel_id"]
         data_dir = os.path.realpath(options["destination"])
@@ -60,9 +71,22 @@ class Command(AsyncCommand):
             "Exporting content for channel id {} to {}".format(channel_id, data_dir)
         )
 
-        files, total_bytes_to_transfer = import_export_content.get_files_to_transfer(
+        nodes_for_transfer = get_nodes_to_transfer(
             channel_id, node_ids, exclude_node_ids, True
         )
+
+        total_resource_count = (
+            nodes_for_transfer.exclude(kind=content_kinds.TOPIC)
+            .values("content_id")
+            .distinct()
+            .count()
+        )
+
+        (files, total_bytes_to_transfer,) = calculate_files_to_transfer(
+            nodes_for_transfer, True
+        )
+
+        self.update_job_metadata(total_bytes_to_transfer, total_resource_count)
 
         exported_files = []
 

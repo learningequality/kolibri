@@ -45,9 +45,16 @@
           {{ $tr('progressPercentage', { progress: task.percentage }) }}
         </span>
       </div>
-      <p v-if="sizeText" class="details-size">
-        {{ sizeText }}
-      </p>
+      <template v-if="!taskIsCompleted && !taskIsCanceled">
+        <p v-if="sizeText" class="details-size">
+          {{ sizeText }}
+        </p>
+      </template>
+      <template v-else>
+        <p v-if="finishedSizeText" class="details-size">
+          {{ finishedSizeText }}
+        </p>
+      </template>
       <p class="details-startedby" :style="{color: $themeTokens.annotation}">
         {{ startedByText }}
       </p>
@@ -89,6 +96,17 @@
     [TaskTypes.UPDATECHANNEL]: 'updatingChannelVersion',
   };
 
+  const typeToTrPrefixMap = {
+    [TaskTypes.REMOTECONTENTIMPORT]: 'import',
+    [TaskTypes.DISKCONTENTIMPORT]: 'import',
+    [TaskTypes.REMOTEIMPORT]: 'import',
+    [TaskTypes.DISKIMPORT]: 'import',
+    [TaskTypes.DISKEXPORT]: 'export',
+    [TaskTypes.DISKCONTENTEXPORT]: 'export',
+    [TaskTypes.DELETECHANNEL]: 'delete',
+    [TaskTypes.DELETECONTENT]: 'delete',
+  };
+
   const statusToTrMap = {
     [TaskStatuses.COMPLETED]: 'statusComplete',
     [TaskStatuses.FAILED]: 'statusFailed',
@@ -123,10 +141,11 @@
       taskIsCanceling() {
         return this.task.status === TaskStatuses.CANCELING;
       },
+      taskIsCanceled() {
+        return this.task.status === TaskStatuses.CANCELED;
+      },
       taskIsFailed() {
-        return (
-          this.task.status === TaskStatuses.FAILED || this.task.status === TaskStatuses.CANCELED
-        );
+        return this.task.status === TaskStatuses.FAILED || this.taskIsCanceled;
       },
       descriptionText() {
         const trName = typeToTrMap[this.task.type];
@@ -141,6 +160,35 @@
             numResources: total_resources,
             bytesText: bytesForHumans(file_size),
           });
+        }
+        return '';
+      },
+      finishedSizeText() {
+        const {
+          transferred_file_size,
+          transferred_resources,
+          file_size,
+          total_resources,
+        } = this.task;
+        if (file_size && total_resources) {
+          const trPrefix = typeToTrPrefixMap[this.task.type];
+          if (
+            transferred_file_size &&
+            transferred_resources &&
+            (transferred_file_size < file_size || transferred_resources < total_resources)
+          ) {
+            return this.$tr(`${trPrefix}PartialRatio`, {
+              currentResources: transferred_resources,
+              totalResources: total_resources,
+              currentSize: bytesForHumans(transferred_file_size),
+              totalSize: bytesForHumans(file_size),
+            });
+          } else {
+            return this.$tr(`${trPrefix}Success`, {
+              totalResources: total_resources,
+              totalSize: bytesForHumans(file_size),
+            });
+          }
         }
         return '';
       },

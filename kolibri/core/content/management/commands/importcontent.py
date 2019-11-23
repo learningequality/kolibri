@@ -4,13 +4,20 @@ from time import sleep
 
 import requests
 from django.core.management.base import CommandError
+from le_utils.constants import content_kinds
 
 from ...utils import annotation
-from ...utils import import_export_content
 from ...utils import paths
 from ...utils import transfer
 from kolibri.core.content.errors import InvalidStorageFilenameError
+from kolibri.core.content.models import ContentNode
+from kolibri.core.content.utils.file_availability import LocationError
+from kolibri.core.content.utils.import_export_content import calculate_files_to_transfer
+from kolibri.core.content.utils.import_export_content import compare_checksums
+from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
+from kolibri.core.content.utils.import_export_content import retry_import
 from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 
 # constants to specify the transfer method to be used
@@ -168,21 +175,56 @@ class Command(AsyncCommand):
         renderable_only=True,
     ):
 
-        (
-            files_to_download,
-            total_bytes_to_transfer,
-        ) = import_export_content.get_files_to_transfer(
-            channel_id,
-            node_ids,
-            exclude_node_ids,
-            False,
-            renderable_only=renderable_only,
-            drive_id=drive_id,
-            peer_id=peer_id,
+        try:
+            nodes_for_transfer = get_nodes_to_transfer(
+                channel_id,
+                node_ids,
+                exclude_node_ids,
+                False,
+                renderable_only=renderable_only,
+                drive_id=drive_id,
+                peer_id=peer_id,
+            )
+        except LocationError:
+            if drive_id:
+                raise CommandError(
+                    "The external drive with given drive id {} does not exist.".format(
+                        drive_id
+                    )
+                )
+            if peer_id:
+                raise CommandError(
+                    "The network location with the id {} does not exist".format(peer_id)
+                )
+        total_resource_count = (
+            nodes_for_transfer.exclude(kind=content_kinds.TOPIC)
+            .values("content_id")
+            .distinct()
+            .count()
         )
 
+        (files_to_download, total_bytes_to_transfer,) = calculate_files_to_transfer(
+            nodes_for_transfer, False
+        )
+
+        job = get_current_job()
+
+        if job:
+            job.extra_metadata["file_size"] = total_bytes_to_transfer
+            job.extra_metadata["total_resources"] = total_resource_count
+            job.save_meta()
+
         number_of_skipped_files = 0
+        transferred_file_size = 0
         file_checksums_to_annotate = []
+
+        resources_before_transfer = (
+            ContentNode.objects.filter(channel_id=channel_id, available=True)
+            .exclude(kind=content_kinds.TOPIC)
+            .values("content_id")
+            .distinct()
+            .count()
+        )
 
         with self.start_progress(
             total=total_bytes_to_transfer
@@ -209,6 +251,7 @@ class Command(AsyncCommand):
                 if os.path.isfile(dest) and os.path.getsize(dest) == f.file_size:
                     overall_progress_update(f.file_size)
                     file_checksums_to_annotate.append(f.id)
+                    transferred_file_size += f.file_size
                     continue
 
                 # determine where we're downloading/copying from, and create appropriate transfer object
@@ -240,6 +283,7 @@ class Command(AsyncCommand):
 
                         if status == FILE_TRANSFERRED:
                             file_checksums_to_annotate.append(f.id)
+                            transferred_file_size += f.file_size
                         elif status == FILE_SKIPPED:
                             number_of_skipped_files += 1
                 except Exception as e:
@@ -252,6 +296,21 @@ class Command(AsyncCommand):
                 node_ids=node_ids,
                 exclude_node_ids=exclude_node_ids,
             )
+
+            resources_after_transfer = (
+                ContentNode.objects.filter(channel_id=channel_id, available=True)
+                .exclude(kind=content_kinds.TOPIC)
+                .values("content_id")
+                .distinct()
+                .count()
+            )
+
+            if job:
+                job.extra_metadata["transferred_file_size"] = transferred_file_size
+                job.extra_metadata["transferred_resources"] = (
+                    resources_after_transfer - resources_before_transfer
+                )
+                job.save_meta()
 
             if number_of_skipped_files > 0:
                 logger.warning(
@@ -306,9 +365,7 @@ class Command(AsyncCommand):
                 # id indicated in the database, it means that the destination file
                 # is corrupted, either from origin or during import. Skip importing
                 # this file.
-                checksum_correctness = import_export_content.compare_checksums(
-                    filetransfer.dest, f.id
-                )
+                checksum_correctness = compare_checksums(filetransfer.dest, f.id)
                 if not checksum_correctness:
                     e = "File {} is corrupted.".format(filetransfer.source)
                     logger.error(
@@ -321,7 +378,7 @@ class Command(AsyncCommand):
 
         except Exception as e:
             logger.error("An error occurred during content import: {}".format(e))
-            retry = import_export_content.retry_import(e, skip_404=True)
+            retry = retry_import(e, skip_404=True)
 
             if retry:
                 # Restore the previous progress so that the progress bar will
