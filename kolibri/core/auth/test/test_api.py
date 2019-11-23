@@ -208,6 +208,66 @@ class ClassroomAPITestCase(APITestCase):
         }
         self.assertDictEqual(response.data, expected)
 
+    def test_classroom_detail_assigned_coach_super_user(self):
+        self.classrooms[0].add_coach(self.superuser)
+        response = self.client.get(
+            reverse(
+                "kolibri:core:classroom-detail", kwargs={"pk": self.classrooms[0].id}
+            ),
+            format="json",
+        )
+        expected = {
+            "id": self.classrooms[0].id,
+            "name": self.classrooms[0].name,
+            "parent": self.classrooms[0].parent.id,
+            "learner_count": 0,
+            "coaches": [
+                {
+                    "id": self.superuser.id,
+                    "facility": self.facility.id,
+                    "is_superuser": True,
+                    "full_name": self.superuser.full_name,
+                    "username": self.superuser.username,
+                    "roles": [],
+                }
+            ],
+        }
+        self.assertDictEqual(response.data, expected)
+
+    def test_classroom_detail_assigned_coach_admin(self):
+        admin = FacilityUserFactory.create(facility=self.facility)
+        self.facility.add_admin(admin)
+        self.classrooms[0].add_coach(admin)
+        response = self.client.get(
+            reverse(
+                "kolibri:core:classroom-detail", kwargs={"pk": self.classrooms[0].id}
+            ),
+            format="json",
+        )
+        expected = {
+            "id": self.classrooms[0].id,
+            "name": self.classrooms[0].name,
+            "parent": self.classrooms[0].parent.id,
+            "learner_count": 0,
+            "coaches": [
+                {
+                    "id": admin.id,
+                    "facility": self.facility.id,
+                    "is_superuser": False,
+                    "full_name": admin.full_name,
+                    "username": admin.username,
+                    "roles": [
+                        {
+                            "collection": self.facility.id,
+                            "kind": role_kinds.ADMIN,
+                            "user": admin.id,
+                        }
+                    ],
+                }
+            ],
+        }
+        self.assertDictEqual(response.data, expected)
+
     def test_cannot_create_classroom_same_name(self):
         classroom_name = self.classrooms[0].name
         response = self.client.post(
@@ -370,7 +430,9 @@ class UserCreationTestCase(APITestCase):
             "password": new_password,
             "facility": self.facility.id,
         }
-        response = self.client.post(reverse("kolibri:core:facilityuser-list"), data)
+        response = self.client.post(
+            reverse("kolibri:core:facilityuser-list"), data, format="json",
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(
             models.FacilityUser.objects.get(username=new_username).check_password(
@@ -532,6 +594,7 @@ class LoginLogoutTestCase(APITestCase):
         self.client.post(
             reverse("kolibri:core:session-list"),
             data={"username": self.superuser.username, "password": DUMMY_PASSWORD},
+            format="json",
         )
         session_key = self.client.session.session_key
         self.assertTrue(self.session_store.exists(session_key))
@@ -548,6 +611,7 @@ class LoginLogoutTestCase(APITestCase):
                 "password": DUMMY_PASSWORD,
                 "facility": self.facility.id,
             },
+            format="json",
         )
         session_key = self.client.session.session_key
         self.assertTrue(self.session_store.exists(session_key))
@@ -565,6 +629,7 @@ class LoginLogoutTestCase(APITestCase):
                 "password": "foo",
                 "facility": self.facility.id,
             },
+            format="json",
         )
         self.assertEqual(session_key, self.client.session.session_key)
 
@@ -576,6 +641,7 @@ class LoginLogoutTestCase(APITestCase):
                 "password": "bar",
                 "facility": self.facility.id,
             },
+            format="json",
         )
         response = self.client.get(
             reverse("kolibri:core:session-detail", kwargs={"pk": "current"})
@@ -597,6 +663,7 @@ class LoginLogoutTestCase(APITestCase):
                 "password": DUMMY_PASSWORD,
                 "facility": self.facility.id,
             },
+            format="json",
         )
         expire_date = self.client.session.get_expiry_date()
         self.client.get(
@@ -612,7 +679,9 @@ class AnonSignUpTestCase(APITestCase):
         provision_device()
 
     def post_to_sign_up(self, data):
-        return self.client.post(reverse("kolibri:core:signup-list"), data=data)
+        return self.client.post(
+            reverse("kolibri:core:signup-list"), data=data, format="json"
+        )
 
     def test_anon_sign_up_creates_user(self):
         response = self.post_to_sign_up(
@@ -837,7 +906,7 @@ class GroupMembership(APITestCase):
     def test_create_group_membership_no_group_membership(self):
         url = reverse("kolibri:core:membership-list")
         response = self.client.post(
-            url, {"user": self.user.id, "collection": self.lg11.id}
+            url, {"user": self.user.id, "collection": self.lg11.id}, format="json",
         )
         self.assertEqual(response.status_code, 201)
 
@@ -845,7 +914,7 @@ class GroupMembership(APITestCase):
         models.Membership.objects.create(user=self.user, collection=self.lg21)
         url = reverse("kolibri:core:membership-list")
         response = self.client.post(
-            url, {"user": self.user.id, "collection": self.lg11.id}
+            url, {"user": self.user.id, "collection": self.lg11.id}, format="json",
         )
         self.assertEqual(response.status_code, 201)
 
@@ -853,7 +922,7 @@ class GroupMembership(APITestCase):
         models.Membership.objects.create(user=self.user, collection=self.lg12)
         url = reverse("kolibri:core:membership-list")
         response = self.client.post(
-            url, {"user": self.user.id, "collection": self.lg11.id}
+            url, {"user": self.user.id, "collection": self.lg11.id}, format="json",
         )
         self.assertEqual(response.status_code, 201)
 
@@ -861,6 +930,8 @@ class GroupMembership(APITestCase):
         self.classroom2_membership.delete()
         url = reverse("kolibri:core:membership-list")
         response = self.client.post(
-            url, {"user": self.user.id, "collection": self.classroom2.id}
+            url,
+            {"user": self.user.id, "collection": self.classroom2.id},
+            format="json",
         )
         self.assertEqual(response.status_code, 201)
