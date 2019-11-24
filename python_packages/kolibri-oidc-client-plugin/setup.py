@@ -49,6 +49,9 @@ setup(
     packages=[
         str('kolibri_oidc_client_plugin'),  # https://github.com/pypa/setuptools/pull/597
     ],
+    entry_points={
+        "kolibri.plugins": "kolibri_oidc_client_plugin = kolibri_oidc_client_plugin",
+    },
     package_dir={'kolibri_oidc_client_plugin': 'kolibri_oidc_client_plugin'},
     include_package_data=True,
     license='MIT',
