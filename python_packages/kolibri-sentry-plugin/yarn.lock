@@ -584,7 +584,7 @@
   resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-12.0.12.tgz#45dd1d0638e8c8f153e87d296907659296873916"
   integrity sha512-SOhuU4wNBxhhTHxYaiG5NY4HBhDIDnJF60GU+2LqHAdKKer86//e4yg69aENCtQ04n0ovz+tq2YPME5t5yp4pw==
 
-"@vue/component-compiler-utils@^2.5.1":
+"@vue/component-compiler-utils@^2.1.0", "@vue/component-compiler-utils@^2.5.1":
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/@vue/component-compiler-utils/-/component-compiler-utils-2.6.0.tgz#aa46d2a6f7647440b0b8932434d22f12371e543b"
   integrity sha512-IHjxt7LsOFYc0DkTncB7OXJL7UzwOLPPQCfEUNyxL2qt+tF12THV+EO33O1G2Uk4feMSWua3iD39Itszx0f0bw==
@@ -2025,6 +2025,11 @@ bfj@^6.1.1:
     hoopy "^0.1.4"
     tryer "^1.0.1"
 
+big.js@^3.1.3:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/big.js/-/big.js-3.2.0.tgz#a5fc298b81b9e0dca2e458824784b65c52ba588e"
+  integrity sha512-+hN/Zh2D08Mx65pZ/4g5bsmNiZUuChDiQfTUQ7qJr4/kuopCr88xZsAXv6mBoZEsUI4OuGHlX59qE94K2mMW8Q==
+
 big.js@^5.2.2:
   version "5.2.2"
   resolved "https://registry.yarnpkg.com/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"
@@ -3028,6 +3033,11 @@ core-js@^2.4.0, core-js@^2.4.1, core-js@^2.5.0:
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.9.tgz#6b4b214620c834152e179323727fc19741b084f2"
   integrity sha512-HOpZf6eXmnl7la+cUdMnLvUxKNqLUzJvgIziQ0DiF3JwSImNphIqdGqzj6hIKyX04MmV0poclQ7+wjWvxQyR2A==
 
+core-js@^3.2.1:
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.4.2.tgz#ee2b1a60b50388d8ddcda8cdb44a92c7a9ea76df"
+  integrity sha512-bUTfqFWtNKWp73oNIfRkqwYZJeNT3lstzZcAkhhiuvDraRSgOH1/+F9ZklbpR4zpdKuo4cpXN8tKP7s61yjX+g==
+
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
@@ -3132,10 +3142,10 @@ css-declaration-sorter@^4.0.1:
     postcss "^7.0.1"
     timsort "^0.3.0"
 
-css-element-queries@1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/css-element-queries/-/css-element-queries-1.2.0.tgz#081373d7f30302adad46b7c29b83b85f8ef8f62c"
-  integrity sha512-4gaxpioSFueMcp9yj1TJFCLjfooGv38y6ZdwFUS3GuS+9NIVijdeiExXKwSIHoQDADfpgnaYSTzmJs+bV+Hehg==
+css-element-queries@^1.2.0:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/css-element-queries/-/css-element-queries-1.2.2.tgz#e80ce4c523e41079152b1a3a8ec5b7afb0b45c96"
+  integrity sha512-mpzx/1w9qqu5WLrxvX/wRP+ZwU2ZZ0yRiBkQ9jf4QjStaNuiDbejw9KcvfW3me5f4MZRAnAsctGRECrSf1PBYw==
 
 css-in-js-utils@^2.0.0:
   version "2.0.1"
@@ -3164,6 +3174,18 @@ css-loader@^0.28.7:
     postcss-modules-values "^1.3.0"
     postcss-value-parser "^3.3.0"
     source-list-map "^2.0.0"
+
+css-modules-loader-core@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/css-modules-loader-core/-/css-modules-loader-core-1.1.0.tgz#5908668294a1becd261ae0a4ce21b0b551f21d16"
+  integrity sha1-WQhmgpShvs0mGuCkziGwtVHyHRY=
+  dependencies:
+    icss-replace-symbols "1.1.0"
+    postcss "6.0.1"
+    postcss-modules-extract-imports "1.1.0"
+    postcss-modules-local-by-default "1.2.0"
+    postcss-modules-scope "1.1.0"
+    postcss-modules-values "1.3.0"
 
 css-select-base-adapter@^0.1.1:
   version "0.1.1"
@@ -3380,6 +3402,11 @@ cssstyle@^1.0.0:
   dependencies:
     cssom "0.3.x"
 
+csv-parse@^4.4.4:
+  version "4.8.2"
+  resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-4.8.2.tgz#c717cc8d87f619dbd556d5a15222a83b6d7a6d06"
+  integrity sha512-WfYwyJepTbjS5jWAWpVskOJ8Z10231HaFw6qJhSjGrpfMPf3yuoRohlasYsP/6/3YgTQcvZpTvoUo37eaei9Fw==
+
 csv-writer@^1.3.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/csv-writer/-/csv-writer-1.5.0.tgz#86c669be32cdd55dc2b66d722a3906f562547884"
@@ -3396,11 +3423,6 @@ cyclist@~0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-0.2.2.tgz#1b33792e11e914a2fd6d6ed6447464444e5fa640"
   integrity sha1-GzN5LhHpFKL9bW7WRHRkRE5fpkA=
-
-d3-color@^1.2.3:
-  version "1.2.8"
-  resolved "https://registry.yarnpkg.com/d3-color/-/d3-color-1.2.8.tgz#4eaf9b60ef188c893fcf8b28f3546aafebfbd9f4"
-  integrity sha512-yeANXzP37PHk0DbSTMNPhnJD+Nn4G//O5E825bR6fAfHH43hobSBpgB9G9oWVl9+XgUaQ4yCnsX1H+l8DoaL9A==
 
 dargs@^5.1.0:
   version "5.1.0"
@@ -4004,10 +4026,10 @@ eslint-plugin-jest@^21.26.1:
   resolved "https://registry.yarnpkg.com/eslint-plugin-jest/-/eslint-plugin-jest-21.27.2.tgz#2a795b7c3b5e707df48a953d651042bd01d7b0a8"
   integrity sha512-0E4OIgBJVlAmf1KfYFtZ3gYxgUzC5Eb3Jzmrc9ikI1OY+/cM8Kh72Ti7KfpeHNeD3HJNf9SmEfmvQLIz44Hrhw==
 
-eslint-plugin-kolibri@0.13.0-dev.5:
-  version "0.13.0-dev.5"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-kolibri/-/eslint-plugin-kolibri-0.13.0-dev.5.tgz#a20c40ac753252fa39d302e0d95d95bc8f5c0804"
-  integrity sha512-KNYQvWmmjsBM+V3tewECxYfW5SZc13gGBV2E72XrQz6MIFDI0aeAVJBKZ+J53mMzPqHaGXTWxdHmYBLLCbXNYA==
+eslint-plugin-kolibri@0.13.0-dev.10:
+  version "0.13.0-dev.10"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-kolibri/-/eslint-plugin-kolibri-0.13.0-dev.10.tgz#f98b38456577add408fc670d6e82b0815a97fee3"
+  integrity sha512-qQaAMz3xBqRfo0GLFFobeuiEbXS9PHJk32Ky95zMUXlsSlkFUJf44Res4K35Y7PypBMfvrejvnL1Ui6GLFP7hg==
   dependencies:
     requireindex "^1.1.0"
 
@@ -4655,10 +4677,10 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
-frame-throttle@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/frame-throttle/-/frame-throttle-2.0.1.tgz#d184334335da04e7f48a5318a0aac7a9901f048f"
-  integrity sha1-0YQzQzXaBOf0ilMYoKrHqZAfBI8=
+frame-throttle@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/frame-throttle/-/frame-throttle-3.0.0.tgz#a666e007c10af6239909cf73871be09a7ea1c6d1"
+  integrity sha1-pmbgB8EK9iOZCc9zhxvgmn6hxtE=
 
 fresh@0.5.2:
   version "0.5.2"
@@ -4748,6 +4770,13 @@ gaze@^1.0.0:
   integrity sha512-BRdNm8hbWzFzWHERTrejLqwHDfS4GibPoq5wjTPIoJHoBtKGPg3xAFfxmM+9ztbXelxcf2hwQcaz1PtmFeue8g==
   dependencies:
     globule "^1.0.0"
+
+generic-names@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/generic-names/-/generic-names-1.0.3.tgz#2d786a121aee508876796939e8e3bff836c20917"
+  integrity sha1-LXhqEhruUIh2eWk56OO/+DbCCRc=
+  dependencies:
+    loader-utils "^0.2.16"
 
 get-caller-file@^1.0.1:
   version "1.0.3"
@@ -5420,7 +5449,7 @@ iconv-lite@0.4.24, iconv-lite@^0.4.17, iconv-lite@^0.4.24, iconv-lite@^0.4.4:
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
-icss-replace-symbols@^1.1.0:
+icss-replace-symbols@1.1.0, icss-replace-symbols@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/icss-replace-symbols/-/icss-replace-symbols-1.1.0.tgz#06ea6f83679a7749e386cfe1fe812ae5db223ded"
   integrity sha1-Bupvg2ead0njhs/h/oEq5dsiPe0=
@@ -6784,7 +6813,7 @@ json3@^3.3.2:
   resolved "https://registry.yarnpkg.com/json3/-/json3-3.3.3.tgz#7fc10e375fc5ae42c4705a5cc0aa6f62be305b81"
   integrity sha512-c7/8mbUsKigAbLkD5B010BK4D9LZm7A1pNItkEwiUZRpIN66exu/e7YQWysGun+TRKaJp8MhemM+VkfWv42aCA==
 
-json5@^0.5.1:
+json5@^0.5.0, json5@^0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/json5/-/json5-0.5.1.tgz#1eade7acc012034ad84e2396767ead9fa5495821"
   integrity sha1-Hq3nrMASA0rYTiOWdn6tn6VJWCE=
@@ -6891,10 +6920,21 @@ knuth-shuffle-seeded@^1.0.6:
   dependencies:
     seed-random "~2.2.0"
 
-kolibri-tools@^0.13.0-dev.5:
-  version "0.13.0-dev.5"
-  resolved "https://registry.yarnpkg.com/kolibri-tools/-/kolibri-tools-0.13.0-dev.5.tgz#b15d0177455af1b96e89385aa3f0cf3f4cd400c8"
-  integrity sha512-7h2TBFSlnsNl3s1D3LD2sZk6e9xbbKudIJZZrpCAgynYA5allCLN599eJSGHUP9k1qtb+dU6PSfxjRT3CQKJ6A==
+kolibri-components@0.13.0-dev.10:
+  version "0.13.0-dev.9"
+  resolved "https://registry.yarnpkg.com/kolibri-components/-/kolibri-components-0.13.0-dev.9.tgz#85234c9d3a1fcaa2d40d95b7350cc9007e5afc2e"
+  integrity sha512-nucsP9C0FU+pCz6YKOmPpYtlJZyUwJuLOIBeVGa5A05JRwAqVYQlP1G9MKeUJ9lPfLoBRZolKom3CPmpUYR51w==
+  dependencies:
+    aphrodite "https://github.com/learningequality/aphrodite/"
+    css-element-queries "^1.2.0"
+    material-design-icons "^3.0.1"
+    popper.js "^1.14.6"
+    purecss "^0.6.2"
+
+kolibri-tools@^0.13.0-dev.10:
+  version "0.13.0-dev.10"
+  resolved "https://registry.yarnpkg.com/kolibri-tools/-/kolibri-tools-0.13.0-dev.10.tgz#77a66b8ba2f457e0d12b94e2f81e92a35d421be1"
+  integrity sha512-ooSWG13HeZ+HWEvKNe0aW/FzygyvZRJF4JUx96wlLcfAt2Kw2g6DOOhd5yYsPCrSCigCOhSms2V7AkNgPDA0xA==
   dependencies:
     "@vue/test-utils" "1.0.0-beta.25"
     ast-traverse "^0.1.1"
@@ -6910,12 +6950,13 @@ kolibri-tools@^0.13.0-dev.5:
     colors "^1.1.2"
     commander "^2.9.0"
     css-loader "^0.28.7"
+    csv-parse "^4.4.4"
     csv-writer "^1.3.0"
     eslint "^5.7.0"
     eslint-config-prettier "^2.9.0"
     eslint-plugin-import "^2.14.0"
     eslint-plugin-jest "^21.26.1"
-    eslint-plugin-kolibri "0.13.0-dev.5"
+    eslint-plugin-kolibri "0.13.0-dev.10"
     eslint-plugin-vue "^5.2.2"
     espree "^5.0.1"
     esquery "^1.0.1"
@@ -6953,8 +6994,10 @@ kolibri-tools@^0.13.0-dev.5:
     temp "^0.8.3"
     terser-webpack-plugin "^1.2.2"
     url-loader "^1.0.1"
+    vue-compiler "^4.2.0"
     vue-jest "^3.0.0"
     vue-loader "^15.7.0"
+    vue-router "3.1.3"
     vue-style-loader "^3.0.3"
     vue-template-compiler "~2.6.10"
     webpack "^4.6.0"
@@ -6967,38 +7010,31 @@ kolibri-tools@^0.13.0-dev.5:
     webpack-merge "^4.1.0"
     webpack-rtl-plugin "^2.0.0"
   optionalDependencies:
-    kolibri "0.13.0-dev.5"
+    kolibri "0.13.0-dev.10"
 
-kolibri@0.13.0-dev.5:
-  version "0.13.0-dev.4"
-  resolved "https://registry.yarnpkg.com/kolibri/-/kolibri-0.13.0-dev.4.tgz#3e26ba676b5a4248c8d010491f87680f8bb0c2be"
-  integrity sha512-TwQhxQxMY8pbrS/pdAI2jkgKsyPntAgtu2F4az2iJgdxwF56pw9jiS7k3UrcQz0c4b3IW9Xxq/I/8Ws8jun4Mw==
+kolibri@0.13.0-dev.10:
+  version "0.13.0-dev.10"
+  resolved "https://registry.yarnpkg.com/kolibri/-/kolibri-0.13.0-dev.10.tgz#a1bcacf64c663e862f79ae77284149fbe6b3dad8"
+  integrity sha512-EV9nXonjQok2LK7a7N1uWLTPjVA+Rj6HHDMP1kw6l3aSmsKGP1kLvtNLUv7j2p8PjemniycM0NrLxqeKxjVW0Q==
   dependencies:
     "@shopify/draggable" "^1.0.0-beta.8"
-    aphrodite "https://github.com/learningequality/aphrodite/"
-    array-includes "^3.0.3"
     clipboard "^2.0.1"
-    core-js "^2.4.1"
-    css-element-queries "1.2.0"
-    d3-color "^1.2.3"
+    core-js "^3.2.1"
     date-fns "^1.28.2"
     fontfaceobserver "^2.0.13"
-    frame-throttle "^2.0.1"
+    frame-throttle "^3.0.0"
     intl "^1.2.4"
     js-cookie "^2.1.2"
     keen-ui "https://github.com/learningequality/Keen-UI/"
     knuth-shuffle-seeded "^1.0.6"
+    kolibri-components "0.13.0-dev.10"
     lockr "0.8.4"
     lodash "^4.17.4"
     loglevel "^1.4.1"
     markdown-it "^8.3.1"
-    material-design-icons "^3.0.1"
-    popper.js "^1.14.6"
-    purecss "^0.6.2"
     rest "^1.3.2"
     screenfull "^4.0.0"
     shave "^2.1.3"
-    url-polyfill "^1.1.3"
     vue "^2.6.8"
     vue-intl "3.0.0"
     vue-markdown "^2.1.3"
@@ -7156,6 +7192,16 @@ loader-runner@^2.3.0:
   resolved "https://registry.yarnpkg.com/loader-runner/-/loader-runner-2.4.0.tgz#ed47066bfe534d7e84c4c7b9998c2a75607d9357"
   integrity sha512-Jsmr89RcXGIwivFY21FcRrisYZfvLMTWx5kOLc+JTxtpBOG6xML0vzbc6SEQG2FO9/4Fc3wW4LVcB5DmGflaRw==
 
+loader-utils@^0.2.16:
+  version "0.2.17"
+  resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-0.2.17.tgz#f86e6374d43205a6e6c60e9196f17c0299bfb348"
+  integrity sha1-+G5jdNQyBabmxg6RlvF8Apm/s0g=
+  dependencies:
+    big.js "^3.1.3"
+    emojis-list "^2.0.0"
+    json5 "^0.5.0"
+    object-assign "^4.0.1"
+
 loader-utils@^1.0.1, loader-utils@^1.0.2, loader-utils@^1.1.0, loader-utils@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-1.2.3.tgz#1ff5dc6911c9f0a062531a4c04b609406108c2c7"
@@ -7195,6 +7241,11 @@ lodash.debounce@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
   integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
+
+lodash.defaultsdeep@^4.6.0:
+  version "4.6.1"
+  resolved "https://registry.yarnpkg.com/lodash.defaultsdeep/-/lodash.defaultsdeep-4.6.1.tgz#512e9bd721d272d94e3d3a63653fa17516741ca6"
+  integrity sha512-3j8wdDzYuWO3lM3Reg03MuQR957t287Rpcxp1njpEa8oDrikb+FwGdW3n+FELh/A6qib6yPit0j/pv9G/yeAqA==
 
 lodash.isplainobject@^4.0.6:
   version "4.0.6"
@@ -9128,6 +9179,13 @@ postcss-minify-selectors@^4.0.2:
     postcss "^7.0.0"
     postcss-selector-parser "^3.0.0"
 
+postcss-modules-extract-imports@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/postcss-modules-extract-imports/-/postcss-modules-extract-imports-1.1.0.tgz#b614c9720be6816eaee35fb3a5faa1dba6a05ddb"
+  integrity sha1-thTJcgvmgW6u41+zpfqh26agXds=
+  dependencies:
+    postcss "^6.0.1"
+
 postcss-modules-extract-imports@^1.2.0:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/postcss-modules-extract-imports/-/postcss-modules-extract-imports-1.2.1.tgz#dc87e34148ec7eab5f791f7cd5849833375b741a"
@@ -9135,7 +9193,7 @@ postcss-modules-extract-imports@^1.2.0:
   dependencies:
     postcss "^6.0.1"
 
-postcss-modules-local-by-default@^1.2.0:
+postcss-modules-local-by-default@1.2.0, postcss-modules-local-by-default@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/postcss-modules-local-by-default/-/postcss-modules-local-by-default-1.2.0.tgz#f7d80c398c5a393fa7964466bd19500a7d61c069"
   integrity sha1-99gMOYxaOT+nlkRmvRlQCn1hwGk=
@@ -9143,7 +9201,7 @@ postcss-modules-local-by-default@^1.2.0:
     css-selector-tokenizer "^0.7.0"
     postcss "^6.0.1"
 
-postcss-modules-scope@^1.1.0:
+postcss-modules-scope@1.1.0, postcss-modules-scope@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/postcss-modules-scope/-/postcss-modules-scope-1.1.0.tgz#d6ea64994c79f97b62a72b426fbe6056a194bb90"
   integrity sha1-1upkmUx5+XtipytCb75gVqGUu5A=
@@ -9151,13 +9209,24 @@ postcss-modules-scope@^1.1.0:
     css-selector-tokenizer "^0.7.0"
     postcss "^6.0.1"
 
-postcss-modules-values@^1.3.0:
+postcss-modules-values@1.3.0, postcss-modules-values@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/postcss-modules-values/-/postcss-modules-values-1.3.0.tgz#ecffa9d7e192518389f42ad0e83f72aec456ea20"
   integrity sha1-7P+p1+GSUYOJ9CrQ6D9yrsRW6iA=
   dependencies:
     icss-replace-symbols "^1.1.0"
     postcss "^6.0.1"
+
+postcss-modules@^1.1.0:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/postcss-modules/-/postcss-modules-1.4.1.tgz#8aa35bd3461db67e27377a7ce770d77b654a84ef"
+  integrity sha512-btTrbK+Xc3NBuYF8TPBjCMRSp5h6NoQ1iVZ6WiDQENIze6KIYCSf0+UFQuV3yJ7gRHA+4AAtF8i2jRvUpbBMMg==
+  dependencies:
+    css-modules-loader-core "^1.1.0"
+    generic-names "^1.0.3"
+    lodash.camelcase "^4.3.0"
+    postcss "^7.0.1"
+    string-hash "^1.1.1"
 
 postcss-normalize-charset@^1.1.0:
   version "1.1.1"
@@ -9273,6 +9342,13 @@ postcss-ordered-values@^4.1.2:
     cssnano-util-get-arguments "^4.0.0"
     postcss "^7.0.0"
     postcss-value-parser "^3.0.0"
+
+postcss-plugin-composition@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/postcss-plugin-composition/-/postcss-plugin-composition-0.1.1.tgz#e9a3cf6a9082826daa9e2530b21b672a45f1c82c"
+  integrity sha1-6aPPapCCgm2qniUwshtnKkXxyCw=
+  dependencies:
+    postcss "^5.2.0"
 
 postcss-reduce-idents@^2.2.2:
   version "2.4.0"
@@ -9461,7 +9537,16 @@ postcss-zindex@^2.0.1:
     postcss "^5.0.4"
     uniqs "^2.0.0"
 
-postcss@^5.0.10, postcss@^5.0.11, postcss@^5.0.12, postcss@^5.0.13, postcss@^5.0.14, postcss@^5.0.16, postcss@^5.0.2, postcss@^5.0.21, postcss@^5.0.4, postcss@^5.0.5, postcss@^5.0.6, postcss@^5.0.8, postcss@^5.2.16:
+postcss@6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-6.0.1.tgz#000dbd1f8eef217aa368b9a212c5fc40b2a8f3f2"
+  integrity sha1-AA29H47vIXqjaLmiEsX8QLKo8/I=
+  dependencies:
+    chalk "^1.1.3"
+    source-map "^0.5.6"
+    supports-color "^3.2.3"
+
+postcss@^5.0.10, postcss@^5.0.11, postcss@^5.0.12, postcss@^5.0.13, postcss@^5.0.14, postcss@^5.0.16, postcss@^5.0.2, postcss@^5.0.21, postcss@^5.0.4, postcss@^5.0.5, postcss@^5.0.6, postcss@^5.0.8, postcss@^5.2.0, postcss@^5.2.16:
   version "5.2.18"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-5.2.18.tgz#badfa1497d46244f6390f58b319830d9107853c5"
   integrity sha512-zrUjRRe1bpXKsX1qAJNJjqZViErVuyEkMTRrwu4ud4sbTtIBRmtaYDrHmcGgmrbsW3MHfmtIf+vJumgQn+PrXg==
@@ -11003,7 +11088,7 @@ strict-uri-encode@^1.0.0:
   resolved "https://registry.yarnpkg.com/strict-uri-encode/-/strict-uri-encode-1.1.0.tgz#279b225df1d582b1f54e65addd4352e18faa0713"
   integrity sha1-J5siXfHVgrH1TmWt3UNS4Y+qBxM=
 
-string-hash@^1.1.3:
+string-hash@^1.1.1, string-hash@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/string-hash/-/string-hash-1.1.3.tgz#e8aafc0ac1855b4666929ed7dd1275df5d6c811b"
   integrity sha1-6Kr8CsGFW0Zmkp7X3RJ1311sgRs=
@@ -11946,11 +12031,6 @@ url-parse@^1.4.3:
     querystringify "^2.1.1"
     requires-port "^1.0.0"
 
-url-polyfill@^1.1.3:
-  version "1.1.7"
-  resolved "https://registry.yarnpkg.com/url-polyfill/-/url-polyfill-1.1.7.tgz#402ee84360eb549bbeb585f4c7971e79a31de9e3"
-  integrity sha512-ZrAxYWCREjmMtL8gSbSiKKLZZticgihCvVBtrFbUVpyoETt8GQJeG2okMWA8XryDAaHMjJfhnc+rnhXRbI4DXA==
-
 url-to-options@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/url-to-options/-/url-to-options-1.0.1.tgz#1505a03a289a48cbd7a434efbaeec5055f5633a9"
@@ -12105,6 +12185,20 @@ vm-browserify@^1.0.1:
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.0.tgz#bd76d6a23323e2ca8ffa12028dc04559c75f9019"
   integrity sha512-iq+S7vZJE60yejDYM0ek6zg308+UZsdtPExWP9VZoCFCz1zkJoXFnAX7aZfd/ZwrkidzdUZL0C/ryW+JwAiIGw==
 
+vue-compiler@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/vue-compiler/-/vue-compiler-4.2.0.tgz#6099af6ec87fcbf8c4d12b16776c319972d36bf7"
+  integrity sha512-ILCG2YjGVUQ0QpHuWw3fPnEjwM6qr0BNNgommMZxNE+qos/Gh1zu9GaRiDHYvIxJkK6p80YRuUzlVMLGKQi65w==
+  dependencies:
+    "@vue/component-compiler-utils" "^2.1.0"
+    hash-sum "^1.0.2"
+    lodash.defaultsdeep "^4.6.0"
+    postcss "^7.0.0"
+    postcss-modules "^1.1.0"
+    postcss-plugin-composition "^0.1.1"
+    source-map "^0.6.1"
+    vue-template-es2015-compiler "^1.6.0"
+
 vue-eslint-parser@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/vue-eslint-parser/-/vue-eslint-parser-5.0.0.tgz#00f4e4da94ec974b821a26ff0ed0f7a78402b8a1"
@@ -12194,6 +12288,11 @@ vue-popperjs@^1.5.4:
   integrity sha512-D0k/PxsDoCQxYykTh26t//6Uw5hk5Yl3BDlZj2nHqB2AyD0NjKCceLbuBRlPh+O59CXYJLSW2p5QveepLwkUvg==
   dependencies:
     popper.js "^1.14.3"
+
+vue-router@3.1.3:
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.1.3.tgz#e6b14fabc0c0ee9fda0e2cbbda74b350e28e412b"
+  integrity sha512-8iSa4mGNXBjyuSZFCCO4fiKfvzqk+mhL0lnKuGcQtO1eoj8nq3CmbEG8FwK5QqoqwDgsjsf1GDuisDX4cdb/aQ==
 
 vue-router@^3.0.2:
   version "3.0.7"

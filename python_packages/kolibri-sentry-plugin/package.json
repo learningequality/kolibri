@@ -12,7 +12,7 @@
     "@sentry/integrations": "^5.5.0"
   },
   "devDependencies": {
-    "kolibri-tools": "^0.13.0-dev.5",
+    "kolibri-tools": "^0.13.0-dev.10",
     "vue-template-compiler": "^2.6.10"
   },
   "engines": {

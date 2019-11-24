@@ -1,8 +1,10 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 
-from kolibri.core.webpack import hooks as webpack_hooks
-from kolibri.plugins.base import KolibriPluginBase
+from kolibri.core.hooks import FrontEndBaseSyncHook
+from kolibri.core.webpack.hooks import WebpackBundleHook
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
 from kolibri.utils import conf
 
 
@@ -11,8 +13,9 @@ class SentryPlugin(KolibriPluginBase):
     kolibri_options = "options"
 
 
-class SentryPluginAsset(webpack_hooks.WebpackBundleHook):
-    bundle_id = "kolibri_sentry_plugin_module"
+@register_hook
+class SentryPluginAsset(WebpackBundleHook):
+    bundle_id = "main"
 
     @property
     def plugin_data(self):
@@ -22,5 +25,6 @@ class SentryPluginAsset(webpack_hooks.WebpackBundleHook):
         }
 
 
-class SentryPluginInclusionHook(webpack_hooks.FrontEndBaseSyncHook):
+@register_hook
+class SentryPluginInclusionHook(FrontEndBaseSyncHook):
     bundle_class = SentryPluginAsset

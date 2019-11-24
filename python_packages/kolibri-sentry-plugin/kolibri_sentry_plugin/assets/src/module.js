@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
 import kolibri from 'kolibri';
-import getPluginData from 'kolibri.utils.getPluginData';
+import plugin_data from 'plugin_data';
 import Vue from 'kolibri.lib.vue';
 import logger from 'kolibri.lib.logging';
 import store from 'kolibri.coreVue.vuex.store';
@@ -9,12 +9,10 @@ import { currentLanguage } from 'kolibri.utils.i18n';
 
 const logging = logger.getLogger(__filename);
 
-const pluginData = getPluginData();
-
-if (pluginData.sentryDSN) {
+if (plugin_data.sentryDSN) {
   Sentry.init({
-    dsn: pluginData.sentryDSN,
-    environment: pluginData.sentryEnv,
+    dsn: plugin_data.sentryDSN,
+    environment: plugin_data.sentryEnv,
     release: kolibri.version,
     integrations: [new SentryIntegrations.Vue({ Vue })],
     beforeSend: (event, hint) => {
