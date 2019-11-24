@@ -29,6 +29,11 @@ setup(
     author_email="info@learningequality.org",
     url=repo_url,
     packages=[str(plugin_name)],  # https://github.com/pypa/setuptools/pull/597
+    entry_points={
+        "kolibri.plugins": "{plugin_name} = {plugin_name}".format(
+            plugin_name=plugin_name
+        ),
+    },
     package_dir={plugin_name: plugin_name},
     install_requires=["sentry-sdk==0.7.9"],
     include_package_data=True,
