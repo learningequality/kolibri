@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth import logout
 from django.core.urlresolvers import reverse
 from django.http import Http404
@@ -57,14 +56,6 @@ def set_language(request):
         response = HttpResponse(next_path)
         if hasattr(request, "session"):
             request.session[LANGUAGE_SESSION_KEY] = lang_code
-        # Always set cookie
-        response.set_cookie(
-            settings.LANGUAGE_COOKIE_NAME,
-            lang_code,
-            max_age=settings.LANGUAGE_COOKIE_AGE,
-            path=settings.LANGUAGE_COOKIE_PATH,
-            domain=settings.LANGUAGE_COOKIE_DOMAIN,
-        )
     else:
         lang_code = (
             get_device_language()
@@ -87,7 +78,6 @@ def set_language(request):
         response = HttpResponse(next_path)
         if hasattr(request, "session"):
             request.session.pop(LANGUAGE_SESSION_KEY, "")
-        response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
     return response
 
 

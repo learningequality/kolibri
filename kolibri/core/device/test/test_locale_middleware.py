@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 import os
 
 from django.conf import settings
-from django.http.cookie import SimpleCookie
 from django.test import override_settings
 from django.test import TestCase
 from django.urls import clear_url_caches
@@ -125,11 +124,6 @@ class URLRedirectTestsBase(object):
         session = self.client.session
         session[translation.LANGUAGE_SESSION_KEY] = "fr-fr"
         session.save()
-        response = self.client.get(get_url("prefixed/"), follow=True)
-        self.assertRedirects(response, get_url("fr-fr/prefixed/"), 302)
-
-    def test_fr_fr_prefixed_redirect_cookie(self):
-        self.client.cookies = SimpleCookie({settings.LANGUAGE_COOKIE_NAME: "fr-fr"})
         response = self.client.get(get_url("prefixed/"), follow=True)
         self.assertRedirects(response, get_url("fr-fr/prefixed/"), 302)
 

@@ -252,11 +252,6 @@ MEDIA_ROOT = os.path.join(conf.KOLIBRI_HOME, "media")
 # set by other Django apps served from the same domain.
 CSRF_COOKIE_PATH = path_prefix
 
-# https://docs.djangoproject.com/en/1.11/ref/settings/#language-cookie-path
-# Ensure that our language cookie does not collide with other language
-# cookies set by other Django apps served from the same domain.
-LANGUAGE_COOKIE_PATH = path_prefix
-
 # https://docs.djangoproject.com/en/1.11/ref/settings/#session-cookie-path
 # Ensure that our session cookie does not collidge with other session cookies
 # set by other Django apps served from the same domain.
