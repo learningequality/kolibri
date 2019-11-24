@@ -160,7 +160,7 @@ const licenseDescriptionCreatorStrings = {
   },
   'CC BY-SA': {
     message:
-      'This license lets others adapt and build upon your resource – even commercially – as long as they credit you and license their new resources under identical terms. This license is often compared to “copyleft” free and open source software licenses. All new resources based on yours will carry the same license, so any derivatives will also allow commercial use. This is the license used by Wikipedia, and is recommended for materials that would benefit from incorporating resource from Wikipedia and similarly licensed projects.',
+      'This license lets others adapt and build upon your resource – even commercially – as long as they credit you and license their new resources under identical terms. This license is often compared to “copyleft” free and open source software licenses. All new resources based on yours will carry the same license, so any derivatives will also allow commercial use. This is the license used by Wikipedia. It is recommended for materials that use resources from Wikipedia or similarly licensed projects.',
     context:
       'License details from the perspective of the resource creator, author, or copyright owner.\nFor more info, see https://creativecommons.org/licenses/by-sa/2.0/',
   },

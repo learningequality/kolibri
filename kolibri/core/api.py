@@ -4,6 +4,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 from rest_framework.status import HTTP_201_CREATED
 from six.moves.urllib.parse import urljoin
 
@@ -30,14 +31,19 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
             urljoin(PORTAL_URL, "portal/api/public/v1/registerfacility/validate_token"),
             params=request.query_params,
         )
-        return Response(response.text, status=response.status_code)
+        # handle any invalid json type responses
+        try:
+            data = response.json()
+        except ValueError:
+            data = response.content
+        return Response(data, status=response.status_code)
 
 
 class ValuesViewset(viewsets.ModelViewSet):
     """
     A viewset that uses a values call to get all model/queryset data in
     a single database query, rather than delegating serialization to a
-    DRF ModelSerializer. At the moment, this is read only.
+    DRF ModelSerializer.
     """
 
     # A tuple of values to get from the queryset
@@ -58,6 +64,12 @@ class ValuesViewset(viewsets.ModelViewSet):
             raise TypeError("field_map must be defined as a dict")
         self._field_map = self.field_map.copy()
         return viewset
+
+    def get_serializer_class(self):
+        if self.serializer_class is not None:
+            return self.serializer_class
+        # Hack to prevent the renderer logic from breaking completely.
+        return Serializer
 
     def annotate_queryset(self, queryset):
         return queryset

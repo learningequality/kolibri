@@ -1,7 +1,6 @@
 import copy
 import logging
 import uuid
-from functools import partial
 
 from kolibri.core.tasks.utils import current_state_tracker
 from kolibri.core.tasks.utils import import_stringified_func
@@ -99,6 +98,8 @@ class Job(object):
         self.kwargs = kwargs
 
         self.save_meta_method = None
+        self.update_progress_method = None
+        self.check_for_cancel_method = None
 
         if callable(func):
             funcstring = stringify_func(func)
@@ -118,6 +119,22 @@ class Job(object):
                 "save_meta_method is not defined on this job, cannot save metadata"
             )
         self.save_meta_method(self)
+
+    def update_progress(self, progress, total_progress):
+        if self.track_progress:
+            if self.update_progress_method is None:
+                raise ReferenceError(
+                    "update_progress_method is not defined on this job, cannot update progress"
+                )
+            self.update_progress_method(self.job_id, progress, total_progress)
+
+    def check_for_cancel(self):
+        if self.cancellable:
+            if self.check_for_cancel_method is None:
+                raise ReferenceError(
+                    "check_for_cancel_method is not defined on this job, cannot check for cancellation"
+                )
+            self.check_for_cancel_method(self.job_id)
 
     def get_lambda_to_execute(self):
         """
@@ -145,23 +162,15 @@ class Job(object):
             setattr(current_state_tracker, "job", self)
 
             self.save_meta_method = save_job_meta_func
-
-            func = import_stringified_func(self.func)
-            extrafunckwargs = {}
-
-            args, kwargs = copy.copy(self.args), copy.copy(self.kwargs)
-
             if self.track_progress:
-                extrafunckwargs["update_progress"] = partial(
-                    update_progress_func, self.job_id
-                )
+                self.update_progress_method = update_progress_func
 
             if self.cancellable:
-                extrafunckwargs["check_for_cancel"] = partial(
-                    cancel_job_func, self.job_id
-                )
+                self.check_for_cancel_method = cancel_job_func
 
-            kwargs.update(extrafunckwargs)
+            func = import_stringified_func(self.func)
+
+            args, kwargs = copy.copy(self.args), copy.copy(self.kwargs)
 
             try:
                 result = func(*args, **kwargs)

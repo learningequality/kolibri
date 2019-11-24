@@ -402,7 +402,10 @@ def main(ctx):
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
         ctx.exit(1)
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    try:
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+    except ValueError:
+        pass
 
 
 def create_startup_lock(port):

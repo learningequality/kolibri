@@ -56,6 +56,14 @@ https://kolibri-dev.readthedocs.io/en/develop/i18n.html#updating-the-perseus-plu
 """
 
 
+PERSEUS_CSV_NOT_AVAILABLE = """
+You must manually generate Perseus CSV files in order to upload them.
+Change to the installed Perseus directory and run:
+
+    yarn run makemessages
+"""
+
+
 def checkPerseus():
     if not (os.path.exists(utils.PERSEUS_LOCALE_PATH)):
         logging.error("Cannot find Perseus locale directory.")
@@ -64,6 +72,11 @@ def checkPerseus():
     elif "/site-packages/" in utils.PERSEUS_LOCALE_PATH:
         logging.warning("It appears that Perseus is not installed for development.")
         logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
+        click.confirm("Continue anyway?", abort=True)
+
+    if not (os.path.exists(os.path.join(utils.PERSEUS_SOURCE_PATH, PERSEUS_CSV))):
+        logging.warning("Perseus strings are not available as CSVs")
+        logging.info(PERSEUS_CSV_NOT_AVAILABLE)
         click.confirm("Continue anyway?", abort=True)
 
 

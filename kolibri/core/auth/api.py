@@ -166,17 +166,19 @@ class FacilityUserViewSet(ValuesViewset):
         "id",
         "username",
         "full_name",
-        "password",
         "facility",
         "roles__kind",
         "roles__collection",
+        "roles__id",
         "devicepermissions__is_superuser",
         "id_number",
         "gender",
         "birth_year",
     )
 
-    field_map = {"devicepermissions__is_superuser": "is_superuser"}
+    field_map = {
+        "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
+    }
 
     def consolidate(self, items):
         output = []
@@ -187,6 +189,7 @@ class FacilityUserViewSet(ValuesViewset):
                 role = {
                     "collection": item.pop("roles__collection"),
                     "kind": item.pop("roles__kind"),
+                    "id": item.pop("roles__id"),
                 }
                 if role["collection"]:
                     # Our values call will return null for users with no assigned roles
@@ -332,7 +335,6 @@ class ClassroomViewSet(ValuesViewset):
         "role__user__devicepermissions__is_superuser",
         "role__user__full_name",
         "role__user__username",
-        "role__kind",
     )
 
     def annotate_queryset(self, queryset):
@@ -346,20 +348,34 @@ class ClassroomViewSet(ValuesViewset):
     def consolidate(self, items):
         output = []
         items = sorted(items, key=lambda x: x["id"])
+        coach_ids = list(set([item["role__user__id"] for item in items]))
+        facility_roles = {
+            obj.pop("user"): obj
+            for obj in Role.objects.filter(
+                user_id__in=coach_ids, collection__kind=collection_kinds.FACILITY
+            ).values("user", "kind", "collection", "id")
+        }
         for key, group in groupby(items, lambda x: x["id"]):
             coaches = []
             for item in group:
+                user_id = item.pop("role__user__id")
+                if (
+                    user_id in facility_roles
+                    and facility_roles[user_id]["collection"] == item["parent"]
+                ):
+                    roles = [facility_roles[user_id]]
+                else:
+                    roles = []
                 coach = {
-                    "id": item.pop("role__user__id"),
+                    "id": user_id,
                     "facility": item["parent"],
-                    "is_superuser": item.pop(
-                        "role__user__devicepermissions__is_superuser"
+                    # Coerce to bool if None
+                    "is_superuser": bool(
+                        item.pop("role__user__devicepermissions__is_superuser")
                     ),
                     "full_name": item.pop("role__user__full_name"),
                     "username": item.pop("role__user__username"),
-                    "roles": [
-                        {"collection": item["id"], "kind": item.pop("role__kind")}
-                    ],
+                    "roles": roles,
                 }
                 if coach["id"]:
                     coaches.append(coach)

@@ -5,6 +5,7 @@ import click
 from django.core.management.base import BaseCommand
 
 from kolibri.core.tasks.exceptions import UserCancelledError
+from kolibri.core.tasks.utils import get_current_job
 
 Progress = namedtuple(
     "Progress", ["progress_fraction", "message", "extra_data", "level"]
@@ -91,9 +92,16 @@ class AsyncCommand(BaseCommand):
             self.update_progress(progress_list[0].progress_fraction, 1.0)
 
     def handle(self, *args, **options):
-        self.update_progress = options.pop("update_progress", None)
-        self.check_for_cancel = options.pop("check_for_cancel", None)
+        self.job = get_current_job()
         return self.handle_async(*args, **options)
+
+    def update_progress(self, progress_fraction, total_progress):
+        if self.job:
+            self.job.update_progress(progress_fraction, total_progress)
+
+    def check_for_cancel(self):
+        if self.job:
+            self.job.check_for_cancel()
 
     def start_progress(self, total=100):
         level = len(self.progresstrackers)
@@ -104,17 +112,14 @@ class AsyncCommand(BaseCommand):
         return tracker
 
     def is_cancelled(self):
-        if self.check_for_cancel:
-            try:
-                self.check_for_cancel()
-                return False
-            except (UserCancelledError, KeyError):
-                return True
-        return False
+        try:
+            self.check_for_cancel()
+            return False
+        except (UserCancelledError, KeyError):
+            return True
 
     def cancel(self):
-        if self.check_for_cancel:
-            return self.check_for_cancel()
+        return self.check_for_cancel()
 
     @abc.abstractmethod
     def handle_async(self, *args, **options):

@@ -27,8 +27,8 @@
   "MediaPlayerTranscript.transcriptBeginning": "Inicio de la transcripción",
   "MediaPlayerTranscript.transcriptEnd": "Final de la transcripción",
   "SubtitlesMenuItem.subtitles": "Subtítulos",
-  "TranscriptCue.textLabel": "",
-  "TranscriptCue.timeLabel": "",
-  "TranscriptCue.title": "",
+  "TranscriptCue.textLabel": "Texto subtítulo actual",
+  "TranscriptCue.timeLabel": "Inicio subtítulo actual",
+  "TranscriptCue.title": "Reproducir a partir de {startTime}",
   "TranscriptMenuItem.transcript": "Transcripción"
 }
