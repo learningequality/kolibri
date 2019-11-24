@@ -28,7 +28,7 @@ built_files_cache = {
 # to be shared across processes - most frequently, things that might be needed
 # inside asynchronous tasks.
 process_cache = {
-    "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+    "BACKEND": "diskcache.DjangoCache",
     "LOCATION": os.path.join(KOLIBRI_HOME, "process_cache"),
     "OPTIONS": {"MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"]},
 }
