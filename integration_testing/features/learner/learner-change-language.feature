@@ -19,13 +19,13 @@ Feature: Learner change language
     When I log out
     Then I am redirected to the sign in page and Kolibri is in <language>
     When I open a new tab and open Kolibri
-    Then Kolibri is shown in <language>
+    Then Kolibri is displayed in <language>
     When I refresh the page
-    Then Kolibri is shown in <language>
+    Then Kolibri is displayed in <language>
     When I navigate the Kolibri UI
     Then Kolibri remains in <language>
     When I open a fresh Incognito or Private Browsing window and go to Kolibri's root server URL
-    Then Kolibri is shown in <device_language>
+    Then Kolibri is displayed in <device_language>
 
 Examples:
   | language  |

@@ -8,9 +8,9 @@ Feature: Learners can see a notification if their profile needs to be updated
       Given my account was created after the upgrade to 0.13
         And the admin who created my account did not provide either my birth year or gender
       When I log in for the first time
-        And navigate to the *Learn* page
       Then the *update your profile* modal appears
 
+    # this should go to guest scenario
     Scenario: Accounts created on *Sign Up Page* never see a notification
       Given I do not have an account
         And I am on the Sign Up Page
@@ -19,6 +19,7 @@ Feature: Learners can see a notification if their profile needs to be updated
       Then I am redirected to the *Learn* page
         And the *update your profile* modal does not appear
 
+    # this should go to super-user scenario
     Scenario: Accounts created in *Setup Wizard* never see a notification
       Given I do not have an account
         And I am on the *Setup Wizard > Superuser Credentials* step
@@ -46,7 +47,7 @@ Feature: Learners can see a notification if their profile needs to be updated
       Then the *update your profile* modal does not appear
 
     Scenario: Dismissing the *update your profile* is permanent
-      Given I see the *update your profile* notification modal
+      Given I see the *Update your profile* notification modal
       When I click the *Cancel* button
       Then the notification modal disappears
       When I refresh my browser
