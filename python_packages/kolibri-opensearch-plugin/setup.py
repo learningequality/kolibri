@@ -53,6 +53,9 @@ setup(
     packages=[
         str('kolibri_opensearch_plugin'),  # https://github.com/pypa/setuptools/pull/597
     ],
+    entry_points={
+        "kolibri.plugins": "kolibri_opensearch_plugin = kolibri_opensearch_plugin",
+    },
     package_dir={'kolibri_opensearch_plugin': 'kolibri_opensearch_plugin'},
     include_package_data=True,
     license='MIT',
