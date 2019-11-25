@@ -62,6 +62,11 @@ base_option_spec = {
             "default": 300,
             "envvars": ("KOLIBRI_CACHE_TIMEOUT",),
         },
+        "CACHE_MAX_ENTRIES": {
+            "type": "integer",
+            "default": 1000,
+            "envvars": ("KOLIBRI_CACHE_MAX_ENTRIES",),
+        },
         "CACHE_PASSWORD": {
             "type": "string",
             "default": "",
