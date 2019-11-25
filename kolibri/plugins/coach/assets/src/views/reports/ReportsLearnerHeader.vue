@@ -50,7 +50,7 @@
         </template>
       </HeaderTableRow>
     </HeaderTable>
-    <HeaderTabs>
+    <HeaderTabs :enablePrint="enablePrint">
       <HeaderTab
         :text="coachString('reportsLabel')"
         :to="classRoute('ReportsLearnerReportPage', {})"
@@ -74,6 +74,13 @@
     name: 'ReportsLearnerHeader',
     components: {},
     mixins: [commonCoach, commonCoreStrings],
+    props: {
+      enablePrint: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+    },
     computed: {
       learner() {
         return this.learnerMap[this.$route.params.learnerId];

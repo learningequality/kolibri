@@ -13,11 +13,15 @@
 
       <ReportsLessonExerciseHeader @previewClick="onPreviewClick" />
 
-      <!-- TODO COACH
-        <KCheckbox :label="coachString('viewByGroupsLabel')" />
-      -->
+      <ReportsControls>
+        <!-- TODO COACH
+          <KCheckbox :label="coachString('viewByGroupsLabel')" />
+        -->
+      </ReportsControls>
 
-      <h2>{{ coachString('overallLabel') }}</h2>
+      <h2 v-show="!isPrint">
+        {{ coachString('overallLabel') }}
+      </h2>
       <CoreTable :emptyMessage="coachString('questionListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -58,12 +62,14 @@
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
   import { LastPages } from '../../constants/lastPagesConstants';
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
+  import ReportsControls from './ReportsControls';
   import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsLessonExerciseQuestionListPage',
     components: {
       ReportsLessonExerciseHeader,
+      ReportsControls,
       LearnerProgressRatio,
     },
     mixins: [commonCoach],
@@ -108,6 +114,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   .stats {
     margin-right: 16px;

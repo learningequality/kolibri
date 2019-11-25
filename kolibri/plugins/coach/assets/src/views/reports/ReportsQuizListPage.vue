@@ -9,25 +9,29 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <KPageContainer>
+    <KPageContainer :class="{'print': isPrint}">
       <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <KSelect
-        v-model="filter"
-        :label="coreString('showAction')"
-        :options="filterOptions"
-        :inline="true"
-      />
+      <ReportsControls>
+        <KSelect
+          v-model="filter"
+          :label="coreString('showAction')"
+          :options="filterOptions"
+          :inline="true"
+        />
+      </ReportsControls>
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
             <th>{{ coachString('titleLabel') }}</th>
             <th style="position:relative;">
               {{ coachString('avgScoreLabel') }}
-              <AverageScoreTooltip />
+              <AverageScoreTooltip v-show="!isPrint" />
             </th>
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th>{{ coachString('statusLabel') }}</th>
+            <th v-show="!isPrint">
+              {{ coachString('statusLabel') }}
+            </th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -56,7 +60,7 @@
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>
-            <td class="status">
+            <td v-show="!isPrint" class="status">
               <!-- Open quiz button -->
               <KButton
                 v-if="!tableRow.active && !tableRow.archive"
@@ -115,11 +119,13 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
   import commonCoach from '../common';
+  import ReportsControls from './ReportsControls';
   import ReportsHeader from './ReportsHeader';
 
   export default {
     name: 'ReportsQuizListPage',
     components: {
+      ReportsControls,
       ReportsHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
@@ -244,6 +250,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   td.status {
     padding-top: 0;

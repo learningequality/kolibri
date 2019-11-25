@@ -13,6 +13,8 @@
 
       <ReportsLearnerHeader />
 
+      <ReportsControls />
+
       <KGrid>
         <KGridItem :layout12="{ span: 6 }">
           <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
@@ -42,7 +44,7 @@
         </KGridItem>
         <KGridItem :layout12="{ span: 6 }">
           <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
-          <CoreTable :emptyMessage="coachString('quizListEmptyState')">
+          <CoreTable :class="{print: isPrint}" :emptyMessage="coachString('quizListEmptyState')">
             <thead slot="thead">
               <tr>
                 <th>{{ coachString('titleLabel') }}</th>
@@ -82,11 +84,13 @@
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import ReportsLearnerHeader from './ReportsLearnerHeader';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsLearnerReportPage',
     components: {
       ReportsLearnerHeader,
+      ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
@@ -130,6 +134,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   table {
     min-width: 0;

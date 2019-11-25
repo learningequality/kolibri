@@ -13,9 +13,11 @@
 
       <ReportsGroupReportLessonExerciseHeader />
 
-      <p>
-        <StatusSummary :tally="tally" />
-      </p>
+      <ReportsControls>
+        <p>
+          <StatusSummary :tally="tally" />
+        </p>
+      </ReportsControls>
 
       <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
@@ -66,11 +68,13 @@
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import ReportsGroupReportLessonExerciseHeader from './ReportsGroupReportLessonExerciseHeader';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsGroupReportLessonExerciseLearnerListPage',
     components: {
       ReportsGroupReportLessonExerciseHeader,
+      ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
@@ -112,6 +116,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   .stats {
     margin-right: 16px;

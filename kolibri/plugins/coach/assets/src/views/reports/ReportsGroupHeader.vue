@@ -45,7 +45,7 @@
     </HeaderTable>
      -->
 
-    <HeaderTabs>
+    <HeaderTabs :enablePrint="enablePrint">
       <HeaderTab
         :text="coachString('reportsLabel')"
         :to="classRoute('ReportsGroupReportPage', {})"
@@ -73,6 +73,13 @@
     name: 'ReportsGroupHeader',
     components: {},
     mixins: [commonCoach, commonCoreStrings],
+    props: {
+      enablePrint: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+    },
     computed: {
       group() {
         return this.groupMap[this.$route.params.groupId];

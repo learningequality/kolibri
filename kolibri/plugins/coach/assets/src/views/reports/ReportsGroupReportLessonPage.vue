@@ -21,14 +21,22 @@
       </h1>
       <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
       <HeaderTable>
-        <HeaderTableRow :keyText="coachString('statusLabel')">
+        <HeaderTableRow v-if="isPrint" :keyText="coachString('groupNameLabel')">
+          <template slot="value">
+            {{ group.name }}
+          </template>
+        </HeaderTableRow>
+        <HeaderTableRow v-show="!isPrint" :keyText="coachString('statusLabel')">
           <LessonActive slot="value" :active="lesson.active" />
         </HeaderTableRow>
         <HeaderTableRow
+          v-show="!isPrint"
           :keyText="coachString('descriptionLabel')"
           :valueText="lesson.description || coachString('descriptionMissingLabel')"
         />
       </HeaderTable>
+
+      <ReportsControls />
 
       <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
         <thead slot="thead">
@@ -82,10 +90,13 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsGroupReportLessonPage',
-    components: {},
+    components: {
+      ReportsControls,
+    },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {
@@ -118,4 +129,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/print-table';
+
+</style>

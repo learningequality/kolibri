@@ -23,6 +23,7 @@
       </KGridItem>
       <KGridItem :layout12="{ span: 4 }">
         <LessonStatus
+          :className="className"
           :lesson="currentLesson"
           :groupNames="groupNames"
           activeKey="is_active"

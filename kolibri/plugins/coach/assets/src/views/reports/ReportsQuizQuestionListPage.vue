@@ -2,7 +2,9 @@
 
   <ReportsQuizBaseListPage>
     <div>
-      <h2>{{ coachString('overallLabel') }}</h2>
+      <h2 v-show="!isPrint">
+        {{ coachString('overallLabel') }}
+      </h2>
       <CoreTable :emptyMessage="coachString('questionListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -13,7 +15,8 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="(tableRow, index) in table" :key="tableRow.question_id + index">
             <td>
-              <KLabeledIcon icon="question">
+              <span v-if="isPrint">{{ tableRow.title }}</span>
+              <KLabeledIcon v-else icon="question">
                 <KRouterLink
                   :text="tableRow.title"
                   :to="questionLink(tableRow.question_id)"
@@ -78,6 +81,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   .stats {
     margin-right: 16px;

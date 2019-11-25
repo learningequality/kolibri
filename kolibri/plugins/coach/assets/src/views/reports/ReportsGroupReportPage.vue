@@ -93,6 +93,12 @@
     font-size: 14px;
     line-height: 2em;
     list-style: none;
+
+    @media print {
+      a.link {
+        text-decoration: none;
+      }
+    }
   }
 
 </style>

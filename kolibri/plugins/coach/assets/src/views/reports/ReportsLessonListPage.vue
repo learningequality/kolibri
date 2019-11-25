@@ -10,19 +10,23 @@
 
     <KPageContainer>
       <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <KSelect
-        v-model="filter"
-        :label="coreString('showAction')"
-        :options="filterOptions"
-        :inline="true"
-      />
+      <ReportsControls>
+        <KSelect
+          v-model="filter"
+          :label="coreString('showAction')"
+          :options="filterOptions"
+          :inline="true"
+        />
+      </ReportsControls>
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
             <th>{{ coachString('titleLabel') }}</th>
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th>{{ $tr('visibleToLearnersLabel') }}</th>
+            <th v-show="!isPrint">
+              {{ $tr('visibleToLearnersLabel') }}
+            </th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -47,7 +51,7 @@
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>
-            <td>
+            <td v-show="!isPrint">
               <KSwitch
                 name="toggle-lesson-visibility"
                 :checked="tableRow.active"
@@ -69,11 +73,13 @@
   import { LessonResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import ReportsControls from './ReportsControls';
   import ReportsHeader from './ReportsHeader';
 
   export default {
     name: 'ReportsLessonListPage',
     components: {
+      ReportsControls,
       ReportsHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
@@ -180,5 +186,6 @@
 <style lang="scss" scoped>
 
   @import '../common/list-transition';
+  @import '../common/print-table';
 
 </style>

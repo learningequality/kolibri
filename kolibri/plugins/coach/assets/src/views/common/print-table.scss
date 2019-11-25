@@ -1,0 +1,17 @@
+@media print {
+  table {
+    thead th:first-child,
+    tr td:first-child {
+      padding-left: 0;
+    }
+
+    thead th:last-child,
+    tr td:last-child {
+      padding-right: 0;
+    }
+
+    a.link {
+      text-decoration: none;
+    }
+  }
+}

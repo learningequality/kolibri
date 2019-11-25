@@ -1,11 +1,9 @@
 <template>
 
-  <KPageContainer :topMargin="16">
-
-
+  <KPageContainer :topMargin="isPrint ? 0 : 16">
     <KGrid gutter="16">
       <!-- Quiz Open button -->
-      <div v-if="!exam.active && !exam.archive" class="status-item">
+      <div v-if="!exam.active && !exam.archive && !isPrint" class="status-item">
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -23,7 +21,7 @@
       </div>
 
       <!-- Quiz Close button & time since opened -->
-      <div v-if="exam.active && !exam.archive" class="status-item">
+      <div v-if="exam.active && !exam.archive && !isPrint" class="status-item">
         <KGridItem
           :layout4="{ span: 4 }"
           :layout8="{ span: 4 }"
@@ -51,7 +49,7 @@
       </div>
 
       <!-- Quiz Closed label & time since closed -->
-      <div v-if="exam.archive" class="status-item">
+      <div v-if="exam.archive && !isPrint" class="status-item">
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -68,7 +66,7 @@
           <ElapsedTime :date="examDateArchived" style="margin-top: 8px;" />
         </KGridItem>
       </div>
-      <div v-if="exam.archive" class="status-item">
+      <div v-if="exam.archive && !isPrint" class="status-item">
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -92,20 +90,41 @@
         </KGridItem>
       </div>
 
+      <!-- Class name  -->
+      <div v-show="isPrint" class="status-item">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Label"
+        >
+          {{ coachString('classLabel') }}
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
+          <div>
+            {{ className }}
+          </div>
+        </KGridItem>
+      </div>
+
       <!-- Recipients  -->
       <div class="status-item">
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
           :layout8="{ span: 4 }"
-          :layout12="{ span: 12 }"
+          :layout12="layout12Label"
         >
           {{ coachString('recipientsLabel') }}
         </KGridItem>
         <KGridItem
           :layout4="{ span: 4 }"
           :layout8="{ span: 4 }"
-          :layout12="{ span: 12 }"
+          :layout12="layout12Value"
         >
           <div>
             <Recipients
@@ -123,22 +142,22 @@
           class="status-label"
           :layout4="{ span: 4 }"
           :layout8="{ span: 4 }"
-          :layout12="{ span: 12 }"
+          :layout12="layout12Label"
         >
           <span>{{ coachString('avgScoreLabel') }}</span>
-          <AverageScoreTooltip />
+          <AverageScoreTooltip v-show="!isPrint" />
         </KGridItem>
         <KGridItem
           :layout4="{ span: 4 }"
           :layout8="{ span: 4 }"
-          :layout12="{ span: 12 }"
+          :layout12="layout12Value"
         >
           <Score :value="avgScore" />
         </KGridItem>
       </div>
 
       <!-- Question Order -->
-      <div class="status-item">
+      <div v-if="!isPrint" class="status-item">
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -201,6 +220,10 @@
     components: { Score, Recipients, ElapsedTime, StatusElapsedTime, AverageScoreTooltip },
     mixins: [coachStringsMixin, commonCoreStrings],
     props: {
+      className: {
+        type: String,
+        required: true,
+      },
       groupNames: {
         type: Array,
         required: true,
@@ -246,6 +269,15 @@
         } else {
           return null;
         }
+      },
+      isPrint() {
+        return this.$mediaType === 'print';
+      },
+      layout12Label() {
+        return { span: this.isPrint ? 3 : 12 };
+      },
+      layout12Value() {
+        return { span: this.isPrint ? 9 : 12 };
       },
     },
     methods: {
@@ -330,14 +362,32 @@
 
   .grid-item {
     font-size: 14px;
+
+    @media print {
+      font-size: inherit;
+    }
   }
+
   .status-label {
     padding-bottom: 8px;
     font-weight: bold;
+
+    @media print {
+      padding-bottom: 0;
+    }
   }
+
   .status-item {
     width: 100%;
     padding-top: 16px;
+
+    @media print {
+      padding-top: 10px;
+
+      &:first-child {
+        padding-top: 0;
+      }
+    }
   }
 
 </style>

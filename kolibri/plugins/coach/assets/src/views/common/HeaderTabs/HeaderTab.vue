@@ -80,6 +80,20 @@
     border-top-right-radius: $radius;
     outline: none;
     transition: background-color $core-time ease;
+
+    @media print {
+      min-width: 0;
+      min-height: 0;
+      margin: 0;
+      font-size: inherit;
+      line-height: inherit;
+      text-align: left;
+      text-transform: none;
+
+      &:not(.router-link-active) {
+        display: none;
+      }
+    }
   }
 
   .inner {
@@ -92,6 +106,11 @@
   .router-link-active .inner {
     margin-bottom: 0;
     border-bottom-width: 2px;
+
+    @media print {
+      padding: 0;
+      border-bottom-width: 0;
+    }
   }
 
 </style>

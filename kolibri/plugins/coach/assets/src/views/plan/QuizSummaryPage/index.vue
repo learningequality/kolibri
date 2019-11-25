@@ -25,6 +25,7 @@
       </KGridItem>
       <KGridItem :layout12="{ span: 4 }">
         <QuizStatus
+          :className="className"
           :avgScore="avgScore"
           :groupNames="getGroupNames(exam.groups)"
           :exam="exam"

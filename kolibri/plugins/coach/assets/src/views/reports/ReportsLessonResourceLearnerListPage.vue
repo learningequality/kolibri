@@ -28,11 +28,13 @@
         </h1>
       </section>
 
-      <KCheckbox
-        :label="coachString('viewByGroupsLabel')"
-        :checked="viewByGroups"
-        @change="toggleGroupsView"
-      />
+      <ReportsControls>
+        <KCheckbox
+          :label="coachString('viewByGroupsLabel')"
+          :checked="viewByGroups"
+          @change="toggleGroupsView"
+        />
+      </ReportsControls>
 
       <div v-if="viewByGroups">
         <div
@@ -113,6 +115,7 @@
   import HeaderWithOptions from '../common/HeaderWithOptions';
   import ReportsResourceLearners from './ReportsResourceLearners';
   import ReportsResourcesStats from './ReportsResourcesStats';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsLessonResourceLearnerListPage',
@@ -120,6 +123,7 @@
       HeaderWithOptions,
       ReportsResourceLearners,
       ReportsResourcesStats,
+      ReportsControls,
     },
     mixins: [commonCoach],
     data() {
@@ -231,6 +235,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   .group:not(:first-child) {
     margin-top: 42px;

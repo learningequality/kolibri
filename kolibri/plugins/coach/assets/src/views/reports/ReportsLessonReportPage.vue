@@ -22,19 +22,18 @@
           />
         </QuizLessonDetailsHeader>
       </KGridItem>
-      <KGridItem :layout12="{ span: 4 }">
+      <KGridItem :layout12="{ span: isPrint ? 12 : 4 }">
         <LessonStatus
           activeKey="active"
+          :className="className"
           :lesson="lesson"
           :groupNames="getGroupNames(lesson.groups)"
         />
       </KGridItem>
-      <KGridItem :layout12="{ span: 8 }">
-        <KPageContainer>
-
-
-          <HeaderTabs>
-
+      <KGridItem :layout12="{ span: isPrint ? 12 : 8 }">
+        <KPageContainer :topMargin="isPrint ? 0 : 24">
+          <ReportsControls />
+          <HeaderTabs :enablePrint="true">
             <HeaderTab
               :text="coachString('reportLabel')"
               :to="classRoute('ReportsLessonReportPage', {})"
@@ -104,10 +103,12 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import LessonOptionsDropdownMenu from '../plan/LessonSummaryPage/LessonOptionsDropdownMenu';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsLessonReportPage',
     components: {
+      ReportsControls,
       LessonOptionsDropdownMenu,
     },
     mixins: [commonCoach, commonCoreStrings],
@@ -151,6 +152,9 @@
             )
           );
         }
+        if (action === 'PRINT_REPORT') {
+          this.$print();
+        }
       },
     },
     $trs: {},
@@ -159,4 +163,9 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/print-table';
+  @import '../common/three-card-layout';
+
+</style>

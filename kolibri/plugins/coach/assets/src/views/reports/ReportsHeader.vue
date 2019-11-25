@@ -9,7 +9,9 @@
       />
     </p>
     <h1>{{ reportTitle }}</h1>
-    <p>{{ $tr('description') }}</p>
+    <p v-show="!isPrint">
+      {{ $tr('description') }}
+    </p>
     <HeaderTabs>
 
       <HeaderTab
