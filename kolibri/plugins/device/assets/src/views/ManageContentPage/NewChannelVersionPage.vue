@@ -12,28 +12,60 @@
       </p>
     </section>
 
-    <section>
-      <h3>{{ $tr('versionChangesHeader', { currentVersion, nextVersion }) }}</h3>
-      <KTooltip>
-        {{ $tr('resourcesToBeDeletedTooltip') }}
-      </KTooltip>
+    <div style="height: 32px" aria-hidden="true"></div>
 
+    <section>
+      <h3>
+        {{ $tr('versionChangesHeader', {
+          oldVersion: currentVersion,
+          newVersion: nextVersion
+        }) }}
+      </h3>
       <table>
         <tr>
           <th>{{ $tr('resourcesAvailableForImport') }}</th>
-          <td></td>
+          <td class="col-2">
+            <span class="count-added" :style="{color: $themeTokens.success}">
+              {{ differences.added }}
+            </span>
+          </td>
         </tr>
         <tr>
           <th>{{ $tr('resourcesToBeDeleted') }}</th>
-          <td></td>
+          <td>
+            <span class="count-deleted" :style="{color: $themeTokens.error}">
+              {{ differences.deleted }}
+            </span>
+          </td>
+          <td>
+            <KIcon
+              ref="deletedicon"
+              class="deleted-icon"
+              icon="error"
+              :style="{fill: $themeTokens.primary}"
+            />
+            <KTooltip
+              :refs="$refs"
+              reference="deletedicon"
+              placement="right"
+            >
+              {{ $tr('resourcesToBeDeletedTooltip') }}
+            </KTooltip>
+
+          </td>
         </tr>
         <tr>
           <th>{{ $tr('resourcesToBeUpdated') }}</th>
-          <td></td>
+          <td>
+            {{ numUpdated }}
+          </td>
         </tr>
       </table>
 
+      <div style="height: 24px" aria-hidden="true"></div>
+
       <KButton
+        class="button"
         :text="$tr('updateChannelAction')"
         appearance="raised-button"
         :primary="true"
@@ -78,11 +110,23 @@
     data() {
       return {
         showModal: false,
+        channelName: 'Upgrade channel',
+        nextVersion: 20,
+        currentVersion: 19,
+        differences: {
+          added: 5500,
+          deleted: 300,
+          updatedNodes: [],
+        },
+        versionInfos: [],
       };
     },
     computed: {
       channelIsIncomplete() {
         return false;
+      },
+      numUpdated() {
+        return 177;
       },
     },
     methods: {
@@ -133,4 +177,55 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .button {
+    margin-left: 0;
+  }
+
+  /deep/ .k-tooltip {
+    max-width: 300px;
+    text-align: left;
+  }
+
+  .count-added::before {
+    content: '+';
+  }
+
+  .count-deleted::before {
+    content: '-';
+  }
+
+  svg.deleted-icon {
+    width: 24px;
+    height: 24px;
+    margin-top: 2px;
+    margin-left: 16px;
+  }
+
+  tr {
+    height: 2em;
+  }
+
+  th {
+    font-weight: normal;
+    text-align: left;
+  }
+
+  td {
+    text-align: right;
+  }
+
+  td.col-2 {
+    min-width: 120px;
+  }
+
+</style>
