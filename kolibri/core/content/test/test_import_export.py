@@ -179,7 +179,7 @@ class ImportChannelTestCase(TestCase):
 
 
 @patch(
-    "kolibri.core.content.management.commands.importcontent.import_export_content.get_files_to_transfer",
+    "kolibri.core.content.management.commands.importcontent.calculate_files_to_transfer",
 )
 @patch("kolibri.core.content.management.commands.importcontent.annotation")
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
@@ -267,7 +267,7 @@ class ImportContentTestCase(TestCase):
         annotation_mock.recurse_annotation_up_tree.assert_not_called()
 
     @patch(
-        "kolibri.core.content.management.commands.importcontent.import_export_content.compare_checksums",
+        "kolibri.core.content.management.commands.importcontent.compare_checksums",
         return_value=True,
     )
     @patch(

@@ -50,18 +50,10 @@ def validate_content_task(request, task_description, require_channel=False):
     try:
         channel = ChannelMetadata.objects.get(id=channel_id)
         channel_name = channel.name
-        file_size = channel.published_size
-        total_resources = channel.total_resource_count
     except ChannelMetadata.DoesNotExist:
         if require_channel:
             raise serializers.ValidationError("This channel does not exist")
         channel_name = ""
-        file_size = None
-        total_resources = None
-
-    file_size = task_description.get("file_size", file_size)
-
-    total_resources = task_description.get("total_resources", total_resources)
 
     node_ids = task_description.get("node_ids", None)
     exclude_node_ids = task_description.get("exclude_node_ids", None)
@@ -75,8 +67,6 @@ def validate_content_task(request, task_description, require_channel=False):
     return {
         "channel_id": channel_id,
         "channel_name": channel_name,
-        "file_size": file_size,
-        "total_resources": total_resources,
         "exclude_node_ids": exclude_node_ids,
         "node_ids": node_ids,
         "started_by": request.user.pk,
