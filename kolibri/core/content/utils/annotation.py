@@ -136,21 +136,21 @@ def set_leaf_node_availability_from_local_file_availability(
     bridge.end()
 
 
-def mark_local_files_as_unavailable(checksums):
-    mark_local_files_availability(checksums, False)
+def mark_local_files_as_unavailable(checksums, destination=None):
+    mark_local_files_availability(checksums, False, destination=destination)
 
 
-def mark_local_files_as_available(checksums):
+def mark_local_files_as_available(checksums, destination=None):
     """
     Shortcut method to update database if we are sure that the files are available.
     Can be used after successful downloads to flag availability without having to do expensive disk reads.
     """
-    mark_local_files_availability(checksums, True)
+    mark_local_files_availability(checksums, True, destination=destination)
 
 
-def mark_local_files_availability(checksums, availability):
+def mark_local_files_availability(checksums, availability, destination=None):
     if checksums:
-        bridge = Bridge(app_name=CONTENT_APP_NAME)
+        bridge = Bridge(app_name=CONTENT_APP_NAME, sqlite_file_path=destination)
 
         LocalFileClass = bridge.get_class(LocalFile)
 
@@ -175,8 +175,8 @@ def mark_local_files_availability(checksums, availability):
         bridge.end()
 
 
-def set_local_file_availability_from_disk(checksums=None):
-    bridge = Bridge(app_name=CONTENT_APP_NAME)
+def set_local_file_availability_from_disk(checksums=None, destination=None):
+    bridge = Bridge(app_name=CONTENT_APP_NAME, sqlite_file_path=destination,)
 
     LocalFileClass = bridge.get_class(LocalFile)
 
@@ -227,8 +227,10 @@ def set_local_file_availability_from_disk(checksums=None):
 
     bridge.end()
 
-    mark_local_files_as_available(checksums_to_set_available)
-    mark_local_files_as_unavailable(checksums_to_set_unavailable)
+    mark_local_files_as_available(checksums_to_set_available, destination=destination)
+    mark_local_files_as_unavailable(
+        checksums_to_set_unavailable, destination=destination
+    )
 
 
 def recurse_annotation_up_tree(channel_id):
