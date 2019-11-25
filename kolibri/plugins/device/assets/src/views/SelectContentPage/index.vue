@@ -319,8 +319,8 @@
     $trs: {
       channelUpToDate: 'Channel up-to-date',
       pageLoadError: 'There was a problem loading this page…',
-      problemFetchingChannel: 'There was a problem getting the contents of this channel',
-      problemTransferringContents: 'There was a problem transferring the selected contents',
+      problemFetchingChannel: 'There was a problem getting the list of resources from this channel',
+      problemTransferringContents: 'There was a problem transferring the selected resources',
       selectContent: "Select resources from '{channelName}'",
       kolibriStudioLabel: 'Kolibri Studio',
       importingFromDrive: `Importing from drive '{driveName}'`,
