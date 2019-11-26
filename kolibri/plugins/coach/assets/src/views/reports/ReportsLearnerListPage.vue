@@ -10,7 +10,7 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
+      <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
       <ReportsControls @export="exportCSV" />
       <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">

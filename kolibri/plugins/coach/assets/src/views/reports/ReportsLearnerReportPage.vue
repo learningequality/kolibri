@@ -44,7 +44,7 @@
         </KGridItem>
         <KGridItem :layout12="{ span: 6 }">
           <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
-          <CoreTable :class="{print: isPrint}" :emptyMessage="coachString('quizListEmptyState')">
+          <CoreTable :class="{print: $isPrint}" :emptyMessage="coachString('quizListEmptyState')">
             <thead slot="thead">
               <tr>
                 <th>{{ coachString('titleLabel') }}</th>

@@ -13,7 +13,7 @@
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow v-if="isPrint">
+      <HeaderTableRow v-if="$isPrint">
         <template slot="key">
           {{ coachString('groupNameLabel') }}
         </template>
@@ -21,7 +21,7 @@
           {{ group.name }}
         </template>
       </HeaderTableRow>
-      <HeaderTableRow v-show="!isPrint">
+      <HeaderTableRow v-show="!$isPrint">
         <template slot="key">
           {{ coachString('statusLabel') }}
         </template>

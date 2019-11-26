@@ -21,7 +21,7 @@
     <KButton :text="coachString('previewAction')" />
     -->
 
-    <HeaderTable v-if="isPrint">
+    <HeaderTable v-if="$isPrint">
       <HeaderTableRow>
         <template slot="key">
           {{ coachString('groupNameLabel') }}

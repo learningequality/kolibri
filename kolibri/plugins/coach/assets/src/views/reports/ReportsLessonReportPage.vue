@@ -22,7 +22,7 @@
           />
         </QuizLessonDetailsHeader>
       </KGridItem>
-      <KGridItem :layout12="{ span: isPrint ? 12 : 4 }">
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 4 }">
         <LessonStatus
           activeKey="active"
           :className="className"
@@ -30,8 +30,8 @@
           :groupNames="getGroupNames(lesson.groups)"
         />
       </KGridItem>
-      <KGridItem :layout12="{ span: isPrint ? 12 : 8 }">
-        <KPageContainer :topMargin="isPrint ? 0 : 24">
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 8 }">
+        <KPageContainer :topMargin="$isPrint ? 0 : 24">
           <ReportsControls @export="exportCSV" />
           <HeaderTabs :enablePrint="true">
             <HeaderTab

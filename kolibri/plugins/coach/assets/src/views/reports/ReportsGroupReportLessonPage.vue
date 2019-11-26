@@ -21,16 +21,16 @@
       </h1>
       <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
       <HeaderTable>
-        <HeaderTableRow v-if="isPrint" :keyText="coachString('groupNameLabel')">
+        <HeaderTableRow v-if="$isPrint" :keyText="coachString('groupNameLabel')">
           <template slot="value">
             {{ group.name }}
           </template>
         </HeaderTableRow>
-        <HeaderTableRow v-show="!isPrint" :keyText="coachString('statusLabel')">
+        <HeaderTableRow v-show="!$isPrint" :keyText="coachString('statusLabel')">
           <LessonActive slot="value" :active="lesson.active" />
         </HeaderTableRow>
         <HeaderTableRow
-          v-show="!isPrint"
+          v-show="!$isPrint"
           :keyText="coachString('descriptionLabel')"
           :valueText="lesson.description || coachString('descriptionMissingLabel')"
         />

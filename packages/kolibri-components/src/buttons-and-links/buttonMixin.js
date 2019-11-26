@@ -131,7 +131,7 @@ export default {
   },
   methods: {
     buttonComputedClass(styles) {
-      const printOverrides = this.$mediaType === 'print' ? { color: '#000 !important' } : {};
+      const printOverrides = this.$isPrint ? { color: '#000 !important' } : {};
       return this.$computedClass(merge({}, styles, this.appearanceOverrides, printOverrides));
     },
   },

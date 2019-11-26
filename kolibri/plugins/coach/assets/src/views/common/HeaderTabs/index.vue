@@ -1,10 +1,10 @@
 <template>
 
   <div
-    v-show="enablePrint || $mediaType !== 'print'"
+    v-show="enablePrint || !$isPrint"
     class="tab-block"
     :class="{ small: windowIsSmall }"
-    :style="{ borderBottomColor: $mediaType !== 'print' ? $themeTokens.fineLine : 'transparent' }"
+    :style="{ borderBottomColor: !$isPrint ? $themeTokens.fineLine : 'transparent' }"
   >
     <slot></slot>
   </div>

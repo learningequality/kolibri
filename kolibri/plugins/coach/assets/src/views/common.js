@@ -210,9 +210,6 @@ export default {
         filter,
       };
     },
-    isPrint() {
-      return this.$mediaType === 'print';
-    },
   },
   methods: {
     classRoute(name, params = {}, query = {}) {

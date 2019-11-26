@@ -1,9 +1,9 @@
 <template>
 
-  <KPageContainer :topMargin="isPrint ? 0 : 24">
+  <KPageContainer :topMargin="$isPrint ? 0 : 24">
     <KGrid gutter="16">
       <!-- Class name, for print only -->
-      <div v-if="isPrint" class="status-item">
+      <div v-if="$isPrint" class="status-item">
         <KGridItem class="status-label" :layout12="layout12Label">
           {{ coachString('classLabel') }}
         </KGridItem>
@@ -13,7 +13,7 @@
       </div>
 
       <!-- Visibility status/switch -->
-      <div v-show="!isPrint" class="status-item visibility-item">
+      <div v-show="!$isPrint" class="status-item visibility-item">
         <KGridItem class="status-label" :layout12="{ span: 8 }">
           {{ $tr('visibleToLearnersLabel') }}
         </KGridItem>
@@ -99,14 +99,11 @@
           ? this.lesson.lesson_assignments
           : this.lesson.assignments;
       },
-      isPrint() {
-        return this.$mediaType === 'print';
-      },
       layout12Label() {
-        return { span: this.isPrint ? 3 : 12 };
+        return { span: this.$isPrint ? 3 : 12 };
       },
       layout12Value() {
-        return { span: this.isPrint ? 9 : 12 };
+        return { span: this.$isPrint ? 9 : 12 };
       },
     },
     methods: {

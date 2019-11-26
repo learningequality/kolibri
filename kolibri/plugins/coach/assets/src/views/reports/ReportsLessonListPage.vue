@@ -9,7 +9,7 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
+      <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
       <ReportsControls @export="exportCSV">
         <KSelect
           v-model="filter"
@@ -24,7 +24,7 @@
             <th>{{ coachString('titleLabel') }}</th>
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th v-show="!isPrint">
+            <th v-show="!$isPrint">
               {{ $tr('visibleToLearnersLabel') }}
             </th>
           </tr>
@@ -51,7 +51,7 @@
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>
-            <td v-show="!isPrint">
+            <td v-show="!$isPrint">
               <KSwitch
                 name="toggle-lesson-visibility"
                 :checked="tableRow.active"

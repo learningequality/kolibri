@@ -320,7 +320,7 @@
         return !this.authorized;
       },
       mainWrapperStyles() {
-        if (this.$mediaType === 'print') {
+        if (this.$isPrint) {
           return {};
         }
 
@@ -331,7 +331,7 @@
         };
       },
       contentStyles() {
-        if (this.fullScreen || this.$mediaType === 'print') {
+        if (this.fullScreen || this.$isPrint) {
           return {
             marginTop: '0px',
             marginBottom: '0px',

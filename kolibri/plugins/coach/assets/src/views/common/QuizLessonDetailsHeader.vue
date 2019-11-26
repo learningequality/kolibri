@@ -14,7 +14,7 @@
         <h1 class="exam-title">
           <KLabeledIcon icon="quiz" :label="resource.title" />
         </h1>
-        <StatusElapsedTime v-show="!isPrint" :date="createdDate" actionType="created" />
+        <StatusElapsedTime v-show="!$isPrint" :date="createdDate" actionType="created" />
       </div>
       <div slot="options">
         <slot name="dropdown"></slot>
@@ -74,9 +74,6 @@
         } else {
           return null;
         }
-      },
-      isPrint() {
-        return this.$mediaType === 'print';
       },
     },
   };

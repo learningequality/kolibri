@@ -15,7 +15,7 @@
 
       <ReportsControls @export="exportCSV" />
 
-      <h2 v-show="!isPrint">
+      <h2 v-show="!$isPrint">
         {{ coachString('overallLabel') }}
       </h2>
       <CoreTable :emptyMessage="coachString('questionListEmptyState')">
