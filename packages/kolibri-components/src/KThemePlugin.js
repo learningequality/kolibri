@@ -48,6 +48,9 @@ export default function KThemePlugin(Vue) {
       $mediaType() {
         return globalThemeState.mediaType;
       },
+      $isPrint() {
+        return this.$mediaType === 'print';
+      },
     },
     /* eslint-enable kolibri/vue-no-unused-properties */
     /* eslint-disable kolibri/vue-no-unused-methods */
