@@ -33,12 +33,6 @@
         </template>
         <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
-      <!-- TODO COACH
-      <HeaderTableRow v-show="!isPrint">
-        <template slot="key">{{ coachString('questionOrderLabel') }}</template>
-        <template slot="value">{{ coachString('orderRandomLabel') }}</template>
-      </HeaderTableRow>
-       -->
     </HeaderTable>
 
     <HeaderTabs :enablePrint="true">

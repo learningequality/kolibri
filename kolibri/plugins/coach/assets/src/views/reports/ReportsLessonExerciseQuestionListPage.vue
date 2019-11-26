@@ -13,11 +13,7 @@
 
       <ReportsLessonExerciseHeader @previewClick="onPreviewClick" />
 
-      <ReportsControls @export="exportCSV">
-        <!-- TODO COACH
-          <KCheckbox :label="coachString('viewByGroupsLabel')" />
-        -->
-      </ReportsControls>
+      <ReportsControls @export="exportCSV" />
 
       <h2 v-show="!isPrint">
         {{ coachString('overallLabel') }}

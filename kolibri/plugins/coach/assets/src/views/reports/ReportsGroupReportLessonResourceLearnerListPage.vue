@@ -20,10 +20,6 @@
         <KLabeledIcon :icon="resource.kind" :label="resource.title" />
       </h1>
 
-      <!-- TODO COACH
-      <KButton :text="coachString('previewAction')" />
-      -->
-
       <HeaderTable>
         <HeaderTableRow v-if="isPrint">
           <template slot="key">

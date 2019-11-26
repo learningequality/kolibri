@@ -11,12 +11,7 @@
 
     <KPageContainer>
       <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <ReportsControls @export="exportCSV">
-        <!-- TODO COACH
-        <KCheckbox :label="coachString('viewByGroupsLabel')" />
-        <h2>{{ coachString('overallLabel') }}</h2>
-         -->
-      </ReportsControls>
+      <ReportsControls @export="exportCSV" />
       <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
