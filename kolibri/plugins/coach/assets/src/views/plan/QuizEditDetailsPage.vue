@@ -16,6 +16,7 @@
       <AssignmentDetailsForm
         v-bind="formProps"
         :disabled="disabled"
+        :initialIndividualLearners="initialIndividualLearners"
         @cancel="goBackToSummaryPage"
         @submit="handleSaveChanges"
       />
@@ -33,6 +34,8 @@
   import { CoachCoreBase } from '../common';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import AssignmentDetailsModal from './assignments/AssignmentDetailsModal';
+
+  const INDIVIDUAL_LEARNERS_GROUP_KIND = 'individuallearnersgroup';
 
   export default {
     name: 'QuizEditDetailsPage',
@@ -56,13 +59,14 @@
     },
     computed: {
       ...mapGetters('classSummary', ['groups']),
+      ...mapGetters('individualLearners', ['hasIndividualLearnersAssigned']),
       formProps() {
         return {
           assignmentType: 'quiz',
           classId: this.$route.params.classId,
           groups: this.groups,
           initialActive: this.quiz.active,
-          initialSelectedCollectionIds: this.quiz.assignments.map(({ collection }) => collection),
+          initialSelectedCollectionIds: this.initialSelectedCollectionIds,
           initialTitle: this.quiz.title,
           submitErrorMessage: this.$tr('submitErrorMessage'),
         };
@@ -77,13 +81,52 @@
         }
         return this.$router.getRoute(route);
       },
+      initialSelectedCollectionIds() {
+        let collectionIds = [];
+        // Only include the IndividualLearnersGroup in this if it has already
+        // had learners assigned to it.
+        this.quiz.assignments.forEach(assignment => {
+          if (assignment.collection_kind === INDIVIDUAL_LEARNERS_GROUP_KIND) {
+            if (this.hasIndividualLearnersAssigned) {
+              collectionIds.push(assignment.collection);
+            }
+          } else {
+            collectionIds.push(assignment.collection);
+          }
+        });
+        return collectionIds;
+      },
+      initialIndividualLearners() {
+        return this.$store.state.individualLearners.user_ids;
+      },
     },
     beforeRouteEnter(to, from, next) {
       return ExamResource.fetchModel({
         id: to.params.quizId,
       })
         .then(quiz => {
-          next(vm => vm.setData(quiz));
+          next(vm => {
+            const collection = quiz.assignments.find(
+              a => a.collection_kind === INDIVIDUAL_LEARNERS_GROUP_KIND
+            );
+            if (collection) {
+              vm.$store
+                .dispatch(
+                  'individualLearners/initializeIndividualLearnersGroup',
+                  collection.collection
+                )
+                .then(() => vm.setData(quiz));
+            } else {
+              // There is no "inidividual learners group" assigned to this quiz, so
+              // we will make one. This will also set the newly created individual learners
+              // group to the individualLearners vuex state.
+              vm.$store
+                .dispatch('individualLearners/createIndividualLearnersGroup', {
+                  classId: vm.$route.params.classId,
+                })
+                .then(() => vm.setData(quiz));
+            }
+          });
         })
         .catch(error => {
           next(vm => vm.setError(error));

@@ -44,10 +44,8 @@
           :groups="groups"
           :classId="classId"
           :disabled="disabled || formIsSubmitted"
-        />
-        <IndividualLearnerSelector
-          v-if="assignmentType == 'quiz'"
-          :selectedGroupIds="selectedCollectionIds"
+          :initialIndividualLearners="initialIndividualLearners"
+          @updateLearners="learners => individualLearners = learners"
         />
       </fieldset>
 
@@ -82,13 +80,11 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
-  import IndividualLearnerSelector from './IndividualLearnerSelector';
 
   export default {
     name: 'AssignmentDetailsModal',
     components: {
       BottomAppBar,
-      IndividualLearnerSelector,
       RecipientSelector,
       UiAlert,
     },
@@ -112,6 +108,10 @@
         default: null,
       },
       initialSelectedCollectionIds: {
+        type: Array,
+        required: true,
+      },
+      initialIndividualLearners: {
         type: Array,
         required: true,
       },
@@ -145,6 +145,7 @@
         description: this.initialDescription,
         selectedCollectionIds: this.initialSelectedCollectionIds,
         activeIsSelected: this.initialActive,
+        individualLearners: this.initialIndividualLearners,
         titleIsVisited: false,
         formIsSubmitted: false,
         showServerError: false,
@@ -227,16 +228,47 @@
           return;
         }
 
-        if (this.formIsValid) {
-          if (!this.detailsHaveChanged) {
-            this.$emit('submit', null);
-          } else {
-            this.$emit('submit', this.formData);
-          }
-        } else {
-          this.formIsSubmitted = false;
-          this.$refs.titleField.focus();
+        // TODO: Add error handling & snackbar message that notifies user when they have
+        // selected ONLY the Individual Learners Group, but selects no learners
+        // For now - if the only thing selected is Individual Learners but there
+        // are no learners actually selected, pretend they selected Entire class
+        // NOT DONE due to this being 0.13.0 post string freeze.
+        // Create an issue for this and it'll be a quick fix in 0.13.1
+        if (
+          this.selectedCollectionIds.length === 1 &&
+          this.selectedCollectionIds.includes(this.$store.state.individualLearners.id) &&
+          this.individualLearners.length === 0
+        ) {
+          this.selectedCollectionIds.push(this.classId);
         }
+
+        // Always make sure that we're including the individualLearnersGroup ID in this
+        // or else we'll delete the assignment and lose the collection.
+        if (!this.selectedCollectionIds.includes(this.$store.state.individualLearners.id)) {
+          // The selected individual learners should be cleared out in this case as well.
+          this.individualLearners = [];
+          this.selectedCollectionIds.push(this.$store.state.individualLearners.id);
+        }
+
+        // Update the users associated with the IndividualLearnersGroup then proceed
+        // with form submission
+        this.$store
+          .dispatch('individualLearners/updateIndividualLearnersGroup', this.individualLearners)
+          .then(() => {
+            if (this.formIsValid) {
+              if (!this.detailsHaveChanged) {
+                this.$emit('submit', null);
+              } else {
+                this.$emit('submit', this.formData);
+              }
+            } else {
+              this.formIsSubmitted = false;
+              this.$refs.titleField.focus();
+            }
+          })
+          .catch(() => {
+            this.handleSubmitFailure();
+          });
       },
       /**
        * @public
