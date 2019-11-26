@@ -10,6 +10,11 @@ const TaskSnackbarStrings = createTranslator('TaskSnackbarStrings', {
 });
 
 export default {
+  data() {
+    return {
+      showSnackbarWhenTaskHasFinished: true,
+    };
+  },
   computed: {
     watchedTaskId() {
       return this.$store.state.manageContent.watchedTaskId;
@@ -23,7 +28,9 @@ export default {
   watch: {
     watchedTaskHasFinished(val) {
       if (val && val === this.watchedTaskId) {
-        this.createTaskFinishedSnackbar();
+        if (this.showSnackbarWhenTaskHasFinished) {
+          this.createTaskFinishedSnackbar();
+        }
         // Host component must implement this method
         if (typeof this.onWatchedTaskFinished === 'function') {
           this.onWatchedTaskFinished();
@@ -52,7 +59,10 @@ export default {
         autoDismiss: true,
       });
     },
-    startWatchingTask(taskResponse) {
+    startWatchingTask(taskResponse, options) {
+      if (options.snackbar !== undefined) {
+        this.showSnackbarWhenTaskHasFinished = options.snackbar;
+      }
       if (Array.isArray(taskResponse.entity)) {
         this.$store.commit('manageContent/SET_WATCHED_TASK_ID', taskResponse.entity[0].id);
       } else {

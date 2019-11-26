@@ -3,6 +3,7 @@
   <div>
 
     <section>
+      {{ taskLoading }}
       <h1>
         {{ $tr('versionIsAvailable', { channelName, nextVersion }) }}
       </h1>
@@ -26,7 +27,7 @@
           <th>{{ $tr('resourcesAvailableForImport') }}</th>
           <td class="col-2">
             <span class="count-added" :style="{color: $themeTokens.success}">
-              {{ differences.added }}
+              {{ newResources }}
             </span>
           </td>
         </tr>
@@ -34,7 +35,7 @@
           <th>{{ $tr('resourcesToBeDeleted') }}</th>
           <td>
             <span class="count-deleted" :style="{color: $themeTokens.error}">
-              {{ differences.deleted }}
+              {{ deletedResources }}
             </span>
           </td>
           <td>
@@ -57,7 +58,7 @@
         <tr>
           <th>{{ $tr('resourcesToBeUpdated') }}</th>
           <td>
-            {{ numUpdated }}
+            {{ updatedResources }}
           </td>
         </tr>
       </table>
@@ -100,24 +101,27 @@
 
 <script>
 
+  import find from 'lodash/find';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { TaskResource } from 'kolibri.resources';
+  import taskNotificationMixin from '../taskNotificationMixin';
+  import { fetchOrTriggerChannelDiffStatsTask } from './api';
 
   export default {
     name: 'NewChannelVersionPage',
     components: {},
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, taskNotificationMixin],
     props: {},
     data() {
       return {
         showModal: false,
+        taskLoading: true,
         channelName: 'Upgrade channel',
         nextVersion: 20,
         currentVersion: 19,
-        differences: {
-          added: 5500,
-          deleted: 300,
-          updatedNodes: [],
-        },
+        deletedResources: null,
+        newResources: null,
+        updatedNodeIds: [],
         versionInfos: [],
       };
     },
@@ -125,14 +129,59 @@
       channelIsIncomplete() {
         return false;
       },
-      numUpdated() {
-        return 177;
+      updatedResources() {
+        return this.updatedNodeIds.length;
       },
+    },
+    mounted() {
+      this.checkUrlParams().then(() => {
+        this.startDiffStatsTask();
+      });
     },
     methods: {
       handleSubmit() {
         // Create the import channel task
         // Redirect to the MANAGE_CONTENT_PAGE
+      },
+      checkUrlParams() {
+        // Check to see if drive_id, and address_id params are ok. If they aren't,
+        // show an error.
+        // TODO add more accurate errors.
+        return Promise.resolve();
+        // notAvailableFromDrives: 'This channel was not found on any attached drives',
+        // notAvailableFromNetwork: 'This channel was not found on other instances of Kolibri',
+        // notAvailableFromStudio: 'This channel was not found on Kolibri Studio',
+      },
+      startDiffStatsTask() {
+        // Finds or triggers a new CHANNELDIFFSTATS task.
+        // If one is already found, it will immediately clear it after loading the data.
+        // If a new Task is triggered, the component will watch the Task until it is completed,
+        // then clear it after the data is loaded.
+        return fetchOrTriggerChannelDiffStatsTask({
+          channelId: this.$route.params.channel_id,
+          driveId: this.$route.params.drive_id,
+          addressId: this.$route.params.address_id,
+        }).then(task => {
+          if (task.status === 'COMPLETED') {
+            this.taskLoading = false;
+            this.setCounts(task);
+            return TaskResource.deleteFinishedTask(task.id);
+          } else {
+            this.startWatchingTask(task, { snackbar: false });
+          }
+        });
+      },
+      setCounts(task) {
+        this.newResources = task.new_resources_count;
+        this.deletedResources = task.deleted_resources_count;
+        this.updatedNodeIds = task.updated_node_ids;
+      },
+      // @public (used by taskNotificationMixin)
+      onWatchedTaskFinished() {
+        this.taskLoading = false;
+        const task = find(this.$store.state.manageContent.taskList, { id: this.watchedTaskId });
+        this.setCounts(task);
+        return TaskResource.deleteFinishedTask(this.watchedTaskId);
       },
     },
     $trs: {

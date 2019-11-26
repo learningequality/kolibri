@@ -34,6 +34,7 @@ export const TaskTypes = {
   DELETECHANNEL: 'DELETECHANNEL',
   DELETECONTENT: 'DELETECONTENT',
   UPDATECHANNEL: 'UPDATECHANNEL', // not a real task type
+  CHANNELDIFFSTATS: 'CHANNELDIFFSTATS',
 };
 
 export const TaskStatuses = {
