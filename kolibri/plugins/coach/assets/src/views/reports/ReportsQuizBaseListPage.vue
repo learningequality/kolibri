@@ -113,6 +113,9 @@
         if (option === 'PRINT_REPORT') {
           this.$print();
         }
+        if (option === 'EXPORT') {
+          this.$emit('export');
+        }
       },
     },
     $trs: {
