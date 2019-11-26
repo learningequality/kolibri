@@ -20,6 +20,8 @@
         <KLabeledIcon icon="person" :label="learner.name" />
       </h1>
 
+      <ReportsControls @export="exportCSV" />
+
       <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -63,11 +65,14 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import { PageNames } from './../../constants';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsLessonLearnerPage',
-    components: {},
+    components: { ReportsControls },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {
@@ -103,6 +108,21 @@
           return tableRow.statusObj.time_spent;
         }
         return undefined;
+      },
+      exportCSV() {
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.timeSpent('statusObj.time_spent'),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          lesson: this.lesson.title,
+          learner: this.learner.name,
+        });
+
+        exporter.export(this.table);
       },
     },
     $trs: {},

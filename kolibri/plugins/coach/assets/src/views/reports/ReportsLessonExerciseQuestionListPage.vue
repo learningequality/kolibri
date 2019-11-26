@@ -13,7 +13,7 @@
 
       <ReportsLessonExerciseHeader @previewClick="onPreviewClick" />
 
-      <ReportsControls>
+      <ReportsControls @export="exportCSV">
         <!-- TODO COACH
           <KCheckbox :label="coachString('viewByGroupsLabel')" />
         -->
@@ -61,6 +61,8 @@
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
   import { LastPages } from '../../constants/lastPagesConstants';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
   import ReportsControls from './ReportsControls';
   import { PageNames } from './../../constants';
@@ -75,6 +77,9 @@
     mixins: [commonCoach],
     computed: {
       ...mapGetters('questionList', ['difficultQuestions']),
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
       exercise() {
         return this.contentMap[this.$route.params.exerciseId];
       },
@@ -106,6 +111,18 @@
             }
           )
         );
+      },
+      exportCSV() {
+        const columns = [...csvFields.title(), ...csvFields.helpNeeded()];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          lesson: this.lesson.title,
+          resource: this.exercise.title,
+          difficultQuestions: this.coachString('difficultQuestionsLabel'),
+        });
+
+        exporter.export(this.table);
       },
     },
   };

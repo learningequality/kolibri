@@ -36,7 +36,7 @@
         />
       </HeaderTable>
 
-      <ReportsControls />
+      <ReportsControls @export="exportCSV" />
 
       <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
         <thead slot="thead">
@@ -90,6 +90,8 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsControls from './ReportsControls';
 
   export default {
@@ -119,6 +121,23 @@
           Object.assign(tableRow, content);
           return tableRow;
         });
+      },
+    },
+    methods: {
+      exportCSV() {
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.tally(),
+          ...csvFields.timeSpent('avgTimeSpent', 'avgTimeSpentLabel'),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          lesson: this.lesson.title,
+          group: this.group.name,
+        });
+
+        exporter.export(this.table);
       },
     },
     $trs: {

@@ -1,6 +1,6 @@
 <template>
 
-  <ReportsQuizBaseListPage>
+  <ReportsQuizBaseListPage @export="exportCSV">
     <div>
       <h2 v-show="!isPrint">
         {{ coachString('overallLabel') }}
@@ -46,6 +46,8 @@
   import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsQuizBaseListPage from './ReportsQuizBaseListPage';
   import { PageNames } from './../../constants';
 
@@ -58,6 +60,9 @@
     mixins: [commonCoach],
     computed: {
       ...mapGetters('questionList', ['difficultQuestions']),
+      exam() {
+        return this.examMap[this.$route.params.quizId];
+      },
       table() {
         return this.difficultQuestions.map(question => {
           const tableRow = {};
@@ -72,6 +77,17 @@
           questionId,
           quizId: this.$route.params.quizId,
         });
+      },
+      exportCSV() {
+        const columns = [...csvFields.title(), ...csvFields.helpNeeded()];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          resource: this.exam.title,
+          difficultQuestions: this.coachString('difficultQuestionsLabel'),
+        });
+
+        exporter.export(this.table);
       },
     },
     $trs: {},

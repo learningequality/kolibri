@@ -50,7 +50,7 @@
         </HeaderTableRow>
       </HeaderTable>
 
-      <ReportsControls />
+      <ReportsControls @export="exportCSV" />
 
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
@@ -98,6 +98,8 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsControls from './ReportsControls';
 
   export default {
@@ -140,6 +142,21 @@
           return tableRow.statusObj.time_spent;
         }
         return undefined;
+      },
+      exportCSV() {
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.timeSpent('statusObj.time_spent'),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          learner: this.learner.name,
+          lesson: this.lesson.title,
+        });
+
+        exporter.export(this.table);
       },
     },
     $trs: {},

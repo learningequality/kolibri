@@ -11,7 +11,7 @@
 
     <KPageContainer>
       <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <ReportsControls />
+      <ReportsControls @export="exportCSV" />
       <CoreTable :emptyMessage="coachString('groupListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -58,6 +58,8 @@
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsControls from './ReportsControls';
   import ReportsHeader from './ReportsHeader';
 
@@ -113,6 +115,28 @@
         ];
 
         return statuses.length ? this.maxLastActivity(statuses) : null;
+      },
+      exportCSV() {
+        const columns = [
+          ...csvFields.name('groupNameLabel'),
+          {
+            name: this.coachString('lessonsLabel'),
+            key: 'numLessons',
+          },
+          {
+            name: this.coachString('quizzesLabel'),
+            key: 'numQuizzes',
+          },
+          {
+            name: this.coachString('learnersLabel'),
+            key: 'numLearners',
+          },
+          ...csvFields.avgScore(true),
+          ...csvFields.lastActivity(),
+        ];
+
+        const fileName = this.$tr('printLabel', { className: this.className });
+        new CSVExporter(columns, fileName).export(this.table);
       },
     },
     $trs: {

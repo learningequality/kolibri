@@ -32,7 +32,7 @@
       </KGridItem>
       <KGridItem :layout12="{ span: isPrint ? 12 : 8 }">
         <KPageContainer :topMargin="isPrint ? 0 : 24">
-          <ReportsControls />
+          <ReportsControls @export="exportCSV" />
           <HeaderTabs :enablePrint="true">
             <HeaderTab
               :text="coachString('reportLabel')"
@@ -87,6 +87,8 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import LessonOptionsDropdownMenu from '../plan/LessonSummaryPage/LessonOptionsDropdownMenu';
   import ReportsControls from './ReportsControls';
 
@@ -132,6 +134,26 @@
             )
           );
         }
+        if (action === 'PRINT_REPORT') {
+          this.$print();
+        }
+        if (action === 'EXPORT') {
+          this.exportCSV();
+        }
+      },
+      exportCSV() {
+        const columns = [
+          ...csvFields.name(),
+          ...csvFields.learnerProgress(),
+          ...csvFields.list('groups', 'groupsLabel'),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          lesson: this.lesson.title,
+          learners: this.coachString('learnersLabel'),
+        });
+        exporter.export(this.table);
       },
     },
     $trs: {},

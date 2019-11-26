@@ -13,7 +13,7 @@
 
       <ReportsLearnerHeader />
 
-      <ReportsControls />
+      <ReportsControls :disableExport="true" />
 
       <KGrid>
         <KGridItem :layout12="{ span: 6 }">

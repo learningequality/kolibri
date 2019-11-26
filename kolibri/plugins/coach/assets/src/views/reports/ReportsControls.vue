@@ -10,6 +10,14 @@
       >
         <mat-svg name="print" category="action" />
       </UiIconButton>
+      <UiIconButton
+        v-if="!disableExport"
+        type="flat"
+        :title="coachString('exportCSVAction')"
+        @click.prevent="$emit('export')"
+      >
+        <mat-svg name="get_app" category="action" />
+      </UiIconButton>
     </div>
   </div>
 
@@ -25,6 +33,12 @@
     name: 'ReportsControls',
     components: { UiIconButton },
     mixins: [commonCoach],
+    props: {
+      disableExport: {
+        type: Boolean,
+        default: false,
+      },
+    },
   };
 
 </script>

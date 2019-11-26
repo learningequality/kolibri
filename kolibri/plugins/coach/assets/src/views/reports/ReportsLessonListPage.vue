@@ -10,7 +10,7 @@
 
     <KPageContainer>
       <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <ReportsControls>
+      <ReportsControls @export="exportCSV">
         <KSelect
           v-model="filter"
           :label="coreString('showAction')"
@@ -73,6 +73,8 @@
   import { LessonResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsControls from './ReportsControls';
   import ReportsHeader from './ReportsHeader';
 
@@ -164,6 +166,12 @@
           this.$store.dispatch('classSummary/refreshClassSummary');
           this.$store.dispatch('createSnackbar', snackbarMessage);
         });
+      },
+      exportCSV() {
+        const columns = [...csvFields.title(), ...csvFields.recipients(), ...csvFields.tally()];
+
+        const fileName = this.$tr('printLabel', { className: this.className });
+        new CSVExporter(columns, fileName).export(this.table);
       },
     },
     $trs: {

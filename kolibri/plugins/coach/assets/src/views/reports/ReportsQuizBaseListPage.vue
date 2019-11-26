@@ -33,7 +33,7 @@
       </KGridItem>
       <KGridItem :layout12="{ span: isPrint ? 12 : 8 }">
         <KPageContainer :topMargin="isPrint ? 0 : 16">
-          <ReportsControls />
+          <ReportsControls @export="$emit('export')" />
           <HeaderTabs :enablePrint="true">
             <HeaderTab
               :text="coachString('reportLabel')"
