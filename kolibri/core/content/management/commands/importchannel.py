@@ -3,6 +3,7 @@ import os
 from time import sleep
 
 from django.core.management.base import CommandError
+from le_utils.constants import content_kinds
 
 from ...utils import channel_import
 from ...utils import paths
@@ -169,7 +170,9 @@ class Command(AsyncCommand):
                             node_ids = list(
                                 ContentNode.objects.filter(
                                     channel_id=channel_id, available=True
-                                ).values_list("id", flat=True)
+                                )
+                                .exclude(kind=content_kinds.TOPIC)
+                                .values_list("id", flat=True)
                             )
                             import_channel_by_id(channel_id, self.is_cancelled)
                             if node_ids:
