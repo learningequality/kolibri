@@ -16,7 +16,7 @@
       <ReportsControls :disableExport="true" />
 
       <KGrid>
-        <KGridItem :layout12="{ span: 6 }">
+        <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
           <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
           <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
             <thead slot="thead">
@@ -42,7 +42,7 @@
             </transition-group>
           </CoreTable>
         </KGridItem>
-        <KGridItem :layout12="{ span: 6 }">
+        <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
           <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
           <CoreTable :class="{print: $isPrint}" :emptyMessage="coachString('quizListEmptyState')">
             <thead slot="thead">
