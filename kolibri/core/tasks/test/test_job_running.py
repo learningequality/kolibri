@@ -11,6 +11,7 @@ from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.storage import Storage
+from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.utils import import_stringified_func
 from kolibri.core.tasks.utils import stringify_func
 from kolibri.core.tasks.worker import Worker
@@ -55,7 +56,7 @@ def enqueued_job(inmem_queue, simplejob):
     return inmem_queue.storage.get_job(job_id)
 
 
-def cancelable_job(check_for_cancel=None):
+def cancelable_job():
     """
     Test function for checking if a job is cancelable. Meant to be used in a job cancel
     test case.
@@ -66,10 +67,10 @@ def cancelable_job(check_for_cancel=None):
     Calling this function makes the thread check if a cancellation has been requested, and then exits early if true.
     :return: None
     """
-
+    job = get_current_job()
     for _ in range(10):
         time.sleep(0.5)
-        if check_for_cancel():
+        if job.check_for_cancel():
             return
 
 
@@ -147,9 +148,10 @@ def set_flag(threading_flag):
     threading_flag.set()
 
 
-def make_job_updates(flag, update_progress):
+def make_job_updates(flag):
+    job = get_current_job()
     for i in range(3):
-        update_progress(i, 2)
+        job.update_progress(i, 2)
     set_flag(flag)
 
 
@@ -157,7 +159,7 @@ def failing_func():
     raise Exception("Test function failing_func has failed as it's supposed to.")
 
 
-def update_progress_cancelable_job(update_progress, check_for_cancel=None):
+def update_progress_cancelable_job():
     """
     Test function for checking if a job is cancelable when it updates progress.
     Meant to be used in a job cancel with progress update test case.
@@ -169,11 +171,11 @@ def update_progress_cancelable_job(update_progress, check_for_cancel=None):
     Calling this function makes the thread check if a cancellation has been requested, and then exits early if true.
     :return: None
     """
-
+    job = get_current_job()
     for i in range(10):
         time.sleep(0.5)
-        update_progress(i, 9)
-        if check_for_cancel():
+        job.update_progress(i, 9)
+        if job.check_for_cancel():
             return
 
 

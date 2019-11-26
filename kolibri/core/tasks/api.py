@@ -1,3 +1,4 @@
+import logging
 import os
 from functools import partial
 
@@ -17,6 +18,7 @@ from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.paths import get_content_database_file_path
+from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import UserCancelledError
@@ -32,6 +34,8 @@ except AppRegistryNotReady:
     import django
 
     django.setup()
+
+logger = logging.getLogger(__name__)
 
 
 NETWORK_ERROR_STRING = _("There was a network error.")
@@ -50,18 +54,10 @@ def validate_content_task(request, task_description, require_channel=False):
     try:
         channel = ChannelMetadata.objects.get(id=channel_id)
         channel_name = channel.name
-        file_size = channel.published_size
-        total_resources = channel.total_resource_count
     except ChannelMetadata.DoesNotExist:
         if require_channel:
             raise serializers.ValidationError("This channel does not exist")
         channel_name = ""
-        file_size = None
-        total_resources = None
-
-    file_size = task_description.get("file_size", file_size)
-
-    total_resources = task_description.get("total_resources", total_resources)
 
     node_ids = task_description.get("node_ids", None)
     exclude_node_ids = task_description.get("exclude_node_ids", None)
@@ -75,8 +71,6 @@ def validate_content_task(request, task_description, require_channel=False):
     return {
         "channel_id": channel_id,
         "channel_name": channel_name,
-        "file_size": file_size,
-        "total_resources": total_resources,
         "exclude_node_ids": exclude_node_ids,
         "node_ids": node_ids,
         "started_by": request.user.pk,
@@ -551,6 +545,56 @@ class TasksViewSet(viewsets.ViewSet):
             overwrite="true",
             extra_metadata=job_metadata,
             track_progress=True,
+        )
+
+        resp = _job_to_response(queue.fetch_job(job_id))
+
+        return Response(resp)
+
+    @list_route(methods=["post"])
+    def channeldiffstats(self, request):
+        job_metadata = {}
+        channel_id = request.data.get("channel_id")
+        method = request.data.get("method")
+        drive_id = request.data.get("drive_id")
+        baseurl = request.data.get("baseurl")
+
+        # request validation and job metadata info
+        if not channel_id:
+            raise serializers.ValidationError("The channel_id field is required.")
+        if not method:
+            raise serializers.ValidationError("The method field is required.")
+
+        if method == "network":
+            baseurl = baseurl or conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
+            job_metadata["baseurl"] = baseurl
+        elif method == "disk":
+            if not drive_id:
+                raise serializers.ValidationError(
+                    "The drive_id field is required when using 'disk' method."
+                )
+            job_metadata = _add_drive_info(job_metadata, request.data)
+        else:
+            raise serializers.ValidationError(
+                "'method' field should either be 'network' or 'disk'."
+            )
+
+        job_metadata.update(
+            {
+                "type": "CHANNELDIFFSTATS",
+                "started_by": request.user.pk,
+                "channel_id": channel_id,
+            }
+        )
+
+        job_id = queue.enqueue(
+            diff_stats,
+            channel_id,
+            method,
+            drive_id=drive_id,
+            baseurl=baseurl,
+            extra_metadata=job_metadata,
+            track_progress=False,
         )
 
         resp = _job_to_response(queue.fetch_job(job_id))

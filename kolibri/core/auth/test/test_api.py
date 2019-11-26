@@ -260,7 +260,7 @@ class ClassroomAPITestCase(APITestCase):
                         {
                             "collection": self.facility.id,
                             "kind": role_kinds.ADMIN,
-                            "user": admin.id,
+                            "id": admin.roles.get(collection=self.facility.id).id,
                         }
                     ],
                 }
@@ -576,6 +576,57 @@ class UserDeleteTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 403)
+
+
+class UserRetrieveTestCase(APITestCase):
+    def setUp(self):
+        provision_device()
+        self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
+        self.facility.add_admin(self.superuser)
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def test_user_list(self):
+        response = self.client.get(reverse("kolibri:core:facilityuser-list"),)
+        self.assertEqual(response.status_code, 200)
+        self.assertItemsEqual(
+            response.data,
+            [
+                {
+                    "id": self.user.id,
+                    "username": self.user.username,
+                    "full_name": self.user.full_name,
+                    "facility": self.user.facility_id,
+                    "id_number": self.user.id_number,
+                    "gender": self.user.gender,
+                    "birth_year": self.user.birth_year,
+                    "is_superuser": False,
+                    "roles": [],
+                },
+                {
+                    "id": self.superuser.id,
+                    "username": self.superuser.username,
+                    "full_name": self.superuser.full_name,
+                    "facility": self.superuser.facility_id,
+                    "id_number": self.superuser.id_number,
+                    "gender": self.superuser.gender,
+                    "birth_year": self.superuser.birth_year,
+                    "is_superuser": True,
+                    "roles": [
+                        {
+                            "collection": self.superuser.roles.first().collection_id,
+                            "kind": role_kinds.ADMIN,
+                            "id": self.superuser.roles.first().id,
+                        }
+                    ],
+                },
+            ],
+        )
 
 
 class LoginLogoutTestCase(APITestCase):

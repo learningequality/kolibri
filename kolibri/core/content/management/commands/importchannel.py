@@ -64,6 +64,11 @@ class Command(AsyncCommand):
                 default_studio_url
             ),
         )
+        network_subparser.add_argument(
+            "--upgrade",
+            action="store_true",
+            help="Only download database to an upgrade file path.",
+        )
 
         local_subparser = subparsers.add_parser(
             name="disk", cmd=self, help="Copy the content from the given folder."
@@ -76,38 +81,60 @@ class Command(AsyncCommand):
         local_subparser.add_argument(
             "directory", type=str, help="Import content from this directory."
         )
+        local_subparser.add_argument(
+            "--upgrade",
+            action="store_true",
+            help="Only download database to an upgrade file path.",
+        )
 
-    def download_channel(self, channel_id, baseurl):
+    def download_channel(self, channel_id, baseurl, upgrade):
         logger.info("Downloading data for channel id {}".format(channel_id))
-        self._transfer(DOWNLOAD_METHOD, channel_id, baseurl)
+        self._transfer(DOWNLOAD_METHOD, channel_id, baseurl, upgrade=upgrade)
 
-    def copy_channel(self, channel_id, path):
+    def copy_channel(self, channel_id, path, upgrade):
         logger.info("Copying in data for channel id {}".format(channel_id))
-        self._transfer(COPY_METHOD, channel_id, path=path)
+        self._transfer(COPY_METHOD, channel_id, path=path, upgrade=upgrade)
 
-    def _transfer(self, method, channel_id, baseurl=None, path=None):
+    def _transfer(self, method, channel_id, baseurl=None, path=None, upgrade=False):
 
         dest = paths.get_content_database_file_path(channel_id)
+        upgrade_dest = paths.get_upgrade_content_database_file_path(channel_id)
+        dest = upgrade_dest if upgrade else dest
 
+        # if upgraded db has previously been downloaded, just copy it over
+        if os.path.exists(upgrade_dest) and not upgrade:
+            method = COPY_METHOD
         # determine where we're downloading/copying from, and create appropriate transfer object
         if method == DOWNLOAD_METHOD:
             url = paths.get_content_database_file_url(channel_id, baseurl=baseurl)
             logger.debug("URL to fetch: {}".format(url))
             filetransfer = transfer.FileDownload(url, dest)
         elif method == COPY_METHOD:
-            srcpath = paths.get_content_database_file_path(channel_id, datafolder=path)
+            # if there is an upgraded database, set that as source path
+            srcpath = (
+                upgrade_dest
+                if os.path.exists(upgrade_dest)
+                else paths.get_content_database_file_path(channel_id, datafolder=path)
+            )
             filetransfer = transfer.FileCopy(srcpath, dest)
 
         logger.debug("Destination: {}".format(dest))
 
         finished = False
         while not finished:
-            finished = self._start_file_transfer(filetransfer, channel_id, dest)
+            finished = self._start_file_transfer(
+                filetransfer, channel_id, dest, upgrade=upgrade
+            )
             if self.is_cancelled():
                 self.cancel()
                 break
+        # if we are not trying to upgrade, remove upgraded db
+        if os.path.exists(upgrade_dest) and not upgrade:
+            os.remove(upgrade_dest)
 
-    def _start_file_transfer(self, filetransfer, channel_id, dest):
+    def _start_file_transfer(  # noqa: C901
+        self, filetransfer, channel_id, dest, upgrade=False
+    ):
         progress_extra_data = {"channel_id": channel_id}
 
         try:
@@ -130,11 +157,13 @@ class Command(AsyncCommand):
                             )
                         )
                 else:
-                    try:
-                        import_channel_by_id(channel_id, self.is_cancelled)
-                    except channel_import.ImportCancelError:
-                        # This will only occur if is_cancelled is True.
-                        pass
+                    # if upgrading, do not import the channel
+                    if not upgrade:
+                        try:
+                            import_channel_by_id(channel_id, self.is_cancelled)
+                        except channel_import.ImportCancelError:
+                            # This will only occur if is_cancelled is True.
+                            pass
                 return True
 
         except Exception as e:
@@ -152,9 +181,13 @@ class Command(AsyncCommand):
 
     def handle_async(self, *args, **options):
         if options["command"] == "network":
-            self.download_channel(options["channel_id"], options["baseurl"])
+            self.download_channel(
+                options["channel_id"], options["baseurl"], options["upgrade"]
+            )
         elif options["command"] == "disk":
-            self.copy_channel(options["channel_id"], options["directory"])
+            self.copy_channel(
+                options["channel_id"], options["directory"], options["upgrade"]
+            )
         else:
             self._parser.print_help()
             raise CommandError(

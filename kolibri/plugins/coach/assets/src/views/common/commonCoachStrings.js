@@ -55,9 +55,9 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   questionsLabel: 'Questions', // Kept here for use in common.js
   questionOrderLabel: 'Question order',
   quizClosedLabel: {
-    message: 'Quiz closed',
+    message: 'Quiz ended',
     context:
-      'A label indicating that the currently viewed quiz is closed - meaning that learners may no longer give answers to the quiz.',
+      'A label indicating that the currently viewed quiz is ended - meaning that learners may no longer give answers to the quiz.',
   },
   quizzesLabel: 'Quizzes', // Kept here for use in common.js
   quizzesAssignedLabel: 'Quizzes assigned',
@@ -108,22 +108,22 @@ const coachStrings = createTranslator('CommonCoachStrings', {
       'A label used on a switch indicating that the learners can see their reports when the switch is turned "on"',
   },
   quizOpenedMessage: {
-    message: 'Quiz is open',
-    context: 'A brief snackbar message notifying the user that the quiz was successfully opened.',
+    message: 'Quiz started',
+    context: 'A brief snackbar message notifying the user that the quiz was successfully started.',
   },
   quizFailedToOpenMessage: {
-    message: 'There was a problem opening the quiz. The quiz was not opened.',
+    message: 'There was a problem starting the quiz. The quiz was not started.',
     context:
-      'A brief snackbar message notifying the user that there was an error trying to open the quiz and that the quiz is not open.',
+      'A brief snackbar message notifying the user that there was an error trying to start the quiz and that the quiz was not started.',
   },
   quizClosedMessage: {
-    message: 'Quiz is closed',
-    context: 'A brief snackbar message notifying the user that the quiz was successfully closed.',
+    message: 'Quiz ended',
+    context: 'A brief snackbar message notifying the user that the quiz was successfully ended.',
   },
   quizFailedToCloseMessage: {
-    message: 'There was a problem closing the quiz. The quiz was not closed.',
+    message: 'There was a problem ending the quiz. The quiz was not ended.',
     context:
-      'A brief snackbar message notifying the user that there was an error trying to close the quiz and that the quiz is not closed.',
+      'A brief snackbar message notifying the user that there was an error trying to end the quiz and that the quiz was not ended.',
   },
   quizVisibleToLearners: {
     message: 'Quiz report is visible to learners',
@@ -136,26 +136,26 @@ const coachStrings = createTranslator('CommonCoachStrings', {
       'A brief snackbar message notifying the user that learners may no longer view their quiz report. It will show when the user changes a setting to make the quiz no longer visible.',
   },
   openQuizLabel: {
-    message: 'Open quiz',
+    message: 'Start quiz',
     context:
-      "Label for a button that, when clicked, will 'open' a quiz - making it active so that Learners may take the quiz.",
+      "Label for a button that, when clicked, will 'start' a quiz - making it active so that Learners may take the quiz.",
   },
   openQuizModalDetail: {
     message:
-      'Opening the quiz will make it visible to learners and they will be able to answer questions',
+      'Starting the quiz will make it visible to learners and they will be able to answer questions',
     context:
-      "Text shown on a modal pop-up window when the user clicks the 'Open Quiz' button. This explains what will happen when the user confirms the action of opening the quiz.",
+      "Text shown on a modal pop-up window when the user clicks the 'Start Quiz' button. This explains what will happen when the user confirms the action of starting the quiz.",
   },
   closeQuizLabel: {
-    message: 'Close quiz',
+    message: 'End quiz',
     context:
-      "Label for a button that, when clicked, will 'close' a quiz. This makes the quiz inactive and Learners will no longer be able to give answers.",
+      "Label for a button that, when clicked, will 'end' a quiz. This makes the quiz inactive and Learners will no longer be able to give answers.",
   },
   closeQuizModalDetail: {
     message:
       'All learners will be given a final score and a quiz report. Unfinished questions will be counted as incorrect.',
     context:
-      "Text shown on a modal pop-up window when the user clicks the 'Close Quiz' button. This explains what will happen when the modal window is confirmed.",
+      "Text shown on a modal pop-up window when the user clicks the 'End Quiz' button. This explains what will happen when the modal window is confirmed.",
   },
   lessonNotVisibleToLearnersLabel: {
     message: 'Lesson is not visible to learners',

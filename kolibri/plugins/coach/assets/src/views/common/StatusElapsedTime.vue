@@ -125,59 +125,59 @@
       createdSecondsAgo: {
         message: 'Created {seconds} {seconds, plural, one {second} other {seconds}} ago',
         context:
-          'Indicates that an item was created a number of seconds prior to the current time, but is always less than 1 minute ago.',
+          'Indicates that a quiz was created a number of seconds prior to the current time, but is always less than 1 minute ago.',
       },
       createdMinutesAgo: {
         message: 'Created {minutes} {minutes, plural, one {minute} other {minutes}} ago',
         context:
-          'Indicates that an item was created a number of minutes prior to the current time, but the time is always less than 1 hour ago.',
+          'Indicates that a quiz was created a number of minutes prior to the current time, but the time is always less than 1 hour ago.',
       },
       createdHoursAgo: {
         message: 'Created {hours} {hours, plural, one {hour} other {hours}} ago',
         context:
-          'Indicates that an item was created a number of hours prior to the current time, but the time is always less than one day ago',
+          'Indicates that a quiz was created a number of hours prior to the current time, but the time is always less than one day ago',
       },
       createdDaysAgo: {
         message: 'Created {days} {days, plural, one {day} other {days}} ago',
-        context: 'Indicates that an item was created a number of days prior to the current date.',
+        context: 'Indicates that a quiz was created a number of days prior to the current date.',
       },
       closedSecondsAgo: {
-        message: 'Closed {seconds} {seconds, plural, one {second} other {seconds}} ago',
+        message: 'Ended {seconds} {seconds, plural, one {second} other {seconds}} ago',
         context:
-          'Indicates that an item was closed a number of seconds prior to the current time, but is always less than 1 minute ago.',
+          'Indicates that a quiz was ended a number of seconds prior to the current time, but is always less than 1 minute ago.',
       },
       closedMinutesAgo: {
-        message: 'Closed {minutes} {minutes, plural, one {minute} other {minutes}} ago',
+        message: 'Ended {minutes} {minutes, plural, one {minute} other {minutes}} ago',
         context:
-          'Indicates that an item was closed a number of minutes prior to the current time, but the time is always less than 1 hour ago.',
+          'Indicates that a quiz was ended a number of minutes prior to the current time, but the time is always less than 1 hour ago.',
       },
       closedHoursAgo: {
-        message: 'Closed {hours} {hours, plural, one {hour} other {hours}} ago',
+        message: 'Ended {hours} {hours, plural, one {hour} other {hours}} ago',
         context:
-          'Indicates that an item was closed a number of hours prior to the current time, but the time is always less than one day ago',
+          'Indicates that a quiz was ended a number of hours prior to the current time, but the time is always less than one day ago',
       },
       closedDaysAgo: {
-        message: 'Closed {days} {days, plural, one {day} other {days}} ago',
-        context: 'Indicates that an item was closed a number of days prior to the current date.',
+        message: 'Ended {days} {days, plural, one {day} other {days}} ago',
+        context: 'Indicates that a quiz was ended a number of days prior to the current date.',
       },
       openedSecondsAgo: {
-        message: 'Opened {seconds} {seconds, plural, one {second} other {seconds}} ago',
+        message: 'Started {seconds} {seconds, plural, one {second} other {seconds}} ago',
         context:
-          'Indicates that an item was opened a number of seconds prior to the current time, but is always less than 1 minute ago.',
+          'Indicates that a quiz was started a number of seconds prior to the current time, but is always less than 1 minute ago.',
       },
       openedMinutesAgo: {
-        message: 'Opened {minutes} {minutes, plural, one {minute} other {minutes}} ago',
+        message: 'Started {minutes} {minutes, plural, one {minute} other {minutes}} ago',
         context:
-          'Indicates that an item was opened a number of minutes prior to the current time, but the time is always less than 1 hour ago.',
+          'Indicates that a quiz was started a number of minutes prior to the current time, but the time is always less than 1 hour ago.',
       },
       openedHoursAgo: {
-        message: 'Opened {hours} {hours, plural, one {hour} other {hours}} ago',
+        message: 'Started {hours} {hours, plural, one {hour} other {hours}} ago',
         context:
-          'Indicates that an item was opened a number of hours prior to the current time, but the time is always less than one day ago',
+          'Indicates that a quiz was started a number of hours prior to the current time, but the time is always less than one day ago',
       },
       openedDaysAgo: {
-        message: 'Opened {days} {days, plural, one {day} other {days}} ago',
-        context: 'Indicates that an item was opened a number of days prior to the current date.',
+        message: 'Started {days} {days, plural, one {day} other {days}} ago',
+        context: 'Indicates that a quiz was started a number of days prior to the current date.',
       },
     },
   };

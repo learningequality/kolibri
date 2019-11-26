@@ -169,13 +169,16 @@ class FacilityUserViewSet(ValuesViewset):
         "facility",
         "roles__kind",
         "roles__collection",
+        "roles__id",
         "devicepermissions__is_superuser",
         "id_number",
         "gender",
         "birth_year",
     )
 
-    field_map = {"is_superuser": "devicepermissions__is_superuser"}
+    field_map = {
+        "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
+    }
 
     def consolidate(self, items):
         output = []
@@ -186,6 +189,7 @@ class FacilityUserViewSet(ValuesViewset):
                 role = {
                     "collection": item.pop("roles__collection"),
                     "kind": item.pop("roles__kind"),
+                    "id": item.pop("roles__id"),
                 }
                 if role["collection"]:
                     # Our values call will return null for users with no assigned roles
@@ -346,10 +350,10 @@ class ClassroomViewSet(ValuesViewset):
         items = sorted(items, key=lambda x: x["id"])
         coach_ids = list(set([item["role__user__id"] for item in items]))
         facility_roles = {
-            obj["user"]: obj
+            obj.pop("user"): obj
             for obj in Role.objects.filter(
                 user_id__in=coach_ids, collection__kind=collection_kinds.FACILITY
-            ).values("user", "kind", "collection")
+            ).values("user", "kind", "collection", "id")
         }
         for key, group in groupby(items, lambda x: x["id"]):
             coaches = []
