@@ -29,7 +29,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import { ExamResource } from 'kolibri.resources';
   import { CoachCoreBase } from '../common';
   import { coachStringsMixin } from '../common/commonCoachStrings';
@@ -124,7 +124,18 @@
                 .dispatch('individualLearners/createIndividualLearnersGroup', {
                   classId: vm.$route.params.classId,
                 })
-                .then(() => vm.setData(quiz));
+                .then(() => {
+                  // Save the Exam with the new assignment
+                  ExamResource.saveModel({
+                    id: vm.$route.params.quizId,
+                    data: {
+                      assignments: [
+                        { collection: vm.$route.params.classId },
+                        { collection: vm.$store.state.individualLearners.id },
+                      ],
+                    },
+                  }).then(() => vm.setData(quiz));
+                });
             }
           });
         })
