@@ -425,6 +425,23 @@ class IndividualLearnersGroupViewSet(viewsets.ModelViewSet):
             user_ids=GroupConcat("membership__user__id", output_field=CharField())
         )
 
+    def partial_update(self, request, pk):
+        individual_learners_group = IndividualLearnersGroup.objects.filter(pk=pk)[
+            :1
+        ].get()
+        current_learners = individual_learners_group.get_learners()
+        updated_learners = FacilityUser.objects.filter(pk__in=request.data["user_ids"])
+
+        for c_learner in current_learners:
+            if c_learner not in updated_learners:
+                individual_learners_group.remove_learner(c_learner)
+
+        for u_learner in updated_learners:
+            if u_learner not in current_learners:
+                individual_learners_group.add_learner(u_learner)
+        return Response(self.serializer_class(individual_learners_group).data)
+
+
 class SignUpViewSet(viewsets.ViewSet):
 
     serializer_class = FacilityUserSerializer

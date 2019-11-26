@@ -164,10 +164,3 @@ class IndividualLearnersGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = IndividualLearnersGroup
         fields = ("id", "name", "parent", "user_ids")
-
-        validators = [
-            UniqueTogetherValidator(
-                queryset=IndividualLearnersGroup.objects.all(),
-                fields=("parent", "name"),
-            )
-        ]

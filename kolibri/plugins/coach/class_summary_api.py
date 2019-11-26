@@ -19,6 +19,7 @@ from kolibri.core.auth import models as auth_models
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import IndividualLearnersGroup
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -313,13 +314,25 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         lesson_data = serialize_lessons(query_lesson)
         exam_data = serialize_exams(query_exams)
 
+        individual_learners_group_ids = IndividualLearnersGroup.objects.filter(
+            parent=classroom
+        ).values_list("id", flat=True)
+
         # filter classes out of exam assignments
         for exam in exam_data:
-            exam["groups"] = [g for g in exam["assignments"] if g != pk]
+            exam["groups"] = [
+                g
+                for g in exam["assignments"]
+                if g != pk and g not in individual_learners_group_ids
+            ]
 
         # filter classes out of lesson assignments
         for lesson in lesson_data:
-            lesson["groups"] = [g for g in lesson["assignments"] if g != pk]
+            lesson["groups"] = [
+                g
+                for g in lesson["assignments"]
+                if g != pk and g not in individual_learners_group_ids
+            ]
 
         all_node_ids = set()
         for lesson in lesson_data:

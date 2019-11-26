@@ -1418,6 +1418,10 @@ class LearnerGroup(Collection):
 
 @python_2_unicode_compatible
 class IndividualLearnersGroup(Collection):
+    """
+    An ``IndividualLearnersGroup`` is a collection kind that can be used in an assignment
+    to create a group that is specific to a single ``Lesson`` or ``Exam``.
+    """
 
     morango_model_name = "individuallearnersgroup"
     morango_model_dependencies = (Classroom,)
@@ -1448,6 +1452,11 @@ class IndividualLearnersGroup(Collection):
 
     def add_learners(self, users):
         return [self.add_learner(user) for user in users]
+
+    def get_learners(self):
+        user_ids = Membership.objects.filter(collection=self).values_list("user_id")
+        users = FacilityUser.objects.filter(pk__in=user_ids)
+        return users
 
     def remove_learner(self, user):
         return self.remove_member(user)
