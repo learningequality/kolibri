@@ -6,7 +6,6 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
 
-from .annotation import update_content_metadata
 from .channels import read_channel_metadata_from_db_file
 from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge
@@ -799,8 +798,6 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
     import_manager.import_channel_data()
 
     import_manager.end()
-
-    update_content_metadata(channel_id)
 
     channel = ChannelMetadata.objects.get(id=channel_id)
     channel.last_updated = local_now()

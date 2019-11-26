@@ -7,7 +7,9 @@ from django.core.management.base import CommandError
 from ...utils import channel_import
 from ...utils import paths
 from ...utils import transfer
+from ...utils.annotation import update_content_metadata
 from ...utils.import_export_content import retry_import
+from kolibri.core.content.models import ContentNode
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
@@ -65,7 +67,7 @@ class Command(AsyncCommand):
             ),
         )
         network_subparser.add_argument(
-            "--upgrade",
+            "--no_upgrade",
             action="store_true",
             help="Only download database to an upgrade file path.",
         )
@@ -82,27 +84,30 @@ class Command(AsyncCommand):
             "directory", type=str, help="Import content from this directory."
         )
         local_subparser.add_argument(
-            "--upgrade",
+            "--no_upgrade",
             action="store_true",
             help="Only download database to an upgrade file path.",
         )
 
-    def download_channel(self, channel_id, baseurl, upgrade):
+    def download_channel(self, channel_id, baseurl, no_upgrade):
         logger.info("Downloading data for channel id {}".format(channel_id))
-        self._transfer(DOWNLOAD_METHOD, channel_id, baseurl, upgrade=upgrade)
+        self._transfer(DOWNLOAD_METHOD, channel_id, baseurl, no_upgrade=no_upgrade)
 
-    def copy_channel(self, channel_id, path, upgrade):
+    def copy_channel(self, channel_id, path, no_upgrade):
         logger.info("Copying in data for channel id {}".format(channel_id))
-        self._transfer(COPY_METHOD, channel_id, path=path, upgrade=upgrade)
+        self._transfer(COPY_METHOD, channel_id, path=path, no_upgrade=no_upgrade)
 
-    def _transfer(self, method, channel_id, baseurl=None, path=None, upgrade=False):
+    def _transfer(self, method, channel_id, baseurl=None, path=None, no_upgrade=False):
 
-        dest = paths.get_content_database_file_path(channel_id)
-        upgrade_dest = paths.get_upgrade_content_database_file_path(channel_id)
-        dest = upgrade_dest if upgrade else dest
+        new_channel_dest = paths.get_upgrade_content_database_file_path(channel_id)
+        dest = (
+            new_channel_dest
+            if no_upgrade
+            else paths.get_content_database_file_path(channel_id)
+        )
 
-        # if upgraded db has previously been downloaded, just copy it over
-        if os.path.exists(upgrade_dest) and not upgrade:
+        # if new channel version db has previously been downloaded, just copy it over
+        if os.path.exists(new_channel_dest) and not no_upgrade:
             method = COPY_METHOD
         # determine where we're downloading/copying from, and create appropriate transfer object
         if method == DOWNLOAD_METHOD:
@@ -110,10 +115,10 @@ class Command(AsyncCommand):
             logger.debug("URL to fetch: {}".format(url))
             filetransfer = transfer.FileDownload(url, dest)
         elif method == COPY_METHOD:
-            # if there is an upgraded database, set that as source path
+            # if there is a new channel version db, set that as source path
             srcpath = (
-                upgrade_dest
-                if os.path.exists(upgrade_dest)
+                new_channel_dest
+                if os.path.exists(new_channel_dest)
                 else paths.get_content_database_file_path(channel_id, datafolder=path)
             )
             filetransfer = transfer.FileCopy(srcpath, dest)
@@ -123,17 +128,17 @@ class Command(AsyncCommand):
         finished = False
         while not finished:
             finished = self._start_file_transfer(
-                filetransfer, channel_id, dest, upgrade=upgrade
+                filetransfer, channel_id, dest, no_upgrade=no_upgrade
             )
             if self.is_cancelled():
                 self.cancel()
                 break
-        # if we are not trying to upgrade, remove upgraded db
-        if os.path.exists(upgrade_dest) and not upgrade:
-            os.remove(upgrade_dest)
+        # if we are trying to upgrade, remove new channel db
+        if os.path.exists(new_channel_dest) and not no_upgrade:
+            os.remove(new_channel_dest)
 
     def _start_file_transfer(  # noqa: C901
-        self, filetransfer, channel_id, dest, upgrade=False
+        self, filetransfer, channel_id, dest, no_upgrade=False
     ):
         progress_extra_data = {"channel_id": channel_id}
 
@@ -157,10 +162,19 @@ class Command(AsyncCommand):
                             )
                         )
                 else:
-                    # if upgrading, do not import the channel
-                    if not upgrade:
+                    # if upgrading, import the channel
+                    if not no_upgrade:
                         try:
+                            # evaluate list so we have the current node ids
+                            node_ids = list(
+                                ContentNode.objects.filter(
+                                    channel_id=channel_id, available=True
+                                ).values_list("id", flat=True)
+                            )
                             import_channel_by_id(channel_id, self.is_cancelled)
+                            if node_ids:
+                                # annotate default channel db based on previously annotated leaf nodes
+                                update_content_metadata(channel_id, node_ids=node_ids)
                         except channel_import.ImportCancelError:
                             # This will only occur if is_cancelled is True.
                             pass
@@ -182,11 +196,11 @@ class Command(AsyncCommand):
     def handle_async(self, *args, **options):
         if options["command"] == "network":
             self.download_channel(
-                options["channel_id"], options["baseurl"], options["upgrade"]
+                options["channel_id"], options["baseurl"], options["no_upgrade"]
             )
         elif options["command"] == "disk":
             self.copy_channel(
-                options["channel_id"], options["directory"], options["upgrade"]
+                options["channel_id"], options["directory"], options["no_upgrade"]
             )
         else:
             self._parser.print_help()
