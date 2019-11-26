@@ -237,16 +237,26 @@
           this.showError = true;
           this.$refs.title.focus();
         } else {
-          this.$store.dispatch('examCreation/createExamAndRoute', this.classId).catch(error => {
-            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
-            if (errors) {
-              this.showError = true;
-              this.showTitleError = true;
-              this.$refs.title.focus();
-            } else {
-              this.$store.dispatch('handleApiError', error);
-            }
-          });
+          this.$store
+            .dispatch('individualLearners/createIndividualLearnersGroup', {
+              classId: this.$route.params.classId,
+            })
+            .then(() => {
+              const params = {
+                classId: this.classId,
+                individualLearnersGroupId: this.$store.state.individualLearners.id,
+              };
+              this.$store.dispatch('examCreation/createExamAndRoute', params).catch(error => {
+                const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+                if (errors) {
+                  this.showError = true;
+                  this.showTitleError = true;
+                  this.$refs.title.focus();
+                } else {
+                  this.$store.dispatch('handleApiError', error);
+                }
+              });
+            });
         }
       },
     },
