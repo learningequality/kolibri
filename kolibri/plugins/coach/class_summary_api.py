@@ -164,7 +164,7 @@ def serialize_exam_status(queryset):
                     .distinct()
                     .values("examlog")
                     .annotate(total_correct=Sum("correct"))
-                    .values("total_correct"),
+                    .values("total_correct")
                 ),
                 num_answered=Subquery(
                     logger_models.ExamAttemptLog.objects.filter(examlog=OuterRef("id"))
@@ -173,7 +173,7 @@ def serialize_exam_status(queryset):
                     .distinct()
                     .values("examlog")
                     .annotate(total_complete=Count("id"))
-                    .values("total_complete"),
+                    .values("total_complete")
                 ),
             )
             .values(
@@ -201,7 +201,7 @@ def serialize_groups(queryset):
         queryset = queryset.values("id").annotate(
             member_ids=GroupConcat("membership__user__id", output_field=CharField())
         )
-    return list(map(_map_group, queryset.values("id", "name", "member_ids"),))
+    return list(map(_map_group, queryset.values("id", "name", "member_ids")))
 
 
 def serialize_users(queryset):
@@ -381,7 +381,9 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             ),
             "learners": learners_data,
             "groups": serialize_groups(classroom.get_learner_groups()),
-            "individuallearners": serialize_groups(classroom.get_individual_learners_group()),
+            "individuallearners": serialize_groups(
+                classroom.get_individual_learners_group()
+            ),
             "exams": exam_data,
             "exam_learner_status": serialize_exam_status(query_exam_logs),
             "content": query_content.values(

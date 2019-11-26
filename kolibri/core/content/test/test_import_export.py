@@ -179,7 +179,7 @@ class ImportChannelTestCase(TestCase):
 
 
 @patch(
-    "kolibri.core.content.management.commands.importcontent.calculate_files_to_transfer",
+    "kolibri.core.content.management.commands.importcontent.calculate_files_to_transfer"
 )
 @patch("kolibri.core.content.management.commands.importcontent.annotation")
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())

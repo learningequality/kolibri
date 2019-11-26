@@ -82,7 +82,7 @@ class Command(AsyncCommand):
             .count()
         )
 
-        (files, total_bytes_to_transfer,) = calculate_files_to_transfer(
+        (files, total_bytes_to_transfer) = calculate_files_to_transfer(
             nodes_for_transfer, True
         )
 
