@@ -49,6 +49,11 @@ export function helpNeeded() {
       key: 'helpNeeded',
       format: row => row.total - row.correct,
     },
+    {
+      name: coreStrings('allLabel'), // TODO: Add new string for this
+      key: 'all',
+      format: row => row.total,
+    },
   ];
 }
 

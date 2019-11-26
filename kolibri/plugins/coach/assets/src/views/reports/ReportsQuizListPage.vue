@@ -243,13 +243,7 @@
       exportCSV() {
         const columns = [
           ...csvFields.title(),
-          {
-            name: this.coachString('avgScoreLabel'),
-            key: 'avgScore',
-            format: row => {
-              return this.coachString('percentage', { value: row.avgScore });
-            },
-          },
+          ...csvFields.avgScore(),
           ...csvFields.recipients(),
           ...csvFields.tally(),
         ];
