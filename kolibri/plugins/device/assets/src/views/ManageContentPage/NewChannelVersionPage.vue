@@ -2,8 +2,7 @@
 
   <div>
 
-    <section>
-      {{ taskLoading }}
+    <section v-if="!loadingChannel">
       <h1>
         {{ $tr('versionIsAvailable', { channelName, nextVersion }) }}
       </h1>
@@ -15,7 +14,7 @@
 
     <div style="height: 32px" aria-hidden="true"></div>
 
-    <section>
+    <section v-if="!loadingChannel && !loadingTask">
       <h3>
         {{ $tr('versionChangesHeader', {
           oldVersion: currentVersion,
@@ -39,20 +38,12 @@
             </span>
           </td>
           <td>
-            <KIcon
-              ref="deletedicon"
-              class="deleted-icon"
-              icon="error"
-              :style="{fill: $themeTokens.primary}"
+            <CoreInfoIcon
+              class="info-icon"
+              :tooltipText="$tr('resourcesToBeDeletedTooltip')"
+              :iconAriaLabel="$tr('resourcesToBeDeletedTooltip')"
+              tooltipPlacement="right"
             />
-            <KTooltip
-              :refs="$refs"
-              reference="deletedicon"
-              placement="right"
-            >
-              {{ $tr('resourcesToBeDeletedTooltip') }}
-            </KTooltip>
-
           </td>
         </tr>
         <tr>
@@ -73,7 +64,7 @@
       />
     </section>
 
-    <section dir="auto">
+    <section v-if="!loadingChannel" dir="auto">
       <template v-for="(info, idx) in versionInfos">
         <h2 :key="idx">
           {{ $tr('versionNumberHeader', { version: info.version }) }}
@@ -83,6 +74,13 @@
         </p>
       </template>
     </section>
+
+    <!-- Load the channel immediately, then the diff stats -->
+    <KLinearLoader
+      v-if="loadingChannel || loadingTask"
+      :indeterminate="true"
+      :delay="false"
+    />
 
     <KModal
       v-if="showModal"
@@ -102,20 +100,21 @@
 <script>
 
   import find from 'lodash/find';
+  import pickBy from 'lodash/pickBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
-  import taskNotificationMixin from '../taskNotificationMixin';
-  import { fetchOrTriggerChannelDiffStatsTask } from './api';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import { taskIsClearable } from '../../constants';
+  import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
   export default {
     name: 'NewChannelVersionPage',
-    components: {},
-    mixins: [commonCoreStrings, taskNotificationMixin],
-    props: {},
+    components: {
+      CoreInfoIcon,
+    },
+    mixins: [commonCoreStrings],
     data() {
       return {
-        showModal: false,
-        taskLoading: true,
         channelName: 'Upgrade channel',
         nextVersion: 20,
         currentVersion: 19,
@@ -123,6 +122,11 @@
         newResources: null,
         updatedNodeIds: [],
         versionInfos: [],
+        status: null,
+        showModal: false,
+        loadingTask: true,
+        loadingChannel: true,
+        watchedTaskId: null,
       };
     },
     computed: {
@@ -132,10 +136,40 @@
       updatedResources() {
         return this.updatedNodeIds.length;
       },
+      params() {
+        return pickBy({
+          channelId: this.$route.params.channel_id,
+          driveId: this.$route.query.drive_id,
+          addressId: this.$route.query.address_id,
+        });
+      },
+      watchedTaskHasFinished() {
+        return this.$store.getters['manageContent/taskFinished'](this.watchedTaskId);
+      },
+    },
+    watch: {
+      watchedTaskHasFinished(val) {
+        if (val && val === this.watchedTaskId) {
+          this.onWatchedTaskFinished();
+        }
+      },
     },
     mounted() {
-      this.checkUrlParams().then(() => {
-        this.startDiffStatsTask();
+      this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.coreString('loadingLabel'));
+      this.loadChannelInfo().then(([installedChannel, sourceChannel]) => {
+        // Show the channel info ASAP
+        this.channelName = installedChannel.name;
+        this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.channelName);
+        this.currentVersion = installedChannel.version;
+        this.nextVersion = sourceChannel.version;
+        this.loadingChannel = false;
+
+        // Trigger Diff Stats task right after
+        // HACK params for import task are appended to sourceChannel to avoid more REST calls
+        this.startDiffStatsTask({
+          baseurl: sourceChannel.baseurl,
+          driveId: sourceChannel.driveId,
+        });
       });
     },
     methods: {
@@ -143,45 +177,41 @@
         // Create the import channel task
         // Redirect to the MANAGE_CONTENT_PAGE
       },
-      checkUrlParams() {
-        // Check to see if drive_id, and address_id params are ok. If they aren't,
-        // show an error.
-        // TODO add more accurate errors.
-        return Promise.resolve();
+      loadChannelInfo() {
+        return fetchChannelAtSource(this.params).catch(errType => {
+          this.status = errType;
+        });
         // notAvailableFromDrives: 'This channel was not found on any attached drives',
         // notAvailableFromNetwork: 'This channel was not found on other instances of Kolibri',
         // notAvailableFromStudio: 'This channel was not found on Kolibri Studio',
       },
-      startDiffStatsTask() {
+      startDiffStatsTask(sourceParams) {
         // Finds or triggers a new CHANNELDIFFSTATS task.
         // If one is already found, it will immediately clear it after loading the data.
         // If a new Task is triggered, the component will watch the Task until it is completed,
         // then clear it after the data is loaded.
         return fetchOrTriggerChannelDiffStatsTask({
-          channelId: this.$route.params.channel_id,
-          driveId: this.$route.params.drive_id,
-          addressId: this.$route.params.address_id,
+          channelId: this.params.channelId,
+          ...sourceParams,
         }).then(task => {
-          if (task.status === 'COMPLETED') {
-            this.taskLoading = false;
-            this.setCounts(task);
-            return TaskResource.deleteFinishedTask(task.id);
+          if (taskIsClearable(task)) {
+            this.readAndDeleteTask(task);
           } else {
-            this.startWatchingTask(task, { snackbar: false });
+            this.watchedTaskId = task.id;
           }
         });
       },
-      setCounts(task) {
+      readAndDeleteTask(task) {
+        this.loadingTask = false;
         this.newResources = task.new_resources_count;
         this.deletedResources = task.deleted_resources_count;
         this.updatedNodeIds = task.updated_node_ids;
+
+        return TaskResource.deleteFinishedTask(task.id);
       },
-      // @public (used by taskNotificationMixin)
       onWatchedTaskFinished() {
-        this.taskLoading = false;
         const task = find(this.$store.state.manageContent.taskList, { id: this.watchedTaskId });
-        this.setCounts(task);
-        return TaskResource.deleteFinishedTask(this.watchedTaskId);
+        this.readAndDeleteTask(task);
       },
     },
     $trs: {
@@ -253,9 +283,7 @@
     content: '-';
   }
 
-  svg.deleted-icon {
-    width: 24px;
-    height: 24px;
+  .info-icon {
     margin-top: 2px;
     margin-left: 16px;
   }

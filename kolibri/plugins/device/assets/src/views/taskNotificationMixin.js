@@ -59,10 +59,7 @@ export default {
         autoDismiss: true,
       });
     },
-    startWatchingTask(taskResponse, options) {
-      if (options.snackbar !== undefined) {
-        this.showSnackbarWhenTaskHasFinished = options.snackbar;
-      }
+    startWatchingTask(taskResponse) {
       if (Array.isArray(taskResponse.entity)) {
         this.$store.commit('manageContent/SET_WATCHED_TASK_ID', taskResponse.entity[0].id);
       } else {

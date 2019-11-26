@@ -112,7 +112,7 @@ const routes = [
   {
     name: PageNames.NEW_CHANNEL_VERSION_PAGE,
     // same params as SELECT_CONTENT: ?drive_id, ?address_id
-    path: '/content/manage_channel/:channel_id/new_version',
+    path: '/content/manage_channel/:channel_id/upgrade',
     component: withAuthMessage(NewChannelVersionPage, 'contentManager'),
     handler: defaultHandler,
   },

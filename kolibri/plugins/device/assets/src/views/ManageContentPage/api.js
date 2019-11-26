@@ -1,80 +1,105 @@
 import find from 'lodash/find';
-import { TaskResource, ChannelResource } from 'kolibri.resources';
+import { TaskResource, ChannelResource, RemoteChannelResource } from 'kolibri.resources';
 import { NetworkLocationResource } from '../../apiResources';
 
-// Tries to find an existing CHANNELDIFFSTATS task, or create a new one.
 const kolibriStudioUrl = 'https://studio.learningequality.org';
 
-// Based on URL parameters from NewChannelVersionPage, fetches the channel
-// to be updated. Returns errors if params are invalid.
-export function fetchCurrentChannel(params) {
-  const { channelId, driveId, addressId } = params;
-  return ChannelResource.fetchModel({ id: channelId })
-    .then(() => {
-      if (driveId) {
-        // Check if drive is attached
-        return TaskResource.localDrives().then(drives => {
-          const driveMatch = find(drives, { id: driveId });
-          if (!driveMatch) {
-            // Re-use same error if drive not found
-            return Promise.reject('CHANNEL_NOT_ON_DRIVE');
-          }
+function getChannelOnDrive(driveId, channelId) {
+  const reject = () => Promise.reject('CHANNEL_NOT_ON_DRIVE');
+  return TaskResource.localDrives().then(drives => {
+    const driveMatch = find(drives, { id: driveId });
+    if (!driveMatch) {
+      return reject();
+    }
+    const channelMatch = find(driveMatch.metadata.channels, { id: channelId });
+    if (!channelMatch) {
+      return reject();
+    }
+    return {
+      ...channelMatch,
+      driveId,
+    };
+  });
+}
 
-          const channelMatch = find(driveMatch.metadata.channels, { id: channelId });
-
-          if (!channelMatch) {
-            return Promise.reject('CHANNEL_NOT_ON_DRIVE');
-          }
-
-          return {
-            ...channelMatch,
-          };
-        });
-      } else if (addressId) {
-        // Check if the Address ID has a model
-        return NetworkLocationResource.fetchModel({ id: addressId })
-          .then(networkLocation => {
-            console.log(networkLocation);
-          })
-          .catch(() => {
-            // Re-use error if location not found
-            return Promise.reject('CHANNEL_NOT_ON_PEER');
-          });
-      } else {
-        //
-      }
+function getChannelOnPeer(addressId, channelId) {
+  return NetworkLocationResource.fetchModel({ id: addressId })
+    .then(location => {
+      return RemoteChannelResource.fetchModel({
+        id: channelId,
+        getParams: {
+          baseurl: location.base_url,
+        },
+      }).then(([channel]) => {
+        return {
+          ...channel,
+          baseurl: location.base_url,
+        };
+      });
     })
-    .catch(error => {
-      if (error.status.code === 404) {
-        return Promise.reject('CHANNEL_NOT_INSTALLED');
-      }
+    .catch(() => {
+      return Promise.reject('CHANNEL_NOT_ON_PEER');
     });
+}
+
+function getChannelOnStudio(channelId) {
+  return RemoteChannelResource.fetchModel({
+    id: channelId,
+  })
+    .then(([channel]) => {
+      return {
+        ...channel,
+        baseurl: kolibriStudioUrl,
+      };
+    })
+    .catch(() => {
+      return Promise.reject('CHANNEL_NOT_ON_STUDIO');
+    });
+}
+
+function getInstalledChannel(channelId) {
+  return ChannelResource.fetchModel({ id: channelId }).catch(() => {
+    return Promise.reject('CHANNEL_NOT_INSTALLED');
+  });
+}
+
+// Based on URL parameters from NewChannelVersionPage, fetches the channel
+// to be installed. Returns errors if params are invalid.
+export function fetchChannelAtSource(params) {
+  const { channelId, driveId, addressId } = params;
+  let sourcePromise;
+  if (driveId) {
+    sourcePromise = getChannelOnDrive(driveId, channelId);
+  } else if (addressId) {
+    sourcePromise = getChannelOnPeer(addressId, channelId);
+  } else {
+    sourcePromise = getChannelOnStudio(channelId);
+  }
+  return Promise.all([getInstalledChannel(channelId), sourcePromise]);
 }
 
 export function fetchOrTriggerChannelDiffStatsTask(params) {
   const { channelId, driveId, baseurl } = params;
   // Re-use the same object for lodash/find and making POST request.
   // Separate 'method' since it isn't part of Task metadata.
-  let method;
   let taskAttrs = {
     channel_id: channelId,
   };
-  if (driveId) {
-    method = 'disk';
-    taskAttrs.drive_id = driveId;
-  } else if (baseurl) {
-    method = 'network';
+
+  if (baseurl) {
     taskAttrs.baseurl = baseurl;
-  } else {
-    method = 'network';
-    taskAttrs.baseurl = kolibriStudioUrl;
+    taskAttrs.method = 'network';
+  } else if (driveId) {
+    taskAttrs.drive_id = driveId;
+    taskAttrs.method = 'disk';
   }
+
   return TaskResource.fetchCollection({ force: true }).then(tasks => {
     const match = find(tasks, taskAttrs);
     if (match) {
       return match;
     } else {
-      return TaskResource.postListEndpoint('channeldiffstats', { ...taskAttrs, method });
+      return TaskResource.postListEndpoint('channeldiffstats', taskAttrs).then(taskResponse => taskResponse.entity)
     }
   });
 }
