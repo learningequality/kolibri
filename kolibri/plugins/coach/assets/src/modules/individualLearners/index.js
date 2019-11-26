@@ -2,8 +2,10 @@ import * as actions from './actions';
 
 function defaultState() {
   return {
-    classId: '',
-    individualLearners: [],
+    id: null,
+    name: null,
+    parent: null,
+    user_ids: [],
   };
 }
 
@@ -18,8 +20,13 @@ export default {
       Object.assign(state, defaultState());
     },
     SET_INDIVIDUAL_LEARNERS(state, payload) {
-      state.individualLearners = payload;
+      Object.assign(state, payload);
     },
   },
   actions,
+  getters: {
+    hasIndividualLearnersAssigned(state) {
+      return !!state.user_ids.length;
+    },
+  },
 };
