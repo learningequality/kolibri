@@ -186,6 +186,17 @@
         context:
           'A label for a checkbox that allows the Coach to assign the quiz to individual learners who may not be in a selected group.',
       },
+      numHiddenLearnersLabel: {
+        message:
+          '{ numLearners, number } { numLearners, plural, one {learner} other {learners} } hidden',
+        context:
+          'A label indicating the number of learners who are hidden due to being part of a group that is already selected.',
+      },
+      hiddenGroupsTooltipLabel: {
+        message: 'Not showing learners selected from',
+        context:
+          'A label in a tooltip that explains which groups of learners are not being displayed in the table used to select individual learners.',
+      },
       searchPlaceholder: 'Search for a user…',
       noUsersMatch: 'No users match',
     },
