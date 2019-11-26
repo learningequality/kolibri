@@ -186,6 +186,8 @@
         context:
           'A label for a checkbox that allows the Coach to assign the quiz to individual learners who may not be in a selected group.',
       },
+      /* TODO Remove this disabling of the rule when the component is put into use */
+      /* eslint-disable kolibri/vue-no-unused-translations */
       numHiddenLearnersLabel: {
         message:
           '{ numLearners, number } { numLearners, plural, one {learner} other {learners} } hidden',
