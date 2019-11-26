@@ -1,5 +1,6 @@
 import logging
 import os
+import requests
 from functools import partial
 
 from django.apps.registry import AppRegistryNotReady
@@ -17,7 +18,9 @@ from kolibri.core.content.permissions import CanExportLogs
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
+from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.paths import get_content_database_file_path
+from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.exceptions import JobNotFound
@@ -579,12 +582,21 @@ class TasksViewSet(viewsets.ViewSet):
         if method == "network":
             baseurl = baseurl or conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
             job_metadata["baseurl"] = baseurl
+            # get channel version metadata
+            url = get_channel_lookup_url(baseurl=baseurl, identifier=channel_id)
+            resp = requests.get(url)
+            channel_metadata = resp.json()
+            job_metadata["new_channel_version"] = channel_metadata[0]["version"]
         elif method == "disk":
             if not drive_id:
                 raise serializers.ValidationError(
                     "The drive_id field is required when using 'disk' method."
                 )
             job_metadata = _add_drive_info(job_metadata, request.data)
+            # get channel version metadata
+            drive = get_mounted_drive_by_id(drive_id)
+            channel_metadata = read_channel_metadata_from_db_file(get_content_database_file_path(channel_id, drive.datafolder))
+            job_metadata["new_channel_version"] = channel_metadata.version
         else:
             raise serializers.ValidationError(
                 "'method' field should either be 'network' or 'disk'."
