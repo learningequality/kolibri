@@ -62,6 +62,13 @@ export function lastActivity() {
     {
       name: coachStrings.$tr('lastActivityLabel'),
       key: 'lastActivity',
+      format(row) {
+        if (!row[this.key]) {
+          return '';
+        }
+
+        return row[this.key].toISOString();
+      },
     },
   ];
 }
