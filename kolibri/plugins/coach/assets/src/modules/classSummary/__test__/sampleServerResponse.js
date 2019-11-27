@@ -710,4 +710,20 @@ export default {
       groups: [],
     },
   ],
+  individuallearners: [
+    {
+      id: 'f239935e386819c003316c66696e7610',
+      name: 'Individual learners',
+      member_ids: [],
+    },
+    {
+      id: 'b533619fc6b6dd5a8ad0c20483941241',
+      name: 'Individual learners',
+      member_ids: [
+        '53ae8c684e875469a770d9ecbe478cba',
+        'ebaac35501dd5a938e2853a8c70dc78a',
+        '80e5aebd71f55a8fa5bcbf3175385975',
+      ],
+    },
+  ],
 };
