@@ -33,17 +33,27 @@
       <h2 class="details-description">
         {{ descriptionText }}
       </h2>
-      <div v-if="taskIsRunning" class="details-progress-bar">
-        <KLinearLoader
-          class="k-linear-loader"
-          type="determinate"
-          :delay="false"
-          :progress="task.percentage * 100"
-          :style="{backgroundColor: $themeTokens.fineLine}"
-        />
-        <span class="details-percentage">
-          {{ $tr('progressPercentage', { progress: task.percentage }) }}
-        </span>
+      <div v-if="taskIsRunning || taskIsCanceling" class="details-progress-bar">
+        <template v-if="taskIsRunning">
+          <KLinearLoader
+            class="k-linear-loader"
+            type="determinate"
+            :delay="false"
+            :progress="task.percentage * 100"
+            :style="{backgroundColor: $themeTokens.fineLine}"
+          />
+          <span class="details-percentage">
+            {{ $tr('progressPercentage', { progress: task.percentage }) }}
+          </span>
+        </template>
+        <template v-else-if="taskIsCanceling">
+          <KLinearLoader
+            class="k-linear-loader"
+            type="indeterminate"
+            :delay="false"
+            :style="{backgroundColor: $themeTokens.fineLine}"
+          />
+        </template>
       </div>
       <template v-if="!taskIsCompleted && !taskIsCanceled">
         <p v-if="sizeText" class="details-size">
