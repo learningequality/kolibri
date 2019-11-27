@@ -19,7 +19,9 @@
       <h1>
         <KLabeledIcon icon="lesson" :label="lesson.title" />
       </h1>
-      <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
+      <p v-show="!$isPrint">
+        {{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}
+      </p>
       <HeaderTable>
         <HeaderTableRow v-if="$isPrint" :keyText="coachString('groupNameLabel')">
           <template slot="value">

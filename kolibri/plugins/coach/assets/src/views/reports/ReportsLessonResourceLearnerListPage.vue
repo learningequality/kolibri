@@ -50,18 +50,19 @@
             <KLabeledIcon icon="group" :label="group.name" />
           </h2>
 
-          <KFixedGrid numCols="2">
-            <KFixedGridItem span="1">
-              <StatusSummary
-                :tally="getGroupTally(group.id)"
-                :showNeedsHelp="false"
-                :verbose="false"
-              />
-            </KFixedGridItem>
-            <KFixedGridItem span="1">
-              <ReportsResourcesStats :avgTime="getGroupRecipientsAvgTime(group.id)" />
-            </KFixedGridItem>
-          </KFixedGrid>
+          <ReportsResourcesStats
+            :avgTime="getGroupRecipientsAvgTime(group.id)"
+            :className="className"
+            :lessonName="lesson.title"
+          />
+
+          <p>
+            <StatusSummary
+              :tally="getGroupTally(group.id)"
+              :showNeedsHelp="false"
+              :verbose="false"
+            />
+          </p>
 
           <ReportsResourceLearners
             :entries="getGroupEntries(group.id)"
@@ -90,6 +91,8 @@
       <template v-else>
         <ReportsResourcesStats
           :avgTime="allRecipientsAvgTime"
+          :className="className"
+          :lessonName="lesson.title"
           data-test="summary-resources-stats"
         />
 
@@ -300,7 +303,7 @@
   }
 
   .group-title {
-    margin-bottom: 42px;
+    margin-bottom: 24px;
   }
 
 </style>

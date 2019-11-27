@@ -20,6 +20,11 @@
         <KLabeledIcon icon="person" :label="learner.name" />
       </h1>
 
+      <ReportsResourcesStats
+        :className="className"
+        :lessonName="lesson.title"
+      />
+
       <ReportsControls @export="exportCSV" />
 
       <CoreTable :emptyMessage="coachString('activityListEmptyState')">
@@ -69,10 +74,11 @@
   import * as csvFields from '../../csv/fields';
   import { PageNames } from './../../constants';
   import ReportsControls from './ReportsControls';
+  import ReportsResourcesStats from './ReportsResourcesStats';
 
   export default {
     name: 'ReportsLessonLearnerPage',
-    components: { ReportsControls },
+    components: { ReportsControls, ReportsResourcesStats },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {

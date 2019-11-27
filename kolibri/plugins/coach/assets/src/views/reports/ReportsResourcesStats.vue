@@ -1,7 +1,23 @@
 <template>
 
-  <HeaderTable v-if="avgTime">
-    <HeaderTableRow>
+  <HeaderTable v-if="avgTime || $isPrint">
+    <HeaderTableRow v-if="$isPrint">
+      <template slot="key">
+        {{ coachString('classLabel') }}
+      </template>
+      <template slot="value">
+        {{ className }}
+      </template>
+    </HeaderTableRow>
+    <HeaderTableRow v-if="$isPrint">
+      <template slot="key">
+        {{ coachString('lessonLabel') }}
+      </template>
+      <template slot="value">
+        {{ lessonName }}
+      </template>
+    </HeaderTableRow>
+    <HeaderTableRow v-if="avgTime">
       <template slot="key">
         {{ coachString('avgTimeSpentLabel') }}
       </template>
@@ -32,6 +48,12 @@
     props: {
       avgTime: {
         type: Number,
+      },
+      className: {
+        type: String,
+      },
+      lessonName: {
+        type: String,
       },
     },
   };
