@@ -299,7 +299,7 @@ class CalculateImportExportSizeViewTestCase(APITestCase):
             },
             format="json",
         )
-        self.assertEqual(response.data["resource_count"], 3)
+        self.assertEqual(response.data["resource_count"], 0)
         self.assertEqual(response.data["file_size"], 0)
 
     def test_all_nodes_present_export(self):
