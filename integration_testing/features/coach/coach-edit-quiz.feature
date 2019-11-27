@@ -4,6 +4,7 @@ Feature: Coach edits quizzes
   Background:
     Given I am signed in to Kolibri as a coach user
       And there is a quiz <quiz> created previously
+      And the quiz is started
       And I am on the *Coach - '<class>' > Plan > Quizzes > '<quiz>'* page
       And I see the quiz preview with the correct answers of the questions
 
@@ -28,6 +29,17 @@ Feature: Coach edits quizzes
       # And the snackbar notification appears *Changes to quiz saved*: No snackbar anymore?
       And I see the change under *Recipients* in the quiz <quiz> preview page
 
+  Scenario: Assign individual learners
+    When I change *Recipients* by selecting *Individual learners*
+    Then I see a table listing all of the learners in the class.
+    When I change *Recipients* by selecting both *Individual learners* and any other group that has learners
+    Then I see the learners in that group have the checkboxes by their names disabled
+    When I select learners in the table by clicking the checkboxes next to their names
+      And I click *Save changes*
+    Then I can log in as one of the selected individual learners and take the quiz
+    When I change *Recipients* by selecting *Entire class* then all groups and *Individual learners* become unchecked
+      And I no longer see the table of learners
+
   Background:
       Given I am at *Coach - '<class>' > Reports > Quizzes > '<quiz>'* page
 
@@ -50,7 +62,6 @@ Feature: Coach edits quizzes
     Then I see the <quiz> report page again
     # No snackbar
       And I see the changes I made reflected in the report header
-
 
 Examples:
 | quiz        | description  |
