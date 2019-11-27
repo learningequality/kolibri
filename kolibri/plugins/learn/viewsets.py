@@ -71,6 +71,7 @@ class LearnerClassroomViewset(ValuesViewset):
                     (
                         progress_map[resource["content_id"]]
                         for resource in lesson["resources"]
+                        if resource["content_id"] in progress_map
                     )
                 ),
                 "total_resources": len(lesson["resources"]),
