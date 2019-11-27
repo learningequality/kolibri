@@ -151,6 +151,7 @@
         const trName = typeToTrMap[this.task.type];
         return this.$tr(trName, {
           channelName: this.task.channel_name || this.$tr('unknownChannelName'),
+          newVersion: this.task.new_version,
         });
       },
       sizeText() {

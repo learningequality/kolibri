@@ -174,6 +174,45 @@ class TasksViewSet(viewsets.ViewSet):
         pass
 
     @list_route(methods=["post"])
+    def startchannelupdate(self, request):
+
+        sourcetype = request.data.pop("sourcetype", None)
+        new_version = request.data.pop("new_version", None)
+
+        if sourcetype == 'remote':
+            task = validate_remote_import_task(request, request.data)
+            task.update({"type": "UPDATECHANNEL", "new_version": new_version})
+            job_id = queue.enqueue(
+                _remoteimport,
+                task["channel_id"],
+                task["baseurl"],
+                peer_id=task["peer_id"],
+                node_ids=task["node_ids"],
+                extra_metadata=task,
+                track_progress=True,
+                cancellable=True,
+            )
+        elif sourcetype == 'local':
+            task = validate_local_import_task(request, request.data)
+            task.update({"type": "UPDATECHANNEL"})
+            job_id = queue.enqueue(
+                _diskimport,
+                task["channel_id"],
+                task["datafolder"],
+                drive_id=task["drive_id"],
+                node_ids=task["node_ids"],
+                extra_metadata=task,
+                track_progress=True,
+                cancellable=True,
+            )
+        else:
+            raise serializers.ValidationError("sourcetype must be 'remote' or 'local'")
+
+        resp = _job_to_response(queue.fetch_job(job_id))
+
+        return Response(resp)
+
+    @list_route(methods=["post"])
     def startremotebulkimport(self, request):
         if not isinstance(request.data, list):
             raise serializers.ValidationError(

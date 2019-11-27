@@ -240,7 +240,9 @@
       },
       handleClickViewNewVersion() {
         // TODO navigate to NewChannelVersionPage
-        this.$router.go();
+        this.$router.push({
+          name: 'NEW_CHANNEL_VERSION_PAGE',
+        });
       },
       handleSelectImportMoreSource(params) {
         // The modal will only emit 'submit' events at the very end of the wizard.

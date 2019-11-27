@@ -30,6 +30,7 @@ function getChannelOnPeer(addressId, channelId) {
         getParams: {
           baseurl: location.base_url,
         },
+        force: true,
       }).then(([channel]) => {
         return {
           ...channel,
@@ -99,7 +100,9 @@ export function fetchOrTriggerChannelDiffStatsTask(params) {
     if (match) {
       return match;
     } else {
-      return TaskResource.postListEndpoint('channeldiffstats', taskAttrs).then(taskResponse => taskResponse.entity)
+      return TaskResource.postListEndpoint('channeldiffstats', taskAttrs).then(
+        taskResponse => taskResponse.entity
+      );
     }
   });
 }

@@ -61,6 +61,7 @@
         :text="$tr('updateChannelAction')"
         appearance="raised-button"
         :primary="true"
+        @click="showModal = true"
       />
     </section>
 
@@ -100,10 +101,11 @@
       :title="$tr('updateChannelAction')"
       :submitText="coreString('continueAction')"
       :cancelText="coreString('cancelAction')"
+      :disabled="disableModal"
       @submit="handleSubmit"
       @cancel="showModal = false"
     >
-      <p>{{ $tr('updateConfirmationQuestion', { version: nextVersion }) }}</p>
+      <p>{{ $tr('updateConfirmationQuestion', { channelName, version: nextVersion }) }}</p>
     </KModal>
   </div>
 
@@ -144,6 +146,7 @@
         versionNotes: {},
         status: null,
         showModal: false,
+        disableModal: false,
         loadingTask: true,
         loadingChannel: true,
         watchedTaskId: null,
@@ -210,8 +213,29 @@
     },
     methods: {
       handleSubmit() {
+        this.disableModal = true;
+        const updateParams = {
+          sourcetype: 'remote',
+          channel_id: this.params.channelId,
+          node_ids: this.updatedNodeIds,
+          new_version: this.nextVersion,
+        };
+
+        if (this.params.driveId) {
+          updateParams.sourcetype = 'local';
+          updateParams.drive_id = this.params.driveId;
+        } else if (this.params.addressId) {
+          updateParams.address_id = this.params.addressId;
+        }
+
         // Create the import channel task
-        // Redirect to the MANAGE_CONTENT_PAGE
+        return TaskResource.postListEndpoint('startchannelupdate', updateParams)
+          .then(() => {
+            this.$router.push(this.$router.getRoute('MANAGE_TASKS'));
+          })
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+          });
       },
       setChannelData(installedChannel, sourceChannel) {
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', installedChannel.name);
