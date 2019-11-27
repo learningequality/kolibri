@@ -4,7 +4,7 @@
 
     <section v-if="!loadingChannel">
       <h1>
-        {{ $tr('versionIsAvailable', { channelName, nextVersion }) }}
+        {{ versionAvailableText }}
       </h1>
       <p> {{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
       <p v-if="channelIsIncomplete">
@@ -64,15 +64,28 @@
       />
     </section>
 
-    <section v-if="!loadingChannel" dir="auto">
-      <template v-for="(info, idx) in versionInfos">
-        <h2 :key="idx">
-          {{ $tr('versionNumberHeader', { version: info.version }) }}
+    <div style="height: 48px" aria-hidden="true"></div>
+
+    <section v-if="!loadingChannel">
+      <div
+        v-for="(note, idx) in sortedVersionNotes"
+        v-show="note.version >= currentVersion"
+        :key="idx"
+      >
+        <h2>
+          {{ $tr('versionNumberHeader', { version: note.version }) }}
+          <mat-svg
+            v-if="note.version === nextVersion"
+            class="exclamation-icon"
+            name="priority_high"
+            category="notification"
+            :style="{fill: $themeTokens.primary}"
+          />
         </h2>
-        <p :key="idx">
-          {{ info.description }}
+        <p dir="auto">
+          {{ note.notes }}
         </p>
-      </template>
+      </div>
     </section>
 
     <!-- Load the channel immediately, then the diff stats -->
@@ -101,6 +114,8 @@
 
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
+  import sortBy from 'lodash/sortBy';
+  import map from 'lodash/map';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -109,19 +124,24 @@
 
   export default {
     name: 'NewChannelVersionPage',
+    metaInfo() {
+      return {
+        title: this.versionAvailableText,
+      };
+    },
     components: {
       CoreInfoIcon,
     },
     mixins: [commonCoreStrings],
     data() {
       return {
-        channelName: 'Upgrade channel',
-        nextVersion: 20,
-        currentVersion: 19,
+        channelName: '',
+        nextVersion: null,
+        currentVersion: null,
         deletedResources: null,
         newResources: null,
         updatedNodeIds: [],
-        versionInfos: [],
+        versionNotes: {},
         status: null,
         showModal: false,
         loadingTask: true,
@@ -133,6 +153,15 @@
       channelIsIncomplete() {
         return false;
       },
+      versionAvailableText() {
+        if (this.channelName) {
+          return this.$tr('versionIsAvailable', {
+            channelName: this.channelName,
+            nextVersion: this.nextVersion,
+          });
+        }
+        return '';
+      },
       updatedResources() {
         return this.updatedNodeIds.length;
       },
@@ -142,6 +171,15 @@
           driveId: this.$route.query.drive_id,
           addressId: this.$route.query.address_id,
         });
+      },
+      sortedVersionNotes() {
+        const versionArray = map(this.versionNotes, (val, key) => {
+          return {
+            version: Number(key),
+            notes: val,
+          };
+        });
+        return sortBy(versionArray, note => -note.version);
       },
       watchedTaskHasFinished() {
         return this.$store.getters['manageContent/taskFinished'](this.watchedTaskId);
@@ -158,10 +196,8 @@
       this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.coreString('loadingLabel'));
       this.loadChannelInfo().then(([installedChannel, sourceChannel]) => {
         // Show the channel info ASAP
-        this.channelName = installedChannel.name;
-        this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.channelName);
-        this.currentVersion = installedChannel.version;
-        this.nextVersion = sourceChannel.version;
+        this.setChannelData(installedChannel, sourceChannel);
+
         this.loadingChannel = false;
 
         // Trigger Diff Stats task right after
@@ -176,6 +212,15 @@
       handleSubmit() {
         // Create the import channel task
         // Redirect to the MANAGE_CONTENT_PAGE
+      },
+      setChannelData(installedChannel, sourceChannel) {
+        this.$store.commit('coreBase/SET_APP_BAR_TITLE', installedChannel.name);
+        this.channelName = installedChannel.name;
+        this.currentVersion = installedChannel.version;
+        this.nextVersion = sourceChannel.version;
+        // Currently, version notes only available if upgrading from Studio via
+        // RemoteChannelViewset
+        this.versionNotes = sourceChannel.version_notes || {};
       },
       loadChannelInfo() {
         return fetchChannelAtSource(this.params).catch(errType => {
@@ -286,6 +331,10 @@
   .info-icon {
     margin-top: 2px;
     margin-left: 16px;
+  }
+
+  .exclamation-icon {
+    vertical-align: -3px;
   }
 
   tr {

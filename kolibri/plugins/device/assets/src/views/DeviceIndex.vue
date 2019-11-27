@@ -119,7 +119,8 @@
         if (
           this.pageName === PageNames.USER_PERMISSIONS_PAGE ||
           this.pageName === ContentWizardPages.SELECT_CONTENT ||
-          this.inMultipleImportPage
+          this.inMultipleImportPage ||
+          this.pageName === PageNames.NEW_CHANNEL_VERSION_PAGE
         ) {
           return 'arrow_back';
         }
