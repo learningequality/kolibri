@@ -17,30 +17,13 @@
       </div>
 
       <PaginatedListContainer
-        :items="visibleLearners"
+        :items="learners"
         :filterFunction="filterLearners"
         :filterPlaceholder="$tr('searchPlaceholder')"
         :itemsPerPage="itemsPerPage"
         @pageChanged="pageNum => currentPage = pageNum"
       >
         <template v-slot:default="{items, filterInput}">
-          <div v-if="hiddenLearnerIds.length" class="hidden-learners-tooltip">
-            {{ $tr('numHiddenLearnersLabel', { numLearners: hiddenLearnerIds.length }) }}
-            <div ref="icon" style="display:inline;">
-              <KIcon
-                icon="error"
-                :color="$themeTokens.primary"
-                style="position:relative;"
-              />
-              <KTooltip
-                reference="icon"
-                :refs="$refs"
-              >
-                {{ $tr('hiddenGroupsTooltipLabel') }}
-                {{ hiddenGroupNames.join(',') }}
-              </KTooltip>
-            </div>
-          </div>
           <CoreTable
             :selectable="true"
             :emptyMessage="$tr('noUsersMatch')"
@@ -66,18 +49,34 @@
             </thead>
 
             <tbody slot="tbody">
+              <!-- Disable the line and check the box if the
+                   learner is in a selected group -->
               <tr v-for="learner in items" :key="learner.id">
-                <td>
-                  <KCheckbox
-                    :key="`select-learner-${learner.id}`"
-                    :label="learner.name"
-                    :checked="selectedIndividualIds.includes(learner.id)"
-                    :disabled="disabled"
-                    @change="toggleSelectedLearnerId(learner.id)"
-                  />
-                </td>
-                <td> {{ learner.username }} </td>
-                <td> {{ groupsForLearner(learner.id) }} </td>
+                <template v-if="learnerIsInSelectedGroup(learner.id)">
+                  <td>
+                    <KCheckbox
+                      :key="`select-learner-${learner.id}`"
+                      :label="learner.name"
+                      :checked="true"
+                      :disabled="true"
+                    />
+                  </td>
+                  <td> {{ learner.username }} </td>
+                  <td> {{ groupsForLearner(learner.id) }} </td>
+                </template>
+                <template v-else>
+                  <td>
+                    <KCheckbox
+                      :key="`select-learner-${learner.id}`"
+                      :label="learner.name"
+                      :checked="selectedIndividualIds.includes(learner.id)"
+                      :disabled="disabled"
+                      @change="toggleSelectedLearnerId(learner.id)"
+                    />
+                  </td>
+                  <td> {{ learner.username }} </td>
+                  <td> {{ groupsForLearner(learner.id) }} </td>
+                </template>
               </tr>
             </tbody>
           </CoreTable>
@@ -136,12 +135,9 @@
     },
     computed: {
       ...mapState('classSummary', ['groupMap']),
-      visibleLearners() {
-        return this.learners.filter(learner => !this.hiddenLearnerIds.includes(learner.id));
-      },
       currentPageLearners() {
         const baseIndex = (this.currentPage - 1) * this.itemsPerPage;
-        return this.visibleLearners.slice(baseIndex, baseIndex + this.itemsPerPage);
+        return this.learners.slice(baseIndex, baseIndex + this.itemsPerPage);
       },
       hiddenLearnerIds() {
         let hiddenLearnerIds = [];
@@ -149,9 +145,6 @@
           hiddenLearnerIds = hiddenLearnerIds.concat(this.groupMap[groupId].member_ids);
         });
         return uniq(hiddenLearnerIds);
-      },
-      hiddenGroupNames() {
-        return this.selectedGroupIds.map(groupId => this.groupMap[groupId].name);
       },
       showAsChecked() {
         return this.entireClassIsSelected ? false : this.isChecked;
@@ -206,6 +199,9 @@
           }
         });
       },
+      learnerIsInSelectedGroup(learnerId) {
+        return this.hiddenLearnerIds.includes(learnerId);
+      },
       groupsForLearner(learnerId) {
         let learnerGroups = [];
         this.groups.forEach(group => {
@@ -242,17 +238,6 @@
         message: 'Individual learners',
         context:
           'A label for a checkbox that allows the Coach to assign the quiz to individual learners who may not be in a selected group.',
-      },
-      numHiddenLearnersLabel: {
-        message:
-          '{ numLearners, number } { numLearners, plural, one {learner} other {learners} } hidden',
-        context:
-          'A label indicating the number of learners who are hidden due to being part of a group that is already selected.',
-      },
-      hiddenGroupsTooltipLabel: {
-        message: 'Not showing learners selected from',
-        context:
-          'A label in a tooltip that explains which groups of learners are not being displayed in the table used to select individual learners.',
       },
       searchPlaceholder: 'Search for a user…',
       noUsersMatch: 'No users match',
