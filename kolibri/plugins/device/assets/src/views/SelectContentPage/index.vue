@@ -85,8 +85,9 @@
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { TaskResource } from 'kolibri.resources';
   import TaskProgress from '../ManageContentPage/TaskProgress';
-  import { ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
+  import { ContentWizardErrors, TaskTypes, PageNames, taskIsClearable } from '../../constants';
   import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
@@ -188,12 +189,18 @@
       },
     },
     watch: {
-      metadataDownloadTask(val) {
-        if (val) {
-          this.metadataDownloadTaskId = val.id;
-        } else {
-          this.metadataDownloadTaskId = '';
-        }
+      metadataDownloadTask: {
+        handler(val) {
+          if (val) {
+            this.metadataDownloadTaskId = val.id;
+            if (taskIsClearable(val)) {
+              TaskResource.deleteFinishedTask(val.id);
+            }
+          } else {
+            this.metadataDownloadTaskId = '';
+          }
+        },
+        immediate: true,
       },
       transferredChannel(val) {
         if (val.name) {
