@@ -66,7 +66,7 @@ class CSVExporter {
       filenameParts.push(value);
     });
 
-    return sanitize(filenameParts.join(' ') + '.csv');
+    return sanitize(filenameParts.join(' - ') + '.csv');
   }
 
   /**

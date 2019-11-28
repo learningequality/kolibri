@@ -117,7 +117,7 @@ export function name(label = 'nameLabel') {
 export function recipients() {
   return [
     {
-      name: coachStrings.$tr('recipientsLabel'), // TODO: Add new string for this
+      name: `${coachStrings.$tr('recipientsLabel')} (1)`, // TODO: Add new string for this
       key: 'recipientType',
       format(row) {
         if ('groupNames' in row && row.groupNames.length) {
@@ -131,7 +131,11 @@ export function recipients() {
         return '';
       },
     },
-    ...list('groupNames', 'recipientsLabel'),
+    ...list('groupNames', 'recipientsLabel').map((field, i) => {
+      // TODO: When new string has been added for the above, this can be removed
+      field.name = `${field.name} (${i + 2})`;
+      return field;
+    }),
   ];
 }
 
