@@ -46,7 +46,7 @@ echo "--- Uploading"
 
 
 # Clear dist so that the dmg is in the same dir as the rest of the packages
-rm -r dist/* && mv package/osx/kolibri*.dmg dist/
+rm -r dist/* && mv package/osx/kolibri*.dmg dist/kolibri-$(more src/kolibri/VERSION)-$(git rev-parse --short HEAD).dmg
 
 # Environment var doesn't exist my default, so we have to manually pass it.
 buildkite-agent artifact upload "dist/kolibri*.dmg" --job $(buildkite-agent meta-data get triggered_from_job_id --default $BUILDKITE_JOB_ID)
