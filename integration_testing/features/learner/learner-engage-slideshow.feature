@@ -11,14 +11,14 @@ Feature: Learner engages with content of the slideshow kind
       Then I see the *Channels > '<channel>'* breadcrumb
         And I see all the topics for the channel <channel>
       When I click the topic <topic>
-      Then I see the *Channels > '<channel'> > '<topic>' breadcrumb
+      Then I see the *Channels > '<channel>' > '<topic>'* breadcrumb
         And I see all the subtopics and resources of the topic <topic>
         And I recognize <resource> resource as a slideshow by the content type icon in the upper left corner
 
     Scenario: Open slideshow
       Given that <resource> resource is a slideshow
         When I click the <resource> resource
-        Then I see the *Channels > '<channel>' > '<topic>' > '<resource>'* breadcrumb
+        Then I see the *'<topic>' > '<resource>'* page
           And I see the <resource> content
 
     Scenario: Engage with the slideshow content
@@ -50,7 +50,7 @@ Feature: Learner engages with content of the slideshow kind
         And I see the exit full screen button in the top right corner of the screen
         And I can navigate the content by keyboard, swiping or clicking the left and right arrow buttons
       When I click the exit full screen button or hit ESC
-      Then I am returned to the normal content renderer in the browser
+      Then I see the *'<topic>' > '<resource>'* page
         And I maintain my position in the slideshow
 
 Examples:

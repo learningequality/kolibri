@@ -25,9 +25,9 @@ Feature: Learner engages content channels
       And I see the *Next resource* heading and content item under the player
     When video finishes
     Then I see the status icon is yellow star
-    # Then I see the *Next* snackbar alert with the title of the next recommended content item
+      And I see the *+500 points* snackbar alert
+      And I see the *Next* snackbar alert with the title of the next recommended content item
     When I go back to *Channels > '<channel>' > '<topic>' > '<subtopic>' > '<content_item>'*
-    #  And I see the *+500 points* snackbar alert
     Then I see my points counter is increased by 500 
     When I click on the <topic> or <subtopic> parts of the breadcrumb above the player
     Then I can see the rest of the contents of the <channel>
