@@ -1,5 +1,3 @@
-import json
-
 from django.db.models import Count
 from django.db.models import OuterRef
 from django.db.models import Q
@@ -50,7 +48,6 @@ class LearnerClassroomViewset(ValuesViewset):
         )
         lesson_content_ids = set()
         for lesson in lessons:
-            lesson["resources"] = json.loads(lesson["resources"])
             lesson_content_ids |= set(
                 (resource["content_id"] for resource in lesson["resources"])
             )
@@ -185,7 +182,6 @@ class LearnerLessonViewset(ValuesViewset):
 
     field_map = {
         "classroom": _map_lesson_classroom,
-        "resources": lambda x: json.loads(x["resources"]),
     }
 
     def get_queryset(self):

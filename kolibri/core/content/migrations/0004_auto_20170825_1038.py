@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 import django.db.models.deletion
 import django.db.models.manager
-import jsonfield.fields
 import morango.models
 import mptt.fields
 from django.db import migrations
@@ -22,9 +21,9 @@ class Migration(migrations.Migration):
             name="AssessmentMetaData",
             fields=[
                 ("id", morango.models.UUIDField(primary_key=True, serialize=False)),
-                ("assessment_item_ids", jsonfield.fields.JSONField(default=[])),
+                ("assessment_item_ids", kolibri.core.fields.JSONField(default=[])),
                 ("number_of_assessments", models.IntegerField()),
-                ("mastery_model", jsonfield.fields.JSONField(default={})),
+                ("mastery_model", kolibri.core.fields.JSONField(default={})),
                 ("randomize", models.BooleanField(default=False)),
                 ("is_manipulable", models.BooleanField(default=False)),
             ],

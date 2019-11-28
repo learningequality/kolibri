@@ -1,5 +1,3 @@
-import json
-
 from django.db import connections
 from django.db.models import Count
 from django.db.models import F
@@ -201,7 +199,6 @@ def serialize_users(queryset):
 
 
 def _map_lesson(item):
-    item["resources"] = json.loads(item["resources"])
     item["node_ids"] = [resource["contentnode_id"] for resource in item["resources"]]
     return item
 
@@ -227,7 +224,6 @@ def serialize_lessons(queryset):
 
 
 def _map_exam(item):
-    item["question_sources"] = json.loads(item["question_sources"])
     item["assignments"] = item.pop("exam_assignments")
     return item
 

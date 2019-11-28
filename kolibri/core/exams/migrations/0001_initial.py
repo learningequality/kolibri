@@ -3,10 +3,11 @@
 from __future__ import unicode_literals
 
 import django.db.models.deletion
-import jsonfield.fields
 import morango.models
 from django.db import migrations
 from django.db import models
+
+import kolibri.core.fields
 
 
 class Migration(migrations.Migration):
@@ -39,7 +40,7 @@ class Migration(migrations.Migration):
                 ("question_count", models.IntegerField()),
                 (
                     "question_sources",
-                    jsonfield.fields.JSONField(blank=True, default=[]),
+                    kolibri.core.fields.JSONField(blank=True, default=[]),
                 ),
                 ("seed", models.IntegerField(default=1)),
                 ("active", models.BooleanField(default=False)),
