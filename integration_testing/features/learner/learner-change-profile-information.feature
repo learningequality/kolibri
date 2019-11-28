@@ -3,23 +3,23 @@ Feature: Learner changes profile information
 
   Background:
     Given I am signed in to Kolibri as a learner user
-      And I am on my <username> *Profile > Detils* page
+      And I am on my <username> *Profile > Details* page
       And facility is set up to allow learners and coaches to edit full names and usernames
 
   Scenario: Learner changes username and full name
-  	When I clic the *Edit* button
+  	When I click the *Edit* button
     Then I see the *Edit profile* page
     When I change my full name
   	  And I change my username
   	  And if my changes are valid (I did not leave the fields empty)
   	  And I click the “Save” button
     Then I see the *Profile details updated* snackbar notification
-    When I go back to my *Profile > Detils* page
+    When I go back to my *Profile > Details* page
     Then I see the new full name and username on the profile page
       And I see the new username in the user menu
 
     Scenario: Learner selects gender and birth year
-    When I clic the *Edit* button
+    When I click the *Edit* button
     Then I see the *Edit profile* page
     When I select my gender
       And I select my birth year
