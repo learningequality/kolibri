@@ -8,6 +8,8 @@ learner-close-and-reopen-content.feature
 learner-engage-lesson.feature
 learner-engage-quiz.feature
 learner-engage-epub-content.feature
+learner-engage-slideshow.feature
+learner-engage-video-transcript.feature
 learner-background-tab.feature
 learner-sign-out.feature
 learner-profile-update-notification.feature
