@@ -320,7 +320,7 @@
         return !this.authorized;
       },
       mainWrapperStyles() {
-        if (this.$mediaType === 'print') {
+        if (this.$isPrint) {
           return {};
         }
 
@@ -331,7 +331,7 @@
         };
       },
       contentStyles() {
-        if (this.fullScreen || this.$mediaType === 'print') {
+        if (this.fullScreen || this.$isPrint) {
           return {
             marginTop: '0px',
             marginBottom: '0px',
@@ -495,6 +495,14 @@
   .main-wrapper {
     display: inline-block;
     width: 100%;
+
+    @media print {
+      /* Without this, things won't print correctly
+       *  - Firefox: Tables will get cutoff
+       *  - Chrome: Table header won't repeat correctly on each page
+       */
+      display: block;
+    }
   }
 
   .main {

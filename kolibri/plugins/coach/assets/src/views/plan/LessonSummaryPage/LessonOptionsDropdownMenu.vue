@@ -54,6 +54,10 @@
             label: this.coachString('printReportAction'),
             value: 'PRINT_REPORT',
           },
+          {
+            label: this.coachString('exportCSVAction'),
+            value: 'EXPORT',
+          },
         ];
       },
     },

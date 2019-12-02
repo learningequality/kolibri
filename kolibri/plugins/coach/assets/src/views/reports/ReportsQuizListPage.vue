@@ -9,9 +9,9 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <KPageContainer :class="{'print': isPrint}">
-      <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <ReportsControls>
+    <KPageContainer :class="{'print': $isPrint}">
+      <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
+      <ReportsControls @export="exportCSV">
         <KSelect
           v-model="filter"
           :label="coreString('showAction')"
@@ -25,11 +25,11 @@
             <th>{{ coachString('titleLabel') }}</th>
             <th style="position:relative;">
               {{ coachString('avgScoreLabel') }}
-              <AverageScoreTooltip v-show="!isPrint" />
+              <AverageScoreTooltip v-show="!$isPrint" />
             </th>
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th v-show="!isPrint">
+            <th v-show="!$isPrint">
               {{ coachString('statusLabel') }}
             </th>
           </tr>
@@ -60,7 +60,7 @@
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>
-            <td v-show="!isPrint" class="status">
+            <td v-show="!$isPrint" class="status">
               <!-- Open quiz button -->
               <KButton
                 v-if="!tableRow.active && !tableRow.archive"
@@ -119,6 +119,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsControls from './ReportsControls';
   import ReportsHeader from './ReportsHeader';
 
@@ -237,6 +239,17 @@
           .catch(() => {
             this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
           });
+      },
+      exportCSV() {
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.avgScore(),
+          ...csvFields.recipients(),
+          ...csvFields.tally(),
+        ];
+
+        const fileName = this.$tr('printLabel', { className: this.className });
+        new CSVExporter(columns, fileName).export(this.table);
       },
     },
     $trs: {

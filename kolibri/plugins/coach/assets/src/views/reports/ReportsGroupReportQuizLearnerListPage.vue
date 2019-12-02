@@ -13,7 +13,7 @@
 
       <ReportsGroupReportQuizHeader />
 
-      <ReportsControls />
+      <ReportsControls @export="exportCSV" />
 
       <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
@@ -55,6 +55,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsGroupReportQuizHeader from './ReportsGroupReportQuizHeader';
   import ReportsControls from './ReportsControls';
 
@@ -87,6 +89,9 @@
           },
         ];
       },
+      group() {
+        return this.groupMap[this.$route.params.groupId];
+      },
       exam() {
         return this.examMap[this.$route.params.quizId];
       },
@@ -114,6 +119,21 @@
         return this.classRoute(PageNames.REPORTS_GROUP_REPORT_QUIZ_LEARNER_PAGE_ROOT, {
           learnerId,
         });
+      },
+      exportCSV() {
+        const columns = [
+          ...csvFields.name(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.score(),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          group: this.group.name,
+          resource: this.exam.title,
+        });
+
+        exporter.export(this.table);
       },
     },
     $trs: {},

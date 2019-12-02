@@ -1,9 +1,9 @@
 <template>
 
-  <KPageContainer :topMargin="isPrint ? 0 : 16">
+  <KPageContainer :topMargin="$isPrint ? 0 : 16">
     <KGrid gutter="16">
       <!-- Quiz Open button -->
-      <div v-if="!exam.active && !exam.archive && !isPrint" class="status-item">
+      <div v-if="!exam.active && !exam.archive && !$isPrint" class="status-item">
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -21,7 +21,7 @@
       </div>
 
       <!-- Quiz Close button & time since opened -->
-      <div v-if="exam.active && !exam.archive && !isPrint" class="status-item">
+      <div v-if="exam.active && !exam.archive && !$isPrint" class="status-item">
         <KGridItem
           :layout4="{ span: 4 }"
           :layout8="{ span: 4 }"
@@ -49,7 +49,7 @@
       </div>
 
       <!-- Quiz Closed label & time since closed -->
-      <div v-if="exam.archive && !isPrint" class="status-item">
+      <div v-if="exam.archive && !$isPrint" class="status-item">
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -66,7 +66,7 @@
           <ElapsedTime :date="examDateArchived" style="margin-top: 8px;" />
         </KGridItem>
       </div>
-      <div v-if="exam.archive && !isPrint" class="status-item">
+      <div v-if="exam.archive && !$isPrint" class="status-item">
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -91,7 +91,7 @@
       </div>
 
       <!-- Class name  -->
-      <div v-show="isPrint" class="status-item">
+      <div v-show="$isPrint" class="status-item">
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -145,7 +145,7 @@
           :layout12="layout12Label"
         >
           <span>{{ coachString('avgScoreLabel') }}</span>
-          <AverageScoreTooltip v-show="!isPrint" />
+          <AverageScoreTooltip v-show="!$isPrint" />
         </KGridItem>
         <KGridItem
           :layout4="{ span: 4 }"
@@ -157,7 +157,7 @@
       </div>
 
       <!-- Question Order -->
-      <div v-if="!isPrint" class="status-item">
+      <div v-if="!$isPrint" class="status-item">
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -270,14 +270,11 @@
           return null;
         }
       },
-      isPrint() {
-        return this.$mediaType === 'print';
-      },
       layout12Label() {
-        return { span: this.isPrint ? 3 : 12 };
+        return { span: this.$isPrint ? 3 : 12 };
       },
       layout12Value() {
-        return { span: this.isPrint ? 9 : 12 };
+        return { span: this.$isPrint ? 9 : 12 };
       },
     },
     methods: {

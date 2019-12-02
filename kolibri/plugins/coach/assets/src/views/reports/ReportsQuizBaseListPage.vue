@@ -23,7 +23,7 @@
           />
         </QuizLessonDetailsHeader>
       </KGridItem>
-      <KGridItem :layout12="{ span: isPrint ? 12 : 4 }">
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 4 }">
         <QuizStatus
           :className="className"
           :avgScore="avgScore"
@@ -31,9 +31,9 @@
           :exam="exam"
         />
       </KGridItem>
-      <KGridItem :layout12="{ span: isPrint ? 12 : 8 }">
-        <KPageContainer :topMargin="isPrint ? 0 : 16">
-          <ReportsControls />
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 8 }">
+        <KPageContainer :topMargin="$isPrint ? 0 : 16">
+          <ReportsControls @export="$emit('export')" />
           <HeaderTabs :enablePrint="true">
             <HeaderTab
               :text="coachString('reportLabel')"
@@ -112,6 +112,9 @@
         }
         if (option === 'PRINT_REPORT') {
           this.$print();
+        }
+        if (option === 'EXPORT') {
+          this.$emit('export');
         }
       },
     },

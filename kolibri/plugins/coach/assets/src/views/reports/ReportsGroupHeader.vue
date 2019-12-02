@@ -11,40 +11,6 @@
       <KLabeledIcon icon="group" :label="group.name" />
     </h1>
 
-    <!-- TODO COACH
-    <HeaderTable>
-      <HeaderTableRow>
-        <template slot="key">
-          {{ coachString('avgQuizScoreLabel') }}
-        </template>
-        <template slot="value">
-          {{ coachString('percentage', {value: avgScore}) }}
-        </template>
-      </HeaderTableRow>
-    </HeaderTable>
-    <HeaderTable>
-      <HeaderTableRow>
-        <template slot="key">{{ coreString('learnersLabel') }}</template>
-        <template slot="value">
-          <TruncatedItemList
-            :items="[
-              'John',
-              'Alice',
-              'Julie',
-              'Lucy',
-              'Steve',
-              'Mary',
-              'Judy',
-              'George',
-              'Carol',
-              'Ken'
-            ]"
-          />
-        </template>
-      </HeaderTableRow>
-    </HeaderTable>
-     -->
-
     <HeaderTabs :enablePrint="enablePrint">
       <HeaderTab
         :text="coachString('reportsLabel')"
@@ -84,21 +50,6 @@
       group() {
         return this.groupMap[this.$route.params.groupId];
       },
-      /** TODO COACH
-      recipients() {
-        return this.group.member_ids;
-      },
-      avgScore() {
-        const examStatuses = this.examStatuses.filter(status =>
-          this.recipients.includes(status.learner_id)
-        );
-        const statuses = examStatuses.filter(status => status.status === this.STATUSES.completed);
-        if (!statuses.length) {
-          return null;
-        }
-        return this._.meanBy(statuses, 'score');
-      },
-      */
     },
     $trs: {
       back: 'All groups',

@@ -20,12 +20,8 @@
         <KLabeledIcon :icon="resource.kind" :label="resource.title" />
       </h1>
 
-      <!-- TODO COACH
-      <KButton :text="coachString('previewAction')" />
-      -->
-
       <HeaderTable>
-        <HeaderTableRow v-if="isPrint">
+        <HeaderTableRow v-if="$isPrint">
           <template slot="key">
             {{ coachString('groupNameLabel') }}
           </template>
@@ -33,7 +29,7 @@
             {{ group.name }}
           </template>
         </HeaderTableRow>
-        <HeaderTableRow v-if="isPrint">
+        <HeaderTableRow v-if="$isPrint">
           <template slot="key">
             {{ coachString('lessonLabel') }}
           </template>
@@ -51,7 +47,7 @@
         </HeaderTableRow>
       </HeaderTable>
 
-      <ReportsControls>
+      <ReportsControls @export="exportCSV">
         <p>
           <StatusSummary :tally="tally" />
         </p>
@@ -96,6 +92,8 @@
 <script>
 
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsControls from './ReportsControls';
 
   export default {
@@ -134,6 +132,26 @@
           Object.assign(tableRow, learner);
           return tableRow;
         });
+      },
+    },
+    methods: {
+      exportCSV() {
+        const columns = [
+          ...csvFields.name(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.timeSpent('statusObj.time_spent'),
+          ...csvFields.list('groups', 'groupsLabel'),
+          ...csvFields.lastActivity(),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          group: this.group.name,
+          lesson: this.lesson.title,
+          resource: this.resource.title,
+        });
+
+        exporter.export(this.table);
       },
     },
     $trs: {},

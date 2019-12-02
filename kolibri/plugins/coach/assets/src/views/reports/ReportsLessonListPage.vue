@@ -9,8 +9,8 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <ReportsControls>
+      <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
+      <ReportsControls @export="exportCSV">
         <KSelect
           v-model="filter"
           :label="coreString('showAction')"
@@ -24,7 +24,7 @@
             <th>{{ coachString('titleLabel') }}</th>
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th v-show="!isPrint">
+            <th v-show="!$isPrint">
               {{ $tr('visibleToLearnersLabel') }}
             </th>
           </tr>
@@ -51,7 +51,7 @@
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>
-            <td v-show="!isPrint">
+            <td v-show="!$isPrint">
               <KSwitch
                 name="toggle-lesson-visibility"
                 :checked="tableRow.active"
@@ -73,6 +73,8 @@
   import { LessonResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsControls from './ReportsControls';
   import ReportsHeader from './ReportsHeader';
 
@@ -164,6 +166,12 @@
           this.$store.dispatch('classSummary/refreshClassSummary');
           this.$store.dispatch('createSnackbar', snackbarMessage);
         });
+      },
+      exportCSV() {
+        const columns = [...csvFields.title(), ...csvFields.recipients(), ...csvFields.tally()];
+
+        const fileName = this.$tr('printLabel', { className: this.className });
+        new CSVExporter(columns, fileName).export(this.table);
       },
     },
     $trs: {

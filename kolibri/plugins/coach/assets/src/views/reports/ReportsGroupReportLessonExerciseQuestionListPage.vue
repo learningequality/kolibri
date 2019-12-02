@@ -13,7 +13,7 @@
 
       <ReportsGroupReportLessonExerciseHeader />
 
-      <ReportsControls>
+      <ReportsControls @export="exportCSV">
         <h2>{{ coachString('overallLabel') }}</h2>
       </ReportsControls>
 
@@ -57,6 +57,8 @@
   import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsGroupReportLessonExerciseHeader from './ReportsGroupReportLessonExerciseHeader';
   import ReportsControls from './ReportsControls';
   import { PageNames } from './../../constants';
@@ -71,6 +73,15 @@
     mixins: [commonCoach],
     computed: {
       ...mapGetters('questionList', ['difficultQuestions']),
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
+      resource() {
+        return this.contentMap[this.$route.params.exerciseId];
+      },
+      group() {
+        return this.groupMap[this.$route.params.groupId];
+      },
       table() {
         return this.difficultQuestions.map(question => {
           const tableRow = {};
@@ -85,6 +96,25 @@
           questionId,
           exerciseId: this.$route.params.exerciseId,
         });
+      },
+      exportCSV() {
+        const columns = [
+          {
+            name: this.coachString('questionLabel'),
+            key: 'title',
+          },
+          ...csvFields.helpNeeded(),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          group: this.group.name,
+          lesson: this.lesson.title,
+          resource: this.resource.title,
+          difficultQuestions: this.coachString('difficultQuestionsLabel'),
+        });
+
+        exporter.export(this.table);
       },
     },
     $trs: {},

@@ -1,15 +1,39 @@
 <template>
 
-  <div v-show="$mediaType !== 'print'" class="report-controls">
+  <div v-show="!$isPrint" class="report-controls">
     <slot></slot>
     <div class="report-controls-buttons">
+
       <UiIconButton
+        ref="printButton"
         type="flat"
-        :title="coachString('printReportAction')"
+        :aria-label="coachString('printReportAction')"
         @click.prevent="$print()"
       >
         <mat-svg name="print" category="action" />
       </UiIconButton>
+      <KTooltip
+        reference="printButton"
+        :refs="$refs"
+      >
+        {{ coachString('printReportAction') }}
+      </KTooltip>
+
+      <UiIconButton
+        v-if="!disableExport"
+        ref="exportButton"
+        type="flat"
+        :aria-label="coachString('exportCSVAction')"
+        @click.prevent="$emit('export')"
+      >
+        <mat-svg name="get_app" category="action" />
+      </UiIconButton>
+      <KTooltip
+        reference="exportButton"
+        :refs="$refs"
+      >
+        {{ coachString('exportCSVAction') }}
+      </KTooltip>
     </div>
   </div>
 
@@ -25,6 +49,12 @@
     name: 'ReportsControls',
     components: { UiIconButton },
     mixins: [commonCoach],
+    props: {
+      disableExport: {
+        type: Boolean,
+        default: false,
+      },
+    },
   };
 
 </script>
