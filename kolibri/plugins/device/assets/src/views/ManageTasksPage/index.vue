@@ -26,6 +26,9 @@
         />
       </KGridItem>
     </KGrid>
+
+    <KLinearLoader v-if="loading" :delay="false" type="indeterminate" />
+
     <p v-if="!loading && managedTasks.length === 0" class="empty-tasks-message">
       {{ $tr('emptyTasksMessage') }}
     </p>
