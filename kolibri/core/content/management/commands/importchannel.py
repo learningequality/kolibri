@@ -24,7 +24,7 @@ COPY_METHOD = "copy"
 
 def import_channel_by_id(channel_id, cancel_check):
     try:
-        channel_import.import_channel_from_local_db(
+        return channel_import.import_channel_from_local_db(
             channel_id, cancel_check=cancel_check
         )
     except channel_import.InvalidSchemaVersionError:
@@ -174,8 +174,10 @@ class Command(AsyncCommand):
                                 .exclude(kind=content_kinds.TOPIC)
                                 .values_list("id", flat=True)
                             )
-                            import_channel_by_id(channel_id, self.is_cancelled)
-                            if node_ids:
+                            import_ran = import_channel_by_id(
+                                channel_id, self.is_cancelled
+                            )
+                            if node_ids and import_ran:
                                 # annotate default channel db based on previously annotated leaf nodes
                                 update_content_metadata(channel_id, node_ids=node_ids)
                         except channel_import.ImportCancelError:

@@ -596,6 +596,7 @@ class ChannelImport(object):
     def import_channel_data(self):
 
         unflushed_rows = 0
+        import_ran = False
 
         try:
             self.try_attaching_sqlite_database()
@@ -608,9 +609,9 @@ class ChannelImport(object):
                     unflushed_rows = self.table_import(
                         model, row_mapper, table_mapper, unflushed_rows
                     )
+                import_ran = True
             self.destination.session.commit()
             self.try_detaching_sqlite_database()
-
         except (SQLAlchemyError, ImportCancelError) as e:
             # Rollback the transaction if any error occurs during the transaction
             self.destination.session.rollback()
@@ -619,6 +620,7 @@ class ChannelImport(object):
             self.try_detaching_sqlite_database()
             # Reraise the exception to prevent other errors occuring due to the non-completion
             raise e
+        return import_ran
 
     def end(self):
         self.source.end()
@@ -795,7 +797,7 @@ def initialize_import_manager(
 def import_channel_from_local_db(channel_id, cancel_check=None):
     import_manager = initialize_import_manager(channel_id, cancel_check=cancel_check)
 
-    import_manager.import_channel_data()
+    import_ran = import_manager.import_channel_data()
 
     import_manager.end()
 
@@ -811,3 +813,4 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
     channel.save()
 
     logger.info("Channel {} successfully imported into the database".format(channel_id))
+    return import_ran
