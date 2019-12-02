@@ -4,6 +4,7 @@ from itertools import chain
 
 from django.db import connection
 from django.db.models import CharField
+from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import LessonSerializer
@@ -104,7 +105,11 @@ class LessonViewset(ValuesViewset):
         assignments = {
             a["id"]: _process_item(a)
             for a in assignments.values(
-                "id", "collection", "collection__kind", "learner_ids", "assigned_by"
+                "id",
+                "collection",
+                "learner_ids",
+                "assigned_by",
+                collection_kind=F("collection__kind"),
             )
         }
         for item in items:
