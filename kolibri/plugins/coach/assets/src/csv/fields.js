@@ -1,5 +1,7 @@
 import at from 'lodash/at';
 import pad from 'lodash/padStart';
+import { crossComponentTranslator } from 'kolibri.utils.i18n';
+import PageStatus from 'kolibri.coreVue.components.PageStatus';
 import coreStringsMixin from 'kolibri.coreVue.mixins.commonCoreStrings';
 import { STATUSES } from '../modules/classSummary/constants';
 import { VERBS } from '../views/common/status/constants';
@@ -13,6 +15,7 @@ const VERB_MAP = {
   [STATUSES.completed]: VERBS.completed,
 };
 const coreStrings = coreStringsMixin.methods.coreString;
+const examStrings = crossComponentTranslator(PageStatus);
 
 /*
  * Common CSV export fields and formats
@@ -158,6 +161,10 @@ export function score() {
 export function tally() {
   return [
     {
+      name: examStrings.$tr('notStartedLabel'),
+      key: 'tally.notStarted',
+    },
+    {
       name: coachStrings.$tr('startedLabel'),
       key: 'tally.started',
     },
@@ -168,13 +175,6 @@ export function tally() {
     {
       name: coachStrings.$tr('helpNeededLabel'),
       key: 'tally.helpNeeded',
-    },
-    {
-      name: coreStrings('allLabel'), // TODO: Add new string for this
-      key: 'all',
-      format(row) {
-        return Object.values(row.tally).reduce((sum, val) => sum + val, 0);
-      },
     },
   ];
 }
