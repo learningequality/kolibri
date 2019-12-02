@@ -90,13 +90,6 @@ def get_language_from_request_and_is_from_path(request):  # noqa complexity-16
         ):
             return lang_code, False
 
-    lang_code = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
-
-    try:
-        return get_supported_language_variant(lang_code), False
-    except LookupError:
-        pass
-
     device_language = get_device_language()
 
     if device_language is not None:

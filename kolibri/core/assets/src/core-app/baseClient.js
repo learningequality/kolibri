@@ -36,7 +36,7 @@ const csrf = interceptor({
 
     headers = request.headers || (request.headers = {});
     name = request.csrfTokenName || 'X-CSRFToken';
-    token = request.csrfToken || cookiejs.get('csrftoken');
+    token = request.csrfToken || cookiejs.get('kolibri_csrftoken');
 
     if (token) {
       headers[name] = token;
