@@ -44,6 +44,12 @@ class DeviceSettings(models.Model):
     """
     This class stores data about settings particular to this device
     """
+    LANDING_PAGE_SIGN_IN = 'sign-in'
+    LANDING_PAGE_LEARN = 'learn'
+    LANDING_PAGE_CHOICES = [
+        (LANDING_PAGE_SIGN_IN, 'Sign-in page'),
+        (LANDING_PAGE_LEARN, 'Learn page'),
+    ]
 
     objects = DeviceSettingsManager()
 
@@ -54,6 +60,12 @@ class DeviceSettings(models.Model):
     default_facility = models.ForeignKey(
         Facility, on_delete=models.SET_NULL, blank=True, null=True
     )
+    landing_page = models.CharField(
+        max_length=7, choices=LANDING_PAGE_CHOICES, default=LANDING_PAGE_SIGN_IN
+    )
+    allow_guest_access = models.BooleanField(default=True)
+    allow_peer_unlisted_channel_import = models.BooleanField(default=False)
+    allow_learner_unassigned_resource_access = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         self.pk = 1
