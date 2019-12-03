@@ -14,6 +14,7 @@ from ..utils import get_dataset_id
 from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.utils import conf
 
 DATA_PORTAL_SYNCING_BASE_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
@@ -158,13 +159,15 @@ class Command(AsyncCommand):
 
         # pull from server and push our own data to server
         if not no_pull:
-            sync_client.initiate_pull(Filter(dataset_id))
+            with db_task_write_lock:
+                sync_client.initiate_pull(Filter(dataset_id))
         if not no_push:
             sync_client.initiate_push(Filter(dataset_id))
 
-        create_superuser_and_provision_device(
-            username, dataset_id, noninteractive=noninteractive
-        )
+        with db_task_write_lock:
+            create_superuser_and_provision_device(
+                username, dataset_id, noninteractive=noninteractive
+            )
 
         sync_client.close_sync_session()
         self.stdout.write("Syncing has been completed.")

@@ -16,7 +16,7 @@ from kolibri.deployment.default.cache import diskcache_location
 current_state_tracker = compat.local()
 
 
-db_task_write_lock = RLock(Cache(diskcache_location))
+db_task_write_lock = RLock(Cache(diskcache_location), "db_task_write_lock")
 
 
 def get_current_job():
