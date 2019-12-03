@@ -57,7 +57,6 @@ facility_settings = [
     "learner_can_delete_account",
     "learner_can_login_with_no_password",
     "show_download_button_in_learn",
-    "allow_guest_access",
 ]
 
 
@@ -82,6 +81,8 @@ def extract_facility_statistics(facility):
         for name in facility_settings
         if hasattr(facility.dataset, name)
     }
+
+    settings.update(allow_guest_access=get_device_setting('allow_guest_access'))
 
     learners = FacilityUser.objects.filter(dataset_id=dataset_id).exclude(
         roles__kind__in=[role_kinds.ADMIN, role_kinds.COACH]

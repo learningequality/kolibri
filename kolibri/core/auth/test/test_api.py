@@ -18,6 +18,7 @@ from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
 from kolibri.core import error_constants
+from kolibri.core.device.utils import set_device_settings
 
 
 # A weird hack because of http://bugs.python.org/issue17866
@@ -801,8 +802,7 @@ class AnonSignUpTestCase(APITestCase):
         self.assertNotEqual(session_key, self.client.session.session_key)
 
     def test_sign_up_able_no_guest_access(self):
-        self.facility.dataset.allow_guest_access = False
-        self.facility.dataset.save()
+        set_device_settings(allow_guest_access=False)
         response = self.post_to_sign_up(
             {"username": "user", "password": DUMMY_PASSWORD}
         )

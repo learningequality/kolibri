@@ -15,10 +15,10 @@ export default {
         name: '',
       },
       preset: 'nonformal',
+      // Set in GuessAccessForm
+      allow_guest_access: null,
       // Keys match schema of FacilityDatasetModel
       settings: {
-        // Set in GuessAccessForm
-        allow_guest_access: null,
         // Set in CreateLearnerAccountForm
         learner_can_sign_up: null,
         learner_can_edit_name: null,
@@ -77,7 +77,7 @@ export default {
       state.onboardingData.preset = preset;
     },
     SET_ALLOW_GUEST_ACCESS(state, setting) {
-      state.onboardingData.settings.allow_guest_access = setting;
+      state.onboardingData.allow_guest_access = setting;
     },
     SET_LEARNER_CAN_SIGN_UP(state, setting) {
       // These three options are set together

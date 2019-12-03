@@ -89,7 +89,6 @@
     'learner_can_sign_up',
     'learner_can_login_with_no_password',
     'show_download_button_in_learn',
-    'allow_guest_access',
   ];
 
   export default {

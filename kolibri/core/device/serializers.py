@@ -80,7 +80,9 @@ class DeviceProvisionSerializer(serializers.Serializer):
             facility.add_role(superuser, ADMIN)
             DevicePermissions.objects.create(user=superuser, is_superuser=True)
             language_id = validated_data.pop("language_id")
-            provision_device(language_id=language_id, default_facility=facility)
+            allow_guest_access = validated_data.pop('allow_guest_access', preset != 'formal')
+            provision_device(language_id=language_id, default_facility=facility,
+                             allow_guest_access=allow_guest_access)
             return {
                 "facility": facility,
                 "preset": preset,
