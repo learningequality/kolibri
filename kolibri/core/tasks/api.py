@@ -194,7 +194,7 @@ class TasksViewSet(viewsets.ViewSet):
             )
         elif sourcetype == 'local':
             task = validate_local_import_task(request, request.data)
-            task.update({"type": "UPDATECHANNEL"})
+            task.update({"type": "UPDATECHANNEL", "new_version": new_version})
             job_id = queue.enqueue(
                 _diskimport,
                 task["channel_id"],

@@ -6,7 +6,8 @@ const kolibriStudioUrl = 'https://studio.learningequality.org';
 
 function getChannelOnDrive(driveId, channelId) {
   const reject = () => Promise.reject('CHANNEL_NOT_ON_DRIVE');
-  return TaskResource.localDrives().then(drives => {
+  return TaskResource.localDrives().then(response => {
+    const drives = response.entity;
     const driveMatch = find(drives, { id: driveId });
     if (!driveMatch) {
       return reject();

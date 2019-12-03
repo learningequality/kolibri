@@ -34,6 +34,7 @@
             v-if="newVersionAvailable"
             class="banner"
             :version="availableVersions.source"
+            @click="handleClickViewNewVersion"
           />
           <span v-else>{{ $tr('channelUpToDate') }}</span>
         </section>
@@ -307,6 +308,12 @@
       },
       returnToChannelsList() {
         this.$router.push(manageContentPageLink());
+      },
+      handleClickViewNewVersion() {
+        this.$router.push({
+          name: PageNames.NEW_CHANNEL_VERSION_PAGE,
+          query: { ...this.$route.query, last: PageNames.SELECT_CONTENT },
+        });
       },
       // @public (used by taskNotificationMixin)
       onWatchedTaskFinished() {
