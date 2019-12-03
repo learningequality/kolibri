@@ -188,6 +188,7 @@ class TasksViewSet(viewsets.ViewSet):
                 task["baseurl"],
                 peer_id=task["peer_id"],
                 node_ids=task["node_ids"],
+                is_updating=True,
                 extra_metadata=task,
                 track_progress=True,
                 cancellable=True,
@@ -201,6 +202,7 @@ class TasksViewSet(viewsets.ViewSet):
                 task["datafolder"],
                 drive_id=task["drive_id"],
                 node_ids=task["node_ids"],
+                is_updating=True,
                 extra_metadata=task,
                 track_progress=True,
                 cancellable=True,
@@ -672,6 +674,7 @@ def _remoteimport(
     update_progress=None,
     check_for_cancel=None,
     node_ids=None,
+    is_updating=False,
     exclude_node_ids=None,
     extra_metadata=None,
 ):
@@ -684,17 +687,21 @@ def _remoteimport(
         update_progress=update_progress,
         check_for_cancel=check_for_cancel,
     )
-    call_command(
-        "importcontent",
-        "network",
-        channel_id,
-        baseurl=baseurl,
-        peer_id=peer_id,
-        node_ids=node_ids,
-        exclude_node_ids=exclude_node_ids,
-        update_progress=update_progress,
-        check_for_cancel=check_for_cancel,
-    )
+    # Skip importcontent step if updating and no nodes have changed
+    if (is_updating and len(node_ids) == 0):
+        pass
+    else:
+        call_command(
+            "importcontent",
+            "network",
+            channel_id,
+            baseurl=baseurl,
+            peer_id=peer_id,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
+            update_progress=update_progress,
+            check_for_cancel=check_for_cancel,
+        )
 
 
 def _diskimport(
@@ -704,6 +711,7 @@ def _diskimport(
     update_progress=None,
     check_for_cancel=None,
     node_ids=None,
+    is_updating=False,
     exclude_node_ids=None,
     extra_metadata=None,
 ):
@@ -716,17 +724,21 @@ def _diskimport(
         update_progress=update_progress,
         check_for_cancel=check_for_cancel,
     )
-    call_command(
-        "importcontent",
-        "disk",
-        channel_id,
-        directory,
-        drive_id=drive_id,
-        node_ids=node_ids,
-        exclude_node_ids=exclude_node_ids,
-        update_progress=update_progress,
-        check_for_cancel=check_for_cancel,
-    )
+    # Skip importcontent step if updating and no nodes have changed
+    if (is_updating and len(node_ids) == 0):
+        pass
+    else:
+        call_command(
+            "importcontent",
+            "disk",
+            channel_id,
+            directory,
+            drive_id=drive_id,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
+            update_progress=update_progress,
+            check_for_cancel=check_for_cancel,
+        )
 
 
 def _localexport(
