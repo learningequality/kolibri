@@ -72,6 +72,9 @@
         if (this.$route.query.last) {
           return {
             name: this.$route.query.last,
+            // TODO need to make query.last more sophisticated
+            // to handle longer breadcrumb trails
+            query: omit(this.$route.query, ['last']),
           };
         }
         if (this.pageName === PageNames.MANAGE_TASKS) {
