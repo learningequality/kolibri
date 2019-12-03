@@ -39,7 +39,7 @@
           case PageNames.RECOMMENDED_POPULAR:
             return this.$tr('documentTitleForPopular');
           case PageNames.RECOMMENDED_RESUME:
-            return this.learnString('recommendedLabel');
+            return this.learnString('resumeLabel');
           case PageNames.RECOMMENDED_NEXT_STEPS:
             return this.$tr('documentTitleForNextSteps');
           default:
@@ -51,7 +51,7 @@
           case PageNames.RECOMMENDED_POPULAR:
             return this.$tr('popularPageHeader');
           case PageNames.RECOMMENDED_RESUME:
-            return this.learnString('recommendedLabel');
+            return this.learnString('resumeLabel');
           case PageNames.RECOMMENDED_NEXT_STEPS:
             return this.$tr('nextStepsPageHeader');
           default:
