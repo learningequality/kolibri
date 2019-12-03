@@ -3,13 +3,20 @@ import logging
 import time
 import uuid
 
+from diskcache import Cache
+from diskcache import RLock
+
 from kolibri.core.tasks import compat
+from kolibri.deployment.default.cache import diskcache_location
 
 
 # An object on which to store data about the current job
 # So far the only use is to track the job, but other metadata
 # could be added.
 current_state_tracker = compat.local()
+
+
+db_task_write_lock = RLock(Cache(diskcache_location))
 
 
 def get_current_job():
