@@ -118,6 +118,7 @@
       max-width: $thumbside;
       height: auto;
       max-height: $thumbside;
+      object-fit: contain;
     }
 
     .thumbnail-svg {
