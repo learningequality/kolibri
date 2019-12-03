@@ -83,16 +83,17 @@ export function fetchOrTriggerChannelDiffStatsTask(params) {
   const { channelId, driveId, baseurl } = params;
   // Re-use the same object for lodash/find and making POST request.
   // Separate 'method' since it isn't part of Task metadata.
+  let method;
   let taskAttrs = {
     channel_id: channelId,
   };
 
   if (baseurl) {
     taskAttrs.baseurl = baseurl;
-    taskAttrs.method = 'network';
+    method = 'network';
   } else if (driveId) {
     taskAttrs.drive_id = driveId;
-    taskAttrs.method = 'disk';
+    method = 'disk';
   }
 
   return TaskResource.fetchCollection({ force: true }).then(tasks => {
@@ -100,7 +101,7 @@ export function fetchOrTriggerChannelDiffStatsTask(params) {
     if (match) {
       return match;
     } else {
-      return TaskResource.postListEndpoint('channeldiffstats', taskAttrs).then(
+      return TaskResource.postListEndpoint('channeldiffstats', { ...taskAttrs, method }).then(
         taskResponse => taskResponse.entity
       );
     }

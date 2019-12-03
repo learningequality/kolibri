@@ -109,6 +109,7 @@
   const typeToTrPrefixMap = {
     [TaskTypes.REMOTECONTENTIMPORT]: 'import',
     [TaskTypes.DISKCONTENTIMPORT]: 'import',
+    [TaskTypes.UPDATECHANNEL]: 'import',
     [TaskTypes.REMOTEIMPORT]: 'import',
     [TaskTypes.DISKIMPORT]: 'import',
     [TaskTypes.DISKEXPORT]: 'export',

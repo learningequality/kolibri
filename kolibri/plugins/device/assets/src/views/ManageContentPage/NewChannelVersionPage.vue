@@ -274,7 +274,7 @@
         this.loadingTask = false;
         this.newResources = task.new_resources_count;
         this.deletedResources = task.deleted_resources_count;
-        this.updatedNodeIds = task.updated_node_ids;
+        this.updatedNodeIds = task.updated_node_ids || [];
 
         return TaskResource.deleteFinishedTask(task.id);
       },
