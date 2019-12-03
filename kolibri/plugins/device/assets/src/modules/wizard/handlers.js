@@ -107,8 +107,10 @@ export function showAvailableChannelsPage(store, params) {
 
   if (transferType === TransferTypes.LOCALIMPORT) {
     selectedDrivePromise = getSelectedDrive(store, params.drive_id);
-    availableChannelsPromise = selectedDrivePromise.then(drive => {
-      return [...drive.metadata.channels];
+    availableChannelsPromise = getInstalledChannelsPromise(store).then(() => {
+      return selectedDrivePromise.then(drive => {
+        return store.dispatch('manageContent/wizard/getAllDriveChannels', drive);
+      });
     });
   }
 

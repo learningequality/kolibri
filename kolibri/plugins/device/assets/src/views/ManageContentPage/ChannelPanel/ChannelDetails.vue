@@ -69,7 +69,7 @@
       },
       // Used to override the version number in some cases
       channelVersion: {
-        type: String,
+        type: [String, Number],
         required: false,
       },
     },
