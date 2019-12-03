@@ -75,10 +75,12 @@ root_logger.addHandler(file_handler)
 
 
 def start_django(port=5000):
-    from kolibri.utils.cli import main
+    from kolibri.utils.cli import initialize, setup_logging, start
 
     logging.info("Starting server...")
-    main(["start", "--foreground", "--port={}".format(port)])
+    setup_logging(debug=False)
+    initialize()
+    start.callback(port, background=False)
 
 
 class MenuEventHandler:
