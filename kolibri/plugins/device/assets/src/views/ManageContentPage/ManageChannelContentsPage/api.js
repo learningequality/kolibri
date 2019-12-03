@@ -8,7 +8,7 @@ import { getChannelWithContentSizes } from '../../../modules/wizard/apiChannelMe
 import { getDeviceInfo } from '../../../modules/deviceInfo/handlers';
 
 export function fetchPageData(channelId) {
-  const studioChannelPromise = RemoteChannelResource.fetchModel({ id: channelId })
+  const studioChannelPromise = RemoteChannelResource.fetchModel({ id: channelId, force: true })
     .then(channel => {
       this.studioChannel = { ...channel[0] };
     })

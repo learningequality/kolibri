@@ -54,7 +54,7 @@
       objectType="resource"
       actionType="manage"
       :resourceCounts="resourceCounts"
-      :disabled="!Boolean(currentNode) || disableBottomBar"
+      :disabled="!Boolean(currentNode) || bottomBarDisabled"
       @selectoption="shownModal = $event"
     />
 
@@ -114,7 +114,7 @@
         nodeCache: {},
         studioChannel: null,
         selectSourcePageName: null,
-        disableBottomBar: false,
+        bottomBarDisabled: false,
         watchedTaskType: null,
       };
     },
@@ -135,11 +135,9 @@
       },
       availableVersions() {
         // If offline, we shouldn't see an upgrade notification
-        const studioLatest = get(this.studioChannel, 'version', -Infinity);
-        const installed = get(this.channel, 'version');
         return {
-          studioLatest,
-          installed,
+          studioLatest: get(this.studioChannel, 'version', -Infinity),
+          installed: get(this.channel, 'version'),
         };
       },
       currentNode() {
@@ -164,6 +162,7 @@
     },
     beforeRouteLeave(to, from, next) {
       this.$store.commit('manageContent/wizard/RESET_NODE_LISTS');
+      this.$store.commit('manageContent/wizard/RESET_STATE');
       next();
     },
     beforeMount() {
@@ -227,21 +226,20 @@
       },
       beforeTask() {
         this.closeModal();
-        this.disableBottomBar = true;
+        this.bottomBarDisabled = true;
       },
       onTaskSuccess(task) {
-        this.disableBottomBar = false;
+        this.bottomBarDisabled = false;
         this.watchedTaskType = task.entity.type;
         this.notifyAndWatchTask(task);
       },
       onTaskFailure() {
-        this.disableBottomBar = false;
+        this.bottomBarDisabled = false;
         this.createTaskFailedSnackbar();
       },
       handleClickViewNewVersion() {
-        // TODO navigate to NewChannelVersionPage
         this.$router.push({
-          name: 'NEW_CHANNEL_VERSION_PAGE',
+          name: PageNames.NEW_CHANNEL_VERSION_PAGE,
         });
       },
       handleSelectImportMoreSource(params) {
