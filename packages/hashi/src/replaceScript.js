@@ -1,5 +1,5 @@
-export function getScripts() {
-  const $scripts = document.querySelectorAll('template[hashi-script="true"]');
+export function getScripts(doc) {
+  const $scripts = doc.querySelectorAll('template[hashi-script="true"]');
   return [].map.call($scripts, $template => {
     const parentNode = $template.parentNode;
     const node = $template.content.children[0];
@@ -40,7 +40,7 @@ export function replaceScript($script, callback) {
 
       // run the callback immediately for inline scripts
       // and for async loading scripts.
-      if (!$script.src || $script.hasAttribute('async')) {
+      if (!$script.src || $script.hasAttribute('async') || $script.hasAttribute('defer')) {
         callback();
       }
     }
@@ -96,22 +96,40 @@ export function seq(arr, index) {
   }
 }
 
-export function setScripts($scripts) {
+function createCallback($script) {
+  return function(callback) {
+    window.onerror = callback;
+    try {
+      replaceScript($script, callback);
+    } catch (e) {
+      callback();
+    }
+  };
+}
+
+export function setScripts() {
   // First generate the callbacks for all script tags.
   // This will create insertion operations for all script tags
+  const documentWriteOriginal = document.write;
+  const fragment = document.createDocumentFragment();
+  const body = document.documentElement.removeChild(document.body);
+  fragment.appendChild(body);
 
-  const $nonDeferredScripts = [].filter.call($scripts, script => !script.hasAttribute('defer'));
-  const $deferredScripts = [].filter.call($scripts, script => script.hasAttribute('defer'));
+  const headScripts = getScripts(document);
+  const bodyScripts = getScripts(fragment);
 
-  const runList = $nonDeferredScripts.concat($deferredScripts).map(function($script) {
-    return function(callback) {
-      window.onerror = callback;
-      try {
-        replaceScript($script, callback);
-      } catch (e) {
-        callback();
-      }
-    };
+  const runList = headScripts.map(createCallback);
+
+  runList.push(function(callback) {
+    document.documentElement.appendChild(fragment);
+    callback();
+  });
+
+  runList.push(...bodyScripts.map(createCallback));
+
+  runList.push(function(callback) {
+    document.write = documentWriteOriginal;
+    callback();
   });
 
   // insert the script tags sequentially
@@ -128,9 +146,10 @@ export function executePage() {
   // then the foregoing script tags inside template tags
   // have already been executed.
   if (supportsTemplate()) {
-    const scripts = getScripts();
-    const documentWriteOriginal = document.write;
-    setScripts(scripts);
-    document.write = documentWriteOriginal;
+    if (document.readystate !== 'loading') {
+      setScripts();
+    } else {
+      window.addEventListener('DOMContentLoaded', setScripts, { once: true });
+    }
   }
 }
