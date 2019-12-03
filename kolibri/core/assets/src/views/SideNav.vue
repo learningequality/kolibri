@@ -37,7 +37,7 @@
           <span
             class="side-nav-header-name"
             :style="{ color: $themeTokens.textInverted }"
-          >{{ $tr('kolibri') }}</span>
+          >{{ sideNavTitleText }}</span>
         </div>
 
         <div
@@ -201,6 +201,9 @@
         return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(
           this.filterByRole
         );
+      },
+      sideNavTitleText() {
+        return this.$theme.sideNav.title ? this.$theme.sideNav.title : this.$tr('kolibri');
       },
     },
     watch: {
