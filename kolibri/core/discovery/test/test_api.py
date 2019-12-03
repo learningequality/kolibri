@@ -89,7 +89,8 @@ class NetworkLocationAPITestCase(APITestCase):
         for location in response.data:
             # only the happy location should be marked as available
             self.assertEqual(
-                location["available"], location["id"] == self.existing_happy_netloc.id
+                location["available"],
+                location["id"] == str(self.existing_happy_netloc.id),
             )
 
     def test_cannot_read_network_location_list_as_anon_user(self):

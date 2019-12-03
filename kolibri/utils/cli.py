@@ -580,11 +580,17 @@ status.codes = {
 
 @main.command(cls=KolibriDjangoCommand, help="Start worker processes")
 @click.option(
+    "--port",
+    default=OPTIONS["Deployment"]["HTTP_PORT"],
+    type=int,
+    help="Port on which to run Kolibri services",
+)
+@click.option(
     "--background/--foreground",
     default=True,
     help="Run Kolibri services as a background task",
 )
-def services(background):
+def services(port, background):
     """
     Start the kolibri background services.
     """
@@ -610,7 +616,7 @@ def services(background):
 
         become_daemon(**kwargs)
 
-    server.services()
+    server.services(port=port)
 
 
 def setup_logging(debug=False):

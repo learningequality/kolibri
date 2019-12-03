@@ -124,7 +124,7 @@ def run_services(port):
     from kolibri.core.discovery.utils.network.search import register_zeroconf_service
 
     instance, _ = InstanceIDModel.get_or_create_current_instance()
-    register_zeroconf_service(port=port, id=instance.id[:4])
+    register_zeroconf_service(port=port, id=instance.id)
 
     cleanup_func = partial(_cleanup_before_quitting, workers=workers)
 

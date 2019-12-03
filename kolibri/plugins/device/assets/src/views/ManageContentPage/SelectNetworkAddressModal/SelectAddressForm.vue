@@ -9,68 +9,90 @@
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
-    <UiAlert
-      v-if="uiAlertProps"
-      v-show="showUiAlerts"
-      :type="uiAlertProps.type"
-      :dismissible="false"
-    >
-      {{ uiAlertProps.text }}
+    <template v-slot>
+      <UiAlert
+        v-if="uiAlertProps"
+        v-show="showUiAlerts"
+        :type="uiAlertProps.type"
+        :dismissible="false"
+      >
+        {{ uiAlertProps.text }}
+        <KButton
+          v-if="requestsFailed"
+          appearance="basic-link"
+          :text="$tr('refreshAddressesButtonLabel')"
+          @click="refreshSavedAddressList"
+        />
+      </UiAlert>
+
       <KButton
-        v-if="requestsFailed"
+        v-show="!newAddressButtonDisabled"
+        class="new-address-button"
+        :text="$tr('newAddressButtonLabel')"
         appearance="basic-link"
-        :text="$tr('refreshAddressesButtonLabel')"
-        @click="refreshSavedAddressList"
+        @click="$emit('click_add_address')"
       />
-    </UiAlert>
 
-    <KButton
-      v-show="!newAddressButtonDisabled"
-      class="new-address-button"
-      :text="$tr('newAddressButtonLabel')"
-      appearance="basic-link"
-      @click="$emit('click_add_address')"
-    />
+      <template v-for="(a, idx) in savedAddresses">
+        <div :key="`div-${idx}`">
+          <KRadioButton
+            :key="idx"
+            v-model="selectedAddressId"
+            class="radio-button"
+            :value="a.id"
+            :label="a.device_name"
+            :description="a.base_url"
+            :disabled="!a.available || !a.hasContent"
+          />
+          <KButton
+            :key="`forget-${idx}`"
+            :text="$tr('forgetAddressButtonLabel')"
+            appearance="basic-link"
+            @click="removeSavedAddress(a.id)"
+          />
+        </div>
+      </template>
 
-    <template v-for="(a, idx) in savedAddresses">
-      <div :key="`div-${idx}`">
-        <KRadioButton
-          :key="idx"
-          v-model="selectedAddressId"
-          class="radio-button"
-          :value="a.id"
-          :label="a.device_name"
-          :description="a.base_url"
-          :disabled="!a.available || !a.hasContent"
+      <hr v-if="discoveredAddresses.length > 0">
+
+      <template v-for="d in discoveredAddresses">
+        <div :key="`div-${d.id}`">
+          <KRadioButton
+            :key="d.id"
+            v-model="selectedAddressId"
+            class="radio-button"
+            :value="d.instance_id"
+            :label="$tr('peerDeviceName', {identifier: d.id.slice(0,4) })"
+            :description="d.base_url"
+            :disabled="!d.available || !d.hasContent"
+          />
+        </div>
+      </template>
+    </template>
+
+    <KFixedGrid slot="actions" class="actions" numCols="4">
+      <KFixedGridItem span="1">
+        <transition name="fade">
+          <div v-if="discoveringPeers" class="searching-indicator">
+            <KCircularLoader :size="16" :stroke="9" />{{ $tr('searchingText') }}
+          </div>
+        </transition>
+      </KFixedGridItem>
+      <KFixedGridItem span="3" alignment="right">
+        <KButton
+          :text="coreString('cancelAction')"
+          appearance="flat-button"
+          @click="$emit('cancel')"
         />
         <KButton
-          :key="`forget-${idx}`"
-          :text="$tr('forgetAddressButtonLabel')"
-          appearance="basic-link"
-          @click="removeSavedAddress(a.id)"
+          :text="coreString('continueAction')"
+          :primary="true"
+          :disabled="submitDisabled"
+          type="submit"
+          @click="handleSubmit"
         />
-      </div>
-    </template>
-
-    <hr v-if="discoveredAddresses.length > 0">
-
-    <template v-for="d in discoveredAddresses">
-      <div :key="`div-${d.id}`">
-        <KRadioButton
-          :key="d.id"
-          v-model="selectedDeviceId"
-          class="radio-button"
-          :value="d.id"
-          :label="$tr('peerDeviceName', {identifier: d.id})"
-          :description="d.base_url"
-          :disabled="d.disabled"
-        />
-      </div>
-    </template>
-
-    <template v-if="false">
-      {{ $tr('searchingText') }}
-    </template>
+      </KFixedGridItem>
+    </KFixedGrid>
 
   </KModal>
 
@@ -83,7 +105,7 @@
   import find from 'lodash/find';
   import UiAlert from 'keen-ui/src/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { deleteAddress, fetchAddresses, fetchDevices } from './api';
+  import { deleteAddress, fetchStaticAddresses, fetchDynamicAddresses } from './api';
 
   const Stages = {
     FETCHING_ADDRESSES: 'FETCHING_ADDRESSES',
@@ -92,6 +114,9 @@
     DELETING_ADDRESS: 'DELETING_ADDRESS',
     DELETING_SUCCESSFUL: 'DELETING_SUCCESSFUL',
     DELETING_FAILED: 'DELETING_FAILED',
+    PEER_DISCOVERY_STARTED: 'PEER_DISCOVERY_STARTED',
+    PEER_DISCOVERY_SUCCESSFUL: 'PEER_DISCOVERY_SUCCESSFUL',
+    PEER_DISCOVERY_FAILED: 'PEER_DISCOVERY_FAILED',
   };
 
   export default {
@@ -130,13 +155,17 @@
       requestsSucessful() {
         return (
           this.stage === this.Stages.FETCHING_SUCCESSFUL ||
-          this.stage === this.Stages.DELETING_SUCCESSFUL
+          this.stage === this.Stages.DELETING_SUCCESSFUL ||
+          this.stage === this.Stages.PEER_DISCOVERY_SUCCESSFUL
         );
       },
       requestsFailed() {
         return (
           this.stage === this.Stages.FETCHING_FAILED || this.stage === this.Stages.DELETING_FAILED
         );
+      },
+      discoveringPeers() {
+        return this.stage === this.Stages.PEER_DISCOVERY_STARTED;
       },
       uiAlertProps() {
         if (this.stage === this.Stages.FETCHING_ADDRESSES) {
@@ -152,6 +181,12 @@
           };
         }
         if (this.stage === this.Stages.FETCHING_FAILED) {
+          return {
+            text: this.$tr('fetchingFailedText'),
+            type: 'error',
+          };
+        }
+        if (this.stage === this.Stages.PEER_DISCOVERY_FAILED) {
           return {
             text: this.$tr('fetchingFailedText'),
             type: 'error',
@@ -185,7 +220,7 @@
       refreshSavedAddressList() {
         this.stage = this.Stages.FETCHING_ADDRESSES;
         this.savedAddresses = [];
-        return fetchAddresses(this.isImportingMore ? this.transferredChannel.id : '')
+        return fetchStaticAddresses(this.isImportingMore ? this.transferredChannel.id : '')
           .then(addresses => {
             this.savedAddresses = addresses;
             this.resetSelectedAddress();
@@ -219,17 +254,21 @@
 
       discoverPeers() {
         this.$parent.$emit('started_peer_discovery');
-        return fetchDevices(this.isImportingMore ? this.transferredChannel.id : '')
+        this.stage = this.Stages.PEER_DISCOVERY_STARTED;
+        return fetchDynamicAddresses(this.isImportingMore ? this.transferredChannel.id : '')
           .then(devices => {
+            this.discoveredAddresses = devices;
             this.$parent.$emit('finished_peer_discovery');
-            this.devices = devices;
+            this.stage = this.Stages.PEER_DISCOVERY_SUCCESSFUL;
           })
           .catch(() => {
             this.$parent.$emit('peer_discovery_failed');
+            this.stage = this.Stages.PEER_DISCOVERY_FAILED;
           });
       },
 
       startDiscoveryPolling() {
+        this.discoverPeers();
         if (!this.intervalId) {
           this.intervalId = setInterval(this.discoverPeers, 5000);
         }
@@ -243,7 +282,7 @@
 
       handleSubmit() {
         if (this.selectedAddressId) {
-          this.$emit('submit', find(this.savedAddresses, { id: this.selectedAddressId }));
+          this.$emit('submit', find(this.addresses, { id: this.selectedAddressId }));
         }
       },
     },
@@ -277,6 +316,33 @@
   .radio-button {
     display: inline-block;
     width: 75%;
+  }
+
+  .searching-indicator {
+    padding-top: 18px;
+    font-size: 12px;
+  }
+
+  .fade-leave-active {
+    transition: opacity 0.3s;
+    transition-delay: 2s;
+  }
+
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
+  }
+
+  .ui-progress-circular {
+    display: inline-block;
+    margin-right: 2px;
+    margin-bottom: 2px;
+    vertical-align: middle;
+  }
+
+  hr {
+    border: 0;
+    border-bottom: 1px solid #cbcbcb;
   }
 
 </style>

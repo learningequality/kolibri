@@ -1,14 +1,14 @@
 import socket
 
 import mock
-from django.test import TestCase
+from django.test import TransactionTestCase
 from zeroconf import BadTypeInNameException
 from zeroconf import service_type_name
 from zeroconf import ServiceInfo
 from zeroconf import Zeroconf
 
 from ..utils.network.search import _id_from_name
-from ..utils.network.search import get_available_instances
+from ..utils.network.search import get_peer_instances
 from ..utils.network.search import initialize_zeroconf_listener
 from ..utils.network.search import KolibriZeroconfService
 from ..utils.network.search import LOCAL_DOMAIN
@@ -98,17 +98,17 @@ class MockZeroconf(Zeroconf):
     "kolibri.core.discovery.utils.network.search.get_all_addresses",
     lambda: [MOCK_INTERFACE_IP],
 )
-class TestNetworkSearch(TestCase):
+class TestNetworkSearch(TransactionTestCase):
     def test_initialize_zeroconf_listener(self):
         assert ZEROCONF_STATE["listener"] is None
         initialize_zeroconf_listener()
         assert ZEROCONF_STATE["listener"] is not None
 
     def test_register_zeroconf_service(self):
-        assert len(get_available_instances()) == 0
+        assert len(get_peer_instances()) == 0
         initialize_zeroconf_listener()
         register_zeroconf_service(MOCK_PORT, MOCK_ID)
-        assert get_available_instances() == [
+        assert get_peer_instances() == [
             {
                 "id": MOCK_ID,
                 "ip": MOCK_INTERFACE_IP,
@@ -124,16 +124,16 @@ class TestNetworkSearch(TestCase):
         ]
         register_zeroconf_service(MOCK_PORT, MOCK_ID)
         unregister_zeroconf_service()
-        assert len(get_available_instances()) == 0
+        assert len(get_peer_instances()) == 0
 
     def test_naming_conflict(self):
         assert not ZEROCONF_STATE["listener"]
         service1 = KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT)
         service1.register()
-        assert len(get_available_instances()) == 1
+        assert len(get_peer_instances()) == 1
         service2 = KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT)
         service2.register()
-        assert len(get_available_instances()) == 2
+        assert len(get_peer_instances()) == 2
         assert service1.id + "-2" == service2.id
         service1.unregister()
         service2.unregister()
@@ -150,13 +150,6 @@ class TestNetworkSearch(TestCase):
             KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT).register()
         for service in services:
             service.unregister()
-
-    def test_excluding_local(self):
-        initialize_zeroconf_listener()
-        register_zeroconf_service(MOCK_PORT, MOCK_ID)
-        assert len(get_available_instances()) == 1
-        assert len(get_available_instances(include_local=False)) == 0
-        unregister_zeroconf_service()
 
     def tearDown(self):
         unregister_zeroconf_service()

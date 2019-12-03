@@ -1,5 +1,9 @@
 import { RemoteChannelResource } from 'kolibri.resources';
-import { NetworkLocationResource, NetworkSearchResource } from '../../../apiResources';
+import {
+  NetworkLocationResource,
+  StaticNetworkLocationResource,
+  DynamicNetworkLocationResource,
+} from '../../../apiResources';
 
 function channelIsAvailableAtLocation(channelId, location) {
   if (!location.available) {
@@ -20,8 +24,8 @@ function channelIsAvailableAtLocation(channelId, location) {
     });
 }
 
-export function fetchAddresses(withChannelId = '') {
-  return NetworkLocationResource.fetchCollection({ force: true }).then(locations => {
+function fetchAddresses(withChannelId = '', LocationResource = NetworkLocationResource) {
+  return LocationResource.fetchCollection({ force: true }).then(locations => {
     // If channelId is provided, then we are in an 'import-more' workflow and disable
     // locations that do not have the channel we are importing from.
     if (withChannelId !== '') {
@@ -43,34 +47,23 @@ export function fetchAddresses(withChannelId = '') {
   });
 }
 
-export function fetchDevices(withChannelId = '') {
-  return NetworkSearchResource.fetchCollection({ force: true }).then(devices => {
-    // Don't include ourself in the results
-    devices = devices.filter(device => !device.self);
-    // If channelId is provided, then we are in an 'import-more' workflow and we exclude
-    // devices that do not have the channel we are looking for. Otherwise, only filter
-    // out devices that don't have any channels loaded at all.
-    if (withChannelId === '') {
-      return devices.map(device => ({
-        ...device,
-        disabled: device.data.channels.length === 0,
-      }));
-    } else {
-      return devices.map(device => ({
-        ...device,
-        disabled: !device.data.channels.map(channel => channel.id).includes(withChannelId),
-      }));
-    }
-  });
+export function fetchStaticAddresses(withChannelId = '') {
+  return fetchAddresses(withChannelId, StaticNetworkLocationResource);
 }
 
+export function fetchDynamicAddresses(withChannelId = '') {
+  return fetchAddresses(withChannelId, DynamicNetworkLocationResource);
+}
+
+export const fetchNetworkAddresses = fetchAddresses;
+
 export function createAddress(address) {
-  return NetworkLocationResource.createModel({
+  return StaticNetworkLocationResource.createModel({
     base_url: address.base_url,
     device_name: address.device_name,
   }).save();
 }
 
 export function deleteAddress(id) {
-  return NetworkLocationResource.deleteModel({ id });
+  return StaticNetworkLocationResource.deleteModel({ id });
 }

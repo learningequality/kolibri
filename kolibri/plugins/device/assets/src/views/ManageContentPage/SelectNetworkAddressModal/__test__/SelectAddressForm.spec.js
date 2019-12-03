@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import SelectAddressForm from '../SelectAddressForm';
 import makeStore from '../../../../../test/utils/makeStore';
-import { fetchAddresses } from '../api';
+import { fetchStaticAddresses, fetchDynamicAddresses } from '../api';
 
 const addresses = [
   {
@@ -28,7 +28,8 @@ const addresses = [
 ];
 
 jest.mock('../api.js', () => ({
-  fetchAddresses: jest.fn(),
+  fetchStaticAddresses: jest.fn(),
+  fetchDynamicAddresses: jest.fn(),
   deleteAddress: jest.fn().mockResolvedValue(),
 }));
 
@@ -43,14 +44,17 @@ function makeWrapper() {
     newAddressButton: () => wrapper.find('a.new-address-button'),
     uiAlert: () => wrapper.find({ name: 'ui-alert' }),
     radioButtons: () => wrapper.findAll({ name: 'KRadioButton' }),
+    horizontalLine: () => wrapper.findAll('hr'),
   };
   return { store, wrapper, els };
 }
 
 describe('SelectAddressForm', () => {
   beforeEach(() => {
-    fetchAddresses.mockReset();
-    fetchAddresses.mockResolvedValue(addresses);
+    fetchStaticAddresses.mockReset();
+    fetchStaticAddresses.mockResolvedValue(addresses);
+    fetchDynamicAddresses.mockReset();
+    fetchDynamicAddresses.mockResolvedValue(addresses);
   });
 
   it('shows a loading message when fetching addresses', () => {
@@ -65,7 +69,7 @@ describe('SelectAddressForm', () => {
   it('shows one address for each one fetched', async () => {
     const { els, wrapper } = makeWrapper();
     await wrapper.vm.$nextTick();
-    expect(els.radioButtons()).toHaveLength(3);
+    expect(els.radioButtons()).toHaveLength(6);
     const server1 = els.radioButtons().at(0);
     expect(server1.props().label).toEqual('Available Server');
     expect(server1.props().description).toEqual('http://localhost:8000');
@@ -75,7 +79,8 @@ describe('SelectAddressForm', () => {
   });
 
   it('if there are no addresses, it shows an empty message', async () => {
-    fetchAddresses.mockResolvedValue([]);
+    fetchStaticAddresses.mockResolvedValue([]);
+    fetchDynamicAddresses.mockResolvedValue([]);
     const { els, wrapper } = makeWrapper();
     await wrapper.vm.$nextTick();
     expect(els.radioButtons()).toHaveLength(0);
@@ -110,5 +115,18 @@ describe('SelectAddressForm', () => {
     await wrapper.vm.$nextTick();
     els.KModal().vm.$emit('submit');
     expect(wrapper.emitted().submit[0][0].id).toEqual('1');
+  });
+
+  it('shows a horizontal line when there are discovered addresses', async () => {
+    const { wrapper, els } = makeWrapper();
+    await wrapper.vm.$nextTick();
+    expect(els.horizontalLine().exists()).toBe(true);
+  });
+
+  it('does not show a horizontal line when there are no discovered addresses', async () => {
+    fetchDynamicAddresses.mockResolvedValue([]);
+    const { wrapper, els } = makeWrapper();
+    await wrapper.vm.$nextTick();
+    expect(els.horizontalLine().exists()).toBe(false);
   });
 });

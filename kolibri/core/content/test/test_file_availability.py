@@ -15,7 +15,7 @@ from kolibri.core.content.utils.file_availability import (
 from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_remote,
 )
-from kolibri.core.discovery.models import NetworkLocation
+from kolibri.core.discovery.models import StaticNetworkLocation
 
 
 def get_engine(connection_string):
@@ -133,7 +133,7 @@ class LocalFileRemote(TransactionTestCase):
 
     def setUp(self):
         super(LocalFileRemote, self).setUp()
-        self.location = NetworkLocation.objects.create(base_url="test")
+        self.location = StaticNetworkLocation.objects.create(base_url="test")
 
     @patch("kolibri.core.content.utils.file_availability.requests")
     def test_set_one_file(self, requests_mock):
