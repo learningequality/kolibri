@@ -60,7 +60,7 @@ if pew.ui.platform == "android":
     logging.info("Home folder: {}".format(os.environ["KOLIBRI_HOME"]))
     logging.info("Timezone: {}".format(os.environ["TZ"]))
 elif not 'KOLIBRI_HOME' in os.environ:
-    os.environ["KOLIBRI_HOME"] = os.path.join(app_data_dir, "kolibri_data")
+    os.environ["KOLIBRI_HOME"] = os.path.join(os.path.expanduser("~"), ".kolibri")
 
 
 from kolibri.utils.logger import KolibriTimedRotatingFileHandler
