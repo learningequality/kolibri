@@ -104,10 +104,7 @@
         return this.transferType === TransferTypes.LOCALIMPORT;
       },
       title() {
-        if (this.inImportMode) {
-          return this.$tr('selectDrive');
-        }
-        return this.$tr('selectExportDestination');
+        return this.$tr('selectDrive');
       },
       notEnoughFreeSpace() {
         if (!this.exportFileSize || !this.selectedDriveId) return false;
@@ -165,7 +162,7 @@
       findingLocalDrives: 'Finding local drives…',
       problemFindingLocalDrives: 'There was a problem finding local drives.',
       selectDrive: 'Select a drive',
-      selectExportDestination: 'Select an export destination',
+      // selectExportDestination: 'Select an export destination',
       notEnoughFreeSpaceWarning: {
         message: 'Not enough space available. Free up space on the drive or select fewer resources',
         context:

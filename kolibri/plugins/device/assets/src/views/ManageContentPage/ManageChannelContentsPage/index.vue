@@ -266,6 +266,7 @@
         this.$router.push(baseLinkObject);
       },
       closeModal() {
+        this.selectSourcePageName = null;
         this.shownModal = null;
       },
       // @public (used by taskNotificationMixin)
