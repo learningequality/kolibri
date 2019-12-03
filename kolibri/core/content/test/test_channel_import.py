@@ -32,6 +32,7 @@ from kolibri.core.content.utils.annotation import recurse_annotation_up_tree
 from kolibri.core.content.utils.annotation import (
     set_leaf_node_availability_from_local_file_availability,
 )
+from kolibri.core.content.utils.annotation import update_content_metadata
 from kolibri.core.content.utils.channel_import import ChannelImport
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
@@ -339,11 +340,8 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
 
 
 class MaliciousDatabaseTestCase(TestCase):
-    @patch("kolibri.core.content.utils.channel_import.update_content_metadata")
     @patch("kolibri.core.content.utils.channel_import.initialize_import_manager")
-    def test_non_existent_root_node(
-        self, initialize_manager_mock, update_content_metadata_mock
-    ):
+    def test_non_existent_root_node(self, initialize_manager_mock):
         import_mock = MagicMock()
         initialize_manager_mock.return_value = import_mock
         channel_id = "6199dde695db4ee4ab392222d5af1e5c"
@@ -432,6 +430,7 @@ class ContentImportTestBase(TransactionTestCase):
         ):
 
             import_channel_from_local_db("6199dde695db4ee4ab392222d5af1e5c")
+            update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
 
     def get_engine(self, connection_string):
         if connection_string == get_default_db_string():
