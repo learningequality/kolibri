@@ -163,9 +163,18 @@ class FileDownload(Transfer):
         try:
             self.total_size = int(self.response.headers["content-length"])
         except Exception:
-            # HACK: set the total_size very large so downloads are not considered "corrupted"
-            # in importcontent._start_file_transfer
-            self.total_size = 1e100
+            # When a compressed file is saved on Google Cloud Storage,
+            # content-length is not available in the header,
+            # but we can use X-Goog-Stored-Content-Length.
+            gcs_content_length = self.response.headers.get(
+                "X-Goog-Stored-Content-Length"
+            )
+            if gcs_content_length:
+                self.total_size = int(gcs_content_length)
+            else:
+                # HACK: set the total_size very large so downloads are not considered "corrupted"
+                # in importcontent._start_file_transfer
+                self.total_size = 1e100
 
         self.started = True
 
