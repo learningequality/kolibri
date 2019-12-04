@@ -195,7 +195,6 @@
         } else if (this.nodeCache[newNodeId]) {
           this.currentNodeId = newNodeId;
         } else {
-          this.currentNodeId = null;
           this.fetchNodeWithAncestors(newNodeId)
             .then(node => {
               this.nodeCache[newNodeId] = node;
