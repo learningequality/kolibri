@@ -315,6 +315,15 @@ export default {
   mutations: {
     SET_STATE(state, summary) {
       const examMap = _itemMap(summary.exams, 'id');
+      const lessonMap = _itemMap(summary.lessons, 'id');
+      Object.values(examMap).forEach(exam => {
+        // convert dates
+        exam.date_created = new Date(exam.date_created);
+      });
+      Object.values(lessonMap).forEach(lesson => {
+        // convert dates
+        lesson.date_created = new Date(lesson.date_created);
+      });
       summary.exam_learner_status.forEach(status => {
         // convert dates
         status.last_activity = status.last_activity ? new Date(status.last_activity) : null;
@@ -335,7 +344,7 @@ export default {
         contentMap: _itemMap(summary.content, 'content_id'),
         contentNodeMap: _itemMap(summary.content, 'node_id'),
         contentLearnerStatusMap: _statusMap(summary.content_learner_status, 'content_id'),
-        lessonMap: _itemMap(summary.lessons, 'id'),
+        lessonMap,
       });
     },
     CREATE_ITEM(state, { map, id, object }) {
