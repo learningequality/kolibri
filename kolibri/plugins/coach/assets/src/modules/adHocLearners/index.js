@@ -25,7 +25,7 @@ export default {
   },
   actions,
   getters: {
-    hasIndividualLearnersAssigned(state) {
+    hasAdHocLearnersAssigned(state) {
       return !!state.user_ids.length;
     },
   },

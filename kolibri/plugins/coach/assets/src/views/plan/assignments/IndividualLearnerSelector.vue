@@ -2,7 +2,7 @@
 
   <div>
     <KCheckbox
-      key="individualLearners"
+      key="adHocLearners"
       :label="$tr('individualLearnersLabel')"
       :checked="showAsChecked"
       :disabled="disabled"
@@ -69,7 +69,7 @@
                     <KCheckbox
                       :key="`select-learner-${learner.id}`"
                       :label="learner.name"
-                      :checked="selectedIndividualIds.includes(learner.id)"
+                      :checked="selectedAdHocIds.includes(learner.id)"
                       :disabled="disabled"
                       @change="toggleSelectedLearnerId(learner.id)"
                     />
@@ -121,15 +121,15 @@
         required: true,
         default: false,
       },
-      initialIndividualLearners: {
+      initialAdHocLearners: {
         type: Array,
         required: true,
       },
     },
     data() {
       return {
-        isChecked: !!this.initialIndividualLearners.length,
-        selectedIndividualIds: this.initialIndividualLearners,
+        isChecked: !!this.initialAdHocLearners.length,
+        selectedAdHocIds: this.initialAdHocLearners,
         currentPage: 1,
       };
     },
@@ -151,7 +151,7 @@
       },
       allOfCurrentPageIsSelected() {
         const selectedVisibleLearners = this.currentPageLearners.filter(visible => {
-          return this.selectedIndividualIds.includes(visible.id);
+          return this.selectedAdHocIds.includes(visible.id);
         });
         return selectedVisibleLearners.length === this.currentPageLearners.length;
       },
@@ -163,38 +163,38 @@
       entireClassIsSelected() {
         if (this.entireClassIsSelected) {
           this.isChecked = false;
-          this.$emit('toggleCheck', this.isChecked, this.$store.state.individualLearners.id);
+          this.$emit('toggleCheck', this.isChecked, this.$store.state.adHocLearners.id);
         }
       },
-      selectedIndividualIds() {
-        this.$emit('updateLearners', this.selectedIndividualIds);
+      selectedAdHocIds() {
+        this.$emit('updateLearners', this.selectedAdHocIds);
       },
     },
     methods: {
       toggleChecked() {
         this.isChecked = !this.isChecked;
-        this.$emit('toggleCheck', this.isChecked, this.$store.state.individualLearners.id);
+        this.$emit('toggleCheck', this.isChecked, this.$store.state.adHocLearners.id);
       },
       toggleSelectedLearnerId(learnerId) {
-        const index = this.selectedIndividualIds.indexOf(learnerId);
+        const index = this.selectedAdHocIds.indexOf(learnerId);
         if (index === -1) {
-          this.selectedIndividualIds.push(learnerId);
+          this.selectedAdHocIds.push(learnerId);
         } else {
-          this.selectedIndividualIds.splice(index, 1);
+          this.selectedAdHocIds.splice(index, 1);
         }
       },
       selectVisiblePage() {
         const isWholePageSelected = this.allOfCurrentPageIsSelected;
         this.currentPageLearners.forEach(learner => {
-          const index = this.selectedIndividualIds.indexOf(learner.id);
+          const index = this.selectedAdHocIds.indexOf(learner.id);
 
           if (isWholePageSelected) {
             // Deselect all if we're going from all selected to none.
-            this.selectedIndividualIds.splice(index, 1);
+            this.selectedAdHocIds.splice(index, 1);
           } else {
             // Or add every one of them if it isn't there already
             if (index === -1) {
-              this.selectedIndividualIds.push(learner.id);
+              this.selectedAdHocIds.push(learner.id);
             }
           }
         });

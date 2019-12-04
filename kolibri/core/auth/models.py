@@ -937,7 +937,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     parent = TreeForeignKey(
         "self", null=True, blank=True, related_name="children", db_index=True
     )
-    kind = models.CharField(max_length=23, choices=collection_kinds.choices)
+    kind = models.CharField(max_length=20, choices=collection_kinds.choices)
 
     def __init__(self, *args, **kwargs):
         if self._KIND:
@@ -1348,11 +1348,11 @@ class Classroom(Collection):
 
     def get_individual_learners_group(self):
         """
-        Returns a ``QuerySet`` of ``IndividualLearnerGroups``.
+        Returns a ``QuerySet`` of ``AdHocGroups``.
 
-        :return A ``IndividualLearnersGroup`` ``QuerySet``.
+        :return A ``AdHocGroup`` ``QuerySet``.
         """
-        return IndividualLearnersGroup.objects.filter(parent=self)
+        return AdHocGroup.objects.filter(parent=self)
 
     def add_admin(self, user):
         return self.add_role(user, role_kinds.ADMIN)
@@ -1417,13 +1417,13 @@ class LearnerGroup(Collection):
 
 
 @python_2_unicode_compatible
-class IndividualLearnersGroup(Collection):
+class AdHocGroup(Collection):
     """
-    An ``IndividualLearnersGroup`` is a collection kind that can be used in an assignment
+    An ``AdHocGroup`` is a collection kind that can be used in an assignment
     to create a group that is specific to a single ``Lesson`` or ``Exam``.
     """
 
-    morango_model_name = "individuallearnersgroup"
+    morango_model_name = "adhoclearnersgroup"
     morango_model_dependencies = (Classroom,)
     _KIND = collection_kinds.INDIVIDUALLEARNERSGROUP
 
@@ -1435,13 +1435,13 @@ class IndividualLearnersGroup(Collection):
     def save(self, *args, **kwargs):
         if not self.parent:
             raise IntegrityError(
-                "IndividualLearnersGroup cannot be the root of a collection tree, and must have a parent."
+                "AdHocGroup cannot be the root of a collection tree, and must have a parent."
             )
-        super(IndividualLearnersGroup, self).save(*args, **kwargs)
+        super(AdHocGroup, self).save(*args, **kwargs)
 
     def get_classroom(self):
         """
-        Gets the ``IndividualLearnersGroup``'s parent ``Classroom``.
+        Gets the ``AdHocGroup``'s parent ``Classroom``.
 
         :return: A ``Classroom`` instance.
         """

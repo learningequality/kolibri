@@ -20,7 +20,7 @@
       v-if="assignmentType == 'quiz'"
       :selectedGroupIds="selectedGroupIds"
       :entireClassIsSelected="entireClassIsSelected"
-      :initialIndividualLearners="initialIndividualLearners"
+      :initialAdHocLearners="initialAdHocLearners"
       :disabled="disabled"
       @toggleCheck="toggleGroup"
       @updateLearners="learners => $emit('updateLearners', learners)"
@@ -69,7 +69,7 @@
         type: Boolean,
         default: false,
       },
-      initialIndividualLearners: {
+      initialAdHocLearners: {
         type: Array,
         required: false,
         default: new Array(),

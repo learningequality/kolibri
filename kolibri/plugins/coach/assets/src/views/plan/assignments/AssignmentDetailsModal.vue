@@ -45,8 +45,8 @@
           :classId="classId"
           :disabled="disabled || formIsSubmitted"
           :assignmentType="assignmentType"
-          :initialIndividualLearners="initialIndividualLearners"
-          @updateLearners="learners => individualLearners = learners"
+          :initialAdHocLearners="initialAdHocLearners"
+          @updateLearners="learners => adHocLearners = learners"
         />
       </fieldset>
 
@@ -112,7 +112,7 @@
         type: Array,
         required: true,
       },
-      initialIndividualLearners: {
+      initialAdHocLearners: {
         type: Array,
         required: true,
       },
@@ -146,7 +146,7 @@
         description: this.initialDescription,
         selectedCollectionIds: this.initialSelectedCollectionIds,
         activeIsSelected: this.initialActive,
-        individualLearners: this.initialIndividualLearners,
+        adHocLearners: this.initialAdHocLearners,
         titleIsVisited: false,
         formIsSubmitted: false,
         showServerError: false,
@@ -238,31 +238,31 @@
       },
       submitQuizData() {
         // TODO: Add error handling & snackbar message that notifies user when they have
-        // selected ONLY the Individual Learners Group, but selects no learners
-        // For now - if the only thing selected is Individual Learners but there
+        // selected ONLY the AdHoc Learners Group, but selects no learners
+        // For now - if the only thing selected is AdHoc Learners but there
         // are no learners actually selected, pretend they selected Entire class
         // NOT DONE due to this being 0.13.0 post string freeze.
         // Create an issue for this and it'll be a quick fix in 0.13.1
         if (
           this.selectedCollectionIds.length === 1 &&
-          this.selectedCollectionIds.includes(this.$store.state.individualLearners.id) &&
-          this.individualLearners.length === 0
+          this.selectedCollectionIds.includes(this.$store.state.adHocLearners.id) &&
+          this.adHocLearners.length === 0
         ) {
           this.selectedCollectionIds.push(this.classId);
         }
 
-        // Always make sure that we're including the individualLearnersGroup ID in this
+        // Always make sure that we're including the adHocGroup ID in this
         // or else we'll delete the assignment and lose the collection.
-        if (!this.selectedCollectionIds.includes(this.$store.state.individualLearners.id)) {
+        if (!this.selectedCollectionIds.includes(this.$store.state.adHocLearners.id)) {
           // The selected individual learners should be cleared out in this case as well.
-          this.individualLearners = [];
-          this.selectedCollectionIds.push(this.$store.state.individualLearners.id);
+          this.adHocLearners = [];
+          this.selectedCollectionIds.push(this.$store.state.adHocLearners.id);
         }
 
-        // Update the users associated with the IndividualLearnersGroup then proceed
+        // Update the users associated with the AdHocGroup then proceed
         // with form submission
         this.$store
-          .dispatch('individualLearners/updateIndividualLearnersGroup', this.individualLearners)
+          .dispatch('adHocLearners/updateAdHocLearnersGroup', this.adHocLearners)
           .then(() => {
             if (this.formIsValid) {
               if (!this.detailsHaveChanged) {

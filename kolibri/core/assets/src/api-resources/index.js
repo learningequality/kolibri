@@ -5,7 +5,7 @@ export { default as ContentNodeSlimResource } from './contentNodeSlim';
 export { default as ContentNodeSearchResource } from './contentNodeSearch';
 export { default as FacilityUserResource } from './facilityUser';
 export { default as FacilityUsernameResource } from './facilityUsername';
-export { default as IndividualLearnersGroupResource } from './individualLearnersGroup';
+export { default as AdHocGroupResource } from './adHocLearnersGroup';
 export { default as LearnerGroupResource } from './learnerGroup';
 export { default as MembershipResource } from './membership';
 export { default as RoleResource } from './role';

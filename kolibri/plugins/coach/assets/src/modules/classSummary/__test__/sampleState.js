@@ -1027,7 +1027,7 @@ export default {
       groups: [],
     },
   },
-  individualLearnersMap: {
+  adHocLearnersMap: {
     f239935e386819c003316c66696e7610: {
       id: 'f239935e386819c003316c66696e7610',
       name: 'Individual learners',

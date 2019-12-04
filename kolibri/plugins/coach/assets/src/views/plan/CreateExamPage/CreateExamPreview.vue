@@ -238,13 +238,13 @@
           this.$refs.title.focus();
         } else {
           this.$store
-            .dispatch('individualLearners/createIndividualLearnersGroup', {
+            .dispatch('adHocLearners/createAdHocLearnersGroup', {
               classId: this.$route.params.classId,
             })
             .then(() => {
               const params = {
                 classId: this.classId,
-                individualLearnersGroupId: this.$store.state.individualLearners.id,
+                adHocGroupId: this.$store.state.adHocLearners.id,
               };
               this.$store.dispatch('examCreation/createExamAndRoute', params).catch(error => {
                 const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);

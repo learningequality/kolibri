@@ -1,8 +1,8 @@
-import { IndividualLearnersGroupResource } from 'kolibri.resources';
+import { AdHocGroupResource } from 'kolibri.resources';
 import { addUsersToGroup, removeUsersFromGroup } from '../groups/actions';
 
 /*
-function _individualLearnersState(group) {
+function _adHocLearnersState(group) {
   return {
     id: group.id,
     users: [],
@@ -10,8 +10,8 @@ function _individualLearnersState(group) {
 }
 */
 
-export function createIndividualLearnersGroup(store, { classId }) {
-  return IndividualLearnersGroupResource.saveModel({
+export function createAdHocLearnersGroup(store, { classId }) {
+  return AdHocGroupResource.saveModel({
     data: {
       parent: classId,
       name: 'Individual learners',
@@ -21,8 +21,8 @@ export function createIndividualLearnersGroup(store, { classId }) {
   });
 }
 
-export function updateIndividualLearnersGroup(store, user_ids) {
-  return IndividualLearnersGroupResource.saveModel({
+export function updateAdHocLearnersGroup(store, user_ids) {
+  return AdHocGroupResource.saveModel({
     id: store.state.id,
     data: {
       user_ids,
@@ -33,8 +33,8 @@ export function updateIndividualLearnersGroup(store, user_ids) {
   });
 }
 
-export function initializeIndividualLearnersGroup(store, id) {
-  return IndividualLearnersGroupResource.fetchModel({ id }).then(payload =>
+export function initializeAdHocLearnersGroup(store, id) {
+  return AdHocGroupResource.fetchModel({ id }).then(payload =>
     store.commit('SET_INDIVIDUAL_LEARNERS', payload)
   );
 }

@@ -16,7 +16,7 @@
       <AssignmentDetailsForm
         v-bind="formProps"
         :disabled="disabled"
-        :initialIndividualLearners="initialIndividualLearners"
+        :initialAdHocLearners="initialAdHocLearners"
         @cancel="goBackToSummaryPage"
         @submit="handleSaveChanges"
       />
@@ -35,7 +35,7 @@
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import AssignmentDetailsModal from './assignments/AssignmentDetailsModal';
 
-  const INDIVIDUAL_LEARNERS_GROUP_KIND = 'individuallearnersgroup';
+  const INDIVIDUAL_LEARNERS_GROUP_KIND = 'adhoclearnersgroup';
 
   export default {
     name: 'QuizEditDetailsPage',
@@ -59,7 +59,7 @@
     },
     computed: {
       ...mapGetters('classSummary', ['groups']),
-      ...mapGetters('individualLearners', ['hasIndividualLearnersAssigned']),
+      ...mapGetters('adHocLearners', ['hasAdHocLearnersAssigned']),
       formProps() {
         return {
           assignmentType: 'quiz',
@@ -83,11 +83,11 @@
       },
       initialSelectedCollectionIds() {
         let collectionIds = [];
-        // Only include the IndividualLearnersGroup in this if it has already
+        // Only include the AdHocGroup in this if it has already
         // had learners assigned to it.
         this.quiz.assignments.forEach(assignment => {
           if (assignment.collection_kind === INDIVIDUAL_LEARNERS_GROUP_KIND) {
-            if (this.hasIndividualLearnersAssigned) {
+            if (this.hasAdHocLearnersAssigned) {
               collectionIds.push(assignment.collection);
             }
           } else {
@@ -96,8 +96,8 @@
         });
         return collectionIds;
       },
-      initialIndividualLearners() {
-        return this.$store.state.individualLearners.user_ids;
+      initialAdHocLearners() {
+        return this.$store.state.adHocLearners.user_ids;
       },
     },
     beforeRouteEnter(to, from, next) {
@@ -111,17 +111,14 @@
             );
             if (collection) {
               vm.$store
-                .dispatch(
-                  'individualLearners/initializeIndividualLearnersGroup',
-                  collection.collection
-                )
+                .dispatch('adHocLearners/initializeAdHocLearnersGroup', collection.collection)
                 .then(() => vm.setData(quiz));
             } else {
               // There is no "inidividual learners group" assigned to this quiz, so
               // we will make one. This will also set the newly created individual learners
-              // group to the individualLearners vuex state.
+              // group to the adHocLearners vuex state.
               vm.$store
-                .dispatch('individualLearners/createIndividualLearnersGroup', {
+                .dispatch('adHocLearners/createAdHocLearnersGroup', {
                   classId: vm.$route.params.classId,
                 })
                 .then(() => {
@@ -131,7 +128,7 @@
                     data: {
                       assignments: [
                         { collection: vm.$route.params.classId },
-                        { collection: vm.$store.state.individualLearners.id },
+                        { collection: vm.$store.state.adHocLearners.id },
                       ],
                     },
                   }).then(() => vm.setData(quiz));

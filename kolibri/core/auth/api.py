@@ -38,7 +38,7 @@ from .models import Collection
 from .models import Facility
 from .models import FacilityDataset
 from .models import FacilityUser
-from .models import IndividualLearnersGroup
+from .models import AdHocGroup
 from .models import LearnerGroup
 from .models import Membership
 from .models import Role
@@ -46,7 +46,7 @@ from .serializers import ClassroomSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
 from .serializers import FacilityUserSerializer
-from .serializers import IndividualLearnersGroupSerializer
+from .serializers import AdHocGroupSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
@@ -406,11 +406,11 @@ class LearnerGroupViewSet(ValuesViewset):
         )
 
 
-class IndividualLearnersGroupViewSet(viewsets.ModelViewSet):
+class AdHocGroupViewSet(viewsets.ModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
-    queryset = IndividualLearnersGroup.objects.all()
-    serializer_class = IndividualLearnersGroupSerializer
+    queryset = AdHocGroup.objects.all()
+    serializer_class = AdHocGroupSerializer
 
     filter_fields = ("parent",)
 
@@ -426,9 +426,7 @@ class IndividualLearnersGroupViewSet(viewsets.ModelViewSet):
         )
 
     def partial_update(self, request, pk):
-        individual_learners_group = IndividualLearnersGroup.objects.filter(pk=pk)[
-            :1
-        ].get()
+        individual_learners_group = AdHocGroup.objects.filter(pk=pk)[:1].get()
         current_learners = individual_learners_group.get_learners()
         updated_learners = FacilityUser.objects.filter(pk__in=request.data["user_ids"])
 

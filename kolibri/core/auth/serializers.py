@@ -15,7 +15,7 @@ from .models import Facility
 from .models import FacilityDataset
 from .models import FacilityUser
 from .models import LearnerGroup
-from .models import IndividualLearnersGroup
+from .models import AdHocGroup
 from .models import Membership
 from .models import Role
 from kolibri.core import error_constants
@@ -154,7 +154,7 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
         ]
 
 
-class IndividualLearnersGroupSerializer(serializers.ModelSerializer):
+class AdHocGroupSerializer(serializers.ModelSerializer):
 
     user_ids = serializers.SerializerMethodField()
 
@@ -162,5 +162,5 @@ class IndividualLearnersGroupSerializer(serializers.ModelSerializer):
         return [str(user_id["id"]) for user_id in group.get_members().values("id")]
 
     class Meta:
-        model = IndividualLearnersGroup
+        model = AdHocGroup
         fields = ("id", "name", "parent", "user_ids")

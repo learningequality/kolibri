@@ -19,7 +19,7 @@ from kolibri.core.auth import models as auth_models
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.models import IndividualLearnersGroup
+from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -314,7 +314,7 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         lesson_data = serialize_lessons(query_lesson)
         exam_data = serialize_exams(query_exams)
 
-        individual_learners_group_ids = IndividualLearnersGroup.objects.filter(
+        individual_learners_group_ids = AdHocGroup.objects.filter(
             parent=classroom
         ).values_list("id", flat=True)
 
@@ -381,7 +381,7 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             ),
             "learners": learners_data,
             "groups": serialize_groups(classroom.get_learner_groups()),
-            "individuallearners": serialize_groups(
+            "adhoclearners": serialize_groups(
                 classroom.get_individual_learners_group()
             ),
             "exams": exam_data,
