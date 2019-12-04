@@ -40,6 +40,11 @@
         :floatingLabel="false"
         style="max-width: 300px"
       />
+      <KCheckbox
+        :label="$tr('unlistedChannels')"
+        :checked="allowPeerUnlistedChannelImport"
+        @change="allowPeerUnlistedChannelImport = $event"
+      />
       <p>
         <label>{{ $tr('landingPageLabel') }}</label>
         <KRadioButton
@@ -57,20 +62,15 @@
       </p>
       <KCheckbox
         :label="$tr('allowGuestAccess')"
-        :disabled="landingPage !== landingPageChoices.SIGN_IN"
+        :disabled="disableAllowGuestAccess"
         :checked="allowGuestAccess || landingPage === landingPageChoices.LEARN"
         @change="allowGuestAccess = $event"
       />
       <KCheckbox
         :label="$tr('lockedContent')"
-        :disabled="landingPage !== landingPageChoices.SIGN_IN"
+        :disabled="disableAllowLearnerUnassignedResourceAccess"
         :checked="!allowLearnerUnassignedResourceAccess && landingPage !== landingPageChoices.LEARN"
         @change="allowLearnerUnassignedResourceAccess = !$event"
-      />
-      <KCheckbox
-        :label="$tr('unlistedChannels')"
-        :checked="allowPeerUnlistedChannelImport"
-        @change="allowPeerUnlistedChannelImport = $event"
       />
     </section>
     <section>
@@ -143,6 +143,15 @@
           return getUrl() + '#/settings';
         }
         return null;
+      },
+      disableAllowGuestAccess() {
+        return (
+          this.landingPage !== LandingPageChoices.SIGN_IN ||
+          !this.allowLearnerUnassignedResourceAccess
+        );
+      },
+      disableAllowLearnerUnassignedResourceAccess() {
+        return this.landingPage !== LandingPageChoices.SIGN_IN || this.allowGuestAccess;
       },
     },
     beforeMount() {
