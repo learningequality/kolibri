@@ -7,16 +7,16 @@ from django.db import models
 
 
 def migrate_allow_guest_access(apps, schema_editor):
-    FacilityDataset = apps.get_model('kolibriauth', 'FacilityDataset')
-    DeviceSettings = apps.get_model('device', 'DeviceSettings')
+    FacilityDataset = apps.get_model("kolibriauth", "FacilityDataset")
+    DeviceSettings = apps.get_model("device", "DeviceSettings")
 
     allow_guest_access = FacilityDataset.objects.filter(allow_guest_access=False).count() <= 0
     DeviceSettings.objects.update(allow_guest_access=allow_guest_access)
 
 
 def revert_allow_guest_access(apps, schema_editor):
-    FacilityDataset = apps.get_model('kolibriauth', 'FacilityDataset')
-    DeviceSettings = apps.get_model('device', 'DeviceSettings')
+    FacilityDataset = apps.get_model("kolibriauth", "FacilityDataset")
+    DeviceSettings = apps.get_model("device", "DeviceSettings")
 
     allow_guest_access = DeviceSettings.objects.filter(allow_guest_access=False).count() <= 0
     FacilityDataset.objects.update(allow_guest_access=allow_guest_access)
@@ -25,30 +25,30 @@ def revert_allow_guest_access(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('device', '0004_auto_20190306_0553'),
-        ('kolibriauth', '0012_facilitydataset_allow_guest_access'),
+        ("device", "0004_auto_20190306_0553"),
+        ("kolibriauth", "0012_facilitydataset_allow_guest_access"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='devicesettings',
-            name='allow_guest_access',
+            model_name="devicesettings",
+            name="allow_guest_access",
             field=models.BooleanField(default=True),
         ),
         migrations.RunPython(migrate_allow_guest_access, revert_allow_guest_access),
         migrations.AddField(
-            model_name='devicesettings',
-            name='allow_learner_unassigned_resource_access',
+            model_name="devicesettings",
+            name="allow_learner_unassigned_resource_access",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='devicesettings',
-            name='allow_peer_unlisted_channel_import',
+            model_name="devicesettings",
+            name="allow_peer_unlisted_channel_import",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='devicesettings',
-            name='landing_page',
-            field=models.CharField(choices=[('sign-in', 'Sign-in page'), ('learn', 'Learn page')], default='sign-in', max_length=7),
+            model_name="devicesettings",
+            name="landing_page",
+            field=models.CharField(choices=[("sign-in", "Sign-in page"), ("learn", "Learn page")], default="sign-in", max_length=7),
         ),
     ]

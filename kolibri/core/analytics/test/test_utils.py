@@ -25,6 +25,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.device.utils import provision_device
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
@@ -166,6 +167,7 @@ class BaseDeviceSetupMixin(object):
 
 class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
     def test_extract_facility_statistics(self):
+        provision_device(allow_guest_access=True)
         facility = self.facilities[0]
         actual = extract_facility_statistics(facility)
         facility_id_hash = actual.pop("fi")

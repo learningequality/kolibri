@@ -22,9 +22,5 @@ urlpatterns = [
     ),
     url(r"^freespace/", FreeSpaceView.as_view({"get": "list"}), name="freespace"),
     url(r"^deviceinfo/", DeviceInfoView.as_view(), name="deviceinfo"),
-    url(
-        r"^devicesettings/",
-        DeviceSettingsView.as_view(),
-        name="devicesettings",
-    ),
+    url(r"^devicesettings/", DeviceSettingsView.as_view(), name="devicesettings"),
 ]

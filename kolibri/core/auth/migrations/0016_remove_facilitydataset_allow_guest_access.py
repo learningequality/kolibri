@@ -8,13 +8,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('kolibriauth', '0015_facilitydataset_registered'),
-        ('device', '0005_auto_20191203_0951'),
+        ("kolibriauth", "0015_facilitydataset_registered"),
+        ("device", "0005_auto_20191203_0951"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='facilitydataset',
-            name='allow_guest_access',
+            model_name="facilitydataset", name="allow_guest_access",
         ),
     ]

@@ -28,6 +28,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import LocalFile
+from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -82,7 +83,7 @@ def extract_facility_statistics(facility):
         if hasattr(facility.dataset, name)
     }
 
-    settings.update(allow_guest_access=get_device_setting('allow_guest_access'))
+    settings.update(allow_guest_access=allow_guest_access())
 
     learners = FacilityUser.objects.filter(dataset_id=dataset_id).exclude(
         roles__kind__in=[role_kinds.ADMIN, role_kinds.COACH]
