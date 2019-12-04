@@ -7,7 +7,7 @@
       class="textbox"
       :label="label"
       :disabled="disabled"
-      :invalid="invalid"
+      :invalid="showInvalidMessage"
       :error="invalidText"
       :autofocus="autofocus"
       :maxlength="maxlength"
@@ -76,6 +76,13 @@
         required: false,
       },
       /**
+       * Text displayed if user changes value in input
+       */
+      onlyShowValidationAfterChange: {
+        type: Boolean,
+        default: true,
+      },
+      /**
        * Whether or not to autofocus
        */
       autofocus: {
@@ -134,11 +141,23 @@
       },
     },
     data() {
-      return { currentText: this.value };
+      return {
+        currentText: this.value,
+        changed: false,
+      };
+    },
+    computed: {
+      showInvalidMessage() {
+        if (this.onlyShowValidationAfterChange) {
+          return this.invalid && this.changed;
+        }
+        return this.invalid;
+      },
     },
     watch: {
       value(val) {
         this.currentText = val;
+        this.changed = true;
       },
     },
     methods: {
