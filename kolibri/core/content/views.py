@@ -122,9 +122,9 @@ def parse_html(content):
                 replace_script(parent, script)
         # Because html5lib parses like a browser, it will
         # always create head and body tags if they are missing.
-        body = document.find("body")
+        head = document.find("head")
         SubElement(
-            body,
+            head,
             "script",
             attrib={
                 "src": static(
