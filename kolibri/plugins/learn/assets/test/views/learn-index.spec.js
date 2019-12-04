@@ -60,6 +60,9 @@ describe('learn plugin index page', () => {
   const setPageName = pageName => {
     store.state.pageName = pageName;
   };
+  const setCanAccessUnassignedContent = canAccess => {
+    store.state.core.session.can_access_unassigned_content = canAccess;
+  };
 
   beforeEach(() => {
     store = makeStore();
@@ -72,42 +75,72 @@ describe('learn plugin index page', () => {
     expect(CoreBase().props().showSubNav).toEqual(false);
   });
 
-  it('the recommended and channel links are always available to everybody', () => {
-    setSessionUserKind('anonymous');
-    setMemberships([]);
-    const wrapper = makeWrapper({ store });
-    const { tabLinks, recommendedLink, topicsLink } = getElements(wrapper);
-    expect(tabLinks().length).toEqual(2);
-    expect(recommendedLink().is('a')).toEqual(true);
-    expect(topicsLink().is('a')).toEqual(true);
+  describe('when allowed to access unassigned content', () => {
+    beforeEach(() => {
+      setCanAccessUnassignedContent(true);
+    });
+
+    it('the recommended and channel links are always available to everybody', () => {
+      setSessionUserKind('anonymous');
+      setMemberships([]);
+      const wrapper = makeWrapper({ store });
+      const { tabLinks, recommendedLink, topicsLink } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(2);
+      expect(recommendedLink().is('a')).toEqual(true);
+      expect(topicsLink().is('a')).toEqual(true);
+    });
+
+    it('the classes tab is available if user is logged in and has memberships', () => {
+      // should work for any user 'kind' except for 'anonymous'
+      setSessionUserKind('learner');
+      setMemberships([{ id: 'membership_1' }]);
+      const wrapper = makeWrapper({ store });
+      const { classesLink, tabLinks } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(3);
+      expect(classesLink().is('a')).toEqual(true);
+    });
+
+    it('the classes tab is not available if user is not logged in', () => {
+      // in current implementation, anonymous user implies empty memberships
+      setSessionUserKind('anonymous');
+      setMemberships([]);
+      const wrapper = makeWrapper({ store });
+      const { classesLink, tabLinks } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(2);
+      expect(!classesLink().exists()).toEqual(true);
+    });
+
+    it('the classes tab is not available if user has no memberships/classes', () => {
+      setSessionUserKind('learner');
+      setMemberships([]);
+      const wrapper = makeWrapper({ store });
+      const { classesLink, tabLinks } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(2);
+      expect(!classesLink().exists()).toEqual(true);
+    });
   });
 
-  it('the classes tab is available if user is logged in and has memberships', () => {
-    // should work for any user 'kind' except for 'anonymous'
-    setSessionUserKind('learner');
-    setMemberships([{ id: 'membership_1' }]);
-    const wrapper = makeWrapper({ store });
-    const { classesLink, tabLinks } = getElements(wrapper);
-    expect(tabLinks().length).toEqual(3);
-    expect(classesLink().is('a')).toEqual(true);
-  });
+  describe('when not allowed to access unassigned content', () => {
+    beforeEach(() => {
+      setCanAccessUnassignedContent(false);
+    });
 
-  it('the classes tab is not available if user is not logged in', () => {
-    // in current implementation, anonymous user implies empty memberships
-    setSessionUserKind('anonymous');
-    setMemberships([]);
-    const wrapper = makeWrapper({ store });
-    const { classesLink, tabLinks } = getElements(wrapper);
-    expect(tabLinks().length).toEqual(2);
-    expect(!classesLink().exists()).toEqual(true);
-  });
+    it('no tabs are available', () => {
+      setSessionUserKind('anonymous');
+      setMemberships([]);
+      const wrapper = makeWrapper({ store });
+      const { tabLinks } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(0);
+    });
 
-  it('the classes tab is not available if user has no memberships/classes', () => {
-    setSessionUserKind('learner');
-    setMemberships([]);
-    const wrapper = makeWrapper({ store });
-    const { classesLink, tabLinks } = getElements(wrapper);
-    expect(tabLinks().length).toEqual(2);
-    expect(!classesLink().exists()).toEqual(true);
+    it('only classes tab is available if signed in', () => {
+      // should work for any user 'kind' except for 'anonymous'
+      setSessionUserKind('learner');
+      setMemberships([{ id: 'membership_1' }]);
+      const wrapper = makeWrapper({ store });
+      const { classesLink, tabLinks } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(1);
+      expect(classesLink().is('a')).toEqual(true);
+    });
   });
 });
