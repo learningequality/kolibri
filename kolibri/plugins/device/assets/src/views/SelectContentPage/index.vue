@@ -8,16 +8,7 @@
 
     <template v-else>
       <TaskProgress
-        v-if="showUpdateProgressBar"
-        type="UPDATING_CHANNEL"
-        status="QUEUED"
-        :percentage="0"
-        :showButtons="true"
-        :cancellable="true"
-        @canceltask="cancelUpdateChannel()"
-      />
-      <TaskProgress
-        v-else-if="metadataDownloadTask"
+        v-if="metadataDownloadTask"
         type="DOWNLOADING_CHANNEL_CONTENTS"
         v-bind="metadataDownloadTask"
         :showButtons="true"
@@ -25,7 +16,7 @@
         @canceltask="returnToChannelsList()"
       />
 
-      <template v-if="mainAreaIsVisible">
+      <template v-if="onDeviceInfoIsReady">
         <section
           v-if="transferredChannel && onDeviceInfoIsReady"
           class="updates"
@@ -119,11 +110,9 @@
     mixins: [responsiveWindowMixin, taskNotificationMixin],
     data() {
       return {
-        showUpdateProgressBar: false,
         contentTransferError: false,
-        pageWillRefresh: false,
         // need to store ID in component to make sure cancellation works properly
-        // in beforeDestroy
+        // in beforeRouteLeave
         metadataDownloadTaskId: '',
         disableBottomBar: false,
       };
@@ -148,24 +137,16 @@
       channelId() {
         return this.$route.params.channel_id;
       },
-      mainAreaIsVisible() {
-        // Don't show main area if page is about to refresh after updating (or cancelling update)
-        if (this.pageWillRefresh) {
-          return false;
-        }
-        return this.onDeviceInfoIsReady;
-      },
       onDeviceInfoIsReady() {
         return !isEmpty(this.currentTopicNode);
       },
       metadataDownloadTask() {
-        return (
-          find(this.taskList, {
-            type: TaskTypes.REMOTECHANNELIMPORT,
-            channel_id: this.channelId,
-          }) ||
-          find(this.taskList, { type: TaskTypes.DISKCHANNELIMPORT, channel_id: this.channelId })
-        );
+        return find(this.taskList, ({ type, channel_id }) => {
+          return (
+            channel_id === this.channelId &&
+            (type === TaskTypes.REMOTECHANNELIMPORT || type === TaskTypes.DISKCHANNELIMPORT)
+          );
+        });
       },
       // If this property is truthy, the entire UI is hidden and only the UiAlert is shown
       wholePageError() {
@@ -190,6 +171,9 @@
       },
     },
     watch: {
+      // A IMPORTCHANNEL Task should be created inside the showAvailableChannels via
+      // loadChannelMetadata function. When this component is mounted, it finds that Task
+      // then waits until it completes to delete it automatically.
       metadataDownloadTask: {
         handler(val) {
           if (val) {
@@ -245,10 +229,6 @@
         setAppBarTitle: 'SET_APP_BAR_TITLE',
       }),
       ...mapActions('manageContent', ['cancelTask']),
-      cancelUpdateChannel() {
-        this.showUpdateProgressBar = false;
-        this.cancelMetadataDownloadTask().then(this.refreshPage);
-      },
       cancelMetadataDownloadTask() {
         if (this.metadataDownloadTaskId) {
           return this.cancelTask(this.metadataDownloadTaskId);
@@ -303,9 +283,6 @@
           });
       },
       startImportTask,
-      refreshPage() {
-        this.$router.go();
-      },
       returnToChannelsList() {
         this.$router.push(manageContentPageLink());
       },

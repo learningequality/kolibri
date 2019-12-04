@@ -209,14 +209,13 @@ export function showSelectContentPage(store, params) {
     });
   }
 
-  return ConditionalPromise.all([
+  return Promise.all([
     selectedDrivePromise,
     transferredChannelPromise,
     availableSpacePromise,
     installedChannelPromise,
-  ]).only(
-    samePageCheckGenerator(store),
-    function onSuccess([selectedDrive, transferredChannel, availableSpace]) {
+  ])
+    .then(([selectedDrive, transferredChannel, availableSpace]) => {
       store.commit('manageContent/wizard/HYDRATE_SELECT_CONTENT_PAGE', {
         availableSpace,
         selectedDrive,
@@ -224,21 +223,17 @@ export function showSelectContentPage(store, params) {
         transferredChannel,
       });
 
-      const isSamePage = samePageCheckGenerator(store);
       return loadChannelMetadata(store).then(() => {
-        if (isSamePage()) {
-          return updateTreeViewTopic(store, {
-            id: store.state.manageContent.wizard.transferredChannel.root,
-            title: transferredChannel.name,
-          }).then(() => {});
-        }
+        return updateTreeViewTopic(store, {
+          id: store.state.manageContent.wizard.transferredChannel.root,
+          title: transferredChannel.name,
+        }).then(() => {});
       });
-    },
-    function onFailure(error) {
+    })
+    .catch(error => {
       store.commit('CORE_SET_PAGE_LOADING', false);
       return handleError(store, error);
-    }
-  );
+    });
 }
 
 /**
