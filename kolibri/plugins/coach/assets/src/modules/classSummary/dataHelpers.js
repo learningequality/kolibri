@@ -92,7 +92,7 @@ export default {
       } else {
         // If we have no assignments, then getLearnersForGroups will return
         // all learners (meaning this is assigned to entire class)
-        return this.getLearnersForGroups(exam.groups);
+        return [];
       }
     };
   },
