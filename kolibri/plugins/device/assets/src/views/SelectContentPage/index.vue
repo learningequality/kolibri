@@ -7,14 +7,14 @@
     />
 
     <template v-else>
-      <TaskProgress
-        v-if="metadataDownloadTask"
-        type="DOWNLOADING_CHANNEL_CONTENTS"
-        v-bind="metadataDownloadTask"
-        :showButtons="true"
-        :cancellable="true"
-        @canceltask="returnToChannelsList()"
-      />
+      <transition name="fade">
+        <TaskProgress
+          v-if="!onDeviceInfoIsReady"
+          type="DOWNLOADING_CHANNEL_CONTENTS"
+          :showButtons="false"
+          status="RUNNING"
+        />
+      </transition>
 
       <template v-if="onDeviceInfoIsReady">
         <section
@@ -80,7 +80,6 @@
   import { TaskResource } from 'kolibri.resources';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import { ContentWizardErrors, TaskTypes, PageNames, taskIsClearable } from '../../constants';
-  import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';
@@ -171,7 +170,7 @@
       },
     },
     watch: {
-      // A IMPORTCHANNEL Task should be created inside the showAvailableChannels via
+      // A REMOTE/DISKCHANNELIMPORT Task should be created inside the showAvailableChannels via
       // loadChannelMetadata function. When this component is mounted, it finds that Task
       // then waits until it completes to delete it automatically.
       metadataDownloadTask: {
@@ -283,9 +282,6 @@
           });
       },
       startImportTask,
-      returnToChannelsList() {
-        this.$router.push(manageContentPageLink());
-      },
       handleClickViewNewVersion() {
         this.$router.push({
           name: PageNames.NEW_CHANNEL_VERSION_PAGE,
@@ -353,6 +349,16 @@
 
   .banner {
     margin-bottom: 24px;
+  }
+
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.5s;
   }
 
 </style>

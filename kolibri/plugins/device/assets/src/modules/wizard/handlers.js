@@ -252,7 +252,6 @@ export function updateTreeViewTopic(store, topic) {
     const { selectedPeer } = store.state.manageContent.wizard;
     fetchArgs.importing_from_peer_id = selectedPeer.id;
   }
-  store.commit('CORE_SET_PAGE_LOADING', true);
   return ContentNodeGranularResource.fetchModel({
     id: topic.id,
     getParams: fetchArgs,
@@ -267,8 +266,5 @@ export function updateTreeViewTopic(store, topic) {
         'manageContent/wizard/SET_WIZARD_STATUS',
         ContentWizardErrors.TREEVIEW_LOADING_ERROR
       );
-    })
-    .then(() => {
-      store.commit('CORE_SET_PAGE_LOADING', false);
     });
 }

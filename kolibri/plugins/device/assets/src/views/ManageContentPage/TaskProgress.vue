@@ -39,19 +39,6 @@
       <span class="percentage">{{ progressMessage }}</span>
     </div>
 
-    <div v-if="showButtons" class="buttons dtc">
-      <KButton
-        v-if="taskHasCompleted || taskHasFailed || cancellable"
-        class="btn"
-        :text="taskHasCompleted || taskHasFailed ?
-          coreString('closeAction') :
-          coreString('cancelAction')"
-        :primary="true"
-        :disabled="uiBlocked"
-        @click="endTask()"
-      />
-    </div>
-
   </div>
 
 </template>
@@ -62,42 +49,26 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskTypes, TaskStatuses } from '../../constants';
 
-  const RequiredString = {
-    type: String,
-    required: true,
-  };
-
   export default {
     name: 'TaskProgress',
     mixins: [commonCoreStrings],
     props: {
-      type: RequiredString,
-      status: RequiredString,
+      type: {
+        type: String,
+        required: true,
+      },
+      status: {
+        type: String,
+        required: false,
+      },
       percentage: {
         type: Number,
-        required: true,
       },
-      cancellable: {
-        type: Boolean,
-        required: true,
-      },
-      showButtons: {
-        type: Boolean,
-        default: true,
-      },
-    },
-    data() {
-      return {
-        uiBlocked: false,
-      };
     },
     computed: {
       TaskStatuses: () => TaskStatuses,
       stageText() {
-        // Special case for Channel DB downloading, since they never go into RUNNING
-        if (this.type === 'UPDATING_CHANNEL') {
-          return this.$tr('updatingChannel');
-        }
+        // TODO Delete dead code, since this component is only used for IMPORTCHANNEL Tasks
         if (this.type === 'DOWNLOADING_CHANNEL_CONTENTS') {
           return this.$tr('downloadingChannelContents');
         }
@@ -153,34 +124,6 @@
         return '';
       },
     },
-    watch: {
-      taskHasCompleted(newValue, oldValue) {
-        // Once it becomes complete, always set to false
-        if (!oldValue && newValue) {
-          this.uiBlocked = false;
-        }
-      },
-      taskHasFailed(newValue, oldValue) {
-        // Once it becomes failed, always set to false
-        if (!oldValue && newValue) {
-          this.uiBlocked = false;
-        }
-      },
-    },
-    methods: {
-      endTask() {
-        this.uiBlocked = true;
-        if (this.taskHasCompleted || this.taskHasFailed) {
-          this.$emit('cleartask', () => {
-            this.uiBlocked = false;
-          });
-        } else if (this.cancellable) {
-          this.$emit('canceltask');
-        } else {
-          this.uiBlocked = false;
-        }
-      },
-    },
     $trs: {
       importingContent: 'Importing resources…',
       exportingContent: 'Exporting resources…',
@@ -190,8 +133,8 @@
       deleteTaskHasFailed: 'Attempt to delete channel failed. Please try again.',
       deletingChannel: 'Deleting channel…',
       downloadingChannelContents: 'Generating channel listing. This could take a few minutes',
-      updatingChannel: 'Updating channel…',
       /* eslint-disable kolibri/vue-no-unused-translations */
+      updatingChannel: 'Updating channel…',
       comparingChannelContents:
         'Comparing resources on device with new channel version. This could take a few minutes',
       /* eslint-enable kolibri/vue-no-unused-translations */
