@@ -33,7 +33,7 @@ Feature: Coach edits quizzes
     When I change *Recipients* by selecting *Individual learners*
     Then I see a table listing all of the learners in the class.
     When I change *Recipients* by selecting both *Individual learners* and any other group that has learners
-    Then I see the learners in that group have the checkboxes by their names disabled
+    Then I see the learners in the selected group(s) have the checkboxes by their names disabled
     When I select learners in the table by clicking the checkboxes next to their names
       And I click *Save changes*
     Then I can log in as one of the selected individual learners and take the quiz
