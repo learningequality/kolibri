@@ -161,18 +161,20 @@ class FileDownload(Transfer):
         self.response = self.session.get(self.source, stream=True, timeout=self.timeout)
         self.response.raise_for_status()
 
-        content_length = self.response.headers.get("content-length")
-        gcs_content_length = self.response.headers.get("X-Goog-Stored-Content-Length")
-        if content_length:
-            self.total_size = int(content_length)
-        elif gcs_content_length:
+        try:
+            self.total_size = self.response.headers["content-length"]
+        except KeyError:
             # When a compressed file is saved on Google Cloud Storage,
             # content-length is not available in the header,
             # but we can use X-Goog-Stored-Content-Length.
-            self.total_size = int(gcs_content_length)
-        else:
-            # Get size of response content when file is compressed through nginx.
-            self.total_size = len(self.response.content)
+            gcs_content_length = self.response.headers.get(
+                "X-Goog-Stored-Content-Length"
+            )
+            if gcs_content_length:
+                self.total_size = int(gcs_content_length)
+            else:
+                # Get size of response content when file is compressed through nginx.
+                self.total_size = len(self.response.content)
 
         self.started = True
 
