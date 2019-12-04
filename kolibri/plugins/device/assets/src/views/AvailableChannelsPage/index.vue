@@ -14,12 +14,7 @@
     >
       <template v-slot:header>
         <h1 v-if="status === ''" data-test="title">
-          <span v-if="multipleMode">
-            {{ $tr('importChannelsHeader') }}
-          </span>
-          <span v-else>
-            {{ $tr('importResourcesHeader') }}
-          </span>
+          {{ multipleMode ? $tr('importChannelsHeader') : $tr('importResourcesHeader') }}
         </h1>
       </template>
 
@@ -79,12 +74,14 @@
       @cancel="showTokenModal=false"
       @submit="handleSubmitToken"
     />
+
     <ChannelUpdateModal
       v-if="showUpdateModal"
       :disabled="disableModal"
       @cancel="showUpdateModal=false"
       @submit="handleConfirmUpgrade"
     />
+
     <KLinearLoader
       v-if="channelsAreLoading"
       type="indeterminate"
@@ -280,7 +277,6 @@
             addressId: this.$route.query.address_id,
             channelId: channel.id,
             driveId: this.$route.query.drive_id,
-            forExport: this.$route.query.for_export,
           })
         );
       },

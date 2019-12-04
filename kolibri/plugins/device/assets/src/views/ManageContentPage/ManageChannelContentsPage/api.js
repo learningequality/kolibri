@@ -34,6 +34,7 @@ export function fetchNodeWithAncestors(nodeId) {
     ContentNodeGranularResource.fetchModel({
       id: nodeId,
       getParams: {
+        // Set this param to only show resources that are 'available'
         for_export: true,
       },
       force: true,

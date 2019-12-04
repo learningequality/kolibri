@@ -19,7 +19,6 @@ const translator = createTranslator('WizardHandlerTexts', {
 
 // Utilities for the show*Page actions
 function getSelectedDrive(store, driveId) {
-  const { transferType } = store.state;
   return new Promise((resolve, reject) => {
     store
       .dispatch('manageContent/refreshDriveList', null, { root: true })
@@ -27,11 +26,7 @@ function getSelectedDrive(store, driveId) {
         store.commit('manageContent/wizard/SET_DRIVE_LIST', driveList);
         const drive = find(driveList, { id: driveId });
         if (drive) {
-          if (transferType === TransferTypes.LOCALEXPORT && !drive.writable) {
-            reject({ error: ContentWizardErrors.DRIVE_IS_NOT_WRITEABLE });
-          } else {
-            resolve({ ...drive });
-          }
+          resolve({ ...drive });
         } else {
           reject({ error: ContentWizardErrors.DRIVE_NOT_FOUND });
         }
@@ -54,15 +49,9 @@ function getInstalledChannelsPromise(store) {
 }
 
 function getTransferType(params) {
-  const { for_export, drive_id, address_id } = params;
-  // invalid combinations
-  if (for_export) {
-    if (!drive_id || address_id) {
-      return null;
-    }
-  }
+  const { drive_id, address_id } = params;
   if (drive_id) {
-    return for_export ? TransferTypes.LOCALEXPORT : TransferTypes.LOCALIMPORT;
+    return TransferTypes.LOCALIMPORT;
   }
 
   if (address_id) {
@@ -84,7 +73,7 @@ function handleError(store, error) {
 }
 
 // Handler for when user goes directly to the Available Channels URL.
-// Params are { drive_id?: string, for_export?: boolean }
+// Params are { drive_id?: string, address_id?: string }
 export function showAvailableChannelsPage(store, params) {
   let availableChannelsPromise;
   let selectedDrivePromise;
@@ -96,13 +85,6 @@ export function showAvailableChannelsPage(store, params) {
 
   if (transferType === null) {
     return router.replace(manageContentPageLink());
-  }
-
-  if (transferType === TransferTypes.LOCALEXPORT) {
-    selectedDrivePromise = getSelectedDrive(store, params.drive_id);
-    availableChannelsPromise = getInstalledChannelsPromise(store).then(channels =>
-      channels.filter(c => c.available)
-    );
   }
 
   if (transferType === TransferTypes.LOCALIMPORT) {
@@ -155,7 +137,7 @@ export function showAvailableChannelsPage(store, params) {
 
 /**
  * Handler for going to Select Content Page URL directly
- * params are { channel_id: string, drive_id?: string, for_export?: boolean },
+ * params are { channel_id: string, drive_id?: string, address_id? },
  */
 export function showSelectContentPage(store, params) {
   let selectedDrivePromise = Promise.resolve({});
@@ -182,20 +164,6 @@ export function showSelectContentPage(store, params) {
       store.commit('manageContent/ADD_TO_CHANNEL_LIST', channel);
     })
     .catch(() => {});
-
-  if (transferType === TransferTypes.LOCALEXPORT) {
-    selectedDrivePromise = getSelectedDrive(store, drive_id);
-    availableSpacePromise = selectedDrivePromise.then(drive => getAvailableSpaceOnDrive(drive));
-    transferredChannelPromise = new Promise((resolve, reject) => {
-      getChannelWithContentSizes(params.channel_id)
-        .then(channel => {
-          resolve({ ...channel });
-        })
-        .catch(() => {
-          reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_SERVER });
-        });
-    });
-  }
 
   if (transferType === TransferTypes.LOCALIMPORT) {
     selectedDrivePromise = getSelectedDrive(store, drive_id);
