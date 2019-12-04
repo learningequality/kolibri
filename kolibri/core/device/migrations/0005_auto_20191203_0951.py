@@ -56,7 +56,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 choices=[("sign-in", "Sign-in page"), ("learn", "Learn page")],
                 default="sign-in",
-                max_length=7
+                max_length=7,
             ),
         ),
     ]
