@@ -6,6 +6,9 @@ circular imports.
 from django.db.utils import OperationalError
 from django.db.utils import ProgrammingError
 
+LANDING_PAGE_SIGN_IN = 'sign-in'
+LANDING_PAGE_LEARN = 'learn'
+
 
 class DeviceNotProvisioned(Exception):
     pass
@@ -32,6 +35,17 @@ def get_device_setting(setting, default=no_default_value):
 
 def device_provisioned():
     return get_device_setting("is_provisioned", False)
+
+
+def is_landing_page(landing_page):
+    return get_device_setting('landing_page', LANDING_PAGE_SIGN_IN) == landing_page
+
+
+def allow_guest_access():
+    if get_device_setting('allow_guest_access'):
+        return True
+
+    return is_landing_page(LANDING_PAGE_LEARN)
 
 
 def set_device_settings(**kwargs):

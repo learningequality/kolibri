@@ -18,7 +18,7 @@ from .models import LearnerGroup
 from .models import Membership
 from .models import Role
 from kolibri.core import error_constants
-from kolibri.core.device.utils import get_device_setting
+from kolibri.core.device.utils import allow_guest_access
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -93,7 +93,7 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
         )
 
     def get_allow_guest_access(self, instance):
-        return get_device_setting('allow_guest_access')
+        return allow_guest_access()
 
 
 class FacilitySerializer(serializers.ModelSerializer):

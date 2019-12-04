@@ -58,13 +58,13 @@
       <KCheckbox
         :label="$tr('allowGuestAccess')"
         :disabled="landingPage !== landingPageChoices.SIGN_IN"
-        :checked="allowGuestAccess"
+        :checked="allowGuestAccess || landingPage === landingPageChoices.LEARN"
         @change="allowGuestAccess = $event"
       />
       <KCheckbox
         :label="$tr('lockedContent')"
         :disabled="landingPage !== landingPageChoices.SIGN_IN"
-        :checked="!allowLearnerUnassignedResourceAccess"
+        :checked="!allowLearnerUnassignedResourceAccess && landingPage !== landingPageChoices.LEARN"
         @change="allowLearnerUnassignedResourceAccess = !$event"
       />
       <KCheckbox
