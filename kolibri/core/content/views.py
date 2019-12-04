@@ -186,7 +186,7 @@ def get_h5p(zf, embedded_filepath):
             mimetypes.guess_type(embedded_filepath)[0] or "application/octet-stream"
         )
     response = HttpResponse(content, content_type=content_type)
-    response["Content-Length"] = len(content)
+    response["Content-Length"] = len(response.content)
     return response
 
 
