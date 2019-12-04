@@ -595,6 +595,7 @@ class TasksViewSet(viewsets.ViewSet):
             baseurl=baseurl,
             extra_metadata=job_metadata,
             track_progress=False,
+            cancellable=True,
         )
 
         resp = _job_to_response(queue.fetch_job(job_id))

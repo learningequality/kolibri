@@ -184,16 +184,6 @@ class LogoutLanguagePersistenceTest(APITestCase):
         response = self.client.get("/logout")
         self.assertTrue(get_settings_language() in response.url)
 
-    def test_persistent_cookie_language_setting_on_logout(self):
-        # Test when set on a cookie.
-        from django.http.cookie import SimpleCookie
-        from django.conf import settings
-
-        self.client.login(**self.credentials)
-        self.client.cookies = SimpleCookie({settings.LANGUAGE_COOKIE_NAME: "fr-fr"})
-        response = self.client.post("/logout")
-        self.assertTrue("fr-fr" in response.url)
-
     def test_persistent_session_language_setting_on_logout(self):
         # Test when set on a session.
         from django.utils.translation import LANGUAGE_SESSION_KEY
