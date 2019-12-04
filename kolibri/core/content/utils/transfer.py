@@ -162,7 +162,7 @@ class FileDownload(Transfer):
         self.response.raise_for_status()
 
         try:
-            self.total_size = self.response.headers["content-length"]
+            self.total_size = int(self.response.headers["content-length"])
         except KeyError:
             # When a compressed file is saved on Google Cloud Storage,
             # content-length is not available in the header,
