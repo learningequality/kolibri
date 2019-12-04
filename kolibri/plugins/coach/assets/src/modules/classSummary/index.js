@@ -185,6 +185,15 @@ export default {
       return Object.values(state.learnerMap);
     },
     /*
+     * individualLearnersGroups := [
+     *   { id, member_ids: [id, ...] }, ...
+     * ]
+     ]
+     */
+    individualLearnersGroups(state) {
+      return Object.values(state.individualLearnersMap);
+    },
+    /*
      * groups := [
      *   { id, name, member_ids: [id, ...] }, ...
      * ]

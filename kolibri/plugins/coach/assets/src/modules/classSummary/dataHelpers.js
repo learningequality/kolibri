@@ -63,6 +63,15 @@ export default {
     };
   },
   /*
+   * Return array of learner IDs who were individually assigned to the exam
+   */
+  getIndividualLearnersForExam(state) {
+    return function(assignments) {
+      const ilg = this.individualLearnersGroups.find(group => assignments.includes(group.id));
+      return ilg ? ilg.member_ids : [];
+    };
+  },
+  /*
    * Return array of learner IDs given an exam
    */
   getLearnersForExam() {
@@ -70,7 +79,17 @@ export default {
       if (!exam) {
         throw new Error('getLearnersForLesson: invalid parameter(s)');
       }
-      return exam.assignments.length ? this.getLearnersForGroups(exam.groups) : [];
+      if (exam.assignments.length) {
+        const individuallyAssignedLearners = this.getIndividualLearnersForExam(exam.assignments);
+        /* If exam.groups is empty, but individually assigned learners exist, then we
+         * don't want to getLearnersForGroups because it will return all learners
+         */
+        if (individuallyAssignedLearners.length && exam.groups.length === 0) {
+          return individuallyAssignedLearners;
+        } else {
+          return uniq(individuallyAssignedLearners.concat(this.getLearnersForGroups(exam.groups)));
+        }
+      }
     };
   },
   /*
@@ -123,6 +142,12 @@ export default {
     return function(examId, learnerId) {
       if (!examId || !learnerId) {
         throw new Error('getExamStatusObjForLearner: invalid parameter(s)');
+      }
+      if (examId === 'faeb7971b8c830353d532ddbdd9ff104') {
+        console.log(examId);
+        console.log(learnerId);
+        console.log(JSON.parse(JSON.stringify(state.examLearnerStatusMap)));
+        console.log(get(state.examLearnerStatusMap, [examId, learnerId]));
       }
       return get(state.examLearnerStatusMap, [examId, learnerId], notStartedStatusObj());
     };
