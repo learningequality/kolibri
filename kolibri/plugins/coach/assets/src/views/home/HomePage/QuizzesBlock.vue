@@ -18,7 +18,7 @@
       <ItemProgressDisplay
         :name="tableRow.name"
         :tally="tableRow.tally"
-        :groupNames="tableRow.groups"
+        :groupNames="groupAndAdHocLearnerNames(tableRow.groups, tableRow.assignments)"
         :hasAssignments="tableRow.hasAssignments"
         :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.key })"
       />
@@ -57,6 +57,7 @@
             name: exam.title,
             tally: this.getExamStatusTally(exam.id, assigned),
             groups: exam.groups.map(groupId => this.groupMap[groupId].name),
+            assignments: exam.assignments,
             hasAssignments: assigned.length > 0,
           };
         });
@@ -76,6 +77,14 @@
           }
         });
         return last;
+      },
+      groupAndAdHocLearnerNames(groups, examAssignments) {
+        const adHocGroup = this.adHocGroups.find(group => examAssignments.includes(group.id));
+        let adHocLearners = [];
+        if (adHocGroup) {
+          adHocLearners = adHocGroup.member_ids.map(learnerId => this.learnerMap[learnerId].name);
+        }
+        return groups.concat(adHocLearners);
       },
     },
     $trs: {},

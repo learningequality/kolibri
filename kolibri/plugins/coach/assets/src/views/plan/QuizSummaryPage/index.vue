@@ -27,7 +27,7 @@
         <QuizStatus
           :className="className"
           :avgScore="avgScore"
-          :groupNames="getGroupNames(exam.groups)"
+          :groupAndAdHocLearnerNames="groupAndAdHocLearnerNames"
           :exam="exam"
         />
       </KGridItem>
@@ -114,7 +114,7 @@
       // Removing the classSummary groupMap state mapping breaks things.
       // Maybe it should live elsewhere?
       /* eslint-disable-next-line kolibri/vue-no-unused-vuex-properties */
-      ...mapState('classSummary', ['groupMap']),
+      ...mapState('classSummary', ['groupMap', 'learnerMap']),
       selectedQuestions() {
         return this.quiz.question_sources;
       },
@@ -137,6 +137,11 @@
       },
       classId() {
         return this.$route.params.classId;
+      },
+      groupAndAdHocLearnerNames() {
+        return this.getGroupNames(this.exam.groups).concat(
+          this.$store.state.adHocLearners.user_ids.map(learnerId => this.learnerMap[learnerId].name)
+        );
       },
     },
     beforeRouteEnter(to, from, next) {

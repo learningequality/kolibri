@@ -128,7 +128,7 @@
     },
     data() {
       return {
-        isChecked: !!this.initialAdHocLearners.length,
+        isChecked: Boolean(this.initialAdHocLearners.length),
         selectedAdHocIds: this.initialAdHocLearners,
         currentPage: 1,
       };
