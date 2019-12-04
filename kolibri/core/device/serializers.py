@@ -89,7 +89,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             provision_device(
                 language_id=language_id,
                 default_facility=facility,
-                allow_guest_access=allow_guest_access
+                allow_guest_access=allow_guest_access,
             )
             return {
                 "facility": facility,
@@ -108,7 +108,7 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
             "landing_page",
             "allow_guest_access",
             "allow_peer_unlisted_channel_import",
-            "allow_learner_unassigned_resource_access"
+            "allow_learner_unassigned_resource_access",
         )
 
     def create(self, validated_data):

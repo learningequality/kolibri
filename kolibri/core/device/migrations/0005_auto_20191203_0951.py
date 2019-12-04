@@ -10,7 +10,9 @@ def migrate_allow_guest_access(apps, schema_editor):
     FacilityDataset = apps.get_model("kolibriauth", "FacilityDataset")
     DeviceSettings = apps.get_model("device", "DeviceSettings")
 
-    allow_guest_access = FacilityDataset.objects.filter(allow_guest_access=False).count() <= 0
+    allow_guest_access = (
+        FacilityDataset.objects.filter(allow_guest_access=False).count() <= 0
+    )
     DeviceSettings.objects.update(allow_guest_access=allow_guest_access)
 
 
@@ -18,7 +20,9 @@ def revert_allow_guest_access(apps, schema_editor):
     FacilityDataset = apps.get_model("kolibriauth", "FacilityDataset")
     DeviceSettings = apps.get_model("device", "DeviceSettings")
 
-    allow_guest_access = DeviceSettings.objects.filter(allow_guest_access=False).count() <= 0
+    allow_guest_access = (
+        DeviceSettings.objects.filter(allow_guest_access=False).count() <= 0
+    )
     FacilityDataset.objects.update(allow_guest_access=allow_guest_access)
 
 
@@ -49,6 +53,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="devicesettings",
             name="landing_page",
-            field=models.CharField(choices=[("sign-in", "Sign-in page"), ("learn", "Learn page")], default="sign-in", max_length=7),
+            field=models.CharField(
+                choices=[("sign-in", "Sign-in page"), ("learn", "Learn page")],
+                default="sign-in",
+                max_length=7
+            ),
         ),
     ]

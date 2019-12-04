@@ -46,6 +46,7 @@ class DeviceSettings(models.Model):
     """
     This class stores data about settings particular to this device
     """
+
     LANDING_PAGE_CHOICES = [
         (LANDING_PAGE_SIGN_IN, "Sign-in page"),
         (LANDING_PAGE_LEARN, "Learn page"),
