@@ -144,7 +144,6 @@
         newResources: null,
         updatedNodeIds: [],
         versionNotes: {},
-        status: null,
         showModal: false,
         disableModal: false,
         loadingTask: true,
@@ -225,7 +224,7 @@
           updateParams.sourcetype = 'local';
           updateParams.drive_id = this.params.driveId;
         } else if (this.params.addressId) {
-          updateParams.address_id = this.params.addressId;
+          updateParams.peer_id = this.params.addressId;
         }
 
         // Create the import channel task
@@ -247,12 +246,10 @@
         this.versionNotes = sourceChannel.version_notes || {};
       },
       loadChannelInfo() {
-        return fetchChannelAtSource(this.params).catch(errType => {
-          this.status = errType;
+        return fetchChannelAtSource(this.params).catch(error => {
+          // Useful errors will still appear on AppError
+          this.$store.dispatch('handleApiError', error);
         });
-        // notAvailableFromDrives: 'This channel was not found on any attached drives',
-        // notAvailableFromNetwork: 'This channel was not found on other instances of Kolibri',
-        // notAvailableFromStudio: 'This channel was not found on Kolibri Studio',
       },
       startDiffStatsTask(sourceParams) {
         // Finds or triggers a new CHANNELDIFFSTATS task.

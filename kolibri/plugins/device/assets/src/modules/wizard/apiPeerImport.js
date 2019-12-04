@@ -1,8 +1,10 @@
+import find from 'lodash/find';
 import { RemoteChannelResource } from 'kolibri.resources';
 import { NetworkLocationResource } from '../../apiResources';
 import { ContentWizardErrors } from '../../constants';
 
 export function getAvailableChannelsOnPeerServer(store, addressId) {
+  const { channelList } = store.state.manageContent;
   return new Promise((resolve, reject) => {
     NetworkLocationResource.fetchModel({ id: addressId })
       .then(networkLocation => {
@@ -15,7 +17,20 @@ export function getAvailableChannelsOnPeerServer(store, addressId) {
             force: true,
           })
             .then(remoteChannels => {
-              resolve(remoteChannels.filter(channel => channel.total_resources > 0));
+              const availableChannels = remoteChannels
+                .filter(({ total_resources }) => total_resources > 0)
+                .map(c => {
+                  // Adds extra version information to drive.metadata.channels objects
+                  // to support the upgrade UIs
+
+                  const installedChannel = find(channelList, { id: c.id }) || {};
+                  return {
+                    ...c,
+                    installed_version: installedChannel.version,
+                    latest_version: c.version,
+                  };
+                });
+              resolve(availableChannels);
             })
             .catch(() => {
               reject({ error: ContentWizardErrors.NETWORK_LOCATION_DOES_NOT_HAVE_CHANNEL });
