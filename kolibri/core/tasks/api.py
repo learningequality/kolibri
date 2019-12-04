@@ -28,6 +28,7 @@ from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import priority_queue
 from kolibri.core.tasks.main import queue
+from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 
 try:
@@ -49,12 +50,7 @@ DISK_IO_ERROR_STRING = _("There was a disk access error.")
 CATCHALL_SERVER_ERROR_STRING = _("There was an unknown error.")
 
 
-def validate_content_task(request, task_description, require_channel=False):
-    try:
-        channel_id = task_description["channel_id"]
-    except KeyError:
-        raise serializers.ValidationError("The channel_ids field is required.")
-
+def get_channel_name(channel_id, require_channel=False):
     try:
         channel = ChannelMetadata.objects.get(id=channel_id)
         channel_name = channel.name
@@ -62,6 +58,17 @@ def validate_content_task(request, task_description, require_channel=False):
         if require_channel:
             raise serializers.ValidationError("This channel does not exist")
         channel_name = ""
+
+    return channel_name
+
+
+def validate_content_task(request, task_description, require_channel=False):
+    try:
+        channel_id = task_description["channel_id"]
+    except KeyError:
+        raise serializers.ValidationError("The channel_ids field is required.")
+
+    channel_name = get_channel_name(channel_id, require_channel)
 
     node_ids = task_description.get("node_ids", None)
     exclude_node_ids = task_description.get("exclude_node_ids", None)
@@ -179,7 +186,7 @@ class TasksViewSet(viewsets.ViewSet):
         sourcetype = request.data.pop("sourcetype", None)
         new_version = request.data.pop("new_version", None)
 
-        if sourcetype == 'remote':
+        if sourcetype == "remote":
             task = validate_remote_import_task(request, request.data)
             task.update({"type": "UPDATECHANNEL", "new_version": new_version})
             job_id = queue.enqueue(
@@ -193,7 +200,7 @@ class TasksViewSet(viewsets.ViewSet):
                 track_progress=True,
                 cancellable=True,
             )
-        elif sourcetype == 'local':
+        elif sourcetype == "local":
             task = validate_local_import_task(request, request.data)
             task.update({"type": "UPDATECHANNEL", "new_version": new_version})
             job_id = queue.enqueue(
@@ -636,7 +643,9 @@ class TasksViewSet(viewsets.ViewSet):
             job_metadata = _add_drive_info(job_metadata, request.data)
             # get channel version metadata
             drive = get_mounted_drive_by_id(drive_id)
-            channel_metadata = read_channel_metadata_from_db_file(get_content_database_file_path(channel_id, drive.datafolder))
+            channel_metadata = read_channel_metadata_from_db_file(
+                get_content_database_file_path(channel_id, drive.datafolder)
+            )
             job_metadata["new_channel_version"] = channel_metadata.version
         else:
             raise serializers.ValidationError(
@@ -687,8 +696,15 @@ def _remoteimport(
         update_progress=update_progress,
         check_for_cancel=check_for_cancel,
     )
+
+    # Add the channel name if it wasn't added initially
+    job = get_current_job()
+    if job and job.extra_metadata.get("channel_name", "") == "":
+        job.extra_metadata["channel_name"] = get_channel_name(channel_id)
+        job.save_meta()
+
     # Skip importcontent step if updating and no nodes have changed
-    if (is_updating and len(node_ids) == 0):
+    if is_updating and node_ids and len(node_ids) == 0:
         pass
     else:
         call_command(
@@ -724,8 +740,15 @@ def _diskimport(
         update_progress=update_progress,
         check_for_cancel=check_for_cancel,
     )
+
+    # Add the channel name if it wasn't added initially
+    job = get_current_job()
+    if job and job.extra_metadata.get("channel_name", "") == "":
+        job.extra_metadata["channel_name"] = get_channel_name(channel_id)
+        job.save_meta()
+
     # Skip importcontent step if updating and no nodes have changed
-    if (is_updating and len(node_ids) == 0):
+    if is_updating and node_ids and len(node_ids) == 0:
         pass
     else:
         call_command(
