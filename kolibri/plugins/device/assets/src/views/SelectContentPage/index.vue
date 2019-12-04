@@ -7,14 +7,12 @@
     />
 
     <template v-else>
-      <transition name="fade">
-        <TaskProgress
-          v-if="!onDeviceInfoIsReady"
-          type="DOWNLOADING_CHANNEL_CONTENTS"
-          :showButtons="false"
-          status="RUNNING"
-        />
-      </transition>
+      <TaskProgress
+        :show="!onDeviceInfoIsReady"
+        type="DOWNLOADING_CHANNEL_CONTENTS"
+        :showButtons="false"
+        status="RUNNING"
+      />
 
       <template v-if="onDeviceInfoIsReady">
         <section
@@ -349,16 +347,6 @@
 
   .banner {
     margin-bottom: 24px;
-  }
-
-  .fade-enter,
-  .fade-leave-to {
-    opacity: 0;
-  }
-
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.5s;
   }
 
 </style>

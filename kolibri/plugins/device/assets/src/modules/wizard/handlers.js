@@ -230,6 +230,9 @@ export function showSelectContentPage(store, params) {
         }).then(() => {});
       });
     })
+    .then(() => {
+      store.commit('CORE_SET_PAGE_LOADING', false);
+    })
     .catch(error => {
       store.commit('CORE_SET_PAGE_LOADING', false);
       return handleError(store, error);

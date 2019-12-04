@@ -1,45 +1,47 @@
 <template>
 
-  <div class="task-progress">
-    <div class="progress-icon dtc">
-      <transition name="fade" mode="out-in">
-        <mat-svg
-          v-if="taskHasFailed"
-          category="alert"
-          name="error"
-          :style="{ fill: $themeTokens.error }"
-        />
-        <mat-svg
-          v-else-if="taskHasCompleted"
-          category="action"
-          name="check_circle"
-          :style="{ fill: $themeTokens.success }"
-        />
-        <KCircularLoader
-          v-else
-          class="inprogress"
+  <transition name="fade">
+    <div v-if="$attrs.show" class="task-progress">
+      <div class="progress-icon dtc">
+        <transition name="fade" mode="out-in">
+          <mat-svg
+            v-if="taskHasFailed"
+            category="alert"
+            name="error"
+            :style="{ fill: $themeTokens.error }"
+          />
+          <mat-svg
+            v-else-if="taskHasCompleted"
+            category="action"
+            name="check_circle"
+            :style="{ fill: $themeTokens.success }"
+          />
+          <KCircularLoader
+            v-else
+            class="inprogress"
+            :delay="false"
+          />
+        </transition>
+      </div>
+
+      <div class="progress-bar dtc">
+        <div :class="{'task-stage': !taskHasCompleted}">
+          {{ stageText }}
+        </div>
+        <KLinearLoader
+          v-if="!taskHasCompleted"
+          :type="taskIsPreparing ? 'indeterminate' : 'determinate'"
+          :progress="formattedPercentage"
           :delay="false"
         />
-      </transition>
-    </div>
-
-    <div class="progress-bar dtc">
-      <div :class="{'task-stage': !taskHasCompleted}">
-        {{ stageText }}
       </div>
-      <KLinearLoader
-        v-if="!taskHasCompleted"
-        :type="taskIsPreparing ? 'indeterminate' : 'determinate'"
-        :progress="formattedPercentage"
-        :delay="false"
-      />
-    </div>
 
-    <div v-if="!taskHasCompleted" class="progress-messages dtc">
-      <span class="percentage">{{ progressMessage }}</span>
-    </div>
+      <div v-if="!taskHasCompleted" class="progress-messages dtc">
+        <span class="percentage">{{ progressMessage }}</span>
+      </div>
 
-  </div>
+    </div>
+  </transition>
 
 </template>
 
@@ -194,6 +196,16 @@
 
   .btn {
     margin: 0;
+  }
+
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.5s;
   }
 
 </style>

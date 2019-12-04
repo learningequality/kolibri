@@ -1,31 +1,41 @@
 <template>
 
-  <div v-if="channel" class="manage-channel-page">
-    <NewChannelVersionBanner
-      v-if="availableVersions.studioLatest > availableVersions.installed"
-      class="banner"
-      :version="availableVersions.studioLatest"
-      @click="handleClickViewNewVersion"
+  <div class="manage-channel-page">
+    <!-- Show this progress bar to match other import flows -->
+    <TaskProgress
+      :show="!channel"
+      type="DOWNLOADING_CHANNEL_CONTENTS"
+      :showButtons="false"
+      status="RUNNING"
     />
 
-    <div style="text-align: right">
-      <KButton
-        :text="$tr('importMoreAction')"
-        @click="shownModal = 'IMPORT_MORE'"
+    <template v-if="channel">
+      <NewChannelVersionBanner
+        v-if="availableVersions.studioLatest > availableVersions.installed"
+        class="banner"
+        :version="availableVersions.studioLatest"
+        @click="handleClickViewNewVersion"
       />
-    </div>
 
-    <ChannelContentsSummary :channel="channel" />
+      <div style="text-align: right">
+        <KButton
+          :text="$tr('importMoreAction')"
+          @click="shownModal = 'IMPORT_MORE'"
+        />
+      </div>
 
-    <transition mode="out-in">
-      <KLinearLoader v-if="!currentNode" :delay="false" />
-      <ContentTreeViewer
-        v-else
-        :node="currentNode"
-        :manageMode="true"
-        :style="{ borderBottomColor: $themeTokens.fineLine }"
-      />
-    </transition>
+      <ChannelContentsSummary :channel="channel" />
+
+      <transition mode="out-in">
+        <KLinearLoader v-if="!currentNode" :delay="false" />
+        <ContentTreeViewer
+          v-else
+          :node="currentNode"
+          :manageMode="true"
+          :style="{ borderBottomColor: $themeTokens.fineLine }"
+        />
+      </transition>
+    </template>
 
     <DeleteResourcesModal
       v-if="shownModal === 'DELETE'"
@@ -81,6 +91,7 @@
   import SelectionBottomBar from '../SelectionBottomBar';
   import SelectTransferSourceModal from '../SelectTransferSourceModal';
   import taskNotificationMixin from '../../taskNotificationMixin';
+  import TaskProgress from '../TaskProgress';
   import { ContentSources, PageNames, TaskTypes, TransferTypes } from '../../../constants';
 
   import { fetchPageData, fetchNodeWithAncestors, startExportTask, startDeleteTask } from './api';
@@ -103,6 +114,7 @@
       SelectDriveModal,
       SelectionBottomBar,
       SelectTransferSourceModal,
+      TaskProgress,
     },
     mixins: [commonCoreStrings, taskNotificationMixin],
     data() {
