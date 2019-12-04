@@ -44,16 +44,34 @@
         <label>{{ $tr('landingPageLabel') }}</label>
         <KRadioButton
           :label="$tr('signInPageChoice')"
-          :value="true"
+          :value="landingPageChoices.SIGN_IN"
+          :currentValue="landingPage"
+          @change="landingPage = landingPageChoices.SIGN_IN"
         />
         <KRadioButton
           :label="$tr('learnerAppPageChoice')"
-          :value="false"
+          :value="landingPageChoices.LEARN"
+          :currentValue="landingPage"
+          @change="landingPage = landingPageChoices.LEARN"
         />
       </p>
-      <KCheckbox :label="$tr('allowGuestAccess')" />
-      <KCheckbox :label="$tr('lockedContent')" />
-      <KCheckbox :label="$tr('unlistedChannels')" />
+      <KCheckbox
+        :label="$tr('allowGuestAccess')"
+        :disabled="landingPage !== landingPageChoices.SIGN_IN"
+        :checked="allowGuestAccess"
+        @change="allowGuestAccess = $event"
+      />
+      <KCheckbox
+        :label="$tr('lockedContent')"
+        :disabled="landingPage !== landingPageChoices.SIGN_IN"
+        :checked="!allowLearnerUnassignedResourceAccess"
+        @change="allowLearnerUnassignedResourceAccess = !$event"
+      />
+      <KCheckbox
+        :label="$tr('unlistedChannels')"
+        :checked="allowPeerUnlistedChannelImport"
+        @change="allowPeerUnlistedChannelImport = $event"
+      />
     </section>
     <section>
       <KButton
@@ -77,7 +95,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { availableLanguages } from 'kolibri.utils.i18n';
-  import { getDeviceLanguageSetting, saveDeviceLanguageSetting } from './api';
+  import { LandingPageChoices } from '../../constants';
+  import { getDeviceSettings, saveDeviceSettings } from './api';
 
   export default {
     name: 'DeviceSettingsPage',
@@ -93,7 +112,13 @@
     data() {
       return {
         language: {},
+        landingPage: '',
+        allowGuestAccess: null,
+        allowLearnerUnassignedResourceAccess: null,
+        allowPeerUnlistedChannelImport: null,
+
         saveStatus: null,
+        landingPageChoices: LandingPageChoices,
         browserDefaultOption: {
           value: null,
           label: this.$tr('browserDefaultLanguage'),
@@ -121,13 +146,28 @@
       },
     },
     beforeMount() {
-      this.getDeviceLanguageSetting().then(languageId => {
+      this.getDeviceSettings().then(settings => {
+        const {
+          languageId,
+          landingPage,
+          allowGuestAccess,
+          allowLearnerUnassignedResourceAccess,
+          allowPeerUnlistedChannelImport,
+        } = settings;
+
         const match = find(this.languageOptions, { value: languageId });
         if (match) {
           this.language = { ...match };
         } else {
           this.language = this.browserDefaultOption;
         }
+
+        Object.assign(this, {
+          landingPage,
+          allowGuestAccess,
+          allowLearnerUnassignedResourceAccess,
+          allowPeerUnlistedChannelImport,
+        });
       });
     },
     methods: {
@@ -135,8 +175,22 @@
         this.saveStatus = null;
       },
       handleClickSave() {
+        const {
+          language,
+          landingPage,
+          allowGuestAccess,
+          allowLearnerUnassignedResourceAccess,
+          allowPeerUnlistedChannelImport,
+        } = this;
+
         this.resetSaveStatus();
-        this.saveDeviceLanguageSetting(this.language.value)
+        this.saveDeviceSettings({
+          languageId: language.value,
+          landingPage,
+          allowGuestAccess,
+          allowLearnerUnassignedResourceAccess,
+          allowPeerUnlistedChannelImport,
+        })
           .then(() => {
             this.saveStatus = 'SUCCESS';
           })
@@ -144,8 +198,8 @@
             this.saveStatus = 'ERROR';
           });
       },
-      getDeviceLanguageSetting,
-      saveDeviceLanguageSetting,
+      getDeviceSettings,
+      saveDeviceSettings,
     },
     $trs: {
       browserDefaultLanguage: 'Browser default',

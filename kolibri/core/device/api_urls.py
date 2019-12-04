@@ -3,9 +3,9 @@ from django.conf.urls import url
 from rest_framework import routers
 
 from .api import DeviceInfoView
-from .api import DeviceLanguageSettingViewset
 from .api import DevicePermissionsViewSet
 from .api import DeviceProvisionView
+from .api import DeviceSettingsView
 from .api import FreeSpaceView
 
 router = routers.SimpleRouter()
@@ -23,8 +23,8 @@ urlpatterns = [
     url(r"^freespace/", FreeSpaceView.as_view({"get": "list"}), name="freespace"),
     url(r"^deviceinfo/", DeviceInfoView.as_view(), name="deviceinfo"),
     url(
-        r"^devicelanguage/",
-        DeviceLanguageSettingViewset.as_view(),
-        name="devicelanguage",
+        r"^devicesettings/",
+        DeviceSettingsView.as_view(),
+        name="devicesettings",
     ),
 ]

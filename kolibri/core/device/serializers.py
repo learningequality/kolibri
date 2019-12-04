@@ -11,6 +11,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import FacilitySerializer
 from kolibri.core.auth.serializers import FacilityUserSerializer
 from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import provision_device
 
 
@@ -32,7 +33,17 @@ class NoFacilityFacilityUserSerializer(FacilityUserSerializer):
         return attrs
 
 
-class DeviceProvisionSerializer(serializers.Serializer):
+class DeviceSerializerMixin(object):
+    def validate_language_id(self, language_id):
+        """
+        Check that the language_id is supported by Kolibri
+        """
+        if not check_for_language(language_id):
+            raise serializers.ValidationError(_("Language is not supported by Kolibri"))
+        return language_id
+
+
+class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     facility = FacilitySerializer()
     preset = serializers.ChoiceField(choices=choices)
     superuser = NoFacilityFacilityUserSerializer()
@@ -41,14 +52,6 @@ class DeviceProvisionSerializer(serializers.Serializer):
 
     class Meta:
         fields = ("facility", "dataset", "superuser", "language_id", "settings")
-
-    def validate_language_id(self, language_id):
-        """
-        Check that the language_id is supported by Kolibri
-        """
-        if not check_for_language(language_id):
-            raise serializers.ValidationError(_("Language is not supported by Kolibri"))
-        return language_id
 
     def create(self, validated_data):
         """
@@ -90,3 +93,13 @@ class DeviceProvisionSerializer(serializers.Serializer):
                 "language_id": language_id,
                 "settings": custom_settings,
             }
+
+
+class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerializer):
+    class Meta:
+        model = DeviceSettings
+        fields = ('language_id', 'landing_page', 'allow_guest_access',
+                  'allow_peer_unlisted_channel_import', 'allow_learner_unassigned_resource_access')
+
+    def create(self, validated_data):
+        raise serializers.ValidationError('Device settings can only be updated')
