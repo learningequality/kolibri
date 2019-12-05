@@ -162,7 +162,8 @@ class Command(AsyncCommand):
             with db_task_write_lock:
                 sync_client.initiate_pull(Filter(dataset_id))
         if not no_push:
-            sync_client.initiate_push(Filter(dataset_id))
+            with db_task_write_lock:
+                sync_client.initiate_push(Filter(dataset_id))
 
         with db_task_write_lock:
             create_superuser_and_provision_device(
