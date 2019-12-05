@@ -146,7 +146,7 @@ export function executePage() {
   // then the foregoing script tags inside template tags
   // have already been executed.
   if (supportsTemplate()) {
-    if (document.readystate !== 'loading') {
+    if (document.readyState !== 'loading') {
       setScripts();
     } else {
       window.addEventListener('DOMContentLoaded', setScripts, { once: true });
