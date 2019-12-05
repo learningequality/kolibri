@@ -1,13 +1,11 @@
 import gettext
 import logging
-import multiprocessing
 import os
 import subprocess
 import sys
 import time
 import webbrowser
 
-_ = gettext.gettext
 
 try:
     from urllib2 import urlopen, URLError
@@ -20,6 +18,10 @@ logging.basicConfig(level=logging.DEBUG)
 
 # make sure we add Kolibri's dist folder to the path early on so that we avoid import errors
 root_dir = os.path.dirname(os.path.abspath(__file__))
+locale_root_dir = os.path.join(root_dir, 'locale')
+if root_dir.endswith('src'):
+    locale_root_dir = os.path.join(root_dir, '..', 'locale')
+
 if getattr(sys, 'frozen', False) and sys.platform == 'darwin':
     # On Mac, included Python packages go into the lib/python3.6
     root_dir = os.path.join(root_dir, "lib", "python3.6")
@@ -72,6 +74,28 @@ log_filename = os.path.join(log_dir, log_basename)
 root_logger = logging.getLogger()
 file_handler = KolibriTimedRotatingFileHandler(filename=log_filename, when='midnight', backupCount=30)
 root_logger.addHandler(file_handler)
+
+languages = None
+if sys.platform == 'darwin':
+    langs_str = subprocess.check_output('defaults read .GlobalPreferences AppleLanguages | tr -d [:space:]', shell=True).strip()
+    languages = langs_str[1:-1].decode('utf-8').replace('"', '').replace('-', '_').split(',')
+    logging.info("languages= {}".format(languages))
+
+locale_info = {}
+try:
+    t = gettext.translation('macapp', locale_root_dir, languages=languages)
+    locale_info = t.info()
+    locale_files_dir = os.path.join(locale_root_dir, locale_info['language'])
+    _ = t.gettext
+
+except Exception as e:
+    # Fallback to English and if we fail to find any language catalogs.
+    locale_info['language'] = 'en_US'
+    def _(text):
+        return text
+    logging.warning("Error retrieving language: {}".format(repr(e)))
+
+logging.info("Locale info = {}".format(locale_info))
 
 
 def start_django(port=5000):
@@ -161,7 +185,7 @@ class Application(pew.ui.PEWApp):
         """
 
         # Set loading screen
-        loader_page = os.path.abspath(os.path.join('assets', '_load.html'))
+        loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format(locale_info['language'])))
         self.loader_url = 'file://{}'.format(loader_page)
         self.kolibri_loaded = False
 

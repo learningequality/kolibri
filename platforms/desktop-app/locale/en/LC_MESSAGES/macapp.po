@@ -1,0 +1,104 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri-mac-app\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-10-29 08:54-0700\n"
+"PO-Revision-Date: 2019-12-04 19:25\n"
+"Last-Translator: learningequality\n"
+"Language-Team: English\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/main.py:190
+msgid "File"
+msgstr ""
+
+#: src/main.py:191
+msgid "New Window"
+msgstr ""
+
+#: src/main.py:192
+msgid "Close Window"
+msgstr ""
+
+#: src/main.py:194
+msgid "Open Kolibri Home Folder"
+msgstr ""
+
+#: src/main.py:198
+msgid "Edit"
+msgstr ""
+
+#: src/main.py:199
+msgid "Undo"
+msgstr ""
+
+#: src/main.py:200
+msgid "Redo"
+msgstr ""
+
+#: src/main.py:202
+msgid "Cut"
+msgstr ""
+
+#: src/main.py:203
+msgid "Copy"
+msgstr ""
+
+#: src/main.py:204
+msgid "Paste"
+msgstr ""
+
+#: src/main.py:205
+msgid "Select All"
+msgstr ""
+
+#: src/main.py:208
+msgid "View"
+msgstr ""
+
+#: src/main.py:209
+msgid "Reload"
+msgstr ""
+
+#: src/main.py:210
+msgid "Actual Size"
+msgstr ""
+
+#: src/main.py:211
+msgid "Zoom In"
+msgstr ""
+
+#: src/main.py:212
+msgid "Zoom Out"
+msgstr ""
+
+#: src/main.py:214
+msgid "Open in Browser"
+msgstr ""
+
+#: src/main.py:217
+msgid "History"
+msgstr ""
+
+#: src/main.py:218
+msgid "Back"
+msgstr ""
+
+#: src/main.py:219
+msgid "Forward"
+msgstr ""
+
+#: src/main.py:222
+msgid "Help"
+msgstr ""
+
+#: src/main.py:223
+msgid "Documentation"
+msgstr ""
+
+#: src/main.py:224
+msgid "Community Forums"
+msgstr ""
