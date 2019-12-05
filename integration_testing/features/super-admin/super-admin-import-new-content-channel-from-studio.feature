@@ -107,7 +107,6 @@ Feature: Super admin imports content from Studio
       Then I am on *Device > Channels* page
         And I see the <channel> I've imported resources from
         And I see the size of resources that were imported
-      
 
 Examples:
 | channel      | topic   | subtopic          | resource                   |

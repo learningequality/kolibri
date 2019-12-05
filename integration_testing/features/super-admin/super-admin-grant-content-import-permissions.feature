@@ -19,16 +19,16 @@ Feature: Super admin grants and revokes the content import permissions
 
   Scenario: Revoke import content device permissions
     Given that <username> user has import content device permissions
-    When I click on *Edit permissions* button for <username> user
-    Then I see <username> permissions page
-    When I uncheck the *Can manage resources on this device* checkbox
-    Then I see the *Save changes* button is active
-    When I click *Save changes* button
-    Then I see the *Changes saved* notification
-      And the *Save changes* button is now inactive
-    When I click on *Cancel* button after saving
-    Then I see the *Device permissions* page again
-      And I don't see the black key icon in front of the <username> user
+      When I click on *Edit permissions* button for <username> user
+      Then I see <username> permissions page
+      When I uncheck the *Can manage resources on this device* checkbox
+      Then I see the *Save changes* button is active
+      When I click *Save changes* button
+      Then I see the *Changes saved* notification
+        And the *Save changes* button is now inactive
+      When I click on *Cancel* button after saving
+      Then I see the *Device permissions* page again
+        And I don't see the black key icon in front of the <username> user
 
 Examples:
 | full_name | username |

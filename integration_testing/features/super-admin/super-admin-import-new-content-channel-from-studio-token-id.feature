@@ -1,5 +1,5 @@
-Feature: Super admin imports content from Studio with ID/token
-    Admin needs to be able to import private/unlisted content channels on the device using the channel token or ID
+Feature: Super admin imports content from Studio with token
+    Admin needs to be able to import private/unlisted content channels on the device using the channel token
 
   Background:
     Given there is no content from <channel> channel on the device

@@ -7,7 +7,7 @@ Feature: Super admin deletes channel
       And there is a <channel> channel on the device
 
   Scenario: Delete channel
-    When I click on *Options* button for the <channel> channel
+    When I click on *Options* button
       And I select *Delete*
     Then I see *Delete channel* modal with the confirmation message
     When I click *Delete* button
