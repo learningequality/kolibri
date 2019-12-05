@@ -39,7 +39,7 @@ export function getAllDriveChannels(store, drive) {
   // channelList must be up-to-date before running this
   const { channelList } = store.rootState.manageContent;
   return drive.metadata.channels.map(c => {
-    const installedChannel = find(channelList, { id: c.id }) || {};
+    const installedChannel = find(channelList, { id: c.id, available: true }) || {};
     return {
       ...c,
       installed_version: installedChannel.version,

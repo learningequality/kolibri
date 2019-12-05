@@ -140,7 +140,7 @@
           this.deleteChannelId = null;
           return TaskResource.deleteChannel({ channelId })
             .then(task => {
-              this.notifyAndWatchTask(task, false);
+              this.notifyAndWatchTask(task);
             })
             .catch(err => {
               // Silently handle double-deletions

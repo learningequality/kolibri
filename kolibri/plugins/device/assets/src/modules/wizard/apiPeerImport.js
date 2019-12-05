@@ -22,8 +22,7 @@ export function getAvailableChannelsOnPeerServer(store, addressId) {
                 .map(c => {
                   // Adds extra version information to drive.metadata.channels objects
                   // to support the upgrade UIs
-
-                  const installedChannel = find(channelList, { id: c.id }) || {};
+                  const installedChannel = find(channelList, { id: c.id, available: true }) || {};
                   return {
                     ...c,
                     installed_version: installedChannel.version,
