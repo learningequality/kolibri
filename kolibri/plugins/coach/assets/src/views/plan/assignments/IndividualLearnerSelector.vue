@@ -78,10 +78,7 @@
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoachStrings from '../../common';
-  import {
-    userMatchesFilter,
-    filterAndSortUsers,
-  } from '../../../../../../device/assets/src/userSearchUtils';
+  import { userMatchesFilter, filterAndSortUsers } from '../../../userSearchUtils';
 
   export default {
     name: 'IndividualLearnerSelector',
