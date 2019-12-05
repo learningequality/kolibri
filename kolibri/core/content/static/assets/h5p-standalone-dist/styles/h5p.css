@@ -3,11 +3,11 @@
 /* Custom H5P font to use for icons. */
 @font-face {
   font-family: 'h5p';
-  src:    url('../fonts/h5p-core-18.eot?cb8kvi');
-  src:    url('../fonts/h5p-core-18.eot?cb8kvi#iefix') format('embedded-opentype'),
-  url('../fonts/h5p-core-18.ttf?cb8kvi') format('truetype'),
-  url('../fonts/h5p-core-18.woff?cb8kvi') format('woff'),
-  url('../fonts/h5p-core-18.svg?cb8kvi#h5p') format('svg');
+  src:    url('../fonts/h5p-core-23.eot?mz1lkp');
+  src:    url('../fonts/h5p-core-23.eot?mz1lkp#iefix') format('embedded-opentype'),
+  url('../fonts/h5p-core-23.ttf?mz1lkp') format('truetype'),
+  url('../fonts/h5p-core-23.woff?mz1lkp') format('woff'),
+  url('../fonts/h5p-core-23.svg?mz1lkp#h5p') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -106,8 +106,8 @@ body.h5p-semi-fullscreen {
   line-height: 0.975em;
   font-size: 2em;
   width: 1.125em;
-  height: 0.925em;
-  text-indent: -0.0875em;
+  height: 1em;
+  text-indent: 0.04em;
 }
 .h5p-disable-fullscreen {
   line-height: 0.925em;
@@ -202,7 +202,7 @@ div.h5p-fullscreen {
   color: #999;
   text-decoration: none;
   outline: none;
-  line-height: 23px;
+  line-height: 22px;
 }
 .h5p-actions > .h5p-button:hover {
   color: #666;
@@ -223,12 +223,12 @@ div.h5p-fullscreen {
 .h5p-actions > .h5p-button:before {
   font-family: 'H5P';
   font-size: 20px;
-  line-height: 20px;
-  vertical-align: top;
+  line-height: 23px;
+  vertical-align: bottom;
   padding-right: 0;
 }
 .h5p-actions > .h5p-button.h5p-export:before {
-  content: "\e893";
+  content: "\e90b";
 }
 .h5p-actions > .h5p-button.h5p-copyrights:before {
   content: "\e88f";
@@ -260,7 +260,7 @@ div.h5p-fullscreen {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   z-index: 100;
   padding: 2em;
   box-sizing: border-box;
@@ -297,13 +297,20 @@ div.h5p-fullscreen {
   padding: 0.325em 0.5em 0.25em;
   line-height: 1.25em;
   border-bottom: 1px solid #ccc;
+  z-index: 2;
 }
-.h5p-embed-dialog .h5p-inner {
-  width: 300px;
+.h5p-popup-dialog .h5p-inner > h2 > a {
+  font-size: 12px;
+  margin-left: 1em;
+}
+.h5p-embed-dialog .h5p-inner,
+.h5p-reuse-dialog .h5p-inner,
+.h5p-content-user-data-reset-dialog .h5p-inner {
+  min-width: 316px;
+  max-width: 400px;
   left: 50%;
   top: 50%;
-  margin: 0 0 0 -150px;
-  transition: margin 250ms linear 100ms;
+  transform: translateX(-50%);
 }
 .h5p-embed-dialog .h5p-embed-code-container,
 .h5p-embed-size {
@@ -339,11 +346,14 @@ div.h5p-fullscreen {
   padding: 1em;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
-  height: 100%;
+  color: #555555;
+  z-index: 1;
+}
+.h5p-popup-dialog.h5p-open .h5p-scroll-content {
   overflow: auto;
   overflow-x: hidden;
   overflow-y: auto;
-  color: #555555;
+  height: 100%;
 }
 .h5p-popup-dialog .h5p-scroll-content::-webkit-scrollbar {
   width: 8px;
@@ -357,11 +367,6 @@ div.h5p-fullscreen {
 }
 .h5p-popup-dialog .h5p-close {
   cursor: pointer;
-  outline:none
-}
-.h5p-popup-dialog .h5p-close:after {
-  font-family: 'H5P';
-  content: "\e894";
   font-size: 2em;
   position: absolute;
   right: 0;
@@ -372,6 +377,11 @@ div.h5p-fullscreen {
   color: #656565;
   cursor: pointer;
   text-indent: -0.065em;
+  z-index: 3
+}
+.h5p-popup-dialog .h5p-close:after {
+  font-family: 'H5P';
+  content: "\e894";
 }
 .h5p-popup-dialog .h5p-close:hover:after,
 .h5p-popup-dialog .h5p-close:focus:after {
@@ -402,7 +412,6 @@ div.h5p-fullscreen {
 .h5p-expander {
   cursor: pointer;
   font-size: 1.125em;
-  outline: none;
   margin: 0.5em 0 0;
   display: inline-block;
 }
@@ -454,4 +463,122 @@ div.h5p-fullscreen {
 }
 .h5p-dialog-ok-button:active {
   background: #eeffee;
+}
+.h5p-big-button {
+  line-height: 1.25;
+  display: block;
+  position: relative;
+  cursor: pointer;
+  width: 100%;
+  padding: 1em 1em 1em 3.75em;
+  text-align: left;
+  border: 1px solid #dedede;
+  background: linear-gradient(#ffffff, #f1f1f2);
+  border-radius: 0.25em;
+}
+.h5p-big-button:before {
+  font-family: 'h5p';
+  content: "\e893";
+  line-height: 1;
+  font-size: 3em;
+  color: #2747f7;
+  position: absolute;
+  left: 0.125em;
+  top: 0.125em;
+}
+.h5p-copy-button:before {
+  content: "\e905";
+}
+.h5p-big-button:hover {
+  border: 1px solid #2747f7;
+  background: #eff1fe;
+}
+.h5p-big-button:active {
+  border: 1px solid #dedede;
+  background: #dfe4fe;
+}
+.h5p-button-title {
+  color: #2747f7;
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+.h5p-button-description {
+  color: #757575;
+}
+.h5p-horizontal-line-text {
+  border-top: 1px solid #dadada;
+  line-height: 1;
+  color: #474747;
+  text-align: center;
+  position: relative;
+  margin: 1.25em 0;
+}
+.h5p-horizontal-line-text > span {
+  background: white;
+  padding: 0.5em;
+  position: absolute;
+  top: -1em;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.h5p-toast {
+  font-size: 0.75em;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  z-index: 110;
+  position: absolute;
+  padding: 0 0.5em;
+  line-height: 2;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  top: 0;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 1s;
+}
+.h5p-toast-disabled {
+  opacity: 0;
+  visibility: hidden;
+}
+.h5p-content code,
+.h5peditor code {
+  color: #3d3d3d;
+  background: #e0e0e0;
+  border-radius: 2px;
+  padding: 0 5px;
+}
+.h5p-content pre > code,
+.h5peditor pre > code {
+  background-color: #fafafa;
+  padding: 5px;
+  display: block;
+  line-height: normal;
+  border: 1px solid #c7c7c7;
+  border-left-width: 4px;
+  max-width: 100%;
+  white-space: pre;
+  overflow: auto;
+}
+
+
+/* This is loaded as part of Core and not Editor since this needs to be outside the editor iframe */
+.h5peditor-semi-fullscreen {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 101;
+}
+iframe.h5peditor-semi-fullscreen {
+  background: #fff;
+  z-index: 100001;
+}
+
+.h5p-content.using-mouse *:not(textarea):focus {
+  outline: none !important;
 }
