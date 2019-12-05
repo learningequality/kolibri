@@ -26,6 +26,9 @@
         />
       </KGridItem>
     </KGrid>
+
+    <KLinearLoader v-if="loading" :delay="false" type="indeterminate" />
+
     <p v-if="!loading && managedTasks.length === 0" class="empty-tasks-message">
       {{ $tr('emptyTasksMessage') }}
     </p>
@@ -103,13 +106,7 @@
         }, 2000);
       }
     },
-    beforeMount() {
-      this.setAppBarTitle();
-    },
     methods: {
-      setAppBarTitle() {
-        this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr('appBarTitle'));
-      },
       handleClickClear(task) {
         TaskResource.deleteFinishedTask(task.id).catch(() => {
           // error silently
