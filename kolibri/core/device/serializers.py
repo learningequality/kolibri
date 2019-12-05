@@ -49,9 +49,17 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     superuser = NoFacilityFacilityUserSerializer()
     language_id = serializers.CharField(max_length=15)
     settings = serializers.JSONField()
+    allow_guest_access = serializers.BooleanField()
 
     class Meta:
-        fields = ("facility", "dataset", "superuser", "language_id", "settings")
+        fields = (
+            "facility",
+            "dataset",
+            "superuser",
+            "language_id",
+            "settings",
+            "allow_guest_access",
+        )
 
     def create(self, validated_data):
         """
@@ -97,6 +105,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                 "superuser": superuser,
                 "language_id": language_id,
                 "settings": custom_settings,
+                "allow_guest_access": allow_guest_access,
             }
 
 
