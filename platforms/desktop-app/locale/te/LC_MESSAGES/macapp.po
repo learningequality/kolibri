@@ -1,0 +1,110 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri-mac-app\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-10-29 08:54-0700\n"
+"PO-Revision-Date: 2019-12-05 17:50\n"
+"Last-Translator: learningequality\n"
+"Language-Team: Telugu\n"
+"Language: te_IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri-mac-app\n"
+"X-Crowdin-Language: te\n"
+"X-Crowdin-File: macapp.pot\n"
+
+#: src/main.py:190
+msgid "File"
+msgstr "ఫైల్"
+
+#: src/main.py:191
+msgid "New Window"
+msgstr "కొత్త విండో"
+
+#: src/main.py:192
+msgid "Close Window"
+msgstr "విండోని మూసివేయి"
+
+#: src/main.py:194
+msgid "Open Kolibri Home Folder"
+msgstr "Kolibri హోమ్ ఫోల్డర్‌ని తెరువు"
+
+#: src/main.py:198
+msgid "Edit"
+msgstr "సవరించు"
+
+#: src/main.py:199
+msgid "Undo"
+msgstr "చర్య రద్దు చేయి"
+
+#: src/main.py:200
+msgid "Redo"
+msgstr "చర్య పునరావృతం చేయి"
+
+#: src/main.py:202
+msgid "Cut"
+msgstr "కత్తిరించు"
+
+#: src/main.py:203
+msgid "Copy"
+msgstr "కాపీ చేయి"
+
+#: src/main.py:204
+msgid "Paste"
+msgstr "పేస్ట్ చేయి"
+
+#: src/main.py:205
+msgid "Select All"
+msgstr "అన్నింటినీ ఎంచుకోండి"
+
+#: src/main.py:208
+msgid "View"
+msgstr "వీక్షించు"
+
+#: src/main.py:209
+msgid "Reload"
+msgstr "మళ్లీ లోడ్ చేయి"
+
+#: src/main.py:210
+msgid "Actual Size"
+msgstr "వాస్తవ పరిమాణం"
+
+#: src/main.py:211
+msgid "Zoom In"
+msgstr "లోనికి జూమ్ చేయి"
+
+#: src/main.py:212
+msgid "Zoom Out"
+msgstr "వెలుపలకు జూమ్ చేయి"
+
+#: src/main.py:214
+msgid "Open in Browser"
+msgstr "బ్రౌజర్‌లో తెరువు"
+
+#: src/main.py:217
+msgid "History"
+msgstr "చరిత్ర"
+
+#: src/main.py:218
+msgid "Back"
+msgstr "వెనుకకు"
+
+#: src/main.py:219
+msgid "Forward"
+msgstr "ముందుకు"
+
+#: src/main.py:222
+msgid "Help"
+msgstr "సహాయం"
+
+#: src/main.py:223
+msgid "Documentation"
+msgstr "డాక్యుమెంటేషన్"
+
+#: src/main.py:224
+msgid "Community Forums"
+msgstr "కమ్యూనిటీ ఫోరమ్‌లు"
+

@@ -3,103 +3,108 @@ msgstr ""
 "Project-Id-Version: kolibri-mac-app\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-10-29 08:54-0700\n"
-"PO-Revision-Date: 2019-12-05 15:41-0800\n"
+"PO-Revision-Date: 2019-12-05 17:50\n"
 "Last-Translator: learningequality\n"
-"Language-Team: English\n"
-"Language: en_US\n"
+"Language-Team: Arabic\n"
+"Language: ar_SA\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.3\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri-mac-app\n"
+"X-Crowdin-Language: ar\n"
+"X-Crowdin-File: macapp.pot\n"
 
 #: src/main.py:190
 msgid "File"
-msgstr "File"
+msgstr "ملف"
 
 #: src/main.py:191
 msgid "New Window"
-msgstr "New Window"
+msgstr "نافذة جديدة"
 
 #: src/main.py:192
 msgid "Close Window"
-msgstr "Close Window"
+msgstr "إغلاق النافذة"
 
 #: src/main.py:194
 msgid "Open Kolibri Home Folder"
-msgstr "Open Kolibri Home Folder"
+msgstr "قم بفتح مجلد الصفحة الرئيسية الخاصة بكوليبري"
 
 #: src/main.py:198
 msgid "Edit"
-msgstr "Edit"
+msgstr "تحرير"
 
 #: src/main.py:199
 msgid "Undo"
-msgstr "Undo"
+msgstr "تراجع"
 
 #: src/main.py:200
 msgid "Redo"
-msgstr "Redo"
+msgstr "إعادة"
 
 #: src/main.py:202
 msgid "Cut"
-msgstr "Cut"
+msgstr "قص"
 
 #: src/main.py:203
 msgid "Copy"
-msgstr "Copy"
+msgstr "نسخ"
 
 #: src/main.py:204
 msgid "Paste"
-msgstr "Paste"
+msgstr "لصق"
 
 #: src/main.py:205
 msgid "Select All"
-msgstr "Select All"
+msgstr "تحديد الكل"
 
 #: src/main.py:208
 msgid "View"
-msgstr "View"
+msgstr "عرض"
 
 #: src/main.py:209
 msgid "Reload"
-msgstr "Reload"
+msgstr "إعادة تحميل"
 
 #: src/main.py:210
 msgid "Actual Size"
-msgstr "Actual Size"
+msgstr "الحجم الأصلي"
 
 #: src/main.py:211
 msgid "Zoom In"
-msgstr "Zoom In"
+msgstr "تكبير"
 
 #: src/main.py:212
 msgid "Zoom Out"
-msgstr "Zoom Out"
+msgstr "تصغير"
 
 #: src/main.py:214
 msgid "Open in Browser"
-msgstr "Open in Browser"
+msgstr "فتح في المتصفح"
 
 #: src/main.py:217
 msgid "History"
-msgstr "History"
+msgstr "السجل"
 
 #: src/main.py:218
 msgid "Back"
-msgstr "Back"
+msgstr "رجوع"
 
 #: src/main.py:219
 msgid "Forward"
-msgstr "Forward"
+msgstr "متابعة"
 
 #: src/main.py:222
 msgid "Help"
-msgstr "Help"
+msgstr "مساعدة"
 
 #: src/main.py:223
 msgid "Documentation"
-msgstr "Documentation"
+msgstr "توثيق"
 
 #: src/main.py:224
 msgid "Community Forums"
-msgstr "Community Forums"
+msgstr "منتديات المجتمع"
+

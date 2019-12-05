@@ -3,103 +3,108 @@ msgstr ""
 "Project-Id-Version: kolibri-mac-app\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-10-29 08:54-0700\n"
-"PO-Revision-Date: 2019-12-05 15:41-0800\n"
+"PO-Revision-Date: 2019-12-05 17:51\n"
 "Last-Translator: learningequality\n"
-"Language-Team: English\n"
-"Language: en_US\n"
+"Language-Team: Swahili, Tanzania\n"
+"Language: sw_TZ\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.3\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri-mac-app\n"
+"X-Crowdin-Language: sw-TZ\n"
+"X-Crowdin-File: macapp.pot\n"
 
 #: src/main.py:190
 msgid "File"
-msgstr "File"
+msgstr "Faili"
 
 #: src/main.py:191
 msgid "New Window"
-msgstr "New Window"
+msgstr "Dirisha Jipya"
 
 #: src/main.py:192
 msgid "Close Window"
-msgstr "Close Window"
+msgstr "Funga Dirisha"
 
 #: src/main.py:194
 msgid "Open Kolibri Home Folder"
-msgstr "Open Kolibri Home Folder"
+msgstr "Fungua Folda ya Kawaida ya Kolibri"
 
 #: src/main.py:198
 msgid "Edit"
-msgstr "Edit"
+msgstr "Hariri"
 
 #: src/main.py:199
 msgid "Undo"
-msgstr "Undo"
+msgstr "Tangua"
 
 #: src/main.py:200
 msgid "Redo"
-msgstr "Redo"
+msgstr "Rudia"
 
 #: src/main.py:202
 msgid "Cut"
-msgstr "Cut"
+msgstr "Kata"
 
 #: src/main.py:203
 msgid "Copy"
-msgstr "Copy"
+msgstr "Nakili"
 
 #: src/main.py:204
 msgid "Paste"
-msgstr "Paste"
+msgstr "Nakilisha"
 
 #: src/main.py:205
 msgid "Select All"
-msgstr "Select All"
+msgstr "Chagua Zote"
 
 #: src/main.py:208
 msgid "View"
-msgstr "View"
+msgstr "Tazama"
 
 #: src/main.py:209
 msgid "Reload"
-msgstr "Reload"
+msgstr "Pakua tena"
 
 #: src/main.py:210
 msgid "Actual Size"
-msgstr "Actual Size"
+msgstr "Ukubwa Kamili"
 
 #: src/main.py:211
 msgid "Zoom In"
-msgstr "Zoom In"
+msgstr "Vuta Karibu"
 
 #: src/main.py:212
 msgid "Zoom Out"
-msgstr "Zoom Out"
+msgstr "Vuta Mbali"
 
 #: src/main.py:214
 msgid "Open in Browser"
-msgstr "Open in Browser"
+msgstr "Fungua kwenye Mtandao"
 
 #: src/main.py:217
 msgid "History"
-msgstr "History"
+msgstr "Historia"
 
 #: src/main.py:218
 msgid "Back"
-msgstr "Back"
+msgstr "Nyuma"
 
 #: src/main.py:219
 msgid "Forward"
-msgstr "Forward"
+msgstr "Peleka mbele"
 
 #: src/main.py:222
 msgid "Help"
-msgstr "Help"
+msgstr "Msaada"
 
 #: src/main.py:223
 msgid "Documentation"
-msgstr "Documentation"
+msgstr "Nyaraka"
 
 #: src/main.py:224
 msgid "Community Forums"
-msgstr "Community Forums"
+msgstr "Jukwaa la Jamii"
+

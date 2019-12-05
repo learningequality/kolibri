@@ -1,0 +1,110 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri-mac-app\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-10-29 08:54-0700\n"
+"PO-Revision-Date: 2019-12-05 17:50\n"
+"Last-Translator: learningequality\n"
+"Language-Team: Bengali\n"
+"Language: bn_BD\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri-mac-app\n"
+"X-Crowdin-Language: bn\n"
+"X-Crowdin-File: macapp.pot\n"
+
+#: src/main.py:190
+msgid "File"
+msgstr "ফাইল"
+
+#: src/main.py:191
+msgid "New Window"
+msgstr "নতুন উইন্ডো"
+
+#: src/main.py:192
+msgid "Close Window"
+msgstr "উইন্ডো বন্ধ করুন"
+
+#: src/main.py:194
+msgid "Open Kolibri Home Folder"
+msgstr "কলিব্রির হোম ফোল্ডার খুলুন"
+
+#: src/main.py:198
+msgid "Edit"
+msgstr "সম্পাদনা করুন"
+
+#: src/main.py:199
+msgid "Undo"
+msgstr "বাতিল করুন"
+
+#: src/main.py:200
+msgid "Redo"
+msgstr "পুনরায় করুন"
+
+#: src/main.py:202
+msgid "Cut"
+msgstr "কাট করুন"
+
+#: src/main.py:203
+msgid "Copy"
+msgstr "কপি করুন"
+
+#: src/main.py:204
+msgid "Paste"
+msgstr "পেস্ট করুন"
+
+#: src/main.py:205
+msgid "Select All"
+msgstr "সব নির্বাচন করুন"
+
+#: src/main.py:208
+msgid "View"
+msgstr "দেখুন"
+
+#: src/main.py:209
+msgid "Reload"
+msgstr "রিলোড করুন"
+
+#: src/main.py:210
+msgid "Actual Size"
+msgstr "প্রকৃত আকার"
+
+#: src/main.py:211
+msgid "Zoom In"
+msgstr "জুম ইন"
+
+#: src/main.py:212
+msgid "Zoom Out"
+msgstr "জুম আউট"
+
+#: src/main.py:214
+msgid "Open in Browser"
+msgstr "ব্রাউজারে খুলুন"
+
+#: src/main.py:217
+msgid "History"
+msgstr "ইতিহাস"
+
+#: src/main.py:218
+msgid "Back"
+msgstr "পিছনে যান"
+
+#: src/main.py:219
+msgid "Forward"
+msgstr "সামনে যান"
+
+#: src/main.py:222
+msgid "Help"
+msgstr "সহায়তা"
+
+#: src/main.py:223
+msgid "Documentation"
+msgstr "ডকুমেন্টেশন"
+
+#: src/main.py:224
+msgid "Community Forums"
+msgstr "কমিউনিটি ফোরাম"
+

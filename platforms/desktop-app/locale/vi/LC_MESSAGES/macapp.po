@@ -3,103 +3,108 @@ msgstr ""
 "Project-Id-Version: kolibri-mac-app\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-10-29 08:54-0700\n"
-"PO-Revision-Date: 2019-12-05 15:41-0800\n"
+"PO-Revision-Date: 2019-12-05 17:50\n"
 "Last-Translator: learningequality\n"
-"Language-Team: English\n"
-"Language: en_US\n"
+"Language-Team: Vietnamese\n"
+"Language: vi_VN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.3\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri-mac-app\n"
+"X-Crowdin-Language: vi\n"
+"X-Crowdin-File: macapp.pot\n"
 
 #: src/main.py:190
 msgid "File"
-msgstr "File"
+msgstr "Tệp tin"
 
 #: src/main.py:191
 msgid "New Window"
-msgstr "New Window"
+msgstr "Cửa sổ mới"
 
 #: src/main.py:192
 msgid "Close Window"
-msgstr "Close Window"
+msgstr "Đóng cửa sổ"
 
 #: src/main.py:194
 msgid "Open Kolibri Home Folder"
-msgstr "Open Kolibri Home Folder"
+msgstr "Mở thư mục nhà Kolibri"
 
 #: src/main.py:198
 msgid "Edit"
-msgstr "Edit"
+msgstr "Sửa"
 
 #: src/main.py:199
 msgid "Undo"
-msgstr "Undo"
+msgstr "Hoàn tác"
 
 #: src/main.py:200
 msgid "Redo"
-msgstr "Redo"
+msgstr "Làm lại"
 
 #: src/main.py:202
 msgid "Cut"
-msgstr "Cut"
+msgstr "Cắt"
 
 #: src/main.py:203
 msgid "Copy"
-msgstr "Copy"
+msgstr "Sao chép"
 
 #: src/main.py:204
 msgid "Paste"
-msgstr "Paste"
+msgstr "Dán"
 
 #: src/main.py:205
 msgid "Select All"
-msgstr "Select All"
+msgstr "Chọn tất cả"
 
 #: src/main.py:208
 msgid "View"
-msgstr "View"
+msgstr "Xem"
 
 #: src/main.py:209
 msgid "Reload"
-msgstr "Reload"
+msgstr "Tải lại"
 
 #: src/main.py:210
 msgid "Actual Size"
-msgstr "Actual Size"
+msgstr "Kích thước thực"
 
 #: src/main.py:211
 msgid "Zoom In"
-msgstr "Zoom In"
+msgstr "Phóng to"
 
 #: src/main.py:212
 msgid "Zoom Out"
-msgstr "Zoom Out"
+msgstr "Thu nhỏ"
 
 #: src/main.py:214
 msgid "Open in Browser"
-msgstr "Open in Browser"
+msgstr "Mở trong trình duyệt"
 
 #: src/main.py:217
 msgid "History"
-msgstr "History"
+msgstr "Lịch sử"
 
 #: src/main.py:218
 msgid "Back"
-msgstr "Back"
+msgstr "Quay lại"
 
 #: src/main.py:219
 msgid "Forward"
-msgstr "Forward"
+msgstr "Tới trước"
 
 #: src/main.py:222
 msgid "Help"
-msgstr "Help"
+msgstr "Trợ giúp"
 
 #: src/main.py:223
 msgid "Documentation"
-msgstr "Documentation"
+msgstr "Tài liệu"
 
 #: src/main.py:224
 msgid "Community Forums"
-msgstr "Community Forums"
+msgstr "Diễn đàn cộng đồng"
+
