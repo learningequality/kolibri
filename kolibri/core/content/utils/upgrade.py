@@ -35,11 +35,7 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
     try:
         if method == "network":
             call_command(
-                "importchannel",
-                "network",
-                channel_id,
-                baseurl=baseurl,
-                no_upgrade=True,
+                "importchannel", "network", channel_id, baseurl=baseurl, no_upgrade=True
             )
         elif method == "disk":
             drive = get_mounted_drive_by_id(drive_id)
