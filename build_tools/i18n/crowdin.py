@@ -318,10 +318,8 @@ def _csv_to_json():
 
             # Account for csv reading differences in Pythons 2 and 3
             try:
-                if sys.version_info[0] < 3:
-                    csv_file = open(csv_path, "rb")
-                else:
-                    csv_file = open(csv_path, "r", newline="")
+                newline = None if sys.version_info[0] < 3 else ""
+                csv_file = io.open(csv_path, mode="r", encoding="utf-8", newline=newline)
             except FileNotFoundError as e:
                 logging.info("Failed to find CSV file in: {}".format(csv_path))
                 continue
