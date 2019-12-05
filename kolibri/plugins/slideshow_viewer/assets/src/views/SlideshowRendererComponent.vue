@@ -18,7 +18,7 @@
     </UiIconButton>
     <Hooper
       v-if="slides.length"
-      :initialSlide="extraFields.contentState.lastViewedSlideIndex"
+      ref="slider"
       @slide="handleSlide"
       @loaded="initializeHooper"
     >
@@ -219,6 +219,8 @@
         */
         this.polyfillSlideObjectFit();
         this.setHooperListWidth();
+        // Do this on nextTick to avoid sliding into position without proper resizing occurring.
+        this.$nextTick(() => this.$refs.slider.slideTo(this.extraFields.contentState.lastViewedSlideIndex));
       },
       updateContentState() {
         this.extraFields.contentState.highestViewedSlideIndex = this.highestViewedSlideIndex;
