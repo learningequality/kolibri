@@ -16,7 +16,12 @@
       <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
       <mat-svg v-else name="fullscreen" category="navigation" />
     </UiIconButton>
-    <Hooper v-if="slides.length" @slide="handleSlide" @loaded="initializeHooper">
+    <Hooper
+      v-if="slides.length"
+      ref="slider"
+      @slide="handleSlide"
+      @loaded="initializeHooper"
+    >
       <Slide v-for="(slide, index) in slides" :key="slide.id + index" :index="index">
         <div
           class="slideshow-slide-image-wrapper"
@@ -81,6 +86,7 @@
       isInFullscreen: false,
       slides: [],
       currentSlideIndex: 0,
+      highestViewedSlideIndex: 0,
     }),
     computed: {
       currentSlide() {
@@ -113,6 +119,11 @@
           this.setSlides(newData);
         }
       },
+      currentSlideIndex() {
+        if (this.currentSlideIndex + 1 === this.slides.length) {
+          this.updateProgress();
+        }
+      },
     },
     created() {
       if (this.defaultFile) {
@@ -120,6 +131,22 @@
       } else if (this.itemData) {
         this.setSlides(this.itemData);
       }
+    },
+    mounted() {
+      this.$emit('startTracking');
+      if (this.extraFields && this.extraFields.hasOwnProperty('contentState')) {
+        this.highestViewedSlideIndex = this.extraFields.contentState.highestViewedSlideIndex;
+      } else {
+        this.extraFields.contentState = {
+          highestViewedSlideIndex: 0,
+          lastViewedSlideIndex: 0,
+        };
+      }
+    },
+    beforeDestroy() {
+      this.updateProgress();
+      this.updateContentState();
+      this.$emit('stopTracking');
     },
     methods: {
       setSlidesFromDefaultFile(defaultFile) {
@@ -153,10 +180,13 @@
           ['sort_order'],
           ['asc']
         );
-        this.currentSlideIndex = 0;
+        this.currentSlideIndex = this.highestViewedSlideIndex;
       },
       handleSlide(payload) {
         this.currentSlideIndex = payload.currentSlide;
+        if (this.currentSlideIndex > this.highestViewedSlideIndex) {
+          this.highestViewedSlideIndex = this.currentSlideIndex;
+        }
       },
       slideTextId(id) {
         return 'descriptive-text-' + id;
@@ -189,6 +219,26 @@
         */
         this.polyfillSlideObjectFit();
         this.setHooperListWidth();
+        // Do this on nextTick to avoid sliding into position without proper resizing occurring.
+        this.$nextTick(() =>
+          this.$refs.slider.slideTo(this.extraFields.contentState.lastViewedSlideIndex)
+        );
+      },
+      updateContentState() {
+        this.extraFields.contentState.highestViewedSlideIndex = this.highestViewedSlideIndex;
+        this.extraFields.contentState.lastViewedSlideIndex = this.currentSlideIndex;
+        this.$emit('updateContentState', this.extraFields.contentState);
+      },
+      updateProgress() {
+        // updateProgress adds the percent to the existing value, so only pass
+        // the percentage of progress in this session, not the full percentage.
+        const progressPercent =
+          this.highestViewedSlideIndex + 1 === this.slides.length
+            ? 1.0
+            : (this.highestViewedSlideIndex -
+                this.extraFields.contentState.highestViewedSlideIndex) /
+              this.slides.length;
+        this.$emit('updateProgress', progressPercent);
       },
     },
     $trs: {
