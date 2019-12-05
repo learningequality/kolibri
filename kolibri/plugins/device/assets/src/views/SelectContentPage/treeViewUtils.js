@@ -52,22 +52,13 @@ export function annotateNode(node, selectedNodes, forImport = true) {
   const nodeIsIncluded = isIncluded || ancestorIsIncluded;
 
   // Completely on device -> DISABLED
-  if (on_device_resources === total_resources) {
-    if (forImport) {
-      return {
-        ...node,
-        message: translator.$tr('alreadyOnYourDevice'),
-        disabled: true,
-        checkboxType: CheckboxTypes.CHECKED,
-      };
-    } else {
-      return {
-        ...node,
-        message: '',
-        disabled: false,
-        checkboxType: nodeIsIncluded ? CheckboxTypes.CHECKED : CheckboxTypes.UNCHECKED,
-      };
-    }
+  if (forImport && on_device_resources === total_resources) {
+    return {
+      ...node,
+      message: translator.$tr('alreadyOnYourDevice'),
+      disabled: true,
+      checkboxType: CheckboxTypes.CHECKED,
+    };
   }
 
   if (!(isOmitted || ancestorIsOmitted) && nodeIsIncluded) {
@@ -75,12 +66,19 @@ export function annotateNode(node, selectedNodes, forImport = true) {
 
     // If any descendants are omitted -> UNCHECKED or INDETERMINATE
     if (omittedDescendants.length > 0) {
-      const omittedResources =
-        (sumTotalResources(omittedDescendants) || 0) -
-        (sumOnDeviceResources(omittedDescendants) || 0);
-
       // All descendants are omitted -> UNCHECKED
-      if (omittedResources === total_resources - on_device_resources) {
+      let allDescendantsOmitted = false;
+      if (forImport) {
+        allDescendantsOmitted =
+          (sumTotalResources(omittedDescendants) || 0) -
+            (sumOnDeviceResources(omittedDescendants) || 0) ===
+          total_resources - on_device_resources;
+      } else {
+        allDescendantsOmitted =
+          (sumOnDeviceResources(omittedDescendants) || 0) === on_device_resources;
+      }
+
+      if (allDescendantsOmitted) {
         return {
           ...node,
           message: '',
@@ -171,7 +169,7 @@ export function annotateNode(node, selectedNodes, forImport = true) {
     }
   }
 
-  if (on_device_resources > 0) {
+  if (forImport && on_device_resources > 0) {
     // Node has some (but not all) resources on device -> UNCHECKED (w/ message).
     // Node with all resources on device handled at top of this function.
     return {

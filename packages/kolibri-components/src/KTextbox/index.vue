@@ -76,13 +76,6 @@
         required: false,
       },
       /**
-       * Only show validation text after user changes the input value
-       */
-      onlyShowValidationAfterChange: {
-        type: Boolean,
-        default: true,
-      },
-      /**
        * Whether or not to autofocus
        */
       autofocus: {
@@ -143,21 +136,18 @@
     data() {
       return {
         currentText: this.value,
-        changed: false,
+        changedOrFocused: false,
       };
     },
     computed: {
       showInvalidMessage() {
-        if (this.onlyShowValidationAfterChange) {
-          return this.invalid && this.changed;
-        }
-        return this.invalid;
+        return this.invalid && this.changedOrFocused;
       },
     },
     watch: {
       value(val) {
         this.currentText = val;
-        this.changed = true;
+        this.changedOrFocused = true;
       },
     },
     methods: {
@@ -185,6 +175,7 @@
        * Focuses on the textbox
        */
       focus() {
+        this.changedOrFocused = true;
         this.$refs.textbox.$el.querySelector('input').focus();
       },
     },

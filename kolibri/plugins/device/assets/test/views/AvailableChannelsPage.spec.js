@@ -179,7 +179,6 @@ describe('availableChannelsPage', () => {
       },
       query: {
         drive_id: undefined,
-        for_export: undefined,
       },
     });
   });
