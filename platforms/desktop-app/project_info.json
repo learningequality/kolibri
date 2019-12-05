@@ -1,13 +1,13 @@
 {
   "name": "Kolibri",
   "version": "0.1.0",
-  "build_number": "9",
+  "build_number": "10",
   "identifier": "org.learningequality.Kolibri",
   "requirements": {"android": ["python2","pyjnius","genericndkbuild", "sqlite3", "cryptography", "pyopenssl", "openssl", "six"]},
   "whitelist_file": {"android": "whitelist.txt"},
   "icons": {"android": "icon.png", "osx": "icons/kolibri.icns"},
   "launch_images": {"android": "assets/launch-image.png"},
-  "asset_dirs": ["assets"],
+  "asset_dirs": ["assets", "locale"],
   "includes": ["html.parser", "kolibri.deployment.default.settings.base", "six"],
   "packages": ["django", "kolibri", "morango", "mptt", "wx"],
   "disk_image": {
