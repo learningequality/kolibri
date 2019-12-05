@@ -14,7 +14,6 @@
       <div class="filter-and-button">
         <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
         <KSelect
-          v-show="false"
           v-model="filterSelection"
           :label="coreString('showAction')"
           :options="filterOptions"

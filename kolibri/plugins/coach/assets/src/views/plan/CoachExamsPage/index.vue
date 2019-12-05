@@ -170,6 +170,9 @@
       sortedExams() {
         return this._.orderBy(this.exams, ['date_created'], ['desc']);
       },
+      // Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
+      // Uncomment this once we use the filters again.
+      /*
       statusOptions() {
         return [
           {
@@ -186,6 +189,7 @@
           },
         ];
       },
+      */
       activeExams() {
         return this.sortedExams.filter(exam => exam.active === true);
       },
