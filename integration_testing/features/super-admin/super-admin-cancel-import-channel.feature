@@ -1,5 +1,5 @@
 Feature: Super admin cancels import content
-    Super admin needs to be able to cancel import process when importing from either Kolibri Studio or attached drive
+    Super admin needs to be able to cancel import tasks
 
   Background:
     Given I am signed in to Kolibri as super admin, or a user with device permissions to import content
