@@ -76,7 +76,7 @@
         required: false,
       },
       /**
-       * Text displayed if user changes value in input
+       * Only show validation text after user changes the input value
        */
       onlyShowValidationAfterChange: {
         type: Boolean,
