@@ -492,7 +492,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
 
     @property
     def can_access_unassigned_content(self):
-        return get_device_setting("allow_learner_unassigned_resource_access")
+        return get_device_setting("allow_learner_unassigned_resource_access", True)
 
 
 class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
