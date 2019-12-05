@@ -82,6 +82,7 @@
   // shares the wizard.nodesForTransfer state.
 
   import get from 'lodash/get';
+  import last from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ChannelContentsSummary from '../../SelectContentPage/ChannelContentsSummary';
   import ContentTreeViewer from '../../SelectContentPage/ContentTreeViewer';
@@ -209,8 +210,18 @@
         } else {
           this.fetchNodeWithAncestors(newNodeId)
             .then(node => {
-              this.nodeCache[newNodeId] = node;
-              this.currentNodeId = newNodeId;
+              // In case the node had its last child deleted, then automatically
+              // go up a level
+              if (node.children.filter(x => x.available).length === 0) {
+                this.$router.replace({
+                  query: {
+                    node: last(node.ancestors).id,
+                  },
+                });
+              } else {
+                this.$set(this.nodeCache, newNodeId, node);
+                this.currentNodeId = newNodeId;
+              }
             })
             .catch(error => {
               this.$store.dispatch('handleApiError', error);
@@ -283,7 +294,7 @@
       // @public (used by taskNotificationMixin)
       onWatchedTaskFinished() {
         // For exports, there are no side effects once task has finished.
-        if (this.watchedTaskType !== TaskTypes.DELETECHANNEL) return;
+        if (this.watchedTaskType !== TaskTypes.DELETECONTENT) return;
 
         // clear out the nodeCache
         this.nodeCache = {};
