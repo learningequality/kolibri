@@ -220,7 +220,9 @@
         this.polyfillSlideObjectFit();
         this.setHooperListWidth();
         // Do this on nextTick to avoid sliding into position without proper resizing occurring.
-        this.$nextTick(() => this.$refs.slider.slideTo(this.extraFields.contentState.lastViewedSlideIndex));
+        this.$nextTick(() =>
+          this.$refs.slider.slideTo(this.extraFields.contentState.lastViewedSlideIndex)
+        );
       },
       updateContentState() {
         this.extraFields.contentState.highestViewedSlideIndex = this.highestViewedSlideIndex;
