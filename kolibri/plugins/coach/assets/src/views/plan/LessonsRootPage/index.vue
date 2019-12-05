@@ -36,7 +36,7 @@
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr
-            v-for="lesson in lessons"
+            v-for="lesson in sortedLessons"
             v-show="showLesson(lesson)"
             :key="lesson.id"
           >
@@ -141,6 +141,9 @@
     computed: {
       ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonsRoot', ['lessons', 'learnerGroups']),
+      sortedLessons() {
+        return this._.orderBy(this.lessons, ['date_created'], ['desc']);
+      },
       filterOptions() {
         const filters = ['allLessons', 'activeLessons', 'inactiveLessons'];
         return filters.map(filter => ({
