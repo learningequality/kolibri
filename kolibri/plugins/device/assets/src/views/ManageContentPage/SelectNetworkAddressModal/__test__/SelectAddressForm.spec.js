@@ -6,21 +6,21 @@ import { fetchStaticAddresses, fetchDynamicAddresses } from '../api';
 const addresses = [
   {
     id: '1',
-    device_name: 'Available Server',
+    nickname: 'Available Server',
     base_url: 'http://localhost:8000',
     available: true,
     hasContent: true,
   },
   {
     id: '2',
-    device_name: 'Unavailable Server',
+    nickname: 'Unavailable Server',
     base_url: 'http://localhost:8001',
     available: false,
     hasContent: true,
   },
   {
     id: '3',
-    device_name: 'Content-less Server',
+    nickname: 'Content-less Server',
     base_url: 'http://localhost:8001',
     available: true,
     hasContent: false,

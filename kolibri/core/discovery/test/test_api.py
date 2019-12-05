@@ -42,7 +42,7 @@ class NetworkLocationAPITestCase(APITestCase):
     def test_creating_good_address(self):
         self.login(self.superuser)
         response = self.client.post(
-            reverse("kolibri:core:networklocation-list"),
+            reverse("kolibri:core:staticnetworklocation-list"),
             data={"base_url": "kolibrihappyurl.qqq"},
             format="json",
         )
@@ -58,7 +58,7 @@ class NetworkLocationAPITestCase(APITestCase):
     def test_creating_good_address_with_one_url_timing_out(self):
         self.login(self.superuser)
         response = self.client.post(
-            reverse("kolibri:core:networklocation-list"),
+            reverse("kolibri:core:staticnetworklocation-list"),
             data={"base_url": "timeoutonport80url.qqq"},
             format="json",
         )
@@ -76,7 +76,7 @@ class NetworkLocationAPITestCase(APITestCase):
     def test_creating_bad_address(self):
         self.login(self.superuser)
         response = self.client.post(
-            reverse("kolibri:core:networklocation-list"),
+            reverse("kolibri:core:staticnetworklocation-list"),
             data={"base_url": "nonkolibrihappyurl.qqq"},
             format="json",
         )
@@ -84,7 +84,7 @@ class NetworkLocationAPITestCase(APITestCase):
 
     def test_reading_network_location_list(self):
         self.login(self.superuser)
-        response = self.client.get(reverse("kolibri:core:networklocation-list"))
+        response = self.client.get(reverse("kolibri:core:staticnetworklocation-list"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for location in response.data:
             # only the happy location should be marked as available
@@ -94,17 +94,17 @@ class NetworkLocationAPITestCase(APITestCase):
             )
 
     def test_cannot_read_network_location_list_as_anon_user(self):
-        response = self.client.get(reverse("kolibri:core:networklocation-list"))
+        response = self.client.get(reverse("kolibri:core:staticnetworklocation-list"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cannot_read_network_location_list_as_learner(self):
         self.login(self.learner)
-        response = self.client.get(reverse("kolibri:core:networklocation-list"))
+        response = self.client.get(reverse("kolibri:core:staticnetworklocation-list"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cannot_create_location_as_anon_user(self):
         response = self.client.post(
-            reverse("kolibri:core:networklocation-list"),
+            reverse("kolibri:core:staticnetworklocation-list"),
             data={"base_url": "kolibrihappyurl.qqq"},
             format="json",
         )
@@ -113,8 +113,29 @@ class NetworkLocationAPITestCase(APITestCase):
     def test_cannot_create_location_as_learner(self):
         self.login(self.learner)
         response = self.client.post(
-            reverse("kolibri:core:networklocation-list"),
+            reverse("kolibri:core:staticnetworklocation-list"),
             data={"base_url": "kolibrihappyurl.qqq"},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_network_location_availability(self):
+        from django.utils import timezone
+        from datetime import timedelta
+
+        a_long_time_ago = timezone.now() - timedelta(minutes=1)
+        recently = timezone.now()
+
+        fresh = models.NetworkLocation.objects.create(
+            base_url="dat://blablabla",
+            last_available=recently,
+            last_unavailable=a_long_time_ago,
+        )
+        self.assertTrue(fresh.available)
+
+        old = models.NetworkLocation.objects.create(
+            base_url="dat://blablabla",
+            last_unavailable=recently,
+            last_available=a_long_time_ago,
+        )
+        self.assertFalse(old.available)

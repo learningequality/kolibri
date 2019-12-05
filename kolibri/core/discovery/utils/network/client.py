@@ -10,12 +10,15 @@ logger = logging.getLogger(__name__)
 
 
 class NetworkClient(object):
-    def __init__(self, base_url=None, address=None, **kwargs):
+    DEFAULT_TIMEOUT_IN_SECS = 5
+
+    def __init__(self, base_url=None, address=None, timeout=None, **kwargs):
         """If an explicit base_url is already known, provide that. If a vague address is provided, we can try to infer the base_url"""
         if not base_url and not address:
             raise Exception(
                 "You must provide either a `base_url` or `address` argument"
             )
+        self.timeout = timeout or self.DEFAULT_TIMEOUT_IN_SECS
         self.session = requests.Session(**kwargs)
         if base_url:
             self.base_url = self._attempt_connections([base_url])
@@ -34,7 +37,10 @@ class NetworkClient(object):
             try:
                 logger.info("Attempting connection to: {}".format(url))
                 response = self.get(
-                    "/api/public/info/", base_url=url, timeout=5, allow_redirects=True
+                    "/api/public/info/",
+                    base_url=url,
+                    timeout=self.timeout,
+                    allow_redirects=True,
                 )
                 # check that we successfully connected, and if we were redirected that it's still the right endpoint
                 if response.status_code == 200 and response.url.rstrip("/").endswith(
@@ -65,3 +71,10 @@ class NetworkClient(object):
         response = getattr(self.session, method)(url, **kwargs)
         response.raise_for_status()
         return response
+
+
+def ping(base_url=None, address=None, timeout=None, **kwargs):
+    try:
+        return NetworkClient(base_url=base_url, timeout=timeout).info
+    except (errors.NetworkClientError, errors.NetworkLocationNotFound):
+        return None

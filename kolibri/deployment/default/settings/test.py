@@ -18,5 +18,3 @@ CACHES = {
     key: {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}
     for key in CACHES.keys()  # noqa F405
 }
-
-ZEROCONF_MIN_ALLOWED_REFRESH = 0

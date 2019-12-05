@@ -1,7 +1,7 @@
 import socket
 
 import mock
-from django.test import TransactionTestCase
+from django.test import TestCase
 from zeroconf import BadTypeInNameException
 from zeroconf import service_type_name
 from zeroconf import ServiceInfo
@@ -57,6 +57,7 @@ class MockZeroconf(Zeroconf):
     def add_service_listener(self, type_, listener):
         self.remove_service_listener(listener)
         self.browsers[listener] = MockServiceBrowser(self, type_, listener)
+
         for info in self.services.values():
             listener.add_service(self, info.type, info.name)
 
@@ -98,7 +99,7 @@ class MockZeroconf(Zeroconf):
     "kolibri.core.discovery.utils.network.search.get_all_addresses",
     lambda: [MOCK_INTERFACE_IP],
 )
-class TestNetworkSearch(TransactionTestCase):
+class TestNetworkSearch(TestCase):
     def test_initialize_zeroconf_listener(self):
         assert ZEROCONF_STATE["listener"] is None
         initialize_zeroconf_listener()
@@ -107,8 +108,8 @@ class TestNetworkSearch(TransactionTestCase):
     def test_register_zeroconf_service(self):
         assert len(get_peer_instances()) == 0
         initialize_zeroconf_listener()
-        register_zeroconf_service(MOCK_PORT, MOCK_ID)
-        assert get_peer_instances() == [
+        register_zeroconf_service(MOCK_PORT, {"instance_id": "abcdefg"})
+        assert [x for x in get_peer_instances()] == [
             {
                 "id": MOCK_ID,
                 "ip": MOCK_INTERFACE_IP,
@@ -116,7 +117,7 @@ class TestNetworkSearch(TransactionTestCase):
                 "self": True,
                 "port": MOCK_PORT,
                 "host": ".".join([MOCK_ID, LOCAL_DOMAIN]),
-                "data": {"version": [0, 13, 0, "alpha", 0]},
+                "instance_id": "abcdefg",
                 "base_url": "http://{ip}:{port}/".format(
                     ip=MOCK_INTERFACE_IP, port=MOCK_PORT
                 ),

@@ -9,7 +9,7 @@
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
-    <template v-slot>
+    <template>
       <UiAlert
         v-if="uiAlertProps"
         v-show="showUiAlerts"
@@ -40,7 +40,7 @@
             v-model="selectedAddressId"
             class="radio-button"
             :value="a.id"
-            :label="a.device_name"
+            :label="a.nickname"
             :description="a.base_url"
             :disabled="!a.available || !a.hasContent"
           />
@@ -64,7 +64,6 @@
             :value="d.instance_id"
             :label="$tr('peerDeviceName', {identifier: d.id.slice(0,4) })"
             :description="d.base_url"
-            :disabled="!d.available || !d.hasContent"
           />
         </div>
       </template>
@@ -74,7 +73,10 @@
       <KFixedGridItem span="1">
         <transition name="fade">
           <div v-if="discoveringPeers" class="searching-indicator">
-            <KCircularLoader :size="16" :stroke="9" />{{ $tr('searchingText') }}
+            <KLabeledIcon>
+              <KCircularLoader slot="icon" :size="16" :stroke="6" />
+              {{ $tr('searchingText') }}
+            </KLabeledIcon>
           </div>
         </transition>
       </KFixedGridItem>
@@ -324,13 +326,12 @@
   }
 
   .fade-leave-active {
-    transition: opacity 0.3s;
     transition-delay: 2s;
   }
 
   .fade-enter,
   .fade-leave-to {
-    opacity: 0;
+    opacity: 1;
   }
 
   .ui-progress-circular {

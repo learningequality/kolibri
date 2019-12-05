@@ -420,7 +420,7 @@ def create_startup_lock(port):
     "--port",
     default=OPTIONS["Deployment"]["HTTP_PORT"],
     type=int,
-    help="Port on which to run Kolibri",
+    help="Port on which Kolibri is being served",
 )
 @click.option(
     "--background/--foreground",

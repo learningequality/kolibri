@@ -1,7 +1,7 @@
 # START testing this scenario with a FRESH DB (make a copy of the current if you want to reuse it later), and make sure to have a stable connection available.
 
 Background:
-  Given I am signed into Kolibri as a <superuser> or <devie admin>
+  Given I am signed into Kolibri as a <superuser> or <device admin>
     And I am in the device tab
     And I press the 'import' button, select 'local network or internet'
 

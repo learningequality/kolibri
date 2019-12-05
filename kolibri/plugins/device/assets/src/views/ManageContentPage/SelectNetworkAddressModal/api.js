@@ -60,7 +60,7 @@ export const fetchNetworkAddresses = fetchAddresses;
 export function createAddress(address) {
   return StaticNetworkLocationResource.createModel({
     base_url: address.base_url,
-    device_name: address.device_name,
+    nickname: address.nickname,
   }).save();
 }
 

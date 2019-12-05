@@ -120,11 +120,11 @@ def run_services(port):
     scheduler.start_scheduler()
 
     # Register the Kolibri zeroconf service so it will be discoverable on the network
-    from morango.models import InstanceIDModel
+    from kolibri.core.public.utils import get_device_info
     from kolibri.core.discovery.utils.network.search import register_zeroconf_service
 
-    instance, _ = InstanceIDModel.get_or_create_current_instance()
-    register_zeroconf_service(port=port, id=instance.id)
+    device_info = get_device_info()
+    register_zeroconf_service(port=port, device_info=device_info)
 
     cleanup_func = partial(_cleanup_before_quitting, workers=workers)
 

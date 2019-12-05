@@ -1,32 +1,30 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from .models import DynamicNetworkLocation
 from .models import NetworkLocation
-from .models import StaticNetworkLocation
 from .serializers import NetworkLocationSerializer
-from kolibri.core.content.permissions import CanManageContent
-from kolibri.core.discovery.utils.network.search import run_peer_discovery
+from .utils.network.search import discovery_index
+from .utils.network.search import get_peer_instance
+from .utils.network.search import get_peer_instances
 
 
-class NetworkLocationViewSet(viewsets.ModelViewSet):
-    permission_classes = (CanManageContent,)
-    serializer_class = NetworkLocationSerializer
-    queryset = NetworkLocation.objects
-
-
-class DynamicNetworkLocationViewSet(viewsets.ModelViewSet):
-    permission_classes = (CanManageContent,)
-    serializer_class = NetworkLocationSerializer
-    queryset = DynamicNetworkLocation.objects
-
+class DynamicNetworkLocationViewSet(viewsets.ViewSet):
     def list(self, request):
-        run_peer_discovery()
-        serializer = self.serializer_class(self.queryset, many=True)
-        return Response(serializer.data)
+        return Response(get_peer_instances())
+
+    def retrieve(self, request, pk=None):
+        return Response(get_peer_instance(pk))
 
 
 class StaticNetworkLocationViewSet(viewsets.ModelViewSet):
-    permission_classes = (CanManageContent,)
     serializer_class = NetworkLocationSerializer
-    queryset = StaticNetworkLocation.objects
+    queryset = NetworkLocation.objects.all()
+
+
+class NetworkLocationViewSet(viewsets.ViewSet):
+    def retrieve(self, request, pk=None):
+        if pk in discovery_index:
+            return Response(get_peer_instance(pk))
+        else:
+            view = StaticNetworkLocationViewSet.as_view({"get": "retrieve"})
+            return view(request._request, pk=pk)
