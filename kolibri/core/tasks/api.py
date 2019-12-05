@@ -23,6 +23,7 @@ from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import priority_queue
 from kolibri.core.tasks.main import queue
 from kolibri.utils import conf
 
@@ -147,7 +148,7 @@ class TasksViewSet(viewsets.ViewSet):
         return [permission() for permission in permission_classes]
 
     def list(self, request):
-        jobs_response = [_job_to_response(j) for j in queue.jobs]
+        jobs_response = [_job_to_response(j) for j in queue.jobs + priority_queue.jobs]
 
         return Response(jobs_response)
 
@@ -160,7 +161,10 @@ class TasksViewSet(viewsets.ViewSet):
             task = _job_to_response(queue.fetch_job(pk))
             return Response(task)
         except JobNotFound:
-            raise Http404("Task with {pk} not found".format(pk=pk))
+            try:
+                task = _job_to_response(priority_queue.fetch_job(pk))
+            except JobNotFound:
+                raise Http404("Task with {pk} not found".format(pk=pk))
 
     def destroy(self, request, pk=None):
         # unimplemented for now.
@@ -200,7 +204,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         task.update({"type": "REMOTECHANNELIMPORT"})
 
-        job_id = queue.enqueue(
+        job_id = priority_queue.enqueue(
             call_command,
             "importchannel",
             "network",
@@ -210,7 +214,7 @@ class TasksViewSet(viewsets.ViewSet):
             extra_metadata=task,
             cancellable=True,
         )
-        resp = _job_to_response(queue.fetch_job(job_id))
+        resp = _job_to_response(priority_queue.fetch_job(job_id))
 
         return Response(resp)
 
@@ -272,7 +276,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         task.update({"type": "DISKCHANNELIMPORT"})
 
-        job_id = queue.enqueue(
+        job_id = priority_queue.enqueue(
             call_command,
             "importchannel",
             "disk",
@@ -283,7 +287,7 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=True,
         )
 
-        resp = _job_to_response(queue.fetch_job(job_id))
+        resp = _job_to_response(priority_queue.fetch_job(job_id))
         return Response(resp)
 
     @list_route(methods=["post"])
@@ -461,7 +465,10 @@ class TasksViewSet(viewsets.ViewSet):
         try:
             queue.cancel(request.data["task_id"])
         except JobNotFound:
-            pass
+            try:
+                priority_queue.cancel(request.data["task_id"])
+            except JobNotFound:
+                pass
 
         return Response({})
 
@@ -472,6 +479,7 @@ class TasksViewSet(viewsets.ViewSet):
         """
 
         queue.empty()
+        priority_queue.empty()
         return Response({})
 
     @list_route(methods=["post"])
@@ -480,6 +488,7 @@ class TasksViewSet(viewsets.ViewSet):
         task_id = request.data.get("task_id")
         if task_id:
             queue.clear_job(task_id)
+            priority_queue.clear_job(task_id)
             return Response({"task_id": task_id})
         else:
             return Response({})
@@ -492,8 +501,10 @@ class TasksViewSet(viewsets.ViewSet):
         task_id = request.data.get("task_id")
         if task_id:
             queue.clear_job(task_id)
+            priority_queue.clear_job(task_id)
         else:
             queue.clear()
+            priority_queue.clear()
         return Response({})
 
     @list_route(methods=["get"])
@@ -537,7 +548,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         job_metadata = {"type": job_type, "started_by": request.user.pk}
 
-        job_id = queue.enqueue(
+        job_id = priority_queue.enqueue(
             call_command,
             "exportlogs",
             log_type=log_type,
@@ -547,7 +558,7 @@ class TasksViewSet(viewsets.ViewSet):
             track_progress=True,
         )
 
-        resp = _job_to_response(queue.fetch_job(job_id))
+        resp = _job_to_response(priority_queue.fetch_job(job_id))
 
         return Response(resp)
 
@@ -587,7 +598,7 @@ class TasksViewSet(viewsets.ViewSet):
             }
         )
 
-        job_id = queue.enqueue(
+        job_id = priority_queue.enqueue(
             diff_stats,
             channel_id,
             method,
@@ -598,7 +609,7 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=True,
         )
 
-        resp = _job_to_response(queue.fetch_job(job_id))
+        resp = _job_to_response(priority_queue.fetch_job(job_id))
 
         return Response(resp)
 

@@ -17,6 +17,7 @@ from kolibri.core.content.utils.import_export_content import compare_checksums
 from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
 from kolibri.core.content.utils.import_export_content import retry_import
 from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 
@@ -290,12 +291,13 @@ class Command(AsyncCommand):
                     exception = e
                     break
 
-            annotation.set_content_visibility(
-                channel_id,
-                file_checksums_to_annotate,
-                node_ids=node_ids,
-                exclude_node_ids=exclude_node_ids,
-            )
+            with db_task_write_lock:
+                annotation.set_content_visibility(
+                    channel_id,
+                    file_checksums_to_annotate,
+                    node_ids=node_ids,
+                    exclude_node_ids=exclude_node_ids,
+                )
 
             resources_after_transfer = (
                 ContentNode.objects.filter(channel_id=channel_id, available=True)
