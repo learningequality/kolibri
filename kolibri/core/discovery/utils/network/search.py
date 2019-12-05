@@ -1,19 +1,16 @@
 import atexit
 import json
 import logging
-import os
 import socket
 from contextlib import closing
 
-from diskcache import Cache
-from diskcache import Index
 from zeroconf import get_all_addresses
 from zeroconf import NonUniqueNameException
 from zeroconf import ServiceInfo
 from zeroconf import USE_IP_OF_OUTGOING_INTERFACE
 from zeroconf import Zeroconf
 
-from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.core.discovery.models import DynamicNetworkLocation
 
 logger = logging.getLogger(__name__)
 
@@ -21,22 +18,6 @@ SERVICE_TYPE = "Kolibri._sub._http._tcp.local."
 LOCAL_DOMAIN = "kolibri.local"
 
 ZEROCONF_STATE = {"zeroconf": None, "listener": None, "service": None}
-
-# ZeroConf cache stuff
-ZEROCONF_SERVICE_ID = "ZEROCONF_SERVICE_ID"
-ZEROCONF_SELF_INSTANCE = "ZEROCONF_SELF_INSTANCE"
-
-discovery_index = Index(os.path.join(KOLIBRI_HOME, "zeroconf", "index"),)
-
-meta_cache = Cache(os.path.join(KOLIBRI_HOME, "zeroconf", "meta"),)
-
-
-def get_peer_instances():
-    return discovery_index.values()
-
-
-def get_peer_instance(instance_id):
-    return discovery_index[instance_id]
 
 
 def _id_from_name(name):
@@ -126,7 +107,7 @@ class KolibriZeroconfListener(object):
         ip = socket.inet_ntoa(info.address)
 
         base_url = "http://{ip}:{port}/".format(ip=ip, port=info.port)
-        is_self = id == meta_cache.get(ZEROCONF_SERVICE_ID)
+        is_self = id == ZEROCONF_STATE["service"].id
 
         instance = {
             "id": id,
@@ -138,25 +119,23 @@ class KolibriZeroconfListener(object):
             "self": is_self,
         }
 
-        instance.update(
-            {
-                bytes.decode(key): json.loads(val)
-                for (key, val) in info.properties.items()
-            }
-        )
+        device_info = {
+            bytes.decode(key): json.loads(val) for (key, val) in info.properties.items()
+        }
+
+        instance.update(device_info)
 
         if not is_self:
             self.instances[id] = instance
 
-            discovery_index[id] = instance
+            DynamicNetworkLocation.objects.update_or_create(
+                dict(base_url=base_url, **device_info), id=id,
+            )
 
             logger.info(
                 "Kolibri instance '%s' joined zeroconf network; service info: %s\n"
                 % (id, self.instances[id])
             )
-        else:
-            self.self_instance = instance
-            meta_cache.set(ZEROCONF_SELF_INSTANCE, instance)
 
     def remove_service(self, zeroconf, type, name):
         id = _id_from_name(name)
@@ -168,20 +147,15 @@ class KolibriZeroconfListener(object):
         except KeyError:
             pass
 
-        try:
-            del discovery_index[id]
-        except KeyError:
-            pass
+        DynamicNetworkLocation.objects.filter(pk=id).delete()
 
 
 def register_zeroconf_service(port, device_info):
     id = device_info.get("instance_id")
 
-    meta_cache.set(ZEROCONF_SERVICE_ID, id)
-    discovery_index.clear()
-
     if ZEROCONF_STATE["service"] is not None:
         unregister_zeroconf_service()
+
     logger.info("Registering ourselves to zeroconf network with id '%s'..." % id)
     data = device_info
     ZEROCONF_STATE["service"] = KolibriZeroconfService(id=id, port=port, data=data)
@@ -193,9 +167,6 @@ def unregister_zeroconf_service():
         ZEROCONF_STATE["service"].cleanup()
     ZEROCONF_STATE["service"] = None
 
-    meta_cache.clear()
-    discovery_index.clear()
-
 
 def initialize_zeroconf_listener():
     ZEROCONF_STATE["zeroconf"] = Zeroconf()
@@ -203,3 +174,7 @@ def initialize_zeroconf_listener():
     ZEROCONF_STATE["zeroconf"].add_service_listener(
         SERVICE_TYPE, ZEROCONF_STATE["listener"]
     )
+
+
+def get_peer_instances():
+    return ZEROCONF_STATE["listener"].instances.values()

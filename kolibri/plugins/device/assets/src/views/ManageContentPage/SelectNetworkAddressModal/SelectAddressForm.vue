@@ -64,6 +64,7 @@
             :value="d.instance_id"
             :label="$tr('peerDeviceName', {identifier: d.id.slice(0,4) })"
             :description="d.base_url"
+            :disabled="!d.available"
           />
         </div>
       </template>
@@ -154,13 +155,6 @@
       newAddressButtonDisabled() {
         return this.stage === this.Stages.FETCHING_ADDRESSES;
       },
-      requestsSucessful() {
-        return (
-          this.stage === this.Stages.FETCHING_SUCCESSFUL ||
-          this.stage === this.Stages.DELETING_SUCCESSFUL ||
-          this.stage === this.Stages.PEER_DISCOVERY_SUCCESSFUL
-        );
-      },
       requestsFailed() {
         return (
           this.stage === this.Stages.FETCHING_FAILED || this.stage === this.Stages.DELETING_FAILED
@@ -176,7 +170,7 @@
             type: 'info',
           };
         }
-        if (this.requestsSucessful && this.addresses.length === 0) {
+        if (this.addresses.length === 0) {
           return {
             text: this.$tr('noAddressText'),
             type: 'info',
