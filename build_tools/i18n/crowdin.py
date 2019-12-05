@@ -321,7 +321,9 @@ def _csv_to_json():
                 newline = None if sys.version_info[0] < 3 else ""
                 mode = "r+b" if sys.version_info[0] < 3 else "r"
                 encoding = None if sys.version_info[0] < 3 else "utf-8"
-                csv_file = io.open(csv_path, mode=mode, encoding=encoding, newline=newline)
+                csv_file = io.open(
+                    csv_path, mode=mode, encoding=encoding, newline=newline
+                )
             except EnvironmentError as e:
                 logging.info("Failed to find CSV file in: {}".format(csv_path))
                 continue
