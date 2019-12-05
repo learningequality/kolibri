@@ -12,7 +12,8 @@ Feature: Coach creates groups
     When I enter a group name <group>
       And I click *Save* button
     Then the modal closes
-      And I see the new group on *Groups* page
+      And I see the snackbar notification *Created*
+      And I see the new group <group> in *Groups* tab
 
   Scenario: Check validation for the name field
     When I try to enter a name with more than 50 characters

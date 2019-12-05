@@ -21,7 +21,7 @@ Feature: Coach copies lesson
 			And the snackbar confirmation appears
     When I click on *All Lessons*
     Then I see the *Copy of '<lesson>'* in the list of lessons
-      And I see *Entire class* value for it under the *Recipients* column header
+      And I see *Entire class* value for it under the *Recipients* heading
 
   Scenario: Copy lesson to a different class and assign it to just one group
     Given there is a class <class2> that has a group <group>
@@ -44,7 +44,7 @@ Feature: Coach copies lesson
         And I click class <class2>
         And I click on *Plan > Lessons* tab
       Then I see the *Copy of '<lesson>'* in the list of lessons
-        And I see *1 group* value for it under the *Recipients* column header
+        And I see *1 group* value for it under the *Recipients* heading
 
 Examples:
 | lesson       | class    | class2    | group     |
