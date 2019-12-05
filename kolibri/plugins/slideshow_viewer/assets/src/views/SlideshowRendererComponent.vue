@@ -16,7 +16,12 @@
       <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
       <mat-svg v-else name="fullscreen" category="navigation" />
     </UiIconButton>
-    <Hooper v-if="slides.length" :initialSlide="extraFields.contentState.lastViewedSlideIndex" @slide="handleSlide" @loaded="initializeHooper">
+    <Hooper
+      v-if="slides.length"
+      :initialSlide="extraFields.contentState.lastViewedSlideIndex"
+      @slide="handleSlide"
+      @loaded="initializeHooper"
+    >
       <Slide v-for="(slide, index) in slides" :key="slide.id + index" :index="index">
         <div
           class="slideshow-slide-image-wrapper"
@@ -139,8 +144,8 @@
       }
     },
     beforeDestroy() {
-      this.updateContentState();
       this.updateProgress();
+      this.updateContentState();
       this.$emit('stopTracking');
     },
     methods: {
@@ -221,7 +226,15 @@
         this.$emit('updateContentState', this.extraFields.contentState);
       },
       updateProgress() {
-        this.$emit('updateProgress', (this.highestViewedSlideIndex + 1) / this.slides.length);
+        // updateProgress adds the percent to the existing value, so only pass
+        // the percentage of progress in this session, not the full percentage.
+        const progressPercent =
+          this.highestViewedSlideIndex + 1 === this.slides.length
+            ? 1.0
+            : (this.highestViewedSlideIndex -
+                this.extraFields.contentState.highestViewedSlideIndex) /
+              this.slides.length;
+        this.$emit('updateProgress', progressPercent);
       },
     },
     $trs: {
