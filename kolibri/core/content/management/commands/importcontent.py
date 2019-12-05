@@ -203,7 +203,7 @@ class Command(AsyncCommand):
             .count()
         )
 
-        (files_to_download, total_bytes_to_transfer,) = calculate_files_to_transfer(
+        (files_to_download, total_bytes_to_transfer) = calculate_files_to_transfer(
             nodes_for_transfer, False
         )
 
@@ -356,9 +356,7 @@ class Command(AsyncCommand):
                 # is less than what we have marked in the database that we make up
                 # the difference so that the overall progress is never incorrect.
                 # This could happen, for example for a local transfer if a file
-                # has been replaced or corrupted (which we catch below) or for
-                # a remote transfer if the peer to peer transfer is is compressing
-                # files using gzip.
+                # has been replaced or corrupted (which we catch below)
                 overall_progress_update(f.file_size - filetransfer.total_size)
 
                 # If checksum of the destination file is different from the localfile
