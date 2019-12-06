@@ -18,7 +18,7 @@ Feature: Super admin changes their own profile information
       And I see the new username in the user menu
 
   Scenario: Super admin selects gender and birth year
-    When I clic the *Edit* button
+    When I click the *Edit* button
     Then I see the *Edit profile* page
     When I select my gender
       And I select my birth year
