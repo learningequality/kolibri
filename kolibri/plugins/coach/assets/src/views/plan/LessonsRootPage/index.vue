@@ -12,12 +12,18 @@
       <PlanHeader />
 
       <div class="filter-and-button">
+        <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
         <KSelect
           v-model="filterSelection"
           :label="coreString('showAction')"
           :options="filterOptions"
           :inline="true"
         />
+        -->
+        <!-- Remove this div - it makes sure the [NEW LESSON] button stays right-aligned
+            while the above <KSelect> is hidden
+        -->
+        <div>&nbsp;</div>
         <KButton
           :primary="true"
           :text="coachString('newLessonAction')"

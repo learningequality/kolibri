@@ -11,12 +11,14 @@
     <KPageContainer>
       <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
       <ReportsControls @export="exportCSV">
+        <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
         <KSelect
           v-model="filter"
           :label="coreString('showAction')"
           :options="filterOptions"
           :inline="true"
         />
+        -->
       </ReportsControls>
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
