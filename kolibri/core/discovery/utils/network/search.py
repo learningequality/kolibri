@@ -107,7 +107,9 @@ class KolibriZeroconfListener(object):
         ip = socket.inet_ntoa(info.address)
 
         base_url = "http://{ip}:{port}/".format(ip=ip, port=info.port)
-        is_self = id == ZEROCONF_STATE["service"].id
+        is_self = (
+            id == ZEROCONF_STATE["service"].id if ZEROCONF_STATE["service"] else False
+        )
 
         instance = {
             "id": id,
@@ -124,9 +126,9 @@ class KolibriZeroconfListener(object):
         }
 
         instance.update(device_info)
+        self.instances[id] = instance
 
         if not is_self:
-            self.instances[id] = instance
 
             DynamicNetworkLocation.objects.update_or_create(
                 dict(base_url=base_url, **device_info), id=id,
@@ -175,6 +177,11 @@ def initialize_zeroconf_listener():
         SERVICE_TYPE, ZEROCONF_STATE["listener"]
     )
 
+    DynamicNetworkLocation.objects.purge()
+
 
 def get_peer_instances():
-    return ZEROCONF_STATE["listener"].instances.values()
+    try:
+        return ZEROCONF_STATE["listener"].instances.values()
+    except AttributeError:
+        return []

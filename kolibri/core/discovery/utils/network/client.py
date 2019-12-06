@@ -71,10 +71,3 @@ class NetworkClient(object):
         response = getattr(self.session, method)(url, **kwargs)
         response.raise_for_status()
         return response
-
-
-def ping(base_url=None, address=None, timeout=None, **kwargs):
-    try:
-        return NetworkClient(base_url=base_url, timeout=timeout).info
-    except (errors.NetworkClientError, errors.NetworkLocationNotFound):
-        return None

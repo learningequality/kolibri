@@ -1,12 +1,11 @@
 import uuid
 from datetime import datetime
-from datetime import timedelta
 
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
-from .utils.network.client import ping
+from .utils.network.connections import check_connection
 
 
 class NetworkLocation(models.Model):
@@ -15,8 +14,6 @@ class NetworkLocation(models.Model):
     which can be used to sync content or data.
     """
 
-    EXPIRATION_WINDOW = timedelta(seconds=10)
-    DEFAULT_PING_TIMEOUT_SECONDS = 5
     NEVER = datetime(1000, 4, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
 
     class Meta:
@@ -42,20 +39,6 @@ class NetworkLocation(models.Model):
     # dates and times
     added = models.DateTimeField(auto_now_add=True, db_index=True)
     last_accessed = models.DateTimeField(auto_now=True)
-    last_available = models.DateTimeField(default=NEVER)
-    last_unavailable = models.DateTimeField(default=NEVER)
-
-    def ping(self):
-        info = ping(self.base_url, timeout=self.DEFAULT_PING_TIMEOUT_SECONDS)
-        now = timezone.now()
-        if info:
-            NetworkLocation.objects.filter(id=self.id).update(
-                last_available=now, **info
-            )
-            return info
-        else:
-            NetworkLocation.objects.filter(id=self.id).update(last_unavailable=now)
-            return None
 
     @property
     def available(self):
@@ -63,21 +46,8 @@ class NetworkLocation(models.Model):
         If this connection was checked recently, report that result,
         otherwise do a fresh check.
         """
-        expiration_time = timezone.now() - self.EXPIRATION_WINDOW
 
-        available_recently = self.last_available > expiration_time
-        unavailable_recently = self.last_unavailable > expiration_time
-
-        is_available = (
-            available_recently and self.last_available > self.last_unavailable
-        )
-
-        if is_available:
-            return True
-        elif unavailable_recently:
-            return False
-        else:
-            return True if self.ping() else False
+        return True if check_connection(self.base_url) else False
 
 
 class StaticNetworkLocationManager(models.Manager):
