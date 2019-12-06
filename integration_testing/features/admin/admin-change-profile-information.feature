@@ -6,18 +6,18 @@ Feature: Admin changes profile information
       And I am on the *User > Profile* page
 
   Scenario: Admin changes username and full name
-    When I clic the *Edit* button
+    When I click the *Edit* button
     Then I see the *Edit profile* page
     When I change my full name
       And I change my username
       And if my changes are valid (I did not leave the fields empty)
       And I click the “Save” button
     Then I see the *Profile details updated* snackbar notification
-    When I go back to my *Profile > Detils* page
+    When I go back to my *Profile > Details* page
     Then I see the new full name and username on the profile page
 
   Scenario: Admin selects gender and birth year
-    When I clic the *Edit* button
+    When I click the *Edit* button
     Then I see the *Edit profile* page
     When I select my gender
       And I select my birth year
