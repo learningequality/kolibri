@@ -38,7 +38,7 @@
       header: 'No resources available',
       adminLink: 'As an administrator you can import channels',
       learnerText: 'Please ask your coach or administrator for assistance',
-      documentTitle: 'Content Unavailable',
+      documentTitle: 'Resource unavailable',
     },
   };
 

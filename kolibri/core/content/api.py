@@ -152,7 +152,7 @@ class ContentNodeFilter(IdFilter):
     resume = CharFilter(method="filter_resume")
     kind = ChoiceFilter(
         method="filter_kind",
-        choices=(content_kinds.choices + (("content", _("Content")),)),
+        choices=(content_kinds.choices + (("content", _("Resource")),)),
     )
     user_kind = ChoiceFilter(method="filter_user_kind", choices=user_kinds.choices)
     in_lesson = CharFilter(method="filter_in_lesson")
