@@ -6,7 +6,7 @@ Feature: Super admin changes their own profile information
       And I am on the *User > Profile* page
 
   Scenario: Super admin changes username and full name
-  	When I clic the *Edit* button
+  	When I click the *Edit* button
     Then I see the *Edit profile* page
     When I change my full name
       And I change my username
