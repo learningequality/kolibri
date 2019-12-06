@@ -8,6 +8,10 @@ from django.utils import timezone
 from .utils.network.connections import check_connection
 
 
+def _filter_out_unsuported_fields(fields):
+    return {k: v for (k, v) in fields.items() if NetworkLocation.has_field(k)}
+
+
 class NetworkLocation(models.Model):
     """
     ``NetworkLocation`` stores information about a network address through which an instance of Kolibri can be accessed,
@@ -47,7 +51,15 @@ class NetworkLocation(models.Model):
         otherwise do a fresh check.
         """
 
-        return True if check_connection(self.base_url) else False
+        return bool(check_connection(self.base_url))
+
+    @classmethod
+    def has_field(cls, field):
+        try:
+            cls._meta.get_field(field)
+            return True
+        except models.FieldDoesNotExist:
+            return False
 
 
 class StaticNetworkLocationManager(models.Manager):
@@ -72,8 +84,16 @@ class DynamicNetworkLocationManager(models.Manager):
         queryset = super(DynamicNetworkLocationManager, self).get_queryset()
         return queryset.filter(dynamic=True).all()
 
-    def purge(self):
-        self.get_queryset().delete()
+    def create(self, *args, **kwargs):
+        kwargs = _filter_out_unsuported_fields(kwargs)
+        return super(DynamicNetworkLocationManager, self).create(*args, **kwargs)
+
+    def update_or_create(self, defaults, **kwargs):
+        defaults = _filter_out_unsuported_fields(defaults)
+
+        return super(DynamicNetworkLocationManager, self).update_or_create(
+            defaults, **kwargs
+        )
 
 
 class DynamicNetworkLocation(NetworkLocation):

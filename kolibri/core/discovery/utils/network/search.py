@@ -4,6 +4,7 @@ import logging
 import socket
 from contextlib import closing
 
+from django.core.exceptions import ValidationError
 from zeroconf import get_all_addresses
 from zeroconf import NonUniqueNameException
 from zeroconf import ServiceInfo
@@ -107,9 +108,9 @@ class KolibriZeroconfListener(object):
         ip = socket.inet_ntoa(info.address)
 
         base_url = "http://{ip}:{port}/".format(ip=ip, port=info.port)
-        is_self = (
-            id == ZEROCONF_STATE["service"].id if ZEROCONF_STATE["service"] else False
-        )
+
+        zeroconf_service = ZEROCONF_STATE.get("service")
+        is_self = zeroconf_service and zeroconf_service.id == id
 
         instance = {
             "id": id,
@@ -130,14 +131,27 @@ class KolibriZeroconfListener(object):
 
         if not is_self:
 
-            DynamicNetworkLocation.objects.update_or_create(
-                dict(base_url=base_url, **device_info), id=id,
-            )
+            try:
 
-            logger.info(
-                "Kolibri instance '%s' joined zeroconf network; service info: %s\n"
-                % (id, self.instances[id])
-            )
+                DynamicNetworkLocation.objects.update_or_create(
+                    dict(base_url=base_url, **device_info), id=id,
+                )
+
+                logger.info(
+                    "Kolibri instance '%s' joined zeroconf network; service info: %s\n"
+                    % (id, self.instances[id])
+                )
+
+            except ValidationError:
+                import traceback
+                logger.warn(
+                    (
+                        "A new Kolibri instance '%s' was seen on the zeroconf network, "
+                        + "but we had trouble getting the information we needed about it.  This probably isn't a big deal!\n\n"
+                        + "service info:\n %s;\n\nThe following exception was raised:\n%s"
+                    )
+                    % (id, self.instances[id], traceback.format_exc(limit=1)),
+                )
 
     def remove_service(self, zeroconf, type, name):
         id = _id_from_name(name)
@@ -152,7 +166,13 @@ class KolibriZeroconfListener(object):
         DynamicNetworkLocation.objects.filter(pk=id).delete()
 
 
+def cleanup_database():
+    DynamicNetworkLocation.objects.all().delete()
+
+
 def register_zeroconf_service(port, device_info):
+    cleanup_database()
+
     id = device_info.get("instance_id")
 
     if ZEROCONF_STATE["service"] is not None:
@@ -176,8 +196,6 @@ def initialize_zeroconf_listener():
     ZEROCONF_STATE["zeroconf"].add_service_listener(
         SERVICE_TYPE, ZEROCONF_STATE["listener"]
     )
-
-    DynamicNetworkLocation.objects.purge()
 
 
 def get_peer_instances():
