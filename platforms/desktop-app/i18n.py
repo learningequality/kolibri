@@ -10,7 +10,11 @@ import requests
 this_dir = os.path.dirname(os.path.abspath(__file__))
 locale_dir = os.path.join(this_dir, 'locale')
 
-msgfmt_path = '/Library/Frameworks/Python.framework/Versions/3.6/share/doc/python3.6/examples/Tools/i18n/msgfmt.py'
+py_version = sys.version[:3]
+
+args = {'ver': py_version}
+msgfmt_str = '/Library/Frameworks/Python.framework/Versions/{ver}/share/doc/python{ver}/examples/Tools/i18n/msgfmt.py'
+msgfmt_path = msgfmt_str.format(**args)
 
 if 'update' in sys.argv:
     key = os.environ['CROWDIN_API_KEY']
