@@ -13,4 +13,7 @@ class Nothing:
     __bool__ = __nonzero__  # this is for python3
 
     def __eq__(self, other):
-        return self.kind == other.kind
+        try:
+            return self.kind == other.kind
+        except AttributeError:
+            return False

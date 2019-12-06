@@ -5,21 +5,18 @@ from . import errors
 from .client import NetworkClient
 from .urls import parse_address_into_components
 from kolibri.core.utils.cache import CrossProcessCache
+from kolibri.core.utils.nothing import Nothing
 
 
-class Nothing:
-    def __nonzero__(self):
-        return False
-
-    __bool__ = __nonzero__  # this is for python3
-
-
-INVALID_DEVICE_INFO = Nothing()
-FAILED_TO_CONNECT = Nothing()
+INVALID_DEVICE_INFO = Nothing("invalid device info")
+FAILED_TO_CONNECT = Nothing("failed to connect")
 
 
 def check_if_port_open(base_url, timeout=1):
-    _, host, port, _ = parse_address_into_components(base_url)
+    scheme, host, port, _ = parse_address_into_components(base_url)
+
+    if not port:
+        port = 80 if scheme == "http" else 443
 
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
         sock.settimeout(timeout)
@@ -62,18 +59,18 @@ class CachedDeviceConnectionChecker(object):
 
     @property
     def valid_device_info(self):
-        if not (
-            self.device_info is INVALID_DEVICE_INFO
-            or self.device_info is FAILED_TO_CONNECT
+        if (
+            self.device_info != INVALID_DEVICE_INFO
+            and self.device_info != FAILED_TO_CONNECT
         ):
             return self.device_info
 
     @property
     def invalid_device_info(self):
-        return self.device_info is INVALID_DEVICE_INFO
+        return self.device_info == INVALID_DEVICE_INFO
 
     def failed_to_connect(self):
-        return self.device_info is FAILED_TO_CONNECT
+        return self.device_info == FAILED_TO_CONNECT
 
     @property
     def device_port_open(self):
