@@ -11,7 +11,7 @@ Feature: Admin creates classes
     When I enter class name <class>
       And I click *Save* button
     Then the modal closes
-      And I see the new class on the *Classes* page
+      And I see the new <class> class on the *Classes* page
 
 Examples:
 | class    |
