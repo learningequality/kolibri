@@ -740,8 +740,13 @@ class ImportContentTestCase(TestCase):
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
         return_value=False,
     )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.Command.lookup_channel_listing_status",
+        return_value=False,
+    )
     def test_remote_import_source_corrupted(
         self,
+        lookup_channel_listing_status,
         is_cancelled_mock,
         path_mock,
         finalize_dest_mock,
@@ -777,6 +782,7 @@ class ImportContentTestCase(TestCase):
             [],
             exclude_node_ids=[],
             node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+            is_listed=False,
         )
 
 

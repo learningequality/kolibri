@@ -48,6 +48,10 @@ def allow_guest_access():
     return is_landing_page(LANDING_PAGE_LEARN)
 
 
+def allow_peer_unlisted_channel_import():
+    return get_device_setting("allow_peer_unlisted_channel_import", False)
+
+
 def set_device_settings(**kwargs):
     from .models import DeviceSettings
 

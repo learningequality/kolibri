@@ -15,8 +15,9 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.utils.annotation import calculate_channel_fields
+from kolibri.core.content.utils.annotation import set_channel_metadata_fields
 from kolibri.core.content.utils.paths import get_channel_lookup_url
+from kolibri.core.device.utils import set_device_settings
 
 
 class ContentNodeFactory(factory.DjangoModelFactory):
@@ -94,7 +95,7 @@ class PublicAPITestCase(APITestCase):
         channel2 = create_mini_channel(
             channel_name="science", channel_id=self.channel_id2, root_lang="es"
         )
-        calculate_channel_fields(channel2.id)
+        set_channel_metadata_fields(channel2.id, is_listed=True)
 
     def test_info_endpoint(self):
         response = self.client.get(reverse("kolibri:core:info-list"))
@@ -220,3 +221,13 @@ class PublicAPITestCase(APITestCase):
             format="json",
         )
         self.assertEqual(int(response.content), 2)
+
+    def test_public_filter_unlisted(self):
+        set_device_settings(allow_peer_unlisted_channel_import=False)
+        unlisted_channel_id = uuid.uuid4().hex
+        create_mini_channel(channel_name="math 2", channel_id=unlisted_channel_id)
+        set_channel_metadata_fields(unlisted_channel_id, is_listed=False)
+
+        response = self.client.get(get_channel_lookup_url(baseurl="/"))
+        data = response.json()
+        self.assertEqual(len(data), 2)

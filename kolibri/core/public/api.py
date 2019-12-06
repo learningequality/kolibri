@@ -21,6 +21,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import PublicChannelSerializer
 from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
+from kolibri.core.device.utils import allow_peer_unlisted_channel_import
 
 
 class InfoViewSet(viewsets.ViewSet):
@@ -80,6 +81,9 @@ def _get_channel_list_v1(params, identifier=None):
             Q(root__lang__id__icontains=language_id)
             | Q(root__tree_id__in=matching_tree_ids)
         )
+
+    if not allow_peer_unlisted_channel_import():
+        channels = channels.exclude(is_listed=False)
 
     return channels.filter(root__available=True).distinct()
 

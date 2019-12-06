@@ -389,19 +389,26 @@ def propagate_forced_localfile_removal(localfiles):
         recurse_annotation_up_tree(channel_id)
 
 
-def update_content_metadata(channel_id, node_ids=None, exclude_node_ids=None):
+def update_content_metadata(
+    channel_id, node_ids=None, exclude_node_ids=None, is_listed=None
+):
     set_leaf_node_availability_from_local_file_availability(
         channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids
     )
     recurse_annotation_up_tree(channel_id)
-    calculate_channel_fields(channel_id)
+    set_channel_metadata_fields(channel_id, is_listed=is_listed)
     ContentCacheKey.update_cache_key()
 
 
-def set_content_visibility(channel_id, checksums, node_ids=None, exclude_node_ids=None):
+def set_content_visibility(
+    channel_id, checksums, node_ids=None, exclude_node_ids=None, is_listed=None
+):
     mark_local_files_as_available(checksums)
     update_content_metadata(
-        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids
+        channel_id,
+        node_ids=node_ids,
+        exclude_node_ids=exclude_node_ids,
+        is_listed=is_listed,
     )
 
 
@@ -413,16 +420,20 @@ def set_content_visibility_from_disk(channel_id):
 def set_content_invisible(channel_id, node_ids, exclude_node_ids):
     set_leaf_nodes_invisible(channel_id, node_ids, exclude_node_ids)
     recurse_annotation_up_tree(channel_id)
-    calculate_channel_fields(channel_id)
+    set_channel_metadata_fields(channel_id)
     ContentCacheKey.update_cache_key()
 
 
-def calculate_channel_fields(channel_id):
+def set_channel_metadata_fields(channel_id, is_listed=None):
     channel = ChannelMetadata.objects.get(id=channel_id)
     calculate_published_size(channel)
     calculate_total_resource_count(channel)
     calculate_included_languages(channel)
     calculate_next_order(channel)
+
+    if is_listed is not None:
+        channel.is_listed = is_listed
+        channel.save()
 
 
 def files_for_nodes(nodes):
