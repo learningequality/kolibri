@@ -147,6 +147,7 @@ export default {
       id: '31b700a2c35a0285f8c84767ed4f4e0a',
       title: 'SCHOOL - B',
       active: true,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       question_sources: [
         { exercise_id: '2a722a9e57575148bc55deed7550ed62', question_id: '1' },
         { exercise_id: '2a722a9e57575148bc55deed7550ed62', question_id: '2' },
@@ -160,6 +161,7 @@ export default {
       id: 'd7033a1cb888493763dc9b5f3ab2505b',
       title: 'SCHOOL - A',
       active: true,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       question_sources: [
         { exercise_id: 'eadec7f803994b6eb8f401237ec0f777', question_id: 'A' },
         { exercise_id: 'eadec7f803994b6eb8f401237ec0f777', question_id: 'B' },
@@ -172,6 +174,7 @@ export default {
       id: '4018bcea43cee3d05811b641fca0b152',
       title: 'SCHOOL - C',
       active: true,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       question_sources: [
         { exercise_id: '7ca5649898d85d8b96672fbf4059df22', question_id: '10' },
         { exercise_id: '9f098fe61d8752f19fc815e1ac87f1b6', question_id: '11' },
@@ -185,6 +188,7 @@ export default {
       id: '97316f077d470b45e912096edb534076',
       title: 'Program A',
       active: true,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       question_sources: [
         { exercise_id: '9baf781e43b0514085cc205176b0ee71', question_id: 'x' },
         { exercise_id: '9baf781e43b0514085cc205176b0ee71', question_id: 'y' },
@@ -877,6 +881,7 @@ export default {
       id: '77c3daea1dcadbdb2f1b8e0a9d278a81',
       title: 'The Program 1',
       active: true,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: [
         '8d1e7316ccdc5021a004cb5b9f784c1e',
         '3b631e45182459bab211c21fb5cfab65',
@@ -888,6 +893,7 @@ export default {
       id: '0e92348b8f47022f4374e172dc26713c',
       title: 'The Program 2',
       active: true,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: ['0a347e0a8e104bf9978b974a3817da67', 'e1122220db255a5e98cca4f417ecd06d'],
       groups: ['c4625c3fef6b7d918e9417d92e482e6f'],
     },
@@ -895,6 +901,7 @@ export default {
       id: '0c24f8d4aafcb1ff7f0e41634f0bec5d',
       title: 'The Program 3',
       active: true,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: ['9689c93001f455e39f3ce5ce49c9cf8c'],
       groups: ['7c20f664b6a5c43d64b0cdd3161be513'],
     },
@@ -902,6 +909,7 @@ export default {
       id: '8a2a49790a27e92e725549bdec975ec0',
       title: 'SCHOOL 1',
       active: true,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: ['e851ffe2b343540f9ecaf1aca8626f48', 'b3daea92e0265408bb5cc72857968d3d'],
       groups: [],
     },
@@ -909,6 +917,7 @@ export default {
       id: '90a60b6b9272cb4a27cbf888320bf5f4',
       title: 'J',
       active: false,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: [],
       groups: [],
     },
@@ -916,6 +925,7 @@ export default {
       id: '7d67f35f550755d32811e21efb38e791',
       title: 'test',
       active: false,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: [
         'c9ccd863e811540fba77619d66cf3ff3',
         'aafc65cf573e5e5695b3aa6fbc1b868c',
@@ -928,6 +938,7 @@ export default {
       id: 'ce3d2b4da2b8daed1c88b4a3e7ccdea1',
       title: 'Testing',
       active: false,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: [
         'dce323f82b4d4d2f8b3932ce0cd2b742',
         '7d558f4a74fb4f8a91e9a605c7c3f247',
@@ -939,6 +950,7 @@ export default {
       id: 'd66822ee6ca94ae3000624ed62d1643c',
       title: 'Mr. Stanforf',
       active: true,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: [
         'dce323f82b4d4d2f8b3932ce0cd2b742',
         'c9ccd863e811540fba77619d66cf3ff3',
@@ -951,6 +963,7 @@ export default {
       id: '640ccb57a8a44f0e7ff166f8b9cadca5',
       title: 'test',
       active: false,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: [],
       groups: [],
     },
@@ -958,6 +971,7 @@ export default {
       id: 'bc26589a371b5848f6169065a190b49d',
       title: 'Altogether now',
       active: true,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: [
         '0344aac58bd2552685ab69a6d05ed222',
         '31c2ba5caefb5951bbbc79ae76794dce',
@@ -970,6 +984,7 @@ export default {
       id: 'a1dfe9924c66ed5dc97a3328cddac321',
       title: 'L E S S O N',
       active: false,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: [
         '53ae8c684e875469a770d9ecbe478cba',
         'ebaac35501dd5a938e2853a8c70dc78a',
@@ -983,6 +998,7 @@ export default {
       id: 'f239935e386819c003316c66696e7610',
       title: 'Lesson for Coach',
       active: true,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: ['15cfc6afe5b54089bdc3a353068531c4', 'c9ccd863e811540fba77619d66cf3ff3'],
       groups: [],
     },
@@ -990,6 +1006,7 @@ export default {
       id: '827e7acdafc51a6b5a666edd5b10c6c9',
       title: 'test',
       active: false,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: [],
       groups: [],
     },
@@ -997,6 +1014,7 @@ export default {
       id: 'b533619fc6b6dd5a8ad0c20483941241',
       title: 'bla 😍',
       active: false,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: ['53ae8c684e875469a770d9ecbe478cba', 'c9ccd863e811540fba77619d66cf3ff3'],
       groups: [],
     },
@@ -1004,8 +1022,25 @@ export default {
       id: 'fbb582096477e51610b68687612d6a66',
       title: 'bla',
       active: false,
+      date_created: new Date('2019-01-24 23:14:52.831000+00:00'),
       node_ids: ['dce323f82b4d4d2f8b3932ce0cd2b742'],
       groups: [],
+    },
+  },
+  adHocLearnersMap: {
+    f239935e386819c003316c66696e7610: {
+      id: 'f239935e386819c003316c66696e7610',
+      name: 'Individual learners',
+      member_ids: [],
+    },
+    b533619fc6b6dd5a8ad0c20483941241: {
+      id: 'b533619fc6b6dd5a8ad0c20483941241',
+      name: 'Individual learners',
+      member_ids: [
+        '53ae8c684e875469a770d9ecbe478cba',
+        'ebaac35501dd5a938e2853a8c70dc78a',
+        '80e5aebd71f55a8fa5bcbf3175385975',
+      ],
     },
   },
 };

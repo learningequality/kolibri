@@ -10,6 +10,7 @@ import DeviceSettingsPage from '../views/DeviceSettingsPage';
 import ManageContentPage from '../views/ManageContentPage';
 import ManagePermissionsPage from '../views/ManagePermissionsPage';
 import ManageTasksPage from '../views/ManageTasksPage';
+import NewChannelVersionPage from '../views/ManageContentPage/NewChannelVersionPage';
 import RearrangeChannelsPage from '../views/RearrangeChannelsPage';
 import UserPermissionsPage from '../views/UserPermissionsPage';
 import withAuthMessage from '../views/withAuthMessage';
@@ -17,6 +18,11 @@ import wizardTransitionRoutes from './wizardTransitionRoutes';
 
 function hideLoadingScreen() {
   store.commit('CORE_SET_PAGE_LOADING', false);
+}
+
+function defaultHandler(toRoute) {
+  store.dispatch('preparePage', { name: toRoute.name });
+  hideLoadingScreen();
 }
 
 const routes = [
@@ -71,10 +77,7 @@ const routes = [
     name: PageNames.DEVICE_SETTINGS_PAGE,
     component: withAuthMessage(DeviceSettingsPage, 'admin'),
     path: '/settings',
-    handler: ({ name }) => {
-      store.dispatch('preparePage', { name });
-      hideLoadingScreen();
-    },
+    handler: defaultHandler,
   },
   {
     name: PageNames.DELETE_CHANNELS,
@@ -83,10 +86,7 @@ const routes = [
     props: {
       actionType: 'delete',
     },
-    handler({ name }) {
-      store.dispatch('preparePage', { name });
-      hideLoadingScreen();
-    },
+    handler: defaultHandler,
   },
   {
     name: PageNames.EXPORT_CHANNELS,
@@ -95,28 +95,26 @@ const routes = [
     props: {
       actionType: 'export',
     },
-    handler({ name }) {
-      store.dispatch('preparePage', { name });
-      hideLoadingScreen();
-    },
+    handler: defaultHandler,
   },
   {
     name: PageNames.REARRANGE_CHANNELS,
     path: '/content/rearrange_channels',
     component: withAuthMessage(RearrangeChannelsPage, 'contentManager'),
-    handler({ name }) {
-      store.dispatch('preparePage', { name });
-      hideLoadingScreen();
-    },
+    handler: defaultHandler,
   },
   {
     name: PageNames.MANAGE_TASKS,
     path: '/content/manage_tasks',
     component: withAuthMessage(ManageTasksPage, 'contentManager'),
-    handler({ name }) {
-      store.dispatch('preparePage', { name });
-      hideLoadingScreen();
-    },
+    handler: defaultHandler,
+  },
+  {
+    name: PageNames.NEW_CHANNEL_VERSION_PAGE,
+    // same params as SELECT_CONTENT: ?drive_id, ?address_id
+    path: '/content/manage_channel/:channel_id/upgrade',
+    component: withAuthMessage(NewChannelVersionPage, 'contentManager'),
+    handler: defaultHandler,
   },
   ...wizardTransitionRoutes,
   {

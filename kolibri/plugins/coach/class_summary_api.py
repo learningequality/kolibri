@@ -19,6 +19,7 @@ from kolibri.core.auth import models as auth_models
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -163,7 +164,7 @@ def serialize_exam_status(queryset):
                     .distinct()
                     .values("examlog")
                     .annotate(total_correct=Sum("correct"))
-                    .values("total_correct"),
+                    .values("total_correct")
                 ),
                 num_answered=Subquery(
                     logger_models.ExamAttemptLog.objects.filter(examlog=OuterRef("id"))
@@ -172,7 +173,7 @@ def serialize_exam_status(queryset):
                     .distinct()
                     .values("examlog")
                     .annotate(total_complete=Count("id"))
-                    .values("total_complete"),
+                    .values("total_complete")
                 ),
             )
             .values(
@@ -200,7 +201,7 @@ def serialize_groups(queryset):
         queryset = queryset.values("id").annotate(
             member_ids=GroupConcat("membership__user__id", output_field=CharField())
         )
-    return list(map(_map_group, queryset.values("id", "name", "member_ids"),))
+    return list(map(_map_group, queryset.values("id", "name", "member_ids")))
 
 
 def serialize_users(queryset):
@@ -313,13 +314,25 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         lesson_data = serialize_lessons(query_lesson)
         exam_data = serialize_exams(query_exams)
 
+        individual_learners_group_ids = AdHocGroup.objects.filter(
+            parent=classroom
+        ).values_list("id", flat=True)
+
         # filter classes out of exam assignments
         for exam in exam_data:
-            exam["groups"] = [g for g in exam["assignments"] if g != pk]
+            exam["groups"] = [
+                g
+                for g in exam["assignments"]
+                if g != pk and g not in individual_learners_group_ids
+            ]
 
         # filter classes out of lesson assignments
         for lesson in lesson_data:
-            lesson["groups"] = [g for g in lesson["assignments"] if g != pk]
+            lesson["groups"] = [
+                g
+                for g in lesson["assignments"]
+                if g != pk and g not in individual_learners_group_ids
+            ]
 
         all_node_ids = set()
         for lesson in lesson_data:
@@ -368,6 +381,9 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             ),
             "learners": learners_data,
             "groups": serialize_groups(classroom.get_learner_groups()),
+            "adhoclearners": serialize_groups(
+                classroom.get_individual_learners_group()
+            ),
             "exams": exam_data,
             "exam_learner_status": serialize_exam_status(query_exam_logs),
             "content": query_content.values(

@@ -18,6 +18,7 @@
     <div>
       <Breadcrumbs v-if="pageName !== 'TOPICS_CONTENT'" />
       <component :is="currentPage" />
+      <router-view />
     </div>
 
     <UpdateYourProfileModal
@@ -42,13 +43,11 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
+  import { PageNames, ClassesPageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
   import ContentPage from './ContentPage';
-  import RecommendedPage from './RecommendedPage';
-  import RecommendedSubpage from './RecommendedSubpage';
   import ContentUnavailablePage from './ContentUnavailablePage';
   import Breadcrumbs from './Breadcrumbs';
   import SearchPage from './SearchPage';
@@ -69,7 +68,6 @@
     [PageNames.TOPICS_CHANNEL]: TopicsPage,
     [PageNames.TOPICS_TOPIC]: TopicsPage,
     [PageNames.TOPICS_CONTENT]: ContentPage,
-    [PageNames.RECOMMENDED]: RecommendedPage,
     [PageNames.CONTENT_UNAVAILABLE]: ContentUnavailablePage,
     [PageNames.SEARCH]: SearchPage,
     [ClassesPageNames.EXAM_VIEWER]: ExamPage,
@@ -116,9 +114,6 @@
         return this.facilityConfig.allow_guest_access || this.isUserLoggedIn;
       },
       currentPage() {
-        if (RecommendedPages.includes(this.pageName)) {
-          return RecommendedSubpage;
-        }
         return pageNameToComponentMap[this.pageName] || null;
       },
       immersivePageProps() {

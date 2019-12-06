@@ -276,4 +276,17 @@
     }
   }
 
+  .list-enter-active {
+    transition: opacity 0.5s;
+  }
+
+  // Make old rows disappear immediately
+  .list-leave-active {
+    display: none;
+  }
+
+  .list-enter {
+    opacity: 0;
+  }
+
 </style>

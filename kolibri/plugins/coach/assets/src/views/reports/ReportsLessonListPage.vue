@@ -130,7 +130,7 @@
             return !lesson.active;
           }
         });
-        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
         return sorted.map(lesson => {
           const learners = this.getLearnersForLesson(lesson);
           const tableRow = {

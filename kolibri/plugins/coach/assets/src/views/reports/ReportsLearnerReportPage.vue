@@ -99,7 +99,7 @@
       },
       lessonsTable() {
         const filtered = this.lessons.filter(lesson => this.isAssigned(lesson.groups));
-        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
         return sorted.map(lesson => {
           const tableRow = {
             status: this.getLessonStatusStringForLearner(lesson.id, this.learner.id),
@@ -110,7 +110,7 @@
       },
       examsTable() {
         const filtered = this.exams.filter(exam => this.isAssigned(exam.groups));
-        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
         return sorted.map(exam => {
           const tableRow = {
             statusObj: this.getExamStatusObjForLearner(exam.id, this.learner.id),

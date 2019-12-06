@@ -14,6 +14,8 @@ import {
 } from '../modules/recommended/handlers';
 import { showChannels } from '../modules/topicsRoot/handlers';
 import { PageNames, ClassesPageNames } from '../constants';
+import RecommendedPage from '../views/RecommendedPage';
+import RecommendedSubpage from '../views/RecommendedSubpage';
 import classesRoutes from './classesRoutes';
 
 export default [
@@ -47,6 +49,7 @@ export default [
     handler: () => {
       showRecommended(store);
     },
+    component: RecommendedPage,
   },
   {
     name: PageNames.SEARCH,
@@ -91,6 +94,7 @@ export default [
     handler: () => {
       showPopularPage(store);
     },
+    component: RecommendedSubpage,
   },
   {
     name: PageNames.RECOMMENDED_RESUME,
@@ -98,6 +102,7 @@ export default [
     handler: () => {
       showResumePage(store);
     },
+    component: RecommendedSubpage,
   },
   {
     name: PageNames.RECOMMENDED_NEXT_STEPS,
@@ -105,6 +110,7 @@ export default [
     handler: () => {
       showNextStepsPage(store);
     },
+    component: RecommendedSubpage,
   },
   {
     path: '*',

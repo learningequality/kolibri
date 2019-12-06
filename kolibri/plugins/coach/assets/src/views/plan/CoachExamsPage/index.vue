@@ -162,7 +162,7 @@
     },
     computed: {
       sortedExams() {
-        return this.exams.slice().reverse();
+        return this._.orderBy(this.exams, ['date_created'], ['desc']);
       },
       statusOptions() {
         return [

@@ -13,7 +13,7 @@ Feature: Coach deletes group
     Then the *Delete group* modal appears
     When I click the *Delete* button
     Then the modal closes
-      And I see a snackbar confirming the group was deleted
+      And I see a snackbar confirmation *Deleted*
       And I don't see the deleted group
     But if I click the *Cancel* button
     Then the modal closes

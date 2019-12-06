@@ -432,7 +432,7 @@ class UserCreationTestCase(APITestCase):
             "facility": self.facility.id,
         }
         response = self.client.post(
-            reverse("kolibri:core:facilityuser-list"), data, format="json",
+            reverse("kolibri:core:facilityuser-list"), data, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(
@@ -593,7 +593,7 @@ class UserRetrieveTestCase(APITestCase):
         )
 
     def test_user_list(self):
-        response = self.client.get(reverse("kolibri:core:facilityuser-list"),)
+        response = self.client.get(reverse("kolibri:core:facilityuser-list"))
         self.assertEqual(response.status_code, 200)
         self.assertItemsEqual(
             response.data,
@@ -957,7 +957,7 @@ class GroupMembership(APITestCase):
     def test_create_group_membership_no_group_membership(self):
         url = reverse("kolibri:core:membership-list")
         response = self.client.post(
-            url, {"user": self.user.id, "collection": self.lg11.id}, format="json",
+            url, {"user": self.user.id, "collection": self.lg11.id}, format="json"
         )
         self.assertEqual(response.status_code, 201)
 
@@ -965,7 +965,7 @@ class GroupMembership(APITestCase):
         models.Membership.objects.create(user=self.user, collection=self.lg21)
         url = reverse("kolibri:core:membership-list")
         response = self.client.post(
-            url, {"user": self.user.id, "collection": self.lg11.id}, format="json",
+            url, {"user": self.user.id, "collection": self.lg11.id}, format="json"
         )
         self.assertEqual(response.status_code, 201)
 
@@ -973,7 +973,7 @@ class GroupMembership(APITestCase):
         models.Membership.objects.create(user=self.user, collection=self.lg12)
         url = reverse("kolibri:core:membership-list")
         response = self.client.post(
-            url, {"user": self.user.id, "collection": self.lg11.id}, format="json",
+            url, {"user": self.user.id, "collection": self.lg11.id}, format="json"
         )
         self.assertEqual(response.status_code, 201)
 
@@ -981,8 +981,6 @@ class GroupMembership(APITestCase):
         self.classroom2_membership.delete()
         url = reverse("kolibri:core:membership-list")
         response = self.client.post(
-            url,
-            {"user": self.user.id, "collection": self.classroom2.id},
-            format="json",
+            url, {"user": self.user.id, "collection": self.classroom2.id}, format="json"
         )
         self.assertEqual(response.status_code, 201)

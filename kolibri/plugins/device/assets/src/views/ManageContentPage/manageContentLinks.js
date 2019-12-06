@@ -15,19 +15,18 @@ export function selectContentTopicLink(topicNode, query, channelId) {
 }
 
 export function availableChannelsPageLink(params = {}) {
-  const { driveId, forExport, addressId } = params;
+  const { driveId, addressId } = params;
   return {
     name: ContentWizardPages.AVAILABLE_CHANNELS,
     query: {
       drive_id: driveId,
-      for_export: forExport,
       address_id: addressId,
     },
   };
 }
 
 export function selectContentPageLink(params = {}) {
-  const { channelId, driveId, forExport, addressId } = params;
+  const { channelId, driveId, addressId } = params;
   return {
     name: ContentWizardPages.SELECT_CONTENT,
     params: {
@@ -35,7 +34,6 @@ export function selectContentPageLink(params = {}) {
     },
     query: {
       drive_id: driveId,
-      for_export: forExport,
       address_id: addressId,
     },
   };

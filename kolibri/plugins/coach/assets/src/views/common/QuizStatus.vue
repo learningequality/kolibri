@@ -129,7 +129,7 @@
           <div>
             <Recipients
               slot="value"
-              :groupNames="groupNames"
+              :groupNames="groupAndAdHocLearnerNames"
               :hasAssignments="exam.assignments.length > 0"
             />
           </div>
@@ -224,7 +224,7 @@
         type: String,
         required: true,
       },
-      groupNames: {
+      groupAndAdHocLearnerNames: {
         type: Array,
         required: true,
       },

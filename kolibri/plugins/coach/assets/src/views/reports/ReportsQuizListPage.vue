@@ -181,7 +181,7 @@
             return !exam.active;
           }
         });
-        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
         return sorted.map(exam => {
           const learnersForQuiz = this.getLearnersForExam(exam);
           const tableRow = {

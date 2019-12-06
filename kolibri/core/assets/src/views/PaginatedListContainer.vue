@@ -74,12 +74,17 @@
         type: String,
         required: true,
       },
+      itemsPerPage: {
+        type: Number,
+        required: false,
+        default: 30,
+      },
     },
     data() {
       return {
         filterInput: '',
         pageNum: 1,
-        perPage: 30,
+        perPage: this.itemsPerPage,
       };
     },
     computed: {
@@ -112,7 +117,7 @@
       },
     },
     watch: {
-      filteredItems: {
+      numFilteredItems: {
         handler() {
           this.pageNum = 1;
         },
@@ -121,6 +126,7 @@
     methods: {
       changePage(change) {
         this.pageNum += change;
+        this.$emit('pageChanged', this.pageNum);
       },
     },
     $trs: {
