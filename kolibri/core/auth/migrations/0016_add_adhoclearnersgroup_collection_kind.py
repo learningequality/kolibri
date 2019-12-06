@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                     ("facility", "Facility"),
                     ("classroom", "Classroom"),
                     ("learnergroup", "Learner group"),
-                    ("adhoclearnersgroup", "Individual learners group"),
+                    ("adhoclearnersgroup', 'Ad hoc learners group"),
                 ],
                 max_length=20,
             ),
