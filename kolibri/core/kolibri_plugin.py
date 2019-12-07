@@ -106,7 +106,6 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             "fullCSSFileBasic": full_file.format(
                 static_root, language_code, "basic", kolibri.__version__
             ),
-            "unsupportedUrl": reverse("kolibri:core:unsupported"),
             "contentCacheKey": ContentCacheKey.get_cache_key(),
             "languageGlobals": self.language_globals(),
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),
@@ -179,3 +178,7 @@ class FrontendHeadAssetsHook(WebpackBundleHook):
                 subset_css_file=subset_file, version=kolibri.__version__
             ),
         ]
+
+    @property
+    def plugin_data(self):
+        return {"unsupportedUrl": reverse("kolibri:core:unsupported")}
