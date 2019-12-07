@@ -3,103 +3,108 @@ msgstr ""
 "Project-Id-Version: kolibri-mac-app\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-10-29 08:54-0700\n"
-"PO-Revision-Date: 2019-12-05 15:41-0800\n"
+"PO-Revision-Date: 2019-12-05 17:50\n"
 "Last-Translator: learningequality\n"
-"Language-Team: English\n"
-"Language: en_US\n"
+"Language-Team: Bulgarian\n"
+"Language: bg_BG\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.3\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri-mac-app\n"
+"X-Crowdin-Language: bg\n"
+"X-Crowdin-File: macapp.pot\n"
 
 #: src/main.py:190
 msgid "File"
-msgstr "File"
+msgstr "Файл"
 
 #: src/main.py:191
 msgid "New Window"
-msgstr "New Window"
+msgstr "Нов прозорец"
 
 #: src/main.py:192
 msgid "Close Window"
-msgstr "Close Window"
+msgstr "Затвори прозореца"
 
 #: src/main.py:194
 msgid "Open Kolibri Home Folder"
-msgstr "Open Kolibri Home Folder"
+msgstr "Отвори основната папка с Колибри"
 
 #: src/main.py:198
 msgid "Edit"
-msgstr "Edit"
+msgstr "Редактирай"
 
 #: src/main.py:199
 msgid "Undo"
-msgstr "Undo"
+msgstr "Отмени"
 
 #: src/main.py:200
 msgid "Redo"
-msgstr "Redo"
+msgstr "Повтори"
 
 #: src/main.py:202
 msgid "Cut"
-msgstr "Cut"
+msgstr "Изрежи"
 
 #: src/main.py:203
 msgid "Copy"
-msgstr "Copy"
+msgstr "Копирай"
 
 #: src/main.py:204
 msgid "Paste"
-msgstr "Paste"
+msgstr "Постави"
 
 #: src/main.py:205
 msgid "Select All"
-msgstr "Select All"
+msgstr "Маркирай всички"
 
 #: src/main.py:208
 msgid "View"
-msgstr "View"
+msgstr "Преглед"
 
 #: src/main.py:209
 msgid "Reload"
-msgstr "Reload"
+msgstr "Презареди"
 
 #: src/main.py:210
 msgid "Actual Size"
-msgstr "Actual Size"
+msgstr "Реален размер"
 
 #: src/main.py:211
 msgid "Zoom In"
-msgstr "Zoom In"
+msgstr "Увеличи"
 
 #: src/main.py:212
 msgid "Zoom Out"
-msgstr "Zoom Out"
+msgstr "Отдалечи"
 
 #: src/main.py:214
 msgid "Open in Browser"
-msgstr "Open in Browser"
+msgstr "Отвори в браузър"
 
 #: src/main.py:217
 msgid "History"
-msgstr "History"
+msgstr "История"
 
 #: src/main.py:218
 msgid "Back"
-msgstr "Back"
+msgstr "Назад"
 
 #: src/main.py:219
 msgid "Forward"
-msgstr "Forward"
+msgstr "Напред"
 
 #: src/main.py:222
 msgid "Help"
-msgstr "Help"
+msgstr "Помощ"
 
 #: src/main.py:223
 msgid "Documentation"
-msgstr "Documentation"
+msgstr "Документация"
 
 #: src/main.py:224
 msgid "Community Forums"
-msgstr "Community Forums"
+msgstr "Форуми на общността"
+

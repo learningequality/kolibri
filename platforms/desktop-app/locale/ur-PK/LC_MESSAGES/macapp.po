@@ -3,103 +3,108 @@ msgstr ""
 "Project-Id-Version: kolibri-mac-app\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-10-29 08:54-0700\n"
-"PO-Revision-Date: 2019-12-05 15:41-0800\n"
+"PO-Revision-Date: 2019-12-05 17:50\n"
 "Last-Translator: learningequality\n"
-"Language-Team: English\n"
-"Language: en_US\n"
+"Language-Team: Urdu (Pakistan)\n"
+"Language: ur_PK\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.3\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri-mac-app\n"
+"X-Crowdin-Language: ur-PK\n"
+"X-Crowdin-File: macapp.pot\n"
 
 #: src/main.py:190
 msgid "File"
-msgstr "File"
+msgstr "فائل"
 
 #: src/main.py:191
 msgid "New Window"
-msgstr "New Window"
+msgstr "نئی ونڈو"
 
 #: src/main.py:192
 msgid "Close Window"
-msgstr "Close Window"
+msgstr "ونڈو بند کریں"
 
 #: src/main.py:194
 msgid "Open Kolibri Home Folder"
-msgstr "Open Kolibri Home Folder"
+msgstr "کولبیری ہوم فولڈر کھولیں"
 
 #: src/main.py:198
 msgid "Edit"
-msgstr "Edit"
+msgstr "ترمیم کریں"
 
 #: src/main.py:199
 msgid "Undo"
-msgstr "Undo"
+msgstr "مٹائیں"
 
 #: src/main.py:200
 msgid "Redo"
-msgstr "Redo"
+msgstr "مٹائے ہوئے کو دوبارہ کریں"
 
 #: src/main.py:202
 msgid "Cut"
-msgstr "Cut"
+msgstr "کٹ کریں"
 
 #: src/main.py:203
 msgid "Copy"
-msgstr "Copy"
+msgstr "نقل"
 
 #: src/main.py:204
 msgid "Paste"
-msgstr "Paste"
+msgstr "پیسٹ کریں"
 
 #: src/main.py:205
 msgid "Select All"
-msgstr "Select All"
+msgstr "سب کو منتخب کریں"
 
 #: src/main.py:208
 msgid "View"
-msgstr "View"
+msgstr "دیکھیں"
 
 #: src/main.py:209
 msgid "Reload"
-msgstr "Reload"
+msgstr "دوبارہ لوڈ کریں"
 
 #: src/main.py:210
 msgid "Actual Size"
-msgstr "Actual Size"
+msgstr "اصل حجم"
 
 #: src/main.py:211
 msgid "Zoom In"
-msgstr "Zoom In"
+msgstr "بڑا کریں"
 
 #: src/main.py:212
 msgid "Zoom Out"
-msgstr "Zoom Out"
+msgstr "چھوٹا کریں"
 
 #: src/main.py:214
 msgid "Open in Browser"
-msgstr "Open in Browser"
+msgstr "براؤزر میں کھولیں"
 
 #: src/main.py:217
 msgid "History"
-msgstr "History"
+msgstr "ہسٹری"
 
 #: src/main.py:218
 msgid "Back"
-msgstr "Back"
+msgstr "پیچھے جائیں"
 
 #: src/main.py:219
 msgid "Forward"
-msgstr "Forward"
+msgstr "آگے جائیں"
 
 #: src/main.py:222
 msgid "Help"
-msgstr "Help"
+msgstr "مدد"
 
 #: src/main.py:223
 msgid "Documentation"
-msgstr "Documentation"
+msgstr "دستاویزات"
 
 #: src/main.py:224
 msgid "Community Forums"
-msgstr "Community Forums"
+msgstr "کمیونٹی کے فورمز"
+

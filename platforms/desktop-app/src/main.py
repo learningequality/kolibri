@@ -78,14 +78,20 @@ root_logger.addHandler(file_handler)
 languages = None
 if sys.platform == 'darwin':
     langs_str = subprocess.check_output('defaults read .GlobalPreferences AppleLanguages | tr -d [:space:]', shell=True).strip()
-    languages = langs_str[1:-1].decode('utf-8').replace('"', '').replace('-', '_').split(',')
+    languages_base = langs_str[1:-1].decode('utf-8').replace('"', '').replace('-', '_').split(',')
     logging.info("languages= {}".format(languages))
+    languages = []
+    for lang in languages_base:
+        if os.path.exists(os.path.join(locale_root_dir, lang)):
+            languages.append(lang)
+        elif '_' in lang:
+            # make sure we check for base languages in addition to specific dialects.
+            languages.append(lang.split('_')[0])
 
 locale_info = {}
 try:
-    t = gettext.translation('macapp', locale_root_dir, languages=languages)
+    t = gettext.translation('macapp', locale_root_dir, languages=languages, fallback=True)
     locale_info = t.info()
-    locale_files_dir = os.path.join(locale_root_dir, locale_info['language'])
     _ = t.gettext
 
 except Exception as e:
@@ -184,8 +190,25 @@ class Application(pew.ui.PEWApp):
         Start your UI and app run loop here.
         """
 
+        if pew.ui.platform == 'wx':
+            # Although we're not directly using wx's translation tools, it appears to automatically initialize
+            # them under the hood, perhaps in response to Python calling setlocale, which leads to errors about
+            # languages not being available.
+            # Fix this by making sure wx knows about our translation languages / files.
+            import wx
+            locale = wx.Locale()
+            locale.AddCatalogLookupPathPrefix('./locale')
+            locale.AddCatalog('macapp')
+
         # Set loading screen
-        loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format(locale_info['language'])))
+        lang_id = locale_info['language']
+        loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format(lang_id)))
+        if not os.path.exists(loader_page):
+            lang_id = lang_id.split('-')[0]
+            loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format(lang_id)))
+        if not os.path.exists(loader_page):
+            # if we can't find anything in the given language, default to the English loading page.
+            loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format('en_US')))
         self.loader_url = 'file://{}'.format(loader_page)
         self.kolibri_loaded = False
 

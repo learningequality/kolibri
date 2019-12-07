@@ -35,6 +35,9 @@ echo "PYTHONPATH=$PWD/src/kolibri/dist" > .env
 # Putting output in file, errors stil log to stderr 
 mkdir -p logs
 
+# compile message catalogs
+pipenv run python i18n.py
+
 pipenv run pew build | tee logs/full_app_build_log.txt > /dev/null
 
 buildkite-agent artifact upload logs/full_app_build_log.txt
