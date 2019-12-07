@@ -118,7 +118,7 @@
       ...mapState(['pageName']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       cannotDownload() {
-        return isAndroidWebView();
+        return isAndroidWebView;
       },
       inDataExportPage() {
         return this.pageName === PageNames.DATA_EXPORT_PAGE;

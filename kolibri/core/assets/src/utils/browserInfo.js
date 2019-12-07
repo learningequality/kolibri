@@ -5,8 +5,6 @@
  * the more general purpose code therein.
  */
 
-import ScreenFull from 'screenfull';
-
 const NAME = 'name';
 const VERSION = 'version';
 const browserTests = [
@@ -188,5 +186,4 @@ export const userAgent =
 const isAndroid = /Android/.test(userAgent);
 const isWebview = /wv/.test(userAgent) || /Version\/\d+\.\d+/.test(userAgent);
 export const isAndroidWebView = isAndroid && isWebview;
-export const fullscreenApiIsSupported = ScreenFull.enabled && !isAndroidWebView;
 export const browser = getBrowser(userAgent);

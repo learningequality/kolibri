@@ -201,7 +201,7 @@
           return (
             this.downloadableFiles.length &&
             this.content.kind !== ContentNodeKinds.EXERCISE &&
-            !isAndroidWebView()
+            !isAndroidWebView
           );
         }
         return false;
