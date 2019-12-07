@@ -26,7 +26,7 @@ function buildWebpack(data, index, startCallback, doneCallback, options) {
   return compiler;
 }
 
-const { data, index, start } = getEnvVars();
+const { data, index, options, start } = getEnvVars();
 
 function build() {
   buildWebpack(
@@ -37,7 +37,8 @@ function build() {
     },
     () => {
       process.send('done');
-    }
+    },
+    options
   );
 }
 
