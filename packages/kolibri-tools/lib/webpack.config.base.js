@@ -150,6 +150,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
             objectAssign: 'Object.assign',
           },
           exclude: /node_modules\/vue/,
+          sideEffects: false,
         },
         {
           test: /\.css$/,
@@ -180,6 +181,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
       __filename: true,
     },
     optimization: {
+      usedExports: true,
       minimizer: [
         new TerserPlugin({
           cache: true,
