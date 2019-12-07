@@ -75,10 +75,6 @@
   import { mapActions, mapState, mapGetters } from 'vuex';
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
-  import Lockr from 'lockr';
-  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
-  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
-  import { fullscreenApiIsSupported } from 'kolibri.utils.browserInfo';
   import { languageIdToCode } from 'kolibri.utils.i18n';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';

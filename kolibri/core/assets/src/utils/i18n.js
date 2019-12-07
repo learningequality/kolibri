@@ -1,10 +1,10 @@
 import vue from 'kolibri.lib.vue';
 import logger from 'kolibri.lib.logging';
 import { languageDirections, defaultLanguage } from 'kolibri-components/src/utils/i18n';
-import plugin_data from 'plugin_data';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
 import setupAndLoadFonts from './setupAndLoadFonts';
+import plugin_data from 'plugin_data';
 
 export {
   languageDirections,

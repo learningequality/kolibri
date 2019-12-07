@@ -124,11 +124,11 @@
   import { redirectBrowser } from 'kolibri.utils.redirectBrowser';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import plugin_data from 'plugin_data';
   import { SignUpResource } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import FacilityModal from './SignInPage/FacilityModal';
   import getUrlParameter from './getUrlParameter';
+  import plugin_data from 'plugin_data';
 
   const { DEFERRED } = DemographicConstants;
 
