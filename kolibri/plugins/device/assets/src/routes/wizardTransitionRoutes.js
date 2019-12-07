@@ -6,9 +6,10 @@ import {
   showSelectContentPage,
   updateTreeViewTopic,
 } from '../modules/wizard/handlers';
-import { ContentWizardPages } from '../constants';
+import { ContentWizardPages, PageNames } from '../constants';
 import AvailableChannelsPage from '../views/AvailableChannelsPage';
 import SelectContentPage from '../views/SelectContentPage';
+import ManageChannelContentsPage from '../views/ManageContentPage/ManageChannelContentsPage';
 import withAuthMessage from '../views/withAuthMessage';
 
 export default [
@@ -25,8 +26,18 @@ export default [
     },
   },
   {
+    name: PageNames.MANAGE_CHANNEL,
+    component: withAuthMessage(ManageChannelContentsPage, 'contentManager'),
+    path: '/content/manage_channel/:channel_id',
+    handler: ({ name }) => {
+      store.dispatch('preparePage', { name });
+      store.commit('CORE_SET_PAGE_LOADING', false);
+    },
+  },
+  {
     name: ContentWizardPages.SELECT_CONTENT,
     component: withAuthMessage(SelectContentPage, 'contentManager'),
+    // Also has optional queries for ?node, ?drive_id, ?address_id
     path: '/content/channels/:channel_id',
     handler: toRoute => {
       const { query, params } = toRoute;

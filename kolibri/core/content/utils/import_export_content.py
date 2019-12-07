@@ -1,7 +1,6 @@
 import hashlib
 
 from django.db.models import Sum
-from le_utils.constants import content_kinds
 from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
@@ -11,6 +10,12 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    get_channel_stats_from_disk,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    get_channel_stats_from_peer,
 )
 
 try:
@@ -26,7 +31,13 @@ RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
 
 
 def get_nodes_to_transfer(
-    channel_id, node_ids, exclude_node_ids, available, renderable_only=True
+    channel_id,
+    node_ids,
+    exclude_node_ids,
+    available,
+    renderable_only=True,
+    drive_id=None,
+    peer_id=None,
 ):
     nodes_to_include = ContentNode.objects.filter(channel_id=channel_id)
 
@@ -49,16 +60,46 @@ def get_nodes_to_transfer(
         nodes_to_include = nodes_to_include.order_by().difference(
             nodes_to_exclude.order_by()
         )
-    return nodes_to_include.order_by()
+
+    # By default don't filter node ids by their underlying file importability
+    file_based_node_id_list = None
+    if drive_id:
+        file_based_node_id_list = get_channel_stats_from_disk(
+            channel_id, drive_id
+        ).keys()
+
+    if peer_id:
+        file_based_node_id_list = get_channel_stats_from_peer(
+            channel_id, peer_id
+        ).keys()
+    if file_based_node_id_list is not None:
+        nodes_to_include = nodes_to_include.filter(pk__in=file_based_node_id_list)
+    return nodes_to_include.filter(available=available).order_by()
 
 
 def get_files_to_transfer(
-    channel_id, node_ids, exclude_node_ids, available, renderable_only=True
+    channel_id,
+    node_ids,
+    exclude_node_ids,
+    available,
+    renderable_only=True,
+    drive_id=None,
+    peer_id=None,
 ):
-    nodes_to_include = get_nodes_to_transfer(
-        channel_id, node_ids, exclude_node_ids, available, renderable_only
-    )
 
+    nodes_to_include = get_nodes_to_transfer(
+        channel_id,
+        node_ids,
+        exclude_node_ids,
+        available,
+        renderable_only=renderable_only,
+        drive_id=drive_id,
+        peer_id=peer_id,
+    )
+    return calculate_files_to_transfer(nodes_to_include, available)
+
+
+def calculate_files_to_transfer(nodes_to_include, available):
     files_to_transfer = LocalFile.objects.filter(
         available=available, files__contentnode__in=nodes_to_include
     )
@@ -81,26 +122,6 @@ def _get_node_ids(node_ids):
         .get_descendants(include_self=True)
         .values_list("id", flat=True)
     )
-
-
-def get_num_coach_contents(contentnode, filter_available=True):
-    """
-    Given a ContentNode model, return the number of Coach Contents underneath it
-    """
-    if contentnode.coach_content:
-        if contentnode.kind == content_kinds.TOPIC:
-            queryset = contentnode.get_descendants().filter(coach_content=True)
-
-            if filter_available:
-                queryset = queryset.filter(available=True)
-
-            return queryset.exclude(kind=content_kinds.TOPIC).distinct().count()
-        else:
-            # if the content kind is not a topic but it is marked as coach content the total
-            # coach content count has to be 1 since this is the last node in the tree
-            return 1
-    else:
-        return 1 if contentnode.coach_content else 0
 
 
 def retry_import(e, **kwargs):

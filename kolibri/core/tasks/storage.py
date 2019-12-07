@@ -18,6 +18,8 @@ from kolibri.core.tasks.job import State
 
 Base = declarative_base()
 
+logger = logging.getLogger(__name__)
+
 
 class ORMJob(Base):
     """
@@ -117,7 +119,7 @@ class Storage(StorageMixin):
             try:
                 session.commit()
             except Exception as e:
-                logging.error("Got an error running session.commit(): {}".format(e))
+                logger.error("Got an error running session.commit(): {}".format(e))
 
             return j.job_id
 
@@ -244,25 +246,37 @@ class Storage(StorageMixin):
 
     def _update_job(self, job_id, state=None, **kwargs):
         with self.session_scope() as session:
-
-            job, orm_job = self._get_job_and_orm_job(job_id, session)
-
-            # Note (aron): looks like SQLAlchemy doesn't automatically
-            # save any pickletype fields even if we re-set (orm_job.obj = job) that
-            # field. My hunch is that it's tracking the id of the object,
-            # and if that doesn't change, then SQLAlchemy doesn't repickle the object
-            # and save to the DB.
-            # Our hack here is to just copy the job object, and then set thespecific
-            # field we want to edit, in this case the job.state. That forces
-            # SQLAlchemy to re-pickle the object, thus setting it to the correct state.
-            job = copy(job)
-            if state is not None:
-                orm_job.state = job.state = state
-            for kwarg in kwargs:
-                setattr(job, kwarg, kwargs[kwarg])
-            orm_job.obj = job
-            session.add(orm_job)
-            return job, orm_job
+            try:
+                job, orm_job = self._get_job_and_orm_job(job_id, session)
+                # Note (aron): looks like SQLAlchemy doesn't automatically
+                # save any pickletype fields even if we re-set (orm_job.obj = job) that
+                # field. My hunch is that it's tracking the id of the object,
+                # and if that doesn't change, then SQLAlchemy doesn't repickle the object
+                # and save to the DB.
+                # Our hack here is to just copy the job object, and then set thespecific
+                # field we want to edit, in this case the job.state. That forces
+                # SQLAlchemy to re-pickle the object, thus setting it to the correct state.
+                job = copy(job)
+                if state is not None:
+                    orm_job.state = job.state = state
+                for kwarg in kwargs:
+                    setattr(job, kwarg, kwargs[kwarg])
+                orm_job.obj = job
+                session.add(orm_job)
+                return job, orm_job
+            except JobNotFound:
+                if state:
+                    logger.error(
+                        "Tried to update job with id {} with state {} but it was not found".format(
+                            job_id, state
+                        )
+                    )
+                else:
+                    logger.error(
+                        "Tried to update job with id {} but it was not found".format(
+                            job_id
+                        )
+                    )
 
     def _get_job_and_orm_job(self, job_id, session):
         orm_job = session.query(ORMJob).filter_by(id=job_id).one_or_none()

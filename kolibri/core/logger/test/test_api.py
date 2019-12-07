@@ -726,7 +726,9 @@ class ExamAttemptLogAPITestCase(APITestCase):
         self.exam.active = False
         self.exam.save()
         response = self.client.post(
-            reverse("kolibri:core:examattemptlog-list"), data=self.examattemptdata
+            reverse("kolibri:core:examattemptlog-list"),
+            data=self.examattemptdata,
+            format="json",
         )
         self.assertEqual(response.status_code, 403)
 
@@ -739,7 +741,9 @@ class ExamAttemptLogAPITestCase(APITestCase):
         self.examlog.closed = True
         self.examlog.save()
         response = self.client.post(
-            reverse("kolibri:core:examattemptlog-list"), data=self.examattemptdata
+            reverse("kolibri:core:examattemptlog-list"),
+            data=self.examattemptdata,
+            format="json",
         )
         self.assertEqual(response.status_code, 403)
 

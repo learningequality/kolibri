@@ -8,10 +8,8 @@
   >
     <FacilityTopNav slot="sub-nav" />
 
-    <KPageContainer>
-      <!-- QUESTION should we explicitly define this in every page? -->
-      <component :is="currentPage" />
-    </KPageContainer>
+    <!-- QUESTION should we explicitly define this in every page? -->
+    <component :is="currentPage" />
 
   </CoreBase>
 

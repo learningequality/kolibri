@@ -2,6 +2,11 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.db.models import OuterRef
+from django.db.models import Subquery
+from django.db.models import TextField
+from django.db.models.functions import Cast
+from morango.models import TransferSession
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -16,17 +21,9 @@ from kolibri.core import error_constants
 
 
 class RoleSerializer(serializers.ModelSerializer):
-    collection_parent = serializers.SerializerMethodField()
-
     class Meta:
         model = Role
-        fields = ("id", "kind", "collection", "user", "collection_parent")
-
-    def get_collection_parent(self, instance):
-        if instance.collection.parent is not None:
-            return instance.collection.parent.id
-        else:
-            return None
+        fields = ("id", "kind", "collection", "user")
 
 
 class FacilityUserSerializer(serializers.ModelSerializer):
@@ -47,6 +44,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             "gender",
             "birth_year",
         )
+        read_only_fields = ("is_superuser",)
 
     def validate(self, attrs):
         username = attrs.get("username")
@@ -65,12 +63,6 @@ class FacilityUserSerializer(serializers.ModelSerializer):
                 "An account with that username already exists.",
                 code=error_constants.USERNAME_ALREADY_EXISTS,
             )
-
-
-class FacilityUsernameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FacilityUser
-        fields = ("username",)
 
 
 class MembershipSerializer(serializers.ModelSerializer):
@@ -94,20 +86,40 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
             "description",
             "location",
             "allow_guest_access",
+            "registered",
         )
 
 
 class FacilitySerializer(serializers.ModelSerializer):
     dataset = FacilityDatasetSerializer(read_only=True)
     default = serializers.SerializerMethodField()
+    last_synced = serializers.SerializerMethodField()
 
     class Meta:
         model = Facility
         extra_kwargs = {"id": {"read_only": True}, "dataset": {"read_only": True}}
-        fields = ("id", "name", "dataset", "default")
+        fields = ("id", "name", "dataset", "default", "last_synced")
 
     def get_default(self, instance):
         return instance == Facility.get_default_facility()
+
+    def get_last_synced(self, instance):
+
+        # when facilities are synced, the dataset_id is used as the filter
+        last_synced = (
+            TransferSession.objects.filter(filter=OuterRef("casted_dataset_id"),)
+            .order_by("-last_activity_timestamp")
+            .values("last_activity_timestamp")[:1]
+        )
+
+        # get last synced date
+        last_synced_date = (
+            Facility.objects.filter(id=instance.id)
+            .annotate(casted_dataset_id=Cast("dataset_id", TextField()))
+            .annotate(last_synced=Subquery(last_synced))
+            .values_list("last_synced", flat=True)
+        )
+        return last_synced_date[0]
 
 
 class PublicFacilitySerializer(serializers.ModelSerializer):
@@ -117,18 +129,10 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
 
 
 class ClassroomSerializer(serializers.ModelSerializer):
-    learner_count = serializers.SerializerMethodField()
-    coaches = serializers.SerializerMethodField()
-
-    def get_learner_count(self, instance):
-        return instance.get_members().count()
-
-    def get_coaches(self, instance):
-        return FacilityUserSerializer(instance.get_coaches(), many=True).data
-
     class Meta:
         model = Classroom
-        fields = ("id", "name", "parent", "learner_count", "coaches")
+        fields = ("id", "name", "parent")
+        read_only_fields = ("id",)
 
         validators = [
             UniqueTogetherValidator(
@@ -138,15 +142,9 @@ class ClassroomSerializer(serializers.ModelSerializer):
 
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
-
-    user_ids = serializers.SerializerMethodField()
-
-    def get_user_ids(self, group):
-        return [str(user_id["id"]) for user_id in group.get_members().values("id")]
-
     class Meta:
         model = LearnerGroup
-        fields = ("id", "name", "parent", "user_ids")
+        fields = ("id", "name", "parent")
 
         validators = [
             UniqueTogetherValidator(

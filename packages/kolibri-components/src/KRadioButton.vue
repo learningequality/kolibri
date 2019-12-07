@@ -20,6 +20,7 @@
       @focus="active = true"
       @blur="active = false"
       @change="update($event)"
+      @keydown="$emit('keydown', $event)"
     >
     <!-- the radio buttons the user sees -->
     <mat-svg

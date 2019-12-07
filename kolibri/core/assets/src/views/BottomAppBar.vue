@@ -1,6 +1,10 @@
 <template>
 
-  <div class="bottom" :style="{backgroundColor: $themeTokens.surface}">
+  <div
+    class="bottom"
+    :style="{backgroundColor: $themeTokens.surface}"
+    :class="{'bottom-sm': windowIsSmall}"
+  >
     <div class="inner-bottom" :style="innerStyle">
       <slot></slot>
     </div>
@@ -11,8 +15,11 @@
 
 <script>
 
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+
   export default {
     name: 'BottomAppBar',
+    mixins: [responsiveWindowMixin],
     props: {
       maxWidth: {
         type: Number,
@@ -50,6 +57,11 @@
     overflow-x: hidden;
     font-size: 14px;
     text-align: right;
+  }
+
+  .bottom-sm {
+    height: auto;
+    min-height: 72px;
   }
 
   .inner-bottom {

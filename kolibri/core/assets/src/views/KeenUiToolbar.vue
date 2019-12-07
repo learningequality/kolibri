@@ -17,4 +17,9 @@
     margin-left: -5px;
   }
 
+  /deep/ .ui-toolbar__title {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
 </style>

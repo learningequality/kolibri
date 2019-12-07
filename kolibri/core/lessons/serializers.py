@@ -3,7 +3,6 @@ from collections import OrderedDict
 from rest_framework.serializers import JSONField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
-from rest_framework.serializers import SerializerMethodField
 from rest_framework.serializers import ValidationError
 
 from .models import Lesson
@@ -11,7 +10,6 @@ from .models import LessonAssignment
 from kolibri.core import error_constants
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.serializers import ClassroomSerializer
 from kolibri.core.content.models import ContentNode
 
 
@@ -22,24 +20,17 @@ class LessonAssignmentSerializer(ModelSerializer):
     about the Lesson
     """
 
-    collection_kind = SerializerMethodField()
-
     class Meta:
         model = LessonAssignment
-        fields = ("id", "collection", "assigned_by", "collection_kind")
-        read_only_fields = ("assigned_by", "collection_kind")
-
-    def get_collection_kind(self, instance):
-        return instance.collection.kind
+        fields = ("id", "collection")
+        read_only_fields = ("id",)
 
 
 class LessonSerializer(ModelSerializer):
-    classroom = ClassroomSerializer(source="collection", read_only=True)
     created_by = PrimaryKeyRelatedField(
         read_only=False, queryset=FacilityUser.objects.all()
     )
     lesson_assignments = LessonAssignmentSerializer(many=True)
-    learner_ids = SerializerMethodField()
     resources = JSONField(default="[]")
 
     class Meta:
@@ -51,14 +42,9 @@ class LessonSerializer(ModelSerializer):
             "resources",
             "is_active",
             "collection",  # classroom
-            "classroom",  # details about classroom
             "lesson_assignments",
             "created_by",
-            "learner_ids",
         )
-
-    def get_learner_ids(self, data):
-        return [user.id for user in data.get_all_learners()]
 
     def validate(self, attrs):
         title = attrs.get("title")

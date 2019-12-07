@@ -100,6 +100,8 @@ describe('SetupWizardIndex', () => {
         full_name: 'Fred Rogers',
         username: 'mr_rogers',
         password: 'password',
+        gender: 'NOT_SPECIFIED',
+        birth_year: 'NOT_SPECIFIED',
       },
       settings: {
         allow_guest_access: true,

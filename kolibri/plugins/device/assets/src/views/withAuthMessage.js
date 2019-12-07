@@ -12,11 +12,17 @@ const roleToGetterMap = {
 };
 
 // Higher-order component that will conditionally render the intended component
-// or AuthMessage, depending on whether a user has permissions
+// or AuthMessage, depending on whether a user has permissions.
+// TODO replace with nested views
 export default function withAuthMessage(component, authorizedRole) {
   const originalProps = component.props || [];
+  const originalMethods = component.methods || [];
   return Vue.component('withAuthMessage', {
     props: { ...originalProps },
+    beforeRouteEnter: component.beforeRouteEnter,
+    beforeRouteUpdate: component.beforeRouteUpdate,
+    beforeRouteLeave: component.beforeRouteLeave,
+    methods: { ...originalMethods },
     render(createElement) {
       let canAccess;
 

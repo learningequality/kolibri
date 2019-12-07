@@ -109,6 +109,8 @@ export default {
         If that issue ever gets addressed, we should make them computed props.
       */
       windowBreakpoint: undefined,
+      windowIsPortrait: false,
+      windowIsLandscape: false,
       windowGutter: 16,
       windowIsShort: false,
     };
@@ -117,10 +119,12 @@ export default {
     windowWidth() {
       this._updateBreakpoint();
       this._updateGutter();
+      this._updateOrientation();
     },
     windowHeight() {
       this.windowIsShort = this.windowHeight < 600;
       this._updateGutter();
+      this._updateOrientation();
     },
   },
   computed: {
@@ -161,6 +165,10 @@ export default {
       } else {
         this.windowBreakpoint = 7;
       }
+    },
+    _updateOrientation() {
+      this.windowIsPortrait = this.windowWidth < this.windowHeight;
+      this.windowIsLandscape = !this.windowIsPortrait;
     },
     _updateGutter() {
       if (this.windowIsSmall) {

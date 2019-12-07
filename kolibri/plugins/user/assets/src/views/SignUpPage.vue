@@ -48,11 +48,26 @@
               {{ currentFacility.label }}
             </p>
           </template>
+
+          <PrivacyLinkAndModal
+            class="privacy-link"
+            :modalProps="{ hideOwnersSection: true }"
+          />
         </div>
 
         <div v-show="!atFirstStep">
           <p>
+            {{ $tr('demographicInfoOptional') }}
+          </p>
+          <p>
             {{ $tr('demographicInfoExplanation') }}
+          </p>
+          <p>
+            <PrivacyLinkAndModal
+              class="privacy-link"
+              :text="$tr('privacyLinkText')"
+              :modalProps="{ hideOwnersSection: true }"
+            />
           </p>
           <GenderSelect
             class="select"
@@ -65,11 +80,6 @@
             :disabled="busy"
           />
         </div>
-
-        <PrivacyLinkAndModal
-          class="privacy-link"
-          :modalProps="{ hideOwnersSection: true }"
-        />
 
         <p>
           <KButton
@@ -310,8 +320,20 @@
     $trs: {
       createAccount: 'Create an account',
       documentTitle: 'Create account',
-      demographicInfoExplanation:
-        'This information is optional. It is used to help with user administration.',
+      demographicInfoOptional: {
+        message: 'Providing this information is optional.',
+        context: '\nClarifying information that providing the demographic information is optional.',
+      },
+      demographicInfoExplanation: {
+        message:
+          'It will be visible to administrators. It will also be used to help improve the software and resources for different learner types and needs.',
+        context: '\nDetails on how the demographic information requested in the form will be used.',
+      },
+      privacyLinkText: {
+        message: 'Learn more about usage and privacy',
+        context:
+          '\nLink to open the Kolibri usage and privacy modal. It will be displayed alongside the text describing collection of demographic user information.',
+      },
     },
   };
 
@@ -319,9 +341,6 @@
 
 
 <style lang="scss" scoped>
-
-  $iphone-5-width: 320px;
-  $vertical-page-margin: 100px;
 
   .narrow-container {
     max-width: 600px;

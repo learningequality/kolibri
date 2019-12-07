@@ -25,7 +25,7 @@
   <mat-svg v-else-if="icon ==='topic'" name="folder" category="file" :style="style" />
   <mat-svg v-else-if="icon ==='video'" name="ondemand_video" category="notification" :style="style" />
   <mat-svg v-else-if="icon ==='slideshow'" name="photo_library" category="image" :style="style" />
-  <mat-svg v-else-if="icon ==='privatechannel'" name="lock_open" category="action" :style="style" />
+  <mat-svg v-else-if="icon ==='unlistedchannel'" name="lock_open" category="action" :style="style" />
   <mat-svg v-else-if="icon ==='multiple'" name="view_module" category="action" :style="style" />
   <mat-svg v-else-if="icon ==='done'" name="done" category="action" :style="style" />
   <!-- users -->
@@ -88,7 +88,7 @@
     'video',
     'html5',
     'slideshow',
-    'privatechannel',
+    'unlistedchannel',
     'multiple',
     'done',
     // users

@@ -56,6 +56,7 @@ import * as i18n from '../utils/i18n';
 import * as browserInfo from '../utils/browserInfo';
 import { redirectBrowser } from '../utils/redirectBrowser';
 import UiIconButton from '../views/KeenUiIconButton.vue';
+import * as licenseTranslations from '../utils/licenseTranslations';
 import bytesForHumans from '../utils/bytesForHumans';
 import UserType from '../utils/UserType';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
@@ -194,6 +195,7 @@ export default {
     validators,
     serverClock,
     i18n,
+    licenseTranslations,
     loginComponents,
     navComponents,
     coreBannerContent,

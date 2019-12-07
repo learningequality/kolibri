@@ -13,6 +13,10 @@ const translator = createTranslator('TreeViewRowMessages', {
   fractionOfResourcesSelected:
     '{selected, number, useGrouping} of {total, number, useGrouping} {total, plural, one {resource} other {resources}} selected',
   noTitle: 'No title',
+  someResourcesSelected: 'Some resources selected',
+  someResourcesOnDevice: 'Some resources on this device',
+  allResourcesSelected: 'All resources selected',
+  allResourcesOnDevice: 'All resources on this device',
 });
 
 export const CheckboxTypes = {

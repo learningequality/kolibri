@@ -26,8 +26,6 @@ describe('SuperuserCredentialsForm', () => {
       usernameValid: true,
       password: 'password',
       passwordValid: true,
-      birthYear: '1901',
-      gender: 'NOT_SPECIFIED',
     });
     actions.simulateSubmit();
     await wrapper.vm.$nextTick();
@@ -35,7 +33,7 @@ describe('SuperuserCredentialsForm', () => {
       full_name: 'Schoolhouse Rock',
       username: 'schoolhouse_rock',
       password: 'password',
-      birth_year: '1901',
+      birth_year: 'NOT_SPECIFIED',
       gender: 'NOT_SPECIFIED',
     });
     expect(wrapper.vm.$emit).toHaveBeenCalledWith('submit');

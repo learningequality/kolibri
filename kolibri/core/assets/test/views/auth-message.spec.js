@@ -61,12 +61,12 @@ describe('auth message component', () => {
   it('shows correct text when one text manually provided as prop', () => {
     const wrapper = makeWrapper({
       propsData: {
-        details: 'Must be device owner to manage content',
+        details: 'Must be device owner to manage resources',
       },
     });
     const { headerText, detailsText } = getElements(wrapper);
     expect(headerText()).toEqual('Did you forget to sign in?');
-    expect(detailsText()).toEqual('Must be device owner to manage content');
+    expect(detailsText()).toEqual('Must be device owner to manage resources');
   });
 
   it('shows correct link text if there is a user plugin', () => {

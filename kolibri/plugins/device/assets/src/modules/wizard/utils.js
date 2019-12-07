@@ -40,11 +40,12 @@ export function downloadChannelMetadata(store = coreStore) {
   } else if (store.getters['manageContent/wizard/inPeerImportMode']) {
     promise = TaskResource.startRemoteChannelImport({
       channel_id: transferredChannel.id,
-      baseurl: selectedPeer.base_url,
+      peer_id: selectedPeer.id,
     });
   } else {
     return Error('Channel Metadata is only downloaded when importing');
   }
+  store.commit('CORE_SET_PAGE_LOADING', false);
   promise = promise.catch(() => Promise.reject({ errorType: ErrorTypes.CONTENT_DB_LOADING_ERROR }));
 
   return promise

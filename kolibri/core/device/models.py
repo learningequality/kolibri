@@ -27,10 +27,25 @@ class DevicePermissions(models.Model):
     can_manage_content = models.BooleanField(default=False)
 
 
+DEVICE_SETTINGS_CACHE_KEY = "device_settings_cache_key"
+
+
+class DeviceSettingsManager(models.Manager):
+    def get(self, **kwargs):
+        if DEVICE_SETTINGS_CACHE_KEY not in cache:
+            model = super(DeviceSettingsManager, self).get(**kwargs)
+            cache.set(DEVICE_SETTINGS_CACHE_KEY, model, 600)
+        else:
+            model = cache.get(DEVICE_SETTINGS_CACHE_KEY)
+        return model
+
+
 class DeviceSettings(models.Model):
     """
     This class stores data about settings particular to this device
     """
+
+    objects = DeviceSettingsManager()
 
     is_provisioned = models.BooleanField(default=False)
     language_id = models.CharField(
@@ -42,12 +57,8 @@ class DeviceSettings(models.Model):
 
     def save(self, *args, **kwargs):
         self.pk = 1
-        # Import here to prevent circular dependency.
-        from kolibri.core.device.translation import DEVICE_LANGUAGE_CACHE_KEY
-
-        # Delete any cache of the device language setting just in case.
-        cache.delete(DEVICE_LANGUAGE_CACHE_KEY)
         super(DeviceSettings, self).save(*args, **kwargs)
+        cache.set(DEVICE_SETTINGS_CACHE_KEY, self, 600)
 
 
 CONTENT_CACHE_KEY_CACHE_KEY = "content_cache_key"

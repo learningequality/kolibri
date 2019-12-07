@@ -1,7 +1,6 @@
 import videojs from 'video.js';
 
 const videojsButton = videojs.getComponent('Button');
-const videojsFullscreenToggle = videojs.getComponent('FullscreenToggle');
 
 export class ReplayButton extends videojsButton {
   buildCSSClass() {
@@ -13,6 +12,8 @@ export class ReplayButton extends videojsButton {
   }
 }
 
+ReplayButton.prototype.controlText_ = 'Replay';
+
 export class ForwardButton extends videojsButton {
   buildCSSClass() {
     return `vjs-icon-forward_10 ${super.buildCSSClass()}`;
@@ -23,8 +24,4 @@ export class ForwardButton extends videojsButton {
   }
 }
 
-export class MimicFullscreenToggle extends videojsFullscreenToggle {
-  handleClick() {
-    this.player().trigger('mimicFullscreenToggled');
-  }
-}
+ForwardButton.prototype.controlText_ = 'Forward';

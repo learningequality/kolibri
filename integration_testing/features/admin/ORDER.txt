@@ -11,5 +11,7 @@ admin-delete-class.feature
 admin-change-facility-settings.feature
 admin-manage-content.feature
 admin-export-data.feature
+admin-register-facility.feature
+admin-sync-facility.feature
 admin-sign-out.feature
 admin-rearrange-channels.feature

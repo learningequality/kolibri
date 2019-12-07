@@ -208,3 +208,88 @@ def update_num_coach_contents():
     trans.commit()
 
     bridge.end()
+
+
+# This was introduced in 0.13.0, so only annotate
+# when upgrading from versions prior to this.
+@version_upgrade(old_version="<0.13.0")
+def update_on_device_resources():
+    """
+    Function to set on_device_resource on all topic trees to account for
+    those that were imported before annotations were performed
+    """
+    bridge = Bridge(app_name=KolibriContentConfig.label)
+
+    ContentNodeClass = bridge.get_class(ContentNode)
+
+    ContentNodeTable = bridge.get_table(ContentNode)
+
+    connection = bridge.get_connection()
+
+    child = ContentNodeTable.alias()
+
+    logger.info("Updating on_device_resource on existing channels")
+
+    # start a transaction
+
+    trans = connection.begin()
+
+    # Update all leaf ContentNodes to have on_device_resource to 1 or 0
+    connection.execute(
+        ContentNodeTable.update()
+        .where(
+            # That are not topics
+            ContentNodeTable.c.kind
+            != content_kinds.TOPIC
+        )
+        .values(on_device_resources=cast(ContentNodeTable.c.available, Integer()))
+    )
+
+    # Expression to capture all available child nodes of a contentnode
+    available_nodes = select([child.c.available]).where(
+        and_(
+            child.c.available == True,  # noqa
+            ContentNodeTable.c.id == child.c.parent_id,
+        )
+    )
+
+    # Expression that sums the total number of coach contents for each child node
+    # of a contentnode
+    on_device_num = select([func.sum(child.c.on_device_resources)]).where(
+        and_(
+            child.c.available == True,  # noqa
+            ContentNodeTable.c.id == child.c.parent_id,
+        )
+    )
+
+    for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
+
+        node_depth = (
+            bridge.session.query(func.max(ContentNodeClass.level))
+            .filter_by(channel_id=channel_id)
+            .scalar()
+        )
+
+        # Go from the deepest level to the shallowest
+        for level in range(node_depth, 0, -1):
+
+            # Only modify topic availability here
+            connection.execute(
+                ContentNodeTable.update()
+                .where(
+                    and_(
+                        ContentNodeTable.c.level == level - 1,
+                        ContentNodeTable.c.channel_id == channel_id,
+                        ContentNodeTable.c.kind == content_kinds.TOPIC,
+                    )
+                )
+                # Because we have set availability to False on all topics as a starting point
+                # we only need to make updates to topics with available children.
+                .where(exists(available_nodes))
+                .values(on_device_resources=on_device_num)
+            )
+
+    # commit the transaction
+    trans.commit()
+
+    bridge.end()

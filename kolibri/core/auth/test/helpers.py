@@ -7,7 +7,7 @@ from ..models import FacilityDataset
 from ..models import FacilityUser
 from ..models import LearnerGroup
 from kolibri.core.device.models import DevicePermissions
-from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.utils import provision_device  # noqa
 
 DUMMY_PASSWORD = "password"
 
@@ -18,13 +18,6 @@ def create_superuser(facility, username="superuser"):
     superuser.save()
     DevicePermissions.objects.create(user=superuser, is_superuser=True)
     return superuser
-
-
-def provision_device():
-    if DeviceSettings.objects.all().exists():
-        DeviceSettings.objects.update(is_provisioned=True)
-    else:
-        DeviceSettings.objects.create(is_provisioned=True)
 
 
 def setup_device():

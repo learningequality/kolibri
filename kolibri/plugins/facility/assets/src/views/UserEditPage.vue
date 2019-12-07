@@ -1,6 +1,6 @@
 <template>
 
-  <div class="narrow-container">
+  <KPageContainer class="narrow-container">
     <form v-if="!loading" class="form" @submit.prevent="submitForm">
       <h1>
         {{ $tr('editUserDetailsHeader') }}
@@ -108,7 +108,7 @@
       </div>
 
     </form>
-  </div>
+  </KPageContainer>
 
 </template>
 

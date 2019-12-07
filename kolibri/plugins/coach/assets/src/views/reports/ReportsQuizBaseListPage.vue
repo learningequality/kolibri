@@ -10,7 +10,8 @@
 
     <KGrid gutter="16">
       <KGridItem>
-        <QuizHeader
+        <QuizLessonDetailsHeader
+          examOrLesson="exam"
           :backlink="classRoute('ReportsQuizListPage')"
           :backlinkLabel="coachString('allQuizzesLabel')"
           optionsFor="report"
@@ -20,7 +21,7 @@
             optionsFor="report"
             @select="handleSelectOption"
           />
-        </QuizHeader>
+        </QuizLessonDetailsHeader>
       </KGridItem>
       <KGridItem :layout12="{ span: 4 }">
         <QuizStatus

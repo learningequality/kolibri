@@ -28,7 +28,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import LocalFile
-from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
@@ -259,8 +259,7 @@ def perform_ping(started, server=DEFAULT_SERVER_URL):
 
     instance, _ = InstanceIDModel.get_or_create_current_instance()
 
-    devicesettings = DeviceSettings.objects.first()
-    language = devicesettings.language_id if devicesettings else ""
+    language = get_device_setting("language_id", "")
 
     try:
         timezone = get_current_timezone().zone

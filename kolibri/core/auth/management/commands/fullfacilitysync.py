@@ -18,8 +18,8 @@ from six.moves.urllib.parse import urljoin
 from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
-from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import device_provisioned
+from kolibri.core.device.utils import provision_device
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
 
@@ -114,9 +114,7 @@ class Command(AsyncCommand):
 
         # if device has not been provisioned, set it up
         if not device_provisioned():
-            device_settings, created = DeviceSettings.objects.get_or_create()
-            device_settings.is_provisioned = True
-            device_settings.save()
+            provision_device()
 
     def handle_async(self, *args, **options):
         self.stderr.write(

@@ -57,6 +57,7 @@ function getExportedLogsInfo(store) {
 }
 
 function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitFinish) {
+  // if task job has already been fetched, just continually check if its completed
   if (taskId) {
     const completed = filter(newTasks, {
       id: taskId,
@@ -76,7 +77,7 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
         task.status !== TaskStatuses.FAILED
       );
     });
-    if (running.length > 0) store.commit(commitStart, running[0].id);
+    if (running.length > 0) store.commit(commitStart, running[0]);
   }
 }
 
@@ -100,6 +101,14 @@ function refreshTaskList(store) {
         store.getters.summaryTaskId,
         'START_SUMMARY_CSV_EXPORT',
         'SET_FINISHED_SUMMARY_CSV_CREATION'
+      );
+      checkTaskStatus(
+        store,
+        newTasks,
+        TaskTypes.SYNCDATAPORTAL,
+        store.state.facilityTaskId,
+        'START_FACILITY_SYNC',
+        'SET_FINISH_FACILITY_SYNC'
       );
     })
     .catch(error => {

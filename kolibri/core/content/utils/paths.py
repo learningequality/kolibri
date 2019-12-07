@@ -10,15 +10,40 @@ from kolibri.utils import conf
 
 
 # valid storage filenames consist of 32-char hex plus a file extension
-VALID_STORAGE_FILENAME = re.compile("[0-9a-f]{32}(-data)?\\.[0-9a-z]+")
+VALID_STORAGE_FILENAME = re.compile(r"[0-9a-f]{32}(-data)?\.[0-9a-z]+")
 
 # set of file extensions that should be considered zip files and allow access to internal files
 POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".perseus", ".zip", ".h5p"])
 # TODO: add ".epub" and ".epub3" if epub-equivalent of ZipContentView implemented
 
 
+def get_attribute(obj, key):
+    """
+    Get an attribute from an object, regardless of whether it is a dict or an object
+    """
+    if not isinstance(obj, dict):
+        return getattr(obj, key)
+    return obj[key]
+
+
 def get_content_file_name(obj):
-    return "{checksum}.{extension}".format(checksum=obj.id, extension=obj.extension)
+    return "{checksum}.{extension}".format(
+        checksum=get_attribute(obj, "id"), extension=get_attribute(obj, "extension")
+    )
+
+
+def get_local_content_storage_file_url(obj):
+    """
+    Return a url for the client side to retrieve the content file.
+    The same url will also be exposed by the file serializer.
+    """
+    if get_attribute(obj, "available"):
+        return get_content_storage_file_url(
+            filename=get_content_file_name(obj),
+            baseurl=conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"],
+        )
+    else:
+        return None
 
 
 # DISK PATHS
@@ -125,6 +150,16 @@ def get_channel_lookup_url(
     content_server_path += urlencode(query_params)
 
     return get_content_server_url(content_server_path, baseurl=baseurl)
+
+
+def get_file_checksums_url(channel_id, baseurl, version="1"):
+    # This endpoint does not exist on Studio, so a baseurl is required.
+    return get_content_server_url(
+        "/api/public/v{version}/file_checksums/{channel_id}".format(
+            version=version, channel_id=channel_id
+        ),
+        baseurl=baseurl,
+    )
 
 
 def get_content_storage_file_url(filename, baseurl=None):

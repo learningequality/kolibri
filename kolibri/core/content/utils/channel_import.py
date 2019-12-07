@@ -797,3 +797,5 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
             id=node_id, title=channel.name, content_id=node_id, channel_id=channel_id
         )
     channel.save()
+
+    logger.info("Channel {} successfully imported into the database".format(channel_id))

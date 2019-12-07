@@ -3,13 +3,18 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import time
+from functools import partial
+from itertools import groupby
 
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth import logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
+from django.db import connection
 from django.db import transaction
+from django.db.models import CharField
+from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models.query import F
 from django.utils.decorators import method_decorator
@@ -39,16 +44,20 @@ from .models import Role
 from .serializers import ClassroomSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
-from .serializers import FacilityUsernameSerializer
 from .serializers import FacilityUserSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
+from kolibri.core.api import ValuesViewset
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
+from kolibri.core.query import ArrayAgg
+from kolibri.core.query import GroupConcat
+from kolibri.core.query import process_uuid_aggregate
+from kolibri.core.query import SQCount
 
 
 class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
@@ -146,12 +155,49 @@ class FacilityUserFilter(FilterSet):
         fields = ["member_of"]
 
 
-class FacilityUserViewSet(viewsets.ModelViewSet):
+class FacilityUserViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
     filter_class = FacilityUserFilter
+
+    values = (
+        "id",
+        "username",
+        "full_name",
+        "facility",
+        "roles__kind",
+        "roles__collection",
+        "roles__id",
+        "devicepermissions__is_superuser",
+        "id_number",
+        "gender",
+        "birth_year",
+    )
+
+    field_map = {
+        "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
+    }
+
+    def consolidate(self, items):
+        output = []
+        items = sorted(items, key=lambda x: x["id"])
+        for key, group in groupby(items, lambda x: x["id"]):
+            roles = []
+            for item in group:
+                role = {
+                    "collection": item.pop("roles__collection"),
+                    "kind": item.pop("roles__kind"),
+                    "id": item.pop("roles__id"),
+                }
+                if role["collection"]:
+                    # Our values call will return null for users with no assigned roles
+                    # So filter them here.
+                    roles.append(role)
+            item["roles"] = roles
+            output.append(item)
+        return output
 
     def set_password_if_needed(self, instance, serializer):
         with transaction.atomic():
@@ -172,11 +218,14 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
         self.set_password_if_needed(instance, serializer)
 
 
-class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
+class FacilityUsernameViewSet(ValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    serializer_class = FacilityUsernameSerializer
     filter_fields = ("facility",)
     search_fields = ("^username",)
+
+    read_only = True
+
+    values = ("username",)
 
     def get_queryset(self):
         return FacilityUser.objects.filter(
@@ -270,21 +319,89 @@ class ClassroomFilter(FilterSet):
         fields = ["role", "parent"]
 
 
-class ClassroomViewSet(viewsets.ModelViewSet):
+class ClassroomViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = Classroom.objects.all()
     serializer_class = ClassroomSerializer
     filter_class = ClassroomFilter
 
+    values = (
+        "id",
+        "name",
+        "parent",
+        "learner_count",
+        "role__user__id",
+        "role__user__devicepermissions__is_superuser",
+        "role__user__full_name",
+        "role__user__username",
+    )
 
-class LearnerGroupViewSet(viewsets.ModelViewSet):
+    def annotate_queryset(self, queryset):
+        return queryset.annotate(
+            learner_count=SQCount(
+                FacilityUser.objects.filter(memberships__collection=OuterRef("id")),
+                field="id",
+            )
+        )
+
+    def consolidate(self, items):
+        output = []
+        items = sorted(items, key=lambda x: x["id"])
+        coach_ids = list(set([item["role__user__id"] for item in items]))
+        facility_roles = {
+            obj.pop("user"): obj
+            for obj in Role.objects.filter(
+                user_id__in=coach_ids, collection__kind=collection_kinds.FACILITY
+            ).values("user", "kind", "collection", "id")
+        }
+        for key, group in groupby(items, lambda x: x["id"]):
+            coaches = []
+            for item in group:
+                user_id = item.pop("role__user__id")
+                if (
+                    user_id in facility_roles
+                    and facility_roles[user_id]["collection"] == item["parent"]
+                ):
+                    roles = [facility_roles[user_id]]
+                else:
+                    roles = []
+                coach = {
+                    "id": user_id,
+                    "facility": item["parent"],
+                    # Coerce to bool if None
+                    "is_superuser": bool(
+                        item.pop("role__user__devicepermissions__is_superuser")
+                    ),
+                    "full_name": item.pop("role__user__full_name"),
+                    "username": item.pop("role__user__username"),
+                    "roles": roles,
+                }
+                if coach["id"]:
+                    coaches.append(coach)
+            item["coaches"] = coaches
+            output.append(item)
+        return output
+
+
+class LearnerGroupViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = LearnerGroup.objects.all()
     serializer_class = LearnerGroupSerializer
 
     filter_fields = ("parent",)
+
+    values = ("id", "name", "parent", "user_ids")
+
+    field_map = {"user_ids": partial(process_uuid_aggregate, key="user_ids")}
+
+    def annotate_queryset(self, queryset):
+        if connection.vendor == "postgresql" and ArrayAgg is not None:
+            return queryset.annotate(user_ids=ArrayAgg("membership__user__id"))
+        return queryset.values("id").annotate(
+            user_ids=GroupConcat("membership__user__id", output_field=CharField())
+        )
 
 
 class SignUpViewSet(viewsets.ViewSet):

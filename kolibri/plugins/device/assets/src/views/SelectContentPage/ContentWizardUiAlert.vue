@@ -27,6 +27,7 @@
     [ContentWizardErrors.TREEVIEW_LOADING_ERROR]: 'channelNotFoundError',
     [ContentWizardErrors.NETWORK_LOCATION_DOES_NOT_EXIST]: 'networkLocationDoesNotExist',
     [ContentWizardErrors.NETWORK_LOCATION_UNAVAILABLE]: 'networkLocationUnavailable',
+    [ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE]: 'kolibriStudioUnavailable',
     [ContentWizardErrors.NETWORK_LOCATION_DOES_NOT_HAVE_CHANNEL]:
       'networkLocationDoesNotHaveChannel',
   };
@@ -56,7 +57,8 @@
       networkLocationDoesNotExist: 'The device with this ID does not exist',
       networkLocationUnavailable:
         'The Kolibri server on the selected device is not available at the moment',
-      transferInProgressError: 'A content transfer is currently in progress',
+      transferInProgressError: 'A transfer is currently in progress',
+      kolibriStudioUnavailable: 'Kolibri Studio is unavailable',
       networkLocationDoesNotHaveChannel:
         'The device with this ID does not have the desired channel',
     },

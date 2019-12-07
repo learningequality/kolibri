@@ -260,6 +260,7 @@ class LessonAPITestCase(APITestCase):
                 "is_active": True,
                 "collection": self.facility.id,
             },
+            format="json",
         )
         self.assertEqual(response.status_code, 403)
 
@@ -290,6 +291,7 @@ class LessonAPITestCase(APITestCase):
                 "is_active": False,
                 "collection": self.facility.id,
             },
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -311,6 +313,7 @@ class LessonAPITestCase(APITestCase):
                 "is_active": False,
                 "collection": self.facility.id,
             },
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -332,6 +335,7 @@ class LessonAPITestCase(APITestCase):
                 "is_active": True,
                 "collection": self.facility.id,
             },
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data[0]["id"], error_constants.UNIQUE)

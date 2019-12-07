@@ -8,10 +8,8 @@ import sys
 from collections import OrderedDict
 from functools import partial
 
-from django.db.models import IntegerField
 from django.db.models import OuterRef
 from django.db.models import Q
-from django.db.models import Subquery
 
 from kolibri.core.auth.constants.collection_kinds import CLASSROOM
 from kolibri.core.auth.constants.demographics import choices
@@ -19,6 +17,7 @@ from kolibri.core.auth.constants.demographics import DEMO_FIELDS
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.query import SQCount
 
 
 logger = logging.getLogger(__name__)
@@ -170,12 +169,6 @@ db_columns = (
     "birth_year",
     "id_number",
 )
-
-
-class SQCount(Subquery):
-    # Include ALIAS at the end to support Postgres
-    template = "(SELECT COUNT(%(field)s) FROM (%(subquery)s) AS %(field)s__sum)"
-    output_field = IntegerField()
 
 
 def csv_file_generator(facility, filepath, overwrite=True, demographic=False):

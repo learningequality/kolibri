@@ -593,15 +593,6 @@ export class Resource {
       throw ReferenceError('Resource must be instantiated with a name property');
     }
     this.name = `kolibri:${namespace}:${name}`;
-    if (process.env.NODE_ENV !== 'production') {
-      if (window.schema && window.schema.content) {
-        if (!window.schema.content[this.name]) {
-          logging.error(`${name} is not a recognized basename of an API endpoint on the server`);
-        } else {
-          this.__schema = window.schema.content[this.name];
-        }
-      }
-    }
     this.idKey = idKey;
     this.useContentCacheKey = useContentCacheKey;
     const optionsDefinitions = Object.getOwnPropertyDescriptors(options);
@@ -838,13 +829,6 @@ export class Resource {
     if (!detailName) {
       throw TypeError('A detailName must be specified');
     }
-    if (process.env.NODE_ENV !== 'production') {
-      if (!this.__schema[detailName]) {
-        logging.error(`${detailName} detail endpoint does not exist on ${this.name}.`);
-      } else if (this.__schema[detailName].method !== 'get') {
-        logging.error(`${detailName} detail endpoint does not accept get requests.`);
-      }
-    }
     return this.getModel(id, getParams, detailName).fetch();
   }
 
@@ -865,13 +849,6 @@ export class Resource {
     if (!detailName) {
       throw TypeError('A detailName must be specified');
     }
-    if (process.env.NODE_ENV !== 'production') {
-      if (!this.__schema[detailName]) {
-        logging.error(`${detailName} detail endpoint does not exist on ${this.name}.`);
-      } else if (this.__schema[detailName].method !== 'get') {
-        logging.error(`${detailName} detail endpoint does not accept get requests.`);
-      }
-    }
     return this.getCollection(getParams, detailName, id).fetch(force);
   }
 
@@ -886,13 +863,6 @@ export class Resource {
   fetchListCollection(listName, getParams = {}) {
     if (!listName) {
       throw TypeError('A listName must be specified');
-    }
-    if (process.env.NODE_ENV !== 'production') {
-      if (!this.__schema[listName]) {
-        logging.error(`${listName} list endpoint does not exist on ${this.name}.`);
-      } else if (this.__schema[listName].method !== 'get') {
-        logging.error(`${listName} list endpoint does not accept get requests.`);
-      }
     }
     return this.getCollection(getParams, listName).fetch();
   }
@@ -910,15 +880,6 @@ export class Resource {
   accessEndpoint(method, listName, args = {}) {
     if (!listName) {
       throw TypeError('A listName must be specified');
-    }
-    if (process.env.NODE_ENV !== 'production') {
-      if (!this.__schema[listName]) {
-        logging.error(`${listName} list endpoint does not exist on ${this.name}.`);
-      } else if (this.__schema[listName].method !== method.toLowerCase()) {
-        logging.error(
-          `${listName} list endpoint does not accept ${method.toLowerCase()} requests.`
-        );
-      }
     }
     let entity, params;
     if (method === 'GET') {

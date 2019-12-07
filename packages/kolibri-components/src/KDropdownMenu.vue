@@ -12,6 +12,7 @@
         :appearance="appearance"
         :disabled="disabled"
         :hasDropdown="true"
+        :primary="$attrs.primary"
       />
     </div>
 
@@ -20,7 +21,7 @@
       ref="popover"
       trigger="buttonContainer"
       :containFocus="false"
-      :position="position"
+      :dropdownPosition="position"
       @close="handleClose"
       @open="handleOpen"
     >
@@ -148,7 +149,9 @@
         this.$refs.popover.close();
       },
       focusOnButton() {
-        this.$refs.button.$el.focus();
+        if (this.$refs.button) {
+          this.$refs.button.$el.focus();
+        }
       },
     },
   };

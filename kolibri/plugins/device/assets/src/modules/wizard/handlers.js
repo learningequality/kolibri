@@ -220,7 +220,13 @@ export function showSelectContentPage(store, params) {
           channels => {
             resolve({ ...channels[0] });
           },
-          () => reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO })
+          error => {
+            if (error.status.code === 404) {
+              reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO });
+            } else {
+              reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE });
+            }
+          }
         );
     });
   }
@@ -247,7 +253,6 @@ export function showSelectContentPage(store, params) {
         transferType,
         transferredChannel,
       });
-      store.commit('CORE_SET_PAGE_LOADING', false);
 
       const isSamePage = samePageCheckGenerator(store);
       return loadChannelMetadata(store).then(() => {
@@ -278,8 +283,9 @@ export function updateTreeViewTopic(store, topic) {
     const { selectedDrive } = store.state.manageContent.wizard;
     fetchArgs.importing_from_drive_id = selectedDrive.id;
   }
-  if (store.getters['manageContent/wizard/inExportMode']) {
-    fetchArgs.for_export = 'true';
+  if (store.getters['manageContent/wizard/inPeerImportMode']) {
+    const { selectedPeer } = store.state.manageContent.wizard;
+    fetchArgs.importing_from_peer_id = selectedPeer.id;
   }
   store.commit('CORE_SET_PAGE_LOADING', true);
   return ContentNodeGranularResource.fetchModel({

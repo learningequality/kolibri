@@ -1,6 +1,8 @@
 import copy
+import os
 import sys
 
+from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import OPTIONS
 
 cache_options = OPTIONS["Cache"]
@@ -18,6 +20,14 @@ built_files_cache = {
     "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
     # Default time out of each cache key
     "TIMEOUT": cache_options["CACHE_TIMEOUT"],
+}
+
+# Setup a special cache specifically for items that are likely to be needed
+# to be shared across processes - most frequently, things that might be needed
+# inside asynchronous tasks.
+process_cache = {
+    "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+    "LOCATION": os.path.join(KOLIBRI_HOME, "process_cache"),
 }
 
 
@@ -46,3 +56,8 @@ CACHES = {
     # Cache for builtfiles - frontend assets that only change on upgrade.
     "built_files": built_files_cache,
 }
+
+if cache_options["CACHE_BACKEND"] != "redis":
+    # We only needed to add the file based process cache when we are not using
+    # Redis, as it is already cross process.
+    CACHES["process_cache"] = process_cache

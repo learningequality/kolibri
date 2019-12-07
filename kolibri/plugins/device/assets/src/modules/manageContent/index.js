@@ -1,6 +1,6 @@
 import find from 'lodash/find';
 import wizard from '../wizard';
-import { TaskStatuses } from '../../constants';
+import { TaskTypes, TaskStatuses, taskIsClearable } from '../../constants';
 import actions from './actions';
 
 function defaultState() {
@@ -8,6 +8,7 @@ function defaultState() {
     channelList: [],
     channelListLoading: false,
     taskList: [],
+    watchedTaskId: null,
   };
 }
 
@@ -30,6 +31,9 @@ export default {
     SET_TASK_LIST(state, taskList) {
       state.taskList = [...taskList];
     },
+    SET_WATCHED_TASK_ID(state, taskId) {
+      state.watchedTaskId = taskId;
+    },
     ADD_TO_CHANNEL_LIST(state, channel) {
       state.channelList.push(channel);
     },
@@ -49,11 +53,26 @@ export default {
     },
     channelIsBeingDeleted(state) {
       return function beingDeleted(channelId) {
-        const match = find(state.taskList, { type: 'DELETECHANNEL', channel_id: channelId });
+        const match = find(state.taskList, {
+          type: TaskTypes.DELETECHANNEL,
+          channel_id: channelId,
+        });
         if (match) {
-          return !['COMPLETED', 'CANCELED'].includes(match.status);
+          return !taskIsClearable(match);
         }
         return false;
+      };
+    },
+    taskFinished(state) {
+      return function taskFinished(taskId) {
+        if (!taskId) {
+          return null;
+        }
+        const match = find(state.taskList, { id: taskId });
+        if (match && taskIsClearable(match)) {
+          return match.id;
+        }
+        return null;
       };
     },
     // Tasks that are active, complete, or failed.
@@ -63,6 +82,12 @@ export default {
     activeTaskList(state) {
       return state.taskList.filter(
         task => task.status !== TaskStatuses.CANCELING && task.status !== TaskStatuses.CANCELED
+      );
+    },
+    managedTasks(state) {
+      // Tasks that we want to show in the task manager - ignore channel metadata tasks here.
+      return state.taskList.filter(
+        task => ![TaskTypes.REMOTECHANNELIMPORT, TaskTypes.DISKCHANNELIMPORT].includes(task.type)
       );
     },
   },

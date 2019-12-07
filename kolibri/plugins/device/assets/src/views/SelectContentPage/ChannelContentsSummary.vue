@@ -8,20 +8,22 @@
         :src="channel.thumbnail"
       >
       <div class="channel-name">
+        <KTooltip reference="lockicon" :refs="$refs" placement="right">
+          {{ $tr('unlistedChannelTooltip') }}
+        </KTooltip>
         <h1>
           <KLabeledIcon icon="channel" :label="channel.name" />
+          <KIcon
+            ref="lockicon"
+            class="lock-icon"
+            icon="unlistedchannel"
+          />
         </h1>
-        <UiIcon
-          v-if="channel.public === false"
-          class="lock-icon"
-        >
-          <mat-svg name="lock_open" category="action" />
-        </UiIcon>
       </div>
       <p class="version">
         {{ $tr('version', { version: versionNumber }) }}
       </p>
-      <p>
+      <p dir="auto">
         {{ channel.description }}
       </p>
     </div>
@@ -50,15 +52,11 @@
 
 <script>
 
-  import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ChannelContentsSummary',
-    components: {
-      UiIcon,
-    },
     mixins: [commonCoreStrings],
     props: {
       channel: {
@@ -89,6 +87,7 @@
       sizeCol: 'Size',
       totalSizeRow: 'Total size',
       version: 'Version {version, number, integer}',
+      unlistedChannelTooltip: 'Unlisted channel',
     },
   };
 
@@ -102,8 +101,7 @@
   }
 
   .lock-icon {
-    font-size: 32px;
-    vertical-align: sub;
+    margin-left: 16px;
   }
 
   .version {

@@ -17,6 +17,7 @@ from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.paths import get_content_database_file_path
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.job import State
@@ -49,7 +50,7 @@ def validate_content_task(request, task_description, require_channel=False):
     try:
         channel = ChannelMetadata.objects.get(id=channel_id)
         channel_name = channel.name
-        file_size = (channel.published_size,)
+        file_size = channel.published_size
         total_resources = channel.total_resource_count
     except ChannelMetadata.DoesNotExist:
         if require_channel:
@@ -85,13 +86,20 @@ def validate_content_task(request, task_description, require_channel=False):
 
 def validate_remote_import_task(request, task_description):
     import_task = validate_content_task(request, task_description)
+    try:
+        peer_id = task_description["peer_id"]
+        baseurl = NetworkLocation.objects.values_list("base_url", flat=True).get(
+            id=peer_id
+        )
+    except NetworkLocation.DoesNotExist:
+        raise serializers.ValidationError(
+            "Peer with id {} does not exist".format(peer_id)
+        )
+    except KeyError:
+        baseurl = conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
+        peer_id = None
 
-    baseurl = task_description.get(
-        "baseurl", conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
-    )
-
-    import_task.update({"baseurl": baseurl})
-
+    import_task.update({"baseurl": baseurl, "peer_id": peer_id})
     return import_task
 
 
@@ -114,27 +122,21 @@ def _add_drive_info(import_task, task_description):
 
 
 def validate_local_import_task(request, task_description):
-    import_task = validate_content_task(request, task_description)
-
-    import_task = _add_drive_info(import_task, task_description)
-
-    return import_task
+    task = validate_content_task(request, task_description)
+    task = _add_drive_info(task, task_description)
+    return task
 
 
 def validate_local_export_task(request, task_description):
-    import_task = validate_content_task(request, task_description, require_channel=True)
-
-    import_task = _add_drive_info(import_task, task_description)
-
-    return import_task
+    task = validate_content_task(request, task_description, require_channel=True)
+    task = _add_drive_info(task, task_description)
+    return task
 
 
 def validate_deletion_task(request, task_description):
-    import_task = validate_content_task(request, task_description, require_channel=True)
-
-    import_task["force_delete"] = bool(task_description["force_delete"])
-
-    return import_task
+    task = validate_content_task(request, task_description, require_channel=True)
+    task["force_delete"] = bool(task_description.get("force_delete"))
+    return task
 
 
 class TasksViewSet(viewsets.ViewSet):
@@ -187,6 +189,7 @@ class TasksViewSet(viewsets.ViewSet):
                 _remoteimport,
                 task["channel_id"],
                 task["baseurl"],
+                peer_id=task["peer_id"],
                 extra_metadata=task,
                 cancellable=True,
             )
@@ -209,6 +212,7 @@ class TasksViewSet(viewsets.ViewSet):
             "network",
             task["channel_id"],
             baseurl=task["baseurl"],
+            peer_id=task["peer_id"],
             extra_metadata=task,
             cancellable=True,
         )
@@ -228,6 +232,7 @@ class TasksViewSet(viewsets.ViewSet):
             "network",
             task["channel_id"],
             baseurl=task["baseurl"],
+            peer_id=task["peer_id"],
             node_ids=task["node_ids"],
             exclude_node_ids=task["exclude_node_ids"],
             extra_metadata=task,
@@ -256,7 +261,9 @@ class TasksViewSet(viewsets.ViewSet):
                 _diskimport,
                 task["channel_id"],
                 task["datafolder"],
+                drive_id=task["drive_id"],
                 extra_metadata=task,
+                track_progress=True,
                 cancellable=True,
             )
             job_ids.append(import_job_id)
@@ -277,6 +284,7 @@ class TasksViewSet(viewsets.ViewSet):
             "disk",
             task["channel_id"],
             task["datafolder"],
+            drive_id=task["drive_id"],
             extra_metadata=task,
             cancellable=True,
         )
@@ -296,6 +304,7 @@ class TasksViewSet(viewsets.ViewSet):
             "disk",
             task["channel_id"],
             task["datafolder"],
+            drive_id=task["drive_id"],
             node_ids=task["node_ids"],
             exclude_node_ids=task["exclude_node_ids"],
             extra_metadata=task,
@@ -343,7 +352,7 @@ class TasksViewSet(viewsets.ViewSet):
         """
         task = validate_deletion_task(request, request.data)
 
-        task.update({"type": "DELETECHANNEL"})
+        task.update({"type": "DELETECONTENT"})
 
         if task["node_ids"] or task["exclude_node_ids"]:
             task["file_size"] = None
@@ -401,7 +410,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         task = validate_local_export_task(request, request.data)
 
-        task.update({"type": "DISKEXPORT"})
+        task.update({"type": "DISKCONTENTEXPORT"})
 
         task_id = queue.enqueue(
             _localexport,
@@ -416,6 +425,32 @@ class TasksViewSet(viewsets.ViewSet):
 
         # attempt to get the created Task, otherwise return pending status
         resp = _job_to_response(queue.fetch_job(task_id))
+
+        return Response(resp)
+
+    @list_route(methods=["post"])
+    def startdataportalsync(self, request):
+        """
+        Initiate a PUSH sync with Kolibri Data Portal.
+
+        """
+        task = {
+            "facility": request.data["facility"],
+            "type": "SYNCDATAPORTAL",
+            "started_by": request.user.pk,
+        }
+
+        job_id = queue.enqueue(
+            call_command,
+            "sync",
+            facility=task["facility"],
+            noninteractive=True,
+            extra_metadata=task,
+            track_progress=False,
+            cancellable=False,
+        )
+        # attempt to get the created Task, otherwise return pending status
+        resp = _job_to_response(queue.fetch_job(job_id))
 
         return Response(resp)
 
@@ -526,6 +561,7 @@ class TasksViewSet(viewsets.ViewSet):
 def _remoteimport(
     channel_id,
     baseurl,
+    peer_id=None,
     update_progress=None,
     check_for_cancel=None,
     node_ids=None,
@@ -546,6 +582,7 @@ def _remoteimport(
         "network",
         channel_id,
         baseurl=baseurl,
+        peer_id=peer_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         update_progress=update_progress,
@@ -555,7 +592,8 @@ def _remoteimport(
 
 def _diskimport(
     channel_id,
-    drive_id,
+    directory,
+    drive_id=None,
     update_progress=None,
     check_for_cancel=None,
     node_ids=None,
@@ -565,17 +603,18 @@ def _diskimport(
 
     call_command(
         "importchannel",
-        "network",
+        "disk",
         channel_id,
-        drive_id,
+        directory,
         update_progress=update_progress,
         check_for_cancel=check_for_cancel,
     )
     call_command(
         "importcontent",
-        "network",
+        "disk",
         channel_id,
-        drive_id,
+        directory,
+        drive_id=drive_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         update_progress=update_progress,

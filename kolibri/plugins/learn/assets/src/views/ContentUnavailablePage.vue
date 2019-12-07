@@ -5,6 +5,7 @@
     <p>
       <KExternalLink v-if="deviceContentUrl" :text="$tr('adminLink')" :href="deviceContentUrl" />
     </p>
+    <p>{{ $tr('learnerText') }}</p>
   </div>
 
 </template>
@@ -34,9 +35,10 @@
       },
     },
     $trs: {
-      header: 'No content channels available',
-      adminLink: 'You can import content from the Content page if you have the proper permissions',
-      documentTitle: 'Content Unavailable',
+      header: 'No resources available',
+      adminLink: 'As an administrator you can import channels',
+      learnerText: 'Please ask your coach or administrator for assistance',
+      documentTitle: 'Resource unavailable',
     },
   };
 

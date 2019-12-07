@@ -6,9 +6,6 @@ from __future__ import unicode_literals
 import re
 
 from django.conf import settings
-from django.core.cache import cache
-from django.db.utils import OperationalError
-from django.db.utils import ProgrammingError
 from django.urls import resolve
 from django.urls import Resolver404
 from django.urls.resolvers import RegexURLResolver
@@ -21,27 +18,14 @@ from django.utils.translation.trans_real import get_supported_language_variant
 from django.utils.translation.trans_real import language_code_re
 from django.utils.translation.trans_real import parse_accept_lang_header
 
-
-DEVICE_LANGUAGE_CACHE_KEY = "DEVICE_LANGUAGE_CACHE_KEY"
+from kolibri.core.device.utils import get_device_setting
 
 
 def get_device_language():
-    from .models import DeviceSettings
-
+    language_id = get_device_setting("language_id", None)
     try:
-        if cache.get(DEVICE_LANGUAGE_CACHE_KEY) is None:
-            # Use a relatively short expiry, in case the device setting is changed in another
-            # thread and this cache does not get invalidated.
-            cache.set(
-                DEVICE_LANGUAGE_CACHE_KEY, DeviceSettings.objects.get().language_id, 600
-            )
-        return get_supported_language_variant(cache.get(DEVICE_LANGUAGE_CACHE_KEY))
-    except (
-        DeviceSettings.DoesNotExist,
-        LookupError,
-        OperationalError,
-        ProgrammingError,
-    ):
+        return get_supported_language_variant(language_id)
+    except LookupError:
         return None
 
 

@@ -1,63 +1,54 @@
 <template>
 
-  <BottomAppBar>
-    <div class="task-bar">
-      <div class="progress-bar">
-        <div class="message">
-          {{ tasksString }}
-        </div>
-        <KLinearLoader
-          v-if="totalTasks >0"
-          class="k-linear-loader"
-          :delay="false"
-          :progress="progress"
-          type="determinate"
-          :style="{backgroundColor: $themeTokens.fineLine}"
-        />
+  <div class="task-bar" :class="{'task-bar-sm': windowIsSmall}">
+    <div class="progress-bar">
+      <div class="message">
+        {{ tasksString }}
       </div>
-      <KRouterLink
-        appearance="raised-button"
-        :primary="true"
-        :text="coreString('viewTasksAction')"
-        :to="{name: 'MANAGE_TASKS'}"
+      <KLinearLoader
+        v-if="totalTasks >0"
+        class="k-linear-loader"
+        :delay="false"
+        :progress="progress"
+        type="determinate"
+        :style="{backgroundColor: $themeTokens.fineLine}"
       />
     </div>
-  </BottomAppBar>
+  </div>
 
 </template>
 
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters } from 'vuex';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import countBy from 'lodash/countBy';
   import sumBy from 'lodash/sumBy';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'TasksBar',
-    components: {
-      BottomAppBar,
-    },
-    mixins: [commonCoreStrings],
+    components: {},
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {},
     data() {
       return {};
     },
     computed: {
-      ...mapState('manageContent', ['taskList']),
+      ...mapGetters('manageContent', ['managedTasks']),
       totalTasks() {
-        return this.taskList.length;
+        return this.managedTasks.length;
       },
       taskCounts() {
-        return countBy(this.taskList, 'status');
+        return countBy(this.managedTasks, 'status');
       },
       doneTasks() {
         return this.taskCounts.COMPLETED || 0;
       },
       progress() {
-        return (sumBy(this.taskList, 'percentage') / this.totalTasks) * 100;
+        const inProgressTasks = this.managedTasks.filter(t => t.status !== 'COMPLETED');
+        return (this.doneTasks + sumBy(inProgressTasks, 'percentage') / this.totalTasks) * 100;
       },
       tasksString() {
         if (this.totalTasks === 0) {
@@ -93,11 +84,20 @@
     min-width: 300px;
     max-width: 400px;
     text-align: left;
+
+    .task-bar-sm & {
+      min-width: auto;
+      max-width: 200px;
+    }
   }
 
   // CSS overrides for linear loader
   .k-linear-loader {
     height: 10px;
+
+    .task-bar-sm & {
+      display: none;
+    }
 
     /deep/ .ui-progress-linear-progress-bar {
       height: 100%;

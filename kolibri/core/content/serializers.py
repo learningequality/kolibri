@@ -1,5 +1,3 @@
-import os
-
 from django.core.cache import cache
 from django.db.models import Manager
 from django.db.models import Sum
@@ -7,34 +5,12 @@ from django.db.models.query import RawQuerySet
 from le_utils.constants import content_kinds
 from rest_framework import serializers
 
-from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
-from kolibri.core.content.models import LocalFile
-from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
-from kolibri.core.content.utils.content_types_tools import (
-    renderable_contentnodes_without_topics_q_filter,
-)
-from kolibri.core.content.utils.import_export_content import get_num_coach_contents
-from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.fields import create_timezonestamp
-
-
-def _files_for_nodes(nodes):
-    return LocalFile.objects.filter(files__contentnode__in=nodes)
-
-
-def _total_file_size(files_or_nodes):
-    if issubclass(files_or_nodes.model, LocalFile):
-        localfiles = files_or_nodes
-    elif issubclass(files_or_nodes.model, ContentNode):
-        localfiles = _files_for_nodes(files_or_nodes)
-    else:
-        raise TypeError("Expected queryset for LocalFile or ContentNode")
-    return localfiles.distinct().aggregate(Sum("file_size"))["file_size__sum"] or 0
 
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -59,52 +35,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
     lang_code = serializers.SerializerMethodField()
     lang_name = serializers.SerializerMethodField()
     available = serializers.SerializerMethodField()
-
-    def to_representation(self, instance):
-        # TODO: rtibbles - cleanup this for device specific serializer.
-        value = super(ChannelMetadataSerializer, self).to_representation(instance)
-
-        value.update({"num_coach_contents": instance.root.num_coach_contents})
-
-        # if the request includes a GET param 'include_fields', add the requested calculated fields
-        if "request" in self.context:
-
-            include_fields = (
-                self.context["request"].GET.get("include_fields", "").split(",")
-            )
-
-            if include_fields:
-
-                # build querysets for the full set of channel nodes, as well as those that are unrenderable
-                channel_nodes = ContentNode.objects.filter(channel_id=instance.id)
-                unrenderable_nodes = channel_nodes.exclude(
-                    renderable_contentnodes_without_topics_q_filter
-                )
-
-                if "total_resources" in include_fields:
-                    # count the total number of renderable non-topic resources in the channel
-                    # (note: it's faster to count them all and then subtract the unrenderables, of which there are fewer)
-                    value["total_resources"] = (
-                        channel_nodes.dedupe_by_content_id().count()
-                        - unrenderable_nodes.dedupe_by_content_id().count()
-                    )
-
-                if "total_file_size" in include_fields:
-                    # count the total file size of files associated with renderable content nodes
-                    # (note: it's faster to count them all and then subtract the unrenderables, of which there are fewer)
-                    value["total_file_size"] = _total_file_size(
-                        channel_nodes
-                    ) - _total_file_size(unrenderable_nodes)
-
-                if "on_device_resources" in include_fields:
-                    # read the precalculated total number of resources from the channel already available
-                    value["on_device_resources"] = instance.total_resource_count
-
-                if "on_device_file_size" in include_fields:
-                    # read the precalculated total size of available files associated with the channel
-                    value["on_device_file_size"] = instance.published_size
-
-        return value
+    num_coach_contents = serializers.IntegerField(source="root.num_coach_contents")
 
     def get_lang_code(self, instance):
         if instance.root.lang is None:
@@ -135,6 +66,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             "thumbnail",
             "version",
             "available",
+            "num_coach_contents",
         )
 
 
@@ -241,27 +173,6 @@ class FileSerializer(serializers.ModelSerializer):
             "thumbnail",
             "download_url",
         )
-
-
-class FileThumbnailSerializer(serializers.ModelSerializer):
-    """
-    Serializer used only in ContentNodeSlimSerializer (at the moment) to return minimum data
-    for frontend to be able to render thumbnails for content browsing
-    """
-
-    available = serializers.BooleanField(source="local_file.available")
-    storage_url = serializers.SerializerMethodField()
-
-    def get_storage_url(self, target_node):
-        # Avoid doing an extra db query if the file is not even a thumbnail
-        if not target_node.thumbnail:
-            return None
-
-        return target_node.get_storage_url()
-
-    class Meta:
-        model = File
-        fields = ("storage_url", "available", "thumbnail")
 
 
 class AssessmentMetaDataSerializer(serializers.ModelSerializer):
@@ -507,34 +418,10 @@ class ContentNodeSerializer(DynamicFieldsModelSerializer):
         return value
 
 
-class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
-    """
-    Lighter version of the ContentNodeSerializer whose purpose is to provide a minimum
-    subset of ContentNode fields necessary for functional content browsing
-    """
-
-    parent = serializers.PrimaryKeyRelatedField(read_only=True)
-    files = FileThumbnailSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = ContentNode
-        fields = (
-            "id",
-            "parent",
-            "description",
-            "channel_id",
-            "content_id",
-            "kind",
-            "files",
-            "title",
-            "num_coach_contents",
-        )
-
-
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
     num_coach_contents = serializers.SerializerMethodField()
+    coach_content = serializers.SerializerMethodField()
     total_resources = serializers.SerializerMethodField()
-    on_device_resources = serializers.SerializerMethodField()
     importable = serializers.SerializerMethodField()
 
     class Meta:
@@ -551,74 +438,41 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             "total_resources",
         )
 
-    def get_total_resources(self, instance):
-        return (
-            instance.get_descendants(include_self=True)
-            .filter(renderable_contentnodes_without_topics_q_filter)
-            .distinct()
-            .count()
-        )
+    @property
+    def channel_stats(self):
+        return self.context["channel_stats"]
 
-    def get_on_device_resources(self, instance):
-        return (
-            instance.get_descendants(include_self=True)
-            .filter(renderable_contentnodes_without_topics_q_filter)
-            .filter(available=True)
-            .distinct()
-            .count()
-        )
+    def get_total_resources(self, instance):
+        # channel_stats is None for export
+        if self.channel_stats is None:
+            return instance.on_device_resources
+        return self.channel_stats.get(instance.id, {"total_resources": 0})[
+            "total_resources"
+        ]
 
     def get_num_coach_contents(self, instance):
         # If for exporting, only show what is available on server. For importing,
         # show all of the coach contents in the topic.
-        for_export = self.context["request"].query_params.get("for_export", None)
-        return get_num_coach_contents(instance, filter_available=for_export)
+        if self.channel_stats is None:
+            return instance.num_coach_contents
+        return self.channel_stats.get(instance.id, {"num_coach_contents": 0})[
+            "num_coach_contents"
+        ]
+
+    def get_coach_content(self, instance):
+        # If for exporting, only show what is on server. For importing,
+        # show all of the coach contents in the topic.
+        if self.channel_stats is None:
+            return instance.coach_content
+        return self.channel_stats.get(instance.id, {"coach_content": False})[
+            "coach_content"
+        ]
 
     def get_importable(self, instance):
-        drive_id = self.context["request"].query_params.get(
-            "importing_from_drive_id", None
-        )
-
-        # If node is from a remote source, assume it is importable.
-        # Topics are annotated as importable by default, but client may disable importing
-        # of the topic if it determines that the entire topic sub-tree is already on the device.
-        if drive_id is None or instance.kind == content_kinds.TOPIC:
-            return True
-
-        # If non-topic ContentNode has no files, then it is not importable.
-        content_files = instance.files.all()
-        if not content_files.exists():
-            return False
-
-        # Inspecting the external drive's files
-        datafolder = cache.get(drive_id, None)
-
-        if datafolder is None:
-            drive_ids = get_mounted_drives_with_channel_info()
-            if drive_id in drive_ids:
-                datafolder = drive_ids[drive_id].datafolder
-                cache.set(drive_id, datafolder, 60)  # cache the datafolder for 1 minute
-            else:
-                raise serializers.ValidationError(
-                    "The external drive with given drive id {} does not exist.".format(
-                        drive_id
-                    )
-                )
-
-        importable = True
-        for f in content_files:
-            # Node is importable only if all of its Files are on the external drive
-            try:
-                file_path = get_content_storage_file_path(
-                    f.local_file.get_filename(), datafolder
-                )
-                importable = importable and os.path.exists(file_path)
-            except InvalidStorageFilenameError:
-                importable = False
-            if not importable:
-                break
-
-        return importable
+        # If for export, just return None
+        if self.channel_stats is None:
+            return None
+        return instance.id in self.channel_stats
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):

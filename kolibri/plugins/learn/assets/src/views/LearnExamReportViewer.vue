@@ -100,7 +100,7 @@
     },
     $trs: {
       documentTitle: '{ examTitle } report',
-      missingContent: 'This quiz cannot be displayed because some content was deleted',
+      missingContent: 'This quiz cannot be displayed because some resources were deleted',
     },
   };
 

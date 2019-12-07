@@ -39,10 +39,10 @@ export function loadChannelMetadata(store) {
         public: transferredChannel.public,
       });
     })
-    .catch(({ errorType }) => {
-      // ignore cancellations
-      if (errorType !== 'CHANNEL_TASK_ERROR') {
-        store.commit('manageContent/wizard/SET_WIZARD_STATUS', errorType);
+    .catch(err => {
+      // ignore cancellations and unhandled task exceptions
+      if (err && err.errorType !== 'CHANNEL_TASK_ERROR') {
+        store.commit('manageContent/wizard/SET_WIZARD_STATUS', err.errorType);
       }
     });
 }

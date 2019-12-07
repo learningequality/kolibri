@@ -1,19 +1,45 @@
 <template>
 
   <div>
-    <p v-if="!loading && taskList.length === 0" class="no-tasks">
+
+    <p>
+      <BackLink
+        :to="$router.getRoute(homeRoute)"
+        :text="$tr('backToChannelsAction')"
+      />
+    </p>
+    <KGrid>
+      <KGridItem :layout8="{ span: 5 }" :layout12="{ span: 8 }">
+        <h1>
+          {{ $tr('tasksHeader') }}
+        </h1>
+      </KGridItem>
+      <KGridItem
+        :layout8="{ span: 3, alignment: 'right' }"
+        :layout12="{ span: 4, alignment: 'right' }"
+      >
+        <KButton
+          v-if="showClearCompletedButton"
+          :text="$tr('clearCompletedAction')"
+          :class="{ 'button-offset': windowIsLarge }"
+          @click="handleClickClearAll"
+        />
+      </KGridItem>
+    </KGrid>
+    <p v-if="!loading && managedTasks.length === 0" class="empty-tasks-message">
       {{ $tr('emptyTasksMessage') }}
     </p>
-
-    <div class="tasks-panels">
+    <transition-group name="fade" class="task-panels">
       <TaskPanel
         v-for="task in sortedTaskList"
         :key="task.id"
         :task="task"
+        class="task-panel"
+        :style="{ borderBottomColor: $themePalette.grey.v_200 }"
         @clickclear="handleClickClear(task)"
         @clickcancel="handleClickCancel(task)"
       />
-    </div>
+    </transition-group>
   </div>
 
 </template>
@@ -22,10 +48,15 @@
 <script>
 
   import reverse from 'lodash/fp/reverse';
-  import { mapState } from 'vuex';
+  import some from 'lodash/some';
+  import { mapGetters } from 'vuex';
   import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { PageNames, taskIsClearable } from '../../constants';
+
   import TaskPanel from './TaskPanel';
+  import BackLink from './BackLink';
 
   // A page to view content import/export/deletion tasks
   export default {
@@ -37,21 +68,28 @@
     },
     components: {
       TaskPanel,
+      BackLink,
     },
-    mixins: [commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings],
     data() {
       return {
         loading: true,
       };
     },
     computed: {
-      ...mapState('manageContent', ['taskList']),
+      ...mapGetters('manageContent', ['managedTasks']),
       sortedTaskList() {
-        return reverse(this.taskList);
+        return reverse(this.managedTasks);
+      },
+      showClearCompletedButton() {
+        return some(this.managedTasks, taskIsClearable);
+      },
+      homeRoute() {
+        return PageNames.MANAGE_CONTENT_PAGE;
       },
     },
     watch: {
-      taskList(val) {
+      managedTasks(val) {
         if (val.length > 0) {
           this.loading = false;
         }
@@ -59,7 +97,7 @@
     },
     mounted() {
       // Wait some time for first poll from Tasks API
-      if (this.taskList.length === 0) {
+      if (this.managedTasks.length === 0) {
         setTimeout(() => {
           this.loading = false;
         }, 2000);
@@ -73,15 +111,26 @@
         this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr('appBarTitle'));
       },
       handleClickClear(task) {
-        TaskResource.postListEndpoint('cleartask', { task_id: task.id });
+        TaskResource.deleteFinishedTask(task.id).catch(() => {
+          // error silently
+        });
       },
       handleClickCancel(task) {
         TaskResource.cancelTask(task.id);
       },
+      handleClickClearAll() {
+        TaskResource.deleteFinishedTasks();
+      },
     },
     $trs: {
+      backToChannelsAction: 'Back to channels',
+      tasksHeader: 'Tasks',
       appBarTitle: 'Task manager',
-      emptyTasksMessage: 'Tasks you initiate will appear here',
+      emptyTasksMessage: 'There are no tasks to display',
+      clearCompletedAction: {
+        message: 'Clear completed',
+        context: '\nButton to clear the completed tasks',
+      },
     },
   };
 
@@ -90,14 +139,30 @@
 
 <style lang="scss" scoped>
 
-  .task-panels {
-    max-width: 780px;
+  .button-offset {
+    margin-top: 24px;
   }
 
-  .no-tasks {
-    padding: 128px 0;
-    font-size: 24px;
-    text-align: center;
+  .task-panels {
+    margin-top: 32px;
+  }
+
+  .task-panel {
+    border-bottom: 1px solid;
+
+    &:last-of-type {
+      border-bottom-style: none;
+    }
+  }
+
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.5s;
   }
 
 </style>

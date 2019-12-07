@@ -7,6 +7,8 @@
     :actionText="snackbarOptions.actionText"
     :backdrop="snackbarOptions.backdrop"
     :autoDismiss="snackbarOptions.autoDismiss"
+    :duration="snackbarOptions.duration"
+    :bottomPosition="snackbarOptions.bottomPosition"
     @actionClicked="snackbarOptions.actionCallback()"
     @hide="hideCallback"
   />

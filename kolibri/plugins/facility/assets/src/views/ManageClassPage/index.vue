@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <KPageContainer>
 
     <KGrid>
       <KGridItem
@@ -99,7 +99,7 @@
       @cancel="closeModal"
     />
 
-  </div>
+  </KPageContainer>
 
 </template>
 
@@ -193,7 +193,7 @@
       twoCoachNames: '{name1}, {name2}',
       manyCoachNames: '{name1}, {name2}… (+{numRemaining, number})',
       actions: 'Actions',
-      noClassesExist: 'No classes exist.',
+      noClassesExist: 'No classes exist',
     },
   };
 

@@ -74,30 +74,7 @@ describe('SelectContentPage', () => {
   it('shows a update notification if a new version is available', () => {
     updateMetaChannel(store, { version: 1000 });
     const wrapper = makeWrapper({ store });
-    expect(wrapper.text()).toContain('Version 1,000 available');
-  });
-
-  it('in LOCALIMPORT, clicking the "update" button triggers a downloadChannelMetadata action', () => {
-    updateMetaChannel(store, { version: 1000 });
-    store.state.manageContent.wizard.transferType = 'localimport';
-    store.state.manageContent.wizard.selectedDrive = {
-      driveId: 'drive_1',
-    };
-    const wrapper = makeWrapper({ store });
-    const updateButton = wrapper.find('button[name="update"]');
-    const stub = jest.spyOn(wrapper.vm, 'downloadChannelMetadata').mockResolvedValue();
-    updateButton.trigger('click');
-    expect(stub).toHaveBeenCalled();
-  });
-
-  it('in REMOTEIMPORT, clicking the "update" button triggers a downloadChannelMetadata action', () => {
-    updateMetaChannel(store, { version: 1000 });
-    store.state.manageContent.wizard.transferType = 'remoteimport';
-    const wrapper = makeWrapper({ store });
-    const updateButton = wrapper.find('button[name="update"]');
-    const stub = jest.spyOn(wrapper.vm, 'downloadChannelMetadata').mockResolvedValue();
-    updateButton.trigger('click');
-    expect(stub).toHaveBeenCalled();
+    expect(wrapper.find({ name: 'NewChannelVersionBanner' }).exists()).toBe(true);
   });
 
   it('if a new version is not available, then no notification/button appear', () => {

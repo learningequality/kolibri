@@ -14,7 +14,11 @@
         <transition-group tag="div" name="list" class="wrapper">
           <Draggable v-for="(channel, index) in channels" :key="channel.id">
             <DragHandle>
-              <div :class="$computedClass(itemClass)" class="item">
+              <div
+                :class="$computedClass(itemClass)"
+                class="item"
+                :style="{ backgroundColor: $themeTokens.surface }"
+              >
                 <DragSortWidget
                   class="sort-widget"
                   :moveUpText="$tr('upLabel', { name: channel.name })"
@@ -136,13 +140,19 @@
       },
     },
     $trs: {
-      instructions: 'Control the order channels are displayed to learners and coaches',
-      successNotification: 'Channel order saved',
+      instructions: {
+        message: 'Control the order in which channels will be displayed to learners and coaches',
+        context: '\nText explaining how the channel reordering feature works',
+      },
+      successNotification: {
+        message: 'Channel order saved',
+        context: '\nSuccess message shown when the admin re-orders channels',
+      },
       failureNotification: 'There was a problem reordering the channels',
       noChannels: 'There are no channels',
       upLabel: 'Move {name} up one',
       downLabel: 'Move {name} down one',
-      title: 'Rearrange channels',
+      title: 'Edit channel order',
     },
   };
 
@@ -155,6 +165,11 @@
 
   .instructions {
     margin-bottom: 32px;
+  }
+
+  .sort-widget {
+    width: 24px;
+    height: 24px;
   }
 
   .item {

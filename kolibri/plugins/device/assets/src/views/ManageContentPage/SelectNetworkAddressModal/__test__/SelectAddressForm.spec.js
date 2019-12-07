@@ -101,7 +101,7 @@ describe('SelectAddressForm', () => {
   it('clicking "forget" next to an address triggers a forgetting action', async () => {
     const { wrapper } = makeWrapper();
     await wrapper.vm.$nextTick();
-    await wrapper.vm.removeAddress();
+    await wrapper.vm.removeSavedAddress();
     expect(wrapper.emitted().removed_address).toHaveLength(1);
   });
 
