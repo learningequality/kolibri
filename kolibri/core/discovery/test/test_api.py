@@ -10,6 +10,7 @@ from rest_framework.test import APITestCase
 
 from .. import models
 from ..utils.network import connections
+from .helpers import info as mock_device_info
 from .helpers import mock_request
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.helpers import DUMMY_PASSWORD
@@ -19,7 +20,8 @@ from kolibri.core.auth.test.test_api import FacilityUserFactory
 
 
 @mock.patch.object(requests.Session, "get", mock_request)
-@mock.patch.object(connections.CachedDeviceConnectionChecker, "available", None)
+@mock.patch.object(connections, "check_connection_info", mock_device_info)
+@mock.patch.object(connections, "check_if_port_open", lambda *a: True)
 class NetworkLocationAPITestCase(APITestCase):
     def setUp(self):
         provision_device()

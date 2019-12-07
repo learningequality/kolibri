@@ -87,11 +87,11 @@ class CachedDeviceConnectionChecker(object):
         return result
 
     @property
-    def available(self):
+    def connection_info(self):
         if self.device_info and self.device_port_open:
             return self.device_info
         elif self.invalid_device_info and self.device_port_open:
-            return False
+            return None
         elif self.failed_to_connect and self.device_port_open:
             self.check_device_info()
             return self.device_info
@@ -99,8 +99,9 @@ class CachedDeviceConnectionChecker(object):
             self.check_device_info()
             return self.device_info
 
-        return False
+        return None
 
 
-def check_connection(base_url):
-    return CachedDeviceConnectionChecker(base_url).available
+def check_connection_info(base_url):
+
+    return CachedDeviceConnectionChecker(base_url).connection_info

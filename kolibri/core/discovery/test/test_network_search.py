@@ -106,14 +106,13 @@ class MockZeroconf(Zeroconf):
     lambda: [MOCK_INTERFACE_IP],
 )
 @mock.patch("django.db.models.Manager.update_or_create")
-@mock.patch("kolibri.core.discovery.models.DynamicNetworkLocationManager.purge")
 class TestNetworkSearch(TestCase):
     def test_initialize_zeroconf_listener(self, *mocks):
         assert ZEROCONF_STATE["listener"] is None
         initialize_zeroconf_listener()
         assert ZEROCONF_STATE["listener"] is not None
 
-    def test_register_zeroconf_service(self, mock_db, mock_db_cleanup):
+    def test_register_zeroconf_service(self, mock_db):
         assert len(get_peer_instances()) == 0
         initialize_zeroconf_listener()
         register_zeroconf_service(MOCK_PORT, {"instance_id": MOCK_ID})

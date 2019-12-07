@@ -144,6 +144,7 @@ class KolibriZeroconfListener(object):
 
             except ValidationError:
                 import traceback
+
                 logger.warn(
                     (
                         "A new Kolibri instance '%s' was seen on the zeroconf network, "

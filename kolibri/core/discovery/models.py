@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
-from .utils.network.connections import check_connection
+from .utils.network.connections import check_connection_info
 
 
 def _filter_out_unsuported_fields(fields):
@@ -50,8 +50,8 @@ class NetworkLocation(models.Model):
         If this connection was checked recently, report that result,
         otherwise do a fresh check.
         """
-
-        return bool(check_connection(self.base_url))
+        connection_info = check_connection_info(self.base_url)
+        return bool(connection_info)
 
     @classmethod
     def has_field(cls, field):
