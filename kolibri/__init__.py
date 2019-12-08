@@ -36,7 +36,6 @@ INTERNAL_PLUGINS = [
     "kolibri.plugins.setup_wizard",
     "kolibri.plugins.coach",
     "kolibri.plugins.user",
-    "kolibri.plugins.style_guide",
     "kolibri.plugins.epub_viewer",
     "kolibri.plugins.default_theme",
     "kolibri.plugins.slideshow_viewer",

@@ -1,4 +1,4 @@
-import { themeTokens, themePalette } from 'kolibri-components/src/styles/theme';
+import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
 
 export const THEMES = {
   WHITE: {

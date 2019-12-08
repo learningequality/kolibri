@@ -482,7 +482,7 @@
   // Custom build icons.
   @import './videojs-style/videojs-font/css/videojs-icons.css';
   @import './videojs-style/variables';
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   $transcript-wrap-height: 250px;
   $transcript-wrap-fill-height: 100% * 9 / 16;

@@ -12,7 +12,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import KBreadcrumbs from 'kolibri-components/src/KBreadcrumbs';
+  import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames, PageModes } from '../constants';
   import classesBreadcrumbItems from './classes/classesBreadcrumbItems';
