@@ -81,3 +81,7 @@
 
 
 <style lang="scss" scoped></style>
+
+  @import '~kolibri-design-system/lib/styles/definitions';
+
+</style>

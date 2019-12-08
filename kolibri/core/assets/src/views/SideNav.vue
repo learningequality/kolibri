@@ -273,7 +273,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   // Matches the Keen-UI/UiToolbar box-shadow property
   %ui-toolbar-box-shadow {

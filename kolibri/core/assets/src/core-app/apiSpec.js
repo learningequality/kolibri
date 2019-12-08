@@ -17,9 +17,10 @@ import vuex from 'vuex';
 import UiAlert from 'keen-ui/src/UiAlert';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
-import responsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
-import responsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
-import scriptLoader from 'kolibri-components/src/utils/scriptLoader';
+import responsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
+import scriptLoader from 'kolibri-design-system/lib/utils/scriptLoader';
+import UiIconButton from 'kolibri-design-system/lib/keen/KeenUiIconButton'; // temp hack
 import logging from '../logging';
 import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';
@@ -48,8 +49,6 @@ import commonCoreStrings from '../mixins/commonCoreStrings';
 import commonTaskStrings from '../mixins/taskStrings';
 import commonSyncElements from '../mixins/commonSyncElements';
 import CoreFullscreen from '../views/CoreFullscreen';
-import definitions from '../styles/definitions.scss';
-import keenVars from '../keen-config/variables.scss';
 import * as exams from '../exams/utils';
 import * as validators from '../validators';
 import * as serverClock from '../serverClock';
@@ -57,7 +56,6 @@ import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
 import * as browserInfo from '../utils/browserInfo';
 import { redirectBrowser } from '../utils/redirectBrowser';
-import UiIconButton from '../views/KeenUiIconButton.vue';
 import * as licenseTranslations from '../utils/licenseTranslations';
 import bytesForHumans from '../utils/bytesForHumans';
 import UserType from '../utils/UserType';
@@ -193,10 +191,6 @@ export default {
     },
   },
   resources,
-  styles: {
-    definitions,
-    keenVars,
-  },
   urls,
   utils: {
     contentNode,

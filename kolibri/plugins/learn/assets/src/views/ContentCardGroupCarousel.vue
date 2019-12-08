@@ -259,7 +259,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   // from http://nicolasgallagher.com/micro-clearfix-hack/
   @mixin clearfix() {

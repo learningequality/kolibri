@@ -8,8 +8,8 @@ import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import { i18nSetup } from 'kolibri.utils.i18n';
-import KThemePlugin from 'kolibri-components/src/KThemePlugin';
-import KContentPlugin from 'kolibri-components/src/content/KContentPlugin';
+import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
+import KContentPlugin from 'kolibri-design-system/lib/content/KContentPlugin';
 
 Aphrodite.StyleSheetTestUtils.suppressStyleInjection();
 AphroditeNoImportant.StyleSheetTestUtils.suppressStyleInjection();

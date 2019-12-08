@@ -68,7 +68,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
   @import '~keen-ui/src/styles/imports';
 
   $ui-snackbar-background-color: #323232 !default;
