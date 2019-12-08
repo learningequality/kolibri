@@ -7,6 +7,7 @@
   "dependencies": {
     "aphrodite": "https://github.com/learningequality/aphrodite/",
     "css-element-queries": "^1.2.0",
+    "keen-ui": "https://github.com/learningequality/Keen-UI/",
     "material-design-icons": "^3.0.1",
     "popper.js": "^1.14.6",
     "purecss": "^0.6.2"

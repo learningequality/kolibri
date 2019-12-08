@@ -65,8 +65,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .labeled-icon-wrapper {
     position: relative;
     display: inline-block;

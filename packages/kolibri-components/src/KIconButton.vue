@@ -77,7 +77,7 @@
   import UiTooltip from 'keen-ui/src/UiTooltip';
 
   export default {
-    name: 'KeenUiIconButton',
+    name: 'KIconButton',
 
     components: {
       UiIcon,

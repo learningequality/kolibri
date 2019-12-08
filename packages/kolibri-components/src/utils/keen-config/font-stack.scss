@@ -1,4 +1,4 @@
-@import '~kolibri.styles.definitions';
+// @import '~kolibri.styles.definitions';
 
 /*
   This hacky set of overrides allows the Keen UI components to play nicely with our
@@ -35,5 +35,5 @@
 .ui-textbox__input,
 .ui-textbox__textarea,
 .ui-toolbar {
-  @include font-family-noto;
+  // @include font-family-noto;
 }

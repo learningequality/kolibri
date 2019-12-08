@@ -16,12 +16,10 @@
 
 <script>
 
+  import log from 'loglevel';
   import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
-  import logger from 'kolibri.lib.logging';
   import Overlay from './Overlay';
   import { validateGutter } from './common';
-
-  const logging = logger.getLogger(__filename);
 
   /**
    * Grid layout with a fixed number of columns
@@ -39,7 +37,7 @@
         required: true,
         validator(value) {
           if (value < 2 || value > 12) {
-            logging.error(`Number of columns (${value}) must be between 2 and 12`);
+            log.error(`Number of columns (${value}) must be between 2 and 12`);
             return false;
           }
           return true;

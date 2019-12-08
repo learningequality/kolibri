@@ -1,3 +1,4 @@
+import keenUiConfig from 'keen-ui/src/config';
 import computedClass from './styles/computedClass';
 
 import KBreadcrumbs from './KBreadcrumbs';
@@ -25,6 +26,13 @@ import KTooltip from './KTooltip';
 
 import { themeTokens, themeBrand, themePalette, themeOutlineStyle } from './styles/theme';
 import globalThemeState from './styles/globalThemeState';
+
+// TODO: remove keen
+import keenOptions from './utils/keen-config/options.json';
+import 'keen-ui/src/bootstrap';
+import './utils/keen-config/font-stack.scss';
+
+keenUiConfig.set(keenOptions);
 
 /**
  * Install Kolibri theme helpers on all Vue instances.

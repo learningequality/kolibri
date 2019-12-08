@@ -105,8 +105,6 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
     postCSSLoader,
     {
       loader: 'sass-loader',
-      // prepends these variable override values to every parsed vue SASS block
-      options: { data: '@import "~kolibri.styles.keenVars";' },
     },
   ];
 

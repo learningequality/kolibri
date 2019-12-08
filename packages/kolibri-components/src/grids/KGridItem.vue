@@ -9,12 +9,10 @@
 
 <script>
 
+  import log from 'loglevel';
   import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
-  import logger from 'kolibri.lib.logging';
   import KFixedGridItem from './KFixedGridItem';
   import { validateAlignment, validateSpan } from './common';
-
-  const logging = logger.getLogger(__filename);
 
   function choose(preferred, backup) {
     return preferred ? preferred : backup;
@@ -24,7 +22,7 @@
     const allowed = ['span', 'alignment'];
     for (const key in obj) {
       if (!allowed.includes(key)) {
-        logging.error(`Unexpected layout object property: '${key}'`);
+        log.error(`Unexpected layout object property: '${key}'`);
         return false;
       }
     }

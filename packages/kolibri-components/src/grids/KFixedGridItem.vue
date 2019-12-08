@@ -11,11 +11,9 @@
 
 <script>
 
+  import log from 'loglevel';
   import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
-  import logger from 'kolibri.lib.logging';
   import { validateAlignment, validateSpan } from './common';
-
-  const logging = logger.getLogger(__filename);
 
   /**
    * Basic fixed grid item
@@ -88,11 +86,12 @@
       },
       validInputs() {
         if (!this.gridMetrics || !this.gridMetrics.numCols || !this.gridMetrics.gutterWidth) {
-          logging.error('Grid metrics were not provided by parent');
+          log.error('Grid metrics were not provided by parent');
           return false;
         }
+
         if (this.computedSpan > this.gridMetrics.numCols) {
-          logging.error(
+          log.error(
             `Item span (${this.computedSpan}) is larger than grid size (${this.gridMetrics.numCols})`
           );
           return false;
@@ -111,7 +110,7 @@
   @import '~purecss/build/grids-units.css';
   @import './extra-units.css';
 
-  @import '~kolibri.styles.definitions';
+  @import '../styles/styleDefinitions.scss';
 
   .grid-item {
     // override pure grid default font family

@@ -5,7 +5,7 @@
 
       <h1 class="header">
         <a href="#" class="header-logo" @click="toggle">
-          <file-svg v-if="active" src="./kolibri-logo.svg" />
+          <img src="./kolibri-logo.svg">
         </a>
         <span v-show="!closed" class="header-text">Design System</span>
       </h1>
@@ -24,28 +24,28 @@
           class="filter-clear-button"
           @click="filterText = ''"
         >
-          <KIcon icon="clear" color="#757575" />
+          ✕
         </button>
 
         <div class="nav-links">
 
-          <router-link v-show="showHome" :to="'/'" exact>
+          <a v-show="showHome" :to="'/'" exact>
             {{ homeText }}
-          </router-link>
+          </a>
 
           <NavSectionList v-show="showPatterns" :title="patternsText">
             <li v-for="(route, i) in visiblePatternRoutes" :key="i">
-              <router-link :to="route">
+              <a :to="route">
                 {{ route.meta.title }}
-              </router-link>
+              </a>
             </li>
           </NavSectionList>
 
           <NavSectionList v-show="showComponents" :title="componentsText">
             <li v-for="(route, i) in visibleComponentRoutes" :key="i">
-              <router-link :to="route">
+              <a :to="route">
                 <code>{{ route.meta.componentAPI.name }}</code>
-              </router-link>
+              </a>
             </li>
           </NavSectionList>
 

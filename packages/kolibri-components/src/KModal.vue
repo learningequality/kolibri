@@ -93,11 +93,9 @@
 
 <script>
 
-  import logger from 'kolibri.lib.logging';
+  import log from 'loglevel';
   import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
   import debounce from 'lodash/debounce';
-
-  const logging = logger.getLogger(__filename);
 
   /**
    * Used to focus attention on a singular action/task
@@ -194,12 +192,12 @@
     },
     created() {
       if (this.$props.cancelText && !this.$listeners.cancel) {
-        logging.warn(
+        log.error(
           'A "cancelText" has been set, but there is no "cancel" listener. The "cancel" button may not work correctly.'
         );
       }
       if (this.$props.submitText && !this.$listeners.submit) {
-        logging.warn(
+        log.error(
           'A "submitText" has been set, but there is no "submit" listener. The "submit" button may not work correctly.'
         );
       }
@@ -306,7 +304,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import './styles/styleDefinitions';
 
   .modal-overlay {
     position: fixed;

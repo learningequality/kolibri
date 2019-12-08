@@ -791,13 +791,14 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '../styles/styleDefinitions';
   @import '~keen-ui/src/styles/imports';
 
   /* stylelint-disable csstree/validator */
 
   .ui-select {
-    @include font-family-noto;
+    // TODO
+    // @include font-family-noto;
 
     position: relative;
     display: flex;
@@ -995,7 +996,8 @@
   }
 
   .ui-select-search-input {
-    @include font-family-noto;
+    // TODO
+    // @include font-family-noto;
 
     width: 100%;
     height: $ui-input-height + rem-calc(4px);

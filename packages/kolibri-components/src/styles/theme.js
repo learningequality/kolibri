@@ -1,7 +1,5 @@
-import logger from 'kolibri.lib.logging';
+import log from 'loglevel';
 import globalThemeState from './globalThemeState';
-
-const logging = logger.getLogger(__filename);
 
 function throwThemeError(tokenName, mapString) {
   throw `Theme issue: '${tokenName}' has invalid mapping '${mapString}'`;
@@ -38,7 +36,7 @@ function generateTokenToColorMapping() {
       throwThemeError(tokenName, mapString);
     }
     if (!HEX_COLOR_PATTERN.test(obj)) {
-      logging.warn(`Theme issue: Unexpected value '${obj}' for token '${tokenName}'`);
+      log.warn(`Theme issue: Unexpected value '${obj}' for token '${tokenName}'`);
     }
     // if we end up at a valid string, use it
     newTokens[tokenName] = obj;

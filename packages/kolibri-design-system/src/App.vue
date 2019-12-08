@@ -3,9 +3,7 @@
   <div>
     <SideNav />
     <div :style="{ marginLeft: `${navWidth}px` }" class="content">
-      <transition name="fade">
-        <router-view />
-      </transition>
+      test
     </div>
   </div>
 
@@ -39,15 +37,6 @@
   .content {
     padding-left: 32px;
     border-left: 1px solid $border-color;
-  }
-
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.1s;
-  }
-  .fade-enter,
-  .fade-leave-to {
-    opacity: 0;
   }
 
 </style>

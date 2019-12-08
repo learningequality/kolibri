@@ -91,16 +91,22 @@
 <script>
 
   import ResizeSensor from 'css-element-queries/src/ResizeSensor';
-  import KResponsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
-  import { validateLinkObject } from 'kolibri.utils.validators';
   import filter from 'lodash/filter';
   import startsWith from 'lodash/startsWith';
   import throttle from 'lodash/throttle';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import every from 'lodash/every';
+  import keys from 'lodash/keys';
+  import UiIconButton from './KIconButton';
+  import KResponsiveElementMixin from './KResponsiveElementMixin';
 
   const DROPDOWN_BTN_WIDTH = 55;
   const DROPDOWN_SIDE_PADDING = 32; // pulled from .breadcrumbs-dropdown
   const MAX_CRUMB_WIDTH = 300; // pulled from .breadcrumbs-visible-item class
+
+  function validateLinkObject(object) {
+    const validKeys = ['name', 'path', 'params', 'query'];
+    return every(keys(object), key => validKeys.includes(key));
+  }
 
   /**
    * Used to aid deeply nested navigation of content channels, topics, and resources

@@ -44,7 +44,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import './styles/styleDefinitions';
 
   .page-container {
     @extend %dropshadow-1dp;

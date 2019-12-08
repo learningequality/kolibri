@@ -100,7 +100,7 @@
 <style lang="scss" scoped>
 
   @import '~keen-ui/src/styles/imports';
-  @import '~kolibri.styles.definitions';
+  @import '../styles/styleDefinitions.scss';
 
   .delay {
     animation-delay: 1s;
