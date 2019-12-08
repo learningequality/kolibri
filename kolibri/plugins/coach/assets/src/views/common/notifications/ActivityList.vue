@@ -2,6 +2,7 @@
 
   <div>
     <NotificationsFilter
+      v-show="!$isPrint"
       :resourceFilter.sync="resourceFilter"
       :progressFilter.sync="progressFilter"
       :enabledFilters="enabledFilters"

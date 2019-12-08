@@ -13,8 +13,10 @@
 
       <ReportsLearnerHeader />
 
+      <ReportsControls :disableExport="true" />
+
       <KGrid>
-        <KGridItem :layout12="{ span: 6 }">
+        <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
           <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
           <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
             <thead slot="thead">
@@ -40,9 +42,9 @@
             </transition-group>
           </CoreTable>
         </KGridItem>
-        <KGridItem :layout12="{ span: 6 }">
+        <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
           <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
-          <CoreTable :emptyMessage="coachString('quizListEmptyState')">
+          <CoreTable :class="{print: $isPrint}" :emptyMessage="coachString('quizListEmptyState')">
             <thead slot="thead">
               <tr>
                 <th>{{ coachString('titleLabel') }}</th>
@@ -82,11 +84,13 @@
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import ReportsLearnerHeader from './ReportsLearnerHeader';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsLearnerReportPage',
     components: {
       ReportsLearnerHeader,
+      ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
@@ -95,7 +99,7 @@
       },
       lessonsTable() {
         const filtered = this.lessons.filter(lesson => this.isAssigned(lesson.groups));
-        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
         return sorted.map(lesson => {
           const tableRow = {
             status: this.getLessonStatusStringForLearner(lesson.id, this.learner.id),
@@ -106,7 +110,7 @@
       },
       examsTable() {
         const filtered = this.exams.filter(exam => this.isAssigned(exam.groups));
-        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
         return sorted.map(exam => {
           const tableRow = {
             statusObj: this.getExamStatusObjForLearner(exam.id, this.learner.id),
@@ -130,6 +134,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   table {
     min-width: 0;

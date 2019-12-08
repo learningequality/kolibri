@@ -8,6 +8,8 @@ import mock
 import requests
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
+
+from django.test import TestCase
 from django.utils import timezone
 from le_utils.constants import content_kinds
 from rest_framework import status
@@ -165,6 +167,35 @@ class ContentNodeTestBase(object):
             content.ContentNode.objects.filter(channel_id=channel_id).exists()
         )
         self.assertFalse(content.File.objects.all().exists())
+
+
+class ContentNodeQuerysetTestCase(TestCase):
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def setUp(self):
+        provision_device()
+        self.facility = Facility.objects.create(name="facility")
+        self.admin = FacilityUser.objects.create(
+            username="admin", facility=self.facility
+        )
+        self.admin.set_password(DUMMY_PASSWORD)
+        self.admin.save()
+        self.facility.add_admin(self.admin)
+
+    def test_filter_uuid(self):
+        content_ids = content.ContentNode.objects.values_list("id", flat=True)
+        self.assertEqual(
+            content.ContentNode.objects.filter_by_uuids(content_ids).count(),
+            len(content_ids),
+        )
+
+    def test_filter_uuid_bad_uuid(self):
+        content_ids = list(content.ContentNode.objects.values_list("id", flat=True))
+        content_ids[0] = '7d1bOR"1"="1"d08e29c36115f1af3da99'
+        self.assertEqual(
+            content.ContentNode.objects.filter_by_uuids(content_ids).count(), 0
+        )
 
 
 class ContentNodeAPITestCase(APITestCase):

@@ -28,11 +28,13 @@
         </h1>
       </section>
 
-      <KCheckbox
-        :label="coachString('viewByGroupsLabel')"
-        :checked="viewByGroups"
-        @change="toggleGroupsView"
-      />
+      <ReportsControls @export="exportCSV">
+        <KCheckbox
+          :label="coachString('viewByGroupsLabel')"
+          :checked="viewByGroups"
+          @change="toggleGroupsView"
+        />
+      </ReportsControls>
 
       <div v-if="viewByGroups">
         <div
@@ -48,18 +50,19 @@
             <KLabeledIcon icon="group" :label="group.name" />
           </h2>
 
-          <KFixedGrid numCols="2">
-            <KFixedGridItem span="1">
-              <StatusSummary
-                :tally="getGroupTally(group.id)"
-                :showNeedsHelp="false"
-                :verbose="false"
-              />
-            </KFixedGridItem>
-            <KFixedGridItem span="1">
-              <ReportsResourcesStats :avgTime="getGroupRecipientsAvgTime(group.id)" />
-            </KFixedGridItem>
-          </KFixedGrid>
+          <ReportsResourcesStats
+            :avgTime="getGroupRecipientsAvgTime(group.id)"
+            :className="className"
+            :lessonName="lesson.title"
+          />
+
+          <p>
+            <StatusSummary
+              :tally="getGroupTally(group.id)"
+              :showNeedsHelp="false"
+              :verbose="false"
+            />
+          </p>
 
           <ReportsResourceLearners
             :entries="getGroupEntries(group.id)"
@@ -88,6 +91,8 @@
       <template v-else>
         <ReportsResourcesStats
           :avgTime="allRecipientsAvgTime"
+          :className="className"
+          :lessonName="lesson.title"
           data-test="summary-resources-stats"
         />
 
@@ -111,8 +116,11 @@
   import { LastPages } from '../../constants/lastPagesConstants';
   import commonCoach from '../common';
   import HeaderWithOptions from '../common/HeaderWithOptions';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsResourceLearners from './ReportsResourceLearners';
   import ReportsResourcesStats from './ReportsResourcesStats';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsLessonResourceLearnerListPage',
@@ -120,6 +128,7 @@
       HeaderWithOptions,
       ReportsResourceLearners,
       ReportsResourcesStats,
+      ReportsControls,
     },
     mixins: [commonCoach],
     data() {
@@ -154,8 +163,10 @@
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = this._.sortBy(learners, ['name']);
         return sorted.map(learner => {
+          const groups = this.getLearnerLessonGroups(learner.id);
           const tableRow = {
-            groups: this.getLearnerLessonGroups(learner.id),
+            groups,
+            groupNames: groups.map(group => group.name),
             statusObj: this.getContentStatusObjForLearner(
               this.$route.params.resourceId,
               learner.id
@@ -223,6 +234,59 @@
           )
         );
       },
+      exportCSV() {
+        const columns = [];
+
+        if (this.viewByGroups) {
+          columns.push({
+            name: this.coachString('groupNameLabel'),
+            key: 'groupName',
+          });
+        }
+
+        columns.push(
+          ...csvFields.name(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.timeSpent('statusObj.time_spent')
+        );
+
+        if (!this.viewByGroups) {
+          columns.push(...csvFields.list('groupNames', 'groupsLabel'));
+        }
+
+        columns.push(...csvFields.lastActivity());
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          lesson: this.lesson.title,
+          resource: this.resource.title,
+        });
+
+        if (!this.viewByGroups) {
+          exporter.export(this.allEntries);
+          return;
+        }
+
+        const data = this.lessonGroups
+          .map(group => {
+            return this.getGroupEntries(group.id).map(entry => {
+              entry.groupName = group.name;
+              return entry;
+            });
+          })
+          .reduce((entries, groupEntries) => entries.concat(groupEntries), []);
+
+        if (this.ungroupedEntries.length) {
+          data.concat(
+            this.ungroupedEntries.map(entry => {
+              entry.groupName = '';
+              return entry;
+            })
+          );
+        }
+
+        exporter.export(data);
+      },
     },
     $trs: {},
   };
@@ -232,12 +296,14 @@
 
 <style lang="scss" scoped>
 
+  @import '../common/print-table';
+
   .group:not(:first-child) {
     margin-top: 42px;
   }
 
   .group-title {
-    margin-bottom: 42px;
+    margin-bottom: 24px;
   }
 
 </style>

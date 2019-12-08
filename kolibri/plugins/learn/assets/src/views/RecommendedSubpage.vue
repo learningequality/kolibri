@@ -19,6 +19,7 @@
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import commonLearnStrings from './commonLearnStrings';
+  import learnIndexStrings from './learnIndexStrings';
 
   export default {
     name: 'RecommendedSubpage',
@@ -30,7 +31,7 @@
     components: {
       ContentCardGroupGrid,
     },
-    mixins: [commonLearnStrings],
+    mixins: [commonLearnStrings, learnIndexStrings],
     computed: {
       ...mapState(['pageName']),
       ...mapState('recommended/subpage', ['recommendations']),
@@ -39,7 +40,7 @@
           case PageNames.RECOMMENDED_POPULAR:
             return this.$tr('documentTitleForPopular');
           case PageNames.RECOMMENDED_RESUME:
-            return this.learnString('recommendedLabel');
+            return this.learnIndexString('documentTitleForResume');
           case PageNames.RECOMMENDED_NEXT_STEPS:
             return this.$tr('documentTitleForNextSteps');
           default:
@@ -51,7 +52,7 @@
           case PageNames.RECOMMENDED_POPULAR:
             return this.$tr('popularPageHeader');
           case PageNames.RECOMMENDED_RESUME:
-            return this.learnString('recommendedLabel');
+            return this.learnIndexString('documentTitleForResume');
           case PageNames.RECOMMENDED_NEXT_STEPS:
             return this.$tr('nextStepsPageHeader');
           default:

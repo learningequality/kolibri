@@ -9,25 +9,31 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <KPageContainer>
-      <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <KSelect
-        v-model="filter"
-        :label="coreString('showAction')"
-        :options="filterOptions"
-        :inline="true"
-      />
+    <KPageContainer :class="{'print': $isPrint}">
+      <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
+      <ReportsControls @export="exportCSV">
+        <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
+        <KSelect
+          v-model="filter"
+          :label="coreString('showAction')"
+          :options="filterOptions"
+          :inline="true"
+        />
+        -->
+      </ReportsControls>
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
             <th>{{ coachString('titleLabel') }}</th>
             <th style="position:relative;">
               {{ coachString('avgScoreLabel') }}
-              <AverageScoreTooltip />
+              <AverageScoreTooltip v-show="!$isPrint" />
             </th>
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th>{{ coachString('statusLabel') }}</th>
+            <th v-show="!$isPrint">
+              {{ coachString('statusLabel') }}
+            </th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -56,7 +62,7 @@
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>
-            <td class="status">
+            <td v-show="!$isPrint" class="status">
               <!-- Open quiz button -->
               <KButton
                 v-if="!tableRow.active && !tableRow.archive"
@@ -115,11 +121,15 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
+  import ReportsControls from './ReportsControls';
   import ReportsHeader from './ReportsHeader';
 
   export default {
     name: 'ReportsQuizListPage',
     components: {
+      ReportsControls,
       ReportsHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
@@ -173,7 +183,7 @@
             return !exam.active;
           }
         });
-        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
         return sorted.map(exam => {
           const learnersForQuiz = this.getLearnersForExam(exam);
           const tableRow = {
@@ -232,6 +242,17 @@
             this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
           });
       },
+      exportCSV() {
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.avgScore(),
+          ...csvFields.recipients(),
+          ...csvFields.tally(),
+        ];
+
+        const fileName = this.$tr('printLabel', { className: this.className });
+        new CSVExporter(columns, fileName).export(this.table);
+      },
     },
     $trs: {
       noActiveExams: 'No active quizzes',
@@ -244,6 +265,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   td.status {
     padding-top: 0;

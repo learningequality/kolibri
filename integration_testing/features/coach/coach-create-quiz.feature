@@ -98,7 +98,7 @@ Feature: Coach creates quizzes
     When I enter a keyword into the search box
       And I click the search icon button or press Enter
     Then I am redirected to the search results page
-      And I see the *No results found...* message
+      And I see the *No results for...* message
 
   Scenario: Clear results and reset search
     Given that there are results from the previous search

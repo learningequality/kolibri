@@ -22,7 +22,6 @@
         :files="content.files"
         :available="content.available"
         :extraFields="extraFields"
-        @sessionInitialized="setWasIncomplete"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
@@ -42,7 +41,6 @@
         :channelId="channelId"
         :available="content.available"
         :extraFields="extraFields"
-        @sessionInitialized="setWasIncomplete"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateExerciseProgress"
@@ -267,6 +265,7 @@
         contentKind: this.content.kind,
       }).then(() => {
         this.sessionReady = true;
+        this.setWasIncomplete();
       });
     },
     beforeDestroy() {

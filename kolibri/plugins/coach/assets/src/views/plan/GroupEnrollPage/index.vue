@@ -109,10 +109,7 @@
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
-  import {
-    userMatchesFilter,
-    filterAndSortUsers,
-  } from '../../../../../../facility/assets/src/userSearchUtils';
+  import { userMatchesFilter, filterAndSortUsers } from '../../../userSearchUtils';
   import UserTable from '../../../../../../facility/assets/src/views/UserTable';
 
   export default {

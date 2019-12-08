@@ -1,6 +1,6 @@
 <template>
 
-  <ReportsQuizBaseListPage>
+  <ReportsQuizBaseListPage @export="exportCSV">
     <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
       <thead slot="thead">
         <tr>
@@ -72,6 +72,8 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsQuizBaseListPage from './ReportsQuizBaseListPage';
 
   export default {
@@ -137,6 +139,21 @@
           return this.$tr('questionsCompletedRatioLabel', { count: answered || 0, total: total });
         }
       },
+      exportCSV() {
+        const columns = [
+          ...csvFields.name(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.score(),
+          ...csvFields.list('groups', 'groupsLabel'),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          resource: this.exam.title,
+        });
+
+        exporter.export(this.table);
+      },
     },
     $trs: {
       allQuizzes: 'All quizzes',
@@ -152,6 +169,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   .small-answered-count {
     display: block;

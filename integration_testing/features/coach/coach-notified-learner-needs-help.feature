@@ -1,5 +1,5 @@
 Feature: Coach tracks learner progress in a quiz
-# START testing this scenario with a FRESH DB (make a copy of the current if you want to reuse it later), and use the `kolibri manage importusers your-csv-file.csv` command to import a set of users for this case.
+
 # Prepare two browsers, or two windows/tabs of the same browser, one of them being incognito/private mode, in order to sign into one as a learner user, and as a coach in the other
   
   Background:

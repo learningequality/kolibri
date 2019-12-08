@@ -25,6 +25,7 @@
       :text="$tr('viewChangesAction')"
       appearance="flat-button"
       :primary="false"
+      @click="$emit('click')"
     />
   </div>
 

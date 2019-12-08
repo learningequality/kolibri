@@ -3,10 +3,10 @@
   <div>
     <SelectAddressForm
       v-if="stage === Stages.SELECT_ADDRESS"
-      @cancel="resetContentWizardState"
       @click_add_address="goToAddAddress"
       @click_search_address="goToSearchAddress"
       @removed_address="handleRemovedAddress"
+      @cancel="handleCancel"
       @submit="handleSelectAddressSubmit"
     />
     <AddAddressForm
@@ -88,6 +88,13 @@
           } else {
             this.$router.push(availableChannelsPageLink({ addressId: address.id }));
           }
+        }
+      },
+      handleCancel() {
+        if (this.manageMode) {
+          this.$emit('cancel');
+        } else {
+          this.resetContentWizardState();
         }
       },
     },

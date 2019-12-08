@@ -19,12 +19,21 @@ const { StyleSheet, css } = baseStyleSheet.extend([globalExtension]);
 
 // generate a minimal set of global, unscoped styles using theme variables
 export default function generateGlobalStyles() {
+  const printStyle = {
+    '@media print': {
+      color: '#000 !important',
+      background: 'none !important',
+      boxShadow: 'none !important',
+    },
+  };
   const htmlBodyStyles = {
     color: themeTokens().text,
     backgroundColor: themePalette().grey.v_100,
+    ...printStyle,
   };
   const globalStyles = StyleSheet.create({
     globals: {
+      '**': printStyle,
       '*html': htmlBodyStyles,
       '*body': htmlBodyStyles,
       '*:focus': themeOutlineStyle(),

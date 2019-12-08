@@ -7,7 +7,7 @@
       class="textbox"
       :label="label"
       :disabled="disabled"
-      :invalid="invalid"
+      :invalid="showInvalidMessage"
       :error="invalidText"
       :autofocus="autofocus"
       :maxlength="maxlength"
@@ -134,11 +134,20 @@
       },
     },
     data() {
-      return { currentText: this.value };
+      return {
+        currentText: this.value,
+        changedOrFocused: false,
+      };
+    },
+    computed: {
+      showInvalidMessage() {
+        return this.invalid && this.changedOrFocused;
+      },
     },
     watch: {
       value(val) {
         this.currentText = val;
+        this.changedOrFocused = true;
       },
     },
     methods: {
@@ -166,6 +175,7 @@
        * Focuses on the textbox
        */
       focus() {
+        this.changedOrFocused = true;
         this.$refs.textbox.$el.querySelector('input').focus();
       },
     },

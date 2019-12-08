@@ -22,19 +22,18 @@
           />
         </QuizLessonDetailsHeader>
       </KGridItem>
-      <KGridItem :layout12="{ span: 4 }">
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 4 }">
         <LessonStatus
           activeKey="active"
+          :className="className"
           :lesson="lesson"
           :groupNames="getGroupNames(lesson.groups)"
         />
       </KGridItem>
-      <KGridItem :layout12="{ span: 8 }">
-        <KPageContainer>
-
-
-          <HeaderTabs>
-
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 8 }">
+        <KPageContainer :topMargin="$isPrint ? 0 : 24">
+          <ReportsControls @export="exportCSV" />
+          <HeaderTabs :enablePrint="true">
             <HeaderTab
               :text="coachString('reportLabel')"
               :to="classRoute('ReportsLessonReportPage', {})"
@@ -103,11 +102,15 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import LessonOptionsDropdownMenu from '../plan/LessonSummaryPage/LessonOptionsDropdownMenu';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsLessonReportPage',
     components: {
+      ReportsControls,
       LessonOptionsDropdownMenu,
     },
     mixins: [commonCoach, commonCoreStrings],
@@ -123,8 +126,7 @@
       },
       table() {
         const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
-        const sorted = this._.sortBy(contentArray, ['title']);
-        return sorted.map(content => {
+        return contentArray.map(content => {
           const tally = this.getContentStatusTally(content.content_id, this.recipients);
           const tableRow = {
             avgTimeSpent: this.getContentAvgTimeSpent(content.content_id, this.recipients),
@@ -151,6 +153,25 @@
             )
           );
         }
+        if (action === 'PRINT_REPORT') {
+          this.$print();
+        }
+        if (action === 'EXPORT') {
+          this.exportCSV();
+        }
+      },
+      exportCSV() {
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.tally(),
+          ...csvFields.timeSpent('avgTimeSpent', 'avgTimeSpentLabel'),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          lesson: this.lesson.title,
+        });
+        exporter.export(this.table);
       },
     },
     $trs: {},
@@ -159,4 +180,9 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/print-table';
+  @import '../common/three-card-layout';
+
+</style>

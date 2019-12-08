@@ -20,11 +20,7 @@ def get_device_setting(setting, default=no_default_value):
     try:
         device_settings = DeviceSettings.objects.get()
         return getattr(device_settings, setting)
-    except (
-        DeviceSettings.DoesNotExist,
-        OperationalError,
-        ProgrammingError,
-    ):
+    except (DeviceSettings.DoesNotExist, OperationalError, ProgrammingError):
         if default is not no_default_value:
             return default
         raise DeviceNotProvisioned

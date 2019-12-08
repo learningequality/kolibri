@@ -4,6 +4,7 @@ from itertools import chain
 
 from django.db import connection
 from django.db.models import CharField
+from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import LessonSerializer
@@ -79,7 +80,7 @@ class LessonViewset(ValuesViewset):
         assignments = LessonAssignment.objects.filter(id__in=assignment_ids)
         if connection.vendor == "postgresql" and ArrayAgg is not None:
             assignments = assignments.annotate(
-                learner_ids=ArrayAgg("collection__membership__user__id"),
+                learner_ids=ArrayAgg("collection__membership__user__id")
             )
 
             def _process_item(item):
@@ -91,8 +92,8 @@ class LessonViewset(ValuesViewset):
         else:
             assignments = assignments.values("id").annotate(
                 learner_ids=GroupConcat(
-                    "collection__membership__user__id", output_field=CharField(),
-                ),
+                    "collection__membership__user__id", output_field=CharField()
+                )
             )
 
             def _process_item(item):
@@ -104,7 +105,11 @@ class LessonViewset(ValuesViewset):
         assignments = {
             a["id"]: _process_item(a)
             for a in assignments.values(
-                "id", "collection", "collection__kind", "learner_ids", "assigned_by"
+                "id",
+                "collection",
+                "learner_ids",
+                "assigned_by",
+                collection_kind=F("collection__kind"),
             )
         }
         for item in items:
@@ -121,9 +126,9 @@ class LessonViewset(ValuesViewset):
 
     def annotate_queryset(self, queryset):
         if connection.vendor == "postgresql" and ArrayAgg is not None:
-            return queryset.annotate(assignment_ids=ArrayAgg("lesson_assignments__id"),)
+            return queryset.annotate(assignment_ids=ArrayAgg("lesson_assignments__id"))
         return queryset.values("id").annotate(
             assignment_ids=GroupConcat(
-                "lesson_assignments__id", output_field=CharField(),
-            ),
+                "lesson_assignments__id", output_field=CharField()
+            )
         )

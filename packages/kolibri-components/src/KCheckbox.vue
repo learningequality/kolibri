@@ -43,8 +43,15 @@
 
       </div>
 
+      <div
+        v-if="!label && $slots.default"
+        class="k-checkbox-label"
+      >
+        <slot></slot>
+      </div>
+
       <label
-        v-if="label"
+        v-else-if="label && !$slots.default"
         dir="auto"
         class="k-checkbox-label"
         :for="id"
@@ -74,7 +81,7 @@
        */
       label: {
         type: String,
-        required: true,
+        required: false,
       },
       /**
        * Whether to show label

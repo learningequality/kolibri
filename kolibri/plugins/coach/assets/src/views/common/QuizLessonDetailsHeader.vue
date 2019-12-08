@@ -14,7 +14,7 @@
         <h1 class="exam-title">
           <KLabeledIcon icon="quiz" :label="resource.title" />
         </h1>
-        <StatusElapsedTime :date="createdDate" actionType="created" />
+        <StatusElapsedTime v-show="!$isPrint" :date="createdDate" actionType="created" />
       </div>
       <div slot="options">
         <slot name="dropdown"></slot>
@@ -86,6 +86,10 @@
   .exam-title {
     margin-bottom: 0;
     font-size: 1.5rem;
+  }
+
+  /deep/ .time-context {
+    margin-bottom: 0;
   }
 
 </style>

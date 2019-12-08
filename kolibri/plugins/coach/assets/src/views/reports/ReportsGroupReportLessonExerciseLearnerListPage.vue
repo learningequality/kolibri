@@ -13,9 +13,11 @@
 
       <ReportsGroupReportLessonExerciseHeader />
 
-      <p>
-        <StatusSummary :tally="tally" />
-      </p>
+      <ReportsControls @export="exportCSV">
+        <p>
+          <StatusSummary :tally="tally" />
+        </p>
+      </ReportsControls>
 
       <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
@@ -65,15 +67,28 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsGroupReportLessonExerciseHeader from './ReportsGroupReportLessonExerciseHeader';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsGroupReportLessonExerciseLearnerListPage',
     components: {
       ReportsGroupReportLessonExerciseHeader,
+      ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
+      resource() {
+        return this.contentMap[this.$route.params.exerciseId];
+      },
+      group() {
+        return this.groupMap[this.$route.params.groupId];
+      },
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);
       },
@@ -105,6 +120,24 @@
       showLink(status) {
         return status !== this.STATUSES.notStarted;
       },
+      exportCSV() {
+        const columns = [
+          ...csvFields.name(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.timeSpent('statusObj.time_spent'),
+          ...csvFields.list('groups', 'groupsLabel'),
+          ...csvFields.lastActivity(),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          group: this.group.name,
+          lesson: this.lesson.title,
+          resource: this.resource.title,
+        });
+
+        exporter.export(this.table);
+      },
     },
   };
 
@@ -112,6 +145,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   .stats {
     margin-right: 16px;

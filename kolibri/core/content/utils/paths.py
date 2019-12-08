@@ -83,6 +83,20 @@ def get_content_database_file_path(channel_id, datafolder=None):
     )
 
 
+def get_upgrade_content_database_file_path(channel_id, datafolder=None):
+    return os.path.join(
+        get_content_database_dir_path(datafolder),
+        "{}-upgrade.sqlite3".format(channel_id),
+    )
+
+
+def get_annotated_content_database_file_path(channel_id, datafolder=None):
+    return os.path.join(
+        get_content_database_dir_path(datafolder),
+        "{}-annotated.sqlite3".format(channel_id),
+    )
+
+
 def get_content_storage_dir_path(datafolder=None):
     path = os.path.join(get_content_dir_path(datafolder), "storage")
     if not os.path.isdir(path):

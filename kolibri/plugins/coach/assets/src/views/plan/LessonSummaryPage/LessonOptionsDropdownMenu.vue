@@ -50,6 +50,14 @@
             label: this.coachString('manageResourcesAction'),
             value: 'MANAGE_RESOURCES',
           },
+          {
+            label: this.coachString('printReportAction'),
+            value: 'PRINT_REPORT',
+          },
+          {
+            label: this.coachString('exportCSVAction'),
+            value: 'EXPORT',
+          },
         ];
       },
     },
