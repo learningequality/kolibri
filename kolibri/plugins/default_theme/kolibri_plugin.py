@@ -64,6 +64,7 @@ class DefaultThemeHook(theme_hook.ThemeHook):
             },
             # side-nav config
             theme_hook.SIDE_NAV: {
+                theme_hook.TITLE: None,  # use default: "Kolibri"
                 theme_hook.BRANDED_FOOTER: {},
                 theme_hook.SHOW_K_FOOTER_LOGO: True,
             },
