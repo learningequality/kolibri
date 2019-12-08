@@ -10,8 +10,6 @@ from kolibri.core.tasks.scheduler import Scheduler
 from kolibri.core.tasks.worker import Worker
 from kolibri.utils import conf
 
-app = "kolibri"
-
 
 if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
     connection = create_engine(
@@ -56,10 +54,18 @@ def checkout(dbapi_connection, connection_record, connection_proxy):
         )
 
 
-queue = Queue(app, connection=connection)
+task_queue_name = "kolibri"
+
+priority_queue_name = "no_waiting"
+
+priority_queue = Queue(priority_queue_name, connection=connection)
+
+queue = Queue(task_queue_name, connection=connection)
 
 scheduler = Scheduler(queue=queue, connection=connection)
 
 
-def initialize_worker():
-    return Worker(app, connection=connection, num_workers=1)
+def initialize_workers():
+    regular_worker = Worker(task_queue_name, connection=connection, num_workers=1)
+    priority_worker = Worker(priority_queue_name, connection=connection, num_workers=3)
+    return regular_worker, priority_worker

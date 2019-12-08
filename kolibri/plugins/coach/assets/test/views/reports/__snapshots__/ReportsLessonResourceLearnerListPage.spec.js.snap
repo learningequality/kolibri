@@ -12,6 +12,8 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
 
 exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying all learners renders correct resources stats 1`] = `
 <table data-test="summary-resources-stats">
+  <!---->
+  <!---->
   <tr>
     <th>
       Average time spent
@@ -54,6 +56,8 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
 
 exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders correct group resources stats 1`] = `
 <table>
+  <!---->
+  <!---->
   <tr>
     <th>
       Average time spent
@@ -84,6 +88,8 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
 
 exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying all learners renders correct resources stats 1`] = `
 <table data-test="summary-resources-stats">
+  <!---->
+  <!---->
   <tr>
     <th>
       Average time spent
@@ -147,6 +153,8 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
 
 exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders correct group resources stats 1`] = `
 <table>
+  <!---->
+  <!---->
   <tr>
     <th>
       Average time spent
@@ -158,6 +166,8 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
 
 exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders correct group resources stats 2`] = `
 <table>
+  <!---->
+  <!---->
   <tr>
     <th>
       Average time spent

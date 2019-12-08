@@ -9,20 +9,26 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <KSelect
-        v-model="filter"
-        :label="coreString('showAction')"
-        :options="filterOptions"
-        :inline="true"
-      />
+      <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
+      <ReportsControls @export="exportCSV">
+        <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
+        <KSelect
+          v-model="filter"
+          :label="coreString('showAction')"
+          :options="filterOptions"
+          :inline="true"
+        />
+        -->
+      </ReportsControls>
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
             <th>{{ coachString('titleLabel') }}</th>
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th>{{ $tr('visibleToLearnersLabel') }}</th>
+            <th v-show="!$isPrint">
+              {{ $tr('visibleToLearnersLabel') }}
+            </th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -47,7 +53,7 @@
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>
-            <td>
+            <td v-show="!$isPrint">
               <KSwitch
                 name="toggle-lesson-visibility"
                 :checked="tableRow.active"
@@ -69,11 +75,15 @@
   import { LessonResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
+  import ReportsControls from './ReportsControls';
   import ReportsHeader from './ReportsHeader';
 
   export default {
     name: 'ReportsLessonListPage',
     components: {
+      ReportsControls,
       ReportsHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
@@ -122,7 +132,7 @@
             return !lesson.active;
           }
         });
-        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
         return sorted.map(lesson => {
           const learners = this.getLearnersForLesson(lesson);
           const tableRow = {
@@ -159,6 +169,12 @@
           this.$store.dispatch('createSnackbar', snackbarMessage);
         });
       },
+      exportCSV() {
+        const columns = [...csvFields.title(), ...csvFields.recipients(), ...csvFields.tally()];
+
+        const fileName = this.$tr('printLabel', { className: this.className });
+        new CSVExporter(columns, fileName).export(this.table);
+      },
     },
     $trs: {
       activeLessons: 'Active lessons',
@@ -180,5 +196,6 @@
 <style lang="scss" scoped>
 
   @import '../common/list-transition';
+  @import '../common/print-table';
 
 </style>

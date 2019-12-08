@@ -20,11 +20,23 @@
         <KLabeledIcon :icon="resource.kind" :label="resource.title" />
       </h1>
 
-      <!-- TODO COACH
-      <KButton :text="coachString('previewAction')" />
-      -->
-
       <HeaderTable>
+        <HeaderTableRow v-if="$isPrint">
+          <template slot="key">
+            {{ coachString('groupNameLabel') }}
+          </template>
+          <template slot="value">
+            {{ group.name }}
+          </template>
+        </HeaderTableRow>
+        <HeaderTableRow v-if="$isPrint">
+          <template slot="key">
+            {{ coachString('lessonLabel') }}
+          </template>
+          <template slot="value">
+            {{ lesson.title }}
+          </template>
+        </HeaderTableRow>
         <HeaderTableRow>
           <template slot="key">
             {{ coachString('avgTimeSpentLabel') }}
@@ -35,9 +47,12 @@
         </HeaderTableRow>
       </HeaderTable>
 
-      <p>
-        <StatusSummary :tally="tally" />
-      </p>
+      <ReportsControls @export="exportCSV">
+        <p>
+          <StatusSummary :tally="tally" />
+        </p>
+      </ReportsControls>
+
       <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -77,10 +92,15 @@
 <script>
 
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsGroupReportLessonResourceLearnerListPage',
-    components: {},
+    components: {
+      ReportsControls,
+    },
     mixins: [commonCoach],
     computed: {
       lesson() {
@@ -88,6 +108,9 @@
       },
       resource() {
         return this.contentMap[this.$route.params.resourceId];
+      },
+      group() {
+        return this.groupMap[this.$route.params.groupId];
       },
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);
@@ -111,6 +134,26 @@
         });
       },
     },
+    methods: {
+      exportCSV() {
+        const columns = [
+          ...csvFields.name(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.timeSpent('statusObj.time_spent'),
+          ...csvFields.list('groups', 'groupsLabel'),
+          ...csvFields.lastActivity(),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          group: this.group.name,
+          lesson: this.lesson.title,
+          resource: this.resource.title,
+        });
+
+        exporter.export(this.table);
+      },
+    },
     $trs: {},
   };
 
@@ -118,6 +161,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   .stats {
     margin-right: 16px;

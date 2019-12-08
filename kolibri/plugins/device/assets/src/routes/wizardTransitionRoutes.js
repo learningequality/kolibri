@@ -19,7 +19,6 @@ export default [
     path: '/content/channels',
     handler: ({ query }) => {
       return showAvailableChannelsPage(store, {
-        for_export: String(query.for_export) === 'true',
         address_id: query.address_id,
         drive_id: query.drive_id,
       });
@@ -68,7 +67,6 @@ export default [
             channel_id: params.channel_id,
             address_id: query.address_id,
             drive_id: query.drive_id,
-            for_export: String(query.for_export) === 'true',
           });
         }
       }

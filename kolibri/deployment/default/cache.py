@@ -7,11 +7,14 @@ from kolibri.utils.conf import OPTIONS
 
 cache_options = OPTIONS["Cache"]
 
+diskcache_location = os.path.join(KOLIBRI_HOME, "process_cache")
+
 # Default to LocMemCache, as it has the simplest configuration
 default_cache = {
     "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
     # Default time out of each cache key
     "TIMEOUT": cache_options["CACHE_TIMEOUT"],
+    "OPTIONS": {"MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"]},
 }
 
 built_files_prefix = "built_files"
@@ -20,14 +23,16 @@ built_files_cache = {
     "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
     # Default time out of each cache key
     "TIMEOUT": cache_options["CACHE_TIMEOUT"],
+    "OPTIONS": {"MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"]},
 }
 
 # Setup a special cache specifically for items that are likely to be needed
 # to be shared across processes - most frequently, things that might be needed
 # inside asynchronous tasks.
 process_cache = {
-    "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-    "LOCATION": os.path.join(KOLIBRI_HOME, "process_cache"),
+    "BACKEND": "diskcache.DjangoCache",
+    "LOCATION": diskcache_location,
+    "OPTIONS": {"MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"]},
 }
 
 
@@ -41,7 +46,10 @@ if cache_options["CACHE_BACKEND"] == "redis":
         "LOCATION": cache_options["CACHE_LOCATION"],
         # Default time out of each cache key
         "TIMEOUT": cache_options["CACHE_TIMEOUT"],
-        "OPTIONS": {"PASSWORD": cache_options["CACHE_PASSWORD"]},
+        "OPTIONS": {
+            "PASSWORD": cache_options["CACHE_PASSWORD"],
+            "MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"],
+        },
     }
     default_cache = copy.deepcopy(base_cache)
     default_cache["OPTIONS"]["DB"] = cache_options["CACHE_REDIS_MIN_DB"]

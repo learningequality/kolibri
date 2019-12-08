@@ -6,7 +6,6 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
 
-from .annotation import update_content_metadata
 from .channels import read_channel_metadata_from_db_file
 from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge
@@ -102,14 +101,19 @@ class ChannelImport(object):
     }
 
     def __init__(
-        self, channel_id, channel_version=None, cancel_check=None, destination=None
+        self,
+        channel_id,
+        channel_version=None,
+        cancel_check=None,
+        source=None,
+        destination=None,
     ):
         self.channel_id = channel_id
         self.channel_version = channel_version
 
         self.cancel_check = cancel_check
 
-        self.source_db_path = get_content_database_file_path(self.channel_id)
+        self.source_db_path = source or get_content_database_file_path(self.channel_id)
 
         self.source = Bridge(sqlite_file_path=self.source_db_path)
 
@@ -317,6 +321,8 @@ class ChannelImport(object):
         else:
             method = "REPLACE"
 
+        # wrap column names in parentheses in case names are sql keywords (ex. order)
+        dest_columns = ["'{}'".format(col) for col in dest_columns]
         # build and execute a raw SQL query to transfer the data in one fell swoop
         query = """{method} INTO {table} ({destcols}) SELECT {sourcevals} FROM sourcedb.{table} AS source""".format(
             method=method,
@@ -472,7 +478,8 @@ class ChannelImport(object):
                     self.destination.get_class(ContentNode)
                 ).get(existing_channel.root_id)
 
-                self.delete_old_channel_data(root_node.tree_id)
+                if root_node:
+                    self.delete_old_channel_data(root_node.tree_id)
             else:
                 # We have previously loaded this channel, with the same or newer version, so our work here is done
                 logger.warn(
@@ -550,7 +557,7 @@ class ChannelImport(object):
                 self.check_cancelled()
 
                 # execute the actual query
-                self.destination.get_connection().execute(text(query))
+                self.destination.session.execute(text(query))
 
     def check_cancelled(self):
         if callable(self.cancel_check):
@@ -589,6 +596,7 @@ class ChannelImport(object):
     def import_channel_data(self):
 
         unflushed_rows = 0
+        import_ran = False
 
         try:
             self.try_attaching_sqlite_database()
@@ -601,9 +609,9 @@ class ChannelImport(object):
                     unflushed_rows = self.table_import(
                         model, row_mapper, table_mapper, unflushed_rows
                     )
+                import_ran = True
             self.destination.session.commit()
             self.try_detaching_sqlite_database()
-
         except (SQLAlchemyError, ImportCancelError) as e:
             # Rollback the transaction if any error occurs during the transaction
             self.destination.session.rollback()
@@ -612,6 +620,7 @@ class ChannelImport(object):
             self.try_detaching_sqlite_database()
             # Reraise the exception to prevent other errors occuring due to the non-completion
             raise e
+        return import_ran
 
     def end(self):
         self.source.end()
@@ -738,9 +747,11 @@ class InvalidSchemaVersionError(Exception):
     pass
 
 
-def initialize_import_manager(channel_id, cancel_check=None):
+def initialize_import_manager(
+    channel_id, cancel_check=None, source=None, destination=None
+):
     channel_metadata = read_channel_metadata_from_db_file(
-        get_content_database_file_path(channel_id)
+        source or get_content_database_file_path(channel_id)
     )
     # For old versions of content databases, we can only infer the schema version
     min_version = getattr(
@@ -773,19 +784,22 @@ def initialize_import_manager(channel_id, cancel_check=None):
                     version=min_version
                 )
             )
+
     return ImportClass(
-        channel_id, channel_version=channel_metadata.version, cancel_check=cancel_check
+        channel_id,
+        channel_version=channel_metadata.version,
+        cancel_check=cancel_check,
+        source=source,
+        destination=destination,
     )
 
 
 def import_channel_from_local_db(channel_id, cancel_check=None):
     import_manager = initialize_import_manager(channel_id, cancel_check=cancel_check)
 
-    import_manager.import_channel_data()
+    import_ran = import_manager.import_channel_data()
 
     import_manager.end()
-
-    update_content_metadata(channel_id)
 
     channel = ChannelMetadata.objects.get(id=channel_id)
     channel.last_updated = local_now()
@@ -799,3 +813,4 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
     channel.save()
 
     logger.info("Channel {} successfully imported into the database".format(channel_id))
+    return import_ran

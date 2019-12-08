@@ -13,11 +13,11 @@
 
       <ReportsLessonExerciseHeader @previewClick="onPreviewClick" />
 
-      <!-- TODO COACH
-        <KCheckbox :label="coachString('viewByGroupsLabel')" />
-      -->
+      <ReportsControls @export="exportCSV" />
 
-      <h2>{{ coachString('overallLabel') }}</h2>
+      <h2 v-show="!$isPrint">
+        {{ coachString('overallLabel') }}
+      </h2>
       <CoreTable :emptyMessage="coachString('questionListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -57,18 +57,25 @@
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
   import { LastPages } from '../../constants/lastPagesConstants';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
+  import ReportsControls from './ReportsControls';
   import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsLessonExerciseQuestionListPage',
     components: {
       ReportsLessonExerciseHeader,
+      ReportsControls,
       LearnerProgressRatio,
     },
     mixins: [commonCoach],
     computed: {
       ...mapGetters('questionList', ['difficultQuestions']),
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
       exercise() {
         return this.contentMap[this.$route.params.exerciseId];
       },
@@ -101,6 +108,18 @@
           )
         );
       },
+      exportCSV() {
+        const columns = [...csvFields.title(), ...csvFields.helpNeeded()];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          lesson: this.lesson.title,
+          resource: this.exercise.title,
+          difficultQuestions: this.coachString('difficultQuestionsLabel'),
+        });
+
+        exporter.export(this.table);
+      },
     },
   };
 
@@ -108,6 +127,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/print-table';
 
   .stats {
     margin-right: 16px;

@@ -10,11 +10,8 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsHeader :title="isPrint ? $tr('printLabel', {className}) : null" />
-      <!-- TODO COACH
-      <KCheckbox :label="coachString('viewByGroupsLabel')" />
-      <h2>{{ coachString('overallLabel') }}</h2>
-       -->
+      <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
+      <ReportsControls @export="exportCSV" />
       <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -54,11 +51,15 @@
 
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
+  import ReportsControls from './ReportsControls';
   import ReportsHeader from './ReportsHeader';
 
   export default {
     name: 'ReportsLearnerListPage',
     components: {
+      ReportsControls,
       ReportsHeader,
       ElapsedTime,
     },
@@ -119,6 +120,25 @@
         );
         return statuses.length;
       },
+      exportCSV() {
+        const columns = [
+          ...csvFields.name(),
+          ...csvFields.list('groups', 'groupsLabel'),
+          ...csvFields.avgScore(true),
+          {
+            name: this.coachString('exercisesCompletedLabel'),
+            key: 'exercises',
+          },
+          {
+            name: this.coachString('resourcesViewedLabel'),
+            key: 'resources',
+          },
+          ...csvFields.lastActivity(),
+        ];
+
+        const fileName = this.$tr('printLabel', { className: this.className });
+        new CSVExporter(columns, fileName).export(this.table);
+      },
     },
     $trs: {
       printLabel: '{className} Learners',
@@ -128,4 +148,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/print-table';
+
+</style>

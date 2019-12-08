@@ -10,7 +10,8 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsGroupHeader />
+      <ReportsGroupHeader :enablePrint="true" />
+      <ReportsControls @export="exportCSV" />
       <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -47,15 +48,22 @@
 <script>
 
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import ReportsGroupHeader from './ReportsGroupHeader';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsGroupLearnerListPage',
     components: {
       ReportsGroupHeader,
+      ReportsControls,
     },
     mixins: [commonCoach],
     computed: {
+      group() {
+        return this.groupMap[this.$route.params.groupId];
+      },
       groupMembers() {
         return this.groupMap[this.$route.params.groupId].member_ids.map(
           memberId => this.learnerMap[memberId]
@@ -112,10 +120,36 @@
         );
         return statuses.length;
       },
+      exportCSV() {
+        const columns = [
+          ...csvFields.name(),
+          ...csvFields.avgScore(true),
+          {
+            name: this.coachString('exercisesCompletedLabel'),
+            key: 'exercises',
+          },
+          {
+            name: this.coachString('resourcesViewedLabel'),
+            key: 'resources',
+          },
+          ...csvFields.lastActivity(),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          group: this.group.name,
+        });
+
+        exporter.export(this.table);
+      },
     },
   };
 
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/print-table';
+
+</style>

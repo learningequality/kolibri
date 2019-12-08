@@ -13,6 +13,7 @@ import urls from 'kolibri.urls';
 import * as theme from 'kolibri-components/src/styles/theme';
 import generateGlobalStyles from 'kolibri-components/src/styles/generateGlobalStyles';
 import trackInputModality from 'kolibri-components/src/styles/trackInputModality';
+import trackMediaType from 'kolibri-components/src/styles/trackMediaType';
 import keenUiConfig from 'keen-ui/src/config';
 import branding from 'kolibri.utils.branding';
 import logging from 'kolibri.lib.logging';
@@ -69,6 +70,9 @@ generateGlobalStyles();
 
 // monitor input modality
 trackInputModality();
+
+// monitor media type, "print" vs "screen"
+trackMediaType();
 
 // monitor page visibility
 document.addEventListener('visibilitychange', function() {

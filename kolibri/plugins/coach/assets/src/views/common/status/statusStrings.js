@@ -14,7 +14,7 @@ Strings variations below are defined based on the following constructions:
 
 */
 
-const translations = {
+export const translations = {
   itemStatus: {
     exercise: {
       difficult: createTranslator('ExerciseStatusDifficult', {

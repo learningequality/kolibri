@@ -82,6 +82,7 @@ import GenderDisplayText from '../views/userAccounts/GenderDisplayText';
 import BirthYearDisplayText from '../views/userAccounts/BirthYearDisplayText';
 import PrivacyLinkAndModal from '../views/userAccounts/PrivacyLinkAndModal.vue';
 import PaginatedListContainer from '../views/PaginatedListContainer';
+import PageStatus from '../views/ExamReport/PageStatus';
 import branding from '../utils/branding';
 
 // webpack optimization
@@ -172,6 +173,7 @@ export default {
       BirthYearDisplayText,
       PaginatedListContainer,
       PrivacyLinkAndModal,
+      PageStatus,
     },
     router,
     mixins: {

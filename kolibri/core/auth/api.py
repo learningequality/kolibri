@@ -38,6 +38,7 @@ from .models import Collection
 from .models import Facility
 from .models import FacilityDataset
 from .models import FacilityUser
+from .models import AdHocGroup
 from .models import LearnerGroup
 from .models import Membership
 from .models import Role
@@ -45,6 +46,7 @@ from .serializers import ClassroomSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
 from .serializers import FacilityUserSerializer
+from .serializers import AdHocGroupSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
@@ -402,6 +404,40 @@ class LearnerGroupViewSet(ValuesViewset):
         return queryset.values("id").annotate(
             user_ids=GroupConcat("membership__user__id", output_field=CharField())
         )
+
+
+class AdHocGroupViewSet(viewsets.ModelViewSet):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
+    queryset = AdHocGroup.objects.all()
+    serializer_class = AdHocGroupSerializer
+
+    filter_fields = ("parent",)
+
+    values = ("id", "name", "parent", "user_ids")
+
+    field_map = {"user_ids": partial(process_uuid_aggregate, key="user_ids")}
+
+    def annotate_queryset(self, queryset):
+        if connection.vendor == "postgresql" and ArrayAgg is not None:
+            return queryset.annotate(user_ids=ArrayAgg("membership__user__id"))
+        return queryset.values("id").annotate(
+            user_ids=GroupConcat("membership__user__id", output_field=CharField())
+        )
+
+    def partial_update(self, request, pk):
+        individual_learners_group = AdHocGroup.objects.filter(pk=pk)[:1].get()
+        current_learners = individual_learners_group.get_learners()
+        updated_learners = FacilityUser.objects.filter(pk__in=request.data["user_ids"])
+
+        for c_learner in current_learners:
+            if c_learner not in updated_learners:
+                individual_learners_group.remove_learner(c_learner)
+
+        for u_learner in updated_learners:
+            if u_learner not in current_learners:
+                individual_learners_group.add_learner(u_learner)
+        return Response(self.serializer_class(individual_learners_group).data)
 
 
 class SignUpViewSet(viewsets.ViewSet):

@@ -23,16 +23,18 @@
           />
         </QuizLessonDetailsHeader>
       </KGridItem>
-      <KGridItem :layout12="{ span: 4 }">
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 4 }">
         <QuizStatus
+          :className="className"
           :avgScore="avgScore"
-          :groupNames="getGroupNames(exam.groups)"
+          :groupAndAdHocLearnerNames="groupAndAdHocLearnerNames"
           :exam="exam"
         />
       </KGridItem>
-      <KGridItem :layout12="{ span: 8 }">
-        <KPageContainer :topMargin="16">
-          <HeaderTabs>
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 8 }">
+        <KPageContainer :topMargin="$isPrint ? 0 : 16">
+          <ReportsControls @export="$emit('export')" />
+          <HeaderTabs :enablePrint="true">
             <HeaderTab
               :text="coachString('reportLabel')"
               :to="classRoute('ReportsQuizLearnerListPage')"
@@ -56,10 +58,12 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import QuizOptionsDropdownMenu from '../plan/QuizSummaryPage/QuizOptionsDropdownMenu';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsQuizBaseListPage',
     components: {
+      ReportsControls,
       QuizOptionsDropdownMenu,
     },
     mixins: [commonCoach, commonCoreStrings],
@@ -94,6 +98,11 @@
           },
         ];
       },
+      groupAndAdHocLearnerNames() {
+        return this.getGroupNames(this.exam.groups).concat(
+          this.$store.state.adHocLearners.user_ids.map(learnerId => this.learnerMap[learnerId].name)
+        );
+      },
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
@@ -105,6 +114,12 @@
         }
         if (option === 'PREVIEW') {
           this.$router.push(this.$router.getRoute('ReportsQuizPreviewPage'));
+        }
+        if (option === 'PRINT_REPORT') {
+          this.$print();
+        }
+        if (option === 'EXPORT') {
+          this.$emit('export');
         }
       },
     },
@@ -118,4 +133,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/three-card-layout';
+
+</style>

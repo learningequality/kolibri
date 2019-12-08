@@ -16,14 +16,19 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import logging
 import os
+import signal
 import sys
+import time
 
 import six
 from django.db import connections
 
 from .conf import KOLIBRI_HOME
 from kolibri.utils.android import on_android
+
+logger = logging.getLogger(__name__)
 
 
 def _posix_pid_exists(pid):
@@ -41,18 +46,36 @@ def _posix_pid_exists(pid):
         return True
 
 
-def _posix_kill_pid(pid):
-    """Kill a PID by sending a posix signal"""
-    import signal
-
+def _kill_pid(pid, softkill_signal_number):
+    """Kill a PID by sending a signal, starting with a softer one and then escalating as needed"""
     try:
-        os.kill(pid, signal.SIGTERM)
+        logger.debug("Attempting to soft kill process with pid %d..." % pid)
+        os.kill(pid, softkill_signal_number)
+        logger.debug("Soft kill signal sent without error.")
     # process does not exist
     except OSError:
+        logger.debug(
+            "Soft kill signal could not be sent (OSError); process may not exist?"
+        )
         return
-    # process didn't exit cleanly, make one last effort to kill it
+    # give some time for the process to clean itself up gracefully bfore we force anything
+    i = 0
+    while pid_exists(pid) and i < 10:
+        time.sleep(0.5)
+        i += 1
+    # if process didn't exit cleanly, make one last effort to kill it
     if pid_exists(pid):
+        logger.debug(
+            "Process wth pid %s still exists after soft kill signal; attempting a SIGKILL."
+            % pid
+        )
         os.kill(pid, signal.SIGKILL)
+        logger.debug("SIGKILL signal sent without error.")
+
+
+def _posix_kill_pid(pid):
+    """Kill a PID by sending a posix-specific soft-kill signal"""
+    _kill_pid(pid, signal.SIGTERM)
 
 
 def _windows_pid_exists(pid):
@@ -70,15 +93,8 @@ def _windows_pid_exists(pid):
 
 
 def _windows_kill_pid(pid):
-    """Kill the proces using pywin32 and pid"""
-    import ctypes
-
-    PROCESS_TERMINATE = 1
-    handle = ctypes.windll.kernel32.OpenProcess(
-        PROCESS_TERMINATE, False, pid
-    )  # @UndefinedVariable
-    ctypes.windll.kernel32.TerminateProcess(handle, -1)  # @UndefinedVariable
-    ctypes.windll.kernel32.CloseHandle(handle)  # @UndefinedVariable
+    """Kill a PID by sending a windows-specific soft-kill signal"""
+    _kill_pid(pid, signal.CTRL_C_EVENT)
 
 
 buffering = int(six.PY3)  # No unbuffered text I/O on Python 3 (#20815).

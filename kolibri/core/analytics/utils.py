@@ -38,6 +38,7 @@ from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.tasks.main import scheduler
+from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 from kolibri.utils.server import installation_type
@@ -235,9 +236,10 @@ def extract_channel_statistics(channel):
 def create_and_update_notifications(data, source):
     messages = [obj for obj in data.get("messages", []) if obj.get("msg_id")]
     excluded_ids = [obj.get("msg_id") for obj in messages]
-    PingbackNotification.objects.filter(source=source).exclude(
-        id__in=excluded_ids
-    ).update(active=False)
+    with db_task_write_lock:
+        PingbackNotification.objects.filter(source=source).exclude(
+            id__in=excluded_ids
+        ).update(active=False)
     for msg in messages:
         new_msg = {
             "id": msg["msg_id"],
@@ -248,9 +250,10 @@ def create_and_update_notifications(data, source):
             "source": source,
             "active": True,
         }
-        PingbackNotification.objects.update_or_create(
-            id=new_msg["id"], defaults=new_msg
-        )
+        with db_task_write_lock:
+            PingbackNotification.objects.update_or_create(
+                id=new_msg["id"], defaults=new_msg
+            )
 
 
 def perform_ping(started, server=DEFAULT_SERVER_URL):

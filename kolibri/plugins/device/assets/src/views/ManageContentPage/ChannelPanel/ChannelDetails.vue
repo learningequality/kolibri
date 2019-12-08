@@ -69,7 +69,7 @@
       },
       // Used to override the version number in some cases
       channelVersion: {
-        type: String,
+        type: [String, Number],
         required: false,
       },
     },
@@ -118,6 +118,7 @@
       max-width: $thumbside;
       height: auto;
       max-height: $thumbside;
+      object-fit: contain;
     }
 
     .thumbnail-svg {

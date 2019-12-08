@@ -9,6 +9,7 @@ Feature: Kolibri users need to be able to view all the content types in all the 
     	- Firefox/Chrome on Linux
     	- Firefox/Chrome/Safari on Mac/iOS
     Then I can see video playing correctly
+      And I can see both the captions and the interactive transcript 
 
 
   Scenario: Listen the MP3 audio
@@ -66,4 +67,11 @@ Feature: Kolibri users need to be able to view all the content types in all the 
     	- Firefox/Chrome/Internet Explorer 11+, on Windows
     	- Firefox/Chrome on Linux
     	- Firefox/Chrome/Safari on Mac/iOS
+    Then I can view and interact correctly with the content
+
+  Scenario: Interact with slideshow content
+    When I open a slideshow in the following browsers and operating systems
+        - Firefox/Chrome/Internet Explorer 11+, on Windows
+        - Firefox/Chrome on Linux
+        - Firefox/Chrome/Safari on Mac/iOS
     Then I can view and interact correctly with the content

@@ -74,14 +74,15 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
-def _cleanup_before_quitting(signum, frame, worker=None):
+def _cleanup_before_quitting(signum, frame, workers=None):
     # the IO stack is not thread safe:
     # make sure not to do any logging in here!
     from kolibri.core.discovery.utils.network.search import unregister_zeroconf_service
     from kolibri.core.tasks.main import scheduler
 
-    if worker is not None:
-        worker.shutdown()
+    if workers is not None:
+        for worker in workers:
+            worker.shutdown()
     scheduler.shutdown_scheduler()
     unregister_zeroconf_service()
     signal.signal(signum, signal.SIG_DFL)
@@ -112,9 +113,9 @@ def run_services(port):
     queue.empty()
 
     # Initialize the iceqube engine to handle queued tasks
-    from kolibri.core.tasks.main import initialize_worker
+    from kolibri.core.tasks.main import initialize_workers
 
-    worker = initialize_worker()
+    workers = initialize_workers()
 
     scheduler.start_scheduler()
 
@@ -125,7 +126,7 @@ def run_services(port):
     instance, _ = InstanceIDModel.get_or_create_current_instance()
     register_zeroconf_service(port=port, id=instance.id[:4])
 
-    cleanup_func = partial(_cleanup_before_quitting, worker=worker)
+    cleanup_func = partial(_cleanup_before_quitting, workers=workers)
 
     try:
         signal.signal(signal.SIGINT, cleanup_func)

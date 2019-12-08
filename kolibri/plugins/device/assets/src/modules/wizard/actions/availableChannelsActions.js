@@ -1,4 +1,5 @@
 import differenceBy from 'lodash/differenceBy';
+import find from 'lodash/find';
 import { getRemoteChannelByToken } from '../utils';
 
 /**
@@ -12,18 +13,38 @@ import { getRemoteChannelByToken } from '../utils';
  */
 export function getAllRemoteChannels(store, publicChannels) {
   const { channelList } = store.rootState.manageContent;
-  const privateChannels = differenceBy(channelList, publicChannels, 'id').filter(
+  const installedPrivateChannels = differenceBy(channelList, publicChannels, 'id').filter(
     channel => channel.available
   );
-  const promises = privateChannels.map(privateChannel =>
-    getRemoteChannelByToken(privateChannel.id)
+  const promises = installedPrivateChannels.map(installedChannel =>
+    getRemoteChannelByToken(installedChannel.id)
       .then(([channel]) =>
-        Promise.resolve({ ...channel, ...privateChannel, latest_version: channel.version })
+        Promise.resolve({
+          ...channel,
+          ...installedChannel,
+          installed_version: installedChannel.version,
+          latest_version: channel.version,
+        })
       )
       .catch(() => Promise.resolve())
   );
   return Promise.all(promises).then(unlisted => {
     return [...unlisted.filter(Boolean), ...publicChannels];
+  });
+}
+
+export function getAllDriveChannels(store, drive) {
+  // Adds extra version information to drive.metadata.channels objects
+  // to support the upgrade UIs
+  // channelList must be up-to-date before running this
+  const { channelList } = store.rootState.manageContent;
+  return drive.metadata.channels.map(c => {
+    const installedChannel = find(channelList, { id: c.id, available: true }) || {};
+    return {
+      ...c,
+      installed_version: installedChannel.version,
+      latest_version: c.version,
+    };
   });
 }
 

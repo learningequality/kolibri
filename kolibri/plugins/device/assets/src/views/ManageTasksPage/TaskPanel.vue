@@ -33,21 +33,38 @@
       <h2 class="details-description">
         {{ descriptionText }}
       </h2>
-      <div v-if="taskIsRunning" class="details-progress-bar">
-        <KLinearLoader
-          class="k-linear-loader"
-          type="determinate"
-          :delay="false"
-          :progress="task.percentage * 100"
-          :style="{backgroundColor: $themeTokens.fineLine}"
-        />
-        <span class="details-percentage">
-          {{ $tr('progressPercentage', { progress: task.percentage }) }}
-        </span>
+      <div v-if="taskIsRunning || taskIsCanceling" class="details-progress-bar">
+        <template v-if="taskIsRunning">
+          <KLinearLoader
+            class="k-linear-loader"
+            type="determinate"
+            :delay="false"
+            :progress="task.percentage * 100"
+            :style="{backgroundColor: $themeTokens.fineLine}"
+          />
+          <span class="details-percentage">
+            {{ $tr('progressPercentage', { progress: task.percentage }) }}
+          </span>
+        </template>
+        <template v-else-if="taskIsCanceling">
+          <KLinearLoader
+            class="k-linear-loader"
+            type="indeterminate"
+            :delay="false"
+            :style="{backgroundColor: $themeTokens.fineLine}"
+          />
+        </template>
       </div>
-      <p v-if="sizeText" class="details-size">
-        {{ sizeText }}
-      </p>
+      <template v-if="!taskIsCompleted && !taskIsCanceled">
+        <p v-if="sizeText" class="details-size">
+          {{ sizeText }}
+        </p>
+      </template>
+      <template v-else>
+        <p v-if="finishedSizeText" class="details-size">
+          {{ finishedSizeText }}
+        </p>
+      </template>
       <p class="details-startedby" :style="{color: $themeTokens.annotation}">
         {{ startedByText }}
       </p>
@@ -89,6 +106,18 @@
     [TaskTypes.UPDATECHANNEL]: 'updatingChannelVersion',
   };
 
+  const typeToTrPrefixMap = {
+    [TaskTypes.REMOTECONTENTIMPORT]: 'import',
+    [TaskTypes.DISKCONTENTIMPORT]: 'import',
+    [TaskTypes.UPDATECHANNEL]: 'import',
+    [TaskTypes.REMOTEIMPORT]: 'import',
+    [TaskTypes.DISKIMPORT]: 'import',
+    [TaskTypes.DISKEXPORT]: 'export',
+    [TaskTypes.DISKCONTENTEXPORT]: 'export',
+    [TaskTypes.DELETECHANNEL]: 'delete',
+    [TaskTypes.DELETECONTENT]: 'delete',
+  };
+
   const statusToTrMap = {
     [TaskStatuses.COMPLETED]: 'statusComplete',
     [TaskStatuses.FAILED]: 'statusFailed',
@@ -123,15 +152,17 @@
       taskIsCanceling() {
         return this.task.status === TaskStatuses.CANCELING;
       },
+      taskIsCanceled() {
+        return this.task.status === TaskStatuses.CANCELED;
+      },
       taskIsFailed() {
-        return (
-          this.task.status === TaskStatuses.FAILED || this.task.status === TaskStatuses.CANCELED
-        );
+        return this.task.status === TaskStatuses.FAILED || this.taskIsCanceled;
       },
       descriptionText() {
         const trName = typeToTrMap[this.task.type];
         return this.$tr(trName, {
           channelName: this.task.channel_name || this.$tr('unknownChannelName'),
+          newVersion: this.task.new_version,
         });
       },
       sizeText() {
@@ -141,6 +172,35 @@
             numResources: total_resources,
             bytesText: bytesForHumans(file_size),
           });
+        }
+        return '';
+      },
+      finishedSizeText() {
+        const {
+          transferred_file_size,
+          transferred_resources,
+          file_size,
+          total_resources,
+        } = this.task;
+        if (file_size && total_resources) {
+          const trPrefix = typeToTrPrefixMap[this.task.type];
+          if (
+            transferred_file_size &&
+            transferred_resources &&
+            (transferred_file_size < file_size || transferred_resources < total_resources)
+          ) {
+            return this.$tr(`${trPrefix}PartialRatio`, {
+              currentResources: transferred_resources,
+              totalResources: total_resources,
+              currentSize: bytesForHumans(transferred_file_size),
+              totalSize: bytesForHumans(file_size),
+            });
+          } else {
+            return this.$tr(`${trPrefix}Success`, {
+              totalResources: total_resources,
+              totalSize: bytesForHumans(file_size),
+            });
+          }
         }
         return '';
       },

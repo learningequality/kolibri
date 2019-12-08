@@ -12,12 +12,18 @@
       <PlanHeader />
 
       <div class="filter-and-button">
+        <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
         <KSelect
           v-model="filterSelection"
           :label="coreString('showAction')"
           :options="filterOptions"
           :inline="true"
         />
+        -->
+        <!-- Remove this div - it makes sure the [NEW LESSON] button stays right-aligned
+            while the above <KSelect> is hidden
+        -->
+        <div>&nbsp;</div>
         <KButton
           :primary="true"
           :text="coachString('newLessonAction')"
@@ -36,7 +42,7 @@
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr
-            v-for="lesson in lessons"
+            v-for="lesson in sortedLessons"
             v-show="showLesson(lesson)"
             :key="lesson.id"
           >
@@ -141,6 +147,9 @@
     computed: {
       ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonsRoot', ['lessons', 'learnerGroups']),
+      sortedLessons() {
+        return this._.orderBy(this.lessons, ['date_created'], ['desc']);
+      },
       filterOptions() {
         const filters = ['allLessons', 'activeLessons', 'inactiveLessons'];
         return filters.map(filter => ({

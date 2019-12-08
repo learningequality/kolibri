@@ -87,7 +87,12 @@ export default {
     managedTasks(state) {
       // Tasks that we want to show in the task manager - ignore channel metadata tasks here.
       return state.taskList.filter(
-        task => ![TaskTypes.REMOTECHANNELIMPORT, TaskTypes.DISKCHANNELIMPORT].includes(task.type)
+        task =>
+          ![
+            TaskTypes.REMOTECHANNELIMPORT,
+            TaskTypes.DISKCHANNELIMPORT,
+            TaskTypes.CHANNELDIFFSTATS,
+          ].includes(task.type)
       );
     },
   },

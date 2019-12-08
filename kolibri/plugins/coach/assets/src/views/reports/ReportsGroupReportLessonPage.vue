@@ -19,16 +19,26 @@
       <h1>
         <KLabeledIcon icon="lesson" :label="lesson.title" />
       </h1>
-      <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
+      <p v-show="!$isPrint">
+        {{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}
+      </p>
       <HeaderTable>
-        <HeaderTableRow :keyText="coachString('statusLabel')">
+        <HeaderTableRow v-if="$isPrint" :keyText="coachString('groupNameLabel')">
+          <template slot="value">
+            {{ group.name }}
+          </template>
+        </HeaderTableRow>
+        <HeaderTableRow v-show="!$isPrint" :keyText="coachString('statusLabel')">
           <LessonActive slot="value" :active="lesson.active" />
         </HeaderTableRow>
         <HeaderTableRow
+          v-show="!$isPrint"
           :keyText="coachString('descriptionLabel')"
           :valueText="lesson.description || coachString('descriptionMissingLabel')"
         />
       </HeaderTable>
+
+      <ReportsControls @export="exportCSV" />
 
       <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
         <thead slot="thead">
@@ -82,10 +92,15 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsGroupReportLessonPage',
-    components: {},
+    components: {
+      ReportsControls,
+    },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {
@@ -99,8 +114,7 @@
       },
       table() {
         const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
-        const sorted = this._.sortBy(contentArray, ['title']);
-        return sorted.map(content => {
+        return contentArray.map(content => {
           const tableRow = {
             avgTimeSpent: this.getContentAvgTimeSpent(content.content_id, this.recipients),
             tally: this.getContentStatusTally(content.content_id, this.recipients),
@@ -108,6 +122,23 @@
           Object.assign(tableRow, content);
           return tableRow;
         });
+      },
+    },
+    methods: {
+      exportCSV() {
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.tally(),
+          ...csvFields.timeSpent('avgTimeSpent', 'avgTimeSpentLabel'),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          lesson: this.lesson.title,
+          group: this.group.name,
+        });
+
+        exporter.export(this.table);
       },
     },
     $trs: {
@@ -118,4 +149,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/print-table';
+
+</style>

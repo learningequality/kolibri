@@ -1,7 +1,7 @@
 <template>
 
   <!-- TODO: move this to be a core KBackLink -->
-  <span class="offset">
+  <span v-show="!$isPrint" class="offset">
     <UiIconButton
       type="flat"
       class="icon"

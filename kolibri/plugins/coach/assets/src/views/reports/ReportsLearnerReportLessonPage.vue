@@ -22,7 +22,15 @@
         </KLabeledIcon>
       </h1>
       <HeaderTable>
-        <HeaderTableRow>
+        <HeaderTableRow v-if="$isPrint">
+          <template slot="key">
+            {{ coreString('learnerLabel') }}
+          </template>
+          <template slot="value">
+            {{ learner.name }}
+          </template>
+        </HeaderTableRow>
+        <HeaderTableRow v-show="!$isPrint">
           <template slot="key">
             {{ coachString('statusLabel') }}
           </template>
@@ -30,7 +38,7 @@
             <LessonActive :active="lesson.active" />
           </template>
         </HeaderTableRow>
-        <HeaderTableRow>
+        <HeaderTableRow v-show="!$isPrint">
           <template slot="key">
             {{ coachString('descriptionLabel') }}
           </template>
@@ -41,6 +49,8 @@
           </template>
         </HeaderTableRow>
       </HeaderTable>
+
+      <ReportsControls @export="exportCSV" />
 
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
@@ -88,9 +98,15 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsLearnerReportLessonPage',
+    components: {
+      ReportsControls,
+    },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       emptyMessage() {
@@ -104,8 +120,7 @@
       },
       table() {
         const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
-        const sorted = this._.sortBy(contentArray, ['title']);
-        return sorted.map(content => {
+        return contentArray.map(content => {
           const tableRow = {
             statusObj: this.getContentStatusObjForLearner(content.content_id, this.learner.id),
           };
@@ -127,6 +142,21 @@
         }
         return undefined;
       },
+      exportCSV() {
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.timeSpent('statusObj.time_spent'),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          learner: this.learner.name,
+          lesson: this.lesson.title,
+        });
+
+        exporter.export(this.table);
+      },
     },
     $trs: {},
   };
@@ -134,4 +164,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/print-table';
+
+</style>
