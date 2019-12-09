@@ -214,7 +214,10 @@ def get_embedded_file(request, zf, zipped_filename, embedded_filepath):
         embedded_filepath.endswith("htm") or embedded_filepath.endswith("html")
     ):
         content = zf.open(info).read()
-        html = parse_html(content)
+        if not request.GET.get("SKIP_HASHI"):
+            html = parse_html(content)
+        else:
+            html = content
         response = HttpResponse(html, content_type=content_type)
         file_size = len(response.content)
     else:

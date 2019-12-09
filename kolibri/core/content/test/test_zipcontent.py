@@ -16,7 +16,7 @@ from kolibri.utils.tests.helpers import override_option
 
 DUMMY_FILENAME = "hashi123.js"
 
-empty_content = '<html><head></head><body><script src="/static/content/hashi123.js"></script></body></html>'
+empty_content = '<html><head><script src="/static/content/hashi123.js"></script></head><body></body></html>'
 
 
 @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
@@ -162,7 +162,7 @@ class ZipContentTestCase(TestCase):
 
     def test_request_for_html_no_head_return_hashi_modified_html(self, filename_patch):
         response = self.client.get(self.zip_file_base_url)
-        content = '<html><head></head><body><script src="/static/content/hashi123.js"></script></body></html>'
+        content = '<html><head><script src="/static/content/hashi123.js"></script></head><body></body></html>'
         self.assertEqual(response.content.decode("utf-8"), content)
 
     def test_request_for_html_body_no_script_return_hashi_modified_html(
@@ -176,9 +176,18 @@ class ZipContentTestCase(TestCase):
     ):
         response = self.client.get(self.zip_file_base_url + self.script_name)
         content = (
-            '<html><head><template hashi-script="true"><script>test</script></template></head>'
-            + '<body><script src="/static/content/hashi123.js"></script></body></html>'
+            '<html><head><template hashi-script="true"><script>test</script></template><script src="/static/content/hashi123.js"></script></head>'
+            + "<body></body></html>"
         )
+        self.assertEqual(response.content.decode("utf-8"), content)
+
+    def test_request_for_html_body_script_skip_get_param_return_unmodified_html(
+        self, filename_patch
+    ):
+        response = self.client.get(
+            self.zip_file_base_url + self.script_name + "?SKIP_HASHI=true"
+        )
+        content = "<html><head><script>test</script></head></html>"
         self.assertEqual(response.content.decode("utf-8"), content)
 
     def test_request_for_html_body_script_return_correct_length_header(
@@ -186,8 +195,8 @@ class ZipContentTestCase(TestCase):
     ):
         response = self.client.get(self.zip_file_base_url + self.script_name)
         file_size = len(
-            '<html><head><template hashi-script="true"><script>test</script></template></head>'
-            + '<body><script src="/static/content/hashi123.js"></script></body></html>'
+            '<html><head><template hashi-script="true"><script>test</script></template><script src="/static/content/hashi123.js"></script></head>'
+            + "<body></body></html>"
         )
         self.assertEqual(int(response["Content-Length"]), file_size)
 
