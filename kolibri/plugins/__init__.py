@@ -50,7 +50,7 @@ class ConfigDict(dict):
                 with open(conf_file, "r") as kolibri_conf_file:
                     self.update(json.load(kolibri_conf_file))
                 return
-            except json.JSONDecodeError:
+            except ValueError:
                 logger.warn(
                     "Attempted to load kolibri_settings.json but encountered a file that could not be decoded as valid JSON."
                 )
