@@ -140,10 +140,8 @@ class CoachesCanManageGroupsForTheirClasses(BasePermissions):
     def _user_is_coach_for_classroom(self, user, obj):
         # make sure the target object is a group and user is a coach for the group's classroom
         return (
-            (obj.kind == LEARNERGROUP
-            or obj.kind == ADHOCLEARNERSGROUP)
-            and user.has_role_for_collection(COACH, obj.parent)
-        )
+            obj.kind == LEARNERGROUP or obj.kind == ADHOCLEARNERSGROUP
+        ) and user.has_role_for_collection(COACH, obj.parent)
 
     def user_can_create_object(self, user, obj):
         return self._user_is_coach_for_classroom(user, obj)
@@ -165,10 +163,8 @@ class CoachesCanManageMembershipsForTheirGroups(BasePermissions):
     def _user_is_coach_for_group(self, user, group):
         # make sure the target object is a group and user is a coach for the group
         return (
-            (group.kind == LEARNERGROUP
-            or group.kind == ADHOCLEARNERSGROUP)
-            and user.has_role_for_collection(COACH, group)
-        )
+            group.kind == LEARNERGROUP or group.kind == ADHOCLEARNERSGROUP
+        ) and user.has_role_for_collection(COACH, group)
 
     def _user_should_be_able_to_manage(self, user, obj):
         # Requesting user must be a coach for the group
