@@ -5,6 +5,8 @@ from kolibri.utils.conf import OPTIONS
 
 cache_options = OPTIONS["Cache"]
 
+NOTHING = object()
+
 
 class CrossProcessCache(object):
     def __init__(self, default_timeout=cache_options["CACHE_TIMEOUT"]):
@@ -28,11 +30,9 @@ class CrossProcessCache(object):
             return item
         return default
 
-    def set(self, key, value, timeout=None, version=None):
-        caches["default"].set(
-            key, value, timeout=timeout or self.default_timeout, version=version
-        )
+    def set(self, key, value, timeout=NOTHING, version=None):
+        if timeout == NOTHING:
+            timeout = self.default_timeout
+        caches["default"].set(key, value, timeout=timeout, version=version)
         if cache_options["CACHE_BACKEND"] != "redis":
-            caches["process_cache"].set(
-                key, value, timeout=timeout or self.default_timeout, version=version
-            )
+            caches["process_cache"].set(key, value, timeout=timeout, version=version)
