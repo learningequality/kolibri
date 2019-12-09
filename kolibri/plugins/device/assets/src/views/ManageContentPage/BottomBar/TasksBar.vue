@@ -1,10 +1,10 @@
 <template>
 
-  <div class="task-bar" :class="{'task-bar-sm': windowIsSmall}">
-    <div class="progress-bar">
-      <div class="message">
-        {{ tasksString }}
-      </div>
+  <div class="progress-bar">
+    <p>
+      {{ tasksString }}
+    </p>
+    <p>
       <KLinearLoader
         v-if="totalTasks >0"
         class="k-linear-loader"
@@ -13,7 +13,7 @@
         type="determinate"
         :style="{backgroundColor: $themeTokens.fineLine}"
       />
-    </div>
+    </p>
   </div>
 
 </template>
@@ -71,33 +71,14 @@
 
 <style lang="scss" scoped>
 
-  .task-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .message {
-    padding: 4px 0;
-  }
   .progress-bar {
-    min-width: 300px;
     max-width: 400px;
     text-align: left;
-
-    .task-bar-sm & {
-      min-width: auto;
-      max-width: 200px;
-    }
   }
 
   // CSS overrides for linear loader
   .k-linear-loader {
-    height: 10px;
-
-    .task-bar-sm & {
-      display: none;
-    }
+    height: 8px;
 
     /deep/ .ui-progress-linear-progress-bar {
       height: 100%;
