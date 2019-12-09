@@ -19,15 +19,14 @@
       </template>
 
       <template v-slot:abovechannels>
-        <KButton
-          appearance="basic-link"
-          :text="multipleMode ? $tr('selectTopicsAndResources') : $tr('selectEntireChannels')"
-          @click="toggleMultipleMode"
-        />
-        <section
-          v-if="showUnlistedChannels"
-          class="unlisted-channels"
-        >
+        <p>
+          <KButton
+            appearance="basic-link"
+            :text="multipleMode ? $tr('selectTopicsAndResources') : $tr('selectEntireChannels')"
+            @click="toggleMultipleMode"
+          />
+        </p>
+        <p v-if="showUnlistedChannels">
           <KButton
             class="token-button"
             :text="$tr('channelTokenButtonLabel')"
@@ -35,15 +34,16 @@
             name="showtokenmodal"
             @click="showTokenModal=true"
           />
-        </section>
-
-        <UiAlert
-          v-show="notEnoughFreeSpace"
-          :dismissible="false"
-          type="error"
-        >
-          {{ $tr('notEnoughSpaceForChannelsWarning') }}
-        </UiAlert>
+        </p>
+        <p>
+          <UiAlert
+            v-show="notEnoughFreeSpace"
+            :dismissible="false"
+            type="error"
+          >
+            {{ $tr('notEnoughSpaceForChannelsWarning') }}
+          </UiAlert>
+        </p>
 
       </template>
 
@@ -52,7 +52,7 @@
           {{ $tr('noChannelsAvailable') }}
         </p>
 
-        <div v-else>
+        <p v-else>
           <ChannelPanel
             v-for="channel in allChannels"
             v-show="showItem(channel) && !channelIsBeingDeleted(channel.id)"
@@ -64,7 +64,7 @@
             @clickselect="goToSelectContentPageForChannel(channel)"
             @checkboxchange="handleChange"
           />
-        </div>
+        </p>
       </template>
     </FilteredChannelListContainer>
 
@@ -381,10 +381,6 @@
 
   .token-button {
     margin-left: 0;
-  }
-
-  .unlisted-channels {
-    padding: 16px 0;
   }
 
 </style>
