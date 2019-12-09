@@ -1,34 +1,28 @@
 <template>
 
-  <div
+  <KLabeledIcon
     v-if="value > 0"
-    class="d-ib"
+    ref="something"
+    :style="{ color: $themeTokens.coachContent }"
   >
-    <div
-      ref="icon"
-      class="d-ib vab"
-      :style="{ color: $themeTokens.coachContent }"
-    >
-      <UiIcon class="coach-mat-icon">
-        <mat-svg
-          name="local_library"
-          category="maps"
-        />
-      </UiIcon>
-      <span
-        v-if="isTopic"
-        class="counter"
-      >
-        {{ $formatNumber(value) }}
-      </span>
-    </div>
+    <KIcon
+      slot="icon"
+      icon="coach"
+      :color="$themeTokens.coachContent"
+    />
+    <span v-if="isTopic" class="counter">
+      {{ $formatNumber(value) }}
+    </span>
+
     <KTooltip
-      reference="icon"
+      reference="something"
+      placement="top"
+      style="position: relative;"
       :refs="$refs"
     >
       {{ titleText }}
     </KTooltip>
-  </div>
+  </KLabeledIcon>
 
 </template>
 
@@ -73,17 +67,8 @@
 
 <style lang="scss" scoped>
 
-  .vab {
-    vertical-align: bottom;
-  }
-
-  .d-ib {
-    display: inline-block;
-  }
-
   .counter {
     font-size: 11px;
-    vertical-align: inherit;
   }
 
   .coach-mat-icon.ui-icon {
