@@ -1,14 +1,15 @@
 Feature: Super admin imports content from Studio
     Super admin needs to be able to import content channels on the device from Kolibri Studio
-    # The contents for the channels are shown as a tree of topics/subtopics with resources inside.
+
     # Use the "Khan Academy (English)" for testing because it takes a long time to load the channel listing.
 
   Background:
     Given there is no content from <channel> channel on the device
       And I am signed in to Kolibri as super admin, or a user with device permissions to import content
-      And I am on the *Kolibri Studio channels* page with the list of available channels
+      And I am on the *Kolibri Studio channels > Select resources for import* page with the list of available channels
+        Or I am on *Import from '<local_address>' > Select resources for import* page with the list of available channels
 
-  Scenario: Import new content channel from Kolibri Studio
+  Scenario: Import resources from a new content channel
     When I click *Select resources* button for the <channel> channel
     Then I see the *Kolibri Studio* page
       And I see the "Generating channel listing. This could take a few minutes..." notification
@@ -38,16 +39,17 @@ Feature: Super admin imports content from Studio
     When I check the *Select all* checkbox
     Then I see the *Import* button is active
       And I see the checkboxes for all the topics or subtopics are checked
-      And I see the number of *resources selected* flag for each topic checkbox
-      And I see the sum of size and number of resources selected at the bottom
+      And I see the *N resources selected* flag for each topic
+      And I see the total size and number of resources selected at the bottom 
+      And the total equals the sum of resources for each topic 
 
   Scenario: Deselect a sub-set of subtopics
     Given I am on a subtopic and there are other topics checked outside the current subtopic
       When I uncheck the *Select all* checkbox
       Then I see the *Import* button is still active
-        And I see the checkboxes for all the subtopics are unchecked
+        And I see the checkboxes for all the subtopics of the current topic are unchecked
         And I do not see the number of *resources selected* flag for unchecked topics
-        And I see the values for *resources selected* at the bottom is deducted with the values from the unchecked topics
+        And I see the total value of *resources selected* at the bottom has decreased for the number of resources in the unchecked topics
 
   Scenario: Deselect all topics or subtopics
     Given that no other topics are checked in the topic tree
@@ -55,27 +57,27 @@ Feature: Super admin imports content from Studio
     Then I see the *Import* button is inactive
       And I see the checkboxes for all the subtopics are unchecked
       And I do not see the number of *resources selected* flag for unchecked topics
-      And I see the values for *resources selected* at the bottom is 0
+      And I see the *0 resources selected* at the bottom
 
   Scenario: Check a topic or subtopic
     When I check a <topic> topic checkbox
     Then I see the *Import* button is active
       And I see the number of *resources selected* flag for the selected topic checkbox
-      And I see the values for *resources selected* at the bottom increase
+      And I see the number of *resources selected* at the bottom increase
 
   Scenario: Uncheck a topic or subtopic
     Given there are two or more topics checked
     When I uncheck a topic checkbox
     Then I see the *Import* button is still active
       And I do not see the number of *resources selected* flag for the unchecked topic
-      And I see the values for *resources selected* at the bottom is deducted with the values from the unchecked topic
+      And I see the number of *resources selected* at the bottom has decreased for the number of resources in the unchecked topics
     
   Scenario: Uncheck the only topic
     Given there is only one topic checked
     When I uncheck the only checked topic checkbox
     Then I see the *Import* button is inactive
       And I do not see the number of *resources selected* flag for the unchecked topic
-      And I see the values for *resources selected* at the bottom is 0
+      And I see the *0 resources selected* at the bottom
 
   Scenario: Click the Import button
     Given that I have selected at least one topic or subtopic

@@ -39,7 +39,7 @@ Feature: Super admin selects import content location
       # If there is already one or more added networks
       When I select <network_name>
         And I click *Continue*
-      Then I see the *Import from '<network_name>'* page with the list of available content *Channels* on the <network_name>
+      Then I see the *Import from '<network_name>'* page with the list of available channels* on the <network_name>
 
   Scenario: Import content channels from attached drive
     Given there is a <drive> local drive attached to the device
@@ -51,7 +51,7 @@ Feature: Super admin selects import content location
         And I see the *Select a drive* modal
       When I select <drive> local drive
         And I click *Continue*
-      Then I see the *Import from '<drive>'* page with the list of available content *Channels* on the <drive> local drive
+      Then I see the *Import from '<drive>'* page with the list of available channels on the <drive> local drive
 
   Scenario: No attached drive are available
     Given there is no local drives attached to the device

@@ -30,7 +30,6 @@ Feature: Super admin imports content from Studio with token
     Then I see the checkboxes for all the topics are checked
       And I see the *Import* button is active
       And I see the values for *Content selected* increase
- 
     When I uncheck the *Select all* checkbox
     Then I see the *Import* button is inactive
       And I see the values for *Content selected* is 0
