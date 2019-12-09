@@ -1,7 +1,7 @@
 <template>
 
   <div class="progress-bar">
-    <p>
+    <p v-if="tasksString">
       {{ tasksString }}
     </p>
     <p>
@@ -14,6 +14,15 @@
         :style="{backgroundColor: $themeTokens.fineLine}"
       />
     </p>
+    <p>
+      <KButton
+        v-if="showClearCompletedButton"
+        appearance="basic-link"
+        :text="clearCompletedString"
+        @click="handleClickClearAll"
+      />
+    </p>
+
   </div>
 
 </template>
@@ -23,9 +32,16 @@
 
   import { mapGetters } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import countBy from 'lodash/countBy';
+  import some from 'lodash/some';
   import sumBy from 'lodash/sumBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { TaskResource } from 'kolibri.resources';
+  import ManageTasksPage from '../ManageTasksPage';
+  import { PageNames, taskIsClearable } from '../../constants';
+
+  const manageTasksStrings = crossComponentTranslator(ManageTasksPage);
 
   export default {
     name: 'TasksBar',
@@ -37,6 +53,12 @@
     },
     computed: {
       ...mapGetters('manageContent', ['managedTasks']),
+      clearCompletedString() {
+        return manageTasksStrings.$tr('clearCompletedAction');
+      },
+      showClearCompletedButton() {
+        return some(this.managedTasks, taskIsClearable);
+      },
       totalTasks() {
         return this.managedTasks.length;
       },
@@ -51,18 +73,19 @@
         return ((this.doneTasks + sumBy(inProgressTasks, 'percentage')) / this.totalTasks) * 100;
       },
       tasksString() {
-        if (this.totalTasks === 0) {
-          return this.$tr('noTasksStarted');
-        } else {
+        if (this.totalTasks) {
           return this.$tr('someTasksComplete', { done: this.doneTasks, total: this.totalTasks });
         }
       },
     },
-    methods: {},
+    methods: {
+      handleClickClearAll() {
+        TaskResource.deleteFinishedTasks();
+      },
+    },
     $trs: {
       someTasksComplete:
         '{done, number} of {total, number} {done, plural, one {task} other {tasks}} complete',
-      noTasksStarted: 'No tasks started',
     },
   };
 

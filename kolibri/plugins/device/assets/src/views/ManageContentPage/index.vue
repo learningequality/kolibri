@@ -34,6 +34,7 @@
       </KGrid>
 
       <TasksBar />
+
       <p>
         <KRouterLink
           appearance="basic-link"
@@ -85,7 +86,7 @@
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
-  import TasksBar from './BottomBar/TasksBar';
+  import TasksBar from './TasksBar';
 
   export default {
     name: 'ManageContentPage',
