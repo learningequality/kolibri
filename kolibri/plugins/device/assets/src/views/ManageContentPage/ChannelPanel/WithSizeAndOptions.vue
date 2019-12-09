@@ -16,12 +16,11 @@
     </div>
 
     <div class="col-3">
-      <KDropdownMenu
-        :text="coreString('optionsLabel')"
+      <KButton
+        :text="$tr('manageChannelAction')"
         :disabled="disabled"
-        :options="dropdownOptions"
-        :position="dropdownPosition"
-        @select="handleManageChannelAction($event.value)"
+        class="manage-btn"
+        @click="handleManageChannelAction"
       />
     </div>
   </div>
@@ -58,29 +57,9 @@
       resourcesSizeText() {
         return bytesForHumans(this.channel.on_device_file_size);
       },
-      dropdownPosition() {
-        // On small screens, position to the left so it doesn't overflow the
-        // window and mess up the global layout.
-        return this.windowIsSmall ? 'bottom left' : 'bottom right';
-      },
-      dropdownOptions() {
-        return [
-          {
-            label: this.$tr('manageChannelAction'),
-            value: 'MANAGE_CHANNEL',
-          },
-          {
-            label: this.$tr('deleteChannelAction'),
-            value: 'DELETE_CHANNEL',
-          },
-        ];
-      },
     },
     methods: {
-      handleManageChannelAction(action) {
-        if (action === 'DELETE_CHANNEL') {
-          return this.$emit('select_delete');
-        }
+      handleManageChannelAction() {
         return this.$emit('select_manage', { ...this.channel });
       },
     },
@@ -89,7 +68,6 @@
         message: 'Manage',
         context: '\nOperation that can be performed on a channel',
       },
-      deleteChannelAction: 'Delete',
     },
   };
 
@@ -126,6 +104,10 @@
       margin-top: 16px;
       text-align: right;
     }
+  }
+
+  .manage-btn {
+    margin: 0;
   }
 
 </style>
