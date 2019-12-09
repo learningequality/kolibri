@@ -13,22 +13,25 @@
 
       <div class="filter-and-button">
         <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
-        <KSelect
-          v-model="filterSelection"
-          :label="coreString('showAction')"
-          :options="filterOptions"
-          :inline="true"
-        />
-        -->
+          <KSelect
+            v-model="filterSelection"
+            :label="coreString('showAction')"
+            :options="filterOptions"
+            :inline="true"
+          />
+          -->
         <!-- Remove this div - it makes sure the [NEW LESSON] button stays right-aligned
-            while the above <KSelect> is hidden
-        -->
+              while the above <KSelect> is hidden
+          -->
         <div>&nbsp;</div>
-        <KButton
-          :primary="true"
-          :text="coachString('newLessonAction')"
-          @click="showModal=true"
-        />
+        <KButton>
+          <KRouterLink
+            :primary="true"
+            appearance="raised-button"
+            :text="coachString('newLessonAction')"
+            :to="newLessonRoute"
+          />
+        </KButton>
       </div>
 
       <CoreTable>
@@ -124,6 +127,7 @@
   import { CollectionKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
@@ -159,6 +163,9 @@
       },
       activeLessonCounts() {
         return countBy(this.lessons, 'is_active');
+      },
+      newLessonRoute() {
+        return { name: LessonsPageNames.LESSON_CREATION_ROOT };
       },
     },
     beforeMount() {

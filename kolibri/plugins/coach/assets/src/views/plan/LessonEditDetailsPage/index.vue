@@ -16,6 +16,7 @@
       <AssignmentDetailsForm
         v-bind="formProps"
         :disabled="disabled"
+        :initialAdHocLearners="initialAdHocLearners"
         @cancel="goBackToSummaryPage"
         @submit="handleSaveChanges"
       >
@@ -51,6 +52,8 @@
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import ResourceListTable from './EditDetailsResourceListTable';
+
+  const ADHOCLEARNERS_GROUP_KIND = 'adhoclearnersgroup';
 
   export default {
     name: 'LessonEditDetailsPage',
@@ -106,13 +109,43 @@
         }
         return this.$router.getRoute(route);
       },
+      initialAdHocLearners() {
+        return this.$store.state.adHocLearners.user_ids;
+      },
     },
     beforeRouteEnter(to, from, next) {
       return LessonResource.fetchModel({
         id: to.params.lessonId,
       })
         .then(lesson => {
-          next(vm => vm.setData(lesson));
+          next(vm => {
+            const collection = lesson.lesson_assignments.find(
+              a => a.collection_kind === ADHOCLEARNERS_GROUP_KIND
+            );
+
+            if (collection) {
+              vm.$store
+                .dispatch('adHocLearners/initializeAdHocLearnersGroup', collection.collection)
+                .then(() => vm.setData(lesson));
+            } else {
+              // There is no 'ad hoc learners group' for this lesson, so we make one.
+              vm.$store
+                .dispatch('adHocLearners/createAdHocLearnersGroup', {
+                  classId: vm.$route.params.classId,
+                })
+                .then(() => {
+                  LessonResource.saveModel({
+                    id: vm.$route.params.lessonId,
+                    data: {
+                      lesson_assignments: [
+                        ...lesson.lesson_assignments,
+                        { collection: vm.$store.state.adHocLearners.id },
+                      ],
+                    },
+                  }).then(() => vm.setData(lesson));
+                });
+            }
+          });
         })
         .catch(error => {
           next(vm => vm.setError(error));

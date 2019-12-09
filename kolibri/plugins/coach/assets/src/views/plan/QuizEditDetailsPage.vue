@@ -35,7 +35,7 @@
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import AssignmentDetailsModal from './assignments/AssignmentDetailsModal';
 
-  const INDIVIDUAL_LEARNERS_GROUP_KIND = 'adhoclearnersgroup';
+  const ADHOCLEARNERS_GROUP_KIND = 'adhoclearnersgroup';
 
   export default {
     name: 'QuizEditDetailsPage',
@@ -86,7 +86,7 @@
         // Only include the AdHocGroup in this if it has already
         // had learners assigned to it.
         this.quiz.assignments.forEach(assignment => {
-          if (assignment.collection_kind === INDIVIDUAL_LEARNERS_GROUP_KIND) {
+          if (assignment.collection_kind === ADHOCLEARNERS_GROUP_KIND) {
             if (this.hasAdHocLearnersAssigned) {
               collectionIds.push(assignment.collection);
             }
@@ -107,14 +107,14 @@
         .then(quiz => {
           next(vm => {
             const collection = quiz.assignments.find(
-              a => a.collection_kind === INDIVIDUAL_LEARNERS_GROUP_KIND
+              a => a.collection_kind === ADHOCLEARNERS_GROUP_KIND
             );
             if (collection) {
               vm.$store
                 .dispatch('adHocLearners/initializeAdHocLearnersGroup', collection.collection)
                 .then(() => vm.setData(quiz));
             } else {
-              // There is no "inidividual learners group" assigned to this quiz, so
+              // There is no "ad hoc learners group" assigned to this quiz, so
               // we will make one. This will also set the newly created individual learners
               // group to the adHocLearners vuex state.
               vm.$store
@@ -127,7 +127,7 @@
                     id: vm.$route.params.quizId,
                     data: {
                       assignments: [
-                        { collection: vm.$route.params.classId },
+                        ...quiz.assignments,
                         { collection: vm.$store.state.adHocLearners.id },
                       ],
                     },

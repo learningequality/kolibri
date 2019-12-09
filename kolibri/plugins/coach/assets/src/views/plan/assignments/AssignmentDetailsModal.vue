@@ -44,7 +44,6 @@
           :groups="groups"
           :classId="classId"
           :disabled="disabled || formIsSubmitted"
-          :assignmentType="assignmentType"
           :initialAdHocLearners="initialAdHocLearners"
           @updateLearners="learners => adHocLearners = learners"
         />
@@ -53,7 +52,7 @@
       <slot name="resourceTable"></slot>
     </form>
 
-    <BottomAppBar v-if="assignmentType !== 'new_lesson'">
+    <BottomAppBar>
       <KButton
         :text="coreString('cancelAction')"
         appearance="flat-button"
