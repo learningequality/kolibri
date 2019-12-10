@@ -176,7 +176,7 @@ def mark_local_files_availability(checksums, availability, destination=None):
 
 
 def set_local_file_availability_from_disk(checksums=None, destination=None):
-    bridge = Bridge(app_name=CONTENT_APP_NAME, sqlite_file_path=destination,)
+    bridge = Bridge(app_name=CONTENT_APP_NAME, sqlite_file_path=destination)
 
     LocalFileClass = bridge.get_class(LocalFile)
 

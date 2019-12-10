@@ -63,6 +63,15 @@ export default {
     };
   },
   /*
+   * Return array of learner IDs who were individually assigned to the exam
+   */
+  getAdHocLearnersForExam() {
+    return function(assignments) {
+      const ilg = this.adHocGroups.find(group => assignments.includes(group.id));
+      return ilg ? ilg.member_ids : [];
+    };
+  },
+  /*
    * Return array of learner IDs given an exam
    */
   getLearnersForExam() {
@@ -70,7 +79,21 @@ export default {
       if (!exam) {
         throw new Error('getLearnersForLesson: invalid parameter(s)');
       }
-      return exam.assignments.length ? this.getLearnersForGroups(exam.groups) : [];
+      if (exam.assignments.length) {
+        const individuallyAssignedLearners = this.getAdHocLearnersForExam(exam.assignments);
+        /* If exam.groups is empty, but individually assigned learners exist, then we
+         * don't want to getLearnersForGroups because it will return all learners
+         */
+        if (individuallyAssignedLearners.length && exam.groups.length === 0) {
+          return individuallyAssignedLearners;
+        } else {
+          return uniq(individuallyAssignedLearners.concat(this.getLearnersForGroups(exam.groups)));
+        }
+      } else {
+        // If we have no assignments, then getLearnersForGroups will return
+        // all learners (meaning this is assigned to entire class)
+        return [];
+      }
     };
   },
   /*

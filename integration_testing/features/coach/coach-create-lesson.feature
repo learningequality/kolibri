@@ -42,7 +42,7 @@ Feature: Coach creates lessons
       Then I see the snackbar notification
         And I see the *Added* state notification
         And I see the *Remove* button
-      When I click on *back arrow* button near the *Manage resources* page title at the top
+      When I click on *back arrow* button near the <topic> page title at the top
       # The back arrow button is not visible when user has scrolled down at the page or
       # when viewing the page in a small window like the iPad 2.
       Then I see the *Manage resources in '<lesson>'* page again
@@ -59,19 +59,39 @@ Feature: Coach creates lessons
         And I see the <lesson> lesson page again
         And I see the resources I added to the <lesson> lesson
 
-  Scenario: Search and find by keyword
-    Given that there is a lesson <lesson> created
-      And that I am on the *Manage resources* page for  <lesson>
-    When I enter a keyword into the search box
-      And I click the search icon button or press Enter
-    Then I am redirected to the search results page
-      And I see topic and/or exercise cards on the search results page
+  Scenario: Search from browse mode (with results)
+      Given I am browsing the topics
+      When I enter <searchterm> in the *Search* field
+        And I press the *Submit search* button (magnifying glass)
+      Then I see the *Results for '<searchterm>'* header
+        And I see the search results for <searchterm>
+        And I see the search filters
+        And I see the *Exit search* button
+        
+    Scenario: Search again from search results page
+      Given I am on the *Results for '<searchterm>'* page
+      When I enter a <searchterm2> in the *Search* textbox
+        And I press the *Submit search* button (magnifying glass)
+      Then the previous search results disappear
+        And I see the results for the <searchterm2>
 
-  Scenario: Fail to find by keyword
-    When I enter a keyword into the search box
-      And I click the search icon button or press Enter
-    Then I am redirected to the search results page
-      And I see the *No results found...* message
+    Scenario: Exit search with no browser history
+      Given I am on the *Results for '<searchterm>'* page
+        And I arrived to this page directly from a URL
+      When I press the *Exit search* button
+      Then I return to the listing of channels
+
+    Scenario: Exit search with browser history
+      Given I am on the *Results for '<searchterm>'* page
+        And I arrived to this page directly from a topic
+      When I press the *Exit search* button
+      Then I return to the the content listing of the last topic
+
+    Scenario: Search has no results
+      Given I am on the *Results for '<searchterm>'* page
+        And There are no results for <searchterm>
+      Then I see a message saying *No results for '<searchterm>'*
+        And I don't see available options in search filters
 
   Scenario: Clear results and reset search
     Given that there are results from the previous search
@@ -82,15 +102,15 @@ Feature: Coach creates lessons
   Scenario: Add resources from the search results page
     Given I am on the search results page
       And there are resources available in the search results
-    When I check one or more resource checkboxes
-    Then I see a snackbar confirmation that *n resources added to the lesson* 
+    When I check one resource checkbox
+    Then I see a snackbar confirmation that *Added 1 resource to the lesson* 
 
   Scenario: Remove a topic or exercise from the search results page
     Given I am on the search results page
       And there are resources available in the search results
       And some of them are selected
-    When I uncheck one or more checkbox
-    Then I see the a snackbar confirmation *n resources removed from the lesson*
+    When I uncheck one checkbox
+    Then I see the a snackbar confirmation *Removed 1 resource from the lesson*
 
   Scenario: Filter search results by type
     Given I am on the search results page
@@ -142,11 +162,11 @@ Feature: Coach creates lessons
     When I click an exercise <exercise> card
     Then I am on the preview page for exercise <exercise>
     When I click the *Add* button
-    Then I see a snackbar confirmation *1 resource added to the lesson*
+    Then I see a snackbar confirmation *Added 1 resource to the lesson*
       And I see the *Added* label 
       And I see the *Remove* button
     When I click the *Remove* button
-    Then I see a snackbar confirmation *1 resource removed from the lesson*
+    Then I see a snackbar confirmation *Removed 1 resource from the lesson*
     When I click the *back arrow* button
     Then I see the search results page again
       And I see my results are still present

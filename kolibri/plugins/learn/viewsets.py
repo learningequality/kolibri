@@ -28,10 +28,7 @@ class LearnerClassroomViewset(ValuesViewset):
 
     read_only = True
 
-    values = (
-        "id",
-        "name",
-    )
+    values = ("id", "name")
 
     def get_queryset(self):
         if self.request.user.is_anonymous():
@@ -48,7 +45,7 @@ class LearnerClassroomViewset(ValuesViewset):
             )
             .distinct()
             .values(
-                "description", "id", "is_active", "title", "resources", "collection",
+                "description", "id", "is_active", "title", "resources", "collection"
             )
         )
         lesson_content_ids = set()
@@ -61,7 +58,7 @@ class LearnerClassroomViewset(ValuesViewset):
         progress_map = {
             l["content_id"]: l["progress"]
             for l in ContentSummaryLog.objects.filter(
-                content_id__in=lesson_content_ids, user=self.request.user,
+                content_id__in=lesson_content_ids, user=self.request.user
             ).values("content_id", "progress")
         }
 
@@ -98,7 +95,7 @@ class LearnerClassroomViewset(ValuesViewset):
                     .distinct()
                     .values("examlog")
                     .annotate(total_correct=Sum("correct"))
-                    .values("total_correct"),
+                    .values("total_correct")
                 ),
                 answer_count=Subquery(
                     ExamAttemptLog.objects.filter(
@@ -109,7 +106,7 @@ class LearnerClassroomViewset(ValuesViewset):
                     .distinct()
                     .values("examlog")
                     .annotate(total_complete=Count("id"))
-                    .values("total_complete"),
+                    .values("total_complete")
                 ),
             )
             .distinct()

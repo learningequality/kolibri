@@ -16,6 +16,15 @@
       :disabled="disabled"
       @change="toggleGroup($event, group.id)"
     />
+    <IndividualLearnerSelector
+      v-if="assignmentType == 'quiz'"
+      :selectedGroupIds="selectedGroupIds"
+      :entireClassIsSelected="entireClassIsSelected"
+      :initialAdHocLearners="initialAdHocLearners"
+      :disabled="disabled"
+      @toggleCheck="toggleGroup"
+      @updateLearners="learners => $emit('updateLearners', learners)"
+    />
   </div>
 
 </template>
@@ -25,9 +34,11 @@
 
   import isEqual from 'lodash/isEqual';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import IndividualLearnerSelector from './IndividualLearnerSelector';
 
   export default {
     name: 'RecipientSelector',
+    components: { IndividualLearnerSelector },
     mixins: [coachStringsMixin],
     props: {
       // Needs to equal [classId] if entire class is selected
@@ -58,10 +69,25 @@
         type: Boolean,
         default: false,
       },
+      initialAdHocLearners: {
+        type: Array,
+        required: false,
+        default: new Array(),
+      },
+      assignmentType: {
+        type: String,
+        required: false,
+        validator(s) {
+          return ['quiz', 'lesson', 'new_lesson'].includes(s);
+        },
+      },
     },
     computed: {
       entireClassIsSelected() {
         return isEqual(this.value, [this.classId]);
+      },
+      selectedGroupIds() {
+        return this.groups.filter(group => this.groupIsChecked(group.id)).map(group => group.id);
       },
     },
     methods: {

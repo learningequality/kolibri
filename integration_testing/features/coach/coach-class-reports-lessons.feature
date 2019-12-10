@@ -1,5 +1,5 @@
 Feature: Lessons subtab
-  Coach needs to be able to see the lesson report details, edit details and manage resources from there
+  Coach needs to be able to see the learner's progress in the lesson report details
 
   Background:
     Given I am logged in as a coach
@@ -31,29 +31,6 @@ Feature: Lessons subtab
         When I click on <exercise> exercise
         Then I see the attempt report of the <learner> for each question in the <exercise>
 
-  Scenario: Edit lesson details from reports
-    When I click the *Options* button
-      And I select the *Edit details* option
-    Then I see the *Edit lesson details for '<lesson>'* page
-    	And I see editable fields for lesson title, status, and recipients
-    	And I see the list of *Resources*
-
-  Scenario: Save lesson details changes
-    Given that I made some changes to the lesson details
-      When I click the *Save changes* button
-      Then see the <lesson> lesson page again
-      	And I see the snackbar notification *Lesson changes saved*
-      	# Notifications missing
-
-  Scenario: Manage lesson resources from reports
-    When I click the *Options* button
-      And I select the *Manage resources* option
-		Then I see the *Manage resources* page
-    When I finish adding to or removing resources from the lesson
-      And I click the *Finish* button
-    Then see the <lesson> lesson page again
-      And I see the changes to the resources I made in the *Report* subtab
-
   Scenario: Learner has not started a resource
     When a learner has not started <resource> or <exercise>
     Then the learner's *Progress* column states *Not started*
@@ -73,7 +50,6 @@ Feature: Lessons subtab
 
   Scenario: Learner needs help with a resource
     When a learner has given 2 wrong answers in the <exercise>
-      # Clarify conditions for *Needs help*
     Then their *Progress* column states *Needs help*
 
 	Scenario: Review exercise attempt report
@@ -99,7 +75,7 @@ Feature: Lessons subtab
     Given that I am on the *'<resource>' > Report* subtab
     	And the <resource> is assigned to entire class
     	And some groups are empty
-    	And some learners are ungroped
+    	And some learners are ungrouped
 		    When I click the *View by groups* checkbox
 		    Then I see separate tables for each group
 		    	And I see empty groups that are recipients of the <lesson>

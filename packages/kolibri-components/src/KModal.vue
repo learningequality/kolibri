@@ -70,7 +70,7 @@
                 name="cancel"
                 :text="cancelText"
                 appearance="flat-button"
-                :disabled="cancelDisabled"
+                :disabled="cancelDisabled || $attrs.disabled"
                 @click="emitCancelEvent"
               />
               <KButton
@@ -78,7 +78,7 @@
                 name="submit"
                 :text="submitText"
                 :primary="true"
-                :disabled="submitDisabled"
+                :disabled="submitDisabled || $attrs.disabled"
                 type="submit"
               />
             </template>

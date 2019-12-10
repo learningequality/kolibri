@@ -24,12 +24,6 @@ export const PageModes = {
   EXAM: 'EXAM',
 };
 
-export const RecommendedPages = [
-  PageNames.RECOMMENDED_POPULAR,
-  PageNames.RECOMMENDED_RESUME,
-  PageNames.RECOMMENDED_NEXT_STEPS,
-];
-
 export const ClassesPageNames = {
   ALL_CLASSES: 'ALL_CLASSES',
   CLASS_ASSIGNMENTS: 'CLASS_ASSIGNMENTS',

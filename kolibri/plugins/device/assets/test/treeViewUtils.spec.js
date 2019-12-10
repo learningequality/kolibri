@@ -48,7 +48,7 @@ describe('annotateNode utility correctly annotates', () => {
       checkboxType: 'unchecked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '10 of 100 resources on your device',
+      message: '',
       disabled: false,
       checkboxType: 'unchecked',
     });
@@ -65,7 +65,7 @@ describe('annotateNode utility correctly annotates', () => {
       checkboxType: 'unchecked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '10 of 100 resources on your device',
+      message: '',
       disabled: false,
       checkboxType: 'unchecked',
     });
@@ -100,7 +100,7 @@ describe('annotateNode utility correctly annotates', () => {
       checkboxType: 'unchecked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '10 of 2,000 resources on your device',
+      message: '',
       disabled: false,
       checkboxType: 'unchecked',
     });
@@ -117,7 +117,7 @@ describe('annotateNode utility correctly annotates', () => {
       checkboxType: 'unchecked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '10 of 2,000 resources on your device',
+      message: '',
       disabled: false,
       checkboxType: 'unchecked',
     });
@@ -157,7 +157,7 @@ describe('annotateNode utility correctly annotates', () => {
       checkboxType: 'checked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '',
+      message: '1 resource selected',
       disabled: false,
       checkboxType: 'checked',
     });

@@ -2,9 +2,9 @@
 
   <div>
 
-    <section>
+    <section v-if="!loadingChannel">
       <h1>
-        {{ $tr('versionIsAvailable', { channelName, nextVersion }) }}
+        {{ versionAvailableText }}
       </h1>
       <p> {{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
       <p v-if="channelIsIncomplete">
@@ -12,54 +12,100 @@
       </p>
     </section>
 
-    <section>
-      <h3>{{ $tr('versionChangesHeader', { currentVersion, nextVersion }) }}</h3>
-      <KTooltip>
-        {{ $tr('resourcesToBeDeletedTooltip') }}
-      </KTooltip>
+    <div style="height: 32px" aria-hidden="true"></div>
 
+    <section v-if="!loadingChannel && !loadingTask">
+      <h3>
+        {{ $tr('versionChangesHeader', {
+          oldVersion: currentVersion,
+          newVersion: nextVersion
+        }) }}
+      </h3>
       <table>
         <tr>
           <th>{{ $tr('resourcesAvailableForImport') }}</th>
-          <td></td>
+          <td class="col-2">
+            <span class="count-added" :style="{color: $themeTokens.success}">
+              {{ newResources }}
+            </span>
+          </td>
         </tr>
         <tr>
           <th>{{ $tr('resourcesToBeDeleted') }}</th>
-          <td></td>
+          <td>
+            <span class="count-deleted" :style="{color: $themeTokens.error}">
+              {{ deletedResources }}
+            </span>
+          </td>
+          <td>
+            <CoreInfoIcon
+              class="info-icon"
+              :tooltipText="$tr('resourcesToBeDeletedTooltip')"
+              :iconAriaLabel="$tr('resourcesToBeDeletedTooltip')"
+              tooltipPlacement="right"
+            />
+          </td>
         </tr>
         <tr>
           <th>{{ $tr('resourcesToBeUpdated') }}</th>
-          <td></td>
+          <td>
+            {{ updatedResources }}
+          </td>
         </tr>
       </table>
 
+      <div style="height: 24px" aria-hidden="true"></div>
+
       <KButton
+        class="button"
         :text="$tr('updateChannelAction')"
         appearance="raised-button"
         :primary="true"
+        @click="showModal = true"
       />
     </section>
 
-    <section dir="auto">
-      <template v-for="(info, idx) in versionInfos">
-        <h2 :key="idx">
-          {{ $tr('versionNumberHeader', { version: info.version }) }}
+    <div style="height: 48px" aria-hidden="true"></div>
+
+    <section v-if="!loadingChannel">
+      <div
+        v-for="(note, idx) in sortedVersionNotes"
+        v-show="note.version >= currentVersion"
+        :key="idx"
+      >
+        <h2>
+          {{ $tr('versionNumberHeader', { version: note.version }) }}
+          <mat-svg
+            v-if="note.version === nextVersion"
+            class="exclamation-icon"
+            name="priority_high"
+            category="notification"
+            :style="{fill: $themeTokens.primary}"
+          />
         </h2>
-        <p :key="idx">
-          {{ info.description }}
+        <p dir="auto">
+          {{ note.notes }}
         </p>
-      </template>
+      </div>
     </section>
+
+    <!-- Load the channel immediately, then the diff stats -->
+    <KLinearLoader
+      v-if="loadingChannel || loadingTask"
+      :indeterminate="true"
+      :delay="false"
+    />
 
     <KModal
       v-if="showModal"
       :title="$tr('updateChannelAction')"
       :submitText="coreString('continueAction')"
       :cancelText="coreString('cancelAction')"
+      :disabled="disableModal"
       @submit="handleSubmit"
       @cancel="showModal = false"
     >
-      <p>{{ $tr('updateConfirmationQuestion', { version: nextVersion }) }}</p>
+      <p>{{ $tr('updateConfirmationQuestion', { channelName, version: nextVersion }) }}</p>
     </KModal>
   </div>
 
@@ -68,27 +114,170 @@
 
 <script>
 
+  import find from 'lodash/find';
+  import pickBy from 'lodash/pickBy';
+  import sortBy from 'lodash/sortBy';
+  import map from 'lodash/map';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { TaskResource } from 'kolibri.resources';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import { taskIsClearable } from '../../constants';
+  import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
   export default {
     name: 'NewChannelVersionPage',
-    components: {},
+    metaInfo() {
+      return {
+        title: this.versionAvailableText,
+      };
+    },
+    components: {
+      CoreInfoIcon,
+    },
     mixins: [commonCoreStrings],
-    props: {},
     data() {
       return {
+        channelName: '',
+        nextVersion: null,
+        currentVersion: null,
+        deletedResources: null,
+        newResources: null,
+        updatedNodeIds: [],
+        versionNotes: {},
         showModal: false,
+        disableModal: false,
+        loadingTask: true,
+        loadingChannel: true,
+        watchedTaskId: null,
       };
     },
     computed: {
       channelIsIncomplete() {
         return false;
       },
+      versionAvailableText() {
+        if (this.channelName) {
+          return this.$tr('versionIsAvailable', {
+            channelName: this.channelName,
+            nextVersion: this.nextVersion,
+          });
+        }
+        return '';
+      },
+      updatedResources() {
+        return this.updatedNodeIds.length;
+      },
+      params() {
+        return pickBy({
+          channelId: this.$route.params.channel_id,
+          driveId: this.$route.query.drive_id,
+          addressId: this.$route.query.address_id,
+        });
+      },
+      sortedVersionNotes() {
+        const versionArray = map(this.versionNotes, (val, key) => {
+          return {
+            version: Number(key),
+            notes: val,
+          };
+        });
+        return sortBy(versionArray, note => -note.version);
+      },
+      watchedTaskHasFinished() {
+        return this.$store.getters['manageContent/taskFinished'](this.watchedTaskId);
+      },
+    },
+    watch: {
+      watchedTaskHasFinished(val) {
+        if (val && val === this.watchedTaskId) {
+          this.onWatchedTaskFinished();
+        }
+      },
+    },
+    mounted() {
+      this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.coreString('loadingLabel'));
+      this.loadChannelInfo().then(([installedChannel, sourceChannel]) => {
+        // Show the channel info ASAP
+        this.setChannelData(installedChannel, sourceChannel);
+
+        this.loadingChannel = false;
+
+        // Trigger Diff Stats task right after
+        // HACK params for import task are appended to sourceChannel to avoid more REST calls
+        this.startDiffStatsTask({
+          baseurl: sourceChannel.baseurl,
+          driveId: sourceChannel.driveId,
+        });
+      });
     },
     methods: {
       handleSubmit() {
+        this.disableModal = true;
+        const updateParams = {
+          sourcetype: 'remote',
+          channel_id: this.params.channelId,
+          node_ids: this.updatedNodeIds,
+          new_version: this.nextVersion,
+        };
+
+        if (this.params.driveId) {
+          updateParams.sourcetype = 'local';
+          updateParams.drive_id = this.params.driveId;
+        } else if (this.params.addressId) {
+          updateParams.peer_id = this.params.addressId;
+        }
+
         // Create the import channel task
-        // Redirect to the MANAGE_CONTENT_PAGE
+        return TaskResource.postListEndpoint('startchannelupdate', updateParams)
+          .then(() => {
+            this.$router.push(this.$router.getRoute('MANAGE_TASKS'));
+          })
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+          });
+      },
+      setChannelData(installedChannel, sourceChannel) {
+        this.$store.commit('coreBase/SET_APP_BAR_TITLE', installedChannel.name);
+        this.channelName = installedChannel.name;
+        this.currentVersion = installedChannel.version;
+        this.nextVersion = sourceChannel.version;
+        // Currently, version notes only available if upgrading from Studio via
+        // RemoteChannelViewset
+        this.versionNotes = sourceChannel.version_notes || {};
+      },
+      loadChannelInfo() {
+        return fetchChannelAtSource(this.params).catch(error => {
+          // Useful errors will still appear on AppError
+          this.$store.dispatch('handleApiError', error);
+        });
+      },
+      startDiffStatsTask(sourceParams) {
+        // Finds or triggers a new CHANNELDIFFSTATS task.
+        // If one is already found, it will immediately clear it after loading the data.
+        // If a new Task is triggered, the component will watch the Task until it is completed,
+        // then clear it after the data is loaded.
+        return fetchOrTriggerChannelDiffStatsTask({
+          channelId: this.params.channelId,
+          ...sourceParams,
+        }).then(task => {
+          if (taskIsClearable(task)) {
+            this.readAndDeleteTask(task);
+          } else {
+            this.watchedTaskId = task.id;
+          }
+        });
+      },
+      readAndDeleteTask(task) {
+        this.loadingTask = false;
+        this.newResources = task.new_resources_count;
+        this.deletedResources = task.deleted_resources_count;
+        this.updatedNodeIds = task.updated_node_ids || [];
+
+        return TaskResource.deleteFinishedTask(task.id);
+      },
+      onWatchedTaskFinished() {
+        const task = find(this.$store.state.manageContent.taskList, { id: this.watchedTaskId });
+        this.readAndDeleteTask(task);
       },
     },
     $trs: {
@@ -133,4 +322,57 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .button {
+    margin-left: 0;
+  }
+
+  /deep/ .k-tooltip {
+    max-width: 300px;
+    text-align: left;
+  }
+
+  .count-added::before {
+    content: '+';
+  }
+
+  .count-deleted::before {
+    content: '-';
+  }
+
+  .info-icon {
+    margin-top: 2px;
+    margin-left: 16px;
+  }
+
+  .exclamation-icon {
+    vertical-align: -3px;
+  }
+
+  tr {
+    height: 2em;
+  }
+
+  th {
+    font-weight: normal;
+    text-align: left;
+  }
+
+  td {
+    text-align: right;
+  }
+
+  td.col-2 {
+    min-width: 120px;
+  }
+
+</style>
