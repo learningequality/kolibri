@@ -288,7 +288,11 @@
       newAddressButtonLabel: 'Add new address',
       noAddressText: 'There are no addresses yet',
       refreshAddressesButtonLabel: 'Refresh addresses',
-      peerDeviceName: 'Local Kolibri ({ identifier })',
+      peerDeviceName: {
+        message: 'Local Kolibri ({ identifier })',
+        context:
+          "\nRefers to the Kolibri's capability to import resources from other devices in the same *local* network (LAN), as opposed to importing from Studio which is online.",
+      },
       searchingText: {
         message: 'Searching',
         context:
