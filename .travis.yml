@@ -60,6 +60,11 @@ matrix:
       sudo: true
       env:
         - TOX_ENV=py3.7
+    - python: 3.7
+      dist: xenial
+      sudo: true
+      env:
+        - TOX_ENV=illegaldbaccess
     - python: "2.7"
       env:
         - TOX_ENV=node10.x

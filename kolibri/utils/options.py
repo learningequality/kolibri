@@ -86,7 +86,7 @@ base_option_spec = {
     "Database": {
         "DATABASE_ENGINE": {
             "type": "option",
-            "options": ("sqlite", "postgres"),
+            "options": ("sqlite", "postgres", "raise.importerror.if.loaded"),
             "default": "sqlite",
             "envvars": ("KOLIBRI_DATABASE_ENGINE",),
         },
