@@ -478,7 +478,7 @@ def calculate_included_languages(channel):
 
 
 def calculate_next_order(channel):
-    latest_order = ChannelMetadata.objects.latest("order").order
+    latest_order = channel.objects.latest("order").order
     if latest_order is None:
         channel.order = 1
     else:

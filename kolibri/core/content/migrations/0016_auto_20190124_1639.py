@@ -4,23 +4,13 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-
-def calculate_next_order(channel, model):
-    """
-    See kolibri.core.content.utils.annotation.calculate_next_order
-    """
-    latest_order = model.objects.latest("order").order
-    if latest_order is None:
-        channel.order = 1
-    else:
-        channel.order = latest_order + 1
-    channel.save()
+from kolibri.core.content.utils.annotation import calculate_next_order
 
 
 def calculate_channel_order(apps, schema_editor):
     ChannelMetadata = apps.get_model("content", "ChannelMetadata")
     for channel in ChannelMetadata.objects.all():
-        calculate_next_order(channel, ChannelMetadata)
+        calculate_next_order(channel)
 
 
 class Migration(migrations.Migration):
