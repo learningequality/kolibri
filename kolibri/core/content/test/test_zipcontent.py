@@ -187,8 +187,7 @@ class ZipContentTestCase(TestCase):
         response = self.client.get(
             self.zip_file_base_url + self.script_name + "?SKIP_HASHI=true"
         )
-        content = "<html><head><script>test</script></head></html>"
-        self.assertEqual(response.content.decode("utf-8"), content)
+        self.assertEqual(next(response.streaming_content).decode(), self.script_str)
 
     def test_request_for_html_body_script_return_correct_length_header(
         self, filename_patch
