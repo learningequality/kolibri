@@ -221,16 +221,6 @@ class Application(pew.ui.PEWApp):
         Start your UI and app run loop here.
         """
 
-        if pew.ui.platform == 'wx':
-            # Although we're not directly using wx's translation tools, it appears to automatically initialize
-            # them under the hood, perhaps in response to Python calling setlocale, which leads to errors about
-            # languages not being available.
-            # Fix this by making sure wx knows about our translation languages / files.
-            import wx
-            locale = wx.Locale()
-            locale.AddCatalogLookupPathPrefix('./locale')
-            locale.AddCatalog('macapp')
-
         # Set loading screen
         lang_id = locale_info['language']
         loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format(lang_id)))
