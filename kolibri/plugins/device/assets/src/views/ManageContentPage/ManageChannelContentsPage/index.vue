@@ -17,14 +17,14 @@
         @click="handleClickViewNewVersion"
       />
 
+      <ChannelContentsSummary :channel="channel" />
+
       <div style="text-align: right">
         <KButton
           :text="$tr('importMoreAction')"
           @click="shownModal = 'IMPORT_MORE'"
         />
       </div>
-
-      <ChannelContentsSummary :channel="channel" />
 
       <transition mode="out-in">
         <KLinearLoader v-if="!currentNode" :delay="false" />

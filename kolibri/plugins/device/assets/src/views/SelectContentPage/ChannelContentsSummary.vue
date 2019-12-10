@@ -96,6 +96,10 @@
 
 <style lang="scss" scoped>
 
+  .channel-header {
+    margin-top: 16px;
+  }
+
   .thumbnail {
     max-width: 200px;
   }
