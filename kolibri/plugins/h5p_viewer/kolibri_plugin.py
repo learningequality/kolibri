@@ -9,11 +9,11 @@ from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 
 
-class HTML5AppPlugin(KolibriPluginBase):
+class H5PAppPlugin(KolibriPluginBase):
     pass
 
 
 @register_hook
-class HTML5AppAsset(content_hooks.ContentRendererHook):
+class H5PAppAsset(content_hooks.ContentRendererHook):
     bundle_id = "main"
-    presets = (format_presets.HTML5_ZIP,)
+    presets = (format_presets.H5P_ZIP,)
