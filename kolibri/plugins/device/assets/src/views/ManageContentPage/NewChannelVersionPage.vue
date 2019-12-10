@@ -25,7 +25,10 @@
         <tr>
           <th>{{ $tr('resourcesAvailableForImport') }}</th>
           <td class="col-2">
-            <span class="count-added" :style="{color: $themeTokens.success}">
+            <span
+              :class="{'count-added': newResources}"
+              :style="{color: $themeTokens.success}"
+            >
               {{ newResources }}
             </span>
           </td>
@@ -33,12 +36,16 @@
         <tr>
           <th>{{ $tr('resourcesToBeDeleted') }}</th>
           <td>
-            <span class="count-deleted" :style="{color: $themeTokens.error}">
+            <span
+              :class="{'count-deleted': deletedResources}"
+              :style="{color: $themeTokens.error}"
+            >
               {{ deletedResources }}
             </span>
           </td>
           <td>
             <CoreInfoIcon
+              v-if="deletedResources"
               class="info-icon"
               :tooltipText="$tr('resourcesToBeDeletedTooltip')"
               :iconAriaLabel="$tr('resourcesToBeDeletedTooltip')"
