@@ -405,10 +405,7 @@ def set_content_visibility(
 ):
     mark_local_files_as_available(checksums)
     update_content_metadata(
-        channel_id,
-        node_ids=node_ids,
-        exclude_node_ids=exclude_node_ids,
-        public=public,
+        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, public=public,
     )
 
 
