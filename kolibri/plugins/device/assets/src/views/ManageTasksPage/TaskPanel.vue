@@ -224,12 +224,18 @@
       },
     },
     $trs: {
-      startedByUser: `Started by '{user}'`,
+      startedByUser: {
+        message: `Started by '{user}'`,
+        context: '\nRefers to the content management *task*.\n',
+      },
       numResourcesAndSize:
         '{numResources} {numResources, plural, one {resource} other {resources}} ({bytesText})',
       statusInProgress: 'In-progress',
       statusInQueue: 'Waiting',
-      statusComplete: 'Finished',
+      statusComplete: {
+        message: 'Finished',
+        context: '\nLabel indicating that the *task* was completed successfully. \n\n',
+      },
       statusFailed: 'Failed',
       statusCanceled: 'Canceled',
       statusCanceling: 'Canceling',

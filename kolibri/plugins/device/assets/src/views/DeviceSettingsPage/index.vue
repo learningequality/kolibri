@@ -158,7 +158,10 @@
       allowGuestAccess: 'Allow users to access resources without signing in',
       landingPageLabel: 'Landing page',
       signInPageChoice: 'Sign-in page',
-      learnerAppPageChoice: 'Learn page',
+      learnerAppPageChoice: {
+        message: 'Learn page',
+        context: '\nThis refers to the page you reach when you click "Learn" in the main side nav',
+      },
       unlistedChannels: 'Allow other computers on this network to import my unlisted channels',
       lockedContent: 'Learners should only see resources assigned to them in classes',
     },

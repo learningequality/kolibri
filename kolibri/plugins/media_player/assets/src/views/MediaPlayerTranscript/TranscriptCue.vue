@@ -129,7 +129,11 @@
     $trs: {
       title: 'Seek to {startTime}',
       timeLabel: 'Transcript cue start time',
-      textLabel: 'Transcript cue caption text',
+      textLabel: {
+        message: 'Transcript cue caption text',
+        context:
+          '\nThis string is used to describe the container where the caption appears to help those using screen readers assistive technology.\n\nYou could also translate it as "Text of the current caption".\n\n\n',
+      },
     },
   };
 

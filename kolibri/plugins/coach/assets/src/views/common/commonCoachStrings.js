@@ -57,7 +57,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   quizClosedLabel: {
     message: 'Quiz ended',
     context:
-      'A label indicating that the currently viewed quiz is ended - meaning that learners may no longer give answers to the quiz.',
+      'A label indicating that the currently viewed quiz is ended - meaning that learners will no longer be able to give answers to the quiz.',
   },
   quizzesLabel: 'Quizzes', // Kept here for use in common.js
   quizzesAssignedLabel: 'Quizzes assigned',
