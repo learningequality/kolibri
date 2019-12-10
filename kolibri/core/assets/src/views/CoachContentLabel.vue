@@ -29,13 +29,8 @@
 
 <script>
 
-  import UiIcon from 'keen-ui/src/UiIcon';
-
   export default {
     name: 'CoachContentLabel',
-    components: {
-      UiIcon,
-    },
     props: {
       value: {
         type: Number,
