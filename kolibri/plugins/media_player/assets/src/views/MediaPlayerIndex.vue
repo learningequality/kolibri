@@ -535,6 +535,11 @@
     /deep/ .fill-space {
       height: auto;
     }
+
+    [dir='rtl'] & {
+      right: auto;
+      left: 0;
+    }
   }
 
   .wrapper:not(.transcript-wrap) .media-player-transcript {
