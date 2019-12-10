@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("kolibriauth", "0015_facilitydataset_registered"),
+        ("kolibriauth", "0016_add_adhoclearnersgroup_collection_kind"),
         ("device", "0005_auto_20191203_0951"),
     ]
 
