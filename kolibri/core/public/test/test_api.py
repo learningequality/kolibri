@@ -95,7 +95,7 @@ class PublicAPITestCase(APITestCase):
         channel2 = create_mini_channel(
             channel_name="science", channel_id=self.channel_id2, root_lang="es"
         )
-        set_channel_metadata_fields(channel2.id, is_listed=True)
+        set_channel_metadata_fields(channel2.id, public=True)
 
     def test_info_endpoint(self):
         response = self.client.get(reverse("kolibri:core:info-list"))
@@ -226,7 +226,7 @@ class PublicAPITestCase(APITestCase):
         set_device_settings(allow_peer_unlisted_channel_import=False)
         unlisted_channel_id = uuid.uuid4().hex
         create_mini_channel(channel_name="math 2", channel_id=unlisted_channel_id)
-        set_channel_metadata_fields(unlisted_channel_id, is_listed=False)
+        set_channel_metadata_fields(unlisted_channel_id, public=False)
 
         response = self.client.get(get_channel_lookup_url(baseurl="/"))
         data = response.json()

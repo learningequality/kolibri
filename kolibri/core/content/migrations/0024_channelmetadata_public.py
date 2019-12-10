@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="channelmetadata",
-            name="is_listed",
+            name="public",
             field=models.NullBooleanField(),
         ),
     ]

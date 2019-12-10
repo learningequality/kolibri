@@ -782,7 +782,7 @@ class ImportContentTestCase(TestCase):
             [],
             exclude_node_ids=[],
             node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
-            is_listed=False,
+            public=False,
         )
 
 

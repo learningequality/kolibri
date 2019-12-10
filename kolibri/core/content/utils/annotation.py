@@ -390,25 +390,25 @@ def propagate_forced_localfile_removal(localfiles):
 
 
 def update_content_metadata(
-    channel_id, node_ids=None, exclude_node_ids=None, is_listed=None
+    channel_id, node_ids=None, exclude_node_ids=None, public=None
 ):
     set_leaf_node_availability_from_local_file_availability(
         channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids
     )
     recurse_annotation_up_tree(channel_id)
-    set_channel_metadata_fields(channel_id, is_listed=is_listed)
+    set_channel_metadata_fields(channel_id, public=public)
     ContentCacheKey.update_cache_key()
 
 
 def set_content_visibility(
-    channel_id, checksums, node_ids=None, exclude_node_ids=None, is_listed=None
+    channel_id, checksums, node_ids=None, exclude_node_ids=None, public=None
 ):
     mark_local_files_as_available(checksums)
     update_content_metadata(
         channel_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
-        is_listed=is_listed,
+        public=public,
     )
 
 
@@ -424,15 +424,15 @@ def set_content_invisible(channel_id, node_ids, exclude_node_ids):
     ContentCacheKey.update_cache_key()
 
 
-def set_channel_metadata_fields(channel_id, is_listed=None):
+def set_channel_metadata_fields(channel_id, public=None):
     channel = ChannelMetadata.objects.get(id=channel_id)
     calculate_published_size(channel)
     calculate_total_resource_count(channel)
     calculate_included_languages(channel)
     calculate_next_order(channel)
 
-    if is_listed is not None:
-        channel.is_listed = is_listed
+    if public is not None:
+        channel.public = public
         channel.save()
 
 

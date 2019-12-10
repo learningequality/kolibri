@@ -218,11 +218,11 @@ class Command(AsyncCommand):
         number_of_skipped_files = 0
         transferred_file_size = 0
         file_checksums_to_annotate = []
-        is_listed = None
+        public = None
 
         # If we're downloading, check listing status
         if method == DOWNLOAD_METHOD:
-            is_listed = self.lookup_channel_listing_status(
+            public = self.lookup_channel_listing_status(
                 channel_id=channel_id, baseurl=baseurl
             )
 
@@ -303,7 +303,7 @@ class Command(AsyncCommand):
                 file_checksums_to_annotate,
                 node_ids=node_ids,
                 exclude_node_ids=exclude_node_ids,
-                is_listed=is_listed,
+                public=public,
             )
 
             resources_after_transfer = (

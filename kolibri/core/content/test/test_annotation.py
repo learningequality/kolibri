@@ -895,14 +895,14 @@ class SetChannelMetadataFieldsTestCase(TestCase):
         except DataError:
             self.fail("DataError: integer out of range")
 
-    def test_is_listed(self):
-        self.assertIsNone(self.channel.is_listed)
+    def test_public(self):
+        self.assertIsNone(self.channel.public)
         set_channel_metadata_fields(self.channel.id)
 
         self.channel.refresh_from_db()
-        self.assertIsNone(self.channel.is_listed)
+        self.assertIsNone(self.channel.public)
 
-        set_channel_metadata_fields(self.channel.id, is_listed=True)
+        set_channel_metadata_fields(self.channel.id, public=True)
 
         self.channel.refresh_from_db()
-        self.assertTrue(self.channel.is_listed)
+        self.assertTrue(self.channel.public)

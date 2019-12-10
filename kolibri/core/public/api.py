@@ -83,7 +83,7 @@ def _get_channel_list_v1(params, identifier=None):
         )
 
     if not allow_peer_unlisted_channel_import():
-        channels = channels.exclude(is_listed=False)
+        channels = channels.exclude(public=False)
 
     return channels.filter(root__available=True).distinct()
 
