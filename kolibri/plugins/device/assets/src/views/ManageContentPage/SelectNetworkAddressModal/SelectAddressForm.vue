@@ -10,6 +10,9 @@
     @cancel="$emit('cancel')"
   >
     <template>
+      <p v-if="!addresses.length">
+        {{ $tr('noAddressText') }}
+      </p>
       <UiAlert
         v-if="uiAlertProps"
         v-show="showUiAlerts"
@@ -167,12 +170,6 @@
         if (this.stage === this.Stages.FETCHING_ADDRESSES) {
           return {
             text: this.$tr('fetchingAddressesText'),
-            type: 'info',
-          };
-        }
-        if (this.addresses.length === 0) {
-          return {
-            text: this.$tr('noAddressText'),
             type: 'info',
           };
         }

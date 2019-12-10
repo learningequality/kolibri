@@ -82,13 +82,6 @@
       >
         <h2>
           {{ $tr('versionNumberHeader', { version: note.version }) }}
-          <mat-svg
-            v-if="note.version === nextVersion"
-            class="exclamation-icon"
-            name="priority_high"
-            category="notification"
-            :style="{fill: $themeTokens.primary}"
-          />
         </h2>
         <p dir="auto">
           {{ note.notes }}
@@ -359,10 +352,6 @@
   .info-icon {
     margin-top: 2px;
     margin-left: 16px;
-  }
-
-  .exclamation-icon {
-    vertical-align: -3px;
   }
 
   tr {
