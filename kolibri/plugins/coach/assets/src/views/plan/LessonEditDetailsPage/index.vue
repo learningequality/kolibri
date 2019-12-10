@@ -47,13 +47,12 @@
   import isEqual from 'lodash/isEqual';
   import isEmpty from 'lodash/isEmpty';
   import { LessonResource } from 'kolibri.resources';
+  import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { CoachCoreBase } from '../../common';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import ResourceListTable from './EditDetailsResourceListTable';
-
-  const ADHOCLEARNERS_GROUP_KIND = 'adhoclearnersgroup';
 
   export default {
     name: 'LessonEditDetailsPage',
@@ -120,7 +119,7 @@
         .then(lesson => {
           next(vm => {
             const collection = lesson.lesson_assignments.find(
-              a => a.collection_kind === ADHOCLEARNERS_GROUP_KIND
+              a => a.collection_kind === CollectionKinds.ADHOCLEARNERSGROUP
             );
 
             if (collection) {

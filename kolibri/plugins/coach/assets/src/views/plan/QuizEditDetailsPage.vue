@@ -31,11 +31,10 @@
 
   import { mapGetters } from 'vuex';
   import { ExamResource } from 'kolibri.resources';
+  import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import { CoachCoreBase } from '../common';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import AssignmentDetailsModal from './assignments/AssignmentDetailsModal';
-
-  const ADHOCLEARNERS_GROUP_KIND = 'adhoclearnersgroup';
 
   export default {
     name: 'QuizEditDetailsPage',
@@ -86,7 +85,7 @@
         // Only include the AdHocGroup in this if it has already
         // had learners assigned to it.
         this.quiz.assignments.forEach(assignment => {
-          if (assignment.collection_kind === ADHOCLEARNERS_GROUP_KIND) {
+          if (assignment.collection_kind === CollectionKinds.ADHOCLEARNERSGROUP) {
             if (this.hasAdHocLearnersAssigned) {
               collectionIds.push(assignment.collection);
             }
@@ -107,7 +106,7 @@
         .then(quiz => {
           next(vm => {
             const collection = quiz.assignments.find(
-              a => a.collection_kind === ADHOCLEARNERS_GROUP_KIND
+              a => a.collection_kind === CollectionKinds.ADHOCLEARNERSGROUP
             );
             if (collection) {
               vm.$store
