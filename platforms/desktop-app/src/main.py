@@ -1,3 +1,4 @@
+import datetime
 import gettext
 import logging
 import os
@@ -13,6 +14,24 @@ except ModuleNotFoundError:
     from urllib.error import URLError
     from urllib.request import urlopen
 
+
+class LoggerWriter(object):
+    def __init__(self, writer):
+        self._writer = writer
+        self._msg = ''
+
+    def write(self, message):
+        self._msg = self._msg + message
+        while '\n' in self._msg:
+            pos = self._msg.find('\n')
+            self._writer(self._msg[:pos])
+            self._msg = self._msg[pos+1:]
+
+    def flush(self):
+        if self._msg != '':
+            self._writer(self._msg)
+            self._msg = ''
+
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
 logging.basicConfig(level=logging.DEBUG)
 
@@ -22,9 +41,14 @@ locale_root_dir = os.path.join(root_dir, 'locale')
 if root_dir.endswith('src'):
     locale_root_dir = os.path.join(root_dir, '..', 'locale')
 
-if getattr(sys, 'frozen', False) and sys.platform == 'darwin':
-    # On Mac, included Python packages go into the lib/python3.6
-    root_dir = os.path.join(root_dir, "lib", "python3.6")
+if getattr(sys, 'frozen', False):
+    if sys.platform == 'darwin':
+        # On Mac, included Python packages go into the lib/python3.6
+        root_dir = os.path.join(root_dir, "lib", "python3.6")
+
+    # make sure we send all app output to logs as we have no console to view them on.
+    sys.stdout = LoggerWriter(logging.debug)
+    sys.stderr = LoggerWriter(logging.warning)
 
 kolibri_package_dir = os.path.join(root_dir, "kolibri", "dist")
 sys.path.append(kolibri_package_dir)
@@ -34,8 +58,6 @@ import pew
 import pew.ui
 
 pew.set_app_name("Kolibri")
-logging.info("Entering main.py...")
-
 
 if pew.ui.platform == "android":
     from jnius import autoclass
@@ -74,6 +96,15 @@ log_filename = os.path.join(log_dir, log_basename)
 root_logger = logging.getLogger()
 file_handler = KolibriTimedRotatingFileHandler(filename=log_filename, when='midnight', backupCount=30)
 root_logger.addHandler(file_handler)
+
+# Since the log files can contain multiple runs, make the first printout very visible to quickly show
+# when a new run starts in the log files.
+logging.info("")
+logging.info("**********************************")
+logging.info("*  Kolibri Mac App Initializing  *")
+logging.info("**********************************")
+logging.info("")
+logging.info("Started at: {}".format(datetime.datetime.today()))
 
 languages = None
 if sys.platform == 'darwin':
@@ -235,6 +266,7 @@ class Application(pew.ui.PEWApp):
         if self.server_thread:
             del self.server_thread
 
+        logging.info("Preparing to start Kolibri server...")
         self.server_thread = pew.ui.PEWThread(target=start_django, kwargs={'port': self.port})
         self.server_thread.daemon = True
         self.server_thread.start()
