@@ -1425,7 +1425,7 @@ class AdHocGroup(Collection):
 
     morango_model_name = "adhoclearnersgroup"
     morango_model_dependencies = (Classroom,)
-    _KIND = collection_kinds.INDIVIDUALLEARNERSGROUP
+    _KIND = collection_kinds.ADHOCLEARNERSGROUP
 
     objects = CollectionProxyManager()
 
