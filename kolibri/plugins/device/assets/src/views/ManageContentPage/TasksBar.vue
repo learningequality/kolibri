@@ -1,7 +1,7 @@
 <template>
 
   <div class="progress-bar">
-    <p v-if="tasksString">
+    <p v-if="totalTasks">
       {{ tasksString }}
     </p>
     <p>
@@ -39,7 +39,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import ManageTasksPage from '../ManageTasksPage';
-  import { PageNames, taskIsClearable } from '../../constants';
+  import { taskIsClearable } from '../../constants';
 
   const manageTasksStrings = crossComponentTranslator(ManageTasksPage);
 
@@ -51,10 +51,15 @@
     data() {
       return {};
     },
+
     computed: {
       ...mapGetters('manageContent', ['managedTasks']),
       clearCompletedString() {
+        /* eslint-disable kolibri/vue-no-undefined-string-uses */
+        // TODO remove
+        // shows up as 'undefined', possibly due to cross component translator
         return manageTasksStrings.$tr('clearCompletedAction');
+        /* eslint-enable kolibri/vue-no-undefined-string-uses */
       },
       showClearCompletedButton() {
         return some(this.managedTasks, taskIsClearable);
@@ -73,9 +78,7 @@
         return ((this.doneTasks + sumBy(inProgressTasks, 'percentage')) / this.totalTasks) * 100;
       },
       tasksString() {
-        if (this.totalTasks) {
-          return this.$tr('someTasksComplete', { done: this.doneTasks, total: this.totalTasks });
-        }
+        return this.$tr('someTasksComplete', { done: this.doneTasks, total: this.totalTasks });
       },
     },
     methods: {
