@@ -48,7 +48,7 @@ export default {
     },
     channelIsInstalled(state) {
       return function findChannel(channelId) {
-        return find(state.channelList, { id: channelId });
+        return find(state.channelList, { id: channelId, available: true });
       };
     },
     channelIsBeingDeleted(state) {
