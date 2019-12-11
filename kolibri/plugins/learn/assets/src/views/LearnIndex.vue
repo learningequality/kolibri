@@ -109,7 +109,7 @@
         topicsTreeChannel: 'channel',
       }),
       ...mapState('examReportViewer', ['exam']),
-      ...mapState(['pageName', 'memberships']),
+      ...mapState(['pageName']),
       userIsAuthorized() {
         return this.facilityConfig.allow_guest_access || this.isUserLoggedIn;
       },
@@ -205,10 +205,7 @@
         };
       },
       showSearch() {
-        return (
-          this.pageName !== PageNames.SEARCH &&
-          (this.memberships.length > 0 || this.canAccessUnassignedContent)
-        );
+        return this.pageName !== PageNames.SEARCH && this.canAccessUnassignedContent;
       },
       topNavIsVisible() {
         return (
