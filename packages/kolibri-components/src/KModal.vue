@@ -208,21 +208,23 @@
       this.lastFocus = document.activeElement;
     },
     mounted() {
+      // Remove scrollbars from the <html> tag, so user's can't scroll while modal is open
+      window.document.documentElement.style['overflow'] = 'hidden';
       this.$nextTick(() => {
         if (this.$refs.modal && !this.$refs.modal.contains(document.activeElement)) {
           this.focusModal();
         }
       });
       window.addEventListener('focus', this.focusElementTest, true);
-      window.addEventListener('scroll', this.preventScroll, true);
       window.setTimeout(() => (this.delayedEnough = true), 500);
     },
     updated() {
       this.updateContentSectionStyle();
     },
     destroyed() {
+      // Restore scrollbars to <html> tag
+      window.document.documentElement.style['overflow'] = null;
       window.removeEventListener('focus', this.focusElementTest, true);
-      window.removeEventListener('scroll', this.preventScroll, true);
       // Wait for events to finish propagating before changing the focus.
       // Otherwise the `lastFocus` item receives events such as 'enter'.
       window.setTimeout(() => this.lastFocus.focus());
@@ -291,9 +293,6 @@
         if (!this.$refs.modal.contains(event.target)) {
           this.focusModal();
         }
-      },
-      preventScroll(event) {
-        event.preventDefault();
       },
     },
     $trs: {
