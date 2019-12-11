@@ -10,13 +10,16 @@ super-admin-benchmark-command.feature
 super-admin-set-kolibri-port.feature
 super-admin-select-import-content-location.feature
 super-admin-import-new-content-channel-from-studio.feature
-super-admin-import-new-content-channel-from-studio-token-id.feature
+super-admin-import-new-content-channel-with-token.feature
 super-admin-import-new-content-channel-from-local-drive.feature
 super-admin-manage-import-network-addresses.feature
+super-admin-auto-discovering-new-network-addresses.feature
+super-admin-switch-between-import-channels-or-resources.feature
 super-admin-cancel-import-channel.feature
 super-admin-import-more-from-content-channel.feature
 super-admin-update-channel-import-more.feature
 super-admin-export-content-to-local-drive.feature
+super-admin-edit-channel-order.feature
 super-admin-delete-channel.feature
 super-admin-create-users.feature
 super-admin-edit-user.feature

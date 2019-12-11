@@ -13,7 +13,6 @@ Feature: Super admin imports content from Studio
     When I click *Select resources* button for the <channel> channel
     Then I see the *Kolibri Studio* page
       And I see the "Generating channel listing. This could take a few minutes..." notification
-      And I see the *Cancel* button
     When the channel listing is generated
     Then I see the channel page with logo, name, and version
       And I see the total number and size of <channel> channel resources   
