@@ -10,7 +10,7 @@
     @cancel="$emit('cancel')"
   >
     <template>
-      <p v-if="!addresses.length">
+      <p v-if="initialFetchingComplete && !addresses.length">
         {{ $tr('noAddressText') }}
       </p>
       <UiAlert
@@ -75,7 +75,7 @@
 
     <KFixedGrid slot="actions" class="actions" numCols="4">
       <KFixedGridItem span="1">
-        <transition name="fade">
+        <transition name="spinner-fade">
           <div v-if="discoveringPeers" class="searching-indicator">
             <KLabeledIcon>
               <KCircularLoader slot="icon" :size="16" :stroke="6" />
@@ -131,11 +131,15 @@
       UiAlert,
     },
     mixins: [commonCoreStrings],
-    props: {},
+    props: {
+      discoverySpinnerTime: { type: Number, default: 2500 },
+    },
     data() {
       return {
         savedAddresses: [],
+        savedAddressesInitiallyFetched: false,
         discoveredAddresses: [],
+        discoveredAddressesInitiallyFetched: true,
         selectedAddressId: '',
         showUiAlerts: false,
         stage: '',
@@ -147,6 +151,9 @@
       ...mapState('manageContent/wizard', ['transferredChannel']),
       addresses() {
         return this.savedAddresses.concat(this.discoveredAddresses);
+      },
+      initialFetchingComplete() {
+        return this.savedAddressesInitiallyFetched && this.discoveredAddressesInitiallyFetched;
       },
       submitDisabled() {
         return (
@@ -167,12 +174,6 @@
         return this.stage === this.Stages.PEER_DISCOVERY_STARTED;
       },
       uiAlertProps() {
-        if (this.stage === this.Stages.FETCHING_ADDRESSES) {
-          return {
-            text: this.$tr('fetchingAddressesText'),
-            type: 'info',
-          };
-        }
         if (this.stage === this.Stages.FETCHING_FAILED) {
           return {
             text: this.$tr('fetchingFailedText'),
@@ -195,6 +196,7 @@
       },
     },
     beforeMount() {
+      this.startDiscoveryPolling();
       return this.refreshSavedAddressList();
     },
     mounted() {
@@ -203,8 +205,6 @@
       setTimeout(() => {
         this.showUiAlerts = true;
       }, 100);
-
-      this.startDiscoveryPolling();
     },
     destroyed() {
       this.stopDiscoveryPolling();
@@ -218,6 +218,8 @@
             this.savedAddresses = addresses;
             this.resetSelectedAddress();
             this.stage = this.Stages.FETCHING_SUCCESSFUL;
+            this.savedAddressesInitiallyFetched = true;
+            this.saved = true;
           })
           .catch(() => {
             this.stage = this.Stages.FETCHING_FAILED;
@@ -252,7 +254,10 @@
           .then(devices => {
             this.discoveredAddresses = devices;
             this.$parent.$emit('finished_peer_discovery');
-            this.stage = this.Stages.PEER_DISCOVERY_SUCCESSFUL;
+            setTimeout(() => {
+              this.stage = this.Stages.PEER_DISCOVERY_SUCCESSFUL;
+            }, this.discoverySpinnerTime);
+            this.discoveredAddressesInitiallyFetched = true;
           })
           .catch(() => {
             this.$parent.$emit('peer_discovery_failed');
@@ -281,7 +286,6 @@
     },
     $trs: {
       deletingFailedText: 'There was a problem removing this address',
-      fetchingAddressesText: 'Looking for available addresses…',
       fetchingFailedText: 'There was a problem getting the available addresses',
       forgetAddressButtonLabel: 'Forget',
       header: 'Select network address',
@@ -320,13 +324,19 @@
     font-size: 12px;
   }
 
-  .fade-leave-active {
-    transition-delay: 2s;
+  .spinner-fade-leave-active,
+  .spinner-fade-enter-active {
+    transition: opacity 0.5s;
   }
 
-  .fade-enter,
-  .fade-leave-to {
+  .spinnner-fade-enter-to,
+  .spinner-fade-leave {
     opacity: 1;
+  }
+
+  .spinner-fade-enter,
+  .spinner-fade-leave-to {
+    opacity: 0;
   }
 
   .ui-progress-circular {
