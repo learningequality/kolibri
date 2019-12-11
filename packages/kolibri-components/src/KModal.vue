@@ -235,7 +235,9 @@
        */
       updateContentSectionStyle: debounce(function() {
         if (this.$refs.title && this.$refs.actions) {
-          this.contentHeight = this.$refs.content.scrollHeight;
+          if (Math.abs(this.$refs.content.scrollHeight - this.contentHeight) >= 8) {
+            this.contentHeight = this.$refs.content.scrollHeight;
+          }
           const maxContentHeightCheck =
             this.windowHeight -
             this.$refs.title.clientHeight -
