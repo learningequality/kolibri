@@ -20,6 +20,7 @@
         :initialDescription="''"
         :initialTitle="''"
         :initialSelectedCollectionIds="[classId]"
+        :initialAdHocLearners="[]"
         :classId="classId"
         :groups="[]"
         :disabled="false"

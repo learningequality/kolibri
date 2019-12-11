@@ -249,11 +249,9 @@
           this.adHocLearners = [];
           this.selectedCollectionIds.push(this.$store.state.adHocLearners.id);
         }
-
         // Update the users associated with the AdHocGroup then proceed
         // with form submission
-        this.$store
-          .dispatch('adHocLearners/updateLearnersInAdHocLearnersGroup', this.adHocLearners)
+        this.handleAdHocLearnersGroupPromise(this.adHocLearners)
           .then(() => {
             if (this.formIsValid) {
               if (!this.detailsHaveChanged) {
@@ -269,6 +267,11 @@
           .catch(() => {
             this.handleSubmitFailure();
           });
+      },
+      handleAdHocLearnersGroupPromise(learners) {
+        return this.assignmentType === 'new_lesson'
+          ? this.$store.dispatch('adHocLearners/createAdHocLearnersGroup', this.classId)
+          : this.$store.dispatch('adHocLearners/updateLearnersInAdHocLearnersGroup', learners);
       },
       /**
        * @public
