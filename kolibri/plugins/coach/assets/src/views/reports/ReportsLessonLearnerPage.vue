@@ -89,8 +89,7 @@
       },
       table() {
         const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
-        const sorted = this._.sortBy(contentArray, ['title']);
-        return sorted.map(content => {
+        return contentArray.map(content => {
           const tableRow = {
             statusObj: this.getContentStatusObjForLearner(content.content_id, this.learner.id),
           };

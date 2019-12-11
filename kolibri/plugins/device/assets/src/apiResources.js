@@ -4,6 +4,10 @@ export const NetworkLocationResource = new Resource({
   name: 'networklocation',
 });
 
-export const NetworkSearchResource = new Resource({
-  name: 'networksearch',
+export const StaticNetworkLocationResource = new Resource({
+  name: 'staticnetworklocation',
+});
+
+export const DynamicNetworkLocationResource = new Resource({
+  name: 'dynamicnetworklocation',
 });

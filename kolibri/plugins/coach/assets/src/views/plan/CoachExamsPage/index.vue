@@ -12,12 +12,18 @@
       <PlanHeader />
 
       <div class="filter-and-button">
+        <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
         <KSelect
           v-model="statusSelected"
           :label="coreString('showAction')"
           :options="statusOptions"
           :inline="true"
         />
+        -->
+        <!-- Remove this div - it makes sure the [NEW LESSON] button stays right-aligned
+            while the above <KSelect> is hidden
+        -->
+        <div>&nbsp;</div>
         <KRouterLink
           :primary="true"
           appearance="raised-button"
@@ -162,8 +168,11 @@
     },
     computed: {
       sortedExams() {
-        return this.exams.slice().reverse();
+        return this._.orderBy(this.exams, ['date_created'], ['desc']);
       },
+      // Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
+      // Uncomment this once we use the filters again.
+      /*
       statusOptions() {
         return [
           {
@@ -180,6 +189,7 @@
           },
         ];
       },
+      */
       activeExams() {
         return this.sortedExams.filter(exam => exam.active === true);
       },

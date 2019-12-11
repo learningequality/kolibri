@@ -1346,6 +1346,14 @@ class Classroom(Collection):
         """
         return LearnerGroup.objects.filter(parent=self)
 
+    def get_individual_learners_group(self):
+        """
+        Returns a ``QuerySet`` of ``AdHocGroups``.
+
+        :return A ``AdHocGroup`` ``QuerySet``.
+        """
+        return AdHocGroup.objects.filter(parent=self)
+
     def add_admin(self, user):
         return self.add_role(user, role_kinds.ADMIN)
 
@@ -1400,6 +1408,55 @@ class LearnerGroup(Collection):
 
     def add_learners(self, users):
         return [self.add_learner(user) for user in users]
+
+    def remove_learner(self, user):
+        return self.remove_member(user)
+
+    def __str__(self):
+        return self.name
+
+
+@python_2_unicode_compatible
+class AdHocGroup(Collection):
+    """
+    An ``AdHocGroup`` is a collection kind that can be used in an assignment
+    to create a group that is specific to a single ``Lesson`` or ``Exam``.
+    """
+
+    morango_model_name = "adhoclearnersgroup"
+    morango_model_dependencies = (Classroom,)
+    _KIND = collection_kinds.ADHOCLEARNERSGROUP
+
+    objects = CollectionProxyManager()
+
+    class Meta:
+        proxy = True
+
+    def save(self, *args, **kwargs):
+        if not self.parent:
+            raise IntegrityError(
+                "AdHocGroup cannot be the root of a collection tree, and must have a parent."
+            )
+        super(AdHocGroup, self).save(*args, **kwargs)
+
+    def get_classroom(self):
+        """
+        Gets the ``AdHocGroup``'s parent ``Classroom``.
+
+        :return: A ``Classroom`` instance.
+        """
+        return Classroom.objects.get(id=self.parent_id)
+
+    def add_learner(self, user):
+        return self.add_member(user)
+
+    def add_learners(self, users):
+        return [self.add_learner(user) for user in users]
+
+    def get_learners(self):
+        user_ids = Membership.objects.filter(collection=self).values_list("user_id")
+        users = FacilityUser.objects.filter(pk__in=user_ids)
+        return users
 
     def remove_learner(self, user):
         return self.remove_member(user)

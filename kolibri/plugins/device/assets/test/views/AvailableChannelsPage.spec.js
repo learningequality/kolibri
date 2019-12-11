@@ -25,7 +25,7 @@ function getElements(wrapper) {
     languageFilter: () => wrapper.find({ name: 'KSelect' }),
     titleText: () => wrapper.find('[data-test="title"]').text().trim(),
     titleFilter: () => wrapper.find({ name: 'FilterTextbox' }),
-    unlistedChannelsSection: () => wrapper.findAll('section.unlisted-channels'),
+    unlistedChannelsButton: () => wrapper.find('[data-test="token-button"]'),
     filterComponent: () => wrapper.find({name: 'FilteredChannelListContainer'}),
   }
 }
@@ -52,9 +52,9 @@ describe('availableChannelsPage', () => {
     // ...and clicking it opens the channel token modal
     setTransferType('remoteimport');
     const wrapper = makeWrapper({ store });
-    const { unlistedChannelsSection, ChannelTokenModal } = getElements(wrapper);
+    const { unlistedChannelsButton, ChannelTokenModal } = getElements(wrapper);
     // prettier-ignore
-    const button = unlistedChannelsSection().at(0).find('.token-button');
+    const button = unlistedChannelsButton();
     button.trigger('click');
     expect(ChannelTokenModal().isVueInstance()).toEqual(true);
   });
@@ -62,8 +62,8 @@ describe('availableChannelsPage', () => {
   it('in LOCALIMPORT mode, the unlisted channel button is not available', () => {
     setTransferType('localexport');
     const wrapper = makeWrapper({ store });
-    const { unlistedChannelsSection } = getElements(wrapper);
-    expect(unlistedChannelsSection().length).toEqual(0);
+    const { unlistedChannelsButton } = getElements(wrapper);
+    expect(unlistedChannelsButton().exists()).toBe(false);
   });
 
   it('in LOCALIMPORT mode, the back link text and title are correct', () => {
@@ -179,7 +179,6 @@ describe('availableChannelsPage', () => {
       },
       query: {
         drive_id: undefined,
-        for_export: undefined,
       },
     });
   });

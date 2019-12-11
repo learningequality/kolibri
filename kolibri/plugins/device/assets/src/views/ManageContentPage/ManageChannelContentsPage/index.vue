@@ -1,31 +1,42 @@
 <template>
 
-  <div v-if="channel" class="manage-channel-page">
-    <NewChannelVersionBanner
-      v-if="availableVersions.studioLatest > availableVersions.installed"
-      class="banner"
-      :version="availableVersions.studioLatest"
-      @click="handleClickViewNewVersion"
+  <div class="manage-channel-page">
+    <!-- Show this progress bar to match other import flows -->
+    <TaskProgress
+      :show="!channel"
+      type="DOWNLOADING_CHANNEL_CONTENTS"
+      :showButtons="false"
+      status="RUNNING"
     />
 
-    <div style="text-align: right">
-      <KButton
-        :text="$tr('importMoreAction')"
-        @click="shownModal = 'IMPORT_MORE'"
+    <template v-if="channel">
+      <NewChannelVersionBanner
+        v-if="availableVersions.studioLatest > availableVersions.installed"
+        class="banner"
+        :version="availableVersions.studioLatest"
+        @click="handleClickViewNewVersion"
       />
-    </div>
 
-    <ChannelContentsSummary :channel="channel" />
+      <ChannelContentsSummary :channel="channel" />
 
-    <transition mode="out-in">
-      <KLinearLoader v-if="!currentNode" :delay="false" />
-      <ContentTreeViewer
-        v-else
-        :node="currentNode"
-        :manageMode="true"
-        :style="{ borderBottomColor: $themeTokens.fineLine }"
-      />
-    </transition>
+      <div style="text-align: right">
+        <KButton
+          :text="$tr('importMoreAction')"
+          style="margin: 0;"
+          @click="shownModal = 'IMPORT_MORE'"
+        />
+      </div>
+
+      <transition mode="out-in">
+        <KLinearLoader v-if="!currentNode" :delay="false" />
+        <ContentTreeViewer
+          v-else
+          :node="currentNode"
+          :manageMode="true"
+          :style="{ borderBottomColor: $themeTokens.fineLine }"
+        />
+      </transition>
+    </template>
 
     <DeleteResourcesModal
       v-if="shownModal === 'DELETE'"
@@ -54,7 +65,7 @@
       objectType="resource"
       actionType="manage"
       :resourceCounts="resourceCounts"
-      :disabled="!Boolean(currentNode) || disableBottomBar"
+      :disabled="!Boolean(currentNode) || bottomBarDisabled"
       @selectoption="shownModal = $event"
     />
 
@@ -72,6 +83,7 @@
   // shares the wizard.nodesForTransfer state.
 
   import get from 'lodash/get';
+  import last from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ChannelContentsSummary from '../../SelectContentPage/ChannelContentsSummary';
   import ContentTreeViewer from '../../SelectContentPage/ContentTreeViewer';
@@ -81,6 +93,7 @@
   import SelectionBottomBar from '../SelectionBottomBar';
   import SelectTransferSourceModal from '../SelectTransferSourceModal';
   import taskNotificationMixin from '../../taskNotificationMixin';
+  import TaskProgress from '../TaskProgress';
   import { ContentSources, PageNames, TaskTypes, TransferTypes } from '../../../constants';
 
   import { fetchPageData, fetchNodeWithAncestors, startExportTask, startDeleteTask } from './api';
@@ -103,6 +116,7 @@
       SelectDriveModal,
       SelectionBottomBar,
       SelectTransferSourceModal,
+      TaskProgress,
     },
     mixins: [commonCoreStrings, taskNotificationMixin],
     data() {
@@ -114,7 +128,7 @@
         nodeCache: {},
         studioChannel: null,
         selectSourcePageName: null,
-        disableBottomBar: false,
+        bottomBarDisabled: false,
         watchedTaskType: null,
       };
     },
@@ -135,11 +149,9 @@
       },
       availableVersions() {
         // If offline, we shouldn't see an upgrade notification
-        const studioLatest = get(this.studioChannel, 'version', -Infinity);
-        const installed = get(this.channel, 'version');
         return {
-          studioLatest,
-          installed,
+          studioLatest: get(this.studioChannel, 'version', -Infinity),
+          installed: get(this.channel, 'version'),
         };
       },
       currentNode() {
@@ -164,6 +176,7 @@
     },
     beforeRouteLeave(to, from, next) {
       this.$store.commit('manageContent/wizard/RESET_NODE_LISTS');
+      this.$store.commit('manageContent/wizard/RESET_STATE');
       next();
     },
     beforeMount() {
@@ -196,11 +209,20 @@
         } else if (this.nodeCache[newNodeId]) {
           this.currentNodeId = newNodeId;
         } else {
-          this.currentNodeId = null;
           this.fetchNodeWithAncestors(newNodeId)
             .then(node => {
-              this.nodeCache[newNodeId] = node;
-              this.currentNodeId = newNodeId;
+              // In case the node had its last child deleted, then automatically
+              // go up a level
+              if (node.children.filter(x => x.available).length === 0) {
+                this.$router.replace({
+                  query: {
+                    node: last(node.ancestors).id,
+                  },
+                });
+              } else {
+                this.$set(this.nodeCache, newNodeId, node);
+                this.currentNodeId = newNodeId;
+              }
             })
             .catch(error => {
               this.$store.dispatch('handleApiError', error);
@@ -227,20 +249,21 @@
       },
       beforeTask() {
         this.closeModal();
-        this.disableBottomBar = true;
+        this.bottomBarDisabled = true;
       },
       onTaskSuccess(task) {
-        this.disableBottomBar = false;
+        this.bottomBarDisabled = false;
         this.watchedTaskType = task.entity.type;
         this.notifyAndWatchTask(task);
       },
       onTaskFailure() {
-        this.disableBottomBar = false;
+        this.bottomBarDisabled = false;
         this.createTaskFailedSnackbar();
       },
       handleClickViewNewVersion() {
-        // TODO navigate to NewChannelVersionPage
-        this.$router.go();
+        this.$router.push({
+          name: PageNames.NEW_CHANNEL_VERSION_PAGE,
+        });
       },
       handleSelectImportMoreSource(params) {
         // The modal will only emit 'submit' events at the very end of the wizard.
@@ -266,12 +289,13 @@
         this.$router.push(baseLinkObject);
       },
       closeModal() {
+        this.selectSourcePageName = null;
         this.shownModal = null;
       },
       // @public (used by taskNotificationMixin)
       onWatchedTaskFinished() {
         // For exports, there are no side effects once task has finished.
-        if (this.watchedTaskType !== TaskTypes.DELETECHANNEL) return;
+        if (this.watchedTaskType !== TaskTypes.DELETECONTENT) return;
 
         // clear out the nodeCache
         this.nodeCache = {};

@@ -13,6 +13,7 @@ from ...utils.import_export_content import retry_import
 from kolibri.core.content.models import ContentNode
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.utils import conf
 
 logger = logging.getLogger(__name__)
@@ -174,12 +175,16 @@ class Command(AsyncCommand):
                                 .exclude(kind=content_kinds.TOPIC)
                                 .values_list("id", flat=True)
                             )
-                            import_ran = import_channel_by_id(
-                                channel_id, self.is_cancelled
-                            )
+                            with db_task_write_lock:
+                                import_ran = import_channel_by_id(
+                                    channel_id, self.is_cancelled
+                                )
                             if node_ids and import_ran:
                                 # annotate default channel db based on previously annotated leaf nodes
-                                update_content_metadata(channel_id, node_ids=node_ids)
+                                with db_task_write_lock:
+                                    update_content_metadata(
+                                        channel_id, node_ids=node_ids
+                                    )
                         except channel_import.ImportCancelError:
                             # This will only occur if is_cancelled is True.
                             pass

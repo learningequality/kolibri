@@ -21,7 +21,7 @@ Feature: Coach copies quiz
       And the snackbar confirmation appears
     When I click on *All quizzes*
     Then I see the *Copy of '<quiz>'* in the list on *Coach - '<class>' > Plan > Quizzes* page
-      And I see *Entire class* value for it under the *Recipients* column header
+      And I see *Entire class* value for it under the *Recipients* heading
 
   Scenario: Copy quiz to a different class and assign it to just one group
     Given there is a class <class2> that has a group <group>
@@ -44,7 +44,7 @@ Feature: Coach copies quiz
         And I click class <class2>
         And I click on *Quizzes* tab
       Then I see the *Copy of '<quiz>'* in the list of quizzes on *Coach - '<class2>' > Plan > Quizzes* page
-        And I see <group> group under the *Recipients* column header
+        And I see <group> group under the *Recipients* heading
 
 Examples:
 | quiz          | class    | class2   | group     |

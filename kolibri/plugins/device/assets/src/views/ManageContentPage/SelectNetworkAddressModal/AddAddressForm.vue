@@ -111,7 +111,7 @@
         this.attemptingToConnect = true;
         return createAddress({
           base_url: this.address,
-          device_name: this.name,
+          nickname: this.name,
         })
           .then(() => {
             this.$emit('added_address');

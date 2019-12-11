@@ -13,6 +13,13 @@ export default {
       username: 'AnotherCoach',
     },
   },
+  adHocLearnersMap: {
+    ad_hoc_learner_id_1: {
+      id: 'ad_hoc_learner_id_1',
+      name: 'ad_hoc_learner_id_1',
+      member_ids: [],
+    },
+  },
   learnerMap: {
     learner_id_1: {
       id: 'learner_id_1',

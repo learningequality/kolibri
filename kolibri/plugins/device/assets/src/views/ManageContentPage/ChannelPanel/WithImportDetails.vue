@@ -7,7 +7,7 @@
   >
     <ChannelDetails
       :channel="channel"
-      :versionNumber="versionNumber"
+      :channelVersion="versionNumber"
     >
       <template v-if="multipleMode" v-slot:beforethumbnail>
         <KCheckbox
@@ -57,7 +57,7 @@
           :style="{fill: $themeTokens.primary}"
         />
         {{ $tr('newVersionMessage') }}
-        <KRouterLink :to="{}" :text="$tr('moreInformationLabel')" />
+        <KRouterLink :to="newChannelVersionPageRoute" :text="$tr('moreInformationLabel')" />
       </template>
     </ChannelDetails>
 
@@ -89,6 +89,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { selectContentPageLink } from '../manageContentLinks';
+  import { PageNames } from '../../../constants';
   import ChannelDetails from './ChannelDetails';
 
   export default {
@@ -141,12 +142,23 @@
       newVersionAvailable() {
         return this.versionNumber < this.channel.latest_version;
       },
+      newChannelVersionPageRoute() {
+        return {
+          name: PageNames.NEW_CHANNEL_VERSION_PAGE,
+          params: {
+            channel_id: this.channel.id,
+          },
+          query: {
+            ...this.$route.query,
+            last: PageNames.AVAILABLE_CHANNELS_PAGE,
+          },
+        };
+      },
       selectContentLink() {
         return selectContentPageLink({
           addressId: this.$route.query.address_id,
           channelId: this.channel.id,
           driveId: this.$route.query.drive_id,
-          forExport: this.$route.query.for_export,
         });
       },
       verticalPadding() {

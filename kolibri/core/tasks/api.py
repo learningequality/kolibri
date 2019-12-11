@@ -1,5 +1,6 @@
 import logging
 import os
+import requests
 from functools import partial
 
 from django.apps.registry import AppRegistryNotReady
@@ -17,13 +18,17 @@ from kolibri.core.content.permissions import CanExportLogs
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
+from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.paths import get_content_database_file_path
+from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import priority_queue
 from kolibri.core.tasks.main import queue
+from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 
 try:
@@ -45,12 +50,7 @@ DISK_IO_ERROR_STRING = _("There was a disk access error.")
 CATCHALL_SERVER_ERROR_STRING = _("There was an unknown error.")
 
 
-def validate_content_task(request, task_description, require_channel=False):
-    try:
-        channel_id = task_description["channel_id"]
-    except KeyError:
-        raise serializers.ValidationError("The channel_ids field is required.")
-
+def get_channel_name(channel_id, require_channel=False):
     try:
         channel = ChannelMetadata.objects.get(id=channel_id)
         channel_name = channel.name
@@ -58,6 +58,17 @@ def validate_content_task(request, task_description, require_channel=False):
         if require_channel:
             raise serializers.ValidationError("This channel does not exist")
         channel_name = ""
+
+    return channel_name
+
+
+def validate_content_task(request, task_description, require_channel=False):
+    try:
+        channel_id = task_description["channel_id"]
+    except KeyError:
+        raise serializers.ValidationError("The channel_ids field is required.")
+
+    channel_name = get_channel_name(channel_id, require_channel)
 
     node_ids = task_description.get("node_ids", None)
     exclude_node_ids = task_description.get("exclude_node_ids", None)
@@ -147,7 +158,7 @@ class TasksViewSet(viewsets.ViewSet):
         return [permission() for permission in permission_classes]
 
     def list(self, request):
-        jobs_response = [_job_to_response(j) for j in queue.jobs]
+        jobs_response = [_job_to_response(j) for j in queue.jobs + priority_queue.jobs]
 
         return Response(jobs_response)
 
@@ -160,11 +171,55 @@ class TasksViewSet(viewsets.ViewSet):
             task = _job_to_response(queue.fetch_job(pk))
             return Response(task)
         except JobNotFound:
-            raise Http404("Task with {pk} not found".format(pk=pk))
+            try:
+                task = _job_to_response(priority_queue.fetch_job(pk))
+            except JobNotFound:
+                raise Http404("Task with {pk} not found".format(pk=pk))
 
     def destroy(self, request, pk=None):
         # unimplemented for now.
         pass
+
+    @list_route(methods=["post"])
+    def startchannelupdate(self, request):
+
+        sourcetype = request.data.pop("sourcetype", None)
+        new_version = request.data.pop("new_version", None)
+
+        if sourcetype == "remote":
+            task = validate_remote_import_task(request, request.data)
+            task.update({"type": "UPDATECHANNEL", "new_version": new_version})
+            job_id = queue.enqueue(
+                _remoteimport,
+                task["channel_id"],
+                task["baseurl"],
+                peer_id=task["peer_id"],
+                node_ids=task["node_ids"],
+                is_updating=True,
+                extra_metadata=task,
+                track_progress=True,
+                cancellable=True,
+            )
+        elif sourcetype == "local":
+            task = validate_local_import_task(request, request.data)
+            task.update({"type": "UPDATECHANNEL", "new_version": new_version})
+            job_id = queue.enqueue(
+                _diskimport,
+                task["channel_id"],
+                task["datafolder"],
+                drive_id=task["drive_id"],
+                node_ids=task["node_ids"],
+                is_updating=True,
+                extra_metadata=task,
+                track_progress=True,
+                cancellable=True,
+            )
+        else:
+            raise serializers.ValidationError("sourcetype must be 'remote' or 'local'")
+
+        resp = _job_to_response(queue.fetch_job(job_id))
+
+        return Response(resp)
 
     @list_route(methods=["post"])
     def startremotebulkimport(self, request):
@@ -200,7 +255,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         task.update({"type": "REMOTECHANNELIMPORT"})
 
-        job_id = queue.enqueue(
+        job_id = priority_queue.enqueue(
             call_command,
             "importchannel",
             "network",
@@ -210,7 +265,7 @@ class TasksViewSet(viewsets.ViewSet):
             extra_metadata=task,
             cancellable=True,
         )
-        resp = _job_to_response(queue.fetch_job(job_id))
+        resp = _job_to_response(priority_queue.fetch_job(job_id))
 
         return Response(resp)
 
@@ -272,7 +327,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         task.update({"type": "DISKCHANNELIMPORT"})
 
-        job_id = queue.enqueue(
+        job_id = priority_queue.enqueue(
             call_command,
             "importchannel",
             "disk",
@@ -283,7 +338,7 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=True,
         )
 
-        resp = _job_to_response(queue.fetch_job(job_id))
+        resp = _job_to_response(priority_queue.fetch_job(job_id))
         return Response(resp)
 
     @list_route(methods=["post"])
@@ -461,7 +516,10 @@ class TasksViewSet(viewsets.ViewSet):
         try:
             queue.cancel(request.data["task_id"])
         except JobNotFound:
-            pass
+            try:
+                priority_queue.cancel(request.data["task_id"])
+            except JobNotFound:
+                pass
 
         return Response({})
 
@@ -472,6 +530,7 @@ class TasksViewSet(viewsets.ViewSet):
         """
 
         queue.empty()
+        priority_queue.empty()
         return Response({})
 
     @list_route(methods=["post"])
@@ -480,6 +539,7 @@ class TasksViewSet(viewsets.ViewSet):
         task_id = request.data.get("task_id")
         if task_id:
             queue.clear_job(task_id)
+            priority_queue.clear_job(task_id)
             return Response({"task_id": task_id})
         else:
             return Response({})
@@ -492,8 +552,10 @@ class TasksViewSet(viewsets.ViewSet):
         task_id = request.data.get("task_id")
         if task_id:
             queue.clear_job(task_id)
+            priority_queue.clear_job(task_id)
         else:
             queue.clear()
+            priority_queue.clear()
         return Response({})
 
     @list_route(methods=["get"])
@@ -537,7 +599,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         job_metadata = {"type": job_type, "started_by": request.user.pk}
 
-        job_id = queue.enqueue(
+        job_id = priority_queue.enqueue(
             call_command,
             "exportlogs",
             log_type=log_type,
@@ -547,7 +609,7 @@ class TasksViewSet(viewsets.ViewSet):
             track_progress=True,
         )
 
-        resp = _job_to_response(queue.fetch_job(job_id))
+        resp = _job_to_response(priority_queue.fetch_job(job_id))
 
         return Response(resp)
 
@@ -568,12 +630,23 @@ class TasksViewSet(viewsets.ViewSet):
         if method == "network":
             baseurl = baseurl or conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
             job_metadata["baseurl"] = baseurl
+            # get channel version metadata
+            url = get_channel_lookup_url(baseurl=baseurl, identifier=channel_id)
+            resp = requests.get(url)
+            channel_metadata = resp.json()
+            job_metadata["new_channel_version"] = channel_metadata[0]["version"]
         elif method == "disk":
             if not drive_id:
                 raise serializers.ValidationError(
                     "The drive_id field is required when using 'disk' method."
                 )
             job_metadata = _add_drive_info(job_metadata, request.data)
+            # get channel version metadata
+            drive = get_mounted_drive_by_id(drive_id)
+            channel_metadata = read_channel_metadata_from_db_file(
+                get_content_database_file_path(channel_id, drive.datafolder)
+            )
+            job_metadata["new_channel_version"] = channel_metadata.version
         else:
             raise serializers.ValidationError(
                 "'method' field should either be 'network' or 'disk'."
@@ -587,7 +660,7 @@ class TasksViewSet(viewsets.ViewSet):
             }
         )
 
-        job_id = queue.enqueue(
+        job_id = priority_queue.enqueue(
             diff_stats,
             channel_id,
             method,
@@ -598,7 +671,7 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=True,
         )
 
-        resp = _job_to_response(queue.fetch_job(job_id))
+        resp = _job_to_response(priority_queue.fetch_job(job_id))
 
         return Response(resp)
 
@@ -610,6 +683,7 @@ def _remoteimport(
     update_progress=None,
     check_for_cancel=None,
     node_ids=None,
+    is_updating=False,
     exclude_node_ids=None,
     extra_metadata=None,
 ):
@@ -622,17 +696,28 @@ def _remoteimport(
         update_progress=update_progress,
         check_for_cancel=check_for_cancel,
     )
-    call_command(
-        "importcontent",
-        "network",
-        channel_id,
-        baseurl=baseurl,
-        peer_id=peer_id,
-        node_ids=node_ids,
-        exclude_node_ids=exclude_node_ids,
-        update_progress=update_progress,
-        check_for_cancel=check_for_cancel,
-    )
+
+    # Add the channel name if it wasn't added initially
+    job = get_current_job()
+    if job and job.extra_metadata.get("channel_name", "") == "":
+        job.extra_metadata["channel_name"] = get_channel_name(channel_id)
+        job.save_meta()
+
+    # Skip importcontent step if updating and no nodes have changed
+    if is_updating and node_ids and len(node_ids) == 0:
+        pass
+    else:
+        call_command(
+            "importcontent",
+            "network",
+            channel_id,
+            baseurl=baseurl,
+            peer_id=peer_id,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
+            update_progress=update_progress,
+            check_for_cancel=check_for_cancel,
+        )
 
 
 def _diskimport(
@@ -642,6 +727,7 @@ def _diskimport(
     update_progress=None,
     check_for_cancel=None,
     node_ids=None,
+    is_updating=False,
     exclude_node_ids=None,
     extra_metadata=None,
 ):
@@ -654,17 +740,28 @@ def _diskimport(
         update_progress=update_progress,
         check_for_cancel=check_for_cancel,
     )
-    call_command(
-        "importcontent",
-        "disk",
-        channel_id,
-        directory,
-        drive_id=drive_id,
-        node_ids=node_ids,
-        exclude_node_ids=exclude_node_ids,
-        update_progress=update_progress,
-        check_for_cancel=check_for_cancel,
-    )
+
+    # Add the channel name if it wasn't added initially
+    job = get_current_job()
+    if job and job.extra_metadata.get("channel_name", "") == "":
+        job.extra_metadata["channel_name"] = get_channel_name(channel_id)
+        job.save_meta()
+
+    # Skip importcontent step if updating and no nodes have changed
+    if is_updating and node_ids and len(node_ids) == 0:
+        pass
+    else:
+        call_command(
+            "importcontent",
+            "disk",
+            channel_id,
+            directory,
+            drive_id=drive_id,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
+            update_progress=update_progress,
+            check_for_cancel=check_for_cancel,
+        )
 
 
 def _localexport(

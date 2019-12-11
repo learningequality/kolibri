@@ -15,6 +15,7 @@ from .models import Facility
 from .models import FacilityDataset
 from .models import FacilityUser
 from .models import LearnerGroup
+from .models import AdHocGroup
 from .models import Membership
 from .models import Role
 from kolibri.core import error_constants
@@ -107,7 +108,7 @@ class FacilitySerializer(serializers.ModelSerializer):
 
         # when facilities are synced, the dataset_id is used as the filter
         last_synced = (
-            TransferSession.objects.filter(filter=OuterRef("casted_dataset_id"),)
+            TransferSession.objects.filter(filter=OuterRef("casted_dataset_id"))
             .order_by("-last_activity_timestamp")
             .values("last_activity_timestamp")[:1]
         )
@@ -151,3 +152,15 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
                 queryset=LearnerGroup.objects.all(), fields=("parent", "name")
             )
         ]
+
+
+class AdHocGroupSerializer(serializers.ModelSerializer):
+
+    user_ids = serializers.SerializerMethodField()
+
+    def get_user_ids(self, group):
+        return [str(user_id["id"]) for user_id in group.get_members().values("id")]
+
+    class Meta:
+        model = AdHocGroup
+        fields = ("id", "name", "parent", "user_ids")

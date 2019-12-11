@@ -8,24 +8,13 @@
 
     <template v-else>
       <TaskProgress
-        v-if="showUpdateProgressBar"
-        type="UPDATING_CHANNEL"
-        status="QUEUED"
-        :percentage="0"
-        :showButtons="true"
-        :cancellable="true"
-        @canceltask="cancelUpdateChannel()"
-      />
-      <TaskProgress
-        v-else-if="metadataDownloadTask"
+        :show="!onDeviceInfoIsReady"
         type="DOWNLOADING_CHANNEL_CONTENTS"
-        v-bind="metadataDownloadTask"
-        :showButtons="true"
-        :cancellable="true"
-        @canceltask="returnToChannelsList()"
+        :showButtons="false"
+        status="RUNNING"
       />
 
-      <template v-if="mainAreaIsVisible">
+      <template v-if="onDeviceInfoIsReady">
         <section
           v-if="transferredChannel && onDeviceInfoIsReady"
           class="updates"
@@ -34,6 +23,7 @@
             v-if="newVersionAvailable"
             class="banner"
             :version="availableVersions.source"
+            @click="handleClickViewNewVersion"
           />
           <span v-else>{{ $tr('channelUpToDate') }}</span>
         </section>
@@ -85,9 +75,9 @@
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { TaskResource } from 'kolibri.resources';
   import TaskProgress from '../ManageContentPage/TaskProgress';
-  import { ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
-  import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
+  import { ContentWizardErrors, TaskTypes, PageNames, taskIsClearable } from '../../constants';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';
@@ -117,11 +107,9 @@
     mixins: [responsiveWindowMixin, taskNotificationMixin],
     data() {
       return {
-        showUpdateProgressBar: false,
         contentTransferError: false,
-        pageWillRefresh: false,
         // need to store ID in component to make sure cancellation works properly
-        // in beforeDestroy
+        // in beforeRouteLeave
         metadataDownloadTaskId: '',
         disableBottomBar: false,
       };
@@ -146,24 +134,16 @@
       channelId() {
         return this.$route.params.channel_id;
       },
-      mainAreaIsVisible() {
-        // Don't show main area if page is about to refresh after updating (or cancelling update)
-        if (this.pageWillRefresh) {
-          return false;
-        }
-        return this.onDeviceInfoIsReady;
-      },
       onDeviceInfoIsReady() {
         return !isEmpty(this.currentTopicNode);
       },
       metadataDownloadTask() {
-        return (
-          find(this.taskList, {
-            type: TaskTypes.REMOTECHANNELIMPORT,
-            channel_id: this.channelId,
-          }) ||
-          find(this.taskList, { type: TaskTypes.DISKCHANNELIMPORT, channel_id: this.channelId })
-        );
+        return find(this.taskList, ({ type, channel_id }) => {
+          return (
+            channel_id === this.channelId &&
+            (type === TaskTypes.REMOTECHANNELIMPORT || type === TaskTypes.DISKCHANNELIMPORT)
+          );
+        });
       },
       // If this property is truthy, the entire UI is hidden and only the UiAlert is shown
       wholePageError() {
@@ -188,12 +168,21 @@
       },
     },
     watch: {
-      metadataDownloadTask(val) {
-        if (val) {
-          this.metadataDownloadTaskId = val.id;
-        } else {
-          this.metadataDownloadTaskId = '';
-        }
+      // A REMOTE/DISKCHANNELIMPORT Task should be created inside the showAvailableChannels via
+      // loadChannelMetadata function. When this component is mounted, it finds that Task
+      // then waits until it completes to delete it automatically.
+      metadataDownloadTask: {
+        handler(val) {
+          if (val) {
+            this.metadataDownloadTaskId = val.id;
+            if (taskIsClearable(val)) {
+              TaskResource.deleteFinishedTask(val.id);
+            }
+          } else {
+            this.metadataDownloadTaskId = '';
+          }
+        },
+        immediate: true,
       },
       transferredChannel(val) {
         if (val.name) {
@@ -237,10 +226,6 @@
         setAppBarTitle: 'SET_APP_BAR_TITLE',
       }),
       ...mapActions('manageContent', ['cancelTask']),
-      cancelUpdateChannel() {
-        this.showUpdateProgressBar = false;
-        this.cancelMetadataDownloadTask().then(this.refreshPage);
-      },
       cancelMetadataDownloadTask() {
         if (this.metadataDownloadTaskId) {
           return this.cancelTask(this.metadataDownloadTaskId);
@@ -295,11 +280,11 @@
           });
       },
       startImportTask,
-      refreshPage() {
-        this.$router.go();
-      },
-      returnToChannelsList() {
-        this.$router.push(manageContentPageLink());
+      handleClickViewNewVersion() {
+        this.$router.push({
+          name: PageNames.NEW_CHANNEL_VERSION_PAGE,
+          query: { ...this.$route.query, last: PageNames.SELECT_CONTENT },
+        });
       },
       // @public (used by taskNotificationMixin)
       onWatchedTaskFinished() {
@@ -319,8 +304,16 @@
     $trs: {
       channelUpToDate: 'Channel up-to-date',
       pageLoadError: 'There was a problem loading this page…',
-      problemFetchingChannel: 'There was a problem getting the contents of this channel',
-      problemTransferringContents: 'There was a problem transferring the selected contents',
+      problemFetchingChannel: {
+        message: 'There was a problem getting the contents of this channel',
+        context:
+          '\nThis string should actually say "There was a problem getting the list of resources from this channel"',
+      },
+      problemTransferringContents: {
+        message: 'There was a problem transferring the selected contents',
+        context:
+          '\nThis string should actually say "There was a problem transferring the selected resources"',
+      },
       selectContent: "Select resources from '{channelName}'",
       kolibriStudioLabel: 'Kolibri Studio',
       importingFromDrive: `Importing from drive '{driveName}'`,

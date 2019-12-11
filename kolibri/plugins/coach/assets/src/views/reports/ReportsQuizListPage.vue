@@ -12,12 +12,14 @@
     <KPageContainer :class="{'print': $isPrint}">
       <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
       <ReportsControls @export="exportCSV">
+        <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
         <KSelect
           v-model="filter"
           :label="coreString('showAction')"
           :options="filterOptions"
           :inline="true"
         />
+        -->
       </ReportsControls>
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
@@ -181,7 +183,7 @@
             return !exam.active;
           }
         });
-        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
         return sorted.map(exam => {
           const learnersForQuiz = this.getLearnersForExam(exam);
           const tableRow = {

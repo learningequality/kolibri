@@ -68,11 +68,11 @@
     computed: {
       lessonsList() {
         const filtered = this.lessons.filter(lesson => this.isAssigned(lesson.groups));
-        return this._.sortBy(filtered, ['title', 'active']);
+        return this._.orderBy(filtered, ['date_created'], ['desc']);
       },
       examsList() {
         const filtered = this.exams.filter(exam => this.isAssigned(exam.groups));
-        return this._.sortBy(filtered, ['title', 'active']);
+        return this._.orderBy(filtered, ['date_created'], ['desc']);
       },
     },
     methods: {

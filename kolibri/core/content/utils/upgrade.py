@@ -35,16 +35,12 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
     try:
         if method == "network":
             call_command(
-                "importchannel",
-                "network",
-                channel_id,
-                baseurl=baseurl,
-                no_upgrade=True,
+                "importchannel", "network", channel_id, baseurl=baseurl, no_upgrade=True
             )
         elif method == "disk":
             drive = get_mounted_drive_by_id(drive_id)
             call_command(
-                "importchannel", "disk", channel_id, drive, no_upgrade=True,
+                "importchannel", "disk", channel_id, drive.datafolder, no_upgrade=True,
             )
 
         # create all fields/tables at the annotated destination db, based on the current schema version
@@ -109,25 +105,25 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
 
 def count_new_resources_available_for_import(destination, channel_id):
     """
-    Queries the destination db to get the count of leaf nodes.
-    Subtract by the count of leaf nodes on default db to get the number of new resources.
+    Queries the destination db to get leaf nodes.
+    Subtract total number of leaf nodes by the count of leaf nodes on default db to get the number of new resources.
     """
     bridge = Bridge(app_name=CONTENT_APP_NAME, sqlite_file_path=destination)
     ContentNodeClass = bridge.get_class(ContentNode)
-    leaf_node_counts = (
-        bridge.session.query(ContentNodeClass.id)
+    leaf_node_ids = [
+        i
+        for i, in bridge.session.query(ContentNodeClass.id)
         .filter(
             ContentNodeClass.channel_id == channel_id,
             ContentNodeClass.kind != content_kinds.TOPIC,
         )
+        .all()
+    ]
+    return (
+        len(leaf_node_ids)
+        - ContentNode.objects.filter_by_uuids(leaf_node_ids, validate=False)
+        .filter(channel_id=channel_id)
         .count()
-    )
-    return max(
-        leaf_node_counts
-        - ContentNode.objects.filter(channel_id=channel_id)
-        .exclude(kind=content_kinds.TOPIC)
-        .count(),
-        0,
     )
 
 

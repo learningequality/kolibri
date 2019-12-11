@@ -17,6 +17,7 @@ from kolibri.core.content.utils.import_export_content import compare_checksums
 from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
 from kolibri.core.content.utils.import_export_content import retry_import
 from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 
@@ -203,7 +204,7 @@ class Command(AsyncCommand):
             .count()
         )
 
-        (files_to_download, total_bytes_to_transfer,) = calculate_files_to_transfer(
+        (files_to_download, total_bytes_to_transfer) = calculate_files_to_transfer(
             nodes_for_transfer, False
         )
 
@@ -290,12 +291,13 @@ class Command(AsyncCommand):
                     exception = e
                     break
 
-            annotation.set_content_visibility(
-                channel_id,
-                file_checksums_to_annotate,
-                node_ids=node_ids,
-                exclude_node_ids=exclude_node_ids,
-            )
+            with db_task_write_lock:
+                annotation.set_content_visibility(
+                    channel_id,
+                    file_checksums_to_annotate,
+                    node_ids=node_ids,
+                    exclude_node_ids=exclude_node_ids,
+                )
 
             resources_after_transfer = (
                 ContentNode.objects.filter(channel_id=channel_id, available=True)
@@ -356,9 +358,7 @@ class Command(AsyncCommand):
                 # is less than what we have marked in the database that we make up
                 # the difference so that the overall progress is never incorrect.
                 # This could happen, for example for a local transfer if a file
-                # has been replaced or corrupted (which we catch below) or for
-                # a remote transfer if the peer to peer transfer is is compressing
-                # files using gzip.
+                # has been replaced or corrupted (which we catch below)
                 overall_progress_update(f.file_size - filetransfer.total_size)
 
                 # If checksum of the destination file is different from the localfile

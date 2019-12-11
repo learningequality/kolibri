@@ -10,6 +10,7 @@ import map from 'lodash/map';
 import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
 import filter from 'lodash/filter';
 import sortBy from 'lodash/sortBy';
+import orderBy from 'lodash/orderBy';
 import { PageNames } from '../constants';
 import { LastPages } from '../constants/lastPagesConstants';
 import { STATUSES } from '../modules/classSummary/constants';
@@ -162,12 +163,14 @@ export default {
       'examStatuses',
       'content',
       'contentStatuses',
+      'adHocGroups',
       'lessons',
       'lessonStatuses',
       'lessonLearnerStatusMap',
       'notificationModuleData',
       'getGroupNames',
       'getGroupNamesForLearner',
+      'getAdHocLearnersForExam',
       'getLearnersForGroups',
       'getLearnersForExam',
       'getLearnersForLesson',
@@ -206,6 +209,7 @@ export default {
         maxBy,
         meanBy,
         sortBy,
+        orderBy,
         map,
         filter,
       };

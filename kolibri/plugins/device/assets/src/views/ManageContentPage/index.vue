@@ -21,17 +21,20 @@
             :text="coreString('optionsLabel')"
             position="bottom left"
             :options="dropdownOptions"
+            class="options-btn"
             @select="handleSelect"
           />
           <KButton
             :text="$tr('import')"
             :primary="true"
+            class="import-btn"
             @click="startImportWorkflow()"
           />
         </KGridItem>
       </KGrid>
 
       <TasksBar />
+
       <p>
         <KRouterLink
           appearance="basic-link"
@@ -83,7 +86,7 @@
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
-  import TasksBar from './BottomBar/TasksBar';
+  import TasksBar from './TasksBar';
 
   export default {
     name: 'ManageContentPage',
@@ -179,6 +182,15 @@
 
   .buttons {
     margin: auto;
+  }
+
+  .options-btn {
+    margin: 0;
+    margin-right: 16px;
+  }
+
+  .import-btn {
+    margin: 0;
   }
 
 </style>

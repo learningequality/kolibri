@@ -38,7 +38,10 @@
       header: 'No resources available',
       adminLink: 'As an administrator you can import channels',
       learnerText: 'Please ask your coach or administrator for assistance',
-      documentTitle: 'Content Unavailable',
+      documentTitle: {
+        message: 'Content Unavailable',
+        context: '\nThis string should actually say "Resource unavailable"',
+      },
     },
   };
 

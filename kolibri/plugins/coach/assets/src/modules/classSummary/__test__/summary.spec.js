@@ -6,7 +6,6 @@ describe('coach summary module', () => {
   it('sets expected data given an API response', () => {
     store.mutations.SET_STATE(store.state, sampleServerResponse);
 
-    // console.log(JSON.stringify(store.state));
     expect(store.state).toEqual(expectedState);
   });
   it('_itemMap behaves as expected', () => {

@@ -7,6 +7,8 @@ from kolibri.utils.conf import OPTIONS
 
 cache_options = OPTIONS["Cache"]
 
+diskcache_location = os.path.join(KOLIBRI_HOME, "process_cache")
+
 # Default to LocMemCache, as it has the simplest configuration
 default_cache = {
     "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -29,7 +31,7 @@ built_files_cache = {
 # inside asynchronous tasks.
 process_cache = {
     "BACKEND": "diskcache.DjangoCache",
-    "LOCATION": os.path.join(KOLIBRI_HOME, "process_cache"),
+    "LOCATION": diskcache_location,
     "OPTIONS": {"MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"]},
 }
 

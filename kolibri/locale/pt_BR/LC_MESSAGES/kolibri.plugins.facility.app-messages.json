@@ -1,5 +1,5 @@
 {
-  "AlreadyRegisteredModal.alreadyRegistered": "'{name}' já está inscrito/a",
+  "AlreadyRegisteredModal.alreadyRegistered": "Usuário '{name}' já está inscrito",
   "AlreadyRegisteredModal.close": "Fechar",
   "AlreadyRegisteredModal.registerFacility": "Inscrever centro educativo",
   "ClassCreateModal.createNewClassHeader": "Criar nova classe",
@@ -96,7 +96,7 @@
   "ResetUserPasswordModal.username": "Nome de usuário: ",
   "SyncInterface.access": "Esta função está em fase de teste. Você poderá utilizá-la se tiver acesso ao Portal de Dados Kolibri.",
   "SyncInterface.facility": "Instituição",
-  "SyncInterface.justNow": "Agora mesmo",
+  "SyncInterface.justNow": "Já registrado",
   "SyncInterface.lastSync": "Última sincronização completada com sucesso:",
   "SyncInterface.learnMore": "Uso e privacidade",
   "SyncInterface.neverSynced": "Nunca sincronizado/a",

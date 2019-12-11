@@ -14,41 +14,37 @@
     >
       <template v-slot:header>
         <h1 v-if="status === ''" data-test="title">
-          <span v-if="multipleMode">
-            {{ $tr('importChannelsHeader') }}
-          </span>
-          <span v-else>
-            {{ $tr('importResourcesHeader') }}
-          </span>
+          {{ multipleMode ? $tr('importChannelsHeader') : $tr('importResourcesHeader') }}
         </h1>
       </template>
 
       <template v-slot:abovechannels>
-        <KButton
-          appearance="basic-link"
-          :text="multipleMode ? $tr('selectTopicsAndResources') : $tr('selectEntireChannels')"
-          @click="toggleMultipleMode"
-        />
-        <section
-          v-if="showUnlistedChannels"
-          class="unlisted-channels"
-        >
+        <p>
           <KButton
+            appearance="basic-link"
+            :text="multipleMode ? $tr('selectTopicsAndResources') : $tr('selectEntireChannels')"
+            @click="toggleMultipleMode"
+          />
+        </p>
+        <p v-if="showUnlistedChannels">
+          <KButton
+            data-test="token-button"
             class="token-button"
             :text="$tr('channelTokenButtonLabel')"
             appearance="raised-button"
             name="showtokenmodal"
             @click="showTokenModal=true"
           />
-        </section>
-
-        <UiAlert
-          v-show="notEnoughFreeSpace"
-          :dismissible="false"
-          type="error"
-        >
-          {{ $tr('notEnoughSpaceForChannelsWarning') }}
-        </UiAlert>
+        </p>
+        <p>
+          <UiAlert
+            v-show="notEnoughFreeSpace"
+            :dismissible="false"
+            type="error"
+          >
+            {{ $tr('notEnoughSpaceForChannelsWarning') }}
+          </UiAlert>
+        </p>
 
       </template>
 
@@ -57,7 +53,7 @@
           {{ $tr('noChannelsAvailable') }}
         </p>
 
-        <div v-else>
+        <p v-else>
           <ChannelPanel
             v-for="channel in allChannels"
             v-show="showItem(channel) && !channelIsBeingDeleted(channel.id)"
@@ -69,7 +65,7 @@
             @clickselect="goToSelectContentPageForChannel(channel)"
             @checkboxchange="handleChange"
           />
-        </div>
+        </p>
       </template>
     </FilteredChannelListContainer>
 
@@ -79,6 +75,14 @@
       @cancel="showTokenModal=false"
       @submit="handleSubmitToken"
     />
+
+    <ChannelUpdateModal
+      v-if="showUpdateModal"
+      :disabled="disableModal"
+      @cancel="showUpdateModal=false"
+      @submit="handleConfirmUpgrade"
+    />
+
     <KLinearLoader
       v-if="channelsAreLoading"
       type="indeterminate"
@@ -104,6 +108,7 @@
 
   import { mapState, mapMutations, mapGetters } from 'vuex';
   import omit from 'lodash/omit';
+  import some from 'lodash/some';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
@@ -111,11 +116,12 @@
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
-  import { TransferTypes } from '../../constants';
+  import { TransferTypes, PageNames } from '../../constants';
   import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
   import ChannelTokenModal from './ChannelTokenModal';
+  import ChannelUpdateModal from './ChannelUpdateModal';
   import { getFreeSpaceOnServer } from './api';
 
   export default {
@@ -128,6 +134,7 @@
     components: {
       ChannelPanel,
       ChannelTokenModal,
+      ChannelUpdateModal,
       ContentWizardUiAlert,
       FilteredChannelListContainer,
       SelectionBottomBar,
@@ -137,6 +144,7 @@
     data() {
       return {
         showTokenModal: false,
+        showUpdateModal: false,
         newPrivateChannels: [],
         selectedChannels: [],
         fileSize: 0,
@@ -270,21 +278,34 @@
             addressId: this.$route.query.address_id,
             channelId: channel.id,
             driveId: this.$route.query.drive_id,
-            forExport: this.$route.query.for_export,
           })
         );
       },
       handleClickConfirm() {
         this.disableBottomBar = true;
+        const someChannelsWillUpdate = some(
+          this.selectedChannels,
+          c => c.installed_version < c.latest_version
+        );
         getFreeSpaceOnServer().then(({ freeSpace }) => {
           this.freeSpace = freeSpace;
           if (this.notEnoughFreeSpace) {
             this.createTaskFailedSnackbar();
             this.disableBottomBar = false;
           } else {
-            this.startMultipleChannelImport();
+            if (someChannelsWillUpdate) {
+              this.showUpdateModal = true;
+            } else {
+              this.startMultipleChannelImport();
+            }
           }
         });
+      },
+      handleConfirmUpgrade() {
+        this.startMultipleChannelImport();
+      },
+      goToManageTasksPage() {
+        this.$router.push({ name: PageNames.MANAGE_TASKS });
       },
       startMultipleChannelImport() {
         if (this.inLocalImportMode) {
@@ -295,7 +316,7 @@
           return TaskResource.startDiskBulkImport(taskParams)
             .then(tasks => {
               this.notifyAndWatchTask(tasks);
-              this.disableBottomBar = false;
+              this.goToManageTasksPage();
             })
             .catch(() => {
               this.createTaskFailedSnackbar();
@@ -310,7 +331,7 @@
           return TaskResource.startRemoteBulkImport(taskParams)
             .then(tasks => {
               this.notifyAndWatchTask(tasks);
-              this.disableBottomBar = false;
+              this.goToManageTasksPage();
             })
             .catch(() => {
               this.createTaskFailedSnackbar();
@@ -361,10 +382,6 @@
 
   .token-button {
     margin-left: 0;
-  }
-
-  .unlisted-channels {
-    padding: 16px 0;
   }
 
 </style>
