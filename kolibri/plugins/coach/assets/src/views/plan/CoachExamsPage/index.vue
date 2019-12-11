@@ -168,7 +168,6 @@
       };
     },
     computed: {
-      ...mapState('classSummary', ['adHocGroupsMap']),
       sortedExams() {
         return this._.orderBy(this.exams, ['date_created'], ['desc']);
       },

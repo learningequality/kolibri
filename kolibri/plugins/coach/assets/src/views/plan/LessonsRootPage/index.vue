@@ -184,11 +184,6 @@
         }
       },
       lessonSummaryLink,
-      getGroupIds(assignments) {
-        return assignments
-          .filter(assignment => assignment.collection_kind === CollectionKinds.LEARNERGROUP)
-          .map(assignment => assignment.collection);
-      },
       handleDetailsModalContinue(payload) {
         this.detailsModalIsDisabled = true;
         this.createLesson({

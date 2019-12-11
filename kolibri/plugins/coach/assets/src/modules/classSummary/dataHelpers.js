@@ -79,9 +79,7 @@ export default {
   getRecipientNamesForExam(state) {
     return function(exam) {
       return this.getGroupNames(exam.groups).concat(
-        this.getAdHocLearners(exam.assignments).map(
-          learnerId => state.learnerMap[learnerId].name
-        )
+        this.getAdHocLearners(exam.assignments).map(learnerId => state.learnerMap[learnerId].name)
       );
     };
   },
@@ -129,9 +127,7 @@ export default {
     return function(lesson) {
       const assignments = lesson.lesson_assignments.map(l => l.collection);
       return this.getGroupNames(state.lessonMap[lesson.id].groups).concat(
-        this.getAdHocLearners(assignments).map(
-          learnerId => state.learnerMap[learnerId].name
-        )
+        this.getAdHocLearners(assignments).map(learnerId => state.learnerMap[learnerId].name)
       );
     };
   },

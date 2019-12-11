@@ -31,6 +31,7 @@
 
 </template>
 
+
 <script>
 
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
@@ -51,3 +52,6 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped></style>
