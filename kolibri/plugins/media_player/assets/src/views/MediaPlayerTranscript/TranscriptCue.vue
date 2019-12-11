@@ -8,7 +8,6 @@
       { active },
       $computedClass(style)
     ]"
-    :dir="dir"
     :title="$tr('title', { startTime })"
     :aria-current="active.toString()"
     @click="triggerSeekEvent"
@@ -38,7 +37,6 @@
 <script>
 
   import videojs from 'video.js';
-  import { getLangDir } from 'kolibri.utils.i18n';
 
   const SPEAKER_REGEX = /<v ([^>]+)>/i;
 
@@ -47,16 +45,12 @@
     props: {
       cue: Object,
       mediaDuration: Number,
-      langCode: String,
       active: {
         type: Boolean,
         default: false,
       },
     },
     computed: {
-      dir() {
-        return getLangDir(this.langCode);
-      },
       speaker() {
         return this.cue.text.match(SPEAKER_REGEX)
           ? this.cue.text.replace(SPEAKER_REGEX, '$1')
