@@ -28,15 +28,12 @@ data = {
     },
 }
 
-num_tries = 0
 status_code = None
 timeout = 30  # wait for kolibri to start
-
 now = time()
 
 print("mock provisioning...")
 while time() < now + timeout and status_code != 201:
-    num_tries += 1
     sleep(1)
     try:
         response = requests.post(url, json=data)
