@@ -19,7 +19,7 @@
         />
       </template>
 
-      <template v-if="isPrivateChannel" v-slot:belowname>
+      <template v-if="isUnlistedChannel" v-slot:belowname>
         <KTooltip reference="lockicon" :refs="$refs" placement="top">
           {{ $tr('unlistedChannelTooltip') }}
         </KTooltip>
@@ -29,7 +29,7 @@
             class="lock-icon"
             icon="unlistedchannel"
           /><span
-            v-if="channel.newPrivateChannel"
+            v-if="channel.newUnlistedChannel"
             class="new-label"
             :style="{
               color: $themeTokens.textInverted,
@@ -124,7 +124,7 @@
           return this.$tr('channelSelectedNoFileSize');
         }
       },
-      isPrivateChannel() {
+      isUnlistedChannel() {
         // This is only defined when entering a remote import workflow,
         // so false !== undefined.
         return this.channel.public === false;
