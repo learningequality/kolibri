@@ -60,7 +60,7 @@
             <td>{{ coachString('numberOfResources', { value: lesson.resources.length }) }}</td>
             <td>
               <Recipients
-                :groupNames="getGroupNames(getGroupIds(lesson.lesson_assignments))"
+                :groupNames="getRecipientNamesForLesson(lesson)"
                 :hasAssignments="lesson.lesson_assignments.length > 0"
               />
             </td>

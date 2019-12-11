@@ -44,6 +44,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import isEqual from 'lodash/isEqual';
   import isEmpty from 'lodash/isEmpty';
   import { LessonResource } from 'kolibri.resources';
@@ -84,15 +85,14 @@
       };
     },
     computed: {
+      ...mapGetters('adHocLearners', ['hasAdHocLearnersAssigned']),
       formProps() {
         return {
           assignmentType: 'lesson',
           classId: this.$route.params.classId,
           groups: this.$store.getters['classSummary/groups'],
           initialActive: this.lesson.is_active,
-          initialSelectedCollectionIds: this.lesson.lesson_assignments.map(
-            ({ collection }) => collection
-          ),
+          initialSelectedCollectionIds: this.initialSelectedCollectionIds,
           initialTitle: this.lesson.title,
           initialDescription: this.lesson.description,
           submitErrorMessage: this.$tr('submitErrorMessage'),
@@ -110,6 +110,21 @@
       },
       initialAdHocLearners() {
         return this.$store.state.adHocLearners.user_ids;
+      },
+      initialSelectedCollectionIds() {
+        let collectionIds = [];
+        // Only include the AdHocGroup in this if it has already
+        // had learners assigned to it.
+        this.lesson.lesson_assignments.forEach(assignment => {
+          if (assignment.collection_kind === CollectionKinds.ADHOCLEARNERSGROUP) {
+            if (this.hasAdHocLearnersAssigned) {
+              collectionIds.push(assignment.collection);
+            }
+          } else {
+            collectionIds.push(assignment.collection);
+          }
+        });
+        return collectionIds;
       },
     },
     beforeRouteEnter(to, from, next) {
@@ -181,7 +196,6 @@
         if (newDetails) {
           Object.assign(data, {
             description: newDetails.description,
-            is_active: newDetails.active,
             lesson_assignments: newDetails.assignments,
             title: newDetails.title,
           });

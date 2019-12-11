@@ -56,7 +56,7 @@
 
             <td>
               <Recipients
-                :groupNames="getGroupNames(exam.groups)"
+                :groupNames="getRecipientNamesForExam(exam)"
                 :hasAssignments="exam.assignments.length > 0"
               />
             </td>
@@ -137,6 +137,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
@@ -167,6 +168,7 @@
       };
     },
     computed: {
+      ...mapState('classSummary', ['adHocGroupsMap']),
       sortedExams() {
         return this._.orderBy(this.exams, ['date_created'], ['desc']);
       },

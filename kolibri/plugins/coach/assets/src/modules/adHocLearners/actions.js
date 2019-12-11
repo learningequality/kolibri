@@ -21,7 +21,7 @@ export function createAdHocLearnersGroup(store, { classId }) {
   });
 }
 
-export function updateAdHocLearnersGroup(store, user_ids) {
+export function updateLearnersInAdHocLearnersGroup(store, user_ids) {
   return AdHocGroupResource.saveModel({
     id: store.state.id,
     data: {

@@ -58,7 +58,7 @@
             </td>
             <td>
               <Recipients
-                :groupNames="tableRow.groupNames"
+                :groupNames="getRecipientNamesForExam(tableRow)"
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>

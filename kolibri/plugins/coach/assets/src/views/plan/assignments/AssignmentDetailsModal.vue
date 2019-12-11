@@ -227,15 +227,7 @@
         if (this.disabled) {
           return;
         }
-        // Quizzes require handling of the invidiual learners
-        // So we split how they're handled here.
-        if (this.assignmentType === 'quiz') {
-          this.submitQuizData();
-        } else {
-          this.submitLessonData();
-        }
-      },
-      submitQuizData() {
+
         // TODO: Add error handling & snackbar message that notifies user when they have
         // selected ONLY the AdHoc Learners Group, but selects no learners
         // For now - if the only thing selected is AdHoc Learners but there
@@ -261,7 +253,7 @@
         // Update the users associated with the AdHocGroup then proceed
         // with form submission
         this.$store
-          .dispatch('adHocLearners/updateAdHocLearnersGroup', this.adHocLearners)
+          .dispatch('adHocLearners/updateLearnersInAdHocLearnersGroup', this.adHocLearners)
           .then(() => {
             if (this.formIsValid) {
               if (!this.detailsHaveChanged) {
@@ -277,18 +269,6 @@
           .catch(() => {
             this.handleSubmitFailure();
           });
-      },
-      submitLessonData() {
-        if (this.formIsValid) {
-          if (!this.detailsHaveChanged) {
-            this.$emit('submit', null);
-          } else {
-            this.$emit('submit', this.formData);
-          }
-        } else {
-          this.formIsSubmitted = false;
-          this.$refs.titleField.focus();
-        }
       },
       /**
        * @public
