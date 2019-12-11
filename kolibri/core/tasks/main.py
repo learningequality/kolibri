@@ -3,12 +3,32 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy import event
 from sqlalchemy import exc
+from sqlalchemy.engine.interfaces import Connectable
+from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.pool import NullPool
 
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.scheduler import Scheduler
 from kolibri.core.tasks.worker import Worker
 from kolibri.utils import conf
+
+
+class InvalidEngine(Dialect, Connectable):
+    def __init__(self, *args, **kwargs):
+        self.name = "invalid engine"
+        self.dispatch = self
+        self.checkout = self.invalid_property
+        self.connect = self.invalid_property
+        self._listen = self.ignored_property
+        self._adjust_fn_spec = self.ignored_property
+
+    def invalid_property(self, *args, **kwargs):
+        raise NotImplementedError("This engine is not supported")
+
+    def ignored_property(self, *args, **kwargs):
+        return None
+
+    invalid_property._adjust_fn_spec = ignored_property
 
 
 if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
@@ -32,6 +52,9 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
             else "",
         )
     )
+else:
+
+    connection = InvalidEngine()
 
 
 # Add multiprocessing safeguards as recommended by
