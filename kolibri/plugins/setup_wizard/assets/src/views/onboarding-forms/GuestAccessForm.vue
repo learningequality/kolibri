@@ -28,10 +28,10 @@
       },
     },
     data() {
-      const { settings, preset } = this.$store.state.onboardingData;
-      if (settings.allow_guest_access !== null) {
+      const { allow_guest_access, preset } = this.$store.state.onboardingData;
+      if (allow_guest_access !== null) {
         return {
-          settingIsEnabled: settings.allow_guest_access,
+          settingIsEnabled: allow_guest_access,
         };
       }
       // Default is False only for "formal" preset

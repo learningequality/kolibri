@@ -10,7 +10,7 @@ from kolibri.core.content.utils.annotation import calculate_next_order
 def calculate_channel_order(apps, schema_editor):
     ChannelMetadata = apps.get_model("content", "ChannelMetadata")
     for channel in ChannelMetadata.objects.all():
-        calculate_next_order(channel)
+        calculate_next_order(channel, ChannelMetadata)
 
 
 class Migration(migrations.Migration):

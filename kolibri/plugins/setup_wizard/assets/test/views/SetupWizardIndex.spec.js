@@ -96,6 +96,7 @@ describe('SetupWizardIndex', () => {
       language_id: 'en',
       facility: { name: "Mr. Roger's Neighborhood" },
       preset: 'formal',
+      allow_guest_access: true,
       superuser: {
         full_name: 'Fred Rogers',
         username: 'mr_rogers',
@@ -104,7 +105,6 @@ describe('SetupWizardIndex', () => {
         birth_year: 'NOT_SPECIFIED',
       },
       settings: {
-        allow_guest_access: true,
         learner_can_sign_up: false,
         learner_can_edit_name: false,
         learner_can_edit_username: false,

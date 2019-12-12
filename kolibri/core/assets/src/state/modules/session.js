@@ -3,6 +3,7 @@ import { UserKinds } from '../../constants';
 
 export const baseSessionState = {
   can_manage_content: false,
+  can_access_unassigned_content: false,
   facility_id: undefined,
   full_name: '',
   id: undefined,
@@ -36,6 +37,9 @@ export default {
     },
     canManageContent(state) {
       return state.can_manage_content;
+    },
+    canAccessUnassignedContent(state) {
+      return state.can_access_unassigned_content;
     },
     isSuperuser(state) {
       return state.kind.includes(UserKinds.SUPERUSER);

@@ -4,8 +4,11 @@ from __future__ import unicode_literals
 
 from django.urls import reverse
 
+from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import LEARNER
 from kolibri.core.content.hooks import ContentNodeDisplayHook
+from kolibri.core.device.utils import is_landing_page
+from kolibri.core.device.utils import LANDING_PAGE_LEARN
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack import hooks as webpack_hooks
@@ -20,7 +23,12 @@ class Learn(KolibriPluginBase):
 
 @register_hook
 class LearnRedirect(RoleBasedRedirectHook):
-    role = LEARNER
+    @property
+    def role(self):
+        if is_landing_page(LANDING_PAGE_LEARN):
+            return ANONYMOUS
+
+        return LEARNER
 
     @property
     def url(self):

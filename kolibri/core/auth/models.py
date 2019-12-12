@@ -124,7 +124,6 @@ class FacilityDataset(FacilityDataSyncableModel):
     learner_can_delete_account = models.BooleanField(default=True)
     learner_can_login_with_no_password = models.BooleanField(default=False)
     show_download_button_in_learn = models.BooleanField(default=True)
-    allow_guest_access = models.BooleanField(default=True)
     registered = models.BooleanField(default=False)
 
     def __str__(self):
@@ -491,6 +490,10 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
             "Subclasses of KolibriAbstractBaseUser must override the `can_delete` method."
         )
 
+    @property
+    def can_access_unassigned_content(self):
+        return get_device_setting("allow_learner_unassigned_resource_access", True)
+
 
 class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
     """
@@ -508,6 +511,7 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
             "user_id": None,
             "facility_id": getattr(Facility.get_default_facility(), "id", None),
             "kind": [user_kinds.ANONYMOUS],
+            "can_access_unassigned_content": self.can_access_unassigned_content,
         }
 
     def is_member_of(self, coll):
@@ -720,12 +724,18 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         if not roles:
             roles = [user_kinds.LEARNER]
 
+        can_access_unassigned_content = self.can_access_unassigned_content
+
+        if len(set(roles).difference({user_kinds.LEARNER, user_kinds.ANONYMOUS})) > 0:
+            can_access_unassigned_content = True
+
         return {
             "username": self.username,
             "full_name": self.full_name,
             "user_id": self.id,
             "kind": roles,
             "can_manage_content": self.can_manage_content,
+            "can_access_unassigned_content": can_access_unassigned_content,
             "facility_id": self.facility_id,
         }
 

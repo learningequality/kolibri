@@ -76,10 +76,6 @@ class PublicChannelSerializer(serializers.ModelSerializer):
     language = serializers.SerializerMethodField()
     icon_encoding = serializers.SerializerMethodField()
     last_published = serializers.SerializerMethodField()
-    public = serializers.SerializerMethodField()
-
-    def get_public(self, instance):
-        return True
 
     def get_language(self, instance):
         if instance.root.lang is None:

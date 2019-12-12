@@ -11,6 +11,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import FacilitySerializer
 from kolibri.core.auth.serializers import FacilityUserSerializer
 from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import provision_device
 
 
@@ -32,16 +33,7 @@ class NoFacilityFacilityUserSerializer(FacilityUserSerializer):
         return attrs
 
 
-class DeviceProvisionSerializer(serializers.Serializer):
-    facility = FacilitySerializer()
-    preset = serializers.ChoiceField(choices=choices)
-    superuser = NoFacilityFacilityUserSerializer()
-    language_id = serializers.CharField(max_length=15)
-    settings = serializers.JSONField()
-
-    class Meta:
-        fields = ("facility", "dataset", "superuser", "language_id", "settings")
-
+class DeviceSerializerMixin(object):
     def validate_language_id(self, language_id):
         """
         Check that the language_id is supported by Kolibri
@@ -49,6 +41,25 @@ class DeviceProvisionSerializer(serializers.Serializer):
         if not check_for_language(language_id):
             raise serializers.ValidationError(_("Language is not supported by Kolibri"))
         return language_id
+
+
+class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
+    facility = FacilitySerializer()
+    preset = serializers.ChoiceField(choices=choices)
+    superuser = NoFacilityFacilityUserSerializer()
+    language_id = serializers.CharField(max_length=15)
+    settings = serializers.JSONField()
+    allow_guest_access = serializers.BooleanField()
+
+    class Meta:
+        fields = (
+            "facility",
+            "dataset",
+            "superuser",
+            "language_id",
+            "settings",
+            "allow_guest_access",
+        )
 
     def create(self, validated_data):
         """
@@ -80,11 +91,34 @@ class DeviceProvisionSerializer(serializers.Serializer):
             facility.add_role(superuser, ADMIN)
             DevicePermissions.objects.create(user=superuser, is_superuser=True)
             language_id = validated_data.pop("language_id")
-            provision_device(language_id=language_id, default_facility=facility)
+            allow_guest_access = validated_data.pop(
+                "allow_guest_access", preset != "formal"
+            )
+            provision_device(
+                language_id=language_id,
+                default_facility=facility,
+                allow_guest_access=allow_guest_access,
+            )
             return {
                 "facility": facility,
                 "preset": preset,
                 "superuser": superuser,
                 "language_id": language_id,
                 "settings": custom_settings,
+                "allow_guest_access": allow_guest_access,
             }
+
+
+class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerializer):
+    class Meta:
+        model = DeviceSettings
+        fields = (
+            "language_id",
+            "landing_page",
+            "allow_guest_access",
+            "allow_peer_unlisted_channel_import",
+            "allow_learner_unassigned_resource_access",
+        )
+
+    def create(self, validated_data):
+        raise serializers.ValidationError("Device settings can only be updated")

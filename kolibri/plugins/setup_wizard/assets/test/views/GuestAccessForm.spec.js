@@ -42,7 +42,7 @@ describe('GuestAccessForm', () => {
   it('after clicking submit, the setting in vuex is updated', () => {
     const { wrapper, store } = makeWrapper({ preset: 'formal' });
     wrapper.find({ name: 'YesNoForm' }).vm.emitSetting();
-    expect(store.state.onboardingData.settings.allow_guest_access).toEqual(false);
+    expect(store.state.onboardingData.allow_guest_access).toEqual(false);
     expect(wrapper.vm.$emit).toHaveBeenCalledTimes(1);
   });
 });

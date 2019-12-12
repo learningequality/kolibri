@@ -3,6 +3,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
+from kolibri.core.device.utils import is_landing_page
+from kolibri.core.device.utils import LANDING_PAGE_LEARN
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
@@ -26,7 +28,12 @@ class UserAsset(webpack_hooks.WebpackBundleHook):
 
 @register_hook
 class LogInRedirect(RoleBasedRedirectHook):
-    role = ANONYMOUS
+    @property
+    def role(self):
+        if is_landing_page(LANDING_PAGE_LEARN):
+            return None
+
+        return ANONYMOUS
 
     @property
     def url(self):
