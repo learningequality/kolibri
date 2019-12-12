@@ -5,6 +5,7 @@ import socket
 from contextlib import closing
 
 from django.core.exceptions import ValidationError
+from django.db import connection
 from zeroconf import get_all_addresses
 from zeroconf import NonUniqueNameException
 from zeroconf import ServiceInfo
@@ -169,6 +170,7 @@ class KolibriZeroconfListener(object):
 
 def cleanup_database():
     DynamicNetworkLocation.objects.all().delete()
+    connection.close()
 
 
 def register_zeroconf_service(port, device_info):
