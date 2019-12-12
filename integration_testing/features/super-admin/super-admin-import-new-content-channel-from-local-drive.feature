@@ -8,10 +8,11 @@ Feature: Super admin imports content from a new channel from local drive
 
   Scenario: Import new resources from local drive
     When I click *Select resources* button for the <channel> channel
-    Then I see the *Select resources from '<channel>'* page
+    Then I see the *Loading channel...* in the top bar
       And I see the "Generating channel listing. This could take a few minutes..." notification
     When the channel listing is generated
-    Then I see the channel page with logo, name, and version
+    Then I am on the *Importing from '<drive>'* page
+      And I see the channel page with logo, name, and version
       And I see the total number and size of <channel> channel resources   
       And I see 0 resources from <channel> channel are listed as *On your device*
       And I see the list of topics for the <channel> channel
