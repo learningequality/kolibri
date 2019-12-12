@@ -154,6 +154,8 @@ class KolibriZeroconfListener(object):
                     )
                     % (id, self.instances[id], traceback.format_exc(limit=1)),
                 )
+            finally:
+                connection.close()
 
     def remove_service(self, zeroconf, type, name):
         id = _id_from_name(name)
@@ -166,6 +168,7 @@ class KolibriZeroconfListener(object):
             pass
 
         DynamicNetworkLocation.objects.filter(pk=id).delete()
+        connection.close()
 
 
 def cleanup_database():
