@@ -562,6 +562,10 @@
     /deep/ .loading-space {
       padding-top: 90px;
     }
+
+    [dir='rtl'] & {
+      right: 0;
+    }
   }
 
   .normalize-fullscreen,
