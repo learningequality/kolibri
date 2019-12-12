@@ -13,7 +13,7 @@ def migrate_allow_guest_access(apps, schema_editor):
 
     try:
         default_facility = DeviceSettings.objects.get().default_facility
-        allow_guest_access = default_facility.allow_guest_access
+        allow_guest_access = default_facility.dataset.allow_guest_access
     except ObjectDoesNotExist:
         allow_guest_access = (
             FacilityDataset.objects.filter(allow_guest_access=False).count() <= 0
@@ -32,8 +32,8 @@ def revert_allow_guest_access(apps, schema_editor):
 
     try:
         default_facility = DeviceSettings.objects.get().default_facility
-        default_facility.allow_guest_access = allow_guest_access
-        default_facility.save()
+        default_facility.dataset.allow_guest_access = allow_guest_access
+        default_facility.dataset.save()
     except ObjectDoesNotExist:
         FacilityDataset.objects.update(allow_guest_access=allow_guest_access)
 
