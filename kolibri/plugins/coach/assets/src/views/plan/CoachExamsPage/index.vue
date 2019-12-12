@@ -56,7 +56,7 @@
 
             <td>
               <Recipients
-                :groupNames="getGroupNames(exam.groups)"
+                :groupNames="getRecipientNamesForExam(exam)"
                 :hasAssignments="exam.assignments.length > 0"
               />
             </td>
