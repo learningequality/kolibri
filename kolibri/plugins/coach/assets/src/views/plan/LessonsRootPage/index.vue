@@ -23,15 +23,13 @@
         <!-- Remove this div - it makes sure the [NEW LESSON] button stays right-aligned
               while the above <KSelect> is hidden
           -->
-        <div>&nbsp;</div>
-        <KButton>
-          <KRouterLink
-            :primary="true"
-            appearance="raised-button"
-            :text="coachString('newLessonAction')"
-            :to="newLessonRoute"
-          />
-        </KButton>
+        <div style="display: inline;"></div>
+        <KRouterLink
+          :primary="true"
+          appearance="raised-button"
+          :text="coachString('newLessonAction')"
+          :to="newLessonRoute"
+        />
       </div>
 
       <CoreTable>
@@ -124,7 +122,7 @@
   import { LessonResource } from 'kolibri.resources';
   import countBy from 'lodash/countBy';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import { CollectionKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';

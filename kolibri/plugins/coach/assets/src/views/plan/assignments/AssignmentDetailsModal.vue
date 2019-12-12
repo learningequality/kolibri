@@ -244,14 +244,23 @@
 
         // Always make sure that we're including the adHocGroup ID in this
         // or else we'll delete the assignment and lose the collection.
-        if (!this.selectedCollectionIds.includes(this.$store.state.adHocLearners.id)) {
+        if (
+          this.$store.state.adHocLearners.id &&
+          !this.selectedCollectionIds.includes(this.$store.state.adHocLearners.id)
+        ) {
           // The selected individual learners should be cleared out in this case as well.
           this.adHocLearners = [];
           this.selectedCollectionIds.push(this.$store.state.adHocLearners.id);
         }
         // Update the users associated with the AdHocGroup then proceed
         // with form submission
-        this.handleAdHocLearnersGroupPromise(this.adHocLearners)
+        this.handleAdHocLearnersGroupPromise()
+          .then(() =>
+            this.$store.dispatch(
+              'adHocLearners/updateLearnersInAdHocLearnersGroup',
+              this.adHocLearners
+            )
+          )
           .then(() => {
             if (this.formIsValid) {
               if (!this.detailsHaveChanged) {
@@ -268,10 +277,12 @@
             this.handleSubmitFailure();
           });
       },
-      handleAdHocLearnersGroupPromise(learners) {
+      handleAdHocLearnersGroupPromise() {
         return this.assignmentType === 'new_lesson'
-          ? this.$store.dispatch('adHocLearners/createAdHocLearnersGroup', this.classId)
-          : this.$store.dispatch('adHocLearners/updateLearnersInAdHocLearnersGroup', learners);
+          ? this.$store.dispatch('adHocLearners/createAdHocLearnersGroup', {
+              classId: this.classId,
+            })
+          : Promise.resolve();
       },
       /**
        * @public

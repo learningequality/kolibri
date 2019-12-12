@@ -1,4 +1,3 @@
-import { join } from 'path';
 import map from 'lodash/map';
 import get from 'lodash/get';
 import uniq from 'lodash/uniq';
