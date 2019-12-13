@@ -12,8 +12,8 @@ data = {
     "language_id": "en",
     "facility": {"name": "Atkinson Hall"},
     "preset": "nonformal",
+    "allow_guest_access": True,
     "settings": {
-        "allow_guest_access": True,
         "learner_can_sign_up": True,
         "learner_can_edit_name": True,
         "learner_can_edit_username": True,
