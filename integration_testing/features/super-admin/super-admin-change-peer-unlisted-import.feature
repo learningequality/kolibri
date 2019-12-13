@@ -1,6 +1,8 @@
 Feature: Super admin changes device setting allowing unlisted channel peer import
   Super admin needs to be able to change the setting to allow other network computers to import the device's unlisted channels
 
+# For these scenarios you will need another Kolibri running on a discoverable device in the same LAN
+
   Background:
     Given I am signed in to Kolibri <instance1> as a super admin user
       And I am signed in to Kolibri <instance2> as a super admin user
