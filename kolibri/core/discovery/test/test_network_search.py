@@ -1,7 +1,7 @@
 import socket
 
 import mock
-from django.test import TestCase
+from django.test import TransactionTestCase
 from zeroconf import BadTypeInNameException
 from zeroconf import service_type_name
 from zeroconf import ServiceInfo
@@ -106,7 +106,7 @@ class MockZeroconf(Zeroconf):
     lambda: [MOCK_INTERFACE_IP],
 )
 @mock.patch("django.db.models.Manager.update_or_create")
-class TestNetworkSearch(TestCase):
+class TestNetworkSearch(TransactionTestCase):
     def test_initialize_zeroconf_listener(self, *mocks):
         assert ZEROCONF_STATE["listener"] is None
         initialize_zeroconf_listener()

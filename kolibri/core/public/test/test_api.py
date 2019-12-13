@@ -5,7 +5,7 @@ import factory
 from django.core.urlresolvers import reverse
 from le_utils.constants import content_kinds
 from morango.models import InstanceIDModel
-from rest_framework.test import APITestCase
+from rest_framework.test import APITransactionTestCase
 from six import iteritems
 
 import kolibri
@@ -78,7 +78,7 @@ def create_mini_channel(
     )
 
 
-class PublicAPITestCase(APITestCase):
+class PublicAPITestCase(APITransactionTestCase):
     """
     IMPORTANT: These tests are to never be changed. They are enforcing a
     public API contract. If the tests fail, then the implementation needs
