@@ -44,6 +44,13 @@ def allow_guest_access():
     return is_landing_page(LANDING_PAGE_LEARN)
 
 
+def allow_learner_unassigned_resource_access():
+    if get_device_setting("allow_learner_unassigned_resource_access", True):
+        return True
+
+    return is_landing_page(LANDING_PAGE_LEARN)
+
+
 def allow_peer_unlisted_channel_import():
     return get_device_setting("allow_peer_unlisted_channel_import", False)
 

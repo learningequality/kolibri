@@ -69,6 +69,7 @@ from .permissions.general import IsSelf
 from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
 from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.constants.morango_scope_definitions import SINGLE_USER
+from kolibri.core.device.utils import allow_learner_unassigned_resource_access
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import set_device_settings
@@ -492,7 +493,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
 
     @property
     def can_access_unassigned_content(self):
-        return get_device_setting("allow_learner_unassigned_resource_access", True)
+        return allow_learner_unassigned_resource_access()
 
 
 class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
