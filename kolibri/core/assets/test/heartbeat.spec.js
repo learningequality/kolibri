@@ -4,13 +4,17 @@ import * as serverClock from 'kolibri.utils.serverClock';
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
+import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri.lib.logging');
 jest.mock('kolibri.urls');
 jest.mock('lockr');
 jest.mock('http');
 
+
 describe('HeartBeat', function() {
+  stubWindowLocation(beforeAll, afterAll);
+
   describe('constructor method', function() {
     it('should set the setUserActive method to a bound method', function() {
       const test = new HeartBeat();
