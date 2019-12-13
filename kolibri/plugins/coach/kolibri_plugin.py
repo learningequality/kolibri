@@ -17,7 +17,7 @@ class Coach(KolibriPluginBase):
 
 @register_hook
 class CoachRedirect(RoleBasedRedirectHook):
-    role = COACH
+    roles = (COACH,)
 
     @property
     def url(self):

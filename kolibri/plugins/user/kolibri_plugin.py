@@ -29,11 +29,11 @@ class UserAsset(webpack_hooks.WebpackBundleHook):
 @register_hook
 class LogInRedirect(RoleBasedRedirectHook):
     @property
-    def role(self):
+    def roles(self):
         if is_landing_page(LANDING_PAGE_LEARN):
-            return None
+            return (None,)
 
-        return ANONYMOUS
+        return (ANONYMOUS,)
 
     @property
     def url(self):
