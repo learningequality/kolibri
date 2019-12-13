@@ -1,9 +1,6 @@
-import atexit
 import logging
 import os
 import sys
-import threading
-import time
 from subprocess import CalledProcessError
 from subprocess import check_output
 
@@ -17,6 +14,10 @@ import kolibri
 from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
+from kolibri.core.deviceadmin.utils import schedule_vacuum
+from kolibri.core.tasks.main import initialize_workers
+from kolibri.core.tasks.main import queue
+from kolibri.core.tasks.main import scheduler
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
 
@@ -70,15 +71,14 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
-class Services(object):
-    def __init__(self, port):
-        self.workers = None
+class ServicesPlugin(SimplePlugin):
+    def __init__(self, bus, port):
+        self.bus = bus
         self.port = port
+        self.workers = None
 
     def start(self):
         # Initialize the iceqube scheduler to handle scheduled tasks
-        from kolibri.core.tasks.main import scheduler
-
         scheduler.clear_scheduler()
 
         # schedule the pingback job
@@ -87,121 +87,68 @@ class Services(object):
         schedule_ping()
 
         # schedule the vacuum job
-        from kolibri.core.deviceadmin.utils import schedule_vacuum
-
         schedule_vacuum()
 
         # This is run every time the server is started to clear all the tasks
         # in the queue
-        from kolibri.core.tasks.main import queue
-
         queue.empty()
 
         # Initialize the iceqube engine to handle queued tasks
-        from kolibri.core.tasks.main import initialize_workers
-
         self.workers = initialize_workers()
 
         scheduler.start_scheduler()
 
         # Register the Kolibri zeroconf service so it will be discoverable on the network
         from kolibri.core.public.utils import get_device_info
+
+        device_info = get_device_info()
+
         from kolibri.core.discovery.utils.network.search import (
             register_zeroconf_service,
         )
 
-        device_info = get_device_info()
         register_zeroconf_service(port=self.port, device_info=device_info)
 
     def stop(self):
-        # the IO stack is not thread safe:
-        # make sure not to do any logging in here!
-        from kolibri.core.discovery.utils.network.search import (
-            unregister_zeroconf_service,
-        )
-        from kolibri.core.tasks.main import scheduler
-
         if self.workers is not None:
             for worker in self.workers:
                 worker.shutdown()
         scheduler.shutdown_scheduler()
+        from kolibri.core.discovery.utils.network.search import (
+            unregister_zeroconf_service,
+        )
+
         unregister_zeroconf_service()
 
 
-def _rm_pid_file():
-    os.unlink(PID_FILE)
+def _rm_pid_file(pid_file):
+    try:
+        os.unlink(pid_file)
+    except OSError:
+        pass
 
 
-def start(port=8080, run_cherrypy=True):
+class CleanUpPIDPlugin(SimplePlugin):
+    def start(self):
+        _rm_pid_file(STARTUP_LOCK)
+
+    def exit(self):
+        _rm_pid_file(PID_FILE)
+
+
+def start(port=8080, serve_http=True):
     """
     Starts the server.
 
     :param: port: Port number (default: 8080)
     """
-    if run_cherrypy:
-        # Write the new PID
-        # Note: to prevent a race condition on some setups, this needs to happen first
-        _write_pid_file(PID_FILE, port=port)
-
-        # run_services(port=port)
-
-        atexit.register(_rm_pid_file)
-
-        logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
-
-        run_server(port=port)
-    else:
-        services(port=port)
-
-
-def services(port=8080):
-    """
-    Runs the background services.
-    """
-
     # Write the new PID
     # Note: to prevent a race condition on some setups, this needs to happen first
-    _write_pid_file(PID_FILE)
+    _write_pid_file(PID_FILE, port=port)
 
-    services = Services(port)
+    logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
 
-    services.start()
-
-    atexit.register(_rm_pid_file)
-
-    block()
-
-    services.stop()
-
-
-def block():
-    # Modified from:
-    # https://github.com/cherrypy/cherrypy/blob/e5de08887ddb960b337e1f335c819c0b2873d850/cherrypy/process/wspbus.py#L326
-    try:
-        while True:
-            time.sleep(100000)
-    except Exception as e:
-        logger.error("Block interrupted! %s" % e)
-    # Waiting for ALL child threads to finish is necessary on OS X.
-    # See https://github.com/cherrypy/cherrypy/issues/581.
-    # It's also good to let them all shut down before allowing
-    # the main thread to call atexit handlers.
-    # See https://github.com/cherrypy/cherrypy/issues/751.
-    logger.debug("Waiting for child threads to terminate...")
-    for t in threading.enumerate():
-        # Validate the we're not trying to join the MainThread
-        # that will cause a deadlock and the case exist when
-        # implemented as a windows service and in any other case
-        # that another thread executes cherrypy.engine.exit()
-        if (
-            t != threading.currentThread()
-            and not isinstance(t, threading._MainThread)
-            # Note that any dummy (external) threads are
-            # always daemonic.
-            and not t.daemon
-        ):
-            logger.debug("Waiting for thread %s." % t.getName())
-            t.join()
+    run_server(port=port, serve_http=serve_http)
 
 
 def stop(pid=None, force=False):
@@ -226,9 +173,6 @@ def stop(pid=None, force=False):
 
     # TODO: Check that server has in fact been killed, otherwise we should
     # raise an error...
-
-    # Finally, remove the PID file
-    _rm_pid_file()
 
 
 def calculate_cache_size():
@@ -258,39 +202,11 @@ def calculate_cache_size():
     return MIN_CACHE
 
 
-class ServicesPlugin(SimplePlugin):
-    def __init__(self, bus, services):
-        self.bus = bus
-        self.services = services
-
-    def start(self):
-        self.services.start()
-
-    def stop(self):
-        self.services.stop()
-
-
-def run_server(port):
-
+def configure_http_server(port):
     # Mount the application
     from kolibri.deployment.default.wsgi import application
 
     cherrypy.tree.graft(application, "/")
-
-    cherrypy.config.update(
-        {
-            "environment": "production",
-            "tools.expires.on": True,
-            "tools.expires.secs": 31536000,
-            "tools.caching.on": True,
-            "tools.caching.maxobj_size": 2000000,
-            "tools.caching.maxsize": calculate_cache_size(),
-            "log.screen": False,
-            "log.access_file": "",
-            "log.error_file": "",
-        }
-    )
-    cherrypy.engine.unsubscribe("graceful", cherrypy.log.reopen_files)
 
     # Mount static files
     cherrypy.tree.mount(
@@ -323,9 +239,6 @@ def run_server(port):
         config={"/": {"tools.caching.on": False}},
     )
 
-    # Unsubscribe the default server
-    cherrypy.server.unsubscribe()
-
     # Instantiate a new server object
     server = cherrypy._cpserver.Server()
 
@@ -340,10 +253,38 @@ def run_server(port):
     # Subscribe this server
     server.subscribe()
 
+
+def run_server(port, serve_http=True):
+    # Unsubscribe the default server
+    cherrypy.server.unsubscribe()
+
+    # Turn off the auto reloader
+    cherrypy.engine.unsubscribe("graceful", cherrypy.log.reopen_files)
+
+    cherrypy.config.update(
+        {
+            "environment": "production",
+            "tools.expires.on": True,
+            "tools.expires.secs": 31536000,
+            "tools.caching.on": True,
+            "tools.caching.maxobj_size": 2000000,
+            "tools.caching.maxsize": calculate_cache_size(),
+            "log.screen": False,
+            "log.access_file": "",
+            "log.error_file": "",
+        }
+    )
+
+    if serve_http:
+        configure_http_server(port)
+
     # Setup plugin for services
-    services = Services(port)
-    service_plugin = ServicesPlugin(cherrypy.engine, services)
+    service_plugin = ServicesPlugin(cherrypy.engine, port)
     service_plugin.subscribe()
+
+    # Setup plugin for handling PID file cleanup
+    pid_plugin = CleanUpPIDPlugin(cherrypy.engine)
+    pid_plugin.subscribe()
 
     cherrypy.engine.signal_handler.handlers.update(
         {
