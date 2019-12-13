@@ -1,11 +1,11 @@
 #! /bin/bash
 
 # Setting for debug purposes
-set -exuo pipefail
+set -euo pipefail
 
 
 # Allows for building directly from pipeline or trigger
-if [[ $BUILDKITE_TRIGGERED_FROM_BUILD_ID ]]
+if [[ $BUILDKITE_TRIGGERED_FROM_BUILD_ID || $LE_TRIGGERED_FROM_BUILD_ID ]]
 then
   echo "--- Downloading from triggered build"
   buildkite-agent artifact download "dist/*.whl" . --build $BUILDKITE_TRIGGERED_FROM_BUILD_ID
@@ -49,12 +49,20 @@ pipenv run pew package
 echo "--- Uploading"
 
 MACOS_VERSION_INDICATOR=$(git describe --exact-match --tags || git rev-parse --short HEAD)
+
 # Clear dist so that the dmg is in the same dir as the rest of the packages
 rm -r dist/* && mv package/osx/kolibri*.dmg \
   dist/kolibri-$(more src/kolibri/VERSION)-macos-$MACOS_VERSION_INDICATOR.dmg
 
-# Environment var doesn't exist my default, so we have to manually pass it.
-buildkite-agent artifact upload "dist/kolibri*.dmg" \
-  --job $(buildkite-agent meta-data get triggered_from_job_id --default $BUILDKITE_JOB_ID)
+$EXTERNAL_JOB_ID=$(buildkite-agent meta-data get triggered_from_job_id || $LE_TRIGGERED_FROM_JOB_ID)
+
+if [[ $EXTERNAL_JOB_ID ]]
+  # Environment var doesn't exist my default, so we have to manually pass it.
+  buildkite-agent artifact upload "dist/kolibri*.dmg" \
+    --job $EXTERNAL_JOB_ID
+fi
+
+# Always upload to the local build too. Makes things less confusing.
+buildkite-agent artifact upload "dist/kolibri*.dmg"
 
 # TODO upload directly to google cloud
