@@ -59,16 +59,6 @@ Feature: Admin changes facility settings
       And browse any channel's topics until I open an single resource
     Then I see the *Download content* button
 
-  Scenario: Allow guest browsing
-    Given the *Allow users to access content without signing in* checkbox is unchecked
-    When I check the *Allow users to access content without signing in* checkbox
-      And I click the *Save changes* button
-      And I sign out
-    Then I see the *Continues as a guest* link on the sign-in page
-    When I click *Continues as a guest*
-    Then I see the *Learn > Channels* page
-
-
 Examples:
 | full_name | username | password |
 | Pinco P.  | coach    | coach    |
