@@ -58,9 +58,6 @@ DAEMON_LOG = os.path.join(conf.LOG_ROOT, "daemon.txt")
 # Currently non-configurable until we know how to properly handle this
 LISTEN_ADDRESS = "0.0.0.0"
 
-# use locks so vacuum doesn't conflict with ping
-vacuum_db_lock = threading.Lock()
-
 
 class NotRunning(Exception):
     """
@@ -180,7 +177,6 @@ def services(port=8080):
 def block():
     # Modified from:
     # https://github.com/cherrypy/cherrypy/blob/e5de08887ddb960b337e1f335c819c0b2873d850/cherrypy/process/wspbus.py#L326
-    unlock_after_vacuum()
     try:
         while True:
             time.sleep(100000)
@@ -360,19 +356,8 @@ def run_server(port):
     cherrypy.engine.signals.subscribe()
 
     # Start the server engine (Option 1 *and* 2)
-    unlock_after_vacuum()  # don't start the server until vacuum finishes
     cherrypy.engine.start()
     cherrypy.engine.block()
-
-
-def unlock_after_vacuum():
-    while vacuum_db_lock.locked():
-        time.sleep(0.5)
-    if os.path.exists(STARTUP_LOCK):
-        try:
-            os.remove(STARTUP_LOCK)
-        except OSError:
-            pass  # lock file was deleted by other process
 
 
 def _read_pid_file(filename):
