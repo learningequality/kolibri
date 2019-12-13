@@ -4,6 +4,7 @@ import * as constants from '../../src/constants';
 import * as browser from '../../src/utils/browser';
 import ConditionalPromise from '../../src/conditionalPromise';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
+import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri.urls');
 
@@ -32,6 +33,8 @@ describe('Vuex store/actions for core module', () => {
   });
 
   describe('kolibriLogin', () => {
+    stubWindowLocation(beforeAll, afterAll);
+
     let store;
     let redirectStub;
 
