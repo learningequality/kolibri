@@ -1,7 +1,7 @@
 import socket
 
 import mock
-from django.test import TestCase
+from django.test import TransactionTestCase
 from zeroconf import BadTypeInNameException
 from zeroconf import service_type_name
 from zeroconf import ServiceInfo
@@ -98,6 +98,10 @@ class MockZeroconf(Zeroconf):
 
 
 @mock.patch(
+    "kolibri.core.discovery.utils.network.search.get_device_info",
+    return_value={"instance_id": MOCK_ID},
+)
+@mock.patch(
     "kolibri.core.discovery.utils.network.search._is_port_open", lambda *a, **kw: True
 )
 @mock.patch("kolibri.core.discovery.utils.network.search.Zeroconf", MockZeroconf)
@@ -106,16 +110,16 @@ class MockZeroconf(Zeroconf):
     lambda: [MOCK_INTERFACE_IP],
 )
 @mock.patch("django.db.models.Manager.update_or_create")
-class TestNetworkSearch(TestCase):
+class TestNetworkSearch(TransactionTestCase):
     def test_initialize_zeroconf_listener(self, *mocks):
         assert ZEROCONF_STATE["listener"] is None
         initialize_zeroconf_listener()
         assert ZEROCONF_STATE["listener"] is not None
 
-    def test_register_zeroconf_service(self, mock_db):
+    def test_register_zeroconf_service(self, mock_db, get_device_mock):
         assert len(get_peer_instances()) == 0
         initialize_zeroconf_listener()
-        register_zeroconf_service(MOCK_PORT, {"instance_id": MOCK_ID})
+        register_zeroconf_service(MOCK_PORT)
         assert [x for x in get_peer_instances()] == [
             {
                 "id": MOCK_ID,
@@ -135,7 +139,7 @@ class TestNetworkSearch(TestCase):
                 ),
             }
         ]
-        register_zeroconf_service(MOCK_PORT, {"instance_id": MOCK_ID})
+        register_zeroconf_service(MOCK_PORT)
         unregister_zeroconf_service()
         assert len(get_peer_instances()) == 0
 

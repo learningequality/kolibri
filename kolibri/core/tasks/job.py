@@ -2,6 +2,8 @@ import copy
 import logging
 import uuid
 
+from django.db import connection
+
 from kolibri.core.tasks.utils import current_state_tracker
 from kolibri.core.tasks.utils import import_stringified_func
 from kolibri.core.tasks.utils import stringify_func
@@ -180,6 +182,9 @@ class Job(object):
                 raise e
 
             setattr(current_state_tracker, "job", None)
+
+            # Close any django connections opened here
+            connection.close()
 
             return result
 
