@@ -13,6 +13,7 @@ from zeroconf import USE_IP_OF_OUTGOING_INTERFACE
 from zeroconf import Zeroconf
 
 from kolibri.core.discovery.models import DynamicNetworkLocation
+from kolibri.core.public.utils import get_device_info
 
 logger = logging.getLogger(__name__)
 
@@ -171,13 +172,10 @@ class KolibriZeroconfListener(object):
         connection.close()
 
 
-def cleanup_database():
+def register_zeroconf_service(port):
+    device_info = get_device_info()
     DynamicNetworkLocation.objects.all().delete()
     connection.close()
-
-
-def register_zeroconf_service(port, device_info):
-    cleanup_database()
 
     id = device_info.get("instance_id")
 

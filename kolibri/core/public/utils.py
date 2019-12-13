@@ -1,6 +1,5 @@
 import platform
 
-from django.db import connection
 from morango.models import InstanceIDModel
 
 import kolibri
@@ -18,5 +17,4 @@ def get_device_info():
         "device_name": instance_model.hostname,
         "operating_system": platform.system(),
     }
-    connection.close()
     return info

@@ -99,15 +99,11 @@ class ServicesPlugin(SimplePlugin):
         scheduler.start_scheduler()
 
         # Register the Kolibri zeroconf service so it will be discoverable on the network
-        from kolibri.core.public.utils import get_device_info
-
-        device_info = get_device_info()
-
         from kolibri.core.discovery.utils.network.search import (
             register_zeroconf_service,
         )
 
-        register_zeroconf_service(port=self.port, device_info=device_info)
+        register_zeroconf_service(port=self.port)
 
     def stop(self):
         if self.workers is not None:
