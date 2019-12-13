@@ -17,3 +17,5 @@ Feature: Super admin manages network peer locations
     Then I see a loading spinner and *Searching* notification
       And I see a list of found local Kolibri peers # below the manually entered network addresses, if any
       And for each peer I see the IP address, port and peer ID
+
+# TO-DO: Add more complex scenarios for edge cases testing

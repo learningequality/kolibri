@@ -13,7 +13,7 @@ Feature: Super admin changes their own profile information
       And if my changes are valid (I did not leave the fields empty)
       And I click the “Save” button
     Then I see the *Profile details updated* snackbar notification
-    When I go back to my *Profile > Detils* page
+    When I go back to my *Profile > Details* page
     Then I see the new full name and username on the profile page
       And I see the new username in the user menu
 

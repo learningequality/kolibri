@@ -1,4 +1,4 @@
-Feature: Super admin imports content from a new channel from local drive
+Feature: Super admin imports from a new channel on a local drive
     Super admin needs to be able to import content channels available on local drives, but previously not imported on the device
 
   Background:
@@ -21,5 +21,5 @@ Feature: Super admin imports content from a new channel from local drive
 # continue testing using the select and import scenarios from `super-admin-import-new-content-channel-from-studio.feature`
 
 Examples:
-| drive       | channel      | topic   | subtopic          | resource                   |
-| Hard_Disc_1 | MIT Blossoms | Physics | Forces and Angles | English: Forces and Angles |
+| drive       | channel      |
+| Hard_Disc_1 | MIT Blossoms |

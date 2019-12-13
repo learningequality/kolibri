@@ -67,8 +67,9 @@ Feature: Super admin imports more content
     Then I still see the <channel> channel at the version *L*
 
   Scenario: Update channel and import new content from local drive
-
-  # not tested yet, assuming the same procedure a part from selecting the source for *Import more*
+  # for this scenario you will need to have a more recent version of the channel on the local drive than on the device
+  # disconnect the device from Internet and work only with local drives
+  # workflow should be the same, no new version alert until you select to *Import more* and then the drive   
 
 Examples:
 | channel      |

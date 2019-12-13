@@ -29,10 +29,7 @@ super-admin-create-class.feature
 super-admin-find-user.feature
 super-admin-enroll-assign-users.feature
 super-admin-delete-class.feature
-super-admin-grant-content-import-permissions.feature
-super-admin-grant-super-admin-permissions.feature
-super-admin-downgrade-from-super-content-import-permission.feature
-super-admin-revoke-super-admin-permissions.feature
+super-admin-manage-user-permissions.feature
 super-admin-export-data.feature
 super-admin-change-facility-settings.feature
 super-admin-sign-out.feature
