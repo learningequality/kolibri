@@ -67,7 +67,7 @@
             :value="d.instance_id"
             :label="$tr('peerDeviceName', {identifier: d.id.slice(0,4) })"
             :description="d.base_url"
-            :disabled="!d.available"
+            :disabled="!d.available || discoveryFailed"
           />
         </div>
       </template>
@@ -143,6 +143,7 @@
         selectedAddressId: '',
         showUiAlerts: false,
         stage: '',
+        discoveryStage: '',
         Stages,
       };
     },
@@ -159,7 +160,8 @@
         return (
           this.selectedAddressId === '' ||
           this.stage === this.Stages.FETCHING_ADDRESSES ||
-          this.stage === this.Stages.DELETING_ADDRESS
+          this.stage === this.Stages.DELETING_ADDRESS ||
+          this.discoveryStage === this.Stages.PEER_DISCOVERY_FAILED
         );
       },
       newAddressButtonDisabled() {
@@ -171,7 +173,10 @@
         );
       },
       discoveringPeers() {
-        return this.stage === this.Stages.PEER_DISCOVERY_STARTED;
+        return this.discoveryStage === this.Stages.PEER_DISCOVERY_STARTED;
+      },
+      discoveryFailed() {
+        return this.discoveryStage === this.Stages.PEER_DISCOVERY_FAILED;
       },
       uiAlertProps() {
         if (this.stage === this.Stages.FETCHING_FAILED) {
@@ -180,7 +185,7 @@
             type: 'error',
           };
         }
-        if (this.stage === this.Stages.PEER_DISCOVERY_FAILED) {
+        if (this.discoveryStage === this.Stages.PEER_DISCOVERY_FAILED) {
           return {
             text: this.$tr('fetchingFailedText'),
             type: 'error',
@@ -248,19 +253,19 @@
 
       discoverPeers() {
         this.$parent.$emit('started_peer_discovery');
-        this.stage = this.Stages.PEER_DISCOVERY_STARTED;
+        this.discoveryStage = this.Stages.PEER_DISCOVERY_STARTED;
         return fetchDynamicAddresses(this.isImportingMore ? this.transferredChannel.id : '')
           .then(devices => {
             this.discoveredAddresses = devices;
             this.$parent.$emit('finished_peer_discovery');
             setTimeout(() => {
-              this.stage = this.Stages.PEER_DISCOVERY_SUCCESSFUL;
+              this.discoveryStage = this.Stages.PEER_DISCOVERY_SUCCESSFUL;
             }, this.discoverySpinnerTime);
             this.discoveredAddressesInitiallyFetched = true;
           })
           .catch(() => {
             this.$parent.$emit('peer_discovery_failed');
-            this.stage = this.Stages.PEER_DISCOVERY_FAILED;
+            this.discoveryStage = this.Stages.PEER_DISCOVERY_FAILED;
           });
       },
 
