@@ -10,7 +10,7 @@
     @cancel="$emit('cancel')"
   >
     <template>
-      <p v-if="!addresses.length">
+      <p v-if="initialFetchingComplete && !addresses.length">
         {{ $tr('noAddressText') }}
       </p>
       <UiAlert
@@ -67,7 +67,7 @@
             :value="d.instance_id"
             :label="$tr('peerDeviceName', {identifier: d.id.slice(0,4) })"
             :description="d.base_url"
-            :disabled="!d.available"
+            :disabled="!d.available || discoveryFailed"
           />
         </div>
       </template>
@@ -75,7 +75,7 @@
 
     <KFixedGrid slot="actions" class="actions" numCols="4">
       <KFixedGridItem span="1">
-        <transition name="fade">
+        <transition name="spinner-fade">
           <div v-if="discoveringPeers" class="searching-indicator">
             <KLabeledIcon>
               <KCircularLoader slot="icon" :size="16" :stroke="6" />
@@ -131,14 +131,19 @@
       UiAlert,
     },
     mixins: [commonCoreStrings],
-    props: {},
+    props: {
+      discoverySpinnerTime: { type: Number, default: 2500 },
+    },
     data() {
       return {
         savedAddresses: [],
+        savedAddressesInitiallyFetched: false,
         discoveredAddresses: [],
+        discoveredAddressesInitiallyFetched: true,
         selectedAddressId: '',
         showUiAlerts: false,
         stage: '',
+        discoveryStage: '',
         Stages,
       };
     },
@@ -148,11 +153,15 @@
       addresses() {
         return this.savedAddresses.concat(this.discoveredAddresses);
       },
+      initialFetchingComplete() {
+        return this.savedAddressesInitiallyFetched && this.discoveredAddressesInitiallyFetched;
+      },
       submitDisabled() {
         return (
           this.selectedAddressId === '' ||
           this.stage === this.Stages.FETCHING_ADDRESSES ||
-          this.stage === this.Stages.DELETING_ADDRESS
+          this.stage === this.Stages.DELETING_ADDRESS ||
+          this.discoveryStage === this.Stages.PEER_DISCOVERY_FAILED
         );
       },
       newAddressButtonDisabled() {
@@ -164,22 +173,19 @@
         );
       },
       discoveringPeers() {
-        return this.stage === this.Stages.PEER_DISCOVERY_STARTED;
+        return this.discoveryStage === this.Stages.PEER_DISCOVERY_STARTED;
+      },
+      discoveryFailed() {
+        return this.discoveryStage === this.Stages.PEER_DISCOVERY_FAILED;
       },
       uiAlertProps() {
-        if (this.stage === this.Stages.FETCHING_ADDRESSES) {
-          return {
-            text: this.$tr('fetchingAddressesText'),
-            type: 'info',
-          };
-        }
         if (this.stage === this.Stages.FETCHING_FAILED) {
           return {
             text: this.$tr('fetchingFailedText'),
             type: 'error',
           };
         }
-        if (this.stage === this.Stages.PEER_DISCOVERY_FAILED) {
+        if (this.discoveryStage === this.Stages.PEER_DISCOVERY_FAILED) {
           return {
             text: this.$tr('fetchingFailedText'),
             type: 'error',
@@ -195,6 +201,7 @@
       },
     },
     beforeMount() {
+      this.startDiscoveryPolling();
       return this.refreshSavedAddressList();
     },
     mounted() {
@@ -203,8 +210,6 @@
       setTimeout(() => {
         this.showUiAlerts = true;
       }, 100);
-
-      this.startDiscoveryPolling();
     },
     destroyed() {
       this.stopDiscoveryPolling();
@@ -218,6 +223,7 @@
             this.savedAddresses = addresses;
             this.resetSelectedAddress();
             this.stage = this.Stages.FETCHING_SUCCESSFUL;
+            this.savedAddressesInitiallyFetched = true;
           })
           .catch(() => {
             this.stage = this.Stages.FETCHING_FAILED;
@@ -247,16 +253,19 @@
 
       discoverPeers() {
         this.$parent.$emit('started_peer_discovery');
-        this.stage = this.Stages.PEER_DISCOVERY_STARTED;
+        this.discoveryStage = this.Stages.PEER_DISCOVERY_STARTED;
         return fetchDynamicAddresses(this.isImportingMore ? this.transferredChannel.id : '')
           .then(devices => {
             this.discoveredAddresses = devices;
             this.$parent.$emit('finished_peer_discovery');
-            this.stage = this.Stages.PEER_DISCOVERY_SUCCESSFUL;
+            setTimeout(() => {
+              this.discoveryStage = this.Stages.PEER_DISCOVERY_SUCCESSFUL;
+            }, this.discoverySpinnerTime);
+            this.discoveredAddressesInitiallyFetched = true;
           })
           .catch(() => {
             this.$parent.$emit('peer_discovery_failed');
-            this.stage = this.Stages.PEER_DISCOVERY_FAILED;
+            this.discoveryStage = this.Stages.PEER_DISCOVERY_FAILED;
           });
       },
 
@@ -281,7 +290,6 @@
     },
     $trs: {
       deletingFailedText: 'There was a problem removing this address',
-      fetchingAddressesText: 'Looking for available addresses…',
       fetchingFailedText: 'There was a problem getting the available addresses',
       forgetAddressButtonLabel: 'Forget',
       header: 'Select network address',
@@ -320,13 +328,19 @@
     font-size: 12px;
   }
 
-  .fade-leave-active {
-    transition-delay: 2s;
+  .spinner-fade-leave-active,
+  .spinner-fade-enter-active {
+    transition: opacity 0.5s;
   }
 
-  .fade-enter,
-  .fade-leave-to {
+  .spinnner-fade-enter-to,
+  .spinner-fade-leave {
     opacity: 1;
+  }
+
+  .spinner-fade-enter,
+  .spinner-fade-leave-to {
+    opacity: 0;
   }
 
   .ui-progress-circular {

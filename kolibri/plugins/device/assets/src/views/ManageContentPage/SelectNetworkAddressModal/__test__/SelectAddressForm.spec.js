@@ -57,15 +57,6 @@ describe('SelectAddressForm', () => {
     fetchDynamicAddresses.mockResolvedValue(addresses);
   });
 
-  it('shows a loading message when fetching addresses', () => {
-    // and continue button and new address buttons are disabled
-    const { els } = makeWrapper();
-    expect(els.KModal().props().submitDisabled).toEqual(true);
-    expect(els.newAddressButton().isVisible()).toEqual(false);
-    expect(els.uiAlert().exists()).toEqual(true);
-    expect(els.uiAlert().text()).toEqual('Looking for available addresses…');
-  });
-
   it('shows one address for each one fetched', async () => {
     const { els, wrapper } = makeWrapper();
     await wrapper.vm.$nextTick();
