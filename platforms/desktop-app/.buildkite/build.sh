@@ -1,12 +1,19 @@
 #! /bin/bash
 
 # Setting for debug purposes
-set -euo pipefail
+set -eo pipefail
 
-
-# Allows for building directly from pipeline or trigger
-if [[ $BUILDKITE_TRIGGERED_FROM_BUILD_ID || $LE_TRIGGERED_FROM_BUILD_ID ]]
+if [[ $LE_TRIGGERED_FROM_BUILD_ID ]]
 then
+  echo "--- Downloading from triggered build"
+  buildkite-agent artifact download "dist/*.whl" . --build $LE_TRIGGERED_FROM_BUILD_ID
+  if [[ -z $BUILDKITE_TRIGGERED_FROM_BUILD_ID ]]
+  then
+    buildkite-agent annotate "This is a rebuild from a triggered build. Using parent's whl" --style warning 
+  fi
+elif [[ $BUILDKITE_TRIGGERED_FROM_BUILD_ID ]]
+then
+  # Dupe for now, to support existing pipeline
   echo "--- Downloading from triggered build"
   buildkite-agent artifact download "dist/*.whl" . --build $BUILDKITE_TRIGGERED_FROM_BUILD_ID
 else
@@ -57,6 +64,7 @@ rm -r dist/* && mv package/osx/kolibri*.dmg \
 $EXTERNAL_JOB_ID=$(buildkite-agent meta-data get triggered_from_job_id || $LE_TRIGGERED_FROM_JOB_ID)
 
 if [[ $EXTERNAL_JOB_ID ]]
+then
   # Environment var doesn't exist my default, so we have to manually pass it.
   buildkite-agent artifact upload "dist/kolibri*.dmg" \
     --job $EXTERNAL_JOB_ID
