@@ -1,17 +1,16 @@
 import atexit
 import logging
 import os
-import signal
 import sys
 import threading
 import time
-from functools import partial
 from subprocess import CalledProcessError
 from subprocess import check_output
 
 import cherrypy
 import ifcfg
 import requests
+from cherrypy.process.plugins import SimplePlugin
 from django.conf import settings
 
 import kolibri
@@ -74,66 +73,62 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
-def _cleanup_before_quitting(signum, frame, workers=None):
-    # the IO stack is not thread safe:
-    # make sure not to do any logging in here!
-    from kolibri.core.discovery.utils.network.search import unregister_zeroconf_service
-    from kolibri.core.tasks.main import scheduler
+class Services(object):
+    def __init__(self, port):
+        self.workers = None
+        self.port = port
 
-    if workers is not None:
-        for worker in workers:
-            worker.shutdown()
-    scheduler.shutdown_scheduler()
-    unregister_zeroconf_service()
-    signal.signal(signum, signal.SIG_DFL)
-    os.kill(os.getpid(), signum)
+    def start(self):
+        # Initialize the iceqube scheduler to handle scheduled tasks
+        from kolibri.core.tasks.main import scheduler
 
+        scheduler.clear_scheduler()
 
-def run_services(port):
+        # schedule the pingback job
+        from kolibri.core.analytics.utils import schedule_ping
 
-    # Initialize the iceqube scheduler to handle scheduled tasks
-    from kolibri.core.tasks.main import scheduler
+        schedule_ping()
 
-    scheduler.clear_scheduler()
+        # schedule the vacuum job
+        from kolibri.core.deviceadmin.utils import schedule_vacuum
 
-    # schedule the pingback job
-    from kolibri.core.analytics.utils import schedule_ping
+        schedule_vacuum()
 
-    schedule_ping()
+        # This is run every time the server is started to clear all the tasks
+        # in the queue
+        from kolibri.core.tasks.main import queue
 
-    # schedule the vacuum job
-    from kolibri.core.deviceadmin.utils import schedule_vacuum
+        queue.empty()
 
-    schedule_vacuum()
+        # Initialize the iceqube engine to handle queued tasks
+        from kolibri.core.tasks.main import initialize_workers
 
-    # This is run every time the server is started to clear all the tasks
-    # in the queue
-    from kolibri.core.tasks.main import queue
+        self.workers = initialize_workers()
 
-    queue.empty()
+        scheduler.start_scheduler()
 
-    # Initialize the iceqube engine to handle queued tasks
-    from kolibri.core.tasks.main import initialize_workers
+        # Register the Kolibri zeroconf service so it will be discoverable on the network
+        from kolibri.core.public.utils import get_device_info
+        from kolibri.core.discovery.utils.network.search import (
+            register_zeroconf_service,
+        )
 
-    workers = initialize_workers()
+        device_info = get_device_info()
+        register_zeroconf_service(port=self.port, device_info=device_info)
 
-    scheduler.start_scheduler()
+    def stop(self):
+        # the IO stack is not thread safe:
+        # make sure not to do any logging in here!
+        from kolibri.core.discovery.utils.network.search import (
+            unregister_zeroconf_service,
+        )
+        from kolibri.core.tasks.main import scheduler
 
-    # Register the Kolibri zeroconf service so it will be discoverable on the network
-    from kolibri.core.public.utils import get_device_info
-    from kolibri.core.discovery.utils.network.search import register_zeroconf_service
-
-    device_info = get_device_info()
-    register_zeroconf_service(port=port, device_info=device_info)
-
-    cleanup_func = partial(_cleanup_before_quitting, workers=workers)
-
-    try:
-        signal.signal(signal.SIGINT, cleanup_func)
-        signal.signal(signal.SIGTERM, cleanup_func)
-        logger.info("Added signal handlers for cleaning up on exit")
-    except ValueError:
-        logger.warn("Error adding signal handlers for cleaning up on exit")
+        if self.workers is not None:
+            for worker in self.workers:
+                worker.shutdown()
+        scheduler.shutdown_scheduler()
+        unregister_zeroconf_service()
 
 
 def _rm_pid_file():
@@ -146,21 +141,20 @@ def start(port=8080, run_cherrypy=True):
 
     :param: port: Port number (default: 8080)
     """
-
-    # Write the new PID
-    # Note: to prevent a race condition on some setups, this needs to happen first
-    _write_pid_file(PID_FILE, port=port)
-
-    run_services(port=port)
-
-    atexit.register(_rm_pid_file)
-
-    logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
-
     if run_cherrypy:
+        # Write the new PID
+        # Note: to prevent a race condition on some setups, this needs to happen first
+        _write_pid_file(PID_FILE, port=port)
+
+        # run_services(port=port)
+
+        atexit.register(_rm_pid_file)
+
+        logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
+
         run_server(port=port)
     else:
-        block()
+        services(port=port)
 
 
 def services(port=8080):
@@ -172,11 +166,15 @@ def services(port=8080):
     # Note: to prevent a race condition on some setups, this needs to happen first
     _write_pid_file(PID_FILE)
 
-    run_services(port=port)
+    services = Services(port)
+
+    services.start()
 
     atexit.register(_rm_pid_file)
 
     block()
+
+    services.stop()
 
 
 def block():
@@ -264,6 +262,18 @@ def calculate_cache_size():
     return MIN_CACHE
 
 
+class ServicesPlugin(SimplePlugin):
+    def __init__(self, bus, services):
+        self.bus = bus
+        self.services = services
+
+    def start(self):
+        self.services.start()
+
+    def stop(self):
+        self.services.stop()
+
+
 def run_server(port):
 
     # Mount the application
@@ -333,6 +343,21 @@ def run_server(port):
 
     # Subscribe this server
     server.subscribe()
+
+    # Setup plugin for services
+    services = Services(port)
+    service_plugin = ServicesPlugin(cherrypy.engine, services)
+    service_plugin.subscribe()
+
+    cherrypy.engine.signal_handler.handlers.update(
+        {
+            "SIGINT": cherrypy.engine.exit,
+            "CTRL_C_EVENT": cherrypy.engine.exit,
+            "CTRL_BREAK_EVENT": cherrypy.engine.exit,
+        }
+    )
+
+    cherrypy.engine.signals.subscribe()
 
     # Start the server engine (Option 1 *and* 2)
     unlock_after_vacuum()  # don't start the server until vacuum finishes
