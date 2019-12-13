@@ -22,8 +22,10 @@ Vue.use(KThemePlugin);
 Vue.use(KContentPlugin);
 
 Vue.config.silent = true;
-i18nSetup(true);
+Vue.config.devtools = false;
 Vue.config.productionTip = false;
+
+i18nSetup(true);
 
 const csrf = global.document.createElement('input');
 csrf.name = 'csrfmiddlewaretoken';
