@@ -219,7 +219,6 @@
             this.resetSelectedAddress();
             this.stage = this.Stages.FETCHING_SUCCESSFUL;
             this.savedAddressesInitiallyFetched = true;
-            this.saved = true;
           })
           .catch(() => {
             this.stage = this.Stages.FETCHING_FAILED;
