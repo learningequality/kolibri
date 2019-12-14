@@ -8,6 +8,7 @@ import json
 import mimetypes
 import os
 import zipfile
+from collections import OrderedDict
 from xml.etree.ElementTree import SubElement
 
 import html5lib
@@ -74,8 +75,8 @@ def get_path_or_404(zipped_filename):
 
 def recursive_h5p_dependencies(zf, data, prefix=""):
 
-    jsfiles = []
-    cssfiles = []
+    jsfiles = OrderedDict()
+    cssfiles = OrderedDict()
 
     # load the dependencies, recursively, to extract their JS and CSS paths to include
     for dep in data.get("preloadedDependencies", []):
@@ -84,20 +85,18 @@ def recursive_h5p_dependencies(zf, data, prefix=""):
         info = zf.getinfo(librarypath)
         content = json.loads(zf.open(info).read())
         newjs, newcss = recursive_h5p_dependencies(zf, content, packagepath)
-        cssfiles += newcss
-        jsfiles += newjs
+        cssfiles.update(newcss)
+        jsfiles.update(newjs)
 
     # load the JS required for the current package
     for js in data.get("preloadedJs", []):
         path = prefix + js["path"]
-        if path not in jsfiles:
-            jsfiles.append(path)
+        jsfiles[path] = True
 
     # load the CSS required for the current package
     for css in data.get("preloadedCss", []):
         path = prefix + css["path"]
-        if path not in cssfiles:
-            cssfiles.append(path)
+        cssfiles[path] = True
 
     return jsfiles, cssfiles
 
@@ -151,6 +150,8 @@ def get_h5p(zf, embedded_filepath):
         # return the H5P bootloader code
         h5pdata = json.loads(zf.open(zf.getinfo("h5p.json")).read())
         jsfiles, cssfiles = recursive_h5p_dependencies(zf, h5pdata)
+        jsfiles = jsfiles.keys()
+        cssfiles = cssfiles.keys()
         contentdata = zf.open(zf.getinfo("content/content.json")).read()
         path_includes_version = (
             "true"
