@@ -61,7 +61,7 @@ MACOS_VERSION_INDICATOR=$(git describe --exact-match --tags || git rev-parse --s
 rm -r dist/* && mv package/osx/kolibri*.dmg \
   dist/kolibri-$(more src/kolibri/VERSION)-macos-$MACOS_VERSION_INDICATOR.dmg
 
-$EXTERNAL_JOB_ID=$(buildkite-agent meta-data get triggered_from_job_id || $LE_TRIGGERED_FROM_JOB_ID)
+EXTERNAL_JOB_ID=$(buildkite-agent meta-data get triggered_from_job_id || echo $LE_TRIGGERED_FROM_JOB_ID)
 
 if [[ $EXTERNAL_JOB_ID ]]
 then
