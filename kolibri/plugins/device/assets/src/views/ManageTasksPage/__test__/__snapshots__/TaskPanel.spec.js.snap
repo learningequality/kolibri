@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TaskPanel renders correctly when it is a canceled DISKCONTENTEXPORT task 1`] = `
+<div class="task-panel">
+  <div class="icon">
+    <mat-svg name="error" category="alert" style="fill: #d32f2f;" mode="out-in"></mat-svg>
+  </div>
+  <div class="details">
+    <p class="details-status" style="color: rgb(97, 97, 97);">
+      Canceled
+    </p>
+    <h2 class="details-description">
+      Export resources from 'Canceled disk export channel test'
+    </h2>
+    <!---->
+    <!---->
+    <p class="details-startedby" style="color: rgb(97, 97, 97);">
+      Started by 'Tester'
+    </p>
+  </div>
+  <div class="buttons"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_37nh0f"><span>Clear</span>
+      <!----></button></div>
+</div>
+`;
+
+exports[`TaskPanel renders correctly when it is a canceled DISKEXPORT task (bulk export) 1`] = `
+<div class="task-panel">
+  <div class="icon">
+    <mat-svg name="error" category="alert" style="fill: #d32f2f;" mode="out-in"></mat-svg>
+  </div>
+  <div class="details">
+    <p class="details-status" style="color: rgb(97, 97, 97);">
+      Canceled
+    </p>
+    <h2 class="details-description">
+      Export 'Canceled disk export channel test'
+    </h2>
+    <!---->
+    <!---->
+    <p class="details-startedby" style="color: rgb(97, 97, 97);">
+      Started by 'Tester'
+    </p>
+  </div>
+  <div class="buttons"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_37nh0f"><span>Clear</span>
+      <!----></button></div>
+</div>
+`;

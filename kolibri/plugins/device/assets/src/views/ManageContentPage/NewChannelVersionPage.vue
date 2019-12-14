@@ -121,7 +121,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import { taskIsClearable } from '../../constants';
+  import { taskIsClearable, TaskStatuses } from '../../constants';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
   export default {
@@ -261,7 +261,16 @@
           ...sourceParams,
         }).then(task => {
           if (taskIsClearable(task)) {
-            this.readAndDeleteTask(task);
+            // If the task actually just failed, re-start the task
+            if (task.status === TaskStatuses.FAILED) {
+              this.startDiffStatsTask({
+                baseurl: task.baseurl,
+                driveId: task.drive_id,
+              });
+              TaskResource.deleteFinishedTask(task.id);
+            } else {
+              this.readAndDeleteTask(task);
+            }
           } else {
             this.watchedTaskId = task.id;
           }
