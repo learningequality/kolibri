@@ -30,6 +30,13 @@ steps:
 
   - label: Build Debian Packages
     command: .buildkite/build_debian_pkgs.sh
+    key: deb-build
+
+  - trigger: "kolibri-raspbian-image"
+    label: ":raspberry-pi:"
+    build: *triggered_build_attributes
+    depends_on: 
+      - deb-build
 
   - wait
 
