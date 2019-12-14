@@ -334,7 +334,6 @@ def _csv_to_json():
             data = _locale_data_from_csv(csv_data)
 
             if file_name == PERSEUS_CSV:
-                print(perseus_path)
                 utils.json_dump_formatted(
                     data, perseus_path, file_name.replace("csv", "json")
                 )
