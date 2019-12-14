@@ -24,11 +24,11 @@ class Learn(KolibriPluginBase):
 @register_hook
 class LearnRedirect(RoleBasedRedirectHook):
     @property
-    def role(self):
+    def roles(self):
         if is_landing_page(LANDING_PAGE_LEARN):
-            return ANONYMOUS
+            return (ANONYMOUS, LEARNER)
 
-        return LEARNER
+        return (LEARNER,)
 
     @property
     def url(self):

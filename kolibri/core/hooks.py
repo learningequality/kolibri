@@ -17,8 +17,8 @@ from __future__ import unicode_literals
 from abc import abstractproperty
 
 from kolibri.core.webpack.hooks import WebpackBundleHook
-from kolibri.core.webpack.hooks import WebpackInclusionSyncMixin
 from kolibri.core.webpack.hooks import WebpackInclusionASyncMixin
+from kolibri.core.webpack.hooks import WebpackInclusionSyncMixin
 from kolibri.plugins.hooks import define_hook
 from kolibri.plugins.hooks import KolibriHook
 from kolibri.plugins.utils import plugin_url
@@ -35,7 +35,7 @@ class NavigationHook(WebpackBundleHook):
 class RoleBasedRedirectHook(KolibriHook):
     # User role to redirect for
     @abstractproperty
-    def role(self):
+    def roles(self):
         pass
 
     # URL to redirect to

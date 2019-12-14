@@ -88,7 +88,7 @@ def logout_view(request):
 
 def get_urls_by_role(role):
     for hook in RoleBasedRedirectHook.registered_hooks:
-        if hook.role == role:
+        if role in hook.roles:
             yield hook.url
 
 
@@ -97,7 +97,7 @@ def get_url_by_role(role, first_login):
         (
             hook
             for hook in RoleBasedRedirectHook.registered_hooks
-            if hook.role == role and hook.first_login == first_login
+            if role in hook.roles and hook.first_login == first_login
         ),
         None,
     )
@@ -109,7 +109,7 @@ def get_url_by_role(role, first_login):
             (
                 hook
                 for hook in RoleBasedRedirectHook.registered_hooks
-                if hook.role == role and hook.first_login is False
+                if role in hook.roles and hook.first_login is False
             ),
             None,
         )

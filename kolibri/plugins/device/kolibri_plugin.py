@@ -22,7 +22,7 @@ class DeviceManagementAsset(WebpackBundleHook):
 
 @register_hook
 class DeviceFirstTimeRedirect(RoleBasedRedirectHook):
-    role = SUPERUSER
+    roles = (SUPERUSER,)
     first_login = True
 
     @property

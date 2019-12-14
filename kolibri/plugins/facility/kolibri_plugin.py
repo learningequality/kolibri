@@ -21,7 +21,7 @@ class FacilityManagementAsset(WebpackBundleHook):
 
 @register_hook
 class FacilityRedirect(RoleBasedRedirectHook):
-    role = ADMIN
+    roles = (ADMIN,)
 
     @property
     def url(self):
