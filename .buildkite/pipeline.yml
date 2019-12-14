@@ -7,7 +7,7 @@ steps:
 
   - wait
 
-  - trigger: "wip-kolibri-macos"
+  - trigger: "kolibri-macos"
     label: ":mac:"
     build: &triggered_build_attributes
       message: "${BUILDKITE_MESSAGE}"
