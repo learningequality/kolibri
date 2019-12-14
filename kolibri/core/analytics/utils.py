@@ -8,10 +8,18 @@ import requests
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection
 from django.db import transaction
+from django.db.models import Avg
+from django.db.models import Case
 from django.db.models import Count
+from django.db.models import F
+from django.db.models import FloatField
+from django.db.models import IntegerField
 from django.db.models import Max
 from django.db.models import Min
+from django.db.models import Q
 from django.db.models import Sum
+from django.db.models import When
+from django.db.models.functions import Cast
 from django.utils.six.moves.urllib.parse import urljoin
 from django.utils.timezone import get_current_timezone
 from django.utils.timezone import localtime
@@ -23,6 +31,7 @@ from requests.exceptions import Timeout
 import kolibri
 from .constants import nutrition_endpoints
 from .models import PingbackNotification
+from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -49,6 +58,8 @@ DEFAULT_PING_INTERVAL = 24 * 60
 DEFAULT_PING_CHECKRATE = 15
 DEFAULT_SERVER_URL = "https://telemetry.learningequality.org"
 
+USER_THRESHOLD = 10
+
 facility_settings = [
     "preset",
     "learner_can_edit_username",
@@ -60,6 +71,133 @@ facility_settings = [
     "show_download_button_in_learn",
     "allow_guest_access",
 ]
+
+
+def variance(data):
+    if data:
+        # calculate mean
+        m = sum(data) / len(data)
+        # return variance
+        return sum((d - m) ** 2 for d in data) / len(data)
+    return None
+
+
+def calculate_demographic_stats(dataset_id=None, channel_id=None, learner=True):
+    stats = {}
+    roles_filter = Q(roles__isnull=False)
+    queryset = FacilityUser.objects.all()
+    if learner:
+        roles_filter = Q(roles__isnull=True)
+    # handle stats at facility level
+    if dataset_id:
+        queryset = FacilityUser.objects.filter(roles_filter, dataset_id=dataset_id)
+    # handle stats at channel level
+    if channel_id:
+        queryset = FacilityUser.objects.filter(
+            roles_filter, contentsummarylog__channel_id=channel_id
+        ).distinct()
+
+    # calculate stats if there are USER_THRESHOLD users or more
+    if queryset.count() >= USER_THRESHOLD:
+        # get list of all birth years to calculate variance
+        list_of_birth_years = (
+            queryset.exclude(
+                Q(birth_year="")
+                | Q(birth_year=demographics.NOT_SPECIFIED)
+                | Q(birth_year=demographics.DEFERRED)
+            )
+            # convert birth year to integer
+            .annotate(
+                birth_year_int=Cast("birth_year", output_field=IntegerField())
+            ).values_list("birth_year_int", flat=True)
+        )
+
+        demographic_stats = (
+            queryset
+            # convert birth year to integer
+            .annotate(
+                birth_year_int=Cast("birth_year", output_field=IntegerField())
+            ).aggregate(
+                # count of male users
+                num_males=Sum(
+                    Case(
+                        When(gender=demographics.MALE, then=1),
+                        output_field=IntegerField(),
+                    )
+                ),
+                # count of female users
+                num_females=Sum(
+                    Case(
+                        When(gender=demographics.FEMALE, then=1),
+                        output_field=IntegerField(),
+                    )
+                ),
+                # count of not specified users
+                num_not_specified_gender=Sum(
+                    Case(
+                        When(gender=demographics.NOT_SPECIFIED, then=1),
+                        output_field=IntegerField(),
+                    )
+                ),
+                # count of deferred users
+                num_deferred_gender=Sum(
+                    Case(
+                        When(Q(gender=demographics.DEFERRED) | Q(gender=""), then=1),
+                        output_field=IntegerField(),
+                    )
+                ),
+                # number of users who specified birth year
+                total_specified_birth_year=Sum(
+                    Case(
+                        When(
+                            ~Q(birth_year="")
+                            & ~Q(birth_year=demographics.DEFERRED)
+                            & ~Q(birth_year=demographics.NOT_SPECIFIED),
+                            then=1,
+                        ),
+                        output_field=IntegerField(),
+                    )
+                ),
+                # number of users who did NOT specify birth year
+                num_deferred_birth_year=Sum(
+                    Case(
+                        When(
+                            Q(birth_year="") | Q(birth_year=demographics.DEFERRED),
+                            then=1,
+                        ),
+                        output_field=IntegerField(),
+                    )
+                ),
+                # average birth year of users
+                average_birth_year=Avg(
+                    Case(
+                        When(
+                            ~Q(birth_year="")
+                            & ~Q(birth_year=demographics.DEFERRED)
+                            & ~Q(birth_year=demographics.NOT_SPECIFIED),
+                            then=F("birth_year_int"),
+                        )
+                    ),
+                    output_field=FloatField(),
+                ),
+            )
+        )
+        # payload of birth year and gender statistics
+        stats = {
+            "bys": {
+                "a": demographic_stats["average_birth_year"],
+                "v": variance(list_of_birth_years),
+                "ts": demographic_stats["total_specified_birth_year"],
+                "d": demographic_stats["num_deferred_birth_year"],
+            },
+            "gs": {
+                "m": {"count": demographic_stats["num_males"]},
+                "f": {"count": demographic_stats["num_females"]},
+                "ns": {"count": demographic_stats["num_not_specified_gender"]},
+                "d": {"count": demographic_stats["num_deferred_gender"]},
+            },
+        }
+    return stats
 
 
 def dump_zipped_json(data):
@@ -126,6 +264,14 @@ def extract_facility_statistics(facility):
     contsessions_user = contsessions.exclude(user=None)
     contsessions_anon = contsessions.filter(user=None)
 
+    # calculate learner stats
+    learner_stats = calculate_demographic_stats(dataset_id=dataset_id, learner=True)
+
+    # calculate non-learner stats
+    non_learner_stats = calculate_demographic_stats(
+        dataset_id=dataset_id, learner=False
+    )
+
     # fmt: off
     return {
         # facility_id
@@ -168,6 +314,10 @@ def extract_facility_statistics(facility):
         "sut": int((contsessions_user.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
         # sess_anon_time
         "sat": int((contsessions_anon.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
+        # demographic_stats_learner
+        "dsl": learner_stats,
+        # demographic_stats_non_learner
+        "dsnl": non_learner_stats,
     }
     # fmt: on
 
@@ -200,6 +350,14 @@ def extract_channel_statistics(channel):
     contsessions_user = sessionlogs.exclude(user=None)
     contsessions_anon = sessionlogs.filter(user=None)
 
+    # calculate learner stats
+    learner_stats = calculate_demographic_stats(channel_id=channel_id, learner=True)
+
+    # calculate non-learner stats
+    non_learner_stats = calculate_demographic_stats(
+        channel_id=channel_id, learner=False
+    )
+
     # fmt: off
     return {
         # channel_id
@@ -228,6 +386,10 @@ def extract_channel_statistics(channel):
         "sut": int((contsessions_user.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
         # sess_anon_time
         "sat": int((contsessions_anon.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
+        # demographic_stats_learner
+        "dsl": learner_stats,
+        # demographic_stats_non_learner
+        "dsnl": non_learner_stats,
     }
     # fmt: on
 
