@@ -102,6 +102,7 @@ import os
 import pkgutil
 import re
 import subprocess
+import sys
 
 from .compat import parse_version
 from .lru_cache import lru_cache
@@ -186,6 +187,12 @@ def get_git_describe(version):
     Detects a valid tag, 1.2.3-<alpha|beta|rc>(-123-sha123)
     :returns: None if no git tag available (no git, no tags, or not in a repo)
     """
+
+    # Do not try to run git in app mode, as on Mac it will prompt the app user to install
+    # developer tools. App packaging tools set sys.frozen to True, so we use that as our test.
+    if hasattr(sys, 'frozen', False):
+        return None
+
     valid_pattern = re.compile(r"^v[0-9-.]+(-(alpha|beta|rc)[0-9]+)?(-\d+-\w+)?$")
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     try:
