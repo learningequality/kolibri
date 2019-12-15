@@ -1,27 +1,28 @@
 <template>
 
-  <div :style="{ backgroundColor: $themeTokens.surface }">
+  <div>
     <ul class="history-list">
-      <template v-for="(question, index) in questions">
-        <li
-          :key="index"
-          :style="liStyle(index)"
+      <li
+        v-for="(question, index) in questions"
+        :key="index"
+        class="list-item"
+      >
+        <button
+          :class="$computedClass(liStyle(index))"
+          :disabled="questionNumber === index"
           class="clickable"
           @click="$emit('goToQuestion', index)"
         >
-          <svg class="item svg-item">
-            <circle
-              cx="32"
-              cy="32"
-              r="8"
-              :style="{ fill: isAnswered(question) ? 'purple' : 'lightgrey' }"
-            />
-          </svg>
-          <p class="item">
+          <KIcon
+            class="dot"
+            icon="dot"
+            :color="isAnswered(question) ? $themeTokens.progress : $themeTokens.textDisabled"
+          />
+          <div class="text">
             {{ questionText(index + 1) }}
-          </p>
-        </li>
-      </template>
+          </div>
+        </button>
+      </li>
     </ul>
   </div>
 
@@ -52,8 +53,15 @@
         return ((this.attemptLogs[question.exercise_id] || {})[question.question_id] || {}).answer;
       },
       liStyle(index) {
+        if (this.questionNumber === index) {
+          return {
+            backgroundColor: this.$themePalette.grey.v_200,
+          };
+        }
         return {
-          backgroundColor: this.questionNumber === index ? this.$themePalette.grey.v_200 : '',
+          ':hover': {
+            backgroundColor: this.$themePalette.grey.v_100,
+          },
         };
       },
     },
@@ -67,6 +75,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .history-list {
     max-height: inherit;
     padding-left: 0;
@@ -74,26 +84,32 @@
     list-style-type: none;
   }
 
-  .item {
-    float: left;
-    margin: 0;
-    font-size: 0.9em;
-    line-height: 64px;
-  }
-
-  .svg-item {
-    width: 64px;
-    height: 64px;
-  }
-
-  li {
-    height: 64px;
-    clear: both;
-    border: 0;
+  .list-item {
+    margin-bottom: 4px;
   }
 
   .clickable {
-    cursor: pointer;
+    @extend %md-decelerate-func;
+
+    position: relative;
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 0;
+    border-radius: 4px;
+    outline-offset: -2px;
+    transition: background-color $core-time;
+  }
+
+  .dot {
+    position: absolute;
+    top: 18px;
+    left: 16px;
+  }
+
+  .text {
+    margin: 16px;
+    margin-left: 48px;
   }
 
 </style>
