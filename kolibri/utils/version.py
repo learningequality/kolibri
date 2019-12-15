@@ -190,7 +190,7 @@ def get_git_describe(version):
 
     # Do not try to run git in app mode, as on Mac it will prompt the app user to install
     # developer tools. App packaging tools set sys.frozen to True, so we use that as our test.
-    if hasattr(sys, 'frozen'):
+    if hasattr(sys, "frozen"):
         return None
 
     valid_pattern = re.compile(r"^v[0-9-.]+(-(alpha|beta|rc)[0-9]+)?(-\d+-\w+)?$")
