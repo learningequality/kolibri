@@ -8,7 +8,7 @@
       class="list-item"
     >
       <button
-        :class="$computedClass(liStyle(index))"
+        :class="buttonClass(index)"
         :disabled="questionNumber === index"
         class="clickable"
         @click="$emit('goToQuestion', index)"
@@ -78,17 +78,16 @@
       isAnswered(question) {
         return ((this.attemptLogs[question.exercise_id] || {})[question.question_id] || {}).answer;
       },
-      liStyle(index) {
+      buttonClass(index) {
         if (this.questionNumber === index) {
-          return {
-            backgroundColor: this.$themePalette.grey.v_200,
-          };
+          return this.$computedClass({ backgroundColor: this.$themePalette.grey.v_200 });
         }
-        return {
+        return this.$computedClass({
+          backgroundColor: this.$themeTokens.surface,
           ':hover': {
             backgroundColor: this.$themePalette.grey.v_100,
           },
-        };
+        });
       },
     },
     $trs: {
