@@ -1,31 +1,29 @@
 <template>
 
-  <div>
-    <ul class="history-list">
-      <li
-        v-for="(question, index) in questions"
-        :key="index"
-        :ref="`item-${index}`"
-        class="list-item"
+  <ul class="history-list">
+    <li
+      v-for="(question, index) in questions"
+      :key="index"
+      :ref="`item-${index}`"
+      class="list-item"
+    >
+      <button
+        :class="$computedClass(liStyle(index))"
+        :disabled="questionNumber === index"
+        class="clickable"
+        @click="$emit('goToQuestion', index)"
       >
-        <button
-          :class="$computedClass(liStyle(index))"
-          :disabled="questionNumber === index"
-          class="clickable"
-          @click="$emit('goToQuestion', index)"
-        >
-          <KIcon
-            class="dot"
-            icon="dot"
-            :color="isAnswered(question) ? $themeTokens.progress : $themeTokens.textDisabled"
-          />
-          <div class="text">
-            {{ questionText(index + 1) }}
-          </div>
-        </button>
-      </li>
-    </ul>
-  </div>
+        <KIcon
+          class="dot"
+          icon="dot"
+          :color="isAnswered(question) ? $themeTokens.progress : $themeTokens.textDisabled"
+        />
+        <div class="text">
+          {{ questionText(index + 1) }}
+        </div>
+      </button>
+    </li>
+  </ul>
 
 </template>
 
@@ -109,6 +107,7 @@
     max-height: inherit;
     padding-left: 0;
     margin: 0;
+    margin-top: 16px;
     list-style-type: none;
   }
 
@@ -123,6 +122,7 @@
     display: block;
     width: 100%;
     text-align: left;
+    user-select: none;
     border: 0;
     border-radius: 4px;
     outline-offset: -2px;
