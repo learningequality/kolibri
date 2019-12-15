@@ -40,6 +40,15 @@
       </template>
 
       <template v-slot:abovedescription>
+        <div v-if="newVersionAvailable">
+          <KIcon
+            class="update-icon"
+            icon="error"
+            :style="{fill: $themeTokens.primary}"
+          />
+          {{ $tr('newVersionMessage') }}
+          <KRouterLink :to="newChannelVersionPageRoute" :text="$tr('moreInformationLabel')" />
+        </div>
         <div v-if="onDevice" class="on-device">
           <KIcon
             class="check-icon"
@@ -50,15 +59,6 @@
         </div>
       </template>
 
-      <template v-if="newVersionAvailable" v-slot:belowdescription>
-        <KIcon
-          class="update-icon"
-          icon="error"
-          :style="{fill: $themeTokens.primary}"
-        />
-        {{ $tr('newVersionMessage') }}
-        <KRouterLink :to="newChannelVersionPageRoute" :text="$tr('moreInformationLabel')" />
-      </template>
     </ChannelDetails>
 
     <div class="col-3">
