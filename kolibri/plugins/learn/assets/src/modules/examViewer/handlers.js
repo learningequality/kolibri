@@ -15,10 +15,12 @@ import { ClassesPageNames } from '../../constants';
 import { contentState } from '../coreLearn/utils';
 import { calcQuestionsAnswered } from './utils';
 
-export function showExam(store, params) {
+export function showExam(store, params, alreadyLoaded) {
   const questionNumber = Number(params.questionNumber);
   const { classId, examId } = params;
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  if (!alreadyLoaded) {
+    store.commit('CORE_SET_PAGE_LOADING', true);
+  }
   store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
   // Reset examAttemptLogs, so that it will not merge into another exam.
   store.commit('RESET_EXAM_ATTEMPT_LOGS');
