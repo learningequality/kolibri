@@ -311,7 +311,7 @@ def _csv_to_json():
             if "csv" not in file_name:
                 continue
 
-            if file_name is PERSEUS_CSV:
+            if file_name == PERSEUS_CSV:
                 csv_path = os.path.join(perseus_locale_dir_path, file_name)
             else:
                 csv_path = os.path.join(csv_locale_dir_path, file_name)
@@ -333,7 +333,7 @@ def _csv_to_json():
 
             data = _locale_data_from_csv(csv_data)
 
-            if file_name is PERSEUS_CSV:
+            if file_name == PERSEUS_CSV:
                 utils.json_dump_formatted(
                     data, perseus_path, file_name.replace("csv", "json")
                 )
