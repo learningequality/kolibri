@@ -5,6 +5,7 @@
       <li
         v-for="(question, index) in questions"
         :key="index"
+        :ref="`item-${index}`"
         class="list-item"
       >
         <button
@@ -33,6 +34,14 @@
 
   import { mapState } from 'vuex';
 
+  function isAboveContainer(element, container) {
+    return element.offsetTop < container.scrollTop;
+  }
+
+  function isBelowContainer(element, container) {
+    return element.offsetTop + element.offsetHeight > container.offsetHeight + container.scrollTop;
+  }
+
   export default {
     name: 'AnswerHistory',
     props: {
@@ -40,10 +49,29 @@
         type: Number,
         required: true,
       },
+      // hack to get access to the scrolling pane
+      wrapperComponentRefs: {
+        type: Object,
+        required: true,
+      },
     },
     computed: {
       ...mapState('examViewer', ['questions']),
       ...mapState({ attemptLogs: 'examAttemptLogs' }),
+    },
+    watch: {
+      questionNumber(index) {
+        // If possible, scroll it into view
+        const element = this.$refs[`item-${index}`][0];
+        if (element && element.scrollIntoView && this.wrapperComponentRefs.questionListWrapper) {
+          const container = this.wrapperComponentRefs.questionListWrapper.$el;
+          if (isAboveContainer(element, container)) {
+            element.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
+          } else if (isBelowContainer(element, container)) {
+            element.scrollIntoView({ block: 'end', inline: 'nearest', behavior: 'smooth' });
+          }
+        }
+      },
     },
     methods: {
       questionText(num) {
