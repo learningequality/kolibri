@@ -46,6 +46,10 @@
       };
     },
     computed: {
+      scrollPositionOr0() {
+        // in case a negative number is passed in
+        return Math.max(this.scrollPosition, 0);
+      },
       resetDistanceDebounced() {
         return debounce(this.resetDistance, 500);
       },
@@ -70,11 +74,11 @@
         };
       },
       pastMinScroll() {
-        return this.scrollPosition > TOP_THRESHOLD;
+        return this.scrollPositionOr0 > TOP_THRESHOLD;
       },
     },
     watch: {
-      scrollPosition(newVal, oldVal) {
+      scrollPositionOr0(newVal, oldVal) {
         if (!this.alwaysVisible) {
           this.handleNewScrollPosition(newVal, oldVal);
         }
@@ -112,12 +116,12 @@
           }
         }
 
-        this.resetDistanceDebounced(delta, this.scrollPosition);
+        this.resetDistanceDebounced(delta, this.scrollPositionOr0);
       },
       // Reset the scrolling distance if user pauses scrolling for some time.
       resetDistance(delta, lastPos) {
         setTimeout(() => {
-          if (this.scrollPosition === lastPos) {
+          if (this.scrollPositionOr0 === lastPos) {
             // Set to +/- 1 to maintain the direction
             this.scrollDistance = Math.sign(delta);
           }
