@@ -106,12 +106,11 @@ export default {
         ]).catch(error => {
           store.dispatch('handleError', error);
         });
-      } else {
-        // otherwise refresh but don't block
-        return store
-          .dispatch('classSummary/loadClassSummary', classId)
-          .catch(error => store.dispatch('handleApiError', error));
       }
+      // navigating within the same class, periodically refresh but don't block
+      return store
+        .dispatch('classSummary/refreshClassSummaryThrottled')
+        .catch(error => store.dispatch('handleApiError', error));
     },
   },
   modules: {

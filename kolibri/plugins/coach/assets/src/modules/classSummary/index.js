@@ -2,6 +2,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import flatten from 'lodash/flatten';
 import find from 'lodash/find';
+import throttle from 'lodash/throttle';
 
 import Vue from 'kolibri.lib.vue';
 import ClassSummaryResource from '../../apiResources/classSummary';
@@ -423,5 +424,8 @@ export default {
     refreshClassSummary(store) {
       return store.dispatch('loadClassSummary', store.state.id);
     },
+    refreshClassSummaryThrottled: throttle(store => {
+      return store.dispatch('refreshClassSummary');
+    }, 15000),
   },
 };
