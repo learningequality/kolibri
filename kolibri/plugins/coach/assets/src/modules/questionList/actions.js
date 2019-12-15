@@ -49,7 +49,7 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
         };
         const title = coachStrings.$tr('nthExerciseName', {
           name: source.title,
-          number: source.counterInExercise,
+          number: source.counter_in_exercise,
         });
         return {
           ...stat,

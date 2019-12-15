@@ -20,10 +20,28 @@ Feature: Coach creates lessons
     When I try to enter a title with more than 50 characters
     Then I see that the name is cut at 50
     When I input a same lesson title as for an already existing lesson
-    Then I see the error notification *A lesson with this name already exists* 
+    Then I see the error notification *A lesson with this name already exists*
     When I leave the title field empty
       And I click *Continue*
     Then I see the error notification *This field is required*
+
+  Scenario: Assign existing lesson to different recipient groups
+    # Repeat the scenario from the *Coach - '<class>' > Report > Lessons > '<lesson>'* page
+    When I change *Recipients* by selecting *Entire class* or one of the groups
+      And I click the *Save changes* button
+    Then I see the lesson <lesson> page again
+      And the *Recipients* field reflects the changes I made
+
+  Scenario: Assign individual learners
+    When I change *Recipients* by selecting *Individual learners*
+    Then I see a table listing all of the learners in the class.
+    When I change *Recipients* by selecting both *Individual learners* and any other group that has learners
+    Then I see the learners in the selected group(s) have the checkboxes by their names disabled
+    When I select learners in the table by clicking the checkboxes next to their names
+      And I click *Save changes*
+    Then I can log in as one of the selected individual learners and view the lesson
+    When I change *Recipients* by selecting *Entire class* then all groups and *Individual learners* become unchecked
+      And I no longer see the table of learners
 
   Scenario: Manage lesson resources
     Given that I have created the lesson with title <lesson>
@@ -67,7 +85,7 @@ Feature: Coach creates lessons
         And I see the search results for <searchterm>
         And I see the search filters
         And I see the *Exit search* button
-        
+
     Scenario: Search again from search results page
       Given I am on the *Results for '<searchterm>'* page
       When I enter a <searchterm2> in the *Search* textbox
@@ -103,7 +121,7 @@ Feature: Coach creates lessons
     Given I am on the search results page
       And there are resources available in the search results
     When I check one resource checkbox
-    Then I see a snackbar confirmation that *Added 1 resource to the lesson* 
+    Then I see a snackbar confirmation that *Added 1 resource to the lesson*
 
   Scenario: Remove a topic or exercise from the search results page
     Given I am on the search results page
@@ -115,7 +133,7 @@ Feature: Coach creates lessons
   Scenario: Filter search results by type
     Given I am on the search results page
       When I open the *Type* filter dropdown
-      Then I can see the available formats I can filter by 
+      Then I can see the available formats I can filter by
       When I select *Exercises* option
       Then I see only exercises among search results
       When I select *Topics* option
@@ -163,7 +181,7 @@ Feature: Coach creates lessons
     Then I am on the preview page for exercise <exercise>
     When I click the *Add* button
     Then I see a snackbar confirmation *Added 1 resource to the lesson*
-      And I see the *Added* label 
+      And I see the *Added* label
       And I see the *Remove* button
     When I click the *Remove* button
     Then I see a snackbar confirmation *Removed 1 resource from the lesson*

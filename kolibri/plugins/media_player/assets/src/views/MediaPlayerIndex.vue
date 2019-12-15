@@ -456,7 +456,11 @@
       playbackRate: 'Playback rate',
       captions: 'Captions',
       captionsOff: 'Captions off',
-      transcript: 'Transcript',
+      transcript: {
+        message: 'Transcript',
+        context:
+          '\nRefers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
+      },
       transcriptOff: 'Transcript off',
       languages: 'Languages',
       volumeLevel: 'Volume level',
@@ -535,6 +539,11 @@
     /deep/ .fill-space {
       height: auto;
     }
+
+    [dir='rtl'] & {
+      right: auto;
+      left: 0;
+    }
   }
 
   .wrapper:not(.transcript-wrap) .media-player-transcript {
@@ -552,6 +561,10 @@
 
     /deep/ .loading-space {
       padding-top: 90px;
+    }
+
+    [dir='rtl'] & {
+      right: 0;
     }
   }
 

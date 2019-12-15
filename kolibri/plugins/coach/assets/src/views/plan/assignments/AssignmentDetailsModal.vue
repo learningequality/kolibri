@@ -44,7 +44,6 @@
           :groups="groups"
           :classId="classId"
           :disabled="disabled || formIsSubmitted"
-          :assignmentType="assignmentType"
           :initialAdHocLearners="initialAdHocLearners"
           @updateLearners="learners => adHocLearners = learners"
         />
@@ -53,7 +52,7 @@
       <slot name="resourceTable"></slot>
     </form>
 
-    <BottomAppBar v-if="assignmentType !== 'new_lesson'">
+    <BottomAppBar>
       <KButton
         :text="coreString('cancelAction')"
         appearance="flat-button"
@@ -228,15 +227,7 @@
         if (this.disabled) {
           return;
         }
-        // Quizzes require handling of the invidiual learners
-        // So we split how they're handled here.
-        if (this.assignmentType === 'quiz') {
-          this.submitQuizData();
-        } else {
-          this.submitLessonData();
-        }
-      },
-      submitQuizData() {
+
         // TODO: Add error handling & snackbar message that notifies user when they have
         // selected ONLY the AdHoc Learners Group, but selects no learners
         // For now - if the only thing selected is AdHoc Learners but there
@@ -253,16 +244,23 @@
 
         // Always make sure that we're including the adHocGroup ID in this
         // or else we'll delete the assignment and lose the collection.
-        if (!this.selectedCollectionIds.includes(this.$store.state.adHocLearners.id)) {
+        if (
+          this.$store.state.adHocLearners.id &&
+          !this.selectedCollectionIds.includes(this.$store.state.adHocLearners.id)
+        ) {
           // The selected individual learners should be cleared out in this case as well.
           this.adHocLearners = [];
           this.selectedCollectionIds.push(this.$store.state.adHocLearners.id);
         }
-
         // Update the users associated with the AdHocGroup then proceed
         // with form submission
-        this.$store
-          .dispatch('adHocLearners/updateAdHocLearnersGroup', this.adHocLearners)
+        this.handleAdHocLearnersGroupPromise()
+          .then(() =>
+            this.$store.dispatch(
+              'adHocLearners/updateLearnersInAdHocLearnersGroup',
+              this.adHocLearners
+            )
+          )
           .then(() => {
             if (this.formIsValid) {
               if (!this.detailsHaveChanged) {
@@ -279,17 +277,12 @@
             this.handleSubmitFailure();
           });
       },
-      submitLessonData() {
-        if (this.formIsValid) {
-          if (!this.detailsHaveChanged) {
-            this.$emit('submit', null);
-          } else {
-            this.$emit('submit', this.formData);
-          }
-        } else {
-          this.formIsSubmitted = false;
-          this.$refs.titleField.focus();
-        }
+      handleAdHocLearnersGroupPromise() {
+        return this.assignmentType === 'new_lesson'
+          ? this.$store.dispatch('adHocLearners/createAdHocLearnersGroup', {
+              classId: this.classId,
+            })
+          : Promise.resolve();
       },
       /**
        * @public

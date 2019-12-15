@@ -22,13 +22,16 @@
         @backButtonClicked="goToPreviousStep"
       />
 
-      <component
-        :is="currentOnboardingForm"
-        :submitText="submitText"
-        class="body"
-        :class="!windowIsLarge ? 'mobile' : ''"
-        @submit="continueOnboarding"
-      />
+      <div class="page-wrapper">
+        <KPageContainer class="page-container">
+          <component
+            :is="currentOnboardingForm"
+            :submitText="submitText"
+            :class="!windowIsLarge ? 'mobile' : ''"
+            @submit="continueOnboarding"
+          />
+        </KPageContainer>
+      </div>
     </template>
 
   </div>
@@ -167,6 +170,16 @@
     margin-right: auto;
     margin-bottom: 32px;
     margin-left: auto;
+  }
+
+  .page-wrapper {
+    padding: 8px;
+  }
+
+  .page-container {
+    max-width: 650px;
+    padding: 36px;
+    margin: auto;
   }
 
   .mobile {

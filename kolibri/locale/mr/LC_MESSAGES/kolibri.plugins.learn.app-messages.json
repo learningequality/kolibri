@@ -16,7 +16,7 @@
   "AssessmentWrapper.tryAgain": "पुन्हा प्रयत्न करा",
   "AssessmentWrapper.tryDifferentQuestion": "दुसर्‍या प्रश्नाचे उत्तर द्यायचा प्रयत्न करा",
   "AssessmentWrapper.tryNextQuestion": "पुढील प्रश्नाचे उत्तर द्यायचा प्रयत्न करा",
-  "AssignedExamsCards.completedPercentLabel": "पूर्ण: {score}%",
+  "AssignedExamsCards.completedPercentLabel": "पूर्ण : {score}%",
   "AssignedExamsCards.examsHeader": "चाचण्या",
   "AssignedExamsCards.noExamsMessage": "तुम्हाला कोणतीही चाचणी नेमून दिलेली नाही",
   "AssignedExamsCards.notStartedLabel": "सुरु झालेले नाही",

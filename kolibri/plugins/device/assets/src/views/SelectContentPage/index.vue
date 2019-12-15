@@ -25,7 +25,6 @@
             :version="availableVersions.source"
             @click="handleClickViewNewVersion"
           />
-          <span v-else>{{ $tr('channelUpToDate') }}</span>
         </section>
         <ChannelContentsSummary
           :channel="transferredChannel"
@@ -302,7 +301,6 @@
       },
     },
     $trs: {
-      channelUpToDate: 'Channel up-to-date',
       pageLoadError: 'There was a problem loading this page…',
       problemFetchingChannel: 'There was a problem getting the list of resources from this channel',
       problemTransferringContents: 'There was a problem transferring the selected resources',

@@ -25,7 +25,7 @@
         <LessonStatus
           :className="className"
           :lesson="currentLesson"
-          :groupNames="groupNames"
+          :groupNames="getRecipientNamesForLesson(currentLesson)"
           activeKey="is_active"
         />
       </KGridItem>
@@ -113,16 +113,6 @@
       },
       lessonSelectionRootPage() {
         return selectionRootLink({ lessonId: this.lessonId, classId: this.classId });
-      },
-      groupNames() {
-        const names = [];
-        this.currentLesson.lesson_assignments.forEach(r => {
-          const match = this.groups.find(({ id }) => id === r.collection);
-          if (match) {
-            names.push(match.name);
-          }
-        });
-        return names;
       },
     },
     methods: {

@@ -2,7 +2,7 @@
 
 exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying all learners renders a correct summary tally 1`] = `
 <div class="multi-line" data-test="summary-tally">
-  <div debug="everyone finished" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto">
+  <div debug="everyone finished" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     Completed by 1 of 1
   </span></div></span>
   <!---->
@@ -25,18 +25,18 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
 
 exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders a correct group tally 1`] = `
 <div class="single-line">
-  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto">
+  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     1
   </span></div></span>
   <!---->
 </div>
-<div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto">
+<div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     0
   </span></div></span>
 <!---->
 </div>
 <!---->
-<div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div class="label"><span dir="auto">
+<div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     0
   </span></div></span>
 <!---->
@@ -46,7 +46,7 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
 
 exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders a correct group tally 2`] = `
 <div class="single-line">
-  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div class="label"><span dir="auto">
+  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     0 of 0
   </span></div></span>
   <!---->
@@ -71,12 +71,12 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
 
 exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying all learners renders a correct summary tally 1`] = `
 <div class="multi-line" data-test="summary-tally">
-  <div showratiointooltip="" debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto">
+  <div showratiointooltip="" debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     Completed by 1 of 3
   </span></div></span>
   <!---->
 </div>
-<div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto">
+<div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     1 started
   </span></div></span>
 <!---->
@@ -101,18 +101,18 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
 
 exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders a correct group tally 1`] = `
 <div class="single-line">
-  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto">
+  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     1
   </span></div></span>
   <!---->
 </div>
-<div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto">
+<div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     1
   </span></div></span>
 <!---->
 </div>
 <!---->
-<div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div class="label"><span dir="auto">
+<div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     0
   </span></div></span>
 <!---->
@@ -122,18 +122,18 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
 
 exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders a correct group tally 2`] = `
 <div class="single-line">
-  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto">
+  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     1
   </span></div></span>
   <!---->
 </div>
-<div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto">
+<div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     0
   </span></div></span>
 <!---->
 </div>
 <!---->
-<div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div class="label"><span dir="auto">
+<div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     0
   </span></div></span>
 <!---->
@@ -143,7 +143,7 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
 
 exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders a correct group tally 3`] = `
 <div class="single-line">
-  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div class="label"><span dir="auto">
+  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     0 of 0
   </span></div></span>
   <!---->

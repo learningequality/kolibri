@@ -3,7 +3,8 @@ import makeStore from '../../../../../test/utils/makeStore';
 import SelectNetworkAddressModal from '../index.vue';
 
 jest.mock('../api.js', () => ({
-  fetchAddresses: jest.fn().mockResolvedValue([]),
+  fetchStaticAddresses: jest.fn().mockResolvedValue([]),
+  fetchDynamicAddresses: jest.fn().mockResolvedValue([]),
   deleteAddress: jest.fn().mockResolvedValue(),
   createAddress: jest.fn().mockResolvedValue(),
 }));

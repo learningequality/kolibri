@@ -1,14 +1,14 @@
 import socket
 
 import mock
-from django.test import TestCase
+from django.test import TransactionTestCase
 from zeroconf import BadTypeInNameException
 from zeroconf import service_type_name
 from zeroconf import ServiceInfo
 from zeroconf import Zeroconf
 
 from ..utils.network.search import _id_from_name
-from ..utils.network.search import get_available_instances
+from ..utils.network.search import get_peer_instances
 from ..utils.network.search import initialize_zeroconf_listener
 from ..utils.network.search import KolibriZeroconfService
 from ..utils.network.search import LOCAL_DOMAIN
@@ -21,7 +21,13 @@ from ..utils.network.search import ZEROCONF_STATE
 MOCK_INTERFACE_IP = "111.222.111.222"
 MOCK_PORT = 555
 MOCK_ID = "abba"
-MOCK_PROPERTIES = {b"version": '[0, 13, 0, "alpha", 0]'}
+MOCK_PROPERTIES = {
+    b"application": '"kolibri"',
+    b"kolibri_version": '"1"',
+    b"instance_id": '"abba"',
+    b"device_name": '"computer"',
+    b"operating_system": '"OS/2"',
+}
 
 
 class MockServiceBrowser(object):
@@ -57,6 +63,7 @@ class MockZeroconf(Zeroconf):
     def add_service_listener(self, type_, listener):
         self.remove_service_listener(listener)
         self.browsers[listener] = MockServiceBrowser(self, type_, listener)
+
         for info in self.services.values():
             listener.add_service(self, info.type, info.name)
 
@@ -91,6 +98,10 @@ class MockZeroconf(Zeroconf):
 
 
 @mock.patch(
+    "kolibri.core.discovery.utils.network.search.get_device_info",
+    return_value={"instance_id": MOCK_ID},
+)
+@mock.patch(
     "kolibri.core.discovery.utils.network.search._is_port_open", lambda *a, **kw: True
 )
 @mock.patch("kolibri.core.discovery.utils.network.search.Zeroconf", MockZeroconf)
@@ -98,17 +109,18 @@ class MockZeroconf(Zeroconf):
     "kolibri.core.discovery.utils.network.search.get_all_addresses",
     lambda: [MOCK_INTERFACE_IP],
 )
-class TestNetworkSearch(TestCase):
-    def test_initialize_zeroconf_listener(self):
+@mock.patch("django.db.models.Manager.update_or_create")
+class TestNetworkSearch(TransactionTestCase):
+    def test_initialize_zeroconf_listener(self, *mocks):
         assert ZEROCONF_STATE["listener"] is None
         initialize_zeroconf_listener()
         assert ZEROCONF_STATE["listener"] is not None
 
-    def test_register_zeroconf_service(self):
-        assert len(get_available_instances()) == 0
+    def test_register_zeroconf_service(self, mock_db, get_device_mock):
+        assert len(get_peer_instances()) == 0
         initialize_zeroconf_listener()
-        register_zeroconf_service(MOCK_PORT, MOCK_ID)
-        assert get_available_instances() == [
+        register_zeroconf_service(MOCK_PORT)
+        assert [x for x in get_peer_instances()] == [
             {
                 "id": MOCK_ID,
                 "ip": MOCK_INTERFACE_IP,
@@ -116,29 +128,34 @@ class TestNetworkSearch(TestCase):
                 "self": True,
                 "port": MOCK_PORT,
                 "host": ".".join([MOCK_ID, LOCAL_DOMAIN]),
-                "data": {"version": [0, 13, 0, "alpha", 0]},
+                "self": True,
+                "application": "kolibri",
+                "kolibri_version": "1",
+                "instance_id": MOCK_ID,
+                "device_name": "computer",
+                "operating_system": "OS/2",
                 "base_url": "http://{ip}:{port}/".format(
                     ip=MOCK_INTERFACE_IP, port=MOCK_PORT
                 ),
             }
         ]
-        register_zeroconf_service(MOCK_PORT, MOCK_ID)
+        register_zeroconf_service(MOCK_PORT)
         unregister_zeroconf_service()
-        assert len(get_available_instances()) == 0
+        assert len(get_peer_instances()) == 0
 
-    def test_naming_conflict(self):
+        mock_db.assert_called()
+
+    def test_naming_conflict(self, *mocks):
         assert not ZEROCONF_STATE["listener"]
         service1 = KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT)
         service1.register()
-        assert len(get_available_instances()) == 1
         service2 = KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT)
         service2.register()
-        assert len(get_available_instances()) == 2
         assert service1.id + "-2" == service2.id
         service1.unregister()
         service2.unregister()
 
-    def test_irreconcilable_naming_conflict(self):
+    def test_irreconcilable_naming_conflict(self, *mocks):
         services = [KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT).register()]
         for i in range(110):
             services.append(
@@ -150,13 +167,6 @@ class TestNetworkSearch(TestCase):
             KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT).register()
         for service in services:
             service.unregister()
-
-    def test_excluding_local(self):
-        initialize_zeroconf_listener()
-        register_zeroconf_service(MOCK_PORT, MOCK_ID)
-        assert len(get_available_instances()) == 1
-        assert len(get_available_instances(include_local=False)) == 0
-        unregister_zeroconf_service()
 
     def tearDown(self):
         unregister_zeroconf_service()

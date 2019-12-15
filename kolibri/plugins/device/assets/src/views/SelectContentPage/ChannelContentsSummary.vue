@@ -72,7 +72,7 @@
     },
     computed: {
       versionNumber() {
-        if (this.channelOnDevice.version === undefined) {
+        if (!this.channelOnDevice.available || this.channelOnDevice.version === undefined) {
           return this.channel.version;
         }
         return this.channelOnDevice.version;
@@ -95,6 +95,10 @@
 
 
 <style lang="scss" scoped>
+
+  .channel-header {
+    margin-top: 16px;
+  }
 
   .thumbnail {
     max-width: 200px;

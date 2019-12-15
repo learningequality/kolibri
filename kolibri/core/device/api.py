@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.http.response import HttpResponseBadRequest
-from django.utils.translation import check_for_language
 from morango.models import InstanceIDModel
 from rest_framework import mixins
 from rest_framework import status
@@ -15,6 +14,7 @@ from .permissions import NotProvisionedCanPost
 from .permissions import UserHasAnyDevicePermissions
 from .serializers import DevicePermissionsSerializer
 from .serializers import DeviceProvisionSerializer
+from .serializers import DeviceSettingsSerializer
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.content.permissions import CanManageContent
@@ -107,32 +107,21 @@ class DeviceInfoView(views.APIView):
         return Response(info)
 
 
-class DeviceLanguageSettingViewset(views.APIView):
+class DeviceSettingsView(views.APIView):
 
     permission_classes = (UserHasAnyDevicePermissions,)
 
     def get(self, request):
         settings = DeviceSettings.objects.get()
-        return Response({"language_id": settings.language_id})
+        return Response(DeviceSettingsSerializer(settings).data)
 
     def patch(self, request):
         settings = DeviceSettings.objects.get()
 
-        try:
-            request_lang = request.data.get("language_id", "")
-        except AttributeError:
-            return HttpResponseBadRequest(
-                'Value must be a JSON object with "language_id" field: {}'.format(
-                    request.data
-                )
-            )
+        serializer = DeviceSettingsSerializer(settings, data=request.data)
 
-        if request_lang == "":
-            return HttpResponseBadRequest('"language_id" is required')
+        if not serializer.is_valid():
+            return HttpResponseBadRequest(serializer.errors)
 
-        if request_lang is None or check_for_language(request_lang):
-            settings.language_id = request_lang
-            settings.save()
-            return self.get(request)
-        else:
-            return HttpResponseBadRequest("Unknown language: {}".format(request_lang))
+        serializer.save()
+        return Response(serializer.data)

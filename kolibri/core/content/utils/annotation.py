@@ -389,19 +389,23 @@ def propagate_forced_localfile_removal(localfiles):
         recurse_annotation_up_tree(channel_id)
 
 
-def update_content_metadata(channel_id, node_ids=None, exclude_node_ids=None):
+def update_content_metadata(
+    channel_id, node_ids=None, exclude_node_ids=None, public=None
+):
     set_leaf_node_availability_from_local_file_availability(
         channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids
     )
     recurse_annotation_up_tree(channel_id)
-    calculate_channel_fields(channel_id)
+    set_channel_metadata_fields(channel_id, public=public)
     ContentCacheKey.update_cache_key()
 
 
-def set_content_visibility(channel_id, checksums, node_ids=None, exclude_node_ids=None):
+def set_content_visibility(
+    channel_id, checksums, node_ids=None, exclude_node_ids=None, public=None
+):
     mark_local_files_as_available(checksums)
     update_content_metadata(
-        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids
+        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, public=public,
     )
 
 
@@ -413,16 +417,20 @@ def set_content_visibility_from_disk(channel_id):
 def set_content_invisible(channel_id, node_ids, exclude_node_ids):
     set_leaf_nodes_invisible(channel_id, node_ids, exclude_node_ids)
     recurse_annotation_up_tree(channel_id)
-    calculate_channel_fields(channel_id)
+    set_channel_metadata_fields(channel_id)
     ContentCacheKey.update_cache_key()
 
 
-def calculate_channel_fields(channel_id):
+def set_channel_metadata_fields(channel_id, public=None):
     channel = ChannelMetadata.objects.get(id=channel_id)
     calculate_published_size(channel)
     calculate_total_resource_count(channel)
     calculate_included_languages(channel)
     calculate_next_order(channel)
+
+    if public is not None:
+        channel.public = public
+        channel.save()
 
 
 def files_for_nodes(nodes):
@@ -466,8 +474,8 @@ def calculate_included_languages(channel):
     channel.included_languages.add(*list(languages))
 
 
-def calculate_next_order(channel):
-    latest_order = ChannelMetadata.objects.latest("order").order
+def calculate_next_order(channel, model=ChannelMetadata):
+    latest_order = model.objects.latest("order").order
     if latest_order is None:
         channel.order = 1
     else:

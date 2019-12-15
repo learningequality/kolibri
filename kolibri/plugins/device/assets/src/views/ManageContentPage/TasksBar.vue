@@ -1,10 +1,10 @@
 <template>
 
-  <div class="task-bar" :class="{'task-bar-sm': windowIsSmall}">
-    <div class="progress-bar">
-      <div class="message">
-        {{ tasksString }}
-      </div>
+  <div class="progress-bar">
+    <p v-if="totalTasks">
+      {{ tasksString }}
+    </p>
+    <p>
       <KLinearLoader
         v-if="totalTasks >0"
         class="k-linear-loader"
@@ -13,7 +13,16 @@
         type="determinate"
         :style="{backgroundColor: $themeTokens.fineLine}"
       />
-    </div>
+    </p>
+    <p>
+      <KButton
+        v-if="showClearCompletedButton"
+        appearance="basic-link"
+        :text="clearCompletedString"
+        @click="handleClickClearAll"
+      />
+    </p>
+
   </div>
 
 </template>
@@ -23,9 +32,16 @@
 
   import { mapGetters } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import countBy from 'lodash/countBy';
+  import some from 'lodash/some';
   import sumBy from 'lodash/sumBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { TaskResource } from 'kolibri.resources';
+  import ManageTasksPage from '../ManageTasksPage';
+  import { taskIsClearable } from '../../constants';
+
+  const manageTasksStrings = crossComponentTranslator(ManageTasksPage);
 
   export default {
     name: 'TasksBar',
@@ -35,8 +51,19 @@
     data() {
       return {};
     },
+
     computed: {
       ...mapGetters('manageContent', ['managedTasks']),
+      clearCompletedString() {
+        /* eslint-disable kolibri/vue-no-undefined-string-uses */
+        // TODO remove
+        // shows up as 'undefined', possibly due to cross component translator
+        return manageTasksStrings.$tr('clearCompletedAction');
+        /* eslint-enable kolibri/vue-no-undefined-string-uses */
+      },
+      showClearCompletedButton() {
+        return some(this.managedTasks, taskIsClearable);
+      },
       totalTasks() {
         return this.managedTasks.length;
       },
@@ -51,18 +78,17 @@
         return ((this.doneTasks + sumBy(inProgressTasks, 'percentage')) / this.totalTasks) * 100;
       },
       tasksString() {
-        if (this.totalTasks === 0) {
-          return this.$tr('noTasksStarted');
-        } else {
-          return this.$tr('someTasksComplete', { done: this.doneTasks, total: this.totalTasks });
-        }
+        return this.$tr('someTasksComplete', { done: this.doneTasks, total: this.totalTasks });
       },
     },
-    methods: {},
+    methods: {
+      handleClickClearAll() {
+        TaskResource.deleteFinishedTasks();
+      },
+    },
     $trs: {
       someTasksComplete:
         '{done, number} of {total, number} {done, plural, one {task} other {tasks}} complete',
-      noTasksStarted: 'No tasks started',
     },
   };
 
@@ -71,33 +97,14 @@
 
 <style lang="scss" scoped>
 
-  .task-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .message {
-    padding: 4px 0;
-  }
   .progress-bar {
-    min-width: 300px;
     max-width: 400px;
     text-align: left;
-
-    .task-bar-sm & {
-      min-width: auto;
-      max-width: 200px;
-    }
   }
 
   // CSS overrides for linear loader
   .k-linear-loader {
-    height: 10px;
-
-    .task-bar-sm & {
-      display: none;
-    }
+    height: 8px;
 
     /deep/ .ui-progress-linear-progress-bar {
       height: 100%;

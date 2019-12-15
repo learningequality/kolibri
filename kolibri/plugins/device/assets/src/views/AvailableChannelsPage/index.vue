@@ -19,31 +19,32 @@
       </template>
 
       <template v-slot:abovechannels>
-        <KButton
-          appearance="basic-link"
-          :text="multipleMode ? $tr('selectTopicsAndResources') : $tr('selectEntireChannels')"
-          @click="toggleMultipleMode"
-        />
-        <section
-          v-if="showUnlistedChannels"
-          class="unlisted-channels"
-        >
+        <p>
           <KButton
+            appearance="basic-link"
+            :text="multipleMode ? $tr('selectTopicsAndResources') : $tr('selectEntireChannels')"
+            @click="toggleMultipleMode"
+          />
+        </p>
+        <p v-if="showUnlistedChannels">
+          <KButton
+            data-test="token-button"
             class="token-button"
             :text="$tr('channelTokenButtonLabel')"
             appearance="raised-button"
             name="showtokenmodal"
             @click="showTokenModal=true"
           />
-        </section>
-
-        <UiAlert
-          v-show="notEnoughFreeSpace"
-          :dismissible="false"
-          type="error"
-        >
-          {{ $tr('notEnoughSpaceForChannelsWarning') }}
-        </UiAlert>
+        </p>
+        <p>
+          <UiAlert
+            v-show="notEnoughFreeSpace"
+            :dismissible="false"
+            type="error"
+          >
+            {{ $tr('notEnoughSpaceForChannelsWarning') }}
+          </UiAlert>
+        </p>
 
       </template>
 
@@ -52,7 +53,7 @@
           {{ $tr('noChannelsAvailable') }}
         </p>
 
-        <div v-else>
+        <p v-else>
           <ChannelPanel
             v-for="channel in allChannels"
             v-show="showItem(channel) && !channelIsBeingDeleted(channel.id)"
@@ -64,7 +65,7 @@
             @clickselect="goToSelectContentPageForChannel(channel)"
             @checkboxchange="handleChange"
           />
-        </div>
+        </p>
       </template>
     </FilteredChannelListContainer>
 
@@ -108,6 +109,7 @@
   import { mapState, mapMutations, mapGetters } from 'vuex';
   import omit from 'lodash/omit';
   import some from 'lodash/some';
+  import uniqBy from 'lodash/uniqBy';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
@@ -144,7 +146,7 @@
       return {
         showTokenModal: false,
         showUpdateModal: false,
-        newPrivateChannels: [],
+        newUnlistedChannels: [],
         selectedChannels: [],
         fileSize: 0,
         freeSpace: null,
@@ -168,7 +170,8 @@
         'transferType',
       ]),
       allChannels() {
-        return [...this.newPrivateChannels, ...this.availableChannels];
+        // Need to de-duplicate channels in case user enters same token twice, etc.
+        return uniqBy([...this.newUnlistedChannels, ...this.availableChannels], 'id');
       },
       multipleMode() {
         const { multiple } = this.$route.query;
@@ -257,10 +260,14 @@
         if (this.multipleMode) {
           this.disableModal = true;
           this.$store
-            .dispatch('manageContent/wizard/fetchPrivateChannelInfo', channel.id)
+            .dispatch('manageContent/wizard/fetchUnlistedChannelInfo', channel.id)
             .then(channels => {
-              const newChannels = channels.map(x => Object.assign(x, { newPrivateChannel: true }));
-              this.newPrivateChannels = [...newChannels, ...this.newPrivateChannels];
+              const newChannels = channels.map(x => Object.assign(x, { newUnlistedChannel: true }));
+              // Need to de-duplicate channels in case user enters same token twice, etc.
+              this.newUnlistedChannels = uniqBy(
+                [...newChannels, ...this.newUnlistedChannels],
+                'id'
+              );
               this.showTokenModal = false;
               this.disableModal = false;
             })
@@ -381,10 +388,6 @@
 
   .token-button {
     margin-left: 0;
-  }
-
-  .unlisted-channels {
-    padding: 16px 0;
   }
 
 </style>

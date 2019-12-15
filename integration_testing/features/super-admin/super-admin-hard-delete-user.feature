@@ -1,9 +1,9 @@
-Feature: Super admin delete user
-    Super admin needs to be able to delete a user from the command line
+Feature: Super admin hard delete user
+    Super admin needs to be able to permanently delete a user from the command line
 
   Background:
     Given that there is a username <username>
-      And I have access to Terminal on device
+      And I have access to terminal on device
 
   Scenario: Delete user and all their data
     When I type `kolibri manage deleteuser <username>` into the terminal

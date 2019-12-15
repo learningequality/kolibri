@@ -154,7 +154,6 @@ describe('facility config page actions', () => {
       return store.dispatch('facilityConfig/resetFacilityConfig').then(() => {
         expect(saveStub).toHaveBeenCalled();
         expect(store.state.facilityConfig.settings).toEqual({
-          allow_guest_access: true,
           learner_can_edit_username: true,
           learner_can_edit_name: true,
           learner_can_edit_password: true,

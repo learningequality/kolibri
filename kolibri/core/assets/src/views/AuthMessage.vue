@@ -86,7 +86,11 @@
       adminOrCoach: 'You must be signed in as an admin or coach to view this page',
       learner: 'You must be signed in as a learner to view this page',
       registeredUser: 'You must be signed in to view this page',
-      superuser: 'You must have super admin permissions to view this page',
+      superuser: {
+        message: 'You must have super admin permissions to view this page',
+        context:
+          '\nMessage presented to any user *without* super admin permissions who accidentally lands on a Kolibri page that is reserved for super admins. ',
+      },
       forgetToSignIn: 'Did you forget to sign in?',
       signInToKolibriAction: 'Sign in to Kolibri',
       goBackToHomeAction: 'Go to home page',

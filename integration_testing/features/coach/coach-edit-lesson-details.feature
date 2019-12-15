@@ -41,6 +41,17 @@ Feature: Coach edits lessons
     Then I see the lesson <lesson> page again
       And the *Recipients* field reflects the changes I made
 
+   Scenario: Assign individual learners
+    When I change *Recipients* by selecting *Individual learners*
+    Then I see a table listing all of the learners in the class.
+    When I change *Recipients* by selecting both *Individual learners* and any other group that has learners
+    Then I see the learners in the selected group(s) have the checkboxes by their names disabled
+    When I select learners in the table by clicking the checkboxes next to their names
+      And I click *Save changes*
+    Then I can log in as one of the selected individual learners and view the lesson
+    When I change *Recipients* by selecting *Entire class* then all groups and *Individual learners* become unchecked
+      And I no longer see the table of learners
+
   Scenario: Preview lesson resource from *Plan > Lessons > '<lesson>'
     Given <lesson> has at least one resource
       When I click on the link for lesson resource title

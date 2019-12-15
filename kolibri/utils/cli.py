@@ -420,7 +420,7 @@ def create_startup_lock(port):
     "--port",
     default=OPTIONS["Deployment"]["HTTP_PORT"],
     type=int,
-    help="Port on which to run Kolibri",
+    help="Port on which Kolibri is being served",
 )
 @click.option(
     "--background/--foreground",
@@ -445,7 +445,7 @@ def start(port, background):
     if sys.platform == "darwin":
         background = False
 
-    run_cherrypy = OPTIONS["Server"]["CHERRYPY_START"]
+    serve_http = OPTIONS["Server"]["CHERRYPY_START"]
 
     if not background:
         logger.info("Running Kolibri")
@@ -453,7 +453,7 @@ def start(port, background):
     else:
         logger.info("Running Kolibri as background process")
 
-    if run_cherrypy:
+    if serve_http:
         # Check if the port is occupied
         check_other_kolibri_running(port)
 
@@ -491,7 +491,7 @@ def start(port, background):
 
         become_daemon(**kwargs)
 
-    server.start(port=port, run_cherrypy=run_cherrypy)
+    server.start(port=port, serve_http=serve_http)
 
 
 @main.command(cls=KolibriCommand, help="Stop the Kolibri process")
@@ -580,11 +580,17 @@ status.codes = {
 
 @main.command(cls=KolibriDjangoCommand, help="Start worker processes")
 @click.option(
+    "--port",
+    default=OPTIONS["Deployment"]["HTTP_PORT"],
+    type=int,
+    help="Port on which to run Kolibri services",
+)
+@click.option(
     "--background/--foreground",
     default=True,
     help="Run Kolibri services as a background task",
 )
-def services(background):
+def services(port, background):
     """
     Start the kolibri background services.
     """
@@ -610,7 +616,7 @@ def services(background):
 
         become_daemon(**kwargs)
 
-    server.services()
+    server.start(port=port, serve_http=False)
 
 
 def setup_logging(debug=False):

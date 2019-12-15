@@ -293,6 +293,13 @@ class PluginUpdateManager(object):
 
         app_configs = []
         plugin_instance = registered_plugins.get(plugin_name)
+        if plugin_instance is None:
+            logger.error(
+                "Tried to run upgrades for plugin {} but it doesn't exist".format(
+                    plugin_name
+                )
+            )
+            return
         for app in plugin_instance.INSTALLED_APPS:
             if not isinstance(app, AppConfig) and isinstance(app, str):
                 app = apps.get_containing_app_config(app)

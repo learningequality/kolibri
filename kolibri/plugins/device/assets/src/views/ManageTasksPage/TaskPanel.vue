@@ -182,6 +182,14 @@
           file_size,
           total_resources,
         } = this.task;
+        // Special case for canceled exports
+        if (
+          (this.task.type === TaskTypes.DISKEXPORT ||
+            this.task.type === TaskTypes.DISKCONTENTEXPORT) &&
+          this.task.status === TaskStatuses.CANCELED
+        ) {
+          return '';
+        }
         if (file_size && total_resources) {
           const trPrefix = typeToTrPrefixMap[this.task.type];
           if (
@@ -224,12 +232,18 @@
       },
     },
     $trs: {
-      startedByUser: `Started by '{user}'`,
+      startedByUser: {
+        message: `Started by '{user}'`,
+        context: '\nRefers to the content management *task*.\n',
+      },
       numResourcesAndSize:
         '{numResources} {numResources, plural, one {resource} other {resources}} ({bytesText})',
       statusInProgress: 'In-progress',
       statusInQueue: 'Waiting',
-      statusComplete: 'Finished',
+      statusComplete: {
+        message: 'Finished',
+        context: '\nLabel indicating that the *task* was completed successfully. \n\n',
+      },
       statusFailed: 'Failed',
       statusCanceled: 'Canceled',
       statusCanceling: 'Canceling',

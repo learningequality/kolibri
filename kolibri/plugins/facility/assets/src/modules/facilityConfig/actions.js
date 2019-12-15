@@ -30,7 +30,6 @@ export function resetFacilityConfig(store) {
     learner_can_delete_account: true,
     learner_can_login_with_no_password: false,
     show_download_button_in_learn: false,
-    allow_guest_access: true,
   });
   return saveFacilityConfig(store);
 }

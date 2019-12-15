@@ -25,7 +25,10 @@
         <tr>
           <th>{{ $tr('resourcesAvailableForImport') }}</th>
           <td class="col-2">
-            <span class="count-added" :style="{color: $themeTokens.success}">
+            <span
+              :class="{'count-added': newResources}"
+              :style="{color: $themeTokens.success}"
+            >
               {{ newResources }}
             </span>
           </td>
@@ -33,12 +36,16 @@
         <tr>
           <th>{{ $tr('resourcesToBeDeleted') }}</th>
           <td>
-            <span class="count-deleted" :style="{color: $themeTokens.error}">
+            <span
+              :class="{'count-deleted': deletedResources}"
+              :style="{color: $themeTokens.error}"
+            >
               {{ deletedResources }}
             </span>
           </td>
           <td>
             <CoreInfoIcon
+              v-if="deletedResources"
               class="info-icon"
               :tooltipText="$tr('resourcesToBeDeletedTooltip')"
               :iconAriaLabel="$tr('resourcesToBeDeletedTooltip')"
@@ -75,13 +82,6 @@
       >
         <h2>
           {{ $tr('versionNumberHeader', { version: note.version }) }}
-          <mat-svg
-            v-if="note.version === nextVersion"
-            class="exclamation-icon"
-            name="priority_high"
-            category="notification"
-            :style="{fill: $themeTokens.primary}"
-          />
         </h2>
         <p dir="auto">
           {{ note.notes }}
@@ -121,7 +121,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import { taskIsClearable } from '../../constants';
+  import { taskIsClearable, TaskStatuses } from '../../constants';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
   export default {
@@ -261,7 +261,16 @@
           ...sourceParams,
         }).then(task => {
           if (taskIsClearable(task)) {
-            this.readAndDeleteTask(task);
+            // If the task actually just failed, re-start the task
+            if (task.status === TaskStatuses.FAILED) {
+              this.startDiffStatsTask({
+                baseurl: task.baseurl,
+                driveId: task.drive_id,
+              });
+              TaskResource.deleteFinishedTask(task.id);
+            } else {
+              this.readAndDeleteTask(task);
+            }
           } else {
             this.watchedTaskId = task.id;
           }
@@ -352,10 +361,6 @@
   .info-icon {
     margin-top: 2px;
     margin-left: 16px;
-  }
-
-  .exclamation-icon {
-    vertical-align: -3px;
   }
 
   tr {

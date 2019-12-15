@@ -16,6 +16,7 @@ from kolibri.core.content.utils.import_export_content import calculate_files_to_
 from kolibri.core.content.utils.import_export_content import compare_checksums
 from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
 from kolibri.core.content.utils.import_export_content import retry_import
+from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
@@ -218,6 +219,13 @@ class Command(AsyncCommand):
         number_of_skipped_files = 0
         transferred_file_size = 0
         file_checksums_to_annotate = []
+        public = None
+
+        # If we're downloading, check listing status
+        if method == DOWNLOAD_METHOD:
+            public = self.lookup_channel_listing_status(
+                channel_id=channel_id, baseurl=baseurl
+            )
 
         resources_before_transfer = (
             ContentNode.objects.filter(channel_id=channel_id, available=True)
@@ -297,6 +305,7 @@ class Command(AsyncCommand):
                     file_checksums_to_annotate,
                     node_ids=node_ids,
                     exclude_node_ids=exclude_node_ids,
+                    public=public,
                 )
 
             resources_after_transfer = (
@@ -426,3 +435,18 @@ class Command(AsyncCommand):
                     options["command"]
                 )
             )
+
+    def lookup_channel_listing_status(self, channel_id, baseurl=None):
+        """
+        Look up the listing status of the channel from the remote, this is surfaced as a
+        `public` boolean field.
+        """
+        resp = requests.get(
+            get_channel_lookup_url(identifier=channel_id, baseurl=baseurl)
+        )
+
+        if resp.status_code == 404:
+            return None
+
+        (channel_info,) = resp.json()
+        return channel_info.get("public", None)

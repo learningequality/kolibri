@@ -2,7 +2,7 @@
 
   <Navbar>
     <NavbarLink
-      v-if="isUserLoggedIn && userHasMemberships"
+      v-if="showClassesLink"
       name="classes-link"
       :title="coreString('classesLabel')"
       :link="allClassesLink"
@@ -13,6 +13,7 @@
       />
     </NavbarLink>
     <NavbarLink
+      v-if="canAccessUnassignedContent"
       :title="coreString('channelsLabel')"
       :link="channelsLink"
     >
@@ -22,6 +23,7 @@
       />
     </NavbarLink>
     <NavbarLink
+      v-if="canAccessUnassignedContent"
       :title="learnString('recommendedLabel')"
       :link="recommendedLink"
     >
@@ -66,10 +68,13 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
+      ...mapGetters(['isUserLoggedIn', 'canAccessUnassignedContent']),
       ...mapState({
         userHasMemberships: state => state.memberships.length > 0,
       }),
+      showClassesLink() {
+        return this.isUserLoggedIn && (this.userHasMemberships || !this.canAccessUnassignedContent);
+      },
     },
     methods: {},
   };
