@@ -15,10 +15,10 @@ import { ClassesPageNames } from '../../constants';
 import { contentState } from '../coreLearn/utils';
 import { calcQuestionsAnswered } from './utils';
 
-export function showExam(store, params, alreadyLoaded) {
+export function showExam(store, params, alreadyOnQuiz) {
   const questionNumber = Number(params.questionNumber);
   const { classId, examId } = params;
-  if (!alreadyLoaded) {
+  if (!alreadyOnQuiz) {
     store.commit('CORE_SET_PAGE_LOADING', true);
   }
   store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);

@@ -42,11 +42,11 @@ export default [
     name: ClassesPageNames.EXAM_VIEWER,
     path: '/classes/:classId/exam/:examId/:questionNumber',
     handler: (toRoute, fromRoute) => {
-      const alreadyLoaded =
+      const alreadyOnQuiz =
         fromRoute.name === ClassesPageNames.EXAM_VIEWER &&
         toRoute.params.examId === fromRoute.params.examId &&
         toRoute.params.classId === fromRoute.params.classId;
-      showExam(store, toRoute.params, alreadyLoaded);
+      showExam(store, toRoute.params, alreadyOnQuiz);
     },
   },
   {
