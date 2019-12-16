@@ -13,11 +13,12 @@
         </KTooltip>
         <h1>
           <KLabeledIcon icon="channel" :label="channel.name" />
-          <KIcon
+          <!-- Commenting out this icon because we've lost the channel.public attribute -->
+          <!-- <KIcon
             ref="lockicon"
             class="lock-icon"
             icon="unlistedchannel"
-          />
+          /> -->
         </h1>
       </div>
       <p class="version">
