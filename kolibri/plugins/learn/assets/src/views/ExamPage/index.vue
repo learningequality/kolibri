@@ -2,11 +2,18 @@
 
   <div>
     <KGrid :gridStyle="gridStyle">
-      <KGridItem v-if="windowIsLarge" :layout12="{ span: 4 }" class="column-pane">
+      <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
+      <KGridItem
+        v-if="windowIsLarge"
+        ref="questionListWrapper"
+        :layout12="{ span: 4 }"
+        class="column-pane"
+      >
         <div class="column-contents-wrapper">
           <KPageContainer>
             <AnswerHistory
               :questionNumber="questionNumber"
+              :wrapperComponentRefs="this.$refs"
               @goToQuestion="goToQuestion"
             />
           </KPageContainer>
