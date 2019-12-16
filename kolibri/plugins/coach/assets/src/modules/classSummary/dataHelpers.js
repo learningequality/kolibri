@@ -102,13 +102,18 @@ export default {
       }
       const individuallyAssignedLearners = this.getAdHocLearners(exam.assignments);
       if (individuallyAssignedLearners.length) {
-        // If exam.groups is empty, getLearnersForGroups returns the whole class so only concat it if
-        // we're getting learners from specified groups
+        // If exam.groups is empty, getLearnersForGroups returns the whole class
+        // so only concat it if we're getting learners from specified groups
         return exam.groups.length
           ? individuallyAssignedLearners.concat(this.getLearnersForGroups(exam.groups))
           : individuallyAssignedLearners;
       } else {
-        return this.getLearnersForGroups(exam.groups);
+        if(exam.assignments.length) {
+          return this.getLearnersForGroups(exam.groups);
+        } else {
+          return [];
+        }
+
       }
     };
   },
@@ -122,13 +127,17 @@ export default {
       }
       const individuallyAssignedLearners = this.getAdHocLearners(lesson.assignments);
       if (individuallyAssignedLearners.length) {
-        // If lesson.groups is empty, getLearnersForGroups returns the whole class so only concat it if
-        // we're getting learners from specified groups
+        // If lesson.groups is empty, getLearnersForGroups returns the whole class
+        // so only concat it if we're getting learners from specified groups
         return lesson.groups.length
           ? individuallyAssignedLearners.concat(this.getLearnersForGroups(lesson.groups))
           : individuallyAssignedLearners;
       } else {
-        return this.getLearnersForGroups(lesson.groups);
+        if(lesson.assignments.length) {
+          return this.getLearnersForGroups(lesson.groups);
+        } else {
+          return [];
+        }
       }
     };
   },
