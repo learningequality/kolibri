@@ -33,6 +33,20 @@ FILE_SKIPPED = 1
 FILE_NOT_TRANSFERRED = 0
 
 
+def lookup_channel_listing_status(channel_id, baseurl=None):
+    """
+    Look up the listing status of the channel from the remote, this is surfaced as a
+    `public` boolean field.
+    """
+    resp = requests.get(get_channel_lookup_url(identifier=channel_id, baseurl=baseurl))
+
+    if resp.status_code != 200:
+        return None
+
+    (channel_info,) = resp.json()
+    return channel_info.get("public", None)
+
+
 class Command(AsyncCommand):
     def add_arguments(self, parser):
         # let's save the parser in case we need to print a help statement
@@ -56,7 +70,7 @@ class Command(AsyncCommand):
             "-n",
             # Split the comma separated string we get, into a list of strings
             type=lambda x: x.split(","),
-            default=[],
+            default=None,
             required=False,
             dest="node_ids",
             help=node_ids_help_text,
@@ -73,7 +87,7 @@ class Command(AsyncCommand):
             "--exclude_node_ids",
             # Split the comma separated string we get, into a list of string
             type=lambda x: x.split(","),
-            default=[],
+            default=None,
             required=False,
             dest="exclude_node_ids",
             help=exclude_node_ids_help_text,
@@ -223,7 +237,7 @@ class Command(AsyncCommand):
 
         # If we're downloading, check listing status
         if method == DOWNLOAD_METHOD:
-            public = self.lookup_channel_listing_status(
+            public = lookup_channel_listing_status(
                 channel_id=channel_id, baseurl=baseurl
             )
 
@@ -435,18 +449,3 @@ class Command(AsyncCommand):
                     options["command"]
                 )
             )
-
-    def lookup_channel_listing_status(self, channel_id, baseurl=None):
-        """
-        Look up the listing status of the channel from the remote, this is surfaced as a
-        `public` boolean field.
-        """
-        resp = requests.get(
-            get_channel_lookup_url(identifier=channel_id, baseurl=baseurl)
-        )
-
-        if resp.status_code == 404:
-            return None
-
-        (channel_info,) = resp.json()
-        return channel_info.get("public", None)
