@@ -1,7 +1,7 @@
 <template>
 
   <!-- Accessibility properties for the overlay -->
-  <transition name="fade" appear>
+  <transition name="modal-fade" appear>
     <div
       id="modal-window"
       ref="modal-overlay"
@@ -330,13 +330,13 @@
     @extend %momentum-scroll;
   }
 
-  .fade-enter-active,
-  .fade-leave-active {
+  .modal-fade-enter-active,
+  .modal-fade-leave-active {
     transition: all $core-time ease;
   }
 
-  .fade-enter,
-  .fade-leave-active {
+  .modal-fade-enter,
+  .modal-fade-leave-active {
     opacity: 0;
   }
 
