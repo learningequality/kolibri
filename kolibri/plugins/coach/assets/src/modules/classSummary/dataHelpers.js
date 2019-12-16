@@ -77,8 +77,18 @@ export default {
    */
   getRecipientNamesForExam(state) {
     return function(exam) {
+      const adHocLearners = this.getAdHocLearners(exam.assignments).map(
+        learnerId => state.learnerMap[learnerId].name
+      );
+      const recipientsForGroups =
+        Boolean(exam.groups.length) || Boolean(!adHocLearners.length)
+          ? this.getLearnersForGroups(exam.groups)
+          : [];
+      const learnersInSelectedGroups = recipientsForGroups.map(
+        learnerId => state.learnerMap[learnerId].name
+      );
       return this.getGroupNames(exam.groups).concat(
-        this.getAdHocLearners(exam.assignments).map(learnerId => state.learnerMap[learnerId].name)
+        adHocLearners.filter(name => !learnersInSelectedGroups.includes(name))
       );
     };
   },
@@ -112,10 +122,16 @@ export default {
    */
   getLearnersForLesson() {
     return function(lesson) {
+      const individuallyAssignedLearners = this.getAdHocLearners(lesson.assignments);
       if (!lesson) {
         throw new Error('getLearnersForLesson: invalid parameter(s)');
       }
-      return lesson.assignments.length ? this.getLearnersForGroups(lesson.groups) : [];
+      const recipientsInGroups = lesson.groups.length
+        ? this.getLearnersForGroups(lesson.groups)
+        : [];
+      return lesson.assignments.length
+        ? uniq(individuallyAssignedLearners.concat(recipientsInGroups))
+        : [];
     };
   },
   /*
@@ -124,9 +140,18 @@ export default {
    */
   getRecipientNamesForLesson(state) {
     return function(lesson) {
+      const fullLesson = state.lessonMap[lesson.id];
+      const recipientsForGroups = fullLesson.groups.length
+        ? this.getLearnersForGroups(fullLesson.groups)
+        : [];
+      const learnersInSelectedGroups = recipientsForGroups.map(
+        learnerId => state.learnerMap[learnerId].name
+      );
       const assignments = lesson.lesson_assignments.map(l => l.collection);
-      return this.getGroupNames(state.lessonMap[lesson.id].groups).concat(
-        this.getAdHocLearners(assignments).map(learnerId => state.learnerMap[learnerId].name)
+      return this.getGroupNames(fullLesson.groups).concat(
+        this.getAdHocLearners(assignments)
+          .map(learnerId => state.learnerMap[learnerId].name)
+          .filter(learner => !learnersInSelectedGroups.includes(learner))
       );
     };
   },
