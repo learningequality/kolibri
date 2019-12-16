@@ -78,7 +78,7 @@
         <transition name="spinner-fade">
           <div v-if="discoveringPeers">
             <KLabeledIcon>
-              <KCircularLoader slot="icon" :size="32" :stroke="4" />
+              <KCircularLoader slot="icon" :size="16" :stroke="6" class="loader" />
             </KLabeledIcon>
           </div>
         </transition>
@@ -342,6 +342,11 @@
   hr {
     border: 0;
     border-bottom: 1px solid #cbcbcb;
+  }
+
+  .loader {
+    position: relative;
+    top: 12px;
   }
 
 </style>
