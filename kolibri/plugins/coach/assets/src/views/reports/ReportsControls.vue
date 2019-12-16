@@ -20,7 +20,7 @@
       </KTooltip>
 
       <UiIconButton
-        v-if="!disableExport"
+        v-if="!exportDisabled"
         ref="exportButton"
         type="flat"
         :aria-label="coachString('exportCSVAction')"
@@ -43,6 +43,7 @@
 <script>
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import { isEmbeddedWebView } from 'kolibri.utils.browser';
   import commonCoach from '../common';
 
   export default {
@@ -53,6 +54,12 @@
       disableExport: {
         type: Boolean,
         default: false,
+      },
+    },
+    computed: {
+      exportDisabled() {
+        // Always disable in app mode until we add the ability to download files.
+        return isEmbeddedWebView() || this.disableExport;
       },
     },
   };
