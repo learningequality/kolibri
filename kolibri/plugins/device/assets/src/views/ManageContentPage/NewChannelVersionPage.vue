@@ -80,7 +80,7 @@
     <dl>
       <template
         v-for="(note, idx) in sortedVersionNotes"
-        v-show="note.version >= currentVersion"
+        v-if="note.version >= currentVersion"
       >
         <dt :key="`dt-${idx}`">
           {{ $tr('versionNumberHeader', { version: note.version }) }}
