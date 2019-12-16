@@ -51,6 +51,12 @@ export default {
         return find(state.channelList, { id: channelId, available: true });
       };
     },
+    channelIsOnDevice(state) {
+      // Channel data just needs to exist, but doesn't need to be available
+      return function findChannel(channelId) {
+        return find(state.channelList, { id: channelId });
+      };
+    },
     channelIsBeingDeleted(state) {
       return function beingDeleted(channelId) {
         const match = find(state.taskList, {
