@@ -120,6 +120,7 @@
       numFilteredItems: {
         handler() {
           this.pageNum = 1;
+          this.$emit('pageChanged', 1);
         },
       },
     },
