@@ -1,5 +1,6 @@
 import find from 'lodash/find';
 import { TaskResource, ChannelResource, RemoteChannelResource } from 'kolibri.resources';
+import { TaskTypes } from '../../constants';
 import { NetworkLocationResource } from '../../apiResources';
 
 const kolibriStudioUrl = 'https://studio.learningequality.org';
@@ -98,7 +99,7 @@ export function fetchOrTriggerChannelDiffStatsTask(params) {
   }
 
   return TaskResource.fetchCollection({ force: true }).then(tasks => {
-    const match = find(tasks, taskAttrs);
+    const match = find(tasks, { ...taskAttrs, type: TaskTypes.CHANNELDIFFSTATS });
     if (match) {
       return match;
     } else {
