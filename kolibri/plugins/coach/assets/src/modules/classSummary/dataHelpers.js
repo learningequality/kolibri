@@ -100,20 +100,15 @@ export default {
       if (!exam) {
         throw new Error('getLearnersForLesson: invalid parameter(s)');
       }
-      if (exam.assignments.length) {
-        const individuallyAssignedLearners = this.getAdHocLearners(exam.assignments);
-        /* If exam.groups is empty, but individually assigned learners exist, then we
-         * don't want to getLearnersForGroups because it will return all learners
-         */
-        if (individuallyAssignedLearners.length && exam.groups.length === 0) {
-          return individuallyAssignedLearners;
-        } else {
-          return uniq(individuallyAssignedLearners.concat(this.getLearnersForGroups(exam.groups)));
-        }
+      const individuallyAssignedLearners = this.getAdHocLearners(exam.assignments);
+      if (individuallyAssignedLearners.length) {
+        // If exam.groups is empty, getLearnersForGroups returns the whole class so only concat it if
+        // we're getting learners from specified groups
+        return exam.groups.length
+          ? individuallyAssignedLearners.concat(this.getLearnersForGroups(exam.groups))
+          : individuallyAssignedLearners;
       } else {
-        // If we have no assignments, then getLearnersForGroups will return
-        // all learners (meaning this is assigned to entire class)
-        return [];
+        return this.getLearnersForGroups(exam.groups);
       }
     };
   },
@@ -122,16 +117,19 @@ export default {
    */
   getLearnersForLesson() {
     return function(lesson) {
-      const individuallyAssignedLearners = this.getAdHocLearners(lesson.assignments);
       if (!lesson) {
         throw new Error('getLearnersForLesson: invalid parameter(s)');
       }
-      const recipientsInGroups = lesson.groups.length
-        ? this.getLearnersForGroups(lesson.groups)
-        : [];
-      return lesson.assignments.length
-        ? uniq(individuallyAssignedLearners.concat(recipientsInGroups))
-        : [];
+      const individuallyAssignedLearners = this.getAdHocLearners(lesson.assignments);
+      if (individuallyAssignedLearners.length) {
+        // If lesson.groups is empty, getLearnersForGroups returns the whole class so only concat it if
+        // we're getting learners from specified groups
+        return lesson.groups.length
+          ? individuallyAssignedLearners.concat(this.getLearnersForGroups(lesson.groups))
+          : individuallyAssignedLearners;
+      } else {
+        return this.getLearnersForGroups(lesson.groups);
+      }
     };
   },
   /*
