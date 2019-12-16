@@ -76,10 +76,9 @@
     <KFixedGrid slot="actions" class="actions" numCols="4">
       <KFixedGridItem span="1">
         <transition name="spinner-fade">
-          <div v-if="discoveringPeers" class="searching-indicator">
+          <div v-if="discoveringPeers">
             <KLabeledIcon>
-              <KCircularLoader slot="icon" :size="16" :stroke="6" />
-              {{ $tr('searchingText') }}
+              <KCircularLoader slot="icon" :size="32" :stroke="4" />
             </KLabeledIcon>
           </div>
         </transition>
@@ -301,11 +300,6 @@
         context:
           "\nRefers to the Kolibri's capability to import resources from other devices in the same *local* network (LAN), as opposed to importing from Studio which is online.",
       },
-      searchingText: {
-        message: 'Searching',
-        context:
-          '\nKolibri will search for nearby Kolibri devices every so often. While doing so, this text will be presented to the user',
-      },
     },
   };
 
@@ -321,11 +315,6 @@
   .radio-button {
     display: inline-block;
     width: 75%;
-  }
-
-  .searching-indicator {
-    padding-top: 18px;
-    font-size: 12px;
   }
 
   .spinner-fade-leave-active,
