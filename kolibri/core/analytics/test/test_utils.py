@@ -18,8 +18,10 @@ from kolibri.core.analytics.models import PingbackNotification
 from kolibri.core.analytics.utils import create_and_update_notifications
 from kolibri.core.analytics.utils import extract_channel_statistics
 from kolibri.core.analytics.utils import extract_facility_statistics
+from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import facility_presets
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -162,6 +164,11 @@ class BaseDeviceSetupMixin(object):
                             correct=1,
                             content_id=uuid.uuid4().hex,
                         )
+            # generate some simple birth year stats
+            FacilityUser.objects.update(birth_year="1970")
+            for user in FacilityUser.objects.all()[:11]:
+                user.birth_year = "1971"
+                user.save()
 
 
 class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
@@ -201,6 +208,32 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
             "sac": 20,  # sess_anon_count
             "sut": 20,  # sess_user_time
             "sat": 20,  # sess_anon_time
+            "dsl": {
+                "bys": {"a": 1970.5, "v": 0.25, "ts": 20, "d": None},
+                "gs": {
+                    "m": {
+                        "count": FacilityUser.objects.filter(
+                            gender=demographics.MALE
+                        ).count()
+                    },
+                    "f": {
+                        "count": FacilityUser.objects.filter(
+                            gender=demographics.FEMALE
+                        ).count()
+                    },
+                    "ns": {
+                        "count": FacilityUser.objects.filter(
+                            gender=demographics.NOT_SPECIFIED
+                        ).count()
+                    },
+                    "d": {
+                        "count": FacilityUser.objects.filter(
+                            gender=demographics.DEFERRED
+                        ).count()
+                    },
+                },
+            },
+            "dsnl": {},
         }
         assert actual == expected
 
@@ -247,6 +280,36 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
             "sac": 20,  # sess_anon_count
             "sut": 20,  # sess_user_time
             "sat": 20,  # sess_anon_time
+            "dsl": {
+                "bys": {"a": 1970.5, "v": 0.25, "ts": 20, "d": None},
+                "gs": {
+                    "m": {
+                        "count": FacilityUser.objects.filter(
+                            contentsummarylog__channel_id=self.channel.id,
+                            gender=demographics.MALE,
+                        ).count()
+                    },
+                    "f": {
+                        "count": FacilityUser.objects.filter(
+                            contentsummarylog__channel_id=self.channel.id,
+                            gender=demographics.FEMALE,
+                        ).count()
+                    },
+                    "ns": {
+                        "count": FacilityUser.objects.filter(
+                            contentsummarylog__channel_id=self.channel.id,
+                            gender=demographics.NOT_SPECIFIED,
+                        ).count()
+                    },
+                    "d": {
+                        "count": FacilityUser.objects.filter(
+                            contentsummarylog__channel_id=self.channel.id,
+                            gender=demographics.DEFERRED,
+                        ).count()
+                    },
+                },
+            },
+            "dsnl": {},
         }
         assert actual == expected
 

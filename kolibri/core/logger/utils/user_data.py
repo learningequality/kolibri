@@ -14,6 +14,7 @@ from django.db.models.query import Q
 from django.utils import timezone
 from le_utils.constants import content_kinds
 
+from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
@@ -101,8 +102,13 @@ def get_or_create_classroom_users(**options):
                     if base_data[key]
                 ]
             )
+            # randomly assign gender
+            gender = random.choice(demographics.choices)[0]
             user = FacilityUser.objects.create(
-                facility=facility, full_name=name, username=base_data["Username"]
+                facility=facility,
+                full_name=name,
+                username=base_data["Username"],
+                gender=gender,
             )
             # Set a dummy password so that if we want to login as this learner later, we can.
             user.set_password("password")

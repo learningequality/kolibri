@@ -90,10 +90,10 @@ def calculate_demographic_stats(dataset_id=None, channel_id=None, learner=True):
         roles_filter = Q(roles__isnull=True)
     # handle stats at facility level
     if dataset_id:
-        queryset = FacilityUser.objects.filter(roles_filter, dataset_id=dataset_id)
+        queryset = queryset.filter(roles_filter, dataset_id=dataset_id)
     # handle stats at channel level
     if channel_id:
-        queryset = FacilityUser.objects.filter(
+        queryset = queryset.filter(
             roles_filter, contentsummarylog__channel_id=channel_id
         ).distinct()
 
