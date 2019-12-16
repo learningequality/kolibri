@@ -41,7 +41,7 @@ class ScheduledJob(Base):
     queue = Column(String, index=True)
 
     # The original Job object, pickled here for so we can easily access it.
-    obj = Column(PickleType)
+    obj = Column(PickleType(protocol=2))
 
     scheduled_time = Column(DateTime())
 
