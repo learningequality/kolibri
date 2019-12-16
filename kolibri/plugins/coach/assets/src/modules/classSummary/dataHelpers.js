@@ -108,12 +108,11 @@ export default {
           ? individuallyAssignedLearners.concat(this.getLearnersForGroups(exam.groups))
           : individuallyAssignedLearners;
       } else {
-        if(exam.assignments.length) {
+        if (exam.assignments.length) {
           return this.getLearnersForGroups(exam.groups);
         } else {
           return [];
         }
-
       }
     };
   },
@@ -133,7 +132,7 @@ export default {
           ? individuallyAssignedLearners.concat(this.getLearnersForGroups(lesson.groups))
           : individuallyAssignedLearners;
       } else {
-        if(lesson.assignments.length) {
+        if (lesson.assignments.length) {
           return this.getLearnersForGroups(lesson.groups);
         } else {
           return [];
