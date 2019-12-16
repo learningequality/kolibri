@@ -167,6 +167,7 @@
       entireClassIsSelected() {
         if (this.entireClassIsSelected) {
           this.isChecked = false;
+          this.currentPage = 1;
           this.$emit('toggleCheck', this.isChecked, this.$store.state.adHocLearners.id);
         }
       },
