@@ -10,8 +10,13 @@
 
 <script>
 
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+
   export default {
     name: 'AverageScoreTooltip',
+    components: {
+      CoreInfoIcon,
+    },
     $trs: {
       visibleToLearnersTooltipMessage: {
         message: 'Calculated only from quizzes that were completed',
