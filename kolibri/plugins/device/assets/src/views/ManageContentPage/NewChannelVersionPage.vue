@@ -1,8 +1,8 @@
 <template>
 
-  <div>
+  <div v-if="!loadingChannel">
 
-    <section v-if="!loadingChannel">
+    <section>
       <h1>
         {{ versionAvailableText }}
       </h1>
@@ -12,16 +12,16 @@
       </p>
     </section>
 
-    <div style="height: 32px" aria-hidden="true"></div>
-
-    <section v-if="!loadingChannel && !loadingTask">
-      <h3>
-        {{ $tr('versionChangesHeader', {
-          oldVersion: currentVersion,
-          newVersion: nextVersion
-        }) }}
-      </h3>
-      <table>
+    <section>
+      <p>
+        <strong>
+          {{ $tr('versionChangesHeader', {
+            oldVersion: currentVersion,
+            newVersion: nextVersion
+          }) }}
+        </strong>
+      </p>
+      <table v-if="!loadingChannel && !loadingTask">
         <tr>
           <th>{{ $tr('resourcesAvailableForImport') }}</th>
           <td class="col-2">
@@ -60,41 +60,36 @@
           </td>
         </tr>
       </table>
-
-      <div style="height: 24px" aria-hidden="true"></div>
-
-      <KButton
-        class="button"
-        :text="$tr('updateChannelAction')"
-        appearance="raised-button"
-        :primary="true"
-        @click="showModal = true"
+      <KLinearLoader
+        v-else
+        :indeterminate="true"
+        :delay="false"
       />
+
+      <BottomAppBar>
+        <KButton
+          :text="$tr('updateChannelAction')"
+          appearance="raised-button"
+          :primary="true"
+          :disabled="loadingChannel || loadingTask"
+          @click="showModal = true"
+        />
+      </BottomAppBar>
     </section>
 
-    <div style="height: 48px" aria-hidden="true"></div>
-
-    <section v-if="!loadingChannel">
-      <div
+    <dl>
+      <template
         v-for="(note, idx) in sortedVersionNotes"
         v-show="note.version >= currentVersion"
-        :key="idx"
       >
-        <h2>
+        <dt :key="`dt-${idx}`">
           {{ $tr('versionNumberHeader', { version: note.version }) }}
-        </h2>
-        <p dir="auto">
+        </dt>
+        <dd :key="`dd-${idx}`" dir="auto">
           {{ note.notes }}
-        </p>
-      </div>
-    </section>
-
-    <!-- Load the channel immediately, then the diff stats -->
-    <KLinearLoader
-      v-if="loadingChannel || loadingTask"
-      :indeterminate="true"
-      :delay="false"
-    />
+        </dd>
+      </template>
+    </dl>
 
     <KModal
       v-if="showModal"
@@ -108,6 +103,12 @@
       <p>{{ $tr('updateConfirmationQuestion', { channelName, version: nextVersion }) }}</p>
     </KModal>
   </div>
+  <KLinearLoader
+    v-else
+    :indeterminate="true"
+    :delay="false"
+    class="main-loader"
+  />
 
 </template>
 
@@ -120,6 +121,7 @@
   import map from 'lodash/map';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import { taskIsClearable, TaskStatuses } from '../../constants';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
@@ -133,6 +135,7 @@
     },
     components: {
       CoreInfoIcon,
+      BottomAppBar,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -337,12 +340,8 @@
     font-size: 24px;
   }
 
-  h2 {
-    font-size: 20px;
-  }
-
-  .button {
-    margin-left: 0;
+  .main-loader {
+    margin-top: 8px;
   }
 
   /deep/ .k-tooltip {
@@ -363,8 +362,10 @@
     margin-left: 16px;
   }
 
-  tr {
-    height: 2em;
+  td,
+  th {
+    padding-top: 4px;
+    padding-bottom: 4px;
   }
 
   th {
@@ -378,6 +379,14 @@
 
   td.col-2 {
     min-width: 120px;
+  }
+
+  dt {
+    font-weight: bold;
+  }
+
+  dd {
+    margin-bottom: 8px;
   }
 
 </style>
