@@ -83,6 +83,11 @@ matrix:
         - TOX_ENV=cext
       script:
        - tox -e $TOX_ENV
+    - python: "3.6"
+      env:
+        - TOX_ENV=startup_provision_shutdown_without_zombies
+      script:
+       - tox -e $TOX_ENV
 
 
 before_install:
