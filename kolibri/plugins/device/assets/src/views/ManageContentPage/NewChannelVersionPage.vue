@@ -78,10 +78,7 @@
     </section>
 
     <dl>
-      <template
-        v-for="(note, idx) in sortedVersionNotes"
-        v-if="note.version >= currentVersion"
-      >
+      <template v-for="(note, idx) in sortedFilteredVersionNotes">
         <dt :key="`dt-${idx}`">
           {{ $tr('versionNumberHeader', { version: note.version }) }}
         </dt>
@@ -177,13 +174,13 @@
           addressId: this.$route.query.address_id,
         });
       },
-      sortedVersionNotes() {
+      sortedFilteredVersionNotes() {
         const versionArray = map(this.versionNotes, (val, key) => {
           return {
             version: Number(key),
             notes: val,
           };
-        });
+        }).filter(note => note.version >= this.currentVersion);
         return sortBy(versionArray, note => -note.version);
       },
       watchedTaskHasFinished() {
