@@ -81,7 +81,7 @@ export default {
         learnerId => state.learnerMap[learnerId].name
       );
       const recipientsForGroups =
-        Boolean(exam.groups.length) || Boolean(!adHocLearners.length)
+        exam.groups.length || !adHocLearners.length
           ? this.getLearnersForGroups(exam.groups)
           : [];
       const learnersInSelectedGroups = recipientsForGroups.map(
