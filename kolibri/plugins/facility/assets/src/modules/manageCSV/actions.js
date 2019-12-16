@@ -66,7 +66,7 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
       const task = completed[0];
       if (task.status === TaskStatuses.COMPLETED) {
         store.commit(commitFinish, new Date());
-        TaskResource.deleteFinishedTasks();
+        TaskResource.deleteFinishedTask(taskId);
       }
     }
   } else {

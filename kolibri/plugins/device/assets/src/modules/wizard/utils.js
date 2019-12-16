@@ -56,9 +56,14 @@ export function downloadChannelMetadata(store = coreStore) {
     .then(completedTask => {
       const { taskId, cancelled } = completedTask;
       if (taskId && !cancelled) {
-        return TaskResource.deleteFinishedTasks().then(() => {
-          return getChannelWithContentSizes(transferredChannel.id);
-        });
+        return TaskResource.deleteFinishedTask(taskId)
+          .then(() => {
+            return getChannelWithContentSizes(transferredChannel.id);
+          })
+          .catch(() => {
+            // Fail silently just in case something happens
+            return getChannelWithContentSizes(transferredChannel.id);
+          });
       }
       return Promise.reject({ errorType: ErrorTypes.CHANNEL_TASK_ERROR });
     });
