@@ -5,6 +5,7 @@ from random import sample
 
 import requests
 from django.core.cache import cache
+from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
@@ -102,18 +103,17 @@ class ChannelMetadataFilter(FilterSet):
         fields = ("available", "has_exercise")
 
     def filter_has_exercise(self, queryset, name, value):
-        channel_ids = []
-
-        for channel in queryset:
-            channel_has_exercise = (
-                channel.root.get_descendants()
-                .filter(kind=content_kinds.EXERCISE, available=True)
-                .exists()
+        queryset = queryset.annotate(
+            has_exercise=Exists(
+                models.ContentNode.objects.filter(
+                    kind=content_kinds.EXERCISE,
+                    available=True,
+                    channel_id=OuterRef("id"),
+                )
             )
-            if channel_has_exercise:
-                channel_ids.append(channel.id)
+        )
 
-        return queryset.filter(id__in=channel_ids)
+        return queryset.filter(has_exercise=True)
 
     def filter_available(self, queryset, name, value):
         return queryset.filter(root__available=value)
