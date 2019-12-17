@@ -31,7 +31,7 @@
             </th>
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th v-show="!$isPrint">
+            <th v-show="!$isPrint" class="center-text">
               {{ coachString('statusLabel') }}
             </th>
           </tr>
@@ -62,7 +62,10 @@
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>
-            <td v-show="!$isPrint" class="status">
+            <td
+              v-show="!$isPrint"
+              class="center-text button-col core-table-button-col"
+            >
               <!-- Open quiz button -->
               <KButton
                 v-if="!tableRow.active && !tableRow.archive"
@@ -268,17 +271,12 @@
 
   @import '../common/print-table';
 
-  td.status {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-  .quiz-closed-label {
-    padding: 0;
-    margin: 0.75rem 0;
+  .center-text {
+    text-align: center;
   }
 
-  .table-left-aligned-button {
-    margin: 0.5rem 0 0.5rem -1rem;
+  .button-col {
+    vertical-align: middle;
   }
 
 </style>
