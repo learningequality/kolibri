@@ -116,10 +116,11 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
           firstUserName: firstUser.user,
           firstUserId: firstUser.user_id,
           total: partitioning.hasEvent.length,
+          // not used for Needs Help
           completesCollection:
             partitioning.rest.length === 0 &&
             // If the collection kind is ad hoc, always make this false
-            collection.collection_kind == CollectionTypes.ADHOCLEARNERSGROUP, // not used for Needs Help
+            collection.collection_kind == CollectionTypes.ADHOCLEARNERSGROUP,
         },
       });
     }
