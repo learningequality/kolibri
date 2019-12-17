@@ -155,6 +155,7 @@
   }
 
   .private-icons {
+    position: relative;
     display: inline-block;
     margin-top: -3px;
     margin-bottom: 3px;
@@ -167,10 +168,17 @@
   }
 
   .new-label {
-    padding: 2px 5px 2px 4px;
+    position: absolute;
+    top: 2px;
+    padding: 2px 8px;
     margin-left: 8px;
     font-size: 14px;
+    font-weight: bold;
     border-radius: 2px;
+
+    .panel-sm & {
+      top: -2px;
+    }
   }
 
 </style>
