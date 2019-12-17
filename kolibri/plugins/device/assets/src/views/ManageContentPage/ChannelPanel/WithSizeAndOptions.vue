@@ -7,9 +7,19 @@
   >
     <ChannelDetails :channel="channel">
 
-      <template v-if="showNewLabel" v-slot:belowname>
+      <template v-slot:belowname>
         <div class="private-icons">
+          <KTooltip reference="lockicon" :refs="$refs" placement="top">
+            {{ WithImportDetailsStrings.$tr('unlistedChannelTooltip') }}
+          </KTooltip>
+          <KIcon
+            v-if="channel.public === false"
+            ref="lockicon"
+            class="lock-icon"
+            icon="unlistedchannel"
+          />
           <span
+            v-if="showNewLabel"
             class="new-label"
             :style="{
               color: $themeTokens.textInverted,

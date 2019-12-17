@@ -125,8 +125,6 @@
         }
       },
       isUnlistedChannel() {
-        // This is only defined when entering a remote import workflow,
-        // so false !== undefined.
         return this.channel.public === false;
       },
       tasksInQueue() {
