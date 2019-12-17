@@ -50,7 +50,7 @@
             <td>
               <Recipients
                 :groupNames="getRecipientNamesForExam(tableRow)"
-                :hasAssignments="tableRow.hasAssignments"
+                :hasAssignments="tableRow.assignments.length > 0"
               />
             </td>
             <td v-show="!$isPrint">
