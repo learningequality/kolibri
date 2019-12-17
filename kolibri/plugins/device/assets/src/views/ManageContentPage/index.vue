@@ -84,7 +84,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import taskNotificationMixin from '../taskNotificationMixin';
-  import { PageNames } from '../../constants';
+  import { PageNames, TaskStatuses } from '../../constants';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -111,8 +111,15 @@
       };
     },
     computed: {
-      ...mapGetters('manageContent', ['installedChannelsWithResources', 'channelIsBeingDeleted']),
+      ...mapGetters('manageContent', [
+        'installedChannelsWithResources',
+        'channelIsBeingDeleted',
+        'managedTasks',
+      ]),
       ...mapState('manageContent/wizard', ['pageName']),
+      doneTasks() {
+        return this.managedTasks.filter(task => task.status === TaskStatuses.COMPLETED).length;
+      },
       sortedChannels() {
         return sortBy(
           this.installedChannelsWithResources,
@@ -149,6 +156,12 @@
         },
         immediate: true,
         deep: true,
+      },
+      doneTasks(val, oldVal) {
+        // Just refresh the channel list whenever anything finishes to get the latest version
+        if (val > oldVal) {
+          this.refreshChannelList();
+        }
       },
     },
     methods: {

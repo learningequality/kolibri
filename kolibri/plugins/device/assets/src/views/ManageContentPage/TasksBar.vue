@@ -75,14 +75,6 @@
         return this.$tr('someTasksComplete', { done: this.doneTasks, total: this.totalTasks });
       },
     },
-    watch: {
-      doneTasks(val, oldVal) {
-        // Just refresh the channel list whenever anything finishes to get the latest version
-        if (val > oldVal) {
-          this.$store.dispatch('manageContent/refreshChannelList');
-        }
-      },
-    },
     methods: {
       handleClickClearAll() {
         TaskResource.deleteFinishedTasks();
