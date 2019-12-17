@@ -61,9 +61,15 @@ export function annotateNode(node, selectedNodes, forImport = true) {
     };
   }
 
-  if (!(isOmitted || ancestorIsOmitted) && nodeIsIncluded) {
-    const omittedDescendants = selectedNodes.omitted.filter(oNode => isDescedantOf(oNode, node));
+  // HACK Special case that got left out: node is included but has
+  // omitted descendants -> INDETERMINATE (for both import and manage modes)
+  const omittedDescendants = selectedNodes.omitted.filter(oNode => isDescedantOf(oNode, node));
 
+  if (!nodeIsIncluded && omittedDescendants.length > 0) {
+    return indeterminateNode(node);
+  }
+
+  if (!(isOmitted || ancestorIsOmitted) && nodeIsIncluded) {
     // If any descendants are omitted -> UNCHECKED or INDETERMINATE
     if (omittedDescendants.length > 0) {
       // All descendants are omitted -> UNCHECKED
