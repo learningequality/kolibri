@@ -201,7 +201,7 @@
         },
         "pyeverywhere": {
             "git": "https://github.com/kollivier/pyeverywhere",
-            "ref": "ddacab933356f5af15110bb3024e59d0ceaf5338"
+            "ref": "858349075c999506079698d91e273257571105c4"
         },
         "requests": {
             "hashes": [
