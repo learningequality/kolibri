@@ -1,4 +1,5 @@
 import find from 'lodash/find';
+import findLastIndex from 'lodash/findLastIndex';
 import wizard from '../wizard';
 import { TaskTypes, TaskStatuses, taskIsClearable } from '../../constants';
 import actions from './actions';
@@ -43,8 +44,24 @@ export default {
   },
   getters: {
     // Channels that are installed & also "available"
-    installedChannelsWithResources(state) {
-      return state.channelList.filter(channel => channel.available);
+    installedChannelsWithResources(state, getters) {
+      const channels = state.channelList.filter(channel => channel.available);
+
+      return channels.map(channel => {
+        const taskIndex = findLastIndex(getters.managedTasks, task => {
+          return (
+            ![TaskTypes.DISKCONTENTEXPORT, TaskTypes.DISKEXPORT, TaskTypes.DELETECHANNEL].includes(
+              task.type
+            ) &&
+            task.channel_id === channel.id &&
+            task.status === TaskStatuses.COMPLETED
+          );
+        });
+        return {
+          ...channel,
+          taskIndex,
+        };
+      });
     },
     channelIsInstalled(state) {
       return function findChannel(channelId) {

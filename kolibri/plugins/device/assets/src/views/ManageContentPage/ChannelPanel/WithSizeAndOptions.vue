@@ -5,7 +5,20 @@
     :class="{'panel-sm': windowIsSmall}"
     :style="{ borderTop: `1px solid ${$themePalette.grey.v_200}` }"
   >
-    <ChannelDetails :channel="channel" />
+    <ChannelDetails :channel="channel">
+
+      <template v-if="showNewLabel" v-slot:belowname>
+        <div class="private-icons">
+          <span
+            class="new-label"
+            :style="{
+              color: $themeTokens.textInverted,
+              backgroundColor: $themeTokens.success
+            }"
+          >{{ WithImportDetailsStrings.$tr('newLabel') }}</span>
+        </div>
+      </template>
+    </ChannelDetails>
 
     <div
       class="col-2"
@@ -35,7 +48,11 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import ChannelDetails from './ChannelDetails';
+  import WithImportDetails from './WithImportDetails';
+
+  const WithImportDetailsStrings = crossComponentTranslator(WithImportDetails);
 
   export default {
     name: 'WithSizeAndOptions',
@@ -52,10 +69,17 @@
         type: Boolean,
         default: false,
       },
+      showNewLabel: {
+        type: Boolean,
+        required: false,
+      },
     },
     computed: {
       resourcesSizeText() {
         return bytesForHumans(this.channel.on_device_file_size);
+      },
+      WithImportDetailsStrings() {
+        return WithImportDetailsStrings;
       },
     },
     methods: {
@@ -108,6 +132,18 @@
 
   .manage-btn {
     margin: 0;
+  }
+
+  .private-icons {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  .new-label {
+    padding: 2px 5px 2px 4px;
+    margin-left: 8px;
+    font-size: 14px;
+    border-radius: 2px;
   }
 
 </style>

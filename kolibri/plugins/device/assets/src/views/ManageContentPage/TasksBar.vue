@@ -45,13 +45,7 @@
 
   export default {
     name: 'TasksBar',
-    components: {},
     mixins: [commonCoreStrings, responsiveWindowMixin],
-    props: {},
-    data() {
-      return {};
-    },
-
     computed: {
       ...mapGetters('manageContent', ['managedTasks']),
       clearCompletedString() {
@@ -79,6 +73,14 @@
       },
       tasksString() {
         return this.$tr('someTasksComplete', { done: this.doneTasks, total: this.totalTasks });
+      },
+    },
+    watch: {
+      doneTasks(val, oldVal) {
+        // Just refresh the channel list whenever anything finishes to get the latest version
+        if (val > oldVal) {
+          this.$store.dispatch('manageContent/refreshChannelList');
+        }
       },
     },
     methods: {
