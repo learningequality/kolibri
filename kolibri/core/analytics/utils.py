@@ -20,6 +20,7 @@ from django.db.models import Q
 from django.db.models import Sum
 from django.db.models import When
 from django.db.models.functions import Cast
+from django.db.models.functions import Coalesce
 from django.utils.six.moves.urllib.parse import urljoin
 from django.utils.timezone import get_current_timezone
 from django.utils.timezone import localtime
@@ -77,25 +78,23 @@ def variance(data):
     if data:
         # calculate mean
         m = sum(data) / len(data)
-        # return variance
-        return sum((d - m) ** 2 for d in data) / len(data)
+        # return population variance
+        return round(sum((d - m) ** 2 for d in data) / len(data), 2)
     return None
 
 
 def calculate_demographic_stats(dataset_id=None, channel_id=None, learner=True):
     stats = {}
     roles_filter = Q(roles__isnull=False)
-    queryset = FacilityUser.objects.all()
     if learner:
         roles_filter = Q(roles__isnull=True)
+    queryset = FacilityUser.objects.filter(roles_filter)
     # handle stats at facility level
     if dataset_id:
-        queryset = queryset.filter(roles_filter, dataset_id=dataset_id)
+        queryset = queryset.filter(dataset_id=dataset_id)
     # handle stats at channel level
     if channel_id:
-        queryset = queryset.filter(
-            roles_filter, contentsummarylog__channel_id=channel_id
-        ).distinct()
+        queryset = queryset.filter(contentsummarylog__channel_id=channel_id)
 
     # calculate stats if there are USER_THRESHOLD users or more
     if queryset.count() >= USER_THRESHOLD:
@@ -118,55 +117,43 @@ def calculate_demographic_stats(dataset_id=None, channel_id=None, learner=True):
             .annotate(
                 birth_year_int=Cast("birth_year", output_field=IntegerField())
             ).aggregate(
-                # count of male users
-                num_males=Sum(
-                    Case(
-                        When(gender=demographics.MALE, then=1),
-                        output_field=IntegerField(),
-                    )
-                ),
-                # count of female users
-                num_females=Sum(
-                    Case(
-                        When(gender=demographics.FEMALE, then=1),
-                        output_field=IntegerField(),
-                    )
-                ),
-                # count of not specified users
-                num_not_specified_gender=Sum(
-                    Case(
-                        When(gender=demographics.NOT_SPECIFIED, then=1),
-                        output_field=IntegerField(),
-                    )
-                ),
                 # count of deferred users
-                num_deferred_gender=Sum(
-                    Case(
-                        When(Q(gender=demographics.DEFERRED) | Q(gender=""), then=1),
-                        output_field=IntegerField(),
-                    )
+                num_deferred_gender=Coalesce(
+                    Sum(
+                        Case(
+                            When(Q(gender=demographics.DEFERRED), then=1),
+                            output_field=IntegerField(),
+                        )
+                    ),
+                    0,
                 ),
                 # number of users who specified birth year
-                total_specified_birth_year=Sum(
-                    Case(
-                        When(
-                            ~Q(birth_year="")
-                            & ~Q(birth_year=demographics.DEFERRED)
-                            & ~Q(birth_year=demographics.NOT_SPECIFIED),
-                            then=1,
-                        ),
-                        output_field=IntegerField(),
-                    )
+                total_specified_birth_year=Coalesce(
+                    Sum(
+                        Case(
+                            When(
+                                ~Q(birth_year="")
+                                & ~Q(birth_year=demographics.DEFERRED)
+                                & ~Q(birth_year=demographics.NOT_SPECIFIED),
+                                then=1,
+                            ),
+                            output_field=IntegerField(),
+                        )
+                    ),
+                    0,
                 ),
                 # number of users who did NOT specify birth year
-                num_deferred_birth_year=Sum(
-                    Case(
-                        When(
-                            Q(birth_year="") | Q(birth_year=demographics.DEFERRED),
-                            then=1,
-                        ),
-                        output_field=IntegerField(),
-                    )
+                num_deferred_birth_year=Coalesce(
+                    Sum(
+                        Case(
+                            When(
+                                Q(birth_year="") | Q(birth_year=demographics.DEFERRED),
+                                then=1,
+                            ),
+                            output_field=IntegerField(),
+                        )
+                    ),
+                    0,
                 ),
                 # average birth year of users
                 average_birth_year=Avg(
@@ -182,6 +169,8 @@ def calculate_demographic_stats(dataset_id=None, channel_id=None, learner=True):
                 ),
             )
         )
+        # calculate all gender counts
+        gender_counts = queryset.values("gender").annotate(count=Count("gender"))
         # payload of birth year and gender statistics
         stats = {
             "bys": {
@@ -190,12 +179,7 @@ def calculate_demographic_stats(dataset_id=None, channel_id=None, learner=True):
                 "ts": demographic_stats["total_specified_birth_year"],
                 "d": demographic_stats["num_deferred_birth_year"],
             },
-            "gs": {
-                "m": {"count": demographic_stats["num_males"]},
-                "f": {"count": demographic_stats["num_females"]},
-                "ns": {"count": demographic_stats["num_not_specified_gender"]},
-                "d": {"count": demographic_stats["num_deferred_gender"]},
-            },
+            "gs": {gc["gender"]: {"count": gc["count"]} for gc in gender_counts},
         }
     return stats
 
