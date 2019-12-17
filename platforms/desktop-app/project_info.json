@@ -15,5 +15,6 @@
     "window_rect": "((20, 100000), (734, 550))",
     "app_icon_pos": "(210, 210)",
     "apps_icon_pos": "(520, 210)"
-  }
+  },
+  "codesign": {"osx": { "identity": "Apple Distribution: Foundation for Learning Equality, Inc."}}
 }
