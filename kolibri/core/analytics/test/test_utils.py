@@ -44,7 +44,7 @@ USER_CSV_PATH = "kolibri/core/logger/management/commands/user_data.csv"
 
 def mean(data):
     if data:
-        return sum(data) / len(data)
+        return float(sum(data)) / len(data)
     return None
 
 
