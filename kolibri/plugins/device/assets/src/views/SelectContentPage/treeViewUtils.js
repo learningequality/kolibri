@@ -135,11 +135,12 @@ export function annotateNode(node, selectedNodes, forImport = true) {
 
     // Node is not selected, has all children selected -> CHECKED
     if (forImport) {
-      if (fullyTotal === total_resources) {
+      if (fullyTotal - fullyOnDevice === total_resources - on_device_resources) {
         return fullySelectedNode(node);
+      } else {
+        // Node is not selected, has some children selected -> INDETERMINATE
+        return partiallySelectedNode(node);
       }
-      // Node is not selected, has some children selected -> INDETERMINATE
-      return partiallySelectedNode(node);
     } else {
       if (fullyOnDevice === on_device_resources) {
         return fullySelectedNode(node);
