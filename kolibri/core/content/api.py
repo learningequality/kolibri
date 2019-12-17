@@ -217,7 +217,7 @@ class ContentNodeFilter(IdFilter):
         return queryset
 
     def filter_exclude_content_ids(self, queryset, name, value):
-        return queryset.exclude(content_id__in=value.split(","))
+        return queryset.exclude_by_content_ids(value.split(","))
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
