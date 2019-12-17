@@ -18,7 +18,7 @@ from kolibri.core.analytics.models import PingbackNotification
 from kolibri.core.analytics.utils import create_and_update_notifications
 from kolibri.core.analytics.utils import extract_channel_statistics
 from kolibri.core.analytics.utils import extract_facility_statistics
-from kolibri.core.analytics.utils import variance
+from kolibri.core.analytics.utils import standard_deviation
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import facility_presets
 from kolibri.core.auth.constants import role_kinds
@@ -219,7 +219,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
             "dsl": {
                 "bys": {
                     "a": mean(birth_year_list_learners),
-                    "v": variance(birth_year_list_learners),
+                    "sd": standard_deviation(birth_year_list_learners),
                     "ts": 20,
                     "d": 0,
                 },
@@ -286,7 +286,7 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
             "dsl": {
                 "bys": {
                     "a": mean(birth_year_list_learners),
-                    "v": variance(birth_year_list_learners),
+                    "sd": standard_deviation(birth_year_list_learners),
                     "ts": 20,
                     "d": 0,
                 },

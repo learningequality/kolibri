@@ -3,6 +3,7 @@ import datetime
 import hashlib
 import json
 import logging
+import math
 
 import requests
 from django.core.serializers.json import DjangoJSONEncoder
@@ -74,12 +75,12 @@ facility_settings = [
 ]
 
 
-def variance(data):
+def standard_deviation(data):
     if data:
         # calculate mean
         m = sum(data) / len(data)
-        # return population variance
-        return round(sum((d - m) ** 2 for d in data) / len(data), 2)
+        # return population std
+        return round(math.sqrt(sum((d - m) ** 2 for d in data) / len(data)), 2)
     return None
 
 
@@ -183,7 +184,7 @@ def calculate_demographic_stats(dataset_id=None, channel_id=None, learner=True):
         stats = {
             "bys": {
                 "a": demographic_stats["average_birth_year"],
-                "v": variance(list_of_birth_years),
+                "sd": standard_deviation(list_of_birth_years),
                 "ts": demographic_stats["total_specified_birth_year"],
                 "d": demographic_stats["num_deferred_birth_year"],
             },
