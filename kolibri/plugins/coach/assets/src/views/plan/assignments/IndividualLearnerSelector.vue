@@ -99,7 +99,7 @@
   import commonCoachStrings from '../../common';
   import { userMatchesFilter, filterAndSortUsers } from '../../../userSearchUtils';
 
-  const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_PAGE = 50;
 
   export default {
     name: 'IndividualLearnerSelector',
