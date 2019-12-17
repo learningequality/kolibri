@@ -94,7 +94,13 @@ def calculate_demographic_stats(dataset_id=None, channel_id=None, learner=True):
         queryset = queryset.filter(dataset_id=dataset_id)
     # handle stats at channel level
     if channel_id:
-        queryset = queryset.filter(contentsummarylog__channel_id=channel_id)
+        user_ids = (
+            queryset.filter(contentsummarylog__channel_id=channel_id)
+            .distinct()
+            .values_list("id", flat=True)
+        )
+        # pass distinct user_ids as subquery
+        queryset = FacilityUser.objects.filter(id__in=user_ids)
 
     # calculate stats if there are USER_THRESHOLD users or more
     if queryset.count() >= USER_THRESHOLD:
@@ -147,7 +153,9 @@ def calculate_demographic_stats(dataset_id=None, channel_id=None, learner=True):
                     Sum(
                         Case(
                             When(
-                                Q(birth_year="") | Q(birth_year=demographics.DEFERRED),
+                                Q(birth_year="")
+                                | Q(birth_year=demographics.DEFERRED)
+                                | Q(birth_year=demographics.NOT_SPECIFIED),
                                 then=1,
                             ),
                             output_field=IntegerField(),
@@ -179,7 +187,11 @@ def calculate_demographic_stats(dataset_id=None, channel_id=None, learner=True):
                 "ts": demographic_stats["total_specified_birth_year"],
                 "d": demographic_stats["num_deferred_birth_year"],
             },
-            "gs": {gc["gender"]: {"count": gc["count"]} for gc in gender_counts},
+            "gs": {
+                gc["gender"]: {"count": gc["count"]}
+                for gc in gender_counts
+                if gc["gender"] != ""
+            },
         }
     return stats
 
