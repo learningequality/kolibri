@@ -1,5 +1,6 @@
 import find from 'lodash/find';
 import map from 'lodash/map';
+import get from 'lodash/get';
 import partition from 'lodash/partition';
 import { CollectionTypes } from '../../constants/lessonsConstants';
 
@@ -18,14 +19,14 @@ export function partitionCollectionByEvents({
 }) {
   // events array must be homogenous in the Object, Event, Lesson/ContentNode ID
   let partitioned;
-  const { learners, learnerGroups } = classSummary;
+  const { learners, learnerGroups, adHocGroupsMap } = classSummary;
   const eventsUserIds = map(events, 'user_id');
   const userIsInEvent = id => eventsUserIds.includes(id);
 
   if (collectionType === CollectionTypes.CLASSROOM) {
     partitioned = partition(Object.keys(learners), userIsInEvent);
   } else {
-    const match = learnerGroups[collectionId];
+    const match = learnerGroups[collectionId] || adHocGroupsMap[collectionId];
     // If no match, Learner Group must have been deleted
     if (!match) return null;
     partitioned = partition(match.member_ids, userIsInEvent);
@@ -42,7 +43,7 @@ export function partitionCollectionByEvents({
 export function getCollectionsForAssignment({ classSummary, assignment }) {
   let collections = [];
   const { id: assignmentId, type: assignmentType } = assignment;
-  const { exams, lessons, classId, className, learnerGroups } = classSummary;
+  const { exams, lessons, classId, className, learnerGroups, adHocGroupsMap } = classSummary;
   let assignmentMatch;
   if (assignmentType === 'lesson') {
     assignmentMatch = lessons[assignmentId];
@@ -55,9 +56,16 @@ export function getCollectionsForAssignment({ classSummary, assignment }) {
 
   const { groups } = assignmentMatch;
 
+  // Ensure we get assigned ad hoc group if it exists
+  const adHocLearnersGroupId = Object.keys(adHocGroupsMap).find(id =>
+    assignmentMatch.assignments.includes(id)
+  );
+  // Then get the learners for that group, if any, or default to empty array
+  const adHocLearners = get(adHocGroupsMap, [adHocLearnersGroupId, 'member_ids'], []);
+
   // In classSummary, if (exam|lesson).groups is empty, it means it was
-  // assigned to the entire class
-  if (groups.length === 0) {
+  // assigned to the entire class unless there are ad hoc learners assigned
+  if (groups.length === 0 && !adHocLearners.length) {
     // Matches the shape of the Collection API
     collections.push({
       collection_kind: CollectionTypes.CLASSROOM,
@@ -65,16 +73,27 @@ export function getCollectionsForAssignment({ classSummary, assignment }) {
       name: className,
     });
   } else {
-    groups.forEach(groupId => {
-      const groupMatch = learnerGroups[groupId];
-      if (groupMatch) {
-        collections.push({
-          collection_kind: CollectionTypes.LEARNERGROUP,
-          collection: groupMatch.id,
-          name: groupMatch.name,
-        });
-      }
-    });
+    // Either groups.length is not zero, or we have adhoclearners
+    // Cover both possibilities below
+    if (adHocLearners.length) {
+      collections.push({
+        collection_kind: CollectionTypes.ADHOCLEARNERSGROUP,
+        collection: adHocLearnersGroupId,
+        name: 'Individual learner',
+      });
+    }
+    if (groups.length) {
+      groups.forEach(groupId => {
+        const groupMatch = learnerGroups[groupId];
+        if (groupMatch) {
+          collections.push({
+            collection_kind: CollectionTypes.LEARNERGROUP,
+            collection: groupMatch.id,
+            name: groupMatch.name,
+          });
+        }
+      });
+    }
   }
 
   return collections;
