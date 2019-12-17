@@ -120,7 +120,7 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
           completesCollection:
             partitioning.rest.length === 0 &&
             // If the collection kind is ad hoc, always make this false
-            collection.collection_kind == CollectionTypes.ADHOCLEARNERSGROUP,
+            collection.collection_kind !== CollectionTypes.ADHOCLEARNERSGROUP,
         },
       });
     }
