@@ -67,6 +67,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             "version",
             "available",
             "num_coach_contents",
+            "public",
         )
 
 
