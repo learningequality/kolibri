@@ -1,5 +1,4 @@
 import logger from 'kolibri.lib.logging';
-import filter from 'lodash/filter';
 import { TaskResource } from 'kolibri.resources';
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
@@ -14,7 +13,7 @@ function startCSVExport(store, logtype, creating, commitStart) {
   if (!creating) {
     let promise = TaskResource.startexportlogcsv(params);
     return promise.then(task => {
-      store.commit(commitStart, task.entity.id);
+      store.commit(commitStart, task.entity);
       return task.entity.id;
     });
   }
@@ -59,18 +58,13 @@ function getExportedLogsInfo(store) {
 function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitFinish) {
   // if task job has already been fetched, just continually check if its completed
   if (taskId) {
-    const completed = filter(newTasks, {
-      id: taskId,
-    });
-    if (completed.length > 0) {
-      const task = completed[0];
-      if (task.status === TaskStatuses.COMPLETED) {
-        store.commit(commitFinish, new Date());
-        TaskResource.deleteFinishedTasks();
-      }
+    const task = newTasks.find(task => task.id === taskId);
+
+    if (task && task.status === TaskStatuses.COMPLETED) {
+      store.commit(commitFinish, new Date());
     }
   } else {
-    const running = filter(newTasks, function(task) {
+    const running = newTasks.filter(task => {
       return (
         task.type === taskType &&
         task.status !== TaskStatuses.COMPLETED &&
@@ -110,6 +104,12 @@ function refreshTaskList(store) {
         'START_FACILITY_SYNC',
         'SET_FINISH_FACILITY_SYNC'
       );
+
+      const completed = newTasks.filter(task => task.status === TaskStatuses.COMPLETED);
+
+      if (completed.length > 0) {
+        TaskResource.deleteFinishedTasks();
+      }
     })
     .catch(error => {
       logging.error('There was an error while fetching the task list: ', error);
