@@ -120,6 +120,16 @@
     padding: 16px 0;
   }
 
+  svg.lock-icon {
+    width: 24px;
+    height: 24px;
+
+    .panel-sm & {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
   .col-2 {
     min-width: 80px;
     margin-right: 16px;
@@ -146,7 +156,14 @@
 
   .private-icons {
     display: inline-block;
+    margin-top: -3px;
+    margin-bottom: 3px;
     vertical-align: top;
+
+    .panel-sm & {
+      margin-top: -1px;
+      margin-bottom: 1px;
+    }
   }
 
   .new-label {
