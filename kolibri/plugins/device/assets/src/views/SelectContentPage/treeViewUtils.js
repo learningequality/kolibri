@@ -32,6 +32,16 @@ const isDescedantOf = flip(isAncestorOf);
 const sumTotalResources = sumBy('total_resources');
 const sumOnDeviceResources = sumBy('on_device_resources');
 
+// Props shared with all partially-selected nodes
+function partiallySelectedNode(node) {
+  return {
+    ...node,
+    message: translator.$tr('someResourcesSelected'),
+    disabled: false,
+    checkboxType: CheckboxTypes.INDETERMINATE,
+  };
+}
+
 /**
  * Takes a Node, plus contextual data from store, then annotates them with info
  * needed to correctly display it on tree view.
@@ -66,7 +76,7 @@ export function annotateNode(node, selectedNodes, forImport = true) {
   const omittedDescendants = selectedNodes.omitted.filter(oNode => isDescedantOf(oNode, node));
 
   if (!nodeIsIncluded && omittedDescendants.length > 0) {
-    return indeterminateNode(node);
+    return partiallySelectedNode(node);
   }
 
   if (!(isOmitted || ancestorIsOmitted) && nodeIsIncluded) {
@@ -94,24 +104,7 @@ export function annotateNode(node, selectedNodes, forImport = true) {
       }
 
       // Some (but not all) descendants are omitted -> INDETERMINATE
-      let selectedCount;
-      let totalCount;
-      if (forImport) {
-        selectedCount = total_resources - sumTotalResources(omittedDescendants);
-        totalCount = total_resources;
-      } else {
-        selectedCount = on_device_resources - sumOnDeviceResources(omittedDescendants);
-        totalCount = on_device_resources;
-      }
-      return {
-        ...node,
-        message: translator.$tr('fractionOfResourcesSelected', {
-          selected: selectedCount,
-          total: totalCount,
-        }),
-        disabled: false,
-        checkboxType: CheckboxTypes.INDETERMINATE,
-      };
+      return partiallySelectedNode(node);
     }
 
     // Completely selected -> CHECKED
@@ -144,15 +137,7 @@ export function annotateNode(node, selectedNodes, forImport = true) {
         };
       }
       // Node is not selected, has some children selected -> INDETERMINATE
-      return {
-        ...node,
-        message: translator.$tr('fractionOfResourcesSelected', {
-          selected: fullyTotal,
-          total: total_resources,
-        }),
-        disabled: false,
-        checkboxType: CheckboxTypes.INDETERMINATE,
-      };
+      return partiallySelectedNode(node);
     } else {
       if (fullyOnDevice === on_device_resources) {
         return {
@@ -162,15 +147,7 @@ export function annotateNode(node, selectedNodes, forImport = true) {
           checkboxType: CheckboxTypes.CHECKED,
         };
       } else {
-        return {
-          ...node,
-          message: translator.$tr('fractionOfResourcesSelected', {
-            selected: fullyOnDevice,
-            total: on_device_resources,
-          }),
-          disabled: false,
-          checkboxType: CheckboxTypes.INDETERMINATE,
-        };
+        return partiallySelectedNode(node);
       }
     }
   }
