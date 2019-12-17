@@ -26,7 +26,7 @@ from launchpadlib.launchpad import Launchpad
 #
 
 PPA_OWNER = 'learningequality'
-PPA_NAME = 'kolibri-server'
+PPA_NAME = 'kolibri-proposed'
 PACKAGE_WHITELIST = ['kolibri-server-source']
 
 SOURCE_SERIES = 'xenial'
