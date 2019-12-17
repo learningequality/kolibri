@@ -4,6 +4,7 @@ import get from 'lodash/get';
 import find from 'lodash/find';
 import maxBy from 'lodash/maxBy';
 import { NotificationObjects } from '../../constants/notificationsConstants';
+import { CollectionTypes } from '../../constants/lessonsConstants';
 import { partitionCollectionByEvents, getCollectionsForAssignment } from './gettersUtils';
 
 const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
@@ -115,7 +116,10 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
           firstUserName: firstUser.user,
           firstUserId: firstUser.user_id,
           total: partitioning.hasEvent.length,
-          completesCollection: partitioning.rest.length === 0, // not used for Needs Help
+          completesCollection:
+            partitioning.rest.length === 0 &&
+            // If the collection kind is ad hoc, always make this false
+            collection.collection_kind == CollectionTypes.ADHOCLEARNERSGROUP, // not used for Needs Help
         },
       });
     }
