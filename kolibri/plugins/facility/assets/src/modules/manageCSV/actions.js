@@ -62,6 +62,7 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
 
     if (task && task.status === TaskStatuses.COMPLETED) {
       store.commit(commitFinish, new Date());
+      TaskResource.deleteFinishedTask(taskId);
     }
   } else {
     const running = newTasks.filter(task => {
@@ -104,12 +105,6 @@ function refreshTaskList(store) {
         'START_FACILITY_SYNC',
         'SET_FINISH_FACILITY_SYNC'
       );
-
-      const completed = newTasks.filter(task => task.status === TaskStatuses.COMPLETED);
-
-      if (completed.length > 0) {
-        TaskResource.deleteFinishedTasks();
-      }
     })
     .catch(error => {
       logging.error('There was an error while fetching the task list: ', error);

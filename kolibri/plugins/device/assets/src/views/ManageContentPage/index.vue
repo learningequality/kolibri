@@ -49,10 +49,11 @@
 
       <div class="channels-list">
         <ChannelPanel
-          v-for="channel in installedChannelsWithResources"
+          v-for="channel in sortedChannels"
           :key="channel.id"
           :channel="channel"
           :disabled="channelIsBeingDeleted(channel.id)"
+          :showNewLabel="showNewLabel(channel.id)"
           @select_delete="deleteChannelId = channel.id"
           @select_manage="handleSelectManage(channel.id)"
         />
@@ -78,11 +79,12 @@
 
   import find from 'lodash/find';
   import get from 'lodash/get';
+  import sortBy from 'lodash/sortBy';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import taskNotificationMixin from '../taskNotificationMixin';
-  import { PageNames } from '../../constants';
+  import { PageNames, TaskStatuses } from '../../constants';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -105,11 +107,25 @@
     data() {
       return {
         deleteChannelId: null,
+        channelOrders: {},
       };
     },
     computed: {
-      ...mapGetters('manageContent', ['installedChannelsWithResources', 'channelIsBeingDeleted']),
+      ...mapGetters('manageContent', [
+        'installedChannelsWithResources',
+        'channelIsBeingDeleted',
+        'managedTasks',
+      ]),
       ...mapState('manageContent/wizard', ['pageName']),
+      doneTasks() {
+        return this.managedTasks.filter(task => task.status === TaskStatuses.COMPLETED).length;
+      },
+      sortedChannels() {
+        return sortBy(
+          this.installedChannelsWithResources,
+          channel => -this.channelOrders[channel.id]
+        );
+      },
       channelsAreInstalled() {
         return this.installedChannelsWithResources.length > 0;
       },
@@ -127,6 +143,27 @@
         ];
       },
     },
+    watch: {
+      installedChannelsWithResources: {
+        // Save channel orders that are set temporarily based on managedTasks
+        handler(val) {
+          val.forEach(channel => {
+            const currentOrder = this.channelOrders[channel.id];
+            if ((!currentOrder && channel.taskIndex > -1) || currentOrder < channel.taskIndex) {
+              this.$set(this.channelOrders, channel.id, channel.taskIndex);
+            }
+          });
+        },
+        immediate: true,
+        deep: true,
+      },
+      doneTasks(val, oldVal) {
+        // Just refresh the channel list whenever anything finishes to get the latest version
+        if (val > oldVal) {
+          this.refreshChannelList();
+        }
+      },
+    },
     methods: {
       ...mapActions('manageContent', ['refreshChannelList', 'startImportWorkflow']),
       handleSelect({ value }) {
@@ -136,6 +173,10 @@
           REARRANGE: PageNames.REARRANGE_CHANNELS,
         }[value];
         this.$router.push(this.$router.getRoute(nextRoute));
+      },
+      showNewLabel(channelId) {
+        const match = find(this.installedChannelsWithResources, { id: channelId });
+        return match && match.taskIndex > -1;
       },
       handleDeleteChannel() {
         if (this.deleteChannelId) {

@@ -14,6 +14,7 @@
         <h1>
           <KLabeledIcon icon="channel" :label="channel.name" />
           <KIcon
+            v-if="channel.public === false"
             ref="lockicon"
             class="lock-icon"
             icon="unlistedchannel"

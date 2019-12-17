@@ -10,7 +10,7 @@ import { getChannelWithContentSizes } from '../apiChannelMetadata';
 export function loadChannelMetadata(store) {
   let dbPromise;
   const { transferredChannel } = store.state.manageContent.wizard;
-  const channelOnDevice = store.getters['manageContent/channelIsInstalled'](transferredChannel.id);
+  const channelOnDevice = store.getters['manageContent/channelIsOnDevice'](transferredChannel.id);
 
   // If channel _is_ on the device, but not "available" (i.e. no resources installed yet)
   // _and_ has been updated, then download the metadata
