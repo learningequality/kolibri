@@ -3,108 +3,107 @@ msgstr ""
 "Project-Id-Version: kolibri-mac-app\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-10-29 08:54-0700\n"
-"PO-Revision-Date: 2019-12-05 17:50\n"
-"Last-Translator: learningequality\n"
+"PO-Revision-Date: 2019-12-17 04:35\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Persian\n"
 "Language: fa_IR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri-mac-app\n"
 "X-Crowdin-Language: fa\n"
 "X-Crowdin-File: macapp.pot\n"
 
 #: src/main.py:190
 msgid "File"
-msgstr ""
+msgstr "فایل"
 
 #: src/main.py:191
 msgid "New Window"
-msgstr ""
+msgstr "پنجره‌ی جدید"
 
 #: src/main.py:192
 msgid "Close Window"
-msgstr ""
+msgstr "بستن پنجره"
 
 #: src/main.py:194
 msgid "Open Kolibri Home Folder"
-msgstr ""
+msgstr "باز کردن پوشه‌ی کُلیبری"
 
 #: src/main.py:198
 msgid "Edit"
-msgstr ""
+msgstr "ویرایش"
 
 #: src/main.py:199
 msgid "Undo"
-msgstr ""
+msgstr "بازگرد"
 
 #: src/main.py:200
 msgid "Redo"
-msgstr ""
+msgstr "انجام دوباره"
 
 #: src/main.py:202
 msgid "Cut"
-msgstr ""
+msgstr "برش"
 
 #: src/main.py:203
 msgid "Copy"
-msgstr ""
+msgstr "کپی"
 
 #: src/main.py:204
 msgid "Paste"
-msgstr ""
+msgstr "جای‌گذاری"
 
 #: src/main.py:205
 msgid "Select All"
-msgstr ""
+msgstr "انتخاب همه موارد"
 
 #: src/main.py:208
 msgid "View"
-msgstr ""
+msgstr "مشاهده"
 
 #: src/main.py:209
 msgid "Reload"
-msgstr ""
+msgstr "بارگزاری مجدد"
 
 #: src/main.py:210
 msgid "Actual Size"
-msgstr ""
+msgstr "اندازه واقعی"
 
 #: src/main.py:211
 msgid "Zoom In"
-msgstr ""
+msgstr "بزرگ‌نمایی"
 
 #: src/main.py:212
 msgid "Zoom Out"
-msgstr ""
+msgstr "کوچک‌نمایی"
 
 #: src/main.py:214
 msgid "Open in Browser"
-msgstr ""
+msgstr "باز کردن در مرورگر"
 
 #: src/main.py:217
 msgid "History"
-msgstr ""
+msgstr "پيشينه"
 
 #: src/main.py:218
 msgid "Back"
-msgstr ""
+msgstr "بازگشت"
 
 #: src/main.py:219
 msgid "Forward"
-msgstr ""
+msgstr "به جلو"
 
 #: src/main.py:222
 msgid "Help"
-msgstr ""
+msgstr "راهنما"
 
 #: src/main.py:223
 msgid "Documentation"
-msgstr ""
+msgstr "مستندات"
 
 #: src/main.py:224
 msgid "Community Forums"
-msgstr ""
+msgstr "انجمن‌های گفتگو"
 

@@ -3,15 +3,14 @@ msgstr ""
 "Project-Id-Version: kolibri-mac-app\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-10-29 08:54-0700\n"
-"PO-Revision-Date: 2019-12-05 17:51\n"
-"Last-Translator: learningequality\n"
+"PO-Revision-Date: 2019-12-17 04:35\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Yoruba\n"
 "Language: yo_NG\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri-mac-app\n"
 "X-Crowdin-Language: yo\n"
 "X-Crowdin-File: macapp.pot\n"
@@ -22,15 +21,15 @@ msgstr "Fáìlì"
 
 #: src/main.py:191
 msgid "New Window"
-msgstr "Férésé túntún"
+msgstr "Ìlujá túntún"
 
 #: src/main.py:192
 msgid "Close Window"
-msgstr "Pá férésé de"
+msgstr "Pá ìlujá dé"
 
 #: src/main.py:194
 msgid "Open Kolibri Home Folder"
-msgstr "Ṣí àpámó Kolibri Home"
+msgstr "Ṣí fáìlì Kolibri Home"
 
 #: src/main.py:198
 msgid "Edit"
@@ -38,7 +37,7 @@ msgstr "Ṣàtúnṣe"
 
 #: src/main.py:199
 msgid "Undo"
-msgstr "Dàá padà"
+msgstr "Dàa padà"
 
 #: src/main.py:200
 msgid "Redo"
@@ -82,7 +81,7 @@ msgstr "Fàá si ita"
 
 #: src/main.py:214
 msgid "Open in Browser"
-msgstr "Ṣìí ninu aṣàwákiri"
+msgstr "Ṣíi ninu browser"
 
 #: src/main.py:217
 msgid "History"
