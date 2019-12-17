@@ -9,7 +9,7 @@ translations:
 	@echo "Ensure to set the project crowdin api in env variable called CROWDIN_API_KEY"
 	@echo "Also remember the project must have been built in crowdin to have the changes applied"
 	@wget -O nginx_error_page/all.zip https://api.crowdin.com/api/project/kolibri-server/download/all.zip?key=$$CROWDIN_API_KEY
-	@unzip -fo -d nginx_error_page nginx_error_page/all.zip
+	@unzip -o -d nginx_error_page nginx_error_page/all.zip
 	@rm -f nginx_error_page/all.zip
 	@echo "Don't forget to update nginx.conf if new translations have been added"
 

@@ -1,4 +1,10 @@
-kolibri-server (0.3.5-0ubuntu1) UNRELEASED; urgency=medium
+kolibri-server (0.3.6-0ubuntu1) bionic; urgency=medium
+
+  * New release with multiple new translations added
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 17 Dec 2019 09:58:06 +0100
+
+kolibri-server (0.3.5-0ubuntu1) bionic; urgency=medium
 
   * Some optimizations in nginx configuration
 
