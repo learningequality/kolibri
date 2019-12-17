@@ -162,7 +162,7 @@ class DeviceChannelOrderView(APIView):
             raise ParseError(
                 "Expected {} ids, but only received {}".format(total_channels, len(ids))
             )
-        if queryset.filter(id__in=ids).count() != len(ids):
+        if queryset.filter_by_uuids(ids).count() != len(ids):
             raise ParseError(
                 "List of ids does not match the available channels on the server"
             )

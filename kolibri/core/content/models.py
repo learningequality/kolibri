@@ -30,6 +30,7 @@ from django.db import connection
 from django.db import models
 from django.db.models import Min
 from django.db.models import Q
+from django.db.models import QuerySet
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
 from le_utils.constants import content_kinds
@@ -186,7 +187,7 @@ class File(base_models.File):
         )
 
 
-class LocalFileManager(models.Manager):
+class LocalFileManager(models.Manager, FilterByUUIDQuerysetMixin):
     def delete_unused_files(self):
         for file in self.get_unused_files():
             try:
@@ -260,6 +261,10 @@ class AssessmentMetaData(base_models.AssessmentMetaData):
     pass
 
 
+class ChannelMetadataQueryset(QuerySet, FilterByUUIDQuerysetMixin):
+    pass
+
+
 @python_2_unicode_compatible
 class ChannelMetadata(base_models.ChannelMetadata):
     """
@@ -274,6 +279,8 @@ class ChannelMetadata(base_models.ChannelMetadata):
     )
     order = models.PositiveIntegerField(default=0, null=True, blank=True)
     public = models.NullBooleanField()
+
+    objects = ChannelMetadataQueryset.as_manager()
 
     class Admin:
         pass
