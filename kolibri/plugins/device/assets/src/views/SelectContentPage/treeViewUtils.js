@@ -52,6 +52,16 @@ function fullySelectedNode(node) {
   };
 }
 
+// Props shared with all unselected nodes
+function unselectedNode(node) {
+  return {
+    ...node,
+    message: '',
+    disabled: false,
+    checkboxType: CheckboxTypes.UNCHECKED,
+  };
+}
+
 /**
  * Takes a Node, plus contextual data from store, then annotates them with info
  * needed to correctly display it on tree view.
@@ -74,10 +84,9 @@ export function annotateNode(node, selectedNodes, forImport = true) {
   // Completely on device -> DISABLED
   if (forImport && on_device_resources === total_resources) {
     return {
-      ...node,
-      message: translator.$tr('alreadyOnYourDevice'),
+      ...fullySelectedNode(node),
       disabled: true,
-      checkboxType: CheckboxTypes.CHECKED,
+      message: translator.$tr('alreadyOnYourDevice'),
     };
   }
 
@@ -105,12 +114,7 @@ export function annotateNode(node, selectedNodes, forImport = true) {
       }
 
       if (allDescendantsOmitted) {
-        return {
-          ...node,
-          message: '',
-          disabled: false,
-          checkboxType: CheckboxTypes.UNCHECKED,
-        };
+        return unselectedNode(node);
       }
 
       // Some (but not all) descendants are omitted -> INDETERMINATE
@@ -149,23 +153,16 @@ export function annotateNode(node, selectedNodes, forImport = true) {
     // Node has some (but not all) resources on device -> UNCHECKED (w/ message).
     // Node with all resources on device handled at top of this function.
     return {
-      ...node,
+      ...unselectedNode(node),
       message: translator.$tr('fractionOfResourcesOnDevice', {
         onDevice: on_device_resources,
         total: total_resources,
       }),
-      disabled: false,
-      checkboxType: CheckboxTypes.UNCHECKED,
     };
   }
 
   // Node is not selected, has no children, is not on device -> UNCHECKED
-  return {
-    ...node,
-    message: '',
-    disabled: false,
-    checkboxType: CheckboxTypes.UNCHECKED,
-  };
+  return unselectedNode(node);
 }
 
 /**
