@@ -42,6 +42,16 @@ function partiallySelectedNode(node) {
   };
 }
 
+// Props shared with all fully-selected nodes
+function fullySelectedNode(node) {
+  return {
+    ...node,
+    message: translator.$tr('allResourcesSelected'),
+    disabled: false,
+    checkboxType: CheckboxTypes.CHECKED,
+  };
+}
+
 /**
  * Takes a Node, plus contextual data from store, then annotates them with info
  * needed to correctly display it on tree view.
@@ -108,14 +118,7 @@ export function annotateNode(node, selectedNodes, forImport = true) {
     }
 
     // Completely selected -> CHECKED
-    return {
-      ...node,
-      message: translator.$tr('resourcesSelected', {
-        total: forImport ? total_resources : on_device_resources,
-      }),
-      disabled: false,
-      checkboxType: CheckboxTypes.CHECKED,
-    };
+    return fullySelectedNode(node);
   }
 
   const fullyIncludedDescendants = selectedNodes.included
@@ -129,23 +132,13 @@ export function annotateNode(node, selectedNodes, forImport = true) {
     // Node is not selected, has all children selected -> CHECKED
     if (forImport) {
       if (fullyTotal === total_resources) {
-        return {
-          ...node,
-          message: translator.$tr('resourcesSelected', { total: total_resources }),
-          disabled: false,
-          checkboxType: CheckboxTypes.CHECKED,
-        };
+        return fullySelectedNode(node);
       }
       // Node is not selected, has some children selected -> INDETERMINATE
       return partiallySelectedNode(node);
     } else {
       if (fullyOnDevice === on_device_resources) {
-        return {
-          ...node,
-          message: translator.$tr('resourcesSelected', { total: on_device_resources }),
-          disabled: false,
-          checkboxType: CheckboxTypes.CHECKED,
-        };
+        return fullySelectedNode(node);
       } else {
         return partiallySelectedNode(node);
       }
