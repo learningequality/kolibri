@@ -18,6 +18,7 @@ from kolibri.core.analytics.models import PingbackNotification
 from kolibri.core.analytics.utils import create_and_update_notifications
 from kolibri.core.analytics.utils import extract_channel_statistics
 from kolibri.core.analytics.utils import extract_facility_statistics
+from kolibri.core.analytics.utils import variance
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import facility_presets
 from kolibri.core.auth.constants import role_kinds
@@ -39,6 +40,12 @@ from kolibri.core.logger.utils import user_data
 
 
 USER_CSV_PATH = "kolibri/core/logger/management/commands/user_data.csv"
+
+
+def mean(data):
+    if data:
+        return sum(data) / len(data)
+    return None
 
 
 class BaseDeviceSetupMixin(object):
@@ -164,11 +171,6 @@ class BaseDeviceSetupMixin(object):
                             correct=1,
                             content_id=uuid.uuid4().hex,
                         )
-            # generate some simple birth year stats
-            FacilityUser.objects.update(birth_year="1970")
-            for user in FacilityUser.objects.all()[:11]:
-                user.birth_year = "1971"
-                user.save()
 
 
 class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
@@ -176,6 +178,12 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
         facility = self.facilities[0]
         actual = extract_facility_statistics(facility)
         facility_id_hash = actual.pop("fi")
+        birth_year_list_learners = [
+            int(year)
+            for year in FacilityUser.objects.filter(roles__isnull=True).values_list(
+                "birth_year", flat=True
+            )
+        ]
         # just assert the beginning hex values of the facility id don't match
         self.assertFalse(facility_id_hash.startswith(facility.id[:3]))
         expected = {
@@ -209,28 +217,17 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
             "sut": 20,  # sess_user_time
             "sat": 20,  # sess_anon_time
             "dsl": {
-                "bys": {"a": 1970.5, "v": 0.25, "ts": 20, "d": None},
+                "bys": {
+                    "a": mean(birth_year_list_learners),
+                    "v": variance(birth_year_list_learners),
+                    "ts": 20,
+                    "d": 0,
+                },
                 "gs": {
-                    "m": {
-                        "count": FacilityUser.objects.filter(
-                            gender=demographics.MALE
-                        ).count()
-                    },
-                    "f": {
-                        "count": FacilityUser.objects.filter(
-                            gender=demographics.FEMALE
-                        ).count()
-                    },
-                    "ns": {
-                        "count": FacilityUser.objects.filter(
-                            gender=demographics.NOT_SPECIFIED
-                        ).count()
-                    },
-                    "d": {
-                        "count": FacilityUser.objects.filter(
-                            gender=demographics.DEFERRED
-                        ).count()
-                    },
+                    gender: {
+                        "count": FacilityUser.objects.filter(gender=gender).count()
+                    }
+                    for (gender, _) in demographics.choices
                 },
             },
             "dsnl": {},
@@ -266,6 +263,12 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
 class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
     def test_extract_channel_statistics(self):
         actual = extract_channel_statistics(self.channel)
+        birth_year_list_learners = [
+            int(year)
+            for year in FacilityUser.objects.filter(
+                roles__isnull=True, contentsummarylog__channel_id=self.channel.id
+            ).values_list("birth_year", flat=True)
+        ]
         expected = {
             "ci": self.channel.id[:10],  # channel_id
             "v": 0,  # version
@@ -281,32 +284,19 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
             "sut": 20,  # sess_user_time
             "sat": 20,  # sess_anon_time
             "dsl": {
-                "bys": {"a": 1970.5, "v": 0.25, "ts": 20, "d": None},
+                "bys": {
+                    "a": mean(birth_year_list_learners),
+                    "v": variance(birth_year_list_learners),
+                    "ts": 20,
+                    "d": 0,
+                },
                 "gs": {
-                    "m": {
+                    gender: {
                         "count": FacilityUser.objects.filter(
-                            contentsummarylog__channel_id=self.channel.id,
-                            gender=demographics.MALE,
+                            contentsummarylog__channel_id=self.channel.id, gender=gender
                         ).count()
-                    },
-                    "f": {
-                        "count": FacilityUser.objects.filter(
-                            contentsummarylog__channel_id=self.channel.id,
-                            gender=demographics.FEMALE,
-                        ).count()
-                    },
-                    "ns": {
-                        "count": FacilityUser.objects.filter(
-                            contentsummarylog__channel_id=self.channel.id,
-                            gender=demographics.NOT_SPECIFIED,
-                        ).count()
-                    },
-                    "d": {
-                        "count": FacilityUser.objects.filter(
-                            contentsummarylog__channel_id=self.channel.id,
-                            gender=demographics.DEFERRED,
-                        ).count()
-                    },
+                    }
+                    for (gender, _) in demographics.choices
                 },
             },
             "dsnl": {},
