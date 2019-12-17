@@ -282,6 +282,16 @@ def run_server(port, serve_http=True):
     pid_plugin = CleanUpPIDPlugin(cherrypy.engine)
     pid_plugin.subscribe()
 
+    process_pid = os.getpid()
+
+    original_handler = cherrypy.engine.signal_handler._handle_signal
+
+    def handler(signum, frame):
+        if os.getpid() == process_pid:
+            original_handler(signum, frame)
+
+    cherrypy.engine.signal_handler._handle_signal = handler
+
     cherrypy.engine.signal_handler.handlers.update(
         {
             "SIGINT": cherrypy.engine.exit,
