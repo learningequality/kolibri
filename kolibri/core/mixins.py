@@ -4,6 +4,7 @@ Mixins for Django REST Framework ViewSets
 from uuid import UUID
 
 from django.db import connection
+from django.db.models import QuerySet
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -57,6 +58,22 @@ class FilterByUUIDQuerysetMixin(object):
     """
 
     def filter_by_uuids(self, ids, validate=True):
+        id_field = self.model._meta.pk.attname
+        return self._by_uuids(ids, validate, id_field, True)
+
+    def exclude_by_uuids(self, ids, validate=True):
+        id_field = self.model._meta.pk.attname
+        return self._by_uuids(ids, validate, id_field, False)
+
+    def _by_uuids(self, ids, validate, field_name, include):
+        if isinstance(ids, QuerySet):
+            # If we have been passed a queryset, we can shortcut and just filter by the field name
+            # on the queryset itself.
+            kwargs = {"{}__in".format(field_name): ids}
+            if include:
+                return self.filter(**kwargs)
+            else:
+                return self.exclude(**kwargs)
         # make a copy of the passed in list
         ids_list = list(ids)
         for (idx, identifier) in enumerate(ids_list):
@@ -72,5 +89,12 @@ class FilterByUUIDQuerysetMixin(object):
             elif connection.vendor == "postgresql":
                 ids_list[idx] = "'{}'::uuid".format(identifier)
         query_string = ",".join(ids_list)
-        where_clause = "id in ({})".format(query_string)
+        column_name = self.model._meta.get_field(field_name).column
+        if include:
+            where_template = '"{}"."{}" in ({})'
+        else:
+            where_template = '"{}"."{}" not in ({})'
+        where_clause = where_template.format(
+            self.model._meta.db_table, column_name, query_string
+        )
         return self.extra(where=[where_clause])

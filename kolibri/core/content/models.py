@@ -62,11 +62,17 @@ class ContentNodeQueryset(TreeQuerySet, FilterByUUIDQuerysetMixin):
                 .annotate(node_id=Min("id"))
                 .values_list("node_id", flat=True)
             )
-            return self.filter(id__in=deduped_ids)
+            return self.filter_by_uuids(deduped_ids)
 
         # when using postgres, we can call distinct on a specific column
         elif connection.vendor == "postgresql":
             return self.order_by("content_id").distinct("content_id")
+
+    def filter_by_content_ids(self, content_ids, validate=True):
+        return self._by_uuids(content_ids, validate, "content_id", True)
+
+    def exclude_by_content_ids(self, content_ids, validate=True):
+        return self._by_uuids(content_ids, validate, "content_id", False)
 
 
 class ContentNodeManager(
