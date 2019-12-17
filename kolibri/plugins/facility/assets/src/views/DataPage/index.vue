@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <KPageContainer>
+    <KPageContainer v-if="!cannotDownload">
       <KGrid gutter="48">
 
         <KGridItem>
