@@ -112,7 +112,9 @@ def calculate_demographic_stats(dataset_id=None, channel_id=None, learners=True)
         # calculate all gender counts
         gender_counts = queryset.values("gender").annotate(count=Count("gender"))
 
-        year_stats = calculate_list_stats([int(year) for year in list_of_birth_years if year.isdigit()])
+        year_stats = calculate_list_stats(
+            [int(year) for year in list_of_birth_years if year.isdigit()]
+        )
 
         # payload of birth year and gender statistics
         stats = {
