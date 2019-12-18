@@ -160,9 +160,6 @@ export function showLessonResourceContentPreview(store, params) {
   const { classId, lessonId, contentId } = params;
   return store.dispatch('loading').then(() => {
     return _prepLessonContentPreview(store, classId, lessonId, contentId).then(() => {
-      store.commit('SET_TOOLBAR_ROUTE', {
-        name: LessonsPageNames.RESOURCE_USER_SUMMARY,
-      });
       store.dispatch('notLoading');
     });
   });
