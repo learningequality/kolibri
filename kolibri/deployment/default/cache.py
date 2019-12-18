@@ -2,12 +2,18 @@ import copy
 import os
 import sys
 
+from diskcache import Cache
+
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import OPTIONS
 
 cache_options = OPTIONS["Cache"]
 
+pickle_protocol = OPTIONS["Python"]["PICKLE_PROTOCOL"]
+
 diskcache_location = os.path.join(KOLIBRI_HOME, "process_cache")
+
+diskcache_cache = Cache(diskcache_location, disk_pickle_protocol=pickle_protocol)
 
 # Default to LocMemCache, as it has the simplest configuration
 default_cache = {
@@ -32,7 +38,11 @@ built_files_cache = {
 process_cache = {
     "BACKEND": "diskcache.DjangoCache",
     "LOCATION": diskcache_location,
-    "OPTIONS": {"MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"]},
+    "OPTIONS": {
+        "MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"],
+        # Pin pickle protocol for Python 2 compatibility
+        "disk_pickle_protocol": pickle_protocol,
+    },
 }
 
 
@@ -49,6 +59,8 @@ if cache_options["CACHE_BACKEND"] == "redis":
         "OPTIONS": {
             "PASSWORD": cache_options["CACHE_PASSWORD"],
             "MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"],
+            # Pin pickle protocol for Python 2 compatibility
+            "PICKLE_VERSION": pickle_protocol,
         },
     }
     default_cache = copy.deepcopy(base_cache)

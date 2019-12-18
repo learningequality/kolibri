@@ -16,6 +16,7 @@ from kolibri.core.tasks.job import State
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.storage import StorageMixin
 from kolibri.core.tasks.utils import InfiniteLoopThread
+from kolibri.utils.conf import OPTIONS
 
 Base = declarative_base()
 
@@ -41,7 +42,7 @@ class ScheduledJob(Base):
     queue = Column(String, index=True)
 
     # The original Job object, pickled here for so we can easily access it.
-    obj = Column(PickleType(protocol=2))
+    obj = Column(PickleType(protocol=OPTIONS["Python"]["PICKLE_PROTOCOL"]))
 
     scheduled_time = Column(DateTime())
 
