@@ -254,13 +254,10 @@
         }
         // Update the users associated with the AdHocGroup then proceed
         // with form submission
-        this.handleAdHocLearnersGroupPromise()
-          .then(() =>
-            this.$store.dispatch(
-              'adHocLearners/updateLearnersInAdHocLearnersGroup',
-              this.adHocLearners
-            )
-          )
+        return this.handleAdHocLearnersGroupPromise()
+          .then(() => {
+            return this.handleUpdateAdHocLearnersGroupPromise();
+          })
           .then(() => {
             if (this.formIsValid) {
               if (!this.detailsHaveChanged) {
@@ -283,6 +280,12 @@
               classId: this.classId,
             })
           : Promise.resolve();
+      },
+      handleUpdateAdHocLearnersGroupPromise() {
+        return this.$store.dispatch(
+          'adHocLearners/updateLearnersInAdHocLearnersGroup',
+          this.adHocLearners
+        );
       },
       /**
        * @public
