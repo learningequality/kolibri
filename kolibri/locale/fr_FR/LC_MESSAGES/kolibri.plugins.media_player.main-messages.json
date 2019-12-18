@@ -27,7 +27,7 @@
   "MediaPlayerTranscript.transcriptBeginning": "Début de la transcription",
   "MediaPlayerTranscript.transcriptEnd": "Fin de la transcription",
   "SubtitlesMenuItem.subtitles": "Sous-titres",
-  "TranscriptCue.textLabel": "Texte de la légende de la transcription",
+  "TranscriptCue.textLabel": "Texte de la légende actuelle",
   "TranscriptCue.timeLabel": "Heure de début de la transcription",
   "TranscriptCue.title": "Pointer vers {startTime}",
   "TranscriptMenuItem.transcript": "Transcription"

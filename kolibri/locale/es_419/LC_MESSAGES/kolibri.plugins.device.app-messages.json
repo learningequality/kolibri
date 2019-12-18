@@ -257,7 +257,7 @@
   "WelcomeModal.welcomeButtonDismissText": "Aceptar",
   "WelcomeModal.welcomeModalContentDescription": "La primera cosa que debe hacer es importar recursos desde la pestaña Canales.",
   "WelcomeModal.welcomeModalHeader": "¡Le damos la bienvenida a Kolibri!",
-  "WelcomeModal.welcomeModalPermissionsDescription": "La cuenta de super administrador que creaste durante la instalación tiene permisos especiales para hacer esto. Para más detalles consultar la pestaña Permisos.",
+  "WelcomeModal.welcomeModalPermissionsDescription": "La cuenta de super administrador que ha creado durante la instalación tiene permisos especiales para hacer esto. Para más detalles consultar la pestaña Permisos.",
   "WithCheckbox.resourcesOnDevice": "Recursos en el dispositivo",
   "WithImportDetails.channelSelectedNoFileSize": "Seleccionado",
   "WithImportDetails.channelSelectedWithFileSize": "{bytesText} seleccionado",

@@ -185,7 +185,7 @@
   "TaskPanel.deleteChannelWhole": "Mu '{channelName}' kuro",
   "TaskPanel.deletePartialRatio": "{currentResources} of {totalResources} {totalResources, plural, one {resource} other {resources}} ({currentSize} of {totalSize}) deleted",
   "TaskPanel.deleteSuccess": "{totalResources} {totalResources, plural, one {resource} other {resources}} ({totalSize}) kuro",
-  "TaskPanel.exportChannelPartial": "{Sagbejade àkoonú lati {Oruko Ìkànnì}",
+  "TaskPanel.exportChannelPartial": "{Sagbejade àkoonú lati '{channelName}'",
   "TaskPanel.exportChannelWhole": "Sagbejade '{channelName}'",
   "TaskPanel.exportPartialRatio": "{currentResources} of {totalResources} {totalResources, plural, one {resource} other {resources}} ({currentSize} of {totalSize}) je gbigbe jade",
   "TaskPanel.exportSuccess": "{totalResources} {totalResources, plural, one {resource} other {resources}} ({totalSize}) je gbigbe jade",
