@@ -9,19 +9,11 @@ import requests
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection
 from django.db import transaction
-from django.db.models import Avg
-from django.db.models import Case
 from django.db.models import Count
-from django.db.models import F
-from django.db.models import FloatField
-from django.db.models import IntegerField
 from django.db.models import Max
 from django.db.models import Min
 from django.db.models import Q
 from django.db.models import Sum
-from django.db.models import When
-from django.db.models.functions import Cast
-from django.db.models.functions import Coalesce
 from django.utils.six.moves.urllib.parse import urljoin
 from django.utils.timezone import get_current_timezone
 from django.utils.timezone import localtime
@@ -75,24 +67,33 @@ facility_settings = [
 ]
 
 
-def standard_deviation(data):
+def calculate_list_stats(data):
     if data:
+        results = {}
+        results["count"] = len(data)
         # calculate mean
-        m = sum(data) / len(data)
-        # return population std
-        return round(math.sqrt(sum((d - m) ** 2 for d in data) / len(data)), 2)
-    return None
+        results["mean"] = float(sum(data)) / results["count"]
+        # calculate std
+        results["std"] = round(
+            math.sqrt(sum((d - results["mean"]) ** 2 for d in data) / results["count"]),
+            2,
+        )
+        return results
+    return {"count": None, "mean": None, "std": None}
 
 
-def calculate_demographic_stats(dataset_id=None, channel_id=None, learner=True):
+def calculate_demographic_stats(dataset_id=None, channel_id=None, learners=True):
+
     stats = {}
-    roles_filter = Q(roles__isnull=False)
-    if learner:
-        roles_filter = Q(roles__isnull=True)
+
+    # if learners=True, only include learners, otherwise only non-learners
+    roles_filter = Q(roles__isnull=learners)
     queryset = FacilityUser.objects.filter(roles_filter)
+
     # handle stats at facility level
     if dataset_id:
         queryset = queryset.filter(dataset_id=dataset_id)
+
     # handle stats at channel level
     if channel_id:
         user_ids = (
@@ -105,93 +106,25 @@ def calculate_demographic_stats(dataset_id=None, channel_id=None, learner=True):
 
     # calculate stats if there are USER_THRESHOLD users or more
     if queryset.count() >= USER_THRESHOLD:
-        # get list of all birth years to calculate variance
-        list_of_birth_years = (
-            queryset.exclude(
-                Q(birth_year="")
-                | Q(birth_year=demographics.NOT_SPECIFIED)
-                | Q(birth_year=demographics.DEFERRED)
-            )
-            # convert birth year to integer
-            .annotate(
-                birth_year_int=Cast("birth_year", output_field=IntegerField())
-            ).values_list("birth_year_int", flat=True)
-        )
+        # get list of all birth years
+        list_of_birth_years = list(queryset.values_list("birth_year", flat=True))
 
-        demographic_stats = (
-            queryset
-            # convert birth year to integer
-            .annotate(
-                birth_year_int=Cast("birth_year", output_field=IntegerField())
-            ).aggregate(
-                # count of deferred users
-                num_deferred_gender=Coalesce(
-                    Sum(
-                        Case(
-                            When(Q(gender=demographics.DEFERRED), then=1),
-                            output_field=IntegerField(),
-                        )
-                    ),
-                    0,
-                ),
-                # number of users who specified birth year
-                total_specified_birth_year=Coalesce(
-                    Sum(
-                        Case(
-                            When(
-                                ~Q(birth_year="")
-                                & ~Q(birth_year=demographics.DEFERRED)
-                                & ~Q(birth_year=demographics.NOT_SPECIFIED),
-                                then=1,
-                            ),
-                            output_field=IntegerField(),
-                        )
-                    ),
-                    0,
-                ),
-                # number of users who did NOT specify birth year
-                num_deferred_birth_year=Coalesce(
-                    Sum(
-                        Case(
-                            When(
-                                Q(birth_year="")
-                                | Q(birth_year=demographics.DEFERRED)
-                                | Q(birth_year=demographics.NOT_SPECIFIED),
-                                then=1,
-                            ),
-                            output_field=IntegerField(),
-                        )
-                    ),
-                    0,
-                ),
-                # average birth year of users
-                average_birth_year=Avg(
-                    Case(
-                        When(
-                            ~Q(birth_year="")
-                            & ~Q(birth_year=demographics.DEFERRED)
-                            & ~Q(birth_year=demographics.NOT_SPECIFIED),
-                            then=F("birth_year_int"),
-                        )
-                    ),
-                    output_field=FloatField(),
-                ),
-            )
-        )
         # calculate all gender counts
         gender_counts = queryset.values("gender").annotate(count=Count("gender"))
+
+        year_stats = calculate_list_stats([int(year) for year in list_of_birth_years if year.isdigit()])
+
         # payload of birth year and gender statistics
         stats = {
             "bys": {
-                "a": demographic_stats["average_birth_year"],
-                "sd": standard_deviation(list_of_birth_years),
-                "ts": demographic_stats["total_specified_birth_year"],
-                "d": demographic_stats["num_deferred_birth_year"],
+                "a": year_stats["mean"],
+                "sd": year_stats["std"],
+                "ts": year_stats["count"],
+                "d": list_of_birth_years.count(demographics.DEFERRED),
+                "ns": list_of_birth_years.count(demographics.NOT_SPECIFIED),
             },
-            "gs": {
-                gc["gender"]: {"count": gc["count"]}
-                for gc in gender_counts
-                if gc["gender"] != ""
+            "gc": {
+                gc["gender"]: gc["count"] for gc in gender_counts if gc["gender"] != ""
             },
         }
     return stats
@@ -262,11 +195,11 @@ def extract_facility_statistics(facility):
     contsessions_anon = contsessions.filter(user=None)
 
     # calculate learner stats
-    learner_stats = calculate_demographic_stats(dataset_id=dataset_id, learner=True)
+    learner_stats = calculate_demographic_stats(dataset_id=dataset_id, learners=True)
 
     # calculate non-learner stats
     non_learner_stats = calculate_demographic_stats(
-        dataset_id=dataset_id, learner=False
+        dataset_id=dataset_id, learners=False
     )
 
     # fmt: off
@@ -348,11 +281,11 @@ def extract_channel_statistics(channel):
     contsessions_anon = sessionlogs.filter(user=None)
 
     # calculate learner stats
-    learner_stats = calculate_demographic_stats(channel_id=channel_id, learner=True)
+    learner_stats = calculate_demographic_stats(channel_id=channel_id, learners=True)
 
     # calculate non-learner stats
     non_learner_stats = calculate_demographic_stats(
-        channel_id=channel_id, learner=False
+        channel_id=channel_id, learners=False
     )
 
     # fmt: off

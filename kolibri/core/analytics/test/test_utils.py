@@ -15,10 +15,10 @@ from le_utils.constants import content_kinds
 from kolibri.core.analytics.constants.nutrition_endpoints import PINGBACK
 from kolibri.core.analytics.constants.nutrition_endpoints import STATISTICS
 from kolibri.core.analytics.models import PingbackNotification
+from kolibri.core.analytics.utils import calculate_list_stats
 from kolibri.core.analytics.utils import create_and_update_notifications
 from kolibri.core.analytics.utils import extract_channel_statistics
 from kolibri.core.analytics.utils import extract_facility_statistics
-from kolibri.core.analytics.utils import standard_deviation
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import facility_presets
 from kolibri.core.auth.constants import role_kinds
@@ -186,6 +186,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
         ]
         # just assert the beginning hex values of the facility id don't match
         self.assertFalse(facility_id_hash.startswith(facility.id[:3]))
+        demo_stats = calculate_list_stats(birth_year_list_learners)
         expected = {
             "s": {
                 "preset": facility_presets.default,
@@ -218,15 +219,14 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
             "sat": 20,  # sess_anon_time
             "dsl": {
                 "bys": {
-                    "a": mean(birth_year_list_learners),
-                    "sd": standard_deviation(birth_year_list_learners),
+                    "a": demo_stats["mean"],
+                    "sd": demo_stats["std"],
                     "ts": 20,
                     "d": 0,
+                    "ns": 0,
                 },
-                "gs": {
-                    gender: {
-                        "count": FacilityUser.objects.filter(gender=gender).count()
-                    }
+                "gc": {
+                    gender: FacilityUser.objects.filter(gender=gender).count()
                     for (gender, _) in demographics.choices
                 },
             },
@@ -269,6 +269,7 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
                 roles__isnull=True, contentsummarylog__channel_id=self.channel.id
             ).values_list("birth_year", flat=True)
         ]
+        demo_stats = calculate_list_stats(birth_year_list_learners)
         expected = {
             "ci": self.channel.id[:10],  # channel_id
             "v": 0,  # version
@@ -285,17 +286,16 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
             "sat": 20,  # sess_anon_time
             "dsl": {
                 "bys": {
-                    "a": mean(birth_year_list_learners),
-                    "sd": standard_deviation(birth_year_list_learners),
+                    "a": demo_stats["mean"],
+                    "sd": demo_stats["std"],
                     "ts": 20,
                     "d": 0,
+                    "ns": 0,
                 },
-                "gs": {
-                    gender: {
-                        "count": FacilityUser.objects.filter(
-                            contentsummarylog__channel_id=self.channel.id, gender=gender
-                        ).count()
-                    }
+                "gc": {
+                    gender: FacilityUser.objects.filter(
+                        contentsummarylog__channel_id=self.channel.id, gender=gender
+                    ).count()
                     for (gender, _) in demographics.choices
                 },
             },
