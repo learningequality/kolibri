@@ -7,7 +7,7 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-url = "http://localhost:8081/api/device/deviceprovision/"
+url = "http://localhost:8082/api/device/deviceprovision/"
 data = {
     "language_id": "en",
     "facility": {"name": "Atkinson Hall"},
