@@ -38,7 +38,7 @@ function makeWrapper(options) {
 }
 
 // We're expecting before we ought to.
-xdescribe('AssignmentDetailsModal', () => {
+describe('AssignmentDetailsModal', () => {
   it('in new assignment mode, if data is valid, makes a request after clicking submit', async () => {
     const { wrapper, actions } = makeWrapper({
       propsData: { ...defaultProps },
@@ -52,7 +52,6 @@ xdescribe('AssignmentDetailsModal', () => {
     actions.inputTitle('Lesson 1');
     actions.inputDescription('The first lesson');
     await wrapper.vm.submitData();
-    //console.log(wrapper.emitted());
     expect(wrapper.emitted().submit[0][0]).toEqual(expected);
   });
 
@@ -76,11 +75,11 @@ xdescribe('AssignmentDetailsModal', () => {
       const { wrapper, actions } = makeWrapper({
         propsData: props,
       });
-      await actions.submitForm();
+      await wrapper.vm.submitData();
       expect(wrapper.emitted().submit[0][0]).toEqual(null);
     });
 
-    it('in edit mode, if the name has changed, makes a request after clicking submit', () => {
+    it('in edit mode, if the name has changed, makes a request after clicking submit', async () => {
       const { wrapper, actions } = makeWrapper({
         propsData: props,
       });
@@ -91,11 +90,11 @@ xdescribe('AssignmentDetailsModal', () => {
         assignments: [],
       };
       actions.inputTitle('Old Lesson V2');
-      actions.submitForm();
+      await wrapper.vm.submitData();
       expect(wrapper.emitted().submit[0][0]).toEqual(expected);
     });
 
-    it('in edit mode, if the description has changed, makes a request after clicking submit', () => {
+    it('in edit mode, if the description has changed, makes a request after clicking submit', async () => {
       const { wrapper, actions } = makeWrapper({
         propsData: props,
       });
@@ -106,7 +105,7 @@ xdescribe('AssignmentDetailsModal', () => {
         assignments: [],
       };
       actions.inputDescription('Its da remix');
-      actions.submitForm();
+      await wrapper.vm.submitData();
       expect(wrapper.emitted().submit[0][0]).toEqual(expected);
     });
   });
