@@ -233,7 +233,7 @@
     },
     $trs: {
       startedByUser: {
-        message: `Started by '{user}'`,
+        message: "Started by '{user}'",
         context: '\nRefers to the content management *task*.\n',
       },
       numResourcesAndSize:
