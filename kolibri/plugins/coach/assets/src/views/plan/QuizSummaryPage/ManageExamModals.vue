@@ -52,10 +52,11 @@
       ...mapState(['classList']),
     },
     methods: {
-      handleCopyModalSubmit(classroomId, groupIds) {
+      handleCopyModalSubmit(classroomId, groupIds, adHocLearnerIds) {
         this.$emit('submit_copy', {
           classroomId,
           groupIds,
+          adHocLearnerIds,
           examTitle: this.$tr('copyOfExam', { examTitle: this.quiz.title }),
         });
       },

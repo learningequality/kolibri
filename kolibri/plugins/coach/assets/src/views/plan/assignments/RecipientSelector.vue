@@ -20,6 +20,7 @@
       :selectedGroupIds="selectedGroupIds"
       :entireClassIsSelected="entireClassIsSelected"
       :initialAdHocLearners="initialAdHocLearners"
+      :targetClassId="classId"
       :disabled="disabled"
       @toggleCheck="toggleGroup"
       @updateLearners="learners => $emit('updateLearners', learners)"
