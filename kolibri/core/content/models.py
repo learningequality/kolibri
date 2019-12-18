@@ -187,7 +187,7 @@ class File(base_models.File):
         )
 
 
-class LocalFileManager(models.Manager, FilterByUUIDQuerysetMixin):
+class LocalFileQueryset(models.QuerySet, FilterByUUIDQuerysetMixin):
     def delete_unused_files(self):
         for file in self.get_unused_files():
             try:
@@ -215,7 +215,7 @@ class LocalFile(base_models.LocalFile):
     The bottom layer of the contentDB schema, defines the local state of files on the device storage.
     """
 
-    objects = LocalFileManager()
+    objects = LocalFileQueryset.as_manager()
 
     class Admin:
         pass
