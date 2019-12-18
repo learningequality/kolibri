@@ -173,61 +173,89 @@
       closeModal() {
         this.currentAction = '';
       },
-      handleSubmitCopy({ classroomId, groupIds, examTitle }) {
+      handleSubmitCopy({ classroomId, groupIds, adHocLearnerIds, examTitle }) {
         const title = examTitle
           .trim()
           .substring(0, 50)
           .trim();
 
         const className = find(this.classList, { id: classroomId }).name;
+        // adHocLearners stores current Quiz's adHocLearnersGroup id and we
+        // will remove it from assignments bubbled up from the selector
+        // then clear it so creating a new one will replace the state for the
+        // scope of this process.
+        const copySourceAdHocGroupId = this.$store.state.adHocLearners.id;
+        this.$store.commit('adHocLearners/RESET_STATE');
 
+        // Create a new adHocGroup for this exam
         return this.$store
-          .dispatch('examReport/copyExam', {
-            exam: {
-              collection: classroomId,
-              title,
-              question_count: this.quiz.question_count,
-              question_sources: this.quiz.question_sources,
-              assignments: serverAssignmentPayload(groupIds, this.classId),
-              date_archived: null,
-              date_activated: null,
-            },
-            className,
+          .dispatch('adHocLearners/createAdHocLearnersGroup', {
+            classId: classroomId,
           })
-          .then(result => {
-            // If exam was copied to the current classroom, add it to the classSummary module
-            if (classroomId === this.classId) {
-              const object = {
-                id: result.id,
-                title: result.title,
-                groups: clientAssigmentState(groupIds, this.classId),
-                active: false,
-              };
-              this.$store.commit('classSummary/CREATE_ITEM', {
-                map: 'examMap',
-                id: object.id,
-                object,
-              });
-            }
-            this.closeModal();
+          .then(() => {
+            // Update it with the selected learners we got from the selector
+            return this.$store.dispatch(
+              'adHocLearners/updateLearnersInAdHocLearnersGroup',
+              adHocLearnerIds
+            );
           })
-          .catch(error => {
-            const caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
-            if (caughtErrors) {
-              this.$store.commit('CORE_CREATE_SNACKBAR', {
-                text: this.$tr('uniqueTitleError', {
+          .then(() => {
+            // Strip the source quiz's adHocGroup ID from assignments
+            const assignments = serverAssignmentPayload(groupIds, this.classId).filter(
+              a => a.collection !== copySourceAdHocGroupId
+            );
+
+            // Push the newly created adHocGroup collection to it.
+            assignments.push({ collection: this.$store.state.adHocLearners.id });
+
+            this.$store
+              .dispatch('examReport/copyExam', {
+                exam: {
+                  collection: classroomId,
                   title,
-                  className,
-                }),
-                autoDismiss: false,
-                actionText: this.coreString('closeAction'),
-                actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
+                  question_count: this.quiz.question_count,
+                  question_sources: this.quiz.question_sources,
+                  assignments,
+                  date_archived: null,
+                  date_activated: null,
+                },
+                className,
+              })
+              .then(result => {
+                // If exam was copied to the current classroom, add it to the classSummary module
+                if (classroomId === this.classId) {
+                  const object = {
+                    id: result.id,
+                    title: result.title,
+                    groups: clientAssigmentState(groupIds.concat(), this.classId),
+                    active: false,
+                  };
+                  this.$store.commit('classSummary/CREATE_ITEM', {
+                    map: 'examMap',
+                    id: object.id,
+                    object,
+                  });
+                }
+                this.closeModal();
+              })
+              .catch(error => {
+                const caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+                if (caughtErrors) {
+                  this.$store.commit('CORE_CREATE_SNACKBAR', {
+                    text: this.$tr('uniqueTitleError', {
+                      title,
+                      className,
+                    }),
+                    autoDismiss: false,
+                    actionText: this.coreString('closeAction'),
+                    actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
+                  });
+                } else {
+                  this.$store.dispatch('handleApiError', error);
+                }
+                this.$store.dispatch('notLoading');
+                this.closeModal();
               });
-            } else {
-              this.$store.dispatch('handleApiError', error);
-            }
-            this.$store.dispatch('notLoading');
-            this.closeModal();
           });
       },
       handleSubmitDelete() {

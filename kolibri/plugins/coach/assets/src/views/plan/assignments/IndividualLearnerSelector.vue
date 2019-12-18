@@ -17,7 +17,7 @@
       </div>
 
       <PaginatedListContainer
-        :items="learners"
+        :items="allLearners"
         :filterFunction="filterLearners"
         :filterPlaceholder="$tr('searchPlaceholder')"
         :itemsPerPage="itemsPerPage"
@@ -96,10 +96,12 @@
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import uniq from 'lodash/uniq';
+  import ClassSummaryResource from '../../../apiResources/classSummary';
   import commonCoachStrings from '../../common';
   import { userMatchesFilter, filterAndSortUsers } from '../../../userSearchUtils';
 
-  const ITEMS_PER_PAGE = 50;
+  const DEFAULT_ITEMS_PER_PAGE = 50;
+  const SHORT_ITEMS_PER_PAGE = 5;
 
   export default {
     name: 'IndividualLearnerSelector',
@@ -125,6 +127,12 @@
         type: Array,
         required: true,
       },
+      // Only given when not used in current class context
+      targetClassId: {
+        type: String,
+        required: false,
+        default: null,
+      },
     },
     data() {
       return {
@@ -132,13 +140,40 @@
         selectedAdHocIds: this.initialAdHocLearners,
         currentPage: 1,
         searchText: '',
+        fetchingOutside: false,
+        learnersFromOtherClass: null,
+        groupMapFromOtherClass: null,
       };
     },
     computed: {
       ...mapState('classSummary', ['groupMap']),
+      allLearners() {
+        // If we get a class ID different that that in Vuex state,
+        // then we're going to need to fetch that class's learners
+        if (this.targetClassId != this.classId) {
+          // This is init to null so we've not fetched it yet.
+          if (!this.learnersFromOtherClass) {
+            // Avoid refetching
+            if (this.fetchingOutside) {
+              return [];
+            }
+            // Fetch it and return empty for now...
+            this.fetchOutsideClassroom();
+            return [];
+          } else {
+            return this.learnersFromOtherClass;
+          }
+        } else {
+          // Falls into the default vuex state.
+          return this.learners;
+        }
+      },
+      currentGroupMap() {
+        return this.groupMapFromOtherClass ? this.groupMapFromOtherClass : this.groupMap;
+      },
       currentPageLearners() {
         const baseIndex = (this.currentPage - 1) * this.itemsPerPage;
-        return this.filterLearners(this.learners, this.searchText).slice(
+        return this.filterLearners(this.allLearners, this.searchText).slice(
           baseIndex,
           baseIndex + this.itemsPerPage
         );
@@ -146,7 +181,7 @@
       hiddenLearnerIds() {
         let hiddenLearnerIds = [];
         this.selectedGroupIds.forEach(groupId => {
-          hiddenLearnerIds = hiddenLearnerIds.concat(this.groupMap[groupId].member_ids);
+          hiddenLearnerIds = hiddenLearnerIds.concat(this.currentGroupMap[groupId].member_ids);
         });
         return uniq(hiddenLearnerIds);
       },
@@ -160,7 +195,7 @@
         return selectedVisibleLearners.length === this.currentPageLearners.length;
       },
       itemsPerPage() {
-        return ITEMS_PER_PAGE;
+        return this.targetClassId ? SHORT_ITEMS_PER_PAGE : DEFAULT_ITEMS_PER_PAGE;
       },
     },
     watch: {
@@ -176,6 +211,18 @@
       },
     },
     methods: {
+      fetchOutsideClassroom() {
+        this.fetchingOutside = true;
+        ClassSummaryResource.fetchModel({ id: this.targetClassId, force: true }).then(summary => {
+          let summaryGroupMap = {};
+          summary.groups.forEach(group => {
+            summaryGroupMap[group.id] = group;
+          });
+          this.groupMapFromOtherClass = summaryGroupMap;
+          this.learnersFromOtherClass = summary.learners;
+          this.fetchingOutside = false;
+        });
+      },
       toggleChecked() {
         this.isChecked = !this.isChecked;
         this.$emit('toggleCheck', this.isChecked, this.$store.state.adHocLearners.id);

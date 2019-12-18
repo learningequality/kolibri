@@ -63,45 +63,71 @@
       closeModal() {
         this.$emit('cancel');
       },
-      handleSubmitCopy(selectedClassroomId, selectedCollectionIds) {
+      handleSubmitCopy(selectedClassroomId, selectedCollectionIds, adHocLearnerIds) {
         const title = this.$tr('copyOfLesson', { lessonTitle: this.currentLesson.title }).substring(
           0,
           50
         );
+        // Strip current lesson's adHocGroup ID from the list and map to expected format.
+        const copySourceAdHocGroupId = this.$store.state.adHocLearners.id;
+        let lesson_assignments = selectedCollectionIds
+          .filter(id => id !== copySourceAdHocGroupId)
+          .map(id => ({ collection: id }));
+
         const classroomName = find(this.classList, { id: selectedClassroomId }).name;
-        LessonResource.saveModel({
-          data: {
-            title,
-            description: this.currentLesson.description,
-            resources: this.currentLesson.resources,
-            collection: selectedClassroomId,
-            lesson_assignments: selectedCollectionIds.map(id => ({ collection: id })),
-          },
-        })
-          .then(() => {
-            // If copied to the same classroom, update the class summary
-            if (this.classId === selectedClassroomId) {
-              this.$store.dispatch('classSummary/refreshClassSummary');
-            }
-            this.closeModal();
-            this.$store.dispatch('createSnackbar', this.$tr('copiedLessonTo', { classroomName }));
+
+        // Create an adHocGroup for the lesson
+        this.$store
+          .dispatch('adHocLearners/createAdHocLearnersGroup', {
+            classId: selectedClassroomId,
           })
-          .catch(error => {
-            const caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
-            if (caughtErrors) {
-              this.$store.commit('CORE_CREATE_SNACKBAR', {
-                text: this.$tr('uniqueTitleError', {
-                  title,
-                  className: classroomName,
-                }),
-                autoDismiss: false,
-                actionText: this.coreString('closeAction'),
-                actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
+          // Then update it's associated learners with what we got from the selector
+          .then(() => {
+            return this.$store.dispatch(
+              'adHocLearners/updateLearnersInAdHocLearnersGroup',
+              adHocLearnerIds
+            );
+          })
+          .then(() => {
+            // Include the newly created adHocGroup in assignments
+            lesson_assignments.push({ collection: this.$store.state.adHocLearners.id });
+            LessonResource.saveModel({
+              data: {
+                title,
+                description: this.currentLesson.description,
+                resources: this.currentLesson.resources,
+                collection: selectedClassroomId,
+                lesson_assignments,
+              },
+            })
+              .then(() => {
+                // If copied to the same classroom, update the class summary
+                if (this.classId === selectedClassroomId) {
+                  this.$store.dispatch('classSummary/refreshClassSummary');
+                }
+                this.closeModal();
+                this.$store.dispatch(
+                  'createSnackbar',
+                  this.$tr('copiedLessonTo', { classroomName })
+                );
+              })
+              .catch(error => {
+                const caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+                if (caughtErrors) {
+                  this.$store.commit('CORE_CREATE_SNACKBAR', {
+                    text: this.$tr('uniqueTitleError', {
+                      title,
+                      className: classroomName,
+                    }),
+                    autoDismiss: false,
+                    actionText: this.coreString('closeAction'),
+                    actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
+                  });
+                } else {
+                  this.$store.dispatch('handleApiError', error);
+                }
+                this.closeModal();
               });
-            } else {
-              this.$store.dispatch('handleApiError', error);
-            }
-            this.closeModal();
           });
       },
       handleSubmitDelete() {
