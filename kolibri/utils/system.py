@@ -60,7 +60,7 @@ def _kill_pid(pid, softkill_signal_number):
         return
     # give some time for the process to clean itself up gracefully bfore we force anything
     i = 0
-    while pid_exists(pid) and i < 10:
+    while pid_exists(pid) and i < 60:
         time.sleep(0.5)
         i += 1
     # if process didn't exit cleanly, make one last effort to kill it

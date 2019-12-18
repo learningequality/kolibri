@@ -1,7 +1,6 @@
 import logging
 import os
 import sys
-import threading
 from subprocess import CalledProcessError
 from subprocess import check_output
 
@@ -9,9 +8,7 @@ import cherrypy
 import ifcfg
 import requests
 from cherrypy.process.plugins import SimplePlugin
-from cherrypy.process.wspbus import states
 from django.conf import settings
-from six import create_bound_method
 
 import kolibri
 from .system import kill_pid
@@ -109,15 +106,19 @@ class ServicesPlugin(SimplePlugin):
         register_zeroconf_service(port=self.port)
 
     def stop(self):
+        scheduler.shutdown_scheduler()
         if self.workers is not None:
             for worker in self.workers:
                 worker.shutdown()
-        scheduler.shutdown_scheduler()
         from kolibri.core.discovery.utils.network.search import (
             unregister_zeroconf_service,
         )
 
         unregister_zeroconf_service()
+
+        if self.workers is not None:
+            for worker in self.workers:
+                worker.shutdown(wait=True)
 
 
 def _rm_pid_file(pid_file):
@@ -253,54 +254,6 @@ def configure_http_server(port):
     server.subscribe()
 
 
-def _block(self, interval=0.1):
-    """Wait for the EXITING state, KeyboardInterrupt or SystemExit.
-    This function is intended to be called only by the main thread.
-    After waiting for the EXITING state, it also waits for all threads
-    to terminate, and then calls os.execv if self.execv is True. This
-    design allows another thread to call bus.restart, yet have the main
-    thread perform the actual execv call (required on some platforms).
-    Copied and modified from:
-    https://github.com/cherrypy/cherrypy/blob/master/cherrypy/process/wspbus.py#L326
-    """
-    try:
-        self.wait(states.EXITING, interval=interval, channel="main")
-    except (KeyboardInterrupt, IOError):
-        # The time.sleep call might raise
-        # "IOError: [Errno 4] Interrupted function call" on KBInt.
-        self.log("Keyboard Interrupt: shutting down bus")
-        self.exit()
-    except SystemExit:
-        self.log("SystemExit raised: shutting down bus")
-        self.exit()
-        raise
-
-    # Waiting for ALL child threads to finish is necessary on OS X.
-    # See https://github.com/cherrypy/cherrypy/issues/581.
-    # It's also good to let them all shut down before allowing
-    # the main thread to call atexit handlers.
-    # See https://github.com/cherrypy/cherrypy/issues/751.
-    self.log("Waiting for child threads to terminate...")
-    for t in threading.enumerate():
-        # Validate the we're not trying to join the MainThread
-        # that will cause a deadlock and the case exist when
-        # implemented as a windows service and in any other case
-        # that another thread executes cherrypy.engine.exit()
-        if (
-            t != threading.currentThread()
-            and not isinstance(t, threading._MainThread)
-            # Note that any dummy (external) threads are
-            # always daemonic.
-            and not t.daemon
-        ):
-            self.log("Waiting for thread %s." % t.getName())
-            # Give each thread 10s to finish up
-            t.join(10)
-
-    # Call sys.exit to raise SystemExit in child threads
-    sys.exit()
-
-
 def run_server(port, serve_http=True):
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()
@@ -342,8 +295,6 @@ def run_server(port, serve_http=True):
             original_handler(signum, frame)
 
     cherrypy.engine.signal_handler._handle_signal = handler
-
-    cherrypy.engine.block = create_bound_method(_block, cherrypy.engine)
 
     cherrypy.engine.signal_handler.handlers.update(
         {

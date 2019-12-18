@@ -83,6 +83,8 @@ class Worker(object):
     def shutdown(self, wait=False):
         self.job_checker.stop()
         self.shutdown_workers(wait=wait)
+        if wait:
+            self.job_checker.join()
 
     def start_job_checker(self):
         """
