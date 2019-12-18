@@ -72,7 +72,7 @@ describe('AssignmentDetailsModal', () => {
     };
 
     it('in edit mode, if there are no changes, closes modal without making a server request', async () => {
-      const { wrapper, actions } = makeWrapper({
+      const { wrapper } = makeWrapper({
         propsData: props,
       });
       await wrapper.vm.submitData();
