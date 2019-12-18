@@ -179,3 +179,11 @@ class RootURLRedirectView(View):
 @method_decorator(cache_no_user_data, name="dispatch")
 class UnsupportedBrowserView(TemplateView):
     template_name = "kolibri/unsupported_browser.html"
+
+
+class HealthCheckView(View):
+    def get(self, request):
+        """
+        Confirms that the server is up
+        """
+        return HttpResponse()

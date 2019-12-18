@@ -396,7 +396,13 @@ def get_status():  # noqa: max-complexity=16
 
     listen_port = port
 
-    check_url = "http://{}:{}".format("127.0.0.1", listen_port)
+    prefix = (
+        conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+        if conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"] == "/"
+        else "/" + conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+    )
+
+    check_url = "http://{}:{}{}health/".format("127.0.0.1", listen_port, prefix)
 
     if conf.OPTIONS["Server"]["CHERRYPY_START"]:
 
