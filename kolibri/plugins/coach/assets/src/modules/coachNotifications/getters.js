@@ -104,7 +104,7 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
       // will have a notification shown.
       if (collection.collection_kind === CollectionTypes.ADHOCLEARNERSGROUP) {
         partitioning.hasEvent.forEach((userId, idx) => {
-          const user = find(allEvents, event => {
+          const user = find(orderBy(allEvents, 'timestamp', ['desc']), event => {
             return event.user_id === userId;
           });
           summaryEvents.push({
