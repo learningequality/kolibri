@@ -320,6 +320,7 @@ export default {
     // whenever this module's state changes.
     notificationModuleData(state) {
       return {
+        adHocGroupsMap: state.adHocGroupsMap,
         learners: state.learnerMap,
         learnerGroups: state.groupMap,
         lessons: state.lessonMap,
