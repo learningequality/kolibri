@@ -42,6 +42,10 @@ class Worker(object):
         self.job_checker = self.start_job_checker()
 
     def shutdown_workers(self, wait=True):
+        # First cancel all running jobs
+        for job_id in self.future_job_mapping:
+            self.cancel(job_id)
+        # Now shutdown the workers
         self.workers.shutdown(wait=wait)
 
     def start_workers(self, num_workers):
