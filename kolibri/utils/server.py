@@ -106,15 +106,19 @@ class ServicesPlugin(SimplePlugin):
         register_zeroconf_service(port=self.port)
 
     def stop(self):
+        scheduler.shutdown_scheduler()
         if self.workers is not None:
             for worker in self.workers:
                 worker.shutdown()
-        scheduler.shutdown_scheduler()
         from kolibri.core.discovery.utils.network.search import (
             unregister_zeroconf_service,
         )
 
         unregister_zeroconf_service()
+
+        if self.workers is not None:
+            for worker in self.workers:
+                worker.shutdown(wait=True)
 
 
 def _rm_pid_file(pid_file):
@@ -392,7 +396,13 @@ def get_status():  # noqa: max-complexity=16
 
     listen_port = port
 
-    check_url = "http://{}:{}".format("127.0.0.1", listen_port)
+    prefix = (
+        conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+        if conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"] == "/"
+        else "/" + conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+    )
+
+    check_url = "http://{}:{}{}status/".format("127.0.0.1", listen_port, prefix)
 
     if conf.OPTIONS["Server"]["CHERRYPY_START"]:
 

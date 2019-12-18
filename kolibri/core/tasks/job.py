@@ -179,6 +179,8 @@ class Job(object):
             except Exception as e:
                 # If any error occurs, clear the job tracker and reraise
                 setattr(current_state_tracker, "job", None)
+                # Close any django connections opened here
+                connection.close()
                 raise e
 
             setattr(current_state_tracker, "job", None)
