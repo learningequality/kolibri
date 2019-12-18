@@ -181,7 +181,7 @@ class UnsupportedBrowserView(TemplateView):
     template_name = "kolibri/unsupported_browser.html"
 
 
-class HealthCheckView(View):
+class StatusCheckView(View):
     def get(self, request):
         """
         Confirms that the server is up

@@ -402,7 +402,7 @@ def get_status():  # noqa: max-complexity=16
         else "/" + conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
     )
 
-    check_url = "http://{}:{}{}health/".format("127.0.0.1", listen_port, prefix)
+    check_url = "http://{}:{}{}status/".format("127.0.0.1", listen_port, prefix)
 
     if conf.OPTIONS["Server"]["CHERRYPY_START"]:
 

@@ -40,7 +40,7 @@ from django.conf.urls import url
 from django.conf.urls.static import static
 
 from .views import GuestRedirectView
-from .views import HealthCheckView
+from .views import StatusCheckView
 from .views import logout_view
 from .views import RootURLRedirectView
 from .views import set_language
@@ -65,7 +65,7 @@ core_urlpatterns = [
     url(r"^api/", include("kolibri.core.api_urls")),
     url(r"", include(i18n_patterns(lang_prefixed_patterns))),
     url(r"", include("kolibri.core.content.urls")),
-    url(r"^health/", HealthCheckView.as_view(), name="health_check"),
+    url(r"^status/", StatusCheckView.as_view(), name="status_check"),
 ]
 
 
