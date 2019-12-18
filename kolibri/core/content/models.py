@@ -267,6 +267,7 @@ class ChannelMetadata(base_models.ChannelMetadata):
         "Language", related_name="channels", verbose_name="languages", blank=True
     )
     order = models.PositiveIntegerField(default=0, null=True, blank=True)
+    public = models.NullBooleanField()
 
     class Admin:
         pass

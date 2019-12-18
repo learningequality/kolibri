@@ -704,7 +704,7 @@ def _remoteimport(
         job.save_meta()
 
     # Skip importcontent step if updating and no nodes have changed
-    if is_updating and node_ids and len(node_ids) == 0:
+    if is_updating and (node_ids is not None) and len(node_ids) == 0:
         pass
     else:
         call_command(
@@ -748,7 +748,7 @@ def _diskimport(
         job.save_meta()
 
     # Skip importcontent step if updating and no nodes have changed
-    if is_updating and node_ids and len(node_ids) == 0:
+    if is_updating and (node_ids is not None) and len(node_ids) == 0:
         pass
     else:
         call_command(

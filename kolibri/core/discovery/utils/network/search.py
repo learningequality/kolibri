@@ -5,6 +5,7 @@ import socket
 from contextlib import closing
 
 from django.core.exceptions import ValidationError
+from django.db import connection
 from zeroconf import get_all_addresses
 from zeroconf import NonUniqueNameException
 from zeroconf import ServiceInfo
@@ -12,6 +13,7 @@ from zeroconf import USE_IP_OF_OUTGOING_INTERFACE
 from zeroconf import Zeroconf
 
 from kolibri.core.discovery.models import DynamicNetworkLocation
+from kolibri.core.public.utils import get_device_info
 
 logger = logging.getLogger(__name__)
 
@@ -153,6 +155,8 @@ class KolibriZeroconfListener(object):
                     )
                     % (id, self.instances[id], traceback.format_exc(limit=1)),
                 )
+            finally:
+                connection.close()
 
     def remove_service(self, zeroconf, type, name):
         id = _id_from_name(name)
@@ -165,14 +169,13 @@ class KolibriZeroconfListener(object):
             pass
 
         DynamicNetworkLocation.objects.filter(pk=id).delete()
+        connection.close()
 
 
-def cleanup_database():
+def register_zeroconf_service(port):
+    device_info = get_device_info()
     DynamicNetworkLocation.objects.all().delete()
-
-
-def register_zeroconf_service(port, device_info):
-    cleanup_database()
+    connection.close()
 
     id = device_info.get("instance_id")
 

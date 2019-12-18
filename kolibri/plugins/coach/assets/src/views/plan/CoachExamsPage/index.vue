@@ -36,7 +36,9 @@
           <tr>
             <th>{{ coachString('titleLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th>{{ coachString('statusLabel') }}</th>
+            <th class="center-text">
+              {{ coachString('statusLabel') }}
+            </th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -56,18 +58,17 @@
 
             <td>
               <Recipients
-                :groupNames="getGroupNames(exam.groups)"
+                :groupNames="getRecipientNamesForExam(exam)"
                 :hasAssignments="exam.assignments.length > 0"
               />
             </td>
 
-            <td>
+            <td class="center-text button-col core-table-button-col">
               <!-- Open quiz button -->
               <KButton
                 v-if="!exam.active && !exam.archive"
                 :text="coachString('openQuizLabel')"
                 appearance="flat-button"
-                class="table-left-aligned-button"
                 @click="showOpenConfirmationModal = true; modalQuizId=exam.id"
               />
               <!-- Close quiz button -->
@@ -75,14 +76,10 @@
                 v-if="exam.active && !exam.archive"
                 :text="coachString('closeQuizLabel')"
                 appearance="flat-button"
-                class="table-left-aligned-button"
                 @click="showCloseConfirmationModal = true; modalQuizId=exam.id;"
               />
               <!-- Closed quiz label -->
-              <div
-                v-if="exam.archive"
-                class="quiz-closed-label"
-              >
+              <div v-if="exam.archive">
                 {{ coachString('quizClosedLabel') }}
               </div>
             </td>
@@ -276,9 +273,8 @@
     text-align: center;
   }
 
-  .table-left-aligned-button {
-    // Remove all margins except a new negative left margin
-    margin: 0 0 0 -1rem;
+  .button-col {
+    vertical-align: middle;
   }
 
 </style>

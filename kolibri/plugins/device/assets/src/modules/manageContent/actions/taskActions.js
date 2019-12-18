@@ -6,6 +6,7 @@ import pick from 'lodash/fp/pick';
 import { TaskStatuses, TaskTypes } from '../../../constants';
 
 const logging = logger.getLogger(__filename);
+
 export function cancelTask(store, taskId) {
   return new Promise(resolve => {
     let cancelWatch;
@@ -15,7 +16,7 @@ export function cancelTask(store, taskId) {
         TaskStatuses.CANCELED,
       () => {
         cancelWatch();
-        TaskResource.deleteFinishedTasks().then(resolve);
+        TaskResource.deleteFinishedTask(taskId).then(resolve);
       }
     );
     TaskResource.cancelTask(taskId);

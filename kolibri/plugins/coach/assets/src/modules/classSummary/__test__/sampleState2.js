@@ -13,7 +13,7 @@ export default {
       username: 'AnotherCoach',
     },
   },
-  adHocLearnersMap: {
+  adHocGroupsMap: {
     ad_hoc_learner_id_1: {
       id: 'ad_hoc_learner_id_1',
       name: 'ad_hoc_learner_id_1',

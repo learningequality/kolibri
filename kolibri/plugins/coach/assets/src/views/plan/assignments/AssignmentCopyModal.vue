@@ -24,6 +24,8 @@
         v-model="selectedCollectionIds"
         :groups="availableGroups"
         :classId="selectedClassroomId"
+        :initialAdHocLearners="[]"
+        @updateLearners="learners => adHocLearners = learners"
       />
     </div>
   </KModal>
@@ -78,6 +80,7 @@
         selectedClassroomId: null,
         selectedCollectionIds: [],
         stage: Stages.SELECT_CLASSROOM,
+        adHocLearners: [],
       };
     },
     computed: {
@@ -115,7 +118,12 @@
         if (this.stage === this.Stages.SELECT_CLASSROOM) {
           this.goToAvailableGroups();
         } else {
-          this.$emit('submit', this.selectedClassroomId, this.selectedCollectionIds);
+          this.$emit(
+            'submit',
+            this.selectedClassroomId,
+            this.selectedCollectionIds,
+            this.adHocLearners
+          );
         }
       },
       goToAvailableGroups() {

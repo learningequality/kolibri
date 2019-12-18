@@ -42,6 +42,7 @@ class DeviceProvisionTestCase(APITestCase):
         "learner_can_login_with_no_password": False,
     }
     settings = {}
+    allow_guest_access = True
 
     language_id = "en"
 
@@ -53,6 +54,7 @@ class DeviceProvisionTestCase(APITestCase):
             "preset": self.preset_data,
             "settings": self.settings,
             "language_id": self.language_id,
+            "allow_guest_access": self.allow_guest_access,
         }
         response = self.client.post(
             reverse("kolibri:core:deviceprovision"), data, format="json"
@@ -66,6 +68,7 @@ class DeviceProvisionTestCase(APITestCase):
             "preset": self.preset_data,
             "settings": self.settings,
             "language_id": self.language_id,
+            "allow_guest_access": self.allow_guest_access,
         }
         self.client.post(reverse("kolibri:core:deviceprovision"), data, format="json")
         self.assertEqual(
@@ -79,6 +82,7 @@ class DeviceProvisionTestCase(APITestCase):
             "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
+            "allow_guest_access": self.allow_guest_access,
         }
         self.client.post(reverse("kolibri:core:deviceprovision"), data, format="json")
         self.assertTrue(
@@ -92,6 +96,7 @@ class DeviceProvisionTestCase(APITestCase):
             "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
+            "allow_guest_access": self.allow_guest_access,
         }
         self.client.post(reverse("kolibri:core:deviceprovision"), data, format="json")
         self.assertEqual(
@@ -106,6 +111,7 @@ class DeviceProvisionTestCase(APITestCase):
             "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
+            "allow_guest_access": self.allow_guest_access,
         }
         self.client.post(reverse("kolibri:core:deviceprovision"), data, format="json")
         self.assertEqual(Facility.objects.get().name, self.facility_data["name"])
@@ -117,6 +123,7 @@ class DeviceProvisionTestCase(APITestCase):
             "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
+            "allow_guest_access": self.allow_guest_access,
         }
         self.client.post(reverse("kolibri:core:deviceprovision"), data, format="json")
         self.assertEqual(Role.objects.get().kind, ADMIN)
@@ -128,6 +135,7 @@ class DeviceProvisionTestCase(APITestCase):
             "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
+            "allow_guest_access": self.allow_guest_access,
         }
         self.client.post(reverse("kolibri:core:deviceprovision"), data, format="json")
         self.assertEqual(Role.objects.get().collection.name, self.facility_data["name"])
@@ -139,6 +147,7 @@ class DeviceProvisionTestCase(APITestCase):
             "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
+            "allow_guest_access": self.allow_guest_access,
         }
         self.client.post(reverse("kolibri:core:deviceprovision"), data, format="json")
         self.assertEqual(
@@ -173,23 +182,84 @@ class DeviceProvisionTestCase(APITestCase):
             "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
+            "allow_guest_access": self.allow_guest_access,
         }
         self.assertEqual(DeviceSettings.objects.count(), 0)
         self.client.post(reverse("kolibri:core:deviceprovision"), data, format="json")
         self.assertEqual(DeviceSettings.objects.count(), 1)
 
-    def test_device_settings_default_facility_set(self):
+    def test_device_settings_values(self):
         data = {
             "superuser": self.superuser_data,
             "facility": self.facility_data,
             "settings": self.settings,
             "preset": self.preset_data,
             "language_id": self.language_id,
+            "allow_guest_access": False,
         }
         self.client.post(reverse("kolibri:core:deviceprovision"), data, format="json")
-        self.assertEqual(
-            DeviceSettings.objects.get().default_facility, Facility.objects.get()
+        device_settings = DeviceSettings.objects.get()
+        self.assertEqual(device_settings.default_facility, Facility.objects.get())
+        self.assertFalse(device_settings.allow_guest_access)
+        self.assertFalse(device_settings.allow_peer_unlisted_channel_import)
+        self.assertTrue(device_settings.allow_learner_unassigned_resource_access)
+
+
+class DeviceSettingsTestCase(APITestCase):
+    settings = {
+        "language_id": "en",
+        "allow_guest_access": False,
+        "allow_peer_unlisted_channel_import": True,
+        "allow_learner_unassigned_resource_access": False,
+    }
+
+    def setUp(self):
+        super(DeviceSettingsTestCase, self).setUp()
+        self.facility = FacilityFactory.create()
+        provision_device(language_id="es", default_facility=self.facility)
+        self.superuser = create_superuser(self.facility)
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
         )
+
+    def test_requires_authentication(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse("kolibri:core:devicesettings"), self.settings, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_post(self):
+        response = self.client.post(
+            reverse("kolibri:core:devicesettings"), self.settings, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_cannot_put(self):
+        response = self.client.put(
+            reverse("kolibri:core:devicesettings"), self.settings, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_patch(self):
+        device_settings = DeviceSettings.objects.get()
+        self.assertEqual("es", device_settings.language_id)
+        self.assertTrue(device_settings.allow_guest_access)
+        self.assertFalse(device_settings.allow_peer_unlisted_channel_import)
+        self.assertTrue(device_settings.allow_learner_unassigned_resource_access)
+
+        self.client.patch(
+            reverse("kolibri:core:devicesettings"), self.settings, format="json"
+        )
+        device_settings.refresh_from_db()
+
+        self.assertEqual("en", device_settings.language_id)
+        self.assertFalse(device_settings.allow_guest_access)
+        self.assertTrue(device_settings.allow_peer_unlisted_channel_import)
+        self.assertFalse(device_settings.allow_learner_unassigned_resource_access)
 
 
 class DevicePermissionsTestCase(APITestCase):

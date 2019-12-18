@@ -27,7 +27,7 @@
         <QuizStatus
           :className="className"
           :avgScore="avgScore"
-          :groupAndAdHocLearnerNames="groupAndAdHocLearnerNames"
+          :groupAndAdHocLearnerNames="getRecipientNamesForExam(exam)"
           :exam="exam"
         />
       </KGridItem>
@@ -97,11 +97,6 @@
             value: 'inactiveQuizzes',
           },
         ];
-      },
-      groupAndAdHocLearnerNames() {
-        return this.getGroupNames(this.exam.groups).concat(
-          this.$store.state.adHocLearners.user_ids.map(learnerId => this.learnerMap[learnerId].name)
-        );
       },
     },
     beforeMount() {

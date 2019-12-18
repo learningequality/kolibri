@@ -49,8 +49,8 @@
             </td>
             <td>
               <Recipients
-                :groupNames="tableRow.groupNames"
-                :hasAssignments="tableRow.hasAssignments"
+                :groupNames="getRecipientNamesForExam(tableRow)"
+                :hasAssignments="tableRow.assignments.length > 0"
               />
             </td>
             <td v-show="!$isPrint">

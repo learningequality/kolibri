@@ -17,5 +17,4 @@ def get_device_info():
         "device_name": instance_model.hostname,
         "operating_system": platform.system(),
     }
-
     return info

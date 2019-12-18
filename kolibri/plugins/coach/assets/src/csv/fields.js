@@ -35,7 +35,7 @@ export function avgScore(quiz = false) {
       name: coachStrings.$tr(quiz ? 'avgQuizScoreLabel' : 'avgScoreLabel'),
       key: 'avgScore',
       format(row) {
-        if (!row.avgScore) {
+        if (!row.avgScore && row.avgScore !== 0) {
           return '';
         }
 
@@ -148,7 +148,7 @@ export function score() {
       name: coachStrings.$tr('scoreLabel'),
       key: 'score',
       format: row => {
-        if (!row.statusObj.score) {
+        if (!row.statusObj.score && row.statusObj.score !== 0) {
           return '';
         }
 

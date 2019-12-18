@@ -1,5 +1,5 @@
-export function getScripts() {
-  const $scripts = document.querySelectorAll('template[hashi-script="true"]');
+export function getScripts(doc) {
+  const $scripts = doc.querySelectorAll('template[hashi-script="true"]');
   return [].map.call($scripts, $template => {
     const parentNode = $template.parentNode;
     const node = $template.content.children[0];
@@ -96,22 +96,42 @@ export function seq(arr, index) {
   }
 }
 
-export function setScripts($scripts) {
+function createCallback($script) {
+  return function(callback) {
+    window.onerror = callback;
+    try {
+      replaceScript($script, callback);
+    } catch (e) {
+      callback();
+    }
+  };
+}
+
+export function setScripts() {
   // First generate the callbacks for all script tags.
   // This will create insertion operations for all script tags
+  const documentWriteOriginal = document.write;
+  const fragment = document.createDocumentFragment();
+  const body = document.documentElement.removeChild(document.body);
+  fragment.appendChild(body);
 
-  const $nonDeferredScripts = [].filter.call($scripts, script => !script.hasAttribute('defer'));
-  const $deferredScripts = [].filter.call($scripts, script => script.hasAttribute('defer'));
-
-  const runList = $nonDeferredScripts.concat($deferredScripts).map(function($script) {
-    return function(callback) {
-      window.onerror = callback;
-      try {
-        replaceScript($script, callback);
-      } catch (e) {
-        callback();
-      }
-    };
+  const headScripts = getScripts(document);
+  const bodyScripts = getScripts(fragment);
+  // Populate the run list initially with the scripts in <head>
+  const runList = headScripts.map(createCallback);
+  // When all those have been executed, attach the body back into
+  // the document
+  runList.push(function(callback) {
+    document.documentElement.appendChild(fragment);
+    callback();
+  });
+  // Now add all the scripts from the body of the document to the run list
+  runList.push(...bodyScripts.map(createCallback));
+  // Lastly, reinstate the original document.write once all intermediary
+  // rendering has finished.
+  runList.push(function(callback) {
+    document.write = documentWriteOriginal;
+    callback();
   });
 
   // insert the script tags sequentially
@@ -128,9 +148,10 @@ export function executePage() {
   // then the foregoing script tags inside template tags
   // have already been executed.
   if (supportsTemplate()) {
-    const scripts = getScripts();
-    const documentWriteOriginal = document.write;
-    setScripts(scripts);
-    document.write = documentWriteOriginal;
+    if (document.readyState !== 'loading') {
+      setScripts();
+    } else {
+      window.addEventListener('DOMContentLoaded', setScripts, { once: true });
+    }
   }
 }

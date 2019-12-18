@@ -171,7 +171,7 @@
   "SelectImportSourceModal.network": "Kolibri Studio (en ligne)",
   "SelectImportSourceModal.networkDescription": "Importer des contenus depuis une autre instance de Kolibri s'exécutant sur un autre appareil, soit sur le même réseau local, soit sur Internet",
   "SelectImportSourceModal.selectLocalRemoteSourceTitle": "Choisir une source",
-  "SelectImportSourceModal.studioDescription": "Importez des contenus de la Kolibri Content Library si vous êtes connecté à Internet",
+  "SelectImportSourceModal.studioDescription": "Importez des contenus de la Bibliotèque de Contenus Kolibri si vous êtes connecté à Internet",
   "SelectNetworkAddressModal.addAddressSnackbarText": "Adresse ajoutée avec succès",
   "SelectNetworkAddressModal.removeAddressSnackbarText": "Adresse supprimée avec succès",
   "SelectionBottomBar.channelsSelectedNoFileSize": "{count, number} {count, plural, one {chaîne sélectionnée} other {chaînes sélectionnées}}",

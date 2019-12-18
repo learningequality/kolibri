@@ -25,7 +25,6 @@
             :version="availableVersions.source"
             @click="handleClickViewNewVersion"
           />
-          <span v-else>{{ $tr('channelUpToDate') }}</span>
         </section>
         <ChannelContentsSummary
           :channel="transferredChannel"
@@ -115,7 +114,7 @@
       };
     },
     computed: {
-      ...mapGetters('manageContent', ['channelIsInstalled']),
+      ...mapGetters('manageContent', ['channelIsOnDevice']),
       ...mapState('manageContent', ['taskList']),
       ...mapGetters('manageContent/wizard', [
         'inLocalImportMode',
@@ -155,7 +154,7 @@
         return undefined;
       },
       channelOnDevice() {
-        return this.channelIsInstalled(this.transferredChannel.id) || {};
+        return this.channelIsOnDevice(this.transferredChannel.id) || {};
       },
       availableVersions() {
         return {
@@ -302,7 +301,6 @@
       },
     },
     $trs: {
-      channelUpToDate: 'Channel up-to-date',
       pageLoadError: 'There was a problem loading this page…',
       problemFetchingChannel: {
         message: 'There was a problem getting the contents of this channel',

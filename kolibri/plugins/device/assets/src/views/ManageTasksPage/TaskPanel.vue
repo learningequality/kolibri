@@ -182,6 +182,14 @@
           file_size,
           total_resources,
         } = this.task;
+        // Special case for canceled exports
+        if (
+          (this.task.type === TaskTypes.DISKEXPORT ||
+            this.task.type === TaskTypes.DISKCONTENTEXPORT) &&
+          this.task.status === TaskStatuses.CANCELED
+        ) {
+          return '';
+        }
         if (file_size && total_resources) {
           const trPrefix = typeToTrPrefixMap[this.task.type];
           if (
@@ -225,7 +233,7 @@
     },
     $trs: {
       startedByUser: {
-        message: `Started by '{user}'`,
+        message: "Started by '{user}'",
         context: '\nRefers to the content management *task*.\n',
       },
       numResourcesAndSize:

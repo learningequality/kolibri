@@ -45,13 +45,7 @@
 
   export default {
     name: 'TasksBar',
-    components: {},
     mixins: [commonCoreStrings, responsiveWindowMixin],
-    props: {},
-    data() {
-      return {};
-    },
-
     computed: {
       ...mapGetters('manageContent', ['managedTasks']),
       clearCompletedString() {

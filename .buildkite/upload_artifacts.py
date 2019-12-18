@@ -90,6 +90,12 @@ file_manifest = {
         "category": PYTHON_PKG_CAT,
         "content_type": "application/gzip",
     },
+    "zip": {
+        "extension": "zip",
+        "description": "Raspberry Pi Image",
+        "category": INSTALLER_CAT,
+        "content_type": "application/x-zip-compressed",
+    },
     # 'apk': {
     #     'extension': 'apk',
     #     'description': 'Android Installer',
@@ -100,6 +106,7 @@ file_manifest = {
 
 file_order = [
     "deb",
+    "zip",
     "dmg",
     "unsigned-exe",
     "signed-exe",
