@@ -99,7 +99,7 @@
   import commonCoachStrings from '../../common';
   import { userMatchesFilter, filterAndSortUsers } from '../../../userSearchUtils';
 
-  const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_PAGE = 50;
 
   export default {
     name: 'IndividualLearnerSelector',
@@ -131,13 +131,17 @@
         isChecked: Boolean(this.initialAdHocLearners.length),
         selectedAdHocIds: this.initialAdHocLearners,
         currentPage: 1,
+        searchText: '',
       };
     },
     computed: {
       ...mapState('classSummary', ['groupMap']),
       currentPageLearners() {
         const baseIndex = (this.currentPage - 1) * this.itemsPerPage;
-        return this.learners.slice(baseIndex, baseIndex + this.itemsPerPage);
+        return this.filterLearners(this.learners, this.searchText).slice(
+          baseIndex,
+          baseIndex + this.itemsPerPage
+        );
       },
       hiddenLearnerIds() {
         let hiddenLearnerIds = [];
@@ -163,6 +167,7 @@
       entireClassIsSelected() {
         if (this.entireClassIsSelected) {
           this.isChecked = false;
+          this.currentPage = 1;
           this.$emit('toggleCheck', this.isChecked, this.$store.state.adHocLearners.id);
         }
       },
@@ -212,6 +217,7 @@
         return learnerGroups.join(', ');
       },
       filterLearners(learners, searchText) {
+        this.searchText = searchText;
         return filterAndSortUsers(learners, learner => {
           // userMatchesFilter calls on full_name property
           learner.full_name = learner.name;

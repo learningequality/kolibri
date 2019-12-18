@@ -98,7 +98,7 @@
         return this.learnerMap[this.$route.params.learnerId];
       },
       lessonsTable() {
-        const filtered = this.lessons.filter(lesson => this.isAssigned(lesson.groups));
+        const filtered = this.lessons.filter(lesson => this.isAssignedLesson(lesson));
         const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
         return sorted.map(lesson => {
           const tableRow = {
@@ -109,7 +109,7 @@
         });
       },
       examsTable() {
-        const filtered = this.exams.filter(exam => this.isAssigned(exam.groups));
+        const filtered = this.exams.filter(exam => this.isAssignedQuiz(exam));
         const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
         return sorted.map(exam => {
           const tableRow = {
@@ -121,8 +121,11 @@
       },
     },
     methods: {
-      isAssigned(groupIds) {
-        return this.getLearnersForGroups(groupIds).includes(this.learner.id);
+      isAssignedLesson(lesson) {
+        return this.getLearnersForLesson(lesson).includes(this.learner.id);
+      },
+      isAssignedQuiz(quiz) {
+        return this.getLearnersForExam(quiz).includes(this.learner.id);
       },
       quizLink(quizId) {
         return this.classRoute(PageNames.REPORTS_LEARNER_REPORT_QUIZ_PAGE_ROOT, { quizId });
