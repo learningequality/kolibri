@@ -43,12 +43,12 @@
             </UiAlert>
           </KPageContainer>
 
-          <!-- contents displayed in reverse-order for semantic ordering -->
-          <BottomAppBar :dir="isRtl ? 'ltr' : 'rtl'" :maxWidth="null">
+          <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
             <KButton
               :disabled="questionNumber===exam.question_count-1"
               :primary="true"
               class="footer-button"
+              :dir="layoutDirReset"
               @click="goToQuestion(questionNumber + 1)"
             >
               {{ $tr('nextQuestion') }}
@@ -58,6 +58,7 @@
               :disabled="questionNumber===0"
               :primary="true"
               class="footer-button"
+              :dir="layoutDirReset"
               :class="{ 'left-align': windowIsSmall }"
               @click="goToQuestion(questionNumber - 1)"
             >
@@ -66,7 +67,11 @@
             </KButton>
 
             <!-- below prev/next buttons in tab and DOM order, in footer -->
-            <div v-if="windowIsLarge" class="left-align" dir="auto">
+            <div
+              v-if="windowIsLarge"
+              :dir="layoutDirReset"
+              class="left-align"
+            >
               <div class="answered">
                 {{ answeredText }}
               </div>
@@ -194,6 +199,15 @@
         // best practice seems to be to do it as a computed property and not a method:
         // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
         return debounce(this.setAndSaveCurrentExamAttemptLog, 5000);
+      },
+      bottomBarLayoutDirection() {
+        // Allows contents to be displayed visually in reverse-order,
+        // but semantically in correct order.
+        return this.isRtl ? 'ltr' : 'rtl';
+      },
+      layoutDirReset() {
+        // Overrides bottomBarLayoutDirection reversal
+        return this.isRtl ? 'rtl' : 'ltr';
       },
     },
     watch: {
