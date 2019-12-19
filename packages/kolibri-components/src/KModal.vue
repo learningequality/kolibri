@@ -188,7 +188,7 @@
       contentSectionMaxHeight() {
         return {
           'max-height': `${this.maxContentHeight}px`,
-          'min-height': `${this.contentHeight}px`,
+          height: `${this.contentHeight}px`,
         };
       },
     },
