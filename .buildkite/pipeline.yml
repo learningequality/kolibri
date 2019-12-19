@@ -57,7 +57,7 @@ steps:
       queue: "windows-sign"
 
   - block: "Build release APK?"
-  - trigger: "wip-kolibri-android-next-gen"
+  - trigger: "kolibri-android-installer"
     label: ":android:"
     build:
       <<: *triggered_build_attributes
