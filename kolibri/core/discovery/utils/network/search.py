@@ -1,4 +1,3 @@
-import atexit
 import json
 import logging
 import socket
@@ -45,14 +44,14 @@ class KolibriZeroconfService(object):
         self.port = port
         self.data = {key: json.dumps(val) for (key, val) in data.items()}
 
-        atexit.register(self.cleanup)
-
     def register(self):
 
         if not ZEROCONF_STATE["zeroconf"]:
             initialize_zeroconf_listener()
 
-        assert self.info is None, "Service is already registered!"
+        if self.info is not None:
+            logger.error("Service is already registered!")
+            return
 
         i = 1
         id = self.id
@@ -88,7 +87,9 @@ class KolibriZeroconfService(object):
 
     def unregister(self):
 
-        assert self.info is not None, "Service is not registered!"
+        if self.info is None:
+            logging.error("Service is not registered!")
+            return
 
         ZEROCONF_STATE["zeroconf"].unregister_service(self.info)
 
@@ -105,7 +106,15 @@ class KolibriZeroconfListener(object):
     instances = {}
 
     def add_service(self, zeroconf, type, name):
-        info = zeroconf.get_service_info(type, name)
+        timeout = 5000
+        info = zeroconf.get_service_info(type, name, timeout=timeout)
+        if info is None:
+            logger.warn(
+                "Zeroconf network service information could not be retrieved within {} seconds".format(
+                    str(timeout / 1000.0)
+                )
+            )
+            return
         id = _id_from_name(name)
         ip = socket.inet_ntoa(info.address)
 
@@ -140,7 +149,7 @@ class KolibriZeroconfListener(object):
                 )
 
                 logger.info(
-                    "Kolibri instance '%s' joined zeroconf network; service info: %s\n"
+                    "Kolibri instance '%s' joined zeroconf network; service info: %s"
                     % (id, self.instances[id])
                 )
 
@@ -148,11 +157,14 @@ class KolibriZeroconfListener(object):
                 import traceback
 
                 logger.warn(
-                    (
-                        "A new Kolibri instance '%s' was seen on the zeroconf network, "
-                        + "but we had trouble getting the information we needed about it.  This probably isn't a big deal!\n\n"
-                        + "service info:\n %s;\n\nThe following exception was raised:\n%s"
-                    )
+                    """
+                        A new Kolibri instance '%s' was seen on the zeroconf network,
+                        but we had trouble getting the information we needed about it.
+                        Service info:
+                        %s
+                        The following exception was raised:
+                        %s
+                        """
                     % (id, self.instances[id], traceback.format_exc(limit=1)),
                 )
             finally:
@@ -160,7 +172,7 @@ class KolibriZeroconfListener(object):
 
     def remove_service(self, zeroconf, type, name):
         id = _id_from_name(name)
-        logger.info("\nKolibri instance '%s' has left the zeroconf network.\n" % (id,))
+        logger.info("Kolibri instance '%s' has left the zeroconf network." % (id,))
 
         try:
             if id in self.instances:
@@ -192,6 +204,7 @@ def unregister_zeroconf_service():
     if ZEROCONF_STATE["service"] is not None:
         ZEROCONF_STATE["service"].cleanup()
     ZEROCONF_STATE["service"] = None
+    ZEROCONF_STATE["zeroconf"].close()
 
 
 def initialize_zeroconf_listener():
