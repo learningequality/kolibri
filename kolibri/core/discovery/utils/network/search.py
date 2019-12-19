@@ -105,7 +105,15 @@ class KolibriZeroconfListener(object):
     instances = {}
 
     def add_service(self, zeroconf, type, name):
-        info = zeroconf.get_service_info(type, name)
+        timeout = 5000
+        info = zeroconf.get_service_info(type, name, timeout=timeout)
+        if info is None:
+            logger.warn(
+                "Zeroconf network service information could not be retrieved within {} seconds".format(
+                    str(timeout / 1000.0)
+                )
+            )
+            return
         id = _id_from_name(name)
         ip = socket.inet_ntoa(info.address)
 
