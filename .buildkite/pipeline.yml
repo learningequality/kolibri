@@ -15,12 +15,9 @@ steps:
         LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
         LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
 
-    # Android build only requires whl file
-  # - label: Build Android APK
-  #   env:
-  #     KOLIBRI_ANDROID_BUILD_MODE: dev
-  #   command: &android_build
-  #     - .buildkite/build_apk.sh
+  - trigger: "wip-kolibri-android-next-gen"
+    label: ":android:"
+    build: *triggered_build_attributes
 
   - label: Build Windows installer
     command: .buildkite/build_windows_installer.sh
@@ -59,11 +56,13 @@ steps:
     agents:
       queue: "windows-sign"
 
-  # - block: "Build release APK?"
-  # - label: "Build Release APK"
-  #   env:
-  #     KOLIBRI_ANDROID_BUILD_MODE: release
-  #   command: *android_build
+  - block: "Build release APK?"
+  - trigger: "wip-kolibri-android-next-gen"
+    label: ":android:"
+    build:
+      <<: *triggered_build_attributes
+      env:
+        KOLIBRI_ANDROID_BUILD_MODE: release
 
   - block: "Test .debs?"
   - label: Test on Trusty, Xenial, Bionic
