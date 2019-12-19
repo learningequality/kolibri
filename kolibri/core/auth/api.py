@@ -350,7 +350,15 @@ class ClassroomViewSet(ValuesViewset):
     def consolidate(self, items):
         output = []
         items = sorted(items, key=lambda x: x["id"])
-        coach_ids = list(set([item["role__user__id"] for item in items]))
+        coach_ids = list(
+            set(
+                [
+                    item["role__user__id"]
+                    for item in items
+                    if item["role__user__id"] is not None
+                ]
+            )
+        )
         facility_roles = {
             obj.pop("user"): obj
             for obj in Role.objects.filter(

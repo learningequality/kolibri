@@ -30,6 +30,7 @@ from django.db import connection
 from django.db import models
 from django.db.models import Min
 from django.db.models import Q
+from django.db.models import QuerySet
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
 from le_utils.constants import content_kinds
@@ -62,11 +63,17 @@ class ContentNodeQueryset(TreeQuerySet, FilterByUUIDQuerysetMixin):
                 .annotate(node_id=Min("id"))
                 .values_list("node_id", flat=True)
             )
-            return self.filter(id__in=deduped_ids)
+            return self.filter_by_uuids(deduped_ids)
 
         # when using postgres, we can call distinct on a specific column
         elif connection.vendor == "postgresql":
             return self.order_by("content_id").distinct("content_id")
+
+    def filter_by_content_ids(self, content_ids, validate=True):
+        return self._by_uuids(content_ids, validate, "content_id", True)
+
+    def exclude_by_content_ids(self, content_ids, validate=True):
+        return self._by_uuids(content_ids, validate, "content_id", False)
 
 
 class ContentNodeManager(
@@ -180,7 +187,7 @@ class File(base_models.File):
         )
 
 
-class LocalFileManager(models.Manager):
+class LocalFileQueryset(models.QuerySet, FilterByUUIDQuerysetMixin):
     def delete_unused_files(self):
         for file in self.get_unused_files():
             try:
@@ -208,7 +215,7 @@ class LocalFile(base_models.LocalFile):
     The bottom layer of the contentDB schema, defines the local state of files on the device storage.
     """
 
-    objects = LocalFileManager()
+    objects = LocalFileQueryset.as_manager()
 
     class Admin:
         pass
@@ -254,6 +261,10 @@ class AssessmentMetaData(base_models.AssessmentMetaData):
     pass
 
 
+class ChannelMetadataQueryset(QuerySet, FilterByUUIDQuerysetMixin):
+    pass
+
+
 @python_2_unicode_compatible
 class ChannelMetadata(base_models.ChannelMetadata):
     """
@@ -268,6 +279,8 @@ class ChannelMetadata(base_models.ChannelMetadata):
     )
     order = models.PositiveIntegerField(default=0, null=True, blank=True)
     public = models.NullBooleanField()
+
+    objects = ChannelMetadataQueryset.as_manager()
 
     class Admin:
         pass

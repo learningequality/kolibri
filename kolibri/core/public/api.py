@@ -133,7 +133,8 @@ def get_public_file_checksums(request, version):
             return HttpResponseBadRequest("POST body must be either json or gzip")
         checksums = json.loads(data.decode("utf-8"))
         available_checksums = set(
-            LocalFile.objects.filter(available=True, id__in=checksums)
+            LocalFile.objects.filter(available=True)
+            .filter_by_uuids(checksums)
             .values_list("id", flat=True)
             .distinct()
         )

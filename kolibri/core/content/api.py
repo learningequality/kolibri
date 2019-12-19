@@ -5,6 +5,7 @@ from random import sample
 
 import requests
 from django.core.cache import cache
+from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
@@ -102,18 +103,17 @@ class ChannelMetadataFilter(FilterSet):
         fields = ("available", "has_exercise")
 
     def filter_has_exercise(self, queryset, name, value):
-        channel_ids = []
-
-        for channel in queryset:
-            channel_has_exercise = (
-                channel.root.get_descendants()
-                .filter(kind=content_kinds.EXERCISE, available=True)
-                .exists()
+        queryset = queryset.annotate(
+            has_exercise=Exists(
+                models.ContentNode.objects.filter(
+                    kind=content_kinds.EXERCISE,
+                    available=True,
+                    channel_id=OuterRef("id"),
+                )
             )
-            if channel_has_exercise:
-                channel_ids.append(channel.id)
+        )
 
-        return queryset.filter(id__in=channel_ids)
+        return queryset.filter(has_exercise=True)
 
     def filter_available(self, queryset, name, value):
         return queryset.filter(root__available=value)
@@ -133,13 +133,7 @@ class IdFilter(FilterSet):
     ids = CharFilter(method="filter_ids")
 
     def filter_ids(self, queryset, name, value):
-        try:
-            # SQLITE_MAX_VARIABLE_NUMBER is 999 by default.
-            # It means 999 is the max number of params for a query
-            return queryset.filter(pk__in=value.split(",")[:900])
-        except ValueError:
-            # Catch in case of a poorly formed UUID
-            return queryset.none()
+        return queryset.filter_by_uuids(value.split(","))
 
     class Meta:
         fields = ["ids"]
@@ -223,7 +217,7 @@ class ContentNodeFilter(IdFilter):
         return queryset
 
     def filter_exclude_content_ids(self, queryset, name, value):
-        return queryset.exclude(content_id__in=value.split(","))
+        return queryset.exclude_by_content_ids(value.split(","))
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
@@ -296,7 +290,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
             return Response([])
         ids = ids.split(",")
         kind = self.request.query_params.get("descendant_kind", None)
-        nodes = models.ContentNode.objects.filter(id__in=ids, available=True)
+        nodes = models.ContentNode.objects.filter_by_uuids(ids).filter(available=True)
         data = []
         for node in nodes:
 
@@ -318,7 +312,9 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         if not ids:
             return Response([])
         ids = ids.split(",")
-        queryset = models.ContentNode.objects.filter(id__in=ids, available=True)
+        queryset = models.ContentNode.objects.filter_by_uuids(ids).filter(
+            available=True
+        )
         data = list(
             queryset.annotate(
                 num_assessments=SQSum(
@@ -342,9 +338,11 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         ids = self.request.query_params.get("ids", "").split(",")
         data = 0
         if ids and ids[0]:
-            nodes = models.ContentNode.objects.filter(
-                id__in=ids, available=True
-            ).prefetch_related("assessmentmetadata")
+            nodes = (
+                models.ContentNode.objects.filter_by_uuids(ids)
+                .filter(available=True)
+                .prefetch_related("assessmentmetadata")
+            )
             data = (
                 nodes.aggregate(Sum("assessmentmetadata__number_of_assessments"))[
                     "assessmentmetadata__number_of_assessments__sum"
@@ -381,9 +379,8 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         if content_id_string:
             content_ids = content_id_string.split(",")
             counts = (
-                models.ContentNode.objects.filter(
-                    content_id__in=content_ids, available=True
-                )
+                models.ContentNode.objects.filter_by_content_ids(content_ids)
+                .filter(available=True)
                 .values("content_id")
                 .order_by()
                 .annotate(count=Count("content_id"))
@@ -533,19 +530,20 @@ class ContentNodeSlimViewset(ValuesViewset):
             ).values_list("content_id", flat=True)
 
             # If no logs, don't bother doing the other queries
-            if not completed_content_ids:
+            if not completed_content_ids.exists():
                 queryset = queryset.none()
             else:
-                completed_content_nodes = queryset.filter(
-                    content_id__in=completed_content_ids
+                completed_content_nodes = queryset.filter_by_content_ids(
+                    completed_content_ids
                 ).order_by()
 
                 # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
                 queryset = (
-                    queryset.exclude(
-                        content_id__in=ContentSummaryLog.objects.filter(
-                            user=user
-                        ).values_list("content_id", flat=True)
+                    queryset.exclude_by_content_ids(
+                        ContentSummaryLog.objects.filter(user=user).values_list(
+                            "content_id", flat=True
+                        ),
+                        validate=False,
                     )
                     .filter(
                         Q(has_prerequisite__in=completed_content_nodes)
@@ -599,7 +597,9 @@ class ContentNodeSlimViewset(ValuesViewset):
             # .count scales with table size, so can get slow on larger channels
             count_cache_key = "content_count_for_popular"
             count = cache.get(count_cache_key) or min(pks.count(), 25)
-            queryset = queryset.filter(pk__in=sample(list(pks), count))
+            queryset = queryset.filter_by_uuids(
+                sample(list(pks), count), validate=False
+            )
             if not coach_content:
                 queryset = queryset.exclude(coach_content=True)
         else:
@@ -619,8 +619,8 @@ class ContentNodeSlimViewset(ValuesViewset):
                 .order_by("-content_id__count")
             )
 
-            most_popular = queryset.filter(
-                content_id__in=list(content_counts_sorted[:20])
+            most_popular = queryset.filter_by_content_ids(
+                list(content_counts_sorted[:20]), validate=False
             )
             queryset = most_popular.dedupe_by_content_id()
 
@@ -670,7 +670,9 @@ class ContentNodeSlimViewset(ValuesViewset):
             if not content_ids:
                 queryset = queryset.none()
             else:
-                resume = queryset.filter(content_id__in=list(content_ids[:10]))
+                resume = queryset.filter_by_content_ids(
+                    list(content_ids[:10]), validate=False
+                )
                 queryset = resume.dedupe_by_content_id()
 
         return Response(self.serialize(queryset))
@@ -735,7 +737,7 @@ class ContentNodeSearchViewset(ContentNodeSlimViewset):
 
             # in each pass, don't take any items already in the result set
             matches = (
-                queryset.exclude(content_id__in=list(content_ids))
+                queryset.exclude_by_content_ids(list(content_ids), validate=False)
                 .filter(query)
                 .values("content_id", "id")[:BUFFER_SIZE]
             )
@@ -755,7 +757,7 @@ class ContentNodeSearchViewset(ContentNodeSlimViewset):
             if len(results) >= max_results:
                 break
 
-        results = queryset.filter(id__in=results)
+        results = queryset.filter_by_uuids(results, validate=False)
 
         # If no queries, just use an empty Q.
         all_queries_filter = union(all_queries) or Q()
