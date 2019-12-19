@@ -6,7 +6,7 @@ mkdir -p whl
 echo "--- Downloading whl file"
 
 # Allows for building directly from pipeline or trigger
-if [[ $BUILDKITE_TRIGGERED_FROM_BUILD_ID ]]
+if [[ $LE_TRIGGERED_FROM_BUILD_ID ]]
 then
   echo "Downloading from triggered build"
   buildkite-agent artifact download 'dist/*.whl' . --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}
