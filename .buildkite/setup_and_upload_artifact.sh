@@ -38,7 +38,9 @@ buildkite-agent artifact download 'dist/*.tar.gz' dist/
 buildkite-agent artifact download 'dist/*.deb' dist/
 buildkite-agent artifact download 'dist/*.exe' dist/
 buildkite-agent artifact download 'dist/*.dmg' dist/
-buildkite-agent artifact download 'dist/*.zip' dist/
+
+# Patch until we can get optional + asynchronous builds
+buildkite-agent artifact download 'dist/*.zip' dist/ || true
 
 {
     buildkite-agent artifact download '*.exe' dist/ --step "Sign Windows installer"
