@@ -72,6 +72,7 @@
 
     <div class="buttons" :class="{'button-lift': taskIsRunning}">
       <KButton
+        v-if="taskIsCancellable || taskIsClearable"
         :disabled="taskIsCanceling"
         :text="buttonLabel"
         appearance="flat-button"
@@ -138,7 +139,7 @@
     },
     computed: {
       buttonLabel() {
-        if (taskIsClearable(this.task)) {
+        if (this.taskIsClearable) {
           return this.coreString('clearAction');
         }
         return this.coreString('cancelAction');
@@ -157,6 +158,12 @@
       },
       taskIsFailed() {
         return this.task.status === TaskStatuses.FAILED || this.taskIsCanceled;
+      },
+      taskIsCancellable() {
+        return this.task.cancellable;
+      },
+      taskIsClearable() {
+        return taskIsClearable(this.task);
       },
       descriptionText() {
         const trName = typeToTrMap[this.task.type];
