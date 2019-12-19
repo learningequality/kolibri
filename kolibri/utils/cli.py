@@ -432,6 +432,12 @@ def start(port, background):
     Start the server on given port.
     """
 
+    serve_http = OPTIONS["Server"]["CHERRYPY_START"]
+
+    if serve_http:
+        # Check if the port is occupied
+        check_other_kolibri_running(port)
+
     create_startup_lock(port)
 
     # Check if the content directory exists when Kolibri runs after the first time.
@@ -445,8 +451,6 @@ def start(port, background):
     if sys.platform == "darwin":
         background = False
 
-    serve_http = OPTIONS["Server"]["CHERRYPY_START"]
-
     if not background:
         logger.info("Running Kolibri")
 
@@ -454,8 +458,6 @@ def start(port, background):
         logger.info("Running Kolibri as background process")
 
     if serve_http:
-        # Check if the port is occupied
-        check_other_kolibri_running(port)
 
         __, urls = server.get_urls(listen_port=port)
         if not urls:
