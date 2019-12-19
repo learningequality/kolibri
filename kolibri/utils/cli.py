@@ -234,6 +234,7 @@ class KolibriDjangoCommand(click.Command):
         check_debian_user(ctx.params.get("no_input"))
         setup_logging(debug=get_debug_param())
         initialize()
+        check_content_directory_exists_and_writable()
         check_database_is_migrated()
         for param in initialize_params:
             ctx.params.pop(param.name)
@@ -428,9 +429,6 @@ def start(port, background):
         check_other_kolibri_running(port)
 
     create_startup_lock(port)
-
-    # Check if the content directory exists when Kolibri runs after the first time.
-    check_content_directory_exists_and_writable()
 
     # Clear old sessions up
     call_command("clearsessions")
