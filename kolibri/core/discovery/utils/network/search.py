@@ -1,4 +1,3 @@
-import atexit
 import json
 import logging
 import socket
@@ -44,8 +43,6 @@ class KolibriZeroconfService(object):
         self.id = id
         self.port = port
         self.data = {key: json.dumps(val) for (key, val) in data.items()}
-
-        atexit.register(self.cleanup)
 
     def register(self):
 
@@ -207,6 +204,7 @@ def unregister_zeroconf_service():
     if ZEROCONF_STATE["service"] is not None:
         ZEROCONF_STATE["service"].cleanup()
     ZEROCONF_STATE["service"] = None
+    ZEROCONF_STATE["zeroconf"].close()
 
 
 def initialize_zeroconf_listener():
