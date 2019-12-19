@@ -4,6 +4,7 @@
     :immersivePage="true"
     immersivePageIcon="arrow_back"
     :immersivePageRoute="toolbarRoute"
+    :immersivePagePrimary="true"
     :appBarTitle="appBarTitle"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
@@ -43,7 +44,7 @@
         return Boolean(this.selectedExercises[this.currentContentNode.id]);
       },
       appBarTitle() {
-        return this.$tr('createNewExamLabel');
+        return this.currentContentNode.title;
       },
     },
     beforeDestroy() {
@@ -64,7 +65,7 @@
     $trs: {
       added: "Added '{item}'",
       removed: "Removed '{item}'",
-      createNewExamLabel: 'Create new quiz',
+      // createNewExamLabel: 'Create new quiz',
     },
   };
 
