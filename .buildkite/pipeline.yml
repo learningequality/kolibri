@@ -14,13 +14,13 @@ steps:
       env:
         LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
         LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
-    
+
     # Android build only requires whl file
-  - label: Build Android APK
-    env:
-      KOLIBRI_ANDROID_BUILD_MODE: dev
-    command: &android_build
-      - .buildkite/build_apk.sh
+  # - label: Build Android APK
+  #   env:
+  #     KOLIBRI_ANDROID_BUILD_MODE: dev
+  #   command: &android_build
+  #     - .buildkite/build_apk.sh
 
   - label: Build Windows installer
     command: .buildkite/build_windows_installer.sh
@@ -32,7 +32,7 @@ steps:
   - trigger: "kolibri-raspbian-image"
     label: ":raspberry-pi:"
     build: *triggered_build_attributes
-    depends_on: 
+    depends_on:
       - deb-build
 
   - wait
@@ -59,11 +59,11 @@ steps:
     agents:
       queue: "windows-sign"
 
-  - block: "Build release APK?"
-  - label: "Build Release APK"
-    env:
-      KOLIBRI_ANDROID_BUILD_MODE: release
-    command: *android_build
+  # - block: "Build release APK?"
+  # - label: "Build Release APK"
+  #   env:
+  #     KOLIBRI_ANDROID_BUILD_MODE: release
+  #   command: *android_build
 
   - block: "Test .debs?"
   - label: Test on Trusty, Xenial, Bionic
