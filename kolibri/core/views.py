@@ -9,7 +9,6 @@ from django.urls import translate_url
 from django.utils.decorators import method_decorator
 from django.utils.six.moves.urllib.parse import urlsplit
 from django.utils.six.moves.urllib.parse import urlunsplit
-from django.utils.translation import check_for_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
@@ -27,6 +26,7 @@ from kolibri.core.device.translation import get_settings_language
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.hooks import RoleBasedRedirectHook
+from kolibri.utils import i18n
 
 
 # Modified from django.views.i18n
@@ -39,7 +39,7 @@ def set_language(request):
     """
     lang_code = request.POST.get(LANGUAGE_QUERY_PARAMETER)
     next_url = urlsplit(request.POST.get("next")) if request.POST.get("next") else None
-    if lang_code and check_for_language(lang_code):
+    if lang_code and lang_code not in i18n.KOLIBRI_SUPPORTED_LANGUAGES:
         if next_url and is_valid_path(next_url.path):
             # If it is a recognized Kolibri path, then translate it to the new language and return it.
             next_path = urlunsplit(

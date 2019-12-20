@@ -35,3 +35,4 @@ def _get_supported_language_info():
 
 # Kolibri format
 KOLIBRI_SUPPORTED_LANGUAGES = _get_supported_language_info()
+SUPPORTED_LANG_CODES = [lang.get("intl_code") for lang in KOLIBRI_SUPPORTED_LANGUAGES]

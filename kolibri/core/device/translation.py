@@ -11,14 +11,12 @@ from django.urls import Resolver404
 from django.urls.resolvers import RegexURLResolver
 from django.utils.translation import get_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
-from django.utils.translation.trans_real import check_for_language
-from django.utils.translation.trans_real import get_language_from_path
-from django.utils.translation.trans_real import get_languages
 from django.utils.translation.trans_real import get_supported_language_variant
 from django.utils.translation.trans_real import language_code_re
 from django.utils.translation.trans_real import parse_accept_lang_header
 
 from kolibri.core.device.utils import get_device_setting
+from kolibri.utils import i18n
 
 
 def get_device_language():
@@ -51,6 +49,13 @@ def get_settings_language():
         return settings.LANGUAGE_CODE
 
 
+def get_language_from_path(path_info):
+    for code in i18n.SUPPORTED_LANG_CODES:
+        if code in path_info:
+            return code
+    return None
+
+
 def get_language_from_request_and_is_from_path(request):  # noqa complexity-16
     """
     Analyzes the request to find what language the user wants the system to
@@ -75,19 +80,13 @@ def get_language_from_request_and_is_from_path(request):  # noqa complexity-16
         # URL, so let the language code setting carry on from here.
         pass
 
-    supported_lang_codes = get_languages()
-
     lang_code = get_language_from_path(request.path_info)
-    if lang_code in supported_lang_codes and lang_code is not None:
+    if lang_code in i18n.SUPPORTED_LANG_CODES and lang_code is not None:
         return lang_code, True
 
     if hasattr(request, "session"):
         lang_code = request.session.get(LANGUAGE_SESSION_KEY)
-        if (
-            lang_code in supported_lang_codes
-            and lang_code is not None
-            and check_for_language(lang_code)
-        ):
+        if lang_code in i18n.SUPPORTED_LANG_CODES and lang_code is not None:
             return lang_code, False
 
     device_language = get_device_language()

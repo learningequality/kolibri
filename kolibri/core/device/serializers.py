@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.utils.translation import check_for_language
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
@@ -13,6 +12,7 @@ from kolibri.core.auth.serializers import FacilityUserSerializer
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import provision_device
+from kolibri.utils import i18n
 
 
 class DevicePermissionsSerializer(serializers.ModelSerializer):
@@ -38,7 +38,7 @@ class DeviceSerializerMixin(object):
         """
         Check that the language_id is supported by Kolibri
         """
-        if not check_for_language(language_id):
+        if language_id not in i18n.KOLIBRI_SUPPORTED_LANGUAGES:
             raise serializers.ValidationError(_("Language is not supported by Kolibri"))
         return language_id
 
