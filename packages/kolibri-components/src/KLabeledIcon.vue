@@ -8,7 +8,7 @@
     </div>
     <div class="label">
       <!-- nest slot inside span to get alignment and flow correct for mixed RLT/LTR -->
-      <span dir="auto">
+      <span dir="auto" class="debug-warning">
         <!-- Use zero-width space when empty -->
         <slot v-if="!labelEmpty">{{ label }}</slot>
         <template v-else>&#8203;</template>
@@ -82,7 +82,7 @@
     margin-left: 1.925em; /* scale with parent font size */
   }
 
-  .label svg {
+  .debug-warning > svg {
     // if you see this, you need to pass the icon into the slot
     border: 1px solid red;
   }

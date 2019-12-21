@@ -8,6 +8,7 @@ import json
 import mimetypes
 import os
 import zipfile
+from collections import OrderedDict
 from xml.etree.ElementTree import SubElement
 
 import html5lib
@@ -74,8 +75,8 @@ def get_path_or_404(zipped_filename):
 
 def recursive_h5p_dependencies(zf, data, prefix=""):
 
-    jsfiles = []
-    cssfiles = []
+    jsfiles = OrderedDict()
+    cssfiles = OrderedDict()
 
     # load the dependencies, recursively, to extract their JS and CSS paths to include
     for dep in data.get("preloadedDependencies", []):
@@ -84,20 +85,18 @@ def recursive_h5p_dependencies(zf, data, prefix=""):
         info = zf.getinfo(librarypath)
         content = json.loads(zf.open(info).read())
         newjs, newcss = recursive_h5p_dependencies(zf, content, packagepath)
-        cssfiles += newcss
-        jsfiles += newjs
+        cssfiles.update(newcss)
+        jsfiles.update(newjs)
 
     # load the JS required for the current package
     for js in data.get("preloadedJs", []):
         path = prefix + js["path"]
-        if path not in jsfiles:
-            jsfiles.append(path)
+        jsfiles[path] = True
 
     # load the CSS required for the current package
     for css in data.get("preloadedCss", []):
         path = prefix + css["path"]
-        if path not in cssfiles:
-            cssfiles.append(path)
+        cssfiles[path] = True
 
     return jsfiles, cssfiles
 
@@ -122,9 +121,9 @@ def parse_html(content):
                 replace_script(parent, script)
         # Because html5lib parses like a browser, it will
         # always create head and body tags if they are missing.
-        body = document.find("body")
+        head = document.find("head")
         SubElement(
-            body,
+            head,
             "script",
             attrib={
                 "src": static(
@@ -145,11 +144,14 @@ def parse_html(content):
 
 
 def get_h5p(zf, embedded_filepath):
+    file_size = 0
     if not embedded_filepath:
         # Get the h5p bootloader, and then run it through our hashi templating code.
         # return the H5P bootloader code
         h5pdata = json.loads(zf.open(zf.getinfo("h5p.json")).read())
         jsfiles, cssfiles = recursive_h5p_dependencies(zf, h5pdata)
+        jsfiles = jsfiles.keys()
+        cssfiles = cssfiles.keys()
         contentdata = zf.open(zf.getinfo("content/content.json")).read()
         path_includes_version = (
             "true"
@@ -176,24 +178,30 @@ def get_h5p(zf, embedded_filepath):
         )
         content = parse_html(bootstrap_content)
         content_type = "text/html"
+        response = HttpResponse(content, content_type=content_type)
+        file_size = len(response.content)
     elif embedded_filepath.startswith("dist/"):
         # return static H5P dist resources
         path = finders.find("assets/h5p-standalone-" + embedded_filepath)
-        with open(path) as f:
-            content = f.read()
         # try to guess the MIME type of the embedded file being referenced
         content_type = (
             mimetypes.guess_type(embedded_filepath)[0] or "application/octet-stream"
         )
-    response = HttpResponse(content, content_type=content_type)
-    response["Content-Length"] = len(content)
+        response = FileResponse(open(path, "rb"), content_type=content_type)
+        file_size = os.stat(path).st_size
+    if file_size:
+        response["Content-Length"] = file_size
     return response
 
 
-def get_embedded_file(request, zf, zipped_filename, embedded_filepath):
+def get_embedded_file(
+    request, zf, zipped_filename, embedded_filepath, skip_hashi=False
+):
     # if no path, or a directory, is being referenced, look for an index.html file
     if not embedded_filepath or embedded_filepath.endswith("/"):
         embedded_filepath += "index.html"
+
+    skip_hashi = skip_hashi or request.GET.get("SKIP_HASHI")
 
     # get the details about the embedded file, and ensure it exists
     try:
@@ -210,15 +218,17 @@ def get_embedded_file(request, zf, zipped_filename, embedded_filepath):
     content_type = (
         mimetypes.guess_type(embedded_filepath)[0] or "application/octet-stream"
     )
-    if zipped_filename.endswith("zip") and (
-        embedded_filepath.endswith("htm") or embedded_filepath.endswith("html")
+    if (
+        zipped_filename.endswith("zip")
+        and (embedded_filepath.endswith("htm") or embedded_filepath.endswith("html"))
+        and not skip_hashi
     ):
         content = zf.open(info).read()
         html = parse_html(content)
         response = HttpResponse(html, content_type=content_type)
         file_size = len(response.content)
     else:
-        # generate a streaming response object, pulling data from within the zip  file
+        # generate a streaming response object, pulling data from within the zip file
         response = FileResponse(zf.open(info), content_type=content_type)
         file_size = info.file_size
 
@@ -254,10 +264,14 @@ class ZipContentView(View):
         with zipfile.ZipFile(zipped_path) as zf:
 
             # handle H5P files
-            if zipped_path.endswith("h5p") and (
-                not embedded_filepath or embedded_filepath.startswith("dist/")
-            ):
-                response = get_h5p(zf, embedded_filepath)
+            if zipped_path.endswith("h5p"):
+                if not embedded_filepath or embedded_filepath.startswith("dist/"):
+                    response = get_h5p(zf, embedded_filepath)
+                else:
+                    # Don't bother doing any hashi parsing of HTML content for h5p
+                    response = get_embedded_file(
+                        request, zf, zipped_filename, embedded_filepath, skip_hashi=True
+                    )
             else:
                 response = get_embedded_file(
                     request, zf, zipped_filename, embedded_filepath

@@ -1,22 +1,19 @@
 Feature: Super admin can see error logs during a failed Windows installer setup
-    Super admin needs to be able to see the error logs when the Kolibri Windows installation failed
+  Super admin needs to be able to see the error logs when the Kolibri Windows installation fails
 
-    Background:
-      Given that I have the Kolibri Windows installer
-        And I am using a Windows environment
-        And I double click the Kolibri Windows installer
+  Background:
+    Given I am installing Kolibri on Windows OS
+      And I double click the Kolibri Windows installer
 
-    Scenario: Install the kolibri Windows installer with the error
-      When I see and select a kolibri <language>
-        And I see the setup message box that Python is required to install
-        And I click "yes" to install Python
-      Then I see the Python is installing
-        And I manually delete or rename the "pip.exe" in the "C:\Python34\Script" path
-        And I continue the Kolibri installation
-        And the kolibri error message show up
-      Then I see the kolibri error dialog box
-      When I click the Kolibri log link
-      Then I see all the installation error logs
+  Scenario: Kolibri Windows installer exits with an error
+    When I see the setup message that Python is required to install
+      And I click "Yes" to install Python
+    Then I see the Python is installing
+      And I manually delete or rename the "pip.exe" in the "C:\Python34\Script" path
+      And I continue the Kolibri installation
+    Then I see a Kolibri error message 
+    When I click the 'Kolibri-setup.log' link
+    Then I see the installation error log file 
 
 Examples:
 | language |

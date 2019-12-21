@@ -52,32 +52,27 @@
 
 <style lang="scss" scoped>
 
-  .points-wrapper {
-    position: relative;
-  }
-
   .icon-wrapper {
-    position: absolute;
-    top: -4px;
     display: inline-block;
     width: 32px;
     height: 32px;
     text-align: center;
+    // Aligns the round background with its siblings
+    vertical-align: middle;
     border-radius: 100%;
   }
 
   .icon {
-    position: relative;
-    top: 7px;
     display: inline-block;
     width: 16px;
     height: 16px;
+    // Aligns the icon with its parent (white round bg)
+    vertical-align: middle;
   }
 
   .description {
-    position: relative;
     display: inline-block;
-    margin-left: 40px;
+    margin-left: 8px;
     font-size: 14px;
   }
 

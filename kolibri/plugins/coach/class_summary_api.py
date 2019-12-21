@@ -17,9 +17,9 @@ from rest_framework.response import Response
 
 from kolibri.core.auth import models as auth_models
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -50,7 +50,7 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
     # to the same content_id.
     content_map = {
         n[0]: n[1]
-        for n in ContentNode.objects.filter(id__in=lesson_node_ids).values_list(
+        for n in ContentNode.objects.filter_by_uuids(lesson_node_ids).values_list(
             "id", "content_id"
         )
     }
@@ -349,7 +349,7 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             for lesson in lesson_data
             for resource in lesson.pop("resources")
         }
-        query_content = ContentNode.objects.filter(id__in=all_node_ids)
+        query_content = ContentNode.objects.filter_by_uuids(all_node_ids)
         # final list of available nodes
         list_of_ids = [node.id for node in query_content]
         # determine a new list of node_ids for each lesson, removing/replacing missing content items

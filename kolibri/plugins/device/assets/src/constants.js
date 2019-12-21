@@ -101,3 +101,8 @@ export const pageNameToModuleMap = {
   [PageNames.USER_PERMISSIONS_PAGE]: 'userPermissions',
   [PageNames.DEVICE_INFO_PAGE]: 'deviceInfo',
 };
+
+export const LandingPageChoices = {
+  SIGN_IN: 'sign-in',
+  LEARN: 'learn',
+};

@@ -17,6 +17,15 @@ export default function videojsButtonMixin(videojsComponent) {
       this.on(this.menuButton_.el().parentElement, 'mouseleave', () => {
         this.menu.hide();
       });
+
+      this.documentClickListener = e => {
+        if (this.el().contains(e.target)) {
+          return;
+        }
+
+        // This will cascade to triggering `unlock` event
+        this.unpressButton();
+      };
     }
 
     /**
@@ -42,6 +51,14 @@ export default function videojsButtonMixin(videojsComponent) {
       this.items.forEach(item => {
         menu.addItem(item);
         item.on('hide', () => this.unpressButton());
+      });
+
+      menu.on('lock', () => {
+        document.addEventListener('click', this.documentClickListener);
+      });
+
+      menu.on('unlock', () => {
+        document.removeEventListener('click', this.documentClickListener);
       });
 
       return menu;

@@ -3,7 +3,11 @@ import { createTranslator } from 'kolibri.utils.i18n';
 export const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
   cancelAction: 'Cancel',
-  clearAction: 'Clear',
+  clearAction: {
+    message: 'Clear',
+    context:
+      '\nButton that allows to clear a single *task* from the list in the task manager.\n\n\n',
+  },
   closeAction: 'Close',
   confirmAction: 'Confirm',
   continueAction: 'Continue',

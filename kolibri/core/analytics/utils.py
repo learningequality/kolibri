@@ -3,6 +3,7 @@ import datetime
 import hashlib
 import json
 import logging
+import math
 
 import requests
 from django.core.serializers.json import DjangoJSONEncoder
@@ -11,6 +12,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.db.models import Max
 from django.db.models import Min
+from django.db.models import Q
 from django.db.models import Sum
 from django.utils.six.moves.urllib.parse import urljoin
 from django.utils.timezone import get_current_timezone
@@ -23,11 +25,13 @@ from requests.exceptions import Timeout
 import kolibri
 from .constants import nutrition_endpoints
 from .models import PingbackNotification
+from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import LocalFile
+from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -49,6 +53,8 @@ DEFAULT_PING_INTERVAL = 24 * 60
 DEFAULT_PING_CHECKRATE = 15
 DEFAULT_SERVER_URL = "https://telemetry.learningequality.org"
 
+USER_THRESHOLD = 10
+
 facility_settings = [
     "preset",
     "learner_can_edit_username",
@@ -58,8 +64,72 @@ facility_settings = [
     "learner_can_delete_account",
     "learner_can_login_with_no_password",
     "show_download_button_in_learn",
-    "allow_guest_access",
 ]
+
+
+def calculate_list_stats(data):
+    if data:
+        results = {}
+        results["count"] = len(data)
+        # calculate mean
+        results["mean"] = float(sum(data)) / results["count"]
+        # calculate std
+        results["std"] = round(
+            math.sqrt(sum((d - results["mean"]) ** 2 for d in data) / results["count"]),
+            2,
+        )
+        return results
+    return {"count": None, "mean": None, "std": None}
+
+
+def calculate_demographic_stats(dataset_id=None, channel_id=None, learners=True):
+
+    stats = {}
+
+    # if learners=True, only include learners, otherwise only non-learners
+    roles_filter = Q(roles__isnull=learners)
+    queryset = FacilityUser.objects.filter(roles_filter)
+
+    # handle stats at facility level
+    if dataset_id:
+        queryset = queryset.filter(dataset_id=dataset_id)
+
+    # handle stats at channel level
+    if channel_id:
+        user_ids = (
+            queryset.filter(contentsummarylog__channel_id=channel_id)
+            .distinct()
+            .values_list("id", flat=True)
+        )
+        # pass distinct user_ids as subquery
+        queryset = FacilityUser.objects.filter(id__in=user_ids)
+
+    # calculate stats if there are USER_THRESHOLD users or more
+    if queryset.count() >= USER_THRESHOLD:
+        # get list of all birth years
+        list_of_birth_years = list(queryset.values_list("birth_year", flat=True))
+
+        # calculate all gender counts
+        gender_counts = queryset.values("gender").annotate(count=Count("gender"))
+
+        year_stats = calculate_list_stats(
+            [int(year) for year in list_of_birth_years if year.isdigit()]
+        )
+
+        # payload of birth year and gender statistics
+        stats = {
+            "bys": {
+                "a": year_stats["mean"],
+                "sd": year_stats["std"],
+                "ts": year_stats["count"],
+                "d": list_of_birth_years.count(demographics.DEFERRED),
+                "ns": list_of_birth_years.count(demographics.NOT_SPECIFIED),
+            },
+            "gc": {
+                gc["gender"]: gc["count"] for gc in gender_counts if gc["gender"] != ""
+            },
+        }
+    return stats
 
 
 def dump_zipped_json(data):
@@ -83,6 +153,8 @@ def extract_facility_statistics(facility):
         for name in facility_settings
         if hasattr(facility.dataset, name)
     }
+
+    settings.update(allow_guest_access=allow_guest_access())
 
     learners = FacilityUser.objects.filter(dataset_id=dataset_id).exclude(
         roles__kind__in=[role_kinds.ADMIN, role_kinds.COACH]
@@ -126,6 +198,14 @@ def extract_facility_statistics(facility):
     contsessions_user = contsessions.exclude(user=None)
     contsessions_anon = contsessions.filter(user=None)
 
+    # calculate learner stats
+    learner_stats = calculate_demographic_stats(dataset_id=dataset_id, learners=True)
+
+    # calculate non-learner stats
+    non_learner_stats = calculate_demographic_stats(
+        dataset_id=dataset_id, learners=False
+    )
+
     # fmt: off
     return {
         # facility_id
@@ -168,6 +248,10 @@ def extract_facility_statistics(facility):
         "sut": int((contsessions_user.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
         # sess_anon_time
         "sat": int((contsessions_anon.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
+        # demographic_stats_learner
+        "dsl": learner_stats,
+        # demographic_stats_non_learner
+        "dsnl": non_learner_stats,
     }
     # fmt: on
 
@@ -200,6 +284,14 @@ def extract_channel_statistics(channel):
     contsessions_user = sessionlogs.exclude(user=None)
     contsessions_anon = sessionlogs.filter(user=None)
 
+    # calculate learner stats
+    learner_stats = calculate_demographic_stats(channel_id=channel_id, learners=True)
+
+    # calculate non-learner stats
+    non_learner_stats = calculate_demographic_stats(
+        channel_id=channel_id, learners=False
+    )
+
     # fmt: off
     return {
         # channel_id
@@ -228,6 +320,10 @@ def extract_channel_statistics(channel):
         "sut": int((contsessions_user.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
         # sess_anon_time
         "sat": int((contsessions_anon.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
+        # demographic_stats_learner
+        "dsl": learner_stats,
+        # demographic_stats_non_learner
+        "dsnl": non_learner_stats,
     }
     # fmt: on
 

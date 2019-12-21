@@ -93,8 +93,11 @@
       kolibriUsersL2: "Attempt to access any other user's account",
       kolibriUsersL3:
         'Remove, circumvent, disable, damage or otherwise interfere with security-related features of Kolibri',
-      kolibriUsersL4:
-        'Intentionally interfere with or damage the operation of Kolibri or any user’s enjoyment of it, by any means',
+      kolibriUsersL4: {
+        message:
+          'Intentionally interfere with or damage the operation of Kolibri or any user’s enjoyment of it, by any means',
+        context: 'Part of the "Usage and privacy" recommendations.',
+      },
       kolibriUsersP5:
         'When you use Kolibri as a logged-in user, information such as your name, username, age, birth year, identification number, the resources that you view, and your performance on assessments may be made available to administrators and coaches in your facility. Your information may also be used by the developers of Kolibri and shared with content creators to help improve the software and resources for different learner types and needs.',
       kolibriUsersP6:

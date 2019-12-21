@@ -16,11 +16,9 @@ from kolibri.core.tasks.job import State
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.storage import StorageMixin
 from kolibri.core.tasks.utils import InfiniteLoopThread
+from kolibri.utils.conf import OPTIONS
 
 Base = declarative_base()
-
-
-DEFAULT_INTERVAL = 60
 
 
 class ScheduledJob(Base):
@@ -44,7 +42,7 @@ class ScheduledJob(Base):
     queue = Column(String, index=True)
 
     # The original Job object, pickled here for so we can easily access it.
-    obj = Column(PickleType)
+    obj = Column(PickleType(protocol=OPTIONS["Python"]["PICKLE_PROTOCOL"]))
 
     scheduled_time = Column(DateTime())
 
@@ -52,7 +50,7 @@ class ScheduledJob(Base):
 
 
 class Scheduler(StorageMixin):
-    def __init__(self, queue=None, connection=None, interval=DEFAULT_INTERVAL):
+    def __init__(self, queue=None, connection=None):
         if connection is None and not isinstance(queue, Queue):
             raise ValueError("One of either connection or queue must be specified")
         elif isinstance(queue, Queue):
@@ -61,8 +59,6 @@ class Scheduler(StorageMixin):
                 connection = self.queue.storage.engine
         elif connection:
             self.queue = queue(connection=connection)
-
-        self.interval = interval
 
         self._schedule_checker = None
 
@@ -102,9 +98,7 @@ class Scheduler(StorageMixin):
         Returns: the Thread object.
         """
         t = InfiniteLoopThread(
-            self.check_schedule,
-            thread_name="SCHEDULECHECKER",
-            wait_between_runs=self.interval,
+            self.check_schedule, thread_name="SCHEDULECHECKER", wait_between_runs=0.5,
         )
         t.start()
         return t

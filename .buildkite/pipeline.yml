@@ -7,27 +7,33 @@ steps:
 
   - wait
 
-  - trigger: "wip-kolibri-macos"
+  - trigger: "kolibri-macos"
     label: ":mac:"
-    build:
+    build: &triggered_build_attributes
       message: "${BUILDKITE_MESSAGE}"
-      meta_data: 
-        triggered_from_job_id: "${BUILDKITE_JOB_ID}"
-    
+      env:
+        LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
+        LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
+
     # Android build only requires whl file
-  - label: Build Android APK
-    env:
-      KOLIBRI_ANDROID_BUILD_MODE: dev
-    command: &android_build
-      - .buildkite/build_apk.sh
+  # - label: Build Android APK
+  #   env:
+  #     KOLIBRI_ANDROID_BUILD_MODE: dev
+  #   command: &android_build
+  #     - .buildkite/build_apk.sh
 
   - label: Build Windows installer
     command: .buildkite/build_windows_installer.sh
 
-  - wait
-
   - label: Build Debian Packages
     command: .buildkite/build_debian_pkgs.sh
+    key: deb-build
+
+  - trigger: "kolibri-raspbian-image"
+    label: ":raspberry-pi:"
+    build: *triggered_build_attributes
+    depends_on:
+      - deb-build
 
   - wait
 
@@ -53,11 +59,11 @@ steps:
     agents:
       queue: "windows-sign"
 
-  - block: "Build release APK?"
-  - label: "Build Release APK"
-    env:
-      KOLIBRI_ANDROID_BUILD_MODE: release
-    command: *android_build
+  # - block: "Build release APK?"
+  # - label: "Build Release APK"
+  #   env:
+  #     KOLIBRI_ANDROID_BUILD_MODE: release
+  #   command: *android_build
 
   - block: "Test .debs?"
   - label: Test on Trusty, Xenial, Bionic

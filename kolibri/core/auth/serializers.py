@@ -19,6 +19,7 @@ from .models import AdHocGroup
 from .models import Membership
 from .models import Role
 from kolibri.core import error_constants
+from kolibri.core.device.utils import allow_guest_access
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -73,6 +74,8 @@ class MembershipSerializer(serializers.ModelSerializer):
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):
+    allow_guest_access = serializers.SerializerMethodField()
+
     class Meta:
         model = FacilityDataset
         fields = (
@@ -89,6 +92,9 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
             "allow_guest_access",
             "registered",
         )
+
+    def get_allow_guest_access(self, instance):
+        return allow_guest_access()
 
 
 class FacilitySerializer(serializers.ModelSerializer):

@@ -65,10 +65,29 @@ export default {
   /*
    * Return array of learner IDs who were individually assigned to the exam
    */
-  getAdHocLearnersForExam() {
+  getAdHocLearners() {
     return function(assignments) {
       const ilg = this.adHocGroups.find(group => assignments.includes(group.id));
       return ilg ? ilg.member_ids : [];
+    };
+  },
+  /*
+   * Return array of names of groups followed by names of assigned
+   * ad hoc learners
+   */
+  getRecipientNamesForExam(state) {
+    return function(exam) {
+      const adHocLearners = this.getAdHocLearners(exam.assignments).map(
+        learnerId => state.learnerMap[learnerId].name
+      );
+      const recipientsForGroups =
+        exam.groups.length || !adHocLearners.length ? this.getLearnersForGroups(exam.groups) : [];
+      const learnersInSelectedGroups = recipientsForGroups.map(
+        learnerId => state.learnerMap[learnerId].name
+      );
+      return this.getGroupNames(exam.groups).concat(
+        adHocLearners.filter(name => !learnersInSelectedGroups.includes(name))
+      );
     };
   },
   /*
@@ -79,20 +98,19 @@ export default {
       if (!exam) {
         throw new Error('getLearnersForLesson: invalid parameter(s)');
       }
-      if (exam.assignments.length) {
-        const individuallyAssignedLearners = this.getAdHocLearnersForExam(exam.assignments);
-        /* If exam.groups is empty, but individually assigned learners exist, then we
-         * don't want to getLearnersForGroups because it will return all learners
-         */
-        if (individuallyAssignedLearners.length && exam.groups.length === 0) {
-          return individuallyAssignedLearners;
-        } else {
-          return uniq(individuallyAssignedLearners.concat(this.getLearnersForGroups(exam.groups)));
-        }
+      const individuallyAssignedLearners = this.getAdHocLearners(exam.assignments);
+      if (individuallyAssignedLearners.length) {
+        // If exam.groups is empty, getLearnersForGroups returns the whole class
+        // so only concat it if we're getting learners from specified groups
+        return exam.groups.length
+          ? individuallyAssignedLearners.concat(this.getLearnersForGroups(exam.groups))
+          : individuallyAssignedLearners;
       } else {
-        // If we have no assignments, then getLearnersForGroups will return
-        // all learners (meaning this is assigned to entire class)
-        return [];
+        if (exam.assignments.length) {
+          return this.getLearnersForGroups(exam.groups);
+        } else {
+          return [];
+        }
       }
     };
   },
@@ -104,7 +122,41 @@ export default {
       if (!lesson) {
         throw new Error('getLearnersForLesson: invalid parameter(s)');
       }
-      return lesson.assignments.length ? this.getLearnersForGroups(lesson.groups) : [];
+      const individuallyAssignedLearners = this.getAdHocLearners(lesson.assignments);
+      if (individuallyAssignedLearners.length) {
+        // If lesson.groups is empty, getLearnersForGroups returns the whole class
+        // so only concat it if we're getting learners from specified groups
+        return lesson.groups.length
+          ? individuallyAssignedLearners.concat(this.getLearnersForGroups(lesson.groups))
+          : individuallyAssignedLearners;
+      } else {
+        if (lesson.assignments.length) {
+          return this.getLearnersForGroups(lesson.groups);
+        } else {
+          return [];
+        }
+      }
+    };
+  },
+  /*
+   * Return array of names of groups followed by names of assigned
+   * ad hoc learners
+   */
+  getRecipientNamesForLesson(state) {
+    return function(lesson) {
+      const fullLesson = state.lessonMap[lesson.id];
+      const recipientsForGroups = fullLesson.groups.length
+        ? this.getLearnersForGroups(fullLesson.groups)
+        : [];
+      const learnersInSelectedGroups = recipientsForGroups.map(
+        learnerId => state.learnerMap[learnerId].name
+      );
+      const assignments = lesson.lesson_assignments.map(l => l.collection);
+      return this.getGroupNames(fullLesson.groups).concat(
+        this.getAdHocLearners(assignments)
+          .map(learnerId => state.learnerMap[learnerId].name)
+          .filter(learner => !learnersInSelectedGroups.includes(learner))
+      );
     };
   },
   /*

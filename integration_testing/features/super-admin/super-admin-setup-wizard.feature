@@ -14,7 +14,7 @@ Feature: Super admin goes through the setup wizard
     When I click *More languages*
     Then I see the *Change language* modal
     When I select *Français*
-      And click *Confirm*
+      And click *Confirmar*
     Then the modal closes
       And I see the wizard language changes to French
     When I click the link *English*
@@ -58,21 +58,24 @@ Feature: Super admin goes through the setup wizard
       Given that I am on the *Step 6 of 7* of the setup wizard
         And I see *Create super admin account*
       When I fill in the full name, username and password fields
-        And click *Continue*
+        And I click the *Usage and privacy* link
+      Then I see the *Usage and privacy* modal
+        And I see the text of the privacy statement with the first heading *Users*
+      When I click *Close*
+      Then the modal closes
+      When I click *Continue*
       Then I see the *Step 7 of 7* of the setup wizard
 
     Scenario: Responsibility of the admin regarding privacy
       Given that I am on the *Step 7 of 7* of the setup wizard
         And I see *Responsibilities as an administrator*
-      When I click the *More information* link
+      When I click the *Usage and privacy* link
       Then I see the *Usage and privacy* modal
-        And I see the text of the privacy statement
+        And I see the text of the privacy statement with the first heading *Administrators*
       When I click *Close*
       Then the modal closes
       When I click *Finish*
-      Then I see the page reload
-        And I see the *Welcome to Kolibri* modal
-      When I click *OK*
-      Then the modal closes
-        And I see the *Device > Channels* page
+      Then I see the *Setting up the facility...* page
         And I see the *Welcome to Kolibri!* modal
+      When I click *OK*
+        And I see the *Device > Channels* page

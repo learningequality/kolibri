@@ -20,6 +20,7 @@ from kolibri.core.content.utils.annotation import calculate_total_resource_count
 from kolibri.core.content.utils.annotation import mark_local_files_as_available
 from kolibri.core.content.utils.annotation import mark_local_files_as_unavailable
 from kolibri.core.content.utils.annotation import recurse_annotation_up_tree
+from kolibri.core.content.utils.annotation import set_channel_metadata_fields
 from kolibri.core.content.utils.annotation import (
     set_leaf_node_availability_from_local_file_availability,
 )
@@ -840,7 +841,7 @@ class LocalFileByDisk(TransactionTestCase):
         super(LocalFileByDisk, self).tearDown()
 
 
-class CalculateChannelFieldsTestCase(TestCase):
+class SetChannelMetadataFieldsTestCase(TestCase):
     def setUp(self):
         self.node = ContentNode.objects.create(
             title="test",
@@ -893,3 +894,15 @@ class CalculateChannelFieldsTestCase(TestCase):
             self.channel.save()
         except DataError:
             self.fail("DataError: integer out of range")
+
+    def test_public(self):
+        self.assertIsNone(self.channel.public)
+        set_channel_metadata_fields(self.channel.id)
+
+        self.channel.refresh_from_db()
+        self.assertIsNone(self.channel.public)
+
+        set_channel_metadata_fields(self.channel.id, public=True)
+
+        self.channel.refresh_from_db()
+        self.assertTrue(self.channel.public)

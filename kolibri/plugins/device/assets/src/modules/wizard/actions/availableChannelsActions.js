@@ -13,10 +13,10 @@ import { getRemoteChannelByToken } from '../utils';
  */
 export function getAllRemoteChannels(store, publicChannels) {
   const { channelList } = store.rootState.manageContent;
-  const installedPrivateChannels = differenceBy(channelList, publicChannels, 'id').filter(
+  const installedUnlistedChannels = differenceBy(channelList, publicChannels, 'id').filter(
     channel => channel.available
   );
-  const promises = installedPrivateChannels.map(installedChannel =>
+  const promises = installedUnlistedChannels.map(installedChannel =>
     getRemoteChannelByToken(installedChannel.id)
       .then(([channel]) =>
         Promise.resolve({
@@ -48,6 +48,6 @@ export function getAllDriveChannels(store, drive) {
   });
 }
 
-export function fetchPrivateChannelInfo(store, channelId) {
+export function fetchUnlistedChannelInfo(store, channelId) {
   return getRemoteChannelByToken(channelId).then(channels => Array(channels));
 }

@@ -19,7 +19,7 @@
         />
       </template>
 
-      <template v-if="isPrivateChannel" v-slot:belowname>
+      <template v-if="isUnlistedChannel" v-slot:belowname>
         <KTooltip reference="lockicon" :refs="$refs" placement="top">
           {{ $tr('unlistedChannelTooltip') }}
         </KTooltip>
@@ -29,7 +29,7 @@
             class="lock-icon"
             icon="unlistedchannel"
           /><span
-            v-if="channel.newPrivateChannel"
+            v-if="channel.newUnlistedChannel"
             class="new-label"
             :style="{
               color: $themeTokens.textInverted,
@@ -40,6 +40,15 @@
       </template>
 
       <template v-slot:abovedescription>
+        <div v-if="newVersionAvailable">
+          <KIcon
+            class="update-icon"
+            icon="error"
+            :style="{fill: $themeTokens.primary}"
+          />
+          {{ $tr('newVersionMessage') }}
+          <KRouterLink :to="newChannelVersionPageRoute" :text="$tr('moreInformationLabel')" />
+        </div>
         <div v-if="onDevice" class="on-device">
           <KIcon
             class="check-icon"
@@ -50,15 +59,6 @@
         </div>
       </template>
 
-      <template v-if="newVersionAvailable" v-slot:belowdescription>
-        <KIcon
-          class="update-icon"
-          icon="error"
-          :style="{fill: $themeTokens.primary}"
-        />
-        {{ $tr('newVersionMessage') }}
-        <KRouterLink :to="newChannelVersionPageRoute" :text="$tr('moreInformationLabel')" />
-      </template>
     </ChannelDetails>
 
     <div class="col-3">
@@ -124,9 +124,7 @@
           return this.$tr('channelSelectedNoFileSize');
         }
       },
-      isPrivateChannel() {
-        // This is only defined when entering a remote import workflow,
-        // so false !== undefined.
+      isUnlistedChannel() {
         return this.channel.public === false;
       },
       tasksInQueue() {
@@ -256,18 +254,27 @@
     margin-left: 8px;
   }
 
-  .new-label {
-    position: absolute;
-    top: 3px;
-    padding: 2px 5px 2px 4px;
-    margin-left: 8px;
-    font-size: 14px;
-    border-radius: 2px;
-  }
-
   .private-icons {
     position: relative;
     display: inline-block;
+    margin-top: -3px;
+    margin-bottom: 3px;
+    vertical-align: top;
+  }
+
+  .new-label {
+    position: absolute;
+    top: 2px;
+    display: inline-block;
+    padding: 2px 8px;
+    margin-left: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 2px;
+
+    .channel-list-item-sm & {
+      top: -2px;
+    }
   }
 
   .selected-msg {

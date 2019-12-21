@@ -131,7 +131,9 @@
         })
         .then(() => {
           this.driveStatus = '';
-          this.selectedDriveId = this.enabledDrives.length === 1 ? this.enabledDrives[0].id : '';
+          if (this.enabledDrives.length > 0) {
+            this.selectedDriveId = this.enabledDrives[0].id;
+          }
         });
     },
     methods: {

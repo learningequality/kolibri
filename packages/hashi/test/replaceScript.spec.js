@@ -9,23 +9,23 @@ function bodyScript(scriptTag) {
 }
 
 function replaceTestScript(callback = () => {}) {
-  replaceScript(getScripts()[0], callback);
+  replaceScript(getScripts(document)[0], callback);
 }
 
 describe('getScript function', () => {
   it('should return script tags in the head that have no type', () => {
     document.documentElement.innerHTML = headScript('<script>window;</script>');
-    const script = getScripts()[0];
+    const script = getScripts(document)[0];
     expect(script.innerHTML).toBe('window;');
   });
   it('should return script tags in the body that have no type', () => {
     document.documentElement.innerHTML = bodyScript('<script>window;</script>');
-    const script = getScripts()[0];
+    const script = getScripts(document)[0];
     expect(script.innerHTML).toBe('window;');
   });
   it('should set the original parentNode on the tag as _parentNode', () => {
     document.documentElement.innerHTML = headScript('<script>window;</script>');
-    const script = getScripts()[0];
+    const script = getScripts(document)[0];
     expect(script._parentNode).toBe(document.head);
   });
 });
@@ -147,7 +147,7 @@ describe('setScripts function', () => {
       <body onload="window.mock1()">
       </div>
       </body></html>`;
-    setScripts(getScripts());
+    setScripts();
     expect(window.mock1).toHaveBeenCalled();
   });
 });

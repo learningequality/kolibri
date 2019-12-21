@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "array-includes": "^3.0.3",
+    "core-js": "^3.4.8",
     "object.assign": "^4.1.0",
     "object.entries": "^1.1.0",
     "object.values": "^1.1.0"

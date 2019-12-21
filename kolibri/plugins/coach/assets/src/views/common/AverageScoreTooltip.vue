@@ -1,26 +1,22 @@
 <template>
 
-  <div ref="icon" style="display:inline;">
-    <KIcon
-      icon="error"
-      :color="$themeTokens.primary"
-      style="position: relative; top: 4px; left: 4px; right: 4px;"
-    />
-    <KTooltip
-      reference="icon"
-      :refs="$refs"
-    >
-      {{ $tr('visibleToLearnersTooltipMessage') }}
-    </KTooltip>
-  </div>
+  <CoreInfoIcon
+    :tooltipText="$tr('visibleToLearnersTooltipMessage')"
+    :iconAriaLabel="$tr('visibleToLearnersTooltipMessage')"
+  />
 
 </template>
 
 
 <script>
 
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+
   export default {
     name: 'AverageScoreTooltip',
+    components: {
+      CoreInfoIcon,
+    },
     $trs: {
       visibleToLearnersTooltipMessage: {
         message: 'Calculated only from quizzes that were completed',

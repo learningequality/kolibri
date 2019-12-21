@@ -8,7 +8,7 @@
     v-bind="immersivePageProps"
   >
     <template slot="app-bar-actions">
-      <ActionBarSearchBox v-if="!isWithinSearchPage" />
+      <ActionBarSearchBox v-if="showSearch" />
     </template>
 
     <LearnTopNav slot="sub-nav" />
@@ -96,7 +96,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'facilityConfig']),
+      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'canAccessUnassignedContent']),
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
         currentLesson: 'currentLesson',
@@ -204,8 +204,8 @@
           immersivePage: false,
         };
       },
-      isWithinSearchPage() {
-        return this.pageName === PageNames.SEARCH;
+      showSearch() {
+        return this.pageName !== PageNames.SEARCH && this.canAccessUnassignedContent;
       },
       topNavIsVisible() {
         return (

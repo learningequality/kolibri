@@ -107,6 +107,7 @@ describe('selectDriveModal component', () => {
     const channel = {
       id: 'channel_1',
       version: 1,
+      available: true,
     };
     store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', channel);
     store.state.manageContent.channelList = [{ ...channel }];
@@ -120,6 +121,7 @@ describe('selectDriveModal component', () => {
     const channel = {
       id: 'channel_2',
       version: 6,
+      available: true,
     };
     store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', channel);
     store.state.manageContent.channelList = [{ ...channel }];

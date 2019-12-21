@@ -1,49 +1,29 @@
 <template>
 
   <BottomAppBar>
-    <KGrid
-      class="selection-bottom-bar"
-      :class="{'selection-bottom-bar-sm': windowIsSmall}"
-    >
-      <KGridItem
-        :layout12="{span: 8}"
-        :layout4="{span: 4}"
-        :layout="{alignment: 'right'}"
-        class="message"
-      >
-        <span>{{ selectedMessage }}</span>
-      </KGridItem>
+    <span class="message">{{ selectedMessage }}</span>
+    <template v-if="actionType === 'manage'">
+      <KButton
+        :disabled="$attrs.disabled || buttonsDisabled"
+        :text="coreString('deleteAction')"
+        :primary="false"
+        @click="$emit('selectoption', 'DELETE')"
+      />
+      <KButton
+        :disabled="$attrs.disabled || buttonsDisabled"
+        :text="$tr('exportAction')"
+        :primary="true"
+        @click="$emit('selectoption', 'EXPORT')"
+      />
+    </template>
 
-      <KGridItem
-        :layout12="{span: buttonsGridSpan}"
-        :layout4="{span: 4}"
-        :layout="{alignment: 'right'}"
-        class="buttons"
-      >
-        <template v-if="actionType === 'manage'">
-          <KButton
-            :disabled="$attrs.disabled || buttonsDisabled"
-            :text="coreString('deleteAction')"
-            :primary="false"
-            @click="$emit('selectoption', 'DELETE')"
-          />
-          <KButton
-            :disabled="$attrs.disabled || buttonsDisabled"
-            :text="$tr('exportAction')"
-            :primary="true"
-            @click="$emit('selectoption', 'EXPORT')"
-          />
-        </template>
-
-        <KButton
-          v-else
-          :disabled="$attrs.disabled || buttonsDisabled"
-          :text="confirmButtonLabel"
-          :primary="true"
-          @click="$emit('clickconfirm')"
-        />
-      </KGridItem>
-    </KGrid>
+    <KButton
+      v-else
+      :disabled="$attrs.disabled || buttonsDisabled"
+      :text="confirmButtonLabel"
+      :primary="true"
+      @click="$emit('clickconfirm')"
+    />
   </BottomAppBar>
 
 </template>
@@ -102,9 +82,6 @@
           export: this.$tr('exportAction'),
           delete: this.$tr('deleteAction'),
         }[this.actionType];
-      },
-      buttonsGridSpan() {
-        return this.actionType === 'manage' ? 4 : 2;
       },
       buttonsDisabled() {
         if (this.objectType === 'resource') {
@@ -183,19 +160,8 @@
 <style lang="scss" scoped>
 
   .message {
-    margin: auto;
-  }
-
-  .buttons {
-    .selection-bottom-bar-sm & {
-      margin-right: 0;
-    }
-  }
-
-  .selection-bottom-bar-sm {
-    button:last-of-type {
-      margin-right: 0;
-    }
+    display: inline-block;
+    margin-right: 16px;
   }
 
 </style>

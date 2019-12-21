@@ -4,6 +4,7 @@ import get from 'lodash/get';
 import find from 'lodash/find';
 import maxBy from 'lodash/maxBy';
 import { NotificationObjects } from '../../constants/notificationsConstants';
+import { CollectionTypes } from '../../constants/lessonsConstants';
 import { partitionCollectionByEvents, getCollectionsForAssignment } from './gettersUtils';
 
 const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
@@ -98,26 +99,59 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
         return partitioning.hasEvent.includes(event.user_id);
       });
 
-      summaryEvents.push({
-        type,
-        object,
-        event,
-        groupCode: groupCode + '_' + collIdx,
-        lastId,
-        assignment,
-        resource,
-        collection: {
-          id: collection.collection,
-          type: collection.collection_kind,
-          name: collection.name,
-        },
-        learnerSummary: {
-          firstUserName: firstUser.user,
-          firstUserId: firstUser.user_id,
-          total: partitioning.hasEvent.length,
-          completesCollection: partitioning.rest.length === 0, // not used for Needs Help
-        },
-      });
+      // Ad hoc groups will not have notifications bundled up like
+      // "Joe and N others..." for now. Each Individual learner's behavior
+      // will have a notification shown.
+      if (collection.collection_kind === CollectionTypes.ADHOCLEARNERSGROUP) {
+        partitioning.hasEvent.forEach((userId, idx) => {
+          const user = find(orderBy(allEvents, 'timestamp', ['desc']), event => {
+            return event.user_id === userId;
+          });
+          summaryEvents.push({
+            type,
+            object,
+            event,
+            groupCode: groupCode + '_' + collIdx + '_' + idx,
+            lastId,
+            assignment,
+            resource,
+            collection: {
+              id: collection.collection,
+              type: collection.collection_kind,
+              name: collection.name,
+            },
+            learnerSummary: {
+              firstUserName: user.user,
+              firstUserId: user.user_id,
+              total: 1,
+              // not used for Needs Help
+              completesCollection: false,
+            },
+          });
+        });
+      } else {
+        summaryEvents.push({
+          type,
+          object,
+          event,
+          groupCode: groupCode + '_' + collIdx,
+          lastId,
+          assignment,
+          resource,
+          collection: {
+            id: collection.collection,
+            type: collection.collection_kind,
+            name: collection.name,
+          },
+          learnerSummary: {
+            firstUserName: firstUser.user,
+            firstUserId: firstUser.user_id,
+            total: partitioning.hasEvent.length,
+            // not used for Needs Help
+            completesCollection: partitioning.rest.length === 0,
+          },
+        });
+      }
     }
   }
 
