@@ -55,7 +55,7 @@ long_description = """
 `Kolibri <https://learningequality.org/kolibri/>`_ is the offline learning platform
 from `Learning Equality <https://learningequality.org/>`_.
 
-This package can be installed by running ``pip install kolibri``. `See the download
+This package can be installed by running ``pip install --user kolibri``. `See the download
 page <https://learningequality.org/download/>`_ for other methods of installation.
 
 - `View the documentation <https://kolibri.readthedocs.io/>`_ and the `community
