@@ -1,0 +1,33 @@
+#! /bin/bash
+set -eo pipefail
+
+mkdir -p whl
+
+echo "--- Downloading whl file"
+
+# Allows for building directly from pipeline or trigger
+if [[ $LE_TRIGGERED_FROM_BUILD_ID ]]
+then
+  echo "Downloading from triggered build"
+  buildkite-agent artifact download 'dist/*.whl' . --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}
+  mv dist/* whl/
+  rm -r dist
+else
+  echo "Downloading from pip"
+  pip download -d ./whl kolibri
+fi
+
+echo "--- :android: Build APK"
+make run_docker
+
+# Making folder structure match other installers (convention)
+mv ./dist/android/*.apk ./dist
+
+if [[ $LE_TRIGGERED_FROM_JOB_ID && $BUILDKITE_TRIGGERED_FROM_BUILD_ID ]]
+then
+  echo "--- Uploading artifact to parent job"
+  buildkite-agent artifact upload dist/*-release.apk --job $LE_TRIGGERED_FROM_JOB_ID
+fi
+
+echo "--- Uploading artifact"
+buildkite-agent artifact upload dist/*-release.apk
