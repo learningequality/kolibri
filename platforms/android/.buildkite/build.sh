@@ -20,4 +20,7 @@ fi
 echo "--- :android: Build APK"
 make run_docker
 
-# TODO upload directly to google cloud
+# Making folder structure match other installers (convention)
+mv ./dist/android/*.apk ./dist
+
+buildkite-agent artifact upload dist/*-release.apk
