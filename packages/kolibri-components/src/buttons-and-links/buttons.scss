@@ -33,7 +33,8 @@ $raised-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14),
 }
 
 a.button {
-  display: inline-table; // helps with vertical layout
+  display: inline-block; // helps with vertical layout
+  vertical-align: top;
 }
 
 .raised {

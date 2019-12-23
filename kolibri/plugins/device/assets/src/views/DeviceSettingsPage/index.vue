@@ -40,20 +40,38 @@
         :floatingLabel="false"
         style="max-width: 300px"
       />
+      <KCheckbox
+        :label="$tr('unlistedChannels')"
+        :checked="allowPeerUnlistedChannelImport"
+        @change="allowPeerUnlistedChannelImport = $event"
+      />
       <p>
         <label>{{ $tr('landingPageLabel') }}</label>
         <KRadioButton
           :label="$tr('signInPageChoice')"
-          :value="true"
+          :value="landingPageChoices.SIGN_IN"
+          :currentValue="landingPage"
+          @change="landingPage = landingPageChoices.SIGN_IN"
         />
         <KRadioButton
           :label="$tr('learnerAppPageChoice')"
-          :value="false"
+          :value="landingPageChoices.LEARN"
+          :currentValue="landingPage"
+          @change="landingPage = landingPageChoices.LEARN"
         />
       </p>
-      <KCheckbox :label="$tr('allowGuestAccess')" />
-      <KCheckbox :label="$tr('lockedContent')" />
-      <KCheckbox :label="$tr('unlistedChannels')" />
+      <KCheckbox
+        :label="$tr('allowGuestAccess')"
+        :disabled="disableAllowGuestAccess"
+        :checked="allowGuestAccess || landingPage === landingPageChoices.LEARN"
+        @change="allowGuestAccess = $event"
+      />
+      <KCheckbox
+        :label="$tr('lockedContent')"
+        :disabled="disableAllowLearnerUnassignedResourceAccess"
+        :checked="!allowLearnerUnassignedResourceAccess && landingPage !== landingPageChoices.LEARN"
+        @change="allowLearnerUnassignedResourceAccess = !$event"
+      />
     </section>
     <section>
       <KButton
@@ -77,7 +95,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { availableLanguages } from 'kolibri.utils.i18n';
-  import { getDeviceLanguageSetting, saveDeviceLanguageSetting } from './api';
+  import { LandingPageChoices } from '../../constants';
+  import { getDeviceSettings, saveDeviceSettings } from './api';
 
   export default {
     name: 'DeviceSettingsPage',
@@ -93,7 +112,13 @@
     data() {
       return {
         language: {},
+        landingPage: '',
+        allowGuestAccess: null,
+        allowLearnerUnassignedResourceAccess: null,
+        allowPeerUnlistedChannelImport: null,
+
         saveStatus: null,
+        landingPageChoices: LandingPageChoices,
         browserDefaultOption: {
           value: null,
           label: this.$tr('browserDefaultLanguage'),
@@ -119,15 +144,39 @@
         }
         return null;
       },
+      disableAllowGuestAccess() {
+        return (
+          this.landingPage !== LandingPageChoices.SIGN_IN ||
+          !this.allowLearnerUnassignedResourceAccess
+        );
+      },
+      disableAllowLearnerUnassignedResourceAccess() {
+        return this.landingPage !== LandingPageChoices.SIGN_IN || this.allowGuestAccess;
+      },
     },
     beforeMount() {
-      this.getDeviceLanguageSetting().then(languageId => {
+      this.getDeviceSettings().then(settings => {
+        const {
+          languageId,
+          landingPage,
+          allowGuestAccess,
+          allowLearnerUnassignedResourceAccess,
+          allowPeerUnlistedChannelImport,
+        } = settings;
+
         const match = find(this.languageOptions, { value: languageId });
         if (match) {
           this.language = { ...match };
         } else {
           this.language = this.browserDefaultOption;
         }
+
+        Object.assign(this, {
+          landingPage,
+          allowGuestAccess,
+          allowLearnerUnassignedResourceAccess,
+          allowPeerUnlistedChannelImport,
+        });
       });
     },
     methods: {
@@ -135,8 +184,22 @@
         this.saveStatus = null;
       },
       handleClickSave() {
+        const {
+          language,
+          landingPage,
+          allowGuestAccess,
+          allowLearnerUnassignedResourceAccess,
+          allowPeerUnlistedChannelImport,
+        } = this;
+
         this.resetSaveStatus();
-        this.saveDeviceLanguageSetting(this.language.value)
+        this.saveDeviceSettings({
+          languageId: language.value,
+          landingPage,
+          allowGuestAccess,
+          allowLearnerUnassignedResourceAccess,
+          allowPeerUnlistedChannelImport,
+        })
           .then(() => {
             this.saveStatus = 'SUCCESS';
           })
@@ -144,8 +207,8 @@
             this.saveStatus = 'ERROR';
           });
       },
-      getDeviceLanguageSetting,
-      saveDeviceLanguageSetting,
+      getDeviceSettings,
+      saveDeviceSettings,
     },
     $trs: {
       browserDefaultLanguage: 'Browser default',
@@ -158,7 +221,10 @@
       allowGuestAccess: 'Allow users to access resources without signing in',
       landingPageLabel: 'Landing page',
       signInPageChoice: 'Sign-in page',
-      learnerAppPageChoice: 'Learn page',
+      learnerAppPageChoice: {
+        message: 'Learn page',
+        context: '\nThis refers to the page you reach when you click "Learn" in the main side nav',
+      },
       unlistedChannels: 'Allow other computers on this network to import my unlisted channels',
       lockedContent: 'Learners should only see resources assigned to them in classes',
     },

@@ -82,7 +82,7 @@ function generateMainClientCode() {
 
 let iframeScript, mainScript;
 const port = 6543;
-const hashiHtmlTemplate = function(snippet, setWindowName = true) {
+const hashiHtmlTemplate = function(headSnippet, bodySnippet = '', setWindowName = true) {
   const windowNameSnippet = `<script>window.name = 'hashi';</script>`;
   return `
 <!DOCTYPE html>
@@ -93,10 +93,11 @@ const hashiHtmlTemplate = function(snippet, setWindowName = true) {
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <meta name="google" content="notranslate">
       ${setWindowName ? windowNameSnippet : ''}
-      ${snippet}
+      ${headSnippet}
+      <script src="http://127.0.0.1:${port}/hashiframe.js"></script>
   </head>
   <body>
-  <script src="http://127.0.0.1:${port}/hashiframe.js"></script>
+  ${bodySnippet}
   </body>
 </html>
 `;
@@ -144,13 +145,6 @@ const iframeSnippets = {
     wrapInTemplate(`<script src="http://127.0.0.1:${port}/test1.js"></script>`) +
     wrapInTemplate(`<script src="http://127.0.0.1:${port}/test2.js"></script>`) +
     wrapInTemplate(`<script src="http://127.0.0.1:${port}/test3.js"></script>`),
-  '/deferred.html':
-    wrapInTemplate(`<script defer src="http://127.0.0.1:${port}/test4.js"></script>`) +
-    wrapInTemplate(`<script src="http://127.0.0.1:${port}/test1.js"></script>`) +
-    wrapInTemplate(`<script defer src="http://127.0.0.1:${port}/test5.js"></script>`) +
-    wrapInTemplate(`<script src="http://127.0.0.1:${port}/test2.js"></script>`) +
-    wrapInTemplate(`<script defer src="http://127.0.0.1:${port}/test6.js"></script>`) +
-    wrapInTemplate(`<script src="http://127.0.0.1:${port}/test3.js"></script>`),
   '/error.html':
     wrapInTemplate(wrapInScript('fail!')) +
     wrapInTemplate(wrapInScript(jsSnippet(1))) +
@@ -167,7 +161,17 @@ const iframeSnippets = {
   '/setcookie.html': wrapInTemplate(
     wrapInScript('document.cookie = "test=this is a test;max-age=10000";')
   ),
-  '/nowindowname.html': wrapInTemplate(wrapInScript(jsSnippet(1)), false),
+  '/nowindowname.html': [wrapInTemplate(wrapInScript(jsSnippet(1))), '', false],
+  '/incrementaldomrender.html': [
+    wrapInTemplate(
+      wrapInScript('window.bodyDuringHead = Boolean(document.body); window.headRendered = true;')
+    ),
+    wrapInTemplate(
+      wrapInScript(
+        'window.bodyDuringBody = Boolean(document.body); window.nextElementDuringBody = Boolean(document.querySelector("#nextelement")); window.bodyStarted = true;'
+      )
+    ) + '<div id="nextelement"></div>',
+  ],
 };
 
 const mainSnippets = {
@@ -205,7 +209,11 @@ http
     let headers;
     let promise = Promise.resolve();
     if (iframeSnippets[uri]) {
-      output = hashiHtmlTemplate(iframeSnippets[uri]);
+      let snippets = iframeSnippets[uri];
+      if (!Array.isArray(snippets)) {
+        snippets = [snippets];
+      }
+      output = hashiHtmlTemplate(...snippets);
       headers = { 'Content-Type': 'text/html' };
     } else if (mainSnippets[uri]) {
       output = mainSnippets[uri];

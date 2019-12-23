@@ -1,6 +1,7 @@
 <template>
 
   <aside
+    :dir="languageDir"
     :class="['media-player-transcript', { showing }]"
     :aria-hidden="(!showing).toString()"
     :aria-label="$tr('label')"
@@ -26,7 +27,6 @@
         :key="cue.id"
         :ref="cue.id"
         :cue="cue"
-        :langCode="language"
         :active="activeCueIds.indexOf(cue.id) >= 0"
         :mediaDuration="mediaDuration"
         @seek="handleSeekEvent"
@@ -50,6 +50,7 @@
   import { mapState } from 'vuex';
   import { throttle } from 'frame-throttle';
 
+  import { getLangDir } from 'kolibri.utils.i18n';
   import TranscriptCue from './TranscriptCue';
 
   export default {
@@ -72,6 +73,9 @@
       },
       capStyle() {
         return { color: this.$themeTokens.annotation };
+      },
+      languageDir() {
+        return getLangDir(this.language);
       },
     },
     watch: {

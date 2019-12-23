@@ -27,7 +27,7 @@
           activeKey="active"
           :className="className"
           :lesson="lesson"
-          :groupNames="getGroupNames(lesson.groups)"
+          :groupNames="getRecipientNamesForExam(lesson)"
         />
       </KGridItem>
       <KGridItem :layout12="{ span: $isPrint ? 12 : 8 }">

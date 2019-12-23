@@ -1,88 +1,76 @@
 Feature: Super admin imports more content
     Super admin needs to be able to update channels on their device and import new or changed resources when the channel is republished on Studio
 
+    # For this test case you will need to first import from an older version of a channel that you may have on another drive. Alternatively, use your own channel from Studio, make some changes on it (delete/add more resources), and publish before you attempt to update.
+
   Background:
-    Given there is the <channel> channel on the device, which has been updated and republished on Studio since the original import
+    Given there is the <channel> channel on the device, at the version *L*
+      And the same channel on Studio has been updated and republished, at the version *N*
       And I am signed in to Kolibri as super admin, or a user with device permissions to import content
       And I am on the *Device > Channels* page
 
   Scenario: Update channel and import new content from Studio
     Given the device has Internet connection available
-    When I click *Options* button for the <channel> channel
-      And I select *Import more* option
-    Then I see *Select a source* modal
-    When I select *Kolibri Studio* 
-      And I click *Continue*
-    Then I see the *Loading channels* message
-      And I see the *Select content from '<channel>'* page
-      And I see the *New channel version available. Some of your files may be outdated or deleted.* notification
-      And I see the *Update* button
-    When I click *Update*
-    Then I see the *Updating channel* progress bar
-      And I see the *Select content from '<channel>'* page reload
-    When reload finishes
-    Then I see previously imported topics with inactive checkboxes and the label *Already on your device*
-      And I see empty checkboxes for the topics that not yet imported
-      And I see the total number and size of <channel> channel resources
-      And I see N resources from <channel> channel are listed as *On your device*
-      And I see the *Import* button is inactive 
-    When I check the previously not imported <topic> topic checkbox
-    Then I see the *Import* button is active 
-      And I see the *N resources selected* flag for the <topic> topic
-      And I see the values for *Content selected* increase
-    When I click the *Import* button
-    Then I see *Device > Channels* page again
-      And I see the *Importing content...* label and blue progress bar with the percentage increasing 
-    When the import process concludes
-    Then I see the progress bar at 100%
-      And I see the *Finished! Click "Close" button to see changes.* flag
-      And I see the *Close* button is active
-    When I click *Close* 
-    Then I see the *Channels* page is reloaded 
-    When I go to *Learn > Channels* page
-      And I select the <channel> channel
-    Then I see the <topic> topic
+      When I click *Manage* button for the <channel> channel
+      Then I see the *Loading...* in the top bar
+        And I see the "Generating channel listing. This could take a few minutes..." notification
+      When the channel listing is generated
+      Then I am on the *Manage '<channel>'* page
+        And I see the *Version N is available* blue notification
+        And I see the *View changes* button
+        And I see the channel page with logo, name, and the current version on the device
+        And I see the total number and size of <channel> channel resources 
+        # these values need to refer to the current version on the device
+        And I see M resources from <channel> channel are listed as *On your device*
+        And I see the list of topics for the <channel> channel
+        And I see the *Import* button is inactive
+
+  Scenario: Review changes in the new channel version
+    When I click the *View changes* button
+    Then I see the *'<channel>' > Version N of '<channel>' is available* page
+      And I see list of changes of the resources (new, to be deleted, to be updated) if I choose to update the channel
+      And I see the *Update channel* button
+      And I see the information about the changes in previous versions of the channel # if stated on Studio during publishing
+
+  Scenario: Update channel to the new version
+    When I click the *Update channel* button
+    Then I see *Update channel* modal asking for confirmation
+    When I click *Continue* button
+    Then I see *Device > Task manager* page with the *Update '<channel>' to version N* task in progress
+      And I see the green progress bar with the percentage increasing 
+      And I see the number and size of the resources being updated
+      And the number of resources needs to be close/identical to the *Resources to be updated* value in the previous scenario
+      And I see the *Cancel* button
+    When the update process concludes
+    Then I see the task is labeled as *Finished*
+      And I do not see the progress bar anymore
+      And I see the *Clear* button for the finished task
+      And I see the *Clear completed* button
+
+  Scenario: Review the channel update
+    Given that the channel update task has finished
+      When I click the *Back to channels* link
+      Then I am on *Device > Channels* page
+        And I see the <channel> I've updated
+        And I see the version of the channel is N
+      When I click the *Manage* button
+        And I click *Import more*
+        And I select *Kolibri Studio*
+      Then I am on <channel> channel page
+        And I see *Channel up-to-date* flag
+
+  Scenario: Do not update channel to the new version
+    Given that I am on *'<channel>' > Version N of '<channel>' is available* page
+      But I decide not to update
+      And I click the back arrow buttons
+      And I go back to *Device > Channels*
+    Then I still see the <channel> channel at the version *L*
 
   Scenario: Update channel and import new content from local drive
-    Given there is a <drive> local drive attached to the device with the updated version of the <channel> channel
-    When I click *Options* button for the <channel> channel
-      And I select *Import more* option
-    Then I see *Select a source* modal
-    When I select *Attached drive or memory card* 
-      And I click *Continue*
-    Then I see Kolibri searching for local drives
-      And I see the *Select a drive* modal
-    When I select <drive> local drive
-      And I click *Continue*
-    Then I see the *Loading channels* message
-      And I see the *Select content from '<drive>'* page with the list of available content *Channels* on the <drive> local drive
-      And I see the *New channel version available. Some of your files may be outdated or deleted.* notification
-      And I see the *Update* button
-    When I click *Update*
-    Then I see the *Updating channel* progress bar
-      And I see the *Select content from '<channel>'* page reload
-    When reload finishes
-    Then I see previously imported topics with inactive checkboxes and the label *Already on your device*
-      And I see empty checkboxes for the topics not yet imported
-      And I see the total number and size of <channel> channel resources
-      And I see N resources from <channel> channel are listed as *On your device*
-    When I check the previously not imported <topic> topic checkbox
-    Then I see the *Import* button is active 
-      And I see the *N resources selected* flag for the <topic> topic
-      And I see the values for *Content selected* increase
-    When I click the *Import* button
-    Then I see *Device > Channels* page again
-      And I see the *Importing content...* label and blue progress bar with the percentage increasing 
-    When the import process concludes
-    Then I see the progress bar at 100%
-      And I see the *Finished! Click "Close" button to see changes.* flag
-      And I see the *Close* button
-    When I click *Close* 
-    Then I see the *Content* page is reloaded 
-    When I go to *Learn > Channels* page
-      And I select the <channel> channel
-    Then I see the <topic> topic
+  # for this scenario you will need to have a more recent version of the channel on the local drive than on the device
+  # disconnect the device from Internet and work only with local drives
+  # workflow should be the same, no new version alert until you select to *Import more* and then the drive   
 
 Examples:
-| channel      | topic   | drive       |
-| MIT Blossoms | Physics | Hard_Disc_1 |
+| channel      |
+| MIT Blossoms |

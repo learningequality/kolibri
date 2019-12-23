@@ -11,6 +11,7 @@ export const UserKinds = {
 export const CollectionKinds = {
   CLASSROOM: 'classroom',
   LEARNERGROUP: 'learnergroup',
+  ADHOCLEARNERSGROUP: 'adhoclearnersgroup',
 };
 
 export const ContentNodeKinds = {

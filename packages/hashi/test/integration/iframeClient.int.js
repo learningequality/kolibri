@@ -22,21 +22,6 @@ describe('iframe client', () => {
       expect(time1).toBeLessThan(time2);
       expect(time2).toBeLessThan(time3);
     });
-    it('should execute deferred script elements in order after non-deferred scripts', async () => {
-      await page.goto(url('deferred'));
-      await page.waitForFunction('Boolean(window.loadTimes && window.loadTimes[6])');
-      const time1 = await page.evaluate('window.loadTimes[1]');
-      const time2 = await page.evaluate('window.loadTimes[2]');
-      const time3 = await page.evaluate('window.loadTimes[3]');
-      const time4 = await page.evaluate('window.loadTimes[4]');
-      const time5 = await page.evaluate('window.loadTimes[5]');
-      const time6 = await page.evaluate('window.loadTimes[6]');
-      expect(time1).toBeLessThan(time2);
-      expect(time2).toBeLessThan(time3);
-      expect(time3).toBeLessThan(time4);
-      expect(time4).toBeLessThan(time5);
-      expect(time5).toBeLessThan(time6);
-    });
   });
   it('should execute all script elements in order even if they error', async () => {
     await page.goto(url('error'));
@@ -66,5 +51,14 @@ describe('iframe client', () => {
     await page.waitForSelector('script#test');
     const siblingElement = await page.$('script#nottest+*');
     expect(await (await siblingElement.getProperty('id')).jsonValue()).toBe('test');
+  });
+  it('should make body available only after preceding scripts have executed', async () => {
+    await page.goto(url('incrementaldomrender'));
+    await page.waitForFunction('Boolean(window.headRendered)');
+    const bodyDuringHead = await page.evaluate('window.bodyDuringHead');
+    expect(bodyDuringHead).toBe(false);
+    await page.waitForFunction('Boolean(window.bodyStarted)');
+    const nextElementDuringBody = await page.evaluate('window.nextElementDuringBody');
+    expect(nextElementDuringBody).toBe(true);
   });
 });

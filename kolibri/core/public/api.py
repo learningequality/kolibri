@@ -1,7 +1,6 @@
 import gzip
 import io
 import json
-import platform
 
 from django.db.models import Q
 from django.http import HttpResponse
@@ -9,18 +8,18 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotFound
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
-from morango.models import InstanceIDModel
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-import kolibri
 from .. import error_constants
+from .utils import get_device_info
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import PublicChannelSerializer
 from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
+from kolibri.core.device.utils import allow_peer_unlisted_channel_import
 
 
 class InfoViewSet(viewsets.ViewSet):
@@ -33,16 +32,7 @@ class InfoViewSet(viewsets.ViewSet):
     def list(self, request):
         """Returns metadata information about the device"""
 
-        instance_model = InstanceIDModel.get_or_create_current_instance()[0]
-
-        info = {
-            "application": "kolibri",
-            "kolibri_version": kolibri.__version__,
-            "instance_id": instance_model.id,
-            "device_name": instance_model.hostname,
-            "operating_system": platform.system(),
-        }
-        return Response(info)
+        return Response(get_device_info())
 
 
 def _get_channel_list(version, params, identifier=None):
@@ -80,6 +70,9 @@ def _get_channel_list_v1(params, identifier=None):
             Q(root__lang__id__icontains=language_id)
             | Q(root__tree_id__in=matching_tree_ids)
         )
+
+    if not allow_peer_unlisted_channel_import():
+        channels = channels.exclude(public=False)
 
     return channels.filter(root__available=True).distinct()
 
@@ -140,7 +133,8 @@ def get_public_file_checksums(request, version):
             return HttpResponseBadRequest("POST body must be either json or gzip")
         checksums = json.loads(data.decode("utf-8"))
         available_checksums = set(
-            LocalFile.objects.filter(available=True, id__in=checksums)
+            LocalFile.objects.filter(available=True)
+            .filter_by_uuids(checksums)
             .values_list("id", flat=True)
             .distinct()
         )

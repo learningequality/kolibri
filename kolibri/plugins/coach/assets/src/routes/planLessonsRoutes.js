@@ -15,6 +15,7 @@ import LessonSummaryPage from '../views/plan/LessonSummaryPage';
 import LessonResourceSelectionPage from '../views/plan/LessonResourceSelectionPage';
 import PlanLessonSelectionContentPreview from '../views/plan/PlanLessonSelectionContentPreview';
 import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
+import LessonCreationPage from '../views/plan/LessonCreationPage';
 
 const CLASS = '/:classId/plan';
 const LESSON = '/lessons/:lessonId';
@@ -39,6 +40,11 @@ export default [
     meta: {
       titleParts: ['lessonsLabel', 'CLASS_NAME'],
     },
+  },
+  {
+    name: LessonsPageNames.LESSON_CREATION_ROOT,
+    path: path(CLASS, ALL_LESSONS, '/new'),
+    component: LessonCreationPage,
   },
   {
     name: LessonsPageNames.SUMMARY,

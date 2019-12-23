@@ -32,6 +32,36 @@ const isDescedantOf = flip(isAncestorOf);
 const sumTotalResources = sumBy('total_resources');
 const sumOnDeviceResources = sumBy('on_device_resources');
 
+// Props shared with all partially-selected nodes
+function partiallySelectedNode(node) {
+  return {
+    ...node,
+    message: translator.$tr('someResourcesSelected'),
+    disabled: false,
+    checkboxType: CheckboxTypes.INDETERMINATE,
+  };
+}
+
+// Props shared with all fully-selected nodes
+function fullySelectedNode(node) {
+  return {
+    ...node,
+    message: translator.$tr('allResourcesSelected'),
+    disabled: false,
+    checkboxType: CheckboxTypes.CHECKED,
+  };
+}
+
+// Props shared with all unselected nodes
+function unselectedNode(node) {
+  return {
+    ...node,
+    message: '',
+    disabled: false,
+    checkboxType: CheckboxTypes.UNCHECKED,
+  };
+}
+
 /**
  * Takes a Node, plus contextual data from store, then annotates them with info
  * needed to correctly display it on tree view.
@@ -54,16 +84,21 @@ export function annotateNode(node, selectedNodes, forImport = true) {
   // Completely on device -> DISABLED
   if (forImport && on_device_resources === total_resources) {
     return {
-      ...node,
-      message: translator.$tr('alreadyOnYourDevice'),
+      ...fullySelectedNode(node),
       disabled: true,
-      checkboxType: CheckboxTypes.CHECKED,
+      message: translator.$tr('alreadyOnYourDevice'),
     };
   }
 
-  if (!(isOmitted || ancestorIsOmitted) && nodeIsIncluded) {
-    const omittedDescendants = selectedNodes.omitted.filter(oNode => isDescedantOf(oNode, node));
+  // HACK Special case that got left out: node is included but has
+  // omitted descendants -> INDETERMINATE (for both import and manage modes)
+  const omittedDescendants = selectedNodes.omitted.filter(oNode => isDescedantOf(oNode, node));
 
+  if (!nodeIsIncluded && omittedDescendants.length > 0) {
+    return partiallySelectedNode(node);
+  }
+
+  if (!(isOmitted || ancestorIsOmitted) && nodeIsIncluded) {
     // If any descendants are omitted -> UNCHECKED or INDETERMINATE
     if (omittedDescendants.length > 0) {
       // All descendants are omitted -> UNCHECKED
@@ -79,44 +114,15 @@ export function annotateNode(node, selectedNodes, forImport = true) {
       }
 
       if (allDescendantsOmitted) {
-        return {
-          ...node,
-          message: '',
-          disabled: false,
-          checkboxType: CheckboxTypes.UNCHECKED,
-        };
+        return unselectedNode(node);
       }
 
       // Some (but not all) descendants are omitted -> INDETERMINATE
-      let selectedCount;
-      let totalCount;
-      if (forImport) {
-        selectedCount = total_resources - sumTotalResources(omittedDescendants);
-        totalCount = total_resources;
-      } else {
-        selectedCount = on_device_resources - sumOnDeviceResources(omittedDescendants);
-        totalCount = on_device_resources;
-      }
-      return {
-        ...node,
-        message: translator.$tr('fractionOfResourcesSelected', {
-          selected: selectedCount,
-          total: totalCount,
-        }),
-        disabled: false,
-        checkboxType: CheckboxTypes.INDETERMINATE,
-      };
+      return partiallySelectedNode(node);
     }
 
     // Completely selected -> CHECKED
-    return {
-      ...node,
-      message: translator.$tr('resourcesSelected', {
-        total: forImport ? total_resources : on_device_resources,
-      }),
-      disabled: false,
-      checkboxType: CheckboxTypes.CHECKED,
-    };
+    return fullySelectedNode(node);
   }
 
   const fullyIncludedDescendants = selectedNodes.included
@@ -129,42 +135,17 @@ export function annotateNode(node, selectedNodes, forImport = true) {
 
     // Node is not selected, has all children selected -> CHECKED
     if (forImport) {
-      if (fullyTotal === total_resources) {
-        return {
-          ...node,
-          message: translator.$tr('resourcesSelected', { total: total_resources }),
-          disabled: false,
-          checkboxType: CheckboxTypes.CHECKED,
-        };
+      if (fullyTotal - fullyOnDevice === total_resources - on_device_resources) {
+        return fullySelectedNode(node);
+      } else {
+        // Node is not selected, has some children selected -> INDETERMINATE
+        return partiallySelectedNode(node);
       }
-      // Node is not selected, has some children selected -> INDETERMINATE
-      return {
-        ...node,
-        message: translator.$tr('fractionOfResourcesSelected', {
-          selected: fullyTotal,
-          total: total_resources,
-        }),
-        disabled: false,
-        checkboxType: CheckboxTypes.INDETERMINATE,
-      };
     } else {
       if (fullyOnDevice === on_device_resources) {
-        return {
-          ...node,
-          message: translator.$tr('resourcesSelected', { total: on_device_resources }),
-          disabled: false,
-          checkboxType: CheckboxTypes.CHECKED,
-        };
+        return fullySelectedNode(node);
       } else {
-        return {
-          ...node,
-          message: translator.$tr('fractionOfResourcesSelected', {
-            selected: fullyOnDevice,
-            total: on_device_resources,
-          }),
-          disabled: false,
-          checkboxType: CheckboxTypes.INDETERMINATE,
-        };
+        return partiallySelectedNode(node);
       }
     }
   }
@@ -173,23 +154,16 @@ export function annotateNode(node, selectedNodes, forImport = true) {
     // Node has some (but not all) resources on device -> UNCHECKED (w/ message).
     // Node with all resources on device handled at top of this function.
     return {
-      ...node,
+      ...unselectedNode(node),
       message: translator.$tr('fractionOfResourcesOnDevice', {
         onDevice: on_device_resources,
         total: total_resources,
       }),
-      disabled: false,
-      checkboxType: CheckboxTypes.UNCHECKED,
     };
   }
 
   // Node is not selected, has no children, is not on device -> UNCHECKED
-  return {
-    ...node,
-    message: '',
-    disabled: false,
-    checkboxType: CheckboxTypes.UNCHECKED,
-  };
+  return unselectedNode(node);
 }
 
 /**

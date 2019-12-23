@@ -16,6 +16,8 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "available",
+            "dynamic",
+            "nickname",
             "base_url",
             "device_name",
             "instance_id",
@@ -27,6 +29,8 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             "available",
+            "dynamic",
+            "device_name",
             "instance_id",
             "added",
             "last_accessed",

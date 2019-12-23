@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.urls.exceptions import NoReverseMatch
 from mock import patch
 from rest_framework.test import APITestCase
+from rest_framework.test import APITransactionTestCase
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.test.helpers import create_superuser
@@ -47,7 +48,7 @@ class KolibriTagNavigationTestCase(APITestCase):
         )
 
 
-class AllUrlsTest(APITestCase):
+class AllUrlsTest(APITransactionTestCase):
 
     # Allow codes that may indicate a poorly formed response
     # 412 is returned from endpoints that have required GET params when these are not supplied

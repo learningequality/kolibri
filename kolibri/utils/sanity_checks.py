@@ -9,7 +9,6 @@ from .conf import OPTIONS
 from .server import get_status
 from .server import LISTEN_ADDRESS
 from .server import NotRunning
-from kolibri.core.upgrade import version_upgrade
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +77,6 @@ def check_content_directory_exists_and_writable():
         sys.exit(1)
 
 
-@version_upgrade(old_version="<0.12.4")
 def check_log_file_location():
     """
     Starting from Kolibri v0.12.4, log files are going to be renamed and moved

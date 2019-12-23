@@ -15,16 +15,20 @@ from le_utils.constants import content_kinds
 from kolibri.core.analytics.constants.nutrition_endpoints import PINGBACK
 from kolibri.core.analytics.constants.nutrition_endpoints import STATISTICS
 from kolibri.core.analytics.models import PingbackNotification
+from kolibri.core.analytics.utils import calculate_list_stats
 from kolibri.core.analytics.utils import create_and_update_notifications
 from kolibri.core.analytics.utils import extract_channel_statistics
 from kolibri.core.analytics.utils import extract_facility_statistics
+from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import facility_presets
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.device.utils import provision_device
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
@@ -37,6 +41,12 @@ from kolibri.core.logger.utils import user_data
 
 
 USER_CSV_PATH = "kolibri/core/logger/management/commands/user_data.csv"
+
+
+def mean(data):
+    if data:
+        return float(sum(data)) / len(data)
+    return None
 
 
 class BaseDeviceSetupMixin(object):
@@ -166,11 +176,19 @@ class BaseDeviceSetupMixin(object):
 
 class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
     def test_extract_facility_statistics(self):
+        provision_device(allow_guest_access=True)
         facility = self.facilities[0]
         actual = extract_facility_statistics(facility)
         facility_id_hash = actual.pop("fi")
+        birth_year_list_learners = [
+            int(year)
+            for year in FacilityUser.objects.filter(roles__isnull=True).values_list(
+                "birth_year", flat=True
+            )
+        ]
         # just assert the beginning hex values of the facility id don't match
         self.assertFalse(facility_id_hash.startswith(facility.id[:3]))
+        demo_stats = calculate_list_stats(birth_year_list_learners)
         expected = {
             "s": {
                 "preset": facility_presets.default,
@@ -201,6 +219,20 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
             "sac": 20,  # sess_anon_count
             "sut": 20,  # sess_user_time
             "sat": 20,  # sess_anon_time
+            "dsl": {
+                "bys": {
+                    "a": demo_stats["mean"],
+                    "sd": demo_stats["std"],
+                    "ts": 20,
+                    "d": 0,
+                    "ns": 0,
+                },
+                "gc": {
+                    gender: FacilityUser.objects.filter(gender=gender).count()
+                    for (gender, _) in demographics.choices
+                },
+            },
+            "dsnl": {},
         }
         assert actual == expected
 
@@ -233,6 +265,13 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
 class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
     def test_extract_channel_statistics(self):
         actual = extract_channel_statistics(self.channel)
+        birth_year_list_learners = [
+            int(year)
+            for year in FacilityUser.objects.filter(
+                roles__isnull=True, contentsummarylog__channel_id=self.channel.id
+            ).values_list("birth_year", flat=True)
+        ]
+        demo_stats = calculate_list_stats(birth_year_list_learners)
         expected = {
             "ci": self.channel.id[:10],  # channel_id
             "v": 0,  # version
@@ -247,6 +286,22 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
             "sac": 20,  # sess_anon_count
             "sut": 20,  # sess_user_time
             "sat": 20,  # sess_anon_time
+            "dsl": {
+                "bys": {
+                    "a": demo_stats["mean"],
+                    "sd": demo_stats["std"],
+                    "ts": 20,
+                    "d": 0,
+                    "ns": 0,
+                },
+                "gc": {
+                    gender: FacilityUser.objects.filter(
+                        contentsummarylog__channel_id=self.channel.id, gender=gender
+                    ).count()
+                    for (gender, _) in demographics.choices
+                },
+            },
+            "dsnl": {},
         }
         assert actual == expected
 

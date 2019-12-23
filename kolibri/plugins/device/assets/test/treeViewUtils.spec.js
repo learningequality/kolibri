@@ -26,12 +26,12 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(node_1, selected);
     const exportAnnotated = annotateNode(node_1, selected, false);
     assertAnnotationsEqual(annotated, {
-      message: '100 resources selected',
+      message: 'All resources selected',
       disabled: false,
       checkboxType: 'checked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '10 resources selected',
+      message: 'All resources selected',
       disabled: false,
       checkboxType: 'checked',
     });
@@ -130,12 +130,12 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(node_1, selected);
     const exportAnnotated = annotateNode(node_1, selected, false);
     assertAnnotationsEqual(annotated, {
-      message: '100 resources selected',
+      message: 'All resources selected',
       disabled: false,
       checkboxType: 'checked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '10 resources selected',
+      message: 'All resources selected',
       disabled: false,
       checkboxType: 'checked',
     });
@@ -157,7 +157,7 @@ describe('annotateNode utility correctly annotates', () => {
       checkboxType: 'checked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '1 resource selected',
+      message: 'All resources selected',
       disabled: false,
       checkboxType: 'checked',
     });
@@ -180,14 +180,87 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(notIncludedDescendant, selected);
     const exportAnnotated = annotateNode(notIncludedDescendant, selected, false);
     assertAnnotationsEqual(annotated, {
-      message: '10 resources selected',
+      message: 'All resources selected',
       disabled: false,
       checkboxType: 'checked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '5 resources selected',
+      message: 'All resources selected',
       disabled: false,
       checkboxType: 'checked',
+    });
+  });
+
+  it('nodes that are not in "include" but all its descendants are (export mode)', () => {
+    const notIncludedAncestor = makeNode('1', {
+      path: simplePath(['1']),
+      total_resources: 20,
+      on_device_resources: 10,
+    });
+    // on_device_resources is equal to ancestors
+    const includedDescendant = makeNode('1_1', {
+      path: simplePath(['1', '1_1']),
+      total_resources: 10,
+      on_device_resources: 10,
+    });
+    const selected = makeNodesForTransfer([includedDescendant], []);
+    const exportAnnotated = annotateNode(notIncludedAncestor, selected, false);
+    assertAnnotationsEqual(exportAnnotated, {
+      message: 'All resources selected',
+      disabled: false,
+      checkboxType: 'checked',
+    });
+  });
+
+  it('nodes that are not in "include" but all its descendants are (import mode)', () => {
+    const notIncludedAncestor = makeNode('1', {
+      path: simplePath(['1']),
+      total_resources: 21,
+      on_device_resources: 10,
+    });
+    // resources from included node equal the on device/total gap at ancestor
+    const includedDescendant = makeNode('1_1', {
+      path: simplePath(['1', '1_1']),
+      total_resources: 11,
+      on_device_resources: 0,
+    });
+    const selected = makeNodesForTransfer([includedDescendant], []);
+    const importAnnotated = annotateNode(notIncludedAncestor, selected);
+    assertAnnotationsEqual(importAnnotated, {
+      message: 'All resources selected',
+      disabled: false,
+      checkboxType: 'checked',
+    });
+  });
+
+  it('nodes that are not in "include" and have a descendant that is partially included', () => {
+    const notIncludedAncestor = makeNode('1', {
+      path: simplePath(['1']),
+      total_resources: 20,
+      on_device_resources: 10,
+    });
+    const includedDescendant = makeNode('1_1', {
+      path: simplePath(['1', '1_1']),
+      total_resources: 10,
+      on_device_resources: 5,
+    });
+    const omittedDescendant = makeNode('1_1_1', {
+      path: simplePath(['1', '1_1', '1_1_1']),
+      total_resources: 5,
+      on_device_resources: 2,
+    });
+    const selected = makeNodesForTransfer([includedDescendant], [omittedDescendant]);
+    const annotated = annotateNode(notIncludedAncestor, selected);
+    const exportAnnotated = annotateNode(notIncludedAncestor, selected, false);
+    assertAnnotationsEqual(annotated, {
+      message: 'Some resources selected',
+      disabled: false,
+      checkboxType: 'indeterminate',
+    });
+    assertAnnotationsEqual(exportAnnotated, {
+      message: 'Some resources selected',
+      disabled: false,
+      checkboxType: 'indeterminate',
     });
   });
 
@@ -211,12 +284,12 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(partiallySelected, selected);
     const exportAnnotated = annotateNode(partiallySelected, selected, false);
     assertAnnotationsEqual(annotated, {
-      message: '10 of 20 resources selected',
+      message: 'Some resources selected',
       disabled: false,
       checkboxType: 'indeterminate',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '1 of 3 resources selected',
+      message: 'Some resources selected',
       disabled: false,
       checkboxType: 'indeterminate',
     });
@@ -237,13 +310,13 @@ describe('annotateNode utility correctly annotates', () => {
     const selected = makeNodesForTransfer([includedNode], [omittedNode_1, omittedNode_2]);
     const annotated = annotateNode(includedNode, selected);
     assertAnnotationsEqual(annotated, {
-      message: '12 of 20 resources selected',
+      message: 'Some resources selected',
       disabled: false,
       checkboxType: 'indeterminate',
     });
     const exportAnnotated = annotateNode(includedNode, selected, false);
     assertAnnotationsEqual(exportAnnotated, {
-      message: '3 of 5 resources selected',
+      message: 'Some resources selected',
       disabled: false,
       checkboxType: 'indeterminate',
     });
@@ -264,13 +337,13 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(parentNode, selected);
     // Here, assumption is all descendants of included nodes will be imported
     assertAnnotationsEqual(annotated, {
-      message: '6 of 10 resources selected',
+      message: 'Some resources selected',
       disabled: false,
       checkboxType: 'indeterminate',
     });
     const exportAnnotated = annotateNode(parentNode, selected, false);
     assertAnnotationsEqual(exportAnnotated, {
-      message: '2 of 3 resources selected',
+      message: 'Some resources selected',
       disabled: false,
       checkboxType: 'indeterminate',
     });
@@ -296,13 +369,13 @@ describe('annotateNode utility correctly annotates', () => {
     // Technically not correct, but implication is that they are completing the parentNode.
     // Will really only be transfering 7 resources.
     assertAnnotationsEqual(annotated, {
-      message: '10 resources selected',
+      message: 'All resources selected',
       disabled: false,
       checkboxType: 'checked',
     });
     const exportAnnotated = annotateNode(parentNode, selected, false);
     assertAnnotationsEqual(exportAnnotated, {
-      message: '3 resources selected',
+      message: 'All resources selected',
       disabled: false,
       checkboxType: 'checked',
     });

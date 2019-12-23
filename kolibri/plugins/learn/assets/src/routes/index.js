@@ -25,9 +25,14 @@ export default [
     path: '/',
     handler: () => {
       const { memberships } = store.state;
+      const { canAccessUnassignedContent } = store.getters;
+
       // If a registered user, go to Classes Page, else go to Content
       return router.replace({
-        name: memberships.length > 0 ? ClassesPageNames.ALL_CLASSES : PageNames.TOPICS_ROOT,
+        name:
+          memberships.length > 0 || !canAccessUnassignedContent
+            ? ClassesPageNames.ALL_CLASSES
+            : PageNames.TOPICS_ROOT,
       });
     },
   },

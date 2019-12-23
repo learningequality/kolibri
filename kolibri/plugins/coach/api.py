@@ -17,6 +17,7 @@ from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -153,7 +154,8 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             except (Collection.DoesNotExist, ValueError):
                 return []
         if collection.kind == collection_kinds.CLASSROOM:
-            classroom_groups = LearnerGroup.objects.filter(parent=collection)
+            classroom_groups = list(LearnerGroup.objects.filter(parent=collection))
+            classroom_groups += list(AdHocGroup.objects.filter(parent=collection))
             learner_groups = [group.id for group in classroom_groups]
             learner_groups.append(collection_id)
             notifications_query = LearnerProgressNotification.objects.filter(

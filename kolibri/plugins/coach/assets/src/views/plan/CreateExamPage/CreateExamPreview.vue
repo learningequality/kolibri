@@ -105,7 +105,7 @@
         :selectedExercises="selectedExercises"
       />
 
-      <BottomAppBar>
+      <BottomAppBar style="z-index: 1062;">
         <KRouterLink
           appearance="flat-button"
           :text="coreString('goBackAction')"
