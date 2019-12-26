@@ -1,3 +1,4 @@
+import times from 'lodash/times';
 import { mount } from '@vue/test-utils';
 import navComponents from 'kolibri.utils.navComponents';
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
@@ -35,6 +36,25 @@ function setUserKind(store, userKind) {
   });
 }
 
+function createAndRegisterComponent(name, options = {}) {
+  const component = {
+    name,
+    render() {
+      return '';
+    },
+    ...options,
+  };
+  navComponents.register(component);
+  return component;
+}
+
+function emptyNavComponents(n = 1) {
+  times(n, () => {
+    navComponents.pop();
+  });
+  expect(navComponents).toHaveLength(0);
+}
+
 describe('side nav component', () => {
   it('should be hidden if navShown is false', () => {
     const wrapper = createWrapper({ navShown: false });
@@ -55,8 +75,7 @@ describe('side nav component', () => {
 
   describe('SideNav components are shown/hidden depending on role', () => {
     afterEach(() => {
-      // Clean up the registered component
-      navComponents.pop();
+      emptyNavComponents(1);
     });
     const testCases = [
       [UserKinds.ADMIN, UserKinds.ADMIN, true],
@@ -86,14 +105,9 @@ describe('side nav component', () => {
     it.each(testCases)(
       'if user is %s, then %s component should show (%s)',
       async (kind, otherKind, shouldShow) => {
-        const component = {
-          name: `${otherKind}SideNavEntry`,
-          render() {
-            return '';
-          },
+        const component = createAndRegisterComponent(`${otherKind}SideNavEntry`, {
           role: otherKind,
-        };
-        navComponents.register(component);
+        });
         expect(navComponents).toHaveLength(1);
         const wrapper = createWrapper();
         setUserKind(wrapper.vm.$store, kind);
@@ -105,9 +119,7 @@ describe('side nav component', () => {
 
   describe('with multiple components', () => {
     afterEach(() => {
-      // Clean up the registered components
-      navComponents.pop();
-      navComponents.pop();
+      emptyNavComponents(2);
     });
     // All user kinds that can be copresented in the side nav.
     const testCases = [
@@ -119,97 +131,49 @@ describe('side nav component', () => {
       [UserKinds.ADMIN, UserKinds.CAN_MANAGE_CONTENT],
     ];
     it.each(testCases)('%s component should above %s component', async (kind, otherKind) => {
-      const component1 = {
-        name: `${kind}SideNavEntry`,
-        render() {
-          return '';
-        },
-        role: kind,
-      };
-      const component2 = {
-        name: `${otherKind}SideNavEntry`,
-        render() {
-          return '';
-        },
+      const component1 = createAndRegisterComponent(`${kind}SideNavEntry`, { role: kind });
+      const component2 = createAndRegisterComponent(`${otherKind}SideNavEntry`, {
         role: otherKind,
-      };
-      navComponents.register(component2);
-      navComponents.register(component1);
+      });
       expect(navComponents).toHaveLength(2);
       const wrapper = createWrapper();
       setUserKind(wrapper.vm.$store, UserKinds.SUPERUSER);
       await wrapper.vm.$nextTick();
       expect(wrapper.vm.menuOptions[0]).toBe(component1);
       expect(wrapper.vm.menuOptions[1]).toBe(component2);
-    })
+    });
   });
+
   describe('and the priority flag', () => {
     afterEach(() => {
-      // Clean up the registered components
-      navComponents.pop();
-      navComponents.pop();
+      emptyNavComponents(2);
     });
+
     it('should show higher priority component above lower priority component', () => {
-      const component1 = {
-        name: '1SideNavEntry',
-        render() {
-          return '';
-        },
-        priority: 1,
-      };
-      const component2 = {
-        name: '2SideNavEntry',
-        render() {
-          return '';
-        },
-        priority: 10,
-      };
-      navComponents.register(component2);
-      navComponents.register(component1);
+      const component1 = createAndRegisterComponent('1SideNavEntry', { priority: 1 });
+      const component2 = createAndRegisterComponent('2SideNavEntry', { priority: 10 });
       expect(navComponents).toHaveLength(2);
       const wrapper = createWrapper();
       expect(wrapper.vm.menuOptions[0]).toBe(component1);
       expect(wrapper.vm.menuOptions[1]).toBe(component2);
     });
+
     it('should show account section component below lower priority component', () => {
-      const component1 = {
-        name: '1SideNavEntry',
-        render() {
-          return '';
-        },
+      const component1 = createAndRegisterComponent('1SideNavEntry', {
         priority: 1,
         section: NavComponentSections.ACCOUNT,
-      };
-      const component2 = {
-        name: '2SideNavEntry',
-        render() {
-          return '';
-        },
-        priority: 10,
-      };
-      navComponents.register(component2);
-      navComponents.register(component1);
+      });
+      const component2 = createAndRegisterComponent('2SideNavEntry', { priority: 10 });
       expect(navComponents).toHaveLength(2);
       const wrapper = createWrapper();
       expect(wrapper.vm.menuOptions[2]).toBe(component1);
       expect(wrapper.vm.menuOptions[0]).toBe(component2);
     });
+
     it('should show component with priority above undefined priority component', () => {
-      const component1 = {
-        name: '1SideNavEntry',
-        render() {
-          return '';
-        },
-      };
-      const component2 = {
-        name: '2SideNavEntry',
-        render() {
-          return '';
-        },
-        priority: 10,
-      };
-      navComponents.register(component2);
-      navComponents.register(component1);
+      // Component 2 should be registered first
+      const component2 = createAndRegisterComponent('2SideNavEntry', { priority: 10 });
+      const component1 = createAndRegisterComponent('1SideNavEntry');
       expect(navComponents).toHaveLength(2);
       const wrapper = createWrapper();
       expect(wrapper.vm.menuOptions[1]).toBe(component1);
