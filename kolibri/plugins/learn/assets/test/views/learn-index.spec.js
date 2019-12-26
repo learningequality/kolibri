@@ -3,8 +3,6 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import LearnIndex from '../../src/views/LearnIndex';
 import makeStore from '../makeStore';
 
-jest.mock('kolibri.urls');
-
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 
@@ -19,6 +17,9 @@ const router = new VueRouter({
 function makeWrapper(options) {
   return mount(LearnIndex, {
     ...options,
+    methods: {
+      getDemographicInfo() {},
+    },
     stubs: {
       breadcrumbs: true,
       contentUnavailablePage: true,

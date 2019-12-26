@@ -17,7 +17,7 @@
 
     <div>
       <Breadcrumbs v-if="pageName !== 'TOPICS_CONTENT'" />
-      <component :is="currentPage" />
+      <component :is="currentPage" v-if="currentPage" />
       <router-view />
     </div>
 
@@ -261,15 +261,18 @@
     },
     mounted() {
       if (this.isUserLoggedIn) {
-        this.$store
+        this.getDemographicInfo();
+      }
+    },
+    methods: {
+      getDemographicInfo() {
+        return this.$store
           .dispatch('getDemographicInfo')
           .then(info => {
             this.demographicInfo = { ...info };
           })
           .catch(() => {});
-      }
-    },
-    methods: {
+      },
       handleCancelUpdateYourProfileModal() {
         this.$store.dispatch('deferProfileUpdates', this.demographicInfo);
         this.demographicInfo = null;
