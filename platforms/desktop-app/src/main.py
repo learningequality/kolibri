@@ -7,7 +7,6 @@ import sys
 import time
 import webbrowser
 
-
 try:
     from urllib2 import urlopen, URLError
 except ModuleNotFoundError:
@@ -36,7 +35,10 @@ class LoggerWriter(object):
 logging.basicConfig(level=logging.DEBUG)
 
 # make sure we add Kolibri's dist folder to the path early on so that we avoid import errors
-root_dir = os.path.dirname(os.path.abspath(__file__))
+if getattr(sys, 'frozen', False):
+    root_dir = os.path.dirname(os.path.abspath(sys.executable))
+else:
+    root_dir = os.path.dirname(os.path.abspath(__file__))
 locale_root_dir = os.path.join(root_dir, 'locale')
 if root_dir.endswith('src'):
     locale_root_dir = os.path.join(root_dir, '..', 'locale')
@@ -51,8 +53,8 @@ if getattr(sys, 'frozen', False):
     sys.stderr = LoggerWriter(logging.warning)
 
 kolibri_package_dir = os.path.join(root_dir, "kolibri", "dist")
-sys.path.append(kolibri_package_dir)
-
+sys.path.insert(0, root_dir)
+sys.path.insert(0, kolibri_package_dir)
 
 import pew
 import pew.ui
@@ -84,7 +86,13 @@ if pew.ui.platform == "android":
     logging.info("Home folder: {}".format(os.environ["KOLIBRI_HOME"]))
     logging.info("Timezone: {}".format(os.environ["TZ"]))
 elif not 'KOLIBRI_HOME' in os.environ:
-    os.environ["KOLIBRI_HOME"] = os.path.join(os.path.expanduser("~"), ".kolibri")
+    kolibri_home = os.path.join(os.path.expanduser("~"), ".kolibri")
+    portable_dirs = [root_dir, os.path.abspath(os.path.join(root_dir, '..'))]
+    for adir in portable_dirs:
+        kolibri_dir = os.path.join(adir, '.kolibri')
+        if os.path.exists(kolibri_dir):
+            kolibri_home = kolibri_dir
+    os.environ["KOLIBRI_HOME"] = kolibri_home
 
 
 from kolibri.utils.logger import KolibriTimedRotatingFileHandler
@@ -106,6 +114,19 @@ logging.info("**********************************")
 logging.info("")
 logging.info("Started at: {}".format(datetime.datetime.today()))
 
+try:
+    # import standard library modules for packaging.
+    import stdlib_imports
+
+    # These modules do not get found when walking the stdlib for some reason, so manually add them.
+    import pkg_resources
+    import email.mime
+except Exception as e:
+    logging.warning("Modules needed for packaging support could not be imported.")
+    logging.warning("Generating app packages may creating non-working builds.")
+    logging.warning(str(e))
+
+
 languages = None
 if sys.platform == 'darwin':
     langs_str = subprocess.check_output('defaults read .GlobalPreferences AppleLanguages | tr -d [:space:]', shell=True).strip()
@@ -121,7 +142,7 @@ if sys.platform == 'darwin':
 
 locale_info = {}
 try:
-    t = gettext.translation('macapp', locale_root_dir, languages=languages, fallback=True)
+    t = gettext.translation('macapp', locale_root_dir, languages=languages, fallback=False)
     locale_info = t.info()
     # We have not been able to reproduce, but we have seen this happen in user tracebacks, so
     # trigger the exception handling fallback if locale_info doesn't have a language key.
@@ -347,7 +368,9 @@ class Application(pew.ui.PEWApp):
             except URLError as e:
                 logging.info("Error pinging Kolibri server: {}".format(e))
                 # debugging code to check if native cli tools succeed when urlopen fails.
-                return subprocess.call(['curl', '-I', home_url]) == 0
+                if sys.platform == 'darwin':
+                    return subprocess.call(['curl', '-I', home_url]) == 0
+                return False
 
         # Tie up this thread until the server is running
         while not running():
@@ -381,5 +404,9 @@ class Application(pew.ui.PEWApp):
         return self.view
 
 if __name__ == "__main__":
+    import multiprocessing
+    # This call fixes some issues with using multiprocessing when packaged as an app. (e.g. fork can start the app
+    # multiple times)
+    multiprocessing.freeze_support()
     app = Application()
     app.run()

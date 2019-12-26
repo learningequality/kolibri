@@ -8,6 +8,9 @@
   "icons": {"android": "icon.png", "osx": "icons/kolibri.icns"},
   "launch_images": {"android": "assets/launch-image.png"},
   "asset_dirs": ["assets", "locale"],
+  "build_tool": {
+      "win": "pyinstaller"
+  },
   "includes": ["html.parser", "kolibri.deployment.default.settings.base", "six"],
   "packages": ["django", "kolibri", "morango", "mptt", "sqlite3", "wx", "pkg_resources"],
   "disk_image": {
