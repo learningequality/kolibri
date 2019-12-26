@@ -59,84 +59,58 @@ describe('side nav component', () => {
     expect(navComponents).toHaveLength(0);
     const wrapper = createWrapper();
     setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
-      await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
     expect(wrapper.contains(logoutSideNavEntry)).toBe(true);
   });
-  filterableUserKinds.forEach(kind => {
+  describe('SideNav components are shown/hidden depending on role', () => {
     afterEach(() => {
       // Clean up the registered component
       navComponents.pop();
     });
-    it(`should show ${kind} component if added and user is ${kind}`, async () => {
+    async function testSideNavVisibility(kind, otherKind, shouldShow) {
       const component = {
-        name: `${kind}SideNavEntry`,
+        name: `${otherKind}SideNavEntry`,
         render() {
           return '';
         },
-        role: kind,
+        role: otherKind,
       };
       navComponents.register(component);
       expect(navComponents).toHaveLength(1);
       const wrapper = createWrapper();
       setUserKind(wrapper.vm.$store, kind);
       await wrapper.vm.$nextTick();
-      expect(wrapper.contains(component)).toBe(true);
-    });
-  });
-  // These UserKinds have monotonically escalating privileges.
-  const escalatingPrivileges = [
-    UserKinds.LEARNER,
-    UserKinds.COACH,
-    UserKinds.ADMIN,
-    UserKinds.SUPERUSER,
-  ];
-  escalatingPrivileges.forEach(kind => {
-    // This is slightly duplicative of the tests above, but not harmful.
-    escalatingPrivileges.slice(0, escalatingPrivileges.indexOf(kind)).forEach(otherKind => {
-      afterEach(() => {
-        // Clean up the registered component
-        navComponents.pop();
+      expect(wrapper.contains(component)).toBe(shouldShow);
+    }
+    filterableUserKinds.forEach(kind => {
+      it(`should show ${kind} component if added and user is ${kind}`, async () => {
+        await testSideNavVisibility(kind, kind, true);
       });
-      it(`should show ${otherKind} component if added and user is ${kind}`, async () => {
-        const component = {
-          name: `${otherKind}SideNavEntry`,
-          render() {
-            return '';
-          },
-          role: otherKind,
-        };
-        navComponents.register(component);
-        expect(navComponents).toHaveLength(1);
-        const wrapper = createWrapper();
-        setUserKind(wrapper.vm.$store, kind);
-        await wrapper.vm.$nextTick();
-        expect(wrapper.contains(component)).toBe(true);
+    });
+    // These UserKinds have monotonically escalating privileges.
+    const escalatingPrivileges = [
+      UserKinds.LEARNER,
+      UserKinds.COACH,
+      UserKinds.ADMIN,
+      UserKinds.SUPERUSER,
+    ];
+    escalatingPrivileges.forEach(kind => {
+      // This is slightly duplicative of the tests above, but not harmful.
+      escalatingPrivileges.slice(0, escalatingPrivileges.indexOf(kind)).forEach(otherKind => {
+        it(`should show ${otherKind} component if added and user is ${kind}`, async () => {
+          await testSideNavVisibility(kind, otherKind, true);
+        });
+      });
+    });
+    filterableUserKinds.forEach(kind => {
+      filterableUserKinds.slice(filterableUserKinds.indexOf(kind) + 1, -1).forEach(otherKind => {
+        it(`should not show ${otherKind} component if added and user is ${kind}`, async () => {
+          await testSideNavVisibility(kind, otherKind, false);
+        });
       });
     });
   });
-  filterableUserKinds.forEach(kind => {
-    filterableUserKinds.slice(filterableUserKinds.indexOf(kind) + 1, -1).forEach(otherKind => {
-      afterEach(() => {
-        // Clean up the registered component
-        navComponents.pop();
-      });
-      it(`should not show ${otherKind} component if added and user is ${kind}`, async () => {
-        const component = {
-          name: `${otherKind}SideNavEntry`,
-          render() {
-            return '';
-          },
-          role: otherKind,
-        };
-        navComponents.register(component);
-        expect(navComponents).toHaveLength(1);
-        const wrapper = createWrapper();
-        setUserKind(wrapper.vm.$store, kind);
-        await wrapper.vm.$nextTick();
-        expect(wrapper.contains(component)).toBe(false);
-      });
-    });
-  });
+
   describe('with multiple components', () => {
     // All user kinds that can be copresented in the side nav.
     const userKinds = [
