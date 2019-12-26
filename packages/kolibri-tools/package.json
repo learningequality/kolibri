@@ -14,7 +14,7 @@
     "build-kolibri-tools": "node ./build_kolibri_tools.js"
   },
   "dependencies": {
-    "@vue/test-utils": "1.0.0-beta.25",
+    "@vue/test-utils": "^1.0.0-beta.30",
     "ast-traverse": "^0.1.1",
     "autoprefixer": "^7.1.4",
     "babel-jest": "^23.6.0",
