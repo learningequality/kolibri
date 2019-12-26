@@ -1,5 +1,3 @@
-import sys
-
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
@@ -27,7 +25,6 @@ class Command(BaseCommand):
         self.stdout.write(
             "Facility: {} has been successfully registered.".format(facility.name)
         )
-        sys.exit(0)
 
     def handle(self, *args, **options):
         facility_id = options["facility"]
@@ -65,7 +62,7 @@ class Command(BaseCommand):
                             facility.name
                         )
                     )
-                    self._register(token, facility)
+                    return self._register(token, facility)
 
             # display nice error messages for other Http errors
             raise CommandError(
