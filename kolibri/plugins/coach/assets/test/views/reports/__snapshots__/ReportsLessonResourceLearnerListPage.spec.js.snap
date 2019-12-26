@@ -67,7 +67,7 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
 </table>
 `;
 
-exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders correct group resources stats 2`] = `undefined`;
+exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders correct group resources stats 2`] = `""`;
 
 exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying all learners renders a correct summary tally 1`] = `
 <div class="multi-line" data-test="summary-tally">
@@ -177,4 +177,4 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
 </table>
 `;
 
-exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders correct group resources stats 3`] = `undefined`;
+exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders correct group resources stats 3`] = `""`;
