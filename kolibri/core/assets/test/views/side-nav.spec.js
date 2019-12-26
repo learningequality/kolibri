@@ -44,6 +44,7 @@ const filterableUserKinds = [
   UserKinds.SUPERUSER,
 ];
 
+//
 describe('side nav component', () => {
   it('should be hidden if navShown is false', () => {
     const wrapper = createWrapper({ navShown: false });
@@ -54,10 +55,11 @@ describe('side nav component', () => {
     const wrapper = createWrapper();
     expect(wrapper.contains('a.ui-menu-option:not(.is-divider)')).toBe(false);
   });
-  it('should show logout if no components are added and user is logged in', () => {
+  it('should show logout if no components are added and user is logged in', async () => {
     expect(navComponents).toHaveLength(0);
     const wrapper = createWrapper();
     setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
+      await wrapper.vm.$nextTick();
     expect(wrapper.contains(logoutSideNavEntry)).toBe(true);
   });
   filterableUserKinds.forEach(kind => {
@@ -65,7 +67,7 @@ describe('side nav component', () => {
       // Clean up the registered component
       navComponents.pop();
     });
-    it(`should show ${kind} component if added and user is ${kind}`, () => {
+    it(`should show ${kind} component if added and user is ${kind}`, async () => {
       const component = {
         name: `${kind}SideNavEntry`,
         render() {
@@ -77,6 +79,7 @@ describe('side nav component', () => {
       expect(navComponents).toHaveLength(1);
       const wrapper = createWrapper();
       setUserKind(wrapper.vm.$store, kind);
+      await wrapper.vm.$nextTick();
       expect(wrapper.contains(component)).toBe(true);
     });
   });
@@ -94,7 +97,7 @@ describe('side nav component', () => {
         // Clean up the registered component
         navComponents.pop();
       });
-      it(`should show ${otherKind} component if added and user is ${kind}`, () => {
+      it(`should show ${otherKind} component if added and user is ${kind}`, async () => {
         const component = {
           name: `${otherKind}SideNavEntry`,
           render() {
@@ -106,6 +109,7 @@ describe('side nav component', () => {
         expect(navComponents).toHaveLength(1);
         const wrapper = createWrapper();
         setUserKind(wrapper.vm.$store, kind);
+        await wrapper.vm.$nextTick();
         expect(wrapper.contains(component)).toBe(true);
       });
     });
@@ -116,7 +120,7 @@ describe('side nav component', () => {
         // Clean up the registered component
         navComponents.pop();
       });
-      it(`should not show ${otherKind} component if added and user is ${kind}`, () => {
+      it(`should not show ${otherKind} component if added and user is ${kind}`, async () => {
         const component = {
           name: `${otherKind}SideNavEntry`,
           render() {
@@ -128,6 +132,7 @@ describe('side nav component', () => {
         expect(navComponents).toHaveLength(1);
         const wrapper = createWrapper();
         setUserKind(wrapper.vm.$store, kind);
+        await wrapper.vm.$nextTick();
         expect(wrapper.contains(component)).toBe(false);
       });
     });
