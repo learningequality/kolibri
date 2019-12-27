@@ -8,6 +8,7 @@ import ReportsLessonExerciseLearnerListPage from '../../../src/views/reports/Rep
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 
+//
 // commonCoach mixin imports kolibri customized router and uses getRoute method
 jest.mock('kolibri.coreVue.router', () => {
   return {
@@ -168,7 +169,7 @@ const initWrapper = lessonMap => {
     contentLearnerStatusMap,
   };
 
-  router.push(ROUTE_ALL_LEARNERS);
+  router.push(ROUTE_ALL_LEARNERS).catch(() => {});
 
   const wrapper = mount(ReportsLessonExerciseLearnerListPage, {
     store,
@@ -196,16 +197,19 @@ describe('ReportsLessonExerciseLearnerListPage', () => {
     expect(getViewByGroupsCheckbox(wrapper).element.checked).toBe(false);
   });
 
-  it('renders view by groups checkbox as checked when group in url query', () => {
-    router.push(ROUTE_LEARNERS_BY_GROUP);
+  it('renders view by groups checkbox as checked when group in url query', async () => {
+    await router.push(ROUTE_LEARNERS_BY_GROUP);
     expect(getViewByGroupsCheckbox(wrapper).element.checked).toBe(true);
   });
 
   it('toggles url query on view by groups click', () => {
-    getViewByGroupsCheckbox(wrapper).setChecked(true);
+    const checkbox = getViewByGroupsCheckbox(wrapper)
+    checkbox.setChecked(true);
+    checkbox.trigger('click')
     expect(wrapper.vm.$route.query.groups).toBe('true');
 
-    getViewByGroupsCheckbox(wrapper).setChecked(false);
+    checkbox.setChecked(false);
+    checkbox.trigger('click')
     expect(wrapper.vm.$route.query.groups).toBeUndefined();
   });
 
