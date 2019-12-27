@@ -1,6 +1,5 @@
 import { mount, createLocalVue, RouterLinkStub } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-//
 
 import { STATUSES } from '../../../src/modules/classSummary/constants';
 import makeStore from '../../makeStore';
@@ -196,7 +195,7 @@ const initWrapper = lessonMap => {
   return wrapper;
 };
 
-describe.only('ReportsLessonResourceLearnerListPage', () => {
+describe('ReportsLessonResourceLearnerListPage', () => {
   let wrapper;
 
   beforeEach(() => {
