@@ -14,6 +14,12 @@ function makeWrapper() {
     router: new VueRouter({
       routes: [{ name: 'SIGN_IN', path: '/signin' }],
     }),
+    methods: {
+      // To silence router error
+      goToFirstStep() {
+        return Promise.resolve()
+      }
+    }
   });
 }
 
