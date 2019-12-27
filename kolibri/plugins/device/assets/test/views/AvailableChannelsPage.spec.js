@@ -48,7 +48,7 @@ describe('availableChannelsPage', () => {
     store.commit('manageContent/wizard/SET_TRANSFER_TYPE', transferType);
   }
 
-  it('in REMOTEIMPORT mode, the unlisted channel button is available', () => {
+  it('in REMOTEIMPORT mode, the unlisted channel button is available', async () => {
     // ...and clicking it opens the channel token modal
     setTransferType('remoteimport');
     const wrapper = makeWrapper({ store });
@@ -56,6 +56,7 @@ describe('availableChannelsPage', () => {
     // prettier-ignore
     const button = unlistedChannelsButton();
     button.trigger('click');
+    await wrapper.vm.$nextTick();
     expect(ChannelTokenModal().isVueInstance()).toEqual(true);
   });
 
