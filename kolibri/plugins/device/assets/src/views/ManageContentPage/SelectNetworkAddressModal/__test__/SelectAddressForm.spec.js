@@ -6,6 +6,7 @@ import { fetchStaticAddresses, fetchDynamicAddresses } from '../api';
 const addresses = [
   {
     id: '1',
+    instance_id: '1',
     nickname: 'Available Server',
     base_url: 'http://localhost:8000',
     available: true,
@@ -13,6 +14,7 @@ const addresses = [
   },
   {
     id: '2',
+    instance_id: '2',
     nickname: 'Unavailable Server',
     base_url: 'http://localhost:8001',
     available: false,
@@ -20,6 +22,7 @@ const addresses = [
   },
   {
     id: '3',
+    instance_id: '3',
     nickname: 'Content-less Server',
     base_url: 'http://localhost:8001',
     available: true,
@@ -60,6 +63,7 @@ describe('SelectAddressForm', () => {
   it('shows one address for each one fetched', async () => {
     const { els, wrapper } = makeWrapper();
     await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
     expect(els.radioButtons()).toHaveLength(6);
     const server1 = els.radioButtons().at(0);
     expect(server1.props().label).toEqual('Available Server');
@@ -74,6 +78,7 @@ describe('SelectAddressForm', () => {
     fetchDynamicAddresses.mockResolvedValue([]);
     const { els, wrapper } = makeWrapper();
     await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
     expect(els.radioButtons()).toHaveLength(0);
     expect(wrapper.text()).toContain('There are no addresses yet');
     expect(els.KModal().props().submitDisabled).toEqual(true);
@@ -87,6 +92,7 @@ describe('SelectAddressForm', () => {
         .at(n)
         .props().disabled;
     }
+    await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     expect(radioButtonNIsDisabled(0)).toEqual(false);
     expect(radioButtonNIsDisabled(1)).toEqual(true);
@@ -109,6 +115,7 @@ describe('SelectAddressForm', () => {
 
   it('shows a horizontal line when there are discovered addresses', async () => {
     const { wrapper, els } = makeWrapper();
+    await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     expect(els.horizontalLine().exists()).toBe(true);
   });
