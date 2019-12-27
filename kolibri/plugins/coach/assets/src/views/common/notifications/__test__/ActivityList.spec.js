@@ -41,13 +41,19 @@ function makeWrapper(options) {
     },
     stubs: {
       NotificationsFilter: {
+        name: 'NotificationsFilter',
         props: ['enabledFilters'],
         template: '<div></div>',
       },
       NotificationCard: {
+        name: 'NotificationCard',
         props: ['targetPage'],
         template: '<div></div>',
       },
+      transition: {
+        name: 'transition',
+        template: '<div><slot></slot></div>',
+      }
     },
   });
   return { wrapper };
@@ -89,6 +95,7 @@ describe('ActivityList component', () => {
       },
     });
     await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
     const noActivity = wrapper.find('.notifications p');
     expect(noActivity.text()).toEqual('No activity in this classroom');
   });
@@ -99,6 +106,7 @@ describe('ActivityList component', () => {
       next: 'http://more.stuff.com&page=2',
     });
     const { wrapper } = makeWrapper({});
+    await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     const showMoreButton = wrapper.find({ name: 'KButton' });
     expect(showMoreButton.exists()).toEqual(true);
@@ -111,6 +119,7 @@ describe('ActivityList component', () => {
     });
     const { wrapper } = makeWrapper({});
     await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
     const showMoreButton = wrapper.find({ name: 'KButton' });
     expect(showMoreButton.exists()).toEqual(false);
   });
@@ -119,14 +128,17 @@ describe('ActivityList component', () => {
     const { wrapper } = makeWrapper({});
     const showMoreButton = () => wrapper.find({ name: 'KButton' });
     await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
     wrapper.setData({
       loading: false,
       moreResults: true,
     });
+    await wrapper.vm.$nextTick();
     expect(showMoreButton().exists()).toBe(true);
     wrapper.setData({
       progressFilter: 'Completed',
     });
+    await wrapper.vm.$nextTick();
     expect(showMoreButton().exists()).toBe(false);
   });
 
@@ -156,6 +168,7 @@ describe('ActivityList component', () => {
     });
     const { wrapper } = makeWrapper({});
 
+    await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
 
     const filters = wrapper.find({ name: 'NotificationsFilter' });
@@ -191,7 +204,7 @@ describe('ActivityList component', () => {
     });
 
     // Need to set up a route, since backLinkQuery depends on $route.params
-    wrapper.vm.$router.push({
+    await wrapper.vm.$router.push({
       name: 'FakeReportPage',
       params: {
         groupId: 'group_001',
