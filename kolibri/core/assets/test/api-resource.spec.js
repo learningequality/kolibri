@@ -12,26 +12,13 @@ describe('Resource', function() {
   afterEach(function() {
     resource = undefined;
   });
-  describe('collections property', function() {
-    it('should be empty object', function() {
-      expect(resource.collections).toEqual({});
-    });
+  it('should initialize with the correct properties', () => {
+    expect(resource.collections).toEqual({});
+    expect(resource.models).toEqual({});
+    expect(resource.idKey).toEqual('id');
+    expect(resource.name).toEqual(`kolibri:core:${testName}`);
   });
-  describe('models property', function() {
-    it('should be empty object', function() {
-      expect(resource.models).toEqual({});
-    });
-  });
-  describe('idKey property', function() {
-    it('should be "id" by default', function() {
-      expect(resource.idKey).toEqual('id');
-    });
-  });
-  describe('name property', function() {
-    it('should return the kolibri: plus the namespace, plus the passed in name property of the Resource', function() {
-      expect(resource.name).toEqual(`kolibri:core:${testName}`);
-    });
-  });
+
   describe('getModel method', function() {
     it('should return a model instance', function() {
       expect(resource.getModel('test')).toBeInstanceOf(Resources.Model);
@@ -173,45 +160,21 @@ describe('Collection', function() {
     resource = undefined;
     collection = undefined;
   });
-  describe('constructor set properties:', function() {
-    describe('resource property', function() {
-      it('should be the passed in resource', function() {
-        expect(resource).toEqual(collection.resource);
-      });
-    });
-    describe('getParams property', function() {
-      it('should be the passed in params', function() {
-        expect(params).toEqual(collection.getParams);
-      });
-    });
-    describe('models property', function() {
-      it('should be an array of length 1', function() {
-        expect(collection.models).toHaveLength(1);
-      });
-    });
-    describe('_model_map property', function() {
-      it('should have one entry', function() {
-        expect(Object.keys(collection._model_map)).toHaveLength(1);
-      });
-    });
-    describe('synced property', function() {
-      it('should be false', function() {
-        expect(collection.synced).toEqual(false);
-      });
-    });
-    describe('promises property', function() {
-      it('should be an empty array', function() {
-        expect(collection.promises).toEqual([]);
-      });
-    });
-    describe('addModel method', function() {
-      it('should be called once', function() {
-        const addModelFn = resource.addModel;
-        const addModelStub = jest.fn().mockImplementation(addModelFn);
-        resource.addModel = addModelStub;
-        collection = new Resources.Collection(params, data, resource);
-        expect(addModelStub).toHaveBeenCalledTimes(2);
-      });
+  it('should initialize with the correct properties', () => {
+    expect(resource).toEqual(collection.resource);
+    expect(params).toEqual(collection.getParams);
+    expect(collection.models).toHaveLength(1);
+    expect(Object.keys(collection._model_map)).toHaveLength(1);
+    expect(collection.synced).toEqual(false);
+    expect(collection.promises).toEqual([]);
+  });
+  describe('addModel method', function() {
+    it('should be called once', function() {
+      const addModelFn = resource.addModel;
+      const addModelStub = jest.fn().mockImplementation(addModelFn);
+      resource.addModel = addModelStub;
+      collection = new Resources.Collection(params, data, resource);
+      expect(addModelStub).toHaveBeenCalledTimes(2);
     });
   });
   describe('constructor method', function() {
