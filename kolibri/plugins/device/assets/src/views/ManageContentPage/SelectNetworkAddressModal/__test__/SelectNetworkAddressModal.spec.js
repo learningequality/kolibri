@@ -35,18 +35,21 @@ describe('SelectNetworkAddressModal', () => {
     expect(els.SelectAddressForm().isVueInstance()).toBe(true);
   });
 
-  it('clicking the "new address" button takes you to the New Address Form', () => {
-    const { els, actions } = makeWrapper();
+  it('clicking the "new address" button takes you to the New Address Form', async () => {
+    const { els, actions, wrapper } = makeWrapper();
     actions.clickNewAddress();
+    await wrapper.vm.$nextTick();
     expect(els.SelectAddressForm().exists()).toBe(false);
     expect(els.AddAddressForm().isVueInstance()).toBe(true);
   });
 
-  it('clicking "cancel" on the New Address Form takes you back', () => {
+  it('clicking "cancel" on the New Address Form takes you back', async () => {
     const { actions, wrapper } = makeWrapper();
     actions.clickNewAddress();
+    await wrapper.vm.$nextTick();
     expect(wrapper.vm.stage).toBe('ADD_ADDRESS');
     actions.clickAddAddressCancel();
+    await wrapper.vm.$nextTick();
     // Can't test presence of component for some reason. Checking the wrapper.vm.stage
     expect(wrapper.vm.stage).toBe('SELECT_ADDRESS');
   });

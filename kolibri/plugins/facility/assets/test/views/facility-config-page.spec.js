@@ -68,31 +68,36 @@ describe('facility config page view', () => {
     expect(mock).toHaveBeenCalledWith('facilityConfig/saveFacilityConfig');
   });
 
-  it('clicking reset button brings up the confirmation modal', () => {
+  it('clicking reset button brings up the confirmation modal', async () => {
     const wrapper = makeWrapper();
     const { resetButton } = getElements(wrapper);
     assertModalIsDown(wrapper);
     resetButton().trigger('click');
+    await wrapper.vm.$nextTick();
     assertModalIsUp(wrapper);
   });
 
-  it('canceling reset tears down the modal', () => {
+  it('canceling reset tears down the modal', async () => {
     const wrapper = makeWrapper();
     const { resetButton, cancelResetButton } = getElements(wrapper);
     assertModalIsDown(wrapper);
     resetButton().trigger('click');
+    await wrapper.vm.$nextTick();
     assertModalIsUp(wrapper);
     cancelResetButton().trigger('click');
+    await wrapper.vm.$nextTick();
     assertModalIsDown(wrapper);
   });
 
-  it('confirming reset calls the reset action and closes modal', () => {
+  it('confirming reset calls the reset action and closes modal', async () => {
     const wrapper = makeWrapper();
     const { resetButton, confirmResetModal } = getElements(wrapper);
     const mock = (wrapper.vm.$store.dispatch = jest.fn().mockResolvedValue());
     resetButton().trigger('click');
+    await wrapper.vm.$nextTick();
     assertModalIsUp(wrapper);
     confirmResetModal().vm.$emit('submit');
+    await wrapper.vm.$nextTick();
     expect(mock).toHaveBeenCalledTimes(1);
     expect(mock).toHaveBeenCalledWith('facilityConfig/resetFacilityConfig');
     assertModalIsDown(wrapper);
