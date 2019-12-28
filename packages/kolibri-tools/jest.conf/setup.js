@@ -33,3 +33,9 @@ csrf.value = 'csrfmiddlewaretoken';
 global.document.body.append(csrf);
 
 Object.defineProperty(window, 'scrollTo', { value: () => {}, writable: true });
+
+// Uncomment to see better errors from Node
+process.on('unhandledRejection', (reason, p) => {
+  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+  console.log(reason.stack);
+});
