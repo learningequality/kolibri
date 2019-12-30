@@ -53,7 +53,7 @@ function makeWrapper(options) {
       transition: {
         name: 'transition',
         template: '<div><slot></slot></div>',
-      }
+      },
     },
   });
   return { wrapper };

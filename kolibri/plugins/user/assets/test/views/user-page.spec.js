@@ -10,8 +10,8 @@ function makeWrapper() {
     data() {
       return {
         pageName: 'SIGN_IN',
-      }
-    }
+      };
+    },
   });
 }
 

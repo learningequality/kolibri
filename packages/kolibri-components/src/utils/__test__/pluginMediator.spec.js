@@ -69,10 +69,10 @@ describe('Mediator', function() {
       let consoleMock;
       beforeAll(() => {
         consoleMock = jest.spyOn(console, 'info').mockImplementation();
-      })
+      });
       afterAll(() => {
-        consoleMock.mockRestore()
-      })
+        consoleMock.mockRestore();
+      });
       beforeEach(function() {
         kolibriModule = { name: 'test', ready: () => {} };
         mediator.registerKolibriModuleSync(kolibriModule);

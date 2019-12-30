@@ -212,7 +212,7 @@ describe('ReportsLessonResourceLearnerListPage', () => {
   });
 
   it('toggles url query on view by groups click', async () => {
-    const checkbox = getViewByGroupsCheckbox(wrapper)
+    const checkbox = getViewByGroupsCheckbox(wrapper);
     checkbox.setChecked(true);
     checkbox.trigger('click');
     expect(wrapper.vm.$route.query.groups).toBe('true');

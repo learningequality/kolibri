@@ -12,14 +12,14 @@ function makeWrapper() {
 }
 
 async function assertAtCorrectFormEmitSubmit(componentName, wrapper) {
-    const component = wrapper.find({ name: componentName });
-    expect(component.isVueInstance()).toBe(true);
-    // Simulate clicking submit because clicking the button doesn't work
-    component.vm.$emit('submit');
-    await wrapper.vm.$nextTick();
-    if (component.name() !== 'PersonalDataConsentForm') {
-      expect(component.exists()).toBe(false);
-    }
+  const component = wrapper.find({ name: componentName });
+  expect(component.isVueInstance()).toBe(true);
+  // Simulate clicking submit because clicking the button doesn't work
+  component.vm.$emit('submit');
+  await wrapper.vm.$nextTick();
+  if (component.name() !== 'PersonalDataConsentForm') {
+    expect(component.exists()).toBe(false);
+  }
 }
 
 describe('SetupWizardIndex', () => {

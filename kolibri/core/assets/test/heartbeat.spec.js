@@ -11,7 +11,6 @@ jest.mock('kolibri.urls');
 jest.mock('lockr');
 jest.mock('http');
 
-
 describe('HeartBeat', function() {
   stubWindowLocation(beforeAll, afterAll);
 

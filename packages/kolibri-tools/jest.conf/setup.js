@@ -34,8 +34,9 @@ global.document.body.append(csrf);
 
 Object.defineProperty(window, 'scrollTo', { value: () => {}, writable: true });
 
-// Uncomment to see better errors from Node
+// Shows better NodeJS unhandled promise rejection errors
 process.on('unhandledRejection', (reason, p) => {
+  /* eslint-disable no-console */
   console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
   console.log(reason.stack);
 });

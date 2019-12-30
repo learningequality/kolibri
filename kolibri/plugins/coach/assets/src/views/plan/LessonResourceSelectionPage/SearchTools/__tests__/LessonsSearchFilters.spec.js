@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 import LessonsSearchFilters from '../LessonsSearchFilters';
 import makeStore from '../../../../../../test/makeStore';
 
-//
 function makeWrapper(props) {
   const wrapper = mount(LessonsSearchFilters, {
     store: makeStore(),
@@ -31,11 +30,13 @@ function makeWrapper(props) {
 
 describe('LessonsSearchFilters', () => {
   it('has the correct content kind filter options based on search results', () => {
-    const { els } = makeWrapper({searchResults: {
+    const { els } = makeWrapper({
+      searchResults: {
         results: [],
         channel_ids: [],
         content_kinds: ['html5', 'exercise'],
-      }});
+      },
+    });
     expect(els.kindSelect().props().options).toEqual([
       { label: 'All', value: null },
       { label: 'Apps', value: 'html5' },

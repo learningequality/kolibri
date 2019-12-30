@@ -44,7 +44,7 @@ const initWrapper = propsData => {
       transitionGroup: {
         name: 'transition-group',
         template: '<div><slot></slot></div>',
-      }
+      },
     },
   });
 };

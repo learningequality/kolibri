@@ -17,9 +17,9 @@ function makeWrapper() {
     methods: {
       // To silence router error
       goToFirstStep() {
-        return Promise.resolve()
-      }
-    }
+        return Promise.resolve();
+      },
+    },
   });
 }
 

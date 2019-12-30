@@ -12,23 +12,23 @@ describe('KContentRenderer Component', () => {
   });
 
   const defaultFile = {
-      available: true,
-      preset: 'tst',
-      storage_url: '',
-      id: '',
-      priority: 0,
-      file_size: 100,
-      checksum: '',
-      extension: 'mp4',
-      lang: {
-        id: 'en',
-        lang_name: 'English',
-        lang_direction: 'ltr',
-      },
-      supplementary: false,
-      thumbnail: false,
-      download_url: '',
-  }
+    available: true,
+    preset: 'tst',
+    storage_url: '',
+    id: '',
+    priority: 0,
+    file_size: 100,
+    checksum: '',
+    extension: 'mp4',
+    lang: {
+      id: 'en',
+      lang_name: 'English',
+      lang_direction: 'ltr',
+    },
+    supplementary: false,
+    thumbnail: false,
+    download_url: '',
+  };
   const defaultFiles = [
     {
       ...defaultFile,

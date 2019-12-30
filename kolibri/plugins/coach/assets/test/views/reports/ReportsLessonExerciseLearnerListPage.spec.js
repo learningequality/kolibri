@@ -8,7 +8,6 @@ import ReportsLessonExerciseLearnerListPage from '../../../src/views/reports/Rep
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 
-//
 // commonCoach mixin imports kolibri customized router and uses getRoute method
 jest.mock('kolibri.coreVue.router', () => {
   return {
@@ -203,13 +202,13 @@ describe('ReportsLessonExerciseLearnerListPage', () => {
   });
 
   it('toggles url query on view by groups click', () => {
-    const checkbox = getViewByGroupsCheckbox(wrapper)
+    const checkbox = getViewByGroupsCheckbox(wrapper);
     checkbox.setChecked(true);
-    checkbox.trigger('click')
+    checkbox.trigger('click');
     expect(wrapper.vm.$route.query.groups).toBe('true');
 
     checkbox.setChecked(false);
-    checkbox.trigger('click')
+    checkbox.trigger('click');
     expect(wrapper.vm.$route.query.groups).toBeUndefined();
   });
 
