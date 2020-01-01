@@ -173,15 +173,14 @@ def collect_local_artifacts():
         data.update(file_manifest[data_name_exe])
         artifacts_dict[data_name_exe] = data
 
-    def create_artifact_data(artifact_dir):
-        for artifact in listdir(artifact_dir):
+    for artifact in listdir(DIST_DIR):
             filename, file_extension = os.path.splitext(artifact)
             # Remove leading '.'
             # print("...>", artifact, "<......")
             file_extension = file_extension[1:]
             data = {
                 "name": artifact,
-                "file_location": "%s/%s" % (artifact_dir, artifact),
+            "file_location": "%s/%s" % (DIST_DIR, artifact),
             }
             if file_extension == "exe":
                 create_exe_data(filename, data)
@@ -191,40 +190,14 @@ def collect_local_artifacts():
                 logging.info("Collect file data: (%s)" % data)
                 artifacts_dict[file_extension] = data
 
-    create_artifact_data(DIST_DIR)
+
+    # basically the manifest dict, with extra fields
     return artifacts_dict
 
 
-def upload_artifacts():
-    """
-    Upload the artifacts on the Google Cloud Storage.
-    Create a comment on the pull requester with artifact media link.
-    """
+def upload_html(html="", artifacts={}):
     client = storage.Client()
     bucket = client.bucket("le-downloads")
-    artifacts = collect_local_artifacts()
-    is_release = os.getenv("IS_KOLIBRI_RELEASE")
-    for file_data in artifacts.values():
-        logging.info("Uploading file (%s)" % (file_data.get("name")))
-        if is_release:
-            blob = bucket.blob(
-                "kolibri-%s-%s-%s" % (RELEASE_DIR, BUILD_ID, file_data.get("name"))
-            )
-        else:
-            blob = bucket.blob(
-                "kolibri-buildkite-build-%s-%s-%s"
-                % (ISSUE_ID, BUILD_ID, file_data.get("name"))
-            )
-        blob.upload_from_filename(filename=file_data.get("file_location"))
-        blob.make_public()
-        file_data.update(
-            {
-                "size_mb": os.path.getsize(file_data.get("file_location")) / 1048576.0,
-                "media_url": blob.media_link,
-            }
-        )
-
-    html = create_status_report_html(artifacts)
 
     # add count to report html to avoid duplicate.
     report_count = BUILD_ID + "-first"
@@ -237,10 +210,10 @@ def upload_artifacts():
 
     blob.make_public()
 
-    create_github_status(blob.public_url)
+    return blob.public_url
 
-    if TAG:
-        # Building from a tag, this is probably a release!
+
+def upload_gh_release_artifacts(artifacts={}):
         # Have to do this with requests because github3 does not support this interface yet
         get_release_asset_url = requests.get(
             "https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}".format(
@@ -276,8 +249,44 @@ def upload_artifacts():
                         )
 
 
+def upload_gh_status_artifacts(artifacts={}):
+    """
+    Upload the artifacts on the Google Cloud Storage.
+    Create a comment on the pull requester with artifact media link.
+    """
+    client = storage.Client()
+    bucket = client.bucket("le-downloads")
+    is_release = os.getenv("IS_KOLIBRI_RELEASE")
+    for file_data in artifacts.values():
+        logging.info("Uploading file (%s)" % (file_data.get("name")))
+        if is_release:
+            blob = bucket.blob(
+                "kolibri-%s-%s-%s" % (RELEASE_DIR, BUILD_ID, file_data.get("name"))
+            )
+        else:
+            blob = bucket.blob(
+                "kolibri-buildkite-build-%s-%s-%s"
+                % (ISSUE_ID, BUILD_ID, file_data.get("name"))
+            )
+        blob.upload_from_filename(filename=file_data.get("file_location"))
+        blob.make_public()
+        file_data.update(
+            {
+                "size_mb": os.path.getsize(file_data.get("file_location")) / 1048576.0,
+                "media_url": blob.media_link,
+            }
+        )
+
+
 def main():
-    upload_artifacts()
+    artifacts = collect_local_artifacts()
+    upload_gh_status_artifacts(artifacts)
+    html = create_status_report_html(artifacts)
+    html_url = upload_html(html)
+    create_github_status(html_url)
+    if TAG:
+        # Building from a tag, this is probably a release!
+        upload_gh_release_artifacts(artifacts)
 
 
 if __name__ == "__main__":
