@@ -166,7 +166,7 @@ def collect_local_artifacts():
 
     artifacts_dict = {}
     storage_bucket = storage.Client().bucket('le-buildkite')
-    blobs = storage_bucket.list_blobs_iter(None, None, GCS_UPLOAD_PATH_PREFIX)
+    blobs = storage_bucket.list_blobs(None, None, GCS_UPLOAD_PATH_PREFIX)
 
     def manifest_id(file_name='', file_ext=''):
         if file_ext == 'exe':
