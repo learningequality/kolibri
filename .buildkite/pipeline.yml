@@ -14,6 +14,7 @@ steps:
       env:
         LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
         LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
+        GCS_UPLOAD_PATH_PREFIX: "${GCS_UPLOAD_PATH_PREFIX}"
 
     # Android build only requires whl file
   # - label: Build Android APK
