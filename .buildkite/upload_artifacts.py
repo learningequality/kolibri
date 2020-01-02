@@ -14,11 +14,11 @@
     * BUILDKITE_TAG = Tag identifier if this build was built from a tag.
     * BUILDKITE_COMMIT = Git commit hash that the build was made from.
     * GOOGLE_APPLICATION_CREDENTIALS = Your service account key.
+    * GCS_UPLOAD_PATH_PREFIX = Prefix for uploads within the `le-buildkite` bucket. Set by the buildkite agent in a hook.
 """
 import logging
 import os
 import sys
-from os import listdir
 
 import requests
 from google.cloud import storage
@@ -33,6 +33,7 @@ ISSUE_ID = os.getenv("BUILDKITE_PULL_REQUEST")
 BUILD_ID = os.getenv("BUILDKITE_BUILD_NUMBER")
 TAG = os.getenv("BUILDKITE_TAG")
 COMMIT = os.getenv("BUILDKITE_COMMIT")
+GCS_UPLOAD_PATH_PREFIX = os.getenv("GCS_UPLOAD_PATH_PREFIX", "")
 
 RELEASE_DIR = "release"
 PROJECT_PATH = os.path.join(os.getcwd())
@@ -164,32 +165,34 @@ def collect_local_artifacts():
     """
 
     artifacts_dict = {}
+    storage_bucket = storage.Client().bucket('le-buildkite')
+    blobs = storage_bucket.list_blobs_iter(None, None, GCS_UPLOAD_PATH_PREFIX)
 
-    def create_exe_data(filename, data):
-        data_name = "-unsigned"
-        if "-signed" in filename:
-            data_name = "-signed"
-        data_name_exe = data_name[1:] + "-exe"
-        data.update(file_manifest[data_name_exe])
-        artifacts_dict[data_name_exe] = data
+    def manifest_id(file_name='', file_ext=''):
+        if file_ext == 'exe':
+            if '-signed' in file_name:
+                return 'signed-exe'
+            return 'unsigned-exe'
+        return file_ext
 
-    for artifact in listdir(DIST_DIR):
-            filename, file_extension = os.path.splitext(artifact)
-            # Remove leading '.'
-            # print("...>", artifact, "<......")
-            file_extension = file_extension[1:]
+    for blob in blobs:
+        file = os.path.split(blob.name)[1]
+        file_id = manifest_id(*os.path.splitext(file))
+
+        if file_id in file_manifest:
             data = {
-                "name": artifact,
-            "file_location": "%s/%s" % (DIST_DIR, artifact),
+                "name": file,
+                "media_link": blob.public_url,
+                "content_type": blob.content_type,
+                "md5_hash": blob.md5_hash,
+                "size_mb": blob.size / 1048576.0,
             }
-            if file_extension == "exe":
-                create_exe_data(filename, data)
+            # Add all fields in manifest to dict entry
+            data.update(file_manifest[file_id])
+            logging.info("Collect file data: (%s)" % data)
 
-            if file_extension in file_manifest:
-                data.update(file_manifest[file_extension])
-                logging.info("Collect file data: (%s)" % data)
-                artifacts_dict[file_extension] = data
-
+            # Add artifact to return value
+            artifacts_dict[file_id] = data
 
     # basically the manifest dict, with extra fields
     return artifacts_dict
@@ -214,39 +217,39 @@ def upload_html(html="", artifacts={}):
 
 
 def upload_gh_release_artifacts(artifacts={}):
-        # Have to do this with requests because github3 does not support this interface yet
-        get_release_asset_url = requests.get(
-            "https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}".format(
-                owner=REPO_OWNER, repo=REPO_NAME, tag=TAG
-            )
+    # Have to do this with requests because github3 does not support this interface yet
+    get_release_asset_url = requests.get(
+        "https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}".format(
+            owner=REPO_OWNER, repo=REPO_NAME, tag=TAG
         )
-        if get_release_asset_url.status_code == 200:
-            # Definitely a release!
-            release_id = get_release_asset_url.json()["id"]
-            release_name = get_release_asset_url.json()["name"]
-            release = repository.release(id=release_id)
-            logging.info("Uploading built assets to Github Release: %s" % release_name)
-            for file_extension in file_order:
-                if file_extension in artifacts:
-                    artifact = artifacts[file_extension]
-                    logging.info("Uploading release asset: %s" % (artifact.get("name")))
-                    # For some reason github3 does not let us set a label at initial upload
-                    asset = release.upload_asset(
-                        content_type=artifact["content_type"],
-                        name=artifact["name"],
-                        asset=open(artifact["file_location"], "rb"),
+    )
+    if get_release_asset_url.status_code == 200:
+        # Definitely a release!
+        release_id = get_release_asset_url.json()["id"]
+        release_name = get_release_asset_url.json()["name"]
+        release = repository.release(id=release_id)
+        logging.info("Uploading built assets to Github Release: %s" % release_name)
+        for file_extension in file_order:
+            if file_extension in artifacts:
+                artifact = artifacts[file_extension]
+                logging.info("Uploading release asset: %s" % (artifact.get("name")))
+                # For some reason github3 does not let us set a label at initial upload
+                asset = release.upload_asset(
+                    content_type=artifact["content_type"],
+                    name=artifact["name"],
+                    asset=open(artifact["file_location"], "rb"),
+                )
+                if asset:
+                    # So do it after the initial upload instead
+                    asset.edit(artifact["name"], label=artifact["description"])
+                    logging.info(
+                        "Successfully uploaded release asset: %s"
+                        % (artifact.get("name"))
                     )
-                    if asset:
-                        # So do it after the initial upload instead
-                        asset.edit(artifact["name"], label=artifact["description"])
-                        logging.info(
-                            "Successfully uploaded release asset: %s"
-                            % (artifact.get("name"))
-                        )
-                    else:
-                        logging.error(
-                            "Error uploading release asset: %s" % (artifact.get("name"))
-                        )
+                else:
+                    logging.error(
+                        "Error uploading release asset: %s" % (artifact.get("name"))
+                    )
 
 
 def upload_gh_status_artifacts(artifacts={}):

@@ -22,21 +22,6 @@ if [ $? -ne 0 ]; then
 fi
 
 PYTHON_CMD="$PYTHON_PATH .buildkite/upload_artifacts.py"
-echo "Now excuting  upload artifacts script..."
-mkdir -p dist
-buildkite-agent artifact download 'dist/*.pex' dist/
-buildkite-agent artifact download 'dist/*.whl' dist/
-buildkite-agent artifact download 'dist/*.tar.gz' dist/
-buildkite-agent artifact download 'dist/*.deb' dist/
-buildkite-agent artifact download 'dist/*.exe' dist/
-buildkite-agent artifact download 'dist/*.dmg' dist/
-buildkite-agent artifact download 'dist/*.zip' dist/
-
-{
-    buildkite-agent artifact download '*.exe' dist/ --step "Sign Windows installer"
-} || {
-    echo "No signed Windows installer found"
-}
 
 $PYTHON_CMD
 if [ $? -ne 0 ]; then
