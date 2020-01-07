@@ -17,7 +17,6 @@
       @change="toggleGroup($event, group.id)"
     />
     <IndividualLearnerSelector
-      v-if="false"
       :selectedGroupIds="selectedGroupIds"
       :entireClassIsSelected="entireClassIsSelected"
       :initialAdHocLearners="initialAdHocLearners"

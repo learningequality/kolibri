@@ -3,11 +3,12 @@
   <div>
     <KCheckbox
       key="adHocLearners"
-      :label="$tr('individualLearnersLabel')"
       :checked="showAsChecked"
       :disabled="disabled"
       @change="toggleChecked"
-    />
+    >
+      <KLabeledIcon icon="people" :label="$tr('individualLearnersLabel')" />
+    </KCheckbox>
     <div v-if="showAsChecked">
       <div class="table-title">
         {{ $tr("selectedIndividualLearnersLabel") }}
