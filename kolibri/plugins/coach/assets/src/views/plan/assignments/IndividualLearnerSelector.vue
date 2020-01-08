@@ -35,8 +35,8 @@
                   <KCheckbox
                     key="selectAllOnPage"
                     :label="$tr('selectAllLabel')"
-                    :checked="allOfCurrentPageIsSelected"
-                    :disabled="disabled"
+                    :checked="selectAllCheckboxProps.checked"
+                    :disabled="selectAllCheckboxProps.disabled"
                     @change="selectVisiblePage"
                   />
                 </th>
@@ -97,6 +97,7 @@
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import uniq from 'lodash/uniq';
+  import countBy from 'lodash/countBy';
   import ClassSummaryResource from '../../../apiResources/classSummary';
   import commonCoachStrings from '../../common';
   import { userMatchesFilter, filterAndSortUsers } from '../../../userSearchUtils';
@@ -194,6 +195,21 @@
           return this.selectedAdHocIds.includes(visible.id);
         });
         return selectedVisibleLearners.length === this.currentPageLearners.length;
+      },
+      selectAllCheckboxProps() {
+        const counts = countBy(this.currentPageLearners, learner => {
+          if (this.learnerIsInSelectedGroup(learner.id)) {
+            return 'disabled';
+          } else if (this.selectedAdHocIds.includes(learner.id)) {
+            return 'checked';
+          } else {
+            return 'unchecked';
+          }
+        });
+        return {
+          disabled: counts.disabled === this.currentPageLearners.length,
+          checked: !counts.unchecked,
+        };
       },
       itemsPerPage() {
         return this.targetClassId ? SHORT_ITEMS_PER_PAGE : DEFAULT_ITEMS_PER_PAGE;
