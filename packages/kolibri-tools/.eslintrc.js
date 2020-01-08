@@ -165,6 +165,7 @@ module.exports = {
         'alignAttributesVertically': true,
       }
     ],
+    'vue/object-curly-spacing': [ERROR, 'always'],
 
     'import/first': ERROR,
     'import/no-duplicates': ERROR,
