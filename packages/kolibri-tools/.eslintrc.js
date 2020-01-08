@@ -174,6 +174,7 @@ module.exports = {
     'vue/object-curly-spacing': [ERROR, 'always'],
     'vue/eqeqeq': [ERROR, 'always'],
     'vue/key-spacing': [ERROR, { afterColon: true }],
+    'vue/space-infix-ops': ERROR,
 
     'import/first': ERROR,
     'import/no-duplicates': ERROR,
