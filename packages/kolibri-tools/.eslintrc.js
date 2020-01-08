@@ -165,6 +165,9 @@ module.exports = {
         'alignAttributesVertically': true,
       }
     ],
+    'vue/no-deprecated-scope-attribute': ERROR,
+    'vue/no-deprecated-slot-attribute': ERROR,
+
     // ESLint rules for interpolated JS
     'vue/object-curly-spacing': [ERROR, 'always'],
     'vue/eqeqeq': [ERROR, 'always'],

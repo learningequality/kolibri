@@ -13,14 +13,14 @@
 
         <table>
           <tr>
-            <th scope="row">
+            <th>
               {{ coreString('usernameLabel') }}
             </th>
             <td>{{ user.username }}</td>
           </tr>
 
           <tr>
-            <th scope="row">
+            <th>
               {{ coreString('userTypeLabel') }}
             </th>
             <td>
@@ -29,7 +29,7 @@
           </tr>
 
           <tr>
-            <th scope="row">
+            <th>
               {{ coreString('facilityLabel') }}
             </th>
             <td dir="auto">
