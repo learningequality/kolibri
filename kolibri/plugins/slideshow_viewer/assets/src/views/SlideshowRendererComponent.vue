@@ -55,6 +55,7 @@
 
 <script>
 
+  import has from 'lodash/has';
   import orderBy from 'lodash/orderBy';
   import objectFitImages from 'object-fit-images';
   import client from 'kolibri.client';
@@ -134,7 +135,7 @@
     },
     mounted() {
       this.$emit('startTracking');
-      if (this.extraFields && this.extraFields.hasOwnProperty('contentState')) {
+      if (this.extraFields && has(this.extraFields, 'contentState')) {
         this.highestViewedSlideIndex = this.extraFields.contentState.highestViewedSlideIndex;
       } else {
         this.extraFields.contentState = {
@@ -153,7 +154,7 @@
         /*
          * First check that the file has a storage url and that it is a JSON file.
          */
-        if (defaultFile.hasOwnProperty('storage_url') && defaultFile.extension === 'json') {
+        if (has(defaultFile, 'storage_url') && defaultFile.extension === 'json') {
           /*
             Using the manifest file, get the JSON from the manifest, then
             use the manifest JSON to get all slide images and metadata.
