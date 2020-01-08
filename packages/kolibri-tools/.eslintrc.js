@@ -168,6 +168,7 @@ module.exports = {
     // ESLint rules for interpolated JS
     'vue/object-curly-spacing': [ERROR, 'always'],
     'vue/eqeqeq': [ERROR, 'always'],
+    'vue/key-spacing': [ERROR, { afterColon: true }],
 
     'import/first': ERROR,
     'import/no-duplicates': ERROR,
