@@ -2,26 +2,26 @@
 
   <HeaderTable v-if="avgTime || $isPrint">
     <HeaderTableRow v-if="$isPrint">
-      <template slot="key">
+      <template v-slot:key>
         {{ coachString('classLabel') }}
       </template>
-      <template slot="value">
+      <template v-slot:value>
         {{ className }}
       </template>
     </HeaderTableRow>
     <HeaderTableRow v-if="$isPrint">
-      <template slot="key">
+      <template v-slot:key>
         {{ coachString('lessonLabel') }}
       </template>
-      <template slot="value">
+      <template v-slot:value>
         {{ lessonName }}
       </template>
     </HeaderTableRow>
     <HeaderTableRow v-if="avgTime">
-      <template slot="key">
+      <template v-slot:key>
         {{ coachString('avgTimeSpentLabel') }}
       </template>
-      <template slot="value">
+      <template v-slot:value>
         <TimeDuration :seconds="avgTime" />
       </template>
     </HeaderTableRow>

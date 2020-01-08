@@ -12,40 +12,40 @@
     </h1>
     <HeaderTable>
       <HeaderTableRow>
-        <template slot="key">
+        <template v-slot:key>
           {{ coreString('usernameLabel') }}
         </template>
-        <template slot="value">
+        <template v-slot:value>
           {{ learner.username }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">
+        <template v-slot:key>
           {{ coachString('groupsLabel') }}
         </template>
         <TruncatedItemList slot="value" :items="getGroupNamesForLearner(learner.id)" />
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">
+        <template v-slot:key>
           {{ coachString('avgQuizScoreLabel') }}
         </template>
-        <template slot="value">
+        <template v-slot:value>
           {{ coachString('percentage', { value: avgScore }) }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">
+        <template v-slot:key>
           {{ coachString('exercisesCompletedLabel') }}
         </template>
-        <template slot="value">
+        <template v-slot:value>
           {{ coachString('integer', { value: exercisesCompleted }) }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">
+        <template v-slot:key>
           {{ coachString('resourcesViewedLabel') }}
         </template>
-        <template slot="value">
+        <template v-slot:value>
           {{ coachString('integer', { value: resourcesViewed }) }}
         </template>
       </HeaderTableRow>

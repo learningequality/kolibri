@@ -44,7 +44,7 @@
           :emptyMessage="emptyMessageForItems(items, filterInput)"
           :showDemographicInfo="true"
         >
-          <template slot="action" slot-scope="userRow">
+          <template v-slot:action="userRow">
             <KDropdownMenu
               :text="$tr('optionsButtonLabel')"
               :options="manageUserOptions(userRow.user.id)"

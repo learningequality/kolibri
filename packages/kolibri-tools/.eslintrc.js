@@ -166,7 +166,9 @@ module.exports = {
       }
     ],
     'vue/no-deprecated-scope-attribute': ERROR,
-    'vue/no-deprecated-slot-attribute': ERROR,
+    // TODO Enforcing these rules requires bigger refactor
+    // 'vue/no-deprecated-slot-attribute': ERROR,
+    // 'vue/no-deprecated-slot-scope-attribute': ERROR,
 
     // ESLint rules for interpolated JS
     'vue/object-curly-spacing': [ERROR, 'always'],

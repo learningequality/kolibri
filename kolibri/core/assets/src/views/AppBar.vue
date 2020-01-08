@@ -74,7 +74,7 @@
           :style="{ backgroundColor: $themeTokens.surface }"
           @close="userMenuDropdownIsOpen = false"
         >
-          <template v-if="isUserLoggedIn" slot="header">
+          <template v-if="isUserLoggedIn" v-slot:header>
             <div class="role">
               {{ coreString('userTypeLabel') }}
             </div>
@@ -86,7 +86,7 @@
             </div>
           </template>
 
-          <template slot="options">
+          <template v-slot:options>
             <component :is="component" v-for="component in menuOptions" :key="component.name" />
             <CoreMenuOption
               :label="$tr('languageSwitchMenuOption')"
