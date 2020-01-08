@@ -55,7 +55,7 @@
         dir="auto"
         class="k-checkbox-label"
         :for="id"
-        :class="{ 'visuallyhidden' : !showLabel }"
+        :class="{ 'visuallyhidden': !showLabel }"
         :style="labelStyle"
         @click.prevent
       >

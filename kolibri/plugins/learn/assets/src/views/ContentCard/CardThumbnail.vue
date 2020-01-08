@@ -2,7 +2,7 @@
 
   <div
     class="card-thumbnail-wrapper"
-    :class="{ 'mobile-thumbnail' : isMobile }"
+    :class="{ 'mobile-thumbnail': isMobile }"
     :style="thumbnailBackground"
   >
 

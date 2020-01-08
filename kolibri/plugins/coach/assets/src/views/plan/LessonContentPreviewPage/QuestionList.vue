@@ -3,7 +3,7 @@
   <section :style="{ backgroundColor: $themeTokens.surface }">
 
     <h2 class="header">
-      {{ $tr('questionListHeader', { numOfQuestions:questions.length }) }}
+      {{ $tr('questionListHeader', { numOfQuestions: questions.length }) }}
     </h2>
 
     <ul class="list">

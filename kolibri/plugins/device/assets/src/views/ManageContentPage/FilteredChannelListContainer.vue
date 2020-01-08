@@ -38,7 +38,7 @@
         class="select-all-checkbox"
         :label="$tr('selectAll')"
         :checked="selectAllIsChecked"
-        @change="handleChangeSelectAll({ isSelected:$event })"
+        @change="handleChangeSelectAll({ isSelected: $event })"
       />
     </template>
 

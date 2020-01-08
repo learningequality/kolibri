@@ -20,7 +20,7 @@
         </div>
       </KGridItem>
       <KGridItem :layout12="{ span: 8 }" class="column-pane">
-        <div :class="{ 'column-contents-wrapper' : !windowIsSmall }">
+        <div :class="{ 'column-contents-wrapper': !windowIsSmall }">
           <KPageContainer>
             <h1>
               {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
