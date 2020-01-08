@@ -2,7 +2,7 @@
 
   <transition name="fade">
     <div v-if="$attrs.show" class="task-progress">
-      <div class="progress-icon dtc">
+      <div class="dtc progress-icon">
         <transition name="fade" mode="out-in">
           <mat-svg
             v-if="taskHasFailed"
@@ -24,7 +24,7 @@
         </transition>
       </div>
 
-      <div class="progress-bar dtc">
+      <div class="dtc progress-bar">
         <div :class="{ 'task-stage': !taskHasCompleted }">
           {{ stageText }}
         </div>
@@ -36,7 +36,7 @@
         />
       </div>
 
-      <div v-if="!taskHasCompleted" class="progress-messages dtc">
+      <div v-if="!taskHasCompleted" class="dtc progress-messages">
         <span class="percentage">{{ progressMessage }}</span>
       </div>
 

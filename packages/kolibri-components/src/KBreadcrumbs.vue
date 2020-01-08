@@ -45,7 +45,7 @@
           <li
             v-else
             :key="index"
-            class="breadcrumbs-visible-item breadcrumb-visible-item-last"
+            class="breadcrumb-visible-item-last breadcrumbs-visible-item"
           >
             <span
               :style="{ maxWidth: `${lastCrumbMaxWidth}px` }"
@@ -76,7 +76,7 @@
             v-else
             :ref="`crumb${index}`"
             :key="index"
-            class="breadcrumbs-visible-item breadcrumb-visible-item-last"
+            class="breadcrumb-visible-item-last breadcrumbs-visible-item"
           >
             <span :style="{ maxWidth: `${lastCrumbMaxWidth}px` }">{{ crumb.text }}</span>
           </li>

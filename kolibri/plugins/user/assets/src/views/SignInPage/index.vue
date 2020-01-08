@@ -9,8 +9,8 @@
     />
 
     <div class="wrapper-table">
-      <div class="table-row main-row" :style="backgroundImageStyle">
-        <div class="table-cell main-cell">
+      <div class="main-row table-row" :style="backgroundImageStyle">
+        <div class="main-cell table-cell">
           <div class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
             <CoreLogo
               v-if="$kolibriBranding.signIn.topLogo"
@@ -143,7 +143,7 @@
         </div>
       </div>
       <div class="table-row">
-        <div class="table-cell footer-cell" :style="{ backgroundColor: $themeTokens.surface }">
+        <div class="footer-cell table-cell" :style="{ backgroundColor: $themeTokens.surface }">
           <LanguageSwitcherFooter />
           <div class="small-text">
             <span class="version-string">

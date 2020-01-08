@@ -63,7 +63,7 @@
               />
             </td>
 
-            <td class="center-text button-col core-table-button-col">
+            <td class="button-col center-text core-table-button-col">
               <!-- Open quiz button -->
               <KButton
                 v-if="!exam.active && !exam.archive"

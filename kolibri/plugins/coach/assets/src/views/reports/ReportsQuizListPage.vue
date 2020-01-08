@@ -64,7 +64,7 @@
             </td>
             <td
               v-show="!$isPrint"
-              class="center-text button-col core-table-button-col"
+              class="button-col center-text core-table-button-col"
             >
               <!-- Open quiz button -->
               <KButton

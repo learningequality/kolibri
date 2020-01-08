@@ -39,7 +39,7 @@
 
       <template v-slot:default="{ items, filterInput }">
         <UserTable
-          class="user-roster move-down"
+          class="move-down user-roster"
           :users="items"
           :emptyMessage="emptyMessageForItems(items, filterInput)"
           :showDemographicInfo="true"
