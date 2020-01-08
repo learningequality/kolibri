@@ -72,7 +72,7 @@
               {{
                 coreString(
                   'questionNumberLabel',
-                  {questionNumber: attemptLog.questionNumber}
+                  { questionNumber: attemptLog.questionNumber }
                 )
               }}
             </p>

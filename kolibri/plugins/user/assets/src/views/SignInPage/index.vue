@@ -22,7 +22,7 @@
             <h1
               v-if="$kolibriBranding.signIn.showTitle"
               class="kolibri-title"
-              :class="$computedClass({color: $themeBrand.primary.v_300})"
+              :class="$computedClass({ color: $themeBrand.primary.v_300 })"
               :style="$kolibriBranding.signIn.titleStyle"
             >
               {{ logoText }}
@@ -76,7 +76,7 @@
                     v-if="simpleSignIn && suggestions.length"
                     v-show="showDropdown"
                     class="suggestions"
-                    :style="{backgroundColor: $themeTokens.surface}"
+                    :style="{ backgroundColor: $themeTokens.surface }"
                   >
                     <UiAutocompleteSuggestion
                       v-for="(suggestion, i) in suggestions"

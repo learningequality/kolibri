@@ -65,7 +65,7 @@
             v-model="selectedAddressId"
             class="radio-button"
             :value="d.instance_id"
-            :label="$tr('peerDeviceName', {identifier: d.id.slice(0,4) })"
+            :label="$tr('peerDeviceName', { identifier: d.id.slice(0,4) })"
             :description="d.base_url"
             :disabled="!d.available || discoveryFailed"
           />

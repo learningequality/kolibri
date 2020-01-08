@@ -24,7 +24,7 @@
           @change="handleCheckboxChange(content.id, $event)"
         />
         <LessonContentCard
-          :class="{'with-checkbox': needCheckboxes}"
+          :class="{ 'with-checkbox': needCheckboxes }"
           :title="content.title"
           :thumbnail="content.thumbnail"
           :description="content.description"

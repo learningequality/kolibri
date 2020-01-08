@@ -39,7 +39,7 @@
         <KRouterLink
           appearance="basic-link"
           :text="$tr('taskManagerLink')"
-          :to="{name: 'MANAGE_TASKS'}"
+          :to="{ name: 'MANAGE_TASKS' }"
         />
       </p>
 

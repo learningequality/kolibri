@@ -28,7 +28,7 @@
                   <mat-svg
                     name="verified_user"
                     category="action"
-                    :style="{fill: $themePalette.green.v_500}"
+                    :style="{ fill: $themePalette.green.v_500 }"
                   />
                 </UiIcon>
                 <KTooltip

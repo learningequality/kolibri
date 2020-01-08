@@ -44,7 +44,7 @@
       </Slide>
       <HooperNavigation
         slot="hooper-addons"
-        :class="{'hooper-navigation-fullscreen' : isInFullscreen}"
+        :class="{ 'hooper-navigation-fullscreen' : isInFullscreen }"
       />
       <HooperPagination slot="hooper-addons" />
     </Hooper>

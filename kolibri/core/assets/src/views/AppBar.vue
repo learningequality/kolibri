@@ -22,7 +22,7 @@
         <mat-svg
           name="menu"
           category="navigation"
-          :style="{fill: $themeTokens.textInverted}"
+          :style="{ fill: $themeTokens.textInverted }"
         />
       </UiIconButton>
 
@@ -46,7 +46,7 @@
           type="primary"
           color="clear"
           class="user-menu-button"
-          :class="$computedClass({':focus': $coreOutline})"
+          :class="$computedClass({ ':focus': $coreOutline })"
           :ariaLabel="$tr('userMenu')"
           @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
         >
@@ -54,13 +54,13 @@
             slot="icon"
             name="person"
             category="social"
-            :style="{fill: $themeTokens.textInverted}"
+            :style="{ fill: $themeTokens.textInverted }"
           />
           <span v-if="isUserLoggedIn" class="username" tabindex="-1">{{ dropdownName }}</span>
           <mat-svg
             name="arrow_drop_down"
             category="navigation"
-            :style="{fill: $themeTokens.textInverted}"
+            :style="{ fill: $themeTokens.textInverted }"
           />
         </UiButton>
 
@@ -71,7 +71,7 @@
           :raised="true"
           :containFocus="true"
           :showActive="false"
-          :style="{backgroundColor: $themeTokens.surface}"
+          :style="{ backgroundColor: $themeTokens.surface }"
           @close="userMenuDropdownIsOpen = false"
         >
           <template v-if="isUserLoggedIn" slot="header">

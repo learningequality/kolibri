@@ -58,7 +58,7 @@
       v-if="!newVersionAvailable"
       objectType="resource"
       actionType="import"
-      :resourceCounts="{count:transferResourceCount, fileSize:transferFileSize}"
+      :resourceCounts="{ count:transferResourceCount, fileSize:transferFileSize }"
       :disabled="disableBottomBar || newVersionAvailable"
       @clickconfirm="handleClickConfirm"
     />

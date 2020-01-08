@@ -56,7 +56,7 @@ oriented data synchronization.
             {{ coreString('completedLabel') }}
           </span>
           <span>
-            {{ $tr('goal', {count: totalCorrectRequiredM}) }}
+            {{ $tr('goal', { count: totalCorrectRequiredM }) }}
           </span>
         </div>
       </div>
@@ -70,7 +70,7 @@ oriented data synchronization.
                 class="question-btn"
                 :text="$tr('check')"
                 :primary="true"
-                :class="{shaking: shake}"
+                :class="{ shaking: shake }"
                 :disabled="checkingAnswer"
                 @click="checkAnswer"
               />

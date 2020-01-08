@@ -20,7 +20,7 @@
         <KLabeledIcon icon="lesson" :label="lesson.title" />
       </h1>
       <p v-show="!$isPrint">
-        {{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}
+        {{ $tr('lessonProgressLabel', { lesson: lesson.title }) }}
       </p>
       <HeaderTable>
         <HeaderTableRow v-if="$isPrint" :keyText="coachString('groupNameLabel')">

@@ -5,7 +5,7 @@
     :cancelText="$tr('close')"
     @cancel="closeModal"
   >
-    {{ $tr('alreadyRegistered', {name: projectName}) }}
+    {{ $tr('alreadyRegistered', { name: projectName }) }}
 
   </KModal>
 

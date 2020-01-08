@@ -30,7 +30,7 @@
           {{ coachString('avgQuizScoreLabel') }}
         </template>
         <template slot="value">
-          {{ coachString('percentage', {value: avgScore}) }}
+          {{ coachString('percentage', { value: avgScore }) }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
@@ -38,7 +38,7 @@
           {{ coachString('exercisesCompletedLabel') }}
         </template>
         <template slot="value">
-          {{ coachString('integer', {value: exercisesCompleted}) }}
+          {{ coachString('integer', { value: exercisesCompleted }) }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
@@ -46,7 +46,7 @@
           {{ coachString('resourcesViewedLabel') }}
         </template>
         <template slot="value">
-          {{ coachString('integer', {value: resourcesViewed}) }}
+          {{ coachString('integer', { value: resourcesViewed }) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>

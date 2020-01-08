@@ -2,7 +2,7 @@
 
   <div
     class="sort-widget"
-    :class="{focused: hasFocus, 'not-focused': !hasFocus}"
+    :class="{ focused: hasFocus, 'not-focused': !hasFocus }"
   >
     <UiIconButton
       v-show="!isFirst"
@@ -10,7 +10,7 @@
       class="btn up"
       type="flat"
       :ariaLabel="moveUpText"
-      :class="{visuallyhidden: !hasFocus}"
+      :class="{ visuallyhidden: !hasFocus }"
       @click="clickUp"
       @keyup.space="clickUp"
     >
@@ -27,7 +27,7 @@
       class="btn dn"
       type="flat"
       :ariaLabel="moveDownText"
-      :class="{visuallyhidden: !hasFocus}"
+      :class="{ visuallyhidden: !hasFocus }"
       @click="clickDown"
       @keyup.space="clickDown"
     >

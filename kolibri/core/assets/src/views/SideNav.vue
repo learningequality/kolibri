@@ -31,7 +31,7 @@
             <mat-svg
               name="close"
               category="navigation"
-              :style="{fill: $themeTokens.textInverted}"
+              :style="{ fill: $themeTokens.textInverted }"
             />
           </UiIconButton>
           <span

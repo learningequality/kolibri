@@ -3,7 +3,7 @@
   <section :style="{ backgroundColor: $themeTokens.surface }">
 
     <h2 class="header">
-      {{ $tr('questionListHeader', {numOfQuestions:questions.length}) }}
+      {{ $tr('questionListHeader', { numOfQuestions:questions.length }) }}
     </h2>
 
     <ul class="list">
@@ -14,7 +14,7 @@
         class="item"
       >
         <KButton
-          :class="{selected: index === selectedIndex}"
+          :class="{ selected: index === selectedIndex }"
           :style="buttonStyle(index)"
           class="button"
           :text="questionLabel(index)"

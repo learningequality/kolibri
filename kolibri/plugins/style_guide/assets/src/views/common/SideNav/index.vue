@@ -1,6 +1,6 @@
 <template>
 
-  <div class="nav-wrapper" :style="{width: `${navWidth}px`}">
+  <div class="nav-wrapper" :style="{ width: `${navWidth}px` }">
     <nav class="sidenav">
 
       <h1 class="header">

@@ -11,7 +11,7 @@
         :delay="false"
         :progress="progress"
         type="determinate"
-        :style="{backgroundColor: $themeTokens.fineLine}"
+        :style="{ backgroundColor: $themeTokens.fineLine }"
       />
     </p>
     <p>

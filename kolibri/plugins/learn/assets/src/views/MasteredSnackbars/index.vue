@@ -46,7 +46,7 @@
             class="content-icon icon-bg"
             :kind="nextContent.kind"
             :showTooltip="true"
-            :style="{backgroundColor: iconBackgroundColor, color: $themeTokens.textInverted }"
+            :style="{ backgroundColor: iconBackgroundColor, color: $themeTokens.textInverted }"
           />
         </template>
 

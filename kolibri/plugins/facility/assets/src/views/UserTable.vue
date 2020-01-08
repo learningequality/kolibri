@@ -20,7 +20,7 @@
           </th>
           <th>
             <!-- "Full name" header visually hidden if checkbox is on -->
-            <span :class="{visuallyhidden: selectable}">
+            <span :class="{ visuallyhidden: selectable }">
               {{ coreString('fullNameLabel') }}
             </span>
           </th>

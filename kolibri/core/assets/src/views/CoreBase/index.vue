@@ -48,7 +48,7 @@
       <KLinearLoader
         v-if="loading && !fullScreen"
         class="loader"
-        :style="{top: `${appbarHeight}px`}"
+        :style="{ top: `${appbarHeight}px` }"
         type="indeterminate"
         :delay="false"
       />

@@ -2,7 +2,7 @@
 
   <!-- HTML makes clicking label apply to input by default -->
   <label
-    :class="['k-radio-button', {disabled}]"
+    :class="['k-radio-button', { disabled }]"
     :style="{ color: disabled ? $themeTokens.textDisabled : '' }"
   >
     <!-- v-model listens for @input event by default -->

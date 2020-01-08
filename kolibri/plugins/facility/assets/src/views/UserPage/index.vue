@@ -37,7 +37,7 @@
         />
       </template>
 
-      <template v-slot:default="{items, filterInput}">
+      <template v-slot:default="{ items, filterInput }">
         <UserTable
           class="user-roster move-down"
           :users="items"

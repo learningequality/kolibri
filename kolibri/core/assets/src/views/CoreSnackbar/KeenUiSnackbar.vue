@@ -12,7 +12,7 @@
   <div class="ui-snackbar" @click="onClick">
     <div
       class="ui-snackbar-message"
-      :style="{color: $themeTokens.textInverted}"
+      :style="{ color: $themeTokens.textInverted }"
     >
       <slot>{{ message }}</slot>
     </div>

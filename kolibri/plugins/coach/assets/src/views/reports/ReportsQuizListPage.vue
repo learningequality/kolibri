@@ -9,8 +9,8 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <KPageContainer :class="{'print': $isPrint}">
-      <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
+    <KPageContainer :class="{ 'print': $isPrint }">
+      <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
       <ReportsControls @export="exportCSV">
         <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
         <KSelect

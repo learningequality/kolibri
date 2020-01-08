@@ -25,7 +25,7 @@
       </div>
 
       <div class="progress-bar dtc">
-        <div :class="{'task-stage': !taskHasCompleted}">
+        <div :class="{ 'task-stage': !taskHasCompleted }">
           {{ stageText }}
         </div>
         <KLinearLoader

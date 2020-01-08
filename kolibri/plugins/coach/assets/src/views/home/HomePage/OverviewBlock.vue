@@ -14,7 +14,7 @@
     </h1>
     <HeaderTable>
       <HeaderTableRow>
-        <KLabeledIcon slot="key" icon="coach" :label="$tr('coach', {count: coachNames.length})" />
+        <KLabeledIcon slot="key" icon="coach" :label="$tr('coach', { count: coachNames.length })" />
         <template slot="value">
           <TruncatedItemList :items="coachNames" />
         </template>
@@ -23,10 +23,10 @@
         <KLabeledIcon
           slot="key"
           icon="people"
-          :label="$tr('learner', {count: learnerNames.length})"
+          :label="$tr('learner', { count: learnerNames.length })"
         />
         <template slot="value">
-          {{ coachString('integer', {value: learnerNames.length}) }}
+          {{ coachString('integer', { value: learnerNames.length }) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>

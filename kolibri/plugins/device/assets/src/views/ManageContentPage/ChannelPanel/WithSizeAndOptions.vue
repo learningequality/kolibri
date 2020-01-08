@@ -2,7 +2,7 @@
 
   <div
     class="panel"
-    :class="{'panel-sm': windowIsSmall}"
+    :class="{ 'panel-sm': windowIsSmall }"
     :style="{ borderTop: `1px solid ${$themePalette.grey.v_200}` }"
   >
     <ChannelDetails :channel="channel">
