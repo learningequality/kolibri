@@ -165,7 +165,9 @@ module.exports = {
         'alignAttributesVertically': true,
       }
     ],
+    // ESLint rules for interpolated JS
     'vue/object-curly-spacing': [ERROR, 'always'],
+    'vue/eqeqeq': [ERROR, 'always'],
 
     'import/first': ERROR,
     'import/no-duplicates': ERROR,
