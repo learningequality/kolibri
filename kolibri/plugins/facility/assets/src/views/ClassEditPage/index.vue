@@ -19,14 +19,14 @@
 
     <!-- Modals -->
     <ClassRenameModal
-      v-if="modalShown===Modals.EDIT_CLASS_NAME"
+      v-if="modalShown === Modals.EDIT_CLASS_NAME"
       :classname="currentClass.name"
       :classid="currentClass.id"
       :classes="classes"
       @cancel="closeModal"
     />
     <UserRemoveConfirmationModal
-      v-if="modalShown===Modals.REMOVE_USER"
+      v-if="modalShown === Modals.REMOVE_USER"
       :classname="currentClass.name"
       :username="userToBeRemoved.username"
       @submit="removalAction({ classId: currentClass.id, userId: userToBeRemoved.id })"

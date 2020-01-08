@@ -19,7 +19,7 @@
       </p>
     </div>
 
-    <template v-if="settings!==null">
+    <template v-if="settings !== null">
       <div class="mb">
         <h2>{{ coreString('facilityLabel') }}</h2>
         <p class="current-facility-name">
@@ -45,7 +45,7 @@
             appearance="raised-button"
             :text="$tr('resetToDefaultSettings')"
             name="reset-settings"
-            @click="showModal=true"
+            @click="showModal = true"
           />
 
           <KButton
@@ -64,7 +64,7 @@
       v-if="showModal"
       id="confirm-reset"
       @submit="resetToDefaultSettings"
-      @cancel="showModal=false"
+      @cancel="showModal = false"
     />
   </KPageContainer>
 

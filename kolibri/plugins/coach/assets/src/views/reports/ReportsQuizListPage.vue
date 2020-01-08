@@ -72,7 +72,7 @@
                 :text="coachString('openQuizLabel')"
                 appearance="flat-button"
                 class="table-left-aligned-button"
-                @click="showOpenConfirmationModal = true; modalQuizId=tableRow.id"
+                @click="showOpenConfirmationModal = true; modalQuizId = tableRow.id"
               />
               <!-- Close quiz button -->
               <KButton
@@ -80,7 +80,7 @@
                 :text="coachString('closeQuizLabel')"
                 appearance="flat-button"
                 class="table-left-aligned-button"
-                @click="showCloseConfirmationModal = true; modalQuizId=tableRow.id;"
+                @click="showCloseConfirmationModal = true; modalQuizId = tableRow.id;"
               />
               <div
                 v-if="tableRow.archive"

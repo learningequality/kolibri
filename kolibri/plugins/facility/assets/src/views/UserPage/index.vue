@@ -60,14 +60,14 @@
     <!-- Modals -->
 
     <ResetUserPasswordModal
-      v-if="modalShown===Modals.RESET_USER_PASSWORD"
+      v-if="modalShown === Modals.RESET_USER_PASSWORD"
       :id="selectedUser.id"
       :username="selectedUser.username"
       @cancel="closeModal"
     />
 
     <DeleteUserModal
-      v-if="modalShown===Modals.DELETE_USER"
+      v-if="modalShown === Modals.DELETE_USER"
       :id="selectedUser.id"
       :username="selectedUser.username"
       @cancel="closeModal"

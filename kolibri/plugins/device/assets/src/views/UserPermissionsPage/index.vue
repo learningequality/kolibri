@@ -46,7 +46,7 @@
           :disabled="superuserDisabled"
           :label="$tr('makeSuperAdmin')"
           :checked="superuserChecked"
-          @change="superuserChecked=$event"
+          @change="superuserChecked = $event"
         />
         <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
 
@@ -67,7 +67,7 @@
           :disabled="devicePermissionsDisabled"
           :label="$tr('devicePermissionsDetails')"
           :checked="devicePermissionsChecked"
-          @change="devicePermissionsChecked=$event"
+          @change="devicePermissionsChecked = $event"
         />
       </div>
 
@@ -91,7 +91,7 @@
       <div v-show="uiBlocked">
         {{ progressNotification }}
       </div>
-      <div v-show="saveProgress==='FAILURE'">
+      <div v-show="saveProgress === 'FAILURE'">
         {{ $tr('saveFailureNotification') }}
       </div>
     </template>

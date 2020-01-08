@@ -45,7 +45,7 @@
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
             <KButton
-              :disabled="questionNumber===exam.question_count-1"
+              :disabled="questionNumber === exam.question_count - 1"
               :primary="true"
               class="footer-button"
               :dir="layoutDirReset"
@@ -55,7 +55,7 @@
               <KIcon icon="forward" color="white" class="forward-icon" />
             </KButton>
             <KButton
-              :disabled="questionNumber===0"
+              :disabled="questionNumber === 0"
               :primary="true"
               class="footer-button"
               :dir="layoutDirReset"

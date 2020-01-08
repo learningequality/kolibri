@@ -7,7 +7,7 @@
     @cancel="$emit('cancel')"
   >
     <!-- Classroom Selection Form -->
-    <div v-if="stage=== Stages.SELECT_CLASSROOM" id="select-classroom">
+    <div v-if="stage === Stages.SELECT_CLASSROOM" id="select-classroom">
       <KRadioButton
         v-for="classroom in availableClassrooms"
         :key="classroom.id"

@@ -58,7 +58,7 @@
       :navShown="navShown"
       :headerHeight="headerHeight"
       :width="navWidth"
-      @toggleSideNav="navShown=!navShown"
+      @toggleSideNav="navShown = !navShown"
     />
 
     <div

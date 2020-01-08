@@ -79,20 +79,20 @@
     </CoreTable>
 
     <PrivacyModal
-      v-if="modalShown===Modals.PRIVACY"
+      v-if="modalShown === Modals.PRIVACY"
       @cancel="displayModal(false)"
     />
 
     <RegisterFacilityModal
-      v-if="modalShown===Modals.REGISTER_FACILITY"
+      v-if="modalShown === Modals.REGISTER_FACILITY"
       @cancel="displayModal(false)"
     />
     <ConfirmationRegisterModal
-      v-if="modalShown===Modals.CONFIRMATION_REGISTER"
+      v-if="modalShown === Modals.CONFIRMATION_REGISTER"
       @cancel="displayModal(false)"
     />
     <AlreadyRegisteredModal
-      v-if="modalShown===Modals.ALREADY_REGISTERED"
+      v-if="modalShown === Modals.ALREADY_REGISTERED"
       @cancel="displayModal(false)"
     />
 

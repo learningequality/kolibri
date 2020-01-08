@@ -65,7 +65,7 @@
         v-if="deleteChannelId"
         :channelTitle="selectedChannelTitle"
         @submit="handleDeleteChannel"
-        @cancel="deleteChannelId=null"
+        @cancel="deleteChannelId = null"
       />
     </div>
 
