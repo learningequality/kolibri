@@ -89,7 +89,7 @@ CROWDIN_API_KEY = os.environ["CROWDIN_API_KEY"]
 CROWDIN_API_URL = "https://api.crowdin.com/api/project/{proj}/{cmd}?key={key}{params}"
 
 PERSEUS_CSV = (
-    "kolibri_exercise_perseus_plugin.exercise_perseus_render_module-messages.csv"
+    "kolibri_exercise_perseus_plugin.main-messages.csv"
 )
 GLOSSARY_XML_FILE = "glossary.tbx"
 
