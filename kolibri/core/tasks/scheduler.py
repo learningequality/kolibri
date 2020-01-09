@@ -84,7 +84,9 @@ class Scheduler(StorageMixin):
         Change a job's execution time.
         """
         if date_time.tzinfo is None:
-            raise ValueError("Must use a timezone aware datetime object for scheduling tasks")
+            raise ValueError(
+                "Must use a timezone aware datetime object for scheduling tasks"
+            )
 
         with self.session_scope() as session:
             scheduled_job = (
@@ -103,7 +105,7 @@ class Scheduler(StorageMixin):
         Returns: the Thread object.
         """
         t = InfiniteLoopThread(
-            self.check_schedule, thread_name="SCHEDULECHECKER", wait_between_runs=0.5,
+            self.check_schedule, thread_name="SCHEDULECHECKER", wait_between_runs=0.5
         )
         t.start()
         return t
@@ -149,7 +151,9 @@ class Scheduler(StorageMixin):
         if not interval and repeat != 0:
             raise ValueError("Must specify an interval if the task is repeating")
         if dt.tzinfo is None:
-            raise ValueError("Must use a timezone aware datetime object for scheduling tasks")
+            raise ValueError(
+                "Must use a timezone aware datetime object for scheduling tasks"
+            )
         if isinstance(func, Job):
             job = func
         # else, turn it into a job first.
