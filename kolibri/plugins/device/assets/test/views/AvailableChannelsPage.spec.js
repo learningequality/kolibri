@@ -105,9 +105,9 @@ describe('availableChannelsPage', () => {
     const channels = channelListItems();
     const channelNProps = n => channels.at(n).props();
     expect(channelNProps(0).onDevice).toEqual(true);
-    expect(channelNProps(1).onDevice).toEqual(false);
+    expect(channelNProps(1).onDevice).toEqual(true);
     expect(channelNProps(2).onDevice).toEqual(false);
-    expect(channelNProps(3).onDevice).toEqual(true);
+    expect(channelNProps(3).onDevice).toEqual(false);
   });
 
   it('IN LOCALIMPORT/REMOTEIMPORT, with no filters, all appear', () => {
@@ -151,7 +151,7 @@ describe('availableChannelsPage', () => {
     filter.vm.model = 'bir ch';
     await wrapper.vm.$nextTick();
     expect(filterComponent().vm.titleFilter).toEqual('bir ch');
-    testChannelVisibility(wrapper, [false, true, false, false]);
+    testChannelVisibility(wrapper, [false, false, true, false]);
   });
 
   it('with both filters, the correct channels appear', async () => {
@@ -163,7 +163,7 @@ describe('availableChannelsPage', () => {
     await wrapper.vm.$nextTick();
     lFilter.vm.selection = { label: 'German', value: 'de' };
     await wrapper.vm.$nextTick();
-    testChannelVisibility(wrapper, [false, false, true, false]);
+    testChannelVisibility(wrapper, [false, false, false, true]);
   });
 
   it('the "select" link goes to the correct place', () => {
