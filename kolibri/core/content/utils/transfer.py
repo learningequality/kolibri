@@ -1,9 +1,11 @@
 import logging
 import os
 import shutil
+from time import sleep
 
 import requests
-from requests.exceptions import ConnectionError
+
+from kolibri.core.content.utils.import_export_content import retry_import
 
 logger = logging.getLogger(__name__)
 
@@ -149,14 +151,19 @@ class FileDownload(Transfer):
             # initialize a fresh requests session, if one wasn't provided
             self.session = requests.Session()
 
+        if "asynccommand" in kwargs:
+            # allow the async command to be passed in for content import, so it can be used for checking if the job has been cancelled
+            self.asynccommand = kwargs.pop("asynccommand")
+        else:
+            # set the property to be None for channel import
+            self.asynccommand = None
+
+        # Record the size of content that has been transferred
+        self.transferred_size = 0
+
         super(FileDownload, self).__init__(*args, **kwargs)
 
     def start(self):
-        # If a file download was stopped by Internet connection error,
-        # then open the temp file again.
-        if self.started:
-            self.dest_file_obj = open(self.dest_tmp, "wb")
-
         # initiate the download, check for status errors, and calculate download size
         self.response = self.session.get(self.source, stream=True, timeout=self.timeout)
         self.response.raise_for_status()
@@ -185,14 +192,62 @@ class FileDownload(Transfer):
 
     def next(self):
         try:
-            return super(FileDownload, self).next()
-        except ConnectionError as e:
+            chunk = super(FileDownload, self).next()
+            self.transferred_size = self.transferred_size + len(chunk)
+            return chunk
+        except Exception as e:
+            retry = retry_import(e)
+            if not retry:
+                raise
+
             logger.error("Error reading download stream: {}".format(e))
-            raise
+            self.resume()
+            if self.asynccommand and self.asynccommand.is_cancelled():
+                return
+            return self.next()
 
     def close(self):
         self.response.close()
         super(FileDownload, self).close()
+
+    def resume(self):
+        try:
+            if self.asynccommand and self.asynccommand.is_cancelled():
+                self.cancel()
+                return
+
+            logger.info(
+                "Waiting for 10 seconds before retrying import: {}\n".format(
+                    self.source
+                )
+            )
+            sleep(10)
+
+            resume_headers = self.response.request.headers
+            # use range requests only when retrying content import,
+            # because links to gzipped channel database files do not support range requests
+            if self.asynccommand:
+                range_headers = {"Range": "bytes={}-".format(self.transferred_size)}
+                resume_headers.update(range_headers)
+
+            self.response = self.session.get(
+                self.source, headers=resume_headers, stream=True, timeout=self.timeout
+            )
+            self.response.raise_for_status()
+            self._content_iterator = self.response.iter_content(self.block_size)
+
+            # Remove the existing content in dest_file_object when retrying channel import
+            if self.asynccommand is None:
+                self.dest_file_obj.flush()
+                self.dest_file_obj.truncate(0)
+                self.dest_file_obj.seek(0)
+        except Exception as e:
+            logger.error("Error reading download stream: {}".format(e))
+            retry = retry_import(e)
+            if not retry:
+                raise
+
+            self.resume()
 
 
 class FileCopy(Transfer):

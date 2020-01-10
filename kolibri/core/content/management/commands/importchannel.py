@@ -9,7 +9,6 @@ from ...utils import channel_import
 from ...utils import paths
 from ...utils import transfer
 from ...utils.annotation import update_content_metadata
-from ...utils.import_export_content import retry_import
 from kolibri.core.content.models import ContentNode
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
@@ -127,14 +126,12 @@ class Command(AsyncCommand):
 
         logger.debug("Destination: {}".format(dest))
 
-        finished = False
-        while not finished:
-            finished = self._start_file_transfer(
-                filetransfer, channel_id, dest, no_upgrade=no_upgrade
-            )
-            if self.is_cancelled():
-                self.cancel()
-                break
+        self._start_file_transfer(
+            filetransfer, channel_id, dest, no_upgrade=no_upgrade
+        )
+        if self.is_cancelled():
+            self.cancel()
+
         # if we are trying to upgrade, remove new channel db
         if os.path.exists(new_channel_dest) and not no_upgrade:
             os.remove(new_channel_dest)
@@ -144,64 +141,49 @@ class Command(AsyncCommand):
     ):
         progress_extra_data = {"channel_id": channel_id}
 
-        try:
-            with filetransfer, self.start_progress(
-                total=filetransfer.total_size
-            ) as progress_update:
-                for chunk in filetransfer:
+        with filetransfer, self.start_progress(
+            total=filetransfer.total_size
+        ) as progress_update:
+            for chunk in filetransfer:
 
-                    if self.is_cancelled():
-                        filetransfer.cancel()
-                        break
-                    progress_update(len(chunk), progress_extra_data)
                 if self.is_cancelled():
-                    try:
-                        os.remove(dest)
-                    except OSError as e:
-                        logger.info(
-                            "Tried to remove {}, but exception {} occurred.".format(
-                                dest, e
-                            )
+                    filetransfer.cancel()
+                    break
+                progress_update(len(chunk), progress_extra_data)
+            if self.is_cancelled():
+                try:
+                    os.remove(dest)
+                except OSError as e:
+                    logger.info(
+                        "Tried to remove {}, but exception {} occurred.".format(
+                            dest, e
                         )
-                else:
-                    # if upgrading, import the channel
-                    if not no_upgrade:
-                        try:
-                            # evaluate list so we have the current node ids
-                            node_ids = list(
-                                ContentNode.objects.filter(
-                                    channel_id=channel_id, available=True
-                                )
-                                .exclude(kind=content_kinds.TOPIC)
-                                .values_list("id", flat=True)
+                    )
+            else:
+                # if upgrading, import the channel
+                if not no_upgrade:
+                    try:
+                        # evaluate list so we have the current node ids
+                        node_ids = list(
+                            ContentNode.objects.filter(
+                                channel_id=channel_id, available=True
                             )
+                            .exclude(kind=content_kinds.TOPIC)
+                            .values_list("id", flat=True)
+                        )
+                        with db_task_write_lock:
+                            import_ran = import_channel_by_id(
+                                channel_id, self.is_cancelled
+                            )
+                        if node_ids and import_ran:
+                            # annotate default channel db based on previously annotated leaf nodes
                             with db_task_write_lock:
-                                import_ran = import_channel_by_id(
-                                    channel_id, self.is_cancelled
+                                update_content_metadata(
+                                    channel_id, node_ids=node_ids
                                 )
-                            if node_ids and import_ran:
-                                # annotate default channel db based on previously annotated leaf nodes
-                                with db_task_write_lock:
-                                    update_content_metadata(
-                                        channel_id, node_ids=node_ids
-                                    )
-                        except channel_import.ImportCancelError:
-                            # This will only occur if is_cancelled is True.
-                            pass
-                return True
-
-        except Exception as e:
-            logger.error("An error occurred during channel import: {}".format(e))
-            retry_import(e, skip_404=False)
-
-            logger.info(
-                "Waiting for 30 seconds before retrying import: {}\n".format(
-                    filetransfer.source
-                )
-            )
-            sleep(30)
-
-            return False
+                    except channel_import.ImportCancelError:
+                        # This will only occur if is_cancelled is True.
+                        pass
 
     def handle_async(self, *args, **options):
         if options["command"] == "network":

@@ -124,21 +124,16 @@ def _get_node_ids(node_ids):
     )
 
 
-def retry_import(e, **kwargs):
+def retry_import(e):
     """
     When an exception occurs during channel/content import, if
         * there is an Internet connection error or timeout error,
           or HTTPError where the error code is one of the RETRY_STATUS_CODE,
           return return True to retry the file transfer
-        * the file does not exist on the server or disk, skip the file and return False.
-          This only applies to content import not channel import.
-        * otherwise, raise the  exception.
     return value:
         * True - needs retry.
-        * False - file is skipped. Does not need retry.
+        * False - Does not need retry.
     """
-
-    skip_404 = kwargs.pop("skip_404")
 
     if (
         isinstance(e, ConnectionError)
@@ -149,14 +144,7 @@ def retry_import(e, **kwargs):
     ):
         return True
 
-    elif skip_404 and (
-        (isinstance(e, HTTPError) and e.response.status_code == 404)
-        or (isinstance(e, OSError) and e.errno == 2)
-    ):
-        return False
-
-    else:
-        raise e
+    return False
 
 
 def compare_checksums(file_name, file_id):
