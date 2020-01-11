@@ -181,7 +181,7 @@ class Job(object):
                 setattr(current_state_tracker, "job", None)
                 # Close any django connections opened here
                 connection.close()
-                raise e
+                raise
 
             setattr(current_state_tracker, "job", None)
 
