@@ -26,8 +26,8 @@
           <th>{{ $tr('resourcesAvailableForImport') }}</th>
           <td class="col-2">
             <span
-              :class="{'count-added': newResources}"
-              :style="{color: $themeTokens.success}"
+              :class="{ 'count-added': newResources }"
+              :style="{ color: $themeTokens.success }"
             >
               {{ newResources }}
             </span>
@@ -37,8 +37,8 @@
           <th>{{ $tr('resourcesToBeDeleted') }}</th>
           <td>
             <span
-              :class="{'count-deleted': deletedResources}"
-              :style="{color: $themeTokens.error}"
+              :class="{ 'count-deleted': deletedResources }"
+              :style="{ color: $themeTokens.error }"
             >
               {{ deletedResources }}
             </span>

@@ -17,7 +17,7 @@
     </KGrid>
 
     <div>
-      <slot v-bind="{items: visibleFilteredItems, filterInput}"></slot>
+      <slot v-bind="{ items: visibleFilteredItems, filterInput }"></slot>
     </div>
 
     <nav>

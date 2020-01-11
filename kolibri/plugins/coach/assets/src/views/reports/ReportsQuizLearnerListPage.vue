@@ -47,7 +47,7 @@
               <KIcon slot="icon" :color="$themeTokens.progress" icon="inProgress" />
               {{
                 $tr('questionsCompletedRatioLabel',
-                    {count: tableRow.statusObj.num_answered || 0, total: exam.question_count})
+                    { count: tableRow.statusObj.num_answered || 0, total: exam.question_count })
               }}
             </KLabeledIcon>
           </td>

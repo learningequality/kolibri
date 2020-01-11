@@ -6,7 +6,7 @@
       :class="$computedClass(tabStyles)"
       :to="link"
     >
-      <div class="tab-icon dimmable">
+      <div class="dimmable tab-icon">
         <UiIcon
           class="icon"
           tabindex="-1"
@@ -16,7 +16,7 @@
         </UiIcon>
       </div>
 
-      <div class="tab-title dimmable" tabindex="-1">
+      <div class="dimmable tab-title" tabindex="-1">
         {{ title }}
       </div>
     </router-link>

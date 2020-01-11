@@ -1,6 +1,6 @@
 <template>
 
-  <li class="vjs-menu-item vjs-languages-menu-item">
+  <li class="vjs-languages-menu-item vjs-menu-item">
     <KRadioButton
       ref="kRadioButton"
       name="languages-menu-item"

@@ -57,10 +57,10 @@
     <section class="metadata">
       <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.author">
-        {{ $tr('author', {author: content.author}) }}
+        {{ $tr('author', { author: content.author }) }}
       </p>
       <p v-if="licenseShortName">
-        {{ $tr('license', {license: licenseShortName}) }}
+        {{ $tr('license', { license: licenseShortName }) }}
 
         <template v-if="licenseDescription">
           <UiIconButton
@@ -82,7 +82,7 @@
       </p>
 
       <p v-if="content.license_owner">
-        {{ $tr('copyrightHolder', {copyrightHolder: content.license_owner}) }}
+        {{ $tr('copyrightHolder', { copyrightHolder: content.license_owner }) }}
       </p>
     </section>
 

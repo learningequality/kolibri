@@ -31,7 +31,7 @@
             <mat-svg
               name="close"
               category="navigation"
-              :style="{fill: $themeTokens.textInverted}"
+              :style="{ fill: $themeTokens.textInverted }"
             />
           </UiIconButton>
           <span
@@ -56,7 +56,7 @@
             :style="{ backgroundColor: $themeTokens.surface }"
             :aria-label="$tr('navigationLabel')"
           >
-            <template slot="options">
+            <template v-slot:options>
               <component :is="component" v-for="component in menuOptions" :key="component.name" />
               <SideNavDivider />
             </template>

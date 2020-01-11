@@ -165,6 +165,20 @@ module.exports = {
         'alignAttributesVertically': true,
       }
     ],
+    'vue/static-class-names-order': ERROR,
+    'vue/no-deprecated-scope-attribute': ERROR,
+    'vue/valid-v-bind-sync': ERROR,
+    // TODO Enforcing these rules requires bigger refactor
+    // 'vue/no-deprecated-slot-attribute': ERROR,
+    // 'vue/no-deprecated-slot-scope-attribute': ERROR,
+    'vue/valid-v-slot': ERROR,
+
+    // ESLint rules for interpolated JS
+    'vue/object-curly-spacing': [ERROR, 'always'],
+    'vue/eqeqeq': [ERROR, 'always'],
+    'vue/key-spacing': [ERROR, { afterColon: true }],
+    'vue/space-infix-ops': ERROR,
+    'vue/space-unary-ops': ERROR,
 
     'import/first': ERROR,
     'import/no-duplicates': ERROR,

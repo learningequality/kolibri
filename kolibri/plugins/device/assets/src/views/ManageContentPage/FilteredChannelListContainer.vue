@@ -1,6 +1,6 @@
 <template>
 
-  <div :class="{'fclc-sm': !windowIsLarge}">
+  <div :class="{ 'fclc-sm': !windowIsLarge }">
 
     <slot name="header"></slot>
 
@@ -8,7 +8,7 @@
 
     <KGrid class="top-panel">
       <template v-if="channels.length > 0">
-        <KGridItem :layout12="{span: 4}">
+        <KGridItem :layout12="{ span: 4 }">
           <KSelect
             v-model="languageFilter"
             class="filter-lang"
@@ -17,7 +17,7 @@
             :inline="true"
           />
         </KGridItem>
-        <KGridItem :layout12="{span: 5}" class="filter-title">
+        <KGridItem :layout12="{ span: 5 }" class="filter-title">
           <FilterTextbox
             v-model="titleFilter"
             :placeholder="$tr('titleFilterPlaceholder')"
@@ -25,7 +25,7 @@
           />
         </KGridItem>
       </template>
-      <KGridItem :layout12="{span: 3}">
+      <KGridItem :layout12="{ span: 3 }">
         <p class="count-msg" data-test="available">
           {{ channelsCountMsg }}
         </p>
@@ -38,11 +38,11 @@
         class="select-all-checkbox"
         :label="$tr('selectAll')"
         :checked="selectAllIsChecked"
-        @change="handleChangeSelectAll({ isSelected:$event })"
+        @change="handleChangeSelectAll({ isSelected: $event })"
       />
     </template>
 
-    <slot v-bind="{filteredItems, showItem, itemIsSelected, handleChange}"></slot>
+    <slot v-bind="{ filteredItems, showItem, itemIsSelected, handleChange }"></slot>
 
     <div
       v-if="filteredItems.length === 0"

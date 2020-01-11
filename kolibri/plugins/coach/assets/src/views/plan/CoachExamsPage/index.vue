@@ -63,20 +63,20 @@
               />
             </td>
 
-            <td class="center-text button-col core-table-button-col">
+            <td class="button-col center-text core-table-button-col">
               <!-- Open quiz button -->
               <KButton
                 v-if="!exam.active && !exam.archive"
                 :text="coachString('openQuizLabel')"
                 appearance="flat-button"
-                @click="showOpenConfirmationModal = true; modalQuizId=exam.id"
+                @click="showOpenConfirmationModal = true; modalQuizId = exam.id"
               />
               <!-- Close quiz button -->
               <KButton
                 v-if="exam.active && !exam.archive"
                 :text="coachString('closeQuizLabel')"
                 appearance="flat-button"
-                @click="showCloseConfirmationModal = true; modalQuizId=exam.id;"
+                @click="showCloseConfirmationModal = true; modalQuizId = exam.id;"
               />
               <!-- Closed quiz label -->
               <div v-if="exam.archive">

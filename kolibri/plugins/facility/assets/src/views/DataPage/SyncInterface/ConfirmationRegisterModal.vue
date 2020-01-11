@@ -7,7 +7,7 @@
     @submit="registerFacility"
     @cancel="closeModal"
   >
-    <p>{{ $tr('registerWith', {name: projectName}) }}</p>
+    <p>{{ $tr('registerWith', { name: projectName }) }}</p>
     <p>{{ $tr('dataSaved') }}</p>
 
   </KModal>

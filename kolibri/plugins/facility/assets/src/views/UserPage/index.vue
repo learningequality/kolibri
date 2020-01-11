@@ -37,14 +37,14 @@
         />
       </template>
 
-      <template v-slot:default="{items, filterInput}">
+      <template v-slot:default="{ items, filterInput }">
         <UserTable
-          class="user-roster move-down"
+          class="move-down user-roster"
           :users="items"
           :emptyMessage="emptyMessageForItems(items, filterInput)"
           :showDemographicInfo="true"
         >
-          <template slot="action" slot-scope="userRow">
+          <template v-slot:action="userRow">
             <KDropdownMenu
               :text="$tr('optionsButtonLabel')"
               :options="manageUserOptions(userRow.user.id)"
@@ -60,14 +60,14 @@
     <!-- Modals -->
 
     <ResetUserPasswordModal
-      v-if="modalShown===Modals.RESET_USER_PASSWORD"
+      v-if="modalShown === Modals.RESET_USER_PASSWORD"
       :id="selectedUser.id"
       :username="selectedUser.username"
       @cancel="closeModal"
     />
 
     <DeleteUserModal
-      v-if="modalShown===Modals.DELETE_USER"
+      v-if="modalShown === Modals.DELETE_USER"
       :id="selectedUser.id"
       :username="selectedUser.username"
       @cancel="closeModal"

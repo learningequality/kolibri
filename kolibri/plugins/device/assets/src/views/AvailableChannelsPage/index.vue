@@ -33,7 +33,7 @@
             :text="$tr('channelTokenButtonLabel')"
             appearance="raised-button"
             name="showtokenmodal"
-            @click="showTokenModal=true"
+            @click="showTokenModal = true"
           />
         </p>
         <p>
@@ -48,7 +48,7 @@
 
       </template>
 
-      <template v-slot:default="{filteredItems, showItem, handleChange, itemIsSelected}">
+      <template v-slot:default="{ filteredItems, showItem, handleChange, itemIsSelected }">
         <p v-if="!channelsAreAvailable && !status">
           {{ $tr('noChannelsAvailable') }}
         </p>
@@ -72,14 +72,14 @@
     <ChannelTokenModal
       v-if="showTokenModal"
       :disabled="disableModal"
-      @cancel="showTokenModal=false"
+      @cancel="showTokenModal = false"
       @submit="handleSubmitToken"
     />
 
     <ChannelUpdateModal
       v-if="showUpdateModal"
       :disabled="disableModal"
-      @cancel="showUpdateModal=false"
+      @cancel="showUpdateModal = false"
       @submit="handleConfirmUpgrade"
     />
 

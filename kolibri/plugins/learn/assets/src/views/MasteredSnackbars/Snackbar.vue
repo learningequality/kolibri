@@ -3,13 +3,13 @@
   <div class="snackbar" :style="{ backgroundColor: $themePalette.grey.v_100 }">
     <div class="table">
       <div class="row">
-        <div class="icon-container cell">
+        <div class="cell icon-container">
           <slot name="icon"></slot>
         </div>
-        <div class="content-container cell">
+        <div class="cell content-container">
           <slot name="content"></slot>
         </div>
-        <div class="close-container cell">
+        <div class="cell close-container">
           <UiIconButton
             size="small"
             :ariaLabel="coreString('closeAction')"

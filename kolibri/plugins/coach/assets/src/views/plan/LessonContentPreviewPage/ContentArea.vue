@@ -1,11 +1,11 @@
 <template>
 
-  <section :style="{backgroundColor: isExercise ? $themeTokens.surface : ''}">
+  <section :style="{ backgroundColor: isExercise ? $themeTokens.surface : '' }">
     <h2 v-if="isExercise" class="header">
       {{ header }}
     </h2>
     <KContentRenderer
-      :class="{ hof: isExercise}"
+      :class="{ hof: isExercise }"
       :showCorrectAnswer="true"
       :itemId="selectedQuestion"
       :allowHints="false"

@@ -27,7 +27,7 @@
         />
 
         <template v-if="editingSuperAdmin">
-          <h2 class="user-type header">
+          <h2 class="header user-type">
             {{ coreString('userTypeLabel') }}
           </h2>
 

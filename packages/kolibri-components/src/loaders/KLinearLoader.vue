@@ -15,7 +15,7 @@
     >
       <div
         v-if="type === 'determinate'"
-        class="ui-progress-linear-progress-bar is-determinate"
+        class="is-determinate ui-progress-linear-progress-bar"
 
         role="progressbar"
         :aria-valuemax="100"
@@ -30,7 +30,7 @@
 
       <div
         v-else
-        class="ui-progress-linear-progress-bar is-indeterminate"
+        class="is-indeterminate ui-progress-linear-progress-bar"
 
         role="progressbar"
         :aria-valuemax="100"

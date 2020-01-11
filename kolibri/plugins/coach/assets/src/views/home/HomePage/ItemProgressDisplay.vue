@@ -1,6 +1,6 @@
 <template>
 
-  <router-link class="link" :style="{color: $themeTokens.text}" :to="to">
+  <router-link class="link" :style="{ color: $themeTokens.text }" :to="to">
     <KFixedGrid numCols="4" class="wrapper">
       <KFixedGridItem span="3">
         <h3 class="title">

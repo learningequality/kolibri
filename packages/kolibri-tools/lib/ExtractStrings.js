@@ -1,4 +1,5 @@
 const url = require('url');
+const has = require('lodash/has');
 const espree = require('espree');
 const escodegen = require('escodegen');
 const mkdirp = require('mkdirp');
@@ -317,7 +318,7 @@ ExtractStrings.prototype.apply = function(compiler) {
                   registerFoundMessages(messageNameSpace, messages, module);
                 }
                 for (var key in node) {
-                  if (node.hasOwnProperty(key)) {
+                  if (has(node, key)) {
                     var child = node[key];
                     if (typeof child === 'object' && child !== null) {
                       if (Array.isArray(child)) {

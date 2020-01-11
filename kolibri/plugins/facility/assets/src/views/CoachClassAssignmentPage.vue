@@ -1,7 +1,7 @@
 <template>
 
   <KPageContainer>
-    <h1>{{ $tr('pageHeader', {className}) }}</h1>
+    <h1>{{ $tr('pageHeader', { className }) }}</h1>
     <p>{{ $tr('pageSubheader') }}</p>
     <ClassEnrollForm
       :facilityUsers="facilityUsers"
