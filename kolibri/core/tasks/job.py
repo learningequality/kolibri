@@ -176,7 +176,7 @@ class Job(object):
 
             try:
                 result = func(*args, **kwargs)
-            except Exception as e:
+            except Exception:
                 # If any error occurs, clear the job tracker and reraise
                 setattr(current_state_tracker, "job", None)
                 # Close any django connections opened here
