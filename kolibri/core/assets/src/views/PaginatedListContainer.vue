@@ -17,7 +17,7 @@
     </KGrid>
 
     <div>
-      <slot v-bind="{items: visibleFilteredItems, filterInput}"></slot>
+      <slot v-bind="{ items: visibleFilteredItems, filterInput }"></slot>
     </div>
 
     <nav>
@@ -27,22 +27,22 @@
       <UiIconButton
         type="primary"
         :ariaLabel="$tr('previousResults')"
-        :disabled="pageNum === 1"
+        :disabled="previousButtonDisabled"
         size="small"
         class="pagination-button"
         @click="changePage(-1)"
       >
-        <KIcon icon="back" style="position: relative; top: -1px;" />
+        <KIcon icon="back" class="arrow-icon" />
       </UiIconButton>
       <UiIconButton
         type="primary"
         :ariaLabel="$tr('nextResults')"
-        :disabled="pageNum === 0 || pageNum === numPages"
+        :disabled="nextButtonDisabled"
         size="small"
         class="pagination-button"
         @click="changePage(+1)"
       >
-        <KIcon icon="forward" style="position: relative; top: -1px;" />
+        <KIcon icon="forward" class="arrow-icon" />
       </UiIconButton>
     </nav>
   </div>
@@ -115,6 +115,12 @@
       visibleFilteredItems() {
         return this.filteredItems.slice(this.startRange, this.endRange);
       },
+      previousButtonDisabled() {
+        return this.pageNum === 1 || this.numFilteredItems === 0;
+      },
+      nextButtonDisabled() {
+        return this.pageNum === 0 || this.pageNum === this.numPages || this.numFilteredItems === 0;
+      },
     },
     watch: {
       numFilteredItems: {
@@ -145,7 +151,7 @@
 
   .actions-header,
   nav {
-    text-align: end;
+    text-align: right;
   }
 
   .pagination-button {
@@ -154,6 +160,11 @@
 
   .text-filter {
     margin-top: 14px;
+  }
+
+  .arrow-icon {
+    position: relative;
+    top: -1px;
   }
 
 </style>
