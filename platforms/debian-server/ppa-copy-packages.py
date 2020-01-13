@@ -1,9 +1,12 @@
 #!/usr/bin/python
 """Copy published precise PPA packages to other configured active dists in Launchpad.
 
+Note on Xenial: Builds on Xenial may break, so we build for Bionic and copy binaries
+for Xenial. See: https://github.com/learningequality/kolibri-server/pull/9
+
 Typical usage:
 
-    - build a kolibri-server package for xenial
+    - build a kolibri-server package for bionic
     - dput ppa:build/kolibri-server-source_0.9.0~b2-0ubuntu1_source.changes
     - wait for it to be built
     - run python ppa-copy-packages.py
@@ -29,7 +32,7 @@ PPA_OWNER = 'learningequality'
 PPA_NAME = 'kolibri-proposed'
 PACKAGE_WHITELIST = ['kolibri-server-source']
 
-SOURCE_SERIES = 'xenial'
+SOURCE_SERIES = 'bionic'
 TARGET_SERIESES = ['xenial', 'bionic', 'disco', 'eoan']
 POCKET = 'Release'
 
