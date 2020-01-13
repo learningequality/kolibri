@@ -126,9 +126,7 @@ class Command(AsyncCommand):
 
         logger.debug("Destination: {}".format(dest))
 
-        self._start_file_transfer(
-            filetransfer, channel_id, dest, no_upgrade=no_upgrade
-        )
+        self._start_file_transfer(filetransfer, channel_id, dest, no_upgrade=no_upgrade)
         if self.is_cancelled():
             self.cancel()
 
@@ -155,9 +153,7 @@ class Command(AsyncCommand):
                     os.remove(dest)
                 except OSError as e:
                     logger.info(
-                        "Tried to remove {}, but exception {} occurred.".format(
-                            dest, e
-                        )
+                        "Tried to remove {}, but exception {} occurred.".format(dest, e)
                     )
             else:
                 # if upgrading, import the channel
@@ -178,9 +174,7 @@ class Command(AsyncCommand):
                         if node_ids and import_ran:
                             # annotate default channel db based on previously annotated leaf nodes
                             with db_task_write_lock:
-                                update_content_metadata(
-                                    channel_id, node_ids=node_ids
-                                )
+                                update_content_metadata(channel_id, node_ids=node_ids)
                     except channel_import.ImportCancelError:
                         # This will only occur if is_cancelled is True.
                         pass

@@ -213,7 +213,6 @@ class FileDownload(Transfer):
     def resume(self):
         try:
             if self.asynccommand and self.asynccommand.is_cancelled():
-                self.cancel()
                 return
 
             logger.info(

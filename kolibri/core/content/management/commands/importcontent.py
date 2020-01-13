@@ -279,7 +279,9 @@ class Command(AsyncCommand):
                     url = paths.get_content_storage_remote_url(
                         filename, baseurl=baseurl
                     )
-                    filetransfer = transfer.FileDownload(url, dest, session=session, asynccommand=self)
+                    filetransfer = transfer.FileDownload(
+                        url, dest, session=session, asynccommand=self
+                    )
                 elif method == COPY_METHOD:
                     try:
                         srcpath = paths.get_content_storage_file_path(
@@ -305,9 +307,20 @@ class Command(AsyncCommand):
                         file_checksums_to_annotate.append(f.id)
                         transferred_file_size += f.file_size
                 except Exception as e:
-                    logger.error("An error occurred during content import: {}".format(e))
-                    exception = e
-                    break
+                    logger.error(
+                        "An error occurred during content import: {}".format(e)
+                    )
+                    if (
+                        isinstance(e, requests.exceptions.HTTPError)
+                        and e.response.status_code == 404
+                    ) or (isinstance(e, OSError) and e.errno == 2):
+                        # Continue file import when the current file is not found from the source and is skipped.
+                        overall_progress_update(f.file_size)
+                        number_of_skipped_files += 1
+                        continue
+                    else:
+                        exception = e
+                        break
 
             with db_task_write_lock:
                 annotation.set_content_visibility(
@@ -346,8 +359,6 @@ class Command(AsyncCommand):
             if self.is_cancelled():
                 self.cancel()
 
-    # fmt: on
-
     def _start_file_transfer(self, f, filetransfer, overall_progress_update):
         """
         Start to transfer the file from network/disk to the destination.
@@ -355,47 +366,36 @@ class Command(AsyncCommand):
             * FILE_TRANSFERRED - successfully transfer the file.
             * FILE_SKIPPED - the file does not exist so it is skipped.
         """
-        try:
-            with filetransfer, self.start_progress(
-                total=filetransfer.total_size
-            ) as file_dl_progress_update:
-                for chunk in filetransfer:
-                    if self.is_cancelled():
-                        filetransfer.cancel()
-                        return
-                    length = len(chunk)
-                    overall_progress_update(length)
-                    file_dl_progress_update(length)
+        with filetransfer, self.start_progress(
+            total=filetransfer.total_size
+        ) as file_dl_progress_update:
+            for chunk in filetransfer:
+                if self.is_cancelled():
+                    filetransfer.cancel()
+                    return
+                length = len(chunk)
+                overall_progress_update(length)
+                file_dl_progress_update(length)
 
-                # Ensure that if for some reason the total file size for the transfer
-                # is less than what we have marked in the database that we make up
-                # the difference so that the overall progress is never incorrect.
-                # This could happen, for example for a local transfer if a file
-                # has been replaced or corrupted (which we catch below)
-                overall_progress_update(f.file_size - filetransfer.total_size)
+            # Ensure that if for some reason the total file size for the transfer
+            # is less than what we have marked in the database that we make up
+            # the difference so that the overall progress is never incorrect.
+            # This could happen, for example for a local transfer if a file
+            # has been replaced or corrupted (which we catch below)
+            overall_progress_update(f.file_size - filetransfer.total_size)
 
-                # If checksum of the destination file is different from the localfile
-                # id indicated in the database, it means that the destination file
-                # is corrupted, either from origin or during import. Skip importing
-                # this file.
-                checksum_correctness = compare_checksums(filetransfer.dest, f.id)
-                if not checksum_correctness:
-                    e = "File {} is corrupted.".format(filetransfer.source)
-                    logger.error(
-                        "An error occurred during content import: {}".format(e)
-                    )
-                    os.remove(filetransfer.dest)
-                    return FILE_SKIPPED
-
-            return FILE_TRANSFERRED
-
-        except requests.exceptions.HTTPError or OSError as e:
-            if (
-                (isinstance(e, requests.exceptions.HTTPError) and e.response.status_code == 404)
-                or (isinstance(e, OSError) and e.errno == 2)
-            ):
-                overall_progress_update(f.file_size)
+            # If checksum of the destination file is different from the localfile
+            # id indicated in the database, it means that the destination file
+            # is corrupted, either from origin or during import. Skip importing
+            # this file.
+            checksum_correctness = compare_checksums(filetransfer.dest, f.id)
+            if not checksum_correctness:
+                e = "File {} is corrupted.".format(filetransfer.source)
+                logger.error("An error occurred during content import: {}".format(e))
+                os.remove(filetransfer.dest)
                 return FILE_SKIPPED
+
+        return FILE_TRANSFERRED
 
     def handle_async(self, *args, **options):
         if options["command"] == "network":
