@@ -52,6 +52,7 @@
 
 <script>
 
+  import clamp from 'lodash/clamp';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
 
@@ -83,8 +84,7 @@
     data() {
       return {
         filterInput: '',
-        pageNum: 1,
-        perPage: this.itemsPerPage,
+        currentPage: 1,
       };
     },
     computed: {
@@ -97,17 +97,17 @@
       numFilteredItems() {
         return this.filteredItems.length;
       },
-      numPages() {
-        return Math.ceil(this.numFilteredItems / this.perPage);
+      totalPages() {
+        return Math.ceil(this.numFilteredItems / this.itemsPerPage);
       },
       startRange() {
-        return (this.pageNum - 1) * this.perPage;
+        return (this.currentPage - 1) * this.itemsPerPage;
       },
       visibleStartRange() {
         return Math.min(this.startRange + 1, this.numFilteredItems);
       },
       endRange() {
-        return this.pageNum * this.perPage;
+        return this.currentPage * this.itemsPerPage;
       },
       visibleEndRange() {
         return Math.min(this.endRange, this.numFilteredItems);
@@ -116,24 +116,30 @@
         return this.filteredItems.slice(this.startRange, this.endRange);
       },
       previousButtonDisabled() {
-        return this.pageNum === 1 || this.numFilteredItems === 0;
+        return this.currentPage === 1 || this.numFilteredItems === 0;
       },
       nextButtonDisabled() {
-        return this.pageNum === 0 || this.pageNum === this.numPages || this.numFilteredItems === 0;
+        return (
+          this.totalPages === 1 ||
+          this.currentPage === this.totalPages ||
+          this.numFilteredItems === 0
+        );
       },
     },
     watch: {
       numFilteredItems: {
         handler() {
-          this.pageNum = 1;
+          this.currentPage = 1;
           this.$emit('pageChanged', 1);
         },
       },
     },
     methods: {
       changePage(change) {
-        this.pageNum += change;
-        this.$emit('pageChanged', this.pageNum);
+        // Clamp the newPage number between the bounds if browser doesn't correctly
+        // disable buttons (see #6454 issue with old versions of MS Edge)
+        this.currentPage = clamp(this.currentPage + change, 1, this.totalPages);
+        this.$emit('pageChanged', this.currentPage);
       },
     },
     $trs: {
