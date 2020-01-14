@@ -68,11 +68,12 @@
           v-show="userMenuDropdownIsOpen"
           ref="userMenuDropdown"
           class="user-menu-dropdown"
+          :isOpen="userMenuDropdownIsOpen"
           :raised="true"
           :containFocus="true"
           :showActive="false"
           :style="{ backgroundColor: $themeTokens.surface }"
-          @close="userMenuDropdownIsOpen = false"
+          @close="handleCoreMenuClose"
         >
           <template v-if="isUserLoggedIn" v-slot:header>
             <div class="role">
@@ -189,6 +190,12 @@
           this.userMenuDropdownIsOpen = false;
         }
         return event;
+      },
+      handleCoreMenuClose() {
+        this.userMenuDropdownIsOpen = false;
+        if (this.$refs.userMenuButton.$refs.button) {
+          this.$refs.userMenuButton.$refs.button.focus();
+        }
       },
       handleChangeLanguage() {
         this.$emit('showLanguageModal');
