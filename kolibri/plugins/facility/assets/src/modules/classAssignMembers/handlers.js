@@ -6,6 +6,7 @@ import { PageNames } from '../../constants';
 import { _userState } from '../mappers';
 
 export function showLearnerClassEnrollmentPage(store, classId) {
+  store.commit('SET_PAGE_NAME', PageNames.CLASS_ENROLL_LEARNER);
   store.commit('CORE_SET_PAGE_LOADING', true);
   const facilityId = store.getters.currentFacilityId;
   // all users in facility
@@ -32,7 +33,6 @@ export function showLearnerClassEnrollmentPage(store, classId) {
         modalShown: false,
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
-      store.commit('SET_PAGE_NAME', PageNames.CLASS_ENROLL_LEARNER);
     },
     error => {
       store.dispatch('handleApiError', error);
@@ -41,6 +41,7 @@ export function showLearnerClassEnrollmentPage(store, classId) {
 }
 
 export function showCoachClassAssignmentPage(store, classId) {
+  store.commit('SET_PAGE_NAME', PageNames.CLASS_ASSIGN_COACH);
   store.commit('CORE_SET_PAGE_LOADING', true);
   const facilityId = store.getters.currentFacilityId;
   // all users in facility
@@ -73,7 +74,6 @@ export function showCoachClassAssignmentPage(store, classId) {
         modalShown: false,
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
-      store.commit('SET_PAGE_NAME', PageNames.CLASS_ASSIGN_COACH);
     },
     error => {
       store.dispatch('handleApiError', error);
