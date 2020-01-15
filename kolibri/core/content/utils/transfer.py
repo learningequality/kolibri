@@ -34,6 +34,7 @@ class Transfer(object):
         block_size=2097152,
         remove_existing_temp_file=True,
         timeout=20,
+        cancel_check=None,
     ):
         self.source = source
         self.dest = dest
@@ -44,6 +45,7 @@ class Transfer(object):
         self.completed = False
         self.finalized = False
         self.closed = False
+        self.cancel_check = cancel_check
 
         # TODO (aron): Instead of using signals, have bbq/iceqube add
         # hooks that the app calls every so often to determine whether it
@@ -151,13 +153,6 @@ class FileDownload(Transfer):
             # initialize a fresh requests session, if one wasn't provided
             self.session = requests.Session()
 
-        if "asynccommand" in kwargs:
-            # allow the async command to be passed in for content import, so it can be used for checking if the job has been cancelled
-            self.asynccommand = kwargs.pop("asynccommand")
-        else:
-            # set the property to be None for channel import
-            self.asynccommand = None
-
         # Record the size of content that has been transferred
         self.transferred_size = 0
 
@@ -166,7 +161,12 @@ class FileDownload(Transfer):
     def start(self):
         # initiate the download, check for status errors, and calculate download size
         self.response = self.session.get(self.source, stream=True, timeout=self.timeout)
-        self.response.raise_for_status()
+        try:
+            self.response.raise_for_status()
+        except:
+            self.resume()
+            if self.cancel_check():
+                self._kill_gracefully()
 
         try:
             self.total_size = int(self.response.headers["content-length"])
@@ -191,9 +191,12 @@ class FileDownload(Transfer):
         return self
 
     def next(self):
+        if self.cancel_check():
+            self._kill_gracefully()
+
         try:
             chunk = super(FileDownload, self).next()
-            self.transferred_size = self.transferred_size + len(chunk)
+            self.transferred_size = self.transferred_size + self.block_size
             return chunk
         except Exception as e:
             retry = retry_import(e)
@@ -202,8 +205,6 @@ class FileDownload(Transfer):
 
             logger.error("Error reading download stream: {}".format(e))
             self.resume()
-            if self.asynccommand and self.asynccommand.is_cancelled():
-                return
             return self.next()
 
     def close(self):
@@ -211,10 +212,9 @@ class FileDownload(Transfer):
         super(FileDownload, self).close()
 
     def resume(self):
+        if self.cancel_check():
+            return
         try:
-            if self.asynccommand and self.asynccommand.is_cancelled():
-                return
-
             logger.info(
                 "Waiting for 10 seconds before retrying import: {}\n".format(
                     self.source
@@ -222,10 +222,13 @@ class FileDownload(Transfer):
             )
             sleep(10)
 
+            # Use Content-Length header to check if range requests are supported
+            # For example, range requests are not supported on compressed files
+            byte_range_resume = self.response.headers.get("content-length", None)
             resume_headers = self.response.request.headers
-            # use range requests only when retrying content import,
-            # because links to gzipped channel database files do not support range requests
-            if self.asynccommand:
+
+            # Only use byte-range file resuming when sources support range requests
+            if byte_range_resume:
                 range_headers = {"Range": "bytes={}-".format(self.transferred_size)}
                 resume_headers.update(range_headers)
 
@@ -235,11 +238,10 @@ class FileDownload(Transfer):
             self.response.raise_for_status()
             self._content_iterator = self.response.iter_content(self.block_size)
 
-            # Remove the existing content in dest_file_object when retrying channel import
-            if self.asynccommand is None:
-                self.dest_file_obj.flush()
-                self.dest_file_obj.truncate(0)
+            # Remove the existing content in dest_file_object when range requests are not supported
+            if byte_range_resume is None:
                 self.dest_file_obj.seek(0)
+                self.dest_file_obj.truncate()
         except Exception as e:
             logger.error("Error reading download stream: {}".format(e))
             retry = retry_import(e)
@@ -260,6 +262,8 @@ class FileCopy(Transfer):
 
     def _read_block_iterator(self):
         while True:
+            if self.cancel_check():
+                self._kill_gracefully
             block = self.source_file_obj.read(self.block_size)
             if not block:
                 break

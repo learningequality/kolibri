@@ -280,7 +280,7 @@ class Command(AsyncCommand):
                         filename, baseurl=baseurl
                     )
                     filetransfer = transfer.FileDownload(
-                        url, dest, session=session, asynccommand=self
+                        url, dest, session=session, cancel_check=self.is_cancelled
                     )
                 elif method == COPY_METHOD:
                     try:
@@ -291,7 +291,9 @@ class Command(AsyncCommand):
                         # If the source file name is malformed, just stop now.
                         overall_progress_update(f.file_size)
                         continue
-                    filetransfer = transfer.FileCopy(srcpath, dest)
+                    filetransfer = transfer.FileCopy(
+                        srcpath, dest, cancel_check=self.is_cancelled
+                    )
 
                 try:
                     status = self._start_file_transfer(
@@ -306,6 +308,8 @@ class Command(AsyncCommand):
                     else:
                         file_checksums_to_annotate.append(f.id)
                         transferred_file_size += f.file_size
+                except transfer.TransferCanceled:
+                    break
                 except Exception as e:
                     logger.error(
                         "An error occurred during content import: {}".format(e)
@@ -370,9 +374,6 @@ class Command(AsyncCommand):
             total=filetransfer.total_size
         ) as file_dl_progress_update:
             for chunk in filetransfer:
-                if self.is_cancelled():
-                    filetransfer.cancel()
-                    return
                 length = len(chunk)
                 overall_progress_update(length)
                 file_dl_progress_update(length)
