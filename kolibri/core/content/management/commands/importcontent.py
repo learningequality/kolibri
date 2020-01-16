@@ -358,7 +358,7 @@ class Command(AsyncCommand):
                 )
 
             if exception:
-                raise
+                raise exception
 
             if self.is_cancelled():
                 self.cancel()
