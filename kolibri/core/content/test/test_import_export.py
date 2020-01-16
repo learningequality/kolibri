@@ -82,7 +82,7 @@ class ImportChannelTestCase(TestCase):
         local_path = tempfile.mkstemp()[1]
         local_path_mock.return_value = local_path
         remote_path_mock.return_value = "notest"
-        FileDownloadMock.return_value.__iter__.return_value = ["one", "two", "three"]
+        FileDownloadMock.return_value.__iter__.side_effect = TransferCanceled()
         call_command("importchannel", "network", self.the_channel_id)
         # Check that is_cancelled was called
         is_cancelled_mock.assert_called_with()
@@ -119,7 +119,7 @@ class ImportChannelTestCase(TestCase):
         local_dest_path = tempfile.mkstemp()[1]
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_dest_path, local_src_path]
-        FileCopyMock.return_value.__iter__.return_value = ["one", "two", "three"]
+        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         call_command("importchannel", "disk", self.the_channel_id, tempfile.mkdtemp())
         # Check that is_cancelled was called
         is_cancelled_mock.assert_called_with()
@@ -443,7 +443,6 @@ class ImportContentTestCase(TestCase):
         len_mock.assert_not_called()
         annotation_mock.set_content_visibility.assert_called()
 
-    @patch("kolibri.core.content.utils.transfer.sleep")
     @patch("kolibri.core.content.management.commands.importcontent.logger.warning")
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
@@ -452,7 +451,6 @@ class ImportContentTestCase(TestCase):
         self,
         path_mock,
         logger_mock,
-        sleep_mock,
         annotation_mock,
         files_to_transfer_mock,
         channel_list_status_mock,
@@ -486,7 +484,6 @@ class ImportContentTestCase(TestCase):
             node_ids=node_id,
             renderable_only=False,
         )
-        sleep_mock.assert_called()
         logger_mock.assert_called_once()
         self.assertTrue("3 files are skipped" in logger_mock.call_args_list[0][0][0])
         annotation_mock.set_content_visibility.assert_called_with(
@@ -955,10 +952,12 @@ class ExportChannelTestCase(TestCase):
         local_dest_path = tempfile.mkstemp()[1]
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_src_path, local_dest_path]
-        FileCopyMock.return_value.__iter__.return_value = ["one", "two", "three"]
+        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         call_command("exportchannel", self.the_channel_id, local_dest_path)
         is_cancelled_mock.assert_called_with()
-        FileCopyMock.assert_called_with(local_src_path, local_dest_path)
+        FileCopyMock.assert_called_with(
+            local_src_path, local_dest_path, cancel_check=is_cancelled_mock
+        )
         cancel_mock.assert_called_with()
         self.assertFalse(os.path.exists(local_dest_path))
 
@@ -982,9 +981,9 @@ class ExportContentTestCase(TestCase):
         self, is_cancelled_mock, cancel_mock, FileCopyMock
     ):
         # If cancel comes in before we do anything, make sure nothing happens!
-        FileCopyMock.return_value.__iter__.return_value = ["one", "two", "three"]
+        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         call_command("exportcontent", self.the_channel_id, tempfile.mkdtemp())
-        is_cancelled_mock.assert_has_calls([call(), call()])
+        is_cancelled_mock.assert_has_calls([call()])
         FileCopyMock.assert_not_called()
         cancel_mock.assert_called_with()
 
@@ -998,7 +997,7 @@ class ExportContentTestCase(TestCase):
     @patch("kolibri.core.content.management.commands.exportcontent.AsyncCommand.cancel")
     @patch(
         "kolibri.core.content.management.commands.exportcontent.AsyncCommand.is_cancelled",
-        side_effect=[False, True, True, True],
+        side_effect=[False, True, True],
     )
     def test_local_cancel_during_transfer(
         self,
@@ -1012,11 +1011,12 @@ class ExportContentTestCase(TestCase):
         local_dest_path = tempfile.mkstemp()[1]
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_src_path, local_dest_path]
-        FileCopyMock.return_value.__iter__.return_value = ["one", "two", "three"]
+        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         call_command("exportcontent", self.the_channel_id, tempfile.mkdtemp())
         is_cancelled_mock.assert_has_calls([call(), call(), call()])
-        FileCopyMock.assert_called_with(local_src_path, local_dest_path)
-        FileCopyMock.assert_has_calls([call().cancel()])
+        FileCopyMock.assert_called_with(
+            local_src_path, local_dest_path, cancel_check=is_cancelled_mock
+        )
         cancel_mock.assert_called_with()
 
 

@@ -160,10 +160,16 @@ class FileDownload(Transfer):
 
     def start(self):
         # initiate the download, check for status errors, and calculate download size
-        self.response = self.session.get(self.source, stream=True, timeout=self.timeout)
         try:
+            self.response = self.session.get(
+                self.source, stream=True, timeout=self.timeout
+            )
             self.response.raise_for_status()
-        except:
+        except Exception as e:
+            retry = retry_import(e)
+            if not retry:
+                raise
+            # Catch exceptions to check if we should resume file downloading
             self.resume()
             if self.cancel_check():
                 self._kill_gracefully()
@@ -208,7 +214,8 @@ class FileDownload(Transfer):
             return self.next()
 
     def close(self):
-        self.response.close()
+        if hasattr(self, "response"):
+            self.response.close()
         super(FileDownload, self).close()
 
     def resume(self):
@@ -216,25 +223,36 @@ class FileDownload(Transfer):
             return
         try:
             logger.info(
-                "Waiting for 10 seconds before retrying import: {}\n".format(
+                "Waiting for 30 seconds before retrying import: {}\n".format(
                     self.source
                 )
             )
-            sleep(10)
+            sleep(30)
 
-            # Use Content-Length header to check if range requests are supported
-            # For example, range requests are not supported on compressed files
-            byte_range_resume = self.response.headers.get("content-length", None)
-            resume_headers = self.response.request.headers
+            byte_range_resume = None
+            # When internet connection is lost at the beginning of start(),
+            # self.response does not get an assigned value
+            if hasattr(self, "response"):
+                # Use Content-Length header to check if range requests are supported
+                # For example, range requests are not supported on compressed files
+                byte_range_resume = self.response.headers.get("content-length", None)
+                resume_headers = self.response.request.headers
 
-            # Only use byte-range file resuming when sources support range requests
-            if byte_range_resume:
-                range_headers = {"Range": "bytes={}-".format(self.transferred_size)}
-                resume_headers.update(range_headers)
+                # Only use byte-range file resuming when sources support range requests
+                if byte_range_resume:
+                    range_headers = {"Range": "bytes={}-".format(self.transferred_size)}
+                    resume_headers.update(range_headers)
 
-            self.response = self.session.get(
-                self.source, headers=resume_headers, stream=True, timeout=self.timeout
-            )
+                self.response = self.session.get(
+                    self.source,
+                    headers=resume_headers,
+                    stream=True,
+                    timeout=self.timeout,
+                )
+            else:
+                self.response = self.session.get(
+                    self.source, stream=True, timeout=self.timeout
+                )
             self.response.raise_for_status()
             self._content_iterator = self.response.iter_content(self.block_size)
 
@@ -263,7 +281,7 @@ class FileCopy(Transfer):
     def _read_block_iterator(self):
         while True:
             if self.cancel_check():
-                self._kill_gracefully
+                self._kill_gracefully()
             block = self.source_file_obj.read(self.block_size)
             if not block:
                 break
