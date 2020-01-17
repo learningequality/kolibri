@@ -2,7 +2,7 @@
 
   <div
     class="card-thumbnail-wrapper"
-    :class="{ 'mobile-thumbnail' : isMobile }"
+    :class="{ 'mobile-thumbnail': isMobile }"
     :style="thumbnailBackground"
   >
 
@@ -44,7 +44,7 @@
     </div>
 
     <div
-      v-if="progress!==undefined"
+      v-if="progress !== undefined"
       class="progress-bar-wrapper"
       :style="{ backgroundColor: $themePalette.grey.v_200 }"
     >

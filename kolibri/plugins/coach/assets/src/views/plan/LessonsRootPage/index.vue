@@ -91,7 +91,7 @@
         :cancelText="coreString('cancelAction')"
         :submitDisabled="detailsModalIsDisabled"
         :cancelDisabled="detailsModalIsDisabled"
-        @cancel="showModal=false"
+        @cancel="showModal = false"
         @submit="$refs.detailsModal.submitData()"
       >
         <AssignmentDetailsModal
@@ -106,7 +106,7 @@
           :groups="learnerGroups"
           :disabled="detailsModalIsDisabled"
           @submit="handleDetailsModalContinue"
-          @cancel="showModal=false"
+          @cancel="showModal = false"
         />
       </KModal>
     </KPageContainer>

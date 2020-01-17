@@ -10,7 +10,7 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
+      <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
       <ReportsControls @export="exportCSV" />
       <CoreTable :emptyMessage="coachString('groupListEmptyState')">
         <thead slot="thead">
@@ -34,13 +34,13 @@
               </KLabeledIcon>
             </td>
             <td>
-              {{ coachString('integer', {value: tableRow.numLessons}) }}
+              {{ coachString('integer', { value: tableRow.numLessons }) }}
             </td>
             <td>
-              {{ coachString('integer', {value: tableRow.numQuizzes}) }}
+              {{ coachString('integer', { value: tableRow.numQuizzes }) }}
             </td>
             <td>
-              {{ coachString('integer', {value: tableRow.numLearners}) }}
+              {{ coachString('integer', { value: tableRow.numLearners }) }}
             </td>
             <td><Score :value="tableRow.avgScore" /></td>
             <td><ElapsedTime :date="tableRow.lastActivity" /></td>

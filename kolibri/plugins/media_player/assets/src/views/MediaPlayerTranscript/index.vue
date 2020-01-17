@@ -8,7 +8,7 @@
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"
   >
-    <div v-show="!cues.length" class="loading-space fill-space">
+    <div v-show="!cues.length" class="fill-space loading-space">
       <KCircularLoader
         class="loader"
         :delay="true"

@@ -22,7 +22,7 @@
       <UiIconButton
         type="flat"
         class="icon"
-        :style="{fill: $themeTokens.textInverted}"
+        :style="{ fill: $themeTokens.textInverted }"
         tabindex="-1"
       >
         <mat-svg
@@ -47,7 +47,7 @@
       v-else
       type="flat"
       class="icon"
-      :style="{fill: $themeTokens.textInverted}"
+      :style="{ fill: $themeTokens.textInverted }"
       @click="$emit('navIconClick')"
     >
       <mat-svg

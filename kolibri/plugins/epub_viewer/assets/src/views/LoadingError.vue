@@ -2,8 +2,8 @@
 
   <div
     class="epub-renderer-error"
-    :class="{loaded}"
-    :style="{background: $themeTokens.surface}"
+    :class="{ loaded }"
+    :style="{ background: $themeTokens.surface }"
   >
     <UiAlert
       type="error"

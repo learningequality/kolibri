@@ -7,7 +7,7 @@
       :filterFunction="filterUsers"
       :filterPlaceholder="$tr('searchForUser')"
     >
-      <template v-slot:default="{items, filterInput}">
+      <template v-slot:default="{ items, filterInput }">
         <UserTable
           v-model="selectedUsers"
           :users="items"

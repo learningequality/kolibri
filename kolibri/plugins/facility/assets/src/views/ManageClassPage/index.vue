@@ -88,13 +88,13 @@
     </p>
 
     <ClassDeleteModal
-      v-if="modalShown===Modals.DELETE_CLASS"
+      v-if="modalShown === Modals.DELETE_CLASS"
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
       @cancel="closeModal"
     />
     <ClassCreateModal
-      v-if="modalShown===Modals.CREATE_CLASS"
+      v-if="modalShown === Modals.CREATE_CLASS"
       :classes="sortedClassrooms"
       @cancel="closeModal"
     />

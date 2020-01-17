@@ -5,7 +5,7 @@
       <h2>
         {{ coreString('lessonsLabel') }}
       </h2>
-      <p v-if="lessons.length===0">
+      <p v-if="lessons.length === 0">
         {{ $tr('noLessonsMessage') }}
       </p>
     </div>

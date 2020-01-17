@@ -39,7 +39,7 @@
         <KRouterLink
           appearance="basic-link"
           :text="$tr('taskManagerLink')"
-          :to="{name: 'MANAGE_TASKS'}"
+          :to="{ name: 'MANAGE_TASKS' }"
         />
       </p>
 
@@ -65,7 +65,7 @@
         v-if="deleteChannelId"
         :channelTitle="selectedChannelTitle"
         @submit="handleDeleteChannel"
-        @cancel="deleteChannelId=null"
+        @cancel="deleteChannelId = null"
       />
     </div>
 

@@ -2,7 +2,7 @@
 
   <div
     class="channel-detail-panel"
-    :class="{'channel-detail-panel-sm': windowIsSmall}"
+    :class="{ 'channel-detail-panel-sm': windowIsSmall }"
   >
     <div class="col-1">
       <slot name="beforethumbnail"></slot>

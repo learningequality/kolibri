@@ -21,18 +21,18 @@
         </p>
         <HeaderTable>
           <HeaderTableRow>
-            <template slot="key">
+            <template v-slot:key>
               {{ coachString('masteryModelLabel') }}
             </template>
-            <template slot="value">
+            <template v-slot:value>
               <MasteryModel />
             </template>
           </HeaderTableRow>
           <HeaderTableRow>
-            <template slot="key">
+            <template v-slot:key>
               {{ coachString('statusLabel') }}
             </template>
-            <template slot="value">
+            <template v-slot:value>
               <StatusSimple :status="status" />
             </template>
           </HeaderTableRow>

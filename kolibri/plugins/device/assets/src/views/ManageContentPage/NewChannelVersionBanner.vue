@@ -2,7 +2,7 @@
 
   <div
     class="new-version-banner"
-    :style="{backgroundColor: $themePalette.lightblue.v_100}"
+    :style="{ backgroundColor: $themePalette.lightblue.v_100 }"
   >
     <!-- stubs -->
     <template v-if="false">
@@ -15,7 +15,7 @@
       <KIcon
         class="icon"
         icon="error"
-        :style="{fill: $themePalette.lightblue.v_500}"
+        :style="{ fill: $themePalette.lightblue.v_500 }"
       />
       <span class="version-available">
         {{ $tr('versionAvailable', { version }) }}

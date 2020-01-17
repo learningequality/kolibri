@@ -49,7 +49,7 @@
         <ContentTreeViewer
           v-if="!newVersionAvailable"
           class="block-item"
-          :class="{ small : windowIsSmall }"
+          :class="{ small: windowIsSmall }"
           :style="{ borderBottomColor: $themeTokens.fineLine }"
         />
       </template>
@@ -58,7 +58,7 @@
       v-if="!newVersionAvailable"
       objectType="resource"
       actionType="import"
-      :resourceCounts="{count:transferResourceCount, fileSize:transferFileSize}"
+      :resourceCounts="{ count: transferResourceCount, fileSize: transferFileSize }"
       :disabled="disableBottomBar || newVersionAvailable"
       @clickconfirm="handleClickConfirm"
     />

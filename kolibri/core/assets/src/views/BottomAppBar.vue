@@ -2,8 +2,8 @@
 
   <div
     class="bottom"
-    :style="{backgroundColor: $themeTokens.surface}"
-    :class="{'bottom-sm': windowIsSmall}"
+    :style="{ backgroundColor: $themeTokens.surface }"
+    :class="{ 'bottom-sm': windowIsSmall }"
   >
     <div class="inner-bottom" :style="innerStyle">
       <slot></slot>

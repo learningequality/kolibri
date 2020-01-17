@@ -15,7 +15,7 @@
     >
       <mat-svg name="arrow_back" category="navigation" />
     </UiIconButton>
-    {{ $tr('progressIndicator', {currentStep , totalSteps}) }}
+    {{ $tr('progressIndicator', { currentStep , totalSteps }) }}
 
   </UiToolbar>
 

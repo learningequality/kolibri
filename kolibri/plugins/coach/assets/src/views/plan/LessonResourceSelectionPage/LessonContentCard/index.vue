@@ -12,7 +12,7 @@
     <div class="text" :style="{ color: $themeTokens.text }">
       <h3
         class="title"
-        :class="{'has-message': Boolean(message)}"
+        :class="{ 'has-message': Boolean(message) }"
         dir="auto"
       >
         {{ title }}

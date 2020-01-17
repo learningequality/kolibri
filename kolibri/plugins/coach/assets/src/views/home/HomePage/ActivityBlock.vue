@@ -5,7 +5,7 @@
     :allLinkRoute="$router.getRoute('HomeActivityPage')"
     :showAllLink="notifications.length > 0"
   >
-    <template slot="title">
+    <template v-slot:title>
       {{ $tr('classActivityLabel') }}
     </template>
 

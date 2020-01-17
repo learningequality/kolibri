@@ -1,4 +1,5 @@
 import FontFaceObserver from 'fontfaceobserver';
+import has from 'lodash/has';
 import vue from 'kolibri.lib.vue';
 import logger from 'kolibri.lib.logging';
 import { languageDirections, defaultLanguage } from 'kolibri-components/src/utils/i18n';
@@ -33,7 +34,7 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   // Handle the possibility that the message is defined with an object including context.
   const messageValue = defaultMessages[messageId];
   const defaultMessageText =
-    typeof messageValue === 'object' && messageValue.hasOwnProperty('message')
+    typeof messageValue === 'object' && has(messageValue, 'message')
       ? messageValue.message
       : messageValue;
 

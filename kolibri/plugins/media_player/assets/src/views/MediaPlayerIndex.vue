@@ -21,7 +21,7 @@
         $computedClass(progressStyle)
       ]"
     >
-      <div v-show="loading" class="loading-space fill-space">
+      <div v-show="loading" class="fill-space loading-space">
         <KCircularLoader
           class="loader"
           :delay="true"
@@ -31,7 +31,7 @@
       <video
         v-if="isVideo"
         ref="player"
-        class="video-js custom-skin vjs-big-play-centered vjs-show-big-play-button-on-pause"
+        class="custom-skin video-js vjs-big-play-centered vjs-show-big-play-button-on-pause"
       >
         <template v-for="video in videoSources">
           <source
@@ -52,7 +52,7 @@
         </template>
       </video>
 
-      <audio v-else ref="player" class="video-js custom-skin">
+      <audio v-else ref="player" class="custom-skin video-js">
         <template v-for="audio in audioSources">
           <source
             :key="audio.storage_url"

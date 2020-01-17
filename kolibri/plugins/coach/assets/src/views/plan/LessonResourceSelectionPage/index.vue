@@ -17,11 +17,11 @@
       </h1>
 
       <KGrid>
-        <KGridItem :layout12="{span: 6}">
+        <KGridItem :layout12="{ span: 6 }">
           <LessonsSearchBox @searchterm="handleSearchTerm" />
         </KGridItem>
 
-        <KGridItem :layout12="{span: 6, alignment: 'right'}">
+        <KGridItem :layout12="{ span: 6, alignment: 'right' }">
           <p>
             {{ $tr('totalResourcesSelected', { total: workingResources.length }) }}
           </p>

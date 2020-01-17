@@ -23,7 +23,7 @@
       class="exercise-container"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
-      <h3>{{ coreString('questionNumberLabel', {questionNumber: questionNumber + 1}) }}</h3>
+      <h3>{{ coreString('questionNumberLabel', { questionNumber: questionNumber + 1 }) }}</h3>
 
       <KCheckbox
         :label="coreString('showCorrectAnswerLabel')"
