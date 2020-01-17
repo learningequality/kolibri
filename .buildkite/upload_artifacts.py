@@ -165,14 +165,14 @@ def collect_local_artifacts():
     """
 
     artifacts_dict = {}
-    storage_bucket = storage.Client().bucket('le-buildkite')
+    storage_bucket = storage.Client().bucket("le-buildkite")
     blobs = storage_bucket.list_blobs(None, None, GCS_UPLOAD_PATH_PREFIX)
 
-    def manifest_id(file_name='', file_ext=''):
-        if file_ext == 'exe':
-            if '-signed' in file_name:
-                return 'signed-exe'
-            return 'unsigned-exe'
+    def manifest_id(file_name="", file_ext=""):
+        if file_ext == "exe":
+            if "-signed" in file_name:
+                return "signed-exe"
+            return "unsigned-exe"
         return file_ext
 
     for blob in blobs:
