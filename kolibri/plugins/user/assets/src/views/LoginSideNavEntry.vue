@@ -4,7 +4,6 @@
     :label="coreString('signInLabel')"
     :link="url"
     icon="login"
-    :class="{ 'rtl-icon': isRtl }"
   />
 
 </template>
@@ -24,7 +23,6 @@
       CoreMenuOption,
     },
     mixins: [commonCoreStrings],
-    $trs: {},
     computed: {
       url() {
         return urls['kolibri:kolibri.plugins.user:user']();

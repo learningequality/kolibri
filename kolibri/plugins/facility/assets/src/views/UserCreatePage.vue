@@ -284,13 +284,12 @@
   .narrow-container {
     max-width: 500px;
     margin: auto;
+    overflow: visible;
   }
 
   .form {
     max-width: 400px;
-    padding-bottom: 75px;
     margin-right: auto;
-    margin-bottom: 20px;
     margin-left: auto;
   }
 
