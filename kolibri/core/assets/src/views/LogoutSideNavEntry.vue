@@ -3,7 +3,6 @@
   <CoreMenuOption
     :label="$tr('signOut')"
     :link="url"
-    :class="{ 'rtl-icon': isRtl }"
     icon="logout"
   />
 
