@@ -169,11 +169,12 @@ def collect_local_artifacts():
     blobs = storage_bucket.list_blobs(None, None, GCS_UPLOAD_PATH_PREFIX)
 
     def manifest_id(file_name="", file_ext=""):
-        if file_ext == "exe":
+        filetype = file_ext[1:]
+        if filetype == "exe":
             if "-signed" in file_name:
                 return "signed-exe"
             return "unsigned-exe"
-        return file_ext
+        return filetype
 
     for blob in blobs:
         file = os.path.split(blob.name)[1]
