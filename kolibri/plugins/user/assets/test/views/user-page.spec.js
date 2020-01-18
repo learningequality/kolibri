@@ -7,6 +7,11 @@ jest.mock('kolibri.urls');
 function makeWrapper() {
   return mount(UserPage, {
     store: makeStore(),
+    data() {
+      return {
+        pageName: 'SIGN_IN',
+      };
+    },
   });
 }
 

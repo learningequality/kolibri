@@ -30,18 +30,20 @@ describe('FacilityPermissionsForm', () => {
     expect(els.nonFormalTextbox().isVisible()).toEqual(true);
   });
 
-  it('selecting "formal" shows facility name textbox', () => {
-    const { els, actions } = makeWrapper();
+  it('selecting "formal" shows facility name textbox', async () => {
+    const { els, actions, wrapper } = makeWrapper();
     actions.selectPreset('formal');
+    await wrapper.vm.$nextTick();
     expect(els.nonFormalRadioButton().vm.isChecked).toEqual(false);
     expect(els.nonFormalTextbox().isVisible()).toEqual(false);
     expect(els.formalRadioButton().vm.isChecked).toEqual(true);
     expect(els.formalTextbox().isVisible()).toEqual(true);
   });
 
-  it('selecting "personal" does not show any textboxes', () => {
-    const { els, actions } = makeWrapper();
+  it('selecting "personal" does not show any textboxes', async () => {
+    const { els, actions, wrapper } = makeWrapper();
     actions.selectPreset('informal');
+    await wrapper.vm.$nextTick();
     expect(els.personalRadioButton().vm.isChecked).toEqual(true);
     expect(els.nonFormalTextbox().isVisible()).toEqual(false);
     expect(els.formalTextbox().isVisible()).toEqual(false);

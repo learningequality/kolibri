@@ -3,7 +3,7 @@
 exports[`TaskPanel renders correctly when it is a canceled DISKCONTENTEXPORT task 1`] = `
 <div class="task-panel">
   <div class="icon">
-    <mat-svg name="error" category="alert" style="fill: #d32f2f;" mode="out-in"></mat-svg>
+    <mat-svg name="error" category="alert" style="fill: #d32f2f;"></mat-svg>
   </div>
   <div class="details">
     <p class="details-status" style="color: rgb(97, 97, 97);">
@@ -26,7 +26,7 @@ exports[`TaskPanel renders correctly when it is a canceled DISKCONTENTEXPORT tas
 exports[`TaskPanel renders correctly when it is a canceled DISKEXPORT task (bulk export) 1`] = `
 <div class="task-panel">
   <div class="icon">
-    <mat-svg name="error" category="alert" style="fill: #d32f2f;" mode="out-in"></mat-svg>
+    <mat-svg name="error" category="alert" style="fill: #d32f2f;"></mat-svg>
   </div>
   <div class="details">
     <p class="details-status" style="color: rgb(97, 97, 97);">

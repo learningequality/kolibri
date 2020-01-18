@@ -8,62 +8,42 @@ function makeWrapper() {
     store,
   });
   jest.spyOn(wrapper.vm, 'provisionDevice').mockResolvedValue();
-  const els = {
-    DefaultLanguageForm: () => wrapper.find({ name: 'DefaultLanguageForm' }),
-    FacilityPermissionsForm: () => wrapper.find({ name: 'FacilityPermissionsForm' }),
-    GuestAccessForm: () => wrapper.find({ name: 'GuestAccessForm' }),
-    CreateLearnerAccountForm: () => wrapper.find({ name: 'CreateLearnerAccountForm' }),
-    RequirePasswordForLearnersForm: () => wrapper.find({ name: 'RequirePasswordForLearnersForm' }),
-    SuperuserCredentialsForm: () => wrapper.find({ name: 'SuperuserCredentialsForm' }),
-    PersonalDataConsentForm: () => wrapper.find({ name: 'PersonalDataConsentForm' }),
-  };
-  return { wrapper, store, els };
+  return { wrapper, store };
+}
+
+async function assertAtCorrectFormEmitSubmit(componentName, wrapper) {
+  const component = wrapper.find({ name: componentName });
+  expect(component.isVueInstance()).toBe(true);
+  // Simulate clicking submit because clicking the button doesn't work
+  component.vm.$emit('submit');
+  await wrapper.vm.$nextTick();
+  if (component.name() !== 'PersonalDataConsentForm') {
+    expect(component.exists()).toBe(false);
+  }
 }
 
 describe('SetupWizardIndex', () => {
   it('clicking next takes you to the next step', async () => {
-    const { els, wrapper } = makeWrapper();
+    const { wrapper } = makeWrapper();
     // Step 1: DefaultLanguageForm
-    expect(els.DefaultLanguageForm().isVueInstance()).toBe(true);
-    // Simulate clicking submit because clicking the button doesn't work
-    els.DefaultLanguageForm().vm.$emit('submit');
-    expect(els.DefaultLanguageForm().exists()).toBe(false);
-
+    await assertAtCorrectFormEmitSubmit('DefaultLanguageForm', wrapper);
     // Step 2: Facility Permissions Form
-    expect(els.FacilityPermissionsForm().isVueInstance()).toBe(true);
-    els.FacilityPermissionsForm().vm.$emit('submit');
-    await wrapper.vm.$nextTick();
-    expect(els.FacilityPermissionsForm().exists()).toBe(false);
-
+    await assertAtCorrectFormEmitSubmit('FacilityPermissionsForm', wrapper);
     // Step 3: Guest Access Form
-    expect(els.GuestAccessForm().isVueInstance()).toBe(true);
-    els.GuestAccessForm().vm.$emit('submit');
-    expect(els.GuestAccessForm().exists()).toBe(false);
-
+    await assertAtCorrectFormEmitSubmit('GuestAccessForm', wrapper);
     // Step 4: Learners can create own account form
-    expect(els.CreateLearnerAccountForm().isVueInstance()).toBe(true);
-    els.CreateLearnerAccountForm().vm.$emit('submit');
-    expect(els.CreateLearnerAccountForm().exists()).toBe(false);
-
+    await assertAtCorrectFormEmitSubmit('CreateLearnerAccountForm', wrapper);
     // Step 5: Require password for learners form
-    expect(els.RequirePasswordForLearnersForm().isVueInstance()).toBe(true);
-    els.RequirePasswordForLearnersForm().vm.$emit('submit');
-    expect(els.RequirePasswordForLearnersForm().exists()).toBe(false);
-
+    await assertAtCorrectFormEmitSubmit('RequirePasswordForLearnersForm', wrapper);
     // Step 6: Superuser Credentials Form
-    expect(els.SuperuserCredentialsForm().isVueInstance()).toBe(true);
-    els.SuperuserCredentialsForm().vm.$emit('submit');
-    expect(els.SuperuserCredentialsForm().exists()).toBe(false);
-
+    await assertAtCorrectFormEmitSubmit('SuperuserCredentialsForm', wrapper);
     // Step 7: Personal Data Consent Form
-    expect(els.PersonalDataConsentForm().isVueInstance()).toBe(true);
-    els.PersonalDataConsentForm().vm.$emit('submit');
-
+    await assertAtCorrectFormEmitSubmit('PersonalDataConsentForm', wrapper);
     expect(wrapper.vm.provisionDevice).toHaveBeenCalledTimes(1);
   });
 
-  it('submits a default facility name if "informal" preset is used', () => {
-    const { els, wrapper, store } = makeWrapper();
+  it('submits a default facility name if "informal" preset is used', async () => {
+    const { wrapper, store } = makeWrapper();
     // set superuser, since that's how name is derived
     store.commit('SET_FACILITY_PRESET', 'informal');
     store.commit('SET_SU', {
@@ -72,13 +52,14 @@ describe('SetupWizardIndex', () => {
       password: 'password',
     });
     store.commit('SET_ONBOARDING_STEP', 7);
-    els.PersonalDataConsentForm().vm.$emit('submit');
+    await wrapper.vm.$nextTick();
+    await assertAtCorrectFormEmitSubmit('PersonalDataConsentForm', wrapper);
     const matcher = expect.objectContaining({ facility: { name: 'Home Facility Fred Rogers' } });
     expect(wrapper.vm.provisionDevice).toHaveBeenCalledWith(matcher);
   });
 
-  it('submits correct data when provisioning', () => {
-    const { els, wrapper, store } = makeWrapper();
+  it('submits correct data when provisioning', async () => {
+    const { wrapper, store } = makeWrapper();
     // set superuser, since that's how name is derived
     store.commit('SET_FACILITY_PRESET', 'formal');
     store.commit('SET_SU', {
@@ -91,7 +72,8 @@ describe('SetupWizardIndex', () => {
     store.commit('SET_LEARNER_CAN_SIGN_UP', false);
     store.commit('SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD', true);
     store.commit('SET_ONBOARDING_STEP', 7);
-    els.PersonalDataConsentForm().vm.$emit('submit');
+    await wrapper.vm.$nextTick();
+    await assertAtCorrectFormEmitSubmit('PersonalDataConsentForm', wrapper);
     const matcher = expect.objectContaining({
       language_id: 'en',
       facility: { name: "Mr. Roger's Neighborhood" },

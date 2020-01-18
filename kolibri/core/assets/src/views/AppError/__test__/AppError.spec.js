@@ -11,7 +11,7 @@ function makeWrapper() {
 }
 
 describe('AppError component', () => {
-  it('shows page not found errors and buttons if the error has status code 404', () => {
+  it('shows page not found errors and buttons if the error has status code 404', async () => {
     const { wrapper, store } = makeWrapper();
     const error = {
       status: {
@@ -22,11 +22,12 @@ describe('AppError component', () => {
       },
     };
     store.state.core.error = JSON.stringify(error);
+    await wrapper.vm.$nextTick();
     expect(wrapper.find({ name: 'KButton' }).props().text).toEqual('Back to home');
     expect(wrapper.find('h1').text()).toEqual('Resource not found');
   });
 
-  it('shows default errors and buttons if the error does not have status code 404', () => {
+  it('shows default errors and buttons if the error does not have status code 404', async () => {
     const { wrapper, store } = makeWrapper();
     const error = {
       status: {
@@ -37,6 +38,7 @@ describe('AppError component', () => {
       },
     };
     store.state.core.error = JSON.stringify(error);
+    await wrapper.vm.$nextTick();
     expect(wrapper.find({ name: 'KButton' }).props().text).toEqual('Refresh');
     expect(wrapper.find('h1').text()).toEqual('Sorry! Something went wrong!');
   });

@@ -5,7 +5,7 @@ import { ClassroomResource } from 'kolibri.resources';
  * @param {string} name
  */
 export function createClass(store, name) {
-  ClassroomResource.saveModel({
+  return ClassroomResource.saveModel({
     data: {
       name,
       parent: store.rootState.core.session.facility_id,

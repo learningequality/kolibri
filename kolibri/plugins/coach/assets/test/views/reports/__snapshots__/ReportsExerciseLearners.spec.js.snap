@@ -11,16 +11,19 @@ exports[`ReportsExerciseLearners doesn't render groups information when show gro
         <!---->
         <th>Last activity</th>
       </tr>
-    </thead><span tag="tbody" name="list"><tr data-test="entry"><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_1eg6lrk link">
+    </thead>
+    <div tag="tbody" name="list">
+      <tr data-test="entry">
+        <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_1eg6lrk link">
   learner1
 </a></span>
-</div></span></td>
-<td>
-  <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
+    </div></span></td>
+    <td>
+      <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     Completed
   </span></div></span>
-  <!---->
-  </div>
+      <!---->
+</div>
 </td>
 <td><span>92 seconds</span></td>
 <!---->
@@ -44,7 +47,9 @@ exports[`ReportsExerciseLearners doesn't render groups information when show gro
   <td><span>
   3 hours ago
 </span></td>
-</tr></span></table>
+</tr>
+</div>
+</table>
 </div>
 `;
 
@@ -61,16 +66,19 @@ exports[`ReportsExerciseLearners renders all entries 1`] = `
         </th>
         <th>Last activity</th>
       </tr>
-    </thead><span tag="tbody" name="list"><tr data-test="entry"><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_1eg6lrk link">
+    </thead>
+    <div tag="tbody" name="list">
+      <tr data-test="entry">
+        <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_1eg6lrk link">
   learner1
 </a></span>
-</div></span></td>
-<td>
-  <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
+    </div></span></td>
+    <td>
+      <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
     Completed
   </span></div></span>
-  <!---->
-  </div>
+      <!---->
+</div>
 </td>
 <td><span>92 seconds</span></td>
 <td>
@@ -102,6 +110,8 @@ exports[`ReportsExerciseLearners renders all entries 1`] = `
   <td><span>
   3 hours ago
 </span></td>
-</tr></span></table>
+</tr>
+</div>
+</table>
 </div>
 `;

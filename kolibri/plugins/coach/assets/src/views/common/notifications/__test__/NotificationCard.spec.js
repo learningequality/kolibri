@@ -1,16 +1,20 @@
 import { mount, RouterLinkStub } from '@vue/test-utils';
 import NotificationCard from '../NotificationCard';
 
-NotificationCard.methods.getRoute = x => x;
-
 function makeWrapper(options) {
   const wrapper = mount(NotificationCard, {
     stubs: {
       CoachStatusIcon: {
+        name: 'CoachStatusIcon',
         props: ['icon'],
         template: '<div></div>',
       },
       RouterLink: RouterLinkStub,
+    },
+    methods: {
+      getRoute(x) {
+        return x;
+      },
     },
     propsData: {
       eventType: 'Completed',
@@ -47,7 +51,7 @@ describe('NotificationCard component', () => {
 
     const link = wrapper.find({ name: 'KRouterLink' });
     expect(link.exists()).toEqual(false);
-    expect(wrapper.text()).toEqual('JB finished a lesson');
+    expect(wrapper.text()).toContain('JB finished a lesson');
   });
 
   it('has a single KFixedGridItem if no time is provided', () => {
@@ -76,59 +80,49 @@ describe('NotificationCard component', () => {
     expect(elapsedTime.props().date.getTime()).toEqual(timeObject);
   });
 
-  it('shows the correct status icon for Started, HelpNeeded, and Completed events', () => {
-    const { wrapper } = makeWrapper({
-      propsData: {
-        eventType: 'Started',
-      },
-    });
+  const statusIconTestCases = [['Started', 'clock'], ['HelpNeeded', 'help'], ['Completed', 'star']];
 
-    const icon = wrapper.find({ name: 'CoachStatusIcon' });
-    expect(icon.props().icon).toEqual('clock');
+  it.each(statusIconTestCases)(
+    'shows the correct status icon for %s events',
+    (eventType, iconType) => {
+      const { wrapper } = makeWrapper({
+        propsData: { eventType },
+      });
+      const icon = wrapper.find({ name: 'CoachStatusIcon' });
+      expect(icon.props().icon).toEqual(iconType);
+    }
+  );
 
-    wrapper.setProps({ eventType: 'HelpNeeded' });
-    expect(icon.props().icon).toEqual('help');
+  const contentIconTestCases = [['Lesson', 'lesson'], ['Quiz', 'exam'], ['Resource', 'video']];
 
-    wrapper.setProps({ eventType: 'Completed' });
-    expect(icon.props().icon).toEqual('star');
-  });
+  it.each(contentIconTestCases)(
+    'shows the correct content icon if the assignment is a %s',
+    (objectType, iconKind) => {
+      const { wrapper } = makeWrapper({
+        propsData: {
+          objectType,
+          resourceType: 'video',
+        },
+      });
+      const contentIcon = wrapper.find({ name: 'ContentIcon' });
+      expect(contentIcon.props().kind).toEqual(iconKind);
+    }
+  );
 
-  it('shows the correct content icon if the assignment is a quiz, lesson, or resource', () => {
-    const { wrapper } = makeWrapper({
-      propsData: {
-        objectType: 'Lesson',
-        resourceType: 'video',
-      },
-    });
-    const contentIcon = wrapper.find({ name: 'ContentIcon' });
-    expect(contentIcon.props().kind).toEqual('lesson');
+  const headerTestCases = [
+    // learnerContext | contentContext | expected header
+    [null, null, ''],
+    ['Group 1', null, 'Group 1'],
+    ['Group 1', 'Lesson 1', 'Group 1 • Lesson 1'],
+    ['', 'Lesson 1', 'Lesson 1'],
+  ];
 
-    wrapper.setProps({ objectType: 'Quiz' });
-    expect(contentIcon.props().kind).toEqual('exam');
-
-    wrapper.setProps({ objectType: 'Resource' });
-    expect(contentIcon.props().kind).toEqual('video');
-  });
-
-  it('formats the header message when the learner context, content context, none, or both are provided', () => {
-    const { wrapper } = makeWrapper({});
-    const header = wrapper.find('.context');
-
-    expect(header.text()).toEqual('');
-
-    wrapper.setProps({ learnerContext: 'Group 1' });
-    expect(header.text()).toEqual('Group 1');
-
-    wrapper.setProps({
-      learnerContext: 'Group 1',
-      contentContext: 'Lesson 1',
-    });
-    expect(header.text()).toEqual('Group 1 • Lesson 1');
-
-    wrapper.setProps({
-      learnerContext: '',
-      contentContext: 'Lesson 1',
-    });
-    expect(header.text()).toEqual('Lesson 1');
-  });
+  it.each(headerTestCases)(
+    'formats the header message correctly when learnerContext: %s and contentContext: %',
+    (learnerContext, contentContext, expected) => {
+      const { wrapper } = makeWrapper({ propsData: { learnerContext, contentContext } });
+      const header = wrapper.find('.context');
+      expect(header.text()).toEqual(expected);
+    }
+  );
 });

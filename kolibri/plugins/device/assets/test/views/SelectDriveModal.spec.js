@@ -4,16 +4,36 @@ import UiAlert from 'keen-ui/src/UiAlert';
 import SelectDriveModal from '../../src/views/ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
-SelectDriveModal.methods.refreshDriveList = () => Promise.resolve();
-
 function makeWrapper(options = {}) {
-  const { props = {}, store } = options;
+  const { props = {}, store, methods, data } = options;
   return mount(SelectDriveModal, {
     propsData: {
       mode: 'import',
       ...props,
     },
+    data() {
+      return {
+        driveStatus: '',
+        ...data,
+      };
+    },
     store: store || makeStore(),
+    methods: {
+      refreshDriveList() {
+        return Promise.resolve();
+      },
+      ...methods,
+    },
+    stubs: {
+      transition: {
+        name: 'transition',
+        template: '<div><slot></slot></div>',
+      },
+      UiAlert: {
+        name: 'UiAlert',
+        template: '<div><slot></slot></div>',
+      },
+    },
   });
 }
 
@@ -79,17 +99,14 @@ describe('selectDriveModal component', () => {
   }
 
   it('when drive list is loading, show a message', async () => {
-    const wrapper = makeWrapper({ store });
-    await wrapper.vm.$nextTick();
-    const alert = wrapper.find(UiAlert);
+    const wrapper = makeWrapper({ store, data: { driveStatus: 'LOADING' } });
+    const alert = wrapper.find({ name: 'UiAlert' });
     expect(alert.text().trim()).toEqual('Finding local drives…');
   });
 
   it('when drive list is loaded, it shows the drive-list component ', async () => {
     const wrapper = makeWrapper({ store });
     const { driveListContainer, driveListLoading } = getElements(wrapper);
-    await wrapper.vm.$nextTick();
-    await wrapper.vm.$nextTick();
     expect(driveListContainer().is('div')).toEqual(true);
     expect(driveListLoading().exists()).toEqual(false);
   });
@@ -145,7 +162,7 @@ describe('selectDriveModal component', () => {
       d.metadata.channels = [];
     });
     const wrapper = makeWrapper({ store });
-    const driveListText = wrapper.find(UiAlert);
+    const driveListText = wrapper.find({ name: 'UiAlert' });
     const expectedMessage = 'No drives with Kolibri resources are connected to the server';
     expect(driveListText.text().trim()).toEqual(expectedMessage);
   });
@@ -156,7 +173,7 @@ describe('selectDriveModal component', () => {
       d.writable = false;
     });
     const wrapper = makeWrapper({ store });
-    const driveListText = wrapper.find(UiAlert);
+    const driveListText = wrapper.find({ name: 'UiAlert' });
     const expectedMessage = 'Could not find a writable drive connected to the server';
     expect(driveListText.text().trim()).toEqual(expectedMessage);
   });
@@ -167,10 +184,11 @@ describe('selectDriveModal component', () => {
     expect(continueButton().attributes().disabled).toEqual('disabled');
   });
 
-  it('when a drive is selected, "Continue" button is enabled', () => {
+  it('when a drive is selected, "Continue" button is enabled', async () => {
     const wrapper = makeWrapper({ store });
     const { continueButton, writableImportableRadio } = getElements(wrapper);
     writableImportableRadio().trigger('change');
+    await wrapper.vm.$nextTick();
     expect(continueButton().attributes().disabled).toEqual(undefined);
   });
 

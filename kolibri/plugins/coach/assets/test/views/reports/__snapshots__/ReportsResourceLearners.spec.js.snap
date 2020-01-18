@@ -11,7 +11,10 @@ exports[`ReportsResourceLearners doesn't render groups information when show gro
         <!---->
         <th>Last activity</th>
       </tr>
-    </thead><span tag="tbody" name="list"><tr><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">learner1</span>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">learner1</span>
 </div></span></td>
 <td>
   <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
@@ -40,7 +43,9 @@ exports[`ReportsResourceLearners doesn't render groups information when show gro
   <td><span>
   3 hours ago
 </span></td>
-</tr></span></table>
+</tr>
+</tbody>
+</table>
 </div>
 `;
 
@@ -57,7 +62,10 @@ exports[`ReportsResourceLearners renders all entries 1`] = `
         </th>
         <th>Last activity</th>
       </tr>
-    </thead><span tag="tbody" name="list"><tr><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">learner1</span>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">learner1</span>
 </div></span></td>
 <td>
   <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
@@ -94,6 +102,8 @@ exports[`ReportsResourceLearners renders all entries 1`] = `
   <td><span>
   3 hours ago
 </span></td>
-</tr></span></table>
+</tr>
+</tbody>
+</table>
 </div>
 `;

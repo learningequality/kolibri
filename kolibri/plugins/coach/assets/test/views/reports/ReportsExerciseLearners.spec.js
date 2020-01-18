@@ -41,6 +41,10 @@ const initWrapper = propsData => {
     propsData,
     stubs: {
       RouterLink: RouterLinkStub,
+      transitionGroup: {
+        name: 'transition-group',
+        template: '<div><slot></slot></div>',
+      },
     },
   });
 };
