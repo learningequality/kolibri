@@ -115,13 +115,13 @@ def create_status_report_html(artifacts):
     """
     html = "<html>\n<body>\n<h1>Build Artifacts</h1>\n"
     current_heading = None
-    for ext, artifact in artifacts:
-            if artifact["category"] != current_heading:
-                current_heading = artifact["category"]
-                html += "<h2>{heading}</h2>\n".format(heading=current_heading)
-            html += "<p>{description}: <a href='{media_url}'>{name}</a> ({size_mb} MB)</p>\n".format(
-                **artifact
-            )
+    for ext, artifact in artifacts.items():
+        if artifact["category"] != current_heading:
+            current_heading = artifact["category"]
+            html += "<h2>{heading}</h2>\n".format(heading=current_heading)
+        html += "<p>{description}: <a href='{media_url}'>{name}</a> ({size_mb} MB)</p>\n".format(
+            **artifact
+        )
     html += "</body>\n</html>"
     return html
 
@@ -217,24 +217,23 @@ def upload_gh_release_artifacts(artifacts={}):
         release = repository.release(id=release_id)
         logging.info("Uploading built assets to Github Release: %s" % release_name)
         for file_extension, artifact in file_manifest:
-                logging.info("Uploading release asset: %s" % (artifact.get("name")))
-                # For some reason github3 does not let us set a label at initial upload
-                asset = release.upload_asset(
-                    content_type=artifact["content_type"],
-                    name=artifact["name"],
-                    asset=open(artifact["file_location"], "rb"),
+            logging.info("Uploading release asset: %s" % (artifact.get("name")))
+            # For some reason github3 does not let us set a label at initial upload
+            asset = release.upload_asset(
+                content_type=artifact["content_type"],
+                name=artifact["name"],
+                asset=open(artifact["file_location"], "rb"),
+            )
+            if asset:
+                # So do it after the initial upload instead
+                asset.edit(artifact["name"], label=artifact["description"])
+                logging.info(
+                    "Successfully uploaded release asset: %s" % (artifact.get("name"))
                 )
-                if asset:
-                    # So do it after the initial upload instead
-                    asset.edit(artifact["name"], label=artifact["description"])
-                    logging.info(
-                        "Successfully uploaded release asset: %s"
-                        % (artifact.get("name"))
-                    )
-                else:
-                    logging.error(
-                        "Error uploading release asset: %s" % (artifact.get("name"))
-                    )
+            else:
+                logging.error(
+                    "Error uploading release asset: %s" % (artifact.get("name"))
+                )
 
 
 def main():
