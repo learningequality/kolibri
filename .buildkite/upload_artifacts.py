@@ -55,6 +55,12 @@ file_manifest = {
         "category": INSTALLER_CAT,
         "content_type": "application/vnd.debian.binary-package",
     },
+    "zip": {
+        "extension": "zip",
+        "description": "Raspberry Pi Image",
+        "category": INSTALLER_CAT,
+        "content_type": "application/x-zip-compressed",
+    },
     "dmg": {
         "extension": "dmg",
         "description": "Mac Package",
@@ -73,6 +79,12 @@ file_manifest = {
         "category": INSTALLER_CAT,
         "content_type": "application/x-ms-dos-executable",
     },
+    # 'apk': {
+    #     'extension': 'apk',
+    #     'description': 'Android Installer',
+    #     'category': INSTALLER_CAT,
+    #     'content_type': 'application/vnd.android.package-archive',
+    # },
     "pex": {
         "extension": "pex",
         "description": "Pex file",
@@ -91,31 +103,7 @@ file_manifest = {
         "category": PYTHON_PKG_CAT,
         "content_type": "application/gzip",
     },
-    "zip": {
-        "extension": "zip",
-        "description": "Raspberry Pi Image",
-        "category": INSTALLER_CAT,
-        "content_type": "application/x-zip-compressed",
-    },
-    # 'apk': {
-    #     'extension': 'apk',
-    #     'description': 'Android Installer',
-    #     'category': INSTALLER_CAT,
-    #     'content_type': 'application/vnd.android.package-archive',
-    # },
 }
-
-file_order = [
-    "deb",
-    "zip",
-    "dmg",
-    "unsigned-exe",
-    "signed-exe",
-    # 'apk',
-    "pex",
-    "whl",
-    "gz",
-]
 
 gh = login(token=ACCESS_TOKEN)
 repository = gh.repository(REPO_OWNER, REPO_NAME)
@@ -127,9 +115,7 @@ def create_status_report_html(artifacts):
     """
     html = "<html>\n<body>\n<h1>Build Artifacts</h1>\n"
     current_heading = None
-    for ext in file_order:
-        if ext in artifacts:
-            artifact = artifacts[ext]
+    for ext, artifact in artifacts:
             if artifact["category"] != current_heading:
                 current_heading = artifact["category"]
                 html += "<h2>{heading}</h2>\n".format(heading=current_heading)
@@ -230,9 +216,7 @@ def upload_gh_release_artifacts(artifacts={}):
         release_name = get_release_asset_url.json()["name"]
         release = repository.release(id=release_id)
         logging.info("Uploading built assets to Github Release: %s" % release_name)
-        for file_extension in file_order:
-            if file_extension in artifacts:
-                artifact = artifacts[file_extension]
+        for file_extension, artifact in file_manifest:
                 logging.info("Uploading release asset: %s" % (artifact.get("name")))
                 # For some reason github3 does not let us set a label at initial upload
                 asset = release.upload_asset(
