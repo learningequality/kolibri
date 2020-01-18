@@ -169,7 +169,7 @@ def collect_local_artifacts():
         if file_id in file_manifest:
             data = {
                 "name": file,
-                "media_link": blob.public_url,
+                "media_url": blob.public_url,
                 "content_type": blob.content_type,
                 "md5_hash": blob.md5_hash,
                 "size_mb": blob.size / 1048576.0,
