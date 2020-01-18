@@ -33,7 +33,7 @@ ISSUE_ID = os.getenv("BUILDKITE_PULL_REQUEST")
 BUILD_ID = os.getenv("BUILDKITE_BUILD_NUMBER")
 TAG = os.getenv("BUILDKITE_TAG")
 COMMIT = os.getenv("BUILDKITE_COMMIT")
-GCS_UPLOAD_PATH_PREFIX = os.getenv("GCS_UPLOAD_PATH_PREFIX", "")
+GCS_UPLOAD_PATH_PREFIX = os.getenv("LE_GCS_UPLOAD_PATH_PREFIX", "")
 
 RELEASE_DIR = "release"
 PROJECT_PATH = os.path.join(os.getcwd())
