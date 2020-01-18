@@ -153,6 +153,8 @@ export default {
       );
     },
     setTrackList(store, trackList) {
+      let { language } = store.state;
+
       if (store.state.trackList) {
         store.state.trackListeners.forEach(({ trackId, event, listener }) => {
           const track = store.getters.tracks.find(track => track.id === trackId);
@@ -185,8 +187,12 @@ export default {
         const addCue = track.addCue.bind(track);
         track.addCue = (...args) => {
           const result = addCue(...args);
-          store.dispatch('setCuesFromTrack', track);
-          store.dispatch('setActiveCuesFromTrack', track);
+
+          if (track.language == language) {
+            store.dispatch('setCuesFromTrack', track);
+            store.dispatch('setActiveCuesFromTrack', track);
+          }
+
           return result;
         };
         track.addCue.overridden = true;
