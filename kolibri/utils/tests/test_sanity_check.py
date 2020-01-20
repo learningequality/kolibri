@@ -1,3 +1,4 @@
+import os
 import tempfile
 
 import portend
@@ -26,6 +27,15 @@ class SanityCheckTestCase(TestCase):
         with self.assertRaises(SystemExit):
             sanity_checks.check_port_availability("0.0.0.0", "8080")
             logging_mock.assert_called()
+
+    @patch("kolibri.utils.sanity_checks.logging.error")
+    @patch("kolibri.utils.sanity_checks.portend.free")
+    def test_socket_activation_support(self, portend_mock, logging_mock):
+        portend_mock.side_effect = portend.Timeout
+        # LISTEN_PID environment variable would be set if using socket activation
+        with patch.dict(os.environ, {"LISTEN_PID": "1234"}):
+            sanity_checks.check_port_availability("0.0.0.0", "8080")
+            logging_mock.assert_not_called()
 
     @patch("kolibri.utils.cli.get_version", return_value="")
     @patch("kolibri.utils.sanity_checks.logging.error")
