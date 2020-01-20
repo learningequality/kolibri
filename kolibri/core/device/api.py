@@ -1,3 +1,5 @@
+from sys import version_info
+
 from django.conf import settings
 from django.http.response import HttpResponseBadRequest
 from morango.models import InstanceIDModel
@@ -103,6 +105,9 @@ class DeviceInfoView(views.APIView):
         # Returns the named timezone for the server (the time above only includes the offset)
         info["server_timezone"] = settings.TIME_ZONE
         info["installer"] = installation_type()
+        info["python_version"] = "{major}.{minor}".format(
+            major=version_info.major, minor=version_info.minor
+        )
 
         return Response(info)
 
