@@ -42,7 +42,7 @@ class KolibriCoreConfig(AppConfig):
             cursor = connection.cursor()
 
             # Shorten the default WAL autocheckpoint from 1000 pages to 500
-            cursor.execute(CONNECTION_PRAGMAS)
+            cursor.executescript(CONNECTION_PRAGMAS)
 
             # We don't turn on the following pragmas, because they have negligible
             # performance impact. For reference, here's what we've tested:

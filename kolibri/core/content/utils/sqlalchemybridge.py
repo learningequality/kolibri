@@ -24,7 +24,7 @@ from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
 def set_sqlite_connection_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
-    cursor.execute(CONNECTION_PRAGMAS)
+    cursor.executescript(CONNECTION_PRAGMAS)
     cursor.close()
 
 
