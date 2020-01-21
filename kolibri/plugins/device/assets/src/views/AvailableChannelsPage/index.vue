@@ -170,8 +170,21 @@
         'transferType',
       ]),
       allChannels() {
+        const uninstalledChannels = this.availableChannels.filter(uninstalledChannel => {
+          return !this.installedChannelsWithResources.find(
+            ({ id }) => id === uninstalledChannel.id
+          );
+        });
+
         // Need to de-duplicate channels in case user enters same token twice, etc.
-        return uniqBy([...this.newUnlistedChannels, ...this.availableChannels], 'id');
+        return uniqBy(
+          [
+            ...this.newUnlistedChannels,
+            ...this.installedChannelsWithResources,
+            ...uninstalledChannels,
+          ],
+          'id'
+        );
       },
       multipleMode() {
         const { multiple } = this.$route.query;

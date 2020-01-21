@@ -201,11 +201,11 @@
   .narrow-container {
     max-width: 500px;
     margin: auto;
+    overflow: visible;
   }
 
   .form {
     max-width: 400px;
-    min-height: 600px;
     margin: auto;
   }
 
