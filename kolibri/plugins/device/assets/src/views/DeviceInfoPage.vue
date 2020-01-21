@@ -80,6 +80,7 @@
         return [
           `Version:           ${this.deviceInfo.version}`,
           `OS:                ${this.deviceInfo.os}`,
+          `Python:            ${this.deviceInfo.python_version}`,
           `Installer:         ${this.deviceInfo.installer}`,
           `Server:            ${this.deviceInfo.server_type}`,
           `Database:          ${this.deviceInfo.database_path}`,
