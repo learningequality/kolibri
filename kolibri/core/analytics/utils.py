@@ -46,6 +46,7 @@ from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 from kolibri.utils.server import installation_type
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
@@ -376,7 +377,7 @@ def perform_ping(started, server=DEFAULT_SERVER_URL):
         "node_id": instance.node_id,
         "language": language,
         "timezone": timezone,
-        "uptime": int((datetime.datetime.now() - started).total_seconds() / 60),
+        "uptime": int((local_now() - started).total_seconds() / 60),
         "timestamp": localtime(),
         "installer": installation_type(),
     }
@@ -434,7 +435,7 @@ def _ping(started, server, checkrate):
     job = get_current_job()
     if job and job in scheduler:
         scheduler.change_execution_time(
-            job, datetime.datetime.now() + datetime.timedelta(seconds=checkrate * 60)
+            job, local_now() + datetime.timedelta(seconds=checkrate * 60)
         )
 
 
@@ -443,7 +444,7 @@ def schedule_ping(
     checkrate=DEFAULT_PING_CHECKRATE,
     interval=DEFAULT_PING_INTERVAL,
 ):
-    started = datetime.datetime.now()
+    started = local_now()
     scheduler.schedule(
         started,
         _ping,

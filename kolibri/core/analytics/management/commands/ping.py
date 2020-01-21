@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
@@ -9,6 +8,7 @@ from kolibri.core.analytics.utils import DEFAULT_PING_INTERVAL
 from kolibri.core.analytics.utils import DEFAULT_SERVER_URL
 from kolibri.core.analytics.utils import ping_once
 from kolibri.core.analytics.utils import schedule_ping
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class Command(BaseCommand):
         once = options.get("once") or False
 
         if once:
-            started = datetime.now()
+            started = local_now()
             try:
                 ping_once(started, server)
             except Exception as e:
