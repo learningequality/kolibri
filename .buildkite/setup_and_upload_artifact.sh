@@ -13,7 +13,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-PIP_CMD="$PIP_PATH install --upgrade gcloud"
+PIP_CMD="$PIP_PATH install --upgrade google-cloud-storage"
 echo "Running $PIP_CMD..."
 $PIP_CMD
 if [ $? -ne 0 ]; then
@@ -37,7 +37,7 @@ buildkite-agent artifact download 'dist/*.whl' dist/
 buildkite-agent artifact download 'dist/*.tar.gz' dist/
 buildkite-agent artifact download 'dist/*.deb' dist/
 buildkite-agent artifact download 'dist/*.exe' dist/
-buildkite-agent artifact download 'dist/*.dmg' dist/
+# buildkite-agent artifact download 'dist/*.dmg' dist/
 buildkite-agent artifact download 'dist/*.zip' dist/
 
 {

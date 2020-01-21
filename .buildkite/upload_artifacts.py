@@ -21,7 +21,7 @@ import sys
 from os import listdir
 
 import requests
-from gcloud import storage
+from google.cloud import storage
 from github3 import login
 
 logging.getLogger().setLevel(logging.INFO)
@@ -107,7 +107,7 @@ file_manifest = {
 file_order = [
     "deb",
     "zip",
-    "dmg",
+    # "dmg",
     "unsigned-exe",
     "signed-exe",
     # 'apk',

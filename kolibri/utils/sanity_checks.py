@@ -42,13 +42,16 @@ def check_port_availability(host, port):
     try:
         portend.free(host, port, timeout=PORT_AVAILABILITY_CHECK_TIMEOUT)
     except portend.Timeout:
-        # Port is occupied
-        logger.error(
-            "Port {} is occupied.\n"
-            "Please check that you do not have other processes "
-            "running on this port and try again.\n".format(port)
-        )
-        sys.exit(1)
+        # Bypass check when socket activation is used
+        # https://manpages.debian.org/testing/libsystemd-dev/sd_listen_fds.3.en.html#ENVIRONMENT
+        if not os.environ.get("LISTEN_PID", None):
+            # Port is occupied
+            logger.error(
+                "Port {} is occupied.\n"
+                "Please check that you do not have other processes "
+                "running on this port and try again.\n".format(port)
+            )
+            sys.exit(1)
 
 
 def check_content_directory_exists_and_writable():

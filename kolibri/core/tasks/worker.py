@@ -225,6 +225,6 @@ def _reraise_with_traceback(f):
         except Exception as e:
             traceback_str = traceback.format_exc()
             e.traceback = traceback_str
-            raise e
+            raise
 
     return wrap

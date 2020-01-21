@@ -641,7 +641,7 @@ def setup_logging(debug=False):
 @main.command(
     cls=KolibriDjangoCommand,
     context_settings=dict(ignore_unknown_options=True, allow_extra_args=True),
-    help="Invoke a Django management command",
+    help="Django management commands. See also 'kolibri manage help'",
 )
 @click.pass_context
 def manage(ctx):
