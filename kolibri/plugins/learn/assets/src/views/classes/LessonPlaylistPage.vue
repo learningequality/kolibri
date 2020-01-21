@@ -12,7 +12,7 @@
           <ProgressIcon v-if="lessonHasResources" :progress="lessonProgress" />
         </h1>
       </div>
-      <div v-if="currentLesson.description!==''">
+      <div v-if="currentLesson.description !== ''">
         <h3>{{ $tr('teacherNote') }}</h3>
         <p dir="auto">
           {{ currentLesson.description }}

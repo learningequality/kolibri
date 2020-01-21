@@ -2,7 +2,7 @@
 
   <UiIconButton
     class="previous-button"
-    :class="{'previous-button-white': color === 'white'}"
+    :class="{ 'previous-button-white': color === 'white' }"
     :ariaLabel="$tr('goToPreviousPage')"
     @click="$emit('goToPreviousPage')"
   >

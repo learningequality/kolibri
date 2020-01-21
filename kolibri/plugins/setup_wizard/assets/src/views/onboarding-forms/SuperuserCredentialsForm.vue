@@ -1,7 +1,6 @@
 <template>
 
   <OnboardingForm
-    class="credentials-form"
     :header="$tr('adminAccountCreationHeader')"
     :description="$tr('adminAccountCreationDescription')"
     :submitText="submitText"
@@ -143,13 +142,9 @@
 
 <style lang="scss" scoped>
 
-  // Need to make this form narrower to fit Keen-UI components
-  .credentials-form {
-    width: 400px !important;
-  }
-
   .reminder {
     display: table;
+    max-width: 480px;
 
     .icon {
       display: table-cell;

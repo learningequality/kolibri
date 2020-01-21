@@ -24,6 +24,7 @@
 
 <script>
 
+  import has from 'lodash/has';
   import isObject from 'lodash/isObject';
   import UiSelect from './KeenUiSelect';
 
@@ -39,7 +40,7 @@
     } else if (Object.keys(object).length === 0) {
       return true;
     }
-    return object.hasOwnProperty('value') && object.hasOwnProperty('label');
+    return has(object, 'value') && has(object, 'label');
   }
 
   /**

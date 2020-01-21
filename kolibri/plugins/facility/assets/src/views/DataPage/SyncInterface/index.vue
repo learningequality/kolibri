@@ -28,7 +28,7 @@
                   <mat-svg
                     name="verified_user"
                     category="action"
-                    :style="{fill: $themePalette.green.v_500}"
+                    :style="{ fill: $themePalette.green.v_500 }"
                   />
                 </UiIcon>
                 <KTooltip
@@ -79,20 +79,20 @@
     </CoreTable>
 
     <PrivacyModal
-      v-if="modalShown===Modals.PRIVACY"
+      v-if="modalShown === Modals.PRIVACY"
       @cancel="displayModal(false)"
     />
 
     <RegisterFacilityModal
-      v-if="modalShown===Modals.REGISTER_FACILITY"
+      v-if="modalShown === Modals.REGISTER_FACILITY"
       @cancel="displayModal(false)"
     />
     <ConfirmationRegisterModal
-      v-if="modalShown===Modals.CONFIRMATION_REGISTER"
+      v-if="modalShown === Modals.CONFIRMATION_REGISTER"
       @cancel="displayModal(false)"
     />
     <AlreadyRegisteredModal
-      v-if="modalShown===Modals.ALREADY_REGISTERED"
+      v-if="modalShown === Modals.ALREADY_REGISTERED"
       @cancel="displayModal(false)"
     />
 
@@ -159,9 +159,17 @@
       register: 'Register',
       registeredAlready: 'Registered to `Kolibri Data Portal`',
       sync: 'Sync',
-      neverSynced: 'Never synced',
+      neverSynced: {
+        message: 'Never synced',
+        context:
+          '\nThis is associated with the label "Last successful sync:", and the subject is the Facility',
+      },
       lastSync: 'Last successful sync:',
-      justNow: 'Just now',
+      justNow: {
+        message: 'Just now',
+        context:
+          '\nThis is used to indicate when an event occurred. It\'s associated with the label "Last successful sync:"',
+      },
       syncFailed: 'Most recent sync failed.',
       syncing: 'Syncing',
     },

@@ -15,14 +15,15 @@
       v-if="hasRoute"
       slot="icon"
       :to="route"
-      :class="['link', $computedClass(linkStyle)]"
+      class="link"
+      :class="$computedClass(linkStyle)"
     >
       <!-- TODO add aria label? -->
       <UiIconButton
         type="flat"
         class="icon"
-        :style="{fill: $themeTokens.textInverted}"
-        @click="$emit('navIconClick')"
+        :style="{ fill: $themeTokens.textInverted }"
+        tabindex="-1"
       >
         <mat-svg
           v-if="icon === 'close'"
@@ -46,7 +47,7 @@
       v-else
       type="flat"
       class="icon"
-      :style="{fill: $themeTokens.textInverted}"
+      :style="{ fill: $themeTokens.textInverted }"
       @click="$emit('navIconClick')"
     >
       <mat-svg
@@ -150,6 +151,7 @@
   .link {
     display: inline-block;
     border-radius: 50%;
+    outline-offset: -4px;
   }
 
 </style>

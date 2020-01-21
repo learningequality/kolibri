@@ -10,10 +10,28 @@ describe('KContentRenderer Component', () => {
   afterEach(() => {
     delete Vue.prototype.canRenderContent;
   });
+
+  const defaultFile = {
+    available: true,
+    preset: 'tst',
+    storage_url: '',
+    id: '',
+    priority: 0,
+    file_size: 100,
+    checksum: '',
+    extension: 'mp4',
+    lang: {
+      id: 'en',
+      lang_name: 'English',
+      lang_direction: 'ltr',
+    },
+    supplementary: false,
+    thumbnail: false,
+    download_url: '',
+  };
   const defaultFiles = [
     {
-      available: true,
-      preset: 'tst',
+      ...defaultFile,
     },
   ];
 
@@ -45,6 +63,7 @@ describe('KContentRenderer Component', () => {
 
       it('should be 1 when there is one available file and a supplementary file', () => {
         const newFiles = defaultFiles.concat({
+          ...defaultFile,
           available: true,
           supplementary: true,
           preset: 'subtitle',
@@ -54,6 +73,7 @@ describe('KContentRenderer Component', () => {
 
       it('should be 1 when there is one available file and a thumbnail file', () => {
         const newFiles = defaultFiles.concat({
+          ...defaultFile,
           available: true,
           thumbnail: true,
           preset: 'subtitle',
@@ -63,6 +83,7 @@ describe('KContentRenderer Component', () => {
 
       it('should be 2 when there are two available files', () => {
         const newFiles = defaultFiles.concat({
+          ...defaultFile,
           available: true,
           preset: 'subtitle',
         });
@@ -85,24 +106,6 @@ describe('KContentRenderer Component', () => {
 
       it('should be undefined when there are no available files', () => {
         testDefaultFile([], undefined);
-      });
-    });
-
-    describe('extension', () => {
-      function testExtension(files, expected) {
-        const wrapper = mount(KContentRenderer, {
-          propsData: defaultPropsDataFromFiles(files),
-          store,
-        });
-        expect(wrapper.vm.extension).toEqual(expected);
-      }
-
-      it("should be the file's extension when there is one available file", () => {
-        testExtension(defaultFiles, defaultFiles[0].extension);
-      });
-
-      it('should be undefined when there are no available files', () => {
-        testExtension([], undefined);
       });
     });
   });

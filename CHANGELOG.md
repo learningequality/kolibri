@@ -7,23 +7,33 @@ List of the most important changes for each release.
 ### Added
 
 - Improved content management
-    - Queues and task manager
-    - Granular deletion
-    - Improved channel updating
-    - Speed improvements
-    - Disk usage reporting improvements
-    - Peer-to-peer auto-discovery
+  - Queues and task manager
+  - Granular deletion
+  - Improved channel updating
+  - Disk usage reporting improvements
+  - Auto-discovery of local Kolibri peers
 - Demographics collection and reporting
-- Improved translations
+- MacOS app
+- High-performance Kolibri Server package for Debian
+- Pre-built Raspberry Pi Kolibri image
 - Video transcripts
-- Slideshows
 - Downloadable and printable coach reports
-- Improved keyboard accessibility
+- New device settings
+- "Skip to content" keyboard link
 
 
 ### Changed or fixed
 
-- Fixed: Unclean shutdowns on very large databases, due to prolonged database cleanup
+- Preserve 'unlisted' status on channels imported from token
+- Allow duplicate channel resources to be maintained independently
+- Auto-refresh learner assignemnt view
+- Unclean shutdowns on very large databases, due to prolonged database cleanup
+- Facility admin performance improvements
+- Jittering modal scrollbars
+- Updated side-bar styling
+- Improved form validation behavior
+- Improved learner quiz view
+- Improved keyboard accessibility
 
 ([0.13.0 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.13.0))
 

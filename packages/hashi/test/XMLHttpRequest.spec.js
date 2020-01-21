@@ -1,12 +1,10 @@
 import patchXMLHttpRequest from '../src/monkeyPatchXMLHttpRequest';
 
 describe('XMLHttpRequest patching', () => {
-  let mockXHR;
   let xhrOpen;
   beforeEach(() => {
     class mockXHRClass {
       constructor() {
-        mockXHR = this;
         this.readyState = 4;
         this.responseText = '<html></html>';
       }
@@ -14,7 +12,6 @@ describe('XMLHttpRequest patching', () => {
     mockXHRClass.prototype.open = jest.fn();
     mockXHRClass.prototype.send = jest.fn();
     mockXHRClass.prototype.addEventListener = jest.fn();
-    mockXHRClass.prototype.setRequestHeader = jest.fn();
     window.XMLHttpRequest = mockXHRClass;
     xhrOpen = window.XMLHttpRequest.prototype.open;
     patchXMLHttpRequest();
@@ -22,9 +19,25 @@ describe('XMLHttpRequest patching', () => {
   it('should override the prototype of the XMLHttpRequest', () => {
     expect(window.XMLHttpRequest.prototype.open).not.toBe(xhrOpen);
   });
-  it('should call setRequestHeader on the request to set X-Requested-With to XMLHttpRequest', () => {
+  it('should add SKIP_HASHI=true to the GET params', () => {
     const req = new XMLHttpRequest();
     req.open('GET', 'test');
-    expect(mockXHR.setRequestHeader).toHaveBeenCalledWith('X-Requested-With', 'XMLHttpRequest');
+    expect(xhrOpen).toHaveBeenCalledWith('GET', 'http://kolibri.time/test?SKIP_HASHI=true');
+  });
+});
+
+describe('fetch patching', () => {
+  let fetchOrig;
+  beforeEach(() => {
+    window.fetch = jest.fn();
+    fetchOrig = window.fetch;
+    patchXMLHttpRequest();
+  });
+  it('should override the fetch function', () => {
+    expect(window.fetch).not.toBe(fetchOrig);
+  });
+  it('should add SKIP_HASHI=true to the GET params', () => {
+    fetch('test');
+    expect(fetchOrig).toHaveBeenCalledWith('http://kolibri.time/test?SKIP_HASHI=true');
   });
 });

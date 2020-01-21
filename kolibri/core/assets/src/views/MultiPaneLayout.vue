@@ -23,7 +23,7 @@
       <main
         ref="main"
         class="main"
-        :class="{'main-with-aside': $slots.aside }"
+        :class="{ 'main-with-aside': $slots.aside }"
         :style="styles.main"
       >
         <slot name="main"></slot>

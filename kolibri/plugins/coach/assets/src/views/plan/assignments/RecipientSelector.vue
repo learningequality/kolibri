@@ -17,10 +17,11 @@
       @change="toggleGroup($event, group.id)"
     />
     <IndividualLearnerSelector
-      v-if="assignmentType == 'quiz'"
+      v-if="false"
       :selectedGroupIds="selectedGroupIds"
       :entireClassIsSelected="entireClassIsSelected"
       :initialAdHocLearners="initialAdHocLearners"
+      :targetClassId="classId"
       :disabled="disabled"
       @toggleCheck="toggleGroup"
       @updateLearners="learners => $emit('updateLearners', learners)"
@@ -73,13 +74,6 @@
         type: Array,
         required: false,
         default: new Array(),
-      },
-      assignmentType: {
-        type: String,
-        required: false,
-        validator(s) {
-          return ['quiz', 'lesson', 'new_lesson'].includes(s);
-        },
       },
     },
     computed: {

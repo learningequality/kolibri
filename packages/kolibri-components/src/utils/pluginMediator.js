@@ -315,8 +315,6 @@ export default function pluginMediatorFactory({
                   console.error(errorText); // eslint-disable-line no-console
                   reject(errorText);
                 });
-              // Start fetching any language assets that this module might need also.
-              this._fetchLanguageAssets(kolibriModuleName, Vue.locale);
             }
           });
           return promise;

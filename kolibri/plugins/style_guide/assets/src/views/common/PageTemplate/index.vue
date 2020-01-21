@@ -1,6 +1,6 @@
 <template>
 
-  <div class="content-wrapper" :style="{paddingTop: `${headerHeight}px`}">
+  <div class="content-wrapper" :style="{ paddingTop: `${headerHeight}px` }">
     <Header
       :sections="sections"
       @heightChange="newHeight => headerHeight = newHeight"

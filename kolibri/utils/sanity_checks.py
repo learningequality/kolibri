@@ -9,7 +9,6 @@ from .conf import OPTIONS
 from .server import get_status
 from .server import LISTEN_ADDRESS
 from .server import NotRunning
-from kolibri.core.upgrade import version_upgrade
 
 logger = logging.getLogger(__name__)
 
@@ -43,13 +42,16 @@ def check_port_availability(host, port):
     try:
         portend.free(host, port, timeout=PORT_AVAILABILITY_CHECK_TIMEOUT)
     except portend.Timeout:
-        # Port is occupied
-        logger.error(
-            "Port {} is occupied.\n"
-            "Please check that you do not have other processes "
-            "running on this port and try again.\n".format(port)
-        )
-        sys.exit(1)
+        # Bypass check when socket activation is used
+        # https://manpages.debian.org/testing/libsystemd-dev/sd_listen_fds.3.en.html#ENVIRONMENT
+        if not os.environ.get("LISTEN_PID", None):
+            # Port is occupied
+            logger.error(
+                "Port {} is occupied.\n"
+                "Please check that you do not have other processes "
+                "running on this port and try again.\n".format(port)
+            )
+            sys.exit(1)
 
 
 def check_content_directory_exists_and_writable():
@@ -78,7 +80,6 @@ def check_content_directory_exists_and_writable():
         sys.exit(1)
 
 
-@version_upgrade(old_version="<0.12.4")
 def check_log_file_location():
     """
     Starting from Kolibri v0.12.4, log files are going to be renamed and moved

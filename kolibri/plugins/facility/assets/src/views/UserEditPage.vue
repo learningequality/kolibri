@@ -27,7 +27,7 @@
         />
 
         <template v-if="editingSuperAdmin">
-          <h2 class="user-type header">
+          <h2 class="header user-type">
             {{ coreString('userTypeLabel') }}
           </h2>
 
@@ -411,13 +411,12 @@
   .narrow-container {
     max-width: 500px;
     margin: auto;
+    overflow: visible;
   }
 
   .form {
     max-width: 400px;
-    padding-bottom: 75px;
     margin-right: auto;
-    margin-bottom: 20px;
     margin-left: auto;
   }
 

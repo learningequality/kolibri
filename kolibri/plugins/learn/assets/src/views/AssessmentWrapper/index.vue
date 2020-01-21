@@ -56,7 +56,7 @@ oriented data synchronization.
             {{ coreString('completedLabel') }}
           </span>
           <span>
-            {{ $tr('goal', {count: totalCorrectRequiredM}) }}
+            {{ $tr('goal', { count: totalCorrectRequiredM }) }}
           </span>
         </div>
       </div>
@@ -70,7 +70,7 @@ oriented data synchronization.
                 class="question-btn"
                 :text="$tr('check')"
                 :primary="true"
-                :class="{shaking: shake}"
+                :class="{ shaking: shake }"
                 :disabled="checkingAnswer"
                 @click="checkAnswer"
               />
@@ -489,7 +489,11 @@ oriented data synchronization.
       },
     },
     $trs: {
-      goal: 'Get {count, number, integer} {count, plural, other {correct}}',
+      goal: {
+        message: 'Get {count, number, integer} {count, plural, other {correct}}',
+        context:
+          '\nMessage that indicates to the learner how many correct answers they need to give in order to master the given topic, and for the exercise to be considered completed.',
+      },
       tryAgain: 'Try again',
       correct: 'Correct!',
       check: 'Check',

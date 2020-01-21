@@ -86,7 +86,7 @@ const router = new VueRouter({
 });
 
 const getViewByGroupsCheckbox = wrapper => {
-  return wrapper.find({ name: 'KCheckbox' }).find('input');
+  return wrapper.find({ name: 'KCheckbox' }).find('input[type="checkbox"]');
 };
 
 const getGroupTitles = wrapper => {
@@ -178,7 +178,8 @@ const initWrapper = lessonMap => {
     contentLearnerStatusMap,
   };
 
-  router.push(ROUTE_ALL_LEARNERS);
+  // TODO find way to reduce unnecessary navigations to speed up test
+  router.push(ROUTE_ALL_LEARNERS).catch(() => {});
 
   const wrapper = mount(ReportsLessonResourceLearnerListPage, {
     store,
@@ -205,16 +206,19 @@ describe('ReportsLessonResourceLearnerListPage', () => {
     expect(getViewByGroupsCheckbox(wrapper).element.checked).toBe(false);
   });
 
-  it('renders view by groups checkbox as checked when group in url query', () => {
-    router.push(ROUTE_LEARNERS_BY_GROUP);
+  it('renders view by groups checkbox as checked when group in url query', async () => {
+    await router.push(ROUTE_LEARNERS_BY_GROUP);
     expect(getViewByGroupsCheckbox(wrapper).element.checked).toBe(true);
   });
 
-  it('toggles url query on view by groups click', () => {
-    getViewByGroupsCheckbox(wrapper).setChecked(true);
+  it('toggles url query on view by groups click', async () => {
+    const checkbox = getViewByGroupsCheckbox(wrapper);
+    checkbox.setChecked(true);
+    checkbox.trigger('click');
     expect(wrapper.vm.$route.query.groups).toBe('true');
 
     getViewByGroupsCheckbox(wrapper).setChecked(false);
+    checkbox.trigger('click');
     expect(wrapper.vm.$route.query.groups).toBeUndefined();
   });
 

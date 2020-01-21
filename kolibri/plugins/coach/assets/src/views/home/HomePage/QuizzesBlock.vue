@@ -78,8 +78,8 @@
         });
         return last;
       },
-      groupAndAdHocLearnerNames(groups, examAssignments) {
-        const adHocGroup = this.adHocGroups.find(group => examAssignments.includes(group.id));
+      groupAndAdHocLearnerNames(groups, assignments) {
+        const adHocGroup = this.adHocGroups.find(group => assignments.includes(group.id));
         let adHocLearners = [];
         if (adHocGroup) {
           adHocLearners = adHocGroup.member_ids.map(learnerId => this.learnerMap[learnerId].name);

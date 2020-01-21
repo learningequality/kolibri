@@ -78,6 +78,11 @@ export default function videojsMenuVueMixin(vueComponent) {
      */
     doShow(lock = false) {
       const component = this.getVueComponent();
+
+      if (lock && !this.isLocked) {
+        this.trigger('lock');
+      }
+
       this.isLocked = this.isLocked || lock;
 
       if (!component || component.showing()) {
@@ -97,6 +102,7 @@ export default function videojsMenuVueMixin(vueComponent) {
         return;
       }
 
+      this.trigger('unlock');
       this.isLocked = false;
       component.hide(unlock);
     }

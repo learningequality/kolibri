@@ -57,10 +57,10 @@
     <section class="metadata">
       <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.author">
-        {{ $tr('author', {author: content.author}) }}
+        {{ $tr('author', { author: content.author }) }}
       </p>
       <p v-if="licenseShortName">
-        {{ $tr('license', {license: licenseShortName}) }}
+        {{ $tr('license', { license: licenseShortName }) }}
 
         <template v-if="licenseDescription">
           <UiIconButton
@@ -82,7 +82,7 @@
       </p>
 
       <p v-if="content.license_owner">
-        {{ $tr('copyrightHolder', {copyrightHolder: content.license_owner}) }}
+        {{ $tr('copyrightHolder', { copyrightHolder: content.license_owner }) }}
       </p>
     </section>
 
@@ -128,7 +128,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
-  import { isAndroidWebView } from 'kolibri.utils.browserInfo';
+  import { isEmbeddedWebView } from 'kolibri.utils.browser';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
   import {
@@ -199,7 +199,7 @@
           return (
             this.downloadableFiles.length &&
             this.content.kind !== ContentNodeKinds.EXERCISE &&
-            !isAndroidWebView
+            !isEmbeddedWebView
           );
         }
         return false;

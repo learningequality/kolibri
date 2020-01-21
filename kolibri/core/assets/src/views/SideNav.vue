@@ -31,13 +31,13 @@
             <mat-svg
               name="close"
               category="navigation"
-              :style="{fill: $themeTokens.textInverted}"
+              :style="{ fill: $themeTokens.textInverted }"
             />
           </UiIconButton>
           <span
             class="side-nav-header-name"
             :style="{ color: $themeTokens.textInverted }"
-          >{{ coreString('kolibriLabel') }}</span>
+          >{{ sideNavTitleText }}</span>
         </div>
 
         <div
@@ -56,7 +56,7 @@
             :style="{ backgroundColor: $themeTokens.surface }"
             :aria-label="$tr('navigationLabel')"
           >
-            <template slot="options">
+            <template v-slot:options>
               <component :is="component" v-for="component in menuOptions" :key="component.name" />
               <SideNavDivider />
             </template>
@@ -200,6 +200,12 @@
         return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(
           this.filterByRole
         );
+      },
+      sideNavTitleText() {
+        if (this.$kolibriBranding.sideNav.title) {
+          return this.$kolibriBranding.sideNav.title;
+        }
+        return this.coreString('kolibriLabel');
       },
     },
     watch: {

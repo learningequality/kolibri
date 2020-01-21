@@ -145,7 +145,7 @@
           :layout12="layout12Label"
         >
           <span>{{ coachString('avgScoreLabel') }}</span>
-          <AverageScoreTooltip v-show="!$isPrint" />
+          <AverageScoreTooltip v-show="!$isPrint" class="avg-score-info" />
         </KGridItem>
         <KGridItem
           :layout4="{ span: 4 }"
@@ -372,6 +372,10 @@
     @media print {
       padding-bottom: 0;
     }
+  }
+
+  .avg-score-info {
+    margin-left: 8px;
   }
 
   .status-item {

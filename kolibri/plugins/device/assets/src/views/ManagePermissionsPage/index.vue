@@ -12,7 +12,7 @@
       :filterFunction="filterUsers"
       :filterPlaceholder="$tr('searchPlaceholder')"
     >
-      <template v-slot:default="{items, filterInput}">
+      <template v-slot:default="{ items, filterInput }">
         <UserGrid
           :searchFilter="searchFilterText"
           :facilityUsers="items"

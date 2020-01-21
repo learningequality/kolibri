@@ -9,8 +9,8 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <KPageContainer :class="{'print': $isPrint}">
-      <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
+    <KPageContainer :class="{ 'print': $isPrint }">
+      <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
       <ReportsControls @export="exportCSV">
         <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
         <KSelect
@@ -31,7 +31,7 @@
             </th>
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th v-show="!$isPrint">
+            <th v-show="!$isPrint" class="center-text">
               {{ coachString('statusLabel') }}
             </th>
           </tr>
@@ -58,18 +58,21 @@
             </td>
             <td>
               <Recipients
-                :groupNames="tableRow.groupNames"
+                :groupNames="getRecipientNamesForExam(tableRow)"
                 :hasAssignments="tableRow.hasAssignments"
               />
             </td>
-            <td v-show="!$isPrint" class="status">
+            <td
+              v-show="!$isPrint"
+              class="button-col center-text core-table-button-col"
+            >
               <!-- Open quiz button -->
               <KButton
                 v-if="!tableRow.active && !tableRow.archive"
                 :text="coachString('openQuizLabel')"
                 appearance="flat-button"
                 class="table-left-aligned-button"
-                @click="showOpenConfirmationModal = true; modalQuizId=tableRow.id"
+                @click="showOpenConfirmationModal = true; modalQuizId = tableRow.id"
               />
               <!-- Close quiz button -->
               <KButton
@@ -77,7 +80,7 @@
                 :text="coachString('closeQuizLabel')"
                 appearance="flat-button"
                 class="table-left-aligned-button"
-                @click="showCloseConfirmationModal = true; modalQuizId=tableRow.id;"
+                @click="showCloseConfirmationModal = true; modalQuizId = tableRow.id;"
               />
               <div
                 v-if="tableRow.archive"
@@ -268,17 +271,12 @@
 
   @import '../common/print-table';
 
-  td.status {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-  .quiz-closed-label {
-    padding: 0;
-    margin: 0.75rem 0;
+  .center-text {
+    text-align: center;
   }
 
-  .table-left-aligned-button {
-    margin: 0.5rem 0 0.5rem -1rem;
+  .button-col {
+    vertical-align: middle;
   }
 
 </style>

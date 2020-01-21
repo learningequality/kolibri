@@ -81,7 +81,12 @@
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
-          this.createClass(this.name);
+          this.createClass(this.name).then(() => {
+            this.$store.dispatch(
+              'createSnackbar',
+              this.$tr('classroomCreated', { name: this.name })
+            );
+          });
         } else {
           this.$refs.name.focus();
         }
@@ -89,6 +94,7 @@
     },
     $trs: {
       createNewClassHeader: 'Create new class',
+      classroomCreated: `Class '{name}' was created`,
       duplicateName: 'A class with that name already exists',
     },
   };

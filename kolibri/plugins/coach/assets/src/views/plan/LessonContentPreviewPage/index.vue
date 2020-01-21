@@ -18,7 +18,7 @@
         >
           <SelectOptions
             v-if="displaySelectOptions"
-            class="select-options ib"
+            class="ib select-options"
             :isSelected="isSelected"
             @addResource="$emit('addResource', content)"
             @removeResource="$emit('removeResource', content)"

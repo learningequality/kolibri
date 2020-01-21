@@ -19,7 +19,7 @@
       </p>
     </div>
 
-    <template v-if="settings!==null">
+    <template v-if="settings !== null">
       <div class="mb">
         <h2>{{ coreString('facilityLabel') }}</h2>
         <p class="current-facility-name">
@@ -45,7 +45,7 @@
             appearance="raised-button"
             :text="$tr('resetToDefaultSettings')"
             name="reset-settings"
-            @click="showModal=true"
+            @click="showModal = true"
           />
 
           <KButton
@@ -64,7 +64,7 @@
       v-if="showModal"
       id="confirm-reset"
       @submit="resetToDefaultSettings"
-      @cancel="showModal=false"
+      @cancel="showModal = false"
     />
   </KPageContainer>
 
@@ -89,7 +89,6 @@
     'learner_can_sign_up',
     'learner_can_login_with_no_password',
     'show_download_button_in_learn',
-    'allow_guest_access',
   ];
 
   export default {
@@ -166,7 +165,10 @@
       showDownloadButtonInLearn: "Show 'download' button with resources",
       allowGuestAccess: 'Allow users to access resources without signing in',
       /* eslint-enable kolibri/vue-no-unused-translations */
-      pageDescription: 'Configure facility settings here.',
+      pageDescription: {
+        message: 'Configure facility settings here.',
+        context: '\nInterpret as "[You can] configure facility settings here"',
+      },
       deviceSettings: 'You can also configure device settings',
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to defaults',

@@ -17,7 +17,7 @@
     </KGrid>
 
     <div>
-      <slot v-bind="{items: visibleFilteredItems, filterInput}"></slot>
+      <slot v-bind="{ items: visibleFilteredItems, filterInput }"></slot>
     </div>
 
     <nav>
@@ -27,22 +27,22 @@
       <UiIconButton
         type="primary"
         :ariaLabel="$tr('previousResults')"
-        :disabled="pageNum === 1"
+        :disabled="previousButtonDisabled"
         size="small"
         class="pagination-button"
         @click="changePage(-1)"
       >
-        <KIcon icon="back" style="position: relative; top: -1px;" />
+        <KIcon icon="back" class="arrow-icon" />
       </UiIconButton>
       <UiIconButton
         type="primary"
         :ariaLabel="$tr('nextResults')"
-        :disabled="pageNum === 0 || pageNum === numPages"
+        :disabled="nextButtonDisabled"
         size="small"
         class="pagination-button"
         @click="changePage(+1)"
       >
-        <KIcon icon="forward" style="position: relative; top: -1px;" />
+        <KIcon icon="forward" class="arrow-icon" />
       </UiIconButton>
     </nav>
   </div>
@@ -52,6 +52,7 @@
 
 <script>
 
+  import clamp from 'lodash/clamp';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
 
@@ -83,8 +84,7 @@
     data() {
       return {
         filterInput: '',
-        pageNum: 1,
-        perPage: this.itemsPerPage,
+        currentPage: 1,
       };
     },
     computed: {
@@ -97,17 +97,17 @@
       numFilteredItems() {
         return this.filteredItems.length;
       },
-      numPages() {
-        return Math.ceil(this.numFilteredItems / this.perPage);
+      totalPages() {
+        return Math.ceil(this.numFilteredItems / this.itemsPerPage);
       },
       startRange() {
-        return (this.pageNum - 1) * this.perPage;
+        return (this.currentPage - 1) * this.itemsPerPage;
       },
       visibleStartRange() {
         return Math.min(this.startRange + 1, this.numFilteredItems);
       },
       endRange() {
-        return this.pageNum * this.perPage;
+        return this.currentPage * this.itemsPerPage;
       },
       visibleEndRange() {
         return Math.min(this.endRange, this.numFilteredItems);
@@ -115,18 +115,31 @@
       visibleFilteredItems() {
         return this.filteredItems.slice(this.startRange, this.endRange);
       },
+      previousButtonDisabled() {
+        return this.currentPage === 1 || this.numFilteredItems === 0;
+      },
+      nextButtonDisabled() {
+        return (
+          this.totalPages === 1 ||
+          this.currentPage === this.totalPages ||
+          this.numFilteredItems === 0
+        );
+      },
     },
     watch: {
       numFilteredItems: {
         handler() {
-          this.pageNum = 1;
+          this.currentPage = 1;
+          this.$emit('pageChanged', 1);
         },
       },
     },
     methods: {
       changePage(change) {
-        this.pageNum += change;
-        this.$emit('pageChanged', this.pageNum);
+        // Clamp the newPage number between the bounds if browser doesn't correctly
+        // disable buttons (see #6454 issue with old versions of MS Edge)
+        this.currentPage = clamp(this.currentPage + change, 1, this.totalPages);
+        this.$emit('pageChanged', this.currentPage);
       },
     },
     $trs: {
@@ -144,7 +157,7 @@
 
   .actions-header,
   nav {
-    text-align: end;
+    text-align: right;
   }
 
   .pagination-button {
@@ -153,6 +166,11 @@
 
   .text-filter {
     margin-top: 14px;
+  }
+
+  .arrow-icon {
+    position: relative;
+    top: -1px;
   }
 
 </style>

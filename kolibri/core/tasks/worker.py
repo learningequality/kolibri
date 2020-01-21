@@ -42,6 +42,10 @@ class Worker(object):
         self.job_checker = self.start_job_checker()
 
     def shutdown_workers(self, wait=True):
+        # First cancel all running jobs
+        for job_id in self.future_job_mapping:
+            self.cancel(job_id)
+        # Now shutdown the workers
         self.workers.shutdown(wait=wait)
 
     def start_workers(self, num_workers):
@@ -79,6 +83,8 @@ class Worker(object):
     def shutdown(self, wait=False):
         self.job_checker.stop()
         self.shutdown_workers(wait=wait)
+        if wait:
+            self.job_checker.join()
 
     def start_job_checker(self):
         """
@@ -219,6 +225,6 @@ def _reraise_with_traceback(f):
         except Exception as e:
             traceback_str = traceback.format_exc()
             e.traceback = traceback_str
-            raise e
+            raise
 
     return wrap

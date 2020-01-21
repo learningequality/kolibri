@@ -66,6 +66,13 @@ describe('Mediator', function() {
       _executeCallbackBuffer.mockRestore();
     });
     describe('called with valid input', function() {
+      let consoleMock;
+      beforeAll(() => {
+        consoleMock = jest.spyOn(console, 'info').mockImplementation();
+      });
+      afterAll(() => {
+        consoleMock.mockRestore();
+      });
       beforeEach(function() {
         kolibriModule = { name: 'test', ready: () => {} };
         mediator.registerKolibriModuleSync(kolibriModule);

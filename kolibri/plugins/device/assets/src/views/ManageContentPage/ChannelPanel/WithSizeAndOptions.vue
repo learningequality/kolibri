@@ -2,10 +2,33 @@
 
   <div
     class="panel"
-    :class="{'panel-sm': windowIsSmall}"
+    :class="{ 'panel-sm': windowIsSmall }"
     :style="{ borderTop: `1px solid ${$themePalette.grey.v_200}` }"
   >
-    <ChannelDetails :channel="channel" />
+    <ChannelDetails :channel="channel">
+
+      <template v-slot:belowname>
+        <div class="private-icons">
+          <KTooltip reference="lockicon" :refs="$refs" placement="top">
+            {{ WithImportDetailsStrings.$tr('unlistedChannelTooltip') }}
+          </KTooltip>
+          <KIcon
+            v-if="channel.public === false"
+            ref="lockicon"
+            class="lock-icon"
+            icon="unlistedchannel"
+          />
+          <span
+            v-if="showNewLabel"
+            class="new-label"
+            :style="{
+              color: $themeTokens.textInverted,
+              backgroundColor: $themeTokens.success
+            }"
+          >{{ WithImportDetailsStrings.$tr('newLabel') }}</span>
+        </div>
+      </template>
+    </ChannelDetails>
 
     <div
       class="col-2"
@@ -16,12 +39,11 @@
     </div>
 
     <div class="col-3">
-      <KDropdownMenu
-        :text="coreString('optionsLabel')"
+      <KButton
+        :text="$tr('manageChannelAction')"
         :disabled="disabled"
-        :options="dropdownOptions"
-        :position="dropdownPosition"
-        @select="handleManageChannelAction($event.value)"
+        class="manage-btn"
+        @click="handleManageChannelAction"
       />
     </div>
   </div>
@@ -36,7 +58,11 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import ChannelDetails from './ChannelDetails';
+  import WithImportDetails from './WithImportDetails';
+
+  const WithImportDetailsStrings = crossComponentTranslator(WithImportDetails);
 
   export default {
     name: 'WithSizeAndOptions',
@@ -53,34 +79,21 @@
         type: Boolean,
         default: false,
       },
+      showNewLabel: {
+        type: Boolean,
+        required: false,
+      },
     },
     computed: {
       resourcesSizeText() {
         return bytesForHumans(this.channel.on_device_file_size);
       },
-      dropdownPosition() {
-        // On small screens, position to the left so it doesn't overflow the
-        // window and mess up the global layout.
-        return this.windowIsSmall ? 'bottom left' : 'bottom right';
-      },
-      dropdownOptions() {
-        return [
-          {
-            label: this.$tr('manageChannelAction'),
-            value: 'MANAGE_CHANNEL',
-          },
-          {
-            label: this.$tr('deleteChannelAction'),
-            value: 'DELETE_CHANNEL',
-          },
-        ];
+      WithImportDetailsStrings() {
+        return WithImportDetailsStrings;
       },
     },
     methods: {
-      handleManageChannelAction(action) {
-        if (action === 'DELETE_CHANNEL') {
-          return this.$emit('select_delete');
-        }
+      handleManageChannelAction() {
         return this.$emit('select_manage', { ...this.channel });
       },
     },
@@ -89,7 +102,6 @@
         message: 'Manage',
         context: '\nOperation that can be performed on a channel',
       },
-      deleteChannelAction: 'Delete',
     },
   };
 
@@ -106,6 +118,16 @@
   .panel-sm {
     flex-direction: column;
     padding: 16px 0;
+  }
+
+  svg.lock-icon {
+    width: 24px;
+    height: 24px;
+
+    .panel-sm & {
+      width: 20px;
+      height: 20px;
+    }
   }
 
   .col-2 {
@@ -125,6 +147,37 @@
     .panel-sm & {
       margin-top: 16px;
       text-align: right;
+    }
+  }
+
+  .manage-btn {
+    margin: 0;
+  }
+
+  .private-icons {
+    position: relative;
+    display: inline-block;
+    margin-top: -3px;
+    margin-bottom: 3px;
+    vertical-align: top;
+
+    .panel-sm & {
+      margin-top: -1px;
+      margin-bottom: 1px;
+    }
+  }
+
+  .new-label {
+    position: absolute;
+    top: 2px;
+    padding: 2px 8px;
+    margin-left: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 2px;
+
+    .panel-sm & {
+      top: -2px;
     }
   }
 

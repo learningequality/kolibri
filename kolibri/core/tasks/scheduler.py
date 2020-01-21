@@ -16,11 +16,11 @@ from kolibri.core.tasks.job import State
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.storage import StorageMixin
 from kolibri.core.tasks.utils import InfiniteLoopThread
+from kolibri.utils.conf import OPTIONS
+from kolibri.utils.time_utils import local_now
+from kolibri.utils.time_utils import naive_utc_datetime
 
 Base = declarative_base()
-
-
-DEFAULT_INTERVAL = 60
 
 
 class ScheduledJob(Base):
@@ -44,7 +44,7 @@ class ScheduledJob(Base):
     queue = Column(String, index=True)
 
     # The original Job object, pickled here for so we can easily access it.
-    obj = Column(PickleType)
+    obj = Column(PickleType(protocol=OPTIONS["Python"]["PICKLE_PROTOCOL"]))
 
     scheduled_time = Column(DateTime())
 
@@ -52,7 +52,7 @@ class ScheduledJob(Base):
 
 
 class Scheduler(StorageMixin):
-    def __init__(self, queue=None, connection=None, interval=DEFAULT_INTERVAL):
+    def __init__(self, queue=None, connection=None):
         if connection is None and not isinstance(queue, Queue):
             raise ValueError("One of either connection or queue must be specified")
         elif isinstance(queue, Queue):
@@ -61,8 +61,6 @@ class Scheduler(StorageMixin):
                 connection = self.queue.storage.engine
         elif connection:
             self.queue = queue(connection=connection)
-
-        self.interval = interval
 
         self._schedule_checker = None
 
@@ -85,12 +83,17 @@ class Scheduler(StorageMixin):
         """
         Change a job's execution time.
         """
+        if date_time.tzinfo is None:
+            raise ValueError(
+                "Must use a timezone aware datetime object for scheduling tasks"
+            )
+
         with self.session_scope() as session:
             scheduled_job = (
                 session.query(ScheduledJob).filter_by(id=job.job_id).one_or_none()
             )
             if scheduled_job:
-                scheduled_job.scheduled_time = date_time
+                scheduled_job.scheduled_time = naive_utc_datetime(date_time)
                 session.merge(scheduled_job)
             else:
                 raise ValueError("Job not in scheduled jobs queue")
@@ -102,9 +105,7 @@ class Scheduler(StorageMixin):
         Returns: the Thread object.
         """
         t = InfiniteLoopThread(
-            self.check_schedule,
-            thread_name="SCHEDULECHECKER",
-            wait_between_runs=self.interval,
+            self.check_schedule, thread_name="SCHEDULECHECKER", wait_between_runs=0.5
         )
         t.start()
         return t
@@ -149,6 +150,10 @@ class Scheduler(StorageMixin):
             raise ValueError("Time argument must be a datetime object.")
         if not interval and repeat != 0:
             raise ValueError("Must specify an interval if the task is repeating")
+        if dt.tzinfo is None:
+            raise ValueError(
+                "Must use a timezone aware datetime object for scheduling tasks"
+            )
         if isinstance(func, Job):
             job = func
         # else, turn it into a job first.
@@ -163,7 +168,7 @@ class Scheduler(StorageMixin):
                 queue=self.queue.name,
                 interval=interval,
                 repeat=repeat,
-                scheduled_time=dt,
+                scheduled_time=naive_utc_datetime(dt),
                 obj=job,
             )
             session.merge(scheduled_job)
@@ -207,10 +212,10 @@ class Scheduler(StorageMixin):
 
     def check_schedule(self):
         start = time.time()
-        now = self._now()
+        naive_utc_now = datetime.utcnow()
         with self.session_scope() as s:
             scheduled_jobs = self._ns_query(s).filter(
-                ScheduledJob.scheduled_time <= now
+                ScheduledJob.scheduled_time <= naive_utc_now
             )
             for scheduled_job in scheduled_jobs:
                 new_repeat = 0
@@ -243,4 +248,4 @@ class Scheduler(StorageMixin):
         return session.query(ScheduledJob).filter(ScheduledJob.queue == self.queue.name)
 
     def _now(self):
-        return datetime.utcnow()
+        return local_now()

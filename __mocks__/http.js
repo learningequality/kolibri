@@ -1,3 +1,4 @@
+/* eslint-env jest */
 const http = jest.genMockFromModule('http');
 const Response = require('responselike');
 
@@ -21,7 +22,7 @@ function request(options, callback) {
   const response = new Response(
     responseCode,
     responseHeaders,
-    Buffer(JSON.stringify(responseEntity)),
+    Buffer.from(JSON.stringify(responseEntity)),
     options.path
   );
   callback(response);

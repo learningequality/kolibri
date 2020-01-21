@@ -1,7 +1,7 @@
 <template>
 
   <div class="block-wrapper">
-    <div class="color-block" :style="{backgroundColor: value}"></div>
+    <div class="color-block" :style="{ backgroundColor: value }"></div>
     <div class="code name">
       <code>{{ name }}</code><SectionLink v-if="definition" :to="anchor" />
     </div>

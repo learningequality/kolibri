@@ -14,6 +14,7 @@ from django.db.models.query import Q
 from django.utils import timezone
 from le_utils.constants import content_kinds
 
+from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
@@ -81,6 +82,7 @@ def get_or_create_classroom_users(**options):
     )
 
     # Only generate new users if there are fewer users than requested.
+    current_year = datetime.datetime.now().year
     n_to_create = n_users - n_in_classroom
     if n_to_create > 0:
         logger.info(
@@ -101,8 +103,16 @@ def get_or_create_classroom_users(**options):
                     if base_data[key]
                 ]
             )
+            # calculate birth year
+            birth_year = str(current_year - int(base_data["Age"]))
+            # randomly assign gender
+            gender = random.choice(demographics.choices)[0]
             user = FacilityUser.objects.create(
-                facility=facility, full_name=name, username=base_data["Username"]
+                facility=facility,
+                full_name=name,
+                username=base_data["Username"],
+                gender=gender,
+                birth_year=birth_year,
             )
             # Set a dummy password so that if we want to login as this learner later, we can.
             user.set_password("password")

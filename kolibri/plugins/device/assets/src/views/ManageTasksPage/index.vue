@@ -126,7 +126,8 @@
       emptyTasksMessage: 'There are no tasks to display',
       clearCompletedAction: {
         message: 'Clear completed',
-        context: '\nButton to clear the completed tasks',
+        context:
+          '\nButton on the task manager page.\nWhen pressed it will clear all the completed tasks from the list.\n\n\n',
       },
     },
   };

@@ -345,6 +345,7 @@
   .narrow-container {
     max-width: 600px;
     margin: auto;
+    overflow: visible;
   }
 
   // Form

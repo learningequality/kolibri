@@ -313,5 +313,4 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SESSION_COOKIE_AGE = 1200
 
-
 apply_settings(sys.modules[__name__])

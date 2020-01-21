@@ -2,7 +2,7 @@
 
   <div
     class="block-item"
-    :class="{ small : windowIsSmall }"
+    :class="{ small: windowIsSmall }"
     :style="{ borderBottomColor: $themeTokens.fineLine }"
   >
     <slot></slot>

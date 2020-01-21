@@ -1,17 +1,17 @@
 <template>
 
-  <div class="task-panel" :class="{'task-panel-sm': windowIsSmall}">
+  <div class="task-panel" :class="{ 'task-panel-sm': windowIsSmall }">
     <div class="icon">
       <transition mode="out-in">
         <KIcon
           v-if="taskIsFailed"
           icon="helpNeeded"
-          :style="{fill: $themeTokens.error}"
+          :style="{ fill: $themeTokens.error }"
         />
         <KIcon
           v-else-if="taskIsCompleted"
           icon="done"
-          :style="{fill: $themeTokens.success}"
+          :style="{ fill: $themeTokens.success }"
         />
         <KCircularLoader
           v-else-if="taskIsRunning"
@@ -21,13 +21,13 @@
         <KIcon
           v-else
           icon="inProgress"
-          :style="{fill: $themeTokens.annotation}"
+          :style="{ fill: $themeTokens.annotation }"
         />
       </transition>
     </div>
 
     <div class="details">
-      <p class="details-status" :style="{color: $themeTokens.annotation}">
+      <p class="details-status" :style="{ color: $themeTokens.annotation }">
         {{ statusText }}
       </p>
       <h2 class="details-description">
@@ -40,7 +40,7 @@
             type="determinate"
             :delay="false"
             :progress="task.percentage * 100"
-            :style="{backgroundColor: $themeTokens.fineLine}"
+            :style="{ backgroundColor: $themeTokens.fineLine }"
           />
           <span class="details-percentage">
             {{ $tr('progressPercentage', { progress: task.percentage }) }}
@@ -51,7 +51,7 @@
             class="k-linear-loader"
             type="indeterminate"
             :delay="false"
-            :style="{backgroundColor: $themeTokens.fineLine}"
+            :style="{ backgroundColor: $themeTokens.fineLine }"
           />
         </template>
       </div>
@@ -65,13 +65,14 @@
           {{ finishedSizeText }}
         </p>
       </template>
-      <p class="details-startedby" :style="{color: $themeTokens.annotation}">
+      <p class="details-startedby" :style="{ color: $themeTokens.annotation }">
         {{ startedByText }}
       </p>
     </div>
 
-    <div class="buttons" :class="{'button-lift': taskIsRunning}">
+    <div class="buttons" :class="{ 'button-lift': taskIsRunning }">
       <KButton
+        v-if="taskIsCancellable || taskIsClearable"
         :disabled="taskIsCanceling"
         :text="buttonLabel"
         appearance="flat-button"
@@ -138,7 +139,7 @@
     },
     computed: {
       buttonLabel() {
-        if (taskIsClearable(this.task)) {
+        if (this.taskIsClearable) {
           return this.coreString('clearAction');
         }
         return this.coreString('cancelAction');
@@ -157,6 +158,12 @@
       },
       taskIsFailed() {
         return this.task.status === TaskStatuses.FAILED || this.taskIsCanceled;
+      },
+      taskIsCancellable() {
+        return this.task.cancellable;
+      },
+      taskIsClearable() {
+        return taskIsClearable(this.task);
       },
       descriptionText() {
         const trName = typeToTrMap[this.task.type];
@@ -182,6 +189,14 @@
           file_size,
           total_resources,
         } = this.task;
+        // Special case for canceled exports
+        if (
+          (this.task.type === TaskTypes.DISKEXPORT ||
+            this.task.type === TaskTypes.DISKCONTENTEXPORT) &&
+          this.task.status === TaskStatuses.CANCELED
+        ) {
+          return '';
+        }
         if (file_size && total_resources) {
           const trPrefix = typeToTrPrefixMap[this.task.type];
           if (
@@ -224,12 +239,18 @@
       },
     },
     $trs: {
-      startedByUser: `Started by '{user}'`,
+      startedByUser: {
+        message: "Started by '{user}'",
+        context: '\nRefers to the content management *task*.\n',
+      },
       numResourcesAndSize:
         '{numResources} {numResources, plural, one {resource} other {resources}} ({bytesText})',
       statusInProgress: 'In-progress',
       statusInQueue: 'Waiting',
-      statusComplete: 'Finished',
+      statusComplete: {
+        message: 'Finished',
+        context: '\nLabel indicating that the *task* was completed successfully. \n\n',
+      },
       statusFailed: 'Failed',
       statusCanceled: 'Canceled',
       statusCanceling: 'Canceling',

@@ -39,7 +39,7 @@
       </RecycleList>
 
       <UiIconButton
-        class="controls button-fullscreen"
+        class="button-fullscreen controls"
         :style="{ fill: $themeTokens.textInverted }"
         aria-controls="pdf-container"
         :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
@@ -51,14 +51,14 @@
         <mat-svg v-else name="fullscreen" category="navigation" />
       </UiIconButton>
       <UiIconButton
-        class="controls button-zoom-in"
+        class="button-zoom-in controls"
         aria-controls="pdf-container"
         @click="zoomIn"
       >
         <mat-svg name="add" category="content" />
       </UiIconButton>
       <UiIconButton
-        class="controls button-zoom-out"
+        class="button-zoom-out controls"
         aria-controls="pdf-container"
         @click="zoomOut"
       >

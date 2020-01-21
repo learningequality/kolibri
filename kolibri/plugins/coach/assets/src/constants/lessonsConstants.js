@@ -1,7 +1,7 @@
 export const LessonsPageNames = {
   PLAN_LESSONS_ROOT: 'PLAN_LESSONS_ROOT',
+  LESSON_CREATION_ROOT: 'LESSON_CREATION_ROOT',
   SUMMARY: 'SUMMARY',
-  RESOURCE_USER_SUMMARY: 'RESOURCE_USER_SUMMARY',
   RESOURCE_USER_REPORT: 'RESOURCE_USER_REPORT',
   RESOURCE_USER_REPORT_ROOT: 'RESOURCE_USER_REPORT_ROOT',
   RESOURCE_CONTENT_PREVIEW: 'RESOURCE_CONTENT_PREVIEW', // exclusively a route name
@@ -14,5 +14,6 @@ export const LessonsPageNames = {
 
 export const CollectionTypes = {
   LEARNERGROUP: 'learnergroup',
+  ADHOCLEARNERSGROUP: 'adhoclearnersgroup',
   CLASSROOM: 'classroom',
 };

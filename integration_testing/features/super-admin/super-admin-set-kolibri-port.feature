@@ -1,22 +1,23 @@
-Feature: Super admin set the kolibri server port
-    Super admin should be able to set the koliri server port into different ports
+Feature: Super admin set the Kolibri server port
+    Super admin needs to be able to set the Kolibri server port according to their needs
 
   Background:
     Given that the Kolibri server is not running
-      And I have an access to the terminal or command prompt
+      And I have access to terminal or command prompt
 
-  Scenario: Setting the port with the options.ini file
-    When I edit/create the "options.ini" file inside the "KOLIBRI_HOME" path
+  Scenario: Set the port using the options.ini file
+    When I edit/create the "options.ini" file inside the "KOLIBRI_HOME" folder
       And I write "[Deployment]" on the first line
       And I write "HTTP_PORT="<port> on the next line
       And I save my changes
-      And I run the kolibri start command at the terminal or command prompt
-    Then I see that the <port> is used by the Kolibri server
+      And I run the `kolibri start` command in the terminal or command prompt
+    Then I see that the Kolibri server is running on <port> port 
 
-  Scenario: Setting the port with the KOLIBRI_HTTP_PORT environment variable
-    When I set the <port>  at the KOLIBRI_HTTP_PORT environment variable
-      And I run the Kolibri start command at the terminal or command prompt
-    Then I see that the <port> is used by the Kolibri server
+  Scenario: Set the port with the "KOLIBRI_HTTP_PORT" environment variable
+    When I set the <port> using the "KOLIBRI_HTTP_PORT" environment variable
+      And I run the `kolibri start` command in the terminal or command prompt
+    Then I see that the Kolibri server is running on <port> port 
 
 Examples:
-| 9999 | port |
+| port |
+| 9999 |

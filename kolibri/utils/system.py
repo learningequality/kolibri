@@ -48,6 +48,7 @@ def _posix_pid_exists(pid):
 
 def _kill_pid(pid, softkill_signal_number):
     """Kill a PID by sending a signal, starting with a softer one and then escalating as needed"""
+    logger.info("Initiating shutdown of Kolibri")
     try:
         logger.debug("Attempting to soft kill process with pid %d..." % pid)
         os.kill(pid, softkill_signal_number)
@@ -58,9 +59,11 @@ def _kill_pid(pid, softkill_signal_number):
             "Soft kill signal could not be sent (OSError); process may not exist?"
         )
         return
-    # give some time for the process to clean itself up gracefully bfore we force anything
+    if pid_exists(pid):
+        logger.info("Waiting for Kolibri to finish shutting down")
+    # give some time for the process to clean itself up gracefully before we force anything
     i = 0
-    while pid_exists(pid) and i < 10:
+    while pid_exists(pid) and i < 60:
         time.sleep(0.5)
         i += 1
     # if process didn't exit cleanly, make one last effort to kill it

@@ -88,9 +88,7 @@ CROWDIN_PROJECT = "kolibri"  # crowdin project name
 CROWDIN_API_KEY = os.environ["CROWDIN_API_KEY"]
 CROWDIN_API_URL = "https://api.crowdin.com/api/project/{proj}/{cmd}?key={key}{params}"
 
-PERSEUS_CSV = (
-    "kolibri_exercise_perseus_plugin.exercise_perseus_render_module-messages.csv"
-)
+PERSEUS_CSV = "kolibri_exercise_perseus_plugin.main-messages.csv"
 GLOSSARY_XML_FILE = "glossary.tbx"
 
 DETAILS_URL = CROWDIN_API_URL.format(
@@ -311,7 +309,7 @@ def _csv_to_json():
             if "csv" not in file_name:
                 continue
 
-            if file_name is PERSEUS_CSV:
+            if file_name == PERSEUS_CSV:
                 csv_path = os.path.join(perseus_locale_dir_path, file_name)
             else:
                 csv_path = os.path.join(csv_locale_dir_path, file_name)
@@ -333,7 +331,7 @@ def _csv_to_json():
 
             data = _locale_data_from_csv(csv_data)
 
-            if file_name is PERSEUS_CSV:
+            if file_name == PERSEUS_CSV:
                 utils.json_dump_formatted(
                     data, perseus_path, file_name.replace("csv", "json")
                 )

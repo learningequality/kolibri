@@ -9,8 +9,8 @@
     />
 
     <div class="wrapper-table">
-      <div class="table-row main-row" :style="backgroundImageStyle">
-        <div class="table-cell main-cell">
+      <div class="main-row table-row" :style="backgroundImageStyle">
+        <div class="main-cell table-cell">
           <div class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
             <CoreLogo
               v-if="$kolibriBranding.signIn.topLogo"
@@ -22,7 +22,7 @@
             <h1
               v-if="$kolibriBranding.signIn.showTitle"
               class="kolibri-title"
-              :class="$computedClass({color: $themeBrand.primary.v_300})"
+              :class="$computedClass({ color: $themeBrand.primary.v_300 })"
               :style="$kolibriBranding.signIn.titleStyle"
             >
               {{ logoText }}
@@ -76,7 +76,7 @@
                     v-if="simpleSignIn && suggestions.length"
                     v-show="showDropdown"
                     class="suggestions"
-                    :style="{backgroundColor: $themeTokens.surface}"
+                    :style="{ backgroundColor: $themeTokens.surface }"
                   >
                     <UiAutocompleteSuggestion
                       v-for="(suggestion, i) in suggestions"
@@ -143,7 +143,7 @@
         </div>
       </div>
       <div class="table-row">
-        <div class="table-cell footer-cell" :style="{ backgroundColor: $themeTokens.surface }">
+        <div class="footer-cell table-cell" :style="{ backgroundColor: $themeTokens.surface }">
           <LanguageSwitcherFooter />
           <div class="small-text">
             <span class="version-string">

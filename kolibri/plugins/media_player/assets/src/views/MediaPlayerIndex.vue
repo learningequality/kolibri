@@ -21,7 +21,7 @@
         $computedClass(progressStyle)
       ]"
     >
-      <div v-show="loading" class="loading-space fill-space">
+      <div v-show="loading" class="fill-space loading-space">
         <KCircularLoader
           class="loader"
           :delay="true"
@@ -31,7 +31,7 @@
       <video
         v-if="isVideo"
         ref="player"
-        class="video-js custom-skin vjs-big-play-centered vjs-show-big-play-button-on-pause"
+        class="custom-skin video-js vjs-big-play-centered vjs-show-big-play-button-on-pause"
       >
         <template v-for="video in videoSources">
           <source
@@ -52,7 +52,7 @@
         </template>
       </video>
 
-      <audio v-else ref="player" class="video-js custom-skin">
+      <audio v-else ref="player" class="custom-skin video-js">
         <template v-for="audio in audioSources">
           <source
             :key="audio.storage_url"
@@ -454,7 +454,11 @@
       playbackRate: 'Playback rate',
       captions: 'Captions',
       captionsOff: 'Captions off',
-      transcript: 'Transcript',
+      transcript: {
+        message: 'Transcript',
+        context:
+          '\nRefers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
+      },
       transcriptOff: 'Transcript off',
       languages: 'Languages',
       volumeLevel: 'Volume level',
@@ -533,6 +537,11 @@
     /deep/ .fill-space {
       height: auto;
     }
+
+    [dir='rtl'] & {
+      right: auto;
+      left: 0;
+    }
   }
 
   .wrapper:not(.transcript-wrap) .media-player-transcript {
@@ -550,6 +559,10 @@
 
     /deep/ .loading-space {
       padding-top: 90px;
+    }
+
+    [dir='rtl'] & {
+      right: 0;
     }
   }
 

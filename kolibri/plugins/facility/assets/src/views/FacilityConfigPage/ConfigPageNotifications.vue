@@ -2,7 +2,7 @@
 
   <div>
     <UiAlert
-      v-if="notification===notificationTypes.PAGELOAD_FAILURE"
+      v-if="notification === notificationTypes.PAGELOAD_FAILURE"
       type="error"
       @dismiss="dismiss()"
     >
@@ -10,7 +10,7 @@
     </UiAlert>
 
     <UiAlert
-      v-if="notification===notificationTypes.SAVE_SUCCESS"
+      v-if="notification === notificationTypes.SAVE_SUCCESS"
       type="success"
       @dismiss="dismiss()"
     >
@@ -18,7 +18,7 @@
     </UiAlert>
 
     <UiAlert
-      v-if="notification===notificationTypes.SAVE_FAILURE"
+      v-if="notification === notificationTypes.SAVE_FAILURE"
       type="success"
       @dismiss="dismiss()"
     >

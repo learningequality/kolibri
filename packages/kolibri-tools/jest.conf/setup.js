@@ -22,8 +22,10 @@ Vue.use(KThemePlugin);
 Vue.use(KContentPlugin);
 
 Vue.config.silent = true;
-i18nSetup(true);
+Vue.config.devtools = false;
 Vue.config.productionTip = false;
+
+i18nSetup(true);
 
 const csrf = global.document.createElement('input');
 csrf.name = 'csrfmiddlewaretoken';
@@ -31,3 +33,10 @@ csrf.value = 'csrfmiddlewaretoken';
 global.document.body.append(csrf);
 
 Object.defineProperty(window, 'scrollTo', { value: () => {}, writable: true });
+
+// Shows better NodeJS unhandled promise rejection errors
+process.on('unhandledRejection', (reason, p) => {
+  /* eslint-disable no-console */
+  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+  console.log(reason.stack);
+});

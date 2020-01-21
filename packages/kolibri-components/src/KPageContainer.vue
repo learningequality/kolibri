@@ -3,7 +3,7 @@
   <div
     class="page-container"
     :class="classes"
-    :style="{backgroundColor: $themeTokens.surface, marginTop: `${topMargin}px`}"
+    :style="{ backgroundColor: $themeTokens.surface, marginTop: `${topMargin}px` }"
   >
     <slot></slot>
   </div>

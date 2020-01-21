@@ -8,7 +8,7 @@
     v-bind="immersivePageProps"
   >
     <template slot="app-bar-actions">
-      <ActionBarSearchBox v-if="!isWithinSearchPage" />
+      <ActionBarSearchBox v-if="showSearch" />
     </template>
 
     <LearnTopNav slot="sub-nav" />
@@ -17,7 +17,7 @@
 
     <div>
       <Breadcrumbs v-if="pageName !== 'TOPICS_CONTENT'" />
-      <component :is="currentPage" />
+      <component :is="currentPage" v-if="currentPage" />
       <router-view />
     </div>
 
@@ -96,7 +96,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'facilityConfig']),
+      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'canAccessUnassignedContent']),
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
         currentLesson: 'currentLesson',
@@ -204,8 +204,8 @@
           immersivePage: false,
         };
       },
-      isWithinSearchPage() {
-        return this.pageName === PageNames.SEARCH;
+      showSearch() {
+        return this.pageName !== PageNames.SEARCH && this.canAccessUnassignedContent;
       },
       topNavIsVisible() {
         return (
@@ -261,15 +261,18 @@
     },
     mounted() {
       if (this.isUserLoggedIn) {
-        this.$store
+        this.getDemographicInfo();
+      }
+    },
+    methods: {
+      getDemographicInfo() {
+        return this.$store
           .dispatch('getDemographicInfo')
           .then(info => {
             this.demographicInfo = { ...info };
           })
           .catch(() => {});
-      }
-    },
-    methods: {
+      },
       handleCancelUpdateYourProfileModal() {
         this.$store.dispatch('deferProfileUpdates', this.demographicInfo);
         this.demographicInfo = null;

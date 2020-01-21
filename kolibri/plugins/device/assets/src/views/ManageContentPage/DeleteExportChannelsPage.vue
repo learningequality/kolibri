@@ -10,7 +10,7 @@
         <h1>{{ $tr('channelsOnDevice') }}</h1>
       </template>
 
-      <template v-slot:default="{filteredItems, showItem, handleChange, itemIsSelected}">
+      <template v-slot:default="{ filteredItems, showItem, handleChange, itemIsSelected }">
         <ChannelPanel
           v-for="channel in allChannels"
           v-show="showItem(channel)"

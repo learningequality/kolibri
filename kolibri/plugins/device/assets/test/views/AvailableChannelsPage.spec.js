@@ -25,7 +25,7 @@ function getElements(wrapper) {
     languageFilter: () => wrapper.find({ name: 'KSelect' }),
     titleText: () => wrapper.find('[data-test="title"]').text().trim(),
     titleFilter: () => wrapper.find({ name: 'FilterTextbox' }),
-    unlistedChannelsSection: () => wrapper.findAll('section.unlisted-channels'),
+    unlistedChannelsButton: () => wrapper.find('[data-test="token-button"]'),
     filterComponent: () => wrapper.find({name: 'FilteredChannelListContainer'}),
   }
 }
@@ -48,22 +48,23 @@ describe('availableChannelsPage', () => {
     store.commit('manageContent/wizard/SET_TRANSFER_TYPE', transferType);
   }
 
-  it('in REMOTEIMPORT mode, the unlisted channel button is available', () => {
+  it('in REMOTEIMPORT mode, the unlisted channel button is available', async () => {
     // ...and clicking it opens the channel token modal
     setTransferType('remoteimport');
     const wrapper = makeWrapper({ store });
-    const { unlistedChannelsSection, ChannelTokenModal } = getElements(wrapper);
+    const { unlistedChannelsButton, ChannelTokenModal } = getElements(wrapper);
     // prettier-ignore
-    const button = unlistedChannelsSection().at(0).find('.token-button');
+    const button = unlistedChannelsButton();
     button.trigger('click');
+    await wrapper.vm.$nextTick();
     expect(ChannelTokenModal().isVueInstance()).toEqual(true);
   });
 
   it('in LOCALIMPORT mode, the unlisted channel button is not available', () => {
     setTransferType('localexport');
     const wrapper = makeWrapper({ store });
-    const { unlistedChannelsSection } = getElements(wrapper);
-    expect(unlistedChannelsSection().length).toEqual(0);
+    const { unlistedChannelsButton } = getElements(wrapper);
+    expect(unlistedChannelsButton().exists()).toBe(false);
   });
 
   it('in LOCALIMPORT mode, the back link text and title are correct', () => {
@@ -105,9 +106,9 @@ describe('availableChannelsPage', () => {
     const channels = channelListItems();
     const channelNProps = n => channels.at(n).props();
     expect(channelNProps(0).onDevice).toEqual(true);
-    expect(channelNProps(1).onDevice).toEqual(false);
+    expect(channelNProps(1).onDevice).toEqual(true);
     expect(channelNProps(2).onDevice).toEqual(false);
-    expect(channelNProps(3).onDevice).toEqual(true);
+    expect(channelNProps(3).onDevice).toEqual(false);
   });
 
   it('IN LOCALIMPORT/REMOTEIMPORT, with no filters, all appear', () => {
@@ -151,7 +152,7 @@ describe('availableChannelsPage', () => {
     filter.vm.model = 'bir ch';
     await wrapper.vm.$nextTick();
     expect(filterComponent().vm.titleFilter).toEqual('bir ch');
-    testChannelVisibility(wrapper, [false, true, false, false]);
+    testChannelVisibility(wrapper, [false, false, true, false]);
   });
 
   it('with both filters, the correct channels appear', async () => {
@@ -163,7 +164,7 @@ describe('availableChannelsPage', () => {
     await wrapper.vm.$nextTick();
     lFilter.vm.selection = { label: 'German', value: 'de' };
     await wrapper.vm.$nextTick();
-    testChannelVisibility(wrapper, [false, false, true, false]);
+    testChannelVisibility(wrapper, [false, false, false, true]);
   });
 
   it('the "select" link goes to the correct place', () => {

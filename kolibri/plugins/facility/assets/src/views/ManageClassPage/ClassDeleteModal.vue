@@ -4,7 +4,6 @@
     :title="$tr('modalTitle')"
     :submitText="coreString('deleteAction')"
     :cancelText="coreString('cancelAction')"
-    :hasError="false"
     @submit="classDelete"
     @cancel="$emit('cancel')"
   >
@@ -36,12 +35,18 @@
     methods: {
       ...mapActions('classManagement', ['deleteClass']),
       classDelete() {
-        this.deleteClass(this.classid);
+        this.deleteClass(this.classid).then(() => {
+          this.$store.dispatch(
+            'createSnackbar',
+            this.$tr('classroomDeleted', { name: this.classname })
+          );
+        });
       },
     },
     $trs: {
       modalTitle: 'Delete class',
       confirmation: "Are you sure you want to delete '{ classname }'?",
+      classroomDeleted: `Class '{name}' was deleted`,
       description:
         "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
     },

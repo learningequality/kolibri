@@ -43,7 +43,7 @@ def get_nodes_to_transfer(
 
     # if requested, filter down to only include particular topics/nodes
     if node_ids:
-        nodes_to_include = nodes_to_include.filter(pk__in=node_ids).get_descendants(
+        nodes_to_include = nodes_to_include.filter_by_uuids(node_ids).get_descendants(
             include_self=True
         )
 
@@ -53,12 +53,12 @@ def get_nodes_to_transfer(
 
     # filter down the query to remove files associated with nodes we've specifically been asked to exclude
     if exclude_node_ids:
-        nodes_to_exclude = ContentNode.objects.filter(
-            pk__in=exclude_node_ids
+        nodes_to_exclude = ContentNode.objects.filter_by_uuids(
+            exclude_node_ids
         ).get_descendants(include_self=True)
 
-        nodes_to_include = nodes_to_include.order_by().exclude(
-            pk__in=nodes_to_exclude.values("pk")
+        nodes_to_include = nodes_to_include.order_by().exclude_by_uuids(
+            nodes_to_exclude.values("pk")
         )
 
     # By default don't filter node ids by their underlying file importability
@@ -73,7 +73,7 @@ def get_nodes_to_transfer(
             channel_id, peer_id
         ).keys()
     if file_based_node_id_list is not None:
-        nodes_to_include = nodes_to_include.filter(pk__in=file_based_node_id_list)
+        nodes_to_include = nodes_to_include.filter_by_uuids(file_based_node_id_list)
     return nodes_to_include.filter(available=available).order_by()
 
 
@@ -118,7 +118,7 @@ def calculate_files_to_transfer(nodes_to_include, available):
 def _get_node_ids(node_ids):
 
     return (
-        ContentNode.objects.filter(pk__in=node_ids)
+        ContentNode.objects.filter_by_uuids(node_ids)
         .get_descendants(include_self=True)
         .values_list("id", flat=True)
     )

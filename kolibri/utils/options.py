@@ -167,6 +167,13 @@ base_option_spec = {
             "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
         },
     },
+    "Python": {
+        "PICKLE_PROTOCOL": {
+            "type": "integer",
+            "default": 2,
+            "envvars": ("KOLIBRI_PICKLE_PROTOCOL",),
+        },
+    },
 }
 
 

@@ -21,7 +21,7 @@ import sys
 from os import listdir
 
 import requests
-from gcloud import storage
+from google.cloud import storage
 from github3 import login
 
 logging.getLogger().setLevel(logging.INFO)
@@ -90,6 +90,12 @@ file_manifest = {
         "category": PYTHON_PKG_CAT,
         "content_type": "application/gzip",
     },
+    "zip": {
+        "extension": "zip",
+        "description": "Raspberry Pi Image",
+        "category": INSTALLER_CAT,
+        "content_type": "application/x-zip-compressed",
+    },
     # 'apk': {
     #     'extension': 'apk',
     #     'description': 'Android Installer',
@@ -100,7 +106,8 @@ file_manifest = {
 
 file_order = [
     "deb",
-    "dmg",
+    "zip",
+    # "dmg",
     "unsigned-exe",
     "signed-exe",
     # 'apk',

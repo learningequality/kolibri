@@ -33,8 +33,8 @@
               </KLabeledIcon>
             </td>
             <td><Score :value="tableRow.avgScore" /></td>
-            <td>{{ coachString('integer', {value: tableRow.exercises}) }}</td>
-            <td>{{ coachString('integer', {value: tableRow.resources}) }}</td>
+            <td>{{ coachString('integer', { value: tableRow.exercises }) }}</td>
+            <td>{{ coachString('integer', { value: tableRow.resources }) }}</td>
             <td><ElapsedTime :date="tableRow.lastActivity" /></td>
           </tr>
         </transition-group>

@@ -22,3 +22,4 @@ Feature: Super Admin runs manage profile command
     Then I open CSV files in a text editor or a spreadsheet application
       And I see that "xxxxxxxx_xxxxxx_performance.csv" file has at least 6 lines beginning with a timestamp followed by profiling results # First line is a header
       And I see that "xxxxxxxx_xxxxxx_requests_performance.csv" file has at least one line per each Kolibri page I interacted with in the browser, and lines begin with a timestamp followed by requests profiling results
+      

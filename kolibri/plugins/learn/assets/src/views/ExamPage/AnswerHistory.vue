@@ -1,29 +1,29 @@
 <template>
 
-  <div :style="{ backgroundColor: $themeTokens.surface }">
-    <ul class="history-list">
-      <template v-for="(question, index) in questions">
-        <li
-          :key="index"
-          :style="liStyle(index)"
-          class="clickable"
-          @click="$emit('goToQuestion', index)"
-        >
-          <svg class="item svg-item">
-            <circle
-              cx="32"
-              cy="32"
-              r="8"
-              :style="{ fill: isAnswered(question) ? 'purple' : 'lightgrey' }"
-            />
-          </svg>
-          <p class="item">
-            {{ questionText(index + 1) }}
-          </p>
-        </li>
-      </template>
-    </ul>
-  </div>
+  <ul class="history-list">
+    <li
+      v-for="(question, index) in questions"
+      :key="index"
+      :ref="`item-${index}`"
+      class="list-item"
+    >
+      <button
+        :class="buttonClass(index)"
+        :disabled="questionNumber === index"
+        class="clickable"
+        @click="$emit('goToQuestion', index)"
+      >
+        <KIcon
+          class="dot"
+          icon="dot"
+          :color="isAnswered(question) ? $themeTokens.progress : $themeTokens.textDisabled"
+        />
+        <div class="text">
+          {{ questionText(index + 1) }}
+        </div>
+      </button>
+    </li>
+  </ul>
 
 </template>
 
@@ -32,6 +32,14 @@
 
   import { mapState } from 'vuex';
 
+  function isAboveContainer(element, container) {
+    return element.offsetTop < container.scrollTop;
+  }
+
+  function isBelowContainer(element, container) {
+    return element.offsetTop + element.offsetHeight > container.offsetHeight + container.scrollTop;
+  }
+
   export default {
     name: 'AnswerHistory',
     props: {
@@ -39,10 +47,29 @@
         type: Number,
         required: true,
       },
+      // hack to get access to the scrolling pane
+      wrapperComponentRefs: {
+        type: Object,
+        required: true,
+      },
     },
     computed: {
       ...mapState('examViewer', ['questions']),
       ...mapState({ attemptLogs: 'examAttemptLogs' }),
+    },
+    watch: {
+      questionNumber(index) {
+        // If possible, scroll it into view
+        const element = this.$refs[`item-${index}`][0];
+        if (element && element.scrollIntoView && this.wrapperComponentRefs.questionListWrapper) {
+          const container = this.wrapperComponentRefs.questionListWrapper.$el;
+          if (isAboveContainer(element, container)) {
+            element.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
+          } else if (isBelowContainer(element, container)) {
+            element.scrollIntoView({ block: 'end', inline: 'nearest', behavior: 'smooth' });
+          }
+        }
+      },
     },
     methods: {
       questionText(num) {
@@ -51,10 +78,16 @@
       isAnswered(question) {
         return ((this.attemptLogs[question.exercise_id] || {})[question.question_id] || {}).answer;
       },
-      liStyle(index) {
-        return {
-          backgroundColor: this.questionNumber === index ? this.$themePalette.grey.v_200 : '',
-        };
+      buttonClass(index) {
+        if (this.questionNumber === index) {
+          return this.$computedClass({ backgroundColor: this.$themePalette.grey.v_200 });
+        }
+        return this.$computedClass({
+          backgroundColor: this.$themeTokens.surface,
+          ':hover': {
+            backgroundColor: this.$themePalette.grey.v_100,
+          },
+        });
       },
     },
     $trs: {
@@ -67,33 +100,43 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .history-list {
     max-height: inherit;
     padding-left: 0;
     margin: 0;
+    margin-top: 16px;
     list-style-type: none;
   }
 
-  .item {
-    float: left;
-    margin: 0;
-    font-size: 0.9em;
-    line-height: 64px;
-  }
-
-  .svg-item {
-    width: 64px;
-    height: 64px;
-  }
-
-  li {
-    height: 64px;
-    clear: both;
-    border: 0;
+  .list-item {
+    margin-bottom: 4px;
   }
 
   .clickable {
-    cursor: pointer;
+    @extend %md-decelerate-func;
+
+    position: relative;
+    display: block;
+    width: 100%;
+    text-align: left;
+    user-select: none;
+    border: 0;
+    border-radius: 4px;
+    outline-offset: -2px;
+    transition: background-color $core-time;
+  }
+
+  .dot {
+    position: absolute;
+    top: 18px;
+    left: 16px;
+  }
+
+  .text {
+    margin: 16px;
+    margin-left: 48px;
   }
 
 </style>

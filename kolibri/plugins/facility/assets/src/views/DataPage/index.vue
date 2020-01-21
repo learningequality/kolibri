@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <KPageContainer>
+    <KPageContainer v-if="!cannotDownload">
       <KGrid gutter="48">
 
         <KGridItem>
@@ -86,7 +86,7 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import { isAndroidWebView } from 'kolibri.utils.browserInfo';
+  import { isEmbeddedWebView } from 'kolibri.utils.browser';
   import urls from 'kolibri.urls';
   import { FacilityResource } from 'kolibri.resources';
   import { PageNames } from '../../constants';
@@ -118,7 +118,7 @@
       ...mapState(['pageName']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       cannotDownload() {
-        return isAndroidWebView;
+        return isEmbeddedWebView;
       },
       inDataExportPage() {
         return this.pageName === PageNames.DATA_EXPORT_PAGE;

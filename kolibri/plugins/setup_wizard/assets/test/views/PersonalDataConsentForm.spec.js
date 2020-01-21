@@ -8,15 +8,17 @@ function makeWrapper() {
 }
 
 describe('PersonalDataConsentForm', () => {
-  it('the "View statement" opens the statement', () => {
+  it('the "View statement" opens the statement', async () => {
     const { wrapper } = makeWrapper();
     const modal = () => wrapper.find({ name: 'PrivacyInfoModal' });
     const button = wrapper.find({ name: 'KButton' });
     expect(modal().exists()).toEqual(false);
     button.vm.$emit('click');
+    await wrapper.vm.$nextTick();
     expect(modal().exists()).toEqual(true);
     // And cancelling closes it
     modal().vm.$emit('cancel');
+    await wrapper.vm.$nextTick();
     expect(modal().exists()).toEqual(false);
   });
 

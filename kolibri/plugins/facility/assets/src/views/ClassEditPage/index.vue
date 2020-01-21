@@ -19,14 +19,14 @@
 
     <!-- Modals -->
     <ClassRenameModal
-      v-if="modalShown===Modals.EDIT_CLASS_NAME"
+      v-if="modalShown === Modals.EDIT_CLASS_NAME"
       :classname="currentClass.name"
       :classid="currentClass.id"
       :classes="classes"
       @cancel="closeModal"
     />
     <UserRemoveConfirmationModal
-      v-if="modalShown===Modals.REMOVE_USER"
+      v-if="modalShown === Modals.REMOVE_USER"
       :classname="currentClass.name"
       :username="userToBeRemoved.username"
       @submit="removalAction({ classId: currentClass.id, userId: userToBeRemoved.id })"
@@ -60,7 +60,7 @@
       isCoach
     >
       <!-- Don't need template in Vue 2.5+ -->
-      <template slot="action" slot-scope="userRow">
+      <template v-slot:action="userRow">
         <KButton
           :text="coreString('removeAction')"
           appearance="flat-button"
@@ -94,7 +94,7 @@
       :users="classLearners"
       :emptyMessage="$tr('noLearnersInClassMessage')"
     >
-      <template slot="action" slot-scope="userRow">
+      <template v-slot:action="userRow">
         <KButton
           :text="coreString('removeAction')"
           appearance="flat-button"

@@ -16,13 +16,21 @@
         <slot name="header"></slot>
       </div>
 
+      <div
+        v-if="containFocus"
+        class="ui-menu-focus-redirector"
+        tabindex="0"
+        @focus="handleFirstTrapFocus"
+      >
+      </div>
+
       <slot name="options"></slot>
 
       <div
         v-if="containFocus"
         class="ui-menu-focus-redirector"
         tabindex="0"
-        @focus="redirectFocus"
+        @focus="handleLastTrapFocus"
       >
       </div>
     </ul>
@@ -32,6 +40,8 @@
 
 
 <script>
+
+  import last from 'lodash/last';
 
   export default {
     name: 'CoreMenu',
@@ -53,10 +63,19 @@
         type: Boolean,
         default: false,
       },
+      isOpen: {
+        type: Boolean,
+        default: false,
+      },
     },
     provide() {
       return {
         showActive: this.showActive,
+      };
+    },
+    data() {
+      return {
+        containTopFocus: false,
       };
     },
     computed: {
@@ -68,10 +87,36 @@
       },
     },
 
+    watch: {
+      isOpen(val) {
+        if (val === false) {
+          this.containTopFocus = false;
+        }
+      },
+    },
     methods: {
-      redirectFocus(e) {
-        e.stopPropagation();
+      focusFirstOption() {
         this.$el.querySelector('.core-menu-option').focus();
+      },
+      focusLastOption() {
+        const lastOption = last(this.$el.querySelectorAll('.core-menu-option'));
+        if (lastOption) {
+          lastOption.focus();
+        }
+      },
+      handleFirstTrapFocus(e) {
+        e.stopPropagation();
+        if (!this.containTopFocus) {
+          // On first focus, redirect to first option, then activate trap
+          this.focusFirstOption();
+          this.containTopFocus = true;
+        } else {
+          this.focusLastOption();
+        }
+      },
+      handleLastTrapFocus(e) {
+        e.stopPropagation();
+        this.focusFirstOption();
       },
     },
   };

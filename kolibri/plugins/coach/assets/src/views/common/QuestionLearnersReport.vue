@@ -3,7 +3,7 @@
   <KPageContainer noPadding>
     <MultiPaneLayout ref="multiPaneLayout">
       <div slot="header">
-        <h1 class="title item-detail-section">
+        <h1 class="item-detail-section title">
           <ContentIcon
             class="item-detail-icons"
             :kind="kind"

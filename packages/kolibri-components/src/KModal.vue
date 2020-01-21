@@ -1,7 +1,7 @@
 <template>
 
   <!-- Accessibility properties for the overlay -->
-  <transition name="fade" appear>
+  <transition name="modal-fade" appear>
     <div
       id="modal-window"
       ref="modal-overlay"
@@ -167,6 +167,7 @@
       return {
         lastFocus: null,
         maxContentHeight: '1000',
+        contentHeight: 0,
         scrollShadow: false,
         delayedEnough: false,
       };
@@ -185,7 +186,10 @@
         return 1000;
       },
       contentSectionMaxHeight() {
-        return { 'max-height': `${this.maxContentHeight}px` };
+        return {
+          'max-height': `${this.maxContentHeight}px`,
+          height: `${this.contentHeight}px`,
+        };
       },
     },
     created() {
@@ -204,21 +208,23 @@
       this.lastFocus = document.activeElement;
     },
     mounted() {
+      // Remove scrollbars from the <html> tag, so user's can't scroll while modal is open
+      window.document.documentElement.style['overflow'] = 'hidden';
       this.$nextTick(() => {
         if (this.$refs.modal && !this.$refs.modal.contains(document.activeElement)) {
           this.focusModal();
         }
       });
       window.addEventListener('focus', this.focusElementTest, true);
-      window.addEventListener('scroll', this.preventScroll, true);
       window.setTimeout(() => (this.delayedEnough = true), 500);
     },
     updated() {
       this.updateContentSectionStyle();
     },
     destroyed() {
+      // Restore scrollbars to <html> tag
+      window.document.documentElement.style['overflow'] = null;
       window.removeEventListener('focus', this.focusElementTest, true);
-      window.removeEventListener('scroll', this.preventScroll, true);
       // Wait for events to finish propagating before changing the focus.
       // Otherwise the `lastFocus` item receives events such as 'enter'.
       window.setTimeout(() => this.lastFocus.focus());
@@ -231,12 +237,20 @@
        */
       updateContentSectionStyle: debounce(function() {
         if (this.$refs.title && this.$refs.actions) {
-          this.maxContentHeight =
+          if (Math.abs(this.$refs.content.scrollHeight - this.contentHeight) >= 8) {
+            this.contentHeight = this.$refs.content.scrollHeight;
+          }
+          const maxContentHeightCheck =
             this.windowHeight -
             this.$refs.title.clientHeight -
             this.$refs.actions.clientHeight -
             32;
-          this.scrollShadow = this.maxContentHeight < this.$refs.content.scrollHeight;
+          // to prevent max height from toggling between pixels
+          // we set a threshold of how many pixels the height should change before we update
+          if (Math.abs(maxContentHeightCheck - this.maxContentHeight) >= 8) {
+            this.maxContentHeight = maxContentHeightCheck;
+            this.scrollShadow = this.maxContentHeight < this.$refs.content.scrollHeight;
+          }
         }
       }, 50),
       emitCancelEvent() {
@@ -279,9 +293,6 @@
         if (!this.$refs.modal.contains(event.target)) {
           this.focusModal();
         }
-      },
-      preventScroll(event) {
-        event.preventDefault();
       },
     },
     $trs: {
@@ -330,13 +341,13 @@
     @extend %momentum-scroll;
   }
 
-  .fade-enter-active,
-  .fade-leave-active {
+  .modal-fade-enter-active,
+  .modal-fade-leave-active {
     transition: all $core-time ease;
   }
 
-  .fade-enter,
-  .fade-leave-active {
+  .modal-fade-enter,
+  .modal-fade-leave-active {
     opacity: 0;
   }
 
