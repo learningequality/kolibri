@@ -51,7 +51,6 @@ class Migration(migrations.Migration):
             name="allow_guest_access",
             field=models.BooleanField(default=True),
         ),
-        migrations.RunPython(migrate_allow_guest_access, revert_allow_guest_access),
         migrations.AddField(
             model_name="devicesettings",
             name="allow_learner_unassigned_resource_access",
@@ -71,4 +70,5 @@ class Migration(migrations.Migration):
                 max_length=7,
             ),
         ),
+        migrations.RunPython(migrate_allow_guest_access, revert_allow_guest_access),
     ]
