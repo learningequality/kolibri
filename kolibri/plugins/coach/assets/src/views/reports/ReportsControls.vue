@@ -43,7 +43,7 @@
 <script>
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import { isEmbeddedWebView } from 'kolibri.utils.browser';
+  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
   import commonCoach from '../common';
 
   export default {
@@ -59,7 +59,7 @@
     computed: {
       exportDisabled() {
         // Always disable in app mode until we add the ability to download files.
-        return isEmbeddedWebView() || this.disableExport;
+        return isEmbeddedWebView || this.disableExport;
       },
     },
   };

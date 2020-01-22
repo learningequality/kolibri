@@ -1,4 +1,4 @@
-import { getBrowser, passesRequirements } from '../userAgent';
+import { getBrowser, passesRequirements } from '../browserInfo';
 
 /*
  * Relevant test cases copied from:

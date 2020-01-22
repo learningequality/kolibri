@@ -1,6 +1,6 @@
 import logger from 'kolibri.lib.logging';
 import store from 'kolibri.coreVue.vuex.store';
-import { redirectBrowser } from 'kolibri.utils.browser';
+import { redirectBrowser } from 'kolibri.utils.redirectBrowser';
 import Lockr from 'lockr';
 import urls from 'kolibri.urls';
 import mime from 'rest/interceptor/mime';

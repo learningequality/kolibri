@@ -3,7 +3,7 @@ import urls from 'kolibri.urls';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
-import { isEmbeddedWebView } from 'kolibri.utils.browser';
+import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
 
 /* Function to fetch device info from the backend
  * and resolve validated data
@@ -16,7 +16,7 @@ export function getDeviceInfo() {
     data.content_storage_free_space = bytesForHumans(data.content_storage_free_space);
 
     if (response.headers.Server.includes('0.0.0.0')) {
-      if (isEmbeddedWebView()) {
+      if (isEmbeddedWebView) {
         data.server_type = 'Kolibri app server';
       } else {
         data.server_type = 'Kolibri internal server';

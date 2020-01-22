@@ -86,7 +86,7 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import { isEmbeddedWebView } from 'kolibri.utils.browser';
+  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
   import urls from 'kolibri.urls';
   import { FacilityResource } from 'kolibri.resources';
   import { PageNames } from '../../constants';
@@ -118,7 +118,7 @@
       ...mapState(['pageName']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       cannotDownload() {
-        return isEmbeddedWebView();
+        return isEmbeddedWebView;
       },
       inDataExportPage() {
         return this.pageName === PageNames.DATA_EXPORT_PAGE;

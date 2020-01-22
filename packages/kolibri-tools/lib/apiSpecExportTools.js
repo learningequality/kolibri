@@ -121,7 +121,7 @@ const baseAliasSourcePaths = {
     __dirname,
     '../../../kolibri/core/assets/src/content_renderer_module'
   ),
-  plugin_data: path.resolve(__dirname, '../../../kolibri/core/assets/src/utils/plugin_data'),
+  plugin_data: path.resolve(__dirname, '../../../kolibri/core/assets/src/utils/plugin_data_src'),
   // To clean up - once we allow for core API elements to be defined as either bundled or not bundled
   // into the default frontend code bundle, we should amalgamate all of these into the main API spec.
 };
