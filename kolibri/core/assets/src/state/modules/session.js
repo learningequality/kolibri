@@ -16,7 +16,7 @@ export default {
   state: { ...baseSessionState },
   getters: {
     isAdmin(state) {
-      return state.kind.includes(UserKinds.ADMIN);
+      return state.kind.includes(UserKinds.ADMIN) || state.kind.includes(UserKinds.SUPERUSER);
     },
     isCoach(state) {
       return (
