@@ -3,7 +3,7 @@
 CONTAINER_HOME=/home/kivy
 
 # create the container to be used throughout the script
-CONTAINER_ID=$(docker create -it --name ${CONTAINER_ID} \
+CONTAINER_ID=$(docker create -it \
   --mount type=bind,src=${PWD}/whl,dst=${CONTAINER_HOME}/whl \
   --mount type=bind,src=${PWD}/src,dst=${CONTAINER_HOME}/src \
   --mount type=bind,src=${PWD}/scripts,dst=${CONTAINER_HOME}/scripts \
