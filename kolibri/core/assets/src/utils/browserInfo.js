@@ -184,20 +184,21 @@ export const userAgent =
  * First checks for 'wv' (Lolipop+), then for 'Version/x.x'
  */
 const isAndroid = /Android/.test(userAgent);
-export const isAndroidWebView = isAndroid && /wv/.test(userAgent) || /Version\/\d+\.\d+/.test(userAgent);
+export const isAndroidWebView =
+  (isAndroid && /wv/.test(userAgent)) || /Version\/\d+\.\d+/.test(userAgent);
 
 /**
  * Embedded WebViews on Mac have no app identifier, while all the major browsers do, so check
  * for browser app strings and mark as embedded if none are found.
  */
 const isMac = /Macintosh/.test(userAgent);
-export const isMacWebView = isMac && !(/Safari/.test(userAgent) || /Chrome/.test(userAgent) || /Firefox/.test(userAgent));
+export const isMacWebView =
+  isMac && !(/Safari/.test(userAgent) || /Chrome/.test(userAgent) || /Firefox/.test(userAgent));
 
 /**
  * All web views
  */
 export const isEmbeddedWebView = isAndroidWebView || isMacWebView;
-
 
 /**
  * General browser info
