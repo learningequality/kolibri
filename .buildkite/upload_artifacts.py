@@ -174,22 +174,21 @@ def collect_local_artifacts():
         artifacts_dict[data_name_exe] = data
 
     for artifact in listdir(DIST_DIR):
-            filename, file_extension = os.path.splitext(artifact)
-            # Remove leading '.'
-            # print("...>", artifact, "<......")
-            file_extension = file_extension[1:]
-            data = {
-                "name": artifact,
+        filename, file_extension = os.path.splitext(artifact)
+        # Remove leading '.'
+        # print("...>", artifact, "<......")
+        file_extension = file_extension[1:]
+        data = {
+            "name": artifact,
             "file_location": "%s/%s" % (DIST_DIR, artifact),
-            }
-            if file_extension == "exe":
-                create_exe_data(filename, data)
+        }
+        if file_extension == "exe":
+            create_exe_data(filename, data)
 
-            if file_extension in file_manifest:
-                data.update(file_manifest[file_extension])
-                logging.info("Collect file data: (%s)" % data)
-                artifacts_dict[file_extension] = data
-
+        if file_extension in file_manifest:
+            data.update(file_manifest[file_extension])
+            logging.info("Collect file data: (%s)" % data)
+            artifacts_dict[file_extension] = data
 
     # basically the manifest dict, with extra fields
     return artifacts_dict
@@ -214,39 +213,39 @@ def upload_html(html="", artifacts={}):
 
 
 def upload_gh_release_artifacts(artifacts={}):
-        # Have to do this with requests because github3 does not support this interface yet
-        get_release_asset_url = requests.get(
-            "https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}".format(
-                owner=REPO_OWNER, repo=REPO_NAME, tag=TAG
-            )
+    # Have to do this with requests because github3 does not support this interface yet
+    get_release_asset_url = requests.get(
+        "https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}".format(
+            owner=REPO_OWNER, repo=REPO_NAME, tag=TAG
         )
-        if get_release_asset_url.status_code == 200:
-            # Definitely a release!
-            release_id = get_release_asset_url.json()["id"]
-            release_name = get_release_asset_url.json()["name"]
-            release = repository.release(id=release_id)
-            logging.info("Uploading built assets to Github Release: %s" % release_name)
-            for file_extension in file_order:
-                if file_extension in artifacts:
-                    artifact = artifacts[file_extension]
-                    logging.info("Uploading release asset: %s" % (artifact.get("name")))
-                    # For some reason github3 does not let us set a label at initial upload
-                    asset = release.upload_asset(
-                        content_type=artifact["content_type"],
-                        name=artifact["name"],
-                        asset=open(artifact["file_location"], "rb"),
+    )
+    if get_release_asset_url.status_code == 200:
+        # Definitely a release!
+        release_id = get_release_asset_url.json()["id"]
+        release_name = get_release_asset_url.json()["name"]
+        release = repository.release(id=release_id)
+        logging.info("Uploading built assets to Github Release: %s" % release_name)
+        for file_extension in file_order:
+            if file_extension in artifacts:
+                artifact = artifacts[file_extension]
+                logging.info("Uploading release asset: %s" % (artifact.get("name")))
+                # For some reason github3 does not let us set a label at initial upload
+                asset = release.upload_asset(
+                    content_type=artifact["content_type"],
+                    name=artifact["name"],
+                    asset=open(artifact["file_location"], "rb"),
+                )
+                if asset:
+                    # So do it after the initial upload instead
+                    asset.edit(artifact["name"], label=artifact["description"])
+                    logging.info(
+                        "Successfully uploaded release asset: %s"
+                        % (artifact.get("name"))
                     )
-                    if asset:
-                        # So do it after the initial upload instead
-                        asset.edit(artifact["name"], label=artifact["description"])
-                        logging.info(
-                            "Successfully uploaded release asset: %s"
-                            % (artifact.get("name"))
-                        )
-                    else:
-                        logging.error(
-                            "Error uploading release asset: %s" % (artifact.get("name"))
-                        )
+                else:
+                    logging.error(
+                        "Error uploading release asset: %s" % (artifact.get("name"))
+                    )
 
 
 def upload_gh_status_artifacts(artifacts={}):
