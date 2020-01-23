@@ -115,7 +115,7 @@ def create_status_report_html(artifacts):
     """
     html = "<html>\n<body>\n<h1>Build Artifacts</h1>\n"
     current_heading = None
-    for ext, artifact in artifacts.items():
+    for artifact in artifacts:
         if artifact["category"] != current_heading:
             current_heading = artifact["category"]
             html += "<h2>{heading}</h2>\n".format(heading=current_heading)
@@ -149,8 +149,8 @@ def collect_local_artifacts():
     """
     Create a dict of the artifact name and the location.
     """
-
-    artifacts_dict = {}
+    # Making a copy for safety
+    artifact_dict = file_manifest.copy()
     storage_bucket = storage.Client().bucket("le-buildkite")
     blobs = storage_bucket.list_blobs(None, None, GCS_UPLOAD_PATH_PREFIX)
 
@@ -162,39 +162,44 @@ def collect_local_artifacts():
             return "unsigned-exe"
         return filetype
 
+    # Blobs is an iterator
     for blob in blobs:
         file = os.path.split(blob.name)[1]
         file_id = manifest_id(*os.path.splitext(file))
 
         if file_id in file_manifest:
-            data = {
+            # Add all fields in manifest to dict entry
+            logging.info("Collect file data: (%s)" % data)
+
+            artifact_dict.update({
                 "name": file,
                 "media_url": blob.public_url,
                 "content_type": blob.content_type,
                 "md5_hash": blob.md5_hash,
                 "size_mb": blob.size / 1048576.0,
-            }
-            # Add all fields in manifest to dict entry
-            data.update(file_manifest[file_id])
-            logging.info("Collect file data: (%s)" % data)
+            })
 
-            # Add artifact to return value
-            artifacts_dict[file_id] = data
+    artifact_list = []
+    for ext, artifact in artifact_dict:
+        if artifact["media_url"]:
+            artifact_list.append(artifact)
 
-    # basically the manifest dict, with extra fields
-    return artifacts_dict
+    return artifact_list
 
 
 def upload_html(html="", artifacts={}):
     client = storage.Client()
+
+    # Maybe upload this via the buildkite CLI tool instead
     bucket = client.bucket("le-downloads")
 
-    # add count to report html to avoid duplicate.
-    report_count = BUILD_ID + "-first"
-    if "signed-exe" in artifacts:
-        report_count = BUILD_ID + "-second"
+    # Rather than make 2, just overwrite the existing HTML page to include both
+    # # add count to report html to avoid duplicate.
+    # report_count = BUILD_ID + "-first"
+    # if "signed-exe" in artifacts:
+    #     report_count = BUILD_ID + "-second"
 
-    blob = bucket.blob("kolibri-%s-%s-report.html" % (RELEASE_DIR, report_count))
+    blob = bucket.blob("kolibri-%s-report.html" % (RELEASE_DIR))
 
     blob.upload_from_string(html, content_type="text/html")
 
@@ -203,7 +208,7 @@ def upload_html(html="", artifacts={}):
     return blob.public_url
 
 
-def upload_gh_release_artifacts(artifacts={}):
+def upload_gh_release_artifacts(artifacts = []):
     # Have to do this with requests because github3 does not support this interface yet
     get_release_asset_url = requests.get(
         "https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}".format(
@@ -216,7 +221,7 @@ def upload_gh_release_artifacts(artifacts={}):
         release_name = get_release_asset_url.json()["name"]
         release = repository.release(id=release_id)
         logging.info("Uploading built assets to Github Release: %s" % release_name)
-        for file_extension, artifact in file_manifest:
+        for artifact in artifacts):
             logging.info("Uploading release asset: %s" % (artifact.get("name")))
             # For some reason github3 does not let us set a label at initial upload
             asset = release.upload_asset(
