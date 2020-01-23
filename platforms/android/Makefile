@@ -12,7 +12,7 @@ replaceloadingpage:
 
 # Extract the whl file
 src/kolibri:
-	unzip -q "whl/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
+	unzip -qo "whl/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
 
 # Generate the project info file
 project_info.json: project_info.template src/kolibri scripts/create_project_info.py
