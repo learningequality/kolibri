@@ -3,19 +3,27 @@
   <div>
     <KRadioButton
       :value="true"
-      :label="coachString('entireClassLabel')"
       :currentValue="entireClassIsSelected"
       :disabled="disabled"
       @change="selectEntireClass()"
-    />
+    >
+      <KLabeledIcon
+        :label="coachString('entireClassLabel')"
+        icon="classroom"
+      />
+    </KRadioButton>
     <KCheckbox
       v-for="group in groups"
       :key="group.id"
-      :label="group.name"
       :checked="groupIsChecked(group.id)"
       :disabled="disabled"
       @change="toggleGroup($event, group.id)"
-    />
+    >
+      <KLabeledIcon
+        :label="group.name"
+        icon="group"
+      />
+    </KCheckbox>
     <IndividualLearnerSelector
       :selectedGroupIds="selectedGroupIds"
       :entireClassIsSelected="entireClassIsSelected"
