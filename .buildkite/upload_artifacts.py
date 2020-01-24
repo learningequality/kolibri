@@ -199,7 +199,7 @@ def upload_html(html="", artifacts={}):
     # if "signed-exe" in artifacts:
     #     report_count = BUILD_ID + "-second"
 
-    blob = bucket.blob("kolibri-%s-report.html" % (RELEASE_DIR))
+    blob = bucket.blob("kolibri-{}-report.html".format(RELEASE_DIR))
 
     blob.upload_from_string(html, content_type="text/html")
 
