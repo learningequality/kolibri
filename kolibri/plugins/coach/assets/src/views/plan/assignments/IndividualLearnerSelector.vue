@@ -197,6 +197,7 @@
         return selectedVisibleLearners.length === this.currentPageLearners.length;
       },
       selectAllCheckboxProps() {
+        const currentCount = this.currentPageLearners.length;
         const counts = countBy(this.currentPageLearners, learner => {
           if (this.learnerIsInSelectedGroup(learner.id)) {
             return 'disabled';
@@ -207,8 +208,8 @@
           }
         });
         return {
-          disabled: counts.disabled === this.currentPageLearners.length,
-          checked: !counts.unchecked,
+          disabled: currentCount === counts.disabled || currentCount === 0,
+          checked: currentCount !== 0 && !counts.unchecked,
         };
       },
       itemsPerPage() {
