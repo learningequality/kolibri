@@ -7,17 +7,9 @@ PIP_PATH="$SCRIPTPATH/env/bin/pip"
 PYTHON_PATH="$SCRIPTPATH/env/bin/python"
 
 echo "Now creating virtualenv..."
-virtualenv -p python3 env
+virtualenv -p python3.5 env
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Can't create virtualenv."
-    exit 1
-fi
-
-PIP_CMD="$PIP_PATH install --upgrade gcloud"
-echo "Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't install '$PIP_CMD'."
     exit 1
 fi
 
