@@ -478,6 +478,8 @@ def calculate_next_order(channel, model=ChannelMetadata):
     latest_order = model.objects.latest("order").order
     if latest_order is None:
         channel.order = 1
-    else:
+
+    if channel.order is None or channel.order == 0:
         channel.order = latest_order + 1
+
     channel.save()
