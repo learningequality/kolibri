@@ -14,7 +14,11 @@ then
   rm -r dist
 else
   echo "Downloading from pip"
-  pip download -d ./whl kolibri
+  WHL_DIR="/tmp/whl"
+  DOCKER_ID=$(docker create python:3 pip download -d $WHL_DIR kolibri)
+  docker start -a $DOCKER_ID
+  docker cp $DOCKER_ID:$WHL_DIR .
+  docker rm $DOCKER_ID
 fi
 
 echo "--- :android: Build APK"
