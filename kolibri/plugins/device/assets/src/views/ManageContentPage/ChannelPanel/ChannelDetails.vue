@@ -94,7 +94,9 @@
 
   .channel-detail-panel {
     display: flex;
-    width: 100%;
+    // Ensures even on IE11 that content
+    // fits at all screen sizes
+    flex-grow: 1;
   }
 
   .channel-name {
