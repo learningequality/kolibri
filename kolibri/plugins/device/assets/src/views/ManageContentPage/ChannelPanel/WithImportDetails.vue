@@ -232,6 +232,8 @@
   .col-3 {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+    min-width: 200px;
 
     .channel-list-item-sm & {
       flex-direction: column;
