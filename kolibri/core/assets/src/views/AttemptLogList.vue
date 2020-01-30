@@ -1,7 +1,7 @@
 <template>
 
   <div :style="{ backgroundColor: $themeTokens.surface }">
-    <h3 class="header">
+    <h3 class="header" :style="iconStyle">
       {{ $tr('answerHistoryLabel') }}
     </h3>
 
@@ -29,6 +29,7 @@
             role="option"
             :aria-selected="isSelected(index).toString()"
             :tabindex="isSelected(index) ? 0 : -1"
+            :style="iconStyle"
             @click.prevent="setSelectedAttemptLog(index)"
             @keydown.enter="setSelectedAttemptLog(index)"
             @keydown.space.prevent="setSelectedAttemptLog(index)"
@@ -70,18 +71,24 @@
             />
             <p class="item">
               {{
-                coreString(
-                  'questionNumberLabel',
-                  {questionNumber: attemptLog.questionNumber}
-                )
+                windowIsLarge ?
+                  coreString(
+                    'questionNumberLabel',
+                    {questionNumber: attemptLog.questionNumber}
+                  )
+                  :
+                  // Add non-breaking space to preserve vertical centering
+                  "&nbsp;"
               }}
             </p>
+            <CoachContentLabel
+              v-if="windowIsLarge"
+              class="coach-content-label"
+              :value="attemptLog.num_coach_contents || 0"
+              :isTopic="false"
+              style="margin-top:-4px"
+            />
           </a>
-          <CoachContentLabel
-            class="coach-content-label"
-            :value="attemptLog.num_coach_contents || 0"
-            :isTopic="false"
-          />
         </li>
       </template>
     </ul>
@@ -94,13 +101,14 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   export default {
     name: 'AttemptLogList',
     components: {
       CoachContentLabel,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       attemptLogs: {
         type: Array,
@@ -109,6 +117,18 @@
       selectedQuestionNumber: {
         type: Number,
         required: true,
+      },
+    },
+    computed: {
+      iconStyle() {
+        if (this.windowIsLarge) {
+          return {};
+        } else {
+          return {
+            textAlign: 'center',
+            padding: 0,
+          };
+        }
       },
     },
     mounted() {
