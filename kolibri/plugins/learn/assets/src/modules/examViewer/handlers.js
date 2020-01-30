@@ -1,5 +1,6 @@
 import {
   ContentNodeResource,
+  ClassroomResource,
   ExamResource,
   ExamLogResource,
   ExamAttemptLogResource,
@@ -32,6 +33,7 @@ export function showExam(store, params, alreadyOnQuiz) {
     store.commit('CORE_SET_PAGE_LOADING', false);
   } else {
     const promises = [
+      ClassroomResource.fetchModel({ id: classId }),
       ExamResource.fetchModel({ id: examId }),
       ExamLogResource.fetchCollection({ getParams: examParams }),
       ExamAttemptLogResource.fetchCollection({ getParams: examParams }),
@@ -39,7 +41,9 @@ export function showExam(store, params, alreadyOnQuiz) {
     ];
     ConditionalPromise.all(promises).only(
       samePageCheckGenerator(store),
-      ([exam, examLogs, examAttemptLogs]) => {
+      ([classroom, exam, examLogs, examAttemptLogs]) => {
+        store.commit('classAssignments/SET_CURRENT_CLASSROOM', classroom);
+
         // Local copy of exam attempt logs
         const attemptLogs = {};
 
