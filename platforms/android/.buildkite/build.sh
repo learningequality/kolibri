@@ -1,7 +1,6 @@
 #! /bin/bash
 set -eo pipefail
 
-mkdir -p whl
 
 echo "--- Downloading whl file"
 
@@ -10,8 +9,7 @@ if [[ $LE_TRIGGERED_FROM_BUILD_ID ]]
 then
   echo "Downloading from triggered build"
   buildkite-agent artifact download 'dist/*.whl' . --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}
-  mv dist/* whl/
-  rm -r dist
+  mv dist whl
 else
   echo "Downloading from pip"
   WHL_DIR="/tmp/whl"
