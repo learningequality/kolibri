@@ -68,7 +68,22 @@ module.exports = {
         ignoreStrings: true,
         ignoreTemplateLiterals: true,
         ignoreUrls: true,
+        ignoreTrailingComments: true,
       },
+    ],
+    'vue/max-len': [
+      ERROR,
+      {
+        code: 100,
+        template: 100,
+        comments: 100,
+        ignoreUrls: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+        ignoreHTMLTextContents: true,
+        ignoreTrailingComments: true,
+      },
+
     ],
     'vue/attribute-hyphenation': [ERROR, 'never'],
     'vue/require-default-prop': OFF,
