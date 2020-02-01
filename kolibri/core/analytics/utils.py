@@ -44,6 +44,7 @@ from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.tasks.main import scheduler
 from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
+from kolibri.deployment.default.cache import diskcache_cache
 from kolibri.utils import conf
 from kolibri.utils.server import installation_type
 from kolibri.utils.time_utils import local_now
@@ -337,6 +338,7 @@ def create_and_update_notifications(data, source):
         PingbackNotification.objects.filter(source=source).exclude(
             id__in=excluded_ids
         ).update(active=False)
+
     for msg in messages:
         new_msg = {
             "id": msg["msg_id"],
@@ -351,6 +353,8 @@ def create_and_update_notifications(data, source):
             PingbackNotification.objects.update_or_create(
                 id=new_msg["id"], defaults=new_msg
             )
+
+    diskcache_cache.close()  # RLOCK leaves the db connection open after releasing the lock
 
 
 def perform_ping(started, server=DEFAULT_SERVER_URL):

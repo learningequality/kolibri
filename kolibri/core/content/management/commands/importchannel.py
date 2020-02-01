@@ -14,6 +14,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
+from kolibri.deployment.default.cache import diskcache_cache
 from kolibri.utils import conf
 
 logger = logging.getLogger(__name__)
@@ -188,6 +189,8 @@ class Command(AsyncCommand):
                         except channel_import.ImportCancelError:
                             # This will only occur if is_cancelled is True.
                             pass
+                        finally:
+                            diskcache_cache.close()  # RLOCK leaves the db connection open after releasing the lock
                 return True
 
         except Exception as e:

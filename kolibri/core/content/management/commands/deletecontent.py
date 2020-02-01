@@ -13,6 +13,7 @@ from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
+from kolibri.deployment.default.cache import diskcache_cache
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +44,7 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
         with db_task_write_lock:
             channel.delete_content_tree_and_files()
 
+    diskcache_cache.close()  # RLOCK leaves the db connection open after releasing the lock
     return delete_all_metadata
 
 
@@ -136,6 +138,7 @@ class Command(AsyncCommand):
 
             with db_task_write_lock:
                 LocalFile.objects.delete_orphan_file_objects()
+            diskcache_cache.close()  # RLOCK leaves the db connection open after releasing the lock
 
             progress_update(1, progress_extra_data)
 
