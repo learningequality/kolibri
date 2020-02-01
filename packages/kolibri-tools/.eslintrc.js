@@ -174,11 +174,11 @@ module.exports = {
       ERROR,
       2, // Base indent spaces
       {
-        'attribute': 1,
-        'baseIndent': 1,
-        'closeBracket': 0,
-        'alignAttributesVertically': true,
-      }
+        attribute: 1,
+        baseIndent: 1,
+        closeBracket: 0,
+        alignAttributesVertically: true,
+      },
     ],
     'vue/static-class-names-order': ERROR,
     'vue/no-deprecated-scope-attribute': ERROR,
