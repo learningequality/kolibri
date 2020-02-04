@@ -15,7 +15,6 @@ from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
-from kolibri.deployment.default.cache import diskcache_cache
 from kolibri.utils import conf
 
 DATA_PORTAL_SYNCING_BASE_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
@@ -170,6 +169,5 @@ class Command(AsyncCommand):
             create_superuser_and_provision_device(
                 username, dataset_id, noninteractive=noninteractive
             )
-        diskcache_cache.close()  # RLOCK leaves the db connection open after releasing the lock
         sync_client.close_sync_session()
         self.stdout.write("Syncing has been completed.")

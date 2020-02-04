@@ -12,7 +12,6 @@ from django.conf import settings
 import kolibri
 from kolibri.core.tasks.main import scheduler
 from kolibri.core.tasks.utils import db_task_write_lock
-from kolibri.deployment.default.cache import diskcache_cache
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.time_utils import local_now
 
@@ -196,7 +195,6 @@ def perform_vacuum(database=db.DEFAULT_DB_ALIAS):
                 cursor = connection.cursor()
                 cursor.execute("vacuum;")
                 connection.close()
-            diskcache_cache.close()  # RLOCK leaves the db connection open after releasing the lock
         except Exception as e:
             logger.error(e)
             new_msg = (

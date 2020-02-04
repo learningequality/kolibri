@@ -20,7 +20,6 @@ from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
-from kolibri.deployment.default.cache import diskcache_cache
 from kolibri.utils import conf
 
 # constants to specify the transfer method to be used
@@ -322,7 +321,6 @@ class Command(AsyncCommand):
                     exclude_node_ids=exclude_node_ids,
                     public=public,
                 )
-            diskcache_cache.close()  # RLOCK leaves the db connection open after releasing the lock
 
             resources_after_transfer = (
                 ContentNode.objects.filter(channel_id=channel_id, available=True)
