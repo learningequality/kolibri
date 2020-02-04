@@ -223,7 +223,7 @@
     },
     destroyed() {
       // Restore scrollbars to <html> tag
-      window.document.documentElement.style['overflow'] = null;
+      window.document.documentElement.style['overflow'] = '';
       window.removeEventListener('focus', this.focusElementTest, true);
       // Wait for events to finish propagating before changing the focus.
       // Otherwise the `lastFocus` item receives events such as 'enter'.
