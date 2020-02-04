@@ -123,6 +123,10 @@ locale_info = {}
 try:
     t = gettext.translation('macapp', locale_root_dir, languages=languages, fallback=True)
     locale_info = t.info()
+    # We have not been able to reproduce, but we have seen this happen in user tracebacks, so
+    # trigger the exception handling fallback if locale_info doesn't have a language key.
+    if not 'language' in locale_info:
+        raise Exception("Received invalid language_info dict.")
     _ = t.gettext
 
 except Exception as e:
