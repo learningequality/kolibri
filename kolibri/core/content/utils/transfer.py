@@ -233,9 +233,12 @@ class FileDownload(Transfer):
             # When internet connection is lost at the beginning of start(),
             # self.response does not get an assigned value
             if hasattr(self, "response"):
-                # Use Content-Length header to check if range requests are supported
-                # For example, range requests are not supported on compressed files
-                byte_range_resume = self.response.headers.get("content-length", None)
+                # Use Accept-Ranges and Content-Length header to check if range
+                # requests are supported. For example, range requests are not
+                # supported on compressed files
+                byte_range_resume = self.response.headers.get(
+                    "accept-ranges", None
+                ) and self.response.headers.get("content-length", None)
                 resume_headers = self.response.request.headers
 
                 # Only use byte-range file resuming when sources support range requests
