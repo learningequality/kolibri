@@ -219,6 +219,7 @@
     // overflow-x hidden seems to affect overflow-y also, so include a fixed height
     height: 16px;
     overflow-x: hidden;
+    overflow-y: hidden;
     text-overflow: ellipsis;
   }
 
