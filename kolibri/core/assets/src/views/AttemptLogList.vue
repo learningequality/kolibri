@@ -86,7 +86,6 @@
               class="coach-content-label"
               :value="attemptLog.num_coach_contents || 0"
               :isTopic="false"
-              style="margin-top:-4px"
             />
           </a>
         </li>
@@ -174,6 +173,7 @@
 
   .coach-content-label {
     display: inline-block;
+    margin-top: -4px;
     margin-left: 8px;
     vertical-align: middle;
   }
