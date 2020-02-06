@@ -22,6 +22,8 @@ def get_device_setting(setting, default=no_default_value):
 
     try:
         device_settings = DeviceSettings.objects.get()
+        if device_settings is None:
+            raise DeviceSettings.DoesNotExist
         return getattr(device_settings, setting)
     except (DeviceSettings.DoesNotExist, OperationalError, ProgrammingError):
         if default is not no_default_value:
