@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 
 import logging
 import os
+import shutil
 
 from django.utils.functional import SimpleLazyObject
 
@@ -45,6 +46,11 @@ if not os.path.exists(KOLIBRI_HOME):
 LOG_ROOT = os.path.join(KOLIBRI_HOME, "logs")
 if not os.path.exists(LOG_ROOT):
     os.mkdir(LOG_ROOT)
+
+# Copy the options.ini inside the KOLIBRI_HOME as default placeholder
+if not os.path.exists(os.path.join(KOLIBRI_HOME, "options.ini")):
+    options_path = os.path.join(os.getcwd(), "options.ini")
+    shutil.copy(options_path, KOLIBRI_HOME)
 
 
 def __initialize_options():
