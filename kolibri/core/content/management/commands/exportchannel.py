@@ -28,15 +28,15 @@ class Command(AsyncCommand):
         logger.debug("Source file: {}".format(src))
         logger.debug("Destination file: {}".format(dest))
 
-        with transfer.FileCopy(src, dest) as copy:
+        with transfer.FileCopy(src, dest, cancel_check=self.is_cancelled) as copy:
 
             with self.start_progress(total=copy.total_size) as progress_update:
+                try:
+                    for block in copy:
+                        progress_update(len(block))
 
-                for block in copy:
-                    if self.is_cancelled():
-                        copy.cancel()
-                        break
-                    progress_update(len(block))
+                except transfer.TransferCanceled:
+                    pass
 
                 if self.is_cancelled():
                     try:
