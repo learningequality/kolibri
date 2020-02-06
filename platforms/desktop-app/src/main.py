@@ -181,7 +181,7 @@ class MenuEventHandler:
         self.reload()
 
     def on_actual_size(self):
-        self.set_zoom_level(2)
+        self.set_zoom_level(self.default_zoom)
 
     def on_zoom_in(self):
         self.set_zoom_level(self.get_zoom_level() + 1)
