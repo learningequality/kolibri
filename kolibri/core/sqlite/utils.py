@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 def common_clean(db_name, db_file):
+    # let's remove the damaged db files
     if settings.DATABASES["default"]["ENGINE"] != "django.db.backends.sqlite3":
         return
-    # let's remove the old files
     os.remove(db_file)
     logger.error("{} is corrupted".format(db_name))
 
