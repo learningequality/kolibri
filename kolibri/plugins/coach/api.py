@@ -1,9 +1,11 @@
 import datetime
 
+from django.db import connections
 from django.db.models import Count
 from django.db.models import F
 from django.db.models import Q
 from django.db.models import Sum
+from django.db.utils import DatabaseError
 from rest_framework import pagination
 from rest_framework import permissions
 from rest_framework import viewsets
@@ -14,10 +16,10 @@ from .serializers import LessonReportSerializer
 from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.filters import HierarchyRelationsFilter
+from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
-from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -26,6 +28,7 @@ from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationsLog
+from kolibri.core.sqlite.utils import repair_sqlite_db
 
 collection_kind_choices = tuple(
     [choice[0] for choice in collection_kinds.choices] + ["user"]
@@ -180,6 +183,8 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
                 )
             except (LearnerProgressNotification.DoesNotExist):
                 return []
+            except DatabaseError:
+                repair_sqlite_db(connections['notifications_db'])
 
         return notifications_query.order_by("-id")
 
@@ -190,9 +195,12 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         are requesting notifications in the last five minutes
         """
         # Use super on the parent class to prevent an infinite recursion.
-        response = super(viewsets.ReadOnlyModelViewSet, self).list(
-            request, *args, **kwargs
-        )
+        try:
+            response = super(viewsets.ReadOnlyModelViewSet, self).list(
+                request, *args, **kwargs
+            )
+        except DatabaseError:
+            repair_sqlite_db(connections['notifications_db'])
 
         # L
         logging_interval = datetime.datetime.now() - datetime.timedelta(minutes=5)

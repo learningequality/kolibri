@@ -10,6 +10,7 @@ from sqlalchemy import PickleType
 from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
 
+from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
@@ -60,7 +61,10 @@ class Scheduler(StorageMixin):
             if connection is None:
                 connection = self.queue.storage.engine
         elif connection:
-            self.queue = queue(connection=connection)
+            try:
+                self.queue = queue(connection=connection)
+            except TypeError:
+                repair_sqlite_db(connection)
 
         self._schedule_checker = None
 

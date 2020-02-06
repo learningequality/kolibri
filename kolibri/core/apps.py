@@ -5,9 +5,11 @@ import os
 
 from django.apps import AppConfig
 from django.db.backends.signals import connection_created
+from django.db.utils import DatabaseError
 
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
+from kolibri.core.sqlite.utils import repair_sqlite_db
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +41,16 @@ class KolibriCoreConfig(AppConfig):
         """
 
         if connection.vendor == "sqlite":
+            if connection.alias == 'notifications_db':
+                broken_db = False
+                try:
+                    cursor = connection.cursor()
+                    quick_check = cursor.execute('PRAGMA quick_check').fetchone()[0]
+                    broken_db = quick_check != 'ok'
+                except DatabaseError:
+                    broken_db = True
+                if broken_db:
+                    repair_sqlite_db(connection)
             cursor = connection.cursor()
 
             # Shorten the default WAL autocheckpoint from 1000 pages to 500
