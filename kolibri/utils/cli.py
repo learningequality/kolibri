@@ -235,7 +235,8 @@ class KolibriDjangoCommand(click.Command):
         setup_logging(debug=get_debug_param())
         initialize()
         check_content_directory_exists_and_writable()
-        check_database_is_migrated()
+        if not ctx.params["skip_update"]:
+            check_database_is_migrated()
         for param in initialize_params:
             ctx.params.pop(param.name)
         return super(KolibriDjangoCommand, self).invoke(ctx)
