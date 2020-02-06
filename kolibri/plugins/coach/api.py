@@ -184,7 +184,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             except (LearnerProgressNotification.DoesNotExist):
                 return []
             except DatabaseError:
-                repair_sqlite_db(connections['notifications_db'])
+                repair_sqlite_db(connections["notifications_db"])
 
         return notifications_query.order_by("-id")
 
@@ -200,7 +200,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
                 request, *args, **kwargs
             )
         except DatabaseError:
-            repair_sqlite_db(connections['notifications_db'])
+            repair_sqlite_db(connections["notifications_db"])
 
         # L
         logging_interval = datetime.datetime.now() - datetime.timedelta(minutes=5)

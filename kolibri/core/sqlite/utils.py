@@ -23,16 +23,20 @@ def common_clean(db_name, db_file):
 def regenerate_database(connection):
     # procedure to create from scratch a sqlite database when using Django ORM
     from django.db.migrations.recorder import MigrationRecorder
+
     connection.close()
-    common_clean(connection.alias, connection.get_connection_params()['database'])
+    common_clean(connection.alias, connection.get_connection_params()["database"])
     if connection.alias == "notifications_db":
         logger.error("Regenerating {}".format(connection.alias))
         # delete the db migrations and run them again
         connection_migrations = MigrationRecorder(connection).Migration
-        connection_migrations.objects.filter(app='notifications').delete()
+        connection_migrations.objects.filter(app="notifications").delete()
         call_command(
-            "migrate", interactive=False, verbosity=False,
-            app_label="notifications", database="notifications_db"
+            "migrate",
+            interactive=False,
+            verbosity=False,
+            app_label="notifications",
+            database="notifications_db",
         )
         call_command("migrate", interactive=False, verbosity=False)
 
@@ -52,16 +56,17 @@ def repair_sqlite_db(connection):
     else:
         orm = "django"
         conn_name = connection.alias
-        original_path = connection.get_connection_params()['database']
+        original_path = connection.get_connection_params()["database"]
 
-    fname = "{con}_{dtm}.dump".format(con=conn_name,
-                                      dtm=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+    fname = "{con}_{dtm}.dump".format(
+        con=conn_name, dtm=datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    )
     if not os.path.exists(dest_folder):
         os.makedirs(dest_folder)
     backup_path = os.path.join(dest_folder, fname)
     copyfile(original_path, backup_path)
 
-    if orm == 'sqlalchemy':
+    if orm == "sqlalchemy":
         # Remove current file, it will be automatically regenerated
         common_clean(conn_name, original_path)
         logger.error("Regenerating {}".format(connection.name))

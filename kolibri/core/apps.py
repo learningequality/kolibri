@@ -41,12 +41,12 @@ class KolibriCoreConfig(AppConfig):
         """
 
         if connection.vendor == "sqlite":
-            if connection.alias == 'notifications_db':
+            if connection.alias == "notifications_db":
                 broken_db = False
                 try:
                     cursor = connection.cursor()
-                    quick_check = cursor.execute('PRAGMA quick_check').fetchone()[0]
-                    broken_db = quick_check != 'ok'
+                    quick_check = cursor.execute("PRAGMA quick_check").fetchone()[0]
+                    broken_db = quick_check != "ok"
                 except DatabaseError:
                     broken_db = True
                 if broken_db:
