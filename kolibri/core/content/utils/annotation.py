@@ -14,6 +14,7 @@ from sqlalchemy import select
 from .paths import get_content_file_name
 from .paths import get_content_storage_file_path
 from .sqlalchemybridge import Bridge
+from .sqlalchemybridge import filter_by_uuids
 from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import ChannelMetadata
@@ -33,7 +34,7 @@ def _MPTT_descendant_ids_statement(ContentNodeTable, node_ids):
     node_include = ContentNodeTable.alias()
     return select([ContentNodeTable.c.id]).where(
         and_(
-            node_include.c.id.in_(node_ids),
+            filter_by_uuids(node_include.c.id, node_ids),
             ContentNodeTable.c.lft >= node_include.c.lft,
             ContentNodeTable.c.lft <= node_include.c.rght,
             ContentNodeTable.c.tree_id == node_include.c.tree_id,

@@ -1,9 +1,11 @@
 import logging
 import os
 import pickle
+from uuid import UUID
 
 from django.apps import apps
 from django.conf import settings
+from django.db import connection as django_connection
 from sqlalchemy import ColumnDefault
 from sqlalchemy import create_engine
 from sqlalchemy import event
@@ -13,6 +15,8 @@ from sqlalchemy.orm import interfaces
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
+from sqlalchemy.sql import operators
+from sqlalchemy.sql.elements import UnaryExpression
 
 from .check_schema_db import db_matches_schema
 from .check_schema_db import DBSchemaError
@@ -331,3 +335,30 @@ class Bridge(object):
         self.session.close()
         if self.connection:
             self.connection.close()
+
+
+def filter_by_uuids(field, ids, validate=True):
+    return _by_uuids(field, ids, validate, True)
+
+
+def exclude_by_uuids(field, ids, validate=True):
+    return _by_uuids(field, ids, validate, False)
+
+
+def _by_uuids(field, ids, validate, include):
+    ids_list = list(ids)
+    query = "IN (" if include else "NOT IN ("
+    for (idx, identifier) in enumerate(ids_list):
+        if validate:
+            try:
+                UUID(identifier, version=4)
+            except (TypeError, ValueError):
+                # the value is not a valid hex code for a UUID, so we don't return any results
+                return UnaryExpression(field, modifier=operators.custom_op(query + ")"))
+        # wrap the uuids in string quotations
+        if django_connection.vendor == "sqlite":
+            ids_list[idx] = "'{}'".format(identifier)
+        elif django_connection.vendor == "postgresql":
+            ids_list[idx] = "'{}'::uuid".format(identifier)
+    placeholder = query + ",".join(ids_list) + ")"
+    return UnaryExpression(field, modifier=operators.custom_op(placeholder))

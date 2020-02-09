@@ -10,6 +10,7 @@ from sqlalchemy import or_
 from sqlalchemy import select
 
 from .sqlalchemybridge import Bridge
+from .sqlalchemybridge import filter_by_uuids
 from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
@@ -41,7 +42,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):
             and_(
                 FileTable.c.local_file_id == LocalFileTable.c.id,
                 or_(
-                    LocalFileTable.c.id.in_(checksums),
+                    filter_by_uuids(LocalFileTable.c.id, checksums),
                     LocalFileTable.c.available == True,  # noqa
                 ),
             ),
