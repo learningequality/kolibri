@@ -356,9 +356,9 @@ def _by_uuids(field, ids, validate, include):
                 # the value is not a valid hex code for a UUID, so we don't return any results
                 return UnaryExpression(field, modifier=operators.custom_op(query + ")"))
         # wrap the uuids in string quotations
-        if django_connection.vendor == "sqlite":
-            ids_list[idx] = "'{}'".format(identifier)
-        elif django_connection.vendor == "postgresql":
+        if django_connection.vendor == "postgresql" and validate:
             ids_list[idx] = "'{}'::uuid".format(identifier)
+        else:  # sqlite or it's not an uuid
+            ids_list[idx] = "'{}'".format(identifier)
     placeholder = query + ",".join(ids_list) + ")"
     return UnaryExpression(field, modifier=operators.custom_op(placeholder))
