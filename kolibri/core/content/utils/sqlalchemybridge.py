@@ -354,7 +354,7 @@ def _by_uuids(field, ids, validate, include):
                 UUID(identifier, version=4)
             except (TypeError, ValueError):
                 # the value is not a valid hex code for a UUID, so we don't return any results
-                return UnaryExpression(field, modifier=operators.custom_op(query + ")"))
+                return UnaryExpression(field, modifier=operators.custom_op(query + "null)"))
         # wrap the uuids in string quotations
         if django_connection.vendor == "postgresql" and validate:
             ids_list[idx] = "'{}'::uuid".format(identifier)
