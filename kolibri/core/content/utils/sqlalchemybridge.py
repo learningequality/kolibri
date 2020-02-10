@@ -16,6 +16,7 @@ from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import operators
+from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy.sql.elements import UnaryExpression
 
 from .check_schema_db import db_matches_schema
@@ -348,17 +349,24 @@ def exclude_by_uuids(field, ids, validate=True):
 def _by_uuids(field, ids, validate, include):
     ids_list = list(ids)
     query = "IN (" if include else "NOT IN ("
+    # trick to workaround postgresql, it does not allow returning ():
+    empty_query = "IS NOT" if include else "IS"
     for (idx, identifier) in enumerate(ids_list):
         if validate:
             try:
                 UUID(identifier, version=4)
             except (TypeError, ValueError):
                 # the value is not a valid hex code for a UUID, so we don't return any results
-                return UnaryExpression(field, modifier=operators.custom_op(query + "null)"))
+                return BinaryExpression(
+                    field, field, operator=operators.custom_op(empty_query)
+                )
         # wrap the uuids in string quotations
         if django_connection.vendor == "postgresql" and validate:
             ids_list[idx] = "'{}'::uuid".format(identifier)
         else:  # sqlite or it's not an uuid
             ids_list[idx] = "'{}'".format(identifier)
-    placeholder = query + ",".join(ids_list) + ")"
-    return UnaryExpression(field, modifier=operators.custom_op(placeholder))
+    if ids_list:
+        placeholder = query + ",".join(ids_list) + ")"
+        return UnaryExpression(field, modifier=operators.custom_op(placeholder))
+    else:
+        return BinaryExpression(field, field, operator=operators.custom_op(empty_query))
