@@ -28,6 +28,7 @@ import kolibri
 from . import server
 from .debian_check import check_debian_user
 from .sanity_checks import check_content_directory_exists_and_writable
+from .sanity_checks import check_default_options_exist
 from .sanity_checks import check_log_file_location
 from .sanity_checks import check_other_kolibri_running
 from .system import become_daemon
@@ -431,6 +432,9 @@ def start(port, background):
     """
     Start the server on given port.
     """
+
+    # Check if there is an options.ini file exist inside the KOLIBRI_HOME folder
+    check_default_options_exist()
 
     serve_http = OPTIONS["Server"]["CHERRYPY_START"]
 

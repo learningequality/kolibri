@@ -55,21 +55,3 @@ def __initialize_options():
 
 
 OPTIONS = SimpleLazyObject(__initialize_options)
-
-# Generate an options.ini inside the KOLIBRI_HOME as default config
-try:
-    options_path = os.path.join(KOLIBRI_HOME, "options.ini")
-    if not os.path.exists(options_path):
-        file = open(options_path, "w")
-        for k, v in OPTIONS.items():
-            file.write("# [%s] \n" % (k))
-            loop_count = 0
-            for k_child, v_child in v.items():
-                loop_count += 1
-                if loop_count != len(v):
-                    file.write("# %s = %s \n" % (k_child, v_child))
-                else:
-                    file.write("# %s = %s \n\n" % (k_child, v_child))
-        file.close()
-except IOError:
-    pass

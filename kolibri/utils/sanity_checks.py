@@ -5,7 +5,9 @@ import sys
 
 import portend
 
+from .conf import KOLIBRI_HOME
 from .conf import OPTIONS
+from .options import generate_empy_options_file
 from .server import get_status
 from .server import LISTEN_ADDRESS
 from .server import NotRunning
@@ -103,3 +105,14 @@ def check_log_file_location():
         if os.path.exists(old_log_path):
             new_log_path = os.path.join(home, "logs", log_location_update[log])
             shutil.move(old_log_path, new_log_path)
+
+
+def check_default_options_exist():
+    options_path = os.path.join(KOLIBRI_HOME, "options.ini")
+    if not os.path.exists(options_path):
+        try:
+            generate_empy_options_file(options_path, OPTIONS)
+        except IOError:
+            logger.warning(
+                "Failed to create an options.ini file at this path: {}".format(options_path)
+            )
