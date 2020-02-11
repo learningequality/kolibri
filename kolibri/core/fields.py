@@ -104,7 +104,7 @@ class JSONField(JSONFieldBase):
         if isinstance(value, string_types):
             try:
                 return json.loads(value)
-            except json.JSONDecodeError:
+            except ValueError:
                 pass
 
         return value
@@ -113,7 +113,7 @@ class JSONField(JSONFieldBase):
         if isinstance(value, string_types):
             try:
                 return json.loads(value)
-            except json.JSONDecodeError:
+            except ValueError:
                 pass
 
         return value
