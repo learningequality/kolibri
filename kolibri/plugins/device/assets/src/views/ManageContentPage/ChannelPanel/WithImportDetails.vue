@@ -67,7 +67,6 @@
           <KRouterLink
             v-if="!multipleMode"
             :text="$tr('selectResourcesAction')"
-            :disabled="tasksInQueue"
             :to="selectContentLink"
             appearance="raised-button"
           />
@@ -115,7 +114,7 @@
       },
     },
     computed: {
-      ...mapGetters('manageContent', ['channelIsInstalled', 'activeTaskList']),
+      ...mapGetters('manageContent', ['channelIsInstalled']),
       channelSelectedMessage() {
         // Can't show file sizes when importing from drive
         if (this.channel.total_file_size) {
@@ -128,9 +127,6 @@
       },
       isUnlistedChannel() {
         return this.channel.public === false;
-      },
-      tasksInQueue() {
-        return this.activeTaskList.length > 0;
       },
       versionNumber() {
         const installed = this.channelIsInstalled(this.channel.id);
