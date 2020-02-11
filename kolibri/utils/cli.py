@@ -28,9 +28,11 @@ import kolibri
 from . import server
 from .debian_check import check_debian_user
 from .sanity_checks import check_content_directory_exists_and_writable
+from .sanity_checks import check_database_is_migrated
 from .sanity_checks import check_default_options_exist
 from .sanity_checks import check_log_file_location
 from .sanity_checks import check_other_kolibri_running
+from .sanity_checks import migrate_databases
 from .system import become_daemon
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase
 from kolibri.core.upgrade import matches_version
@@ -233,6 +235,9 @@ class KolibriDjangoCommand(click.Command):
         check_debian_user(ctx.params.get("no_input"))
         setup_logging(debug=get_debug_param())
         initialize()
+        check_content_directory_exists_and_writable()
+        if not ctx.params["skip_update"]:
+            check_database_is_migrated()
         for param in initialize_params:
             ctx.params.pop(param.name)
         return super(KolibriDjangoCommand, self).invoke(ctx)
@@ -329,20 +334,6 @@ def initialize(skip_update=False):
         run_plugin_updates()
 
 
-def _migrate_databases():
-    """
-    Try to migrate all active databases. This should not be called unless Django has
-    been initialized.
-    """
-    from django.conf import settings
-
-    for database in settings.DATABASES:
-        call_command("migrate", interactive=False, database=database)
-
-    # load morango fixtures needed for certificate related operations
-    call_command("loaddata", "scopedefinitions")
-
-
 def update(old_version, new_version):
     """
     Called whenever a version change in kolibri is detected
@@ -368,7 +359,7 @@ def update(old_version, new_version):
 
     call_command("collectstatic", interactive=False, verbosity=0)
 
-    _migrate_databases()
+    migrate_databases()
 
     run_upgrades(old_version, new_version)
 
@@ -443,9 +434,6 @@ def start(port, background):
         check_other_kolibri_running(port)
 
     create_startup_lock(port)
-
-    # Check if the content directory exists when Kolibri runs after the first time.
-    check_content_directory_exists_and_writable()
 
     # Clear old sessions up
     call_command("clearsessions")

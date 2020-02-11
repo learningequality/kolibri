@@ -4,6 +4,9 @@ import shutil
 import sys
 
 import portend
+from django.apps import apps
+from django.core.management import call_command
+from django.db.utils import OperationalError
 
 from .conf import KOLIBRI_HOME
 from .conf import OPTIONS
@@ -105,6 +108,48 @@ def check_log_file_location():
         if os.path.exists(old_log_path):
             new_log_path = os.path.join(home, "logs", log_location_update[log])
             shutil.move(old_log_path, new_log_path)
+
+
+def migrate_databases():
+    """
+    Try to migrate all active databases. This should not be called unless Django has
+    been initialized.
+    """
+    from django.conf import settings
+
+    for database in settings.DATABASES:
+        call_command("migrate", interactive=False, database=database)
+
+    # load morango fixtures needed for certificate related operations
+    call_command("loaddata", "scopedefinitions")
+
+
+def check_database_is_migrated():
+    """
+    Use a check that the database instance id model is initialized to check if the database
+    is in a proper state to be used. This must only be run after django initialization.
+    """
+    apps.check_apps_ready()
+    from morango.models import InstanceIDModel
+
+    try:
+        InstanceIDModel.get_or_create_current_instance()[0]
+        return
+    except OperationalError:
+        try:
+            migrate_databases()
+            return
+        except Exception as e:
+            logging.error(
+                "Tried to migrate the database but another error occurred: {}".format(e)
+            )
+    except Exception as e:
+        logging.error(
+            "Tried to check that the database was accessible and an error occurred: {}".format(
+                e
+            )
+        )
+    sys.exit(1)
 
 
 def check_default_options_exist():
