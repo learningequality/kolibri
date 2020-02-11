@@ -59,20 +59,22 @@
         </div>
       </template>
 
+      <template v-slot:append>
+        <div class="col-3">
+          <p v-if="multipleMode && $attrs.checked" class="selected-msg">
+            {{ channelSelectedMessage }}
+          </p>
+          <KRouterLink
+            v-if="!multipleMode"
+            :text="$tr('selectResourcesAction')"
+            :disabled="tasksInQueue"
+            :to="selectContentLink"
+            appearance="raised-button"
+          />
+        </div>
+      </template>
     </ChannelDetails>
 
-    <div class="col-3">
-      <p v-if="multipleMode && $attrs.checked" class="selected-msg">
-        {{ channelSelectedMessage }}
-      </p>
-      <KRouterLink
-        v-if="!multipleMode"
-        :text="$tr('selectResourcesAction')"
-        :disabled="tasksInQueue"
-        :to="selectContentLink"
-        appearance="raised-button"
-      />
-    </div>
 
   </div>
 
@@ -217,23 +219,9 @@
     margin-bottom: 3px;
   }
 
-  .col-2 {
-    min-width: 80px;
-    margin-right: 16px;
-    text-align: right;
-
-    .channel-list-item-sm & {
-      align-self: flex-end;
-      order: -1;
-      margin-right: 0;
-    }
-  }
-
   .col-3 {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    min-width: 200px;
 
     .channel-list-item-sm & {
       flex-direction: column;
