@@ -1,8 +1,6 @@
 import json
 
-from django.db import connection
 from django.db import connections
-from django.db.models import CharField
 from django.db.models import Count
 from django.db.models import F
 from django.db.models import Max
@@ -28,10 +26,8 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger import models as logger_models
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
-from kolibri.core.query import ArrayAgg
-from kolibri.core.query import GroupConcat
-from kolibri.core.query import process_uuid_aggregate
 from kolibri.core.sqlite.utils import repair_sqlite_db
+from kolibri.core.query import annotate_array_aggregate
 
 
 # Intended to match  NotificationEventType
@@ -195,19 +191,9 @@ def serialize_exam_status(queryset):
     )
 
 
-def _map_group(item):
-    item["member_ids"] = process_uuid_aggregate(item, "member_ids")
-    return item
-
-
 def serialize_groups(queryset):
-    if connection.vendor == "postgresql" and ArrayAgg is not None:
-        queryset = queryset.annotate(member_ids=ArrayAgg("membership__user__id"))
-    else:
-        queryset = queryset.values("id").annotate(
-            member_ids=GroupConcat("membership__user__id", output_field=CharField())
-        )
-    return list(map(_map_group, queryset.values("id", "name", "member_ids")))
+    queryset = annotate_array_aggregate(queryset, member_ids="membership__user__id")
+    return list(queryset.values("id", "name", "member_ids"))
 
 
 def serialize_users(queryset):
@@ -217,21 +203,13 @@ def serialize_users(queryset):
 def _map_lesson(item):
     item["resources"] = json.loads(item["resources"])
     item["node_ids"] = [resource["contentnode_id"] for resource in item["resources"]]
-    item["assignments"] = process_uuid_aggregate(item, "assignments")
     return item
 
 
 def serialize_lessons(queryset):
-    if connection.vendor == "postgresql" and ArrayAgg is not None:
-        queryset = queryset.annotate(
-            assignments=ArrayAgg("lesson_assignments__collection")
-        )
-    else:
-        queryset = queryset.values("id").annotate(
-            assignments=GroupConcat(
-                "lesson_assignments__collection", output_field=CharField()
-            )
-        )
+    queryset = annotate_array_aggregate(
+        queryset, assignments="lesson_assignments__collection"
+    )
     return list(
         map(
             _map_lesson,
@@ -251,21 +229,13 @@ def serialize_lessons(queryset):
 def _map_exam(item):
     item["question_sources"] = json.loads(item["question_sources"])
     item["assignments"] = item.pop("exam_assignments")
-    item["assignments"] = process_uuid_aggregate(item, "assignments")
     return item
 
 
 def serialize_exams(queryset):
-    if connection.vendor == "postgresql" and ArrayAgg is not None:
-        queryset = queryset.annotate(
-            exam_assignments=ArrayAgg("assignments__collection")
-        )
-    else:
-        queryset = queryset.values("id").annotate(
-            exam_assignments=GroupConcat(
-                "assignments__collection", output_field=CharField()
-            )
-        )
+    queryset = annotate_array_aggregate(
+        queryset, exam_assignments="assignments__collection"
+    )
     return list(
         map(
             _map_exam,
