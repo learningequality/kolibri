@@ -251,6 +251,21 @@ def get_channel_annotation_stats(channel_id, checksums=None):
 cache = CrossProcessCache(3600)
 
 
+CHANNEL_STATS_CACHED_KEYS = "CHANNEL_STATS_CACHED_KEYS_{channel_id}"
+
+
+# Used for tracking which keys are cached for which channel
+# we can then clear these when necessary
+def register_key_as_cached(key, channel_id):
+    cached_keys = cache.get(
+        CHANNEL_STATS_CACHED_KEYS.format(channel_id=channel_id), set()
+    )
+    cached_keys.add(key)
+    cache.set(
+        CHANNEL_STATS_CACHED_KEYS.format(channel_id=channel_id), cached_keys, None
+    )
+
+
 def get_channel_stats_from_disk(channel_id, drive_id):
     CACHE_KEY = "DISK_CHANNEL_STATS_{drive_id}_{channel_id}".format(
         drive_id=drive_id, channel_id=channel_id
@@ -259,6 +274,7 @@ def get_channel_stats_from_disk(channel_id, drive_id):
         checksums = get_available_checksums_from_disk(channel_id, drive_id)
         channel_stats = get_channel_annotation_stats(channel_id, checksums)
         cache.set(CACHE_KEY, channel_stats, 3600)
+        register_key_as_cached(CACHE_KEY, channel_id)
     else:
         channel_stats = cache.get(CACHE_KEY)
     return channel_stats
@@ -272,6 +288,7 @@ def get_channel_stats_from_peer(channel_id, peer_id):
         checksums = get_available_checksums_from_remote(channel_id, peer_id)
         channel_stats = get_channel_annotation_stats(channel_id, checksums)
         cache.set(CACHE_KEY, channel_stats, 3600)
+        register_key_as_cached(CACHE_KEY, channel_id)
     else:
         channel_stats = cache.get(CACHE_KEY)
     return channel_stats
@@ -282,6 +299,16 @@ def get_channel_stats_from_studio(channel_id):
     if CACHE_KEY not in cache:
         channel_stats = get_channel_annotation_stats(channel_id)
         cache.set(CACHE_KEY, channel_stats, 3600)
+        register_key_as_cached(CACHE_KEY, channel_id)
     else:
         channel_stats = cache.get(CACHE_KEY)
     return channel_stats
+
+
+def clear_channel_stats(channel_id):
+    cached_keys = cache.get(
+        CHANNEL_STATS_CACHED_KEYS.format(channel_id=channel_id), set()
+    )
+    for key in cached_keys:
+        cache.delete(key)
+    cache.set(CHANNEL_STATS_CACHED_KEYS.format(channel_id=channel_id), set(), None)
