@@ -159,5 +159,7 @@ def check_default_options_exist():
             generate_empy_options_file(options_path, OPTIONS)
         except IOError:
             logger.warning(
-                "Failed to create an options.ini file at this path: {}".format(options_path)
+                "Failed to create an options.ini file at this path: {}".format(
+                    options_path
+                )
             )
