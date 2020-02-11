@@ -122,12 +122,12 @@ class InfiniteLoopThread(compat.Thread):
         self.stop()
 
 
-class DiskCacheRlock(RLock):
+class DiskCacheRLock(RLock):
     def release(self):
-        super(DiskCacheRlock, self).release()
+        super(DiskCacheRLock, self).release()
         # RLOCK leaves the db connection open after releasing the lock
         # Let's ensure it's correctly closed
         self._cache.close()
 
 
-db_task_write_lock = DiskCacheRlock(diskcache_cache, "db_task_write_lock")
+db_task_write_lock = DiskCacheRLock(diskcache_cache, "db_task_write_lock")
