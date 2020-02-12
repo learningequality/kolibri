@@ -10,6 +10,7 @@ from sqlalchemy import or_
 from sqlalchemy import select
 
 from .sqlalchemybridge import Bridge
+from .sqlalchemybridge import filter_by_uuids
 from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
@@ -34,14 +35,15 @@ def get_channel_annotation_stats(channel_id, checksums=None):
     ContentNodeTable = bridge.get_table(ContentNode)
     FileTable = bridge.get_table(File)
     LocalFileTable = bridge.get_table(LocalFile)
-
     if checksums is not None:
         file_table = FileTable.join(
             LocalFileTable,
             and_(
                 FileTable.c.local_file_id == LocalFileTable.c.id,
                 or_(
-                    LocalFileTable.c.id.in_(checksums),
+                    # checksums are not uuids and have been got from
+                    # get_channel_stats_from_disk, so no need to validate them:
+                    filter_by_uuids(LocalFileTable.c.id, checksums, validate=False),
                     LocalFileTable.c.available == True,  # noqa
                 ),
             ),
