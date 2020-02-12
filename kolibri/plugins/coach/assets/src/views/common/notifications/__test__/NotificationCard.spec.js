@@ -80,7 +80,11 @@ describe('NotificationCard component', () => {
     expect(elapsedTime.props().date.getTime()).toEqual(timeObject);
   });
 
-  const statusIconTestCases = [['Started', 'clock'], ['HelpNeeded', 'help'], ['Completed', 'star']];
+  const statusIconTestCases = [
+    ['Started', 'clock'],
+    ['HelpNeeded', 'help'],
+    ['Completed', 'star'],
+  ];
 
   it.each(statusIconTestCases)(
     'shows the correct status icon for %s events',
@@ -93,7 +97,11 @@ describe('NotificationCard component', () => {
     }
   );
 
-  const contentIconTestCases = [['Lesson', 'lesson'], ['Quiz', 'exam'], ['Resource', 'video']];
+  const contentIconTestCases = [
+    ['Lesson', 'lesson'],
+    ['Quiz', 'exam'],
+    ['Resource', 'video'],
+  ];
 
   it.each(contentIconTestCases)(
     'shows the correct content icon if the assignment is a %s',

@@ -74,7 +74,10 @@ export default new Resource({
    * Takes an array of params of the same signature as startDiskContentImport as input
    */
   startDiskBulkImport(paramsArray) {
-    return this.postListEndpoint('startdiskbulkimport', paramsArray.map(params => pickBy(params)));
+    return this.postListEndpoint(
+      'startdiskbulkimport',
+      paramsArray.map(params => pickBy(params))
+    );
   },
 
   /**
@@ -98,7 +101,10 @@ export default new Resource({
    */
   startDiskBulkExport(paramsArray) {
     // Not naming it after URL to keep internal consistency
-    return this.postListEndpoint('startdiskbulkexport', paramsArray.map(params => pickBy(params)));
+    return this.postListEndpoint(
+      'startdiskbulkexport',
+      paramsArray.map(params => pickBy(params))
+    );
   },
 
   /**
