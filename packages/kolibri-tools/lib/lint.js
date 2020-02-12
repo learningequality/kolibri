@@ -150,7 +150,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
               code,
               codeFilename,
               config: stylelintConfig,
-              // For reasons beyond my ken, stylint borks on css files
+              // For reasons beyond my ken, stylelint borks on css files
               // Fortunately, scss is a superset of css, so this works.
               syntax: style === 'css' ? 'scss' : style,
               fix: true,
