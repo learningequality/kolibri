@@ -11,6 +11,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.fields import create_timezonestamp
+from django.db import connection
 
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -437,7 +438,16 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
 
     @property
     def channel_stats(self):
-        return self.context["channel_stats"]
+        channel_stats = self.context["channel_stats"]
+        if connection.vendor == "postgresql":
+            # Convert channel IDs to hex strings since they are stored as UUID
+            # objects when Kolibri connects to a PostgreSQL database
+            stats_convert_id = {}
+            for key in channel_stats.keys():
+                channel_id = key.hex
+                stats_convert_id[channel_id] = channel_stats[key]
+            channel_stats = stats_convert_id
+        return channel_stats
 
     def get_total_resources(self, instance):
         # channel_stats is None for export
