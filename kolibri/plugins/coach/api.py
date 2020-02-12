@@ -6,6 +6,7 @@ from django.db.models import F
 from django.db.models import Q
 from django.db.models import Sum
 from django.db.utils import DatabaseError
+from django.db.utils import OperationalError
 from rest_framework import pagination
 from rest_framework import permissions
 from rest_framework import viewsets
@@ -184,6 +185,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             except (LearnerProgressNotification.DoesNotExist):
                 return []
             except DatabaseError:
+                return []
                 repair_sqlite_db(connections["notifications_db"])
 
         return notifications_query.order_by("-id")
@@ -199,17 +201,21 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             response = super(viewsets.ReadOnlyModelViewSet, self).list(
                 request, *args, **kwargs
             )
-        except DatabaseError:
+        except (OperationalError, DatabaseError):
             repair_sqlite_db(connections["notifications_db"])
 
         # L
         logging_interval = datetime.datetime.now() - datetime.timedelta(minutes=5)
-        logged_notifications = (
-            NotificationsLog.objects.filter(timestamp__gte=logging_interval)
-            .values("coach_id")
-            .distinct()
-            .count()
-        )
+        try:
+            logged_notifications = (
+                NotificationsLog.objects.filter(timestamp__gte=logging_interval)
+                .values("coach_id")
+                .distinct()
+                .count()
+            )
+        except (OperationalError, DatabaseError):
+            logged_notifications = 0
+            repair_sqlite_db(connections["notifications_db"])
         # if there are more than 10 notifications we limit the answer to 10
         if logged_notifications < 10:
             notification_info = NotificationsLog()
