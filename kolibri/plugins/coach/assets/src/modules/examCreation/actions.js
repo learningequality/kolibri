@@ -126,9 +126,12 @@ function _getTopicsWithExerciseDescendants(topicIds = []) {
         }
       });
 
-      ContentNodeResource.fetchDescendants(topicsWithExerciseDescendants.map(topic => topic.id), {
-        descendant_kind: ContentNodeKinds.EXERCISE,
-      }).then(response => {
+      ContentNodeResource.fetchDescendants(
+        topicsWithExerciseDescendants.map(topic => topic.id),
+        {
+          descendant_kind: ContentNodeKinds.EXERCISE,
+        }
+      ).then(response => {
         response.entity.forEach(exercise => {
           const topic = topicsWithExerciseDescendants.find(t => t.id === exercise.ancestor_id);
           topic.exercises.push(exercise);

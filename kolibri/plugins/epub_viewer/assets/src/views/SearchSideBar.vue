@@ -127,9 +127,12 @@
     return book.spine.spineItems.reduce(
       (promiseChain, currentSpineItem) =>
         promiseChain.then(totalSearchResults =>
-          searchThroughSpineItem(currentSpineItem, searchQuery, totalSearchResults.length).then(
-            currentSpineItemSearchResults =>
-              totalSearchResults.concat(currentSpineItemSearchResults)
+          searchThroughSpineItem(
+            currentSpineItem,
+            searchQuery,
+            totalSearchResults.length
+          ).then(currentSpineItemSearchResults =>
+            totalSearchResults.concat(currentSpineItemSearchResults)
           )
         ),
       Promise.resolve([])

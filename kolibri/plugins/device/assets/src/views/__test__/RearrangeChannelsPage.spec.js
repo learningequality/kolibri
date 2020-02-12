@@ -4,7 +4,10 @@ import RearrangeChannelsPage from '../RearrangeChannelsPage';
 
 RearrangeChannelsPage.methods.postNewOrder = () => Promise.resolve();
 RearrangeChannelsPage.methods.fetchChannels = () => {
-  return Promise.resolve([{ id: '1', name: 'Channel 1' }, { id: '2', name: 'Channel 2' }]);
+  return Promise.resolve([
+    { id: '1', name: 'Channel 1' },
+    { id: '2', name: 'Channel 2' },
+  ]);
 };
 async function makeWrapper() {
   const store = makeStore();
@@ -71,7 +74,10 @@ describe('RearrangeChannelsPage', () => {
     const dragSortWidget = wrapper.findAll({ name: 'DragSortWidget' }).at(1);
     dragSortWidget.vm.$emit('moveUp');
     expect(spy).toHaveBeenCalledWith({
-      newArray: [{ id: '2', name: 'Channel 2' }, { id: '1', name: 'Channel 1' }],
+      newArray: [
+        { id: '2', name: 'Channel 2' },
+        { id: '1', name: 'Channel 1' },
+      ],
     });
   });
 
@@ -81,7 +87,10 @@ describe('RearrangeChannelsPage', () => {
     const dragSortWidget = wrapper.findAll({ name: 'DragSortWidget' }).at(0);
     dragSortWidget.vm.$emit('moveDown');
     expect(spy).toHaveBeenCalledWith({
-      newArray: [{ id: '2', name: 'Channel 2' }, { id: '1', name: 'Channel 1' }],
+      newArray: [
+        { id: '2', name: 'Channel 2' },
+        { id: '1', name: 'Channel 1' },
+      ],
     });
   });
 });
