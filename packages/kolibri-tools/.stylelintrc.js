@@ -16,7 +16,7 @@ module.exports = {
      * Inline comments explain why rule is ignored
      */
     'no-empty-source': null, // Empty style blocks in vue files
-    // 'font-family-no-missing-generic-family-keyword': null, // Noto Sans is always available
+    'font-family-no-missing-generic-family-keyword': null, // too many exceptions to this rule
     'color-named': null, // No opinion
 
     'no-descending-specificity': null, // Would require refactor
