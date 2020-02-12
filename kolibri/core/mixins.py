@@ -147,7 +147,8 @@ class FilterByUUIDQuerysetMixin(object):
             for (idx, identifier) in enumerate(ids_list):
                 if validate:
                     try:
-                        UUID(identifier, version=4)
+                        if not isinstance(identifier, UUID):
+                            UUID(identifier, version=4)
                     except (TypeError, ValueError):
                         # the value is not a valid hex code for a UUID, so we don't return any results
                         return self.none()
