@@ -128,10 +128,12 @@ def check_database_is_migrated():
     is in a proper state to be used. This must only be run after django initialization.
     """
     apps.check_apps_ready()
+    from django.db import connection
     from morango.models import InstanceIDModel
 
     try:
         InstanceIDModel.get_or_create_current_instance()[0]
+        connection.close()
         return
     except OperationalError:
         try:
