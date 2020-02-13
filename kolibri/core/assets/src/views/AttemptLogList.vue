@@ -74,7 +74,7 @@
                 windowIsLarge ?
                   coreString(
                     'questionNumberLabel',
-                    {questionNumber: attemptLog.questionNumber}
+                    { questionNumber: attemptLog.questionNumber }
                   )
                   :
                   // Add non-breaking space to preserve vertical centering
