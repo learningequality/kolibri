@@ -169,6 +169,5 @@ class Command(AsyncCommand):
             create_superuser_and_provision_device(
                 username, dataset_id, noninteractive=noninteractive
             )
-
         sync_client.close_sync_session()
         self.stdout.write("Syncing has been completed.")

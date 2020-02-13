@@ -47,6 +47,8 @@
         <slot name="belowdescription"></slot>
       </div>
     </div>
+
+    <slot name="append"></slot>
   </div>
 
 </template>

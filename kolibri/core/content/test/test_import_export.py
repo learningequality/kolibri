@@ -195,6 +195,33 @@ class ImportChannelTestCase(TestCase):
             "197934f144305350b5820c7c4dd8e194", cancel_check=is_cancelled_mock
         )
 
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.paths.get_content_database_file_url"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.paths.get_content_database_file_path"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.transfer.FileDownload"
+    )
+    @patch("kolibri.core.content.management.commands.importchannel.clear_channel_stats")
+    def test_remote_successful_import_clears_stats_cache(
+        self,
+        channel_stats_clear_mock,
+        FileDownloadMock,
+        local_path_mock,
+        remote_path_mock,
+        start_progress_mock,
+        import_channel_mock,
+    ):
+        local_path = tempfile.mkstemp()[1]
+        local_path_mock.return_value = local_path
+        remote_path_mock.return_value = "notest"
+        FileDownloadMock.return_value.__iter__.return_value = ["one", "two", "three"]
+        import_channel_mock.return_value = True
+        call_command("importchannel", "network", self.the_channel_id)
+        self.assertTrue(channel_stats_clear_mock.called)
+
 
 @patch(
     "kolibri.core.content.management.commands.importcontent.lookup_channel_listing_status",

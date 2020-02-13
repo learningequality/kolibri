@@ -36,3 +36,8 @@ class CrossProcessCache(object):
         caches["default"].set(key, value, timeout=timeout, version=version)
         if cache_options["CACHE_BACKEND"] != "redis":
             caches["process_cache"].set(key, value, timeout=timeout, version=version)
+
+    def delete(self, key, version=None):
+        caches["default"].delete(key, version=version)
+        if cache_options["CACHE_BACKEND"] != "redis":
+            caches["process_cache"].delete(key, version=version)

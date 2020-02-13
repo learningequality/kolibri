@@ -354,6 +354,8 @@
   }
 
   .details-percentage {
+    // min-width ensures num % stay on same line
+    min-width: 48px;
     margin-left: 16px;
     font-size: $fs1;
   }

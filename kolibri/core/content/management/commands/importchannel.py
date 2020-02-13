@@ -9,6 +9,7 @@ from ...utils import paths
 from ...utils import transfer
 from ...utils.annotation import update_content_metadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.utils.importability_annotation import clear_channel_stats
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
@@ -174,6 +175,9 @@ class Command(AsyncCommand):
                         # annotate default channel db based on previously annotated leaf nodes
                         with db_task_write_lock:
                             update_content_metadata(channel_id, node_ids=node_ids)
+                    if import_ran:
+                        # Clear any previously set channel availability stats for this channel
+                        clear_channel_stats(channel_id)
                 except channel_import.ImportCancelError:
                     # This will only occur if is_cancelled is True.
                     pass

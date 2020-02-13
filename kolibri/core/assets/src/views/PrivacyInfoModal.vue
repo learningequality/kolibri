@@ -2,10 +2,8 @@
 
   <KModal
     size="large"
-    :submitText="coreString('closeAction')"
     :title="coreString('usageAndPrivacyLabel')"
     @cancel="$emit('cancel')"
-    @submit="$emit('submit')"
   >
     <section v-if="!hideUsersSection">
       <h2>{{ coreString('usersLabel') }}</h2>
@@ -48,6 +46,17 @@
       <p>{{ $tr('kolibriAboutP4') }}</p>
       <p>{{ $tr('kolibriAboutP5') }}</p>
     </section>
+    <template v-slot:actions>
+      <!--
+        Need to inject a button without type="submit" attribute
+        so it doesn't force a submit event in the SetupWizard SuperuserCredentialsForm
+      -->
+      <KButton
+        :text="coreString('closeAction')"
+        primary
+        @click="$emit('submit')"
+      />
+    </template>
   </KModal>
 
 </template>
