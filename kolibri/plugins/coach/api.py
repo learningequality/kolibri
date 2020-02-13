@@ -185,8 +185,8 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             except (LearnerProgressNotification.DoesNotExist):
                 return []
             except DatabaseError:
-                return []
                 repair_sqlite_db(connections["notifications_db"])
+                return []
 
         return notifications_query.order_by("-id")
 
