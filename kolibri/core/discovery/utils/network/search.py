@@ -206,7 +206,6 @@ def unregister_zeroconf_service():
     ZEROCONF_STATE["service"] = None
     if ZEROCONF_STATE["zeroconf"] is not None:
         ZEROCONF_STATE["zeroconf"].close()
-    ZEROCONF_STATE["zeroconf"] = None
 
 
 def initialize_zeroconf_listener():
