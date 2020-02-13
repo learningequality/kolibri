@@ -38,7 +38,7 @@ class DeviceSerializerMixin(object):
         """
         Check that the language_id is supported by Kolibri
         """
-        if not check_for_language(language_id):
+        if language_id is not None and not check_for_language(language_id):
             raise serializers.ValidationError(_("Language is not supported by Kolibri"))
         return language_id
 
