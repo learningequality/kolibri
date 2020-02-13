@@ -79,7 +79,7 @@ before_install:
   - git describe --tags --always
   # Required until this is fixed: https://github.com/travis-ci/travis-ci/issues/9112
   - sudo apt-get update --option Acquire::Retries=100 --option Acquire::http::Timeout="60"
-  - pip install -U pip codecov tox
+  - pip install -U pip codecov virtualenv==16.7.9 tox
   - . $HOME/.nvm/nvm.sh
   - nvm install 6
   - nvm use 6
