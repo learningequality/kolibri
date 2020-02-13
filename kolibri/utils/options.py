@@ -352,3 +352,22 @@ def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options
             file=conf.filename
         )
     )
+
+
+def generate_empy_options_file(options_path, options_data):
+
+    exclude_key = ["Python"]
+
+    # Generate an options.ini file inside the KOLIBRI_HOME as default placeholder config
+    with open(options_path, "w") as file:
+        for k, v in options_data.items():
+            if k in exclude_key:
+                return
+            file.write("# [{}] \n".format(k))
+            loop_count = 0
+            for k_child, v_child in v.items():
+                loop_count += 1
+                if k_child not in exclude_key:
+                    file.write("# {} = {} \n".format(k_child, v_child))
+                if loop_count == len(v):
+                    file.write("\n")
