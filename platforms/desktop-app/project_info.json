@@ -1,7 +1,7 @@
 {
   "name": "Kolibri",
   "version": "0.1.1",
-  "build_number": "20",
+  "build_number": "23",
   "identifier": "org.learningequality.Kolibri",
   "requirements": {"android": ["python2","pyjnius","genericndkbuild", "sqlite3", "cryptography", "pyopenssl", "openssl", "six"]},
   "whitelist_file": {"android": "whitelist.txt"},
@@ -17,6 +17,5 @@
     "apps_icon_pos": "(520, 210)",
     "filename": "kolibri-0.13.1-mac-0.1.1",
     "volume_name": "Kolibri 0.13.1"
-  },
-  "codesign": {"osx": { "identity": "Apple Distribution: Foundation for Learning Equality, Inc."}}
+  }
 }
