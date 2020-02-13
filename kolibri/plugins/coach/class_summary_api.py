@@ -1,6 +1,7 @@
 import json
 
 from django.db import connection
+from django.db import connections
 from django.db.models import CharField
 from django.db.models import Count
 from django.db.models import F
@@ -9,6 +10,7 @@ from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models import Sum
+from django.db.utils import OperationalError
 from django.shortcuts import get_object_or_404
 from le_utils.constants import content_kinds
 from rest_framework import permissions
@@ -29,6 +31,7 @@ from kolibri.core.notifications.models import NotificationEventType
 from kolibri.core.query import ArrayAgg
 from kolibri.core.query import GroupConcat
 from kolibri.core.query import process_uuid_aggregate
+from kolibri.core.sqlite.utils import repair_sqlite_db
 
 
 # Intended to match  NotificationEventType
@@ -79,19 +82,22 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
     # existence of this key in the set in order to see whether this user has been flagged as needing
     # help.
     lookup_key = "{user_id}-{node_id}"
+    try:
+        notifications = LearnerProgressNotification.objects.filter(
+            Q(notification_event=NotificationEventType.Completed)
+            | Q(notification_event=NotificationEventType.Help),
+            classroom_id=classroom.id,
+            lesson_id__in=[lesson["id"] for lesson in lesson_data],
+        ).values_list("user_id", "contentnode_id", "timestamp", "notification_event")
 
-    notifications = LearnerProgressNotification.objects.filter(
-        Q(notification_event=NotificationEventType.Completed)
-        | Q(notification_event=NotificationEventType.Help),
-        classroom_id=classroom.id,
-        lesson_id__in=[lesson["id"] for lesson in lesson_data],
-    ).values_list("user_id", "contentnode_id", "timestamp", "notification_event")
-
-    needs_help = {
-        lookup_key.format(user_id=n[0], node_id=n[1]): n[2]
-        for n in notifications
-        if n[3] == NotificationEventType.Help
-    }
+        needs_help = {
+            lookup_key.format(user_id=n[0], node_id=n[1]): n[2]
+            for n in notifications
+            if n[3] == NotificationEventType.Help
+        }
+    except OperationalError:
+        notifications = []
+        repair_sqlite_db(connections["notifications_db"])
 
     # In case a previously flagged learner has since completed an exercise, check all the completed
     # notifications also
