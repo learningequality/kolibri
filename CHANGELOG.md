@@ -2,6 +2,29 @@
 
 List of the most important changes for each release.
 
+## 0.13.1
+
+### Added
+
+- Python version is shown on the 'Device > Info' page in the 'Advanced' section
+- Improved help information when running `kolibri --help` on the command line
+
+
+### Changed or fixed
+
+- Various layout and UX issues, especially some specific to IE11 and Firefox
+- 'Device > Info' page not accessible when logged in as a superuser
+- Channels unintentionally reordered on ‘Device > Channels’ when new content is imported
+- Video captions flashing in different languages when first opening a video
+- Changes to channels updated and republished in Studio not being immediately reflected in Kolibri
+- Occasional database blocking errors when importing large collections of content from external drives
+- Occasional database corruption due to connections not being closed after operations
+- Automatic data restoration for corrupted databases
+- Recreate cache.db files when starting the Kolibri server to remove database locks that may not have been cleanly removed in case of an abrupt shut-down.
+
+([0.13.1 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.13.1))
+
+
 ## 0.13.0
 
 ### Added
