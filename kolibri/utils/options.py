@@ -364,7 +364,12 @@ def generate_empy_options_file(options_path, options_data):
         keys = [k for k in options_data if k not in empy_options_exclude_key]
         for key in keys:
             file.write("# [{}] \n".format(key))
-            child_keys = [k for k in options_data[key] if k not in empy_options_exclude_key]
+            child_keys = [
+                k for k in options_data[key] if k not in empy_options_exclude_key
+            ]
             for child_key in child_keys:
-                file.write("# {} = {} \n".format(child_key, options_data[key][child_key]))
+                file.write(
+                    "# {} = {} \n".format(child_key, options_data[key][child_key])
+                )
+
             file.write("\n")
