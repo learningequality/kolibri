@@ -68,7 +68,22 @@ module.exports = {
         ignoreStrings: true,
         ignoreTemplateLiterals: true,
         ignoreUrls: true,
+        ignoreTrailingComments: true,
       },
+    ],
+    'vue/max-len': [
+      ERROR,
+      {
+        code: 100,
+        template: 100,
+        comments: 100,
+        ignoreUrls: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+        ignoreHTMLTextContents: true,
+        ignoreTrailingComments: true,
+      },
+
     ],
     'vue/attribute-hyphenation': [ERROR, 'never'],
     'vue/require-default-prop': OFF,
@@ -159,11 +174,11 @@ module.exports = {
       ERROR,
       2, // Base indent spaces
       {
-        'attribute': 1,
-        'baseIndent': 1,
-        'closeBracket': 0,
-        'alignAttributesVertically': true,
-      }
+        attribute: 1,
+        baseIndent: 1,
+        closeBracket: 0,
+        alignAttributesVertically: true,
+      },
     ],
     'vue/static-class-names-order': ERROR,
     'vue/no-deprecated-scope-attribute': ERROR,
