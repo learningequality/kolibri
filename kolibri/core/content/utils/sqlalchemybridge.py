@@ -1,9 +1,11 @@
 import logging
 import os
 import pickle
+from uuid import UUID
 
 from django.apps import apps
 from django.conf import settings
+from django.db import connection as django_connection
 from sqlalchemy import ColumnDefault
 from sqlalchemy import create_engine
 from sqlalchemy import event
@@ -13,6 +15,8 @@ from sqlalchemy.orm import interfaces
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
+from sqlalchemy.sql import operators
+from sqlalchemy.sql.elements import UnaryExpression
 
 from .check_schema_db import db_matches_schema
 from .check_schema_db import DBSchemaError
@@ -24,7 +28,7 @@ from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
 def set_sqlite_connection_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
-    cursor.execute(CONNECTION_PRAGMAS)
+    cursor.executescript(CONNECTION_PRAGMAS)
     cursor.close()
 
 
@@ -331,3 +335,35 @@ class Bridge(object):
         self.session.close()
         if self.connection:
             self.connection.close()
+
+
+def filter_by_uuids(field, ids, validate=True):
+    return _by_uuids(field, ids, validate, True)
+
+
+def exclude_by_uuids(field, ids, validate=True):
+    return _by_uuids(field, ids, validate, False)
+
+
+def _by_uuids(field, ids, validate, include):
+    ids_list = list(ids)
+    query = "IN (" if include else "NOT IN ("
+    # trick to workaround postgresql, it does not allow returning ():
+    empty_query = "IS NULL" if include else "IS NOT NULL"
+    for (idx, identifier) in enumerate(ids_list):
+        if validate:
+            try:
+                UUID(identifier, version=4)
+            except (TypeError, ValueError):
+                # the value is not a valid hex code for a UUID, so we don't return any results
+                return UnaryExpression(field, modifier=operators.custom_op(empty_query))
+        # wrap the uuids in string quotations
+        if django_connection.vendor == "postgresql" and validate:
+            ids_list[idx] = "'{}'::uuid".format(identifier)
+        else:  # sqlite or it's not an uuid
+            ids_list[idx] = "'{}'".format(identifier)
+    if ids_list:
+        placeholder = query + ",".join(ids_list) + ")"
+    else:
+        placeholder = empty_query
+    return UnaryExpression(field, modifier=operators.custom_op(placeholder))

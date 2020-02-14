@@ -337,6 +337,7 @@ def create_and_update_notifications(data, source):
         PingbackNotification.objects.filter(source=source).exclude(
             id__in=excluded_ids
         ).update(active=False)
+
     for msg in messages:
         new_msg = {
             "id": msg["msg_id"],

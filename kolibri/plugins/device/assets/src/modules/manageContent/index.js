@@ -98,15 +98,6 @@ export default {
         return null;
       };
     },
-    // Tasks that are active, complete, or failed.
-    // Canceling and canceled tasks are filtered here
-    // to hide them from users, but still let us clean
-    // them up when finished.
-    activeTaskList(state) {
-      return state.taskList.filter(
-        task => task.status !== TaskStatuses.CANCELING && task.status !== TaskStatuses.CANCELED
-      );
-    },
     managedTasks(state) {
       // Tasks that we want to show in the task manager - ignore channel metadata tasks here.
       return state.taskList.filter(

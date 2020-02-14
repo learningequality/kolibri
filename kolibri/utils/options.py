@@ -354,20 +354,17 @@ def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options
     )
 
 
-def generate_empy_options_file(options_path, options_data):
+empy_options_exclude_key = ["Python"]
 
-    exclude_key = ["Python"]
+
+def generate_empy_options_file(options_path, options_data):
 
     # Generate an options.ini file inside the KOLIBRI_HOME as default placeholder config
     with open(options_path, "w") as file:
-        for k, v in options_data.items():
-            if k in exclude_key:
-                return
-            file.write("# [{}] \n".format(k))
-            loop_count = 0
-            for k_child, v_child in v.items():
-                loop_count += 1
-                if k_child not in exclude_key:
-                    file.write("# {} = {} \n".format(k_child, v_child))
-                if loop_count == len(v):
-                    file.write("\n")
+        keys = [k for k in options_data if k not in empy_options_exclude_key]
+        for key in keys:
+            file.write("# [{}] \n".format(key))
+            child_keys = [k for k in options_data[key] if k not in empy_options_exclude_key]
+            for child_key in child_keys:
+                file.write("# {} = {} \n".format(child_key, options_data[key][child_key]))
+            file.write("\n")
