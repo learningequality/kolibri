@@ -15,9 +15,6 @@ from kolibri.deployment.default.cache import diskcache_cache
 current_state_tracker = compat.local()
 
 
-db_task_write_lock = RLock(diskcache_cache, "db_task_write_lock")
-
-
 def get_current_job():
     return getattr(current_state_tracker, "job", None)
 
@@ -123,3 +120,14 @@ class InfiniteLoopThread(compat.Thread):
 
     def shutdown(self):
         self.stop()
+
+
+class DiskCacheRLock(RLock):
+    def release(self):
+        super(DiskCacheRLock, self).release()
+        # RLOCK leaves the db connection open after releasing the lock
+        # Let's ensure it's correctly closed
+        self._cache.close()
+
+
+db_task_write_lock = DiskCacheRLock(diskcache_cache, "db_task_write_lock")
