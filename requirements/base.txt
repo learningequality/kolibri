@@ -23,7 +23,7 @@ morango==0.4.9
 tzlocal==1.5.1
 pytz==2018.5
 python-dateutil==2.7.5
-ifcfg==0.20
+ifcfg==0.21b1
 sqlalchemy==1.2.10
 semver==2.8.1
 django-redis-cache==2.0.0
