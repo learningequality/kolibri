@@ -139,7 +139,11 @@
         return [
           { label: this.$tr('exportChannels'), value: 'EXPORT' },
           { label: this.$tr('deleteChannels'), value: 'DELETE' },
-          { label: this.$tr('editChannelOrder'), value: 'REARRANGE' },
+          {
+            label: this.$tr('editChannelOrder'),
+            value: 'REARRANGE',
+            disabled: this.installedChannelsWithResources.length === 1,
+          },
         ];
       },
     },
