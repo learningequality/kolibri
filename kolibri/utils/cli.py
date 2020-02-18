@@ -32,7 +32,6 @@ from .sanity_checks import check_database_is_migrated
 from .sanity_checks import check_default_options_exist
 from .sanity_checks import check_log_file_location
 from .sanity_checks import check_other_kolibri_running
-from .sanity_checks import migrate_databases
 from .system import become_daemon
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase
 from kolibri.core.upgrade import matches_version
@@ -51,6 +50,9 @@ from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import LOG_ROOT
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.logger import get_base_logging_config
+from kolibri.utils.sanity_checks import check_django_stack_ready
+from kolibri.utils.sanity_checks import DatabaseInaccessible
+from kolibri.utils.sanity_checks import DatabaseNotMigrated
 
 
 logger = logging.getLogger(__name__)
@@ -88,6 +90,21 @@ def should_back_up(kolibri_version, version_file_contents):
         # And the new version is not a dev version
         and "dev" not in kolibri_version
     )
+
+
+def conditional_backup(kolibri_version, version_file_contents):
+    if should_back_up(kolibri_version, version_file_contents):
+        # Non-dev version change, make a backup no matter what.
+        from kolibri.core.deviceadmin.utils import dbbackup
+
+        try:
+            backup = dbbackup(version_file_contents)
+            logger.info("Backed up database to: {path}".format(path=backup))
+        except IncompatibleDatabase:
+            logger.warning(
+                "Skipped automatic database backup, not compatible with "
+                "this DB engine."
+            )
 
 
 def get_version():
@@ -157,6 +174,22 @@ initialize_params = base_params + [
     pythonpath_option,
     skip_update_option,
 ]
+
+
+def _migrate_databases():
+    """
+    Internal help function:
+
+    Try to migrate all active databases. This should not be called unless Django has
+    been initialized.
+    """
+    from django.conf import settings
+
+    for database in settings.DATABASES:
+        call_command("migrate", interactive=False, database=database)
+
+    # load morango fixtures needed for certificate related operations
+    call_command("loaddata", "scopedefinitions")
 
 
 def get_initialize_params():
@@ -232,13 +265,12 @@ class KolibriDjangoCommand(click.Command):
         super(KolibriDjangoCommand, self).__init__(*args, **kwargs)
 
     def invoke(self, ctx):
+        """
+        Initialize Kolibri and run sanity checks.
+        """
         # Check if the current user is the kolibri user when running kolibri from Debian installer.
-        check_debian_user(ctx.params.get("no_input"))
-        setup_logging(debug=get_debug_param())
         initialize()
-        check_content_directory_exists_and_writable()
-        if not ctx.params["skip_update"]:
-            check_database_is_migrated()
+
         for param in initialize_params:
             ctx.params.pop(param.name)
         return super(KolibriDjangoCommand, self).invoke(ctx)
@@ -274,12 +306,15 @@ def _setup_django(debug):
         raise
 
 
-def initialize(skip_update=False):
+def initialize(skip_update=False):  # noqa: max-complexity=12
     """
     Currently, always called before running commands. This may change in case
     commands that conflict with this behavior show up.
     """
+    setup_logging(debug=get_debug_param())
     params = get_initialize_params()
+
+    check_debian_user(params.get("no_input"))
 
     debug = params["debug"]
     skip_update = skip_update or params["skip_update"]
@@ -306,18 +341,7 @@ def initialize(skip_update=False):
     _setup_django(debug)
 
     if version_updated(kolibri.__version__, version) and not skip_update:
-        if should_back_up(kolibri.__version__, version):
-            # Non-dev version change, make a backup no matter what.
-            from kolibri.core.deviceadmin.utils import dbbackup
-
-            try:
-                backup = dbbackup(version)
-                logger.info("Backed up database to: {path}".format(path=backup))
-            except IncompatibleDatabase:
-                logger.warning(
-                    "Skipped automatic database backup, not compatible with "
-                    "this DB engine."
-                )
+        conditional_backup(kolibri.__version__, version)
 
         if version:
             logger.info(
@@ -333,6 +357,29 @@ def initialize(skip_update=False):
         # Run any plugin specific updates here in case they were missed by
         # our Kolibri version based update logic.
         run_plugin_updates()
+
+    check_content_directory_exists_and_writable()
+
+    if not skip_update:
+        check_django_stack_ready()
+        try:
+            check_database_is_migrated()
+        except DatabaseNotMigrated:
+            try:
+                _migrate_databases()
+            except Exception as e:
+                logging.error(
+                    "The database was not fully migrated. Tried to "
+                    "migrate the database and an error occurred: "
+                    "{}".format(e)
+                )
+                sys.exit(1)
+        except DatabaseInaccessible as e:
+            logging.error(
+                "Tried to check that the database was accessible "
+                "and an error occurred: {}".format(e)
+            )
+            sys.exit(1)
 
 
 def update(old_version, new_version):
@@ -360,7 +407,7 @@ def update(old_version, new_version):
 
     call_command("collectstatic", interactive=False, verbosity=0)
 
-    migrate_databases()
+    _migrate_databases()
 
     run_upgrades(old_version, new_version)
 

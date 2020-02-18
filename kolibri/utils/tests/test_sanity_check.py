@@ -2,10 +2,12 @@ import os
 import tempfile
 
 import portend
+from django.db.utils import OperationalError
 from django.test import TestCase
 from mock import patch
 
 from kolibri.utils import sanity_checks
+from kolibri.utils.sanity_checks import DatabaseNotMigrated
 from kolibri.utils.server import NotRunning
 from kolibri.utils.tests.helpers import override_option
 
@@ -68,3 +70,13 @@ class SanityCheckTestCase(TestCase):
         # Check if the number of calls to shutil.move equals to the number of times
         # os.path.exists returns True
         self.assertEqual(move_mock.call_count, 2)
+
+    def test_check_database_is_migrated(self):
+        from morango.models import InstanceIDModel
+
+        with patch.object(
+            InstanceIDModel, "get_or_create_current_instance"
+        ) as get_or_create_current_instance:
+            get_or_create_current_instance.side_effect = OperationalError("Test")
+            with self.assertRaises(DatabaseNotMigrated):
+                sanity_checks.check_database_is_migrated()
