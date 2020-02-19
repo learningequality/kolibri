@@ -69,5 +69,4 @@ repos:
     rev: stable
     hooks:
     - id: black
-      args: [--exclude, '/(\.git|\.tox|\.venv|build|static|dist|node_modules)/']
-#      language_version: python2.7
+      args: [--exclude, '/(\.git|\.tox|\.venv|build|static|dist|node_modules|kolibripip.pex)/']
