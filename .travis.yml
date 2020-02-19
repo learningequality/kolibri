@@ -17,6 +17,7 @@ cache:
   directories:
     - node_modules
     - $HOME/.cache/pip
+    - $HOME/.cache/pre-commit
 
 matrix:
   include:
@@ -33,9 +34,6 @@ matrix:
     - python: "3.6"
       env:
         - TOX_ENV=pythonlint3
-    - python: "3.6"
-      env:
-        - TOX_ENV=pythonblack
     - python: "2.7"
       env:
         - TOX_ENV=licenses
