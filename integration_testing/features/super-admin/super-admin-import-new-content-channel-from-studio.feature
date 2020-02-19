@@ -15,7 +15,7 @@ Feature: Super admin imports content from Studio
       And I see the "Generating channel listing. This could take a few minutes..." notification
     When the channel listing is generated
     Then I see the channel page with logo, name, and version
-      And I see the total number and size of <channel> channel resources   
+      And I see the total number and size of <channel> channel resources
       And I see 0 resources from <channel> channel are listed as *On your device*
       And I see the list of topics for the <channel> channel
       And I see the *Import* button is inactive
@@ -39,8 +39,8 @@ Feature: Super admin imports content from Studio
     Then I see the *Import* button is active
       And I see the checkboxes for all the topics or subtopics are checked
       And I see the *N resources selected* flag for each topic
-      And I see the total size and number of resources selected at the bottom 
-      And the total equals the sum of resources for each topic 
+      And I see the total size and number of resources selected at the bottom
+      And the total equals the sum of resources for each topic
 
   Scenario: Deselect a sub-set of subtopics
     Given I am on a subtopic and there are other topics checked outside the current subtopic
@@ -70,7 +70,7 @@ Feature: Super admin imports content from Studio
     Then I see the *Import* button is still active
       And I do not see the number of *resources selected* flag for the unchecked topic
       And I see the number of *resources selected* at the bottom has decreased for the number of resources in the unchecked topics
-    
+
   Scenario: Uncheck the only topic
     Given there is only one topic checked
     When I uncheck the only checked topic checkbox
@@ -82,8 +82,8 @@ Feature: Super admin imports content from Studio
     Given that I have selected at least one topic or subtopic
     When I click the *Import* button
     Then I see *Device > Task manager* page with the current task in progress
-      And I see the green progress bar with the percentage increasing 
-      And I see *Import resources from '<channel>'* 
+      And I see the green progress bar with the percentage increasing
+      And I see *Import resources from '<channel>'*
       And I see the number and size of the resources being imported
       And I see the *Cancel* button
     When the import process concludes
@@ -91,16 +91,16 @@ Feature: Super admin imports content from Studio
       And I do not see the progress bar anymore
       And I see the *Clear* button for the finished task
       And I see the *Clear completed* button
-      
+
   Scenario: Click the *Clear* button
     Given that there are one or more finished import tasks
       When I click the *Clear* button for one finished task
       Then I don't see it on the *Task* list
-      
+
   Scenario: Click the *Clear completed* button
     Given that there are one or more finished import tasks
       When I click the *Clear completed* button
-      Then I see the *There are no tasks to display* notification 
+      Then I see the *There are no tasks to display* notification
 
   Scenario: Review imported resources
     Given that there are one or more finished import tasks

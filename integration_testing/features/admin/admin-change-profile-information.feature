@@ -33,4 +33,3 @@ Feature: Admin changes profile information
       And if my changes are valid (I did not leave the fields empty, or entered two different passwords)
       And I click the “Update” button
     Then I see the *Password changed* snackbar notification
-    

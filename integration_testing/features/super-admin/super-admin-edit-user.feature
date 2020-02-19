@@ -109,7 +109,7 @@ Feature: Super admin edits users
       And I click the *Save* button
     Then the modal closes
       And I see the confirmation message *Password for '<username>' changed*
-      
+
   Scenario: Super admin can see the label *Super admin* next to their full name, not their facility role
       When I see my name in the user list
       Then I see a label *Super admin* next to my full name

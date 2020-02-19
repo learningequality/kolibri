@@ -14,7 +14,7 @@ Feature: Guest finds content item
 
   Scenario: Clear the previous search
     Given that I've written something in the search field
-      When I use the TAB key to focus the *Clear* button 
+      When I use the TAB key to focus the *Clear* button
         And I press ENTER
           Or I click/tap the *Clear* button directly
       Then I see the search field is empty
@@ -46,7 +46,7 @@ Feature: Guest finds content item
       When I click *Close*
       Then the modal closes
         And I see the results of the previous search
-    Then the modal closes 
+    Then the modal closes
 
 
 Examples:

@@ -5,7 +5,7 @@ Feature: Assign and remove learners to and from groups
     Given I am signed in to Kolibri as a coach user
       And I am on the *Coach - '<class>' > Plan > Groups* page
       And there are groups created
-      
+
   Scenario: Enroll learners
     When I click on <group> group
     Then I see the <group> group page

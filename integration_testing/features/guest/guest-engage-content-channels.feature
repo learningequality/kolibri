@@ -30,6 +30,3 @@ Feature: Guest engages content channels
 Examples:
   | channel        | topic    | subtopic | content_item                     |
   | Kolibri Demo 1 | Science  | Physics  | Intro to springs and Hooke's law |
-
-
-

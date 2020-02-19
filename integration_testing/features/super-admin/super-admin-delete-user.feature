@@ -11,7 +11,7 @@ Feature: Super admin deletes users
     Then I see *Delete user * modal
     When I click the *Delete* button
     Then the modal closes
-      And I see the *Facility > Users* page again 
+      And I see the *Facility > Users* page again
       And I see the snackbar confirmation that the user has been deleted
     When I search for the deleted user in the search field
     Then I see the *No users match the filter* result
@@ -19,4 +19,3 @@ Feature: Super admin deletes users
   Scenario: Try (and fail) to delete your own account
     When I click on *Options* button for my own account
     Then I see that the *Delete* option is not active
-    

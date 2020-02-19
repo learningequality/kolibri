@@ -8,7 +8,7 @@ Feature: Super admin exports entire channels or resources to local drive
       And there is <resource> resource in the <channel2> channel
 
   Scenario: Export complete channel(s) to local drive
-    Given there is at least one writable local drive attached to the device 
+    Given there is at least one writable local drive attached to the device
       When I click the *Options* button
         And I select *Export channels*
       Then I see *Channels on device* page
@@ -28,8 +28,8 @@ Feature: Super admin exports entire channels or resources to local drive
         And I click the *Continue* button
       Then the modal closes
         And I see *Device > Tasks* page with the current task in progress
-        And I see the green progress bar with the percentage increasing 
-        And I see *Export '<channel1>'* 
+        And I see the green progress bar with the percentage increasing
+        And I see *Export '<channel1>'*
         And I see the number and size of the resources being exported
         And I see the *Cancel* button
       When the export process concludes
@@ -55,8 +55,8 @@ Feature: Super admin exports entire channels or resources to local drive
         And I click the *Continue* button
       Then the modal closes
         And I see *Device > Tasks* page with the current task in progress
-        And I see the green progress bar with the percentage increasing 
-        And I see *Export resources from '<channel1>'* 
+        And I see the green progress bar with the percentage increasing
+        And I see *Export resources from '<channel1>'*
         And I see the number and size of the resources being exported
         And I see the *Cancel* button
       When the export process concludes
@@ -68,7 +68,7 @@ Feature: Super admin exports entire channels or resources to local drive
   Scenario: Review that the channel is exported
     When I open the <drive> local drive
     Then I see the *KOLIBRI_DATA* folder on the <drive> local drive
-      And I see the *content* subfolder inside 
+      And I see the *content* subfolder inside
       And I see the *databases* and *storage* subfolders inside the *content* folder
 
   Scenario: No writable drives found

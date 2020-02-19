@@ -12,14 +12,14 @@ Feature: Super admin edits the order of channels
       Then I see *Edit channel order* page
       When I move the cursor over a channel
       Then it transforms to a hand
-      When I drag and drop the channel up or down 
+      When I drag and drop the channel up or down
       Then the snackbar notification appears
         And I see the channel in the new position
 
   Scenario: Edit channel order by keyboard
     When I use the TAB key to focus the channel handle
     Then I see the focus ring around either up or down arrow
-    When I press the ENTER or SPACEBAR key  
+    When I press the ENTER or SPACEBAR key
     Then the snackbar notification appears
       And I see the channel in the new position
 

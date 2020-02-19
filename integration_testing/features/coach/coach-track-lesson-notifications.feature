@@ -1,6 +1,6 @@
 Feature: Lessons notifications
   Class coaches and facility coaches need to be able to see all notifications (*started*, *completed*, and *needs help*) when students engage with lessons.
-  
+
   # Prepare four browsers, or three windows/tabs of the same browser, one of them being incognito/private mode, in order to sign into three as learner users, and as a coach in the other
 
   Background:
