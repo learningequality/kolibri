@@ -6,17 +6,15 @@ For usage instructions, see:
 This set of functions interacts with the crowdin API as documented here:
     https://support.crowdin.com/api/api-integration-setup/
 """
-
-import click
 import csv
 import io
-import json
 import logging
 import os
 import shutil
 import sys
 import zipfile
 
+import click
 import requests
 import utils
 from tabulate import tabulate
@@ -322,7 +320,7 @@ def _csv_to_json():
                 csv_file = io.open(
                     csv_path, mode=mode, encoding=encoding, newline=newline
                 )
-            except EnvironmentError as e:
+            except EnvironmentError:
                 logging.info("Failed to find CSV file in: {}".format(csv_path))
                 continue
 
@@ -410,9 +408,9 @@ def download_translations(branch):
         perseus_target = os.path.join(
             utils.local_perseus_locale_csv_path(), lang_object["crowdin_code"]
         )
-        ## TODO - Update this to work with perseus properly - likely to need to update
-        ## the kolibri-exercise-perseus-plugin repo directly to produce a CSV for its
-        ## translations.
+        # TODO - Update this to work with perseus properly - likely to need to update
+        # the kolibri-exercise-perseus-plugin repo directly to produce a CSV for its
+        # translations.
         if not os.path.exists(perseus_target):
             os.makedirs(perseus_target)
         try:
@@ -420,10 +418,12 @@ def download_translations(branch):
                 os.path.join(target, lang_object["crowdin_code"], PERSEUS_CSV),
                 os.path.join(perseus_target, PERSEUS_CSV),
             )
-        except:
+        except Exception as e:
+            logging.error("Ignoring an exception")
+            logging.error(e)
             pass
 
-    ## TODO Don't need to format here... going to do this in the new command.
+    # TODO Don't need to format here... going to do this in the new command.
     _csv_to_json()  # clean them up to make git diffs more meaningful
     logging.info("Crowdin: download succeeded!")
 
