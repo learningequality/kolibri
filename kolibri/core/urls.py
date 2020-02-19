@@ -40,10 +40,10 @@ from django.conf.urls import url
 from django.conf.urls.static import static
 
 from .views import GuestRedirectView
-from .views import StatusCheckView
 from .views import logout_view
 from .views import RootURLRedirectView
 from .views import set_language
+from .views import StatusCheckView
 from .views import UnsupportedBrowserView
 from kolibri.core.content.utils import paths
 from kolibri.core.device.translation import i18n_patterns

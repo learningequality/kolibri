@@ -8,8 +8,8 @@ from __future__ import unicode_literals
 
 from django import template
 
-from kolibri.core.hooks import FrontEndBaseSyncHook
 from kolibri.core.hooks import FrontEndBaseASyncHook
+from kolibri.core.hooks import FrontEndBaseSyncHook
 
 register = template.Library()
 

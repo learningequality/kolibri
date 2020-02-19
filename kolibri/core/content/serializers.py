@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from django.core.cache import cache
 from django.db.models import Manager
 from django.db.models import Sum
@@ -11,7 +13,6 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.fields import create_timezonestamp
-from uuid import UUID
 
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
