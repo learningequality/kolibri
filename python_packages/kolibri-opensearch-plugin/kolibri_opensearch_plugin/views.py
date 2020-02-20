@@ -16,7 +16,7 @@ class Descriptor(View):
             '<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">'
             "<ShortName>Kolibri</ShortName>"
             "<Description>Kolibri Open Search Engine</Description>"
-            + ('<Url type="application/atom+xml" template="%s/opensearch/search?q={searchTerms}"/>' % absolute_url)
+            + ('<Url type="application/atom+xml" template="%sopensearch/search?q={searchTerms}"/>' % absolute_url)
             + "</OpenSearchDescription>"
         )
 
