@@ -81,7 +81,6 @@ def delete_redis_cache():
     Delete previous cache in redis to reset it when the service starts.
     The purpose is avoiding redis memory usage growing infinitely.
     """
-    redis_common = ["redis-cli", "--scan", "--pattern"]
     redis_args = [
         (str(redis_db), ":1:views.decorators.*"),
         (str(redis_db), ":1:*_dataset"),
@@ -89,14 +88,12 @@ def delete_redis_cache():
         (str(redis_db), ":1:device_settings_cache_key"),
         (str(redis_db + 1), "built_files:1:*"),
     ]
-    redis_del = ["xargs", "redis-cli", "-n"]
     try:
         for arg in redis_args:
-            search = redis_common + [arg[1], "-n", arg[0]]
-            exe_search = subprocess.Popen(search, stdout=subprocess.PIPE,)
-            subprocess.Popen(
-                redis_del + [arg[0], "unlink"], stdin=exe_search.stdout
-            )
+            search = ["redis-cli", "-n", arg[0], "--scan", "--pattern", arg[1]]
+            delete = ["xargs", "redis-cli", "-n", arg[0], "unlink"]
+            exe_search = subprocess.Popen(search, stdout=subprocess.PIPE)
+            subprocess.Popen(delete, stdin=exe_search.stdout)
     except:
         pass  # redis is not running
 
