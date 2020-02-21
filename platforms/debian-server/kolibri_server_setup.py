@@ -12,6 +12,7 @@ from six.moves.urllib.parse import urljoin
 # read the config file options
 port = OPTIONS["Deployment"]['HTTP_PORT']
 path_prefix = OPTIONS['Deployment']['URL_PATH_PREFIX']
+redis_db = OPTIONS['Cache']['CACHE_REDIS_MIN_DB']
 
 if path_prefix != '/':
     path_prefix = '/' + path_prefix
@@ -75,6 +76,32 @@ def enable_cherrypy():
     update_options_file('Server', "CHERRYPY_START", True, KOLIBRI_HOME)
 
 
+def delete_redis_cache():
+    """
+    Delete previous cache in redis to reset it when the service starts.
+    The purpose is avoiding redis memory usage growing infinitely.
+    """
+    redis_common = ["redis-cli", "--scan", "--pattern"]
+    redis_args = [
+        (str(redis_db), ":1:views.decorators.*"),
+        (str(redis_db), ":1:*_dataset"),
+        (str(redis_db), ":1:content_cache_key"),
+        (str(redis_db), ":1:device_settings_cache_key"),
+        (str(redis_db + 1), "built_files:1:*"),
+    ]
+    redis_del = ["xargs", "redis-cli", "-n"]
+    try:
+        for arg in redis_args:
+            search = redis_common + [arg[1], "-n", arg[0]]
+            exe_search = subprocess.Popen(search, stdout=subprocess.PIPE,)
+            exe_delete = subprocess.Popen(
+                redis_del + [arg[0], "unlink"], stdin=exe_search.stdout
+            )
+    except:
+        pass  # redis is not running
+
+
+
 def enable_redis_cache():
     """
     Set redis as the cache backend .
@@ -82,6 +109,7 @@ def enable_redis_cache():
     redis to ensure the cache is shared among them.
     """
     update_options_file('Cache', "CACHE_BACKEND",  "redis", KOLIBRI_HOME)
+    delete_redis_cache()
 
 def disable_redis_cache():
     """
