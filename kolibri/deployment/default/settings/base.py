@@ -161,7 +161,7 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
             "HOST": conf.OPTIONS["Database"]["DATABASE_HOST"],
             "PORT": conf.OPTIONS["Database"]["DATABASE_PORT"],
         },
-        "default_serializable": {
+        "default-serializable": {
             "ENGINE": "django.db.backends.postgresql",
             "NAME": conf.OPTIONS["Database"]["DATABASE_NAME"],
             "PASSWORD": conf.OPTIONS["Database"]["DATABASE_PASSWORD"],
