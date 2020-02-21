@@ -13,14 +13,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-PIP_CMD="$PIP_PATH install --upgrade google-cloud-storage"
-echo "Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't install '$PIP_CMD'."
-    exit 1
-fi
-
 PIP_CMD="$PIP_PATH install -r requirements/pipeline.txt"
 echo "Running $PIP_CMD..."
 $PIP_CMD
