@@ -38,13 +38,13 @@ TTF_PATH = os.path.join(FONTS_SOURCE, "sources")
 GH_PATH = "path"
 
 # filename and directory patterns
-OLD_STYLE_PATH = "^hinted/NotoSans\w*-\w*.ttf$"
-PHASE_3_PATH = "^phaseIII_only/hinted/ttf/NotoSans\w*/NotoSans\w*-\w+\.ttf$"
+OLD_STYLE_PATH = r"^hinted/NotoSans\w*-\w*.ttf$"
+PHASE_3_PATH = r"^phaseIII_only/hinted/ttf/NotoSans\w*/NotoSans\w*-\w+\.ttf$"
 
 
-DIRECTORY_PATTERN = "^NotoSans\w*$"
-REG_PATTERN = "^(NotoSans\w*)-Regular\.ttf$"
-BOLD_PATTERN = "^(NotoSans\w*)-Bold\.ttf$"
+DIRECTORY_PATTERN = r"^NotoSans\w*$"
+REG_PATTERN = r"^(NotoSans\w*)-Regular\.ttf$"
+BOLD_PATTERN = r"^(NotoSans\w*)-Bold\.ttf$"
 
 
 DOWNLOAD_URL = "https://raw.githubusercontent.com/googlei18n/noto-fonts/{ref}/{path}"

@@ -71,7 +71,7 @@ class Worker(object):
 
         try:
             result = future.result()
-        except CancelledError as e:
+        except CancelledError:
             self.report_cancelled(job.job_id)
             return
         except Exception as e:
