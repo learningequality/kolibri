@@ -1,11 +1,11 @@
 from rest_framework import routers
 
+from .api import AdHocGroupViewSet
 from .api import ClassroomViewSet
 from .api import FacilityDatasetViewSet
 from .api import FacilityUsernameViewSet
 from .api import FacilityUserViewSet
 from .api import FacilityViewSet
-from .api import AdHocGroupViewSet
 from .api import LearnerGroupViewSet
 from .api import MembershipViewSet
 from .api import RoleViewSet

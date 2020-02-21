@@ -8,7 +8,6 @@ import mock
 import requests
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
-
 from django.test import TestCase
 from django.utils import timezone
 from le_utils.constants import content_kinds

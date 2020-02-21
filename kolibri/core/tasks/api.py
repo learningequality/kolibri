@@ -1,8 +1,8 @@
 import logging
 import os
-import requests
 from functools import partial
 
+import requests
 from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
 from django.http.response import Http404
@@ -19,8 +19,8 @@ from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
-from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.paths import get_channel_lookup_url
+from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.exceptions import JobNotFound

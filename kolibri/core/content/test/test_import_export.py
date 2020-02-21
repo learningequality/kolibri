@@ -8,8 +8,8 @@ from django.test import TestCase
 from le_utils.constants import content_kinds
 from mock import call
 from mock import MagicMock
-from mock import patch
 from mock import mock_open
+from mock import patch
 from requests import Session
 from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError
@@ -24,8 +24,8 @@ from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
 from kolibri.core.content.utils.import_export_content import get_files_to_transfer
-from kolibri.utils.tests.helpers import override_option
 from kolibri.core.content.utils.transfer import TransferCanceled
+from kolibri.utils.tests.helpers import override_option
 
 # helper class for mocking that is equal to anything
 
