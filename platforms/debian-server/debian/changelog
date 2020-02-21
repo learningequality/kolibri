@@ -1,3 +1,11 @@
+kolibri-server (0.3.8-0ubuntu1) bionic; urgency=medium
+
+  * Log to ~/.kolibri/logs/uwsgi.log
+  * Fix some syntax issues in init.d script
+  * Use bash for init.d script
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 13 March 2020 15:14:31 +0100
+
 kolibri-server (0.3.7~beta1-0ubuntu4) UNRELEASED; urgency=medium
 
   * Build kolibri-server as a native package
