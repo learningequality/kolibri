@@ -117,6 +117,10 @@ def json_dump_formatted(data, file_path, file_name):
     # Ensure that the directory exists for the file to be opened inside of.
     if not os.path.exists(file_path):
         os.makedirs(file_path)
+    except Exception as e:
+        # Path already exists
+        logging.error("Unhandled exception {} while creating {}".format(e, file_path))
+        pass
 
     # Join the filename to the path which we now know exists for sure.
     file_path_with_file_name = os.path.join(file_path, file_name)
