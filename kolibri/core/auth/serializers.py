@@ -10,12 +10,12 @@ from morango.models import TransferSession
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+from .models import AdHocGroup
 from .models import Classroom
 from .models import Facility
 from .models import FacilityDataset
 from .models import FacilityUser
 from .models import LearnerGroup
-from .models import AdHocGroup
 from .models import Membership
 from .models import Role
 from kolibri.core import error_constants

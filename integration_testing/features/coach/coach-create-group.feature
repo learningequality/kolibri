@@ -19,7 +19,7 @@ Feature: Coach creates groups
     When I try to enter a name with more than 50 characters
     Then I see that the name is cut at 50
     When I input a group name same as for an already existing group
-    Then I see the error notification *A group with that name already exists* 
+    Then I see the error notification *A group with that name already exists*
     When I leave the name field empty
       And I click *Save*
     Then I see the error notification *This field is required*

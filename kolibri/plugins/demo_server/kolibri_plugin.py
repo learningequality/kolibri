@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
-from kolibri.plugins.user import hooks
 from kolibri.plugins.hooks import register_hook
+from kolibri.plugins.user import hooks
 
 
 class DemoServer(KolibriPluginBase):

@@ -1,7 +1,7 @@
 from django.db import models
+from django.utils import timezone
 from jsonfield import JSONField
 
-from django.utils import timezone
 from .permissions import UserCanReadExamAssignmentData
 from .permissions import UserCanReadExamData
 from kolibri.core.auth.constants import role_kinds

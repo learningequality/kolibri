@@ -18,8 +18,8 @@ from django_js_reverse.rjsmin import jsmin
 import kolibri
 from kolibri.core.content.utils.paths import get_content_storage_url
 from kolibri.core.device.models import ContentCacheKey
-from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.hooks import NavigationHook
+from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.theme_hook import ThemeHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins.hooks import register_hook

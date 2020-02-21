@@ -1,5 +1,5 @@
 Feature: Super admin selects to import entire channels or only topics/resources
-    Super admin needs to be able to switch between importing entire channels and importing topics or resources 
+    Super admin needs to be able to switch between importing entire channels and importing topics or resources
 
   Background:
     Given I am signed in to Kolibri as super admin, or a user with device permissions to import content
@@ -19,7 +19,7 @@ Feature: Super admin selects to import entire channels or only topics/resources
     When I check the *Select all* checkbox
     Then I see the checkboxes for all the channels are checked
       And I see the *Import* button is active
-      And I see the *N channels selected (M GB)* 
+      And I see the *N channels selected (M GB)*
 
   Scenario: Select/deselect channels
     When I uncheck the *Select all* checkbox
@@ -33,8 +33,8 @@ Feature: Super admin selects to import entire channels or only topics/resources
     Given that I have selected at least one channel
     When I click the *Import* button
     Then I see *Device > Task manager* page with the current task in progress
-      And I see *Import '<channel>'* 
-      And I see the green progress bar with the percentage increasing 
+      And I see *Import '<channel>'*
+      And I see the green progress bar with the percentage increasing
       And I see the *Cancel* button
     When the import process concludes
     Then I see the task is labeled as *Finished*

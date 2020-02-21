@@ -1,8 +1,8 @@
 Feature: Lessons notifications for multiple groups
   Class coaches and facility coaches need to be able to see all notifications (*started*, *completed*, and *needs help*) when groups of learners engage with lessons.
-  
+
   # Prepare four browsers, or three windows/tabs of the same browser, one of them being incognito/private mode, in order to sign into three as learner users, and as a coach in the other
-  
+
   Background:
     Given I have all sessions visible in four browser windows/tabs (signed into three as learners, and in the other as <coach>)
       And I am signed in to Kolibri as a facility or class <coach>
@@ -25,7 +25,7 @@ Feature: Lessons notifications for multiple groups
   	When I click on the <group2> notification
   	Then I see the lesson <exercise> report page
   	  And I see a table with <learner3> progress status on the <exercise>
-  
+
   Scenario: Multiple groups complete on a lesson
   	Given that as each learner in another window I complete the <exercise> in the <lesson>
   	  And as <coach> in another window I am at *Coach - '<class>' > Class Home* page

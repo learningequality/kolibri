@@ -4,13 +4,13 @@ from __future__ import unicode_literals
 
 import logging
 import os
-
 from abc import abstractproperty
 
-from kolibri.plugins import hooks
-import kolibri
-from django.utils.six.moves.urllib import parse
 from django.conf import settings
+from django.utils.six.moves.urllib import parse
+
+import kolibri
+from kolibri.plugins import hooks
 
 logger = logging.getLogger(__name__)
 

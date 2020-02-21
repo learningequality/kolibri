@@ -35,7 +35,7 @@ Feature: Learner engages ePUB content
             But I do not see left and right arrow buttons to go to next and previous page
 
     Scenario: Engage with ePUB table of contents
-      When I click the table of content button in the upper left corner 
+      When I click the table of content button in the upper left corner
       Then I see the book's table of contents overlaid on the left side
       When I click table of content button again
       Then I see the book's table of contents disappear
@@ -48,7 +48,7 @@ Feature: Learner engages ePUB content
     Scenario: Engage with EPUB settings
       When I click the settings button
       Then I see the settings sidebar overlaid on the right side of the content
-        And options for *Text Size* and *Theme* 
+        And options for *Text Size* and *Theme*
       When I click the button to *Increase text size*
       Then I see the text size of <resource> become larger
       When I click the button to *Decrease text size*
@@ -87,7 +87,7 @@ Feature: Learner engages ePUB content
         And I see the <search> term is no longer highlighted in the ePUB content
 
     Scenario: Engages with EPUB fullscreen mode
-      When I click the button for fullscreen 
+      When I click the button for fullscreen
       Then I see ePUB viewer expands fullscreen
       When I click the button to exit fullscreen or I press the Esc key
       Then I see ePUB viewer as before

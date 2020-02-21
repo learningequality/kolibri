@@ -71,4 +71,3 @@ interacted with, the length of time engaged, and the specific pages visited.
 
 Concretely, a UserSessionLog records which pages a user visits and how long the user
 is logged in for.
-

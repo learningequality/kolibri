@@ -26,8 +26,8 @@ Feature: Super admin deletes channel(s) or resource(s)
     When I click the *Delete* button
     Then the modal closes
       And I see *Device > Tasks* page with the current task in progress
-      And I see the green progress bar with the percentage increasing 
-      And I see *Delete '<channel1>'* 
+      And I see the green progress bar with the percentage increasing
+      And I see *Delete '<channel1>'*
       And I see the number and size of the resources being deleted
       And I see the *Cancel* button
     When the delete process concludes
@@ -60,15 +60,15 @@ Feature: Super admin deletes channel(s) or resource(s)
       And I click the *Delete* button
     Then the modal closes
       And I see *Device > Task manager* page with the current task in progress
-      And I see the green progress bar with the percentage increasing 
-      And I see *Delete resources from '<channel2>'* 
+      And I see the green progress bar with the percentage increasing
+      And I see *Delete resources from '<channel2>'*
       And I see the number and size of the resources being deleted
       And I see the *Cancel* button
     When the delete process concludes
     Then I see the task is labeled as *Finished*
       And I do not see the progress bar anymore
       And I see the *Clear* button for the finished task
-      And I see the *Clear completed* button      
+      And I see the *Clear completed* button
 
   Scenario: Review that the resource is deleted
     Given that the <resource> delete task is labeled as *Finished*

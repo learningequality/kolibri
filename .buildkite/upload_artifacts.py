@@ -21,8 +21,8 @@ import sys
 from os import listdir
 
 import requests
-from google.cloud import storage
 from github3 import login
+from google.cloud import storage
 
 logging.getLogger().setLevel(logging.INFO)
 

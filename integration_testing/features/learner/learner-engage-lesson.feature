@@ -7,7 +7,7 @@ Feature: Learner engages with an assigned lesson
       And there is a <lesson> lesson assigned to me, with (in order) <exercise1>, <video> and <exercise2> content items
 
   Scenario: Open an assigned lesson
-    When I click to select the <lesson> lesson that displays no progress bar/icon 
+    When I click to select the <lesson> lesson that displays no progress bar/icon
     Then I am at *Learn > Classes > '<class>' > '<lesson>'* page
       And I see <exercise1> exercise and <video> video
     When I click on <exercise1> exercise content card
@@ -21,7 +21,7 @@ Feature: Learner engages with an assigned lesson
 
   Scenario: Skip to the next content item in the lesson
     Given that I didn't finish answering all the questions in the exercise
-      When I click the <video> video content card under the *Next in lesson* heading 
+      When I click the <video> video content card under the *Next in lesson* heading
       Then I am on *'<lesson>' > '<video>'* page
         And I see the video starts playing automatically
         And I see the blue *Started* icon added to the title

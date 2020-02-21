@@ -13,10 +13,10 @@ from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
+from kolibri.core.notifications.api import create_examattemptslog
 from kolibri.core.notifications.api import create_examlog
 from kolibri.core.notifications.api import create_summarylog
 from kolibri.core.notifications.api import parse_attemptslog
-from kolibri.core.notifications.api import create_examattemptslog
 from kolibri.core.notifications.api import parse_examlog
 from kolibri.core.notifications.api import parse_summarylog
 from kolibri.core.notifications.tasks import wrap_to_save_queue

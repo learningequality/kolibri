@@ -25,10 +25,10 @@ Feature: Groups subtab
           And I see all quiz data scoped to <group>
 
   Scenario: Review learner’s quiz report
-    Given I am on the <quiz> report for <group> 
+    Given I am on the <quiz> report for <group>
       When I click on <learner> learner name
       Then I see the <learner> learner individual attempt report for the <quiz>
-    
+
   Scenario: Review progress of a lesson assigned to a group
     Given I am on the <group> profile page
       And there are lessons assigned to it

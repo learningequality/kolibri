@@ -1,14 +1,14 @@
 Feature: Coach tracks learner progress in a quiz
 
 # Prepare two browsers, or two windows/tabs of the same browser, one of them being incognito/private mode, in order to sign in into one as a learner user, and as a coach in the other
-  
+
   Background:
     Given I have both sessions visible in two browser windows/tabs (signed into one as learner, and in the other as coach)
       And there are learners enrolled to the class <class>
       And there is <learner> enrolled in the group <group>
       And there is quiz <quiz> assigned to group <group>
 
-  Scenario: Learner has not started the quiz   
+  Scenario: Learner has not started the quiz
     When as learner <learner> in one window I go to the *Learn > Class* page for <class>
     Then I see there's a quiz assigned to me that I have not started
     When as a coach <coach> in another window I go to the *Coach - '<class>' > Reports > Groups > '<group>' > Quizzes assigned > '<quiz>'* detail page

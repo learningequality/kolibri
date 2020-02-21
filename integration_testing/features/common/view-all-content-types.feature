@@ -9,7 +9,7 @@ Feature: Kolibri users need to be able to view all the content types in all the 
     	- Firefox/Chrome on Linux
     	- Firefox/Chrome/Safari on Mac/iOS
     Then I can see video playing correctly
-      And I can see both the captions and the interactive transcript 
+      And I can see both the captions and the interactive transcript
 
 
   Scenario: Listen the MP3 audio

@@ -9,7 +9,7 @@ Feature: Super admin signs-in
   Scenario: Sign-in
     When I fill out my username <username>
       And I fill out my password <password>
-      And I click the *Sign in* button 
+      And I click the *Sign in* button
     Then I am signed in and I can see the *Facility > Classes* page
 
   Examples:

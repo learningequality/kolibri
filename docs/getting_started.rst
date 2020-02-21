@@ -111,7 +111,7 @@ Environment variables
 Environment variables can be set in many ways, including:
 
 * adding them to a ``~/.bash_profile`` file (for Bash) or a similar file in your shell of choice
-* using a ``.env`` file for this project, `loaded with Pipenv <https://docs.pipenv.org/en/latest/advanced/#automatic-loading-of-env>`_
+* using a ``.env`` file for this project, `loaded with Pipenv <https://pipenv.kennethreitz.org/en/latest/advanced/#automatic-loading-of-env>`_
 * setting them temporarily in the current Bash session using ``EXPORT`` or similar (not recommended except for testing)
 
 There are two environment variables you should plan to set:

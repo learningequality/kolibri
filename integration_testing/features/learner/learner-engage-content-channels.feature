@@ -28,7 +28,7 @@ Feature: Learner engages content channels
       And I see the *+500 points* snackbar alert
       And I see the *Next* snackbar alert with the title of the next recommended content item
     When I go back to *Channels > '<channel>' > '<topic>' > '<subtopic>' > '<content_item>'*
-    Then I see my points counter is increased by 500 
+    Then I see my points counter is increased by 500
     When I click on the <topic> or <subtopic> parts of the breadcrumb above the player
     Then I can see the rest of the contents of the <channel>
     When I click on the *Channels* part of the breadcrumb above the player
