@@ -1,5 +1,5 @@
 Feature: Super admin searches for users
-  Super admin needs to be able to search for and find users 
+  Super admin needs to be able to search for and find users
 
   # Make sure you have many users in the facility (import from the CSV file, or use the `manage generateusers` command), to be able to test the pagination
 
@@ -22,11 +22,11 @@ Feature: Super admin searches for users
     When I click or tab into the search field
       And I start writing the user's <full_name> or <username>
     Then I see the list of users below is being filtered according to the characters I write
-      And I see the number of pages decreasing accordingly 
+      And I see the number of pages decreasing accordingly
     When I write enough characters for all other users to be excluded
     Then I see just the user I was searching for
 
-  Scenario: Clear search 
+  Scenario: Clear search
     Given that I wrote user's <username> in the search field
       And I see the filtered results
       And I see the number of pages as '1 of 1'
@@ -38,12 +38,12 @@ Feature: Super admin searches for users
     When I click to open the *User type* filter
       And I select the role <role>
     Then in the list bellow I see just the users with the role <role>
-      And I see the number of pages decreased accordingly 
+      And I see the number of pages decreased accordingly
       But I don't see any other user type
     When I click or tab into the search field to further filter the results
       And I start writing the user's <full_name> or <username>
     Then I see the list of users below is being filtered according to the characters I write
-      And I see the number of pages decreasing accordingly 
+      And I see the number of pages decreasing accordingly
     When I write enough characters for all other users to be excluded
     Then I see just the user I was searching for
       And I see the number of pages as '1 of 1'

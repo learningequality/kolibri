@@ -4,7 +4,7 @@ Feature: General navigation on *Class home* tab
   Background:
     Given I am signed in as a class or facility coach
       And I am on *Class home* for class <class>
-      And there are learners and coaches assigned to the class <class>    
+      And there are learners and coaches assigned to the class <class>
 
   Scenario: Review progress of a started quiz
     Given there is a <quiz> quiz available
@@ -28,7 +28,7 @@ Feature: General navigation on *Class home* tab
       And I see a history of all notifications
       And I see filters for *Resource type* and *Progress type*
 
-  Scenario: Filter notifications by resource and progress   
+  Scenario: Filter notifications by resource and progress
     Given that I am on the *Class activity* notifications page
       When I open the *Resource type* filter
       Then I see a list of resource options

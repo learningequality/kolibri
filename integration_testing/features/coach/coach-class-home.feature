@@ -32,7 +32,7 @@ Feature: General navigation on *Class home* tab
     Given that there has not been any learner engagement in the class
       When I look at the *Class activity* block
       Then I see *No activity in your class* notification
-    #  When I click *View all* 
+    #  When I click *View all*
     #  Then I am on an empty *Class activity* page
     #    And I see *No activity in your class* notification
 
@@ -46,4 +46,4 @@ Feature: General navigation on *Class home* tab
   Scenario: No learners enrolled in the class
     Given there are no learners assigned to the class
       When I look at the <class> class home summary block at the top
-      Then I see *0* listed as number of learners        
+      Then I see *0* listed as number of learners

@@ -1,6 +1,6 @@
 Feature: Coaches need to be able to print or save as PDF all the available views inside the *Reports* tab and its subtabs
 
-  Background: 
+  Background:
     Given I am signed in as a facility or class coach
       And I am on *Coach > Reports* tab
       And there are learners divided into groups <group1> and <group2> in the <class>
@@ -60,11 +60,11 @@ Feature: Coaches need to be able to print or save as PDF all the available views
     When I print or save the report from *Reports > Quizzes* subtab
     Then on the paper/PDF I see a table with *Title*, *Average score*, *Progress* and *Recipients* columns for <quiz1> and <quiz2>
 
-    When I print or save the report from *Reports > Quizzes > '<quiz1>' > Report* subtab 
+    When I print or save the report from *Reports > Quizzes > '<quiz1>' > Report* subtab
     Then on the paper/PDF I see a high level <quiz1> overview on top
       And below I see the table with the same columns and values for all the learners in the <class>, as in *Reports > Quizzes > '<quiz1>' > Report* subtab
 
-    When I print or save the report from *Reports > Quizzes > '<quiz1>' > Difficult questions* subtab 
+    When I print or save the report from *Reports > Quizzes > '<quiz1>' > Difficult questions* subtab
     Then on the paper/PDF I see a high level <quiz1> overview on top
       And below I see the table with the same columns and values for all the questions in <quiz1> that at least 2 learners gave incorrect answers to, as in *Reports > Quizzes > '<quiz1>' > Difficult questions* subtab
 

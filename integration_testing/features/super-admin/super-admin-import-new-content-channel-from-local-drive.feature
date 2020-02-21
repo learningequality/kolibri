@@ -13,7 +13,7 @@ Feature: Super admin imports from a new channel on a local drive
     When the channel listing is generated
     Then I am on the *Importing from '<drive>'* page
       And I see the channel page with logo, name, and version
-      And I see the total number and size of <channel> channel resources   
+      And I see the total number and size of <channel> channel resources
       And I see 0 resources from <channel> channel are listed as *On your device*
       And I see the list of topics for the <channel> channel
       And I see the *Import* button is inactive

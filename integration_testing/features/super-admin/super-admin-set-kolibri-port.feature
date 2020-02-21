@@ -11,12 +11,12 @@ Feature: Super admin set the Kolibri server port
       And I write "HTTP_PORT="<port> on the next line
       And I save my changes
       And I run the `kolibri start` command in the terminal or command prompt
-    Then I see that the Kolibri server is running on <port> port 
+    Then I see that the Kolibri server is running on <port> port
 
   Scenario: Set the port with the "KOLIBRI_HTTP_PORT" environment variable
     When I set the <port> using the "KOLIBRI_HTTP_PORT" environment variable
       And I run the `kolibri start` command in the terminal or command prompt
-    Then I see that the Kolibri server is running on <port> port 
+    Then I see that the Kolibri server is running on <port> port
 
 Examples:
 | port |

@@ -19,7 +19,7 @@ Feature: Super admin imports more content
         And I see the *Version N is available* blue notification
         And I see the *View changes* button
         And I see the channel page with logo, name, and the current version on the device
-        And I see the total number and size of <channel> channel resources 
+        And I see the total number and size of <channel> channel resources
         # these values need to refer to the current version on the device
         And I see M resources from <channel> channel are listed as *On your device*
         And I see the list of topics for the <channel> channel
@@ -37,7 +37,7 @@ Feature: Super admin imports more content
     Then I see *Update channel* modal asking for confirmation
     When I click *Continue* button
     Then I see *Device > Task manager* page with the *Update '<channel>' to version N* task in progress
-      And I see the green progress bar with the percentage increasing 
+      And I see the green progress bar with the percentage increasing
       And I see the number and size of the resources being updated
       And the number of resources needs to be close/identical to the *Resources to be updated* value in the previous scenario
       And I see the *Cancel* button
@@ -69,7 +69,7 @@ Feature: Super admin imports more content
   Scenario: Update channel and import new content from local drive
   # for this scenario you will need to have a more recent version of the channel on the local drive than on the device
   # disconnect the device from Internet and work only with local drives
-  # workflow should be the same, no new version alert until you select to *Import more* and then the drive   
+  # workflow should be the same, no new version alert until you select to *Import more* and then the drive
 
 Examples:
 | channel      |

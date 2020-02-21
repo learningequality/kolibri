@@ -191,7 +191,7 @@ Feature: Coach creates quizzes
     Given I am on *Create new quiz* page
       And there are no validation errors
     When I click “Continue”
-    Then I see a *Preview quiz* page 
+    Then I see a *Preview quiz* page
       And I see the *Question order* is by default *Randomized*, with a questions displayed as a list pulled randomly from selected exercises
     When I select *Fixed* radio button
     Then I see the order of questions is refreshed, and questions are displayed as a numbered list.
@@ -200,14 +200,14 @@ Feature: Coach creates quizzes
     When I try to enter a name with more than 100 characters
     Then I see that the title is cut at 100
     When I input a quiz title same as for an already existing quiz
-    Then I see the error notification *A quiz with that name already exists* 
+    Then I see the error notification *A quiz with that name already exists*
     When I leave the name field empty
       And I click *Finish*
     Then I see the error notification *This field is required*
     When I input a valid title into the field
       And I click *Finish*
     Then I don't see the validation error anymore
-      And I see the quiz on the list at *Coach - '<class>' > Plan > Quizzes* tab 
+      And I see the quiz on the list at *Coach - '<class>' > Plan > Quizzes* tab
 
   Scenario: Save quiz
     Given I am on quiz preview page

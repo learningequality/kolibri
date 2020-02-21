@@ -3,7 +3,7 @@ Feature: Super admin can see the Windows installer translated strings
 
     Background:
       Given I am installing Kolibri on Windows OS
-        And Windows UI is configured to display in <language> language by default 
+        And Windows UI is configured to display in <language> language by default
 
 # List of translation from Spanish to English
 # "Control de cuentas usuario" > "User Account Control"
@@ -34,7 +34,7 @@ Feature: Super admin can see the Windows installer translated strings
         # If the Python version 3.4 is not yet installed in this Windows environment
         And I see the setup message box that Python is required to install
         And I click "Sí" to install Python
-      Then I see that Python is installing # Python installer might not be 
+      Then I see that Python is installing # Python installer might not be
         And I click "Siguiente" button
         And I continue the Kolibri installation
       Then I see that every "Kolibri configuración" window has translated strings that displayed properly

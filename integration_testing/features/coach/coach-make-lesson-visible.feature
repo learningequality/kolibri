@@ -87,4 +87,3 @@ Feature: Coach makes lessons visible
 Examples:
 | lesson                |
 | mathematics exercises |
-

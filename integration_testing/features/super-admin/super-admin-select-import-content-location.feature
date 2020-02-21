@@ -1,5 +1,5 @@
 Feature: Super admin selects import content location
-    Super admin needs to be able to select where to import content from Kolibri Studio, local network or attached drive 
+    Super admin needs to be able to select where to import content from Kolibri Studio, local network or attached drive
 
   Background:
     Given I am signed in to Kolibri as super admin, or a user with device permissions to import content
@@ -9,7 +9,7 @@ Feature: Super admin selects import content location
     Given the device has Internet connection available
       When I click on *Import* button
       Then I see *Select a source* modal
-      When I select *Kolibri Studio (online)* 
+      When I select *Kolibri Studio (online)*
         And I click *Continue*
       Then I see the *Loading channels* message
         And I see the *Kolibri Studio channels* page with the list of available channels
@@ -24,7 +24,7 @@ Feature: Super admin selects import content location
     Given the device has Internet connection available, or an access to another Kolibri server instance in the local network
       When I click on *Import* button
       Then I see *Select a source* modal
-      When I select *Local network or internet* 
+      When I select *Local network or internet*
         And I click *Continue*
       Then I see *Select network address* modal
       When I click *Add new address*
@@ -45,7 +45,7 @@ Feature: Super admin selects import content location
     Given there is a <drive> local drive attached to the device
       When I click on *Import* button
       Then I see *Select a source* modal
-      When I select *Attached drive or memory card* 
+      When I select *Attached drive or memory card*
         And I click *Continue*
       Then I see Kolibri searching for local drives
         And I see the *Select a drive* modal
@@ -57,7 +57,7 @@ Feature: Super admin selects import content location
     Given there is no local drives attached to the device
       When I click on *Import* button
       Then I see *Select a source* modal
-      When I select *Attached drive or memory card* 
+      When I select *Attached drive or memory card*
         And I click *Continue*
       Then I see Kolibri searching for local drives
         And I see the *Select a drive* modal
