@@ -54,11 +54,10 @@ do_start()
   # upgrade nginx and kolibri configurations:
   su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py"
   # ensure kolibri application is running:
-  service kolibri start
   do_check_nginx
+  su $KOLIBRI_USER -c "$KOLIBRI_COMMAND start &" 
   mkdir -p /var/run/$NAME
   chown "$KOLIBRI_USER" /var/run/$NAME
-  sleep 15 # ugly hack to avoid race condition when kolibri does vacuum
   start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI --test -- $DAEMON_UWSGI_ARGS > /dev/null \
     || return 1
   start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI -- \
@@ -94,7 +93,7 @@ do_check_nginx()
   service nginx status 1>/dev/null 2>&1
   retval=$?
   if [ $retval -ne 0  ]; then
-    service kolibri restart
+    su $KOLIBRI_USER -c "$KOLIBRI_COMMAND restart &" 
     service nginx start
   else
     service nginx reload
@@ -102,11 +101,12 @@ do_check_nginx()
 }
 
 do_stop() {
-  service kolibri stop
+  su $KOLIBRI_USER -c "$KOLIBRI_COMMAND stop &"
   do_stop_uwsgi
 
   retval=$?
-
+  rm -f $PIDFILE_UWSGI
+  rm -f /tmp/kolibri_uwsgi.sock
   [ $retval -eq 0 ]
   return $retval
 }
