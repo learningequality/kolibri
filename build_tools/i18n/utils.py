@@ -117,8 +117,9 @@ def json_dump_formatted(data, file_path, file_name):
     # Ensure that the directory exists for the file to be opened inside of.
     try:
         os.makedirs(file_path)
-    except:
+    except Exception as e:
         # Path already exists
+        logging.error("Unhandled exception {} while creating {}".format(e, file_path))
         pass
 
     # Join the filename to the path which we now know exists for sure.
@@ -135,7 +136,7 @@ def json_dump_formatted(data, file_path, file_name):
                 separators=(",", ": "),
                 ensure_ascii=False,
             )
-            output = unicode(output, "utf-8")
+            output = unicode(output, "utf-8")  # noqa
             file_object.write(output)
         else:
             json.dump(
