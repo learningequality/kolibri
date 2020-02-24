@@ -33,7 +33,7 @@ matrix:
        - tox -e $TOX_ENV
     - python: "3.6"
       env:
-        - TOX_ENV=pythonlint3
+        - TOX_ENV=lint
     - python: "2.7"
       env:
         - TOX_ENV=licenses
