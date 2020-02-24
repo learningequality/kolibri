@@ -83,6 +83,7 @@ def delete_redis_cache():
     """
     redis_args = [
         (str(redis_db), ":1:views.decorators.*"),
+        (str(redis_db), ":1:CHANNEL_STATS_CACHED_KEYS*"),
         (str(redis_db), ":1:*_dataset"),
         (str(redis_db), ":1:content_cache_key"),
         (str(redis_db), ":1:device_settings_cache_key"),
