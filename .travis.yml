@@ -84,6 +84,9 @@ matrix:
 
 
 before_install:
+  # Can likely be removed once we stop using Trusty
+  # https://github.com/travis-ci/travis-ci/issues/8920
+  - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
   - git fetch
   - git describe --tags --always
   # Required until this is fixed: https://github.com/travis-ci/travis-ci/issues/9112
