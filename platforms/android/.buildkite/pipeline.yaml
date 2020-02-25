@@ -1,7 +1,5 @@
 steps:
-  # - block: "Build :android:?"
-  # TODO make this independantly triggerable
-  # Only block when build is triggered by another build
-  # - if: build.source == "trigger_job"
+  - block: "Build :android:?"
+    if: build.source == "trigger_job"
   - label: "Build Android App"
     command: ".buildkite/build.sh"
