@@ -10,14 +10,14 @@ from kolibri.utils.conf import KOLIBRI_HOME
 from six.moves.urllib.parse import urljoin
 
 # read the config file options
-port = OPTIONS["Deployment"]['HTTP_PORT']
-path_prefix = OPTIONS['Deployment']['URL_PATH_PREFIX']
-redis_db = OPTIONS['Cache']['CACHE_REDIS_MIN_DB']
+port = OPTIONS["Deployment"]["HTTP_PORT"]
+path_prefix = OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+redis_db = OPTIONS["Cache"]["CACHE_REDIS_MIN_DB"]
 
-if path_prefix != '/':
-    path_prefix = '/' + path_prefix
+if path_prefix != "/":
+    path_prefix = "/" + path_prefix
 
-STATIC_URL = urljoin(path_prefix, 'static/')
+STATIC_URL = urljoin(path_prefix, "static/")
 STATIC_ROOT = os.path.join(KOLIBRI_HOME, "static")
 
 
@@ -25,9 +25,13 @@ def start_debconf_dialog():
     """
     Auxiliar function to start a dialog with debconf database
     """
-    args = ['debconf-communicate', '-fnoninteractive', 'kolibri-server']
+    args = ["debconf-communicate", "-fnoninteractive", "kolibri-server"]
     dccomm = subprocess.Popen(
-        args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, close_fds=True, universal_newlines=True
+        args,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        close_fds=True,
+        universal_newlines=True,
     )
     return dccomm
 
@@ -36,7 +40,7 @@ def stop_debconf_dialog(dccomm):
     """
     Auxiliar function to end a dialog with debconf database
     """
-    dccomm.stdin.write('STOP\n')
+    dccomm.stdin.write("STOP\n")
     dccomm.stdin.flush()
 
 
@@ -65,7 +69,7 @@ def disable_cherrypy():
     Kolibri will only run background tasks.
     Web must be provided by an external server, usually uwsgi + nginx
     """
-    update_options_file('Server', "CHERRYPY_START", False, KOLIBRI_HOME)
+    update_options_file("Server", "CHERRYPY_START", False, KOLIBRI_HOME)
 
 
 def enable_cherrypy():
@@ -73,7 +77,7 @@ def enable_cherrypy():
     Enable internal kolibri web server.
     This option is incompatible with running kolibri-server
     """
-    update_options_file('Server', "CHERRYPY_START", True, KOLIBRI_HOME)
+    update_options_file("Server", "CHERRYPY_START", True, KOLIBRI_HOME)
 
 
 def delete_redis_cache():
@@ -103,15 +107,16 @@ def enable_redis_cache():
     When multiple processes run the server we need to use
     redis to ensure the cache is shared among them.
     """
-    update_options_file('Cache', "CACHE_BACKEND",  "redis", KOLIBRI_HOME)
+    update_options_file("Cache", "CACHE_BACKEND", "redis", KOLIBRI_HOME)
     delete_redis_cache()
+
 
 def disable_redis_cache():
     """
     Set memory as the cache backend .
     If redis is not active, enabling it will break kolibri
     """
-    update_options_file('Cache', "CACHE_BACKEND",  "memory", KOLIBRI_HOME)
+    update_options_file("Cache", "CACHE_BACKEND", "memory", KOLIBRI_HOME)
 
 
 def check_redis_service():
@@ -119,7 +124,7 @@ def check_redis_service():
     Checks if redis is running in the system
     """
     status = False
-    args = ['service', 'redis', 'status']
+    args = ["service", "redis", "status"]
     try:
         subprocess.check_call(args, stdout=subprocess.PIPE)
     except subprocess.CalledProcessError:
@@ -130,6 +135,7 @@ def check_redis_service():
         status = True
     return status
 
+
 def save_nginx_conf_port(port, nginx_conf=None):
     """
      Adds the port for nginx to run to an existing config file.
@@ -139,14 +145,14 @@ def save_nginx_conf_port(port, nginx_conf=None):
         nginx_conf = os.path.join(KOLIBRI_HOME, "nginx.conf")
 
     # If a port is already in the file, let's not add a new one:
-    with open(nginx_conf, 'r') as nginx_conf_file:
+    with open(nginx_conf, "r") as nginx_conf_file:
         data_configs = nginx_conf_file.read()
     if "listen" in data_configs:
         return
 
     configuration = "\nlisten {};\n".format(port)
 
-    with open(nginx_conf, 'a') as nginx_conf_file:
+    with open(nginx_conf, "a") as nginx_conf_file:
         nginx_conf_file.write(configuration)
 
 
@@ -173,7 +179,7 @@ def save_nginx_conf_include(static_root, nginx_conf=None):
     if nginx_conf is None:
         nginx_conf = os.path.join(KOLIBRI_HOME, "nginx.conf")
 
-    with open(nginx_conf, 'w') as nginx_conf_file:
+    with open(nginx_conf, "w") as nginx_conf_file:
         configuration = (
             "# This file is maintained AUTOMATICALLY and will be overwritten\n"
             "#\n"
@@ -184,20 +190,22 @@ def save_nginx_conf_include(static_root, nginx_conf=None):
             "location {path_prefix}static {{\n"
             "    alias  {static_dir};\n"
             "    expires 365d;\n"
-            "    add_header Cache-Control \"public\";\n"
+            '    add_header Cache-Control "public";\n'
             "}}\n"
             "location {path_prefix}content {{\n"
             "    alias  {content_dir}/;\n"
             "    expires 365d;\n"
-            "    add_header Cache-Control \"public\";\n"
+            '    add_header Cache-Control "public";\n'
             "}}\n"
-        ).format(static_dir=static_root,
-                 content_dir=get_content_dir_path(),
-                 path_prefix=path_prefix)
+        ).format(
+            static_dir=static_root,
+            content_dir=get_content_dir_path(),
+            path_prefix=path_prefix,
+        )
         nginx_conf_file.write(configuration)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Tool to configure kolibri-server")
     parser.add_argument(
         "-d",
@@ -211,14 +219,16 @@ if __name__ == '__main__':
         "--cherrypy",
         required=False,
         default=False,
-        action='store_true',
+        action="store_true",
         help="Restore cherrypy because kolibri-server is not going to be run",
     )
     args = parser.parse_args()
     if args.cherrypy:
         enable_cherrypy()
     else:
-        if args.debconfport:  # To be executed only when installing/reconfiguring the Debian package
+        if (
+            args.debconfport
+        ):  # To be executed only when installing/reconfiguring the Debian package
             disable_cherrypy()
             set_port(args.debconfport)
         else:
