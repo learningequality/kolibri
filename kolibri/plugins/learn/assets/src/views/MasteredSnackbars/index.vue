@@ -169,7 +169,7 @@
     $trs: {
       plusPoints: '+ { maxPoints, number } Points',
       next: 'Next:',
-      signIn: 'Sign in or create an account to save points you earn',
+      signIn: 'Sign in or create an account to begin earning points',
     },
   };
 
