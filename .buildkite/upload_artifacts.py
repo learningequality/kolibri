@@ -96,11 +96,11 @@ file_manifest = {
         "category": INSTALLER_CAT,
         "content_type": "application/x-zip-compressed",
     },
-    'apk': {
-        'extension': 'apk',
-        'description': 'Android Installer',
-        'category': INSTALLER_CAT,
-        'content_type': 'application/vnd.android.package-archive',
+    "apk": {
+        "extension": "apk",
+        "description": "Android Installer",
+        "category": INSTALLER_CAT,
+        "content_type": "application/vnd.android.package-archive",
     },
 }
 
@@ -110,7 +110,7 @@ file_order = [
     "dmg",
     "unsigned-exe",
     "signed-exe",
-    'apk',
+    "apk",
     "pex",
     "whl",
     "gz",
