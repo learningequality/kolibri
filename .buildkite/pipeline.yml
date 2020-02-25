@@ -32,7 +32,7 @@ steps:
   - trigger: "kolibri-raspbian-image"
     label: ":raspberry-pi:"
     async: true
-    build: &triggered_build_attributes
+    build:
       message: "${BUILDKITE_MESSAGE}"
       branch: "autoblock"
       env:
