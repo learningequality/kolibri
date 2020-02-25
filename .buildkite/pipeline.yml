@@ -16,12 +16,15 @@ steps:
         LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
         LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
 
-    # Android build only requires whl file
-  # - label: Build Android APK
-  #   env:
-  #     KOLIBRI_ANDROID_BUILD_MODE: dev
-  #   command: &android_build
-  #     - .buildkite/build_apk.sh
+  - trigger: "kolibri-android-installer"
+    label: ":android:"
+    async: true
+    build:
+      message: "${BUILDKITE_MESSAGE}"
+      env:
+        KOLIBRI_ANDROID_BUILD_MODE: dev
+        LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
+        LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
 
   - label: Build Windows installer
     command: .buildkite/build_windows_installer.sh
