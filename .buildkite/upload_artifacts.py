@@ -173,36 +173,88 @@ def collect_local_artifacts():
         data.update(file_manifest[data_name_exe])
         artifacts_dict[data_name_exe] = data
 
-    def create_artifact_data(artifact_dir):
-        for artifact in listdir(artifact_dir):
-            filename, file_extension = os.path.splitext(artifact)
-            # Remove leading '.'
-            # print("...>", artifact, "<......")
-            file_extension = file_extension[1:]
-            data = {
-                "name": artifact,
-                "file_location": "%s/%s" % (artifact_dir, artifact),
-            }
-            if file_extension == "exe":
-                create_exe_data(filename, data)
+    for artifact in listdir(DIST_DIR):
+        filename, file_extension = os.path.splitext(artifact)
+        # Remove leading '.'
+        # print("...>", artifact, "<......")
+        file_extension = file_extension[1:]
+        data = {
+            "name": artifact,
+            "file_location": "%s/%s" % (DIST_DIR, artifact),
+        }
+        if file_extension == "exe":
+            create_exe_data(filename, data)
 
-            if file_extension in file_manifest:
-                data.update(file_manifest[file_extension])
-                logging.info("Collect file data: (%s)" % data)
-                artifacts_dict[file_extension] = data
+        if file_extension in file_manifest:
+            data.update(file_manifest[file_extension])
+            logging.info("Collect file data: (%s)" % data)
+            artifacts_dict[file_extension] = data
 
-    create_artifact_data(DIST_DIR)
+    # basically the manifest dict, with extra fields
     return artifacts_dict
 
 
-def upload_artifacts():
+def upload_html(html="", artifacts={}):
+    client = storage.Client()
+    bucket = client.bucket("le-downloads")
+
+    # add count to report html to avoid duplicate.
+    report_count = BUILD_ID + "-first"
+    if "signed-exe" in artifacts:
+        report_count = BUILD_ID + "-second"
+
+    blob = bucket.blob("kolibri-%s-%s-report.html" % (RELEASE_DIR, report_count))
+
+    blob.upload_from_string(html, content_type="text/html")
+
+    blob.make_public()
+
+    return blob.public_url
+
+
+def upload_gh_release_artifacts(artifacts={}):
+    # Have to do this with requests because github3 does not support this interface yet
+    get_release_asset_url = requests.get(
+        "https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}".format(
+            owner=REPO_OWNER, repo=REPO_NAME, tag=TAG
+        )
+    )
+    if get_release_asset_url.status_code == 200:
+        # Definitely a release!
+        release_id = get_release_asset_url.json()["id"]
+        release_name = get_release_asset_url.json()["name"]
+        release = repository.release(id=release_id)
+        logging.info("Uploading built assets to Github Release: %s" % release_name)
+        for file_extension in file_order:
+            if file_extension in artifacts:
+                artifact = artifacts[file_extension]
+                logging.info("Uploading release asset: %s" % (artifact.get("name")))
+                # For some reason github3 does not let us set a label at initial upload
+                asset = release.upload_asset(
+                    content_type=artifact["content_type"],
+                    name=artifact["name"],
+                    asset=open(artifact["file_location"], "rb"),
+                )
+                if asset:
+                    # So do it after the initial upload instead
+                    asset.edit(artifact["name"], label=artifact["description"])
+                    logging.info(
+                        "Successfully uploaded release asset: %s"
+                        % (artifact.get("name"))
+                    )
+                else:
+                    logging.error(
+                        "Error uploading release asset: %s" % (artifact.get("name"))
+                    )
+
+
+def upload_gh_status_artifacts(artifacts={}):
     """
     Upload the artifacts on the Google Cloud Storage.
     Create a comment on the pull requester with artifact media link.
     """
     client = storage.Client()
     bucket = client.bucket("le-downloads")
-    artifacts = collect_local_artifacts()
     is_release = os.getenv("IS_KOLIBRI_RELEASE")
     for file_data in artifacts.values():
         logging.info("Uploading file (%s)" % (file_data.get("name")))
@@ -224,60 +276,16 @@ def upload_artifacts():
             }
         )
 
-    html = create_status_report_html(artifacts)
-
-    # add count to report html to avoid duplicate.
-    report_count = BUILD_ID + "-first"
-    if "signed-exe" in artifacts:
-        report_count = BUILD_ID + "-second"
-
-    blob = bucket.blob("kolibri-%s-%s-report.html" % (RELEASE_DIR, report_count))
-
-    blob.upload_from_string(html, content_type="text/html")
-
-    blob.make_public()
-
-    create_github_status(blob.public_url)
-
-    if TAG:
-        # Building from a tag, this is probably a release!
-        # Have to do this with requests because github3 does not support this interface yet
-        get_release_asset_url = requests.get(
-            "https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}".format(
-                owner=REPO_OWNER, repo=REPO_NAME, tag=TAG
-            )
-        )
-        if get_release_asset_url.status_code == 200:
-            # Definitely a release!
-            release_id = get_release_asset_url.json()["id"]
-            release_name = get_release_asset_url.json()["name"]
-            release = repository.release(id=release_id)
-            logging.info("Uploading built assets to Github Release: %s" % release_name)
-            for file_extension in file_order:
-                if file_extension in artifacts:
-                    artifact = artifacts[file_extension]
-                    logging.info("Uploading release asset: %s" % (artifact.get("name")))
-                    # For some reason github3 does not let us set a label at initial upload
-                    asset = release.upload_asset(
-                        content_type=artifact["content_type"],
-                        name=artifact["name"],
-                        asset=open(artifact["file_location"], "rb"),
-                    )
-                    if asset:
-                        # So do it after the initial upload instead
-                        asset.edit(artifact["name"], label=artifact["description"])
-                        logging.info(
-                            "Successfully uploaded release asset: %s"
-                            % (artifact.get("name"))
-                        )
-                    else:
-                        logging.error(
-                            "Error uploading release asset: %s" % (artifact.get("name"))
-                        )
-
 
 def main():
-    upload_artifacts()
+    artifacts = collect_local_artifacts()
+    upload_gh_status_artifacts(artifacts)
+    html = create_status_report_html(artifacts)
+    html_url = upload_html(html)
+    create_github_status(html_url)
+    if TAG:
+        # Building from a tag, this is probably a release!
+        upload_gh_release_artifacts(artifacts)
 
 
 if __name__ == "__main__":
