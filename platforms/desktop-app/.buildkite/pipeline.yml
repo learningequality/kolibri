@@ -1,4 +1,6 @@
 steps:
+  - block: "Build Mac App?"
+    if: build.source == "trigger_job"
   - label: "Build Dev Package"
     command: ".buildkite/build.sh"
     agents:
