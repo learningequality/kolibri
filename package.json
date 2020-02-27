@@ -51,7 +51,8 @@
   },
   "private": true,
   "dependencies": {
-    "espree": "5.0.1"
+    "espree": "5.0.1",
+    "kolibri-design-system": "https://github.com/learningequality/kolibri-design-system"
   },
   "devDependencies": {
     "@types/jest": "^24.0.12",
