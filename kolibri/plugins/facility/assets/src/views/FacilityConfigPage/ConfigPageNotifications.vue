@@ -19,7 +19,7 @@
 
     <UiAlert
       v-if="notification === notificationTypes.SAVE_FAILURE"
-      type="success"
+      type="error"
       @dismiss="dismiss()"
     >
       {{ $tr('saveFailure') }}
