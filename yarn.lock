@@ -7563,17 +7563,6 @@ knuth-shuffle-seeded@^1.0.6:
   dependencies:
     seed-random "~2.2.0"
 
-kolibri-components@0.13.0-dev.10:
-  version "0.13.0-dev.9"
-  resolved "https://registry.yarnpkg.com/kolibri-components/-/kolibri-components-0.13.0-dev.9.tgz#85234c9d3a1fcaa2d40d95b7350cc9007e5afc2e"
-  integrity sha512-nucsP9C0FU+pCz6YKOmPpYtlJZyUwJuLOIBeVGa5A05JRwAqVYQlP1G9MKeUJ9lPfLoBRZolKom3CPmpUYR51w==
-  dependencies:
-    aphrodite "https://github.com/learningequality/aphrodite/"
-    css-element-queries "^1.2.0"
-    material-design-icons "^3.0.1"
-    popper.js "^1.14.6"
-    purecss "^0.6.2"
-
 "kolibri-design-system@https://github.com/learningequality/kolibri-design-system":
   version "0.2.0"
   resolved "https://github.com/learningequality/kolibri-design-system#d7d8817d232d7c2aa58e5f818fc77fe2cdd8b83f"
