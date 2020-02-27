@@ -345,4 +345,8 @@
     font-weight: bold;
   }
 
+  .content-carousel {
+    margin-bottom: 24px;
+  }
+
 </style>
