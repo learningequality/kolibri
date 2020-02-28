@@ -140,7 +140,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
           options: {
             objectAssign: 'Object.assign',
           },
-          exclude: /node_modules\/vue/,
+          exclude: /node_modules\/(vue|material-svg-precompiled-vue-templates)/,
         },
         {
           test: /\.css$/,
