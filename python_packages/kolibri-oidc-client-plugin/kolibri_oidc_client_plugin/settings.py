@@ -12,10 +12,18 @@ OIDC_RP_CLIENT_ID = os.environ.get("CLIENT_ID", "kolibri.app")
 OIDC_RP_CLIENT_SECRET = os.environ.get("CLIENT_SECRET", "kolibri.app")
 OIDC_RP_SIGN_ALGO = "RS256"
 OIDC_AUTHENTICATION_CALLBACK_URL = "oidc_client:oidc_authentication_callback"
-OIDC_OP_AUTHORIZATION_ENDPOINT = "{}/authorize".format(OIDC_URL)
-OIDC_OP_JWKS_ENDPOINT = "{}/jwks".format(OIDC_URL)
-OIDC_OP_TOKEN_ENDPOINT = "{}/token".format(OIDC_URL)
-OIDC_OP_USER_ENDPOINT = "{}/userinfo".format(OIDC_URL)
+OIDC_OP_AUTHORIZATION_ENDPOINT = OPTIONS["OIDCClient"][
+    "AUTHORIZATION_ENDPOINT"
+] or "{}/authorize".format(OIDC_URL)
+OIDC_OP_JWKS_ENDPOINT = OPTIONS["OIDCClient"]["JWKS_URI"] or "{}/jwks".format(
+    OIDC_URL
+)
+OIDC_OP_TOKEN_ENDPOINT = OPTIONS["OIDCClient"]["TOKEN_ENDPOINT"] or "{}/token".format(
+    OIDC_URL
+)
+OIDC_OP_USER_ENDPOINT = OPTIONS["OIDCClient"]["USERINFO_ENDPOINT"] or "{}/userinfo".format(
+    OIDC_URL
+)
 OIDC_VERIFY_SSL = False
 OIDC_TOKEN_USE_BASIC_AUTH = True
 OIDC_RP_SCOPES = "openid profile"

@@ -40,6 +40,24 @@ PROVIDER_URL=url of the OIDC provider
 Or supply the `PROVIDER_URL` option setting in an environment variable called `KOLIBRI_OIDC_CLIENT_URL`.
 
 
+### OIDC endpoints
+In case some of the endpoints returned by the OIDC discovery url `.well-known/openid-configuration` are not standard, you can set them using these options either in the `$KOLIBRI_HOME/options.ini` file or suplying them in an environment variable.
+```ini
+[OIDCClient]
+JWKS_URI=
+AUTHORIZATION_ENDPOINT=
+TOKEN_ENDPOINT=
+USERINFO_ENDPOINT=
+```
+The environment variables for these options are, in order:
+```
+KOLIBRI_OIDC_JWKS_URI
+KOLIBRI_OIDC_AUTHORIZATION_ENDPOINT
+KOLIBRI_OIDC_TOKEN_ENDPOINT
+KOLIBRI_OIDC_USERINFO_ENDPOINT
+```
+
+
 ### OIDC provider credentials
 
 In order to the client requests to be authorized by the OIDC provider, a client ID and a client password must be used. These values must have been provided by the OIDC server provider.
