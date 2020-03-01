@@ -26,6 +26,5 @@ while not application and tries_remaining:
         # an OperationalError happens when sqlite vacuum is being executed. the db is locked
         tries_remaining -= 1
         time.sleep(interval)
-        application = get_wsgi_application()  # try again one last time
 if not application:
     print("Could not start Kolibri")
