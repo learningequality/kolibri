@@ -41,7 +41,11 @@ Or supply the `PROVIDER_URL` option setting in an environment variable called `K
 
 
 ### OIDC endpoints
-In case some of the endpoints returned by the OIDC discovery url `.well-known/openid-configuration` are not standard, you can set them using these options either in the `$KOLIBRI_HOME/options.ini` file or suplying them in an environment variable.
+
+In case some of the endpoints returned by the OIDC discovery url `.well-known/openid-configuration` are not standard, you can set them using these options either in the `$KOLIBRI_HOME/options.ini` file or by supplying them in an environment variable.
+
+In the `options.ini` file:
+
 ```ini
 [OIDCClient]
 JWKS_URI=
