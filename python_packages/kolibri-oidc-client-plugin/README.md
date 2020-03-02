@@ -53,7 +53,9 @@ AUTHORIZATION_ENDPOINT=
 TOKEN_ENDPOINT=
 USERINFO_ENDPOINT=
 ```
-The environment variables for these options are, in order:
+
+Or, as environment variables:
+
 ```
 KOLIBRI_OIDC_JWKS_URI
 KOLIBRI_OIDC_AUTHORIZATION_ENDPOINT
