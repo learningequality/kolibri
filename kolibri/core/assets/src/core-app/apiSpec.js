@@ -95,7 +95,6 @@ import * as contentNode from '../utils/contentNodeUtils';
 import AttemptLogList from '../views/AttemptLogList';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
-import TextTruncator from '../views/TextTruncator';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
@@ -152,7 +151,6 @@ export default {
       AttemptLogList,
       InteractionList,
       ExamReport,
-      TextTruncator,
       MultiPaneLayout,
       CoreFullscreen,
       CoreLogo,
