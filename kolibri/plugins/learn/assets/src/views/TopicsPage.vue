@@ -8,7 +8,7 @@
       contentType="topic"
     />
 
-    <TextTruncator
+    <KTextTruncator
       v-if="topic.description"
       :text="topic.description"
       :maxHeight="90"
@@ -33,7 +33,6 @@
 
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import { PageNames } from '../constants';
   import PageHeader from './PageHeader';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
@@ -57,7 +56,6 @@
     components: {
       PageHeader,
       ContentCardGroupGrid,
-      TextTruncator,
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),

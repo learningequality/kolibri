@@ -12,7 +12,7 @@
     />
     <div class="text" :style="{ color: $themeTokens.text }">
       <h3 class="title" dir="auto">
-        <TextTruncator
+        <KTextTruncator
           :text="title"
           :maxHeight="maxTitleHeight"
         />
@@ -52,7 +52,6 @@
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import CardThumbnail from './CardThumbnail';
 
   export default {
@@ -60,7 +59,6 @@
     components: {
       CardThumbnail,
       CoachContentLabel,
-      TextTruncator,
     },
     props: {
       title: {
