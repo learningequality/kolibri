@@ -7,8 +7,9 @@
     >
     </div>
     <transition name="snackbar" @leave-to="clearSnackbar">
-      <UiSnackbar
+      <KeenUiSnackbar
         v-show="isVisible"
+        id="coresnackbar"
         ref="snackbar"
         class="snackbar"
         :message="text"
@@ -26,13 +27,13 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import UiSnackbar from './KeenUiSnackbar';
+  import KeenUiSnackbar from './KeenUiSnackbar';
 
   /* Snackbars are used to display notification. */
   export default {
     name: 'CoreSnackbar',
     components: {
-      UiSnackbar,
+      KeenUiSnackbar,
     },
     props: {
       /* Text of notification to be displayed */
