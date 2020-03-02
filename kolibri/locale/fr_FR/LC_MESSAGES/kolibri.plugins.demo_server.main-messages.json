@@ -3,7 +3,7 @@
   "DemoServerBannerContent.demoServerA2": "Télécharger et installer la dernière version",
   "DemoServerBannerContent.demoServerHeader": "Bienvenue sur le site de démo de Kolibri",
   "DemoServerBannerContent.demoServerL1": "Apprenant ({user}/{pass} ou accès en tant qu'invité)",
-  "DemoServerBannerContent.demoServerL2": "Coach ({user}/{pass})",
+  "DemoServerBannerContent.demoServerL2": "Éducateur ({user}/{pass})",
   "DemoServerBannerContent.demoServerL3": "Admin ({user}/{pass})",
   "DemoServerBannerContent.demoServerP1": "Explorez l'un des trois types d'utilisateurs principaux :",
   "DemoServerBannerContent.demoServerP2": "Cette version en ligne de Kolibri est uniquement destinée à la démonstration. Les utilisateurs et les données seront périodiquement supprimés. La démo présente les fonctionnalités de la dernière version de Kolibri et toutes les ressources trouvées sont des exemples.",

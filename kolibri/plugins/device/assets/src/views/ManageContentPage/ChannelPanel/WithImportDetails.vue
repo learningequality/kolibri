@@ -172,7 +172,8 @@
       selectResourcesAction: 'Select resources',
       newLabel: {
         message: 'New',
-        context: '\nIndicator that channel was recently updated, imported, and unlocked',
+        context:
+          '\nReffers to CHANNEL; indicates that it was recently updated, imported, and unlocked',
       },
       unlistedChannelTooltip: 'Unlisted channel',
       newVersionMessage: 'New version available',
