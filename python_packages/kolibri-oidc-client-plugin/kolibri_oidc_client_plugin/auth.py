@@ -10,7 +10,9 @@ logger = logging.getLogger(__name__)
 
 class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
     def get_username(self, claim):
-        username = claim.get("nickname")  # according to https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
+        username = claim.get(
+            "nickname"
+        )  # according to https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
         if not username:  # according to OLIP implementation
             username = claim.get("username")
         return username
@@ -67,7 +69,9 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
         username = self.get_username(claims)
         full_name = claims.get("name", "")
         if not full_name:
-            full_name = '{} {}'.format(claims.get('given_name', ""), claims.get('family_name', ""))
+            full_name = "{} {}".format(
+                claims.get("given_name", ""), claims.get("family_name", "")
+            )
         # not needed in Kolibri, email is not mandatory:
         email = claims.get("email", username)
         # Kolibri doesn't allow an empty password. This isn't going to be used:
@@ -75,8 +79,12 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
         birthdate = claims.get("birthdate", "NOT_SPECIFIED")
         gender = claims.get("gender", "NOT_SPECIFIED")
         user = self.UserModel.objects.create_user(
-            username, email=email, full_name=full_name, password=password,
-            birth_year=birthdate, gender=gender
+            username,
+            email=email,
+            full_name=full_name,
+            password=password,
+            birth_year=birthdate,
+            gender=gender,
         )
 
         # check if the user has assigned roles and assign them in such case
