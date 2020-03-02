@@ -276,12 +276,17 @@
       focusElementTest(event) {
         const { target } = event;
         const noopOnFocus =
-          target.id === 'coresnackbar' || // keyboard focusing on snackbar
           target === window || // switching apps
           !this.$refs.modal || // if $refs.modal isn't available
           target === this.$refs.modal || // addresses #3824
           this.$refs.modal.contains(target.activeElement);
         if (noopOnFocus) {
+          return;
+        }
+        // Fixes possible infinite recursion when disconnection snackbars appear
+        // along with KModal (#6301)
+        const $coreSnackbar = document.getElementById('coresnackbar');
+        if ($coreSnackbar && $coreSnackbar.contains(event.target)) {
           return;
         }
         // focus has escaped the modal - put it back!

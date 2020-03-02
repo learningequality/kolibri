@@ -111,10 +111,8 @@
         this.$emit('hide');
       },
       containFocus(event) {
-        if (event.target === window) {
-          return;
-        }
-        if (!this.$refs.snackbar.$el.contains(event.target)) {
+        // Return focus to snackbar if trying to go into document but outside of snackbar
+        if (event.target !== window && !this.$refs.snackbar.$el.contains(event.target)) {
           this.$refs.snackbar.$el.focus();
         }
       },
