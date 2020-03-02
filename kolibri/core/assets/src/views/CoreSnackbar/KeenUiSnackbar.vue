@@ -21,6 +21,7 @@
       <button
         v-if="action"
         class="ui-snackbar-action-button"
+        :class="buttonClass"
         :style="{ color: $themeTokens.textInverted }"
         @click.stop="onActionClick"
       >
@@ -40,7 +41,16 @@
       message: String,
       action: String,
     },
-
+    computed: {
+      buttonClass() {
+        return this.$computedClass({
+          ':focus': {
+            ...this.$coreOutline,
+            outlineOffset: 6,
+          },
+        });
+      },
+    },
     methods: {
       onClick() {
         this.$emit('click');
