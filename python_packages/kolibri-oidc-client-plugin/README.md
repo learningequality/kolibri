@@ -20,8 +20,9 @@ This package provides Kolibri users with the ability to authenticate against an 
 
 
 ## Used claims
+
 This plugin will create a new user in the Kolibri database after it authenticates using the OIDC provider.
-From the [standard OIDC claims](https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims) the plugin will fetch these ones to add the information to the database:
+From the [standard OIDC claims](https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims) the plugin will fetch the following fields and add the information to the Kolibri user database:
 
 - `nickname` (or `username`)
 - `given_name`
