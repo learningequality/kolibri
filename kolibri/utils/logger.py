@@ -118,9 +118,7 @@ def get_base_logging_config(LOG_ROOT):
                 "format": "%(levelname)s %(asctime)s %(name)s %(process)d %(thread)d %(message)s"
             },
             "simple": {"format": "%(levelname)s %(message)s"},
-            "simple_date": {
-                "format": "%(levelname)s %(asctime)s %(name)s %(message)s"
-            },
+            "simple_date": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
             "simple_date_file": {
                 "()": "kolibri.utils.logger.KolibriLogFileFormatter",
                 "format": "%(levelname)s %(asctime)s %(name)s %(message)s",
