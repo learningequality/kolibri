@@ -72,7 +72,7 @@ def cherrypy_access_log_middleware(get_response):
                 u="-",
                 r="{} {}".format(request.method, request.path_info.replace("\"", "\\")),
                 s=response.status_code,
-                b=len(response.content),
+                b=len(response.get("content", b"")),
                 ref=request.META.get('HTTP_REFERER', "").replace("\"", "\\"),
                 ua=request.META.get('HTTP_USER_AGENT', "unknown").replace("\"", "\\"),
             )
