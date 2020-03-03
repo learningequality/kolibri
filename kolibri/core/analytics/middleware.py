@@ -66,11 +66,10 @@ def cherrypy_access_log_middleware(get_response):
         # the view is called.
 
         cp_logger.info(
-            "{h} {l} {u} {t} \"{r}\" {s} {b} \"{ref}\" \"{ua}\"".format(
+            "{h} {l} {u} \"{r}\" {s} {b} \"{ref}\" \"{ua}\"".format(
                 h=request.META.get('REMOTE_ADDR', 'unknown'),
                 l="-",  # noqa ignore:E741
                 u="-",
-                t="",
                 r="{} {}".format(request.method, request.path_info.replace("\"", "\\")),
                 s=response.status_code,
                 b=len(response.content),
