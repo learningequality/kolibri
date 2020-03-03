@@ -115,15 +115,15 @@ def get_base_logging_config(LOG_ROOT):
         "disable_existing_loggers": False,
         "formatters": {
             "verbose": {
-                "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
+                "format": "%(levelname)s %(asctime)s %(name)s %(process)d %(thread)d %(message)s"
             },
             "simple": {"format": "%(levelname)s %(message)s"},
             "simple_date": {
-                "format": "%(levelname)s %(asctime)s %(module)s %(message)s"
+                "format": "%(levelname)s %(asctime)s %(name)s %(message)s"
             },
             "simple_date_file": {
                 "()": "kolibri.utils.logger.KolibriLogFileFormatter",
-                "format": "%(levelname)s %(asctime)s %(module)s %(message)s",
+                "format": "%(levelname)s %(asctime)s %(name)s %(message)s",
             },
             "color": {
                 "()": "colorlog.ColoredFormatter",
