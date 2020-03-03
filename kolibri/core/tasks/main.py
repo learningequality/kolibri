@@ -1,3 +1,4 @@
+import logging
 import os
 
 from django.utils.functional import SimpleLazyObject
@@ -11,6 +12,9 @@ from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.scheduler import Scheduler
 from kolibri.core.tasks.worker import Worker
 from kolibri.utils import conf
+
+
+logger = logging.getLogger(__name__)
 
 
 if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
@@ -101,6 +105,7 @@ scheduler = SimpleLazyObject(__scheduler)
 
 
 def initialize_workers():
+    logger.info("Starting scheduler workers.")
     regular_worker = Worker(task_queue_name, connection=connection, num_workers=1)
     priority_worker = Worker(priority_queue_name, connection=connection, num_workers=3)
     return regular_worker, priority_worker
