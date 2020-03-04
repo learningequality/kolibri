@@ -1,12 +1,11 @@
 <template>
 
   <div>
-    <div
-      v-if="backdrop"
-      class="snackbar-backdrop"
-    >
-    </div>
-    <div v-if="backdrop" tabindex="0" @focus="handleTrapFocus"></div>
+    <template v-if="backdrop">
+      <div class="snackbar-backdrop"></div>
+      <!-- Prevent focus from leaving the this container -->
+      <div tabindex="0" @focus="trapFocus"></div>
+    </template>
     <transition name="snackbar" @leave-to="clearSnackbar" @enter="handleOnEnter">
       <KeenUiSnackbar
         v-show="isVisible"
@@ -18,7 +17,11 @@
         tabindex="0"
         :style="styles"
         @action-click="handleActionClick"
-      />
+      >
+        <template #inner-focus-trap>
+          <div tabindex="0" @focus="trapFocus"></div>
+        </template>
+      </KeenUiSnackbar>
     </transition>
   </div>
 
@@ -121,7 +124,7 @@
           this.focusSnackbarElement();
         }
       },
-      handleTrapFocus(e) {
+      trapFocus(e) {
         e.stopPropagation();
         this.focusSnackbarElement();
       },
@@ -141,6 +144,9 @@
     left: 0;
     z-index: 24;
     margin: 16px;
+    &:focus {
+      outline-style: none !important;
+    }
   }
 
   .snackbar-backdrop {

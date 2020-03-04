@@ -27,6 +27,7 @@
       >
         {{ action }}
       </button>
+      <slot name="inner-focus-trap"></slot>
     </div>
   </div>
 
