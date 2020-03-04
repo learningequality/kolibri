@@ -6,7 +6,8 @@
       class="snackbar-backdrop"
     >
     </div>
-    <transition name="snackbar" @leave-to="clearSnackbar">
+    <div v-if="backdrop" tabindex="0" @focus="handleTrapFocus"></div>
+    <transition name="snackbar" @leave-to="clearSnackbar" @enter="handleOnEnter">
       <KeenUiSnackbar
         v-show="isVisible"
         id="coresnackbar"
@@ -90,7 +91,6 @@
         this.timeout = window.setTimeout(this.hideSnackbar, this.duration);
       }
       if (this.backdrop) {
-        window.addEventListener('focus', this.containFocus, true);
         this.previouslyFocusedElement = document.activeElement;
         this.previouslyFocusedElement.blur();
       }
@@ -100,7 +100,6 @@
         window.clearTimeout(this.timeout);
       }
       if (this.backdrop) {
-        window.removeEventListener('focus', this.containFocus, true);
         this.previouslyFocusedElement.focus();
       }
     },
@@ -110,15 +109,21 @@
         this.isVisible = false;
         this.$emit('hide');
       },
-      containFocus(event) {
-        // Return focus to snackbar if trying to go into document but outside of snackbar
-        if (event.target !== window && !this.$refs.snackbar.$el.contains(event.target)) {
-          this.$refs.snackbar.$el.focus();
-        }
-      },
       handleActionClick() {
         this.isVisible = false;
         this.$emit('actionClicked');
+      },
+      focusSnackbarElement() {
+        this.$refs.snackbar.$el.focus();
+      },
+      handleOnEnter() {
+        if (this.backdrop) {
+          this.focusSnackbarElement();
+        }
+      },
+      handleTrapFocus(e) {
+        e.stopPropagation();
+        this.focusSnackbarElement();
       },
     },
   };
