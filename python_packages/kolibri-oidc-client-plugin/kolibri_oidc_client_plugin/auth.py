@@ -76,8 +76,11 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
         email = claims.get("email", username)
         # Kolibri doesn't allow an empty password. This isn't going to be used:
         password = uuid4().hex
-        birthdate = claims.get("birthdate", "NOT_SPECIFIED")
-        gender = claims.get("gender", "NOT_SPECIFIED")
+        # birthdate format is [ISO8601‑2004] YYYY-MM-DD
+        birthdate = (
+            claims.get("birthdate")[:4] if "birthdate" in claims else "NOT_SPECIFIED"
+        )
+        gender = claims.get("gender", "NOT_SPECIFIED").upper()
         user = self.UserModel.objects.create_user(
             username,
             email=email,
