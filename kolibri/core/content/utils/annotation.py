@@ -76,6 +76,7 @@ def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
 
     bridge.end()
 
+
 # node_ids and exclude_node_ids are based on granular selection
 def set_leaf_node_availability_from_local_file_availability(
     channel_id, node_ids=None, exclude_node_ids=None
