@@ -205,8 +205,17 @@ class DeleteContentTestCase(TransactionTestCase):
         except ContentNode.DoesNotExist:
             self.fail("Content node has been deleted")
 
-    def test_deleting_channel_clears_stats_cache(self):
-        pass
+    @patch("kolibri.core.content.management.commands.deletecontent.clear_channel_stats")
+    def test_deleting_channel_clears_stats_cache(self, channel_stats_clear_mock):
+        ContentNode.objects.all().update(available=True)
+        include_ids = list(
+            ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
+                "id", flat=True
+            )
+        )
+        self.assertFalse(channel_stats_clear_mock.called)
+        call_command("deletecontent", test_channel_id, node_ids=include_ids)
+        self.assertTrue(channel_stats_clear_mock.called)
 
     def tearDown(self):
         call_command("flush", interactive=False)
