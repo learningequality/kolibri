@@ -1,6 +1,9 @@
 import datetime
 import logging
 import os
+from itertools import groupby
+from math import ceil
+from math import floor
 
 from django.db.models import Sum
 from le_utils.constants import content_kinds
@@ -9,6 +12,7 @@ from sqlalchemy import cast
 from sqlalchemy import exists
 from sqlalchemy import func
 from sqlalchemy import Integer
+from sqlalchemy import or_
 from sqlalchemy import select
 
 from .paths import get_content_file_name
@@ -30,49 +34,227 @@ CONTENT_APP_NAME = KolibriContentConfig.label
 CHUNKSIZE = 10000
 
 
-def _MPTT_descendant_ids_statement(ContentNodeTable, node_ids):
-    node_include = ContentNodeTable.alias()
-    return select([ContentNodeTable.c.id]).where(
-        and_(
-            filter_by_uuids(node_include.c.id, node_ids),
-            ContentNodeTable.c.lft >= node_include.c.lft,
-            ContentNodeTable.c.lft <= node_include.c.rght,
-            ContentNodeTable.c.tree_id == node_include.c.tree_id,
+def _MPTT_descendant_ids_statement(
+    connection, ContentNodeTable, node_ids, min_boundary, max_boundary
+):
+    """
+    This function is modified from:
+    https://github.com/django-mptt/django-mptt/blob/master/mptt/managers.py#L66
+    in order to render the result as a SQL Alchemy expression that we can use
+    in other queries.
+    """
+
+    # First get the relevant MPTT values from the database for the specified node_ids
+    # for topic nodes in the specified lft/rght range.
+    mptt_values = connection.execute(
+        select(
+            [
+                ContentNodeTable.c.tree_id,
+                ContentNodeTable.c.parent_id,
+                ContentNodeTable.c.lft,
+                ContentNodeTable.c.rght,
+            ]
         )
+        .order_by(
+            ContentNodeTable.c.tree_id,
+            ContentNodeTable.c.parent_id,
+            ContentNodeTable.c.lft,
+        )
+        .where(
+            and_(
+                filter_by_uuids(ContentNodeTable.c.id, node_ids),
+                # Also filter by the boundary conditions
+                # We are only interested in nodes that are ancestors of
+                # the nodes in the range, but they could be ancestors of any node
+                # in this range, so we filter the lft value by being less than
+                # or equal to the max_boundary, and the rght value by being
+                # greater than or equal to the min_boundary.
+                ContentNodeTable.c.lft <= max_boundary,
+                ContentNodeTable.c.rght >= min_boundary,
+                # Only select values for descendant constraints from topics
+                ContentNodeTable.c.kind == content_kinds.TOPIC,
+            )
+        )
+    ).fetchall()
+
+    # Now we fetch a list of non-topic ids from the specified node ids
+    # that match the specified tree boundary ranges
+    non_topic_node_ids = map(
+        lambda x: x[0],
+        connection.execute(
+            select([ContentNodeTable.c.id]).where(
+                and_(
+                    filter_by_uuids(ContentNodeTable.c.id, node_ids),
+                    # Also filter by the boundary conditions
+                    # We are only interested in non-topic nodes that
+                    # are inside the range
+                    ContentNodeTable.c.rght >= min_boundary,
+                    ContentNodeTable.c.rght <= max_boundary,
+                    # Produce an id list for non topics
+                    ContentNodeTable.c.kind != content_kinds.TOPIC,
+                )
+            )
+        ).fetchall(),
     )
+
+    or_queries = []
+
+    # If we have any node ids that are for not topics, then we add an explicit query
+    # to match against those node ids
+    if non_topic_node_ids:
+        or_queries.append(filter_by_uuids(ContentNodeTable.c.id, non_topic_node_ids))
+
+    # Group the resultant mptt data by tree_id and parent_id,
+    # this will allow us to consolidate contiguous siblings to reduce
+    # the total number of constraints.
+    # This logic is verbatim from Django MPTT, only the query construction
+    # has been translated from Django Q statements to SQL Alchemy and_ statements.
+
+    for group in groupby(
+        mptt_values,
+        key=lambda n: (
+            # tree id
+            n[0],
+            # parent id
+            n[1],
+        ),
+    ):
+        next_lft = None
+        for node in list(group[1]):
+            tree = node[0]
+            lft = min_val = node[2]
+            rght = max_val = node[3]
+
+            if next_lft is None:
+                next_lft = rght + 1
+                min_max = {"min": min_val, "max": max_val}
+            elif lft == next_lft:
+                if min_val < min_max["min"]:
+                    min_max["min"] = min_val
+                if max_val > min_max["max"]:
+                    min_max["max"] = max_val
+                next_lft = rght + 1
+            elif lft != next_lft:
+                or_queries.append(
+                    and_(
+                        ContentNodeTable.c.tree_id == tree,
+                        ContentNodeTable.c.lft >= min_max["min"],
+                        ContentNodeTable.c.rght <= min_max["max"],
+                    )
+                )
+                min_max = {"min": min_val, "max": max_val}
+                next_lft = rght + 1
+        or_queries.append(
+            and_(
+                ContentNodeTable.c.tree_id == tree,
+                ContentNodeTable.c.lft >= min_max["min"],
+                ContentNodeTable.c.rght <= min_max["max"],
+            )
+        )
+
+    if not or_queries:
+        # No constraints that apply in this range, so therefore this query should always
+        # evaluate to False, because nothing can match it.
+        return select([ContentNodeTable.c.id]).where(False == True)  # noqa E712
+
+    # Return a query that ors each of the constraints
+    return select([ContentNodeTable.c.id]).where(or_(*or_queries))
 
 
 def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
+    """
+    Set nodes in a channel as unavailable.
+    With no additional arguments, this will hide an entire channel.
+    With the additional nodes arguments, it will selectively flag nodes
+    as unavailable, based on the passed in ids, setting them as unavailable if
+    they are in node_ids, or descendants of those nodes, but not in
+    exclude_node_ids or descendants of those nodes.
+    """
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
+    # SQL Alchemy reference to the content node table
     ContentNodeTable = bridge.get_table(ContentNode)
 
     connection = bridge.get_connection()
 
+    # Initial statement for nodes to update
     update_statement = ContentNodeTable.update().where(
         and_(
             ContentNodeTable.c.kind != content_kinds.TOPIC,
             ContentNodeTable.c.channel_id == channel_id,
         )
     )
-
-    if node_ids:
-        node_ids_statement = _MPTT_descendant_ids_statement(ContentNodeTable, node_ids)
-        update_statement = update_statement.where(
-            ContentNodeTable.c.id.in_(node_ids_statement)
+    # To chunk the tree, we first find the full extent of the tree - this gives the
+    # highest rght value for this channel.
+    max_rght = connection.execute(
+        select([func.max(ContentNodeTable.c.rght)]).where(
+            ContentNodeTable.c.channel_id == channel_id,
         )
+    ).scalar()
 
-    if exclude_node_ids:
-        exclude_node_ids_statement = _MPTT_descendant_ids_statement(
-            ContentNodeTable, exclude_node_ids
-        )
-        update_statement = update_statement.where(
-            ~ContentNodeTable.c.id.in_(exclude_node_ids_statement)
-        )
+    # Start a counter for the while loop
+    i = 0
 
-    connection.execute(
-        update_statement.values(available=False).execution_options(autocommit=True)
+    # Count the total number of constraints
+    constraint_count = len(node_ids or []) + len(exclude_node_ids or [])
+
+    # Aim for a constraint per batch count of about 250 on average
+    # This means that there will be at most 750 parameters from the constraints
+    # and should therefore also limit the overall SQL expression size.
+
+    dynamic_chunksize = max(
+        1, min(CHUNKSIZE, floor(250 * max_rght / (constraint_count or 1)))
     )
+
+    logger.info(
+        "Removing availability of non-topic ContentNode objects in {} batches".format(
+            int(ceil(max_rght / dynamic_chunksize))
+        )
+    )
+
+    while i * dynamic_chunksize < max_rght:
+        min_boundary = i * dynamic_chunksize
+        max_boundary = (i + 1) * dynamic_chunksize
+
+        # Restrict the update statement to nodes falling within this batch
+        batch_statement = update_statement.where(
+            and_(
+                ContentNodeTable.c.rght >= min_boundary,
+                ContentNodeTable.c.rght <= max_boundary,
+            )
+        )
+        if node_ids is not None:
+            # Construct a statement that restricts which nodes we update
+            # in this batch by the specified inclusion constraints
+            node_ids_statement = _MPTT_descendant_ids_statement(
+                connection, ContentNodeTable, node_ids, min_boundary, max_boundary,
+            )
+            # Add this statement to the query
+            batch_statement = batch_statement.where(
+                ContentNodeTable.c.id.in_(node_ids_statement)
+            )
+
+        if exclude_node_ids is not None:
+            # Construct a statement that restricts nodes we update
+            # in this batch by the specified exclusion constraints
+            exclude_node_ids_statement = _MPTT_descendant_ids_statement(
+                connection,
+                ContentNodeTable,
+                exclude_node_ids,
+                min_boundary,
+                max_boundary,
+            )
+            # Add this statement to the query
+            batch_statement = batch_statement.where(
+                ~ContentNodeTable.c.id.in_(exclude_node_ids_statement)
+            )
+
+        # Execute the update for this batch
+        connection.execute(
+            batch_statement.values(available=False).execution_options(autocommit=True)
+        )
+
+        i += 1
 
     bridge.end()
 
@@ -80,59 +262,140 @@ def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
 def set_leaf_node_availability_from_local_file_availability(
     channel_id, node_ids=None, exclude_node_ids=None
 ):
+    """
+    Set nodes in a channel as available, based on their required files.
+    With no additional arguments, this will make every node in the channel
+    available or unavailable based on whether the files needed to render
+    those nodes are present on disk.
+    With the additional nodes arguments, it will selectively flag nodes
+    based on the passed in ids, marking their availability if
+    they are in node_ids, or descendants of those nodes, but not in
+    exclude_node_ids or descendants of those nodes.
+    Nodes in the channel not captured by the constraints will not have
+    their availability changed either way.
+    """
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
+    # SQL Alchemy reference to the content node table
     ContentNodeTable = bridge.get_table(ContentNode)
+    # SQL Alchemy reference to the file table - a mapping from
+    # contentnodes to the files that they use
     FileTable = bridge.get_table(File)
+    # SQL Alchemy reference to the localfile table which tracks
+    # information about the files on disk, such as availability
     LocalFileTable = bridge.get_table(LocalFile)
 
     connection = bridge.get_connection()
 
+    # This statement defines the update condition for the contentnode
+    # running exists on this (as it is used below) will produce either
+    # True, in the case when the contentnode has the required files
+    # available for rendering, or False otherwise.
     contentnode_statement = (
-        select([FileTable.c.contentnode_id])
-        .select_from(
+        # We could select any property here, as it's the exist that matters.
+        select([FileTable.c.contentnode_id]).select_from(
+            # This does the first step in the many to many lookup for File
+            # and LocalFile.
             FileTable.join(
                 LocalFileTable,
                 and_(
+                    # This does the actual correlation between file and local file
                     FileTable.c.local_file_id == LocalFileTable.c.id,
+                    # This only joins on LocalFile objects that we know
+                    # have associated files on disk.
                     LocalFileTable.c.available == True,  # noqa
                 ),
             )
         )
+        # Only look at files that are required (not supplementary)
         .where(FileTable.c.supplementary == False)
+        # Correlate between the contentnode id and the foreign key
+        # to the content node on the file table to complete the
+        # many to many lookup
         .where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
     )
 
-    logger.info(
-        "Setting availability of non-topic ContentNode objects based on LocalFile availability"
-    )
-
+    # This statement is the base statement for *which* contentnodes to
+    # update the availability for.
     update_statement = ContentNodeTable.update().where(
         and_(
+            # Only update leaf nodes (non topics)
             ContentNodeTable.c.kind != content_kinds.TOPIC,
+            # Only update nodes in the channel we specified
             ContentNodeTable.c.channel_id == channel_id,
         )
     )
 
-    if node_ids is not None:
-        node_ids_statement = _MPTT_descendant_ids_statement(ContentNodeTable, node_ids)
-        update_statement = update_statement.where(
-            ContentNodeTable.c.id.in_(node_ids_statement)
+    # To chunk the tree, we first find the full extent of the tree - this gives the
+    # highest rght value for this channel.
+    max_rght = connection.execute(
+        select([func.max(ContentNodeTable.c.rght)]).where(
+            ContentNodeTable.c.channel_id == channel_id,
         )
+    ).scalar()
 
-    if exclude_node_ids is not None:
-        exclude_node_ids_statement = _MPTT_descendant_ids_statement(
-            ContentNodeTable, exclude_node_ids
-        )
-        update_statement = update_statement.where(
-            ~ContentNodeTable.c.id.in_(exclude_node_ids_statement)
-        )
+    # Start a counter for the while loop
+    i = 0
 
-    connection.execute(
-        update_statement.values(
-            available=exists(contentnode_statement)
-        ).execution_options(autocommit=True)
+    # Count the total number of constraints
+    constraint_count = len(node_ids or []) + len(exclude_node_ids or [])
+
+    # Aim for a constraint per batch count of about 250 on average
+    # This means that there will be at most 750 parameters from the constraints
+    # and should therefore also limit the overall SQL expression size.
+    dynamic_chunksize = max(
+        1, min(CHUNKSIZE, floor(250 * max_rght / (constraint_count or 1)))
     )
+
+    logger.info(
+        "Setting availability of non-topic ContentNode objects based on LocalFile availability in {} batches".format(
+            int(ceil(max_rght / dynamic_chunksize))
+        )
+    )
+
+    while i * dynamic_chunksize < max_rght:
+        min_boundary = i * dynamic_chunksize
+        max_boundary = (i + 1) * dynamic_chunksize
+
+        # Restrict the update statement to nodes falling within this batch
+        batch_statement = update_statement.where(
+            and_(
+                ContentNodeTable.c.rght >= min_boundary,
+                ContentNodeTable.c.rght <= max_boundary,
+            )
+        )
+        if node_ids is not None:
+            # Construct a statement that restricts which nodes we update
+            # in this batch by the specified inclusion constraints
+            node_ids_statement = _MPTT_descendant_ids_statement(
+                connection, ContentNodeTable, node_ids, min_boundary, max_boundary,
+            )
+            # Add this statement to the query
+            batch_statement = batch_statement.where(
+                ContentNodeTable.c.id.in_(node_ids_statement)
+            )
+
+        if exclude_node_ids is not None:
+            # Construct a statement that restricts nodes we update
+            # in this batch by the specified exclusion constraints
+            exclude_node_ids_statement = _MPTT_descendant_ids_statement(
+                connection,
+                ContentNodeTable,
+                exclude_node_ids,
+                min_boundary,
+                max_boundary,
+            )
+            # Add this statement to the query
+            batch_statement = batch_statement.where(
+                ~ContentNodeTable.c.id.in_(exclude_node_ids_statement)
+            )
+        # Execute the update for this batch
+        connection.execute(
+            batch_statement.values(
+                available=exists(contentnode_statement)
+            ).execution_options(autocommit=True)
+        )
+        i += 1
 
     bridge.end()
 
