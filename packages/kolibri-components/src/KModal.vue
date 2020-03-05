@@ -274,23 +274,23 @@
         this.$refs.modal.focus();
       },
       focusElementTest(event) {
-        // switching apps - not relevant
-        if (event.target === window) {
+        const { target } = event;
+        const noopOnFocus =
+          target === window || // switching apps
+          !this.$refs.modal || // if $refs.modal isn't available
+          target === this.$refs.modal || // addresses #3824
+          this.$refs.modal.contains(target.activeElement);
+        if (noopOnFocus) {
           return;
         }
-        // not sure when this would be true
-        if (!this.$refs.modal) {
-          return;
-        }
-        // addresses https://github.com/learningequality/kolibri/issues/3824
-        if (
-          event.target === this.$refs.modal ||
-          this.$refs.modal.contains(event.target.activeElement)
-        ) {
+        // Fixes possible infinite recursion when disconnection snackbars appear
+        // along with KModal (#6301)
+        const $coreSnackbar = document.getElementById('coresnackbar');
+        if ($coreSnackbar && $coreSnackbar.contains(event.target)) {
           return;
         }
         // focus has escaped the modal - put it back!
-        if (!this.$refs.modal.contains(event.target)) {
+        if (!this.$refs.modal.contains(target)) {
           this.focusModal();
         }
       },
@@ -312,7 +312,8 @@
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 24;
+    // z-index needs to be one less than .snackbar-backdrop
+    z-index: 15;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
