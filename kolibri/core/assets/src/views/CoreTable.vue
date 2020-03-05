@@ -25,7 +25,7 @@
         const selectable = {
           cursor: 'pointer',
           ':hover': {
-            backgroundColor: this.$themeTokens.fineLine,
+            backgroundColor: this.$themePalette.grey.v_100,
           },
         };
         return Object.assign(
