@@ -76,20 +76,28 @@ def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
 
     bridge.end()
 
-
+# node_ids and exclude_node_ids are based on granular selection
 def set_leaf_node_availability_from_local_file_availability(
     channel_id, node_ids=None, exclude_node_ids=None
 ):
+
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
+    # all nodes
     ContentNodeTable = bridge.get_table(ContentNode)
+
+    # what's referenced by nodes
     FileTable = bridge.get_table(File)
+
+    # what's available on disk?
     LocalFileTable = bridge.get_table(LocalFile)
 
     connection = bridge.get_connection()
 
+    # getting node IDs which are...
     contentnode_statement = (
         select([FileTable.c.contentnode_id])
+        # available on-disk
         .select_from(
             FileTable.join(
                 LocalFileTable,
@@ -99,6 +107,7 @@ def set_leaf_node_availability_from_local_file_availability(
                 ),
             )
         )
+        # and not supplementary
         .where(FileTable.c.supplementary == False)
         .where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
     )
@@ -107,6 +116,7 @@ def set_leaf_node_availability_from_local_file_availability(
         "Setting availability of non-topic ContentNode objects based on LocalFile availability"
     )
 
+    # get leaf nodes in this channel...
     update_statement = ContentNodeTable.update().where(
         and_(
             ContentNodeTable.c.kind != content_kinds.TOPIC,
@@ -114,12 +124,14 @@ def set_leaf_node_availability_from_local_file_availability(
         )
     )
 
+    # ... which are descendants or self of one of the granular selections
     if node_ids is not None:
         node_ids_statement = _MPTT_descendant_ids_statement(ContentNodeTable, node_ids)
         update_statement = update_statement.where(
             ContentNodeTable.c.id.in_(node_ids_statement)
         )
 
+    # ... and not descendants or self of one of the granular omissions
     if exclude_node_ids is not None:
         exclude_node_ids_statement = _MPTT_descendant_ids_statement(
             ContentNodeTable, exclude_node_ids
@@ -128,6 +140,7 @@ def set_leaf_node_availability_from_local_file_availability(
             ~ContentNodeTable.c.id.in_(exclude_node_ids_statement)
         )
 
+    # given the selected leaf nodes, set availble on the ones that were on disk
     connection.execute(
         update_statement.values(
             available=exists(contentnode_statement)
