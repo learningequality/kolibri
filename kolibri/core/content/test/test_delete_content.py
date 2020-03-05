@@ -116,9 +116,7 @@ class DeleteContentTestCase(TransactionTestCase):
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
-    @patch("kolibri.core.content.models.paths.get_content_storage_file_path")
-    @patch("kolibri.core.content.models.os.remove")
-    def test_include_all_nodes_all_deleted(self, os_remove_mock, content_file_path):
+    def test_include_all_nodes_all_deleted(self):
         ContentNode.objects.all().update(available=True)
         include_ids = list(
             ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
@@ -128,11 +126,7 @@ class DeleteContentTestCase(TransactionTestCase):
         call_command("deletecontent", test_channel_id, node_ids=include_ids)
         self.assertEqual(ContentNode.objects.all().count(), 0)
 
-    @patch("kolibri.core.content.models.paths.get_content_storage_file_path")
-    @patch("kolibri.core.content.models.os.remove")
-    def test_include_all_nodes_other_channel_node_still_available(
-        self, os_remove_mock, content_file_path
-    ):
+    def test_include_all_nodes_other_channel_node_still_available(self):
         include_ids = list(
             ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
                 "id", flat=True
@@ -155,11 +149,7 @@ class DeleteContentTestCase(TransactionTestCase):
         test.refresh_from_db()
         self.assertTrue(test.available)
 
-    @patch("kolibri.core.content.models.paths.get_content_storage_file_path")
-    @patch("kolibri.core.content.models.os.remove")
-    def test_include_all_nodes_force_delete_other_channel_node_not_available(
-        self, os_remove_mock, content_file_path
-    ):
+    def test_include_all_nodes_force_delete_other_channel_node_not_available(self):
         include_ids = list(
             ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
                 "id", flat=True
@@ -184,11 +174,7 @@ class DeleteContentTestCase(TransactionTestCase):
         test.refresh_from_db()
         self.assertFalse(test.available)
 
-    @patch("kolibri.core.content.models.paths.get_content_storage_file_path")
-    @patch("kolibri.core.content.models.os.remove")
-    def test_exclude_all_nodes_force_delete_other_channel_node_not_available_no_delete(
-        self, os_remove_mock, content_file_path
-    ):
+    def test_exclude_all_nodes_force_delete_other_channel_node_not_available_no_delete(self):
         exclude_ids = list(
             ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
                 "id", flat=True
@@ -218,6 +204,9 @@ class DeleteContentTestCase(TransactionTestCase):
             self.assertTrue(original.available)
         except ContentNode.DoesNotExist:
             self.fail("Content node has been deleted")
+
+    def test_deleting_channel_clears_stats_cache(self):
+        pass
 
     def tearDown(self):
         call_command("flush", interactive=False)
