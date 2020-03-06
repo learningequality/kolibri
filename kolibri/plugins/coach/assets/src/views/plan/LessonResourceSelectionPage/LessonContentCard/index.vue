@@ -26,7 +26,7 @@
         {{ $tr('channel') }} <KRouterLink text="TODO" :to="{}" />
       </p>
        -->
-      <KTextTruncator
+      <TextTruncator
         :text="description"
         :maxHeight="80"
         class="description"
@@ -55,12 +55,14 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import CardThumbnail from './CardThumbnail';
 
   export default {
     name: 'LessonContentCard',
     components: {
       CardThumbnail,
+      TextTruncator,
       CoachContentLabel,
     },
     props: {
