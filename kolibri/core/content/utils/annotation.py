@@ -646,6 +646,17 @@ def recurse_annotation_up_tree(channel_id):
     bridge.end()
 
 
+def calculate_dummy_progress_for_annotation(node_ids, exclude_node_ids, total_progress):
+    num_annotation_constraints = len(node_ids or []) + len(exclude_node_ids or [])
+
+    # Calculate a percentage of the total progress to denote to annotation
+    # between 1 and 10
+    annotation_proportion = min(10, max(1, int(num_annotation_constraints / 500)))
+
+    # Create some progress proportional to annotation task
+    return annotation_proportion * total_progress / (100 - annotation_proportion)
+
+
 def propagate_forced_localfile_removal(localfiles):
     files = File.objects.filter(supplementary=False, local_file__in=localfiles)
     ContentNode.objects.filter(files__in=files).update(available=False)
