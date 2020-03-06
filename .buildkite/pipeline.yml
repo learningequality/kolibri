@@ -7,13 +7,14 @@ steps:
 
   - wait
 
-  # - trigger: "kolibri-macos"
-  #   label: ":mac:"
-  #   build: &triggered_build_attributes
-  #     message: "${BUILDKITE_MESSAGE}"
-  #     env:
-  #       LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
-  #       LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
+  - trigger: "kolibri-macos"
+    label: ":mac:"
+    async: true
+    build:
+      message: "${BUILDKITE_MESSAGE}"
+      env:
+        LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
+        LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
 
     # Android build only requires whl file
   # - label: Build Android APK
@@ -31,8 +32,10 @@ steps:
 
   - trigger: "kolibri-raspbian-image"
     label: ":raspberry-pi:"
-    build: &triggered_build_attributes
+    async: true
+    build:
       message: "${BUILDKITE_MESSAGE}"
+      branch: "autoblock"
       env:
         LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
         LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"

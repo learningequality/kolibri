@@ -23,9 +23,20 @@ while not application and tries_remaining:
     try:
         application = get_wsgi_application()
     except OperationalError:
-        # an OperationalError happens when sqlite vacuum is being executed. the db is locked
+        # An OperationalError happens when sqlite vacuum is being
+        # executed. the db is locked
+        print(
+            "Database assumed to be undergoing a VACUUM, retrying again in {} seconds...".format(
+                interval
+            )
+        )
         tries_remaining -= 1
         time.sleep(interval)
-        application = get_wsgi_application()  # try again one last time
+
 if not application:
-    print("Could not start Kolibri")
+    print(
+        "Could not start Kolibri with {} retries. Trying one last time".format(
+            tries_remaining
+        )
+    )
+    application = get_wsgi_application()
