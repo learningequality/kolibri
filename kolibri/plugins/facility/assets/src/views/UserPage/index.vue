@@ -122,6 +122,7 @@
           { label: this.coreString('learnersLabel'), value: UserKinds.LEARNER },
           { label: this.coreString('coachesLabel'), value: UserKinds.COACH },
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
+          { label: this.$tr('superAdmins'), value: UserKinds.SUPERUSER },
         ];
       },
     },
@@ -157,6 +158,9 @@
         if (filterKind === UserKinds.ADMIN) {
           return user.kind === UserKinds.ADMIN || user.kind === UserKinds.SUPERUSER;
         }
+        if (filterKind === UserKinds.SUPERUSER) {
+          return user.kind === UserKinds.SUPERUSER;
+        }
         return filterKind === user.kind;
       },
       manageUserOptions(userId) {
@@ -191,6 +195,7 @@
     $trs: {
       searchText: 'Search for a user…',
       admins: 'Admins',
+      superAdmins: 'Super admins',
       newUserButtonLabel: 'New User',
       noUsersExist: 'No users exist',
       allUsersFilteredOut: "No users match the filter: '{filterText}'",
