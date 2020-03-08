@@ -4,6 +4,7 @@ import pickle
 
 from django.apps import apps
 from django.conf import settings
+from django.db import connection as django_connection
 from sqlalchemy import ColumnDefault
 from sqlalchemy import create_engine
 from sqlalchemy import event
@@ -21,7 +22,7 @@ from .check_schema_db import DBSchemaError
 from kolibri.core.content.constants.schema_versions import CONTENT_DB_SCHEMA_VERSIONS
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
 from kolibri.core.mixins import UUIDValidationError
-from kolibri.core.mixins import validate_and_format_uuids
+from kolibri.core.mixins import validate_uuids
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
@@ -345,17 +346,28 @@ def exclude_by_uuids(field, ids, validate=True):
     return _by_uuids(field, ids, validate, False)
 
 
+def _format_uuid(identifier):
+    # wrap the uuids in string quotations
+    if django_connection.vendor == "sqlite":
+        return "'{}'".format(identifier)
+    elif django_connection.vendor == "postgresql":
+        return "'{}'::uuid".format(identifier)
+    return identifier
+
+
 def _by_uuids(field, ids, validate, include):
     query = "IN (" if include else "NOT IN ("
     # trick to workaround postgresql, it does not allow returning ():
     empty_query = "IS NULL" if include else "IS NOT NULL"
-    try:
-        ids_list = validate_and_format_uuids(ids, validate)
-    except UUIDValidationError:
-        # the value is not a valid hex code for a UUID, so we don't return any results
-        return UnaryExpression(field, modifier=operators.custom_op(empty_query))
-    if ids_list:
-        placeholder = query + ",".join(ids_list) + ")"
-    else:
-        placeholder = empty_query
-    return UnaryExpression(field, modifier=operators.custom_op(placeholder))
+    if ids:
+        try:
+            validate_uuids(ids)
+            ids_list = [_format_uuid(identifier) for identifier in ids]
+            return UnaryExpression(
+                field, modifier=operators.custom_op(query + ",".join(ids_list) + ")")
+            )
+        except UUIDValidationError:
+            # the value is not a valid hex code for a UUID, so fall through to the
+            # empty case and don't return any results
+            pass
+    return UnaryExpression(field, modifier=operators.custom_op(empty_query))

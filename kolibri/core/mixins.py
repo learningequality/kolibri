@@ -4,7 +4,6 @@ Mixins for Django REST Framework ViewSets
 from uuid import UUID
 
 from django.core.exceptions import EmptyResultSet
-from django.db import connection as django_connection
 from django.db.models import ForeignKey
 from django.db.models import QuerySet
 from django.db.models.fields import CharField
@@ -126,24 +125,17 @@ class UUIDValidationError(Exception):
     pass
 
 
-def validate_and_format_uuids(ids, validate):
-    ids_list = []
+def validate_uuids(ids):
     for identifier in ids:
-        if validate:
-            try:
-                if not isinstance(identifier, UUID):
-                    UUID(identifier, version=4)
-            except (TypeError, ValueError):
-                # the value is not a valid hex code for a UUID, so we don't return any results
-                raise UUIDValidationError(
-                    "{} did not pass UUID validation".format(identifier)
-                )
-        # wrap the uuids in string quotations
-        if django_connection.vendor == "sqlite":
-            ids_list.append("'{}'".format(identifier))
-        elif django_connection.vendor == "postgresql":
-            ids_list.append("'{}'::uuid".format(identifier))
-    return ids_list
+        try:
+            if not isinstance(identifier, UUID):
+                UUID(identifier, version=4)
+        except (TypeError, ValueError):
+            # the value is not a valid hex code for a UUID, so we don't return any results
+            raise UUIDValidationError(
+                "{} did not pass UUID validation".format(identifier)
+            )
+    return ids
 
 
 class FilterByUUIDQuerysetMixin(object):
@@ -165,15 +157,15 @@ class FilterByUUIDQuerysetMixin(object):
             # If we have been passed a queryset, we can shortcut and just filter by the field name
             # on the queryset itself.
             lookup = "in"
-            ids_list = ids
         else:
-            try:
-                ids_list = validate_and_format_uuids(ids, validate)
-            except UUIDValidationError:
-                # the value is not a valid hex code for a UUID, so we don't return any results
-                return self.none()
+            if validate:
+                try:
+                    validate_uuids(ids)
+                except UUIDValidationError:
+                    # the value is not a valid hex code for a UUID, so we don't return any results
+                    return self.none()
             lookup = "uuidin"
-        kwargs = {"{}__{}".format(field_name, lookup): ids_list}
+        kwargs = {"{}__{}".format(field_name, lookup): ids}
         if include:
             return self.filter(**kwargs)
         else:
