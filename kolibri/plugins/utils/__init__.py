@@ -154,9 +154,6 @@ def initialize_kolibri_plugin(plugin_name):
         logger.debug("Loaded kolibri plugin: {}".format(plugin_name))
         # If no exception is thrown, use this to find the plugin class.
         # Load a list of all class types in module
-        all_classes = [
-            cls for cls in plugin_module.__dict__.values() if isinstance(cls, type)
-        ]
         # Filter the list to only match the ones that belong to the module
         # and not the ones that have been imported
         plugin_package = (
@@ -164,9 +161,18 @@ def initialize_kolibri_plugin(plugin_name):
             if plugin_module.__package__
             else plugin_module.__name__.rpartition(".")[0]
         )
-        all_classes = filter(
-            lambda x: plugin_package + ".kolibri_plugin" == x.__module__, all_classes
-        )
+
+        def is_plugin_module(x):
+            return (
+                hasattr(x, "__module__")
+                and plugin_package + ".kolibri_plugin" == x.__module__
+            )
+
+        all_classes = [
+            cls
+            for cls in plugin_module.__dict__.values()
+            if is_plugin_module(cls) and isinstance(cls, type)
+        ]
         return initialize_plugins_and_hooks(all_classes, plugin_name)
 
     except ImportError as e:
