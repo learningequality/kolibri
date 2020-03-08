@@ -34,7 +34,8 @@
       ...mapState('questionDetail', ['title']),
       ...mapState('exerciseDetail', ['exercise']),
       toolbarRoute() {
-        return this.classRoute('ReportsGroupReportLessonExerciseQuestionListPage', {});
+        const backRoute = this.backRouteForQuery(this.$route.query);
+        return backRoute || this.classRoute('ReportsGroupReportLessonExerciseQuestionListPage', {});
       },
     },
     methods: {
