@@ -232,7 +232,9 @@ def _calculate_batch_params(bridge, channel_id, node_ids, exclude_node_ids):
     # Aim for a constraint per batch count of about 250 on average
     # This means that there will be at most 750 parameters from the constraints
     # and should therefore also limit the overall SQL expression size.
-    dynamic_chunksize = min(CHUNKSIZE, ceil(250 * max_rght / (constraint_count or 1)))
+    dynamic_chunksize = int(
+        min(CHUNKSIZE, ceil(250 * max_rght / (constraint_count or 1)))
+    )
 
     return max_rght, dynamic_chunksize
 
