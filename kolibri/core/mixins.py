@@ -122,6 +122,30 @@ CharField.register_lookup(UUIDIn)
 ForeignKey.register_lookup(UUIDIn)
 
 
+class UUIDValidationError(Exception):
+    pass
+
+
+def validate_and_format_uuids(ids, validate):
+    ids_list = []
+    for identifier in ids:
+        if validate:
+            try:
+                if not isinstance(identifier, UUID):
+                    UUID(identifier, version=4)
+            except (TypeError, ValueError):
+                # the value is not a valid hex code for a UUID, so we don't return any results
+                raise UUIDValidationError(
+                    "{} did not pass UUID validation".format(identifier)
+                )
+        # wrap the uuids in string quotations
+        if django_connection.vendor == "sqlite":
+            ids_list.append("'{}'".format(identifier))
+        elif django_connection.vendor == "postgresql":
+            ids_list.append("'{}'::uuid".format(identifier))
+    return ids_list
+
+
 class FilterByUUIDQuerysetMixin(object):
     """
     As a workaround to the SQLITE_MAX_VARIABLE_NUMBER, so we can avoid having to chunk our queries,
@@ -141,24 +165,15 @@ class FilterByUUIDQuerysetMixin(object):
             # If we have been passed a queryset, we can shortcut and just filter by the field name
             # on the queryset itself.
             lookup = "in"
+            ids_list = ids
         else:
-            # make a copy of the passed in list
-            ids_list = list(ids)
-            for (idx, identifier) in enumerate(ids_list):
-                if validate:
-                    try:
-                        if not isinstance(identifier, UUID):
-                            UUID(identifier, version=4)
-                    except (TypeError, ValueError):
-                        # the value is not a valid hex code for a UUID, so we don't return any results
-                        return self.none()
-                # wrap the uuids in string quotations
-                if django_connection.vendor == "sqlite":
-                    ids_list[idx] = "'{}'".format(identifier)
-                elif django_connection.vendor == "postgresql":
-                    ids_list[idx] = "'{}'::uuid".format(identifier)
+            try:
+                ids_list = validate_and_format_uuids(ids, validate)
+            except UUIDValidationError:
+                # the value is not a valid hex code for a UUID, so we don't return any results
+                return self.none()
             lookup = "uuidin"
-        kwargs = {"{}__{}".format(field_name, lookup): ids}
+        kwargs = {"{}__{}".format(field_name, lookup): ids_list}
         if include:
             return self.filter(**kwargs)
         else:
