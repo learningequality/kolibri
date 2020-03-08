@@ -777,7 +777,8 @@ class ImportContentTestCase(TestCase):
                 "destination",
                 node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
             )
-            mock_overall_progress.assert_called_with(expected_file_size - src_file_size)
+
+            mock_overall_progress.assert_any_call(expected_file_size - src_file_size)
 
     @patch(
         "kolibri.core.content.management.commands.importcontent.transfer.FileDownload.finalize"
