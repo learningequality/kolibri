@@ -371,3 +371,15 @@ def _by_uuids(field, ids, validate, include):
             # empty case and don't return any results
             pass
     return UnaryExpression(field, modifier=operators.custom_op(empty_query))
+
+
+def filter_by_checksums(field, checksums):
+    query = "IN ("
+    # trick to workaround postgresql, it does not allow returning ():
+    empty_query = "IS NULL"
+    if checksums:
+        checksums_list = ["'{}'".format(identifier) for identifier in checksums]
+        return UnaryExpression(
+            field, modifier=operators.custom_op(query + ",".join(checksums_list) + ")")
+        )
+    return UnaryExpression(field, modifier=operators.custom_op(empty_query))
