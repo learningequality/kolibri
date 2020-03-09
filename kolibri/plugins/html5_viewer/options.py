@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 # Source: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#attr-sandbox
 allowable_sandbox_tokens = set(
     [
@@ -22,11 +26,19 @@ def clean_sandbox(sandbox_string):
     """
     Clean up sandbox string to ensure it only contains valid items.
     """
-    sandbox_tokens = [
-        token
-        for token in sandbox_string.split(" ")
-        if token in allowable_sandbox_tokens
-    ]
+    sandbox_tokens = []
+    illegal_tokens = []
+    for token in sandbox_string.split(" "):
+        if token in allowable_sandbox_tokens:
+            sandbox_tokens.append(token)
+        else:
+            illegal_tokens.append(token)
+    if illegal_tokens:
+        logger.warn(
+            "Invalid sandbox token passed to options {}".format(
+                " ".join(illegal_tokens)
+            )
+        )
     return " ".join(sandbox_tokens)
 
 
