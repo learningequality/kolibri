@@ -1,6 +1,6 @@
 import at from 'lodash/at';
 import pad from 'lodash/padStart';
-import { crossComponentTranslator, createTranslator } from 'kolibri.utils.i18n';
+import { crossComponentTranslator, createTranslator, formatList } from 'kolibri.utils.i18n';
 import PageStatus from 'kolibri.coreVue.components.PageStatus';
 import coreStringsMixin from 'kolibri.coreVue.mixins.commonCoreStrings';
 import { STATUSES } from '../modules/classSummary/constants';
@@ -105,7 +105,7 @@ export function list(key, label) {
         const [value] = at(row, key);
 
         if (value && value.length) {
-          return value.join(', '); // TODO: Internationalize
+          return formatList();
         }
 
         return '';
@@ -150,7 +150,7 @@ export function recipients(className) {
           return className || FieldsMixinStrings.$tr('wholeClass');
         }
         if (value && value.length) {
-          return value.join(', '); // TODO: Internationalize
+          return formatList(value);
         }
 
         return '';
