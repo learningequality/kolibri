@@ -1,9 +1,6 @@
 import json
-from functools import partial
 from itertools import chain
 
-from django.db import connection
-from django.db.models import CharField
 from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -13,9 +10,7 @@ from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
-from kolibri.core.query import ArrayAgg
-from kolibri.core.query import GroupConcat
-from kolibri.core.query import process_uuid_aggregate
+from kolibri.core.query import annotate_array_aggregate
 
 
 def _ensure_raw_dict(d):
@@ -70,7 +65,6 @@ class LessonViewset(ValuesViewset):
     field_map = {
         "classroom": _map_lesson_classroom,
         "resources": lambda x: json.loads(x["resources"]),
-        "assignment_ids": partial(process_uuid_aggregate, key="assignment_ids"),
     }
 
     def consolidate(self, items):
@@ -78,32 +72,11 @@ class LessonViewset(ValuesViewset):
         for item in items:
             assignment_ids.extend(item["assignment_ids"])
         assignments = LessonAssignment.objects.filter(id__in=assignment_ids)
-        if connection.vendor == "postgresql" and ArrayAgg is not None:
-            assignments = assignments.annotate(
-                learner_ids=ArrayAgg("collection__membership__user__id")
-            )
-
-            def _process_item(item):
-                item["learner_ids"] = map(
-                    lambda x: x.hex, filter(lambda x: x, item["learner_ids"])
-                )
-                return item
-
-        else:
-            assignments = assignments.values("id").annotate(
-                learner_ids=GroupConcat(
-                    "collection__membership__user__id", output_field=CharField()
-                )
-            )
-
-            def _process_item(item):
-                item["learner_ids"] = (
-                    item["learner_ids"].split(",") if item["learner_ids"] else []
-                )
-                return item
-
+        assignments = annotate_array_aggregate(
+            assignments, learner_ids="collection__membership__user__id"
+        )
         assignments = {
-            a["id"]: _process_item(a)
+            a["id"]: a
             for a in assignments.values(
                 "id",
                 "collection",
@@ -125,10 +98,6 @@ class LessonViewset(ValuesViewset):
         return items
 
     def annotate_queryset(self, queryset):
-        if connection.vendor == "postgresql" and ArrayAgg is not None:
-            return queryset.annotate(assignment_ids=ArrayAgg("lesson_assignments__id"))
-        return queryset.values("id").annotate(
-            assignment_ids=GroupConcat(
-                "lesson_assignments__id", output_field=CharField()
-            )
+        return annotate_array_aggregate(
+            queryset, assignment_ids="lesson_assignments__id"
         )
