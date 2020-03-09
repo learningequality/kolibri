@@ -43,12 +43,12 @@ export default {
         .then(data => {
           store.commit('SET_NOTIFICATIONS', data.results);
           if (!store.state.poller) {
-            store.dispatch('startingPolling', { coachesPolling: data.coaches_polling });
+            store.dispatch('startWebSocket', { coachesPolling: data.coaches_polling });
           }
         })
         .catch(() => {
           if (!store.state.poller) {
-            store.dispatch('startingPolling', { coachesPolling: 0 });
+            store.dispatch('startWebSocket', { coachesPolling: 0 });
           }
         });
     },
@@ -80,6 +80,18 @@ export default {
           after: store.getters.maxNotificationIndex,
         });
       }, timeout);
+    },
+    startWebSocket(store) {
+      const socket = new WebSocket('ws://127.0.0.1:9080');
+      socket.addEventListener('message', function(event) {
+        try {
+          const data = JSON.parse(event.data);
+          store.commit('APPEND_NOTIFICATIONS', data);
+          store.dispatch('classSummary/updateWithNotifications', data, { root: true });
+        } catch (e) {
+          console.log(e);
+        }
+      });
     },
   },
 };
