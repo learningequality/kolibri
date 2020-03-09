@@ -26,8 +26,8 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger import models as logger_models
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
-from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.core.query import annotate_array_aggregate
+from kolibri.core.sqlite.utils import repair_sqlite_db
 
 
 # Intended to match  NotificationEventType
