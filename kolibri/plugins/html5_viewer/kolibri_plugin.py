@@ -21,4 +21,4 @@ class HTML5AppAsset(content_hooks.ContentRendererHook):
 
     @property
     def plugin_data(self):
-        return {"sandbox": OPTIONS["HTML5"]["SANDBOX"]}
+        return {"html5_sandbox_tokens": OPTIONS["HTML5"]["SANDBOX"]}
