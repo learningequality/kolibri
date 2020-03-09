@@ -49,14 +49,18 @@ class ContentRendererHook(WebpackBundleHook, WebpackInclusionMixin):
         # content renderers do not, as they may need to have styling for a different
         # text direction than the interface due to the text direction of content
         urls = [chunk["url"] for chunk in self.bundle]
-        tags = self.frontend_message_tag() + [
-            '<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {presets});</script>'.format(
-                kolibri_name="kolibriCoreAppGlobal",
-                bundle=self.unique_id,
-                urls='","'.join(urls),
-                presets=json.dumps(self.presets),
-            )
-        ]
+        tags = (
+            self.frontend_message_tag()
+            + self.plugin_data_tag()
+            + [
+                '<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {presets});</script>'.format(
+                    kolibri_name="kolibriCoreAppGlobal",
+                    bundle=self.unique_id,
+                    urls='","'.join(urls),
+                    presets=json.dumps(self.presets),
+                )
+            ]
+        )
         return mark_safe("\n".join(tags))
 
 
