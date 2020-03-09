@@ -20,6 +20,7 @@ from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.main import scheduler
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
+from kolibri.utils.websocket import WebSocketPlugin
 
 try:
     import kolibri.utils.pskolibri as psutil
@@ -285,6 +286,9 @@ def run_server(port, serve_http=True):
     # Setup plugin for handling PID file cleanup
     pid_plugin = CleanUpPIDPlugin(cherrypy.engine)
     pid_plugin.subscribe()
+
+    websocket_plugin = WebSocketPlugin(cherrypy.engine, port + 1000, LISTEN_ADDRESS)
+    websocket_plugin.subscribe()
 
     process_pid = os.getpid()
 
