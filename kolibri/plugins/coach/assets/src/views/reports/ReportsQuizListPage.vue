@@ -193,6 +193,7 @@
             totalLearners: learnersForQuiz.length,
             tally: this.getExamStatusTally(exam.id, learnersForQuiz),
             groupNames: this.getGroupNames(exam.groups),
+            recipientNames: this.getRecipientNamesForExam(exam),
             avgScore: this.getExamAvgScore(exam.id, learnersForQuiz),
             hasAssignments: learnersForQuiz.length > 0,
           };

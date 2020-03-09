@@ -139,6 +139,7 @@
             totalLearners: learners.length,
             tally: this.getLessonStatusTally(lesson.id, learners),
             groupNames: this.getGroupNames(lesson.groups),
+            recipientNames: this.getRecipientNamesForExam(lesson),
             hasAssignments: learners.length > 0,
           };
           Object.assign(tableRow, lesson);

@@ -1,5 +1,6 @@
 import at from 'lodash/at';
 import pad from 'lodash/padStart';
+import get from 'lodash/get';
 import { crossComponentTranslator, createTranslator, formatList } from 'kolibri.utils.i18n';
 import PageStatus from 'kolibri.coreVue.components.PageStatus';
 import coreStringsMixin from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -11,6 +12,7 @@ import { coachStrings } from '../views/common/commonCoachStrings';
 const FieldsMixinStrings = createTranslator('FieldsMixinStrings', {
   allLearners: 'All learners',
   recipientType: 'Recipient type',
+  groupsAndIndividuals: 'Groups and individuals',
   wholeClass: 'Whole class',
 });
 
@@ -105,7 +107,7 @@ export function list(key, label) {
         const [value] = at(row, key);
 
         if (value && value.length) {
-          return formatList();
+          return formatList(value);
         }
 
         return '';
@@ -129,12 +131,18 @@ export function recipients(className) {
       name: FieldsMixinStrings.$tr('recipientType'),
       key: 'recipientType',
       format(row) {
-        if ('groupNames' in row && row.groupNames.length) {
-          return coachStrings.$tr('groupsLabel');
+        const numGroups = get(row, 'groupNames.length', -1);
+        if (numGroups > 0) {
+          // If there are more recipients than groups, then there are some individual learners
+          if (get(row, 'recipientNames.length') > numGroups) {
+            return FieldsMixinStrings.$tr('groupsAndIndividuals');
+          } else {
+            return coachStrings.$tr('groupsLabel');
+          }
         }
 
-        if ('hasAssignments' in row && row.hasAssignments) {
-          return coachStrings.$tr('classLabel');
+        if (numGroups === 0 && get(row, 'hasAssignments')) {
+          return FieldsMixinStrings.$tr('wholeClass');
         }
 
         return '';
@@ -144,7 +152,7 @@ export function recipients(className) {
       name: coachStrings.$tr('recipientsLabel'),
       key: 'groupNames',
       format(row) {
-        const [value] = at(row, 'groupNames');
+        const [value] = at(row, 'recipientNames');
 
         if (row.groupNames.length === 0 && row.hasAssignments === true) {
           return className || FieldsMixinStrings.$tr('wholeClass');
