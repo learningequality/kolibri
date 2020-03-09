@@ -759,7 +759,8 @@ def _diskimport(
     # Add the channel name if it wasn't added initially
     if job and job.extra_metadata.get("channel_name", "") == "":
         job.extra_metadata["channel_name"] = get_channel_name(channel_id)
-        job.save_meta()
+
+    job.save_meta()
 
     # Skip importcontent step if updating and no nodes have changed
     if is_updating and (node_ids is not None) and len(node_ids) == 0:
