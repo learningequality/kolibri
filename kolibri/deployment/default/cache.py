@@ -14,13 +14,21 @@ cache_options = OPTIONS["Cache"]
 pickle_protocol = OPTIONS["Python"]["PICKLE_PROTOCOL"]
 
 diskcache_location = os.path.join(KOLIBRI_HOME, "process_cache")
-try:
-    diskcache_cache = Cache(diskcache_location, disk_pickle_protocol=pickle_protocol)
-except DatabaseError:
+
+
+def recreate_cache():
     shutil.rmtree(diskcache_location, ignore_errors=True)
     os.mkdir(diskcache_location)
     diskcache_cache = Cache(diskcache_location, disk_pickle_protocol=pickle_protocol)
-diskcache_cache.close()
+    diskcache_cache.close()
+
+
+try:
+    diskcache_cache = Cache(diskcache_location, disk_pickle_protocol=pickle_protocol)
+    diskcache_cache.close()
+except DatabaseError:
+    recreate_cache()
+
 # Default to LocMemCache, as it has the simplest configuration
 default_cache = {
     "BACKEND": "django.core.cache.backends.locmem.LocMemCache",

@@ -9,6 +9,7 @@ import maxBy from 'lodash/maxBy';
 import map from 'lodash/map';
 import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
 import filter from 'lodash/filter';
+import get from 'lodash/get';
 import sortBy from 'lodash/sortBy';
 import orderBy from 'lodash/orderBy';
 import { PageNames } from '../constants';
@@ -219,6 +220,10 @@ export default {
     },
   },
   methods: {
+    // This is a safer way to get the content kind to quickly patch #6552
+    contentIdIsForExercise(contentId) {
+      return get(this.contentMap, [contentId, 'kind']) === 'exercise';
+    },
     classRoute(name, params = {}, query = {}) {
       if (this.classId) {
         params.classId = this.classId;
