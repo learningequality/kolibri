@@ -4,6 +4,7 @@ from django.db.models import Count
 from django.db.models import Sum
 from django.db.models import When
 from le_utils.constants import content_kinds
+from rest_framework.renderers import JSONRenderer
 
 from .models import HelpReason
 from .models import LearnerProgressNotification
@@ -15,6 +16,8 @@ from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.plugins.coach.serializers import LearnerNotificationSerializer
+from kolibri.utils.websocket import SERVER
 
 
 @memoize
@@ -87,6 +90,8 @@ def save_notifications(notifications):
     with transaction.atomic():
         for notification in notifications:
             notification.save()
+    data = LearnerNotificationSerializer(notifications, many=True).data
+    SERVER.send_message_to_all(JSONRenderer().render(data))
 
 
 def create_notification(
