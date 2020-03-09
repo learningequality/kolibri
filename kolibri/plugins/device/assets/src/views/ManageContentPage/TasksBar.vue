@@ -87,7 +87,7 @@
     },
     $trs: {
       someTasksComplete:
-        '{done, number} of {total, number} {done, plural, one {task} other {tasks}} complete',
+        '{done, number} of {total, plural, one {{total, number} task} other {{total, number} tasks}} complete',
     },
   };
 
