@@ -170,7 +170,11 @@
         });
       },
       exportCSV() {
-        const columns = [...csvFields.title(), ...csvFields.recipients(), ...csvFields.tally()];
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.recipients(this.className),
+          ...csvFields.tally(),
+        ];
 
         const fileName = this.$tr('printLabel', { className: this.className });
         new CSVExporter(columns, fileName).export(this.table);

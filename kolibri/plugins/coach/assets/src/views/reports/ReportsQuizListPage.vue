@@ -249,7 +249,7 @@
         const columns = [
           ...csvFields.title(),
           ...csvFields.avgScore(),
-          ...csvFields.recipients(),
+          ...csvFields.recipients(this.className),
           ...csvFields.tally(),
         ];
 

@@ -1,12 +1,18 @@
 import at from 'lodash/at';
 import pad from 'lodash/padStart';
-import { crossComponentTranslator } from 'kolibri.utils.i18n';
+import { crossComponentTranslator, createTranslator } from 'kolibri.utils.i18n';
 import PageStatus from 'kolibri.coreVue.components.PageStatus';
 import coreStringsMixin from 'kolibri.coreVue.mixins.commonCoreStrings';
 import { STATUSES } from '../modules/classSummary/constants';
 import { VERBS } from '../views/common/status/constants';
 import { translations } from '../views/common/status/statusStrings';
 import { coachStrings } from '../views/common/commonCoachStrings';
+
+const FieldsMixinStrings = createTranslator('FieldsMixinStrings', {
+  allLearners: 'All learners',
+  recipientType: 'Recipient type',
+  wholeClass: 'Whole class',
+});
 
 const VERB_MAP = {
   [STATUSES.notStarted]: VERBS.notStarted,
@@ -53,7 +59,7 @@ export function helpNeeded() {
       format: row => row.total - row.correct,
     },
     {
-      name: coreStrings('allLabel'), // TODO: Add new string for this
+      name: FieldsMixinStrings.$tr('allLearners'),
       key: 'all',
       format: row => row.total,
     },
@@ -117,10 +123,10 @@ export function name(label = 'nameLabel') {
   ];
 }
 
-export function recipients() {
+export function recipients(className) {
   return [
     {
-      name: `${coachStrings.$tr('recipientsLabel')} (1)`, // TODO: Add new string for this
+      name: FieldsMixinStrings.$tr('recipientType'),
       key: 'recipientType',
       format(row) {
         if ('groupNames' in row && row.groupNames.length) {
@@ -134,11 +140,22 @@ export function recipients() {
         return '';
       },
     },
-    ...list('groupNames', 'recipientsLabel').map((field, i) => {
-      // TODO: When new string has been added for the above, this can be removed
-      field.name = `${field.name} (${i + 2})`;
-      return field;
-    }),
+    {
+      name: coachStrings.$tr('recipientsLabel'),
+      key: 'groupNames',
+      format(row) {
+        const [value] = at(row, 'groupNames');
+
+        if (row.groupNames.length === 0 && row.hasAssignments === true) {
+          return className || FieldsMixinStrings.$tr('wholeClass');
+        }
+        if (value && value.length) {
+          return value.join(', '); // TODO: Internationalize
+        }
+
+        return '';
+      },
+    },
   ];
 }
 
