@@ -43,12 +43,10 @@ CACHE_NAMESPACE = "built_files"
 IGNORE_PATTERNS = (re.compile(I) for I in [r".+\.hot-update.js", r".+\.map"])
 
 
-class BundleNotFound(Exception):
-    pass
-
-
-class WebpackError(EnvironmentError):
-    pass
+class WebpackError(Exception):
+    def __init__(self, message, extra_info={}):
+        self.extra_info = extra_info
+        return Exception.__init__(self, message)
 
 
 logger = logging.getLogger(__name__)
@@ -94,7 +92,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         hook = cls.get_hook(unique_id)
         if hook:
             return hook
-        raise BundleNotFound("No bundle with that name is loaded: {}".format(unique_id))
+        raise WebpackError("No bundle with that name is loaded: '{}'".format(unique_id))
 
     @cached_property
     def _stats_file_content(self):
@@ -103,40 +101,43 @@ class WebpackBundleHook(hooks.KolibriHook):
           written by Webpack.
         """
         cache_key = "json_stats_file_cache_{unique_id}".format(unique_id=self.unique_id)
-        try:
-            stats_file_content = caches[CACHE_NAMESPACE].get(cache_key)
-            if not stats_file_content or getattr(settings, "DEVELOPER_MODE", False):
-                with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
-                    stats = json.load(f)
-                if getattr(settings, "DEVELOPER_MODE", False):
-                    timeout = 0
-                    while stats["status"] == "compiling":
-                        time.sleep(0.1)
-                        timeout += 0.1
-                        with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
-                            stats = json.load(f)
-                        if timeout >= 5:
-                            raise WebpackError("Webpack compilation still in progress")
-                    if stats["status"] == "error":
-                        raise WebpackError("Webpack compilation has errored")
-                stats_file_content = {
-                    "files": stats.get("chunks", {}).get(self.unique_id, []),
-                    "hasMessages": stats.get("messages", False),
-                }
-                # Don't invalidate during runtime.
-                # Might need to change this if we move to a different cache backend.
-                caches[CACHE_NAMESPACE].set(cache_key, stats_file_content, None)
-            return stats_file_content
-        except IOError as e:
-            if hasattr(e, "filename"):
-                problem = "Problems loading: {file}".format(file=e.filename)
-            else:
-                problem = "Not file-related."
-            raise WebpackError(
-                "Webpack build file missing, front-end assets cannot be loaded. {problem}".format(
-                    problem=problem
-                )
-            )
+        stats_file_content = caches[CACHE_NAMESPACE].get(cache_key)
+
+        if not stats_file_content or getattr(settings, "DEVELOPER_MODE", False):
+
+            if not os.path.exists(self._stats_file):
+                raise WebpackError("Missing stats file: '{}'".format(self._stats_file))
+
+            with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
+                stats = json.load(f)
+
+            if getattr(settings, "DEVELOPER_MODE", False):
+                timeout = 0
+
+                while stats["status"] == "compiling":
+                    time.sleep(0.1)
+                    timeout += 0.1
+                    if not os.path.exists(self._stats_file):
+                        raise WebpackError(
+                            "Missing stats file: '{}'".format(self._stats_file)
+                        )
+                    with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
+                        stats = json.load(f)
+                    if timeout >= 5:
+                        raise WebpackError("Compilation still in progress")
+
+                if stats["status"] == "error":
+                    raise WebpackError("Compilation has errored", stats)
+
+            stats_file_content = {
+                "files": stats.get("chunks", {}).get(self.unique_id, []),
+                "hasMessages": stats.get("messages", False),
+            }
+            # Don't invalidate during runtime.
+            # Might need to change this if we move to a different cache backend.
+            caches[CACHE_NAMESPACE].set(cache_key, stats_file_content, None)
+
+        return stats_file_content
 
     @property
     def bundle(self):
