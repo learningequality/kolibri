@@ -31,7 +31,7 @@
       @click="clickDown"
       @keyup.space="clickDown"
     >
-      <KIcon name="arrow_down" />
+      <KIcon icon="arrow_down" />
     </UiIconButton>
   </div>
 
