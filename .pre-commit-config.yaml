@@ -1,10 +1,14 @@
 exclude: (\.git/|\.tox/|\.venv/|build/|static/|dist/|node_modules/|kolibripip\.pex)
 repos:
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: '3.7.9'
+    hooks:
+    -   id: flake8
+        additional_dependencies: [flake8-builtins]
 -   repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v2.0.0
+    rev: v2.5.0
     hooks:
     -   id: trailing-whitespace
-    -   id: flake8
     -   id: check-yaml
     -   id: check-added-large-files
     -   id: debug-statements
