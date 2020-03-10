@@ -3368,19 +3368,6 @@ css-tree@1.0.0-alpha.38:
     mdn-data "2.0.6"
     source-map "^0.6.1"
 
-css-tree@1.0.0-alpha.38:
-  version "1.0.0-alpha.38"
-  resolved "https://registry.yarnpkg.com/css-tree/-/css-tree-1.0.0-alpha.38.tgz#a75431f4162da84dbdb3c4804e79ad784aa7593c"
-  integrity sha512-pWuxS4kaECFopOc1NZff+dYdw+brc1Tt0UAuTiw56/Trtae4NdHtbDH24311UWfMmcpZe7jLy0e64ZeJg9t7bQ==
-  dependencies:
-    mdn-data "2.0.6"
-    source-map "^0.6.1"
-
-css-what@^3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/css-what/-/css-what-3.2.1.tgz#f4a8f12421064621b456755e34a03a2c22df5da1"
-  integrity sha512-WwOrosiQTvyms+Ti5ZC5vGEK0Vod3FTt1ca+payZqvKuGJF+dq7bG63DstxtN0dpm6FxY27a/zS3Wten+gEtGw==
-
 css-what@^3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/css-what/-/css-what-3.2.1.tgz#f4a8f12421064621b456755e34a03a2c22df5da1"
@@ -4082,11 +4069,6 @@ emojis-list@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/emojis-list/-/emojis-list-2.1.0.tgz#4daa4d9db00f9819880c79fa457ae5b09a1fd389"
   integrity sha1-TapNnbAPmBmIDHn6RXrlsJof04k=
-
-emojis-list@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/emojis-list/-/emojis-list-3.0.0.tgz#5570662046ad29e2e916e71aae260abdff4f6a78"
-  integrity sha512-/kyM18EfinwXZbno9FyUGeFh87KC8HRQBQGildHZbEuRyWFOmv1U10o9BBp8XVZDVNNuQKyIGIu5ZYAAXJ0V2Q==
 
 encodeurl@~1.0.2:
   version "1.0.2"
@@ -5525,7 +5507,7 @@ globule@^1.0.0:
   integrity sha512-YlD4kdMqRCQHrhVdonet4TdRtv1/sZKepvoxNT4Nrhrp5HI8XFfc8kFlGlBn2myBo80aGp8Eft259mbcUJhgSg==
   dependencies:
     glob "~7.1.1"
-    lodash "~4.17.12"
+    lodash "~4.17.10"
     minimatch "~3.0.2"
 
 gonzales-pe@^4.2.3:
@@ -5590,12 +5572,12 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2:
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.3.tgz#4a12ff1b60376ef09862c2093edd908328be8423"
   integrity sha512-a30VEBm4PEdx1dRB7MFK7BejejvCvBronbLjht+sHuGYj8PHs7M/5Z+rt5lw551vZ7yfTCj4Vuyy3mSJytDWRQ==
 
-grouped-queue@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/grouped-queue/-/grouped-queue-1.0.0.tgz#5bdb97934a9a17b19626ff3cc23c103f2622ef49"
-  integrity sha512-XslfWrAGCYovQjveHODR0hllUrsn3UtvPFTkamHbgVHmkUA6eCIDmw3JDWVLJvuntTvYjwaPGamlyzK4/HAEOA==
+grouped-queue@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/grouped-queue/-/grouped-queue-0.3.3.tgz#c167d2a5319c5a0e0964ef6a25b7c2df8996c85c"
+  integrity sha1-wWfSpTGcWg4JZO9qJbfC34mWyFw=
   dependencies:
-    lodash "^4.17.15"
+    lodash "^4.17.2"
 
 growly@^1.3.0:
   version "1.3.0"
@@ -7576,6 +7558,17 @@ knuth-shuffle-seeded@^1.0.6:
   integrity sha1-AfG2VzOqdUDuCNiwF0Fk0iCB5OE=
   dependencies:
     seed-random "~2.2.0"
+
+kolibri-components@0.13.0-dev.10:
+  version "0.13.0-dev.9"
+  resolved "https://registry.yarnpkg.com/kolibri-components/-/kolibri-components-0.13.0-dev.9.tgz#85234c9d3a1fcaa2d40d95b7350cc9007e5afc2e"
+  integrity sha512-nucsP9C0FU+pCz6YKOmPpYtlJZyUwJuLOIBeVGa5A05JRwAqVYQlP1G9MKeUJ9lPfLoBRZolKom3CPmpUYR51w==
+  dependencies:
+    aphrodite "https://github.com/learningequality/aphrodite/"
+    css-element-queries "^1.2.0"
+    material-design-icons "^3.0.1"
+    popper.js "^1.14.6"
+    purecss "^0.6.2"
 
 "kolibri-design-system@https://github.com/nucleogenesis/kolibri-design-system-1#inline-svg":
   version "0.2.0"
@@ -10245,10 +10238,19 @@ postcss@^6.0.0, postcss@^6.0.1, postcss@^6.0.14, postcss@^6.0.17:
     source-map "^0.6.1"
     supports-color "^5.4.0"
 
-postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.13, postcss@^7.0.14, postcss@^7.0.17, postcss@^7.0.2, postcss@^7.0.26, postcss@^7.0.5, postcss@^7.0.7:
+postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.13, postcss@^7.0.14, postcss@^7.0.17, postcss@^7.0.2, postcss@^7.0.26, postcss@^7.0.7:
   version "7.0.26"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-7.0.26.tgz#5ed615cfcab35ba9bbb82414a4fa88ea10429587"
   integrity sha512-IY4oRjpXWYshuTDFxMVkJDtWIk2LhsTlu8bZnbEJA4+bYT16Lvpo8Qv6EvDumhYRgzjZl489pmsY3qVgJQ08nA==
+  dependencies:
+    chalk "^2.4.2"
+    source-map "^0.6.1"
+    supports-color "^6.1.0"
+
+postcss@^7.0.27:
+  version "7.0.27"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-7.0.27.tgz#cc67cdc6b0daa375105b7c424a85567345fc54d9"
+  integrity sha512-WuQETPMcW9Uf1/22HWUWP9lgsIC+KEHg2kozMflKjbeUtw9ujvFX6QmIfozaErDkmLWS9WEnEdEe6Uo9/BNTdQ==
   dependencies:
     chalk "^2.4.2"
     source-map "^0.6.1"
@@ -14043,7 +14045,7 @@ yeoman-environment@^2.0.5, yeoman-environment@^2.1.1:
     diff "^3.5.0"
     escape-string-regexp "^1.0.2"
     globby "^8.0.1"
-    grouped-queue "^1.0.0"
+    grouped-queue "^0.3.3"
     inquirer "^6.0.0"
     is-scoped "^1.0.0"
     lodash "^4.17.10"

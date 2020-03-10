@@ -8,9 +8,9 @@
       tabindex="-1"
       @click="showLanguageModal = true"
     >
-      <mat-svg
-        name="language"
-        category="action"
+      <KIcon
+        icon="language"
+        style="top: 0; width: 24px; height: 24px;"
       />
     </UiIconButton>
 

@@ -7,7 +7,7 @@
       :style="{ color: $themeTokens.primary }"
       :iconAriaLabel="iconAriaLabel"
     >
-      <mat-svg name="info" category="action" />
+      <KIcon icon='info' :style="{ fill: $themeTokens.primary }" />
     </UiIcon>
     <KTooltip
       reference="icon"
