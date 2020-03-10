@@ -25,13 +25,9 @@ from django.core.management.base import handle_default_options
 from django.db.utils import DatabaseError
 
 import kolibri
+from . import sanity_checks
 from . import server
 from .debian_check import check_debian_user
-from .sanity_checks import check_content_directory_exists_and_writable
-from .sanity_checks import check_database_is_migrated
-from .sanity_checks import check_default_options_exist
-from .sanity_checks import check_log_file_location
-from .sanity_checks import check_other_kolibri_running
 from .system import become_daemon
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase
 from kolibri.core.upgrade import matches_version
@@ -353,17 +349,16 @@ def initialize(skip_update=False):  # noqa: max-complexity=12
             logger.info("New install, version: {new}".format(new=kolibri.__version__))
         update(version, kolibri.__version__)
 
+    sanity_checks.check_content_directory_exists_and_writable()
+
     if not skip_update:
         # Run any plugin specific updates here in case they were missed by
         # our Kolibri version based update logic.
         run_plugin_updates()
 
-    check_content_directory_exists_and_writable()
-
-    if not skip_update:
         check_django_stack_ready()
         try:
-            check_database_is_migrated()
+            sanity_checks.check_database_is_migrated()
         except DatabaseNotMigrated:
             try:
                 _migrate_databases()
@@ -473,13 +468,13 @@ def start(port, background):
     """
 
     # Check if there is an options.ini file exist inside the KOLIBRI_HOME folder
-    check_default_options_exist()
+    sanity_checks.check_default_options_exist()
 
     serve_http = OPTIONS["Server"]["CHERRYPY_START"]
 
     if serve_http:
         # Check if the port is occupied
-        check_other_kolibri_running(port)
+        sanity_checks.check_other_kolibri_running(port)
 
     create_startup_lock(port)
 
@@ -672,7 +667,7 @@ def setup_logging(debug=False):
     # only designed for post-Django initialization tasks. If there are more cases
     # for pre-django initialization upgrade tasks, we can generalize the logic here
     if matches_version(get_version(), "<0.12.4"):
-        check_log_file_location()
+        sanity_checks.check_log_file_location()
     LOGGING = get_base_logging_config(LOG_ROOT)
     if debug:
         LOGGING["handlers"]["console"]["level"] = "DEBUG"
