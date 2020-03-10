@@ -4445,7 +4445,7 @@ eslint@^6.8.0:
     text-table "^0.2.0"
     v8-compile-cache "^2.0.3"
 
-espree@5.0.1, espree@^5.0.1:
+espree@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/espree/-/espree-5.0.1.tgz#5d6526fa4fc7f0788a5cf75b15f30323e2f81f7a"
   integrity sha512-qWAZcWh4XE/RwzLJejfcofscgMc9CamR6Tn1+XRXNzrvUSSbiAjGOI/fggztjIi7y9VLPqnICMIPiGyr8JaZ0A==
@@ -7570,9 +7570,9 @@ kolibri-components@0.13.0-dev.10:
     popper.js "^1.14.6"
     purecss "^0.6.2"
 
-"kolibri-design-system@https://github.com/nucleogenesis/kolibri-design-system-1#inline-svg":
+"kolibri-design-system@https://github.com/learningequality/kolibri-design-system#v0.2.0-alpha0":
   version "0.2.0"
-  resolved "https://github.com/nucleogenesis/kolibri-design-system-1#311403d3b0fe06966ff882c657e2b3cc3ce720b6"
+  resolved "https://github.com/learningequality/kolibri-design-system#5e54676cac5186243792804a4f25974b68db25b3"
   dependencies:
     aphrodite "https://github.com/learningequality/aphrodite/"
     autosize "^3.0.21"
