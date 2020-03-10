@@ -5,18 +5,14 @@
       <UiIcon
         v-if="isInProgress"
         :ariaLabel="$tr('inProgress')"
-        class="icon"
-        :style="iconStyle($themeTokens.progress)"
       >
-        <mat-svg name="schedule" category="action" />
+        <KIcon icon="schedule" :style="iconStyle($themeTokens.progress)" class="icon" :color="$themeTokens.textInverted" />
       </UiIcon>
       <UiIcon
         v-else-if="isCompleted"
         :ariaLabel="coreString('completedLabel')"
-        class="icon"
-        :style="iconStyle($themeTokens.mastered)"
       >
-        <mat-svg name="star" category="toggle" />
+        <KIcon icon="star" :style="iconStyle($themeTokens.mastered)" class="icon" :color="$themeTokens.textInverted" />
       </UiIcon>
     </span>
     <KTooltip
@@ -77,6 +73,8 @@
 <style lang="scss" scoped>
 
   .icon {
+    width: 24px;
+    height: 24px;
     cursor: default;
     border-radius: 50%;
   }

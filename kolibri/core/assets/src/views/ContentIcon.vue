@@ -2,83 +2,96 @@
 
   <span>
     <UiIcon ref="icon">
-      <mat-svg
+      <KIcon
         v-if="is(ContentNodeKinds.CHANNEL)"
-        category="navigation"
-        name="apps"
+        :icon="ContentNodeKinds.CHANNEL"
         :class="[colorClass]"
+        :color="color"
+        style="top:0;"
       />
-      <mat-svg
+      <KIcon
         v-if="is(ContentNodeKinds.TOPIC)"
-        category="file"
-        name="folder"
+        :icon="ContentNodeKinds.TOPIC"
         :class="[colorClass]"
+        :color="color"
+        style="top:0;"
       />
-      <mat-svg
+      <KIcon
         v-if="is(ContentNodeKinds.VIDEO)"
-        category="notification"
-        name="ondemand_video"
+        :icon="ContentNodeKinds.VIDEO"
         :class="[colorClass]"
+        :color="color"
+        style="top:0;"
       />
-      <mat-svg
+      <KIcon
         v-if="is(ContentNodeKinds.AUDIO)"
-        category="image"
-        name="audiotrack"
+        :icon="ContentNodeKinds.AUDIO"
         :class="[colorClass]"
+        :color="color"
+        style="top:0;"
       />
-      <mat-svg
+      <KIcon
         v-if="is(ContentNodeKinds.DOCUMENT)"
-        category="action"
-        name="book"
+        :icon="ContentNodeKinds.DOCUMENT"
         :class="[colorClass]"
+        :color="color"
+        style="top:0;"
       />
-      <mat-svg
+      <KIcon
         v-if="is(ContentNodeKinds.EXERCISE)"
-        category="action"
-        name="assignment"
+        :icon="ContentNodeKinds.EXERCISE"
         :class="[colorClass, { 'rtl-icon': isRtl }]"
+        :color="color"
+        style="top:0;"
       />
-      <mat-svg
+      <KIcon
         v-if="is(ContentNodeKinds.HTML5)"
-        category="device"
-        name="widgets"
+        :icon="ContentNodeKinds.HTML5"
         :class="[colorClass]"
+        :color="color"
+        style="top:0;"
       />
-      <mat-svg
+      <KIcon
         v-if="is(ContentNodeKinds.EXAM)"
-        category="action"
-        name="assignment_late"
+        :icon="ContentNodeKinds.EXAM"
         :class="[colorClass]"
+        :color="color"
+        style="top:0;"
       />
-      <mat-svg
+      <KIcon
         v-if="is(ContentNodeKinds.LESSON)"
-        category="communication"
-        name="import_contacts"
+        :icon="ContentNodeKinds.LESSON"
         :class="[colorClass]"
+        :color="color"
+        style="top:0;"
       />
-      <mat-svg
+      <KIcon
         v-if="is(ContentNodeKinds.ACTIVITY)"
-        category="device"
-        name="access_time"
+        :icon="ContentNodeKinds.ACTIVITY"
         :class="[colorClass]"
+        :color="color"
+        style="top:0;"
       />
-      <mat-svg
+      <KIcon
         v-if="is(ContentNodeKinds.SLIDESHOW)"
-        category="image"
-        name="photo_library"
+        :icon="ContentNodeKinds.SLIDESHOW"
         :class="[colorClass]"
+        :color="color"
+        style="top:0;"
       />
-      <mat-svg
+      <KIcon
         v-if="is(USER)"
-        category="social"
-        name="person"
+        :icon="USER"
         :class="[colorClass]"
+        :color="color"
+        style="top:0;"
       />
-      <mat-svg
+      <KIcon
         v-if="is(ContentNodeKinds.CLASSROOM)"
-        category="communication"
-        name="business"
+        :icon="ContentNodeKinds.CLASSROOM"
         :class="[colorClass]"
+        :color="color"
+        style="top:0;"
       />
     </UiIcon>
     <KTooltip
@@ -119,6 +132,11 @@
       showTooltip: {
         type: Boolean,
         default: false,
+      },
+      color: {
+        type: String,
+        default: 'black',
+        required: false,
       },
     },
     computed: {

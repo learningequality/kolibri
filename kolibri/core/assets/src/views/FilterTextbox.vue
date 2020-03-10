@@ -6,7 +6,7 @@
       :style="{ color: $themeTokens.annotation }"
       :ariaLabel="$tr('filter')"
     >
-      <mat-svg name="search" category="action" />
+      <KIcon icon="search" />
     </UiIcon>
 
     <input
@@ -31,7 +31,7 @@
       :ariaLabel="$tr('clear')"
       @click="model = ''"
     >
-      <mat-svg name="clear" category="content" />
+      <KIcon icon="clear" />
     </UiIconButton>
   </div>
 

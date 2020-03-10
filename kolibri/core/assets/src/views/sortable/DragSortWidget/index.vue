@@ -14,13 +14,13 @@
       @click="clickUp"
       @keyup.space="clickUp"
     >
-      <mat-svg name="keyboard_arrow_up" category="hardware" />
+      <KIcon icon="arrow_up" />
     </UiIconButton>
     <!--
       Currently missing from material icon repo.
       See https://github.com/google/material-design-icons/issues/786
      -->
-    <file-svg src="./drag_indicator.svg" class="grip" />
+    <KIcon icon="drag" class="grip" style="top: 0; width: 24px; height: 24px" />
     <UiIconButton
       v-show="!isLast"
       ref="dnBtn"
@@ -31,7 +31,7 @@
       @click="clickDown"
       @keyup.space="clickDown"
     >
-      <mat-svg name="keyboard_arrow_down" category="hardware" />
+      <KIcon name="arrow_down" />
     </UiIconButton>
   </div>
 

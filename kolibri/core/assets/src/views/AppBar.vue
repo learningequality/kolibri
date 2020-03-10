@@ -17,12 +17,12 @@
         slot="icon"
         type="secondary"
         :aria-label="$tr('openNav')"
+        style=""
         @click="$emit('toggleSideNav')"
       >
-        <mat-svg
-          name="menu"
-          category="navigation"
-          :style="{ fill: $themeTokens.textInverted }"
+        <KIcon
+          icon="menu"
+          :style="{ fill: $themeTokens.textInverted, verticalAlign: 'baseline' }"
         />
       </UiIconButton>
 
@@ -50,17 +50,15 @@
           :ariaLabel="$tr('userMenu')"
           @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
         >
-          <mat-svg
+          <KIcon
             slot="icon"
-            name="person"
-            category="social"
-            :style="{ fill: $themeTokens.textInverted }"
+            icon="person"
+            :style="{ fill: $themeTokens.textInverted, height: '24px', width: '24px', top: 0, }"
           />
           <span v-if="isUserLoggedIn" class="username" tabindex="-1">{{ dropdownName }}</span>
-          <mat-svg
-            name="arrow_drop_down"
-            category="navigation"
-            :style="{ fill: $themeTokens.textInverted }"
+          <KIcon
+            icon="dropdown"
+            :style="{ fill: $themeTokens.textInverted, height: '24px', width: '24px', top: 0, }"
           />
         </UiButton>
 

@@ -13,7 +13,7 @@
     "intl": "^1.2.4",
     "js-cookie": "^2.1.2",
     "knuth-shuffle-seeded": "^1.0.6",
-    "kolibri-design-system": "https://github.com/learningequality/kolibri-design-system",
+    "kolibri-design-system": "https://github.com/nucleogenesis/kolibri-design-system-1#inline-svg",
     "lockr": "0.8.4",
     "lodash": "^4.17.4",
     "loglevel": "^1.4.1",

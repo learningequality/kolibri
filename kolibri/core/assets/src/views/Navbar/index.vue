@@ -12,10 +12,9 @@
         aria-hidden="true"
         @click="handleClickPrevious"
       >
-        <mat-svg
-          name="keyboard_arrow_left"
-          category="hardware"
-          :style="{ fill: $themeTokens.textInverted }"
+        <KIcon
+          icon="keyboard_arrow_left"
+          :style="{ fill: $themeTokens.textInverted, top: 0, width: '24px', height: '24px', }"
           :class="{ 'rtl-icon': isRtl }"
         />
       </button>
@@ -36,10 +35,9 @@
         aria-hidden="true"
         @click="handleClickNext"
       >
-        <mat-svg
-          name="keyboard_arrow_right"
-          category="hardware"
-          :style="{ fill: $themeTokens.textInverted }"
+        <KIcon
+          icon="keyboard_arrow_right"
+          :style="{ fill: $themeTokens.textInverted, top: 0, width: '24px', height: '24px', }"
           :class="{ 'rtl-icon': isRtl }"
         />
       </button>
