@@ -21,7 +21,7 @@
         ref="iframe"
         class="iframe"
         :style="{ backgroundColor: $themePalette.grey.v_100 }"
-        sandbox="allow-scripts"
+        :sandbox="sandbox"
         frameBorder="0"
         :name="name"
         :src="rooturl"
@@ -40,6 +40,7 @@
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
   import { nameSpace } from 'hashi/src/hashiBase';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'Html5AppRendererIndex',
@@ -58,6 +59,9 @@
       },
       rooturl() {
         return this.defaultFile.storage_url;
+      },
+      sandbox() {
+        return plugin_data.html5_sandbox_tokens;
       },
     },
     mounted() {
