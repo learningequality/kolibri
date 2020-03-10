@@ -50,10 +50,6 @@
     "url": "https://github.com/learningequality/kolibri/issues"
   },
   "private": true,
-  "dependencies": {
-    "espree": "5.0.1",
-    "kolibri-design-system": "https://github.com/nucleogenesis/kolibri-design-system-1#inline-svg"
-  },
   "devDependencies": {
     "@types/jest": "^24.0.12",
     "black-fmt": "https://github.com/learningequality/black-fmt#v0.1.3",
