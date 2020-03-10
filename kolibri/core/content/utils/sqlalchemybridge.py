@@ -1,7 +1,6 @@
 import logging
 import os
 import pickle
-from uuid import UUID
 
 from django.apps import apps
 from django.conf import settings
@@ -22,6 +21,8 @@ from .check_schema_db import db_matches_schema
 from .check_schema_db import DBSchemaError
 from kolibri.core.content.constants.schema_versions import CONTENT_DB_SCHEMA_VERSIONS
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
+from kolibri.core.mixins import UUIDValidationError
+from kolibri.core.mixins import validate_uuids
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
@@ -345,25 +346,40 @@ def exclude_by_uuids(field, ids, validate=True):
     return _by_uuids(field, ids, validate, False)
 
 
+def _format_uuid(identifier):
+    # wrap the uuids in string quotations
+    if django_connection.vendor == "sqlite":
+        return "'{}'".format(identifier)
+    elif django_connection.vendor == "postgresql":
+        return "'{}'::uuid".format(identifier)
+    return identifier
+
+
 def _by_uuids(field, ids, validate, include):
-    ids_list = list(ids)
     query = "IN (" if include else "NOT IN ("
     # trick to workaround postgresql, it does not allow returning ():
     empty_query = "IS NULL" if include else "IS NOT NULL"
-    for (idx, identifier) in enumerate(ids_list):
-        if validate:
-            try:
-                UUID(identifier, version=4)
-            except (TypeError, ValueError):
-                # the value is not a valid hex code for a UUID, so we don't return any results
-                return UnaryExpression(field, modifier=operators.custom_op(empty_query))
-        # wrap the uuids in string quotations
-        if django_connection.vendor == "postgresql" and validate:
-            ids_list[idx] = "'{}'::uuid".format(identifier)
-        else:  # sqlite or it's not an uuid
-            ids_list[idx] = "'{}'".format(identifier)
-    if ids_list:
-        placeholder = query + ",".join(ids_list) + ")"
-    else:
-        placeholder = empty_query
-    return UnaryExpression(field, modifier=operators.custom_op(placeholder))
+    if ids:
+        try:
+            validate_uuids(ids)
+            ids_list = [_format_uuid(identifier) for identifier in ids]
+            return UnaryExpression(
+                field, modifier=operators.custom_op(query + ",".join(ids_list) + ")")
+            )
+        except UUIDValidationError:
+            # the value is not a valid hex code for a UUID, so fall through to the
+            # empty case and don't return any results
+            pass
+    return UnaryExpression(field, modifier=operators.custom_op(empty_query))
+
+
+def filter_by_checksums(field, checksums):
+    query = "IN ("
+    # trick to workaround postgresql, it does not allow returning ():
+    empty_query = "IS NULL"
+    if checksums:
+        checksums_list = ["'{}'".format(identifier) for identifier in checksums]
+        return UnaryExpression(
+            field, modifier=operators.custom_op(query + ",".join(checksums_list) + ")")
+        )
+    return UnaryExpression(field, modifier=operators.custom_op(empty_query))
