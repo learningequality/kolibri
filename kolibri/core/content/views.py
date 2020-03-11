@@ -148,7 +148,10 @@ def parse_html(content):
             encoding = parser.documentEncoding
             if not encoding:
                 encoding = "utf-8"
-            doctype = re.match("(?i)<!DOCTYPE[^<>]*(?:<!ENTITY[^<>]*>[^<>]*)?>", content.decode(encoding))
+            doctype = re.match(
+                "(?i)<!DOCTYPE[^<>]*(?:<!ENTITY[^<>]*>[^<>]*)?>",
+                content.decode(encoding),
+            )
         except Exception as e:
             # Losing the doctype could lead to some rendering issues, but they are usually not severe enough
             # to be worth stopping the content from loading entirely.
