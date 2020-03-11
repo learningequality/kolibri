@@ -8,7 +8,6 @@ import json
 import logging
 import mimetypes
 import os
-import re  # please forgive me
 import zipfile
 from collections import OrderedDict
 from xml.etree.ElementTree import SubElement
@@ -115,11 +114,7 @@ def replace_script(parent, script):
 
 def parse_html(content):
     try:
-        # We need the reference to the HTMLParser later to get the document encoding,
-        # so we can't use the html5lib.parse convenience function here.
-        tree_builder = html5lib.treebuilders.getTreeBuilder("etree")
-        parser = html5lib.HTMLParser(tree_builder, namespaceHTMLElements=False)
-        document = parser.parse(content)
+        document = html5lib.parse(content, namespaceHTMLElements=False)
 
         if not document:
             # Could not parse
@@ -140,23 +135,28 @@ def parse_html(content):
                 )
             },
         )
-
         # Currently, html5lib strips the doctype, but it's important for correct rendering, so check the original
         # content for the doctype and, if found, prepend it to the content serialized by html5lib
         doctype = None
         try:
-            encoding = parser.documentEncoding
-            if not encoding:
-                encoding = "utf-8"
-            doctype = re.match(
-                "(?i)<!DOCTYPE[^<>]*(?:<!ENTITY[^<>]*>[^<>]*)?>",
-                content.decode(encoding),
+            # Now parse the content as a dom tree instead, so that we capture
+            # any doctype node as a dom node that we can read.
+            tree_builder_dom = html5lib.treebuilders.getTreeBuilder("dom")
+            parser_dom = html5lib.HTMLParser(
+                tree_builder_dom, namespaceHTMLElements=False
             )
-        except Exception as e:
-            # Losing the doctype could lead to some rendering issues, but they are usually not severe enough
-            # to be worth stopping the content from loading entirely.
-            logger.warning("Attempt to determine doctype failed while parsing HTML.")
-            logger.warning("Error details: {}".format(e))
+            tree = parser_dom.parse(content)
+            # By HTML Spec if doctype is included, it must be the first thing
+            # in the document, so it has to be the first child node of the document
+            doctype_node = tree.childNodes[0]
+
+            # Check that this node is in fact a doctype node
+            if doctype_node.nodeType == doctype_node.DOCUMENT_TYPE_NODE:
+                # render to a string by calling the toxml method
+                # toxml uses single quotes by default, replace with ""
+                doctype = doctype_node.toxml().replace("'", '"')
+        except (html5lib.html5parser.ParseError, IndexError):
+            pass
 
         html = html5lib.serialize(
             document,
@@ -168,7 +168,7 @@ def parse_html(content):
         )
 
         if doctype:
-            html = doctype.group() + html
+            html = doctype + html
 
         return html
     except html5lib.html5parser.ParseError:
