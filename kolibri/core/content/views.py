@@ -5,8 +5,10 @@ from __future__ import unicode_literals
 import hashlib
 import io
 import json
+import logging
 import mimetypes
 import os
+import re  # please forgive me
 import zipfile
 from collections import OrderedDict
 from xml.etree.ElementTree import SubElement
@@ -39,6 +41,8 @@ from kolibri.core.content.hooks import ContentNodeDisplayHook
 mimetypes.init([os.path.join(os.path.dirname(__file__), "constants", "mime.types")])
 
 HASHI_FILENAME = None
+
+logger = logging.getLogger(__name__)
 
 
 def get_hashi_filename():
@@ -111,7 +115,12 @@ def replace_script(parent, script):
 
 def parse_html(content):
     try:
-        document = html5lib.parse(content, namespaceHTMLElements=False)
+        # We need the reference to the HTMLParser later to get the document encoding,
+        # so we can't use the html5lib.parse convenience function here.
+        tree_builder = html5lib.treebuilders.getTreeBuilder("etree")
+        parser = html5lib.HTMLParser(tree_builder, namespaceHTMLElements=False)
+        document = parser.parse(content)
+
         if not document:
             # Could not parse
             return content
@@ -131,7 +140,25 @@ def parse_html(content):
                 )
             },
         )
-        return html5lib.serialize(
+
+        # Currently, html5lib strips the doctype, but it's important for correct rendering, so check the original
+        # content for the doctype and, if found, prepend it to the content serialized by html5lib
+        doctype = None
+        try:
+            encoding = parser.documentEncoding
+            if not encoding:
+                encoding = "utf-8"
+            doctype = re.match(
+                "(?i)<!DOCTYPE[^<>]*(?:<!ENTITY[^<>]*>[^<>]*)?>",
+                content.decode(encoding),
+            )
+        except Exception as e:
+            # Losing the doctype could lead to some rendering issues, but they are usually not severe enough
+            # to be worth stopping the content from loading entirely.
+            logger.warning("Attempt to determine doctype failed while parsing HTML.")
+            logger.warning("Error details: {}".format(e))
+
+        html = html5lib.serialize(
             document,
             quote_attr_values="always",
             omit_optional_tags=False,
@@ -139,6 +166,11 @@ def parse_html(content):
             use_trailing_solidus=True,
             space_before_trailing_solidus=False,
         )
+
+        if doctype:
+            html = doctype.group() + html
+
+        return html
     except html5lib.html5parser.ParseError:
         return content
 
@@ -256,6 +288,10 @@ class ZipContentView(View):
         Handles GET requests and serves a static file from within the zip file.
         """
         zipped_path = get_path_or_404(zipped_filename)
+
+        # Sometimes due to URL concatenation, we get URLs with double-slashes in them, like //path/to/file.html.
+        # Normalize the path by converting those double-slashes to a single slash.
+        embedded_filepath = embedded_filepath.replace("//", "/")
 
         # if client has a cached version, use that (we can safely assume nothing has changed, due to MD5)
         if request.META.get("HTTP_IF_MODIFIED_SINCE"):
