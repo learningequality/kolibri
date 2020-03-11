@@ -27,7 +27,7 @@
             {{ $tr('noDownload') }}
           </p>
           <p v-else-if="inSessionCSVCreation">
-            <DataPageTaskProgress />
+            <DataPageTaskProgress>{{ $tr('generatingLog') }}</DataPageTaskProgress>
           </p>
           <p v-else>
             <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }} </span>
@@ -58,7 +58,7 @@
             {{ $tr('noDownload') }}
           </p>
           <p v-else-if="inSummaryCSVCreation">
-            <DataPageTaskProgress />
+            <DataPageTaskProgress>{{ $tr('generatingLog') }}</DataPageTaskProgress>
           </p>
           <p v-else>
             <span v-if="noSummaryLogs"> {{ $tr('noLogsYet') }} </span>
@@ -77,7 +77,15 @@
       </KGrid>
     </KPageContainer>
 
-    <SyncInterface />
+    <KGrid>
+      <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }">
+        <ImportInterface />
+      </KGridItem>
+      <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }">
+        <SyncInterface />
+      </KGridItem>
+    </KGrid>
+
   </div>
 
 </template>
@@ -93,6 +101,7 @@
   import GeneratedElapsedTime from './GeneratedElapsedTime';
   import DataPageTaskProgress from './DataPageTaskProgress';
   import SyncInterface from './SyncInterface';
+  import ImportInterface from './ImportInterface';
 
   export default {
     name: 'DataPage',
@@ -105,6 +114,7 @@
       GeneratedElapsedTime,
       DataPageTaskProgress,
       SyncInterface,
+      ImportInterface,
     },
     computed: {
       ...mapGetters('manageCSV', [
@@ -120,8 +130,8 @@
       cannotDownload() {
         return isEmbeddedWebView();
       },
-      inDataExportPage() {
-        return this.pageName === PageNames.DATA_EXPORT_PAGE;
+      pollForTasks() {
+        return this.pageName === PageNames.DATA_PAGE;
       },
       noDlStyle() {
         return {
@@ -130,7 +140,7 @@
       },
     },
     watch: {
-      inDataExportPage(val) {
+      pollForTasks(val) {
         return val ? this.startTaskPolling() : this.stopTaskPolling();
       },
     },
@@ -139,7 +149,10 @@
       FacilityResource.fetchCollection({ force: true }).then(facilities => {
         this.$store.commit('manageCSV/RESET_STATE');
         this.$store.commit('manageCSV/SET_STATE', { facilities: facilities });
-        this.inDataExportPage && this.refreshTaskList() && this.startTaskPolling();
+        if (this.pollForTasks) {
+          this.refreshTaskList();
+          this.startTaskPolling();
+        }
       });
     },
     destroyed() {
@@ -195,6 +208,7 @@
       note: 'Note:',
       noDownload: 'Download is not supported on Android',
       documentTitle: 'Manage Data',
+      generatingLog: 'Generating log file...',
     },
   };
 

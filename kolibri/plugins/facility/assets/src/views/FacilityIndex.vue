@@ -32,17 +32,19 @@
   import UserPage from './UserPage';
   import UserCreatePage from './UserCreatePage';
   import UserEditPage from './UserEditPage';
+  import ImportCsvPage from './ImportCsvPage';
 
   const pageNameComponentMap = {
     [PageNames.CLASS_EDIT_MGMT_PAGE]: ClassEditPage,
     [PageNames.CLASS_MGMT_PAGE]: ManageClassPage,
     [PageNames.CLASS_ENROLL_LEARNER]: LearnerClassEnrollmentPage,
     [PageNames.CLASS_ASSIGN_COACH]: CoachClassAssignmentPage,
-    [PageNames.DATA_EXPORT_PAGE]: DataPage,
+    [PageNames.DATA_PAGE]: DataPage,
     [PageNames.FACILITY_CONFIG_PAGE]: FacilitiesConfigPage,
     [PageNames.USER_MGMT_PAGE]: UserPage,
     [PageNames.USER_CREATE_PAGE]: UserCreatePage,
     [PageNames.USER_EDIT_PAGE]: UserEditPage,
+    [PageNames.IMPORT_CSV_PAGE]: ImportCsvPage,
   };
 
   export default {
@@ -67,21 +69,23 @@
           if (this.class) {
             appBarTitle = this.class.name || '';
           }
-        }
-        if (
+        } else if (
           this.pageName === PageNames.USER_EDIT_PAGE ||
           this.pageName === PageNames.USER_CREATE_PAGE
         ) {
           immersivePageRoute = this.$router.getRoute(PageNames.USER_MGMT_PAGE);
           appBarTitle = this.coreString('usersLabel');
+        } else if (this.pageName === PageNames.IMPORT_CSV_PAGE) {
+          immersivePageRoute = this.$router.getRoute(PageNames.DATA_PAGE);
+          appBarTitle = this.$tr('importPageHeader');
         }
 
         if (immersivePageRoute) {
           return {
             immersivePage: true,
-            immersivePageIcon: 'arrow_back',
+            immersivePageIcon: 'close',
             immersivePageRoute: immersivePageRoute,
-            immersivePagePrimary: true,
+            immersivePagePrimary: false,
             appBarTitle,
           };
         }
@@ -99,6 +103,7 @@
     },
     $trs: {
       adminOrSuperuser: 'You must be signed in as an admin or super admin to view this page',
+      importPageHeader: 'Import data from CSV',
     },
   };
 
