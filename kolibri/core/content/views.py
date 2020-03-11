@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import hashlib
 import io
 import json
+import logging
 import mimetypes
 import os
 import re  # please forgive me
@@ -40,6 +41,8 @@ from kolibri.core.content.hooks import ContentNodeDisplayHook
 mimetypes.init([os.path.join(os.path.dirname(__file__), "constants", "mime.types")])
 
 HASHI_FILENAME = None
+
+logger = logging.getLogger(__name__)
 
 
 def get_hashi_filename():
@@ -114,9 +117,9 @@ def parse_html(content):
     try:
         # We need the reference to the HTMLParser later to get the document encoding,
         # so we can't use the html5lib.parse convenience function here.
-        tb = html5lib.treebuilders.getTreeBuilder("etree")
-        p = html5lib.HTMLParser(tb, namespaceHTMLElements=False)
-        document = p.parse(content)
+        tree_builder = html5lib.treebuilders.getTreeBuilder("etree")
+        parser = html5lib.HTMLParser(tree_builder, namespaceHTMLElements=False)
+        document = parser.parse(content)
 
         if not document:
             # Could not parse
@@ -142,14 +145,15 @@ def parse_html(content):
         # content for the doctype and, if found, prepend it to the content serialized by html5lib
         doctype = None
         try:
-            encoding = p.documentEncoding
+            encoding = parser.documentEncoding
             if not encoding:
                 encoding = "utf-8"
             doctype = re.match("(?i)<!DOCTYPE[^<>]*(?:<!ENTITY[^<>]*>[^<>]*)?>", content.decode(encoding))
-        except:
+        except Exception as e:
             # Losing the doctype could lead to some rendering issues, but they are usually not severe enough
             # to be worth stopping the content from loading entirely.
-            pass
+            logger.warning("Attempt to determine doctype failed while parsing HTML.")
+            logger.warning("Error details: {}".format(e))
 
         html = html5lib.serialize(
             document,
