@@ -290,7 +290,11 @@ class ZipContentView(View):
         zipped_path = get_path_or_404(zipped_filename)
 
         # Sometimes due to URL concatenation, we get URLs with double-slashes in them, like //path/to/file.html.
-        # Normalize the path by converting those double-slashes to a single slash.
+        # If it is a leading double slash (i.e. /zipcontent/filename.zip//file.html) then it will get passed
+        # to zipcontent as a single leading slash - detect this and remove if present.
+        if embedded_filepath.startswith("/"):
+            embedded_filepath = embedded_filepath[1:]
+        # Normalize the path by converting double-slashes occurring later in the path to a single slash.
         embedded_filepath = embedded_filepath.replace("//", "/")
 
         # if client has a cached version, use that (we can safely assume nothing has changed, due to MD5)

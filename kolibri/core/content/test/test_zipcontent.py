@@ -52,6 +52,8 @@ class ZipContentTestCase(TestCase):
     test_str_1 = "This is a test!"
     test_name_2 = "testfile2.txt"
     test_str_2 = "And another test..."
+    embedded_file_name = "test/this/path/test.txt"
+    embedded_file_str = "Embedded file test"
 
     def setUp(self):
 
@@ -78,6 +80,7 @@ class ZipContentTestCase(TestCase):
             zf.writestr(self.html5_doctype_name, self.html5_doctype_str)
             zf.writestr(self.test_name_1, self.test_str_1)
             zf.writestr(self.test_name_2, self.test_str_2)
+            zf.writestr(self.embedded_file_name, self.embedded_file_str)
 
         self.zip_file_obj = LocalFile(
             id=self.hash, extension=self.extension, available=True
@@ -192,6 +195,32 @@ class ZipContentTestCase(TestCase):
             + "<body></body></html>"
         )
         self.assertEqual(response.content.decode("utf-8"), content)
+
+    def test_request_for_html_body_script_with_extra_slash_return_hashi_modified_html(
+        self, filename_patch
+    ):
+        response = self.client.get(self.zip_file_base_url + "/" + self.script_name)
+        content = (
+            '<html><head><template hashi-script="true"><script>test</script></template><script src="/static/content/hashi123.js"></script></head>'
+            + "<body></body></html>"
+        )
+        self.assertEqual(response.content.decode("utf-8"), content)
+
+    def test_request_for_embedded_file_return_embedded_file(self, filename_patch):
+        response = self.client.get(self.zip_file_base_url + self.embedded_file_name)
+        self.assertEqual(
+            next(response.streaming_content).decode(), self.embedded_file_str
+        )
+
+    def test_request_for_embedded_file_with_double_slashes_return_embedded_file(
+        self, filename_patch
+    ):
+        response = self.client.get(
+            self.zip_file_base_url + self.embedded_file_name.replace("/", "//")
+        )
+        self.assertEqual(
+            next(response.streaming_content).decode(), self.embedded_file_str
+        )
 
     def test_request_for_html_body_script_skip_get_param_return_unmodified_html(
         self, filename_patch
