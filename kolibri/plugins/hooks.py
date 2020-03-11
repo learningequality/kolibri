@@ -291,7 +291,7 @@ class KolibriHookMeta(SingletonMeta):
             and cls._registered_hooks
             and hook not in cls.registered_hooks
         ):
-            raise RuntimeError(
+            logger.error(
                 "Attempted to register more than one instance of {}".format(
                     hook.__class__
                 )
