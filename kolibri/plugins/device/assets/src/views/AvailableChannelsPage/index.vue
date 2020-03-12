@@ -329,6 +329,7 @@
       startMultipleChannelImport() {
         if (this.inLocalImportMode) {
           const taskParams = this.selectedChannels.map(x => ({
+            channel_name: x.name,
             channel_id: x.id,
             drive_id: this.selectedDrive.id,
           }));
@@ -344,6 +345,7 @@
         } else {
           const peer_id = this.inPeerImportMode ? this.selectedPeer.id : null;
           const taskParams = this.selectedChannels.map(x => ({
+            channel_name: x.name,
             channel_id: x.id,
             peer_id,
           }));
