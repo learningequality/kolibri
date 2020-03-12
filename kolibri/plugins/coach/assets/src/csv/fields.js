@@ -131,37 +131,28 @@ export function recipients(className) {
       name: FieldsMixinStrings.$tr('recipientType'),
       key: 'recipientType',
       format(row) {
-        const numGroups = get(row, 'groupNames.length', -1);
-        if (numGroups > 0) {
-          // If there are more recipients than groups, then there are some individual learners
-          if (get(row, 'recipientNames.length') > numGroups) {
-            return FieldsMixinStrings.$tr('groupsAndIndividuals');
-          } else {
-            return coachStrings.$tr('groupsLabel');
-          }
-        }
-
-        if (numGroups === 0 && get(row, 'hasAssignments')) {
+        const { recipientNames = [] } = row;
+        if (recipientNames.length === 0 && row.hasAssignments) {
           return FieldsMixinStrings.$tr('wholeClass');
+        } else {
+          const numGroups = get(row, 'groupNames.length', -1);
+          // If there are more recipients than groups, then there must be some individual learners
+          return recipientNames.length > numGroups
+            ? FieldsMixinStrings.$tr('groupsAndIndividuals') // At least one individual recipient
+            : coachStrings.$tr('groupsLabel'); // Groups only
         }
-
-        return '';
       },
     },
     {
       name: coachStrings.$tr('recipientsLabel'),
       key: 'groupNames',
       format(row) {
-        const [value] = at(row, 'recipientNames');
-
-        if (row.groupNames.length === 0 && row.hasAssignments === true) {
+        const { recipientNames = [] } = row;
+        if (recipientNames.length === 0 && row.hasAssignments) {
           return className || FieldsMixinStrings.$tr('wholeClass');
+        } else {
+          return formatList(recipientNames);
         }
-        if (value && value.length) {
-          return formatList(value);
-        }
-
-        return '';
       },
     },
   ];
