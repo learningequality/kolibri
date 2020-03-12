@@ -15,7 +15,7 @@
   <mat-svg v-else-if="icon === 'coach'" name="local_library" category="maps" :style="style" />
   <mat-svg v-else-if="icon === 'lesson'" name="import_contacts" category="communication" :style="style" />
   <mat-svg v-else-if="icon === 'question'" name="keyboard_arrow_right" category="hardware" :style="style" :class="flip" />
-  <mat-svg v-else-if="icon === 'quiz'" name="assignment_late" category="action" :style="style" />
+  <mat-svg v-else-if="icon === 'quiz' || icon === 'exam'" name="assignment_late" category="action" :style="style" />
   <!-- content -->
   <mat-svg v-else-if="icon === 'app' || icon === 'html5'" name="widgets" category="device" :style="style" />
   <mat-svg v-else-if="icon === 'audio'" name="audiotrack" category="image" :style="style" />
