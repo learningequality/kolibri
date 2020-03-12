@@ -46,7 +46,7 @@ option_spec = {
     "HTML5": {
         "SANDBOX": {
             "type": "string",
-            "default": "allow-scripts allow-same-origin allow-forms",  # TODO: revert to `allow-scripts` before merging
+            "default": "allow-scripts",
             "envvars": ("KOLIBRI_HTML5_SANDBOX",),
             "clean": clean_sandbox,
         }

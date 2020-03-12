@@ -10,7 +10,7 @@ from kolibri.plugins.hooks import register_hook
 
 
 class ProfuturoPlugin(KolibriPluginBase):
-    pass
+    kolibri_option_defaults = "option_defaults"
 
 
 @register_hook
