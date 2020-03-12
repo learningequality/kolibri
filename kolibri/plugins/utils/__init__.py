@@ -100,7 +100,7 @@ def initialize_plugins_and_hooks(all_classes, plugin_name):
             # Initialize the class, nothing more happens for now.
             plugin_objects.append(class_definition())
             if not was_configured and django_settings.configured:
-                raise RuntimeError(
+                raise PluginLoadsApp(
                     "Initializing plugin class {} in plugin {} caused Django settings to be configured".format(
                         class_definition.__name__, plugin_name
                     )
@@ -108,7 +108,7 @@ def initialize_plugins_and_hooks(all_classes, plugin_name):
         elif issubclass(class_definition, KolibriHook):
             class_definition.add_hook_to_registries()
             if not was_configured and django_settings.configured:
-                raise RuntimeError(
+                raise PluginLoadsApp(
                     "Initializing hook class {} in plugin {} caused Django settings to be configured".format(
                         class_definition.__name__, plugin_name
                     )
@@ -146,7 +146,7 @@ def initialize_kolibri_plugin(plugin_name):
         # Exceptions are expected to be thrown from here.
         plugin_module = importlib.import_module(plugin_name + ".kolibri_plugin")
         if not was_configured and django_settings.configured:
-            raise RuntimeError(
+            raise PluginLoadsApp(
                 "Importing plugin module {} caused Django settings to be configured".format(
                     plugin_name
                 )
@@ -209,7 +209,7 @@ def disable_plugin(plugin_name):
         if obj:
             obj.disable()
             return True
-    except PluginDoesNotExist as e:
+    except Exception as e:
         logger.error(str(e))
         logger.warning(
             "Removing '{}' from configuration in a naive way.".format(plugin_name)

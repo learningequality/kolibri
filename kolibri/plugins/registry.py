@@ -38,10 +38,12 @@ from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 
 from kolibri.plugins import config
+from kolibri.plugins.hooks import HookSingleInstanceError
 from kolibri.plugins.utils import initialize_kolibri_plugin
 from kolibri.plugins.utils import is_plugin_updated
 from kolibri.plugins.utils import MultiplePlugins
 from kolibri.plugins.utils import PluginDoesNotExist
+from kolibri.plugins.utils import PluginLoadsApp
 
 logger = logging.getLogger(__name__)
 
@@ -79,8 +81,16 @@ class Registry(object):
                     if is_plugin_updated(app):
                         config["UPDATED_PLUGINS"].add(app)
                         config.save()
-            except (MultiplePlugins, ImportError):
-                logger.warn("Cannot initialize plugin {}".format(app))
+            except (
+                MultiplePlugins,
+                ImportError,
+                HookSingleInstanceError,
+                PluginLoadsApp,
+            ) as e:
+                logger.error("Cannot initialize plugin {}".format(app))
+                logger.error(str(e))
+                logger.error("Disabling plugin {}".format(app))
+                config.clear_plugin(app)
             except PluginDoesNotExist:
                 pass
 
