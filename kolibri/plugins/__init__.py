@@ -24,6 +24,7 @@ try:
     # in the root of the Kolibri repository. It may also have been set at build time
     # to specify a different list of plugins
     from kolibri.utils.build_config.default_plugins import plugins
+
     DEFAULT_PLUGINS = plugins
 except ImportError:
     DEFAULT_PLUGINS = INTERNAL_PLUGINS + ["kolibri_exercise_perseus_plugin"]
