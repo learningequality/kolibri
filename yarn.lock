@@ -7565,7 +7565,7 @@ knuth-shuffle-seeded@^1.0.6:
 
 "kolibri-design-system@https://github.com/learningequality/kolibri-design-system#v0.2.0-alpha1":
   version "0.2.0"
-  resolved "https://github.com/learningequality/kolibri-design-system#f0dee2fb8a0f6410c79e3dbdcf15e5148cc4d93d"
+  resolved "https://github.com/learningequality/kolibri-design-system#4cd4b21590693a5c657ddbad7219038760fc0d44"
   dependencies:
     aphrodite "https://github.com/learningequality/aphrodite/"
     autosize "^3.0.21"
