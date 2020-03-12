@@ -7,7 +7,7 @@
       :style="{ color: $themeTokens.primary }"
       :iconAriaLabel="iconAriaLabel"
     >
-      <KIcon icon='info' :style="{ fill: $themeTokens.primary }" />
+      <KIcon icon="info" :style="{ fill: $themeTokens.primary }" />
     </UiIcon>
     <KTooltip
       reference="icon"
