@@ -79,7 +79,7 @@ def test_register_multiple_hook_single_hook(valid_single_hook):
         pytest.fail(
             "Allowed a hook single instance hook to be registered more than once"
         )
-    except RuntimeError:
+    except hooks.HookSingleInstanceError:
         pass
 
 
