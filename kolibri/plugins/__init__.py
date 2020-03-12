@@ -199,9 +199,19 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
 
     #: Comment
     # Name of a local module, containing a config spec as the 'option_spec' value.
-    # These options should not override the core config spec, but may specify a new
-    # default value for a core config spec option.
+    # These options should not override the core config spec. To override default values
+    # of other options see the attribute below
     kolibri_options = None
+
+    #: Comment
+    # Name of a local module, containing a set of options defaults as the 'option_defaults' value.
+    # Should be of the form:
+    # option_defaults = {
+    #     "<Section Name>": {
+    #         "<Option Name>": "<New Default Value>",
+    #     }
+    # }
+    kolibri_option_defaults = None
 
     # : Suggested property, not yet in use
     migrate_on_enable = False
@@ -358,8 +368,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         """
         Return an options module, containing a config spec as the 'option_spec' value.
 
-        These options should not override the core config spec, but may specify only a new
-        default value for a core config spec option.
+        These options should not override the core config spec.
 
         By default this will be discovered based on the kolibri_options
         property.
@@ -370,6 +379,24 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
                 logging.warn(
                     "{plugin} defined {module} kolibri options but the module was not found".format(
                         plugin=self.module_path, module=self.kolibri_options
+                    )
+                )
+            return module
+
+    @property
+    def option_defaults_module(self):
+        """
+        Return an option defaults module, containing default overrides as the 'options_default' value.
+
+        By default this will be discovered based on the kolibri_options
+        property.
+        """
+        if self.kolibri_option_defaults:
+            module = self._return_module(self.kolibri_option_defaults)
+            if module is None:
+                logging.warn(
+                    "{plugin} defined {module} kolibri option defaults but the module was not found".format(
+                        plugin=self.module_path, module=self.kolibri_option_defaults
                     )
                 )
             return module
