@@ -1216,7 +1216,7 @@ autoprefixer@^9.0.0:
     postcss "^7.0.26"
     postcss-value-parser "^4.0.2"
 
-autosize@^3.0.21:
+autosize@^3.0.20, autosize@^3.0.21:
   version "3.0.21"
   resolved "https://registry.yarnpkg.com/autosize/-/autosize-3.0.21.tgz#f182f40d17757d978a139a4c9ca40c4c0e448603"
   integrity sha1-8YL0DRd1fZeKE5pMnKQMTA5EhgM=
@@ -3692,6 +3692,11 @@ deep-is@~0.1.3:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.3.tgz#b369d6fb5dbc13eecf524f91b070feedc357cf34"
   integrity sha1-s2nW+128E+7PUk+RsHD+7cNXzzQ=
+
+deepmerge@^2.0.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.2.1.tgz#5d3ff22a01c00f645405a2fbc17d0778a1801170"
+  integrity sha512-R9hc1Xa/NOBi9WRVUWg19rl1UB7Tt4kuPd+thNJgFZoxXsTz7ncaPaeIm+40oSGuP33DfMb4sZt1QIGiJzC4EA==
 
 deepmerge@^3.2.0:
   version "3.3.0"
@@ -7469,6 +7474,17 @@ katex@^0.6.0:
   dependencies:
     match-at "^0.1.0"
 
+keen-ui@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/keen-ui/-/keen-ui-1.3.0.tgz#258ed78baae9b9cf8c8a2afb26956ceaad0c1a31"
+  integrity sha512-eb7rShNfLjk7pGnSXoFKZUWlFbiXLUVWYEHa8ghf3ZEUQNYl2n23qvoJwQaqcFiCCNQHjxhTeo+8IoOWLPG2Ow==
+  dependencies:
+    autosize "^3.0.20"
+    deepmerge "^2.0.1"
+    fuzzysearch "^1.0.3"
+    lodash.debounce "^4.0.8"
+    tippy.js "^4.2.1"
+
 keycode@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/keycode/-/keycode-2.2.0.tgz#3d0af56dc7b8b8e5cba8d0a97f107204eec22b04"
@@ -7537,6 +7553,19 @@ knuth-shuffle-seeded@^1.0.6:
 "kolibri-design-system@https://github.com/learningequality/kolibri-design-system#v0.2.0-alpha0":
   version "0.2.0"
   resolved "https://github.com/learningequality/kolibri-design-system#5e54676cac5186243792804a4f25974b68db25b3"
+  dependencies:
+    aphrodite "https://github.com/learningequality/aphrodite/"
+    autosize "^3.0.21"
+    css-element-queries "^1.2.0"
+    fuzzysearch "^1.0.3"
+    lodash "^4.17.15"
+    material-design-icons "^3.0.1"
+    popper.js "^1.14.6"
+    purecss "^0.6.2"
+
+"kolibri-design-system@https://github.com/learningequality/kolibri-design-system#v0.2.0-alpha1":
+  version "0.2.0"
+  resolved "https://github.com/learningequality/kolibri-design-system#f0dee2fb8a0f6410c79e3dbdcf15e5148cc4d93d"
   dependencies:
     aphrodite "https://github.com/learningequality/aphrodite/"
     autosize "^3.0.21"
@@ -7771,6 +7800,11 @@ lodash.camelcase@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/lodash.camelcase/-/lodash.camelcase-4.3.0.tgz#b28aa6288a2b9fc651035c7711f65ab6190331a6"
   integrity sha1-soqmKIorn8ZRA1x3EfZathkDMaY=
+
+lodash.debounce@^4.0.8:
+  version "4.0.8"
+  resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
+  integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
 
 lodash.defaultsdeep@^4.6.0:
   version "4.6.1"
@@ -9479,7 +9513,7 @@ pn@^1.1.0:
   resolved "https://registry.yarnpkg.com/pn/-/pn-1.1.0.tgz#e2f4cef0e219f463c179ab37463e4e1ecdccbafb"
   integrity sha512-2qHaIQr2VLRFoxe2nASzsV6ef4yOOH+Fi9FBOVH6cqeSgUnoyySPZkxzLuzd+RYOQTRpROA0ztTMqxROKSb/nA==
 
-popper.js@^1.14.3, popper.js@^1.14.6:
+popper.js@^1.14.3, popper.js@^1.14.6, popper.js@^1.14.7:
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.16.1.tgz#2a223cb3dc7b6213d740e40372be40de43e65b1b"
   integrity sha512-Wb4p1J4zyFTbM+u6WuO4XstYx4Ky9Cewe4DWrel7B0w6VVICvPwdOpotjzcf6eD8TsckVnIMNONQyPIUFOUbCQ==
@@ -12444,6 +12478,13 @@ tiny-emitter@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/tiny-emitter/-/tiny-emitter-2.1.0.tgz#1d1a56edfc51c43e863cbb5382a72330e3555423"
   integrity sha512-NB6Dk1A9xgQPMoGqC5CVXn123gWyte215ONT5Pp5a0yt4nlEoO1ZWeCwpncaekPHXO60i47ihFnZPiRPjRMq4Q==
+
+tippy.js@^4.2.1:
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/tippy.js/-/tippy.js-4.3.5.tgz#882bff8d92f09bb0546d2826d5668c0560006f54"
+  integrity sha512-NDq3efte8nGK6BOJ1dDN1/WelAwfmh3UtIYXXck6+SxLzbIQNZE/cmRSnwScZ/FyiKdIcvFHvYUgqmoGx8CcyA==
+  dependencies:
+    popper.js "^1.14.7"
 
 tmp@^0.0.33:
   version "0.0.33"
