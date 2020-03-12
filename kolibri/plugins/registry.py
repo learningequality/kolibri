@@ -82,6 +82,7 @@ class Registry(object):
                         config["UPDATED_PLUGINS"].add(app)
                         config.save()
             except (
+                PluginDoesNotExist,
                 MultiplePlugins,
                 ImportError,
                 HookSingleInstanceError,
@@ -91,8 +92,11 @@ class Registry(object):
                 logger.error(str(e))
                 logger.error("Disabling plugin {}".format(app))
                 config.clear_plugin(app)
-            except PluginDoesNotExist:
-                pass
+                if isinstance(e, PluginLoadsApp):
+                    logger.error(
+                        "Please restart Kolibri now that this plugin is disabled"
+                    )
+                    raise
 
     def register_non_plugins(self, apps):
         """
