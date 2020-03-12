@@ -66,9 +66,11 @@ def validate_content_task(request, task_description, require_channel=False):
     try:
         channel_id = task_description["channel_id"]
     except KeyError:
-        raise serializers.ValidationError("The channel_ids field is required.")
+        raise serializers.ValidationError("The channel_id field is required.")
 
-    channel_name = get_channel_name(channel_id, require_channel)
+    channel_name = task_description.get(
+        "channel_name", get_channel_name(channel_id, require_channel)
+    )
 
     node_ids = task_description.get("node_ids", None)
     exclude_node_ids = task_description.get("exclude_node_ids", None)
@@ -233,7 +235,7 @@ class TasksViewSet(viewsets.ViewSet):
         job_ids = []
 
         for task in tasks:
-            task.update({"type": "REMOTEIMPORT"})
+            task.update({"type": "REMOTEIMPORT", "database_ready": False})
             import_job_id = queue.enqueue(
                 _remoteimport,
                 task["channel_id"],
@@ -241,6 +243,7 @@ class TasksViewSet(viewsets.ViewSet):
                 peer_id=task["peer_id"],
                 extra_metadata=task,
                 cancellable=True,
+                track_progress=True,
             )
             job_ids.append(import_job_id)
 
@@ -305,7 +308,7 @@ class TasksViewSet(viewsets.ViewSet):
         job_ids = []
 
         for task in tasks:
-            task.update({"type": "DISKIMPORT"})
+            task.update({"type": "DISKIMPORT", "database_ready": False})
             import_job_id = queue.enqueue(
                 _diskimport,
                 task["channel_id"],
@@ -454,7 +457,6 @@ class TasksViewSet(viewsets.ViewSet):
     def startdiskexport(self, request):
         """
         Export a channel to a local drive, and copy content to the drive.
-
         """
 
         task = validate_local_export_task(request, request.data)
@@ -481,7 +483,6 @@ class TasksViewSet(viewsets.ViewSet):
     def startdataportalsync(self, request):
         """
         Initiate a PUSH sync with Kolibri Data Portal.
-
         """
         task = {
             "facility": request.data["facility"],
@@ -697,11 +698,19 @@ def _remoteimport(
         check_for_cancel=check_for_cancel,
     )
 
-    # Add the channel name if it wasn't added initially
+    # Make some real-time updates to the metadata
     job = get_current_job()
+
+    # Signal to UI that the DB-downloading step is done so it knows to display
+    # progress correctly
+    job.update_progress(0, 1.0)
+    job.extra_metadata["database_ready"] = True
+
+    # Add the channel name if it wasn't added initially
     if job and job.extra_metadata.get("channel_name", "") == "":
         job.extra_metadata["channel_name"] = get_channel_name(channel_id)
-        job.save_meta()
+
+    job.save_meta()
 
     # Skip importcontent step if updating and no nodes have changed
     if is_updating and (node_ids is not None) and len(node_ids) == 0:
@@ -741,11 +750,19 @@ def _diskimport(
         check_for_cancel=check_for_cancel,
     )
 
-    # Add the channel name if it wasn't added initially
+    # Make some real-time updates to the metadata
     job = get_current_job()
+
+    # Signal to UI that the DB-downloading step is done so it knows to display
+    # progress correctly
+    job.update_progress(0, 1.0)
+    job.extra_metadata["database_ready"] = True
+
+    # Add the channel name if it wasn't added initially
     if job and job.extra_metadata.get("channel_name", "") == "":
         job.extra_metadata["channel_name"] = get_channel_name(channel_id)
-        job.save_meta()
+
+    job.save_meta()
 
     # Skip importcontent step if updating and no nodes have changed
     if is_updating and (node_ids is not None) and len(node_ids) == 0:

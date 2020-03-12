@@ -239,8 +239,8 @@ i18n-upload-glossary:
 	python build_tools/i18n/crowdin.py upload-glossary
 
 docker-clean:
-	docker container prune --filter "label!=build=pigen" -f
-	docker image prune --filter "label!=build=pigen" -a -f
+	docker container prune -f
+	docker image prune -f
 
 docker-whl: writeversion docker-envlist
 	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .

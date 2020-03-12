@@ -2,6 +2,7 @@ import abc
 from collections import namedtuple
 
 import click
+import sys
 from django.core.management.base import BaseCommand
 
 from kolibri.core.tasks.exceptions import UserCancelledError
@@ -25,13 +26,18 @@ class ProgressTracker:
         self.level = level
         self.update_callback = update_callback
 
-        try:
-            # Check we are executing inside a click context
-            # as we only want to display progress bars from the command line
-            click.get_current_context()
-            self.progressbar = click.progressbar(length=total, width=0)
-        except RuntimeError:
+        # Also check that we are not running Python 2:
+        # https://github.com/learningequality/kolibri/issues/6597
+        if sys.version_info[0] == 2:
             self.progressbar = None
+        else:
+            # Check that we are executing inside a click context
+            # as we only want to display progress bars from the command line.
+            try:
+                click.get_current_context()
+                self.progressbar = click.progressbar(length=total, width=0)
+            except RuntimeError:
+                self.progressbar = None
 
     def update_progress(self, increment=1, message="", extra_data=None):
         if self.progressbar:

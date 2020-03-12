@@ -246,8 +246,12 @@ class Command(AsyncCommand):
             .count()
         )
 
+        dummy_bytes_for_annotation = annotation.calculate_dummy_progress_for_annotation(
+            node_ids, exclude_node_ids, total_bytes_to_transfer
+        )
+
         with self.start_progress(
-            total=total_bytes_to_transfer
+            total=total_bytes_to_transfer + dummy_bytes_for_annotation
         ) as overall_progress_update:
             exception = None  # Exception that is not caught by the retry logic
 
@@ -356,6 +360,7 @@ class Command(AsyncCommand):
                         number_of_skipped_files
                     )
                 )
+            overall_progress_update(dummy_bytes_for_annotation)
 
             if exception:
                 raise exception
