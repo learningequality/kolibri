@@ -186,7 +186,7 @@
 
   import { looseIndexOf, looseEqual } from 'keen-ui/src/helpers/util';
   import { scrollIntoView, resetScroll } from 'keen-ui/src/helpers/element-scroll';
-  import config from 'keen-ui/src/config';
+  import config from 'kolibri-design-system/lib/keen/config';
   import KeenUiSelectOption from './KeenUiSelectOption.vue';
 
   export default {
