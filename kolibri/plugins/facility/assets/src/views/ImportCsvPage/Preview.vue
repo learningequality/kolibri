@@ -4,14 +4,12 @@
   <div>
 
     <template v-if="isFinal">
-      <h2>Results</h2>
       <h2 style="color: green;">
         SUCCESS!
       </h2>
       <p>The following changes were made:</p>
     </template>
     <template v-else>
-      <h2>Preview</h2>
       <p>Changes if you choose to import:</p>
     </template>
 
@@ -48,8 +46,6 @@
       </tbody>
     </table>
 
-
-    <h2>Validation</h2>
     <template v-if="isFinal">
       <p>We enountered the following issues... (whole file, specific rows, validation...). These items were skipped:</p>
     </template>
