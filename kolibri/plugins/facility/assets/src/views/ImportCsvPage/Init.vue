@@ -1,5 +1,6 @@
 <template>
 
+  <!-- eslint-disable max-len -->
   <div>
 
     <p>
@@ -68,6 +69,7 @@
     />
 
   </div>
+  <!-- eslint-enable max-len -->
 
 </template>
 

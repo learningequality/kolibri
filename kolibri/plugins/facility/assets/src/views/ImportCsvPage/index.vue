@@ -52,15 +52,13 @@
       };
     },
     methods: {
-      preview(fileToImport) {
-        console.log('preview >>>>', fileToImport);
+      preview() {
         this.state = 'IN_PROGRESS';
         setTimeout(() => {
           this.state = 'PREVIEW';
         }, 2000);
       },
-      startImport(alsoDelete) {
-        console.log('startImport >>>>', alsoDelete);
+      startImport() {
         this.state = 'IN_PROGRESS';
         setTimeout(() => {
           this.state = 'RESULTS';

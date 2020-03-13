@@ -1,5 +1,6 @@
 <template>
 
+  <!-- eslint-disable max-len -->
   <div>
 
     <template v-if="isFinal">
@@ -75,6 +76,7 @@
     </p>
 
   </div>
+  <!-- eslint-enable max-len -->
 
 </template>
 
@@ -82,7 +84,7 @@
 <script>
 
   // if whole CSV cannot be parsed, wrong number of cols, etc
-  const overall_error = {};
+  // const overall_error = {};
 
   // per-line errors
   const per_line_errors = [

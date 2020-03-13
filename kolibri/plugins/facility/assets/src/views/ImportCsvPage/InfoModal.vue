@@ -1,5 +1,6 @@
 <template>
 
+  <!-- eslint-disable max-len -->
   <KModal
     :title="$tr('csvDetails')"
     :submitText="$tr('close')"
@@ -93,6 +94,7 @@
       </tbody>
     </table>
   </KModal>
+  <!-- eslint-enable max-len -->
 
 </template>
 
