@@ -17,21 +17,21 @@
             Username
           </th>
           <td>Required</td>
-          <td>(details)</td>
+          <td>Less than X chars and only these things</td>
         </tr>
         <tr>
           <th>
             Password
           </th>
           <td>Required</td>
-          <td>(details)</td>
+          <td>At most N chars</td>
         </tr>
         <tr>
           <th>
             Full name
           </th>
           <td>Required</td>
-          <td>(details)</td>
+          <td>At most N chars</td>
         </tr>
         <tr>
           <th>
@@ -41,10 +41,10 @@
           <td>
             <div>Possible values:</div>
             <ul>
-              <li>Admin</li>
-              <li>Facility coach</li>
-              <li>Class coach</li>
-              <li>Learner</li>
+              <li><code>ADMIN</code></li>
+              <li><code>FACILITY_COACH</code></li>
+              <li><code>CLASS_COACH</code></li>
+              <li><code>LEARNER</code></li>
             </ul>
           </td>
         </tr>
@@ -53,14 +53,14 @@
             Identifier
           </th>
           <td>Optional</td>
-          <td>(details)</td>
+          <td>Examples: student ID number or email address. At most N chars</td>
         </tr>
         <tr>
           <th>
             Birth year
           </th>
           <td>Optional</td>
-          <td>(details)</td>
+          <td>A four-digit number</td>
         </tr>
         <tr>
           <th>
@@ -70,9 +70,9 @@
           <td>
             <div>Possible values:</div>
             <ul>
-              <li>Male</li>
-              <li>Female</li>
-              <li>Not specified</li>
+              <li><code>MALE</code></li>
+              <li><code>FEMALE</code></li>
+              <li><code>NOT_SPECIFIED</code></li>
             </ul>
           </td>
         </tr>
@@ -124,6 +124,7 @@
   th {
     padding: 12px 8px;
     line-height: 1.5em;
+    text-align: left;
     vertical-align: top;
   }
 

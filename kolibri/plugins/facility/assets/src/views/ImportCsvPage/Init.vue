@@ -27,9 +27,11 @@
       <li>set which classes each coach is assigned to</li>
       <li>create new classes (for any referenced class names that do not yet exist)</li>
     </ul>
-    <p>Optionally, you can also delete users and classes that are not referenced in the spreadsheet.</p>
     <p>
-      Before committing the import you will be shown a summary of changes that will be made. However, it is very important to use this feature carefully.
+      Optionally, you can also delete users and classes that are not referenced in the spreadsheet.
+    </p>
+    <p>
+      Before committing the import you will be shown a summary of changes that will be made.
     </p>
     <p>
       <label for="csv-file">To proceed, select a CSV file:</label>

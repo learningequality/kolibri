@@ -28,14 +28,22 @@
         <tr>
           <th>Users</th>
           <td>6</td>
-          <td>+123</td>
-          <td>-5</td>
+          <td style="color: green;">
+            123
+          </td>
+          <td style="color: red;">
+            5
+          </td>
         </tr>
         <tr>
           <th>Classes</th>
           <td></td>
-          <td>+3</td>
-          <td>-1</td>
+          <td style="color: green;">
+            3
+          </td>
+          <td style="color: red;">
+            1
+          </td>
         </tr>
       </tbody>
     </table>
