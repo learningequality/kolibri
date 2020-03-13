@@ -171,6 +171,13 @@ from kolibri.plugins import SingletonMeta
 logger = logging.getLogger(__name__)
 
 
+class HookSingleInstanceError(Exception):
+    """
+    This exception is raised when a hook that is only allowed one active registered hook
+    has more than one defined
+    """
+
+
 def _make_singleton(subclass):
     original_new = subclass.__new__
 
@@ -291,11 +298,20 @@ class KolibriHookMeta(SingletonMeta):
             and cls._registered_hooks
             and hook not in cls.registered_hooks
         ):
-            raise RuntimeError(
-                "Attempted to register more than one instance of {}".format(
-                    hook.__class__
-                )
-            )
+            for parent in cls.__mro__:
+                if (
+                    isabstract(parent)
+                    and issubclass(parent, KolibriHook)
+                    and parent is not KolibriHook
+                    and cls._only_one_registered
+                ):
+                    # Find the first ancestor class that enforces the only one registered
+                    # constraint.
+                    raise HookSingleInstanceError(
+                        "Attempted to register more than one instance of {}".format(
+                            parent
+                        )
+                    )
         cls._registered_hooks[hook.unique_id] = hook
 
     def get_hook(cls, unique_id):
