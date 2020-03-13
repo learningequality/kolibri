@@ -4,6 +4,9 @@
 
     <template v-if="isFinal">
       <h2>Results</h2>
+      <h2 style="color: green;">
+        SUCCESS!
+      </h2>
       <p>The following changes were made:</p>
     </template>
     <template v-else>
@@ -78,8 +81,11 @@
 
 <script>
 
-  // example
-  const logs = [
+  // if whole CSV cannot be parsed, wrong number of cols, etc
+  const overall_error = {};
+
+  // per-line errors
+  const per_line_errors = [
     { line: 43, message: "invalid username '....'" },
     { line: 255, message: 'another issue' },
   ];
@@ -94,7 +100,7 @@
     },
     computed: {
       logs() {
-        return logs.map(obj => `Line ${obj.line}: ${obj.message}`).join('\n');
+        return per_line_errors.map(obj => `Line ${obj.line}: ${obj.message}`).join('\n');
       },
     },
   };
