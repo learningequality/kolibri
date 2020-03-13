@@ -1,4 +1,3 @@
-import at from 'lodash/at';
 import pad from 'lodash/padStart';
 import get from 'lodash/get';
 import { crossComponentTranslator, createTranslator, formatList } from 'kolibri.utils.i18n';
@@ -90,7 +89,7 @@ export function learnerProgress(key = 'status') {
       name: coreStrings('progressLabel'),
       key,
       format(row) {
-        const [value] = at(row, key);
+        const value = get(row, key);
         const strings = translations.learnerProgress[VERB_MAP[value]];
         return strings.$tr('labelShort', { count: 1 });
       },
@@ -104,7 +103,7 @@ export function list(key, label) {
       name: coachStrings.$tr(label),
       key,
       format(row) {
-        const [value] = at(row, key);
+        const value = get(row, key);
 
         if (value && value.length) {
           return formatList(value);
@@ -201,7 +200,7 @@ export function timeSpent(key, label = 'timeSpentLabel') {
       name: coachStrings.$tr(label),
       key,
       format(row) {
-        const [value] = at(row, key);
+        const value = get(row, key);
         const timeSpent = parseInt(value, 10);
 
         if (!timeSpent) {
