@@ -103,7 +103,7 @@
     },
     $trs: {
       adminOrSuperuser: 'You must be signed in as an admin or super admin to view this page',
-      importPageHeader: 'Import data from CSV',
+      importPageHeader: 'Import users from spreadsheet',
     },
   };
 

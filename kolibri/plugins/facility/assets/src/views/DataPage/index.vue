@@ -77,14 +77,8 @@
       </KGrid>
     </KPageContainer>
 
-    <KGrid>
-      <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }">
-        <ImportInterface />
-      </KGridItem>
-      <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }">
-        <SyncInterface />
-      </KGridItem>
-    </KGrid>
+    <ImportInterface />
+    <SyncInterface />
 
   </div>
 

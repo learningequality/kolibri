@@ -2,20 +2,9 @@
 
   <KPageContainer>
 
-    <h1>CSV import/export</h1>
+    <h1>Import and export users</h1>
     <p>
-      Comma-separated-value (.csv) files are a plain-text format for storing tabular data.
-    </p>
-    <p>
-      Add new users and update existing users:
-    </p>
-    <p>
-      <KRouterLink
-        text="Import"
-        appearance="raised-button"
-        :to="$router.getRoute('IMPORT_CSV_PAGE')"
-        style="margin: 0;"
-      />
+      You can manage users in bulk using spreadsheets.
     </p>
     <p>
       Export a CSV file containing all users in the facility:
@@ -32,11 +21,17 @@
         Generating CSV...
       </DataPageTaskProgress>
     </p>
-
-    <InfoModal
-      v-if="modalShown"
-      @cancel="modalShown = false"
-    />
+    <p>
+      Add new users and update existing users from a CSV:
+    </p>
+    <p>
+      <KRouterLink
+        text="Import"
+        appearance="raised-button"
+        :to="$router.getRoute('IMPORT_CSV_PAGE')"
+        style="margin: 0;"
+      />
+    </p>
 
   </KPageContainer>
 
@@ -47,7 +42,6 @@
 
   import * as csvGenerator from 'csv-generator-client'; // temporarily used for mockups
   import DataPageTaskProgress from '../DataPageTaskProgress';
-  import InfoModal from './InfoModal';
 
   // temporarily used for mockups
   function dummyExport() {
@@ -72,7 +66,6 @@
     name: 'ImportInterface',
     components: {
       DataPageTaskProgress,
-      InfoModal,
     },
     data: () => ({
       modalShown: false,
