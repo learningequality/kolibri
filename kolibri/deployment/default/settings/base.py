@@ -91,7 +91,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.cache.FetchFromCacheMiddleware",
-    "kolibri.core.webpack.middleware.WebpackErrorHandler",
 ]
 
 # By default don't cache anything unless it explicitly requests it to!
