@@ -19,5 +19,6 @@ steps:
 
   # - wait
 
-  - label: Upload artifacts
+  - label: Upload Release Artifacts
     command: .buildkite/setup_and_upload_artifact.sh && docker image prune -f -a
+    if: build.tag

@@ -95,43 +95,6 @@ file_order = [
 gh = login(token=ACCESS_TOKEN)
 repository = gh.repository(REPO_OWNER, REPO_NAME)
 
-
-def create_status_report_html(artifacts):
-    """
-    Create html page to list build artifacts for linking from github status.
-    """
-    html = "<html>\n<body>\n<h1>Build Artifacts</h1>\n"
-    current_heading = None
-    for ext in file_order:
-        artifact = artifacts[ext]
-        if artifact['category'] != current_heading:
-            current_heading = artifact['category']
-            html += "<h2>{heading}</h2>\n".format(heading=current_heading)
-        html += "<p>{description}: <a href='{media_url}'>{name}</a></p>\n".format(
-            **artifact
-        )
-    html += "</body>\n</html>"
-    return html
-
-def create_github_status(report_url):
-    """
-    Create a github status with a link to the report URL,
-    only do this once buildkite has been successful, so only report success here.
-    """
-    status = repository.create_status(
-        COMMIT,
-        "success",
-        target_url=report_url,
-        description="Kolibri Buildkite assets",
-        context="buildkite/kolibri/assets"
-    )
-    if status:
-        logging.info('Successfully created Github status for commit %s.' % COMMIT)
-    else:
-        logging.info('Error encounter. Now exiting!')
-        sys.exit(1)
-
-
 def collect_local_artifacts():
     """
     Create a dict of the artifact name and the location.
@@ -170,83 +133,38 @@ def collect_local_artifacts():
     return artifacts_dict
 
 
-def upload_html(html="", artifacts={}):
-    client = storage.Client()
-    bucket = client.bucket("le-downloads")
-
-    blob = bucket.blob('kolibri-%s-%s-report.html' % (RELEASE_DIR, BUILD_ID))
-
-    blob.upload_from_string(html, content_type='text/html')
-
-    blob.make_public()
-
-    return blob.public_url
-
-
 def upload_gh_release_artifacts(artifacts={}):
-        # Have to do this with requests because github3 does not support this interface yet
-        get_release_asset_url = requests.get("https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}".format(
-            owner=REPO_OWNER,
-            repo=REPO_NAME,
-            tag=TAG,
-        ))
-        if get_release_asset_url.status_code == 200:
-            # Definitely a release!
-            release_id = get_release_asset_url.json()['id']
-            release_name = get_release_asset_url.json()['name']
-            release = repository.release(id=release_id)
-            logging.info("Uploading built assets to Github Release: %s" % release_name)
-            for file_extension in file_order:
-                artifact = artifacts[file_extension]
-                logging.info("Uploading release asset: %s" % (artifact.get("name")))
-                # For some reason github3 does not let us set a label at initial upload
-                asset = release.upload_asset(
-                    content_type=artifact['content_type'],
-                    name=artifact['name'],
-                    asset=open(artifact['file_location'], 'rb')
-                )
-                if asset:
-                    # So do it after the initial upload instead
-                    asset.edit(artifact['name'], label=artifact['description'])
-                    logging.info("Successfully uploaded release asset: %s" % (artifact.get('name')))
-                else:
-                    logging.error("Error uploading release asset: %s" % (artifact.get('name')))
-
-
-def upload_gh_status_artifacts(artifacts={}):
-    """
-    Upload the artifacts on the Google Cloud Storage.
-    Create a comment on the pull requester with artifact media link.
-    """
-    client = storage.Client()
-    bucket = client.bucket("le-downloads")
-    is_release = os.getenv("IS_KOLIBRI_RELEASE")
-    for file_data in artifacts.values():
-        logging.info("Uploading file (%s)" % (file_data.get("name")))
-        if is_release:
-            blob = bucket.blob(
-                "kolibri-%s-%s-%s" % (RELEASE_DIR, BUILD_ID, file_data.get("name"))
+    # Have to do this with requests because github3 does not support this interface yet
+    get_release_asset_url = requests.get("https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}".format(
+        owner=REPO_OWNER,
+        repo=REPO_NAME,
+        tag=TAG,
+    ))
+    if get_release_asset_url.status_code == 200:
+        # Definitely a release!
+        release_id = get_release_asset_url.json()['id']
+        release_name = get_release_asset_url.json()['name']
+        release = repository.release(id=release_id)
+        logging.info("Uploading built assets to Github Release: %s" % release_name)
+        for file_extension in file_order:
+            artifact = artifacts[file_extension]
+            logging.info("Uploading release asset: %s" % (artifact.get("name")))
+            # For some reason github3 does not let us set a label at initial upload
+            asset = release.upload_asset(
+                content_type=artifact['content_type'],
+                name=artifact['name'],
+                asset=open(artifact['file_location'], 'rb')
             )
-        else:
-            blob = bucket.blob(
-                "kolibri-buildkite-build-%s-%s-%s"
-                % (ISSUE_ID, BUILD_ID, file_data.get("name"))
-            )
-        blob.upload_from_filename(filename=file_data.get("file_location"))
-        blob.make_public()
-        file_data.update(
-            {
-                "size_mb": os.path.getsize(file_data.get("file_location")) / 1048576.0,
-                "media_url": blob.media_link,
-            }
-        )
+            if asset:
+                # So do it after the initial upload instead
+                asset.edit(artifact['name'], label=artifact['description'])
+                logging.info("Successfully uploaded release asset: %s" % (artifact.get('name')))
+            else:
+                logging.error("Error uploading release asset: %s" % (artifact.get('name')))
 
 
 def main():
     artifacts = collect_local_artifacts()
-    upload_gh_status_artifacts(artifacts)
-    html = create_status_report_html(artifacts)
-    html_url = upload_html(html)
     create_github_status(html_url)
     if TAG:
         # Building from a tag, this is probably a release!
