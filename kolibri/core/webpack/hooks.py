@@ -105,11 +105,13 @@ class WebpackBundleHook(hooks.KolibriHook):
 
         if not stats_file_content or getattr(settings, "DEVELOPER_MODE", False):
 
-            if not os.path.exists(self._stats_file):
-                raise WebpackError("Missing stats file: '{}'".format(self._stats_file))
+            STATS_ERR = "Error accessing stats file '{}': {}"
 
-            with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
-                stats = json.load(f)
+            try:
+                with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
+                    stats = json.load(f)
+            except IOError as e:
+                raise WebpackError(STATS_ERR.format(self._stats_file, e))
 
             if getattr(settings, "DEVELOPER_MODE", False):
                 timeout = 0
@@ -117,12 +119,13 @@ class WebpackBundleHook(hooks.KolibriHook):
                 while stats["status"] == "compiling":
                     time.sleep(0.1)
                     timeout += 0.1
-                    if not os.path.exists(self._stats_file):
-                        raise WebpackError(
-                            "Missing stats file: '{}'".format(self._stats_file)
-                        )
-                    with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
-                        stats = json.load(f)
+
+                    try:
+                        with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
+                            stats = json.load(f)
+                    except IOError as e:
+                        raise WebpackError(STATS_ERR.format(self._stats_file, e))
+
                     if timeout >= 5:
                         raise WebpackError("Compilation still in progress")
 
