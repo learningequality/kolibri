@@ -22,6 +22,8 @@
               class="download-button"
               @click="downloadSessionLog"
             />
+            <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }} </span>
+            <GeneratedElapsedTime v-else :date="sessionDateCreated" />
           </p>
           <p v-if="cannotDownload" :style="noDlStyle">
             {{ $tr('noDownload') }}
@@ -30,8 +32,7 @@
             <DataPageTaskProgress />
           </p>
           <p v-else>
-            <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }} </span>
-            <GeneratedElapsedTime v-else :date="sessionDateCreated" />
+
             <KButton
               appearance="basic-link"
               :text="noSessionLogs ? $tr('generateLog') : $tr('regenerateLog')"
@@ -53,6 +54,8 @@
               class="download-button"
               @click="downloadSummaryLog"
             />
+            <span v-if="noSummaryLogs"> {{ $tr('noLogsYet') }} </span>
+            <GeneratedElapsedTime v-else :date="summaryDateCreated" />
           </p>
           <p v-if="cannotDownload" :style="noDlStyle">
             {{ $tr('noDownload') }}
@@ -61,8 +64,6 @@
             <DataPageTaskProgress />
           </p>
           <p v-else>
-            <span v-if="noSummaryLogs"> {{ $tr('noLogsYet') }} </span>
-            <GeneratedElapsedTime v-else :date="summaryDateCreated" />
             <KButton
               appearance="basic-link"
               :text="noSummaryLogs ? $tr('generateLog') : $tr('regenerateLog')"
