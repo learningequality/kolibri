@@ -3,16 +3,9 @@
     * Generate access token in your Github account, then create environment variable GITHUB_ACCESS_TOKEN.
         - e.g export GITHUB_ACCESS_TOKEN=1ns3rt-my-t0k3n-h3re.
 
-    * Generate a service account key for your Google API credentials, then create environment variable GOOGLE_APPLICATION_CREDENTIALS.
-        - e.g export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json.
 
 # Environment Variable/s:
-    * IS_KOLIBRI_RELEASE = Upload artifacts to the Google Cloud as a release candidate.
     * GITHUB_ACCESS_TOKEN = Personal access token used to authenticate in your Github account via API.
-    * BUILDKITE_BUILD_NUMBER = Build identifier for each directory created.
-    * BUILDKITE_PULL_REQUEST = Pull request issue or the value is false.
-    * BUILDKITE_TAG = Tag identifier if this build was built from a tag.
-    * GOOGLE_APPLICATION_CREDENTIALS = Your service account key.
 """
 import logging
 import os
