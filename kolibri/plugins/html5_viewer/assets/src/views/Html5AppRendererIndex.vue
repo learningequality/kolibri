@@ -39,7 +39,7 @@
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
-  import { nameSpace } from 'hashi/src/hashiBase';
+  import { events, nameSpace } from 'hashi/src/hashiBase';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -73,6 +73,15 @@
       this.$emit('startTracking');
       this.startTime = now();
       this.pollProgress();
+      let self = this;
+      this.hashi.on(events.CONTENTLOADED, function(data) {
+        // The HTML5 renderer has min and max heights set, so exceedingly low or height height values
+        // will not lead to problematic rendering scenarios. Consequently, this also means that it is only
+        // giving us the ability to stretch at most a couple hundred pixels height-wise.
+        if (data.offsetHeight && data.offsetHeight > 0) {
+          self.$refs.html5Renderer.$refs.fullscreen.style.height = data.offsetHeight + 'px';
+        }
+      });
     },
     beforeDestroy() {
       if (this.timeout) {
@@ -114,7 +123,8 @@
 
   .html5-renderer {
     position: relative;
-    height: 500px;
+    min-height: 500px;
+    max-height: 70vh;
     text-align: center;
   }
 

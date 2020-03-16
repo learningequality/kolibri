@@ -41,6 +41,15 @@ export default class SandboxEnvironment {
 
     patchCrossOrigin();
 
+    let self = this;
+    window.addEventListener('DOMContentLoaded', function() {
+      const data = {
+        offsetHeight: window.document.body.offsetHeight,
+      };
+      const event = events.CONTENTLOADED;
+      self.mediator.sendMessage({ nameSpace, event: event, data: data });
+    });
+
     this.mediator.registerMessageHandler({
       nameSpace,
       event: events.READY,

@@ -1,4 +1,5 @@
 export const events = {
+  CONTENTLOADED: 'contentloaded',
   READYCHECK: 'readycheck',
   READY: 'ready',
   STATEUPDATE: 'stateupdate',

@@ -47,5 +47,20 @@ describe('Hashi iframeClient', () => {
         expect(loadPage).toHaveBeenCalled();
       });
     });
+    it('should send a CONTENTLOADED event when DOMContentLoaded is called', () => {
+      hashi.mediator.sendMessage = jest.fn();
+      return new Promise(resolve => {
+        const DOMContentLoadedEvent = document.createEvent('Event');
+        DOMContentLoadedEvent.initEvent('DOMContentLoaded', true, true);
+        document.dispatchEvent(DOMContentLoadedEvent);
+        resolve();
+      }).then(() => {
+        expect(hashi.mediator.sendMessage).toHaveBeenCalledWith({
+          nameSpace,
+          event: events.CONTENTLOADED,
+          data: expect.anything(),
+        });
+      });
+    });
   });
 });
