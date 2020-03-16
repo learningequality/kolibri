@@ -73,14 +73,6 @@ file_manifest = {
     # },
 }
 
-file_order = [
-    "exe",
-    # 'apk',
-    "pex",
-    "whl",
-    "gz",
-]
-
 gh = login(token=ACCESS_TOKEN)
 repository = gh.repository(REPO_OWNER, REPO_NAME)
 
@@ -137,8 +129,7 @@ def upload_gh_release_artifacts(artifacts={}):
         release_name = get_release_asset_url.json()["name"]
         release = repository.release(id=release_id)
         logging.info("Uploading built assets to Github Release: %s" % release_name)
-        for file_extension in file_order:
-            artifact = artifacts[file_extension]
+        for ext, artifact in artifacts.items():
             logging.info("Uploading release asset: %s" % (artifact.get("name")))
             # For some reason github3 does not let us set a label at initial upload
             asset = release.upload_asset(
