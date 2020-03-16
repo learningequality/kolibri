@@ -1,8 +1,8 @@
 import abc
+import sys
 from collections import namedtuple
 
 import click
-import sys
 from django.core.management.base import BaseCommand
 
 from kolibri.core.tasks.exceptions import UserCancelledError

@@ -15,4 +15,3 @@ The plugin is responsible for:
 * remove this plugin
 * revert changes in `default_plugins.txt` and `kolibri/__init__.py`
 * update the `sandbox` in the HTML5 renderer back to `allow-scripts`
-
