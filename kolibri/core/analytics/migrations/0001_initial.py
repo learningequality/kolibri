@@ -3,9 +3,10 @@
 from __future__ import unicode_literals
 
 import django.db.models.deletion
-import jsonfield.fields
 from django.db import migrations
 from django.db import models
+
+import kolibri.core.fields
 
 
 class Migration(migrations.Migration):
@@ -25,7 +26,7 @@ class Migration(migrations.Migration):
                 ("version_range", models.CharField(max_length=50)),
                 ("timestamp", models.DateField()),
                 ("link_url", models.CharField(blank=True, max_length=150)),
-                ("i18n", jsonfield.fields.JSONField(default={})),
+                ("i18n", kolibri.core.fields.JSONField(default={})),
                 ("active", models.BooleanField(default=True)),
                 (
                     "source",

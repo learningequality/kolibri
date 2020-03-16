@@ -1,4 +1,3 @@
-import json
 from itertools import chain
 
 from django.db.models import F
@@ -64,7 +63,6 @@ class LessonViewset(ValuesViewset):
 
     field_map = {
         "classroom": _map_lesson_classroom,
-        "resources": lambda x: json.loads(x["resources"]),
     }
 
     def consolidate(self, items):
