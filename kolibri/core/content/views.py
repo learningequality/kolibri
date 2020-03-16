@@ -8,7 +8,6 @@ import json
 import logging
 import mimetypes
 import os
-import re  # please forgive me
 import zipfile
 from collections import OrderedDict
 from xml.etree.ElementTree import SubElement
@@ -115,11 +114,7 @@ def replace_script(parent, script):
 
 def parse_html(content):
     try:
-        # We need the reference to the HTMLParser later to get the document encoding,
-        # so we can't use the html5lib.parse convenience function here.
-        tree_builder = html5lib.treebuilders.getTreeBuilder("etree")
-        parser = html5lib.HTMLParser(tree_builder, namespaceHTMLElements=False)
-        document = parser.parse(content)
+        document = html5lib.parse(content, namespaceHTMLElements=False)
 
         if not document:
             # Could not parse
@@ -140,23 +135,28 @@ def parse_html(content):
                 )
             },
         )
-
         # Currently, html5lib strips the doctype, but it's important for correct rendering, so check the original
         # content for the doctype and, if found, prepend it to the content serialized by html5lib
         doctype = None
         try:
-            encoding = parser.documentEncoding
-            if not encoding:
-                encoding = "utf-8"
-            doctype = re.match(
-                "(?i)<!DOCTYPE[^<>]*(?:<!ENTITY[^<>]*>[^<>]*)?>",
-                content.decode(encoding),
+            # Now parse the content as a dom tree instead, so that we capture
+            # any doctype node as a dom node that we can read.
+            tree_builder_dom = html5lib.treebuilders.getTreeBuilder("dom")
+            parser_dom = html5lib.HTMLParser(
+                tree_builder_dom, namespaceHTMLElements=False
             )
+            tree = parser_dom.parse(content)
+            # By HTML Spec if doctype is included, it must be the first thing
+            # in the document, so it has to be the first child node of the document
+            doctype_node = tree.childNodes[0]
+
+            # Check that this node is in fact a doctype node
+            if doctype_node.nodeType == doctype_node.DOCUMENT_TYPE_NODE:
+                # render to a string by calling the toxml method
+                # toxml uses single quotes by default, replace with ""
+                doctype = doctype_node.toxml().replace("'", '"')
         except Exception as e:
-            # Losing the doctype could lead to some rendering issues, but they are usually not severe enough
-            # to be worth stopping the content from loading entirely.
-            logger.warning("Attempt to determine doctype failed while parsing HTML.")
-            logger.warning("Error details: {}".format(e))
+            logger.warn("Error in HTML5 parsing to determine doctype {}".format(e))
 
         html = html5lib.serialize(
             document,
@@ -168,7 +168,7 @@ def parse_html(content):
         )
 
         if doctype:
-            html = doctype.group() + html
+            html = doctype + html
 
         return html
     except html5lib.html5parser.ParseError:
@@ -290,7 +290,20 @@ class ZipContentView(View):
         zipped_path = get_path_or_404(zipped_filename)
 
         # Sometimes due to URL concatenation, we get URLs with double-slashes in them, like //path/to/file.html.
-        # Normalize the path by converting those double-slashes to a single slash.
+        # the zipped_filename and embedded_filepath are defined by the regex capturing groups in the URL defined
+        # in urls.py in the same folder as this file:
+        # r"^zipcontent/(?P<zipped_filename>[^/]+)/(?P<embedded_filepath>.*)"
+        # If the embedded_filepath contains a leading slash because of an input URL like:
+        # /zipcontent/filename.zip//file.html
+        # then the embedded_filepath will have a value of "/file.html"
+        # we detect this leading slash in embedded_filepath and remove it.
+        if embedded_filepath.startswith("/"):
+            embedded_filepath = embedded_filepath[1:]
+        # Any double-slashes later in the URL will be present as double-slashes, such as:
+        # /zipcontent/filename.zip/path//file.html
+        # giving an embedded_filepath value of "path//file.html"
+        # Normalize the path by converting double-slashes occurring later in the path to a single slash.
+        # This would change our example embedded_filepath to "path/file.html" which will resolve properly.
         embedded_filepath = embedded_filepath.replace("//", "/")
 
         # if client has a cached version, use that (we can safely assume nothing has changed, due to MD5)
