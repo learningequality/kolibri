@@ -88,10 +88,6 @@ def collect_local_artifacts():
             create_exe_data(filename, data)
 
         if file_extension in file_manifest:
-            data = {
-                "name": artifact,
-                "file_location": "%s/%s" % (artifact_dir, artifact),
-            }
             data.update(file_manifest[file_extension])
             logging.info("Collect file data: (%s)" % data)
             artifacts_dict[file_extension] = data
