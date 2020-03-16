@@ -66,14 +66,24 @@ export default [
     },
   },
   {
-    name: PageNames.DATA_EXPORT_PAGE,
+    name: PageNames.DATA_PAGE,
     path: '/data',
     handler: () => {
       store.dispatch('preparePage', {
-        name: PageNames.DATA_EXPORT_PAGE,
+        name: PageNames.DATA_PAGE,
         isAsync: false,
       });
       store.commit('manageSync/RESET_STATE');
+    },
+  },
+  {
+    name: PageNames.IMPORT_CSV_PAGE,
+    path: '/data/import',
+    handler: () => {
+      store.dispatch('preparePage', {
+        name: PageNames.IMPORT_CSV_PAGE,
+        isAsync: false,
+      });
     },
   },
   {

@@ -5,7 +5,9 @@
       class="loader"
       :size="24"
     />
-    <span class="message">{{ $tr('generatingLog') }}</span>
+    <span class="message">
+      <slot></slot>
+    </span>
   </div>
 
 </template>
@@ -15,9 +17,6 @@
 
   export default {
     name: 'DataPageTaskProgress',
-    $trs: {
-      generatingLog: 'Generating log file...',
-    },
   };
 
 </script>
@@ -27,6 +26,7 @@
 
   .progress-wrapper {
     position: relative;
+    display: inline-block;
   }
 
   .loader {
