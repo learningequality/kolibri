@@ -155,8 +155,8 @@ def parse_html(content):
                 # render to a string by calling the toxml method
                 # toxml uses single quotes by default, replace with ""
                 doctype = doctype_node.toxml().replace("'", '"')
-        except (html5lib.html5parser.ParseError, IndexError):
-            pass
+        except Exception as e:
+            logger.warn("Error in HTML5 parsing to determine doctype {}".format(e))
 
         html = html5lib.serialize(
             document,
@@ -290,11 +290,20 @@ class ZipContentView(View):
         zipped_path = get_path_or_404(zipped_filename)
 
         # Sometimes due to URL concatenation, we get URLs with double-slashes in them, like //path/to/file.html.
-        # If it is a leading double slash (i.e. /zipcontent/filename.zip//file.html) then it will get passed
-        # to zipcontent as a single leading slash - detect this and remove if present.
+        # the zipped_filename and embedded_filepath are defined by the regex capturing groups in the URL defined
+        # in urls.py in the same folder as this file:
+        # r"^zipcontent/(?P<zipped_filename>[^/]+)/(?P<embedded_filepath>.*)"
+        # If the embedded_filepath contains a leading slash because of an input URL like:
+        # /zipcontent/filename.zip//file.html
+        # then the embedded_filepath will have a value of "/file.html"
+        # we detect this leading slash in embedded_filepath and remove it.
         if embedded_filepath.startswith("/"):
             embedded_filepath = embedded_filepath[1:]
+        # Any double-slashes later in the URL will be present as double-slashes, such as:
+        # /zipcontent/filename.zip/path//file.html
+        # giving an embedded_filepath value of "path//file.html"
         # Normalize the path by converting double-slashes occurring later in the path to a single slash.
+        # This would change our example embedded_filepath to "path/file.html" which will resolve properly.
         embedded_filepath = embedded_filepath.replace("//", "/")
 
         # if client has a cached version, use that (we can safely assume nothing has changed, due to MD5)
