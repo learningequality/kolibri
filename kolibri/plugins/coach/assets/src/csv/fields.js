@@ -13,6 +13,9 @@ const FieldsMixinStrings = createTranslator('FieldsMixinStrings', {
   recipientType: 'Recipient type',
   groupsAndIndividuals: 'Groups and individuals',
   wholeClass: 'Whole class',
+  questionsCorrect: 'Correct questions',
+  questionsTotal: 'Total questions',
+  questionsAnswered: 'Answered questions',
 });
 
 const VERB_MAP = {
@@ -222,6 +225,32 @@ export function title() {
     {
       name: coachStrings.$tr('titleLabel'),
       key: 'title',
+    },
+  ];
+}
+
+export function quizQuestionsAnswered(quiz) {
+  return [
+    {
+      name: FieldsMixinStrings.$tr('questionsAnswered'),
+      key: 'quizQuestionsAnswered',
+      format(row) {
+        return get(row, 'statusObj.num_answered');
+      },
+    },
+    {
+      name: FieldsMixinStrings.$tr('questionsCorrect'),
+      key: 'quizQuestionsAnswered',
+      format(row) {
+        return get(row, 'statusObj.num_correct');
+      },
+    },
+    {
+      name: FieldsMixinStrings.$tr('questionsTotal'),
+      key: 'quizQuestionsTotal',
+      format() {
+        return quiz.question_count;
+      },
     },
   ];
 }
