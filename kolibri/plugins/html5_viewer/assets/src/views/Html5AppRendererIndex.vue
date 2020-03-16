@@ -75,9 +75,10 @@
       this.pollProgress();
       let self = this;
       this.hashi.on(events.CONTENTLOADED, function(data) {
-        // The HTML5 renderer has min and max heights set, so exceedingly low or height height values
-        // will not lead to problematic rendering scenarios. Consequently, this also means that it is only
-        // giving us the ability to stretch at most a couple hundred pixels height-wise.
+        // The HTML5 renderer has min and max heights set, so exceedingly low or height height
+        // values will not lead to problematic rendering scenarios. Consequently, this also
+        // means that it is only giving us the ability to stretch at most a couple hundred pixels
+        // height-wise.
         if (data.offsetHeight && data.offsetHeight > 0) {
           self.$refs.html5Renderer.$refs.fullscreen.style.height = data.offsetHeight + 'px';
         }
