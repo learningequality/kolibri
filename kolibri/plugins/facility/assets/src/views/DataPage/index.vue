@@ -22,7 +22,7 @@
               class="download-button"
               @click="downloadSessionLog"
             />
-            <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }} </span>
+            <span v-if="noSessionLogs">{{ $tr('noLogsYet') }}</span>
             <GeneratedElapsedTime v-else :date="sessionDateCreated" />
           </p>
           <p v-if="cannotDownload" :style="noDlStyle">
