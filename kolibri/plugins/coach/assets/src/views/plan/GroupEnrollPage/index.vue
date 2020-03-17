@@ -52,15 +52,9 @@
             size="small"
             @click="goToPage(pageNum - 1)"
           >
-            <mat-svg
-              v-if="isRtl"
-              name="chevron_right"
-              category="navigation"
-            />
-            <mat-svg
-              v-else
-              name="chevron_left"
-              category="navigation"
+            <KIcon
+              icon="keyboard_arrow_left"
+              style="top: 0; width: 24px; height 24px;"
             />
           </UiIconButton>
           <UiIconButton
@@ -70,15 +64,9 @@
             size="small"
             @click="goToPage(pageNum + 1)"
           >
-            <mat-svg
-              v-if="isRtl"
-              name="chevron_left"
-              category="navigation"
-            />
-            <mat-svg
-              v-else
-              name="chevron_right"
-              category="navigation"
+            <KIcon
+              icon="keyboard_arrow_right"
+              style="top: 0; width: 24px; height 24px;"
             />
           </UiIconButton>
         </nav>
