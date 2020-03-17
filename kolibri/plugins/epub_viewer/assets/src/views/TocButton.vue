@@ -6,9 +6,9 @@
     data-test="toc button"
     @click="$emit('click')"
   >
-    <mat-svg
-      name="list"
-      category="action"
+    <KIcon
+      icon="list"
+      style="top: 0; width: 24px; height: 24px;"
     />
   </UiIconButton>
 
