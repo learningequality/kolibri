@@ -47,15 +47,15 @@
           :ariaLabel="$tr('toggleFullscreen')"
           @click="$emit('fullscreenButtonClicked')"
         >
-          <mat-svg
+          <KIcon
             v-if="isInFullscreen"
-            name="fullscreen_exit"
-            category="navigation"
+            icon="fullscreen_exit"
+            style="top: 0; width: 24px; height: 24px;"
           />
-          <mat-svg
+          <KIcon
             v-else
-            name="fullscreen"
-            category="navigation"
+            icon="fullscreen"
+            style="top: 0; width: 24px; height: 24px;"
           />
         </UiIconButton>
 
