@@ -56,7 +56,7 @@
             :disabled="numQuestions === 1"
             @click="numQuestions -= 1"
           >
-            <mat-svg name="remove" category="content" />
+            <KIcon icon="minus_sign" style="top: 0; width: 24px; height: 24px;" />
           </UiIconButton>
           <UiIconButton
             type="flat"
@@ -65,7 +65,7 @@
             :disabled="numQuestions === maxQs"
             @click="numQuestions += 1"
           >
-            <mat-svg name="add" category="content" />
+            <KIcon icon="plus_sign" style="top: 0; width: 24px; height: 24px;" />
           </UiIconButton>
         </KGridItem>
       </KGrid>
