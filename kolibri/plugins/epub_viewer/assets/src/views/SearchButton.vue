@@ -6,9 +6,9 @@
     data-test="search button"
     @click="$emit('click')"
   >
-    <mat-svg
-      name="search"
-      category="action"
+    <KIcon
+      icon="search"
+      style="top: 0; width: 24px; height: 24px;"
     />
   </UiIconButton>
 
