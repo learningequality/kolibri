@@ -5,25 +5,25 @@
       :title="coreString('classesLabel')"
       :link="linkify(PageNames.CLASS_MGMT_PAGE)"
     >
-      <mat-svg name="domain" category="social" />
+      <KIcon icon="domain" :color="$themeTokens.textInverted" style="top: 0; width: 24px; height: 24px;" />
     </NavbarLink>
     <NavbarLink
       :title="coreString('usersLabel')"
       :link="linkify(PageNames.USER_MGMT_PAGE)"
     >
-      <mat-svg name="people" category="social" />
+      <KIcon icon="people" :color="$themeTokens.textInverted" style="top: 0; width: 24px; height: 24px;" />
     </NavbarLink>
     <NavbarLink
       :title="$tr('settings')"
       :link="linkify(PageNames.FACILITY_CONFIG_PAGE)"
     >
-      <mat-svg name="settings" category="action" />
+      <KIcon icon="settings" :color="$themeTokens.textInverted" style="top: 0; width: 24px; height: 24px;" />
     </NavbarLink>
     <NavbarLink
       :title="$tr('data')"
       :link="linkify(PageNames.DATA_EXPORT_PAGE)"
     >
-      <mat-svg name="save" category="content" />
+      <KIcon icon="save" :color="$themeTokens.textInverted" style="top: 0; width: 24px; height: 24px;" />
     </NavbarLink>
   </Navbar>
 
