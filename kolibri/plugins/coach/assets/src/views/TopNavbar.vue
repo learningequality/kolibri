@@ -5,19 +5,31 @@
       :title="$tr('home')"
       :link="navRoute('HomePage')"
     >
-      <mat-svg name="dashboard" category="action" />
+      <KIcon
+        icon="dashboard"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
     <NavbarLink
       :title="coachString('reportsLabel')"
       :link="navRoute(PageNames.REPORTS_PAGE)"
     >
-      <mat-svg name="insert_chart" category="editor" />
+      <KIcon
+        icon="insert_chart"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
     <NavbarLink
       :title="$tr('plan')"
       :link="navRoute(PageNames.PLAN_PAGE)"
     >
-      <mat-svg name="edit" category="image" />
+      <KIcon
+        icon="edit"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
   </Navbar>
 
