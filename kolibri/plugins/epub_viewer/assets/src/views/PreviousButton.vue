@@ -6,15 +6,15 @@
     :ariaLabel="$tr('goToPreviousPage')"
     @click="$emit('goToPreviousPage')"
   >
-    <mat-svg
-      v-if="isRtl"
-      name="chevron_right"
-      category="navigation"
+    <KIcon
+      v-if="!isRtl"
+      icon="keyboard_arrow_left"
+      :style="{ top: 0, height: '24px', width: '24px' }"
     />
-    <mat-svg
+    <KIcon
       v-else
-      name="chevron_left"
-      category="navigation"
+      icon="keyboard_arrow_right"
+      :style="{ top: 0, height: '24px', width: '24px' }"
     />
   </UiIconButton>
 
@@ -38,10 +38,6 @@
         validator(val) {
           return ['black', 'white'].includes(val);
         },
-      },
-      isRtl: {
-        type: Boolean,
-        required: true,
       },
     },
     $trs: {
