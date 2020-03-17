@@ -6,13 +6,23 @@
         v-if="isInProgress"
         :ariaLabel="$tr('inProgress')"
       >
-        <KIcon icon="schedule" :style="iconStyle($themeTokens.progress)" class="icon" :color="$themeTokens.textInverted" />
+        <KIcon
+          icon="schedule"
+          :style="iconStyle($themeTokens.progress)"
+          class="icon"
+          :color="$themeTokens.textInverted"
+        />
       </UiIcon>
       <UiIcon
         v-else-if="isCompleted"
         :ariaLabel="coreString('completedLabel')"
       >
-        <KIcon icon="star" :style="iconStyle($themeTokens.mastered)" class="icon" :color="$themeTokens.textInverted" />
+        <KIcon
+          icon="star"
+          :style="iconStyle($themeTokens.mastered)"
+          class="icon"
+          :color="$themeTokens.textInverted"
+        />
       </UiIcon>
     </span>
     <KTooltip
