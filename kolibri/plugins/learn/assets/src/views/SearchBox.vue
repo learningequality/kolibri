@@ -34,9 +34,9 @@
           :ariaLabel="$tr('clearButtonLabel')"
           @click="handleClickClear"
         >
-          <mat-svg
-            name="clear"
-            category="content"
+          <KIcon
+            icon="clear"
+            style="top:0; width: 24px; height: 24px;"
           />
         </UiIconButton>
 
@@ -54,15 +54,17 @@
             :ariaLabel="$tr('startSearchButtonLabel')"
             @click="search"
           >
-            <mat-svg
+            <KIcon
               v-if="icon === 'search'"
-              name="search"
-              category="action"
+              icon="search"
+              style="top:0; width: 24px; height: 24px;"
+              :color="$themeTokens.textInverted"
             />
-            <mat-svg
+            <KIcon
               v-if="icon === 'arrow_forward'"
-              name="arrow_forward"
-              category="navigation"
+              icon="forward"
+              style="top:0; width: 24px; height: 24px;"
+              :color="$themeTokens.textInverted"
             />
           </UiIconButton>
         </div>
@@ -73,10 +75,10 @@
       class="filters"
     >
       <div class="ib">
-        <mat-svg
-          category="content"
-          name="filter_list"
+        <KIcon
+          icon="filter_list"
           class="filter-icon"
+          style="width: 24px; height: 24px;"
         />
         <KSelect
           ref="contentKindFilter"
@@ -92,10 +94,10 @@
       <div
         class="ib"
       >
-        <mat-svg
-          category="navigation"
-          name="apps"
+        <KIcon
+          icon="channel"
           class="filter-icon"
+          style="width: 24px; height: 24px;"
         />
         <KSelect
           ref="channelFilter"
