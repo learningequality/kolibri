@@ -37,9 +37,9 @@
           :ariaLabel="$tr('clearButtonLabel')"
           @click="clearSearchTerm"
         >
-          <mat-svg
-            name="clear"
-            category="content"
+          <KIcon
+            icon="clear"
+            style="top: 0; width: 24px; height: 24px;"
           />
         </UiIconButton>
 
@@ -53,9 +53,10 @@
             :style="{ fill: $themeTokens.textInverted }"
             @click="search"
           >
-            <mat-svg
-              name="search"
-              category="action"
+            <KIcon
+              icon="search"
+              :color="$themeTokens.textInverted"
+              style="top: 0; width: 24px; height: 24px;"
             />
           </UiIconButton>
         </div>
