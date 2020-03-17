@@ -11,10 +11,7 @@
             :disabled="decreaseFontSizeDisabled"
             @click="$emit('decreaseFontSize')"
           >
-            <mat-svg
-              name="remove"
-              category="content"
-            />
+            <KIcon icon="minus_sign" style="top: 0; width: 24px; height: 24px;" />
             <div class="truncate">
               {{ $tr('decrease') }}
             </div>
@@ -27,10 +24,7 @@
             :class="['settings-button', $computedClass(settingsButtonFocus)]"
             @click="$emit('increaseFontSize')"
           >
-            <mat-svg
-              name="add"
-              category="content"
-            />
+            <KIcon icon="plus_sign" style="top: 0; width: 24px; height: 24px;" />
             <div class="truncate">
               {{ $tr('increase') }}
             </div>
@@ -53,11 +47,11 @@
             :appearanceOverrides="generateStyle(value)"
             @click="$emit('setTheme', value)"
           >
-            <mat-svg
+            <KIcon
               v-if="isCurrentlySelectedTheme(value) "
-              name="check"
-              category="navigation"
+              icon="check"
               :style="{ fill: value.textColor }"
+              style="top: 0; width: 24px; height: 24px;"
             />
           </KButton>
 
