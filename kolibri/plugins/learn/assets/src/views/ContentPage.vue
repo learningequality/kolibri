@@ -69,8 +69,8 @@
             type="secondary"
             @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
           >
-            <mat-svg v-if="licenceDescriptionIsVisible" name="expand_less" category="navigation" />
-            <mat-svg v-else name="expand_more" category="navigation" />
+            <KIcon v-if="licenceDescriptionIsVisible" icon="arrow_up" style="top: 0; height: 24px; width: 24px;" />
+            <KIcon v-else icon="arrow_down" style="top: 0; height: 24px; width: 24px;" />
           </UiIconButton>
           <div v-if="licenceDescriptionIsVisible" dir="auto" class="license-details">
             <p class="license-details-name">
