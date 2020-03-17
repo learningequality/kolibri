@@ -6,9 +6,9 @@
     data-test="settings button"
     @click="$emit('click')"
   >
-    <mat-svg
-      name="tune"
-      category="image"
+    <KIcon
+      icon="tune"
+      style="top: 0; width: 24px; height: 24px;"
     />
   </UiIconButton>
 
