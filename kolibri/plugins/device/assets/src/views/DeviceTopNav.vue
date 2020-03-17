@@ -6,14 +6,22 @@
       :title="coreString('channelsLabel')"
       :link="$router.getRoute('MANAGE_CONTENT_PAGE')"
     >
-      <mat-svg name="apps" category="navigation" />
+      <KIcon
+        icon="channel"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
     <NavbarLink
       v-if="isSuperuser"
       :title="$tr('permissionsLabel')"
       :link="$router.getRoute('MANAGE_PERMISSIONS_PAGE')"
     >
-      <mat-svg name="https" category="action" />
+      <KIcon
+        icon="https"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
     <NavbarLink
       v-if="isSuperuser"
@@ -26,13 +34,21 @@
       :title="$tr('infoLabel')"
       :link="$router.getRoute('DEVICE_INFO_PAGE')"
     >
-      <mat-svg name="perm_device_information" category="action" />
+      <KIcon
+        icon="perm_device_information"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
     <NavbarLink
       :title="$tr('settingsLabel')"
       :link="$router.getRoute('DEVICE_SETTINGS_PAGE')"
     >
-      <mat-svg name="settings" category="action" />
+      <KIcon
+        icon="settings"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
   </Navbar>
 
