@@ -34,7 +34,7 @@
 
     <div slot="footer" class="reminder">
       <div class="icon">
-        <mat-svg category="alert" name="warning" />
+        <KIcon icon="warning" style="top: 0; width: 24px; height: 24px;" />
       </div>
       <p class="text">
         {{ $tr('rememberThisAccountInformation') }}
