@@ -10,27 +10,22 @@
       class="fullscreen-header"
       :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
     >
-      <KButton
-        :primary="false"
-        appearance="flat-button"
-        @click="$refs.html5Renderer.toggleFullscreen()"
-      >
-        <mat-svg
-          v-if="isInFullscreen"
-          name="fullscreen_exit"
-          category="navigation"
-          class="fs-icon"
-        />
-        <mat-svg
-          v-else
-          name="fullscreen"
-          category="navigation"
-          class="fs-icon"
-        />
-        {{ fullscreenText }}
-      </KButton>
+    <UiIconButton>
+      <KIcon
+        v-if="isInFullscreen"
+        :color="$themeTokens.textInverted"
+        icon="fullscreen_exit"
+        style="top: 0; width: 24px; height: 24px;"
+      />
+      <KIcon
+        v-else
+        :color="$themeTokens.textInverted"
+        icon="fullscreen"
+        style="top: 0; width: 24px; height: 24px;"
+      />
+    </UiIconButton>
     </div>
-    <div class="iframe-container" :style="containerStyle">
+    <div class="iframe-container">
       <iframe
         ref="iframe"
         class="iframe"
