@@ -25,10 +25,10 @@
               <h2 class="name">
                 {{ facility.name }}
                 <UiIcon v-if="facility.dataset.registered" ref="icon">
-                  <mat-svg
-                    name="verified_user"
-                    category="action"
+                  <KIcon
+                    icon="verified_user"
                     :style="{ fill: $themePalette.green.v_500 }"
+                    style="top: 0; width: 24px; height: 24px;"
                   />
                 </UiIcon>
                 <KTooltip
