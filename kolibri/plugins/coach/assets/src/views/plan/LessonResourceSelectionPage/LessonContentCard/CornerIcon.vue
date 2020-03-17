@@ -15,6 +15,7 @@
       :kind="kind"
       :showTooltip="true"
       class="icon"
+      :color="$themeTokens.textInverted"
       :style="{ color: $themeTokens.textInverted }"
     />
 
