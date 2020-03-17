@@ -15,7 +15,7 @@
             :ariaLabel="coreString('closeAction')"
             @click="$emit('close')"
           >
-            <mat-svg name="close" category="navigation" />
+            <KIcon icon="close" style="top: 0; width: 24px; height: 24px;" />
           </UiIconButton>
         </div>
       </div>
