@@ -3,20 +3,21 @@ import logging
 import re
 import sys
 
+from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from django.core.management.base import CommandError
 
 from kolibri.core.auth.constants.demographics import choices
 from kolibri.core.auth.csv_utils import input_fields
 from kolibri.core.auth.csv_utils import labels
+from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.tasks.management.commands.base import AsyncCommand
-# from kolibri.core.auth.models import Classroom
 
 logger = logging.getLogger(__name__)
-DEFAULT_PASSWORD = "kolibri"
-# fields = ("Username", "Password", "Full name", "User type", "Identifier", "Birth year", "Gender", "Enrolled in", "Assigned to")
+DEFAULT_PASSWORD = make_password("kolibri")
+fieldnames = ("Username", "Password", "Full name", "User type", "Identifier", "Birth year", "Gender", "Enrolled in", "Assigned to")
 
 # Validators ###
 
@@ -118,6 +119,8 @@ class Validator(object):
             try:
                 groups = row.get(key, None).split(",")
                 for classroom in groups:
+                    if not classroom:
+                        continue
                     if classroom in group:
                         group[classroom].append(username)
                     else:
@@ -198,6 +201,21 @@ class Command(AsyncCommand):
             default=True,
             help="Validate data without doing actual database updates",
         )
+        parser.add_argument(
+            "--delete",
+            action="store",
+            type=bool,
+            default=True,
+            help="Delete all users in the facility not included in this import (excepting actual user)",
+        )
+
+        parser.add_argument(
+            "--user",
+            action="store",
+            type=str,
+            default=None,
+            help="User executing the command, if None it will be one facility admin",
+        )
 
     def csv_values_validation(self, reader):
         csv_errors = []
@@ -258,9 +276,13 @@ class Command(AsyncCommand):
                 user_obj = FacilityUser.objects.get(username=user, facility=self.default_facility)
             else:
                 user_obj = FacilityUser(username=user, facility=self.default_facility)
+                user_obj.id = user_obj.calculate_uuid()
             user_row = users[user]
-            password = user_row.get("Password", DEFAULT_PASSWORD)
-            user_obj.set_password(password)
+            password = user_row.get("Password", None)
+            if password:
+                user_obj.set_password(password)
+            else:
+                user_obj.password = DEFAULT_PASSWORD
 
             # demographics:
             value = user_row.get('Gender', None)
@@ -282,54 +304,82 @@ class Command(AsyncCommand):
 
         return (new_users, update_users)
 
-    def db_validate_users(self, db_users):
+    def db_validate_list(self, db_list, users=False):
         errors = []
         # validating the users takes aprox 40% of the time
-        progress = (100 / self.number_lines) * .4 * (len(db_users) / self.number_lines)
-        for user in db_users:
-            self.progress_update(progress)
+        if users:
+            progress = (100 / self.number_lines) * .4 * (len(db_list) / self.number_lines)
+        for obj in db_list:
+            if users:
+                self.progress_update(progress)
             try:
-                user.full_clean()
+                obj.full_clean()
             except ValidationError as e:
                 for message in e.message_dict:
                     error = {
-                        "row": str(user),
+                        "row": str(obj),
                         "message": e.message_dict[message][0],
                         "field": message,
-                        "value": vars(user)[message],
+                        "value": vars(obj)[message],
                     }
                     errors.append(error)
 
         return errors
 
-    def handle_async(self, *args, **options):
-        self.errors = []
-        if options["facility"]:
-            self.default_facility = Facility.objects.get(pk=options["facility"])
-        else:
-            self.default_facility = Facility.get_default_facility()
+    def build_classes_objects(self, classes):
+        new_classes = list()
+        update_classes = list()
+        total_classes = set([k for k in classes[0].keys()] + [v for v in classes[1].keys()])
+        existing_classes = Classroom.objects.filter(parent=self.default_facility).filter(name__in=total_classes).values_list('name', flat=True)
 
-        if not self.default_facility:
+        for classroom in total_classes:
+            if classroom in existing_classes:
+                class_obj = Classroom.objects.get(name=classroom, parent=self.default_facility)
+                update_classes.append(class_obj)
+            else:
+                class_obj = Classroom(name=classroom, parent=self.default_facility)
+                class_obj.id = class_obj.calculate_uuid()
+                new_classes.append(class_obj)
+        self.progress_update(1)
+        return (new_classes, update_classes)
+
+    def get_facility(self, options):
+        if options["facility"]:
+            default_facility = Facility.objects.get(pk=options["facility"])
+        else:
+            default_facility = Facility.get_default_facility()
+        if not default_facility:
             self.errors.append(
                 "No default facility exists, please make sure to provision this device before running this command"
             )
             raise CommandError(self.errors[-1])
 
-        self.fieldnames = (
-            input_fields
-            + tuple(val for val in labels.values())
-            + ("Identifier", "User type", "Enrolled in", "Assigned to",)
-        )
+        return default_facility
+
+    def get_number_lines(self, options):
         try:
             with open(options["filepath"]) as f:
-                self.number_lines = len(f.readlines())
+                number_lines = len(f.readlines())
         except (ValueError, IOError, csv.Error) as e:
             self.errors.append("Error trying to write csv file: {}".format(e))
             logger.error(self.errors[-1])
             sys.exit(1)
+        return number_lines
+
+    def get_users_delete(self, options, users):
+
+        if not options["delete"]:
+            return []
+        return []
+
+    def handle_async(self, *args, **options):
+        self.errors = []
+        self.default_facility = self.get_facility(options)
+        self.fieldnames = fieldnames
+        self.number_lines = self.get_number_lines(options)
 
         with self.start_progress(total=100) as self.progress_update:
-
+            # validate csv headers:
             has_header = self.csv_headers_validation(options)
             self.progress_update(1)  # state=csv_headers
 
@@ -345,17 +395,25 @@ class Command(AsyncCommand):
                 logger.error(self.errors[-1])
                 sys.exit(1)
 
-            self.progress_update(1)
             db_new_users, db_update_users = self.build_users_objects(users)
+            db_new_classes, db_update_classes = self.build_classes_objects(classes)
+
+            db_users_delete = self.get_users_delete(options, users)
+            csv_errors += self.db_validate_list(db_new_users, users=True)
+            csv_errors += self.db_validate_list(db_update_users, users=True)
+            # progress = 91%
+            csv_errors += self.db_validate_list(db_new_classes)
+            csv_errors += self.db_validate_list(db_update_classes)
+
             if options["dryrun"]:
-                csv_errors += self.db_validate_users(db_new_users)
-                csv_errors += self.db_validate_users(db_update_users)
-                # progress = 91%
+                pass
                 # print(csv_errors)
                 # print(list(users.keys()))
-                # print(len(classes[1]))
-                # print(len(classes[0]))
+                print(len(db_new_classes))
+                print(len(db_update_classes))
                 # print(classes[1])
-                # print(len(users))
+                print(len(db_new_users))
+                print(len(db_update_users))
+                print(db_users_delete)
             else:
                 print("Saving...")
