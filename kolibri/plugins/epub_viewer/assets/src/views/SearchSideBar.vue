@@ -21,9 +21,9 @@
           :ariaLabel="$tr('submitSearchQuery')"
           class="d-tc"
         >
-          <mat-svg
-            name="search"
-            category="action"
+          <KIcon
+            icon="search"
+            style="top: 0; width: 24px; height: 24px;"
           />
         </UiIconButton>
       </div>

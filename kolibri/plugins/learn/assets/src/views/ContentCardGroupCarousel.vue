@@ -14,7 +14,7 @@
           :disabled="isFirstSet"
           size="large"
         >
-          <mat-svg name="arrow_back" category="navigation" />
+          <KIcon icon="back" style="top: 0; height: 24px; width: 24px;" />
         </UiIconButton>
       </div>
 
@@ -53,7 +53,7 @@
           :disabled="isLastSet"
           size="large"
         >
-          <mat-svg name="arrow_forward" category="navigation" />
+          <KIcon icon="forward" style="top: 0; height: 24px; width: 24px;" />
         </UiIconButton>
       </div>
 

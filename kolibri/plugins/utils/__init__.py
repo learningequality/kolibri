@@ -309,6 +309,11 @@ class PluginUpdateManager(object):
         try:
             self._migrate_plugin(plugin_name, app_configs)
         except Exception as e:
+            logger.error(
+                "Unhandled exception while migrating {}, exception was:\n\n{}".format(
+                    plugin_name, e
+                )
+            )
             return
         if old_version:
             if VersionInfo.parse(

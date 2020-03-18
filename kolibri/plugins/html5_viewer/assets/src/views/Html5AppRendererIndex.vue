@@ -13,8 +13,18 @@
       size="large"
       @click="$refs.html5Renderer.toggleFullscreen()"
     >
-      <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
-      <mat-svg v-else name="fullscreen" category="navigation" />
+      <KIcon
+        v-if="isInFullscreen"
+        :color="$themeTokens.textInverted"
+        icon="fullscreen_exit"
+        style="top: 0; width: 24px; height: 24px;"
+      />
+      <KIcon
+        v-else
+        :color="$themeTokens.textInverted"
+        icon="fullscreen"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </UiIconButton>
     <div class="iframe-container">
       <iframe

@@ -11,10 +11,9 @@
         class="thumbnail"
         :src="channel.thumbnail"
       >
-      <mat-svg
+      <KIcon
         v-else
-        category="navigation"
-        name="apps"
+        icon="apps"
         class="thumbnail-svg"
         :style="{ backgroundColor: $themePalette.grey.v_200 }"
       />

@@ -43,13 +43,10 @@ oriented data synchronization.
       :class="{ 'mobile': windowIsSmall }"
     >
       <div class="overall-status" :style="{ color: $themeTokens.text }">
-        <mat-svg
-          name="stars"
-          category="action"
-          :style="{
-            fill: success ? $themeTokens.mastered : $themePalette.grey.v_200,
-            marginBottom: '-6px',
-          }"
+        <KIcon
+          icon="mastered"
+          :color="success ? $themeTokens.mastered : $themePalette.grey.v_200"
+          style="margin-bottom: -6px;"
         />
         <div class="overall-status-text">
           <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">

@@ -13,7 +13,11 @@
       :class="{ 'rtl-icon': isRtl }"
       @click="$emit('backButtonClicked')"
     >
-      <mat-svg name="arrow_back" category="navigation" />
+      <KIcon
+        icon="back"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </UiIconButton>
     {{ $tr('progressIndicator', { currentStep , totalSteps }) }}
 

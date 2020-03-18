@@ -2,31 +2,30 @@
 
   <div>
     <div ref="icon">
-      <mat-svg
+      <KIcon
         v-if="answer === 'right'"
-        category="action"
-        name="check_circle"
+        icon="correct"
         class="correct"
-        :style="{ fill: $themeTokens.correct }"
+        :color="$themeTokens.correct"
+        style="top: 0; width: 24px; height: 24px;"
       />
-      <mat-svg
+      <KIcon
         v-else-if="answer === 'wrong'"
-        category="navigation"
-        name="close"
-        :style="svgFill"
+        icon="incorrect"
+        style="top: 0; width: 24px; height: 24px;"
+        :color="$themeTokens.annotation"
       />
-      <mat-svg
+      <KIcon
         v-else-if="answer === 'hint'"
-        category="action"
-        name="lightbulb_outline"
-        :style="svgFill"
+        icon="hint"
+        style="top: 0; width: 24px; height: 24px;"
+        :color="$themeTokens.annotation"
       />
-      <mat-svg
+      <KIcon
         v-else-if="answer === 'rectified'"
-        category="image"
-        name="lens"
+        icon="rectified"
         class="rectified"
-        :style="svgFill"
+        :color="$themeTokens.annotation"
       />
     </div>
     <KTooltip
@@ -68,11 +67,6 @@
           default:
             return '';
         }
-      },
-      svgFill() {
-        return {
-          fill: this.$themeTokens.annotation,
-        };
       },
     },
     $trs: {

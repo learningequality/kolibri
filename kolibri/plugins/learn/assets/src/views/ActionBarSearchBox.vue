@@ -9,7 +9,12 @@
         color="clear"
         @click="toggleDropdownSearchBox"
       >
-        <mat-svg name="search" category="action" class="search-icon" />
+        <KIcon
+          icon="search"
+          class="search-icon"
+          :color="$themeTokens.textInverted"
+          style="top: 0; height: 24px; width: 24px;"
+        />
       </UiIconButton>
 
       <div

@@ -83,7 +83,6 @@ module.exports = {
         ignoreHTMLTextContents: true,
         ignoreTrailingComments: true,
       },
-
     ],
     'vue/attribute-hyphenation': [ERROR, 'never'],
     'vue/require-default-prop': OFF,

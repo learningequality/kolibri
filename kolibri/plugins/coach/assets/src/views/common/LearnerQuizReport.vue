@@ -21,7 +21,7 @@
       :exerciseContentNodes="exerciseContentNodes"
     />
     <div v-else class="no-exercise-x">
-      <mat-svg category="navigation" name="close" />
+      <KIcon icon="close" />
     </div>
   </KPageContainer>
 

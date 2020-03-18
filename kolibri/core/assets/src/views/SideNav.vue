@@ -28,10 +28,9 @@
             class="side-nav-header-icon"
             @click="toggleNav"
           >
-            <mat-svg
-              name="close"
-              category="navigation"
-              :style="{ fill: $themeTokens.textInverted }"
+            <KIcon
+              icon="close"
+              :style="{ fill: $themeTokens.textInverted, top: 0, width: '24px', height: '24px', }"
             />
           </UiIconButton>
           <span

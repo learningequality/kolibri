@@ -25,20 +25,20 @@
         :style="{ fill: $themeTokens.textInverted }"
         tabindex="-1"
       >
-        <mat-svg
+        <KIcon
           v-if="icon === 'close'"
-          name="close"
-          category="navigation"
+          icon="close"
+          :style="{ fill: $themeTokens.textInverted, top: 0, height: '24px', width: '24px', }"
         />
-        <mat-svg
+        <KIcon
           v-else-if="icon === 'arrow_back' && !isRtl"
-          name="arrow_back"
-          category="navigation"
+          :style="{ fill: $themeTokens.textInverted, top: 0, height: '24px', width: '24px', }"
+          icon="back"
         />
-        <mat-svg
+        <KIcon
           v-else-if="icon === 'arrow_back' && isRtl"
-          name="arrow_forward"
-          category="navigation"
+          :style="{ fill: $themeTokens.textInverted, top: 0, height: '24px', width: '24px', }"
+          icon="forward"
         />
       </UiIconButton>
     </router-link>
@@ -50,20 +50,20 @@
       :style="{ fill: $themeTokens.textInverted }"
       @click="$emit('navIconClick')"
     >
-      <mat-svg
+      <KIcon
         v-if="icon === 'close'"
-        name="close"
-        category="navigation"
+        icon="close"
+        :style="{ fill: $themeTokens.textInverted, top: 0, height: '24px', width: '24px', }"
       />
-      <mat-svg
+      <KIcon
         v-if="icon === 'arrow_back' && !isRtl"
-        name="arrow_back"
-        category="navigation"
+        icon="back"
+        :style="{ fill: $themeTokens.textInverted, top: 0, height: '24px', width: '24px', }"
       />
-      <mat-svg
+      <KIcon
         v-if="icon === 'arrow_back' && isRtl"
-        name="arrow_forward"
-        category="navigation"
+        icon="forward"
+        :style="{ fill: $themeTokens.textInverted, top: 0, height: '24px', width: '24px', }"
       />
     </UiIconButton>
   </UiToolbar>

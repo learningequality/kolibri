@@ -1,7 +1,7 @@
 from abc import abstractproperty
 
-from kolibri.plugins.hooks import KolibriHook
 from kolibri.plugins.hooks import define_hook
+from kolibri.plugins.hooks import KolibriHook
 from kolibri.plugins.utils import plugin_url
 
 

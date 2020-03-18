@@ -9,17 +9,9 @@
       aria-hidden="true"
       @click="go"
     >
-      <mat-svg
-        v-if="!isRtl"
-        name="arrow_back"
-        category="navigation"
-        :style="{ fill: $themeTokens.primary }"
-      />
-      <mat-svg
-        v-else
-        name="arrow_forward"
-        category="navigation"
-        :style="{ fill: $themeTokens.primary }"
+      <KIcon
+        icon="back"
+        :style="{ fill: $themeTokens.primary, top: 0, height: '24px', width: '24px' }"
       />
     </UiIconButton>
     <KRouterLink :to="to" :text="text" />

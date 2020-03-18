@@ -10,7 +10,7 @@
         :aria-label="coachString('printReportAction')"
         @click.prevent="$print()"
       >
-        <mat-svg name="print" category="action" />
+        <KIcon icon="print" />
       </UiIconButton>
       <KTooltip
         reference="printButton"
@@ -26,7 +26,7 @@
         :aria-label="coachString('exportCSVAction')"
         @click.prevent="$emit('export')"
       >
-        <mat-svg name="get_app" category="action" />
+        <KIcon icon="get_app" />
       </UiIconButton>
       <KTooltip
         reference="exportButton"
