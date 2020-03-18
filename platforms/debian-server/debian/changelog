@@ -1,10 +1,11 @@
 kolibri-server (0.3.8-0ubuntu1) bionic; urgency=medium
 
   * Log to ~/.kolibri/logs/uwsgi.log
+  * Adds a logrotate rule in /etc/logrotate.d/kolibri
   * Fix some syntax issues in init.d script
   * Use bash for init.d script
 
- -- Benjamin Bach <benjamin@learningequality.org>  Fri, 13 March 2020 15:14:31 +0100
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 19 Mar 2020 12:07:10 +0100
 
 kolibri-server (0.3.7~beta1-0ubuntu4) UNRELEASED; urgency=medium
 
