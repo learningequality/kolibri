@@ -210,11 +210,11 @@ class Command(AsyncCommand):
         )
 
         parser.add_argument(
-            "--user",
+            "--userid",
             action="store",
             type=str,
             default=None,
-            help="User executing the command, if None it will be one facility admin",
+            help="Id of the user executing the command, it will not be deleted in case deleted is set",
         )
 
     def csv_values_validation(self, reader):
@@ -265,7 +265,7 @@ class Command(AsyncCommand):
     def build_users_objects(self, users):
         new_users = list()
         update_users = list()
-        existing_users = FacilityUser.objects.filter(facility=self.default_facility).filter(username__in=list(users.keys())).values_list('username', flat=True)
+        existing_users = FacilityUser.objects.filter(facility=self.default_facility).filter(username__in=users.keys()).values_list('username', flat=True)
 
         # creating the users takes half of the time
         progress = (100 / self.number_lines) * .5
@@ -366,11 +366,20 @@ class Command(AsyncCommand):
             sys.exit(1)
         return number_lines
 
-    def get_users_delete(self, options, users):
-
+    def get_delete(self, options, update_users, update_classes):
         if not options["delete"]:
-            return []
-        return []
+            return ([], [])
+        users_not_to_delete = [u.id for u in update_users]
+        admins = self.default_facility.get_admins()
+        users_not_to_delete += admins.values_list('id', flat=True)
+        if options["userid"]:
+            users_not_to_delete.append(options["userid"])
+        users_to_delete = FacilityUser.objects.filter(facility=self.default_facility).exclude(id__in=users_not_to_delete).values_list('id', flat=True)
+
+        classes_not_to_clear = [c.id for c in update_classes]
+        classes_to_clear = Classroom.objects.filter(parent=self.default_facility).exclude(id__in=classes_not_to_clear).values_list('id', flat=True)
+
+        return (users_to_delete, classes_to_clear)
 
     def handle_async(self, *args, **options):
         self.errors = []
@@ -398,7 +407,7 @@ class Command(AsyncCommand):
             db_new_users, db_update_users = self.build_users_objects(users)
             db_new_classes, db_update_classes = self.build_classes_objects(classes)
 
-            db_users_delete = self.get_users_delete(options, users)
+            users_to_delete, classes_to_clear = self.get_delete(options, db_update_users, db_update_classes)
             csv_errors += self.db_validate_list(db_new_users, users=True)
             csv_errors += self.db_validate_list(db_update_users, users=True)
             # progress = 91%
@@ -406,14 +415,12 @@ class Command(AsyncCommand):
             csv_errors += self.db_validate_list(db_update_classes)
 
             if options["dryrun"]:
-                pass
-                # print(csv_errors)
-                # print(list(users.keys()))
+                print(csv_errors)
                 print(len(db_new_classes))
                 print(len(db_update_classes))
-                # print(classes[1])
                 print(len(db_new_users))
                 print(len(db_update_users))
-                print(db_users_delete)
+                print(len(users_to_delete))
+                print(len(classes_to_clear))
             else:
                 print("Saving...")
