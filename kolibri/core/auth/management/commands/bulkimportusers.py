@@ -17,7 +17,17 @@ from kolibri.core.tasks.management.commands.base import AsyncCommand
 
 logger = logging.getLogger(__name__)
 DEFAULT_PASSWORD = make_password("kolibri")
-fieldnames = ("Username", "Password", "Full name", "User type", "Identifier", "Birth year", "Gender", "Enrolled in", "Assigned to")
+fieldnames = (
+    "Username",
+    "Password",
+    "Full name",
+    "User type",
+    "Identifier",
+    "Birth year",
+    "Gender",
+    "Enrolled in",
+    "Assigned to",
+)
 
 # Validators ###
 
@@ -27,6 +37,7 @@ def number_range(min, max):
     Return a value check function which raises a ValueError if the supplied
     value is less than `min` or greater than `max`.
     """
+
     def checker(v):
         if int(v) < min or int(v) > max:
             raise ValueError(v)
@@ -40,6 +51,7 @@ def value_length(length, null=False):
     value has a length greater than 'length'
     If null is not True raises a ValueError if the supplied value is None.
     """
+
     def checker(v):
         if null and v is None:
             return checker
@@ -55,7 +67,7 @@ def enumeration(*args):
     insensitive) is not in the enumeration of values provided by args.
     """
 
-    assert len(args) > 0, 'at least one argument is required'
+    assert len(args) > 0, "at least one argument is required"
     if len(args) == 1:
         # assume the first argument defines the membership
         members = args[0].lower()
@@ -65,6 +77,7 @@ def enumeration(*args):
     def checker(value):
         if value.lower() not in members:
             raise ValueError(value)
+
     return checker
 
 
@@ -75,6 +88,7 @@ def valid_name(username=True, null=False):
     If username is False it allows spaces, slashes and hyphens.
     If null is not True raises a ValueError if the supplied value is None.
     """
+
     def checker(v):
         if null and v is None:
             return checker
@@ -83,6 +97,7 @@ def valid_name(username=True, null=False):
             has_punc = "/[`~!@#$%^&*()\+={}\[\]\|\\\/:;\"'<>\.\?]/"  # noqa
         if re.match(has_punc, v):
             raise ValueError(v)
+
     return checker
 
 
@@ -90,6 +105,7 @@ class Validator(object):
     """
     Class to apply different validation checks on a CSV data reader.
     """
+
     def __init__(self, header_names):
         self._header_names = header_names
         self._checks = list()
@@ -108,7 +124,7 @@ class Validator(object):
         self._checks.append((header_name, check, message))
 
     def get_username(self, row):
-        username = row.get('Username')
+        username = row.get("Username")
         if username in self.users.keys():
             return None
 
@@ -124,7 +140,9 @@ class Validator(object):
                     if classroom in group:
                         group[classroom].append(username)
                     else:
-                        group[classroom] = [username, ]
+                        group[classroom] = [
+                            username,
+                        ]
             except AttributeError:
                 # there are not members of 'key'
                 pass
@@ -133,7 +151,7 @@ class Validator(object):
         append_users(self.classrooms, "Enrolled in")
 
         # assigned coaches
-        if row.get('User type', 'learner').lower != "learner":
+        if row.get("User type", "learner").lower != "learner":
             # a student can't be assigned to coach a classroom
             append_users(self.coach_classrooms, "Assigned to")
 
@@ -149,7 +167,7 @@ class Validator(object):
                     "row": index + 1,
                     "message": "Duplicated username",
                     "field": "Username",
-                    "value": row.get('Username'),
+                    "value": row.get("Username"),
                 }
                 error_flag = True
                 yield error
@@ -223,21 +241,41 @@ class Command(AsyncCommand):
         validator.add_check("Full name", value_length(125), "Full Name is too long")
         validator.add_check("Birth year", number_range(1900, 99999), "Not a valid year")
         validator.add_check("Username", value_length(125), "User name is too long")
-        validator.add_check("Username", valid_name(), "Username only can contain characters, numbers and underscores")
+        validator.add_check(
+            "Username",
+            valid_name(),
+            "Username only can contain characters, numbers and underscores",
+        )
         validator.add_check("Password", value_length(128), "Password is too long")
-        validator.add_check("User type", enumeration("Learner", "Admin", "Facility coach", "Class coach"), "Not a valid user type")
+        validator.add_check(
+            "User type",
+            enumeration("Learner", "Admin", "Facility coach", "Class coach"),
+            "Not a valid user type",
+        )
         # validator.add_check("Gender", enumeration(tuple(val[1] for val in choices)), "Not a valid gender")
-        validator.add_check("Gender", enumeration(*tuple(val[0] for val in choices)), "Not a valid gender")
+        validator.add_check(
+            "Gender",
+            enumeration(*tuple(val[0] for val in choices)),
+            "Not a valid gender",
+        )
         validator.add_check("Identifier", value_length(64), "Identifier is too long")
-        validator.add_check("Enrolled in", value_length(100, null=True), "Class name is too long")
-        validator.add_check("Assigned to", value_length(100, null=True), "Class name is too long")
+        validator.add_check(
+            "Enrolled in", value_length(100, null=True), "Class name is too long"
+        )
+        validator.add_check(
+            "Assigned to", value_length(100, null=True), "Class name is too long"
+        )
         # validator.add_check("Enrolled in", valid_name(username=False, null=True), "A class name only can contain characters, numbers and underscores")
         # validator.add_check("Assigned to", valid_name(username=False, null=True), "A class name only can contain characters, numbers and underscores")
 
         row_errors = validator.validate(reader)
         for err in row_errors:
             csv_errors.append(err)
-        return (csv_errors, (validator.classrooms, validator.coach_classrooms), validator.users)
+        return (
+            csv_errors,
+            (validator.classrooms, validator.coach_classrooms),
+            validator.users,
+        )
 
     def csv_headers_validation(self, options):
         # open using default OS encoding
@@ -246,10 +284,7 @@ class Command(AsyncCommand):
             has_header = False
             if all(col in self.fieldnames for col in header):
                 # Every item in the first row matches an item in the fieldnames, it is a header row
-                if (
-                    "username" not in header
-                    and str(labels["username"]) not in header
-                ):
+                if "username" not in header and str(labels["username"]) not in header:
                     self.errors.append(
                         "No usernames specified, this is required for user creation"
                     )
@@ -265,15 +300,21 @@ class Command(AsyncCommand):
     def build_users_objects(self, users):
         new_users = list()
         update_users = list()
-        existing_users = FacilityUser.objects.filter(facility=self.default_facility).filter(username__in=users.keys()).values_list('username', flat=True)
+        existing_users = (
+            FacilityUser.objects.filter(facility=self.default_facility)
+            .filter(username__in=users.keys())
+            .values_list("username", flat=True)
+        )
 
         # creating the users takes half of the time
-        progress = (100 / self.number_lines) * .5
+        progress = (100 / self.number_lines) * 0.5
 
         for user in users:
             self.progress_update(progress)
             if user in existing_users:
-                user_obj = FacilityUser.objects.get(username=user, facility=self.default_facility)
+                user_obj = FacilityUser.objects.get(
+                    username=user, facility=self.default_facility
+                )
             else:
                 user_obj = FacilityUser(username=user, facility=self.default_facility)
                 user_obj.id = user_obj.calculate_uuid()
@@ -285,7 +326,7 @@ class Command(AsyncCommand):
                 user_obj.password = DEFAULT_PASSWORD
 
             # demographics:
-            value = user_row.get('Gender', None)
+            value = user_row.get("Gender", None)
             if value:
                 user_obj.gender = value.strip().upper()
 
@@ -308,7 +349,9 @@ class Command(AsyncCommand):
         errors = []
         # validating the users takes aprox 40% of the time
         if users:
-            progress = (100 / self.number_lines) * .4 * (len(db_list) / self.number_lines)
+            progress = (
+                (100 / self.number_lines) * 0.4 * (len(db_list) / self.number_lines)
+            )
         for obj in db_list:
             if users:
                 self.progress_update(progress)
@@ -329,12 +372,20 @@ class Command(AsyncCommand):
     def build_classes_objects(self, classes):
         new_classes = list()
         update_classes = list()
-        total_classes = set([k for k in classes[0].keys()] + [v for v in classes[1].keys()])
-        existing_classes = Classroom.objects.filter(parent=self.default_facility).filter(name__in=total_classes).values_list('name', flat=True)
+        total_classes = set(
+            [k for k in classes[0].keys()] + [v for v in classes[1].keys()]
+        )
+        existing_classes = (
+            Classroom.objects.filter(parent=self.default_facility)
+            .filter(name__in=total_classes)
+            .values_list("name", flat=True)
+        )
 
         for classroom in total_classes:
             if classroom in existing_classes:
-                class_obj = Classroom.objects.get(name=classroom, parent=self.default_facility)
+                class_obj = Classroom.objects.get(
+                    name=classroom, parent=self.default_facility
+                )
                 update_classes.append(class_obj)
             else:
                 class_obj = Classroom(name=classroom, parent=self.default_facility)
@@ -371,13 +422,21 @@ class Command(AsyncCommand):
             return ([], [])
         users_not_to_delete = [u.id for u in update_users]
         admins = self.default_facility.get_admins()
-        users_not_to_delete += admins.values_list('id', flat=True)
+        users_not_to_delete += admins.values_list("id", flat=True)
         if options["userid"]:
             users_not_to_delete.append(options["userid"])
-        users_to_delete = FacilityUser.objects.filter(facility=self.default_facility).exclude(id__in=users_not_to_delete).values_list('id', flat=True)
+        users_to_delete = (
+            FacilityUser.objects.filter(facility=self.default_facility)
+            .exclude(id__in=users_not_to_delete)
+            .values_list("id", flat=True)
+        )
 
         classes_not_to_clear = [c.id for c in update_classes]
-        classes_to_clear = Classroom.objects.filter(parent=self.default_facility).exclude(id__in=classes_not_to_clear).values_list('id', flat=True)
+        classes_to_clear = (
+            Classroom.objects.filter(parent=self.default_facility)
+            .exclude(id__in=classes_not_to_clear)
+            .values_list("id", flat=True)
+        )
 
         return (users_to_delete, classes_to_clear)
 
@@ -407,7 +466,9 @@ class Command(AsyncCommand):
             db_new_users, db_update_users = self.build_users_objects(users)
             db_new_classes, db_update_classes = self.build_classes_objects(classes)
 
-            users_to_delete, classes_to_clear = self.get_delete(options, db_update_users, db_update_classes)
+            users_to_delete, classes_to_clear = self.get_delete(
+                options, db_update_users, db_update_classes
+            )
             csv_errors += self.db_validate_list(db_new_users, users=True)
             csv_errors += self.db_validate_list(db_update_users, users=True)
             # progress = 91%
