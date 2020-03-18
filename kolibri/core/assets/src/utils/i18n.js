@@ -262,3 +262,13 @@ export function localeCompare(str1, str2) {
     return String(str1).localeCompare(String(str2));
   }
 }
+
+// Wrapper to Intl.ListFormat
+export function formatList(array) {
+  if (Intl.ListFormat) {
+    const formatter = new Intl.ListFormat(currentLanguage, { style: 'short', type: 'unit' });
+    return formatter.format(array);
+  } else {
+    return array.join(', ');
+  }
+}

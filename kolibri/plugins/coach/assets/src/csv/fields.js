@@ -1,12 +1,22 @@
-import at from 'lodash/at';
 import pad from 'lodash/padStart';
-import { crossComponentTranslator } from 'kolibri.utils.i18n';
+import get from 'lodash/get';
+import { crossComponentTranslator, createTranslator, formatList } from 'kolibri.utils.i18n';
 import PageStatus from 'kolibri.coreVue.components.PageStatus';
 import coreStringsMixin from 'kolibri.coreVue.mixins.commonCoreStrings';
 import { STATUSES } from '../modules/classSummary/constants';
 import { VERBS } from '../views/common/status/constants';
 import { translations } from '../views/common/status/statusStrings';
 import { coachStrings } from '../views/common/commonCoachStrings';
+
+const FieldsMixinStrings = createTranslator('FieldsMixinStrings', {
+  allLearners: 'All learners',
+  recipientType: 'Recipient type',
+  groupsAndIndividuals: 'Groups and individuals',
+  wholeClass: 'Whole class',
+  questionsCorrect: 'Correct questions',
+  questionsTotal: 'Total questions',
+  questionsAnswered: 'Answered questions',
+});
 
 const VERB_MAP = {
   [STATUSES.notStarted]: VERBS.notStarted,
@@ -53,7 +63,7 @@ export function helpNeeded() {
       format: row => row.total - row.correct,
     },
     {
-      name: coreStrings('allLabel'), // TODO: Add new string for this
+      name: FieldsMixinStrings.$tr('allLearners'),
       key: 'all',
       format: row => row.total,
     },
@@ -82,7 +92,7 @@ export function learnerProgress(key = 'status') {
       name: coreStrings('progressLabel'),
       key,
       format(row) {
-        const [value] = at(row, key);
+        const value = get(row, key);
         const strings = translations.learnerProgress[VERB_MAP[value]];
         return strings.$tr('labelShort', { count: 1 });
       },
@@ -96,10 +106,10 @@ export function list(key, label) {
       name: coachStrings.$tr(label),
       key,
       format(row) {
-        const [value] = at(row, key);
+        const value = get(row, key);
 
         if (value && value.length) {
-          return value.join(', '); // TODO: Internationalize
+          return formatList(value);
         }
 
         return '';
@@ -117,28 +127,36 @@ export function name(label = 'nameLabel') {
   ];
 }
 
-export function recipients() {
+export function recipients(className) {
   return [
     {
-      name: `${coachStrings.$tr('recipientsLabel')} (1)`, // TODO: Add new string for this
+      name: FieldsMixinStrings.$tr('recipientType'),
       key: 'recipientType',
       format(row) {
-        if ('groupNames' in row && row.groupNames.length) {
-          return coachStrings.$tr('groupsLabel');
+        const { recipientNames = [] } = row;
+        if (recipientNames.length === 0 && row.hasAssignments) {
+          return FieldsMixinStrings.$tr('wholeClass');
+        } else {
+          const numGroups = get(row, 'groupNames.length', -1);
+          // If there are more recipients than groups, then there must be some individual learners
+          return recipientNames.length > numGroups
+            ? FieldsMixinStrings.$tr('groupsAndIndividuals') // At least one individual recipient
+            : coachStrings.$tr('groupsLabel'); // Groups only
         }
-
-        if ('hasAssignments' in row && row.hasAssignments) {
-          return coachStrings.$tr('classLabel');
-        }
-
-        return '';
       },
     },
-    ...list('groupNames', 'recipientsLabel').map((field, i) => {
-      // TODO: When new string has been added for the above, this can be removed
-      field.name = `${field.name} (${i + 2})`;
-      return field;
-    }),
+    {
+      name: coachStrings.$tr('recipientsLabel'),
+      key: 'groupNames',
+      format(row) {
+        const { recipientNames = [] } = row;
+        if (recipientNames.length === 0 && row.hasAssignments) {
+          return className || FieldsMixinStrings.$tr('wholeClass');
+        } else {
+          return formatList(recipientNames);
+        }
+      },
+    },
   ];
 }
 
@@ -185,7 +203,7 @@ export function timeSpent(key, label = 'timeSpentLabel') {
       name: coachStrings.$tr(label),
       key,
       format(row) {
-        const [value] = at(row, key);
+        const value = get(row, key);
         const timeSpent = parseInt(value, 10);
 
         if (!timeSpent) {
@@ -207,6 +225,32 @@ export function title() {
     {
       name: coachStrings.$tr('titleLabel'),
       key: 'title',
+    },
+  ];
+}
+
+export function quizQuestionsAnswered(quiz) {
+  return [
+    {
+      name: FieldsMixinStrings.$tr('questionsAnswered'),
+      key: 'quizQuestionsAnswered',
+      format(row) {
+        return get(row, 'statusObj.num_answered');
+      },
+    },
+    {
+      name: FieldsMixinStrings.$tr('questionsCorrect'),
+      key: 'quizQuestionsAnswered',
+      format(row) {
+        return get(row, 'statusObj.num_correct');
+      },
+    },
+    {
+      name: FieldsMixinStrings.$tr('questionsTotal'),
+      key: 'quizQuestionsTotal',
+      format() {
+        return quiz.question_count;
+      },
     },
   ];
 }
