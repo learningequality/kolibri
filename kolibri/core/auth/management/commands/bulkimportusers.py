@@ -13,6 +13,7 @@ from kolibri.core.auth.csv_utils import labels
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import Membership
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
 logger = logging.getLogger(__name__)
@@ -28,7 +29,12 @@ fieldnames = (
     "Enrolled in",
     "Assigned to",
 )
-
+fields_map = {
+    "Password": "password",
+    "Gender": "gender",
+    "Birth year": "birth_year",
+    "Identifier": "id_number",
+}
 # Validators ###
 
 
@@ -214,9 +220,7 @@ class Command(AsyncCommand):
         )
         parser.add_argument(
             "--dryrun",
-            action="store",
-            type=bool,
-            default=True,
+            action="store_true",
             help="Validate data without doing actual database updates",
         )
         parser.add_argument(
@@ -297,9 +301,41 @@ class Command(AsyncCommand):
                 raise CommandError(self.errors[-1])
         return has_header
 
+    def get_field_values(self, user_row):
+        password = user_row.get("Password", None)
+        if password:
+            password = make_password(password)
+        else:
+            password = DEFAULT_PASSWORD
+        gender = user_row.get("Gender", None)
+        if gender:
+            gender = gender.strip().upper()
+        birth_year = user_row.get("Birth year", None)
+        id_number = user_row.get("Identifier", None)
+        return {
+            "password": password,
+            "gender": gender,
+            "birth_year": birth_year,
+            "id_number": id_number,
+        }
+
+    def compare_fields(self, user_obj, values):
+        changed = False
+        for field in values:
+            if field == "password":
+                # Change password if it was not blank
+                if values["password"] != DEFAULT_PASSWORD:
+                    changed = True
+            elif getattr(user_obj, field) != values[field]:
+                changed = True
+            if changed:
+                setattr(user_obj, field, values[field])
+        return changed
+
     def build_users_objects(self, users):
         new_users = list()
         update_users = list()
+        keeping_users = list()
         existing_users = (
             FacilityUser.objects.filter(facility=self.default_facility)
             .filter(username__in=users.keys())
@@ -311,39 +347,24 @@ class Command(AsyncCommand):
 
         for user in users:
             self.progress_update(progress)
+            user_row = users[user]
+            values = self.get_field_values(user_row)
             if user in existing_users:
                 user_obj = FacilityUser.objects.get(
                     username=user, facility=self.default_facility
                 )
+                keeping_users.append(user_obj.id)
+                if self.compare_fields(user_obj, values):
+                    update_users.append(user_obj)
             else:
                 user_obj = FacilityUser(username=user, facility=self.default_facility)
-                user_obj.id = user_obj.calculate_uuid()
-            user_row = users[user]
-            password = user_row.get("Password", None)
-            if password:
-                user_obj.set_password(password)
-            else:
-                user_obj.password = DEFAULT_PASSWORD
+                # user_obj.id = user_obj.calculate_uuid()  # Morango does not work properly with this
+                for field in values:
+                    if values[field]:
+                        setattr(user_obj, field, values[field])
+                    new_users.append(user_obj)
 
-            # demographics:
-            value = user_row.get("Gender", None)
-            if value:
-                user_obj.gender = value.strip().upper()
-
-            value = user_row.get("Birth year", None)
-            if value:
-                user_obj.birth_year = value
-
-            value = user_row.get("Identifier", None)
-            if value:
-                user_obj.id_number = value
-
-            if user in existing_users:
-                update_users.append(user_obj)
-            else:
-                new_users.append(user_obj)
-
-        return (new_users, update_users)
+        return (new_users, update_users, keeping_users)
 
     def db_validate_list(self, db_list, users=False):
         errors = []
@@ -417,20 +438,19 @@ class Command(AsyncCommand):
             sys.exit(1)
         return number_lines
 
-    def get_delete(self, options, update_users, update_classes):
+    def get_delete(self, options, keeping_users, update_classes):
         if not options["delete"]:
             return ([], [])
-        users_not_to_delete = [u.id for u in update_users]
+        users_not_to_delete = keeping_users
         admins = self.default_facility.get_admins()
         users_not_to_delete += admins.values_list("id", flat=True)
         if options["userid"]:
             users_not_to_delete.append(options["userid"])
-        users_to_delete = (
-            FacilityUser.objects.filter(facility=self.default_facility)
-            .exclude(id__in=users_not_to_delete)
-            .values_list("id", flat=True)
-        )
-
+        users_to_delete = FacilityUser.objects.filter(
+            facility=self.default_facility
+        ).exclude(id__in=users_not_to_delete)
+        # Classes not included in the csv will be cleared of users,
+        # but not deleted to keep possible lessons and quizzes created for them:
         classes_not_to_clear = [c.id for c in update_classes]
         classes_to_clear = (
             Classroom.objects.filter(parent=self.default_facility)
@@ -439,6 +459,14 @@ class Command(AsyncCommand):
         )
 
         return (users_to_delete, classes_to_clear)
+
+    def delete_users(self, users):
+        for user in users:
+            user.delete(hard_delete=True)
+
+    def clear_classes(self, classes):
+        for classroom in classes:
+            Membership.objects.filter(collection=classroom).delete()
 
     def handle_async(self, *args, **options):
         self.errors = []
@@ -450,7 +478,6 @@ class Command(AsyncCommand):
             # validate csv headers:
             has_header = self.csv_headers_validation(options)
             self.progress_update(1)  # state=csv_headers
-
             try:
                 with open(options["filepath"]) as f:
                     if has_header:
@@ -463,11 +490,13 @@ class Command(AsyncCommand):
                 logger.error(self.errors[-1])
                 sys.exit(1)
 
-            db_new_users, db_update_users = self.build_users_objects(users)
+            db_new_users, db_update_users, keeping_users = self.build_users_objects(
+                users
+            )
             db_new_classes, db_update_classes = self.build_classes_objects(classes)
 
             users_to_delete, classes_to_clear = self.get_delete(
-                options, db_update_users, db_update_classes
+                options, keeping_users, db_update_classes
             )
             csv_errors += self.db_validate_list(db_new_users, users=True)
             csv_errors += self.db_validate_list(db_update_users, users=True)
@@ -484,4 +513,18 @@ class Command(AsyncCommand):
                 print(len(users_to_delete))
                 print(len(classes_to_clear))
             else:
+                self.delete_users(users_to_delete)
+                # clear users from classes not included in the csv:
+                Membership.objects.filter(collection__in=classes_to_clear).delete()
+
+                # bulk_create and bulk_update are not possible with current Morango:
+                db_users = db_new_users + db_update_users
+                for user in db_users:
+                    user.save()
+
+                for classroom in db_new_classes:
+                    Classroom.objects.create(
+                        name=classroom.name, parent=classroom.parent
+                    )
+
                 print("Saving...")
