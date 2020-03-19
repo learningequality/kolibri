@@ -31,7 +31,8 @@
     computed: {
       ...mapState('exerciseDetail', ['exercise']),
       toolbarRoute() {
-        return this.classRoute('ReportsLearnerActivityPage', {});
+        const backRoute = this.backRouteForQuery(this.$route.query);
+        return backRoute || this.classRoute('ReportsLearnerActivityPage', {});
       },
     },
     methods: {

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Webpack Error</title>
+  <style>
+    body {
+      margin: 64px;
+      font-family: sans-serif;
+      background-color: #333;
+      color: #e0e4ea;
+    }
+    h2 {
+      font-size: smaller;
+    }
+  </style>
+</head>
+<body>
+  <h1>Webpack Error</h1>
+  <p>{{ message }}</p>
+  {% for key, value in extra_info.items %}
+  <h2>{{ key }}</h2>
+  <p>
+    <pre>{{ value }}</pre>
+  </p>
+  {% endfor %}
+</body>
+</html>

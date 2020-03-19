@@ -4,7 +4,10 @@ from __future__ import unicode_literals
 
 from .base import *  # noqa isort:skip @UnusedWildImport
 
+# Settings might be tuples, so switch to lists
 INSTALLED_APPS = list(INSTALLED_APPS) + ["rest_framework_swagger"]  # noqa F405
+webpack_middleware = "kolibri.core.webpack.middleware.WebpackErrorHandler"
+MIDDLEWARE = list(MIDDLEWARE) + [webpack_middleware]  # noqa F405
 
 INTERNAL_IPS = ["127.0.0.1"]
 

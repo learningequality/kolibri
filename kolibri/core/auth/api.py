@@ -3,7 +3,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import time
-from functools import partial
 from itertools import groupby
 
 from django.contrib.auth import authenticate
@@ -11,9 +10,7 @@ from django.contrib.auth import login
 from django.contrib.auth import logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
-from django.db import connection
 from django.db import transaction
-from django.db.models import CharField
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models.query import F
@@ -56,9 +53,7 @@ from kolibri.core.api import ValuesViewset
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
-from kolibri.core.query import ArrayAgg
-from kolibri.core.query import GroupConcat
-from kolibri.core.query import process_uuid_aggregate
+from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
 
 
@@ -404,14 +399,8 @@ class LearnerGroupViewSet(ValuesViewset):
 
     values = ("id", "name", "parent", "user_ids")
 
-    field_map = {"user_ids": partial(process_uuid_aggregate, key="user_ids")}
-
     def annotate_queryset(self, queryset):
-        if connection.vendor == "postgresql" and ArrayAgg is not None:
-            return queryset.annotate(user_ids=ArrayAgg("membership__user__id"))
-        return queryset.values("id").annotate(
-            user_ids=GroupConcat("membership__user__id", output_field=CharField())
-        )
+        return annotate_array_aggregate(queryset, user_ids="membership__user__id")
 
 
 class AdHocGroupViewSet(viewsets.ModelViewSet):
@@ -424,14 +413,8 @@ class AdHocGroupViewSet(viewsets.ModelViewSet):
 
     values = ("id", "name", "parent", "user_ids")
 
-    field_map = {"user_ids": partial(process_uuid_aggregate, key="user_ids")}
-
     def annotate_queryset(self, queryset):
-        if connection.vendor == "postgresql" and ArrayAgg is not None:
-            return queryset.annotate(user_ids=ArrayAgg("membership__user__id"))
-        return queryset.values("id").annotate(
-            user_ids=GroupConcat("membership__user__id", output_field=CharField())
-        )
+        return annotate_array_aggregate(queryset, user_ids="membership__user__id")
 
     def partial_update(self, request, pk):
         individual_learners_group = AdHocGroup.objects.filter(pk=pk)[:1].get()

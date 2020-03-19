@@ -37,6 +37,7 @@ from .system import become_daemon
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
+from kolibri.deployment.default.cache import recreate_cache
 from kolibri.plugins import config
 from kolibri.plugins import DEFAULT_PLUGINS
 from kolibri.plugins.utils import autoremove_unavailable_plugins
@@ -437,6 +438,7 @@ def start(port, background):
 
     # Clear old sessions up
     call_command("clearsessions")
+    recreate_cache()
 
     # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
     # a better fix. See https://github.com/learningequality/kolibri/issues/4821
@@ -590,6 +592,7 @@ def services(port, background):
     """
 
     create_startup_lock(None)
+    recreate_cache()
 
     logger.info("Starting Kolibri background services")
 

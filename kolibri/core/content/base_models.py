@@ -68,7 +68,6 @@ into legacy_models.py to allow for referencing during channel import of older da
 from __future__ import print_function
 
 from django.db import models
-from jsonfield import JSONField
 from le_utils.constants import content_kinds
 from le_utils.constants import file_formats
 from le_utils.constants import format_presets
@@ -78,6 +77,7 @@ from mptt.models import MPTTModel
 from mptt.models import TreeForeignKey
 
 from kolibri.core.fields import DateTimeTzField
+from kolibri.core.fields import JSONField
 
 
 class ContentTag(models.Model):

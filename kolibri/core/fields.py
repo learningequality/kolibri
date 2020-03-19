@@ -1,4 +1,5 @@
 import datetime
+import json
 import re
 
 import pytz
@@ -6,6 +7,8 @@ from django.db.backends.utils import typecast_timestamp
 from django.db.models.fields import Field
 from django.utils import timezone
 from django.utils.six import string_types
+from jsonfield import JSONField as JSONFieldBase
+
 
 date_time_format = "%Y-%m-%d %H:%M:%S.%f"
 tz_format = "({tz})"
@@ -94,3 +97,23 @@ class DateTimeTzField(Field):
     def value_from_object_json_compatible(self, obj):
         if self.value_from_object(obj):
             return create_timezonestamp(self.value_from_object(obj))
+
+
+class JSONField(JSONFieldBase):
+    def from_db_value(self, value, expression, connection, context):
+        if isinstance(value, string_types):
+            try:
+                return json.loads(value)
+            except ValueError:
+                pass
+
+        return value
+
+    def to_python(self, value):
+        if isinstance(value, string_types):
+            try:
+                return json.loads(value)
+            except ValueError:
+                pass
+
+        return value

@@ -27,7 +27,7 @@
   "MediaPlayerTranscript.transcriptBeginning": "লিখিত ভাষ্যের শুরু",
   "MediaPlayerTranscript.transcriptEnd": "লিখিত ভাষ্যের সমাপ্তি",
   "SubtitlesMenuItem.subtitles": "সাবটাইটেল",
-  "TranscriptCue.textLabel": "লিখিত ভাষ্যের কিউ ক্যাপশনের পাঠ্য",
+  "TranscriptCue.textLabel": "প্রতিলিপি নির্দেশকের ক্যাপশনের লেখা",
   "TranscriptCue.timeLabel": "লিখিত ভাষ্যের কিউয়ের শুরুর সময়",
   "TranscriptCue.title": "{startTime}-এ যান",
   "TranscriptMenuItem.transcript": "লিখিত ভাষ্য"

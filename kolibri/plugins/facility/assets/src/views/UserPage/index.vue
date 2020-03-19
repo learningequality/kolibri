@@ -122,6 +122,7 @@
           { label: this.coreString('learnersLabel'), value: UserKinds.LEARNER },
           { label: this.coreString('coachesLabel'), value: UserKinds.COACH },
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
+          { label: this.$tr('superAdmins'), value: UserKinds.SUPERUSER },
         ];
       },
     },
@@ -132,6 +133,19 @@
       emptyMessageForItems(items, filterText) {
         if (this.facilityUsers.length === 0) {
           return this.$tr('noUsersExist');
+        } else if (this.roleFilter && filterText === '') {
+          switch (this.roleFilter.value) {
+            case UserKinds.LEARNER:
+              return this.$tr('noLearnersExist');
+            case UserKinds.COACH:
+              return this.$tr('noCoachesExist');
+            case UserKinds.ADMIN:
+              return this.$tr('noAdminsExist');
+            case UserKinds.SUPERUSER:
+              return this.$tr('noSuperAdminsExist');
+            default:
+              return '';
+          }
         } else if (items.length === 0) {
           return this.$tr('allUsersFilteredOut', { filterText });
         }
@@ -156,6 +170,9 @@
         }
         if (filterKind === UserKinds.ADMIN) {
           return user.kind === UserKinds.ADMIN || user.kind === UserKinds.SUPERUSER;
+        }
+        if (filterKind === UserKinds.SUPERUSER) {
+          return user.kind === UserKinds.SUPERUSER;
         }
         return filterKind === user.kind;
       },
@@ -191,11 +208,16 @@
     $trs: {
       searchText: 'Search for a user…',
       admins: 'Admins',
+      superAdmins: 'Super admins',
       newUserButtonLabel: 'New User',
       noUsersExist: 'No users exist',
       allUsersFilteredOut: "No users match the filter: '{filterText}'",
       optionsButtonLabel: 'Options',
       resetUserPassword: 'Reset password',
+      noLearnersExist: 'No learners exist',
+      noCoachesExist: 'No coaches exist',
+      noSuperAdminsExist: 'No super admins exist',
+      noAdminsExist: 'No admins exist',
     },
   };
 

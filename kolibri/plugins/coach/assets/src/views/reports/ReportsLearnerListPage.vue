@@ -110,7 +110,7 @@
       exercisesCompleted(contentStatuses) {
         const statuses = contentStatuses.filter(
           status =>
-            this.contentMap[status.content_id].kind === 'exercise' &&
+            this.contentIdIsForExercise(status.content_id) &&
             status.status === this.STATUSES.completed
         );
         return statuses.length;
@@ -118,7 +118,7 @@
       resourcesViewed(contentStatuses) {
         const statuses = contentStatuses.filter(
           status =>
-            this.contentMap[status.content_id].kind !== 'exercise' &&
+            !this.contentIdIsForExercise(status.content_id) &&
             status.status !== this.STATUSES.notStarted
         );
         return statuses.length;
