@@ -2,11 +2,11 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from jsonfield import JSONField
 
 from .constants import nutrition_endpoints
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.general import IsOwn
+from kolibri.core.fields import JSONField
 
 
 class PingbackNotification(models.Model):

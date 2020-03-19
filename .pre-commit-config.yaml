@@ -1,3 +1,4 @@
+exclude: (\.git/|\.tox/|\.venv/|build/|static/|dist/|node_modules/|kolibripip\.pex)
 repos:
 -   repo: git://github.com/pre-commit/pre-commit-hooks
     rev: v2.0.0
@@ -23,3 +24,49 @@ repos:
         language: system
         files: \.(js|vue|scss|css)$
         exclude: '^kolibri/core/static/assets/fonts/.+?\.css$|^kolibri/core/content/static/assets/'
+- repo: local
+  hooks:
+  - id: no-auto-migrations
+    name: no auto-named migrations
+    entry: We do not allow _auto_ in migration names. Please give the migration a telling name.
+    language: fail
+    files: .*/migrations/.*_auto_.*\.py$
+    exclude: ^
+      (?x)^(
+        kolibri/core/auth/migrations/0002_auto_20170608_2125\.py|
+        kolibri/core/auth/migrations/0003_auto_20170621_0958\.py|
+        kolibri/core/auth/migrations/0004_auto_20170816_1607\.py|
+        kolibri/core/auth/migrations/0005_auto_20170818_1203\.py|
+        kolibri/core/auth/migrations/0006_auto_20171206_1207\.py|
+        kolibri/core/auth/migrations/0007_auto_20171226_1125\.py|
+        kolibri/core/auth/migrations/0008_auto_20180222_1244\.py|
+        kolibri/core/auth/migrations/0009_auto_20180301_1123\.py|
+        kolibri/core/auth/migrations/0010_auto_20180320_1320\.py|
+        kolibri/core/auth/migrations/0013_auto_20180917_1213\.py|
+        kolibri/core/auth/migrations/0014_auto_20190815_1421\.py|
+        kolibri/core/content/migrations/0003_auto_20170607_1212\.py|
+        kolibri/core/content/migrations/0004_auto_20170825_1038\.py|
+        kolibri/core/content/migrations/0005_auto_20171009_0903\.py|
+        kolibri/core/content/migrations/0006_auto_20171128_1703\.py|
+        kolibri/core/content/migrations/0007_auto_20180212_1155\.py|
+        kolibri/core/content/migrations/0008_auto_20180429_1709\.py|
+        kolibri/core/content/migrations/0009_auto_20180410_1139\.py|
+        kolibri/core/content/migrations/0011_auto_20180907_1017\.py|
+        kolibri/core/content/migrations/0012_auto_20180910_1702\.py|
+        kolibri/core/content/migrations/0013_auto_20180919_1142\.py|
+        kolibri/core/content/migrations/0014_auto_20181218_1132\.py|
+        kolibri/core/content/migrations/0015_auto_20190125_1715\.py|
+        kolibri/core/content/migrations/0016_auto_20190124_1639\.py|
+        kolibri/core/content/migrations/0017_auto_20190415_1855\.py|
+        kolibri/core/device/migrations/0004_auto_20190306_0553\.py|
+        kolibri/core/device/migrations/0005_auto_20191203_0951\.py|
+        kolibri/core/exams/migrations/0003_auto_20190426_1015\.py|
+        kolibri/core/lessons/migrations/0002_auto_20180221_1115\.py|
+        kolibri/core/logger/migrations/0002_auto_20170518_1031\.py|
+        kolibri/core/logger/migrations/0003_auto_20170531_1140\.py|
+        kolibri/core/logger/migrations/0005_auto_20180514_1419\.py|
+      )$
+-   repo: https://github.com/psf/black
+    rev: stable
+    hooks:
+    - id: black

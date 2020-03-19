@@ -3,11 +3,11 @@
 from __future__ import unicode_literals
 
 import django.db.models.deletion
-import jsonfield.fields
 import morango.models
-from django.conf import settings
 from django.db import migrations
 from django.db import models
+
+import kolibri.core.fields
 
 
 class Migration(migrations.Migration):
@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                     "description",
                     models.CharField(blank=True, default="", max_length=200),
                 ),
-                ("resources", jsonfield.fields.JSONField(blank=True, default=[])),
+                ("resources", kolibri.core.fields.JSONField(blank=True, default=[])),
                 ("is_active", models.BooleanField(default=False)),
                 ("is_archived", models.BooleanField(default=False)),
                 (

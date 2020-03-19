@@ -155,7 +155,6 @@
 
 <style lang="scss" scoped>
 
-  .actions-header,
   nav {
     text-align: right;
   }

@@ -43,11 +43,6 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
 
 def __initialize_connection():
     connection = __create_engine()
-    # check if the database is corrupted:
-    try:
-        connection.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    except (exc.DatabaseError, TypeError):
-        repair_sqlite_db(connection)
 
     # Add multiprocessing safeguards as recommended by
     # https://docs.sqlalchemy.org/en/13/core/pooling.html#using-connection-pools-with-multiprocessing
@@ -65,6 +60,14 @@ def __initialize_connection():
                 "Connection record belongs to pid %s, attempting to check out in pid %s"
                 % (connection_record.info["pid"], pid)
             )
+
+    # Don't make a connection before we've added the multiprocessing guards
+    # as otherwise we will have a connection that doesn't have the 'pid' attribute set.
+    # check if the database is corrupted:
+    try:
+        connection.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    except (exc.DatabaseError, TypeError):
+        repair_sqlite_db(connection)
 
     return connection
 

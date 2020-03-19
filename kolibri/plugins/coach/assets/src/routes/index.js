@@ -2,6 +2,7 @@ import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import CoachClassListPage from '../views/CoachClassListPage';
 import HomePage from '../views/home/HomePage';
+import CoachPrompts from '../views/CoachPrompts';
 import HomeActivityPage from '../views/home/HomeActivityPage';
 import StatusTestPage from '../views/common/status/StatusTestPage';
 import reportRoutes from './reportRoutes';
@@ -58,6 +59,13 @@ export default [
   {
     path: '/about/statuses',
     component: StatusTestPage,
+    handler() {
+      store.dispatch('notLoading');
+    },
+  },
+  {
+    path: '/coach-prompts',
+    component: CoachPrompts,
     handler() {
       store.dispatch('notLoading');
     },

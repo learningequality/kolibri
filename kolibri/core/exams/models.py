@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-from jsonfield import JSONField
 
 from .permissions import UserCanReadExamAssignmentData
 from .permissions import UserCanReadExamData
@@ -9,6 +8,7 @@ from kolibri.core.auth.models import AbstractFacilityDataModel
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
+from kolibri.core.fields import JSONField
 from kolibri.core.notifications.models import LearnerProgressNotification
 
 

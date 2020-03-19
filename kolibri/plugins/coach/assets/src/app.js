@@ -26,7 +26,7 @@ class CoachToolsModule extends KolibriApp {
         this.store.dispatch('clearSnackbar');
       }
       this.store.commit('SET_PAGE_NAME', to.name);
-      if (!['CoachClassListPage', 'StatusTestPage'].includes(to.name)) {
+      if (!['CoachClassListPage', 'StatusTestPage', 'CoachPrompts'].includes(to.name)) {
         this.store
           .dispatch('initClassInfo', to.params.classId)
           .then(next, error => this.store.dispatch('handleApiError', error));

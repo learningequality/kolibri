@@ -33,7 +33,8 @@
     computed: {
       ...mapState('questionDetail', ['title', 'exam']),
       toolbarRoute() {
-        return this.classRoute('ReportsGroupReportQuizQuestionListPage', {});
+        const backRoute = this.backRouteForQuery(this.$route.query);
+        return backRoute || this.classRoute('ReportsGroupReportQuizQuestionListPage', {});
       },
     },
     methods: {
