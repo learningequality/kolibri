@@ -468,6 +468,32 @@ class Command(AsyncCommand):
         for classroom in classes:
             Membership.objects.filter(collection=classroom).delete()
 
+    def add_classes_memberships(self, classes, db_users, db_classes):
+        def get_user(username, users):
+            user = users.get(username, None)
+            if not user:  # the user has not been created nor updated:
+                user = FacilityUser.objects.get(
+                    username=username, facility=self.default_facility
+                )
+            return user
+
+        enrolled = classes[0]
+        assigned = classes[1]
+        classes = {k.name: k for k in db_classes}
+        users = {u.username: u for u in db_users}
+        for classroom in enrolled:
+            db_class = classes[classroom]
+            for username in enrolled[classroom]:
+                user = get_user(username, users)
+                if not user.is_member_of(db_class):
+                    db_class.add_member(user)
+        for classroom in assigned:
+            db_class = classes[classroom]
+            for username in assigned[classroom]:
+                user = get_user(username, users)
+                if not user.is_member_of(db_class):
+                    db_class.add_coach(user)
+
     def handle_async(self, *args, **options):
         self.errors = []
         self.default_facility = self.get_facility(options)
@@ -526,5 +552,11 @@ class Command(AsyncCommand):
                     Classroom.objects.create(
                         name=classroom.name, parent=classroom.parent
                     )
+                # clear users from classes to be updated:
+                update_classes = [c.id for c in db_update_classes]
+                Membership.objects.filter(collection__in=update_classes).delete()
+                self.add_classes_memberships(
+                    classes, db_users, db_new_classes + db_update_classes
+                )
 
                 print("Saving...")
