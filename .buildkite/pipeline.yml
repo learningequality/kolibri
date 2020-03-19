@@ -17,8 +17,9 @@ steps:
 
   - wait
 
-  - label: Upload artifacts
+  - label: Upload Release Artifacts
     command: .buildkite/setup_and_upload_artifact.sh
+    if: build.tag != null
 
   - wait
 
