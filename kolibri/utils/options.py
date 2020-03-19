@@ -130,6 +130,11 @@ base_option_spec = {
             "default": False,
             "envvars": ("KOLIBRI_SERVER_PROFILE",),
         },
+        "DEBUG": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_DEBUG",),
+        },
     },
     "Paths": {
         "CONTENT_DIR": {
@@ -177,9 +182,13 @@ base_option_spec = {
 }
 
 
-def get_logger(KOLIBRI_HOME):
+def __get_logger(KOLIBRI_HOME):
     """
-    We define a minimal default logger config here, since we can't yet load up Django settings.
+    We define a minimal default logger config here, since we can't yet
+    load up Django settings.
+
+    NB! Since logging can be defined by options, the logging from some
+    of the functions in this module do not use fully customized logging.
     """
     from kolibri.utils.conf import LOG_ROOT
 
@@ -233,7 +242,7 @@ def clean_conf(conf):
 
 def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
 
-    logger = get_logger(KOLIBRI_HOME)
+    logger = __get_logger(KOLIBRI_HOME)
 
     ini_path = os.path.join(KOLIBRI_HOME, ini_filename)
 
@@ -326,7 +335,7 @@ def _expand_paths(basepath, pathdict):
 
 def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options.ini"):
 
-    logger = get_logger(KOLIBRI_HOME)
+    logger = __get_logger(KOLIBRI_HOME)
 
     # load the current conf from disk into memory
     conf = read_options_file(KOLIBRI_HOME, ini_filename=ini_filename)
