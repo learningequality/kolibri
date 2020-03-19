@@ -23,7 +23,7 @@
               @click="downloadSessionLog"
             />
             <span v-if="noSessionLogs">{{ $tr('noLogsYet') }}</span>
-            <GeneratedElapsedTime v-else :date="sessionDateCreated" />
+            <GeneratedElapsedTime v-else-if="sessionDateCreated" :date="sessionDateCreated" />
           </p>
           <p v-if="cannotDownload" :style="noDlStyle">
             {{ $tr('noDownload') }}
