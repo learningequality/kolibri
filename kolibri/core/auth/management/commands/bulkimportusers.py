@@ -15,6 +15,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
 from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.utils import get_current_job
 
 logger = logging.getLogger(__name__)
 DEFAULT_PASSWORD = make_password("kolibri")
@@ -539,15 +540,9 @@ class Command(AsyncCommand):
             csv_errors += self.db_validate_list(db_new_classes)
             csv_errors += self.db_validate_list(db_update_classes)
 
-            if options["dryrun"]:
-                print(csv_errors)
-                print(len(db_new_classes))
-                print(len(db_update_classes))
-                print(len(db_new_users))
-                print(len(db_update_users))
-                print(len(users_to_delete))
-                print(len(classes_to_clear))
-            else:
+            job = get_current_job()
+
+            if not options["dryrun"]:
                 self.delete_users(users_to_delete)
                 # clear users from classes not included in the csv:
                 Membership.objects.filter(collection__in=classes_to_clear).delete()
@@ -571,4 +566,16 @@ class Command(AsyncCommand):
                     classes, users, db_new_classes + db_update_classes
                 )
 
-                print("Saving...")
+            classes_report = {"created": len(db_new_classes) , "updated": len(db_update_classes), "cleared": len(classes_to_clear)}
+            users_report = {"created": len(db_new_users), "updated": len(db_update_users), "deleted": len(users_to_delete)}
+            if job:
+                job.extra_metadata["overall_error"] = self.errors
+                job.extra_metadata["per_line_errors"] = csv_errors
+                job.extra_metadata["classes"] = classes_report
+                job.extra_metadata["users"] = users_report
+                job.save_meta()
+            else:
+                logger.info("File errors: %s" % str(self.errors))
+                logger.info("Data errors: %s" % str(csv_errors))
+                logger.info("Classes report: %s" % str(classes_report))
+                logger.info("Users report: %s" % str(users_report))
