@@ -5,25 +5,41 @@
       :title="coreString('classesLabel')"
       :link="linkify(PageNames.CLASS_MGMT_PAGE)"
     >
-      <KIcon icon="domain" :color="$themeTokens.textInverted" style="top: 0; width: 24px; height: 24px;" />
+      <KIcon
+        icon="domain"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
     <NavbarLink
       :title="coreString('usersLabel')"
       :link="linkify(PageNames.USER_MGMT_PAGE)"
     >
-      <KIcon icon="people" :color="$themeTokens.textInverted" style="top: 0; width: 24px; height: 24px;" />
+      <KIcon
+        icon="people"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
     <NavbarLink
       :title="$tr('settings')"
       :link="linkify(PageNames.FACILITY_CONFIG_PAGE)"
     >
-      <KIcon icon="settings" :color="$themeTokens.textInverted" style="top: 0; width: 24px; height: 24px;" />
+      <KIcon
+        icon="settings"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
     <NavbarLink
       :title="$tr('data')"
       :link="linkify(PageNames.DATA_EXPORT_PAGE)"
     >
-      <KIcon icon="save" :color="$themeTokens.textInverted" style="top: 0; width: 24px; height: 24px;" />
+      <KIcon
+        icon="save"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
   </Navbar>
 

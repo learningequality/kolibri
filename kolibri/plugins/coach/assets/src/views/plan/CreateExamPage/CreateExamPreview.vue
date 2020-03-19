@@ -46,7 +46,10 @@
             :disabled="numQuestions === 1"
             @click="numQuestions -= 1"
           >
-            <KIcon icon="minus_sign" style="top: 0; width: 24px; height: 24px;" />
+            <KIcon
+              icon="minus_sign"
+              style="top: 0; width: 24px; height: 24px;"
+            />
           </UiIconButton>
           <UiIconButton
             type="flat"
@@ -55,7 +58,10 @@
             :disabled="numQuestions === maxQs"
             @click="numQuestions += 1"
           >
-            <KIcon icon="plus_sign" style="top: 0; width: 24px; height: 24px;" />
+            <KIcon
+              icon="plus_sign"
+              style="top: 0; width: 24px; height: 24px;"
+            />
           </UiIconButton>
         </KGridItem>
       </KGrid>
@@ -67,7 +73,11 @@
           color="primary"
           @click="getNewQuestionSet"
         >
-          <KIcon icon="refresh" style="top: 0; width: 24px; height: 24px;" :color="$themeTokens.primary" />
+          <KIcon
+            icon="refresh"
+            style="top: 0; width: 24px; height: 24px;"
+            :color="$themeTokens.primary"
+          />
         </UiIconButton>
         <KButton
           :text="$tr('randomize')"
