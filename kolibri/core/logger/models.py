@@ -110,6 +110,7 @@ class ContentSessionLog(BaseLogModel):
 
     user = models.ForeignKey(FacilityUser, blank=True, null=True)
     content_id = UUIDField(db_index=True)
+    anonymous_session_id = models.CharField(max_length=40, blank=True, null=True)
     channel_id = UUIDField()
     start_timestamp = DateTimeTzField()
     end_timestamp = DateTimeTzField(blank=True, null=True)

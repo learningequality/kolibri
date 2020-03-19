@@ -1,5 +1,6 @@
 from django.db.models import Sum
 from django.utils.timezone import now
+from django.contrib.sessions.backends.db import SessionStore
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from rest_framework import serializers
@@ -27,11 +28,22 @@ class ContentSessionLogSerializer(KolibriModelSerializer):
 
     extra_fields = serializers.JSONField(default="{}")
 
+    """
+    If we don't have a user, set the anonymous_session_id to the session_key
+    """
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if request and hasattr(request, "session") and not validated_data["user"]:
+            validated_data["anonymous_session_id"] = request.session.session_key
+        instance = super(ContentSessionLogSerializer, self).create(validated_data)
+        return instance
+
     class Meta:
         model = ContentSessionLog
         fields = (
             "id",
             "user",
+            "anonymous_session_id",
             "content_id",
             "channel_id",
             "start_timestamp",
