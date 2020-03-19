@@ -23,6 +23,18 @@ You can optimize this workflow according to your own needs.
 
 Changes can be built and released in ``kolibri-proposed`` by the `Learning Equality Launchpad team <https://launchpad.net/~learningequality/>`__.
 
+Working in the repo
+-------------------
+
+You can also make changes in the cloned repository in the following workflow:
+
+1. Make your changes
+1. Run `dch`, carefully noting your release notes
+1. Build the package with `make dist`
+1. Test the package with  `sudo dpkg -i ../kolibri-server_VERSION.deb`
+1. If you have further changes, you can keep editing and invoking `make dist`
+1. Finally, commit your changes and open a PR, including your entry in `debian/changelog`
+
 Releasing
 ---------
 
