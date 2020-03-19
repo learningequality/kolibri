@@ -111,6 +111,19 @@ export default new Resource({
   startexportlogcsv(params) {
     return this.postListEndpoint('startexportlogcsv', pickBy(params));
   },
+  /**
+   * Initiates a Task that import users, classes and assign roles from a csv file
+   *
+   * @param {string} params.filepath - session or summary
+   * @param {string} params.dryrun - validate objects but don't write in the db
+   * @param {string} params.delete - delete users not included in the csv
+   *                                 and clear not included classrooms
+   * @returns {Promise}
+   *
+   */
+  bulkimportusers(params) {
+    return this.postListEndpoint('bulkimportusers', pickBy(params));
+  },
 
   deleteChannel({ channelId }) {
     return this.postListEndpoint('startdeletechannel', {

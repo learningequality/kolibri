@@ -1,8 +1,8 @@
 import logging
 import os
-import requests
 from functools import partial
 
+import requests
 from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
 from django.http.response import Http404
@@ -19,8 +19,8 @@ from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
-from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.paths import get_channel_lookup_url
+from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.exceptions import JobNotFound
@@ -569,6 +569,40 @@ class TasksViewSet(viewsets.ViewSet):
         out = [mountdata._asdict() for mountdata in drives.values()]
 
         return Response(out)
+
+    @list_route(methods=["post"])
+    def bulkimportusers(self, request):
+        """
+        Import users, classes, roles and roles assignemnts from a csv file.
+
+        :param: filepath: route to the csv file
+        :param: dryrun: validate the data but don't modify the database
+        :param: delete: Users not in the csv will be deleted from the facility, and classes cleared
+        :returns: An object with the job information
+
+        """
+        filepath = request.data.get("filepath")
+        delete = request.data.get("delete", None)
+        dryrun = request.data.get("dryrun", None)
+        userid = request.user.pk
+        facility = request.user.facility
+        job_type = ("BULKIMPORTUSERS")
+        job_metadata = {"type": job_type, "started_by": userid}
+        job_id = priority_queue.enqueue(
+            call_command,
+            "bulkimportusers",
+            "--dryrun" if dryrun else "",
+            "--delete" if delete else "",
+            filepath,
+            facility=facility,
+            userid=userid,
+            extra_metadata=job_metadata,
+            track_progress=True,
+        )
+
+        resp = _job_to_response(priority_queue.fetch_job(job_id))
+
+        return Response(resp)
 
     @list_route(methods=["post"])
     def startexportlogcsv(self, request):
