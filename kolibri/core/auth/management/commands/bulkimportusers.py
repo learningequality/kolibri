@@ -229,9 +229,7 @@ class Command(AsyncCommand):
         )
         parser.add_argument(
             "--delete",
-            action="store",
-            type=bool,
-            default=True,
+            action="store_true",
             help="Delete all users in the facility not included in this import (excepting actual user)",
         )
 
