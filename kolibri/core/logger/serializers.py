@@ -1,6 +1,5 @@
 from django.db.models import Sum
 from django.utils.timezone import now
-from django.contrib.sessions.backends.db import SessionStore
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from rest_framework import serializers
