@@ -89,10 +89,7 @@ def collect_local_artifacts():
         filename, file_extension = os.path.splitext(artifact)
         # Remove leading '.'
         file_extension = file_extension[1:]
-        data = {
-            "name": artifact,
-            "file_location": "%s/%s" % (DIST_DIR, artifact),
-        }
+        data = {"name": artifact, "file_location": "%s/%s" % (DIST_DIR, artifact)}
         if file_extension == "exe":
             create_exe_data(filename, data)
 
@@ -109,7 +106,7 @@ def upload_gh_release_artifacts(artifacts={}):
     # Have to do this with requests because github3 does not support this interface yet
     get_release_asset_url = requests.get(
         "https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}".format(
-            owner=REPO_OWNER, repo=REPO_NAME, tag=TAG,
+            owner=REPO_OWNER, repo=REPO_NAME, tag=TAG
         )
     )
     if get_release_asset_url.status_code == 200:
