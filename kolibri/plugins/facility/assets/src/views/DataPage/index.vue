@@ -55,7 +55,7 @@
               @click="downloadSummaryLog"
             />
             <span v-if="noSummaryLogs">{{ $tr('noLogsYet') }}</span>
-            <GeneratedElapsedTime v-else :date="summaryDateCreated" />
+            <GeneratedElapsedTime v-else-if="summaryDateCreated" :date="summaryDateCreated" />
           </p>
           <p v-if="cannotDownload" :style="noDlStyle">
             {{ $tr('noDownload') }}
