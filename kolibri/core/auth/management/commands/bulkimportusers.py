@@ -29,12 +29,13 @@ fieldnames = (
     "Enrolled in",
     "Assigned to",
 )
-fields_map = {
-    "Password": "password",
-    "Gender": "gender",
-    "Birth year": "birth_year",
-    "Identifier": "id_number",
+roles_map = {
+    "learner": None,
+    "admin": "admin",
+    "facility coach": "coach",
+    "class coach": "classroom assignable coach"
 }
+
 # Validators ###
 
 
@@ -72,7 +73,6 @@ def enumeration(*args):
     Return a value check function which raises a ValueError if the value (case
     insensitive) is not in the enumeration of values provided by args.
     """
-
     assert len(args) > 0, "at least one argument is required"
     if len(args) == 1:
         # assume the first argument defines the membership
@@ -118,6 +118,7 @@ class Validator(object):
         self.classrooms = dict()
         self.coach_classrooms = dict()
         self.users = dict()
+        self.roles = {r: list() for r in roles_map.values() if r is not None}
 
     def add_check(self, header_name, check, message):
         """
@@ -157,9 +158,11 @@ class Validator(object):
         append_users(self.classrooms, "Enrolled in")
 
         # assigned coaches
-        if row.get("User type", "learner").lower != "learner":
+        user_role = row.get("User type", "learner").lower()
+        if user_role != "learner":
             # a student can't be assigned to coach a classroom
             append_users(self.coach_classrooms, "Assigned to")
+            self.roles[roles_map[user_role]].append(username)
 
     def validate(self, data):
         """
@@ -253,7 +256,7 @@ class Command(AsyncCommand):
         validator.add_check("Password", value_length(128), "Password is too long")
         validator.add_check(
             "User type",
-            enumeration("Learner", "Admin", "Facility coach", "Class coach"),
+            enumeration(*roles_map.keys()),
             "Not a valid user type",
         )
         # validator.add_check("Gender", enumeration(tuple(val[1] for val in choices)), "Not a valid gender")
@@ -279,6 +282,7 @@ class Command(AsyncCommand):
             csv_errors,
             (validator.classrooms, validator.coach_classrooms),
             validator.users,
+            validator.roles
         )
 
     def csv_headers_validation(self, options):
@@ -468,31 +472,36 @@ class Command(AsyncCommand):
         for classroom in classes:
             Membership.objects.filter(collection=classroom).delete()
 
-    def add_classes_memberships(self, classes, db_users, db_classes):
-        def get_user(username, users):
-            user = users.get(username, None)
-            if not user:  # the user has not been created nor updated:
-                user = FacilityUser.objects.get(
-                    username=username, facility=self.default_facility
-                )
-            return user
+    def get_user(self, username, users):
+        user = users.get(username, None)
+        if not user:  # the user has not been created nor updated:
+            user = FacilityUser.objects.get(
+                username=username, facility=self.default_facility
+            )
+        return user
 
+    def add_classes_memberships(self, classes, users, db_classes):
         enrolled = classes[0]
         assigned = classes[1]
         classes = {k.name: k for k in db_classes}
-        users = {u.username: u for u in db_users}
+
         for classroom in enrolled:
             db_class = classes[classroom]
             for username in enrolled[classroom]:
-                user = get_user(username, users)
+                user = self.get_user(username, users)
                 if not user.is_member_of(db_class):
                     db_class.add_member(user)
         for classroom in assigned:
             db_class = classes[classroom]
             for username in assigned[classroom]:
-                user = get_user(username, users)
-                if not user.is_member_of(db_class):
-                    db_class.add_coach(user)
+                user = self.get_user(username, users)
+                db_class.add_coach(user)
+
+    def add_roles(self, users, roles):
+        for role in roles.keys():
+            for username in roles[role]:
+                user = self.get_user(username, users)
+                self.default_facility.add_role(user, role)
 
     def handle_async(self, *args, **options):
         self.errors = []
@@ -510,7 +519,7 @@ class Command(AsyncCommand):
                         reader = csv.DictReader(f, strict=True)
                     else:
                         reader = csv.DictReader(f, fieldnames=input_fields, strict=True)
-                    csv_errors, classes, users = self.csv_values_validation(reader)
+                    csv_errors, classes, users, roles = self.csv_values_validation(reader)
             except (ValueError, IOError, csv.Error) as e:
                 self.errors.append("Error trying to write csv file: {}".format(e))
                 logger.error(self.errors[-1])
@@ -547,6 +556,9 @@ class Command(AsyncCommand):
                 db_users = db_new_users + db_update_users
                 for user in db_users:
                     user.save()
+                # assign roles to users:
+                users = {u.username: u for u in db_users}
+                self.add_roles(users, roles)
 
                 for classroom in db_new_classes:
                     Classroom.objects.create(
@@ -556,7 +568,7 @@ class Command(AsyncCommand):
                 update_classes = [c.id for c in db_update_classes]
                 Membership.objects.filter(collection__in=update_classes).delete()
                 self.add_classes_memberships(
-                    classes, db_users, db_new_classes + db_update_classes
+                    classes, users, db_new_classes + db_update_classes
                 )
 
                 print("Saving...")
