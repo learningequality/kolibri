@@ -30,6 +30,7 @@ class ContentSessionLogSerializer(KolibriModelSerializer):
     """
     If we don't have a user, set the anonymous_session_id to the session_key
     """
+
     def create(self, validated_data):
         request = self.context.get("request")
         if request and hasattr(request, "session") and not validated_data["user"]:
