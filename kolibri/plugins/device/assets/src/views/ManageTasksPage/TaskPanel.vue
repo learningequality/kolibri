@@ -37,13 +37,13 @@
         <template v-if="taskIsRunning">
           <KLinearLoader
             class="k-linear-loader"
-            type="determinate"
+            :type="loaderType"
             :delay="false"
             :progress="task.percentage * 100"
             :style="{backgroundColor: $themeTokens.fineLine}"
           />
-          <span class="details-percentage">
-            {{ $tr('progressPercentage', { progress: task.percentage }) }}
+          <span v-if="taskPercentage" class="details-percentage">
+            {{ $tr('progressPercentage', { progress: taskPercentage }) }}
           </span>
         </template>
         <template v-else-if="taskIsCanceling">
@@ -164,6 +164,19 @@
       },
       taskIsClearable() {
         return taskIsClearable(this.task);
+      },
+      taskPercentage() {
+        if (this.task.database_ready === false) {
+          return null;
+        }
+        return this.task.percentage;
+      },
+      loaderType() {
+        // Show an indeterminate loader while bulk import is still in pre-importcontent step.
+        if (this.taskPercentage === null) {
+          return 'indeterminate';
+        }
+        return 'determinate';
       },
       descriptionText() {
         const trName = typeToTrMap[this.task.type];
