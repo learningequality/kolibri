@@ -77,13 +77,17 @@ class DeviceSettings(models.Model):
 CONTENT_CACHE_KEY_CACHE_KEY = "content_cache_key"
 
 
+def generate_content_cache_key():
+    return int(time.time() * 100)
+
+
 class ContentCacheKey(models.Model):
     """
     This class stores a cache key for content models that should be updated
     whenever the content metadata stored on the device changes.
     """
 
-    key = models.IntegerField(default=time.time)
+    key = models.BigIntegerField(default=generate_content_cache_key)
 
     def save(self, *args, **kwargs):
         self.pk = 1
@@ -91,8 +95,8 @@ class ContentCacheKey(models.Model):
 
     @classmethod
     def update_cache_key(cls):
-        cache_key, created = cls.objects.get_or_create()
-        cache_key.key = time.time()
+        cache_key, __ = cls.objects.get_or_create()
+        cache_key.key = generate_content_cache_key()
         cache_key.save()
         cache.set(CONTENT_CACHE_KEY_CACHE_KEY, cache_key.key, 5000)
         return cache_key
