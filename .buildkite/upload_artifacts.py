@@ -37,7 +37,6 @@ file_manifest = {
     "dmg": {
         "extension": "dmg",
         "description": "Mac Package",
-        "category": INSTALLER_CAT,
         "content_type": "application/x-apple-diskimage",
     },
     "unsigned-exe": {
@@ -68,7 +67,6 @@ file_manifest = {
     "zip": {
         "extension": "zip",
         "description": "Raspberry Pi Image",
-        "category": INSTALLER_CAT,
         "content_type": "application/x-zip-compressed",
     },
     # 'apk': {
