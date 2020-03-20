@@ -34,7 +34,7 @@ roles_map = {
     "learner": None,
     "admin": "admin",
     "facility coach": "coach",
-    "class coach": "classroom assignable coach"
+    "class coach": "classroom assignable coach",
 }
 
 # Validators ###
@@ -254,9 +254,7 @@ class Command(AsyncCommand):
         )
         validator.add_check("Password", value_length(128), "Password is too long")
         validator.add_check(
-            "User type",
-            enumeration(*roles_map.keys()),
-            "Not a valid user type",
+            "User type", enumeration(*roles_map.keys()), "Not a valid user type",
         )
         # validator.add_check("Gender", enumeration(tuple(val[1] for val in choices)), "Not a valid gender")
         validator.add_check(
@@ -281,7 +279,7 @@ class Command(AsyncCommand):
             csv_errors,
             (validator.classrooms, validator.coach_classrooms),
             validator.users,
-            validator.roles
+            validator.roles,
         )
 
     def csv_headers_validation(self, options):
@@ -518,7 +516,9 @@ class Command(AsyncCommand):
                         reader = csv.DictReader(f, strict=True)
                     else:
                         reader = csv.DictReader(f, fieldnames=input_fields, strict=True)
-                    csv_errors, classes, users, roles = self.csv_values_validation(reader)
+                    csv_errors, classes, users, roles = self.csv_values_validation(
+                        reader
+                    )
             except (ValueError, IOError, csv.Error) as e:
                 self.errors.append("Error trying to write csv file: {}".format(e))
                 logger.error(self.errors[-1])
@@ -564,8 +564,16 @@ class Command(AsyncCommand):
                     classes, users, db_new_classes + db_update_classes
                 )
 
-            classes_report = {"created": len(db_new_classes) , "updated": len(db_update_classes), "cleared": len(classes_to_clear)}
-            users_report = {"created": len(db_new_users), "updated": len(db_update_users), "deleted": len(users_to_delete)}
+            classes_report = {
+                "created": len(db_new_classes),
+                "updated": len(db_update_classes),
+                "cleared": len(classes_to_clear),
+            }
+            users_report = {
+                "created": len(db_new_users),
+                "updated": len(db_update_users),
+                "deleted": len(users_to_delete),
+            }
             if job:
                 job.extra_metadata["overall_error"] = self.errors
                 job.extra_metadata["per_line_errors"] = csv_errors
