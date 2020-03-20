@@ -65,18 +65,23 @@ def cherrypy_access_log_middleware(get_response):
         # Code to be executed for each request/response after
         # the view is called.
 
-        cp_logger.info(
-            '{h} {l} {u} "{r}" {s} {b} "{ref}" "{ua}"'.format(
-                h=request.META.get("REMOTE_ADDR", "unknown"),
-                l="-",  # noqa ignore:E741
-                u="-",
-                r="{} {}".format(request.method, request.path_info.replace('"', "\\")),
-                s=response.status_code,
-                b=len(response.get("content", b"")),
-                ref=request.META.get("HTTP_REFERER", "").replace('"', "\\"),
-                ua=request.META.get("HTTP_USER_AGENT", "unknown").replace('"', "\\"),
-            )
+        log_message = '{h} {l} {u} "{r}" {s} {b} "{ref}" "{ua}"'.format(
+            h=request.META.get("REMOTE_ADDR", "unknown"),
+            l="-",  # noqa ignore:E741
+            u="-",
+            r="{} {}".format(request.method, request.path_info.replace('"', "\\")),
+            s=response.status_code,
+            b=len(response.get("content", b"")),
+            ref=request.META.get("HTTP_REFERER", "").replace('"', "\\"),
+            ua=request.META.get("HTTP_USER_AGENT", "unknown").replace('"', "\\"),
         )
+
+        # Silence busy polling API endpoint:
+        # https://github.com/learningequality/kolibri/issues/6459
+        if "/api/tasks/tasks/" in request.path_info:
+            cp_logger.debug(log_message)
+        else:
+            cp_logger.info(log_message)
 
         return response
 
