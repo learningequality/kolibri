@@ -31,10 +31,10 @@ fieldnames = (
     "Assigned to",
 )
 roles_map = {
-    "learner": None,
-    "admin": "admin",
-    "facility coach": "coach",
-    "class coach": "classroom assignable coach",
+    "LEARNER": None,
+    "ADMIN": "admin",
+    "FACILITY COACH": "coach",
+    "CLASS COACH": "classroom assignable coach",
 }
 
 # Validators ###
@@ -53,7 +53,7 @@ def number_range(min, max):
     return checker
 
 
-def value_length(length, null=False):
+def value_length(length, allow_null=False):
     """
     Return a value check function which raises a ValueError if the supplied
     value has a length greater than 'length'
@@ -61,7 +61,7 @@ def value_length(length, null=False):
     """
 
     def checker(v):
-        if null and v is None:
+        if allow_null and v is None:
             return checker
         if len(v) > length:
             raise ValueError(v)
@@ -88,7 +88,7 @@ def enumeration(*args):
     return checker
 
 
-def valid_name(username=True, null=False):
+def valid_name(username=True, allow_null=False):
     """
     Return a value check function which raises a ValueError if the value has
     some of the punctuaction chars that are not allowed.
@@ -97,7 +97,7 @@ def valid_name(username=True, null=False):
     """
 
     def checker(v):
-        if null and v is None:
+        if allow_null and v is None:
             return checker
         has_punc = "/[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;\"'<>,\.\?]/"  # noqa
         if not username:
@@ -139,16 +139,16 @@ class Validator(object):
         return username
 
     def check_classroom(self, row, username):
-        def append_users(group, key):
+        def append_users(class_list, key):
             try:
-                groups = row.get(key, None).split(",")
-                for classroom in groups:
+                classes_list = row.get(key, None).split(",")
+                for classroom in classes_list:
                     if not classroom:
                         continue
-                    if classroom in group:
-                        group[classroom].append(username)
+                    if classroom in class_list:
+                        class_list[classroom].append(username)
                     else:
-                        group[classroom] = [
+                        class_list[classroom] = [
                             username,
                         ]
             except AttributeError:
@@ -159,8 +159,8 @@ class Validator(object):
         append_users(self.classrooms, "Enrolled in")
 
         # assigned coaches
-        user_role = row.get("User type", "learner").lower()
-        if user_role != "learner":
+        user_role = row.get("User type", "learner").upper()
+        if user_role != "LEARNER":
             # a student can't be assigned to coach a classroom
             append_users(self.coach_classrooms, "Assigned to")
             self.roles[roles_map[user_role]].append(username)
@@ -198,8 +198,9 @@ class Validator(object):
                 except Exception as e:
                     error = {
                         "row": index + 1,
-                        "message": "Unexpected error [%s]: %s"
-                        % (e.__class__.__name__, e),
+                        "message": "Unexpected error [{}]: {}".format(
+                            (e.__class__.__name__, e)
+                        ),
                         "field": header_name,
                         "value": value,
                     }
@@ -264,13 +265,13 @@ class Command(AsyncCommand):
         )
         validator.add_check("Identifier", value_length(64), "Identifier is too long")
         validator.add_check(
-            "Enrolled in", value_length(100, null=True), "Class name is too long"
+            "Enrolled in", value_length(100, allow_null=True), "Class name is too long"
         )
         validator.add_check(
-            "Assigned to", value_length(100, null=True), "Class name is too long"
+            "Assigned to", value_length(100, allow_null=True), "Class name is too long"
         )
-        # validator.add_check("Enrolled in", valid_name(username=False, null=True), "A class name only can contain characters, numbers and underscores")
-        # validator.add_check("Assigned to", valid_name(username=False, null=True), "A class name only can contain characters, numbers and underscores")
+        # validator.add_check("Enrolled in", valid_name(username=False, allow_null=True), "A class name only can contain characters, numbers and underscores")
+        # validator.add_check("Assigned to", valid_name(username=False, allow_null=True), "A class name only can contain characters, numbers and underscores")
 
         row_errors = validator.validate(reader)
         for err in row_errors:
@@ -581,7 +582,7 @@ class Command(AsyncCommand):
                 job.extra_metadata["users"] = users_report
                 job.save_meta()
             else:
-                logger.info("File errors: %s" % str(self.errors))
-                logger.info("Data errors: %s" % str(csv_errors))
-                logger.info("Classes report: %s" % str(classes_report))
-                logger.info("Users report: %s" % str(users_report))
+                logger.info("File errors: {}".format(str(self.errors)))
+                logger.info("Data errors: {}".format(str(csv_errors)))
+                logger.info("Classes report: {}".format(str(classes_report)))
+                logger.info("Users report: {}".format(str(users_report)))

@@ -121,8 +121,8 @@ export default new Resource({
    * @returns {Promise}
    *
    */
-  bulkimportusers(params) {
-    return this.postListEndpoint('bulkimportusers', pickBy(params));
+  import_users_from_csv(params) {
+    return this.postListEndpoint('importusersfromcsv', pickBy(params));
   },
 
   deleteChannel({ channelId }) {

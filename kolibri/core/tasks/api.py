@@ -571,7 +571,7 @@ class TasksViewSet(viewsets.ViewSet):
         return Response(out)
 
     @list_route(methods=["post"])
-    def bulkimportusers(self, request):
+    def importusersfromcsv(self, request):
         """
         Import users, classes, roles and roles assignemnts from a csv file.
 
@@ -586,7 +586,7 @@ class TasksViewSet(viewsets.ViewSet):
         dryrun = request.data.get("dryrun", None)
         userid = request.user.pk
         facility = request.user.facility
-        job_type = "BULKIMPORTUSERS"
+        job_type = "IMPORTUSERSFROMCSV"
         job_metadata = {"type": job_type, "started_by": userid}
         job_id = priority_queue.enqueue(
             call_command,
