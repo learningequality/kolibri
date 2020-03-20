@@ -4,8 +4,12 @@ from functools import partial
 
 import requests
 from django.apps.registry import AppRegistryNotReady
+from django.core.files.uploadedfile import UploadedFile
+from django.core.files.uploadhandler import TemporaryFileUploadHandler
 from django.core.management import call_command
 from django.http.response import Http404
+from django.http.response import HttpResponseBadRequest
+from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework import viewsets
@@ -15,6 +19,7 @@ from six import string_types
 
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.permissions import CanExportLogs
+from kolibri.core.content.permissions import CanImportUsers
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
@@ -154,6 +159,8 @@ class TasksViewSet(viewsets.ViewSet):
         # exclusive permission for facility management
         elif self.action == "startexportlogcsv":
             permission_classes = [CanExportLogs]
+        elif self.action == "importusersfromcsv":
+            permission_classes = [CanImportUsers]
         # this was the default before, so leave as is for any other endpoints
         else:
             permission_classes = [CanManageContent]
@@ -574,18 +581,24 @@ class TasksViewSet(viewsets.ViewSet):
     def importusersfromcsv(self, request):
         """
         Import users, classes, roles and roles assignemnts from a csv file.
-
-        :param: filepath: route to the csv file
+        :param: FILE: file dictionary with the file object
         :param: dryrun: validate the data but don't modify the database
         :param: delete: Users not in the csv will be deleted from the facility, and classes cleared
         :returns: An object with the job information
-
         """
-        filepath = request.data.get("filepath")
+
+        request.upload_handlers = [TemporaryFileUploadHandler()]
+        if not request.FILES:
+            return HttpResponseBadRequest("The request must contain a file object")
+        try:
+            upload = UploadedFile(request.FILES['csvfile'])
+        except MultiValueDictKeyError:
+            return HttpResponseBadRequest("Wrong file object")
+        filepath = upload.file.temporary_file_path()
         delete = request.data.get("delete", None)
         dryrun = request.data.get("dryrun", None)
         userid = request.user.pk
-        facility = request.user.facility
+        facility = request.user.facility.id
         job_type = "IMPORTUSERSFROMCSV"
         job_metadata = {"type": job_type, "started_by": userid}
         job_id = priority_queue.enqueue(
