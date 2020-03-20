@@ -46,7 +46,7 @@ LOCALE_PATHS = [os.path.join(KOLIBRI_MODULE_PATH, "locale")]
 SECRET_KEY = "f@ey3)y^03r9^@mou97apom*+c1m#b1!cwbm50^s4yk72xce27"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = conf.OPTIONS["Server"]["DEBUG"]
 
 ALLOWED_HOSTS = ["*"]
 
@@ -262,7 +262,7 @@ SESSION_COOKIE_PATH = path_prefix
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
 
-LOGGING = get_logging_config(conf.LOG_ROOT)
+LOGGING = get_logging_config(conf.LOG_ROOT, debug=DEBUG)
 
 
 # Customizing Django auth system

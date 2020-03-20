@@ -15,7 +15,6 @@ except NotImplementedError:
     psutil = None
 
 
-from kolibri.utils.logger import get_base_logging_config
 from kolibri.plugins.utils.options import extend_config_spec
 
 
@@ -130,11 +129,7 @@ base_option_spec = {
             "default": False,
             "envvars": ("KOLIBRI_SERVER_PROFILE",),
         },
-        "DEBUG": {
-            "type": "boolean",
-            "default": False,
-            "envvars": ("KOLIBRI_DEBUG",),
-        },
+        "DEBUG": {"type": "boolean", "default": False, "envvars": ("KOLIBRI_DEBUG",)},
     },
     "Paths": {
         "CONTENT_DIR": {
@@ -191,8 +186,9 @@ def __get_logger(KOLIBRI_HOME):
     of the functions in this module do not use fully customized logging.
     """
     from kolibri.utils.conf import LOG_ROOT
+    from kolibri.utils.logger import get_default_logging_config
 
-    logging.config.dictConfig(get_base_logging_config(LOG_ROOT))
+    logging.config.dictConfig(get_default_logging_config(LOG_ROOT))
     return logging.getLogger(__name__)
 
 
@@ -334,6 +330,14 @@ def _expand_paths(basepath, pathdict):
 
 
 def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options.ini"):
+    """
+    Updates the configuration file on top of what is currently in the
+    file.
+
+    Note to future: Do not change the implementation to write the
+    in-memory conf.OPTIONS as it can contain temporary in-memory values
+    that are not intended to be stored.
+    """
 
     logger = __get_logger(KOLIBRI_HOME)
 

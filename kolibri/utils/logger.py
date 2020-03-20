@@ -1,7 +1,11 @@
+import logging
 import os
 import re
 from logging import Formatter
 from logging.handlers import TimedRotatingFileHandler
+
+from . import conf
+
 
 GET_FILES_TO_DELETE = "getFilesToDelete"
 DO_ROLLOVER = "doRollover"
@@ -106,13 +110,40 @@ class KolibriLogFileFormatter(Formatter):
         return message
 
 
-def get_base_logging_config(LOG_ROOT):
+class FalseFilter(logging.Filter):
     """
-    A minimal logging config for just kolibri without any Django specific handlers
+    A filter that ignores everything, useful to create log config
+    entries and inserting the actual filter later (when configuration is
+    known)
     """
+
+    def filter(self, record):
+        return False
+
+
+class RequireDebugTrue(logging.Filter):
+    """A copy from Django to avoid loading Django's settings stack"""
+
+    def filter(self, record):
+        return conf.OPTIONS["Server"]["DEBUG"]
+
+
+def get_default_logging_config(LOG_ROOT, debug=False):
+    """
+    A minimal logging config for just kolibri without any Django
+    specific handlers or anything from kolibri.utils.conf.
+
+    This is used in early logging stations, before and during
+    configuration.
+    """
+
+    # This is the general level
+    DEFAULT_LEVEL = "INFO" if not debug else "DEBUG"
+
     return {
         "version": 1,
         "disable_existing_loggers": False,
+        "filters": {"require_debug_true": {"()": FalseFilter}},  # Replaced later
         "formatters": {
             "verbose": {
                 "format": "%(levelname)s %(asctime)s %(name)s %(process)d %(thread)d %(message)s"
@@ -137,7 +168,7 @@ def get_base_logging_config(LOG_ROOT):
         },
         "handlers": {
             "console": {
-                "level": "INFO",
+                "level": DEFAULT_LEVEL,
                 "class": "logging.StreamHandler",
                 "formatter": "color",
             },
@@ -150,47 +181,95 @@ def get_base_logging_config(LOG_ROOT):
                 "when": "midnight",
                 "backupCount": 30,
             },
+            "file_debug": {
+                "level": "DEBUG",
+                "filters": ["require_debug_true"],
+                "class": "logging.FileHandler",
+                "filename": os.path.join(LOG_ROOT, "debug.txt"),
+                "formatter": "simple_date",
+            },
         },
         "loggers": {
             "kolibri": {
-                "handlers": ["console", "file"],
+                "handlers": ["file", "console", "file_debug"],
+                "level": DEFAULT_LEVEL,
+                "propagate": False,
+            },
+            # For now, we do not fetch debugging output from this
+            # We should introduce custom debug log levels or log
+            # targets, i.e. --debug-level=high
+            "kolibri.core.tasks.worker": {
+                "handlers": ["file", "console", "file_debug"],
                 "level": "INFO",
                 "propagate": False,
             },
             "iceqube": {
-                "handlers": ["file", "console"],
+                "handlers": ["file", "console", "file_debug"],
                 "level": "INFO",
                 "propagate": False,
             },
             "morango": {
-                "handlers": ["file", "console"],
+                "handlers": ["file", "console", "file_debug"],
+                "level": DEFAULT_LEVEL,
+                "propagate": False,
+            },
+            "django": {
+                "handlers": ["file", "console", "file_debug"],
+                "level": DEFAULT_LEVEL,
+                "propagate": False,
+            },
+            # Silence SQL queries, even in debug.
+            "django.db.backends": {
+                "handlers": ["file", "console", "file_debug"],
                 "level": "INFO",
+                "propagate": False,
+            },
+            "django.request": {
+                "handlers": ["file", "console", "file_debug"],
+                "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
             "cherrypy.access": {
-                "handlers": ["file", "console"],
-                "level": "INFO",
+                "handlers": ["file", "console", "file_debug"],
+                "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
             "cherrypy.error": {
-                "handlers": ["file", "console"],
-                "level": "INFO",
+                "handlers": ["file", "console", "file_debug"],
+                "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
             "cherrypy": {
-                "handlers": ["file", "console"],
-                "level": "INFO",
+                "handlers": ["file", "console", "file_debug"],
+                "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
         },
     }
 
 
-def get_logging_config(LOG_ROOT):
-    config = get_base_logging_config(LOG_ROOT)
-    config["filters"] = {
-        "require_debug_true": {"()": "django.utils.log.RequireDebugTrue"},
-        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
+def get_base_logging_config(LOG_ROOT, debug=False):
+    """
+    Returns configured instance of the logger. Why? Because
+    kolibri.utils.conf and kolibri.utils.options need logging, too and
+    have to call get_default_logging_config.
+    """
+    config = get_default_logging_config(LOG_ROOT, debug=debug)
+    config["filters"]["require_debug_true"] = {"()": RequireDebugTrue}
+
+    return config
+
+
+def get_logging_config(LOG_ROOT, debug=False):
+    """
+    Returns a Django-specific set logging config. Namely, because one of
+    the logging handlers and filters, ``mail_admins`` and
+    ``require_debug_false`` both require the Django stack to be active.
+    """
+    config = get_base_logging_config(LOG_ROOT, debug=debug)
+
+    config["filters"]["require_debug_false"] = {
+        "()": "django.utils.log.RequireDebugFalse"
     }
     config["handlers"].update(
         {
@@ -199,34 +278,10 @@ def get_logging_config(LOG_ROOT):
                 "class": "django.utils.log.AdminEmailHandler",
                 "filters": ["require_debug_false"],
             },
-            "request_debug": {
-                "level": "ERROR",
-                "class": "logging.StreamHandler",
-                "formatter": "color",
-                "filters": ["require_debug_true"],
-            },
-            "file_debug": {
-                "level": "DEBUG",
-                "filters": ["require_debug_true"],
-                "class": "logging.FileHandler",
-                "filename": os.path.join(LOG_ROOT, "debug.txt"),
-                "formatter": "simple_date",
-            },
         }
     )
-    config["loggers"].update(
-        {
-            "kolibri": {
-                "handlers": ["console", "mail_admins", "file", "file_debug"],
-                "level": "INFO",
-                "propagate": False,
-            },
-            "django": {"handlers": ["console", "file"], "propagate": False},
-            "django.request": {
-                "handlers": ["mail_admins", "file", "request_debug"],
-                "level": "ERROR",
-                "propagate": False,
-            },
-        }
-    )
+    # Add the mail_admins handler
+    config["loggers"]["kolibri"]["handlers"].append("mail_admins")
+    config["loggers"]["django"]["handlers"].append("mail_admins")
+    config["loggers"]["django.request"]["handlers"].append("mail_admins")
     return config

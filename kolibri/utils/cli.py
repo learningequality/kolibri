@@ -252,16 +252,12 @@ class DefaultDjangoOptions(object):
         self.pythonpath = pythonpath
 
 
-def _setup_django(debug):
+def _setup_django():
     """
     Do our django setup - separated from initialize to reduce complexity.
     """
     try:
         django.setup()
-        if debug:
-            from django.conf import settings
-
-            settings.DEBUG = True
 
     except (DatabaseError, SQLite3DatabaseError) as e:
         if "malformed" in str(e):
@@ -281,7 +277,6 @@ def initialize(skip_update=False):
     """
     params = get_initialize_params()
 
-    debug = params["debug"]
     skip_update = skip_update or params["skip_update"]
     settings = params["settings"]
     pythonpath = params["pythonpath"]
@@ -303,7 +298,7 @@ def initialize(skip_update=False):
         # dbbackup relies on settings.INSTALLED_APPS
         enable_new_default_plugins()
 
-    _setup_django(debug)
+    _setup_django()
 
     if version_updated(kolibri.__version__, version) and not skip_update:
         if should_back_up(kolibri.__version__, version):
@@ -621,15 +616,16 @@ def setup_logging(debug=False):
     Configures logging in cases where a Django environment is not supposed
     to be configured.
     """
+    # Sets the global DEBUG flag
+    if debug:
+        OPTIONS["Server"]["DEBUG"] = True
+
     # Would be ideal to use the upgrade logic for this, but that is currently
     # only designed for post-Django initialization tasks. If there are more cases
     # for pre-django initialization upgrade tasks, we can generalize the logic here
     if matches_version(get_version(), "<0.12.4"):
         check_log_file_location()
-    LOGGING = get_base_logging_config(LOG_ROOT)
-    if debug:
-        LOGGING["handlers"]["console"]["level"] = "DEBUG"
-        LOGGING["loggers"]["kolibri"]["level"] = "DEBUG"
+    LOGGING = get_base_logging_config(LOG_ROOT, debug=debug)
     logging.config.dictConfig(LOGGING)
 
 
