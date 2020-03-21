@@ -6,8 +6,8 @@ export default class BaseShim {
     this.events = Object.assign({}, events);
   }
 
-  setData(data) {
-    this.__setData(data);
+  setData(data, userData) {
+    this.__setData(data, userData);
     this.stateUpdated();
   }
 
