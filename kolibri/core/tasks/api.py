@@ -1,5 +1,7 @@
 import logging
+import ntpath
 import os
+import shutil
 from functools import partial
 
 import requests
@@ -591,22 +593,32 @@ class TasksViewSet(viewsets.ViewSet):
         if not request.FILES:
             return HttpResponseBadRequest("The request must contain a file object")
         try:
-            upload = UploadedFile(request.FILES['csvfile'])
+            upload = UploadedFile(request.FILES["csvfile"])
         except MultiValueDictKeyError:
             return HttpResponseBadRequest("Wrong file object")
-        filepath = upload.file.temporary_file_path()
+        temp_dir = os.path.join(conf.KOLIBRI_HOME, "temp")
+        if not os.path.isdir(temp_dir):
+            os.mkdir(temp_dir)
+        tmpfile = upload.file.temporary_file_path()
+        filename = ntpath.basename(tmpfile)
+        filepath = os.path.join(temp_dir, filename)
+        shutil.copy(tmpfile, filepath)
+
         delete = request.data.get("delete", None)
         dryrun = request.data.get("dryrun", None)
         userid = request.user.pk
         facility = request.user.facility.id
         job_type = "IMPORTUSERSFROMCSV"
         job_metadata = {"type": job_type, "started_by": userid}
+        job_command = [call_command, "bulkimportusers"]
+        if dryrun:
+            job_command.append("--dryrun")
+        if delete:
+            job_command.append("--delete")
+        job_command.append(filepath)
+
         job_id = priority_queue.enqueue(
-            call_command,
-            "bulkimportusers",
-            "--dryrun" if dryrun else "",
-            "--delete" if delete else "",
-            filepath,
+            *job_command,
             facility=facility,
             userid=userid,
             extra_metadata=job_metadata,

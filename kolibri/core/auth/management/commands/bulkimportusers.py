@@ -17,6 +17,11 @@ from kolibri.core.auth.models import Membership
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
 logger = logging.getLogger(__name__)
 DEFAULT_PASSWORD = make_password("kolibri")
 fieldnames = (
@@ -243,7 +248,7 @@ class Command(AsyncCommand):
         )
 
     def csv_values_validation(self, reader):
-        csv_errors = []
+        per_line_errors = []
         validator = Validator(self.fieldnames)
         validator.add_check("Full name", value_length(125), "Full Name is too long")
         validator.add_check("Birth year", number_range(1900, 99999), "Not a valid year")
@@ -275,9 +280,9 @@ class Command(AsyncCommand):
 
         row_errors = validator.validate(reader)
         for err in row_errors:
-            csv_errors.append(err)
+            per_line_errors.append(err)
         return (
-            csv_errors,
+            per_line_errors,
             (validator.classrooms, validator.coach_classrooms),
             validator.users,
             validator.roles,
@@ -291,16 +296,14 @@ class Command(AsyncCommand):
             if all(col in self.fieldnames for col in header):
                 # Every item in the first row matches an item in the fieldnames, it is a header row
                 if "username" not in header and str(labels["username"]) not in header:
-                    self.errors.append(
+                    self.overall_error.append(
                         "No usernames specified, this is required for user creation"
                     )
-                    raise CommandError(self.errors[-1])
                 has_header = True
             elif any(col in self.fieldnames for col in header):
-                self.errors.append(
+                self.overall_error.append(
                     "Mix of valid and invalid header labels found in first row"
                 )
-                raise CommandError(self.errors[-1])
         return has_header
 
     def get_field_values(self, user_row):
@@ -364,7 +367,7 @@ class Command(AsyncCommand):
                 for field in values:
                     if values[field]:
                         setattr(user_obj, field, values[field])
-                    new_users.append(user_obj)
+                new_users.append(user_obj)
 
         return (new_users, update_users, keeping_users)
 
@@ -423,10 +426,10 @@ class Command(AsyncCommand):
         else:
             default_facility = Facility.get_default_facility()
         if not default_facility:
-            self.errors.append(
+            self.overall_error.append(
                 "No default facility exists, please make sure to provision this device before running this command"
             )
-            raise CommandError(self.errors[-1])
+            raise CommandError(self.overall_error[-1])
 
         return default_facility
 
@@ -434,10 +437,9 @@ class Command(AsyncCommand):
         try:
             with open(options["filepath"]) as f:
                 number_lines = len(f.readlines())
-        except (ValueError, IOError, csv.Error) as e:
-            self.errors.append("Error trying to write csv file: {}".format(e))
-            logger.error(self.errors[-1])
-            sys.exit(1)
+        except (ValueError, FileNotFoundError, csv.Error) as e:
+            number_lines = None
+            self.overall_error.append("Error trying to read csv file: {}".format(e))
         return number_lines
 
     def get_delete(self, options, keeping_users, update_classes):
@@ -501,15 +503,42 @@ class Command(AsyncCommand):
                 user = self.get_user(username, users)
                 self.default_facility.add_role(user, role)
 
+    def exit_if_error(self):
+        if self.overall_error:
+            classes_report = {"created": 0, "updated": 0, "cleared": 0}
+            users_report = {"created": 0, "updated": 0, "deleted": 0}
+            if self.job:
+                self.job.extra_metadata["overall_error"] = self.overall_error
+                self.job.extra_metadata["per_line_errors"] = 0
+                self.job.extra_metadata["classes"] = classes_report
+                self.job.extra_metadata["users"] = users_report
+                self.job.save_meta()
+            raise CommandError("File errors: {}".format(str(self.overall_error)))
+            sys.exit(1)
+        return
+
     def handle_async(self, *args, **options):
-        self.errors = []
+        # initialize stats data structures:
+        self.overall_error = []
+        db_new_classes = []
+        db_update_classes = []
+        classes_to_clear = []
+        db_new_users = []
+        db_update_users = []
+        users_to_delete = []
+        per_line_errors = []
+
+        self.job = get_current_job()
+
         self.default_facility = self.get_facility(options)
         self.fieldnames = fieldnames
         self.number_lines = self.get_number_lines(options)
+        self.exit_if_error()
 
         with self.start_progress(total=100) as self.progress_update:
             # validate csv headers:
             has_header = self.csv_headers_validation(options)
+            self.exit_if_error()
             self.progress_update(1)  # state=csv_headers
             try:
                 with open(options["filepath"]) as f:
@@ -517,13 +546,12 @@ class Command(AsyncCommand):
                         reader = csv.DictReader(f, strict=True)
                     else:
                         reader = csv.DictReader(f, fieldnames=input_fields, strict=True)
-                    csv_errors, classes, users, roles = self.csv_values_validation(
+                    per_line_errors, classes, users, roles = self.csv_values_validation(
                         reader
                     )
-            except (ValueError, IOError, csv.Error) as e:
-                self.errors.append("Error trying to write csv file: {}".format(e))
-                logger.error(self.errors[-1])
-                sys.exit(1)
+            except (ValueError, FileNotFoundError, csv.Error) as e:
+                self.overall_error.append("Error trying to read csv file: {}".format(e))
+                self.exit_if_error()
 
             db_new_users, db_update_users, keeping_users = self.build_users_objects(
                 users
@@ -533,13 +561,11 @@ class Command(AsyncCommand):
             users_to_delete, classes_to_clear = self.get_delete(
                 options, keeping_users, db_update_classes
             )
-            csv_errors += self.db_validate_list(db_new_users, users=True)
-            csv_errors += self.db_validate_list(db_update_users, users=True)
+            per_line_errors += self.db_validate_list(db_new_users, users=True)
+            per_line_errors += self.db_validate_list(db_update_users, users=True)
             # progress = 91%
-            csv_errors += self.db_validate_list(db_new_classes)
-            csv_errors += self.db_validate_list(db_update_classes)
-
-            job = get_current_job()
+            per_line_errors += self.db_validate_list(db_new_classes)
+            per_line_errors += self.db_validate_list(db_update_classes)
 
             if not options["dryrun"]:
                 self.delete_users(users_to_delete)
@@ -575,14 +601,14 @@ class Command(AsyncCommand):
                 "updated": len(db_update_users),
                 "deleted": len(users_to_delete),
             }
-            if job:
-                job.extra_metadata["overall_error"] = self.errors
-                job.extra_metadata["per_line_errors"] = csv_errors
-                job.extra_metadata["classes"] = classes_report
-                job.extra_metadata["users"] = users_report
-                job.save_meta()
+            if self.job:
+                self.job.extra_metadata["overall_error"] = self.overall_error
+                self.job.extra_metadata["per_line_errors"] = per_line_errors
+                self.job.extra_metadata["classes"] = classes_report
+                self.job.extra_metadata["users"] = users_report
+                self.job.save_meta()
             else:
-                logger.info("File errors: {}".format(str(self.errors)))
-                logger.info("Data errors: {}".format(str(csv_errors)))
+                logger.info("File errors: {}".format(str(self.overall_error)))
+                logger.info("Data errors: {}".format(str(per_line_errors)))
                 logger.info("Classes report: {}".format(str(classes_report)))
                 logger.info("Users report: {}".format(str(users_report)))
