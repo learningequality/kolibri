@@ -1,6 +1,7 @@
 import Mediator from './mediator';
 import LocalStorage from './localStorage';
 import Cookie from './cookie';
+import SCORM from './SCORM';
 import { events, nameSpace } from './hashiBase';
 
 /*
@@ -24,6 +25,7 @@ export default class MainClient {
     this.storage = {
       localStorage: new LocalStorage(this.mediator),
       cookie: new Cookie(this.mediator),
+      SCORM: new SCORM(this.mediator),
     };
     this.now = now;
     this.ready = false;
@@ -32,28 +34,38 @@ export default class MainClient {
     });
     this.__setData = this.__setData.bind(this);
   }
-  initialize(data) {
-    // Make a quick copy of the data that is passed in.
-    // Can do this as all data that is coming in should be JSON
+  initialize(contentState, userData) {
+    /*
+     * userData should be an object with the following keys, all optional:
+     * userId: <user ID>,
+     * userFullName: <user's full name>,
+     * progress: <current progress between 0 and 1>,
+     * complete: <boolean of whether complete or not>,
+     * timeSpent: <time spent in seconds>,
+     * language: <language code>,
+     */
+    // Make a quick copy of the contentState that is passed in.
+    // Can do this as all contentState that is coming in should be JSON
     // compatible in the first place, if not, we have other problems.
-    data = JSON.parse(JSON.stringify(data || {}));
+    contentState = JSON.parse(JSON.stringify(contentState || {}));
+    userData = JSON.parse(JSON.stringify(userData || {}));
     // Set this here, regardless of whether it is already ready or not
     // in case the page inside the iframe navigates to a new page
     // and hence has to reset its local state and reinitialize its
     // SandboxEnvironment.
     this.on(this.events.READY, () => {
-      this.__setData(data);
+      this.__setData(contentState, userData);
     });
     if (this.ready) {
-      this.__setData(data);
+      this.__setData(contentState, userData);
     } else {
       this.mediator.sendMessage({ nameSpace, event: events.READYCHECK, data: true });
     }
   }
-  __setData(data) {
+  __setData(contentState, userData) {
     Object.keys(this.storage).forEach(key => {
       const storage = this.storage[key];
-      storage.setData(data[storage.nameSpace]);
+      storage.setData(contentState[storage.nameSpace], userData);
       storage.on(events.STATEUPDATE, () => {
         this.mediator.sendLocalMessage({ nameSpace, event: events.STATEUPDATE, data: this.data });
       });
