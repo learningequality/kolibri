@@ -69,7 +69,14 @@
       this.hashi.onStateUpdate(data => {
         this.$emit('updateContentState', data);
       });
-      this.hashi.initialize((this.extraFields && this.extraFields.contentState) || {});
+      this.hashi.initialize((this.extraFields && this.extraFields.contentState) || {}, {
+        userId: this.userId,
+        userFullName: this.userFullName,
+        progress: this.progress,
+        complete: this.progress < 1,
+        language: this.lang.id,
+        timeSpent: this.timeSpent,
+      });
       this.$emit('startTracking');
       this.startTime = now();
       this.pollProgress();

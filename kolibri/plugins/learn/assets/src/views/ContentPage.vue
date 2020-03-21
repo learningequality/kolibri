@@ -22,6 +22,10 @@
         :files="content.files"
         :available="content.available"
         :extraFields="extraFields"
+        :progress="summaryProgress"
+        :userId="currentUserId"
+        :userFullName="fullName"
+        :timeSpent="summaryTimeSpent"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
@@ -41,6 +45,10 @@
         :channelId="channelId"
         :available="content.available"
         :extraFields="extraFields"
+        :progress="summaryProgress"
+        :userId="currentUserId"
+        :userFullName="fullName"
+        :timeSpent="summaryTimeSpent"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateExerciseProgress"
@@ -177,7 +185,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'pageMode']),
+      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'pageMode', 'currentUserId']),
       ...mapState(['pageName']),
       ...mapState('topicsTree', ['content', 'channel', 'recommended']),
       ...mapState('topicsTree', {
@@ -188,8 +196,10 @@
       ...mapState({
         masteryAttempts: state => state.core.logging.mastery.totalattempts,
         summaryProgress: state => state.core.logging.summary.progress,
+        summaryTimeSpent: state => state.core.logging.summary.time_spent,
         sessionProgress: state => state.core.logging.session.progress,
         extraFields: state => state.core.logging.summary.extra_fields,
+        fullName: state => state.core.session.full_name,
       }),
       isTopic() {
         return this.content.kind === ContentNodeKinds.TOPIC;
