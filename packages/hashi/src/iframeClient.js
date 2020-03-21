@@ -2,6 +2,7 @@ import Mediator from './mediator';
 import LocalStorage from './localStorage';
 import SessionStorage from './sessionStorage';
 import Cookie from './cookie';
+import SCORM from './SCORM';
 import { events, nameSpace } from './hashiBase';
 import patchXMLHttpRequest from './monkeyPatchXMLHttpRequest';
 import patchCrossOrigin from './monkeyPatchCORSMediaElements';
@@ -36,6 +37,10 @@ export default class SandboxEnvironment {
     this.cookie = new Cookie(this.mediator);
 
     this.cookie.iframeInitialize();
+
+    this.SCORM = new SCORM(this.mediator);
+
+    this.SCORM.iframeInitialize();
 
     patchXMLHttpRequest();
 
