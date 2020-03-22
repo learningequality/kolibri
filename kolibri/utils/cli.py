@@ -116,6 +116,13 @@ debug_option = click.Option(
     help="Display and log debug messages (for development)",
 )
 
+debug_database_option = click.Option(
+    param_decls=["--debug-database"],
+    default=False,
+    is_flag=True,
+    help="Display and log database queries (for development), very noisy!",
+)
+
 settings_option = click.Option(
     param_decls=["--settings"],
     callback=validate_module,
@@ -143,7 +150,7 @@ noinput_option = click.Option(
 )
 
 
-base_params = [debug_option, noinput_option]
+base_params = [debug_option, debug_database_option, noinput_option]
 
 initialize_params = base_params + [
     settings_option,
@@ -177,7 +184,7 @@ class KolibriCommand(click.Command):
     def invoke(self, ctx):
         # Check if the current user is the kolibri user when running kolibri from Debian installer.
         check_debian_user(ctx.params.get("no_input"))
-        setup_logging(debug=ctx.params.get("debug"))
+        setup_logging(debug=ctx.params.get("debug"), debug_database=ctx.params.get("debug_database"))
         for param in base_params:
             ctx.params.pop(param.name)
         return super(KolibriCommand, self).invoke(ctx)
@@ -202,7 +209,7 @@ class KolibriGroupCommand(click.Group):
     def invoke(self, ctx):
         # Check if the current user is the kolibri user when running kolibri from Debian installer.
         check_debian_user(ctx.params.get("no_input"))
-        setup_logging(debug=ctx.params.get("debug"))
+        setup_logging(debug=ctx.params.get("debug"), debug_database=ctx.params.get("debug_database"))
         for param in base_params:
             ctx.params.pop(param.name)
         return super(KolibriGroupCommand, self).invoke(ctx)
@@ -227,7 +234,7 @@ class KolibriDjangoCommand(click.Command):
     def invoke(self, ctx):
         # Check if the current user is the kolibri user when running kolibri from Debian installer.
         check_debian_user(ctx.params.get("no_input"))
-        setup_logging(debug=ctx.params.get("debug"))
+        setup_logging(debug=ctx.params.get("debug"), debug_database=ctx.params.get("debug_database"))
         initialize()
         check_content_directory_exists_and_writable()
         if not ctx.params["skip_update"]:
@@ -604,21 +611,22 @@ def services(port, background):
     server.start(port=port, serve_http=False)
 
 
-def setup_logging(debug=False):
+def setup_logging(debug=False, debug_database=False):
     """
     Configures logging in cases where a Django environment is not supposed
     to be configured.
     """
-    # Sets the global DEBUG flag
-    if debug:
-        OPTIONS["Server"]["DEBUG"] = True
+    # Sets the global DEBUG flag to be picked up in other contexts
+    # (Django settings)
+    OPTIONS["Server"]["DEBUG"] = debug
+    OPTIONS["Server"]["DEBUG_DATABASE"] = debug_database
 
     # Would be ideal to use the upgrade logic for this, but that is currently
     # only designed for post-Django initialization tasks. If there are more cases
     # for pre-django initialization upgrade tasks, we can generalize the logic here
     if matches_version(get_version(), "<0.12.4"):
         check_log_file_location()
-    LOGGING = get_base_logging_config(LOG_ROOT, debug=debug)
+    LOGGING = get_base_logging_config(LOG_ROOT, debug=debug, debug_database=debug_database)
     logging.config.dictConfig(LOGGING)
 
 

@@ -128,7 +128,7 @@ class RequireDebugTrue(logging.Filter):
         return conf.OPTIONS["Server"]["DEBUG"]
 
 
-def get_default_logging_config(LOG_ROOT, debug=False):
+def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
     """
     A minimal logging config for just kolibri without any Django
     specific handlers or anything from kolibri.utils.conf.
@@ -139,6 +139,7 @@ def get_default_logging_config(LOG_ROOT, debug=False):
 
     # This is the general level
     DEFAULT_LEVEL = "INFO" if not debug else "DEBUG"
+    DATABASE_LEVEL = "INFO" if not debug_database else "DEBUG"
 
     return {
         "version": 1,
@@ -218,10 +219,9 @@ def get_default_logging_config(LOG_ROOT, debug=False):
                 "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
-            # Silence SQL queries, even in debug.
             "django.db.backends": {
                 "handlers": ["file", "console", "file_debug"],
-                "level": "INFO",
+                "level": DATABASE_LEVEL,
                 "propagate": False,
             },
             "django.request": {
@@ -248,25 +248,25 @@ def get_default_logging_config(LOG_ROOT, debug=False):
     }
 
 
-def get_base_logging_config(LOG_ROOT, debug=False):
+def get_base_logging_config(LOG_ROOT, debug=False, debug_database=False):
     """
     Returns configured instance of the logger. Why? Because
     kolibri.utils.conf and kolibri.utils.options need logging, too and
     have to call get_default_logging_config.
     """
-    config = get_default_logging_config(LOG_ROOT, debug=debug)
+    config = get_default_logging_config(LOG_ROOT, debug=debug, debug_database=debug_database)
     config["filters"]["require_debug_true"] = {"()": RequireDebugTrue}
 
     return config
 
 
-def get_logging_config(LOG_ROOT, debug=False):
+def get_logging_config(LOG_ROOT, debug=False, debug_database=False):
     """
     Returns a Django-specific set logging config. Namely, because one of
     the logging handlers and filters, ``mail_admins`` and
     ``require_debug_false`` both require the Django stack to be active.
     """
-    config = get_base_logging_config(LOG_ROOT, debug=debug)
+    config = get_base_logging_config(LOG_ROOT, debug=debug, debug_database=debug_database)
 
     config["filters"]["require_debug_false"] = {
         "()": "django.utils.log.RequireDebugFalse"
