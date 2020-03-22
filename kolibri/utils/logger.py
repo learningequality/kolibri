@@ -204,11 +204,6 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "level": "INFO",
                 "propagate": False,
             },
-            "iceqube": {
-                "handlers": ["file", "console", "file_debug"],
-                "level": "INFO",
-                "propagate": False,
-            },
             "morango": {
                 "handlers": ["file", "console", "file_debug"],
                 "level": DEFAULT_LEVEL,
