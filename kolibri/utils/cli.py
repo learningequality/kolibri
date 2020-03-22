@@ -113,7 +113,7 @@ debug_option = click.Option(
     param_decls=["--debug"],
     default=False,
     is_flag=True,
-    help="Output debug messages (for development)",
+    help="Display and log debug messages (for development)",
 )
 
 settings_option = click.Option(
@@ -141,13 +141,6 @@ noinput_option = click.Option(
     is_flag=True,
     help="Suppress user prompts",
 )
-
-
-def get_debug_param():
-    try:
-        return click.get_current_context().params["debug"]
-    except (KeyError, RuntimeError):
-        return debug_option.default
 
 
 base_params = [debug_option, noinput_option]
@@ -184,7 +177,7 @@ class KolibriCommand(click.Command):
     def invoke(self, ctx):
         # Check if the current user is the kolibri user when running kolibri from Debian installer.
         check_debian_user(ctx.params.get("no_input"))
-        setup_logging(debug=get_debug_param())
+        setup_logging(debug=ctx.params.get("debug"))
         for param in base_params:
             ctx.params.pop(param.name)
         return super(KolibriCommand, self).invoke(ctx)
@@ -209,7 +202,7 @@ class KolibriGroupCommand(click.Group):
     def invoke(self, ctx):
         # Check if the current user is the kolibri user when running kolibri from Debian installer.
         check_debian_user(ctx.params.get("no_input"))
-        setup_logging(debug=get_debug_param())
+        setup_logging(debug=ctx.params.get("debug"))
         for param in base_params:
             ctx.params.pop(param.name)
         return super(KolibriGroupCommand, self).invoke(ctx)
@@ -234,7 +227,7 @@ class KolibriDjangoCommand(click.Command):
     def invoke(self, ctx):
         # Check if the current user is the kolibri user when running kolibri from Debian installer.
         check_debian_user(ctx.params.get("no_input"))
-        setup_logging(debug=get_debug_param())
+        setup_logging(debug=ctx.params.get("debug"))
         initialize()
         check_content_directory_exists_and_writable()
         if not ctx.params["skip_update"]:
