@@ -5,22 +5,22 @@
     <h1>{{ $tr('pageHeader') }}</h1>
 
     <Init
-      v-if="state === 'INIT'"
+      v-if="status === CSVImportStatuses.NOT_STARTED"
       @cancel="done"
       @next="preview"
     />
     <Preview
-      v-else-if="state === 'PREVIEW'"
+      v-else-if="status === CSVImportStatuses.VALIDATED "
       @cancel="done"
       @next="startImport"
     />
     <Preview
-      v-else-if="state === 'RESULTS'"
+      v-else-if="status === CSVImportStatuses.FINISHED"
       isFinal
       @next="done"
     />
     <template
-      v-else-if="state === 'IN_PROGRESS'"
+      v-else-if="status === CSVImportStatuses.VALIDATING || status === CSVImportStatuses.SAVING "
     >
       <KCircularLoader style="margin: 32px" />
     </template>
@@ -32,6 +32,8 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
+  import { CSVImportStatuses } from '../../constants';
   import Init from './Init';
   import Preview from './Preview';
 
@@ -51,12 +53,33 @@
         state: 'INIT',
       };
     },
+    computed: {
+      ...mapState('importCSV', ['status']),
+      CSVImportStatuses: () => CSVImportStatuses,
+    },
+    watch: {
+      pollForTasks(val) {
+        return val ? this.startTaskPolling() : this.stopTaskPolling();
+      },
+    },
+    mounted() {
+      this.$store.commit('importCSV/RESET_STATE');
+      // if (this.pollForTasks) {
+      this.refreshTaskList();
+      this.startTaskPolling();
+      // }
+    },
+    destroyed() {
+      this.stopTaskPolling();
+    },
     methods: {
-      preview() {
+      ...mapActions('importCSV', ['startValidating', 'refreshTaskList']),
+      preview(file, deleteUsers) {
         this.state = 'IN_PROGRESS';
-        setTimeout(() => {
-          this.state = 'PREVIEW';
-        }, 2000);
+        this.startValidating({ deleteUsers: deleteUsers, file: file });
+        // setTimeout(() => {
+        //   this.state = 'PREVIEW';
+        // }, 2000);
       },
       startImport() {
         this.state = 'IN_PROGRESS';
@@ -66,6 +89,16 @@
       },
       done() {
         this.$router.push(this.$router.getRoute('DATA_PAGE'));
+      },
+      startTaskPolling() {
+        if (!this.intervalId) {
+          this.intervalId = setInterval(this.refreshTaskList, 1000);
+        }
+      },
+      stopTaskPolling() {
+        if (this.intervalId) {
+          this.intervalId = clearInterval(this.intervalId);
+        }
       },
     },
     $trs: {

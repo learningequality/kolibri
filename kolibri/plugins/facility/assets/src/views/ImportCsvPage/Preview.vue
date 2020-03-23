@@ -25,22 +25,22 @@
       <tbody>
         <tr>
           <th>Users</th>
-          <td>6</td>
+          <td>{{ users_report.updated }}</td>
           <td style="color: green;">
-            123
+            {{ users_report.created }}
           </td>
           <td style="color: red;">
-            5
+            {{ users_report.deleted }}
           </td>
         </tr>
         <tr>
           <th>Classes</th>
-          <td></td>
+          <td>{{ classes_report.updated }}</td>
           <td style="color: green;">
-            3
+            {{ classes_report.created }}
           </td>
           <td style="color: red;">
-            1
+            {{ classes_report.cleared }}
           </td>
         </tr>
       </tbody>
@@ -87,14 +87,9 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   // if whole CSV cannot be parsed, wrong number of cols, etc
   // const overall_error = {};
-
-  // per-line errors
-  const per_line_errors = [
-    { line: 43, message: "invalid username '....'" },
-    { line: 255, message: 'another issue' },
-  ];
 
   export default {
     name: 'Preview',
@@ -106,8 +101,18 @@
     },
     computed: {
       logs() {
-        return per_line_errors.map(obj => `Line ${obj.line}: ${obj.message}`).join('\n');
+        return this.per_line_errors
+          .map(
+            obj => `Line ${obj.row}: ${obj.message} in field ${obj.field} for value "${obj.value}"`
+          )
+          .join('\n');
       },
+      ...mapState('importCSV', [
+        // 'overall_error',
+        'per_line_errors',
+        'classes_report',
+        'users_report',
+      ]),
     },
   };
 

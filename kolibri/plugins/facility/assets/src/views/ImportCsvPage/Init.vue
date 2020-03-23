@@ -47,7 +47,7 @@
       >
     </p>
     <p>
-      <KCheckbox label="Also delete users and classes not in CSV" />
+      <KCheckbox label="Also delete users and classes not in CSV" @change="toggleDelete" />
     </p>
     <p>
       <KButton
@@ -61,7 +61,7 @@
         appearance="raised-button"
         :disabled="fileToImport === null"
         primary
-        @click="$emit('next', fileToImport)"
+        @click="$emit('next', fileToImport, deleteUsers)"
       />
     </p>
 
@@ -89,6 +89,7 @@
       return {
         showInfoModal: false,
         fileToImport: null,
+        deleteUsers: false,
       };
     },
     methods: {
@@ -98,6 +99,9 @@
         } else {
           this.fileToImport = null;
         }
+      },
+      toggleDelete() {
+        this.deleteUsers = !this.deleteUsers;
       },
     },
   };

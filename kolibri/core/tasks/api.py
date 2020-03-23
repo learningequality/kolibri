@@ -3,11 +3,12 @@ import ntpath
 import os
 import shutil
 from functools import partial
+from tempfile import NamedTemporaryFile
 
 import requests
 from django.apps.registry import AppRegistryNotReady
 from django.core.files.uploadedfile import UploadedFile
-from django.core.files.uploadhandler import TemporaryFileUploadHandler
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.management import call_command
 from django.http.response import Http404
 from django.http.response import HttpResponseBadRequest
@@ -588,8 +589,6 @@ class TasksViewSet(viewsets.ViewSet):
         :param: delete: Users not in the csv will be deleted from the facility, and classes cleared
         :returns: An object with the job information
         """
-
-        request.upload_handlers = [TemporaryFileUploadHandler()]
         if not request.FILES:
             return HttpResponseBadRequest("The request must contain a file object")
         try:
@@ -599,10 +598,20 @@ class TasksViewSet(viewsets.ViewSet):
         temp_dir = os.path.join(conf.KOLIBRI_HOME, "temp")
         if not os.path.isdir(temp_dir):
             os.mkdir(temp_dir)
-        tmpfile = upload.file.temporary_file_path()
-        filename = ntpath.basename(tmpfile)
-        filepath = os.path.join(temp_dir, filename)
-        shutil.copy(tmpfile, filepath)
+        # Django uses InMemoryUploadedFile for files less than 2.5Mb
+        # and TemporaryUploadedFile for bigger files:
+        if type(upload.file) == InMemoryUploadedFile:
+            with NamedTemporaryFile(
+                dir=temp_dir, suffix=".upload", delete=False
+            ) as dest:
+                filepath = dest.name
+                for chunk in upload.file.chunks():
+                    dest.write(chunk)
+        else:
+            tmpfile = upload.file.temporary_file_path()
+            filename = ntpath.basename(tmpfile)
+            filepath = os.path.join(temp_dir, filename)
+            shutil.copy(tmpfile, filepath)
 
         delete = request.data.get("delete", None)
         dryrun = request.data.get("dryrun", None)

@@ -6,6 +6,28 @@ import { TaskStatuses, TaskTypes } from '../../constants';
 
 const logging = logger.getLogger(__filename);
 
+function startImportUsers(store, file, deleting, validate, commitStart) {
+  const params = {
+    csvfile: file,
+  };
+  if (deleting) params['delete'] = 'true';
+  if (validate) params['dryrun'] = 'true';
+  if (!store.getters.importingOrValidating) {
+    let promise = TaskResource.import_users_from_csv(params);
+    return promise.then(task => {
+      store.commit(commitStart, task.entity);
+      return task.entity.id;
+    });
+  }
+}
+
+function startValidating(store, payload) {
+  return startImportUsers(store, payload.file, payload.deleteUsers, true, 'START_VALIDATE_USERS');
+}
+function startSavingUsers(store, payload) {
+  return startImportUsers(store, payload.file, payload.deleteUsers, false, 'START_VALIDATE_USERS');
+}
+
 function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitFinish) {
   // if task job has already been fetched, just continually check if its completed
   if (taskId) {
@@ -13,7 +35,7 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
 
     if (task && task.status === TaskStatuses.COMPLETED) {
       store.commit(commitFinish, new Date());
-      TaskResource.deleteFinishedTask(taskId);
+      // TaskResource.deleteFinishedTask(taskId);
     }
   } else {
     const running = newTasks.filter(task => {
@@ -35,26 +57,10 @@ function refreshTaskList(store) {
       checkTaskStatus(
         store,
         newTasks,
-        TaskTypes.EXPORTSESSIONLOGCSV,
-        store.getters.sessionTaskId,
-        'START_SESSION_CSV_EXPORT',
-        'SET_FINISHED_SESSION_CSV_CREATION'
-      );
-      checkTaskStatus(
-        store,
-        newTasks,
-        TaskTypes.EXPORTSUMMARYLOGCSV,
-        store.getters.summaryTaskId,
-        'START_SUMMARY_CSV_EXPORT',
-        'SET_FINISHED_SUMMARY_CSV_CREATION'
-      );
-      checkTaskStatus(
-        store,
-        newTasks,
-        TaskTypes.SYNCDATAPORTAL,
-        store.state.facilityTaskId,
-        'START_FACILITY_SYNC',
-        'SET_FINISH_FACILITY_SYNC'
+        TaskTypes.IMPORTUSERSFROMCSV,
+        store.getters.taskId,
+        'START_VALIDATE_USERS',
+        'SET_FINISHED_IMPORT_USERS'
       );
     })
     .catch(error => {
@@ -64,4 +70,6 @@ function refreshTaskList(store) {
 
 export default {
   refreshTaskList,
+  startValidating,
+  startSavingUsers,
 };
