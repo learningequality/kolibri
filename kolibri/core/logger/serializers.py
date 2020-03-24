@@ -33,8 +33,10 @@ class ContentSessionLogSerializer(KolibriModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
-        if request and hasattr(request, "session") and not validated_data["user"]:
-            validated_data["anonymous_session_id"] = request.session.get('anonymous_session_id')
+        if request and hasattr(request, "COOKIES") and not validated_data.get("user"):
+            validated_data["anonymous_session_id"] = request.COOKIES.get(
+                "anonymous_session_id"
+            )
         instance = super(ContentSessionLogSerializer, self).create(validated_data)
         return instance
 

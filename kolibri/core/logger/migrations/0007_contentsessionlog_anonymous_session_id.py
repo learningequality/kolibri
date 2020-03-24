@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('logger', '0006_remove_examattemptlog_channel_id'),
-    ]
+    dependencies = [("logger", "0006_remove_examattemptlog_channel_id")]
 
     operations = [
         migrations.AddField(
-            model_name='contentsessionlog',
-            name='anonymous_session_id',
+            model_name="contentsessionlog",
+            name="anonymous_session_id",
             field=models.UUIDField(blank=True, null=True),
-        ),
+        )
     ]

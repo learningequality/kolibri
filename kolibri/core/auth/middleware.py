@@ -65,6 +65,9 @@ class CustomAuthenticationMiddleware(AuthenticationMiddleware):
             "'kolibri.core.auth.middleware.CustomAuthenticationMiddleware'."
         )
         request.user = SimpleLazyObject(lambda: _get_user(request))
+
+    def process_response(self, request, response):
         # Ensure that we create a session for the AnonymousUser
-        if not request.session.get("anonymous_session_id"):
-            request.session.__setitem__("anonymous_session_id", str(uuid.uuid4()))
+        if not request.COOKIES.get("anonymous_session_id"):
+            response.set_cookie("anonymous_session_id", str(uuid.uuid4()))
+        return response
