@@ -65,5 +65,5 @@ class CustomAuthenticationMiddleware(AuthenticationMiddleware):
         )
         request.user = SimpleLazyObject(lambda: _get_user(request))
         # Ensure that we create a session for the AnonymousUser
-        if not request.session.session_key:
+        if not request.session.get("session_key"):
             request.session.create()
