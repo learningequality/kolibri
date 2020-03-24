@@ -7,6 +7,8 @@ function defaultState() {
   return {
     taskId: '',
     status: CSVImportStatuses.NOT_STARTED,
+    deleteUsers: false,
+    filename: '',
     overall_error: [],
     per_line_errors: [],
     classes_report: {
@@ -28,6 +30,12 @@ export default {
   getters: {
     taskId(state) {
       return state.taskId;
+    },
+    deleteUsers(state) {
+      return state.deleteUsers;
+    },
+    filename(state) {
+      return state.filename;
     },
     importingOrValidating(state) {
       return (
@@ -51,6 +59,24 @@ export default {
       state.status = CSVImportStatuses.VALIDATING;
       state.taskId = payload.id;
     },
+    START_SAVE_USERS(state, payload) {
+      state.status = CSVImportStatuses.SAVING;
+      state.taskId = payload.id;
+    },
+    SET_DELETE_USERS(state, payload) {
+      state.deleteUsers = payload;
+    },
+    SET_FILENAME(state, payload) {
+      state.filename = payload;
+    },
+    UPDATE_TASK_REPORT(state, task) {
+      Vue.set(state, 'per_line_errors', task.per_line_errors);
+      Vue.set(state, 'overall_error', task.overall_error);
+      state.filename = task.filename;
+      state.users_report = task.users;
+      state.classes_report = task.classes;
+      state.taskId = '';
+    },
     SET_FINISHED_IMPORT_USERS(state) {
       if (state.status == CSVImportStatuses.VALIDATING) state.status = CSVImportStatuses.VALIDATED;
       else if (state.status == CSVImportStatuses.SAVING) state.status = CSVImportStatuses.FINISHED;
@@ -60,6 +86,7 @@ export default {
         const task = newTasks.find(task => task.id === state.taskId);
         Vue.set(state, 'per_line_errors', task.per_line_errors);
         Vue.set(state, 'overall_error', task.overall_error);
+        state.filename = task.filename;
         state.users_report = task.users;
         state.classes_report = task.classes;
         TaskResource.deleteFinishedTask(state.taskId);

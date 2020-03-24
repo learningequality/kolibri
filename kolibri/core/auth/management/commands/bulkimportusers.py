@@ -1,5 +1,6 @@
 import csv
 import logging
+import ntpath
 import re
 import sys
 
@@ -287,9 +288,9 @@ class Command(AsyncCommand):
             validator.roles,
         )
 
-    def csv_headers_validation(self, options):
+    def csv_headers_validation(self, filepath):
         # open using default OS encoding
-        with open(options["filepath"]) as f:
+        with open(filepath) as f:
             header = next(csv.reader(f, strict=True))
             has_header = False
             if all(col in self.fieldnames for col in header):
@@ -316,11 +317,13 @@ class Command(AsyncCommand):
             gender = gender.strip().upper()
         birth_year = user_row.get("Birth year", None)
         id_number = user_row.get("Identifier", None)
+        full_name = user_row.get("Full name", None)
         return {
             "password": password,
             "gender": gender,
             "birth_year": birth_year,
             "id_number": id_number,
+            "full_name": full_name,
         }
 
     def compare_fields(self, user_obj, values):
@@ -432,9 +435,9 @@ class Command(AsyncCommand):
 
         return default_facility
 
-    def get_number_lines(self, options):
+    def get_number_lines(self, filepath):
         try:
-            with open(options["filepath"]) as f:
+            with open(filepath) as f:
                 number_lines = len(f.readlines())
         except (ValueError, FileNotFoundError, csv.Error) as e:
             number_lines = None
@@ -511,6 +514,7 @@ class Command(AsyncCommand):
                 self.job.extra_metadata["per_line_errors"] = 0
                 self.job.extra_metadata["classes"] = classes_report
                 self.job.extra_metadata["users"] = users_report
+                self.job.extra_metadata["filename"] = ""
                 self.job.save_meta()
             raise CommandError("File errors: {}".format(str(self.overall_error)))
             sys.exit(1)
@@ -528,19 +532,19 @@ class Command(AsyncCommand):
         per_line_errors = []
 
         self.job = get_current_job()
-
+        filepath = options["filepath"]
         self.default_facility = self.get_facility(options)
         self.fieldnames = fieldnames
-        self.number_lines = self.get_number_lines(options)
+        self.number_lines = self.get_number_lines(filepath)
         self.exit_if_error()
 
         with self.start_progress(total=100) as self.progress_update:
             # validate csv headers:
-            has_header = self.csv_headers_validation(options)
+            has_header = self.csv_headers_validation(filepath)
             self.exit_if_error()
             self.progress_update(1)  # state=csv_headers
             try:
-                with open(options["filepath"]) as f:
+                with open(filepath) as f:
                     if has_header:
                         reader = csv.DictReader(f, strict=True)
                     else:
@@ -605,6 +609,7 @@ class Command(AsyncCommand):
                 self.job.extra_metadata["per_line_errors"] = per_line_errors
                 self.job.extra_metadata["classes"] = classes_report
                 self.job.extra_metadata["users"] = users_report
+                self.job.extra_metadata["filename"] = ntpath.basename(filepath)
                 self.job.save_meta()
             else:
                 logger.info("File errors: {}".format(str(self.overall_error)))

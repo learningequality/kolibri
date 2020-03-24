@@ -22,10 +22,17 @@ function startImportUsers(store, file, deleting, validate, commitStart) {
 }
 
 function startValidating(store, payload) {
+  store.commit('SET_DELETE_USERS', payload.deleteUsers);
   return startImportUsers(store, payload.file, payload.deleteUsers, true, 'START_VALIDATE_USERS');
 }
-function startSavingUsers(store, payload) {
-  return startImportUsers(store, payload.file, payload.deleteUsers, false, 'START_VALIDATE_USERS');
+function startSavingUsers(store) {
+  return startImportUsers(
+    store,
+    store.getters.filename,
+    store.getters.deleteUsers,
+    false,
+    'START_SAVE_USERS'
+  );
 }
 
 function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitFinish) {

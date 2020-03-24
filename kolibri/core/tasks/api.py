@@ -12,7 +12,6 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.management import call_command
 from django.http.response import Http404
 from django.http.response import HttpResponseBadRequest
-from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework import viewsets
@@ -585,33 +584,47 @@ class TasksViewSet(viewsets.ViewSet):
         """
         Import users, classes, roles and roles assignemnts from a csv file.
         :param: FILE: file dictionary with the file object
+        :param: csvfile: filename of the file stored in kolibri temp folder
         :param: dryrun: validate the data but don't modify the database
         :param: delete: Users not in the csv will be deleted from the facility, and classes cleared
         :returns: An object with the job information
         """
-        if not request.FILES:
-            return HttpResponseBadRequest("The request must contain a file object")
-        try:
+        def manage_fileobject(request, temp_dir):
             upload = UploadedFile(request.FILES["csvfile"])
-        except MultiValueDictKeyError:
-            return HttpResponseBadRequest("Wrong file object")
+            # Django uses InMemoryUploadedFile for files less than 2.5Mb
+            # and TemporaryUploadedFile for bigger files:
+            if type(upload.file) == InMemoryUploadedFile:
+                with NamedTemporaryFile(
+                    dir=temp_dir, suffix=".upload", delete=False
+                ) as dest:
+                    filepath = dest.name
+                    for chunk in upload.file.chunks():
+                        dest.write(chunk)
+            else:
+                tmpfile = upload.file.temporary_file_path()
+                filename = ntpath.basename(tmpfile)
+                filepath = os.path.join(temp_dir, filename)
+                shutil.copy(tmpfile, filepath)
+            return filepath
+
         temp_dir = os.path.join(conf.KOLIBRI_HOME, "temp")
         if not os.path.isdir(temp_dir):
             os.mkdir(temp_dir)
-        # Django uses InMemoryUploadedFile for files less than 2.5Mb
-        # and TemporaryUploadedFile for bigger files:
-        if type(upload.file) == InMemoryUploadedFile:
-            with NamedTemporaryFile(
-                dir=temp_dir, suffix=".upload", delete=False
-            ) as dest:
-                filepath = dest.name
-                for chunk in upload.file.chunks():
-                    dest.write(chunk)
+
+        # the request must contain either an object file
+        # or the filename of the csv stored in Kolibri temp folder
+        # Validation will provide the file object, while
+        # Importing will provide the filename, previously validated
+        if not request.FILES:
+            filename = request.data.get("csvfile", None)
+            if filename:
+                filepath = os.path.join(temp_dir, filename)
+            else:
+                return HttpResponseBadRequest("The request must contain a file object")
         else:
-            tmpfile = upload.file.temporary_file_path()
-            filename = ntpath.basename(tmpfile)
-            filepath = os.path.join(temp_dir, filename)
-            shutil.copy(tmpfile, filepath)
+            if "csvfile" not in request.FILES:
+                return HttpResponseBadRequest("Wrong file object")
+            filepath = manage_fileobject(request, temp_dir)
 
         delete = request.data.get("delete", None)
         dryrun = request.data.get("dryrun", None)

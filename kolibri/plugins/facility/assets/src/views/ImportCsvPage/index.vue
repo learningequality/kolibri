@@ -48,11 +48,6 @@
       Init,
       Preview,
     },
-    data() {
-      return {
-        state: 'INIT',
-      };
-    },
     computed: {
       ...mapState('importCSV', ['status']),
       CSVImportStatuses: () => CSVImportStatuses,
@@ -73,16 +68,12 @@
       this.stopTaskPolling();
     },
     methods: {
-      ...mapActions('importCSV', ['startValidating', 'refreshTaskList']),
+      ...mapActions('importCSV', ['startValidating', 'startSavingUsers', 'refreshTaskList']),
       preview(file, deleteUsers) {
-        this.state = 'IN_PROGRESS';
         this.startValidating({ deleteUsers: deleteUsers, file: file });
       },
       startImport() {
-        this.state = 'IN_PROGRESS';
-        setTimeout(() => {
-          this.state = 'RESULTS';
-        }, 2000);
+        this.startSavingUsers();
       },
       done() {
         this.$router.push(this.$router.getRoute('DATA_PAGE'));
