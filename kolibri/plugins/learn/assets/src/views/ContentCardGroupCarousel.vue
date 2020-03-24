@@ -69,7 +69,7 @@
 
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import ContentCard from './ContentCard';
 
   if (!ContentCard.mixins) {

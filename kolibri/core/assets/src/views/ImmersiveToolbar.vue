@@ -74,7 +74,7 @@
 <script>
 
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import { validateLinkObject } from 'kolibri.utils.validators';
 
   export default {
