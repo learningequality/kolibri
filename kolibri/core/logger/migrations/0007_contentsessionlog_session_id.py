@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="contentsessionlog",
-            name="anonymous_session_id",
+            name="session_id",
             field=models.CharField(blank=True, max_length=40, null=True),
         )
     ]
