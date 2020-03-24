@@ -90,9 +90,7 @@ const client = options => {
   // in case a File obj must be POSTed:
   if (options.entity !== 'undefined' && options.method === 'POST') {
     if (
-      Object.values(options.entity).filter(function(a) {
-        return typeof a === 'object';
-      }).length > 0
+      Object.values(options.entity).filter(a => typeof a === 'object').length
     )
       mimeType = 'multipart/form-data';
   }
