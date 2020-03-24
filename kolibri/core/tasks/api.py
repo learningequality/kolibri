@@ -588,6 +588,7 @@ class TasksViewSet(viewsets.ViewSet):
         :param: delete: Users not in the csv will be deleted from the facility, and classes cleared
         :returns: An object with the job information
         """
+
         def manage_fileobject(request, temp_dir):
             upload = UploadedFile(request.FILES["csvfile"])
             # Django uses InMemoryUploadedFile for files less than 2.5Mb
