@@ -15,12 +15,10 @@
 import vue from 'vue';
 import vuex from 'vuex';
 import UiAlert from 'keen-ui/src/UiAlert';
-import tetherDrop from 'tether-drop';
-import tetherTooltip from 'tether-tooltip';
 import responsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
 import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
 import scriptLoader from 'kolibri-design-system/lib/utils/scriptLoader';
-import UiIconButton from 'kolibri-design-system/lib/keen/KeenUiIconButton'; // temp hack
+import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton'; // temp hack
 import logging from '../logging';
 import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';
@@ -116,8 +114,6 @@ export default {
     vuex,
     conditionalPromise,
     apiResource,
-    tetherDrop,
-    tetherTooltip,
   },
   coreVue: {
     vuex: {

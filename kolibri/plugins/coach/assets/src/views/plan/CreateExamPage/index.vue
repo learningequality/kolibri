@@ -145,7 +145,7 @@
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants/';

@@ -42,7 +42,7 @@
 
   import throttle from 'lodash/throttle';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   /**
    * Used to filter items via text input
    */

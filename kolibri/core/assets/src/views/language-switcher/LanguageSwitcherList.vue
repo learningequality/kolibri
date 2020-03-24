@@ -48,8 +48,8 @@
 
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { compareLanguages } from 'kolibri.utils.sortLanguages';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import languageSwitcherMixin from './mixin';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
 
