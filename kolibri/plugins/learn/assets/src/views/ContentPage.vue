@@ -29,6 +29,7 @@
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
+        @addProgress="addProgress"
         @updateContentState="updateContentState"
       />
 
@@ -285,6 +286,7 @@
       ...mapActions({
         initSessionAction: 'initContentSession',
         updateProgressAction: 'updateProgress',
+        addProgressAction: 'addProgress',
         startTracking: 'startTrackingProgress',
         stopTracking: 'stopTrackingProgress',
         updateContentNodeState: 'updateContentState',
@@ -297,6 +299,12 @@
           updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
         );
         this.$emit('updateProgress', progressPercent);
+      },
+      addProgress(progressPercent, forceSave = false) {
+        this.addProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
+          updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
+        );
+        this.$emit('addProgress', progressPercent);
       },
       updateExerciseProgress(progressPercent) {
         this.$emit('updateProgress', progressPercent);
