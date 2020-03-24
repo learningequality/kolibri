@@ -77,9 +77,6 @@
       preview(file, deleteUsers) {
         this.state = 'IN_PROGRESS';
         this.startValidating({ deleteUsers: deleteUsers, file: file });
-        // setTimeout(() => {
-        //   this.state = 'PREVIEW';
-        // }, 2000);
       },
       startImport() {
         this.state = 'IN_PROGRESS';

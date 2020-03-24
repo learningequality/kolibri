@@ -79,7 +79,6 @@ def enumeration(*args):
     Return a value check function which raises a ValueError if the value (case
     insensitive) is not in the enumeration of values provided by args.
     """
-    assert len(args) > 0, "at least one argument is required"
     if len(args) == 1:
         # assume the first argument defines the membership
         members = args[0].lower()
