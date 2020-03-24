@@ -77,21 +77,24 @@ export default {
       state.classes_report = task.classes;
       state.taskId = '';
     },
-    SET_FINISHED_IMPORT_USERS(state) {
+    SET_FINISHED_IMPORT_USERS(state, task) {
       if (state.status == CSVImportStatuses.VALIDATING) state.status = CSVImportStatuses.VALIDATED;
       else if (state.status == CSVImportStatuses.SAVING) state.status = CSVImportStatuses.FINISHED;
-      TaskResource.fetchCollection({
-        force: true,
-      }).then(newTasks => {
-        const task = newTasks.find(task => task.id === state.taskId);
-        Vue.set(state, 'per_line_errors', task.per_line_errors);
-        Vue.set(state, 'overall_error', task.overall_error);
-        state.filename = task.filename;
-        state.users_report = task.users;
-        state.classes_report = task.classes;
-        TaskResource.deleteFinishedTask(state.taskId);
-        state.taskId = '';
-      });
+
+      Vue.set(state, 'per_line_errors', task.per_line_errors);
+      Vue.set(state, 'overall_error', task.overall_error);
+      state.filename = task.filename;
+      state.users_report = task.users;
+      state.classes_report = task.classes;
+      TaskResource.deleteFinishedTask(state.taskId);
+      state.taskId = '';
+    },
+    SET_FAILED(state, task) {
+      state.status = CSVImportStatuses.ERRORS;
+      Vue.set(state, 'overall_error', task.overall_error);
+      Vue.set(state, 'per_line_errors', []);
+      TaskResource.deleteFinishedTask(state.taskId);
+      state.taskId = '';
     },
   },
   actions,

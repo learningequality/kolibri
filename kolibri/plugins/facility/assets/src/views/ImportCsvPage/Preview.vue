@@ -2,61 +2,65 @@
 
   <!-- eslint-disable max-len -->
   <div>
-
-    <template v-if="isFinal">
-      <h2 style="color: green;">
-        SUCCESS!
-      </h2>
-      <p>The following changes were made:</p>
+    <template v-if="isError">
+      <p>We enountered the following issues when importing the file. Importation is not possible:</p>
     </template>
+
     <template v-else>
-      <p>Changes if you choose to import:</p>
-    </template>
+      <template v-if="isFinal">
+        <h2 style="color: green;">
+          SUCCESS!
+        </h2>
+        <p>The following changes were made:</p>
+      </template>
+      <template v-else>
+        <p>Changes if you choose to import:</p>
+      </template>
 
-    <table class="indent">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Updated</th>
-          <th>Added</th>
-          <th>Deleted</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>Users</th>
-          <td>{{ users_report.updated }}</td>
-          <td style="color: green;">
-            {{ users_report.created }}
-          </td>
-          <td style="color: red;">
-            {{ users_report.deleted }}
-          </td>
-        </tr>
-        <tr>
-          <th>Classes</th>
-          <td>{{ classes_report.updated }}</td>
-          <td style="color: green;">
-            {{ classes_report.created }}
-          </td>
-          <td style="color: red;">
-            {{ classes_report.cleared }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <table class="indent">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Updated</th>
+            <th>Added</th>
+            <th>Deleted</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Users</th>
+            <td>{{ users_report.updated }}</td>
+            <td style="color: green;">
+              {{ users_report.created }}
+            </td>
+            <td style="color: red;">
+              {{ users_report.deleted }}
+            </td>
+          </tr>
+          <tr>
+            <th>Classes</th>
+            <td>{{ classes_report.updated }}</td>
+            <td style="color: green;">
+              {{ classes_report.created }}
+            </td>
+            <td style="color: red;">
+              {{ classes_report.cleared }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-    <template v-if="isFinal">
-      <p>We enountered the following issues... (whole file, specific rows, validation...). These items were skipped:</p>
+      <template v-if="isFinal && logs.length">
+        <p>We enountered the following issues... (whole file, specific rows, validation...). These items were skipped:</p>
+      </template>
+      <template v-else-if="logs.length">
+        <p>We enountered the following issues... (whole file, specific rows, validation...). These items will be skipped if you continue:</p>
+      </template>
     </template>
-    <template v-else>
-      <p>We enountered the following issues... (whole file, specific rows, validation...). These items will be skipped if you continue:</p>
-    </template>
-
 
     <pre class="logs indent">{{ logs }}</pre>
 
-    <p v-if="isFinal">
+    <p v-if="isFinal && !isError">
       <KButton
         text="Finish"
         appearance="raised-button"
@@ -71,12 +75,14 @@
         style="margin-left: 0;"
         @click="$emit('cancel')"
       />
-      <KButton
-        text="Continue"
-        appearance="raised-button"
-        primary
-        @click="$emit('next')"
-      />
+      <span v-if="!isError">
+        <KButton
+          text="Continue"
+          appearance="raised-button"
+          primary
+          @click="$emit('next')"
+        />
+      </span>
     </p>
 
   </div>
@@ -98,17 +104,24 @@
         type: Boolean,
         default: false,
       },
+      isError: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       logs() {
-        return this.per_line_errors
-          .map(
-            obj => `Line ${obj.row}: ${obj.message} in field ${obj.field} for value "${obj.value}"`
-          )
-          .join('\n');
+        if (this.overall_error.length) return this.overall_error.join('\n');
+        else
+          return this.per_line_errors
+            .map(
+              obj =>
+                `Line ${obj.row}: ${obj.message} in field ${obj.field} for value "${obj.value}"`
+            )
+            .join('\n');
       },
       ...mapState('importCSV', [
-        // 'overall_error',
+        'overall_error',
         'per_line_errors',
         'classes_report',
         'users_report',

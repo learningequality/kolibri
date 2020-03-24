@@ -10,13 +10,15 @@
       @next="preview"
     />
     <Preview
-      v-else-if="status === CSVImportStatuses.VALIDATED "
+      v-else-if="status === CSVImportStatuses.VALIDATED || status === CSVImportStatuses.ERRORS"
+      :isError="status === CSVImportStatuses.ERRORS ? true : false"
       @cancel="done"
       @next="startImport"
     />
     <Preview
-      v-else-if="status === CSVImportStatuses.FINISHED"
-      isFinal
+      v-else-if="status === CSVImportStatuses.FINISHED || status === CSVImportStatuses.ERRORS"
+      :isFinal="status === CSVImportStatuses.FINISHED ? true : false"
+      :isError="status === CSVImportStatuses.ERRORS ? true : false"
       @next="done"
     />
     <template
@@ -59,10 +61,8 @@
     },
     mounted() {
       this.$store.commit('importCSV/RESET_STATE');
-      // if (this.pollForTasks) {
       this.refreshTaskList();
       this.startTaskPolling();
-      // }
     },
     destroyed() {
       this.stopTaskPolling();

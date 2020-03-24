@@ -580,8 +580,8 @@ class Command(AsyncCommand):
                 for user in db_users:
                     user.save()
                 # assign roles to users:
-                users = {u.username: u for u in db_users}
-                self.add_roles(users, roles)
+                users_data = {u.username: u for u in db_users}
+                self.add_roles(users_data, roles)
 
                 for classroom in db_new_classes:
                     Classroom.objects.create(
@@ -591,7 +591,7 @@ class Command(AsyncCommand):
                 update_classes = [c.id for c in db_update_classes]
                 Membership.objects.filter(collection__in=update_classes).delete()
                 self.add_classes_memberships(
-                    classes, users, db_new_classes + db_update_classes
+                    classes, users_data, db_new_classes + db_update_classes
                 )
 
             classes_report = {

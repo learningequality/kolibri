@@ -41,8 +41,10 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
     const task = newTasks.find(task => task.id === taskId);
 
     if (task && task.status === TaskStatuses.COMPLETED) {
-      store.commit(commitFinish, new Date());
+      store.commit(commitFinish, task);
       // TaskResource.deleteFinishedTask(taskId);
+    } else if (task && task.status === TaskStatuses.FAILED) {
+      store.commit('SET_FAILED', task);
     }
   } else {
     const running = newTasks.filter(task => {
