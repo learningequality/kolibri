@@ -28,12 +28,13 @@ class ContentSessionLogSerializer(KolibriModelSerializer):
     extra_fields = serializers.JSONField(default="{}")
 
     """
-    If we don't have a user, set the session_id to the session_key
+    If we don't have a user, set the anonymous_session_id to the session_key
     """
 
     def create(self, validated_data):
         request = self.context.get("request")
-        validated_data["session_id"] = request.session.session_key
+        if request and hasattr(request, "session") and not validated_data["user"]:
+            validated_data["anonymous_session_id"] = request.session.get('anonymous_session_id')
         instance = super(ContentSessionLogSerializer, self).create(validated_data)
         return instance
 
@@ -42,7 +43,7 @@ class ContentSessionLogSerializer(KolibriModelSerializer):
         fields = (
             "id",
             "user",
-            "session_id",
+            "anonymous_session_id",
             "content_id",
             "channel_id",
             "start_timestamp",

@@ -1,3 +1,4 @@
+import uuid
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user
@@ -65,5 +66,5 @@ class CustomAuthenticationMiddleware(AuthenticationMiddleware):
         )
         request.user = SimpleLazyObject(lambda: _get_user(request))
         # Ensure that we create a session for the AnonymousUser
-        if not request.session.get("session_key"):
-            request.session.create()
+        if not request.session.get("anonymous_session_id"):
+            request.session.__setitem__("anonymous_session_id", str(uuid.uuid4()))
