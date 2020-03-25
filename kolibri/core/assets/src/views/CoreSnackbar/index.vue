@@ -7,7 +7,7 @@
       <div tabindex="0" @focus="trapFocus"></div>
     </template>
     <transition name="snackbar" @leave-to="clearSnackbar" @enter="handleOnEnter">
-      <KeenUiSnackbar
+      <UiSnackbar
         v-show="isVisible"
         id="coresnackbar"
         ref="snackbar"
@@ -21,7 +21,7 @@
         <template #inner-focus-trap>
           <div tabindex="0" @focus="trapFocus"></div>
         </template>
-      </KeenUiSnackbar>
+      </UiSnackbar>
     </transition>
   </div>
 
@@ -31,13 +31,13 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import KeenUiSnackbar from './KeenUiSnackbar';
+  import UiSnackbar from 'kolibri-design-system/lib/keen/UiSnackbar.vue';
 
   /* Snackbars are used to display notification. */
   export default {
     name: 'CoreSnackbar',
     components: {
-      KeenUiSnackbar,
+      UiSnackbar,
     },
     props: {
       /* Text of notification to be displayed */
