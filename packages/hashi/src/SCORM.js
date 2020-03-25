@@ -115,6 +115,7 @@ export function setByKeyPath(obj, keyPath, value) {
   }
 }
 
+/*
 const userDataMap = {
   'cmi.core.student_id': function(userData) {
     return userData.userId || '';
@@ -144,6 +145,7 @@ const userDataMap = {
     return userData.timeSpent ? userData.timeSpent : 0;
   },
 };
+*/
 
 export default class SCORM extends BaseShim {
   constructor(mediator) {
@@ -156,10 +158,6 @@ export default class SCORM extends BaseShim {
 
   __setData(data = {}) {
     this.data = data;
-    const userData = {};
-    for (let key in userDataMap) {
-      setByKeyPath(this.data, key, userDataMap[key](userData));
-    }
   }
 
   iframeInitialize() {
