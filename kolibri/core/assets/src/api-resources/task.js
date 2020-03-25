@@ -114,7 +114,7 @@ export default new Resource({
   /**
    * Initiates a Task that import users, classes and assign roles from a csv file
    *
-   * @param {string} params.filepath - session or summary
+   * @param {object} params.csvfile - File object or filename (stored in kolibri temp dir)
    * @param {string} params.dryrun - validate objects but don't write in the db
    * @param {string} params.delete - delete users not included in the csv
    *                                 and clear not included classrooms
