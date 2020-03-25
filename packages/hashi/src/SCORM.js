@@ -188,6 +188,8 @@ export default class SCORM extends BaseShim {
     class Shim {
       LMSInitialize() {
         logger.log('LMS Initialize called');
+        self.data.version = '1.2';
+        self.stateUpdated();
         return TRUE;
       }
 
@@ -199,6 +201,7 @@ export default class SCORM extends BaseShim {
         setByKeyPath(self.data, CMIElement, value);
         logger.log(`LMSSetValue called with path: ${CMIElement} and value ${value}`);
         self.stateUpdated();
+        return TRUE;
       }
 
       LMSGetValue(CMIElement) {
@@ -209,11 +212,17 @@ export default class SCORM extends BaseShim {
         if (emptyKeys[CMIElement]) {
           return '';
         }
-        return getByKeyPath(self.data, CMIElement);
+        let value = getByKeyPath(self.data, CMIElement);
+        if (!value) {
+          // make sure we return an empty string rather than undefined, to be spec-compliant.
+          value = '';
+        }
+        return value;
       }
 
       LMSCommit() {
         logger.log('LMS Commit called');
+        return TRUE;
       }
 
       LMSGetLastError() {
