@@ -579,6 +579,8 @@ export default class SCORM extends BaseShim {
     class Shim {
       LMSInitialize() {
         logger.debug('LMS Initialize called');
+        self.data.version = '1.2';
+        self.stateUpdated();
         return TRUE;
       }
 
@@ -610,7 +612,7 @@ export default class SCORM extends BaseShim {
         } catch (e) {
           if (e instanceof TypeError && e.name === SCORM_ERROR_NAME) {
             error = e.message;
-            return '';
+            return BLANK;
           }
           throw e;
         }
@@ -619,6 +621,7 @@ export default class SCORM extends BaseShim {
       LMSCommit() {
         error = ERRORS.NO_ERROR;
         logger.debug('LMS Commit called');
+        return TRUE;
       }
 
       LMSGetLastError() {
@@ -627,12 +630,12 @@ export default class SCORM extends BaseShim {
 
       LMSGetErrorString(errorCode) {
         logger.debug(`LMS Get Error String called with code ${errorCode}`);
-        return '';
+        return BLANK;
       }
 
       LMSGetDiagnostic(errorCode) {
         logger.debug(`LMS Get Diagnostic called with code ${errorCode}`);
-        return '';
+        return BLANK;
       }
     }
     this.shim = new Shim();
