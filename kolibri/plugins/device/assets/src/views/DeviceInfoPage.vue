@@ -27,6 +27,18 @@
         <th>{{ $tr('kolibriVersion') }}</th>
         <td>{{ deviceInfo.version }}</td>
       </tr>
+      <tr>
+        <th>{{ coreString('deviceNameLabel') }}</th>
+        <td>
+          {{ deviceNameWithId }}
+          <KButton
+            class="edit-button"
+            :text="coreString('editAction')"
+            appearance="basic-link"
+            @click="showDeviceNameModal = true"
+          />
+        </td>
+      </tr>
     </table>
 
     <h1>{{ $tr('advanced') }}</h1>
@@ -44,6 +56,12 @@
       :text="infoText"
       class="bottom-section"
     />
+    <DeviceNameModal
+      v-if="showDeviceNameModal"
+      :deviceName="deviceName"
+      @submit="handleSubmitDeviceName"
+      @cancel="showDeviceNameModal = false"
+    />
   </div>
 
 </template>
@@ -54,6 +72,7 @@
   import { mapState } from 'vuex';
   import TechnicalTextBlock from 'kolibri.coreVue.components.TechnicalTextBlock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import DeviceNameModal from './DeviceNameModal';
 
   export default {
     name: 'DeviceInfoPage',
@@ -63,16 +82,18 @@
       };
     },
     components: {
+      DeviceNameModal,
       TechnicalTextBlock,
     },
     mixins: [commonCoreStrings],
     data() {
       return {
         advancedShown: false,
+        showDeviceNameModal: false,
       };
     },
     computed: {
-      ...mapState('deviceInfo', ['deviceInfo']),
+      ...mapState('deviceInfo', ['deviceInfo', 'deviceName']),
       buttonText() {
         return this.advancedShown ? this.$tr('hide') : this.coreString('showAction');
       },
@@ -89,6 +110,25 @@
           `Server timezone:   ${this.deviceInfo.server_timezone}`,
         ].join('\n');
       },
+      deviceNameWithId() {
+        return this.$tr('deviceNameWithId', {
+          deviceName: this.deviceName,
+          deviceId: this.deviceInfo.device_id.slice(0, 4),
+        });
+      },
+    },
+    methods: {
+      handleSubmitDeviceName(newName) {
+        this.showDeviceNameModal = false;
+        this.$store
+          .dispatch('deviceInfo/updateDeviceName', newName)
+          .then(() => {
+            this.$store.dispatch('createSnackbar', this.coreString('changesSavedNotification'));
+          })
+          .catch(() => {
+            this.$store.dispatch('createSnackbar', this.coreString('changesNotSavedNotification'));
+          });
+      },
     },
     $trs: {
       header: 'Device info',
@@ -98,6 +138,7 @@
       advanced: 'Advanced',
       advancedDescription: 'This information may be helpful for troubleshooting or error reporting',
       hide: 'Hide',
+      deviceNameWithId: '{deviceName} ({deviceId})',
     },
   };
 
@@ -131,6 +172,10 @@
 
   .bottom-section {
     margin-top: 16px;
+  }
+
+  .edit-button {
+    display: inline;
   }
 
 </style>
