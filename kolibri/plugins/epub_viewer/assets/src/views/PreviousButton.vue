@@ -23,7 +23,7 @@
 
 <script>
 
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
 
   export default {
     name: 'PreviousButton',

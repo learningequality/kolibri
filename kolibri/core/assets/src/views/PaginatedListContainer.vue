@@ -53,7 +53,7 @@
 <script>
 
   import clamp from 'lodash/clamp';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
 
   export default {

@@ -46,7 +46,7 @@
 <script>
 
   import { now } from 'kolibri.utils.serverClock';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
   import { nameSpace } from 'hashi/src/hashiBase';
