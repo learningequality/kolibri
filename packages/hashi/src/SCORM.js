@@ -156,6 +156,10 @@ export default class SCORM extends BaseShim {
 
   __setData(data = {}) {
     this.data = data;
+    const userData = {};
+    for (let key in userDataMap) {
+      setByKeyPath(this.data, key, userDataMap[key](userData));
+    }
   }
 
   iframeInitialize() {
