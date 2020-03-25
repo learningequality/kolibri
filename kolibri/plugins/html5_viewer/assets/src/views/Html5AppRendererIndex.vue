@@ -84,12 +84,13 @@
                 let rawPercent = 1;
                 let rawScore = score.raw;
 
-                // TODO: Needs testing with ranges outside 0-100, all content so far specifying min and max
-                // have these values, so behavior is the same as if they were not set.
+                // TODO: Needs testing with ranges outside 0-100, all content so far specifying
+                // min and max have these values, so behavior is the same as if they were not set.
                 if (score.min && score.max) {
                   // rawPercent = percent per range increment
                   // preMin = highest value before min, what to subtract from the range
-                  // rawScore = value from 1 to (max - preMin), assumes min and max are positive numbers
+                  // rawScore = value from 1 to (max - preMin), assumes min and max are
+                  // positive numbers
                   // this way we can calculate progress percent as value * incrementPercent
                   const preMin = Math.min(0, score.min - 1);
                   rawPercent = (score.max - preMin) / 100;
