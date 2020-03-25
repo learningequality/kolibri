@@ -152,6 +152,9 @@ describe('Hashi mainClient', () => {
       };
       data[localStorage.nameSpace] = localStorageData;
       localStorage.setData(localStorageData);
+      const SCORM = hashi.storage.SCORM;
+      data[SCORM.nameSpace] = {};
+      SCORM.setData({});
       expect(hashi.data).toEqual(data);
     });
   });

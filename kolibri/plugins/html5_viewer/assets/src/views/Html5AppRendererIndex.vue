@@ -105,14 +105,7 @@
           }
         }
       });
-      this.hashi.initialize((this.extraFields && this.extraFields.contentState) || {}, {
-        userId: this.userId,
-        userFullName: this.userFullName,
-        progress: this.progress,
-        complete: this.progress >= 1,
-        language: this.lang.id,
-        timeSpent: this.timeSpent,
-      });
+      this.hashi.initialize((this.extraFields && this.extraFields.contentState) || {});
       this.$emit('startTracking');
       this.startTime = now();
       this.pollProgress();

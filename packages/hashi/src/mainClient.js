@@ -34,8 +34,9 @@ export default class MainClient {
     });
     this.__setData = this.__setData.bind(this);
   }
-  initialize(contentState, userData) {
-    /*
+  initialize(contentState) {
+    /* FIXME: userData argument temporarily removed to fix the tests, as it is
+     * not currently used but will be once we have a final solution.
      * userData should be an object with the following keys, all optional:
      * userId: <user ID>,
      * userFullName: <user's full name>,
@@ -48,24 +49,23 @@ export default class MainClient {
     // Can do this as all contentState that is coming in should be JSON
     // compatible in the first place, if not, we have other problems.
     contentState = JSON.parse(JSON.stringify(contentState || {}));
-    userData = JSON.parse(JSON.stringify(userData || {}));
     // Set this here, regardless of whether it is already ready or not
     // in case the page inside the iframe navigates to a new page
     // and hence has to reset its local state and reinitialize its
     // SandboxEnvironment.
     this.on(this.events.READY, () => {
-      this.__setData(contentState, userData);
+      this.__setData(contentState);
     });
     if (this.ready) {
-      this.__setData(contentState, userData);
+      this.__setData(contentState);
     } else {
       this.mediator.sendMessage({ nameSpace, event: events.READYCHECK, data: true });
     }
   }
-  __setData(contentState, userData) {
+  __setData(contentState) {
     Object.keys(this.storage).forEach(key => {
       const storage = this.storage[key];
-      storage.setData(contentState[storage.nameSpace], userData);
+      storage.setData(contentState[storage.nameSpace]);
       storage.on(events.STATEUPDATE, () => {
         this.mediator.sendLocalMessage({ nameSpace, event: events.STATEUPDATE, data: this.data });
       });
