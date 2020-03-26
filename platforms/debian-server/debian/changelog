@@ -1,8 +1,15 @@
-kolibri-server (0.3.7-0ubuntu1) UNRELEASED; urgency=medium
+kolibri-server (0.3.7~beta1-0ubuntu1) bionic; urgency=medium
 
+  [ José L. Redrejo Rodríguez ]
   * Purge infinitely growing in-memory redis cache with a weekly cronjob and upon restarting Kolibri
+  * Optimizations to system service https://github.com/learningequality/kolibri-server/pull/54
+  * Better guarantees for removing pid and sockets https://github.com/learningequality/kolibri-server/pull/54
+  * Changes to UWSGI configuration https://github.com/learningequality/kolibri-server/pull/54
 
- -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 25 Feb 2020 10:24:26 +0100
+  [ Benjamin Bach ]
+  * Changes to manual build workflow
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 26 Mar 2020 11:07:48 +0100
 
 kolibri-server (0.3.6-0ubuntu1) bionic; urgency=medium
 
