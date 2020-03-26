@@ -632,20 +632,21 @@ class TasksViewSet(viewsets.ViewSet):
         facility = request.user.facility.id
         job_type = "IMPORTUSERSFROMCSV"
         job_metadata = {"type": job_type, "started_by": userid}
-        job_command = [call_command, "bulkimportusers"]
+        job_args = ["bulkimportusers"]
         if dryrun:
-            job_command.append("--dryrun")
+            job_args.append("--dryrun")
         if delete:
-            job_command.append("--delete")
-        job_command.append(filepath)
+            job_args.append("--delete")
+        job_args.append(filepath)
 
-        job_id = priority_queue.enqueue(
-            *job_command,
-            facility=facility,
-            userid=userid,
-            extra_metadata=job_metadata,
-            track_progress=True,
-        )
+        job_kwd_args = {
+            "facility": facility,
+            "userid": userid,
+            "extra_metadata": job_metadata,
+            "track_progress": True,
+        }
+
+        job_id = priority_queue.enqueue(call_command, *job_args, **job_kwd_args)
 
         resp = _job_to_response(priority_queue.fetch_job(job_id))
 
