@@ -44,27 +44,29 @@
           </KPageContainer>
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
-            <KButton
-              :disabled="questionNumber === exam.question_count - 1"
-              :primary="true"
-              class="footer-button"
-              :dir="layoutDirReset"
-              @click="goToQuestion(questionNumber + 1)"
-            >
-              {{ $tr('nextQuestion') }}
-              <KIcon icon="forward" color="white" class="forward-icon" />
-            </KButton>
-            <KButton
-              :disabled="questionNumber === 0"
-              :primary="true"
-              class="footer-button"
-              :dir="layoutDirReset"
-              :class="{ 'left-align': windowIsSmall }"
-              @click="goToQuestion(questionNumber - 1)"
-            >
-              <KIcon icon="back" color="white" class="back-icon" />
-              {{ $tr('previousQuestion') }}
-            </KButton>
+            <KButtonGroup>
+              <KButton
+                :disabled="questionNumber === exam.question_count - 1"
+                :primary="true"
+                class="footer-button"
+                :dir="layoutDirReset"
+                @click="goToQuestion(questionNumber + 1)"
+              >
+                {{ $tr('nextQuestion') }}
+                <KIcon icon="forward" color="white" class="forward-icon" />
+              </KButton>
+              <KButton
+                :disabled="questionNumber === 0"
+                :primary="true"
+                class="footer-button"
+                :dir="layoutDirReset"
+                :class="{ 'left-align': windowIsSmall }"
+                @click="goToQuestion(questionNumber - 1)"
+              >
+                <KIcon icon="back" color="white" class="back-icon" />
+                {{ $tr('previousQuestion') }}
+              </KButton>
+            </KButtonGroup>
 
             <!-- below prev/next buttons in tab and DOM order, in footer -->
             <div
