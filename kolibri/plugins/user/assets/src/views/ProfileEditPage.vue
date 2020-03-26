@@ -35,20 +35,22 @@
       />
 
       <div class="buttons">
-        <KButton
-          class="no-margin"
-          :text="coreString('saveAction')"
-          :disabled="formDisabled"
-          type="submit"
-          primary
-        />
-        <KButton
-          :text="cancelButtonText"
-          :disabled="formDisabled"
-          appearance="raised-button"
-          :primary="false"
-          @click="$router.push($router.getRoute('PROFILE'))"
-        />
+        <KButtonGroup>
+          <KButton
+            class="no-margin"
+            :text="coreString('saveAction')"
+            :disabled="formDisabled"
+            type="submit"
+            primary
+          />
+          <KButton
+            :text="cancelButtonText"
+            :disabled="formDisabled"
+            appearance="raised-button"
+            :primary="false"
+            @click="$router.push($router.getRoute('PROFILE'))"
+          />
+        </KButtonGroup>
       </div>
     </form>
   </KPageContainer>

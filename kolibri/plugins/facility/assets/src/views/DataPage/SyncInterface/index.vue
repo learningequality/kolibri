@@ -24,19 +24,21 @@
             <FacilityNameAndSyncStatus :facility="facility" />
           </td>
           <td class="button-col">
-            <KButton
-              appearance="raised-button"
-              :text="$tr('register')"
-              :disabled="facilityTaskId !== ''"
-              @click="register(facility)"
-            />
-            <KButton
-              class="sync"
-              appearance="raised-button"
-              :text="$tr('sync')"
-              :disabled="facilityTaskId !== '' || !facility.dataset.registered"
-              @click="sync(facility)"
-            />
+            <KButtonGroup>
+              <KButton
+                appearance="raised-button"
+                :text="$tr('register')"
+                :disabled="facilityTaskId !== ''"
+                @click="register(facility)"
+              />
+              <KButton
+                class="sync"
+                appearance="raised-button"
+                :text="$tr('sync')"
+                :disabled="facilityTaskId !== '' || !facility.dataset.registered"
+                @click="sync(facility)"
+              />
+            </KButtonGroup>
           </td>
         </tr>
       </transition-group>

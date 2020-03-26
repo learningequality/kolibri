@@ -80,17 +80,19 @@
       </section>
 
       <div class="buttons">
-        <KButton
-          type="submit"
-          :text="coreString('saveAction')"
-          :disabled="busy"
-          :primary="true"
-        />
-        <KButton
-          :text="coreString('cancelAction')"
-          :disabled="busy"
-          @click="goToUserManagementPage()"
-        />
+        <KButtonGroup>
+          <KButton
+            type="submit"
+            :text="coreString('saveAction')"
+            :disabled="busy"
+            :primary="true"
+          />
+          <KButton
+            :text="coreString('cancelAction')"
+            :disabled="busy"
+            @click="goToUserManagementPage()"
+          />
+        </KButtonGroup>
       </div>
 
     </form>
