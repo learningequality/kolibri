@@ -8,7 +8,7 @@ export function createClass(store, name) {
   return ClassroomResource.saveModel({
     data: {
       name,
-      parent: store.rootState.core.session.facility_id,
+      parent: store.rootGetters.currentActiveFacility,
     },
   }).then(
     classroom => {

@@ -26,7 +26,7 @@ function setUserRole(user, role) {
 export function createFacilityUser(store, payload) {
   return FacilityUserResource.saveModel({
     data: {
-      facility: store.rootState.core.session.facility_id,
+      facility: store.rootGetters.currentActiveFacility,
       username: payload.username,
       full_name: payload.full_name,
       password: payload.password,

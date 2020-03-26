@@ -5,20 +5,19 @@ import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
 import { _userState } from '../mappers';
 
-export function showLearnerClassEnrollmentPage(store, classId) {
-  store.commit('SET_PAGE_NAME', PageNames.CLASS_ENROLL_LEARNER);
-  store.commit('CORE_SET_PAGE_LOADING', true);
-  const facilityId = store.getters.currentFacilityId;
+export function showLearnerClassEnrollmentPage(store, toRoute) {
+  const { id, facility_id } = toRoute.params;
+  store.dispatch('preparePage');
   // all users in facility
   const userPromise = FacilityUserResource.fetchCollection({
-    getParams: { member_of: facilityId },
+    getParams: { member_of: facility_id || store.getters.currentActiveFacility },
   });
   // current class
-  const classPromise = ClassroomResource.fetchModel({ id: classId });
+  const classPromise = ClassroomResource.fetchModel({ id });
   // users in current class
   const classUsersPromise = FacilityUserResource.fetchCollection({
     getParams: {
-      member_of: classId,
+      member_of: id,
     },
     force: true,
   });
@@ -40,16 +39,24 @@ export function showLearnerClassEnrollmentPage(store, classId) {
   );
 }
 
-export function showCoachClassAssignmentPage(store, classId) {
+const eligibleRoles = [
+  UserKinds.ASSIGNABLE_COACH,
+  UserKinds.COACH,
+  UserKinds.ADMIN,
+  UserKinds.SUPERUSER,
+];
+
+export function showCoachClassAssignmentPage(store, toRoute) {
+  const { id, facility_id } = toRoute.params;
   store.commit('SET_PAGE_NAME', PageNames.CLASS_ASSIGN_COACH);
   store.commit('CORE_SET_PAGE_LOADING', true);
-  const facilityId = store.getters.currentFacilityId;
+  const facilityId = facility_id || store.getters.currentActiveFacility;
   // all users in facility
   const userPromise = FacilityUserResource.fetchCollection({
     getParams: { member_of: facilityId },
   });
   // current class
-  const classPromise = ClassroomResource.fetchModel({ id: classId, force: true });
+  const classPromise = ClassroomResource.fetchModel({ id, force: true });
 
   return ConditionalPromise.all([userPromise, classPromise]).only(
     samePageCheckGenerator(store),
@@ -60,12 +67,6 @@ export function showCoachClassAssignmentPage(store, classId) {
         facilityUsers: facilityUsers
           // filter out users who are not eligible to be coaches
           .filter(user => {
-            const eligibleRoles = [
-              UserKinds.ASSIGNABLE_COACH,
-              UserKinds.COACH,
-              UserKinds.ADMIN,
-              UserKinds.SUPERUSER,
-            ];
             return user.roles.some(({ kind }) => eligibleRoles.includes(kind));
           })
           .map(_userState),

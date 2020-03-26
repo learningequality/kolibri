@@ -149,11 +149,17 @@
       learnerEnrollmentLink() {
         return {
           name: PageNames.CLASS_ENROLL_LEARNER,
+          params: {
+            facility_id: this.$route.params.facility_id,
+          },
         };
       },
       coachAssignmentLink() {
         return {
           name: PageNames.CLASS_ASSIGN_COACH,
+          params: {
+            facility_id: this.$route.params.facility_id,
+          },
         };
       },
     },

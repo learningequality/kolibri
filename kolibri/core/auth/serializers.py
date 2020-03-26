@@ -101,11 +101,12 @@ class FacilitySerializer(serializers.ModelSerializer):
     dataset = FacilityDatasetSerializer(read_only=True)
     default = serializers.SerializerMethodField()
     last_synced = serializers.SerializerMethodField()
+    num_classrooms = serializers.SerializerMethodField()
 
     class Meta:
         model = Facility
         extra_kwargs = {"id": {"read_only": True}, "dataset": {"read_only": True}}
-        fields = ("id", "name", "dataset", "default", "last_synced")
+        fields = ("id", "name", "dataset", "default", "last_synced", "num_classrooms")
 
     def get_default(self, instance):
         return instance == Facility.get_default_facility()
@@ -127,6 +128,9 @@ class FacilitySerializer(serializers.ModelSerializer):
             .values_list("last_synced", flat=True)
         )
         return last_synced_date[0]
+
+    def get_num_classrooms(self, instance):
+        return Classroom.objects.filter(parent=instance).count()
 
 
 class PublicFacilitySerializer(serializers.ModelSerializer):

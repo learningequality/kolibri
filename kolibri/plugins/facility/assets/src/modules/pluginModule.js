@@ -1,3 +1,4 @@
+import find from 'lodash/find';
 import { pageNameToModuleMap, PageNames } from '../constants';
 import classAssignMembers from './classAssignMembers';
 import classEditManagement from './classEditManagement';
@@ -8,21 +9,11 @@ import manageCSV from './manageCSV';
 import manageSync from './manageSync';
 
 export default {
-  state: {
-    pageName: '',
-  },
-  mutations: {
-    SET_PAGE_NAME(state, name) {
-      state.pageName = name;
-    },
-    UPDATE_CURRENT_USER_KIND(state, newKind) {
-      state.core.session.kind = newKind;
-    },
-  },
+  state: {},
   actions: {
-    preparePage(store, { name, isAsync = true }) {
+    preparePage(store, options = {}) {
+      const { isAsync = true } = options;
       store.commit('CORE_SET_PAGE_LOADING', isAsync);
-      store.commit('SET_PAGE_NAME', name);
       store.commit('CORE_SET_ERROR', null);
     },
     resetModuleState(store, { fromRoute, toRoute }) {
@@ -38,6 +29,20 @@ export default {
       if (moduleName) {
         return store.commit(`${moduleName}/RESET_STATE`);
       }
+    },
+  },
+  getters: {
+    currentActiveFacility(state, getters, rootState, rootGetters) {
+      // Return either the facility_id param in the route module,
+      // or the currentFacilityId value from core.session
+      return rootState.route.params.facility_id || rootGetters.currentFacilityId;
+    },
+    inMultipleFacilityPage(state, getters, rootState, rootGetters) {
+      return rootGetters.isSuperuser && rootState.route.params.facility_id;
+    },
+    currentFacilityName(state, getters, rootState) {
+      const match = find(rootState.core.facilities, { id: getters.currentActiveFacility });
+      return match ? match.name : '';
     },
   },
   modules: {

@@ -2,6 +2,13 @@
 
   <KPageContainer>
 
+    <p>
+      <KRouterLink
+        v-if="$store.getters.inMultipleFacilityPage"
+        :to="{ name: 'AllFacilitiesPage' }"
+        :text="$tr('allFacilitiesLabel')"
+      />
+    </p>
     <KGrid>
       <KGridItem
         :layout8="{ span: 6 }"
@@ -49,7 +56,7 @@
             <KLabeledIcon icon="classroom">
               <KRouterLink
                 :text="classroom.name"
-                :to="classEditLink(classroom.id)"
+                :to="classEditLink(classroom.id, $route.params.facility_id)"
               />
             </KLabeledIcon>
           </td>
@@ -114,10 +121,13 @@
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
 
-  function classEditLink(classId) {
+  function classEditLink(classId, facilityId) {
     return {
       name: PageNames.CLASS_EDIT_MGMT_PAGE,
-      params: { id: classId },
+      params: {
+        id: classId,
+        facility_id: facilityId,
+      },
     };
   }
 
@@ -188,6 +198,7 @@
     $trs: {
       adminClassPageSubheader: 'View and manage your classes',
       addNew: 'New class',
+      allFacilitiesLabel: 'All facilities',
       deleteClass: 'Delete class',
       tableCaption: 'List of classes',
       twoCoachNames: '{name1}, {name2}',

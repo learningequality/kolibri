@@ -1,12 +1,9 @@
 import { ClassroomResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { PageNames } from '../../constants';
 
-export function showClassesPage(store) {
-  store.dispatch('preparePage', {
-    name: PageNames.CLASS_MGMT_PAGE,
-  });
-  const facilityId = store.getters.currentFacilityId;
+export function showClassesPage(store, toRoute) {
+  store.dispatch('preparePage');
+  const facilityId = toRoute.params.facility_id || store.getters.currentActiveFacility;
   return ClassroomResource.fetchCollection({
     getParams: { parent: facilityId },
     force: true,

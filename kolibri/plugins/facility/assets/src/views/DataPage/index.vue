@@ -116,13 +116,12 @@
         'availableSessionCSVLog',
         'availableSummaryCSVLog',
       ]),
-      ...mapState(['pageName']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       cannotDownload() {
         return isEmbeddedWebView;
       },
       inDataExportPage() {
-        return this.pageName === PageNames.DATA_EXPORT_PAGE;
+        return this.$route.name === PageNames.DATA_EXPORT_PAGE;
       },
       noDlStyle() {
         return {

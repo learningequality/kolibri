@@ -1,14 +1,12 @@
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
-import { PageNames, notificationTypes } from '../../constants';
+import { notificationTypes } from '../../constants';
 
-export function showFacilityConfigPage(store) {
-  const FACILITY_ID = store.state.core.session.facility_id;
-  store.dispatch('preparePage', {
-    name: PageNames.FACILITY_CONFIG_PAGE,
-  });
+export function showFacilityConfigPage(store, toRoute) {
+  const facilityId = toRoute.params.facility_id || store.getters.currentActiveFacility;
+  store.dispatch('preparePage');
   const resourceRequests = [
-    FacilityResource.fetchModel({ id: FACILITY_ID }),
-    FacilityDatasetResource.fetchCollection({ getParams: { facility_id: FACILITY_ID } }),
+    FacilityResource.fetchModel({ id: facilityId }),
+    FacilityDatasetResource.fetchCollection({ getParams: { facility_id: facilityId } }),
   ];
 
   return Promise.all(resourceRequests)

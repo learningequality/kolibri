@@ -6,10 +6,14 @@
     :showSubNav="userIsAuthorized && !immersivePageProps.immersivePage"
     v-bind="immersivePageProps"
   >
-    <FacilityTopNav slot="sub-nav" />
+    <template
+      v-if="pageName !== 'AllFacilitiesPage'"
+      v-slot:sub-nav
+    >
+      <FacilityTopNav />
+    </template>
 
-    <!-- QUESTION should we explicitly define this in every page? -->
-    <component :is="currentPage" />
+    <router-view />
 
   </CoreBase>
 
@@ -22,28 +26,7 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
-  import ClassEditPage from './ClassEditPage';
-  import CoachClassAssignmentPage from './CoachClassAssignmentPage';
-  import LearnerClassEnrollmentPage from './LearnerClassEnrollmentPage';
-  import DataPage from './DataPage';
-  import FacilitiesConfigPage from './FacilityConfigPage';
-  import ManageClassPage from './ManageClassPage';
   import FacilityTopNav from './FacilityTopNav';
-  import UserPage from './UserPage';
-  import UserCreatePage from './UserCreatePage';
-  import UserEditPage from './UserEditPage';
-
-  const pageNameComponentMap = {
-    [PageNames.CLASS_EDIT_MGMT_PAGE]: ClassEditPage,
-    [PageNames.CLASS_MGMT_PAGE]: ManageClassPage,
-    [PageNames.CLASS_ENROLL_LEARNER]: LearnerClassEnrollmentPage,
-    [PageNames.CLASS_ASSIGN_COACH]: CoachClassAssignmentPage,
-    [PageNames.DATA_EXPORT_PAGE]: DataPage,
-    [PageNames.FACILITY_CONFIG_PAGE]: FacilitiesConfigPage,
-    [PageNames.USER_MGMT_PAGE]: UserPage,
-    [PageNames.USER_CREATE_PAGE]: UserCreatePage,
-    [PageNames.USER_EDIT_PAGE]: UserEditPage,
-  };
 
   export default {
     name: 'FacilityIndex',
@@ -53,9 +36,17 @@
     },
     mixins: [commonCoreStrings],
     computed: {
-      ...mapGetters(['isAdmin', 'isSuperuser']),
-      ...mapState(['pageName']),
+      ...mapGetters([
+        'isAdmin',
+        'isSuperuser',
+        'inMultipleFacilityPage',
+        'currentFacilityName',
+        'currentActiveFacility',
+      ]),
       ...mapState('classAssignMembers', ['class']),
+      pageName() {
+        return this.$route.name;
+      },
       immersivePageProps() {
         let immersivePageRoute;
         let appBarTitle = '';
@@ -63,7 +54,12 @@
           this.pageName === PageNames.CLASS_ENROLL_LEARNER ||
           this.pageName === PageNames.CLASS_ASSIGN_COACH
         ) {
-          immersivePageRoute = this.$router.getRoute(PageNames.CLASS_EDIT_MGMT_PAGE);
+          immersivePageRoute = {
+            name: PageNames.CLASS_EDIT_MGMT_PAGE,
+            params: {
+              facility_id: this.currentActiveFacility,
+            },
+          };
           if (this.class) {
             appBarTitle = this.class.name || '';
           }
@@ -72,7 +68,12 @@
           this.pageName === PageNames.USER_EDIT_PAGE ||
           this.pageName === PageNames.USER_CREATE_PAGE
         ) {
-          immersivePageRoute = this.$router.getRoute(PageNames.USER_MGMT_PAGE);
+          immersivePageRoute = {
+            name: PageNames.USER_MGMT_PAGE,
+            params: {
+              facility_id: this.currentActiveFacility,
+            },
+          };
           appBarTitle = this.coreString('usersLabel');
         }
 
@@ -85,20 +86,26 @@
             appBarTitle,
           };
         }
+        if (this.inMultipleFacilityPage) {
+          appBarTitle = this.$tr('facilityLabelWithName', {
+            facilityName: this.currentFacilityName,
+          });
+        } else {
+          appBarTitle = this.coreString('facilityLabel');
+        }
         return {
           immersivePage: false,
-          appBarTitle: this.coreString('facilityLabel'),
+          appBarTitle,
         };
       },
-      currentPage() {
-        return pageNameComponentMap[this.pageName] || null;
-      },
       userIsAuthorized() {
+        // TODO handle multiple facility case
         return this.isAdmin || this.isSuperuser;
       },
     },
     $trs: {
       adminOrSuperuser: 'You must be signed in as an admin or super admin to view this page',
+      facilityLabelWithName: 'Facility - {facilityName}',
     },
   };
 
