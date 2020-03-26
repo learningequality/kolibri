@@ -52,6 +52,8 @@ class ProfuturoThemeHook(theme_hook.ThemeHook):
                 "primary": "brand.primary.v_600",
                 "appBar": "brand.secondary.v_900",
                 "appBarDark": "#001d27",
+                "link": "brand.secondary.v_700",
+                "linkDark": "brand.secondary.v_900",
             },
             theme_hook.SIGN_IN: {
                 theme_hook.BACKGROUND: static("pf-bg.jpg"),
