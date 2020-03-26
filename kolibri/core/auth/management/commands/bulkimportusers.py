@@ -10,7 +10,6 @@ from django.core.management.base import CommandError
 
 from kolibri.core.auth.constants.demographics import choices
 from kolibri.core.auth.csv_utils import input_fields
-from kolibri.core.auth.csv_utils import labels
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -25,6 +24,8 @@ except NameError:
 
 logger = logging.getLogger(__name__)
 DEFAULT_PASSWORD = make_password("kolibri")
+
+# TODO: decide whether these should be internationalized
 fieldnames = (
     "Username",
     "Password",
@@ -293,17 +294,23 @@ class Command(AsyncCommand):
         with open(filepath) as f:
             header = next(csv.reader(f, strict=True))
             has_header = False
+
+            # If every item in the first row matches an item in the fieldnames, consider it a header row
             if all(col in self.fieldnames for col in header):
-                # Every item in the first row matches an item in the fieldnames, it is a header row
-                if "username" not in header and str(labels["username"]) not in header:
-                    self.overall_error.append(
-                        "No usernames specified, this is required for user creation"
-                    )
                 has_header = True
+
+                # If any col is missing from the header, it's an error
+                for col in self.fieldnames:
+                    if col not in header:
+                        self.overall_error.append(
+                            "The column '{}' is required".format(col)
+                        )
+
             elif any(col in self.fieldnames for col in header):
                 self.overall_error.append(
                     "Mix of valid and invalid header labels found in first row"
                 )
+
         return has_header
 
     def get_field_values(self, user_row):
