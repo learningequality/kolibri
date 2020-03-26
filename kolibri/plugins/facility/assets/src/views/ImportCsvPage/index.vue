@@ -11,7 +11,7 @@
     />
     <Preview
       v-else-if="showPreviewState"
-      @cancel="done"
+      @done="done"
     />
     <template v-else-if="showLoaderState">
       <div class="loader-wrapper">

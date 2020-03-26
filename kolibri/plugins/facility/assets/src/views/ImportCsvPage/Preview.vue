@@ -133,7 +133,7 @@
         text="Close"
         appearance="raised-button"
         primary
-        @click="$emit('next')"
+        @click="$emit('done')"
       />
     </p>
     <p v-else>
