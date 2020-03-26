@@ -1,11 +1,17 @@
 import logging
+import ntpath
 import os
-import requests
+import shutil
 from functools import partial
+from tempfile import NamedTemporaryFile
 
+import requests
 from django.apps.registry import AppRegistryNotReady
+from django.core.files.uploadedfile import UploadedFile
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.management import call_command
 from django.http.response import Http404
+from django.http.response import HttpResponseBadRequest
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework import viewsets
@@ -15,12 +21,13 @@ from six import string_types
 
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.permissions import CanExportLogs
+from kolibri.core.content.permissions import CanImportUsers
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
-from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.paths import get_channel_lookup_url
+from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.exceptions import JobNotFound
@@ -154,6 +161,8 @@ class TasksViewSet(viewsets.ViewSet):
         # exclusive permission for facility management
         elif self.action == "startexportlogcsv":
             permission_classes = [CanExportLogs]
+        elif self.action == "importusersfromcsv":
+            permission_classes = [CanImportUsers]
         # this was the default before, so leave as is for any other endpoints
         else:
             permission_classes = [CanManageContent]
@@ -568,6 +577,80 @@ class TasksViewSet(viewsets.ViewSet):
         out = [mountdata._asdict() for mountdata in drives.values()]
 
         return Response(out)
+
+    @list_route(methods=["post"])
+    def importusersfromcsv(self, request):
+        """
+        Import users, classes, roles and roles assignemnts from a csv file.
+        :param: FILE: file dictionary with the file object
+        :param: csvfile: filename of the file stored in kolibri temp folder
+        :param: dryrun: validate the data but don't modify the database
+        :param: delete: Users not in the csv will be deleted from the facility, and classes cleared
+        :returns: An object with the job information
+        """
+
+        def manage_fileobject(request, temp_dir):
+            upload = UploadedFile(request.FILES["csvfile"])
+            # Django uses InMemoryUploadedFile for files less than 2.5Mb
+            # and TemporaryUploadedFile for bigger files:
+            if type(upload.file) == InMemoryUploadedFile:
+                with NamedTemporaryFile(
+                    dir=temp_dir, suffix=".upload", delete=False
+                ) as dest:
+                    filepath = dest.name
+                    for chunk in upload.file.chunks():
+                        dest.write(chunk)
+            else:
+                tmpfile = upload.file.temporary_file_path()
+                filename = ntpath.basename(tmpfile)
+                filepath = os.path.join(temp_dir, filename)
+                shutil.copy(tmpfile, filepath)
+            return filepath
+
+        temp_dir = os.path.join(conf.KOLIBRI_HOME, "temp")
+        if not os.path.isdir(temp_dir):
+            os.mkdir(temp_dir)
+
+        # the request must contain either an object file
+        # or the filename of the csv stored in Kolibri temp folder
+        # Validation will provide the file object, while
+        # Importing will provide the filename, previously validated
+        if not request.FILES:
+            filename = request.data.get("csvfile", None)
+            if filename:
+                filepath = os.path.join(temp_dir, filename)
+            else:
+                return HttpResponseBadRequest("The request must contain a file object")
+        else:
+            if "csvfile" not in request.FILES:
+                return HttpResponseBadRequest("Wrong file object")
+            filepath = manage_fileobject(request, temp_dir)
+
+        delete = request.data.get("delete", None)
+        dryrun = request.data.get("dryrun", None)
+        userid = request.user.pk
+        facility = request.user.facility.id
+        job_type = "IMPORTUSERSFROMCSV"
+        job_metadata = {"type": job_type, "started_by": userid}
+        job_args = ["bulkimportusers"]
+        if dryrun:
+            job_args.append("--dryrun")
+        if delete:
+            job_args.append("--delete")
+        job_args.append(filepath)
+
+        job_kwd_args = {
+            "facility": facility,
+            "userid": userid,
+            "extra_metadata": job_metadata,
+            "track_progress": True,
+        }
+
+        job_id = priority_queue.enqueue(call_command, *job_args, **job_kwd_args)
+
+        resp = _job_to_response(priority_queue.fetch_job(job_id))
+
+        return Response(resp)
 
     @list_route(methods=["post"])
     def startexportlogcsv(self, request):

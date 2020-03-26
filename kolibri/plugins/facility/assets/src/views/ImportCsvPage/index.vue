@@ -5,24 +5,18 @@
     <h1>{{ $tr('pageHeader') }}</h1>
 
     <Init
-      v-if="state === 'INIT'"
+      v-if="status === CSVImportStatuses.NOT_STARTED"
       @cancel="done"
       @next="preview"
     />
     <Preview
-      v-else-if="state === 'PREVIEW'"
-      @cancel="done"
-      @next="startImport"
+      v-else-if="showPreviewState"
+      @done="done"
     />
-    <Preview
-      v-else-if="state === 'RESULTS'"
-      isFinal
-      @next="done"
-    />
-    <template
-      v-else-if="state === 'IN_PROGRESS'"
-    >
-      <KCircularLoader style="margin: 32px" />
+    <template v-else-if="showLoaderState">
+      <div class="loader-wrapper">
+        <KCircularLoader class="loader" /> Loading...
+      </div>
     </template>
 
   </KPageContainer>
@@ -32,6 +26,8 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
+  import { CSVImportStatuses } from '../../constants';
   import Init from './Init';
   import Preview from './Preview';
 
@@ -46,26 +42,50 @@
       Init,
       Preview,
     },
-    data() {
-      return {
-        state: 'INIT',
-      };
+    computed: {
+      ...mapState('importCSV', ['status']),
+      CSVImportStatuses: () => CSVImportStatuses,
+      showPreviewState() {
+        return [
+          CSVImportStatuses.VALIDATED,
+          CSVImportStatuses.ERRORS,
+          CSVImportStatuses.FINISHED,
+        ].includes(this.status);
+      },
+      showLoaderState() {
+        return [CSVImportStatuses.VALIDATING, CSVImportStatuses.SAVING].includes(this.status);
+      },
+    },
+    watch: {
+      pollForTasks(val) {
+        return val ? this.startTaskPolling() : this.stopTaskPolling();
+      },
+    },
+    mounted() {
+      this.$store.commit('importCSV/RESET_STATE');
+      this.refreshTaskList();
+      this.startTaskPolling();
+    },
+    destroyed() {
+      this.stopTaskPolling();
     },
     methods: {
-      preview() {
-        this.state = 'IN_PROGRESS';
-        setTimeout(() => {
-          this.state = 'PREVIEW';
-        }, 2000);
-      },
-      startImport() {
-        this.state = 'IN_PROGRESS';
-        setTimeout(() => {
-          this.state = 'RESULTS';
-        }, 2000);
+      ...mapActions('importCSV', ['startValidating', 'refreshTaskList']),
+      preview(file, deleteUsers) {
+        this.startValidating({ deleteUsers: deleteUsers, file: file });
       },
       done() {
         this.$router.push(this.$router.getRoute('DATA_PAGE'));
+      },
+      startTaskPolling() {
+        if (!this.intervalId) {
+          this.intervalId = setInterval(this.refreshTaskList, 1000);
+        }
+      },
+      stopTaskPolling() {
+        if (this.intervalId) {
+          this.intervalId = clearInterval(this.intervalId);
+        }
       },
     },
     $trs: {
@@ -81,6 +101,17 @@
   .caution {
     font-weight: bold;
     color: red;
+  }
+
+  .loader-wrapper {
+    margin: 32px;
+  }
+
+  .loader {
+    position: relative;
+    top: 8px;
+    display: inline-block;
+    margin-right: 16px;
   }
 
 </style>

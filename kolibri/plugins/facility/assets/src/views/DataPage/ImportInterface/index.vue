@@ -45,13 +45,32 @@
 
   // temporarily used for mockups
   function dummyExport() {
-    const COLS = ['Username', 'Full name', 'User type', 'Birth year', 'Enrolled in', 'Assigned to'];
+    const COLS = [
+      'Username',
+      'Password',
+      'Full name',
+      'User type',
+      'Identifier',
+      'Birth year',
+      'Gender',
+      'Enrolled in',
+      'Assigned to',
+    ];
     csvGenerator.download({
       fileName: 'users.csv',
       dataArray: [
         COLS,
-        ['teach4life', 'Mr Jones', 'FACILITY_COACH', 1975, '', 'Algebra 1, Geometry'],
-        ['student4now', 'Alice', 'LEARNER', 2008, 'Geometry', ''],
+        [
+          'teach4life',
+          'password123',
+          'Mr Jones',
+          'FACILITY_COACH',
+          '',
+          1975,
+          'NOT_SPECIFIED',
+          'Algebra 1, Geometry',
+        ],
+        ['student4now', '', 'Alice', 'LEARNER', 'ABC123', 2008, 'MALE', '', 'Geometry'],
       ],
       settings: {
         separator: ',',
