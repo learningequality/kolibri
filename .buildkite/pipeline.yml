@@ -16,7 +16,7 @@ steps:
         LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
         # Determines whether build will be autoblocked or not.
         # Autoblock unless there's a tag associated with the commit. Usually a release.
-        AUTOBLOCK: "${BUILDKITE_TAG:false}"
+        LE_KOLIBRI_RELEASE: "${BUILDKITE_TAG:-false}"
 
     # Android build only requires whl file
   # - label: Build Android APK
@@ -41,7 +41,7 @@ steps:
         LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
         # Determines whether build will be autoblocked or not.
         # Autoblock unless there's a tag associated with the commit. Usually a release.
-        AUTOBLOCK: "${BUILDKITE_TAG:false}"
+        LE_KOLIBRI_RELEASE: "${BUILDKITE_TAG:-false}"
     depends_on:
       - deb-build
 
