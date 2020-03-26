@@ -1,7 +1,7 @@
 # Requirements for building wheels
 # This does not depend on runtime stuff so we do not
 # include base.txt
-sphinx==2.4.4
+sphinx==1.8.5
 sphinx-intl==1.0.0
 sphinx-rtd-theme==0.4.3
 sphinx-autobuild==0.7.1
