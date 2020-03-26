@@ -5,7 +5,7 @@
     <template v-if="isError">
       <p>Importing is not possible due to the following errors:</p>
       <ul>
-        <li v-for="message in this.overall_error">
+        <li v-for="(message, index) in overall_error" :key="index">
           {{ message }}
         </li>
       </ul>
@@ -116,7 +116,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="obj in per_line_errors">
+            <tr v-for="(obj, index) in per_line_errors" :key="index">
               <td>{{ obj.row }}</td>
               <td>{{ obj.field }}</td>
               <td>{{ obj.value }}</td>
