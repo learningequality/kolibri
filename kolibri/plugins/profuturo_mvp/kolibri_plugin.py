@@ -54,6 +54,8 @@ class ProfuturoThemeHook(theme_hook.ThemeHook):
                 "appBarDark": "#001d27",
             },
             theme_hook.SIGN_IN: {
+                theme_hook.BACKGROUND: static("pf-bg.jpg"),
+                theme_hook.SCRIM_OPACITY: 0,
                 theme_hook.TOP_LOGO: {
                     theme_hook.IMG_SRC: logo,
                     theme_hook.IMG_STYLE: "",
