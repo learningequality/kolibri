@@ -8,6 +8,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from django.core.management.base import CommandError
 
+from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.demographics import choices
 from kolibri.core.auth.csv_utils import input_fields
 from kolibri.core.auth.models import Classroom
@@ -37,11 +38,13 @@ fieldnames = (
     "Enrolled in",
     "Assigned to",
 )
+
+# These constants must be entered vertbatim in the CSV
 roles_map = {
     "LEARNER": None,
-    "ADMIN": "admin",
-    "FACILITY COACH": "coach",
-    "CLASS COACH": "classroom assignable coach",
+    "ADMIN": role_kinds.ADMIN,
+    "FACILITY_COACH": role_kinds.COACH,
+    "CLASS_COACH": role_kinds.ASSIGNABLE_COACH,
 }
 
 # Validators ###
