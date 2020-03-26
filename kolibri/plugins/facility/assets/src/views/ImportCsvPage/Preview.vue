@@ -77,10 +77,10 @@
       />
       <span v-if="!isError">
         <KButton
-          text="Continue"
+          text="Import"
           appearance="raised-button"
           primary
-          @click="$emit('next')"
+          @click="startSavingUsers"
         />
       </span>
     </p>
@@ -93,22 +93,11 @@
 
 <script>
 
-  import { mapState } from 'vuex';
-  // if whole CSV cannot be parsed, wrong number of cols, etc
-  // const overall_error = {};
+  import { mapState, mapActions } from 'vuex';
+  import { CSVImportStatuses } from '../../constants';
 
   export default {
     name: 'Preview',
-    props: {
-      isFinal: {
-        type: Boolean,
-        default: false,
-      },
-      isError: {
-        type: Boolean,
-        default: false,
-      },
-    },
     computed: {
       logs() {
         if (this.overall_error.length) return this.overall_error.join('\n');
@@ -120,12 +109,22 @@
             )
             .join('\n');
       },
+      isError() {
+        return this.status === CSVImportStatuses.ERRORS;
+      },
+      isFinal() {
+        return this.status === CSVImportStatuses.FINISHED;
+      },
       ...mapState('importCSV', [
         'overall_error',
         'per_line_errors',
         'classes_report',
         'users_report',
+        'status',
       ]),
+    },
+    methods: {
+      ...mapActions('importCSV', ['startSavingUsers']),
     },
   };
 

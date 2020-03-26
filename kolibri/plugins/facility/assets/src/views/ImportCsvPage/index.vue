@@ -10,20 +10,10 @@
       @next="preview"
     />
     <Preview
-      v-else-if="status === CSVImportStatuses.VALIDATED || status === CSVImportStatuses.ERRORS"
-      :isError="status === CSVImportStatuses.ERRORS ? true : false"
+      v-else-if="showPreviewState"
       @cancel="done"
-      @next="startImport"
     />
-    <Preview
-      v-else-if="status === CSVImportStatuses.FINISHED || status === CSVImportStatuses.ERRORS"
-      :isFinal="status === CSVImportStatuses.FINISHED ? true : false"
-      :isError="status === CSVImportStatuses.ERRORS ? true : false"
-      @next="done"
-    />
-    <template
-      v-else-if="status === CSVImportStatuses.VALIDATING || status === CSVImportStatuses.SAVING "
-    >
+    <template v-else-if="showLoaderState">
       <KCircularLoader style="margin: 32px" />
     </template>
 
@@ -53,6 +43,16 @@
     computed: {
       ...mapState('importCSV', ['status']),
       CSVImportStatuses: () => CSVImportStatuses,
+      showPreviewState() {
+        return [
+          CSVImportStatuses.VALIDATED,
+          CSVImportStatuses.ERRORS,
+          CSVImportStatuses.FINISHED,
+        ].includes(this.status);
+      },
+      showLoaderState() {
+        return [CSVImportStatuses.VALIDATING, CSVImportStatuses.SAVING].includes(this.status);
+      },
     },
     watch: {
       pollForTasks(val) {
@@ -68,12 +68,9 @@
       this.stopTaskPolling();
     },
     methods: {
-      ...mapActions('importCSV', ['startValidating', 'startSavingUsers', 'refreshTaskList']),
+      ...mapActions('importCSV', ['startValidating', 'refreshTaskList']),
       preview(file, deleteUsers) {
         this.startValidating({ deleteUsers: deleteUsers, file: file });
-      },
-      startImport() {
-        this.startSavingUsers();
       },
       done() {
         this.$router.push(this.$router.getRoute('DATA_PAGE'));
