@@ -14,7 +14,9 @@
       @cancel="done"
     />
     <template v-else-if="showLoaderState">
-      <KCircularLoader style="margin: 32px" />
+      <div class="loader-wrapper">
+        <KCircularLoader class="loader" /> Loading...
+      </div>
     </template>
 
   </KPageContainer>
@@ -99,6 +101,17 @@
   .caution {
     font-weight: bold;
     color: red;
+  }
+
+  .loader-wrapper {
+    margin: 32px;
+  }
+
+  .loader {
+    position: relative;
+    top: 8px;
+    display: inline-block;
+    margin-right: 16px;
   }
 
 </style>
