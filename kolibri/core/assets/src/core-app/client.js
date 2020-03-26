@@ -86,9 +86,15 @@ const client = options => {
       options.params[cacheBust] = cacheBust;
     }
   }
+  let mimeType = 'application/json';
+  // in case a File obj must be POSTed:
+  if (options.entity !== 'undefined' && options.method === 'POST') {
+    if (Object.values(options.entity).filter(a => typeof a === 'object').length)
+      mimeType = 'multipart/form-data';
+  }
   return baseClient
     .wrap(disconnectInterceptor)
-    .wrap(mime, { mime: 'application/json' })
+    .wrap(mime, { mime: mimeType })
     .wrap(loginTimeoutDetection)
     .wrap(serverDisconnectDetection)(options)
     .then(response => {

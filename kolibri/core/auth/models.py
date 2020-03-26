@@ -990,6 +990,14 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
             source_user=F("id"), ancestor_collection=self, role_kind=role_kinds.COACH
         )
 
+    def get_admins(self):
+        """
+        Returns users who have the admin role for this immediate collection.
+        """
+        return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
+            source_user=F("id"), ancestor_collection=self, role_kind=role_kinds.ADMIN
+        )
+
     def add_role(self, user, role_kind):
         """
         Create a ``Role`` associating the provided user with this collection, with the specified kind of role.

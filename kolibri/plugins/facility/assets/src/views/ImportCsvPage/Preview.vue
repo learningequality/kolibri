@@ -2,81 +2,155 @@
 
   <!-- eslint-disable max-len -->
   <div>
-
-    <template v-if="isFinal">
-      <h2 style="color: green;">
-        SUCCESS!
-      </h2>
-      <p>The following changes were made:</p>
+    <template v-if="isError">
+      <p>Importing is not possible due to the following errors:</p>
+      <ul>
+        <li v-for="(message, index) in overall_error" :key="index">
+          {{ message }}
+        </li>
+      </ul>
     </template>
+
     <template v-else>
-      <p>Changes if you choose to import:</p>
+      <template v-if="isFinished">
+        <h2 style="color: green;">
+          SUCCESS!
+        </h2>
+        <p>The following changes were made:</p>
+      </template>
+      <template v-else>
+        <p>Summary of changes if you choose to import:</p>
+      </template>
+
+      <table class="indent">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="numeric">
+              Updated
+            </th>
+            <th class="numeric">
+              Added
+            </th>
+            <th
+              v-if="showDeletionCol"
+              class="numeric"
+            >
+              Deleted
+            </th>
+            <th
+              v-if="numSkipped"
+              class="numeric"
+            >
+              Skipped
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Users</td>
+            <td class="numeric">
+              {{ users_report.updated }}
+            </td>
+            <td
+              class="numeric"
+              style="color: green;"
+            >
+              {{ users_report.created }}
+            </td>
+            <td
+              v-if="showDeletionCol"
+              class="numeric"
+              style="color: red;"
+            >
+              {{ users_report.deleted }}
+            </td>
+            <td
+              v-if="numSkipped"
+              class="numeric"
+            >
+              {{ numSkipped }}
+            </td>
+          </tr>
+          <tr>
+            <td>Classes</td>
+            <td class="numeric">
+              {{ classes_report.updated }}
+            </td>
+            <td
+              class="numeric"
+              style="color: green;"
+            >
+              {{ classes_report.created }}
+            </td>
+            <td
+              v-if="showDeletionCol"
+              class="numeric"
+              style="color: red;"
+            >
+              {{ classes_report.cleared }}
+            </td>
+            <td
+              v-if="numSkipped"
+              class="numeric"
+            ></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <template v-if="per_line_errors.length">
+        <p v-if="isFinished">
+          Some rows were skipped:
+        </p>
+        <p v-else>
+          Some rows have errors and will be skipped if you continue:
+        </p>
+
+        <table class="indent">
+          <thead>
+            <tr>
+              <th>Row number</th>
+              <th>Column name</th>
+              <th>Value</th>
+              <th>Error</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(obj, index) in per_line_errors" :key="index">
+              <td>{{ obj.row }}</td>
+              <td>{{ obj.field }}</td>
+              <td>{{ obj.value }}</td>
+              <td>{{ obj.message }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+
     </template>
 
-    <table class="indent">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Updated</th>
-          <th>Added</th>
-          <th>Deleted</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>Users</th>
-          <td>6</td>
-          <td style="color: green;">
-            123
-          </td>
-          <td style="color: red;">
-            5
-          </td>
-        </tr>
-        <tr>
-          <th>Classes</th>
-          <td></td>
-          <td style="color: green;">
-            3
-          </td>
-          <td style="color: red;">
-            1
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <template v-if="isFinal">
-      <p>We enountered the following issues... (whole file, specific rows, validation...). These items were skipped:</p>
-    </template>
-    <template v-else>
-      <p>We enountered the following issues... (whole file, specific rows, validation...). These items will be skipped if you continue:</p>
-    </template>
-
-
-    <pre class="logs indent">{{ logs }}</pre>
-
-    <p v-if="isFinal">
+    <p v-if="isFinished && !isError">
       <KButton
-        text="Finish"
+        text="Close"
         appearance="raised-button"
         primary
-        @click="$emit('next')"
+        @click="$emit('done')"
       />
     </p>
     <p v-else>
       <KButton
-        text="Cancel"
+        text="Back"
         appearance="raised-button"
         style="margin-left: 0;"
-        @click="$emit('cancel')"
+        @click="reset"
       />
-      <KButton
-        text="Continue"
-        appearance="raised-button"
-        primary
-        @click="$emit('next')"
-      />
+      <span v-if="!isError">
+        <KButton
+          text="Import"
+          appearance="raised-button"
+          primary
+          @click="startSavingUsers"
+        />
+      </span>
     </p>
 
   </div>
@@ -87,26 +161,38 @@
 
 <script>
 
-  // if whole CSV cannot be parsed, wrong number of cols, etc
-  // const overall_error = {};
-
-  // per-line errors
-  const per_line_errors = [
-    { line: 43, message: "invalid username '....'" },
-    { line: 255, message: 'another issue' },
-  ];
+  import { mapState, mapActions } from 'vuex';
+  import { CSVImportStatuses } from '../../constants';
 
   export default {
     name: 'Preview',
-    props: {
-      isFinal: {
-        type: Boolean,
-        default: false,
-      },
-    },
     computed: {
-      logs() {
-        return per_line_errors.map(obj => `Line ${obj.line}: ${obj.message}`).join('\n');
+      isError() {
+        return this.status === CSVImportStatuses.ERRORS;
+      },
+      isFinished() {
+        return this.status === CSVImportStatuses.FINISHED;
+      },
+      showDeletionCol() {
+        return this.users_report.deleted || this.classes_report.cleared;
+      },
+      numSkipped() {
+        const skippedLines = new Set();
+        this.per_line_errors.forEach(obj => skippedLines.add(obj.row));
+        return skippedLines.size;
+      },
+      ...mapState('importCSV', [
+        'overall_error',
+        'per_line_errors',
+        'classes_report',
+        'users_report',
+        'status',
+      ]),
+    },
+    methods: {
+      ...mapActions('importCSV', ['startSavingUsers']),
+      reset() {
+        this.$store.commit('importCSV/RESET_STATE');
       },
     },
   };
@@ -118,12 +204,19 @@
 
   td,
   th {
-    padding: 4px;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .numeric {
     text-align: right;
   }
 
-  .logs {
-    font-size: smaller;
+  th {
+    font-size: small;
+    font-weight: bold;
+    color: gray;
   }
 
   .indent {
