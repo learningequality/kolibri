@@ -3,66 +3,134 @@
   <!-- eslint-disable max-len -->
   <div>
     <template v-if="isError">
-      <p>We enountered the following issues when importing the file. Importation is not possible:</p>
+      <p>Importing is not possible due to the following errors:</p>
+      <ul>
+        <li v-for="message in this.overall_error">
+          {{ message }}
+        </li>
+      </ul>
     </template>
 
     <template v-else>
-      <template v-if="isFinal">
+      <template v-if="isFinished">
         <h2 style="color: green;">
           SUCCESS!
         </h2>
         <p>The following changes were made:</p>
       </template>
       <template v-else>
-        <p>Changes if you choose to import:</p>
+        <p>Summary of changes if you choose to import:</p>
       </template>
 
       <table class="indent">
         <thead>
           <tr>
             <th></th>
-            <th>Updated</th>
-            <th>Added</th>
-            <th>Deleted</th>
+            <th class="numeric">
+              Updated
+            </th>
+            <th class="numeric">
+              Added
+            </th>
+            <th
+              v-if="showDeletionCol"
+              class="numeric"
+            >
+              Deleted
+            </th>
+            <th
+              v-if="numSkipped"
+              class="numeric"
+            >
+              Skipped
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <th>Users</th>
-            <td>{{ users_report.updated }}</td>
-            <td style="color: green;">
+            <td>Users</td>
+            <td class="numeric">
+              {{ users_report.updated }}
+            </td>
+            <td
+              class="numeric"
+              style="color: green;"
+            >
               {{ users_report.created }}
             </td>
-            <td style="color: red;">
+            <td
+              v-if="showDeletionCol"
+              class="numeric"
+              style="color: red;"
+            >
               {{ users_report.deleted }}
+            </td>
+            <td
+              v-if="numSkipped"
+              class="numeric"
+            >
+              {{ numSkipped }}
             </td>
           </tr>
           <tr>
-            <th>Classes</th>
-            <td>{{ classes_report.updated }}</td>
-            <td style="color: green;">
+            <td>Classes</td>
+            <td class="numeric">
+              {{ classes_report.updated }}
+            </td>
+            <td
+              class="numeric"
+              style="color: green;"
+            >
               {{ classes_report.created }}
             </td>
-            <td style="color: red;">
+            <td
+              v-if="showDeletionCol"
+              class="numeric"
+              style="color: red;"
+            >
               {{ classes_report.cleared }}
             </td>
+            <td
+              v-if="numSkipped"
+              class="numeric"
+            ></td>
           </tr>
         </tbody>
       </table>
 
-      <template v-if="isFinal && logs.length">
-        <p>We enountered the following issues... (whole file, specific rows, validation...). These items were skipped:</p>
+      <template v-if="per_line_errors.length">
+        <p v-if="isFinished">
+          Some rows were skipped:
+        </p>
+        <p v-else>
+          Some rows have errors and will be skipped if you continue:
+        </p>
+
+        <table class="indent">
+          <thead>
+            <tr>
+              <th>Row number</th>
+              <th>Column name</th>
+              <th>Value</th>
+              <th>Error</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="obj in per_line_errors">
+              <td>{{ obj.row }}</td>
+              <td>{{ obj.field }}</td>
+              <td>{{ obj.value }}</td>
+              <td>{{ obj.message }}</td>
+            </tr>
+          </tbody>
+        </table>
       </template>
-      <template v-else-if="logs.length">
-        <p>We enountered the following issues... (whole file, specific rows, validation...). These items will be skipped if you continue:</p>
-      </template>
+
     </template>
 
-    <pre class="logs indent">{{ logs }}</pre>
-
-    <p v-if="isFinal && !isError">
+    <p v-if="isFinished && !isError">
       <KButton
-        text="Finish"
+        text="Close"
         appearance="raised-button"
         primary
         @click="$emit('next')"
@@ -70,10 +138,10 @@
     </p>
     <p v-else>
       <KButton
-        text="Cancel"
+        text="Back"
         appearance="raised-button"
         style="margin-left: 0;"
-        @click="$emit('cancel')"
+        @click="reset"
       />
       <span v-if="!isError">
         <KButton
@@ -99,21 +167,19 @@
   export default {
     name: 'Preview',
     computed: {
-      logs() {
-        if (this.overall_error.length) return this.overall_error.join('\n');
-        else
-          return this.per_line_errors
-            .map(
-              obj =>
-                `Line ${obj.row}: ${obj.message} in field ${obj.field} for value "${obj.value}"`
-            )
-            .join('\n');
-      },
       isError() {
         return this.status === CSVImportStatuses.ERRORS;
       },
-      isFinal() {
+      isFinished() {
         return this.status === CSVImportStatuses.FINISHED;
+      },
+      showDeletionCol() {
+        return this.users_report.deleted || this.classes_report.cleared;
+      },
+      numSkipped() {
+        const skippedLines = new Set();
+        this.per_line_errors.forEach(obj => skippedLines.add(obj.row));
+        return skippedLines.size;
       },
       ...mapState('importCSV', [
         'overall_error',
@@ -125,6 +191,9 @@
     },
     methods: {
       ...mapActions('importCSV', ['startSavingUsers']),
+      reset() {
+        this.$store.commit('importCSV/RESET_STATE');
+      },
     },
   };
 
@@ -135,12 +204,19 @@
 
   td,
   th {
-    padding: 4px;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .numeric {
     text-align: right;
   }
 
-  .logs {
-    font-size: smaller;
+  th {
+    font-size: small;
+    font-weight: bold;
+    color: gray;
   }
 
   .indent {
