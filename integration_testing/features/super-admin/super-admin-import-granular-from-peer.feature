@@ -10,7 +10,7 @@ Feature: Super admin imports granular resources from peer
       And I am signed in to Kolibri as super admin, or a user with device permissions to import content
       And I am on *Import from '<local_address>' > Select resources for import* page with the list of available channels
 
-  Scenario: Import resources granularlly from a local peer
+  Scenario: Import resources granularly from a local peer
     When I click *Select resources* button for the <channel> channel
     Then I see the *Importing from "'<local_address>'"* page
     When the channel listing is generated
