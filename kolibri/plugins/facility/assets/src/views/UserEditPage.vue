@@ -339,6 +339,7 @@
           this.$store.dispatch('kolibriLogout');
         } else {
           this.$store.dispatch('createSnackbar', this.$tr('userUpdateNotification'));
+          this.goToUserManagementPage();
         }
       },
       handleSubmitFailure(error) {
