@@ -89,7 +89,7 @@
 
 <script>
 
-  import mapValues from 'lodash/map';
+  import { map } from 'lodash';
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -129,7 +129,7 @@
       languageOptions() {
         return [
           this.browserDefaultOption,
-          ...mapValues(availableLanguages, language => {
+          ...map(availableLanguages, language => {
             return {
               value: language.id,
               label: language.lang_name,
