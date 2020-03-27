@@ -249,7 +249,9 @@ def get_base_logging_config(LOG_ROOT, debug=False, debug_database=False):
     kolibri.utils.conf and kolibri.utils.options need logging, too and
     have to call get_default_logging_config.
     """
-    config = get_default_logging_config(LOG_ROOT, debug=debug, debug_database=debug_database)
+    config = get_default_logging_config(
+        LOG_ROOT, debug=debug, debug_database=debug_database
+    )
     config["filters"]["require_debug_true"] = {"()": RequireDebugTrue}
 
     return config
@@ -261,7 +263,9 @@ def get_logging_config(LOG_ROOT, debug=False, debug_database=False):
     the logging handlers and filters, ``mail_admins`` and
     ``require_debug_false`` both require the Django stack to be active.
     """
-    config = get_base_logging_config(LOG_ROOT, debug=debug, debug_database=debug_database)
+    config = get_base_logging_config(
+        LOG_ROOT, debug=debug, debug_database=debug_database
+    )
 
     config["filters"]["require_debug_false"] = {
         "()": "django.utils.log.RequireDebugFalse"

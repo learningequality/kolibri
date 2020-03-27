@@ -130,7 +130,11 @@ base_option_spec = {
             "envvars": ("KOLIBRI_SERVER_PROFILE",),
         },
         "DEBUG": {"type": "boolean", "default": False, "envvars": ("KOLIBRI_DEBUG",)},
-        "DEBUG_DATABASE": {"type": "boolean", "default": False, "envvars": ("KOLIBRI_DEBUG_DATABASE",)},
+        "DEBUG_DATABASE": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_DEBUG_DATABASE",),
+        },
     },
     "Paths": {
         "CONTENT_DIR": {
