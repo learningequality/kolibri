@@ -203,6 +203,7 @@
             this.createSnackbar(this.$tr('permissionChangeConfirmation'));
             this.saveProgress = SUCCESS;
             this.uiBlocked = false;
+            this.goBack();
           })
           .catch(() => {
             this.uiBlocked = false;
