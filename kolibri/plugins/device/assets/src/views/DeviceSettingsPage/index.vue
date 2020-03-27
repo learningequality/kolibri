@@ -134,7 +134,7 @@
               value: language.id,
               label: language.lang_name,
             };
-          }),
+          }).sort(this.compareLanguages),
         ];
       },
       facilitySettingsUrl() {
@@ -206,6 +206,15 @@
           .catch(() => {
             this.saveStatus = 'ERROR';
           });
+      },
+      compareLanguages(a, b) {
+        if (a.label.toLowerCase() < b.label.toLowerCase()) {
+          return -1;
+        }
+        if (b.label.toLowerCase() < a.label.toLowerCase()) {
+          return 1;
+        }
+        return 0;
       },
       getDeviceSettings,
       saveDeviceSettings,
