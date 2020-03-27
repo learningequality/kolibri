@@ -161,6 +161,8 @@ The Python project-specific dependencies installed above will install ``nodeenv`
 Running the Kolibri server
 --------------------------
 
+.. _devserver:
+
 Development server
 ~~~~~~~~~~~~~~~~~~
 
@@ -198,7 +200,7 @@ Or:
 Development server - advanced
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The commands above will start multiple concurrent processes: one for the Django web server, and at least one more for the webpack devserver. If you'd like to start these processes separately, you can do it in two separate terminal windows.
+The commands above will start multiple concurrent processes: One for the Django web server, and at least one more for the webpack devserver. If you'd like to start these processes separately, you can do it in two separate terminal windows.
 
 In the first terminal you can start the django development server with this command:
 
@@ -381,9 +383,11 @@ We have a large number of reusable patterns, conventions, and components built i
 Linting and auto-formatting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Linting and code auto-formatting provided by Prettier and Black are run in the background automatically by default when you run the dev server.  It is a good to monitor for linting errors in the build process: while the build may complete, it will also issue warnings to the terminal.
+Linting and code auto-formatting provided by Prettier and Black are run in the background automatically by ``yarn run devserver`` (see :ref:`devserver`). You can monitor for linting errors and warnings in the terminal outputs of the dev server while it is running.
 
-A full set of linting and auto-formatting can also be applied by pre-commit hooks (instructions below). If those are bypassed or not triggered, our Travis CI builds will eventually fail.
+A full set of linting and auto-formatting can also be applied by pre-commit hooks (instructions below). The pre-commit hooks are identical to the automated build check by Travis CI in Pull Requests.
+
+.. tip:: As a convenience, many developers install linting and formatting plugins in their code editor (IDE). Installing ESLint, Prettier, Black, and Flake8 plugins in your editor will catch most (but not all) code-quality checks.
 
 You can manually run the auto-formatters using:
 
@@ -408,6 +412,8 @@ Pre-commit is already installed as a development dependency, but you also need t
   pre-commit install
 
 .. note:: Pre-commit can have issues running from alternative Git clients like GitUp. If you encounter problems while committing changes, run ``pre-commit uninstall`` to disable pre-commit.
+
+.. warning:: If you do not use any linting tools, your code is likely fail our server-side checks and you will need to update the PR in order to get it merged.
 
 
 Automated testing
