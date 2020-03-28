@@ -1,5 +1,3 @@
-VPATH = ./dist/android/
-
 # Clear out apks
 clean:
 	- rm -rf dist/android/*.apk project_info.json ./src/kolibri
@@ -24,7 +22,7 @@ pew_release_flag = --release
 endif
 
 # Buld the debug version of the apk
-Kolibri%.apk: project_info.json
+kolibri.apk: project_info.json
 	pew build android $(pew_release_flag)
 
 # DOCKER BUILD
