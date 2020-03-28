@@ -16,24 +16,28 @@ src/kolibri:
 project_info.json: project_info.template src/kolibri scripts/create_project_info.py
 	python ./scripts/create_project_info.py
 
+.PHONY: p4a_android_distro
+p4a_android_distro: whitelist.txt project_info.json
+	pew init android
 
 ifdef P4A_RELEASE_KEYSTORE_PASSWD
 pew_release_flag = --release
 endif
 
+.PHONY: kolibri.apk
 # Buld the debug version of the apk
-kolibri.apk: project_info.json
+kolibri.apk: p4a_android_distro
 	pew build android $(pew_release_flag)
 
 # DOCKER BUILD
 
 # Build the docker image. Should only ever need to be rebuilt if project requirements change.
 # Makes dummy file
-build_docker: project_info.template Dockerfile
+.PHONY: build_docker
+build_docker: Dockerfile
 	docker build -t android_kolibri .
-	touch build_docker
 
 # Run the docker image.
 # TODO Would be better to just specify the file here?
-run_docker: clean project_info.json build_docker
+run_docker: build_docker
 	./scripts/rundocker.sh

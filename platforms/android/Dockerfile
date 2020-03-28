@@ -44,20 +44,8 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
 USER kivy:kivy
 WORKDIR /home/kivy
 
-# Needed to setup & install necessary p4a environment
-COPY --chown=kivy:kivy whitelist.txt project_info.template ./
-COPY --chown=kivy:kivy scripts/create_dummy_project_info.py scripts/
+COPY --chown=kivy:kivy . .
 
-# Makes a dummy project_info, pretty mutch just ot get pew init to run
-# Downlads p4a and all python dependencies for packaging in android
-RUN python ./scripts/create_dummy_project_info.py && pew init android
+ENTRYPOINT [ "make" ]
 
-COPY --chown=kivy:kivy assets assets
-
-# Could probably include this earlier on
-COPY --chown=kivy:kivy icon.png .
-COPY --chown=kivy:kivy src/main.py src/
-
-# Extract .whl files and build the apk
-# Assumes that you're mounting the sourcecode at runtime
-CMD make kolibri.apk
+CMD [ "kolibri.apk" ]
