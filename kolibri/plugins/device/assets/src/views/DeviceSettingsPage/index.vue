@@ -89,7 +89,7 @@
 
 <script>
 
-  import { map } from 'lodash';
+  import map from 'lodash/map';
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
