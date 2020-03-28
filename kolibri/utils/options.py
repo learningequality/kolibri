@@ -130,6 +130,11 @@ base_option_spec = {
             "default": False,
             "envvars": ("KOLIBRI_SERVER_PROFILE",),
         },
+        "ZEROCONF_DISABLE": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_ZEROCONF_DISABLE",),
+        },
     },
     "Paths": {
         "CONTENT_DIR": {

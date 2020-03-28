@@ -98,23 +98,26 @@ class ServicesPlugin(SimplePlugin):
 
         scheduler.start_scheduler()
 
-        # Register the Kolibri zeroconf service so it will be discoverable on the network
-        from kolibri.core.discovery.utils.network.search import (
-            register_zeroconf_service,
-        )
+        if not conf.OPTIONS["Server"]["ZEROCONF_DISABLE"]:
+            # Register the Kolibri zeroconf service so it will be discoverable on the network
+            from kolibri.core.discovery.utils.network.search import (
+                register_zeroconf_service,
+            )
 
-        register_zeroconf_service(port=self.port)
+            register_zeroconf_service(port=self.port)
 
     def stop(self):
         scheduler.shutdown_scheduler()
         if self.workers is not None:
             for worker in self.workers:
                 worker.shutdown()
-        from kolibri.core.discovery.utils.network.search import (
-            unregister_zeroconf_service,
-        )
 
-        unregister_zeroconf_service()
+        if not conf.OPTIONS["Server"]["ZEROCONF_DISABLE"]:
+            from kolibri.core.discovery.utils.network.search import (
+                unregister_zeroconf_service,
+            )
+
+            unregister_zeroconf_service()
 
         if self.workers is not None:
             for worker in self.workers:
