@@ -1,4 +1,5 @@
 # Requirements for building wheels
+# These requirements have to support Python 2.7
 # This does not depend on runtime stuff so we do not
 # include base.txt
 pex<1.6
