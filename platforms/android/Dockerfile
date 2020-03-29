@@ -32,6 +32,12 @@ RUN dpkg --add-architecture i386 && \
     python-wxgtk3.0 \
     && apt-get clean
 
+
+# Allows us to invalidate cache if those repos update.
+# Intentionally not pinning for dev velocity.
+ADD https://github.com/kollivier/python-for-android/archive/webview_plus.zip p4a.zip
+ADD https://github.com/kollivier/pyeverywhere/archive/dev.zip pew.zip
+
 # install python dependencies
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
   python get-pip.py && \
@@ -43,6 +49,9 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
 
 USER kivy:kivy
 WORKDIR /home/kivy
+
+# Initializes the directory, owned by new user. Volume mounts adopt existing permissions, etc.
+RUN mkdir ~/.local ~/.pyeverywhere
 
 COPY --chown=kivy:kivy . .
 
