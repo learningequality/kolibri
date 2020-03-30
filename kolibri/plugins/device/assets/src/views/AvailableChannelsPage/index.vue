@@ -175,20 +175,22 @@
         // We concatenate these arrays to keep to keep the same ordering from the
         // ManageContentPage, where installed channels are pushed to the front,
         // with their custom ordering.
-        const installedChannels = this.installedChannelsWithResources.map(channel => {
-          // Merge in version data to show the new-version notification
-          const match = find(this.availableChannels, { id: channel.id });
-          if (match) {
-            return {
-              ...channel,
-              installed_version: channel.version,
-              // match.latest_version is defined for unlisted channels.
-              // For public channels, match.version is the version reported by Studio.
-              // See getAllRemoteChannels action for details.
-              latest_version: match.latest_version || match.version,
-            };
-          }
-        }).filter(Boolean);
+        const installedChannels = this.installedChannelsWithResources
+          .map(channel => {
+            // Merge in version data to show the new-version notification
+            const match = find(this.availableChannels, { id: channel.id });
+            if (match) {
+              return {
+                ...channel,
+                installed_version: channel.version,
+                // match.latest_version is defined for unlisted channels.
+                // For public channels, match.version is the version reported by Studio.
+                // See getAllRemoteChannels action for details.
+                latest_version: match.latest_version || match.version,
+              };
+            }
+          })
+          .filter(Boolean);
         const notInstalledChannels = differenceBy(
           this.availableChannels,
           this.installedChannelsWithResources,
