@@ -68,31 +68,12 @@ class CustomAuthenticationMiddleware(AuthenticationMiddleware):
         request.user = SimpleLazyObject(lambda: _get_user(request))
 
     def process_response(self, request, response):
-        # If we don't have a session, just return the response.
-        # We do this because we cannot ask request.user.is_anonymous()
-        # if WSGIRequest doesn't have a session
-        if not hasattr(request, "session"):
-            return response
-
-        # If we have a non-anonymous user, delete the cookie and respond
-        if not request.user.is_anonymous():
-            response.delete_cookie("anonymous_session_id")
-            return response
-
         # Now we know user is anonymous - get 1200s cookie expiry from utcnow
-        cookie_expiry = datetime.utcnow() + timedelta(seconds=1200)
+        cookie_expiry = datetime.utcnow() + timedelta(years=100)
 
         if not request.COOKIES.get("anonymous_session_id"):
             # Establish a cookie if there isn't one
             response.set_cookie(
                 "anonymous_session_id", str(uuid.uuid4()), expires=cookie_expiry
-            )
-        else:
-            # If the cookie isn't expired, reset the expiry because we know it is
-            # an anonymous user and the cookie isn't expired yet because it came in the request.
-            response.set_cookie(
-                "anonymous_session_id",
-                request.COOKIES.get("anonymous_session_id"),
-                expires=cookie_expiry,
             )
         return response
