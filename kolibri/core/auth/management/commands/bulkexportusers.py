@@ -176,13 +176,12 @@ class Command(AsyncCommand):
             temp_dir = os.path.join(conf.KOLIBRI_HOME, "temp")
             if not os.path.isdir(temp_dir):
                 os.mkdir(temp_dir)
-            filepath = mkstemp(suffix=".download", dir=temp_dir)
+            filepath = mkstemp(suffix=".download", dir=temp_dir)[1]
         else:
             filepath = os.path.join(os.getcwd(), options["output_file"])
         return filepath
 
     def handle_async(self, *args, **options):
-
         filepath = self.get_filepath(options)
         facility = self.get_facility(options)
         job = get_current_job()
