@@ -10,7 +10,6 @@ from django.core.management.base import CommandError
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.demographics import choices
-from kolibri.core.auth.csv_utils import input_fields
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -558,7 +557,7 @@ class Command(AsyncCommand):
                     if has_header:
                         reader = csv.DictReader(f, strict=True)
                     else:
-                        reader = csv.DictReader(f, fieldnames=input_fields, strict=True)
+                        reader = csv.DictReader(f, fieldnames=fieldnames, strict=True)
                     per_line_errors, classes, users, roles = self.csv_values_validation(
                         reader
                     )
