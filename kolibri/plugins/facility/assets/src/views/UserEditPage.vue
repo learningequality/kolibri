@@ -173,9 +173,7 @@
         return this.status === 'BUSY';
       },
       cancelButtonText() {
-        return this.status === 'SUCCESS'
-          ? this.coreString('closeAction')
-          : this.coreString('cancelAction');
+        return this.coreString('cancelAction');
       },
       coachIsSelected() {
         return this.typeSelected && this.typeSelected.value === UserKinds.COACH;
@@ -332,7 +330,6 @@
           });
       },
       handleSubmitSuccess() {
-        this.status = 'SUCCESS';
         // newUserKind is falsey if Super Admin, since that's not a facility role
         if (this.willBeLoggedOut) {
           // Log out of Facility Page if and Admin demotes themselves to non-Admin
