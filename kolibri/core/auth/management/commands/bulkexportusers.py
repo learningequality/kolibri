@@ -182,6 +182,7 @@ class Command(AsyncCommand):
         return filepath
 
     def handle_async(self, *args, **options):
+        self.overall_error = []
         filepath = self.get_filepath(options)
         facility = self.get_facility(options)
         job = get_current_job()
@@ -194,8 +195,10 @@ class Command(AsyncCommand):
                 ):
                     progress_update(1)
             except (ValueError, IOError) as e:
-                logger.error("Error trying to write csv file: {}".format(e))
-                sys.exit(1)
+                self.overall_error.append(
+                    "Error trying to write csv file: {}".format(e)
+                )
+                raise CommandError(self.overall_error[-1])
 
             if job:
                 job.extra_metadata["overall_error"] = self.overall_error
