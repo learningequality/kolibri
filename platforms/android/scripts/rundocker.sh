@@ -1,15 +1,18 @@
 #!/bin/bash
 
+set -e
+
 CONTAINER_HOME=/home/kivy
 
+# Specifies the name of the docker volume used to store p4a cache
+P4A_CACHE=p4a_cache
+PEW_CACHE=pew_cache
+
 # create the container to be used throughout the script
+# creates a volume for reuse between builds, holding p4a's android distro
 CONTAINER_ID=$(docker create -it \
-  --mount type=bind,src=${PWD}/whl,dst=${CONTAINER_HOME}/whl \
-  --mount type=bind,src=${PWD}/src,dst=${CONTAINER_HOME}/src \
-  --mount type=bind,src=${PWD}/scripts,dst=${CONTAINER_HOME}/scripts \
-  --mount type=bind,src=${PWD}/Makefile,dst=${CONTAINER_HOME}/Makefile \
-  --mount type=bind,src=${PWD}/src/main.py,dst=${CONTAINER_HOME}/src/main.py \
-  --mount type=bind,src=${PWD}/project_info.json,dst=${CONTAINER_HOME}/project_info.json \
+  --mount type=volume,src=${P4A_CACHE},dst=${CONTAINER_HOME}/.local \
+  --mount type=volume,src=${PEW_CACHE},dst=${CONTAINER_HOME}/.pyeverywhere \
   --env P4A_RELEASE_KEYSTORE=${CONTAINER_HOME}/$(basename "${P4A_RELEASE_KEYSTORE}") \
   --env P4A_RELEASE_KEYALIAS \
   --env P4A_RELEASE_KEYSTORE_PASSWD \

@@ -32,6 +32,12 @@ RUN dpkg --add-architecture i386 && \
     python-wxgtk3.0 \
     && apt-get clean
 
+
+# Allows us to invalidate cache if those repos update.
+# Intentionally not pinning for dev velocity.
+ADD https://github.com/kollivier/python-for-android/archive/webview_plus.zip p4a.zip
+ADD https://github.com/kollivier/pyeverywhere/archive/dev.zip pew.zip
+
 # install python dependencies
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
   python get-pip.py && \
@@ -44,19 +50,11 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
 USER kivy:kivy
 WORKDIR /home/kivy
 
-# Needed to setup & install necessary p4a environment
-COPY --chown=kivy:kivy whitelist.txt project_info.template ./
-COPY --chown=kivy:kivy scripts/create_dummy_project_info.py scripts/
+# Initializes the directory, owned by new user. Volume mounts adopt existing permissions, etc.
+RUN mkdir ~/.local ~/.pyeverywhere
 
-# Makes a dummy project_info, pretty mutch just ot get pew init to run
-# Downlads p4a and all python dependencies for packaging in android
-RUN python ./scripts/create_dummy_project_info.py && pew init android
+COPY --chown=kivy:kivy . .
 
-COPY --chown=kivy:kivy assets assets
+ENTRYPOINT [ "make" ]
 
-# Could probably include this earlier on
-COPY --chown=kivy:kivy icon.png .
-COPY --chown=kivy:kivy src/main.py src/
-
-# Extract .whl files and build the apk
-CMD make Kolibri%.apk
+CMD [ "kolibri.apk" ]
