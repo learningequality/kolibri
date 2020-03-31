@@ -30,6 +30,7 @@ RUN dpkg --add-architecture i386 && \
     zlib1g-dev \
     zlib1g:i386 \
     python-wxgtk3.0 \
+    libgtk-3-dev \
     && apt-get clean
 
 # install python dependencies
@@ -48,7 +49,7 @@ WORKDIR /home/kivy
 COPY --chown=kivy:kivy whitelist.txt project_info.template ./
 COPY --chown=kivy:kivy scripts/create_dummy_project_info.py scripts/
 
-# Makes a dummy project_info, pretty mutch just ot get pew init to run
+# Makes a dummy project_info, pretty mutch just to get pew init to run
 # Downlads p4a and all python dependencies for packaging in android
 RUN python ./scripts/create_dummy_project_info.py && pew init android
 

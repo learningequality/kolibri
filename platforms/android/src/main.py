@@ -13,20 +13,7 @@ import pew.ui
 pew.set_app_name("Kolibri")
 logging.info("Entering main.py...")
 
-
-if pew.ui.platform == "android":
-    from jnius import autoclass
-
-    PythonActivity = autoclass("org.kivy.android.PythonActivity")
-    File = autoclass("java.io.File")
-    Timezone = autoclass("java.util.TimeZone")
-
-
-# TODO check for storage availibility, allow user to chose sd card or internal
-def get_home_folder():
-    kolibri_home_file = PythonActivity.getExternalFilesDir(None)
-    return kolibri_home_file.toString()
-
+PORT = 8080
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(script_dir)
@@ -35,7 +22,23 @@ sys.path.append(os.path.join(script_dir, "kolibri", "dist"))
 os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base"
 
 if pew.ui.platform == "android":
+
+    from jnius import autoclass
+
+    PythonActivity = autoclass("org.kivy.android.PythonActivity")
+    File = autoclass("java.io.File")
+    Timezone = autoclass("java.util.TimeZone")
+
+    # TODO: check for storage availability, allow user to chose sd card or internal
+    def get_home_folder():
+        kolibri_home_file = PythonActivity.getExternalFilesDir(None)
+        return kolibri_home_file.toString()
+
     os.environ["KOLIBRI_HOME"] = get_home_folder()
+
+    # TODO: before shipping the app, make this contingent on debug vs production mode
+    os.environ["KOLIBRI_RUN_MODE"] = "android-dev"
+
     os.environ["TZ"] = Timezone.getDefault().getDisplayName()
     os.environ["LC_ALL"] = "en_US.UTF-8"
 
@@ -45,18 +48,14 @@ if pew.ui.platform == "android":
 
 def start_django():
 
-    # remove this after Kolibri no longer needs it
-    if sys.version[0] == "2":
-        reload(sys)
-        sys.setdefaultencoding("utf8")
-
     logging.info("Starting server...")
     from kolibri.utils.cli import main
 
-    main(["start", "--foreground", "--port=5000"])
+    main(["start", "--foreground", "--port={port}".format(port=PORT)])
 
 
 class Application(pew.ui.PEWApp):
+
     def setUp(self):
         """
         Start your UI and app run loop here.
@@ -105,9 +104,9 @@ class Application(pew.ui.PEWApp):
     def wait_for_server(self):
         from kolibri.utils import server
 
-        home_url = "http://localhost:5000"
+        home_url = "http://localhost:{port}".format(port=PORT)
 
-        # test url to see if servr has started
+        # test url to see if server has started
         def running():
             try:
                 urllib2.urlopen(home_url)
@@ -127,10 +126,11 @@ class Application(pew.ui.PEWApp):
         logging.debug("Persisted View State: {}".format(self.view.get_view_state()))
 
         if "URL" in saved_state and saved_state["URL"].startswith(home_url):
-            pew.ui.run_on_main_thread(self.view.load_url(saved_state["URL"]))
-            return
+            start_url = saved_state["URL"]
+        else:
+            start_url = home_url
 
-        pew.ui.run_on_main_thread(self.view.load_url(home_url))
+        pew.ui.run_on_main_thread(self.view.load_url, start_url)
 
     def get_main_window(self):
         return self.view

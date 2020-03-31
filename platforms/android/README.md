@@ -49,9 +49,9 @@ Run `adb logcat -v brief python:D *:F` to get all debug logs from the Kolibri se
   - If your device doesn't aggressively kill the server, you can open Chrome and use remote debugging tools to see the logs on your desktop.
   - You can also leave the app open and port forward the Android device's Kolibri port using [adb](https://developer.android.com/studio/command-line/adb#forwardports):
   ```
-  adb forward tcp:5000 tcp:5001
+  adb forward tcp:8080 tcp:8081
   ```
-  then going into your desktop's browser and accessing `localhost:5001`. Note that you can map to any port on the host machine, the second argument.
+  then going into your desktop's browser and accessing `localhost:8081`. Note that you can map to any port on the host machine, the second argument.
 
 Alternatively, you can debug the webview directly. Modern Android versions should let you do so from the developer settings.
 
