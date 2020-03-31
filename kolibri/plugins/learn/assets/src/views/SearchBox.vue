@@ -25,27 +25,21 @@
         :placeholder="coreString('searchLabel')"
       >
       <div class="search-buttons-wrapper">
-        <UiIconButton
-          color="black"
+        <KIconButton
+          icon="clear"
+          :color="$themeTokens.text"
           size="small"
           class="search-clear-button"
           :class="searchQuery === '' ? '' : 'search-clear-button-visible'"
-          :style="{ color: $themeTokens.text }"
           :ariaLabel="$tr('clearButtonLabel')"
           @click="handleClickClear"
-        >
-          <KIcon
-            icon="clear"
-            style="top:0; width: 24px; height: 24px;"
-          />
-        </UiIconButton>
-
+        />
         <div
           class="search-submit-button-wrapper"
           :style="{ backgroundColor: $themeTokens.primaryDark }"
         >
-          <UiIconButton
-            type="secondary"
+          <KIconButton
+            :icon="icon"
             color="white"
             class="search-submit-button"
             :disabled="!searchUpdate"
@@ -53,20 +47,7 @@
             :style="{ fill: $themeTokens.textInverted }"
             :ariaLabel="$tr('startSearchButtonLabel')"
             @click="search"
-          >
-            <KIcon
-              v-if="icon === 'search'"
-              icon="search"
-              style="top:0; width: 24px; height: 24px;"
-              :color="$themeTokens.textInverted"
-            />
-            <KIcon
-              v-if="icon === 'arrow_forward'"
-              icon="forward"
-              style="top:0; width: 24px; height: 24px;"
-              :color="$themeTokens.textInverted"
-            />
-          </UiIconButton>
+          />
         </div>
       </div>
     </div>
@@ -121,7 +102,6 @@
 
   import maxBy from 'lodash/maxBy';
   import { mapGetters, mapState } from 'vuex';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
@@ -139,9 +119,6 @@
 
   export default {
     name: 'SearchBox',
-    components: {
-      UiIconButton,
-    },
     mixins: [commonCoreStrings],
     props: {
       icon: {
@@ -344,7 +321,6 @@
     width: 24px;
     height: 24px;
     margin-right: 6px;
-    margin-left: 6px;
     vertical-align: middle;
     visibility: hidden;
   }

@@ -14,18 +14,14 @@
           :aria-label="$tr('enterSearchQuery')"
           @keyup.esc.stop
         >
-
-        <UiIconButton
-          type="secondary"
+        <KIconButton
+          icon="search"
           buttonType="submit"
           :ariaLabel="$tr('submitSearchQuery')"
           class="d-tc"
-        >
-          <KIcon
-            icon="search"
-            style="top: 0; width: 24px; height: 24px;"
-          />
-        </UiIconButton>
+          style="position: relative; top:4px; left: 8px;"
+          size="small"
+        />
       </div>
     </form>
 
@@ -91,7 +87,6 @@
 
 <script>
 
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import Mark from 'mark.js';
   import SideBar from './SideBar';
 
@@ -145,7 +140,6 @@
     name: 'SearchSideBar',
     components: {
       SideBar,
-      UiIconButton,
     },
     props: {
       book: {

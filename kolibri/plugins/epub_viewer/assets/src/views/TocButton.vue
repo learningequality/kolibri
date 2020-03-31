@@ -1,29 +1,20 @@
 <template>
 
-  <UiIconButton
-    type="secondary"
+  <KIconButton
+    icon="list"
     :ariaLabel="$tr('toggleTocSideBar')"
     data-test="toc button"
+    size="small"
     @click="$emit('click')"
-  >
-    <KIcon
-      icon="list"
-      style="top: 0; width: 24px; height: 24px;"
-    />
-  </UiIconButton>
+  />
 
 </template>
 
 
 <script>
 
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
-
   export default {
     name: 'TocButton',
-    components: {
-      UiIconButton,
-    },
     $trs: {
       toggleTocSideBar: 'Toggle table of contents',
     },

@@ -4,35 +4,33 @@
     class="sort-widget"
     :class="{ focused: hasFocus, 'not-focused': !hasFocus }"
   >
-    <UiIconButton
+    <KIconButton
       v-show="!isFirst"
       ref="upBtn"
+      icon="arrow_up"
       class="btn up"
-      type="flat"
+      size="mini"
       :ariaLabel="moveUpText"
       :class="{ visuallyhidden: !hasFocus }"
       @click="clickUp"
       @keyup.space="clickUp"
-    >
-      <KIcon icon="arrow_up" />
-    </UiIconButton>
+    />
     <!--
       Currently missing from material icon repo.
       See https://github.com/google/material-design-icons/issues/786
      -->
     <KIcon icon="drag" class="grip" style="top: 0; width: 24px; height: 24px" />
-    <UiIconButton
+    <KIconButton
       v-show="!isLast"
       ref="dnBtn"
+      icon="arrow_down"
       class="btn dn"
-      type="flat"
+      size="mini"
       :ariaLabel="moveDownText"
       :class="{ visuallyhidden: !hasFocus }"
       @click="clickDown"
       @keyup.space="clickDown"
-    >
-      <KIcon icon="arrow_down" />
-    </UiIconButton>
+    />
   </div>
 
 </template>
@@ -40,13 +38,8 @@
 
 <script>
 
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
-
   export default {
     name: 'DragSortWidget',
-    components: {
-      UiIconButton,
-    },
     props: {
       moveUpText: {
         type: String,
@@ -123,7 +116,6 @@
 
   .btn {
     position: absolute;
-    left: -6px;
     z-index: 2;
     transition: opacity $core-time ease;
   }
@@ -144,6 +136,8 @@
 
   .dn {
     top: 4px;
+    // Why do I have to do this? I do not know.
+    left: 0;
   }
 
 </style>

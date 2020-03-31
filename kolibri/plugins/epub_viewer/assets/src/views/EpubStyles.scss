@@ -50,7 +50,7 @@ $bottom-bar-height: 54px;
     left: 50%;
     transform: translate(-50%, -50%) !important;
   }
-  svg {
+  /deep/ svg {
     border: 2px solid;
     border-radius: 50%;
   }

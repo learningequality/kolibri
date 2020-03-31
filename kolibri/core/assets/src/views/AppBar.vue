@@ -13,18 +13,13 @@
       :raised="false"
       :removeBrandDivider="true"
     >
-      <UiIconButton
+      <KIconButton
         slot="icon"
-        type="secondary"
-        :aria-label="$tr('openNav')"
-        style=""
+        icon="menu"
+        :color="$themeTokens.textInverted"
+        :ariaLabel="$tr('openNav')"
         @click="$emit('toggleSideNav')"
-      >
-        <KIcon
-          icon="menu"
-          :style="{ fill: $themeTokens.textInverted, verticalAlign: 'baseline' }"
-        />
-      </UiIconButton>
+      />
 
       <img
         v-if="$kolibriBranding.appBar.topLogo"
@@ -113,7 +108,7 @@
   import { mapGetters, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
+  import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
@@ -131,7 +126,7 @@
     name: 'AppBar',
     components: {
       UiToolbar,
-      UiIconButton,
+      KIconButton,
       CoreMenu,
       UiButton,
       CoreMenuOption,

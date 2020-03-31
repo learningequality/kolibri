@@ -7,9 +7,9 @@
     textColor="white"
     :removeNavIcon="$attrs.removeNavIcon"
   >
-    <UiIconButton
+    <KIconButton
       slot="icon"
-      type="secondary"
+      icon="back"
       color="white"
       :class="{ 'rtl-icon': isRtl }"
       @click="$emit('click_back')"
@@ -33,13 +33,11 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
 
   export default {
     name: 'ProgressToolbar',
     components: {
       UiToolbar,
-      UiIconButton,
     },
     mixins: [commonCoreStrings],
     props: {

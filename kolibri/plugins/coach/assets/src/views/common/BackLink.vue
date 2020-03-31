@@ -2,19 +2,14 @@
 
   <!-- TODO: move this to be a core KBackLink -->
   <span v-show="!$isPrint" class="offset">
-    <UiIconButton
-      type="flat"
-      class="icon"
-      tabIndex="-1"
-      aria-hidden="true"
-      @click="go"
-    >
-      <KIcon
+    <router-link :to="go">
+      <KLabeledIcon
         icon="back"
-        :style="{ fill: $themeTokens.primary, top: 0, height: '24px', width: '24px' }"
+        :label="text"
+        :color="$themeTokens.primary"
+        style="text-decoration: underline;"
       />
-    </UiIconButton>
-    <KRouterLink :to="to" :text="text" />
+    </router-link>
   </span>
 
 </template>
@@ -22,13 +17,8 @@
 
 <script>
 
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
-
   export default {
     name: 'BackLink',
-    components: {
-      UiIconButton,
-    },
     props: {
       text: {
         type: String,
