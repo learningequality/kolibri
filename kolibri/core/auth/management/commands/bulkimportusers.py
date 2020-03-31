@@ -42,8 +42,8 @@ fieldnames = (
 roles_map = {
     "LEARNER": None,
     "ADMIN": role_kinds.ADMIN,
-    "FACILITY_COACH": role_kinds.COACH,
-    "CLASS_COACH": role_kinds.ASSIGNABLE_COACH,
+    "COACH": role_kinds.COACH,
+    "ASSIGNABLE_COACH": role_kinds.ASSIGNABLE_COACH,
 }
 
 # Validators ###
@@ -265,10 +265,10 @@ class Command(AsyncCommand):
         validator.add_check(
             "User type", enumeration(*roles_map.keys()), "Not a valid user type",
         )
-        # validator.add_check("Gender", enumeration(tuple(val[1] for val in choices)), "Not a valid gender")
+
         validator.add_check(
             "Gender",
-            enumeration(*tuple(val[0] for val in choices)),
+            enumeration('', *tuple(val[0] for val in choices)),
             "Not a valid gender",
         )
         validator.add_check("Identifier", value_length(64), "Identifier is too long")

@@ -59,10 +59,9 @@ db_columns = (
 )
 # These constants must be entered vertbatim in the CSV
 roles_map = {
-    "LEARNER": "Learner",
-    "ADMIN": role_kinds.ADMIN,
-    "FACILITY_COACH": role_kinds.COACH,
-    "CLASS_COACH": role_kinds.ASSIGNABLE_COACH,
+    role_kinds.ADMIN: "ADMIN",
+    role_kinds.COACH: "COACH",
+    role_kinds.ASSIGNABLE_COACH: "ASSIGNABLE_COACH",
 }
 
 
@@ -71,13 +70,13 @@ def not_specified(field, obj):
     return None if val == "NOT_SPECIFIED" else val
 
 
-def learners(field, obj):
+def kind_of_roles(field, obj):
     val = obj[field]
-    return "learner" if val is None else val
+    return "LEARNER" if val is None else roles_map[val.lower()]
 
 
 output_mappings = {
-    "kind": partial(learners, "kind"),
+    "kind": partial(kind_of_roles, "kind"),
     "gender": partial(not_specified, "gender"),
     "birth_year": partial(not_specified, "birth_year"),
 }

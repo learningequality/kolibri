@@ -8,7 +8,7 @@
     @cancel="closeModal"
     @submit="closeModal"
   >
-    <p>A CSV spreadsheet should use the first row as a header. It must contain the following columns in order:</p>
+    <p>A CSV spreadsheet should use the first row as a header. It must contain the following columns in any order:</p>
 
     <table>
       <tbody>
@@ -17,21 +17,21 @@
             Username
           </th>
           <td>Required</td>
-          <td>Less than X chars and only these things</td>
+          <td>Less than 125 chars and only can contain characters, numbers and underscores</td>
         </tr>
         <tr>
           <th>
             Password
           </th>
-          <td>Required</td>
-          <td>At most N chars</td>
+          <td>If it's not provided the system will set it to 'kolibri'</td>
+          <td>At most 128 chars</td>
         </tr>
         <tr>
           <th>
             Full name
           </th>
           <td>Required</td>
-          <td>At most N chars</td>
+          <td>At most 125 chars</td>
         </tr>
         <tr>
           <th>
@@ -42,8 +42,8 @@
             <div>Possible values:</div>
             <ul>
               <li><code>ADMIN</code></li>
-              <li><code>FACILITY_COACH</code></li>
-              <li><code>CLASS_COACH</code></li>
+              <li><code>COACH</code></li>
+              <li><code>ASSIGNABLE_COACH</code></li>
               <li><code>LEARNER</code></li>
             </ul>
           </td>
@@ -53,14 +53,14 @@
             Identifier
           </th>
           <td>Optional</td>
-          <td>Examples: student ID number or email address. At most N chars</td>
+          <td>At most 64 chars. Examples: student ID number or email address</td>
         </tr>
         <tr>
           <th>
             Birth year
           </th>
           <td>Optional</td>
-          <td>A four-digit number</td>
+          <td>A four-digit number (greater than 1900)</td>
         </tr>
         <tr>
           <th>
