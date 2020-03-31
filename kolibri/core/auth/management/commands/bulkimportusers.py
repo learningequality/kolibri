@@ -268,7 +268,7 @@ class Command(AsyncCommand):
 
         validator.add_check(
             "Gender",
-            enumeration('', *tuple(val[0] for val in choices)),
+            enumeration("", *tuple(val[0] for val in choices)),
             "Not a valid gender",
         )
         validator.add_check("Identifier", value_length(64), "Identifier is too long")
