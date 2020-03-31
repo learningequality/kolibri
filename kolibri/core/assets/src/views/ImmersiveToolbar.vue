@@ -19,53 +19,33 @@
       :class="$computedClass(linkStyle)"
     >
       <!-- TODO add aria label? -->
-      <UiIconButton
-        type="flat"
-        class="icon"
-        :style="{ fill: $themeTokens.textInverted }"
-        tabindex="-1"
-      >
-        <KIcon
-          v-if="icon === 'close'"
-          icon="close"
-          :style="{ fill: $themeTokens.textInverted, top: 0, height: '24px', width: '24px', }"
-        />
-        <KIcon
-          v-else-if="icon === 'arrow_back' && !isRtl"
-          :style="{ fill: $themeTokens.textInverted, top: 0, height: '24px', width: '24px', }"
-          icon="back"
-        />
-        <KIcon
-          v-else-if="icon === 'arrow_back' && isRtl"
-          :style="{ fill: $themeTokens.textInverted, top: 0, height: '24px', width: '24px', }"
-          icon="forward"
-        />
-      </UiIconButton>
-    </router-link>
-
-    <UiIconButton
-      v-else
-      type="flat"
-      class="icon"
-      :style="{ fill: $themeTokens.textInverted }"
-      @click="$emit('navIconClick')"
-    >
-      <KIcon
+      <KIconButton
         v-if="icon === 'close'"
         icon="close"
-        :style="{ fill: $themeTokens.textInverted, top: 0, height: '24px', width: '24px', }"
+        :color="$themeTokens.textInverted"
+        tabindex="-1"
       />
-      <KIcon
-        v-if="icon === 'arrow_back' && !isRtl"
+      <KIconButton
+        v-else
         icon="back"
-        :style="{ fill: $themeTokens.textInverted, top: 0, height: '24px', width: '24px', }"
+        :color="$themeTokens.textInverted"
       />
-      <KIcon
-        v-if="icon === 'arrow_back' && isRtl"
-        icon="forward"
-        :style="{ fill: $themeTokens.textInverted, top: 0, height: '24px', width: '24px', }"
+    </router-link>
+    <span v-else slot="icon">
+      <KIconButton
+        v-if="icon === 'close'"
+        icon="close"
+        :color="$themeTokens.textInverted"
+        tabindex="-1"
+        @click="$emit('navIconClick')"
       />
-    </UiIconButton>
+      <KIconButton
+        v-else
+        icon="back"
+        :color="$themeTokens.textInverted"
+        @click="$emit('navIconClick')"
+      />
+    </span>
   </UiToolbar>
 
 </template>
@@ -74,14 +54,12 @@
 <script>
 
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import { validateLinkObject } from 'kolibri.utils.validators';
 
   export default {
     name: 'ImmersiveToolbar',
     components: {
       UiToolbar,
-      UiIconButton,
     },
     props: {
       appBarTitle: {

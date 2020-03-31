@@ -4,14 +4,12 @@
     <slot></slot>
     <div class="report-controls-buttons">
 
-      <UiIconButton
+      <KIconButton
         ref="printButton"
-        type="flat"
+        icon="print"
         :aria-label="coachString('printReportAction')"
         @click.prevent="$print()"
-      >
-        <KIcon icon="print" />
-      </UiIconButton>
+      />
       <KTooltip
         reference="printButton"
         :refs="$refs"
@@ -19,15 +17,13 @@
         {{ coachString('printReportAction') }}
       </KTooltip>
 
-      <UiIconButton
+      <KIconButton
         v-if="!exportDisabled"
         ref="exportButton"
-        type="flat"
+        icon="get_app"
         :aria-label="coachString('exportCSVAction')"
         @click.prevent="$emit('export')"
-      >
-        <KIcon icon="get_app" />
-      </UiIconButton>
+      />
       <KTooltip
         reference="exportButton"
         :refs="$refs"
@@ -42,13 +38,11 @@
 
 <script>
 
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
   import commonCoach from '../common';
 
   export default {
     name: 'ReportsControls',
-    components: { UiIconButton },
     mixins: [commonCoach],
     props: {
       disableExport: {

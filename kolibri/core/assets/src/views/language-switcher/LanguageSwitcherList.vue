@@ -1,19 +1,13 @@
 <template>
 
   <div>
-    <UiIconButton
-      type="secondary"
-      class="globe"
+    <KIconButton
+      icon="language"
       aria-hidden="true"
       tabindex="-1"
+      class="globe"
       @click="showLanguageModal = true"
-    >
-      <KIcon
-        icon="language"
-        style="top: 0; width: 24px; height: 24px;"
-      />
-    </UiIconButton>
-
+    />
     <span class="selected" :title="selectedLanguage.english_name">
       {{ selectedLanguage.lang_name }}
     </span>
@@ -47,7 +41,6 @@
 
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import languageSwitcherMixin from './mixin';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
 
@@ -55,7 +48,6 @@
     name: 'LanguageSwitcherList',
     components: {
       LanguageSwitcherModal,
-      UiIconButton,
     },
     mixins: [responsiveWindowMixin, languageSwitcherMixin],
     data() {

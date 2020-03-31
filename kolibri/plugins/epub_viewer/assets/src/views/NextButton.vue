@@ -1,35 +1,21 @@
 <template>
 
-  <UiIconButton
+  <KIconButton
+    :icon="isRtl ? 'keyboard_arrow_left' : 'keyboard_arrow_right'"
     class="next-button"
     :class="{ 'next-button-white': color === 'white' }"
     :ariaLabel="$tr('goToNextPage')"
+    :color="color"
     @click="$emit('goToNextPage')"
-  >
-    <KIcon
-      v-if="!isRtl"
-      icon="keyboard_arrow_right"
-      :style="{ top: 0, height: '24px', width: '24px' }"
-    />
-    <KIcon
-      v-else
-      icon="keyboard_arrow_left"
-      :style="{ top: 0, height: '24px', width: '24px' }"
-    />
-  </UiIconButton>
+  />
 
 </template>
 
 
 <script>
 
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
-
   export default {
     name: 'NextButton',
-    components: {
-      UiIconButton,
-    },
     props: {
       // TODO - refactor to use themes properly
       color: {
@@ -54,10 +40,14 @@
 
   .next-button {
     @include navigation-button;
+
+    svg {
+      border: 2px solid;
+    }
   }
 
   .next-button-white {
-    svg {
+    /deep/ svg {
       border-color: white;
       fill: white;
     }

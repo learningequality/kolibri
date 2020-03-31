@@ -29,36 +29,25 @@
       >
 
       <div class="buttons-wrapper">
-        <UiIconButton
-          color="black"
+        <KIconButton
+          icon="clear"
+          :color="$themePalette.black"
           size="small"
           class="clear-button"
           :class="searchTerm === '' ? '' : 'clear-button-visible'"
           :ariaLabel="$tr('clearButtonLabel')"
           @click="clearSearchTerm"
-        >
-          <KIcon
-            icon="clear"
-            style="top: 0; width: 24px; height: 24px;"
-          />
-        </UiIconButton>
-
+        />
         <div class="submit-button-wrapper" :style="{ backgroundColor: $themeTokens.primary }">
-          <UiIconButton
-            type="secondary"
-            color="white"
+          <KIconButton
+            icon="search"
+            :color="$themeTokens.textInverted"
             class="submit-button"
             :disabled="!searchTermHasChanged"
             :ariaLabel="$tr('startSearchButtonLabel')"
             :style="{ fill: $themeTokens.textInverted }"
             @click="search"
-          >
-            <KIcon
-              icon="search"
-              :color="$themeTokens.textInverted"
-              style="top: 0; width: 24px; height: 24px;"
-            />
-          </UiIconButton>
+          />
         </div>
       </div>
     </div>
@@ -70,14 +59,10 @@
 
 <script>
 
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'LessonsSearchBox',
-    components: {
-      UiIconButton,
-    },
     mixins: [commonCoreStrings],
     data() {
       return {

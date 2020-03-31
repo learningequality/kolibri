@@ -6,19 +6,12 @@
     textColor="white"
     :removeNavIcon="!displayNavIcon"
   >
-    <UiIconButton
+    <KIconButton
       slot="icon"
-      type="secondary"
+      icon="back"
       color="white"
-      :class="{ 'rtl-icon': isRtl }"
       @click="$emit('backButtonClicked')"
-    >
-      <KIcon
-        icon="back"
-        :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
-      />
-    </UiIconButton>
+    />
     {{ $tr('progressIndicator', { currentStep , totalSteps }) }}
 
   </UiToolbar>
@@ -29,13 +22,11 @@
 <script>
 
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
 
   export default {
     name: 'ProgressToolbar',
     components: {
       UiToolbar,
-      UiIconButton,
     },
     props: {
       currentStep: {
