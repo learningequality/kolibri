@@ -2,31 +2,31 @@
 
   <KPageContainer>
 
-    <h1>Import and export users</h1>
+    <h1> {{ $tr('sectionTitle') }}</h1>
     <p>
-      You can manage users in bulk using spreadsheets.
+      {{ $tr('sectionDescription') }}
     </p>
     <p>
-      Export a CSV file containing all users in the facility:
+      {{ $tr('exportCSV') }}
     </p>
     <p>
       <KButton
-        text="Export"
+        :text="$tr('export')"
         appearance="raised-button"
         style="margin: 0;"
         :disabled="isExporting"
         @click="exportCsv"
       />
       <DataPageTaskProgress v-if="isExporting" class="generating">
-        Generating CSV...
+        {{ $tr('generatingCSV') }}
       </DataPageTaskProgress>
     </p>
     <p>
-      Add new users and update existing users from a CSV:
+      {{ $tr('importCSV') }}
     </p>
     <p>
       <KRouterLink
-        text="Import"
+        :text="$tr('import')"
         appearance="raised-button"
         :to="$router.getRoute('IMPORT_CSV_PAGE')"
         style="margin: 0;"
@@ -71,6 +71,15 @@
       exportCsv() {
         this.startExportUsers();
       },
+    },
+    $trs: {
+      sectionTitle: 'Import and export users',
+      sectionDescription: 'You can manage users in bulk using spreadsheets.',
+      exportCSV: 'Export a CSV file containing all users in the facility:',
+      export: 'Export',
+      importCSV: 'Add new users and update existing users from a CSV:',
+      import: 'Import',
+      generatingCSV: 'Generating CSV...',
     },
   };
 

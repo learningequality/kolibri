@@ -4,12 +4,12 @@
   <div>
 
     <p>
-      When importing from a spreadsheet you can create, update, and optionally delete dozens or hundreds of facility users at a time by loading new information from comma-separated-value (CSV) files.
+      {{ $tr('introduction') }}
     </p>
     <p>
       <KButton
         appearance="basic-link"
-        text="View spreadsheet format reference"
+        :text="$tr('viewFormat')"
         @click="showInfoModal = true"
       />
     </p>
@@ -17,24 +17,24 @@
       class="caution"
       :style="{color: $themeTokens.error}"
     >
-      CAUTION: importing from CSV will make many changes to your users and classes, and these changes cannot be easily reverted.
+      {{ $tr('caution') }}
     </p>
-    <p>Importing from CSV will:</p>
+    <p>{{ $tr('importingWill') }}</p>
     <ul>
-      <li>create new users</li>
-      <li>update existing users (for users with matching usernames)</li>
-      <li>set which classes each learner is enrolled in</li>
-      <li>set which classes each coach is assigned to</li>
-      <li>create new classes (for any referenced class names that do not yet exist)</li>
+      <li>{{ $tr('importL1') }}</li>
+      <li>{{ $tr('importL2') }}</li>
+      <li>{{ $tr('importL3') }}</li>
+      <li>{{ $tr('importL4') }}</li>
+      <li>{{ $tr('importL5') }}</li>
     </ul>
     <p>
-      Optionally, you can also delete users and classes that are not referenced in the spreadsheet.
+      {{ $tr('optionally') }}
     </p>
     <p>
-      Before committing the import you will be shown a summary of changes that will be made.
+      {{ $tr('beforeCommitting') }}
     </p>
     <p>
-      <label for="csv-file">To proceed, select a CSV file:</label>
+      <label for="csv-file"> {{ $tr('proceed') }}</label>
     </p>
     <p>
       <input
@@ -47,7 +47,7 @@
       >
     </p>
     <p>
-      <KCheckbox label="Also delete users and classes not in CSV" @change="toggleDelete" />
+      <KCheckbox :label="$tr('labelDelete')" @change="toggleDelete" />
     </p>
     <p>
       <KButton
@@ -103,6 +103,25 @@
       toggleDelete() {
         this.deleteUsers = !this.deleteUsers;
       },
+    },
+    $trs: {
+      introduction:
+        'When importing from a spreadsheet you can create, update, and optionally delete dozens or hundreds of facility users at a time by loading new information from comma-separated-value (CSV) files.',
+      caution:
+        'CAUTION: importing from CSV will make many changes to your users and classes, and these changes cannot be easily reverted.',
+      viewFormat: 'View spreadsheet format reference',
+      importingWill: 'Importing from CSV will:',
+      importL1: 'create new users',
+      importL2: 'update existing users (for users with matching usernames)',
+      importL3: 'set which classes each learner is enrolled in',
+      importL4: 'set which classes each coach is assigned to',
+      importL5: 'create new classes (for any referenced class names that do not yet exist)',
+      optionally:
+        'Optionally, you can also delete users and classes that are not referenced in the spreadsheet.',
+      proceed: 'To proceed, select a CSV file:',
+      beforeCommitting:
+        'Before committing the import you will be shown a summary of changes that will be made.',
+      labelDelete: 'Also delete users and classes not in CSV',
     },
   };
 
