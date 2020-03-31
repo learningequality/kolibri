@@ -14,10 +14,10 @@
         text="Export"
         appearance="raised-button"
         style="margin: 0;"
-        :disabled="exporting"
+        :disabled="isExporting"
         @click="exportCsv"
       />
-      <DataPageTaskProgress v-if="exporting" class="generating">
+      <DataPageTaskProgress v-if="isExporting" class="generating">
         Generating CSV...
       </DataPageTaskProgress>
     </p>
@@ -40,66 +40,36 @@
 
 <script>
 
-  import * as csvGenerator from 'csv-generator-client'; // temporarily used for mockups
+  import urls from 'kolibri.urls';
+  import { mapState, mapActions } from 'vuex';
+  import { UsersExportStatuses } from '../../../constants';
   import DataPageTaskProgress from '../DataPageTaskProgress';
-
-  // temporarily used for mockups
-  function dummyExport() {
-    const COLS = [
-      'Username',
-      'Password',
-      'Full name',
-      'User type',
-      'Identifier',
-      'Birth year',
-      'Gender',
-      'Enrolled in',
-      'Assigned to',
-    ];
-    csvGenerator.download({
-      fileName: 'users.csv',
-      dataArray: [
-        COLS,
-        [
-          'teach4life',
-          'password123',
-          'Mr Jones',
-          'FACILITY_COACH',
-          '',
-          1975,
-          'NOT_SPECIFIED',
-          'Algebra 1, Geometry',
-        ],
-        ['student4now', '', 'Alice', 'LEARNER', 'ABC123', 2008, 'MALE', '', 'Geometry'],
-      ],
-      settings: {
-        separator: ',',
-        addQuotes: true,
-        autoDetectColumns: false,
-        columnKeys: COLS,
-      },
-    });
-  }
 
   export default {
     name: 'ImportInterface',
     components: {
       DataPageTaskProgress,
     },
-    data: () => ({
-      modalShown: false,
-      exporting: false,
-    }),
+    computed: {
+      ...mapState('manageCSV', ['exportUsersStatus', 'exportUsersFilename']),
+      isExporting() {
+        return this.exportUsersStatus === UsersExportStatuses.EXPORTING;
+      },
+    },
+    watch: {
+      exportUsersStatus(val) {
+        if (val == UsersExportStatuses.FINISHED) {
+          window.open(
+            urls['kolibri:kolibri.plugins.facility:download_csv_file'](this.exportUsersFilename),
+            '_blank'
+          );
+        }
+      },
+    },
     methods: {
+      ...mapActions('manageCSV', ['startExportUsers']),
       exportCsv() {
-        // Trigger export task.
-        // If the user is on this page when the task completes, download the file.
-        // Otherwise, it's discarded.
-        this.exporting = true;
-        setTimeout(() => {
-          this.exporting = false;
-          dummyExport();
-        }, 2000);
+        this.startExportUsers();
       },
     },
   };

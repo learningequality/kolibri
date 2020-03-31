@@ -1,6 +1,7 @@
 import csv
 import io
 import logging
+import ntpath
 import os
 import sys
 from collections import OrderedDict
@@ -203,7 +204,7 @@ class Command(AsyncCommand):
             if job:
                 job.extra_metadata["overall_error"] = self.overall_error
                 job.extra_metadata["users"] = total_rows
-                job.extra_metadata["filepath"] = filepath
+                job.extra_metadata["filename"] = ntpath.basename(filepath)
                 job.save_meta()
             else:
                 logger.info(
