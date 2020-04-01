@@ -42,6 +42,8 @@ class ProgressTracker:
             # as we only want to display progress bars from the command line.
             try:
                 click.get_current_context()
+                # N.B. because we are only doing this in Python3, safe to just use int,
+                # as long is Py2 only
                 self.progressbar = click.progressbar(length=int(total), width=0)
             except RuntimeError:
                 self.progressbar = None
@@ -53,6 +55,8 @@ class ProgressTracker:
                 "increment argument should be an integer for progressbars to work"
             )
         if self.progressbar:
+            # N.B. because we are only doing this in Python3, safe to just use int,
+            # as long is Py2 only
             self.progressbar.update(int(increment))
         self.progress += increment
         self.message = message
