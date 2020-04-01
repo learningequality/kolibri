@@ -77,16 +77,38 @@ const CMITime = {
   },
 };
 
-const alphaNumeric = /[0-9a-z]/;
-
-function singleAlphaNumeric(s) {
-  return s.length === 1 && alphaNumeric.test(s);
-}
-
 function isStringLike(value) {
   // Note: explicitly using double equals here instead of triple equals
   // to check that we have a coerceable type (so exclude undefined, null, and functions)
   return String(value) == value;
+}
+
+const CMIString255 = {
+  validate(value) {
+    return isStringLike(value) && String(value).length <= 255;
+  },
+};
+
+const CMIString4096 = {
+  validate(value) {
+    return isStringLike(value) && String(value).length <= 4096;
+  },
+};
+
+const CMIIdentifier = {
+  validate(value) {
+    // A 255 character string that does not contain any whitespace
+    // The spec says 'alphanumeric' but seems like this commonly means more
+    // than just [0-9a-zA-Z]:
+    // https://moodle.org/mod/forum/discuss.php?d=52947
+    return CMIString255.validate(value) && !/\s/.test(value);
+  },
+};
+
+const lowerCaseLetterNumber = /[0-9a-z]/;
+
+function singleLowerCaseLetterNumber(s) {
+  return s.length === 1 && lowerCaseLetterNumber.test(s);
 }
 
 const trueFalse = /[01tf]/;
@@ -114,7 +136,7 @@ const CMIFeedback = {
           return false;
         }
       }
-      return value.split(',').every(singleAlphaNumeric);
+      return value.split(',').every(singleLowerCaseLetterNumber);
     }
     if (obj.type === 'fill-in' || obj.type === 'performance') {
       // Ensure it doesn't exceed the max length
@@ -128,8 +150,8 @@ const CMIFeedback = {
       return CMIDecimal.validate(value);
     }
     if (obj.type === 'likert') {
-      // A single alphanumeric character
-      return alphaNumeric.test(String(value)) && value.length === 1;
+      // A single lower case letter number character
+      return singleLowerCaseLetterNumber(value);
     }
     if (obj.type === 'matching') {
       // Like the choice type, except that the comma separated
@@ -143,12 +165,12 @@ const CMIFeedback = {
         }
       }
       return value.split(',').every(s => {
-        return s.length === 3 && s.split('.').every(singleAlphaNumeric);
+        return s.length === 3 && s.split('.').every(singleLowerCaseLetterNumber);
       });
     }
     if (obj.type === 'sequencing') {
       // Comma separated list of single characters
-      return value.split(',').every(singleAlphaNumeric);
+      return value.split(',').every(singleLowerCaseLetterNumber);
     }
     // No type, return true as we can't validate
     return true;
@@ -190,18 +212,21 @@ const SCHEMA = {
     core: {
       hasChildren: true,
       student_id: {
+        type: CMIIdentifier,
         fromUserData(userData) {
           return userData.userId || '';
         },
         readWrite: READ_WRITE.RO,
       },
       student_name: {
+        type: CMIString255,
         fromUserData(userData) {
           return userData.userFullName || '';
         },
         readWrite: READ_WRITE.RO,
       },
       lesson_location: {
+        type: CMIString255,
         readWrite: READ_WRITE.RW,
       },
       credit: {
@@ -252,18 +277,22 @@ const SCHEMA = {
       },
     },
     launch_data: {
+      type: CMIString4096,
       readWrite: READ_WRITE.RO,
     },
     comments: {
+      type: CMIString4096,
       readWrite: READ_WRITE.RW,
     },
     comments_from_lms: {
+      type: CMIString4096,
       readWrite: READ_WRITE.RO,
     },
     objectives: {
       hasChildren: true,
       arraySchema: {
         id: {
+          type: CMIIdentifier,
           readWrite: READ_WRITE.RW,
         },
         score: SCORE_SCHEMA,
@@ -289,6 +318,7 @@ const SCHEMA = {
     student_preference: {
       hasChildren: true,
       language: {
+        type: CMIString255,
         fromUserData(userData) {
           return userData.language ? userData.language : '';
         },
@@ -311,11 +341,13 @@ const SCHEMA = {
       hasChildren: true,
       arraySchema: {
         id: {
+          type: CMIIdentifier,
           readWrite: READ_WRITE.RW,
         },
         objectives: {
           arraySchema: {
             id: {
+              type: CMIIdentifier,
               readWrite: READ_WRITE.WO,
             },
           },
@@ -371,6 +403,10 @@ const SCHEMA = {
           type: CMITimeSpan,
         },
       },
+    },
+    suspend_data: {
+      type: CMIString4096,
+      readWrite: READ_WRITE.RW,
     },
   },
 };
