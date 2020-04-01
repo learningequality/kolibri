@@ -43,4 +43,8 @@ export default class BaseShim {
   userDataUpdated() {
     this.sendMessage(this.events.USERDATAUPDATE, this.userData);
   }
+
+  updateProgress(progress) {
+    this.sendMessage(this.events.PROGRESSUPDATE, progress);
+  }
 }

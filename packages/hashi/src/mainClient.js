@@ -103,6 +103,9 @@ export default class MainClient {
       storage.on(events.STATEUPDATE, () => {
         this.mediator.sendLocalMessage({ nameSpace, event: events.STATEUPDATE, data: this.data });
       });
+      storage.on(events.PROGRESSUPDATE, progress => {
+        this.mediator.sendLocalMessage({ nameSpace, event: events.PROGRESSUPDATE, data: progress });
+      });
     });
   }
   get data() {
@@ -124,5 +127,9 @@ export default class MainClient {
 
   onStateUpdate(callback) {
     this.on(events.STATEUPDATE, callback);
+  }
+
+  onProgressUpdate(callback) {
+    this.on(events.PROGRESSUPDATE, callback);
   }
 }
