@@ -259,12 +259,9 @@ class KolibriDjangoCommand(click.Command):
         super(KolibriDjangoCommand, self).__init__(*args, **kwargs)
 
     def invoke(self, ctx):
-        """
-        Initialize Kolibri and run sanity checks.
-        """
-        # Check if the current user is the kolibri user when running kolibri from Debian installer.
         initialize()
 
+        # Remove parameters that are not for Django management command
         for param in initialize_params:
             ctx.params.pop(param.name)
         return super(KolibriDjangoCommand, self).invoke(ctx)
