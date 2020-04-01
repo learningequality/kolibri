@@ -3,6 +3,7 @@
   <CoreFullscreen
     ref="html5Renderer"
     class="html5-renderer"
+    :style="{height: iframeHeight, width: iframeWidth}"
     @changeFullscreen="isInFullscreen = $event"
   >
     <UiIconButton
@@ -44,6 +45,7 @@
   // Regex vendored from https://github.com/faisalman/ua-parser-js/blob/master/src/ua-parser.js
   const iOSTest = /ip[honead]{2,4}(?:.*os\s([\w]+)\slike\smac|;\sopera)/i;
   const IE11Test = /(trident).+rv[:\s]([\w.]+).+like\sgecko/i;
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'Html5AppRendererIndex',
@@ -65,6 +67,12 @@
         const iOSorIE11 = iOS || IE11Test.test(navigator.userAgent);
         // Skip hashi on requests for these browsers
         return this.defaultFile.storage_url + (iOSorIE11 ? '?SKIP_HASHI=true' : '');
+      },
+      iframeHeight() {
+        return (this.options.size && this.options.size.height) || '500px';
+      },
+      iframeWidth() {
+        return (this.options.size && this.options.size.width) || 'auto';
       },
     },
     mounted() {

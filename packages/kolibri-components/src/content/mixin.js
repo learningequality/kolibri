@@ -111,6 +111,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    options: {
+      type: Object,
+      default: () => ({}),
+    },
     // Allow content renderers to display in a static mode
     // where user interaction is not allowed
     interactive: {
