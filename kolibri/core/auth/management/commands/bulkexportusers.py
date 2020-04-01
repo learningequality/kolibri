@@ -37,7 +37,7 @@ labels = OrderedDict(
         ("password", "Password"),
         ("full_name", "Full name"),
         ("kind", "User type"),
-        ("id_number", "ID number"),
+        ("id_number", "Identifier"),
         ("birth_year", "Birth year"),
         ("gender", "Gender"),
         ("assigned", "Enrolled in"),
