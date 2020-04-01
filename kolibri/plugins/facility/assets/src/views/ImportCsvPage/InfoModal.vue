@@ -14,28 +14,28 @@
       <tbody>
         <tr>
           <th>
-            Username
+            {{ $tr('username') }} (USERNAME)
           </th>
           <td>{{ $tr('required') }}</td>
           <td>{{ $tr('usernameValidation') }}</td>
         </tr>
         <tr>
           <th>
-            Password
+            {{ $tr('password') }} (PASSWORD)
           </th>
           <td>{{ $tr('passwordDescription') }}</td>
           <td>{{ $tr('passwordValidation') }}</td>
         </tr>
         <tr>
           <th>
-            Full name
+            {{ $tr('fullName') }} (FULL_NAME)
           </th>
           <td>{{ $tr('required') }}</td>
           <td>{{ $tr('fullNameValidation') }}</td>
         </tr>
         <tr>
           <th>
-            User type
+            {{ $tr('userType') }} (USER_TYPE)
           </th>
           <td>{{ $tr('required') }}</td>
           <td>
@@ -50,21 +50,21 @@
         </tr>
         <tr>
           <th>
-            Identifier
+            {{ $tr('identifier') }} (IDENTIFIER)
           </th>
           <td>{{ $tr('optional') }}</td>
           <td>{{ $tr('identifierValidation') }}</td>
         </tr>
         <tr>
           <th>
-            Birth year
+            {{ $tr('birthYear') }} (BIRTH_YEAR)
           </th>
           <td>{{ $tr('optional') }}</td>
           <td>{{ $tr('yearValidation') }}</td>
         </tr>
         <tr>
           <th>
-            Gender
+            {{ $tr('gender') }} (GENDER)
           </th>
           <td>{{ $tr('optional') }}</td>
           <td>
@@ -78,14 +78,14 @@
         </tr>
         <tr>
           <th>
-            Enrolled in
+            {{ $tr('enrolled') }} (ENROLLED_IN)
           </th>
           <td>{{ $tr('optional') }}</td>
           <td>{{ $tr('listClasses') }}</td>
         </tr>
         <tr>
           <th>
-            Assigned to
+            {{ $tr('assigned') }} (ASSIGNED_TO)
           </th>
           <td>{{ $tr('optional') }}</td>
           <td>{{ $tr('listClasses') }}</td>
@@ -125,6 +125,15 @@
       identifierValidation: 'At most 64 chars. Examples: student ID number or email address',
       yearValidation: 'A four-digit number (greater than 1900)',
       listClasses: 'List of class names, separated by commas',
+      username: 'Username',
+      password: 'Password',
+      fullName: 'Full name',
+      userType: 'User type',
+      identifier: 'Identifier',
+      birthYear: 'Birth year',
+      gender: 'Gender',
+      enrolled: 'Enrolled in',
+      assigned: 'Assigned to',
     },
   };
 
