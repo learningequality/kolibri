@@ -95,9 +95,12 @@ const CMIFeedback = {
     // Coerce the value to a string for validation
     value = String(value);
     if (obj.type === 'true-false') {
+      // Single character matching the valid true false characters
       return trueFalse.test(value) && value.length === 1;
     }
     if (obj.type === 'choice') {
+      // Choice is comma separated list of 0-9 and a-z
+      // Can also be wrapped in curly braces
       if (value[0] === '{') {
         if (value[value.length - 1] === '}') {
           value = value.substring(1, value.length - 1);
@@ -108,18 +111,24 @@ const CMIFeedback = {
       return value.split(',').every(singleAlphaNumeric);
     }
     if (obj.type === 'fill-in' || obj.type === 'performance') {
+      // Ensure it doesn't exceed the max length
       if (value.length <= 255) {
         return true;
       }
       return false;
     }
     if (obj.type === 'numeric') {
+      // Just validate that it's a number
       return CMIDecimal.validate(value);
     }
     if (obj.type === 'likert') {
+      // A single alphanumeric character
       return alphaNumeric.test(String(value)) && value.length === 1;
     }
     if (obj.type === 'matching') {
+      // Like the choice type, except that the comma separated
+      // values are pairs separted by '.'
+      // e.g. 'a.b,1.c'
       if (value[0] === '{') {
         if (value[value.length - 1] === '}') {
           value = value.substring(1, value.length - 1);
@@ -132,8 +141,11 @@ const CMIFeedback = {
       });
     }
     if (obj.type === 'sequencing') {
+      // Comma separated list of single characters
       return value.split(',').every(singleAlphaNumeric);
     }
+    // No type, return true as we can't validate
+    return true;
   },
 };
 
@@ -554,8 +566,6 @@ export default class SCORM extends BaseShim {
 
   iframeInitialize() {
     this.__setShimInterface();
-    // window.parent is our own shim, so we use regular assignment
-    // here to play nicely with the Proxy we are using.
     try {
       window.parent.API = this.shim;
     } catch (e) {
