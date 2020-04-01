@@ -44,37 +44,66 @@ export default class MainClient {
      * timeSpent: <time spent in seconds>,
      * language: <language code>,
      */
-    // Make a quick copy of the contentState that is passed in.
-    // Can do this as all contentState that is coming in should be JSON
-    // compatible in the first place, if not, we have other problems.
-    contentState = JSON.parse(JSON.stringify(contentState || {}));
-    userData = JSON.parse(JSON.stringify(userData || {}));
-    // Set this here, regardless of whether it is already ready or not
-    // in case the page inside the iframe navigates to a new page
-    // and hence has to reset its local state and reinitialize its
-    // SandboxEnvironment.
-    this.on(this.events.READY, () => {
-      this.__setData(contentState, userData);
-    });
     if (this.ready) {
-      this.__setData(contentState, userData);
+      this.__postReadyInitialize(contentState, userData);
+      // Set this here and below, in case the page inside the iframe navigates
+      // to a new page and hence has to reset its local state and reinitialize its
+      // SandboxEnvironment.
+      this.on(this.events.READY, () => {
+        this.__setData(this.data, this.userData);
+      });
     } else {
+      this.on(this.events.READY, () => {
+        this.__postReadyInitialize(contentState, userData);
+        this.mediator.removeMessageHandler({ nameSpace, event: events.READY });
+        this.on(this.events.READY, () => {
+          this.__setData(this.data, this.userData);
+        });
+      });
       this.mediator.sendMessage({ nameSpace, event: events.READYCHECK, data: true });
     }
   }
-  __setData(contentState, userData) {
+  __postReadyInitialize(contentState, userData) {
+    this.__setData(contentState, userData);
+    this.__setListeners();
+    this.mediator.sendMessage({ nameSpace, event: events.READY, data: true });
+  }
+
+  updateData({ contentState, userData }) {
+    // Make a quick copy of the contentState and userData that is passed in.
+    // Can do this as all contentState that is coming in should be JSON
+    // compatible in the first place, if not, we have other problems.
+    if (userData) {
+      userData = JSON.parse(JSON.stringify(userData));
+      this.userData = userData;
+    }
+    if (contentState) {
+      contentState = JSON.parse(JSON.stringify(contentState));
+    }
     Object.keys(this.storage).forEach(key => {
       const storage = this.storage[key];
-      storage.setData(contentState[storage.nameSpace]);
-      storage.setUserData(userData);
+      if (contentState && contentState[storage.nameSpace]) {
+        storage.setData(contentState[storage.nameSpace]);
+      }
+      if (userData) {
+        storage.setUserData(userData);
+      }
+    });
+  }
+
+  __setData(contentState, userData) {
+    this.updateData({ contentState, userData });
+    if (this.now) {
+      this.storage.cookie.setNow(this.now());
+    }
+  }
+  __setListeners() {
+    Object.keys(this.storage).forEach(key => {
+      const storage = this.storage[key];
       storage.on(events.STATEUPDATE, () => {
         this.mediator.sendLocalMessage({ nameSpace, event: events.STATEUPDATE, data: this.data });
       });
     });
-    if (this.now) {
-      this.storage.cookie.setNow(this.now());
-    }
-    this.mediator.sendMessage({ nameSpace, event: events.READY, data: true });
   }
   get data() {
     const data = {};
