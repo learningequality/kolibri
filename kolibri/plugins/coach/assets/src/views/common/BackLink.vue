@@ -2,14 +2,7 @@
 
   <!-- TODO: move this to be a core KBackLink -->
   <span v-show="!$isPrint" class="offset">
-    <router-link :to="go">
-      <KLabeledIcon
-        icon="back"
-        :label="text"
-        :color="$themeTokens.primary"
-        style="text-decoration: underline;"
-      />
-    </router-link>
+    <KRouterLink :to="to" icon="back" :text="text" />
   </span>
 
 </template>
@@ -27,11 +20,6 @@
       to: {
         type: Object,
         required: true,
-      },
-    },
-    methods: {
-      go() {
-        this.$router.push(this.to);
       },
     },
   };
