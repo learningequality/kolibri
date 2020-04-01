@@ -100,17 +100,19 @@
       />
 
       <BottomAppBar style="z-index: 1062;">
-        <KRouterLink
-          appearance="flat-button"
-          :text="coreString('goBackAction')"
-          :to="toolbarRoute"
-        />
-        <KButton
-          :text="coreString('finishAction')"
-          :disabled="loadingNewQuestions"
-          primary
-          @click="submit"
-        />
+        <KButtonGroup>
+          <KRouterLink
+            appearance="flat-button"
+            :text="coreString('goBackAction')"
+            :to="toolbarRoute"
+          />
+          <KButton
+            :text="coreString('finishAction')"
+            :disabled="loadingNewQuestions"
+            primary
+            @click="submit"
+          />
+        </KButtonGroup>
       </BottomAppBar>
     </KPageContainer>
 
