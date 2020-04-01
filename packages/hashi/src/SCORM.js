@@ -544,6 +544,35 @@ export function setByKeyPath(obj, keyPath, value, localSchema) {
   }
 }
 
+// Keypaths that we are using to calculate progress
+// Will be checked against updated keyPaths to see if
+// the keypaths start with these paths
+const progressKeys = ['cmi.core.score', 'cmi.core.lesson_status'];
+
+const statusProgressMap = {
+  passed: 1,
+  failed: 0.5,
+  browsed: 0.5,
+  'not attempted': 0,
+  incomplete: 0.5,
+};
+
+function calculateProgress(data) {
+  const score = data.cmi.core.score;
+  if (score) {
+    // If min and max are not set, raw will be a value in the range 0-100. Source:
+    // https://support.scorm.com/hc/en-us/articles/206166466-cmi-score-raw-whole-numbers-
+    const min = Number(isNaN(score.min) ? 0 : score.min);
+    const max = Number(isNaN(score.max) ? 100 : score.max);
+    const raw = Number(isNaN(score.raw) ? min : score.raw);
+    return Math.max(Math.min((raw - min) / (max - min), 1), 0);
+  }
+  const lessonStatus = data.cmi.core.lesson_status;
+  if (statusProgressMap.hasOwnProperty(lessonStatus)) {
+    return statusProgressMap[lessonStatus];
+  }
+}
+
 export default class SCORM extends BaseShim {
   constructor(mediator) {
     super(mediator);
@@ -562,6 +591,17 @@ export default class SCORM extends BaseShim {
 
   __setUserData(userData = {}) {
     this.userData = userData;
+  }
+
+  __checkForProgressUpdate(keyPath) {
+    // Check if the keyPath is a child keyPath of any of the keys we use to calculate
+    // progress.
+    if (progressKeys.some(path => keyPath.substring(0, path.length) === path)) {
+      const progress = calculateProgress(this.data);
+      if (!isNaN(progress)) {
+        this.updateProgress(progress);
+      }
+    }
   }
 
   iframeInitialize() {
@@ -589,7 +629,6 @@ export default class SCORM extends BaseShim {
     class Shim {
       LMSInitialize() {
         logger.debug('LMS Initialize called');
-        self.data.version = '1.2';
         self.stateUpdated();
         return TRUE;
       }
@@ -611,6 +650,7 @@ export default class SCORM extends BaseShim {
           throw e;
         }
         self.stateUpdated();
+        self.__checkForProgressUpdate(CMIElement);
         return TRUE;
       }
 
