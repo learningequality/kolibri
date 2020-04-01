@@ -30,16 +30,17 @@ DEFAULT_PASSWORD = make_password("kolibri")
 
 # TODO: decide whether these should be internationalized
 fieldnames = (
-    "Username",
-    "Password",
-    "Full name",
-    "User type",
-    "Identifier",
-    "Birth year",
-    "Gender",
-    "Enrolled in",
-    "Assigned to",
+    "USERNAME",
+    "PASSWORD",
+    "FULL_NAME",
+    "USER_TYPE",
+    "IDENTIFIER",
+    "BIRTH_YEAR",
+    "GENDER",
+    "ENROLLED_IN",
+    "ASSIGNED_TO",
 )
+
 
 # These constants must be entered vertbatim in the CSV
 roles_map = {
@@ -75,7 +76,7 @@ MESSAGES = {
         "No default facility exists, please make sure to provision this device before running this command"
     ),
     FILE_READ_ERROR: _("Error trying to read csv file: {}"),
-    FILE_WRITE_ERROR: _("Error trying to write csv file: {}")
+    FILE_WRITE_ERROR: _("Error trying to write csv file: {}"),
 }
 
 # Validators ###
@@ -153,12 +154,12 @@ class Validator(object):
     Class to apply different validation checks on a CSV data reader.
     """
 
-    def __init__(self, header_names):
-        self._header_names = header_names
+    def __init__(self, header_translation):
         self._checks = list()
         self.classrooms = dict()
         self.coach_classrooms = dict()
         self.users = dict()
+        self.header_translation = header_translation
         self.roles = {r: list() for r in roles_map.values() if r is not None}
 
     def add_check(self, header_name, check, message):
@@ -172,7 +173,7 @@ class Validator(object):
         self._checks.append((header_name, check, message))
 
     def get_username(self, row):
-        username = row.get("Username")
+        username = row.get(self.header_translation["USERNAME"])
         if username in self.users.keys():
             return None
 
@@ -196,13 +197,13 @@ class Validator(object):
                 pass
 
         # enrolled learners:
-        append_users(self.classrooms, "Enrolled in")
+        append_users(self.classrooms, self.header_translation["ENROLLED_IN"])
 
         # assigned coaches
-        user_role = row.get("User type", "learner").upper()
+        user_role = row.get(self.header_translation["USER_TYPE"], "LEARNER").upper()
         if user_role != "LEARNER":
             # a student can't be assigned to coach a classroom
-            append_users(self.coach_classrooms, "Assigned to")
+            append_users(self.coach_classrooms, self.header_translation["ASSIGNED_TO"])
             self.roles[roles_map[user_role]].append(username)
 
     def validate(self, data):
@@ -216,14 +217,14 @@ class Validator(object):
                 error = {
                     "row": index + 1,
                     "message": MESSAGES[DUPLICATED_USERNAME],
-                    "field": "Username",
-                    "value": row.get("Username"),
+                    "field": "USERNAME",
+                    "value": row.get(self.header_translation["USERNAME"]),
                 }
                 error_flag = True
                 yield error
 
             for header_name, check, message in self._checks:
-                value = row[header_name]
+                value = row[self.header_translation[header_name]]
                 try:
                     check(value)
                 except ValueError:
@@ -290,45 +291,47 @@ class Command(AsyncCommand):
             help="Code of the language for the messages to be translated",
         )
 
-    def csv_values_validation(self, reader):
+    def csv_values_validation(self, reader, header_translation):
         per_line_errors = []
-        validator = Validator(self.fieldnames)
+        validator = Validator(header_translation)
         validator.add_check(
-            "Full name", value_length(125), MESSAGES[TOO_LONG].format("Full Name")
+            "FULL_NAME", value_length(125), MESSAGES[TOO_LONG].format("FULL_NAME")
         )
         validator.add_check(
-            "Birth year", number_range(1900, 99999), MESSAGES[INVALID].format("year")
+            "BIRTH_YEAR",
+            number_range(1900, 99999),
+            MESSAGES[INVALID].format("BIRTH_YEAR"),
         )
         validator.add_check(
-            "Username", value_length(125), MESSAGES[TOO_LONG].format("Username")
+            "USERNAME", value_length(125), MESSAGES[TOO_LONG].format("USERNAME")
         )
         validator.add_check(
-            "Username", valid_name(), MESSAGES[INVALID_USERNAME],
+            "USERNAME", valid_name(), MESSAGES[INVALID_USERNAME],
         )
         validator.add_check(
-            "Password", value_length(128), MESSAGES[TOO_LONG].format("Password")
+            "PASSWORD", value_length(128), MESSAGES[TOO_LONG].format("PASSWORD")
         )
         validator.add_check(
-            "User type",
+            "USER_TYPE",
             enumeration(*roles_map.keys()),
-            MESSAGES[INVALID].format("User type"),
+            MESSAGES[INVALID].format("USER_TYPE"),
         )
 
         validator.add_check(
-            "Gender",
+            "GENDER",
             enumeration("", *tuple(val[0] for val in choices)),
-            MESSAGES[INVALID].format("gender"),
+            MESSAGES[INVALID].format("GENDER"),
         )
         validator.add_check(
-            "Identifier", value_length(64), MESSAGES[TOO_LONG].format("Identifier")
+            "IDENTIFIER", value_length(64), MESSAGES[TOO_LONG].format("IDENTIFIER")
         )
         validator.add_check(
-            "Enrolled in",
+            "ENROLLED_IN",
             value_length(100, allow_null=True),
             MESSAGES[TOO_LONG].format("Class name"),
         )
         validator.add_check(
-            "Assigned to",
+            "ASSIGNED_TO",
             value_length(100, allow_null=True),
             MESSAGES[TOO_LONG].format("Class name"),
         )
@@ -348,33 +351,36 @@ class Command(AsyncCommand):
         with open(filepath) as f:
             header = next(csv.reader(f, strict=True))
             has_header = False
-
+            self.header_translation = {
+                l.partition("(")[2].partition(")")[0]: l for l in header
+            }
+            neutral_header = self.header_translation.keys()
             # If every item in the first row matches an item in the fieldnames, consider it a header row
-            if all(col in self.fieldnames for col in header):
+            if all(col in self.fieldnames for col in neutral_header):
                 has_header = True
 
                 # If any col is missing from the header, it's an error
                 for col in self.fieldnames:
-                    if col not in header:
+                    if col not in neutral_header:
                         self.overall_error.append(MESSAGES[REQUIRED_COLUMN].format(col))
 
-            elif any(col in self.fieldnames for col in header):
+            elif any(col in self.fieldnames for col in neutral_header):
                 self.overall_error.append(MESSAGES[INVALID_HEADER])
 
         return has_header
 
     def get_field_values(self, user_row):
-        password = user_row.get("Password", None)
+        password = user_row.get(self.header_translation["PASSWORD"], None)
         if password:
             password = make_password(password)
         else:
             password = DEFAULT_PASSWORD
-        gender = user_row.get("Gender", None)
+        gender = user_row.get(self.header_translation["GENDER"], None)
         if gender:
             gender = gender.strip().upper()
-        birth_year = user_row.get("Birth year", None)
-        id_number = user_row.get("Identifier", None)
-        full_name = user_row.get("Full name", None)
+        birth_year = user_row.get(self.header_translation["BIRTH_YEAR"], None)
+        id_number = user_row.get(self.header_translation["IDENTIFIER"], None)
+        full_name = user_row.get(self.header_translation["FULL_NAME"], None)
         return {
             "password": password,
             "gender": gender,
@@ -609,7 +615,7 @@ class Command(AsyncCommand):
                     else:
                         reader = csv.DictReader(f, fieldnames=fieldnames, strict=True)
                     per_line_errors, classes, users, roles = self.csv_values_validation(
-                        reader
+                        reader, self.header_translation
                     )
             except (ValueError, FileNotFoundError, csv.Error) as e:
                 self.overall_error.append(MESSAGES[FILE_READ_ERROR].format(e))
