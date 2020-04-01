@@ -1,12 +1,16 @@
 import abc
+import logging
+import sys
 from collections import namedtuple
+from numbers import Integral
 
 import click
-import sys
 from django.core.management.base import BaseCommand
 
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import get_current_job
+
+logger = logging.getLogger(__name__)
 
 Progress = namedtuple(
     "Progress", ["progress_fraction", "message", "extra_data", "level"]
@@ -26,6 +30,9 @@ class ProgressTracker:
         self.level = level
         self.update_callback = update_callback
 
+        # Check that the total is an integer, otherwise progress bars will be unpredictable
+        if type(total) is not Integral:
+            logger.warn("total argument should be an integer for progressbars to work")
         # Also check that we are not running Python 2:
         # https://github.com/learningequality/kolibri/issues/6597
         if sys.version_info[0] == 2:
@@ -35,13 +42,18 @@ class ProgressTracker:
             # as we only want to display progress bars from the command line.
             try:
                 click.get_current_context()
-                self.progressbar = click.progressbar(length=total, width=0)
+                self.progressbar = click.progressbar(length=int(total), width=0)
             except RuntimeError:
                 self.progressbar = None
 
     def update_progress(self, increment=1, message="", extra_data=None):
+        # Type check argument, as progressbars can break otherwise.
+        if type(increment) is not Integral:
+            logger.warn(
+                "increment argument should be an integer for progressbars to work"
+            )
         if self.progressbar:
-            self.progressbar.update(increment)
+            self.progressbar.update(int(increment))
         self.progress += increment
         self.message = message
         self.extra_data = extra_data
