@@ -83,13 +83,19 @@ function singleAlphaNumeric(s) {
   return s.length === 1 && alphaNumeric.test(s);
 }
 
+function isStringLike(value) {
+  // Note: explicitly using double equals here instead of triple equals
+  // to check that we have a coerceable type (so exclude undefined, null, and functions)
+  return String(value) == value;
+}
+
 const trueFalse = /[01tf]/;
 
 const CMIFeedback = {
   validate(value, obj) {
     if (value === BLANK) {
       return true;
-    } else if (!value) {
+    } else if (!isStringLike(value)) {
       return false;
     }
     // Coerce the value to a string for validation
@@ -533,9 +539,7 @@ export function setByKeyPath(obj, keyPath, value, localSchema) {
       (innerSchema.values && !innerSchema.values[value]) ||
       // Otherwise, if there is no defined type and nothing else is set for
       // validation, just check that the value is valid as a string.
-      // Note: explicitly using double equals here instead of triple equals
-      // to check that we have a coerceable type (so exclude undefined, null, and functions)
-      (!innerSchema.type && String(value) == value)
+      (!innerSchema.type && !isStringLike(value))
     ) {
       throwError(ERRORS.INCORRECT_DATA_TYPE);
     }
