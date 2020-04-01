@@ -28,6 +28,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
 
   // labels, phrases, titles, headers...
   adminLabel: 'Admin',
+  allFacilitiesLabel: 'All facilities',
   allLabel: 'All',
   allLessonsLabel: 'All lessons',
   birthYearLabel: 'Birth year',
@@ -42,7 +43,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   devicePermissionsLabel: 'Device permissions',
   facilityCoachLabel: 'Facility coach',
   facilityLabel: 'Facility',
-  facilitiesLabel: 'Facility',
+  facilitiesLabel: 'Facilities',
   fullNameLabel: 'Full name',
   genderLabel: 'Gender',
   identifierLabel: 'Identifier',

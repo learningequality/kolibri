@@ -6,7 +6,7 @@
       <KRouterLink
         v-if="$store.getters.inMultipleFacilityPage"
         :to="{ name: 'AllFacilitiesPage' }"
-        :text="$tr('allFacilitiesLabel')"
+        :text="coreString('allFacilitiesLabel')"
       />
     </p>
     <KGrid>
@@ -198,7 +198,6 @@
     $trs: {
       adminClassPageSubheader: 'View and manage your classes',
       addNew: 'New class',
-      allFacilitiesLabel: 'All facilities',
       deleteClass: 'Delete class',
       tableCaption: 'List of classes',
       twoCoachNames: '{name1}, {name2}',

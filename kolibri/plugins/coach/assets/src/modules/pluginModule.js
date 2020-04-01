@@ -49,10 +49,15 @@ export default {
     userIsAuthorizedForCoach(state, getters) {
       return getters.isCoach || getters.isAdmin || getters.isSuperuser;
     },
+    inMultipleFacilityPage(state, getters) {
+      return getters.isSuperuser && state.core.facilities.length > 1;
+    },
   },
   actions: {
-    setClassList(store) {
-      return ClassroomResource.fetchCollection({ getParams: { role: 'coach' } })
+    setClassList(store, facilityId) {
+      return ClassroomResource.fetchCollection({
+        getParams: { parent: facilityId || store.getters.currentFacilityId, role: 'coach' },
+      })
         .then(classrooms => {
           store.commit('SET_CLASS_LIST', classrooms);
         })

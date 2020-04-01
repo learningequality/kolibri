@@ -11,6 +11,14 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
+
+      <p>
+        <KRouterLink
+          v-if="$store.getters.inMultipleFacilityPage"
+          :to="{ name: 'AllFacilitiesPage' }"
+          :text="coreString('allFacilitiesLabel')"
+        />
+      </p>
       <h1>{{ coreString('classesLabel') }}</h1>
       <p>{{ $tr('classPageSubheader') }}</p>
 

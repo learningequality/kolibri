@@ -4,7 +4,7 @@
     <p>
       <BackLink
         v-if="classListPageEnabled"
-        :to="$router.getRoute('CoachClassListPage')"
+        :to="classListLink"
         :text="$tr('allClassesLabel')"
       />
     </p>
@@ -51,6 +51,13 @@
       },
       learnerNames() {
         return this.learners.map(learner => learner.name);
+      },
+      classListLink() {
+        let facility_id;
+        if (this.$store.getters.inMultipleFacilityPage) {
+          facility_id = this.$store.state.classSummary.facility_id;
+        }
+        return this.$router.getRoute('CoachClassListPage', {}, { facility_id });
       },
     },
     $trs: {
