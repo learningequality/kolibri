@@ -665,7 +665,7 @@ class Command(AsyncCommand):
 
             # freeze message translations:
             for line in per_line_errors:
-                line['message'] = str(line['message'])
+                line["message"] = str(line["message"])
 
             if self.job:
                 self.job.extra_metadata["overall_error"] = self.overall_error
