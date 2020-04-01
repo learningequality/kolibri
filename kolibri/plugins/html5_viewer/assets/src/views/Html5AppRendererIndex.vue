@@ -63,6 +63,23 @@
       sandbox() {
         return plugin_data.html5_sandbox_tokens;
       },
+      userData() {
+        return {
+          userId: this.userId,
+          userFullName: this.userFullName,
+          progress: this.progress,
+          complete: this.progress >= 1,
+          language: this.lang.id,
+          timeSpent: this.timeSpent,
+        };
+      },
+    },
+    watch: {
+      userData(newValue) {
+        if (newValue && this.hashi) {
+          this.hashi.updateData({ userData: newValue });
+        }
+      },
     },
     mounted() {
       this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
@@ -78,14 +95,10 @@
         }
         this.$emit('updateProgress', progress);
       });
-      this.hashi.initialize((this.extraFields && this.extraFields.contentState) || {}, {
-        userId: this.userId,
-        userFullName: this.userFullName,
-        progress: this.progress,
-        complete: this.progress >= 1,
-        language: this.lang.id,
-        timeSpent: this.timeSpent,
-      });
+      this.hashi.initialize(
+        (this.extraFields && this.extraFields.contentState) || {},
+        this.userData
+      );
       this.$emit('startTracking');
       this.startTime = now();
       this.pollProgress();
