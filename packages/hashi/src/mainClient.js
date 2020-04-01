@@ -65,7 +65,8 @@ export default class MainClient {
   __setData(contentState, userData) {
     Object.keys(this.storage).forEach(key => {
       const storage = this.storage[key];
-      storage.setData(contentState[storage.nameSpace], userData);
+      storage.setData(contentState[storage.nameSpace]);
+      storage.setUserData(userData);
       storage.on(events.STATEUPDATE, () => {
         this.mediator.sendLocalMessage({ nameSpace, event: events.STATEUPDATE, data: this.data });
       });

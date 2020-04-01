@@ -6,9 +6,16 @@ export default class BaseShim {
     this.events = Object.assign({}, events);
   }
 
-  setData(data, userData) {
-    this.__setData(data, userData);
+  setData(data) {
+    this.__setData(data);
     this.stateUpdated();
+  }
+
+  setUserData(data) {
+    if (this.__setUserData) {
+      this.__setUserData(data);
+      this.userDataUpdated();
+    }
   }
 
   sendMessage(event, data) {
@@ -31,5 +38,9 @@ export default class BaseShim {
 
   stateUpdated() {
     this.sendMessage(this.events.STATEUPDATE, this.data);
+  }
+
+  userDataUpdated() {
+    this.sendMessage(this.events.USERDATAUPDATE, this.userData);
   }
 }

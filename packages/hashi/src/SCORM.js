@@ -149,18 +149,20 @@ export default class SCORM extends BaseShim {
   constructor(mediator) {
     super(mediator);
     this.data = {};
+    this.userData = {};
     this.nameSpace = 'SCORM';
     this.__setData = this.__setData.bind(this);
+    this.__setUserData = this.__setUserData.bind(this);
     this.on(this.events.STATEUPDATE, this.__setData);
+    this.on(this.events.USERDATAUPDATE, this.__setUserData);
   }
 
-  __setData(data = {}, userData) {
+  __setData(data = {}) {
     this.data = data;
-    if (userData) {
-      for (let key in userDataMap) {
-        setByKeyPath(this.data, key, userDataMap[key](userData));
-      }
-    }
+  }
+
+  __setUserData(userData = {}) {
+    this.userData = userData;
   }
 
   iframeInitialize() {
