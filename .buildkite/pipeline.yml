@@ -9,12 +9,14 @@ steps:
 
   - trigger: "kolibri-macos"
     label: ":mac:"
-    async: true
     build:
       message: "${BUILDKITE_MESSAGE}"
       env:
         LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
         LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
+        # Determines whether build will be autoblocked or not.
+        # Autoblock unless there's a tag associated with the commit. Usually a release.
+        LE_KOLIBRI_RELEASE: "${BUILDKITE_TAG:-false}"
 
     # Android build only requires whl file
   # - label: Build Android APK
@@ -32,12 +34,14 @@ steps:
 
   - trigger: "kolibri-raspbian-image"
     label: ":raspberry-pi:"
-    async: true
     build:
       message: "${BUILDKITE_MESSAGE}"
       env:
         LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
         LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
+        # Determines whether build will be autoblocked or not.
+        # Autoblock unless there's a tag associated with the commit. Usually a release.
+        LE_KOLIBRI_RELEASE: "${BUILDKITE_TAG:-false}"
     depends_on:
       - deb-build
 
