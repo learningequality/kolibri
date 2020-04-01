@@ -8,11 +8,17 @@ from collections import OrderedDict
 from functools import partial
 from tempfile import mkstemp
 
+from django.conf import settings
 from django.core.management.base import CommandError
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
+from django.utils import translation
+from django.utils.translation import gettext_lazy as _
 
+from .bulkimportusers import FILE_WRITE_ERROR
+from .bulkimportusers import MESSAGES
+from .bulkimportusers import NO_FACILITY
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.collection_kinds import CLASSROOM
 from kolibri.core.auth.models import Facility
@@ -33,15 +39,15 @@ logger = logging.getLogger(__name__)
 # TODO: decide whether these should be internationalized
 labels = OrderedDict(
     (
-        ("username", "Username"),
-        ("password", "Password"),
-        ("full_name", "Full name"),
-        ("kind", "User type"),
-        ("id_number", "Identifier"),
-        ("birth_year", "Birth year"),
-        ("gender", "Gender"),
-        ("assigned", "Enrolled in"),
-        ("enrolled", "Assigned to"),
+        ("username", _("Username ({})".format("USERNAME"))),
+        ("password", _("Password ({})".format("PASSWORD"))),
+        ("full_name", _("Full name ({})".format("FULL_NAME"))),
+        ("kind", _("User type ({})").format("USER_TYPE")),
+        ("id_number", _("Identifier ({})".format("IDENTIFIER"))),
+        ("birth_year", _("Birth year ({})".format("BIRTH_YEAR"))),
+        ("gender", _("Gender ({})".format("GENDER"))),
+        ("assigned", _("Enrolled in ({})".format("ENROLLED_IN"))),
+        ("enrolled", _("Assigned to ({})".format("ASSIGNED_TO"))),
     )
 )
 
@@ -157,6 +163,13 @@ class Command(AsyncCommand):
             default=True,
             help="Allows overwritten of the exported file in case it exists",
         )
+        parser.add_argument(
+            "--locale",
+            action="store",
+            type=str,
+            default=None,
+            help="Code of the language for the headers to be translated",
+        )
 
     def get_facility(self, options):
         if options["facility"]:
@@ -164,9 +177,7 @@ class Command(AsyncCommand):
         else:
             default_facility = Facility.get_default_facility()
         if not default_facility:
-            self.overall_error.append(
-                "No default facility exists, please make sure to provision this device before running this command"
-            )
+            self.overall_error.append(MESSAGES[NO_FACILITY])
             raise CommandError(self.overall_error[-1])
 
         return default_facility
@@ -182,6 +193,10 @@ class Command(AsyncCommand):
         return filepath
 
     def handle_async(self, *args, **options):
+        # set language for the translation of the messages
+        locale = settings.LANGUAGE_CODE if not options["locale"] else options["locale"]
+        translation.activate(locale)
+
         self.overall_error = []
         filepath = self.get_filepath(options)
         facility = self.get_facility(options)
@@ -195,10 +210,11 @@ class Command(AsyncCommand):
                 ):
                     progress_update(1)
             except (ValueError, IOError) as e:
-                self.overall_error.append(
-                    "Error trying to write csv file: {}".format(e)
-                )
+                self.overall_error.append(MESSAGES[FILE_WRITE_ERROR].format(e))
                 raise CommandError(self.overall_error[-1])
+
+            # freeze error messages translations:
+            self.overall_error = [str(msg) for msg in self.overall_error]
 
             if job:
                 job.extra_metadata["overall_error"] = self.overall_error
@@ -209,3 +225,5 @@ class Command(AsyncCommand):
                 logger.info(
                     "Created csv file {} with {} lines".format(filepath, total_rows)
                 )
+
+        translation.deactivate()

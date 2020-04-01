@@ -58,8 +58,8 @@ INVALID_USERNAME = 4
 REQUIRED_COLUMN = 5
 INVALID_HEADER = 6
 NO_FACILITY = 7
-FILE_ERROR = 8
-
+FILE_READ_ERROR = 8
+FILE_WRITE_ERROR = 9
 
 MESSAGES = {
     UNEXPECTED_EXCEPTION: _("Unexpected exception [{}]: {}"),
@@ -74,7 +74,8 @@ MESSAGES = {
     NO_FACILITY: _(
         "No default facility exists, please make sure to provision this device before running this command"
     ),
-    FILE_ERROR: _("Error trying to read csv file: {}"),
+    FILE_READ_ERROR: _("Error trying to read csv file: {}"),
+    FILE_WRITE_ERROR: _("Error trying to write csv file: {}")
 }
 
 # Validators ###
@@ -495,7 +496,7 @@ class Command(AsyncCommand):
                 number_lines = len(f.readlines())
         except (ValueError, FileNotFoundError, csv.Error) as e:
             number_lines = None
-            self.overall_error.append(MESSAGES[FILE_ERROR].format(e))
+            self.overall_error.append(MESSAGES[FILE_READ_ERROR].format(e))
         return number_lines
 
     def get_delete(self, options, keeping_users, update_classes):
@@ -611,7 +612,7 @@ class Command(AsyncCommand):
                         reader
                     )
             except (ValueError, FileNotFoundError, csv.Error) as e:
-                self.overall_error.append(MESSAGES[FILE_ERROR].format(e))
+                self.overall_error.append(MESSAGES[FILE_READ_ERROR].format(e))
                 self.exit_if_error()
 
             db_new_users, db_update_users, keeping_users = self.build_users_objects(
@@ -666,6 +667,7 @@ class Command(AsyncCommand):
             # freeze message translations:
             for line in per_line_errors:
                 line["message"] = str(line["message"])
+            self.overall_error = [str(msg) for msg in self.overall_error]
 
             if self.job:
                 self.job.extra_metadata["overall_error"] = self.overall_error
