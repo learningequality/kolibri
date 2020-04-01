@@ -51,7 +51,6 @@
     data() {
       return {
         isInFullscreen: false,
-        useScormScoreAsProgress: true,
       };
     },
     computed: {
@@ -69,41 +68,15 @@
       this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
       this.hashi.onStateUpdate(data => {
         this.$emit('updateContentState', data);
-        if (data.SCORM && data.SCORM.version) {
-          if (this.timeout) {
-            clearTimeout(this.timeout);
-            this.timeout = null;
-          }
-          if (data.SCORM.cmi && data.SCORM.cmi.core) {
-            const core = data.SCORM.cmi.core;
-            if (this.useScormScoreAsProgress) {
-              let score = core.score;
-              if (score) {
-                // If min and max are not set, raw will be a value in the range 0-100. Source:
-                // https://support.scorm.com/hc/en-us/articles/206166466-cmi-score-raw-whole-numbers-
-                let rawPercent = 1;
-                let rawScore = score.raw;
-
-                // TODO: Needs testing with ranges outside 0-100, all content so far specifying
-                // min and max have these values, so behavior is the same as if they were not set.
-                if (score.min && score.max) {
-                  // rawPercent = percent per range increment
-                  // preMin = highest value before min, what to subtract from the range
-                  // rawScore = value from 1 to (max - preMin), assumes min and max are
-                  // positive numbers
-                  // this way we can calculate progress percent as value * incrementPercent
-                  const preMin = Math.min(0, score.min - 1);
-                  rawPercent = (score.max - preMin) / 100;
-                  rawScore = rawScore - preMin;
-                }
-
-                // Convert the raw value to a percentage increment.
-                let percent = (rawScore * rawPercent) / 100;
-                this.$emit('updateProgress', Math.min(1, Math.max(0, percent)));
-              }
-            }
-          }
+      });
+      this.hashi.onProgressUpdate(progress => {
+        // If hashi does some progress updating, stop our automatic
+        // progress updating.
+        if (this.timeout) {
+          clearTimeout(this.timeout);
+          this.timeout = null;
         }
+        this.$emit('updateProgress', progress);
       });
       this.hashi.initialize((this.extraFields && this.extraFields.contentState) || {}, {
         userId: this.userId,
@@ -126,7 +99,7 @@
     methods: {
       recordProgress() {
         const totalTime = now() - this.startTime;
-        this.$emit('updateProgress', Math.max(0, totalTime / 300000));
+        this.$emit('updateProgress', Math.max(0, totalTime / 3000000));
         this.pollProgress();
       },
       pollProgress() {
