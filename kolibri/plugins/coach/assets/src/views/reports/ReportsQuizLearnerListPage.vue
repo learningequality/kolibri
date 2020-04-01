@@ -144,6 +144,7 @@
           ...csvFields.name(),
           ...csvFields.learnerProgress('statusObj.status'),
           ...csvFields.score(),
+          ...csvFields.quizQuestionsAnswered(this.exam),
           ...csvFields.list('groups', 'groupsLabel'),
         ];
 
