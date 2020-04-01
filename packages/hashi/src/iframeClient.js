@@ -56,11 +56,7 @@ export default class SandboxEnvironment {
       callback: executePage,
     });
 
-    // Send a ready message in case the outer Hashi has already initialized
-    this.mediator.sendMessage({ nameSpace, event: events.READY, data: true });
-
-    // Set up a listener for a ready check event in case the iframe hashi has
-    // initialized first.
+    // Set up a listener for a ready check event.
     this.mediator.registerMessageHandler({
       nameSpace,
       event: events.READYCHECK,
@@ -68,5 +64,9 @@ export default class SandboxEnvironment {
         this.mediator.sendMessage({ nameSpace, event: events.READY, data: true });
       },
     });
+
+    // At this point we are ready, so send the message, in case we misssed the
+    // the ready check request.
+    this.mediator.sendMessage({ nameSpace, event: events.READY, data: true });
   }
 }

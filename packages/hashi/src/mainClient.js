@@ -28,10 +28,6 @@ export default class MainClient {
       SCORM: new SCORM(this.mediator),
     };
     this.now = now;
-    this.ready = false;
-    this.on(this.events.READY, () => {
-      this.ready = true;
-    });
     this.__setData = this.__setData.bind(this);
   }
   initialize(contentState, userData) {
@@ -44,29 +40,15 @@ export default class MainClient {
      * timeSpent: <time spent in seconds>,
      * language: <language code>,
      */
-    if (this.ready) {
-      this.__postReadyInitialize(contentState, userData);
-      // Set this here and below, in case the page inside the iframe navigates
-      // to a new page and hence has to reset its local state and reinitialize its
-      // SandboxEnvironment.
-      this.on(this.events.READY, () => {
-        this.__setData(this.data, this.userData);
-      });
-    } else {
-      this.on(this.events.READY, () => {
-        this.__postReadyInitialize(contentState, userData);
-        this.mediator.removeMessageHandler({ nameSpace, event: events.READY });
-        this.on(this.events.READY, () => {
-          this.__setData(this.data, this.userData);
-        });
-      });
-      this.mediator.sendMessage({ nameSpace, event: events.READYCHECK, data: true });
-    }
-  }
-  __postReadyInitialize(contentState, userData) {
     this.__setData(contentState, userData);
     this.__setListeners();
-    this.mediator.sendMessage({ nameSpace, event: events.READY, data: true });
+    // Set this here so that any time the inner frame declares it is ready
+    // it can reinitialize its SandboxEnvironment.
+    this.on(this.events.READY, () => {
+      this.__setData(this.data, this.userData);
+      this.mediator.sendMessage({ nameSpace, event: events.READY, data: true });
+    });
+    this.mediator.sendMessage({ nameSpace, event: events.READYCHECK, data: true });
   }
 
   updateData({ contentState, userData }) {
