@@ -139,15 +139,13 @@ def check_django_stack_ready():
 
 def check_database_is_migrated():
     """
-    This checks that certain aspects of migration are completed, but it
-    does not actually verify whether all migrations are run, as this is
+    This function checks that the database instance id model is
+    initialized. It must only be run after Django initialization.
+
+    It does not actually verify whether all migrations are run, as this is
     assumed to be a part of Kolibri version number checking. When a
     Kolibri version change is detected, we run migrations. Checking that
-    migrations are run for every startup, is assumed too costly.
-
-    This function checks that the database instance id model is
-    initialized to check if the database is in a proper state to be
-    used. This must only be run after Django initialization.
+    migrations are run for every startup would be costly.
     """
     from django.db import connection
     from morango.models import InstanceIDModel

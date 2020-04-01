@@ -174,8 +174,6 @@ initialize_params = base_params + [
 
 def _migrate_databases():
     """
-    Internal help function:
-
     Try to migrate all active databases. This should not be called unless Django has
     been initialized.
     """
