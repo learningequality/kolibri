@@ -1,3 +1,4 @@
+import platform
 import time
 
 from django.conf import settings
@@ -42,6 +43,15 @@ class DeviceSettingsManager(models.Manager):
         return model
 
 
+def get_device_hostname():
+    # Get the device hostname to set it as the default value of name field in
+    # DeviceSettings model
+    hostname = platform.node()
+
+    # make sure the default name does not exceed max length of the field
+    return hostname[:50]
+
+
 class DeviceSettings(models.Model):
     """
     This class stores data about settings particular to this device
@@ -67,9 +77,11 @@ class DeviceSettings(models.Model):
     allow_guest_access = models.BooleanField(default=True)
     allow_peer_unlisted_channel_import = models.BooleanField(default=False)
     allow_learner_unassigned_resource_access = models.BooleanField(default=True)
+    name = models.CharField(max_length=50, default=get_device_hostname)
 
     def save(self, *args, **kwargs):
         self.pk = 1
+        self.full_clean()
         super(DeviceSettings, self).save(*args, **kwargs)
         cache.set(DEVICE_SETTINGS_CACHE_KEY, self, 600)
 

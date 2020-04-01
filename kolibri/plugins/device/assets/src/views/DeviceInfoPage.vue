@@ -84,7 +84,6 @@
           `Installer:         ${this.deviceInfo.installer}`,
           `Server:            ${this.deviceInfo.server_type}`,
           `Database:          ${this.deviceInfo.database_path}`,
-          `Device name:       ${this.deviceInfo.device_name}`,
           `Free disk space:   ${this.deviceInfo.content_storage_free_space}`,
           `Server time:       ${this.deviceInfo.server_time}`,
           `Server timezone:   ${this.deviceInfo.server_timezone}`,
