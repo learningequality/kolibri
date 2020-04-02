@@ -49,15 +49,9 @@ class ProgressTracker:
                 self.progressbar = None
 
     def update_progress(self, increment=1, message="", extra_data=None):
-        # Type check argument, as progressbars can break otherwise.
-        if type(increment) is not Integral:
-            logger.warn(
-                "increment argument should be an integer for progressbars to work"
-            )
         if self.progressbar:
-            # N.B. because we are only doing this in Python3, safe to just use int,
-            # as long is Py2 only
-            self.progressbar.update(int(increment))
+            # Click only enforces integers on the total (because it is implemented assuming a length)
+            self.progressbar.update(increment)
         self.progress += increment
         self.message = message
         self.extra_data = extra_data
