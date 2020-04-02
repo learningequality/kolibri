@@ -57,7 +57,11 @@
         return nameSpace;
       },
       rooturl() {
-        return this.defaultFile.storage_url;
+        // Due to a quirk of history, this will detect iOS and IE11.
+        // https://stackoverflow.com/a/9039885
+        const iOSorIE11 = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        // Skip hashi on requests for these browsers
+        return this.defaultFile.storage_url + (iOSorIE11 ? '?SKIP_HASHI=true' : '');
       },
     },
     mounted() {
