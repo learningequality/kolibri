@@ -8,18 +8,25 @@ CONTAINER_HOME=/home/kivy
 P4A_CACHE=p4a_cache
 PEW_CACHE=pew_cache
 
+CID_FILE=kolibri-android-app-container-id.cid.txt
+
 # create the container to be used throughout the script
 # creates a volume for reuse between builds, holding p4a's android distro
-CONTAINER_ID=$(docker create -it \
+docker create -it \
   --mount type=volume,src=${P4A_CACHE},dst=${CONTAINER_HOME}/.local \
   --mount type=volume,src=${PEW_CACHE},dst=${CONTAINER_HOME}/.pyeverywhere \
   --env P4A_RELEASE_KEYSTORE=${CONTAINER_HOME}/$(basename "${P4A_RELEASE_KEYSTORE}") \
   --env P4A_RELEASE_KEYALIAS \
   --env P4A_RELEASE_KEYSTORE_PASSWD \
   --env P4A_RELEASE_KEYALIAS_PASSWD \
-  android_kolibri)
+  --cidfile ${CID_FILE} \
+  android_kolibri
 
-echo -ne "Creating container ${CONTAINER_ID} \n\t id: "
+# Used to reference container, rather than name. For concurrency.
+# Removing immediately, but could use this to check if running.
+CONTAINER_ID=$(more ${CID_FILE} && rm ${CID_FILE})
+
+echo -ne "Creating android build container, ID: ${CONTAINER_ID}"
 
 # make sure the environment variable is defined
 if [ "${P4A_RELEASE_KEYSTORE}" ]; then
