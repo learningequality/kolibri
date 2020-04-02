@@ -35,9 +35,7 @@ class ContentSessionLogSerializer(KolibriModelSerializer):
         request = self.context.get("request")
         # Must ensure there is no user here to maintain user privacy for logging.
         if request and hasattr(request, "COOKIES") and not validated_data.get("user"):
-            validated_data["visitor_id"] = request.COOKIES.get(
-                "visitor_id"
-            )
+            validated_data["visitor_id"] = request.COOKIES.get("visitor_id")
         instance = super(ContentSessionLogSerializer, self).create(validated_data)
         return instance
 
