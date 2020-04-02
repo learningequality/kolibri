@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime, timedelta
 from django.apps import apps
 from django.conf import settings
@@ -66,14 +65,3 @@ class CustomAuthenticationMiddleware(AuthenticationMiddleware):
             "'kolibri.core.auth.middleware.CustomAuthenticationMiddleware'."
         )
         request.user = SimpleLazyObject(lambda: _get_user(request))
-
-    def process_response(self, request, response):
-        # Now we know user is anonymous - get 1200s cookie expiry from utcnow
-        cookie_expiry = datetime.utcnow() + timedelta(years=100)
-
-        if not request.COOKIES.get("anonymous_session_id"):
-            # Establish a cookie if there isn't one
-            response.set_cookie(
-                "anonymous_session_id", str(uuid.uuid4()), expires=cookie_expiry
-            )
-        return response
