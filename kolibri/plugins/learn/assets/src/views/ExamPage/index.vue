@@ -53,7 +53,7 @@
                 @click="goToQuestion(questionNumber + 1)"
               >
                 {{ $tr('nextQuestion') }}
-                <KIcon icon="forward" color="white" class="forward-icon" />
+                <KIcon slot="iconAfter" icon="forward" color="white" class="forward-icon" />
               </KButton>
               <KButton
                 :disabled="questionNumber === 0"
@@ -63,7 +63,7 @@
                 :class="{ 'left-align': windowIsSmall }"
                 @click="goToQuestion(questionNumber - 1)"
               >
-                <KIcon icon="back" color="white" class="back-icon" />
+                <KIcon slot="icon" icon="back" color="white" class="back-icon" />
                 {{ $tr('previousQuestion') }}
               </KButton>
             </KButtonGroup>
