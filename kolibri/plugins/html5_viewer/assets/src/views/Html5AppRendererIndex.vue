@@ -5,17 +5,18 @@
     class="html5-renderer"
     @changeFullscreen="isInFullscreen = $event"
   >
-    <UiIconButton
-      class="btn"
-      :style="{ fill: $themeTokens.textInverted }"
-      :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      color="primary"
-      size="large"
+    <KButton
+      :primary="false"
+      class="fullscreen-btn"
       @click="$refs.html5Renderer.toggleFullscreen()"
     >
-      <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
-      <mat-svg v-else name="fullscreen" category="navigation" />
-    </UiIconButton>
+      <!--
+        FIXME: Restore these once I find the right way to vertially center the SVG icon
+        <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
+        <mat-svg v-else name="fullscreen" category="navigation" />
+      -->
+      {{ fullscreenText }}
+    </KButton>
     <div class="iframe-container">
       <iframe
         ref="iframe"
@@ -36,7 +37,6 @@
 <script>
 
   import { now } from 'kolibri.utils.serverClock';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
   import { nameSpace } from 'hashi/src/hashiBase';
@@ -45,7 +45,6 @@
   export default {
     name: 'Html5AppRendererIndex',
     components: {
-      UiIconButton,
       CoreFullscreen,
     },
     data() {
@@ -62,6 +61,9 @@
       },
       sandbox() {
         return plugin_data.html5_sandbox_tokens;
+      },
+      fullscreenText() {
+        return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
       },
     },
     mounted() {
@@ -93,8 +95,8 @@
       },
     },
     $trs: {
-      exitFullscreen: 'Exit fullscreen',
-      enterFullscreen: 'Enter fullscreen',
+      exitFullscreen: 'Exit Fullscreen',
+      enterFullscreen: 'View Fullscreen',
     },
   };
 
@@ -105,11 +107,11 @@
 
   @import '~kolibri.styles.definitions';
 
-  .btn {
-    position: absolute;
-    top: 8px;
-    right: 21px;
-    z-index: 1;
+  .fullscreen-btn {
+    width: 100%;
+    margin: 0;
+    text-align: right;
+    box-shadow: none;
   }
 
   .html5-renderer {
@@ -126,7 +128,6 @@
   .iframe-container {
     @extend %momentum-scroll;
 
-    position: absolute;
     top: 0;
     bottom: 0;
     width: 100%;
