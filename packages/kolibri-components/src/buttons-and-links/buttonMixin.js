@@ -62,8 +62,8 @@ export default {
     },
     linkStyle() {
       return {
-        color: this.$themeTokens.primary,
-        ':hover': { color: this.$themeTokens.primaryDark },
+        color: this.$themeTokens.link,
+        ':hover': { color: this.$themeTokens.linkDark },
         ':focus': this.$coreOutline,
         ':disabled': { opacity: 0.5 },
       };
