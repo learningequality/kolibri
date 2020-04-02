@@ -87,7 +87,6 @@
             :primary="true"
             :text="atFirstStep ? coreString('continueAction') : coreString('finishAction')"
             type="submit"
-            class="submit"
           />
         </p>
 
@@ -348,10 +347,6 @@
 
   .privacy-link {
     margin-top: 24px;
-  }
-
-  .submit {
-    margin-left: 0;
   }
 
   .select {

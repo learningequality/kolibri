@@ -12,7 +12,6 @@
       <PlanHeader />
       <div class="ta-r">
         <KButton
-          class="new-group-button"
           :text="$tr('newGroupAction')"
           :primary="true"
           @click="openCreateGroupModal"

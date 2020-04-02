@@ -11,21 +11,22 @@
     <span class="selected" :title="selectedLanguage.english_name">
       {{ selectedLanguage.lang_name }}
     </span>
-    <KButton
-      v-for="language in buttonLanguages"
-      :key="language.id"
-      :text="language.lang_name"
-      :title="language.english_name"
-      class="lang"
-      appearance="basic-link"
-      @click="switchLanguage(language.id)"
-    />
+    <KButtonGroup>
+      <KButton
+        v-for="language in buttonLanguages"
+        :key="language.id"
+        :text="language.lang_name"
+        :title="language.english_name"
+        class="lang"
+        appearance="basic-link"
+        @click="switchLanguage(language.id)"
+      />
+    </KButtonGroup>
     <KButton
       v-if="numSelectableLanguages > numVisibleLanguages + 1"
       :text="$tr('showMoreLanguagesSelector')"
       :primary="false"
       appearance="flat-button"
-      class="more"
       @click="showLanguageModal = true"
     />
     <LanguageSwitcherModal
@@ -121,15 +122,6 @@
 
   .lang {
     @include font-family-language-names;
-
-    margin-right: 8px;
-    margin-left: 8px;
-  }
-
-  .more {
-    margin: 0;
-    margin-top: 8px;
-    margin-bottom: 8px;
   }
 
   .ta-l {

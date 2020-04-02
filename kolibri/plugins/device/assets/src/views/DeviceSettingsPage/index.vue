@@ -75,7 +75,6 @@
     </section>
     <section>
       <KButton
-        class="save-button"
         :text="coreString('saveAction')"
         appearance="raised-button"
         primary
@@ -260,7 +259,7 @@
 </script>
 
 
-<style lang="scss" scoped>
+<style lang="scss" scoped></style>
 
   .save-button {
     margin-left: 0;

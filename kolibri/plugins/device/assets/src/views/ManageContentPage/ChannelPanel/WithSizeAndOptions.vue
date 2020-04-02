@@ -42,7 +42,6 @@
       <KButton
         :text="$tr('manageChannelAction')"
         :disabled="disabled"
-        class="manage-btn"
         @click="handleManageChannelAction"
       />
     </div>
@@ -148,10 +147,6 @@
       margin-top: 16px;
       text-align: right;
     }
-  }
-
-  .manage-btn {
-    margin: 0;
   }
 
   .private-icons {
