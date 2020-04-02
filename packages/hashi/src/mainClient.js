@@ -73,6 +73,13 @@ export default class MainClient {
     });
   }
 
+  getProgress() {
+    // Return any calculated progress from the storage APIs
+    // So far, only the SCORM shim supports this
+    // If no progress has been reported, this will be null.
+    return this.storage.SCORM.__calculateProgress();
+  }
+
   __setData(contentState, userData) {
     this.updateData({ contentState, userData });
     if (this.now) {
@@ -84,9 +91,6 @@ export default class MainClient {
       const storage = this.storage[key];
       storage.on(events.STATEUPDATE, () => {
         this.mediator.sendLocalMessage({ nameSpace, event: events.STATEUPDATE, data: this.data });
-      });
-      storage.on(events.PROGRESSUPDATE, progress => {
-        this.mediator.sendLocalMessage({ nameSpace, event: events.PROGRESSUPDATE, data: progress });
       });
     });
   }

@@ -152,18 +152,6 @@ describe('Hashi mainClient', () => {
         expect(storage.on.mock.calls[0][0]).toEqual(events.STATEUPDATE);
       });
     });
-    it('should call on with the progressupdate event', () => {
-      hashi.mediator.sendMessage = jest.fn();
-      Object.keys(hashi.storage).forEach(key => {
-        const storage = hashi.storage[key];
-        storage.on = jest.fn();
-      });
-      hashi.__setListeners();
-      Object.keys(hashi.storage).forEach(key => {
-        const storage = hashi.storage[key];
-        expect(storage.on.mock.calls[1][0]).toEqual(events.PROGRESSUPDATE);
-      });
-    });
   });
   describe('data getter', () => {
     it('should return the data from each of the storage objects in a namespaced object', () => {

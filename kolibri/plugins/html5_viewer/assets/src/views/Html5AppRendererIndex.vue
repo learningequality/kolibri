@@ -86,15 +86,6 @@
       this.hashi.onStateUpdate(data => {
         this.$emit('updateContentState', data);
       });
-      this.hashi.onProgressUpdate(progress => {
-        // If hashi does some progress updating, stop our automatic
-        // progress updating.
-        if (this.timeout) {
-          clearTimeout(this.timeout);
-          this.timeout = null;
-        }
-        this.$emit('updateProgress', progress);
-      });
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
         this.userData
@@ -112,7 +103,11 @@
     methods: {
       recordProgress() {
         const totalTime = now() - this.startTime;
-        this.$emit('updateProgress', Math.max(0, totalTime / 3000000));
+        const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
+        this.$emit(
+          'updateProgress',
+          hashiProgress === null ? Math.max(0, totalTime / 3000000) : hashiProgress
+        );
         this.pollProgress();
       },
       pollProgress() {
