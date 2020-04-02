@@ -74,6 +74,7 @@
         <template v-if="licenseDescription">
           <KIconButton
             :icon="licenceDescriptionIsVisible ? 'arrow_up' : 'arrow_down'"
+            :ariaLabel="$tr('toggleLicenseDescription')"
             size="small"
             type="secondary"
             @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
