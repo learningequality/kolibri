@@ -20,7 +20,6 @@
       <KButton
         v-if="clipboardCapable"
         ref="copyButton"
-        class="copy-to-clipboard-button"
         :primary="false"
         :text="$tr('copyToClipboardButtonPrompt')"
       />
@@ -105,10 +104,6 @@
     white-space: pre;
     resize: none;
     border-radius: $radius;
-  }
-
-  .copy-to-clipboard-button {
-    margin-left: 0;
   }
 
 </style>

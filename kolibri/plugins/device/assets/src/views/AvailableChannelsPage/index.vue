@@ -29,7 +29,6 @@
         <p v-if="showUnlistedChannels">
           <KButton
             data-test="token-button"
-            class="token-button"
             :text="$tr('channelTokenButtonLabel')"
             appearance="raised-button"
             name="showtokenmodal"
@@ -399,10 +398,6 @@
   .channel-list-header {
     padding: 16px 0;
     font-size: 14px;
-  }
-
-  .token-button {
-    margin-left: 0;
   }
 
 </style>

@@ -68,7 +68,6 @@
                 @click="register(facility)"
               />
               <KButton
-                class="sync"
                 appearance="raised-button"
                 :text="$tr('sync')"
                 :disabled="facilityTaskId !== '' || !facility.dataset.registered"
@@ -187,10 +186,6 @@
     padding: 4px;
     padding-top: 8px;
     text-align: right;
-
-    .sync {
-      margin-right: 0;
-    }
   }
 
   .name {

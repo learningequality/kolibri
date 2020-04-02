@@ -27,7 +27,6 @@
           <KButton
             :text="$tr('import')"
             :primary="true"
-            class="import-btn"
             @click="startImportWorkflow()"
           />
         </KGridItem>
@@ -232,10 +231,6 @@
   .options-btn {
     margin: 0;
     margin-right: 16px;
-  }
-
-  .import-btn {
-    margin: 0;
   }
 
 </style>

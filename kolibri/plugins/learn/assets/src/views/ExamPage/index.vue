@@ -100,7 +100,6 @@
                 :text="$tr('submitExam')"
                 :primary="false"
                 appearance="flat-button"
-                style="margin-left: 0"
                 @click="toggleModal"
               />
             </div>

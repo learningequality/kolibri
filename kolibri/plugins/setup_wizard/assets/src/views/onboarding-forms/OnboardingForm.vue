@@ -22,7 +22,6 @@
       </div>
 
       <KButton
-        class="onboarding-form-submit"
         :primary="true"
         type="submit"
         :text="submitText"
@@ -84,10 +83,6 @@
 
   .onboarding-form-description {
     margin-bottom: 8px;
-  }
-
-  .onboarding-form-submit {
-    margin: 0;
   }
 
   .form-footer {

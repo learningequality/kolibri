@@ -37,7 +37,6 @@
       <div class="buttons">
         <KButtonGroup>
           <KButton
-            class="no-margin"
             :text="coreString('saveAction')"
             :disabled="formDisabled"
             type="submit"

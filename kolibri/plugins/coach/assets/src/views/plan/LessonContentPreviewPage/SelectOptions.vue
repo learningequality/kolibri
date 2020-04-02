@@ -11,7 +11,6 @@
       <KButton
         :text="coreString('removeAction')"
         :primary="true"
-        class="no-margin"
         @click="$emit('removeResource')"
       />
       <!-- TODO include undo button here -->
@@ -20,7 +19,6 @@
       v-else
       :text="$tr('addButtonLabel')"
       :primary="true"
-      class="no-margin"
       @click="$emit('addResource')"
     />
   </div>
@@ -57,10 +55,6 @@
     top: 4px;
     width: 20px;
     height: 20px;
-  }
-
-  .no-margin {
-    margin-right: 0;
   }
 
 </style>
