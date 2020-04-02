@@ -41,6 +41,10 @@
   import Hashi from 'hashi';
   import { nameSpace } from 'hashi/src/hashiBase';
 
+  // Regex vendored from https://github.com/faisalman/ua-parser-js/blob/master/src/ua-parser.js
+  const iOSTest = /ip[honead]{2,4}(?:.*os\s([\w]+)\slike\smac|;\sopera)/i;
+  const IE11Test = /(trident).+rv[:\s]([\w.]+).+like\sgecko/i;
+
   export default {
     name: 'Html5AppRendererIndex',
     components: {
@@ -57,11 +61,11 @@
         return nameSpace;
       },
       rooturl() {
-        // Due to a quirk of history, this will detect iOS and IE11.
-        // https://stackoverflow.com/a/9039885
-        const iOSorIE11 = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const iOSCheck = iOSTest.exec(navigator.userAgent);
+        const isOS8 = iOSCheck ? Number(iOSCheck[1].split('_')[0]) <= 8 : false;
+        const iOS8orIE11 = isOS8 || IE11Test.test(navigator.userAgent);
         // Skip hashi on requests for these browsers
-        return this.defaultFile.storage_url + (iOSorIE11 ? '?SKIP_HASHI=true' : '');
+        return this.defaultFile.storage_url + (iOS8orIE11 ? '?SKIP_HASHI=true' : '');
       },
     },
     mounted() {
