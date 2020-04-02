@@ -5,6 +5,7 @@ from collections import namedtuple
 
 import mock
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from mock import patch
 from morango.models import DatabaseIDModel
@@ -383,10 +384,6 @@ class DeviceInfoTestCase(APITestCase):
         else:
             self.assertTrue("database_path" not in response.data)
 
-    def test_device_name(self):
-        response = self.client.get(reverse("kolibri:core:deviceinfo"), format="json")
-        self.assertEqual(response.data["device_name"], platform.node())
-
     def test_os(self):
         response = self.client.get(reverse("kolibri:core:deviceinfo"), format="json")
         self.assertEqual(response.data["os"], platform.platform())
@@ -428,3 +425,63 @@ class DeviceInfoTestCase(APITestCase):
         )
         response = self.client.get(reverse("kolibri:core:deviceinfo"), format="json")
         self.assertEqual(response.status_code, 200)
+
+
+class DeviceNameTestCase(APITestCase):
+    device_name = {
+        "name": "test device",
+    }
+
+    def setUp(self):
+        super(DeviceNameTestCase, self).setUp()
+        self.facility = FacilityFactory.create()
+        provision_device(language_id="es", default_facility=self.facility)
+        self.superuser = create_superuser(self.facility)
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def test_requires_authentication(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse("kolibri:core:devicename"), self.device_name, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_existing_device_name(self):
+        response = self.client.get(reverse("kolibri:core:devicename"))
+        self.assertEqual(
+            response.data["name"],
+            InstanceIDModel.get_or_create_current_instance()[0].hostname,
+        )
+
+    def test_patch(self):
+        device_settings = DeviceSettings.objects.get()
+        self.assertEqual(
+            device_settings.name,
+            InstanceIDModel.get_or_create_current_instance()[0].hostname,
+        )
+
+        response = self.client.patch(
+            reverse("kolibri:core:devicename"), self.device_name, format="json"
+        )
+        self.assertEqual(response.data, self.device_name)
+        device_settings.refresh_from_db()
+
+        self.assertEqual(device_settings.name, self.device_name["name"])
+        self.assertNotEqual(
+            device_settings.name,
+            InstanceIDModel.get_or_create_current_instance()[0].hostname,
+        )
+
+    def test_device_name_max_length(self):
+        exceeds_max_length_name = {"name": "a" * 60}
+        with self.assertRaises(ValidationError):
+            self.client.patch(
+                reverse("kolibri:core:devicename"),
+                exceeds_max_length_name,
+                format="json",
+            )
