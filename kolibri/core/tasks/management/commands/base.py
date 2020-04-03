@@ -2,7 +2,6 @@ import abc
 import logging
 import sys
 from collections import namedtuple
-from numbers import Integral
 
 import click
 from django.core.management.base import BaseCommand
@@ -30,9 +29,6 @@ class ProgressTracker:
         self.level = level
         self.update_callback = update_callback
 
-        # Check that the total is an integer, otherwise progress bars will be unpredictable
-        if type(total) is not Integral:
-            logger.warn("total argument should be an integer for progressbars to work")
         # Also check that we are not running Python 2:
         # https://github.com/learningequality/kolibri/issues/6597
         if sys.version_info[0] == 2:
@@ -42,6 +38,8 @@ class ProgressTracker:
             # as we only want to display progress bars from the command line.
             try:
                 click.get_current_context()
+                # Coerce to an integer for safety, as click uses Python `range` on this
+                # value, which requires an integer argument
                 # N.B. because we are only doing this in Python3, safe to just use int,
                 # as long is Py2 only
                 self.progressbar = click.progressbar(length=int(total), width=0)
