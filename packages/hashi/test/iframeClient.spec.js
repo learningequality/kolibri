@@ -27,12 +27,12 @@ describe('Hashi iframeClient', () => {
         });
       });
     });
-    it('should bind a listener to a ready event to call the setScripts callback', () => {
+    it('should bind a listener to a ready event to call the executePage callback', () => {
       expect(hashi.mediator.__messageHandlers[nameSpace][events.READY].length).toBe(1);
     });
-    it('should call the loadPage method when the ready event is triggered', () => {
-      const loadPage = jest.fn();
-      hashi.mediator.__messageHandlers[nameSpace][events.READY] = [loadPage];
+    it('should call the executePage method when the ready event is triggered', () => {
+      const executePage = jest.fn();
+      hashi.mediator.__messageHandlers[nameSpace][events.READY] = [executePage];
       hashi.mediator.sendMessage = jest.fn();
       return new Promise(resolve => {
         hashi.mediator.registerMessageHandler({
@@ -44,7 +44,7 @@ describe('Hashi iframeClient', () => {
         });
         hashi.mediator.sendLocalMessage({ nameSpace, event: events.READY });
       }).then(() => {
-        expect(loadPage).toHaveBeenCalled();
+        expect(executePage).toHaveBeenCalled();
       });
     });
   });

@@ -548,25 +548,42 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
 }
 
 /**
- * Update the progress percentage
+ * Sets the progress of the current content item to progressPercent.
+ * This is for renderers that track state internally and have their own
+ * way of calculating completion. They are responsible to load any previous
+ * session state if they need to use that when calculating progress.
  * To be called periodically by content renderers on interval or on pause
  * Must be called after initContentSession
  * @param {float} progressPercent
  * @param {boolean} forceSave
  */
 export function updateProgress(store, { progressPercent, forceSave = false }) {
-  /* Create aliases for logs */
-  const summaryLog = store.getters.logging.summary;
-  const sessionLog = store.getters.logging.session;
-
   /* Calculate progress based on progressPercent */
   // TODO rtibbles: Delegate this to the renderers?
   progressPercent = progressPercent || 0;
-  const sessionProgress = Math.min(1, sessionLog.progress + progressPercent);
+  const sessionProgress = Math.min(1, progressPercent);
+
+  return _updateProgress(store, sessionProgress, sessionProgress, forceSave);
+}
+
+/**
+ * Adds progressPercent to the current progress percentage
+ * To be called periodically by content renderers on interval or on pause
+ * Must be called after initContentSession
+ * @param {float} progressPercent
+ * @param {boolean} forceSave
+ */
+export function addProgress(store, { progressPercent, forceSave = false }) {
+  const summaryLog = store.getters.logging.summary;
+  const sessionLog = store.getters.logging.session;
+
+  progressPercent = progressPercent || 0;
+  const totalPercent = sessionLog.progress + progressPercent;
+
+  const sessionProgress = Math.min(1, totalPercent);
   const summaryProgress = summaryLog.id
     ? Math.min(1, summaryLog.progress_before_current_session + sessionProgress)
     : 0;
-
   return _updateProgress(store, sessionProgress, summaryProgress, forceSave);
 }
 

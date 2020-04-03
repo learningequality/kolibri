@@ -28,6 +28,10 @@ oriented data synchronization.
         :extraFields="extraFields"
         :assessment="true"
         :itemId="itemId"
+        :progress="progress"
+        :userId="userId"
+        :userFullName="userFullName"
+        :timeSpent="timeSpent"
         @answerGiven="answerGiven"
         @hintTaken="hintTaken"
         @itemError="handleItemError"
@@ -163,6 +167,22 @@ oriented data synchronization.
       extraFields: {
         type: Object,
         default: () => {},
+      },
+      // An explicit record of the current progress through this
+      // piece of content.
+      progress: {
+        type: Number,
+        default: 0,
+      },
+      // An identifier for the user interacting with this content
+      userId: {
+        type: String,
+      },
+      userFullName: {
+        type: String,
+      },
+      timeSpent: {
+        type: Number,
       },
     },
     data() {
