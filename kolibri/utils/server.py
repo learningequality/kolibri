@@ -532,14 +532,12 @@ def installation_type(cmd_line=None):  # noqa:C901
         elif "start" in cmd_line:
             install_type = "whl"
     if on_android():
-        from jnius import autoclass
 
-        context = autoclass("org.kivy.android.PythonActivity")
-        version_name = (
-            context.getPackageManager()
-            .getPackageInfo(context.getPackageName(), 0)
-            .versionName
-        )
-        install_type = "apk - {}".format(version_name)
+        version_name = os.environ.get("KOLIBRI_APK_VERSION_NAME")
+
+        if version_name:
+            install_type = "apk - {}".format(version_name)
+        else:
+            install_type = "apk"
 
     return install_type
