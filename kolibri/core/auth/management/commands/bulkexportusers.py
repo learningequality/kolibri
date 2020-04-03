@@ -11,7 +11,6 @@ from tempfile import mkstemp
 from django.conf import settings
 from django.core.management.base import CommandError
 from django.db.models import OuterRef
-from django.db.models import Q
 from django.db.models import Subquery
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
@@ -20,14 +19,15 @@ from .bulkimportusers import FILE_WRITE_ERROR
 from .bulkimportusers import MESSAGES
 from .bulkimportusers import NO_FACILITY
 from kolibri.core.auth.constants import role_kinds
-from kolibri.core.auth.constants.collection_kinds import CLASSROOM
+from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Role
-from kolibri.core.query import GroupConcat
+from kolibri.core.query import GroupConcatSubquery
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
+
 
 try:
     FileNotFoundError
@@ -117,18 +117,30 @@ def csv_file_generator(facility, filepath, overwrite=True):
         usernames = set()
 
         query = (
-            queryset.annotate(
+            queryset.values("pk")
+            .annotate(
                 kind=Subquery(
                     Role.objects.filter(collection_id=facility.id)
                     .values("kind")
                     .filter(user_id=OuterRef("id"))
                 )
             )
-            .annotate(enrolled=GroupConcat("memberships__collection__name"))
-            .filter(
-                Q(roles__collection__kind=CLASSROOM) | Q(roles__collection__isnull=True)
+            .annotate(
+                enrolled=GroupConcatSubquery(
+                    Classroom.objects.filter(membership__user_id=OuterRef("id")).values(
+                        "name"
+                    ),
+                    field="name",
+                )
             )
-            .annotate(assigned=GroupConcat("roles__collection__name"))
+            .annotate(
+                assigned=GroupConcatSubquery(
+                    Classroom.objects.filter(
+                        role__kind="coach", role__user=OuterRef("id")
+                    ).values("name"),
+                    field="name",
+                )
+            )
         )
 
         for item in query.values(*db_columns):
