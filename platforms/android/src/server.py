@@ -20,7 +20,6 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base
 # TODO: before shipping the app, make this contingent on debug vs production mode
 os.environ["KOLIBRI_RUN_MODE"] = "pew-dev"
 
-
 def start_django(port):
 
     from kolibri.utils.cli import main
@@ -65,6 +64,9 @@ if pew.ui.platform == "android":
         service.startForeground(1, new_notification)
 
     os.environ["KOLIBRI_HOME"] = service_args["HOME"]
+
+    # store the version name into an envvar to be picked up by Kolibri
+    os.environ["KOLIBRI_APK_VERSION_NAME"] = service_args["VERSION"]
 
     os.environ["TZ"] = Timezone.getDefault().getDisplayName()
     os.environ["LC_ALL"] = "en_US.UTF-8"

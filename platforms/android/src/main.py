@@ -30,18 +30,12 @@ def start_kolibri_server(port):
             kolibri_home_file = PythonActivity.mActivity.getExternalFilesDir(None)
             return kolibri_home_file.toString()
 
-        # store the version name into an envvar to be picked up by Kolibri
-        os.environ["KOLIBRI_APK_VERSION_NAME"] = (
-            PythonActivity.getPackageManager()
-            .getPackageInfo(PythonActivity.getPackageName(), 0)
-            .versionName
-        )
-
         logging.info("Starting kolibri server via Android service...")
 
         service.start(PythonActivity.mActivity, json.dumps({
             "HOME": get_home_folder(),
             "PORT": port,
+            "VERSION": PythonActivity.getPackageManager().getPackageInfo(PythonActivity.getPackageName(), 0).versionName,
         }))
 
     else:
