@@ -30,6 +30,6 @@ DATABASES = {
         "PASSWORD": "",
         "NAME": os.environ.get("POSTGRES_DB") or "default",  # noqa
         "OPTIONS": {"isolation_level": isolation_level},
-        "TEST": {"NAME": "travis_ci_default"},
+        "TEST": {"MIRROR": "default"},
     },
 }
