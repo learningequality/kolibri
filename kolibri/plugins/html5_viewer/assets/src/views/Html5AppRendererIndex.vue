@@ -10,11 +10,8 @@
       class="fullscreen-btn"
       @click="$refs.html5Renderer.toggleFullscreen()"
     >
-      <!--
-        FIXME: Restore these once I find the right way to vertially center the SVG icon
-        <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
-        <mat-svg v-else name="fullscreen" category="navigation" />
-      -->
+      <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
+      <mat-svg v-else name="fullscreen" category="navigation" />
       {{ fullscreenText }}
     </KButton>
     <div class="iframe-container">
@@ -108,6 +105,9 @@
   @import '~kolibri.styles.definitions';
 
   .fullscreen-btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
     width: 100%;
     margin: 0;
     text-align: right;
