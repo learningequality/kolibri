@@ -1,6 +1,6 @@
+import json
 import logging
 import os
-import sys
 import time
 import urllib2
 
@@ -10,48 +10,49 @@ logging.basicConfig(level=logging.DEBUG)
 import pew
 import pew.ui
 
+from config import PORT
+
 pew.set_app_name("Kolibri")
 logging.info("Entering main.py...")
 
-PORT = 8080
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(script_dir)
-sys.path.append(os.path.join(script_dir, "kolibri", "dist"))
+def start_kolibri_server(port):
 
-os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base"
+    if pew.ui.platform == "android":
 
-if pew.ui.platform == "android":
+        from jnius import autoclass
 
-    from jnius import autoclass
+        PythonActivity = autoclass("org.kivy.android.PythonActivity")
+        service = autoclass('org.learningequality.Kolibri.ServiceServer')
 
-    PythonActivity = autoclass("org.kivy.android.PythonActivity")
-    File = autoclass("java.io.File")
-    Timezone = autoclass("java.util.TimeZone")
+        # TODO: check for storage availability, allow user to chose sd card or internal
+        def get_home_folder():
+            kolibri_home_file = PythonActivity.mActivity.getExternalFilesDir(None)
+            return kolibri_home_file.toString()
 
-    # TODO: check for storage availability, allow user to chose sd card or internal
-    def get_home_folder():
-        kolibri_home_file = PythonActivity.getExternalFilesDir(None)
-        return kolibri_home_file.toString()
+        # store the version name into an envvar to be picked up by Kolibri
+        os.environ["KOLIBRI_APK_VERSION_NAME"] = (
+            PythonActivity.getPackageManager()
+            .getPackageInfo(PythonActivity.getPackageName(), 0)
+            .versionName
+        )
 
-    os.environ["KOLIBRI_HOME"] = get_home_folder()
+        logging.info("Starting kolibri server via Android service...")
 
-    # TODO: before shipping the app, make this contingent on debug vs production mode
-    os.environ["KOLIBRI_RUN_MODE"] = "android-dev"
+        service.start(PythonActivity.mActivity, json.dumps({
+            "HOME": get_home_folder(),
+            "PORT": port,
+        }))
 
-    os.environ["TZ"] = Timezone.getDefault().getDisplayName()
-    os.environ["LC_ALL"] = "en_US.UTF-8"
+    else:
 
-    logging.info("Home folder: {}".format(os.environ["KOLIBRI_HOME"]))
-    logging.info("Timezone: {}".format(os.environ["TZ"]))
+        from server import start_django
 
+        logging.info("Starting kolibri server directly as thread...")
 
-def start_django():
-
-    logging.info("Starting server...")
-    from kolibri.utils.cli import main
-
-    main(["start", "--foreground", "--port={port}".format(port=PORT)])
+        thread = pew.ui.PEWThread(target=start_django, args=(port,))
+        thread.daemon = True
+        thread.start()
 
 
 class Application(pew.ui.PEWApp):
@@ -68,9 +69,7 @@ class Application(pew.ui.PEWApp):
         self.view = pew.ui.WebUIView("Kolibri", self.loader_url, delegate=self)
 
         # start thread
-        self.thread = pew.ui.PEWThread(target=start_django)
-        self.thread.daemon = True
-        self.thread.start()
+        start_kolibri_server(PORT)
 
         self.load_thread = pew.ui.PEWThread(target=self.wait_for_server)
         self.load_thread.daemon = True
@@ -102,7 +101,6 @@ class Application(pew.ui.PEWApp):
             self.view.webview.webview.clearHistory()
 
     def wait_for_server(self):
-        from kolibri.utils import server
 
         home_url = "http://localhost:{port}".format(port=PORT)
 

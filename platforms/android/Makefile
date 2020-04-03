@@ -4,11 +4,11 @@ VPATH = ./dist/android/
 clean:
 	- rm -rf dist/android/*.apk project_info.json ./src/kolibri
 
-# Replace the default loading page, so that it will be replaced with our own version
-replaceloadingpage:
-	rm -f .buildozer/android/platform/build/dists/kolibri/webview_includes/_load.html
-	cp ./assets/_load.html .buildozer/android/platform/build/dists/kolibri/webview_includes/
-	cp ./assets/loading-spinner.gif .buildozer/android/platform/build/dists/kolibri/webview_includes/
+deepclean: clean
+	rm -r ~/.local/share/python-for-android
+	rm -r build
+	yes y | docker system prune -a
+	rm build_docker 2> /dev/null
 
 # Extract the whl file
 src/kolibri:
@@ -39,3 +39,10 @@ build_docker: project_info.template Dockerfile
 # TODO Would be better to just specify the file here?
 run_docker: clean project_info.json build_docker
 	./scripts/rundocker.sh
+
+launch: Kolibri%.apk
+	adb uninstall org.learningequality.Kolibri || true 2> /dev/null
+	rm dist/android/Kolibri-0-debug.apk || true 2> /dev/null
+	adb install dist/android/*-debug.apk
+	adb shell am start -n org.learningequality.Kolibri/org.kivy.android.PythonActivity
+	adb logcat | grep -E "python|Python| server "
