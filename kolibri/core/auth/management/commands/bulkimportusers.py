@@ -82,13 +82,15 @@ MESSAGES = {
 # Validators ###
 
 
-def number_range(min, max):
+def number_range(min, max, allow_null=False):
     """
     Return a value check function which raises a ValueError if the supplied
     value is less than `min` or greater than `max`.
     """
 
     def checker(v):
+        if allow_null and not v:
+            return checker
         if int(v) < min or int(v) > max:
             raise ValueError(v)
 
@@ -299,7 +301,7 @@ class Command(AsyncCommand):
         )
         validator.add_check(
             "BIRTH_YEAR",
-            number_range(1900, 99999),
+            number_range(1900, 99999, allow_null=True),
             MESSAGES[INVALID].format("BIRTH_YEAR"),
         )
         validator.add_check(
