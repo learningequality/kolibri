@@ -8,67 +8,67 @@
     @cancel="closeModal"
     @submit="closeModal"
   >
-    <p>A CSV spreadsheet should use the first row as a header. It must contain the following columns in order:</p>
+    <p>{{ $tr('sectionDescription') }}</p>
 
     <table>
       <tbody>
         <tr>
           <th>
-            Username
+            {{ $tr('username') }} (USERNAME)
           </th>
-          <td>Required</td>
-          <td>Less than X chars and only these things</td>
+          <td>{{ $tr('required') }}</td>
+          <td>{{ $tr('usernameValidation') }}</td>
         </tr>
         <tr>
           <th>
-            Password
+            {{ $tr('password') }} (PASSWORD)
           </th>
-          <td>Required</td>
-          <td>At most N chars</td>
+          <td>{{ $tr('passwordDescription') }}</td>
+          <td>{{ $tr('passwordValidation') }}</td>
         </tr>
         <tr>
           <th>
-            Full name
+            {{ $tr('fullName') }} (FULL_NAME)
           </th>
-          <td>Required</td>
-          <td>At most N chars</td>
+          <td>{{ $tr('required') }}</td>
+          <td>{{ $tr('fullNameValidation') }}</td>
         </tr>
         <tr>
           <th>
-            User type
+            {{ $tr('userType') }} (USER_TYPE)
           </th>
-          <td>Required</td>
+          <td>{{ $tr('required') }}</td>
           <td>
-            <div>Possible values:</div>
+            <div>{{ $tr('possibleValues') }}</div>
             <ul>
               <li><code>ADMIN</code></li>
-              <li><code>FACILITY_COACH</code></li>
-              <li><code>CLASS_COACH</code></li>
+              <li><code>COACH</code></li>
+              <li><code>ASSIGNABLE_COACH</code></li>
               <li><code>LEARNER</code></li>
             </ul>
           </td>
         </tr>
         <tr>
           <th>
-            Identifier
+            {{ $tr('identifier') }} (IDENTIFIER)
           </th>
-          <td>Optional</td>
-          <td>Examples: student ID number or email address. At most N chars</td>
+          <td>{{ $tr('optional') }}</td>
+          <td>{{ $tr('identifierValidation') }}</td>
         </tr>
         <tr>
           <th>
-            Birth year
+            {{ $tr('birthYear') }} (BIRTH_YEAR)
           </th>
-          <td>Optional</td>
-          <td>A four-digit number</td>
+          <td>{{ $tr('optional') }}</td>
+          <td>{{ $tr('yearValidation') }}</td>
         </tr>
         <tr>
           <th>
-            Gender
+            {{ $tr('gender') }} (GENDER)
           </th>
-          <td>Optional</td>
+          <td>{{ $tr('optional') }}</td>
           <td>
-            <div>Possible values:</div>
+            <div>{{ $tr('possibleValues') }}</div>
             <ul>
               <li><code>MALE</code></li>
               <li><code>FEMALE</code></li>
@@ -78,17 +78,17 @@
         </tr>
         <tr>
           <th>
-            Enrolled in
+            {{ $tr('enrolled') }} (ENROLLED_IN)
           </th>
-          <td>Optional</td>
-          <td>List of class names, separated by commas</td>
+          <td>{{ $tr('optional') }}</td>
+          <td>{{ $tr('listClasses') }}</td>
         </tr>
         <tr>
           <th>
-            Assigned to
+            {{ $tr('assigned') }} (ASSIGNED_TO)
           </th>
-          <td>Optional</td>
-          <td>List of class names, separated by commas</td>
+          <td>{{ $tr('optional') }}</td>
+          <td>{{ $tr('listClasses') }}</td>
         </tr>
 
       </tbody>
@@ -111,7 +111,29 @@
     },
     $trs: {
       csvDetails: 'CSV details',
+      sectionDescription:
+        'A CSV spreadsheet should use the first row as a header. It must contain the following columns in any order:',
       close: 'Close',
+      required: 'Required',
+      optional: 'Optional',
+      usernameValidation:
+        'Less than 125 chars and only can contain characters, numbers and underscores',
+      passwordDescription: "If it's not provided the system will set it to 'kolibri'",
+      passwordValidation: 'At most 128 chars',
+      fullNameValidation: 'At most 125 chars',
+      possibleValues: 'Possible values:',
+      identifierValidation: 'At most 64 chars. Examples: student ID number or email address',
+      yearValidation: 'A four-digit number (greater than 1900)',
+      listClasses: 'List of class names, separated by commas',
+      username: 'Username',
+      password: 'Password',
+      fullName: 'Full name',
+      userType: 'User type',
+      identifier: 'Identifier',
+      birthYear: 'Birth year',
+      gender: 'Gender',
+      enrolled: 'Enrolled in',
+      assigned: 'Assigned to',
     },
   };
 

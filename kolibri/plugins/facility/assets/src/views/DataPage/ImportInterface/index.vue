@@ -2,31 +2,31 @@
 
   <KPageContainer>
 
-    <h1>Import and export users</h1>
+    <h1> {{ $tr('sectionTitle') }}</h1>
     <p>
-      You can manage users in bulk using spreadsheets.
+      {{ $tr('sectionDescription') }}
     </p>
     <p>
-      Export a CSV file containing all users in the facility:
+      {{ $tr('exportCSV') }}
     </p>
     <p>
       <KButton
-        text="Export"
+        :text="$tr('export')"
         appearance="raised-button"
         style="margin: 0;"
-        :disabled="exporting"
+        :disabled="isExporting"
         @click="exportCsv"
       />
-      <DataPageTaskProgress v-if="exporting" class="generating">
-        Generating CSV...
+      <DataPageTaskProgress v-if="isExporting" class="generating">
+        {{ $tr('generatingCSV') }}
       </DataPageTaskProgress>
     </p>
     <p>
-      Add new users and update existing users from a CSV:
+      {{ $tr('importCSV') }}
     </p>
     <p>
       <KRouterLink
-        text="Import"
+        :text="$tr('import')"
         appearance="raised-button"
         :to="$router.getRoute('IMPORT_CSV_PAGE')"
         style="margin: 0;"
@@ -40,67 +40,46 @@
 
 <script>
 
-  import * as csvGenerator from 'csv-generator-client'; // temporarily used for mockups
+  import urls from 'kolibri.urls';
+  import { mapState, mapActions } from 'vuex';
+  import { UsersExportStatuses } from '../../../constants';
   import DataPageTaskProgress from '../DataPageTaskProgress';
-
-  // temporarily used for mockups
-  function dummyExport() {
-    const COLS = [
-      'Username',
-      'Password',
-      'Full name',
-      'User type',
-      'Identifier',
-      'Birth year',
-      'Gender',
-      'Enrolled in',
-      'Assigned to',
-    ];
-    csvGenerator.download({
-      fileName: 'users.csv',
-      dataArray: [
-        COLS,
-        [
-          'teach4life',
-          'password123',
-          'Mr Jones',
-          'FACILITY_COACH',
-          '',
-          1975,
-          'NOT_SPECIFIED',
-          'Algebra 1, Geometry',
-        ],
-        ['student4now', '', 'Alice', 'LEARNER', 'ABC123', 2008, 'MALE', '', 'Geometry'],
-      ],
-      settings: {
-        separator: ',',
-        addQuotes: true,
-        autoDetectColumns: false,
-        columnKeys: COLS,
-      },
-    });
-  }
 
   export default {
     name: 'ImportInterface',
     components: {
       DataPageTaskProgress,
     },
-    data: () => ({
-      modalShown: false,
-      exporting: false,
-    }),
-    methods: {
-      exportCsv() {
-        // Trigger export task.
-        // If the user is on this page when the task completes, download the file.
-        // Otherwise, it's discarded.
-        this.exporting = true;
-        setTimeout(() => {
-          this.exporting = false;
-          dummyExport();
-        }, 2000);
+    computed: {
+      ...mapState('manageCSV', ['exportUsersStatus', 'exportUsersFilename']),
+      isExporting() {
+        return this.exportUsersStatus === UsersExportStatuses.EXPORTING;
       },
+    },
+    watch: {
+      exportUsersStatus(val) {
+        if (val == UsersExportStatuses.FINISHED) {
+          window.open(
+            urls['kolibri:kolibri.plugins.facility:download_csv_file'](this.exportUsersFilename),
+            '_blank'
+          );
+        }
+      },
+    },
+    methods: {
+      ...mapActions('manageCSV', ['startExportUsers']),
+      exportCsv() {
+        this.startExportUsers();
+      },
+    },
+    $trs: {
+      sectionTitle: 'Import and export users',
+      sectionDescription: 'You can manage users in bulk using spreadsheets.',
+      exportCSV: 'Export a CSV file containing all users in the facility:',
+      export: 'Export',
+      importCSV: 'Add new users and update existing users from a CSV:',
+      import: 'Import',
+      generatingCSV: 'Generating CSV...',
     },
   };
 
