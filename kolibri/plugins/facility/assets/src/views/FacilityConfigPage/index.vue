@@ -23,7 +23,14 @@
       <div class="mb">
         <h2>{{ coreString('facilityLabel') }}</h2>
         <p class="current-facility-name">
-          {{ facilityName }}
+          {{ facilityName }} ({{ lastPartId }})
+          <KButton
+            appearance="basic-link"
+            :text="$tr('facilityNameEdit')"
+            name="edit-facilityname"
+            @click="showEditFacilityModal = true"
+          />
+
         </p>
       </div>
 
@@ -66,6 +73,13 @@
       @submit="resetToDefaultSettings"
       @cancel="showModal = false"
     />
+    <EditFacilityNameModal
+      v-if="showEditFacilityModal"
+      id="edit-facility"
+      :facilityName="facilityName"
+      @submit="saveFacilityName"
+      @cancel="showEditFacilityModal = false"
+    />
   </KPageContainer>
 
 </template>
@@ -79,6 +93,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
   import ConfirmResetModal from './ConfirmResetModal';
+  import EditFacilityNameModal from './EditFacilityNameModal';
   import Notifications from './ConfigPageNotifications';
 
   // See FacilityDataset in core.auth.models for details
@@ -100,17 +115,24 @@
     },
     components: {
       ConfirmResetModal,
+      EditFacilityNameModal,
       Notifications,
     },
     mixins: [commonCoreStrings],
     data() {
       return {
         showModal: false,
+        showEditFacilityModal: false,
         settingsCopy: {},
       };
     },
     computed: {
-      ...mapState('facilityConfig', ['facilityName', 'settings', 'notification']),
+      ...mapState('facilityConfig', [
+        'facilityName',
+        'facilityDatasetId',
+        'settings',
+        'notification',
+      ]),
       ...mapGetters(['isSuperuser']),
       settingsList: () => settingsList,
       settingsHaveChanged() {
@@ -122,6 +144,9 @@
           return getUrl() + '#/settings';
         }
         return null;
+      },
+      lastPartId() {
+        return this.facilityDatasetId.substr(this.facilityDatasetId.length - 4);
       },
     },
     mounted() {
@@ -143,6 +168,9 @@
         this.$store.dispatch('facilityConfig/resetFacilityConfig').then(() => {
           this.copySettings();
         });
+      },
+      saveFacilityName() {
+        this.showEditFacilityModal = false;
       },
       saveConfig() {
         this.$store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
@@ -173,6 +201,7 @@
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to defaults',
       documentTitle: 'Configure Facility',
+      facilityNameEdit: 'Edit',
     },
   };
 
