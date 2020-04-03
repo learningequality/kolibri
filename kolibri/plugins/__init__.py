@@ -52,10 +52,10 @@ class ConfigDict(dict):
                 return
             except ValueError:
                 logger.warn(
-                    "Attempted to load kolibri_settings.json but encountered a file that could not be decoded as valid JSON."
+                    "Attempted to load plugins.json but encountered a file that could not be decoded as valid JSON."
                 )
-        logger.info("Initialize kolibri_settings.json..")
         self.save()
+        logger.info("Initialized plugins.json")
 
     def set_defaults(self):
         self.update(
