@@ -15,7 +15,7 @@
     />
     <template v-else-if="showLoaderState">
       <div class="loader-wrapper">
-        <KCircularLoader class="loader" /> Loading...
+        <KCircularLoader class="loader" /> {{ $tr('loading') }}
       </div>
     </template>
 
@@ -90,6 +90,7 @@
     },
     $trs: {
       pageHeader: 'Import users',
+      loading: 'Loading...',
     },
   };
 

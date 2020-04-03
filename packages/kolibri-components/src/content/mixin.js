@@ -126,6 +126,22 @@ export default {
       type: Boolean,
       default: false,
     },
+    // An explicit record of the current progress through this
+    // piece of content.
+    progress: {
+      type: Number,
+      default: 0,
+    },
+    // An identifier for the user interacting with this content
+    userId: {
+      type: String,
+    },
+    userFullName: {
+      type: String,
+    },
+    timeSpent: {
+      type: Number,
+    },
   },
   computed: {
     defaultItemPreset() {

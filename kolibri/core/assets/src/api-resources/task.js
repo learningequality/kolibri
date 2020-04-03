@@ -124,6 +124,14 @@ export default new Resource({
   import_users_from_csv(params) {
     return this.postListEndpoint('importusersfromcsv', pickBy(params));
   },
+  /**
+   * Initiates a Task that export users, classes and assign roles to a csv file
+   * @returns {Promise}
+   *
+   */
+  export_users_to_csv(params) {
+    return this.postListEndpoint('exportuserstocsv', pickBy(params));
+  },
 
   deleteChannel({ channelId }) {
     return this.postListEndpoint('startdeletechannel', {

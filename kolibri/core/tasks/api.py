@@ -7,11 +7,12 @@ from tempfile import NamedTemporaryFile
 
 import requests
 from django.apps.registry import AppRegistryNotReady
-from django.core.files.uploadedfile import UploadedFile
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.files.uploadedfile import UploadedFile
 from django.core.management import call_command
 from django.http.response import Http404
 from django.http.response import HttpResponseBadRequest
+from django.utils.translation import get_language_from_request
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework import viewsets
@@ -161,7 +162,7 @@ class TasksViewSet(viewsets.ViewSet):
         # exclusive permission for facility management
         elif self.action == "startexportlogcsv":
             permission_classes = [CanExportLogs]
-        elif self.action == "importusersfromcsv":
+        elif self.action in ["importusersfromcsv", "exportuserstocsv"]:
             permission_classes = [CanImportUsers]
         # this was the default before, so leave as is for any other endpoints
         else:
@@ -611,6 +612,7 @@ class TasksViewSet(viewsets.ViewSet):
         if not os.path.isdir(temp_dir):
             os.mkdir(temp_dir)
 
+        locale = get_language_from_request(request)
         # the request must contain either an object file
         # or the filename of the csv stored in Kolibri temp folder
         # Validation will provide the file object, while
@@ -642,11 +644,36 @@ class TasksViewSet(viewsets.ViewSet):
         job_kwd_args = {
             "facility": facility,
             "userid": userid,
+            "locale": locale,
             "extra_metadata": job_metadata,
             "track_progress": True,
         }
 
         job_id = priority_queue.enqueue(call_command, *job_args, **job_kwd_args)
+
+        resp = _job_to_response(priority_queue.fetch_job(job_id))
+
+        return Response(resp)
+
+    @list_route(methods=["post"])
+    def exportuserstocsv(self, request):
+        """
+        Export users, classes, roles and roles assignemnts to a csv file.
+
+        :returns: An object with the job information
+        """
+        facility = request.user.facility.id
+        job_type = "EXPORTUSERSTOCSV"
+        job_metadata = {"type": job_type, "started_by": request.user.pk}
+
+        job_id = priority_queue.enqueue(
+            call_command,
+            "bulkexportusers",
+            facility=facility,
+            overwrite="true",
+            extra_metadata=job_metadata,
+            track_progress=True,
+        )
 
         resp = _job_to_response(priority_queue.fetch_job(job_id))
 

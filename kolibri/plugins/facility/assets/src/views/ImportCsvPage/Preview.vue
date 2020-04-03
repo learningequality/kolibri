@@ -3,7 +3,7 @@
   <!-- eslint-disable max-len -->
   <div>
     <template v-if="isError">
-      <p>Importing is not possible due to the following errors:</p>
+      <p>{{ $tr('importError') }}</p>
       <ul>
         <li v-for="(message, index) in overall_error" :key="index">
           {{ message }}
@@ -14,12 +14,12 @@
     <template v-else>
       <template v-if="isFinished">
         <h2 style="color: green;">
-          SUCCESS!
+          {{ $tr('success') }}
         </h2>
-        <p>The following changes were made:</p>
+        <p>{{ $tr('changesMade') }}</p>
       </template>
       <template v-else>
-        <p>Summary of changes if you choose to import:</p>
+        <p>{{ $tr('summary') }}</p>
       </template>
 
       <table class="indent">
@@ -27,28 +27,28 @@
           <tr>
             <th></th>
             <th class="numeric">
-              Updated
+              {{ $tr('updated') }}
             </th>
             <th class="numeric">
-              Added
+              {{ $tr('added') }}
             </th>
             <th
               v-if="showDeletionCol"
               class="numeric"
             >
-              Deleted
+              {{ $tr('deleted') }}
             </th>
             <th
               v-if="numSkipped"
               class="numeric"
             >
-              Skipped
+              {{ $tr('skipped') }}
             </th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Users</td>
+            <td>{{ $tr('users') }}</td>
             <td class="numeric">
               {{ users_report.updated }}
             </td>
@@ -73,7 +73,7 @@
             </td>
           </tr>
           <tr>
-            <td>Classes</td>
+            <td>{{ $tr('classes') }}</td>
             <td class="numeric">
               {{ classes_report.updated }}
             </td>
@@ -100,19 +100,19 @@
 
       <template v-if="per_line_errors.length">
         <p v-if="isFinished">
-          Some rows were skipped:
+          {{ $tr('someSkipped') }}
         </p>
         <p v-else>
-          Some rows have errors and will be skipped if you continue:
+          {{ $tr('someRowErrors') }}
         </p>
 
         <table class="indent">
           <thead>
             <tr>
-              <th>Row number</th>
-              <th>Column name</th>
-              <th>Value</th>
-              <th>Error</th>
+              <th>{{ $tr('rowNumber') }}</th>
+              <th>{{ $tr('columnName') }}</th>
+              <th>{{ $tr('value') }}</th>
+              <th>{{ $tr('error') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -130,7 +130,7 @@
 
     <p v-if="isFinished && !isError">
       <KButton
-        text="Close"
+        :text="$tr('close')"
         appearance="raised-button"
         primary
         @click="$emit('done')"
@@ -138,14 +138,14 @@
     </p>
     <p v-else>
       <KButton
-        text="Back"
+        :text="$tr('back')"
         appearance="raised-button"
         style="margin-left: 0;"
         @click="reset"
       />
       <span v-if="!isError">
         <KButton
-          text="Import"
+          :text="$tr('import')"
           appearance="raised-button"
           primary
           @click="startSavingUsers"
@@ -194,6 +194,27 @@
       reset() {
         this.$store.commit('importCSV/RESET_STATE');
       },
+    },
+    $trs: {
+      importError: 'Importing is not possible due to the following errors:',
+      success: 'SUCCESS!',
+      changesMade: 'The following changes were made:',
+      summary: 'Summary of changes if you choose to import:',
+      updated: 'Updated',
+      added: 'Added',
+      deleted: 'Deleted',
+      skipped: 'Skipped',
+      users: 'Users',
+      classes: 'Classes',
+      someSkipped: 'Some rows were skipped:',
+      someRowErrors: 'Some rows have errors and will be skipped if you continue:',
+      rowNumber: 'Row number',
+      columnName: 'Column name',
+      value: 'Value',
+      error: 'Error',
+      close: 'Close',
+      back: 'Back',
+      import: 'Import',
     },
   };
 

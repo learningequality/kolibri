@@ -62,13 +62,33 @@
       fullscreenText() {
         return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
       },
+      userData() {
+        return {
+          userId: this.userId,
+          userFullName: this.userFullName,
+          progress: this.progress,
+          complete: this.progress >= 1,
+          language: this.lang.id,
+          timeSpent: this.timeSpent,
+        };
+      },
+    },
+    watch: {
+      userData(newValue) {
+        if (newValue && this.hashi) {
+          this.hashi.updateData({ userData: newValue });
+        }
+      },
     },
     mounted() {
       this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
       this.hashi.onStateUpdate(data => {
         this.$emit('updateContentState', data);
       });
-      this.hashi.initialize((this.extraFields && this.extraFields.contentState) || {});
+      this.hashi.initialize(
+        (this.extraFields && this.extraFields.contentState) || {},
+        this.userData
+      );
       this.$emit('startTracking');
       this.startTime = now();
       this.pollProgress();
@@ -82,7 +102,11 @@
     methods: {
       recordProgress() {
         const totalTime = now() - this.startTime;
-        this.$emit('updateProgress', Math.max(0, totalTime / 300000));
+        const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
+        this.$emit(
+          'updateProgress',
+          hashiProgress === null ? Math.max(0, totalTime / 3000000) : hashiProgress
+        );
         this.pollProgress();
       },
       pollProgress() {

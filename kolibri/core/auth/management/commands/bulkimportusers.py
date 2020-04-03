@@ -4,13 +4,15 @@ import ntpath
 import re
 import sys
 
+from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from django.core.management.base import CommandError
+from django.utils import translation
+from django.utils.translation import gettext_lazy as _
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.demographics import choices
-from kolibri.core.auth.csv_utils import input_fields
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -28,23 +30,53 @@ DEFAULT_PASSWORD = make_password("kolibri")
 
 # TODO: decide whether these should be internationalized
 fieldnames = (
-    "Username",
-    "Password",
-    "Full name",
-    "User type",
-    "Identifier",
-    "Birth year",
-    "Gender",
-    "Enrolled in",
-    "Assigned to",
+    "USERNAME",
+    "PASSWORD",
+    "FULL_NAME",
+    "USER_TYPE",
+    "IDENTIFIER",
+    "BIRTH_YEAR",
+    "GENDER",
+    "ENROLLED_IN",
+    "ASSIGNED_TO",
 )
+
 
 # These constants must be entered vertbatim in the CSV
 roles_map = {
     "LEARNER": None,
     "ADMIN": role_kinds.ADMIN,
-    "FACILITY_COACH": role_kinds.COACH,
-    "CLASS_COACH": role_kinds.ASSIGNABLE_COACH,
+    "COACH": role_kinds.COACH,
+    "ASSIGNABLE_COACH": role_kinds.ASSIGNABLE_COACH,
+}
+
+# Error messages ###
+UNEXPECTED_EXCEPTION = 0
+TOO_LONG = 1
+INVALID = 2
+DUPLICATED_USERNAME = 3
+INVALID_USERNAME = 4
+REQUIRED_COLUMN = 5
+INVALID_HEADER = 6
+NO_FACILITY = 7
+FILE_READ_ERROR = 8
+FILE_WRITE_ERROR = 9
+
+MESSAGES = {
+    UNEXPECTED_EXCEPTION: _("Unexpected exception [{}]: {}"),
+    TOO_LONG: _("'{}' is too long"),
+    INVALID: _("Not a valid '{}'"),
+    DUPLICATED_USERNAME: _("Duplicated Username"),
+    INVALID_USERNAME: _(
+        "Username only can contain characters, numbers and underscores"
+    ),
+    REQUIRED_COLUMN: _("The column '{}' is required"),
+    INVALID_HEADER: _("Mix of valid and invalid header labels found in first row"),
+    NO_FACILITY: _(
+        "No default facility exists, please make sure to provision this device before running this command"
+    ),
+    FILE_READ_ERROR: _("Error trying to read csv file: {}"),
+    FILE_WRITE_ERROR: _("Error trying to write csv file: {}"),
 }
 
 # Validators ###
@@ -108,10 +140,10 @@ def valid_name(username=True, allow_null=False):
     def checker(v):
         if allow_null and v is None:
             return checker
-        has_punc = "/[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;\"'<>,\.\?]/"  # noqa
+        has_punc = "[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;\"'<>,\.\?]"  # noqa
         if not username:
-            has_punc = "/[`~!@#$%^&*()\+={}\[\]\|\\\/:;\"'<>\.\?]/"  # noqa
-        if re.match(has_punc, v):
+            has_punc = "[`~!@#$%^&*()\+={}\[\]\|\\\/:;\"'<>\.\?]"  # noqa
+        if re.search(has_punc, v):
             raise ValueError(v)
 
     return checker
@@ -122,12 +154,12 @@ class Validator(object):
     Class to apply different validation checks on a CSV data reader.
     """
 
-    def __init__(self, header_names):
-        self._header_names = header_names
+    def __init__(self, header_translation):
         self._checks = list()
         self.classrooms = dict()
         self.coach_classrooms = dict()
         self.users = dict()
+        self.header_translation = header_translation
         self.roles = {r: list() for r in roles_map.values() if r is not None}
 
     def add_check(self, header_name, check, message):
@@ -141,7 +173,7 @@ class Validator(object):
         self._checks.append((header_name, check, message))
 
     def get_username(self, row):
-        username = row.get("Username")
+        username = row.get(self.header_translation["USERNAME"])
         if username in self.users.keys():
             return None
 
@@ -165,13 +197,13 @@ class Validator(object):
                 pass
 
         # enrolled learners:
-        append_users(self.classrooms, "Enrolled in")
+        append_users(self.classrooms, self.header_translation["ENROLLED_IN"])
 
         # assigned coaches
-        user_role = row.get("User type", "learner").upper()
+        user_role = row.get(self.header_translation["USER_TYPE"], "LEARNER").upper()
         if user_role != "LEARNER":
             # a student can't be assigned to coach a classroom
-            append_users(self.coach_classrooms, "Assigned to")
+            append_users(self.coach_classrooms, self.header_translation["ASSIGNED_TO"])
             self.roles[roles_map[user_role]].append(username)
 
     def validate(self, data):
@@ -184,15 +216,15 @@ class Validator(object):
             if not username:
                 error = {
                     "row": index + 1,
-                    "message": "Duplicated username",
-                    "field": "Username",
-                    "value": row.get("Username"),
+                    "message": MESSAGES[DUPLICATED_USERNAME],
+                    "field": "USERNAME",
+                    "value": row.get(self.header_translation["USERNAME"]),
                 }
                 error_flag = True
                 yield error
 
             for header_name, check, message in self._checks:
-                value = row[header_name]
+                value = row[self.header_translation[header_name]]
                 try:
                     check(value)
                 except ValueError:
@@ -207,7 +239,7 @@ class Validator(object):
                 except Exception as e:
                     error = {
                         "row": index + 1,
-                        "message": "Unexpected error [{}]: {}".format(
+                        "message": MESSAGES[UNEXPECTED_EXCEPTION].format(
                             (e.__class__.__name__, e)
                         ),
                         "field": header_name,
@@ -251,36 +283,58 @@ class Command(AsyncCommand):
             help="Id of the user executing the command, it will not be deleted in case deleted is set",
         )
 
-    def csv_values_validation(self, reader):
+        parser.add_argument(
+            "--locale",
+            action="store",
+            type=str,
+            default=None,
+            help="Code of the language for the messages to be translated",
+        )
+
+    def csv_values_validation(self, reader, header_translation):
         per_line_errors = []
-        validator = Validator(self.fieldnames)
-        validator.add_check("Full name", value_length(125), "Full Name is too long")
-        validator.add_check("Birth year", number_range(1900, 99999), "Not a valid year")
-        validator.add_check("Username", value_length(125), "User name is too long")
+        validator = Validator(header_translation)
         validator.add_check(
-            "Username",
-            valid_name(),
-            "Username only can contain characters, numbers and underscores",
-        )
-        validator.add_check("Password", value_length(128), "Password is too long")
-        validator.add_check(
-            "User type", enumeration(*roles_map.keys()), "Not a valid user type",
-        )
-        # validator.add_check("Gender", enumeration(tuple(val[1] for val in choices)), "Not a valid gender")
-        validator.add_check(
-            "Gender",
-            enumeration(*tuple(val[0] for val in choices)),
-            "Not a valid gender",
-        )
-        validator.add_check("Identifier", value_length(64), "Identifier is too long")
-        validator.add_check(
-            "Enrolled in", value_length(100, allow_null=True), "Class name is too long"
+            "FULL_NAME", value_length(125), MESSAGES[TOO_LONG].format("FULL_NAME")
         )
         validator.add_check(
-            "Assigned to", value_length(100, allow_null=True), "Class name is too long"
+            "BIRTH_YEAR",
+            number_range(1900, 99999),
+            MESSAGES[INVALID].format("BIRTH_YEAR"),
         )
-        # validator.add_check("Enrolled in", valid_name(username=False, allow_null=True), "A class name only can contain characters, numbers and underscores")
-        # validator.add_check("Assigned to", valid_name(username=False, allow_null=True), "A class name only can contain characters, numbers and underscores")
+        validator.add_check(
+            "USERNAME", value_length(125), MESSAGES[TOO_LONG].format("USERNAME")
+        )
+        validator.add_check(
+            "USERNAME", valid_name(), MESSAGES[INVALID_USERNAME],
+        )
+        validator.add_check(
+            "PASSWORD", value_length(128), MESSAGES[TOO_LONG].format("PASSWORD")
+        )
+        validator.add_check(
+            "USER_TYPE",
+            enumeration(*roles_map.keys()),
+            MESSAGES[INVALID].format("USER_TYPE"),
+        )
+
+        validator.add_check(
+            "GENDER",
+            enumeration("", *tuple(val[0] for val in choices)),
+            MESSAGES[INVALID].format("GENDER"),
+        )
+        validator.add_check(
+            "IDENTIFIER", value_length(64), MESSAGES[TOO_LONG].format("IDENTIFIER")
+        )
+        validator.add_check(
+            "ENROLLED_IN",
+            value_length(100, allow_null=True),
+            MESSAGES[TOO_LONG].format("Class name"),
+        )
+        validator.add_check(
+            "ASSIGNED_TO",
+            value_length(100, allow_null=True),
+            MESSAGES[TOO_LONG].format("Class name"),
+        )
 
         row_errors = validator.validate(reader)
         for err in row_errors:
@@ -297,37 +351,36 @@ class Command(AsyncCommand):
         with open(filepath) as f:
             header = next(csv.reader(f, strict=True))
             has_header = False
-
+            self.header_translation = {
+                l.partition("(")[2].partition(")")[0]: l for l in header
+            }
+            neutral_header = self.header_translation.keys()
             # If every item in the first row matches an item in the fieldnames, consider it a header row
-            if all(col in self.fieldnames for col in header):
+            if all(col in self.fieldnames for col in neutral_header):
                 has_header = True
 
                 # If any col is missing from the header, it's an error
                 for col in self.fieldnames:
-                    if col not in header:
-                        self.overall_error.append(
-                            "The column '{}' is required".format(col)
-                        )
+                    if col not in neutral_header:
+                        self.overall_error.append(MESSAGES[REQUIRED_COLUMN].format(col))
 
-            elif any(col in self.fieldnames for col in header):
-                self.overall_error.append(
-                    "Mix of valid and invalid header labels found in first row"
-                )
+            elif any(col in self.fieldnames for col in neutral_header):
+                self.overall_error.append(MESSAGES[INVALID_HEADER])
 
         return has_header
 
     def get_field_values(self, user_row):
-        password = user_row.get("Password", None)
+        password = user_row.get(self.header_translation["PASSWORD"], None)
         if password:
             password = make_password(password)
         else:
             password = DEFAULT_PASSWORD
-        gender = user_row.get("Gender", None)
+        gender = user_row.get(self.header_translation["GENDER"], None)
         if gender:
             gender = gender.strip().upper()
-        birth_year = user_row.get("Birth year", None)
-        id_number = user_row.get("Identifier", None)
-        full_name = user_row.get("Full name", None)
+        birth_year = user_row.get(self.header_translation["BIRTH_YEAR"], None)
+        id_number = user_row.get(self.header_translation["IDENTIFIER"], None)
+        full_name = user_row.get(self.header_translation["FULL_NAME"], None)
         return {
             "password": password,
             "gender": gender,
@@ -438,9 +491,7 @@ class Command(AsyncCommand):
         else:
             default_facility = Facility.get_default_facility()
         if not default_facility:
-            self.overall_error.append(
-                "No default facility exists, please make sure to provision this device before running this command"
-            )
+            self.overall_error.append(MESSAGES[NO_FACILITY])
             raise CommandError(self.overall_error[-1])
 
         return default_facility
@@ -451,7 +502,7 @@ class Command(AsyncCommand):
                 number_lines = len(f.readlines())
         except (ValueError, FileNotFoundError, csv.Error) as e:
             number_lines = None
-            self.overall_error.append("Error trying to read csv file: {}".format(e))
+            self.overall_error.append(MESSAGES[FILE_READ_ERROR].format(e))
         return number_lines
 
     def get_delete(self, options, keeping_users, update_classes):
@@ -541,6 +592,10 @@ class Command(AsyncCommand):
         users_to_delete = []
         per_line_errors = []
 
+        # set language for the translation of the messages
+        locale = settings.LANGUAGE_CODE if not options["locale"] else options["locale"]
+        translation.activate(locale)
+
         self.job = get_current_job()
         filepath = options["filepath"]
         self.default_facility = self.get_facility(options)
@@ -558,12 +613,12 @@ class Command(AsyncCommand):
                     if has_header:
                         reader = csv.DictReader(f, strict=True)
                     else:
-                        reader = csv.DictReader(f, fieldnames=input_fields, strict=True)
+                        reader = csv.DictReader(f, fieldnames=fieldnames, strict=True)
                     per_line_errors, classes, users, roles = self.csv_values_validation(
-                        reader
+                        reader, self.header_translation
                     )
             except (ValueError, FileNotFoundError, csv.Error) as e:
-                self.overall_error.append("Error trying to read csv file: {}".format(e))
+                self.overall_error.append(MESSAGES[FILE_READ_ERROR].format(e))
                 self.exit_if_error()
 
             db_new_users, db_update_users, keeping_users = self.build_users_objects(
@@ -614,6 +669,12 @@ class Command(AsyncCommand):
                 "updated": len(db_update_users),
                 "deleted": len(users_to_delete),
             }
+
+            # freeze message translations:
+            for line in per_line_errors:
+                line["message"] = str(line["message"])
+            self.overall_error = [str(msg) for msg in self.overall_error]
+
             if self.job:
                 self.job.extra_metadata["overall_error"] = self.overall_error
                 self.job.extra_metadata["per_line_errors"] = per_line_errors
@@ -626,3 +687,5 @@ class Command(AsyncCommand):
                 logger.info("Data errors: {}".format(str(per_line_errors)))
                 logger.info("Classes report: {}".format(str(classes_report)))
                 logger.info("Users report: {}".format(str(users_report)))
+
+        translation.deactivate()
