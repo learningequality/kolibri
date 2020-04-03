@@ -22,7 +22,6 @@
       <div style="text-align: right">
         <KButton
           :text="$tr('importMoreAction')"
-          style="margin: 0;"
           @click="shownModal = 'IMPORT_MORE'"
         />
       </div>

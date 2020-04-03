@@ -49,24 +49,20 @@
             class="number-field"
             @blur="numQuestionsBlurred = true"
           />
-          <UiIconButton
-            type="flat"
+          <KIconButton
+            icon="minus_sign"
             aria-hidden="true"
             class="number-btn"
             :disabled="numQuestions === 1"
             @click="numQuestions -= 1"
-          >
-            <KIcon icon="minus_sign" style="top: 0; width: 24px; height: 24px;" />
-          </UiIconButton>
-          <UiIconButton
-            type="flat"
+          />
+          <KIconButton
+            icon="plus_sign"
             aria-hidden="true"
             class="number-btn"
             :disabled="numQuestions === maxQs"
             @click="numQuestions += 1"
-          >
-            <KIcon icon="plus_sign" style="top: 0; width: 24px; height: 24px;" />
-          </UiIconButton>
+          />
         </KGridItem>
       </KGrid>
 
@@ -118,16 +114,18 @@
         />
       </BottomAppBar>
       <BottomAppBar v-else>
-        <KRouterLink
-          appearance="flat-button"
-          :text="coreString('goBackAction')"
-          :to="toolbarRoute"
-        />
-        <KButton
-          :text="coreString('continueAction')"
-          primary
-          @click="continueProcess"
-        />
+        <KButtonGroup>
+          <KRouterLink
+            appearance="flat-button"
+            :text="coreString('goBackAction')"
+            :to="toolbarRoute"
+          />
+          <KButton
+            :text="coreString('continueAction')"
+            primary
+            @click="continueProcess"
+          />
+        </KButtonGroup>
       </BottomAppBar>
 
     </KPageContainer>
@@ -145,7 +143,6 @@
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants/';
@@ -165,7 +162,6 @@
       LessonsSearchFilters,
       ResourceSelectionBreadcrumbs,
       ContentCardList,
-      UiIconButton,
       BottomAppBar,
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],

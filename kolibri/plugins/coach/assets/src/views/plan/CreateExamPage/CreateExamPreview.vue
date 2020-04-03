@@ -39,46 +39,30 @@
             :invalidText="numQuestIsInvalidText"
             class="number-field"
           />
-          <UiIconButton
-            type="flat"
+          <KIconButton
+            icon="minus_sign"
             aria-hidden="true"
             class="number-btn"
             :disabled="numQuestions === 1"
             @click="numQuestions -= 1"
-          >
-            <KIcon
-              icon="minus_sign"
-              style="top: 0; width: 24px; height: 24px;"
-            />
-          </UiIconButton>
-          <UiIconButton
-            type="flat"
+          />
+          <KIconButton
+            icon="plus_sign"
             aria-hidden="true"
             class="number-btn"
             :disabled="numQuestions === maxQs"
             @click="numQuestions += 1"
-          >
-            <KIcon
-              icon="plus_sign"
-              style="top: 0; width: 24px; height: 24px;"
-            />
-          </UiIconButton>
+          />
         </KGridItem>
       </KGrid>
       <div>
-        <UiIconButton
-          type="flat"
+        <KIconButton
+          icon="refresh"
           aria-hidden="true"
           tabindex="-1"
-          color="primary"
+          :color="$themeTokens.primary"
           @click="getNewQuestionSet"
-        >
-          <KIcon
-            icon="refresh"
-            style="top: 0; width: 24px; height: 24px;"
-            :color="$themeTokens.primary"
-          />
-        </UiIconButton>
+        />
         <KButton
           :text="$tr('randomize')"
           appearance="basic-link"
@@ -116,17 +100,19 @@
       />
 
       <BottomAppBar style="z-index: 1062;">
-        <KRouterLink
-          appearance="flat-button"
-          :text="coreString('goBackAction')"
-          :to="toolbarRoute"
-        />
-        <KButton
-          :text="coreString('finishAction')"
-          :disabled="loadingNewQuestions"
-          primary
-          @click="submit"
-        />
+        <KButtonGroup>
+          <KRouterLink
+            appearance="flat-button"
+            :text="coreString('goBackAction')"
+            :to="toolbarRoute"
+          />
+          <KButton
+            :text="coreString('finishAction')"
+            :disabled="loadingNewQuestions"
+            primary
+            @click="submit"
+          />
+        </KButtonGroup>
       </BottomAppBar>
     </KPageContainer>
 
@@ -139,7 +125,6 @@
 
   import { mapState } from 'vuex';
 
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
@@ -157,7 +142,6 @@
       };
     },
     components: {
-      UiIconButton,
       BottomAppBar,
       QuestionListPreview,
     },

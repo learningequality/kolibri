@@ -60,19 +60,20 @@
             </div>
           </td>
           <td class="button-col">
-            <KButton
-              appearance="raised-button"
-              :text="$tr('register')"
-              :disabled="facilityTaskId !== ''"
-              @click="register(facility)"
-            />
-            <KButton
-              class="sync"
-              appearance="raised-button"
-              :text="$tr('sync')"
-              :disabled="facilityTaskId !== '' || !facility.dataset.registered"
-              @click="sync(facility)"
-            />
+            <KButtonGroup>
+              <KButton
+                appearance="raised-button"
+                :text="$tr('register')"
+                :disabled="facilityTaskId !== ''"
+                @click="register(facility)"
+              />
+              <KButton
+                appearance="raised-button"
+                :text="$tr('sync')"
+                :disabled="facilityTaskId !== '' || !facility.dataset.registered"
+                @click="sync(facility)"
+              />
+            </KButtonGroup>
           </td>
         </tr>
       </transition-group>
@@ -185,10 +186,6 @@
     padding: 4px;
     padding-top: 8px;
     text-align: right;
-
-    .sync {
-      margin-right: 0;
-    }
   }
 
   .name {

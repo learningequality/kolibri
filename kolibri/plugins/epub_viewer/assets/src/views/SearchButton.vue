@@ -1,29 +1,20 @@
 <template>
 
-  <UiIconButton
-    type="secondary"
+  <KIconButton
+    icon="search"
     :ariaLabel="$tr('toggleSearchSideBar')"
     data-test="search button"
+    size="small"
     @click="$emit('click')"
-  >
-    <KIcon
-      icon="search"
-      style="top: 0; width: 24px; height: 24px;"
-    />
-  </UiIconButton>
+  />
 
 </template>
 
 
 <script>
 
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
-
   export default {
     name: 'SearchButton',
-    components: {
-      UiIconButton,
-    },
     $trs: {
       toggleSearchSideBar: 'Toggle search',
     },

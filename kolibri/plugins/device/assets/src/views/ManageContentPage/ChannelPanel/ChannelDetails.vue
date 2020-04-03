@@ -13,7 +13,7 @@
       >
       <KIcon
         v-else
-        icon="apps"
+        icon="channel"
         class="thumbnail-svg"
         :style="{ backgroundColor: $themePalette.grey.v_200 }"
       />

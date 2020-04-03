@@ -1,36 +1,31 @@
 <template>
 
   <div>
-    <UiIconButton
-      type="secondary"
-      class="globe"
+    <KIconButton
+      icon="language"
       aria-hidden="true"
       tabindex="-1"
+      class="globe"
       @click="showLanguageModal = true"
-    >
-      <KIcon
-        icon="language"
-        style="top: 0; width: 24px; height: 24px;"
-      />
-    </UiIconButton>
-
+    />
     <span class="selected" :title="selectedLanguage.english_name">
       {{ selectedLanguage.lang_name }}
     </span>
-    <KButton
-      v-for="language in buttonLanguages"
-      :key="language.id"
-      :text="language.lang_name"
-      :title="language.english_name"
-      class="lang"
-      appearance="basic-link"
-      @click="switchLanguage(language.id)"
-    />
+    <KButtonGroup>
+      <KButton
+        v-for="language in buttonLanguages"
+        :key="language.id"
+        :text="language.lang_name"
+        :title="language.english_name"
+        class="lang"
+        appearance="basic-link"
+        @click="switchLanguage(language.id)"
+      />
+    </KButtonGroup>
     <KButton
       :text="$tr('showMoreLanguagesSelector')"
       :primary="false"
       appearance="flat-button"
-      class="more"
       @click="showLanguageModal = true"
     />
     <LanguageSwitcherModal
@@ -47,7 +42,6 @@
 
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import languageSwitcherMixin from './mixin';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
 
@@ -55,7 +49,6 @@
     name: 'LanguageSwitcherList',
     components: {
       LanguageSwitcherModal,
-      UiIconButton,
     },
     mixins: [responsiveWindowMixin, languageSwitcherMixin],
     data() {
@@ -107,15 +100,6 @@
 
   .lang {
     @include font-family-language-names;
-
-    margin-right: 8px;
-    margin-left: 8px;
-  }
-
-  .more {
-    margin: 0;
-    margin-top: 8px;
-    margin-bottom: 8px;
   }
 
   .ta-l {

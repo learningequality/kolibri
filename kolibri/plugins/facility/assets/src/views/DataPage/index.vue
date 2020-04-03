@@ -19,7 +19,6 @@
             <KButton
               :text="$tr('download')"
               :disabled="!availableSessionCSVLog"
-              class="download-button"
               @click="downloadSessionLog"
             />
             <span v-if="noSessionLogs">{{ $tr('noLogsYet') }}</span>
@@ -51,7 +50,6 @@
             <KButton
               :text="$tr('download')"
               :disabled="!availableSummaryCSVLog"
-              class="download-button"
               @click="downloadSummaryLog"
             />
             <span v-if="noSummaryLogs">{{ $tr('noLogsYet') }}</span>
@@ -212,10 +210,6 @@
     margin-left: -8px;
     font-size: 0.8em;
     border-radius: $radius;
-  }
-
-  .download-button {
-    margin-left: 0;
   }
 
 </style>

@@ -2,20 +2,15 @@
 
   <div class="search-box-wrapper">
     <div ref="toggleBtnAndSearchBox">
-      <UiIconButton
+      <KIconButton
         v-show="searchBoxIsDropdown"
         ref="toggleBtn"
-        type="primary"
-        color="clear"
+        icon="search"
+        size="small"
+        style="margin-left: 8px;"
+        :color="$themeTokens.textInverted"
         @click="toggleDropdownSearchBox"
-      >
-        <KIcon
-          icon="search"
-          class="search-icon"
-          :color="$themeTokens.textInverted"
-          style="top: 0; height: 24px; width: 24px;"
-        />
-      </UiIconButton>
+      />
 
       <div
         v-show="searchBoxIsVisible"
@@ -40,13 +35,11 @@
 <script>
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import SearchBox from './SearchBox';
 
   export default {
     name: 'ActionBarSearchBox',
     components: {
-      UiIconButton,
       SearchBox,
     },
     mixins: [responsiveWindowMixin],

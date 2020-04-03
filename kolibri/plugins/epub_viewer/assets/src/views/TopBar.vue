@@ -41,24 +41,13 @@
           @click="$emit('searchButtonClicked')"
         />
 
-        <UiIconButton
+        <KIconButton
           ref="fullscreenButton"
-          type="secondary"
+          :icon="isInFullscreen ? 'fullscreen_exit' : 'fullscreen'"
           :ariaLabel="$tr('toggleFullscreen')"
+          size="small"
           @click="$emit('fullscreenButtonClicked')"
-        >
-          <KIcon
-            v-if="isInFullscreen"
-            icon="fullscreen_exit"
-            style="top: 0; width: 24px; height: 24px;"
-          />
-          <KIcon
-            v-else
-            icon="fullscreen"
-            style="top: 0; width: 24px; height: 24px;"
-          />
-        </UiIconButton>
-
+        />
       </KGridItem>
     </KGrid>
   </div>
@@ -68,7 +57,6 @@
 
 <script>
 
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import TocButton from './TocButton';
   import SettingsButton from './SettingsButton';
   import SearchButton from './SearchButton';
@@ -76,7 +64,6 @@
   export default {
     name: 'TopBar',
     components: {
-      UiIconButton,
       TocButton,
       SettingsButton,
       SearchButton,

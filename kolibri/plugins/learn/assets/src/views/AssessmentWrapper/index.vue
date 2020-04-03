@@ -64,7 +64,6 @@ oriented data synchronization.
               <KButton
                 v-if="!complete"
                 appearance="raised-button"
-                class="question-btn"
                 :text="$tr('check')"
                 :primary="true"
                 :class="{ shaking: shake }"
@@ -74,7 +73,6 @@ oriented data synchronization.
               <KButton
                 v-else
                 appearance="raised-button"
-                class="question-btn"
                 :text="$tr('next')"
                 :primary="true"
                 @click="nextQuestion"
@@ -552,10 +550,6 @@ oriented data synchronization.
     padding-left: 8px;
     overflow-x: auto;
     overflow-y: hidden;
-  }
-
-  .question-btn {
-    margin: 0;
   }
 
   // checkAnswer btn animation

@@ -11,7 +11,7 @@
             :disabled="decreaseFontSizeDisabled"
             @click="$emit('decreaseFontSize')"
           >
-            <KIcon icon="minus_sign" style="top: 0; width: 24px; height: 24px;" />
+            <KIcon slot="icon" icon="minus_sign" style="top: 0; width: 24px; height: 24px;" />
             <div class="truncate">
               {{ $tr('decrease') }}
             </div>
@@ -24,7 +24,7 @@
             :class="['settings-button', $computedClass(settingsButtonFocus)]"
             @click="$emit('increaseFontSize')"
           >
-            <KIcon icon="plus_sign" style="top: 0; width: 24px; height: 24px;" />
+            <KIcon slot="icon" icon="plus_sign" style="top: 0; width: 24px; height: 24px;" />
             <div class="truncate">
               {{ $tr('increase') }}
             </div>

@@ -45,30 +45,22 @@
               numFilteredUsers
             }) }}
           </span>
-          <UiIconButton
-            type="primary"
-            :ariaLabel="$tr('previousResults')"
-            :disabled="pageNum === 1"
-            size="small"
-            @click="goToPage(pageNum - 1)"
-          >
-            <KIcon
+          <KButtonGroup>
+            <KIconButton
               icon="keyboard_arrow_left"
-              style="top: 0; width: 24px; height 24px;"
+              :ariaLabel="$tr('previousResults')"
+              :disabled="pageNum === 1"
+              size="small"
+              @click="goToPage(pageNum - 1)"
             />
-          </UiIconButton>
-          <UiIconButton
-            type="primary"
-            :ariaLabel="$tr('nextResults')"
-            :disabled="numPages === 0 || pageNum === numPages"
-            size="small"
-            @click="goToPage(pageNum + 1)"
-          >
-            <KIcon
+            <KIconButton
               icon="keyboard_arrow_right"
-              style="top: 0; width: 24px; height 24px;"
+              :ariaLabel="$tr('nextResults')"
+              :disabled="numPages === 0 || pageNum === numPages"
+              size="small"
+              @click="goToPage(pageNum + 1)"
             />
-          </UiIconButton>
+          </KButtonGroup>
         </nav>
 
         <div class="footer">
@@ -93,7 +85,6 @@
   import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
@@ -103,7 +94,6 @@
   export default {
     name: 'GroupEnrollPage',
     components: {
-      UiIconButton,
       FilterTextbox,
       UserTable,
     },

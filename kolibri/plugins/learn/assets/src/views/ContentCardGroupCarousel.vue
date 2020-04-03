@@ -8,14 +8,14 @@
         class="content-carousel-previous-control"
         @click="previousSet"
       >
-        <UiIconButton
-          class="content-carousel-previous-control-button"
+        <KIconButton
+          icon="back"
+          appearance="raised-button"
+          class="content-carousel-control-button"
           :style="buttonTransforms"
           :disabled="isFirstSet"
           size="large"
-        >
-          <KIcon icon="back" style="top: 0; height: 24px; width: 24px;" />
-        </UiIconButton>
+        />
       </div>
 
       <transition-group
@@ -47,14 +47,14 @@
         class="content-carousel-next-control"
         @click="nextSet"
       >
-        <UiIconButton
-          class="content-carousel-next-control-button"
+        <KIconButton
+          icon="forward"
+          appearance="raised-button"
+          class="content-carousel-control-button"
           :style="buttonTransforms"
           :disabled="isLastSet"
           size="large"
-        >
-          <KIcon icon="forward" style="top: 0; height: 24px; width: 24px;" />
-        </UiIconButton>
+        />
       </div>
 
     </div>
@@ -69,7 +69,6 @@
 
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import ContentCard from './ContentCard';
 
   if (!ContentCard.mixins) {
@@ -84,7 +83,6 @@
   export default {
     name: 'ContentCardGroupCarousel',
     components: {
-      UiIconButton,
       ContentCard,
     },
     mixins: [responsiveElementMixin],
@@ -313,16 +311,11 @@
     }
   }
 
-  .content-carousel-next-control-button,
-  .content-carousel-previous-control-button {
-    @extend %dropshadow-1dp;
+  .content-carousel-control-button {
     // center align within hitbox
     position: absolute;
     top: 50%;
     left: 50%;
-    &:active {
-      @extend %dropshadow-8dp;
-    }
   }
 
   // position-specific styles for each control button

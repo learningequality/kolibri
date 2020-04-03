@@ -11,7 +11,7 @@
         @close="currentSnackbar = SNACKBARS.NEXT_RESOURCE"
       >
         <template v-slot:icon>
-          <ProgressIcon :progress="1" />
+          <ProgressIcon :progress="1" style="position: relative; top: -2px;" />
         </template>
 
         <template v-slot:content>
@@ -46,6 +46,7 @@
             class="content-icon icon-bg"
             :kind="nextContent.kind"
             :showTooltip="true"
+            :color="$themeTokens.textInverted"
             :style="{ backgroundColor: iconBackgroundColor, color: $themeTokens.textInverted }"
           />
         </template>

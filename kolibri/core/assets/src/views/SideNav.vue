@@ -19,20 +19,14 @@
             backgroundColor: $themeTokens.primary,
           }"
         >
-          <UiIconButton
-            ref="toggleButton"
-            :aria-label="$tr('closeNav')"
-            type="secondary"
-            color="white"
-            size="large"
+          <KIconButton
+            icon="close"
+            :color="$themeTokens.textInverted"
             class="side-nav-header-icon"
+            :ariaLabel="$tr('closeNav')"
+            size="large"
             @click="toggleNav"
-          >
-            <KIcon
-              icon="close"
-              :style="{ fill: $themeTokens.textInverted, top: 0, width: '24px', height: '24px', }"
-            />
-          </UiIconButton>
+          />
           <span
             class="side-nav-header-name"
             :style="{ color: $themeTokens.textInverted }"
@@ -134,7 +128,6 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import navComponents from 'kolibri.utils.navComponents';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
@@ -157,7 +150,6 @@
     name: 'SideNav',
     components: {
       CoreMenu,
-      UiIconButton,
       CoreLogo,
       SideNavDivider,
       PrivacyInfoModal,
