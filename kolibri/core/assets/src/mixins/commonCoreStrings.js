@@ -12,6 +12,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   confirmAction: 'Confirm',
   continueAction: 'Continue',
   deleteAction: 'Delete',
+  editAction: 'Edit',
   editDetailsAction: 'Edit details',
   finishAction: 'Finish',
   goBackAction: 'Go back',
@@ -37,6 +38,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   coachLabel: 'Coach',
   coachesLabel: 'Coaches',
   completedLabel: 'Completed',
+  deviceNameLabel: 'Device name',
   devicePermissionsLabel: 'Device permissions',
   facilityCoachLabel: 'Facility coach',
   facilityLabel: 'Facility',
@@ -63,6 +65,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   usernameLabel: 'Username',
   usersLabel: 'Users',
   viewMoreAction: 'View more',
+
+  // Notifications
+  changesSavedNotification: 'Changes saved',
+  changesNotSavedNotification: 'Changes not saved',
 
   // Errors
   requiredFieldError: 'This field is required',
