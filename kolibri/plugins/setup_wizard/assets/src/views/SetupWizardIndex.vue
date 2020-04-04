@@ -42,6 +42,7 @@
 <script>
 
   import { mapActions, mapState, mapMutations } from 'vuex';
+  import { isEmbeddedWebView } from 'kolibri.utils.browser';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import LoadingPage from './submission-states/LoadingPage';
@@ -56,16 +57,6 @@
   import RequirePasswordForLearnersForm from './onboarding-forms/RequirePasswordForLearnersForm';
   import PersonalDataConsentForm from './onboarding-forms/PersonalDataConsentForm';
 
-  const stepToOnboardingFormMap = {
-    1: DefaultLanguageForm,
-    2: FacilityPermissionsForm,
-    3: GuestAccessForm,
-    4: CreateLearnerAccountForm,
-    5: RequirePasswordForLearnersForm,
-    6: SuperuserCredentialsForm,
-    7: PersonalDataConsentForm,
-  };
-
   export default {
     name: 'SetupWizardIndex',
     metaInfo() {
@@ -79,15 +70,31 @@
       ErrorPage,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
-    data() {
-      return {
-        totalOnboardingSteps: 7,
-      };
-    },
     computed: {
       ...mapState(['onboardingStep', 'onboardingData', 'loading', 'error']),
+      stepToOnboardingFormMap() {
+        if (isEmbeddedWebView()) {
+          return {
+            1: DefaultLanguageForm,
+            2: SuperuserCredentialsForm,
+          };
+        } else {
+          return {
+            1: DefaultLanguageForm,
+            2: FacilityPermissionsForm,
+            3: GuestAccessForm,
+            4: CreateLearnerAccountForm,
+            5: RequirePasswordForLearnersForm,
+            6: SuperuserCredentialsForm,
+            7: PersonalDataConsentForm,
+          };
+        }
+      },
+      totalOnboardingSteps() {
+        return Object.keys(this.stepToOnboardingFormMap).length;
+      },
       currentOnboardingForm() {
-        return stepToOnboardingFormMap[this.onboardingStep] || null;
+        return this.stepToOnboardingFormMap[this.onboardingStep] || null;
       },
       isLastStep() {
         return this.onboardingStep === this.totalOnboardingSteps;
@@ -114,6 +121,13 @@
       },
       continueOnboarding() {
         if (this.isLastStep) {
+          if (isEmbeddedWebView()) {
+            this.$store.commit('SET_FACILITY_PRESET', 'informal');
+            this.$store.commit('SET_LEARNER_CAN_SIGN_UP', true);
+            this.$store.commit('SET_ALLOW_GUEST_ACCESS', true);
+            this.$store.commit('SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD', true);
+          }
+
           if (this.onboardingData.preset === 'informal') {
             this.provisionDevice({
               ...this.onboardingData,
