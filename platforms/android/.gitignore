@@ -14,3 +14,4 @@ build_docker
 build/
 bin/
 build.log
+tmphome/

@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import shutil
 import sys
 
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
@@ -64,6 +65,14 @@ if pew.ui.platform == "android":
         service.startForeground(1, new_notification)
 
     os.environ["KOLIBRI_HOME"] = service_args["HOME"]
+
+    # copy an empty pre-migrated database into the Kolibri data directory to speed up startup
+    DB_TEMPLATE_PATH = "db.sqlite3.empty"
+    DB_PATH = os.path.join(os.environ["KOLIBRI_HOME"], "db.sqlite3")
+    if not os.path.exists(DB_PATH) and os.path.exists(DB_TEMPLATE_PATH):
+        if not os.path.exists(os.environ["KOLIBRI_HOME"]):
+            os.makedirs(os.environ["KOLIBRI_HOME"])
+        shutil.copyfile(DB_TEMPLATE_PATH, DB_PATH)
 
     # store the version name into an envvar to be picked up by Kolibri
     os.environ["KOLIBRI_APK_VERSION_NAME"] = service_args["VERSION"]

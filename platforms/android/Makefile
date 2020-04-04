@@ -37,6 +37,11 @@ kolibri.apk: p4a_android_distro
 build_docker: Dockerfile
 	docker build -t android_kolibri .
 
+create_premigrated_db:
+	pip install whl/*.whl
+	KOLIBRI_HOME=tmphome kolibri manage migrate
+	cp tmphome/db.sqlite3 src/db.sqlite3.empty
+
 # Run the docker image.
 # TODO Would be better to just specify the file here?
 run_docker: build_docker
