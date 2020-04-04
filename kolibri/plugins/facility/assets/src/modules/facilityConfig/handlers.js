@@ -17,6 +17,7 @@ export function showFacilityConfigPage(store) {
       store.commit('facilityConfig/SET_STATE', {
         facilityDatasetId: dataset.id,
         facilityName: facility.name,
+        facilityId: facility.id,
         // this part of state is mutated as user interacts with form
         settings: { ...dataset },
         // this copy is kept for the purpose of undoing if save fails

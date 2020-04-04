@@ -26,7 +26,7 @@
           {{ facilityName }} ({{ lastPartId }})
           <KButton
             appearance="basic-link"
-            :text="$tr('facilityNameEdit')"
+            :text="coreString('editAction')"
             name="edit-facilityname"
             @click="showEditFacilityModal = true"
           />
@@ -77,7 +77,7 @@
       v-if="showEditFacilityModal"
       id="edit-facility"
       :facilityName="facilityName"
-      @submit="saveFacilityName"
+      @submit="sendFacilityName"
       @cancel="showEditFacilityModal = false"
     />
   </KPageContainer>
@@ -87,7 +87,7 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapActions, mapGetters, mapState } from 'vuex';
   import camelCase from 'lodash/camelCase';
   import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -129,9 +129,11 @@
     computed: {
       ...mapState('facilityConfig', [
         'facilityName',
-        'facilityDatasetId',
+        'facilityId',
         'settings',
         'notification',
+        'facilityNameSaved',
+        'facilityNameError',
       ]),
       ...mapGetters(['isSuperuser']),
       settingsList: () => settingsList,
@@ -146,7 +148,21 @@
         return null;
       },
       lastPartId() {
-        return this.facilityDatasetId.substr(this.facilityDatasetId.length - 4);
+        return this.facilityId.substr(this.facilityId.length - 4);
+      },
+    },
+    watch: {
+      facilityNameSaved(val) {
+        if (val) {
+          this.createSnackbar(this.coreString('changesSaved'));
+          this.$store.commit('facilityConfig/RESET_FACILITY_NAME_STATES');
+        }
+      },
+      facilityNameError(val) {
+        if (val) {
+          this.createSnackbar(this.coreString('changesNotSaved'));
+          this.$store.commit('facilityConfig/RESET_FACILITY_NAME_STATES');
+        }
       },
     },
     mounted() {
@@ -154,6 +170,8 @@
     },
     methods: {
       camelCase,
+      ...mapActions('facilityConfig', ['saveFacilityName']),
+      ...mapActions(['createSnackbar']),
       toggleSetting(settingName) {
         this.$store.commit('facilityConfig/CONFIG_PAGE_MODIFY_SETTING', {
           name: settingName,
@@ -169,8 +187,9 @@
           this.copySettings();
         });
       },
-      saveFacilityName() {
+      sendFacilityName(name) {
         this.showEditFacilityModal = false;
+        this.saveFacilityName({ name: name, id: this.facilityId });
       },
       saveConfig() {
         this.$store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
@@ -201,7 +220,6 @@
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to defaults',
       documentTitle: 'Configure Facility',
-      facilityNameEdit: 'Edit',
     },
   };
 

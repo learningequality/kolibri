@@ -65,7 +65,7 @@
     },
     methods: {
       checkDuplicated() {
-        this.isDuplicated = true;
+        this.isDuplicated = false;
       },
       handleSubmit() {
         this.formSubmitted = true;

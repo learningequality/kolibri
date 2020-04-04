@@ -1,12 +1,15 @@
-import { saveFacilityConfig, resetFacilityConfig } from './actions';
+import { saveFacilityConfig, resetFacilityConfig, saveFacilityName } from './actions';
 
 function defaultState() {
   return {
     facilityDatasetId: '',
+    facilityId: '',
     facilityName: '',
     notification: null,
     settings: {},
     settingsCopy: {},
+    facilityNameSaved: false,
+    facilityNameError: false,
   };
 }
 
@@ -38,9 +41,21 @@ export default {
     CONFIG_PAGE_COPY_SETTINGS(state) {
       state.settingsCopy = Object.assign({}, state.settings);
     },
+    FACILITY_NAME_SAVED(state, name) {
+      state.facilityName = name;
+      state.facilityNameSaved = true;
+    },
+    FACILITY_NAME_NOT_SAVED(state) {
+      state.facilityNameError = true;
+    },
+    RESET_FACILITY_NAME_STATES(state) {
+      state.facilityNameError = false;
+      state.facilityNameSaved = false;
+    },
   },
   actions: {
     saveFacilityConfig,
     resetFacilityConfig,
+    saveFacilityName,
   },
 };
