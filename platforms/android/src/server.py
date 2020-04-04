@@ -15,7 +15,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(script_dir)
 sys.path.append(os.path.join(script_dir, "kolibri", "dist"))
 
-os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base"
+os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_app_settings"
 
 # TODO: before shipping the app, make this contingent on debug vs production mode
 os.environ["KOLIBRI_RUN_MODE"] = "pew-dev"
