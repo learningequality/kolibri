@@ -631,7 +631,7 @@ def calculate_dummy_progress_for_annotation(node_ids, exclude_node_ids, total_pr
     annotation_proportion = min(10, max(1, int(num_annotation_constraints / 500)))
 
     # Create some progress proportional to annotation task
-    return annotation_proportion * total_progress / (100 - annotation_proportion)
+    return int(annotation_proportion * total_progress / (100 - annotation_proportion))
 
 
 def propagate_forced_localfile_removal(localfiles):
