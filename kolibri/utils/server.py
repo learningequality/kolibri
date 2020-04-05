@@ -5,10 +5,10 @@ from subprocess import CalledProcessError
 from subprocess import check_output
 
 import cherrypy
-import ifcfg
 import requests
 from cherrypy.process.plugins import SimplePlugin
 from django.conf import settings
+from zeroconf import get_all_addresses
 
 import kolibri
 from .system import kill_pid
@@ -461,9 +461,8 @@ def get_urls(listen_port=None):
         urls = []
         if port:
             try:
-                interfaces = ifcfg.interfaces()
-                for interface in filter(lambda i: i["inet"], interfaces.values()):
-                    urls.append("http://{}:{}/".format(interface["inet"], port))
+                for ip in get_all_addresses():
+                    urls.append("http://{}:{}/".format(ip, port))
             except RuntimeError:
                 logger.error("Error retrieving network interface list!")
         return STATUS_RUNNING, urls
