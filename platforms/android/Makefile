@@ -9,7 +9,7 @@ deepclean: clean
 	rm build_docker 2> /dev/null
 
 # Extract the whl file
-src/kolibri:
+src/kolibri: clean
 	unzip -qo "whl/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
 
 # Generate the project info file

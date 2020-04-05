@@ -9,9 +9,11 @@ project_info.json
 # pew output folder
 dist/
 
+__pycache__
 *.pyc
 build_docker
 build/
 bin/
 build.log
 tmphome/
+static/
