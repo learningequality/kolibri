@@ -1,4 +1,6 @@
 src/kolibri
+src/preseeded_kolibri_home
+tmpenv
 whl/*
 
 # File format for signing key

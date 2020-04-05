@@ -37,10 +37,21 @@ kolibri.apk: p4a_android_distro
 build_docker: Dockerfile
 	docker build -t android_kolibri .
 
-create_premigrated_db:
-	pip install whl/*.whl
-	KOLIBRI_HOME=tmphome kolibri manage migrate
-	cp tmphome/db.sqlite3 src/db.sqlite3.empty
+preseeded_kolibri_home: export KOLIBRI_HOME := src/preseeded_kolibri_home
+preseeded_kolibri_home: export PYTHONPATH := tmpenv
+preseeded_kolibri_home:
+	yes | pip uninstall --target tmpenv kolibri 2> /dev/null || true
+	rm -r src/preseeded_kolibri_home 2> /dev/null || true
+	pip install --target tmpenv whl/*.whl
+	kolibri start --port=16294
+	sleep 5
+	kolibri stop
+	sleep 1
+	yes yes | kolibri manage deprovision
+	rm -r src/preseeded_kolibri_home/logs 2> /dev/null || true
+	rm -r src/preseeded_kolibri_home/sessions 2> /dev/null || true
+	rm -r src/preseeded_kolibri_home/process_cache 2> /dev/null || true
+	touch src/preseeded_kolibri_home/was_preseeded
 
 # Run the docker image.
 # TODO Would be better to just specify the file here?

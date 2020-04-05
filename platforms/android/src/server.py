@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 import sys
+import time
 
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
 logging.basicConfig(level=logging.DEBUG)
@@ -21,6 +22,9 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_app_settings"
 # TODO: before shipping the app, make this contingent on debug vs production mode
 os.environ["KOLIBRI_RUN_MODE"] = "pew-dev"
 
+service_args = json.loads(os.environ.get("PYTHON_SERVICE_ARGUMENT") or "{}")
+
+
 def start_django(port):
 
     from kolibri.utils.cli import main
@@ -33,9 +37,6 @@ def start_django(port):
 if pew.ui.platform == "android":
 
     from jnius import autoclass
-
-    service_args = json.loads(os.environ.get("PYTHON_SERVICE_ARGUMENT") or "{}")
-
     service = autoclass('org.kivy.android.PythonService').mService
     File = autoclass("java.io.File")
     Timezone = autoclass("java.util.TimeZone")
@@ -66,13 +67,11 @@ if pew.ui.platform == "android":
 
     os.environ["KOLIBRI_HOME"] = service_args["HOME"]
 
-    # copy an empty pre-migrated database into the Kolibri data directory to speed up startup
-    DB_TEMPLATE_PATH = "db.sqlite3.empty"
-    DB_PATH = os.path.join(os.environ["KOLIBRI_HOME"], "db.sqlite3")
-    if not os.path.exists(DB_PATH) and os.path.exists(DB_TEMPLATE_PATH):
-        if not os.path.exists(os.environ["KOLIBRI_HOME"]):
-            os.makedirs(os.environ["KOLIBRI_HOME"])
-        shutil.copyfile(DB_TEMPLATE_PATH, DB_PATH)
+    # move in a templated Kolibri data directory, including pre-migrated DB, to speed up startup
+    HOME_TEMPLATE_PATH = "preseeded_kolibri_home"
+    HOME_PATH = os.environ["KOLIBRI_HOME"]
+    if not os.path.exists(HOME_PATH) and os.path.exists(HOME_TEMPLATE_PATH):
+        shutil.move(HOME_TEMPLATE_PATH, HOME_PATH)
 
     # store the version name into an envvar to be picked up by Kolibri
     os.environ["KOLIBRI_APK_VERSION_NAME"] = service_args["VERSION"]
@@ -85,4 +84,10 @@ if pew.ui.platform == "android":
 
     make_service_foreground("Kolibri is running...", "Click here to resume.")
 
-    start_django(service_args["PORT"])
+    thread = pew.ui.PEWThread(target=start_django, args=(service_args["PORT"],))
+    thread.daemon = True
+    thread.start()
+
+    while True:
+        logging.info("Server has been started!")
+        time.sleep(1)

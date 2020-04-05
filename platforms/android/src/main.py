@@ -28,7 +28,7 @@ def start_kolibri_server(port):
         # TODO: check for storage availability, allow user to chose sd card or internal
         def get_home_folder():
             kolibri_home_file = PythonActivity.mActivity.getExternalFilesDir(None)
-            return kolibri_home_file.toString()
+            return os.path.join(kolibri_home_file.toString(), "KOLIBRI_DATA")
 
         logging.info("Starting kolibri server via Android service...")
 
