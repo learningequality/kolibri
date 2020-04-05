@@ -30,6 +30,7 @@ RUN dpkg --add-architecture i386 && \
     zlib1g-dev \
     zlib1g:i386 \
     python-wxgtk3.0 \
+    libgtk-3-dev \
     && apt-get clean
 
 
