@@ -3,108 +3,107 @@ msgstr ""
 "Project-Id-Version: kolibri-mac-app\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-10-29 08:54-0700\n"
-"PO-Revision-Date: 2019-12-05 17:51\n"
-"Last-Translator: learningequality\n"
+"PO-Revision-Date: 2019-12-17 04:35\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri-mac-app\n"
 "X-Crowdin-Language: my\n"
 "X-Crowdin-File: macapp.pot\n"
 
 #: src/main.py:190
 msgid "File"
-msgstr ""
+msgstr "ဖိုင်"
 
 #: src/main.py:191
 msgid "New Window"
-msgstr ""
+msgstr "၀င်းဒိုးအသစ် "
 
 #: src/main.py:192
 msgid "Close Window"
-msgstr ""
+msgstr "၀င်းဒိုးပိတ်မည်"
 
 #: src/main.py:194
 msgid "Open Kolibri Home Folder"
-msgstr ""
+msgstr "ကလီဘရီ၏ မူလ သိုမှီးထားရာနေရာကို ဖွင့်မည်။"
 
 #: src/main.py:198
 msgid "Edit"
-msgstr ""
+msgstr "တည်းဖြတ်မည်။"
 
 #: src/main.py:199
 msgid "Undo"
-msgstr ""
+msgstr "နောက်ပြန်လုပ်ပါ"
 
 #: src/main.py:200
 msgid "Redo"
-msgstr ""
+msgstr "ပြန်လုပ်"
 
 #: src/main.py:202
 msgid "Cut"
-msgstr ""
+msgstr "ဖြတ်တောက်"
 
 #: src/main.py:203
 msgid "Copy"
-msgstr ""
+msgstr "ကူးယူပါ"
 
 #: src/main.py:204
 msgid "Paste"
-msgstr ""
+msgstr "ကူးထားတာကို ရေးမယ်။ပေ့စ်"
 
 #: src/main.py:205
 msgid "Select All"
-msgstr ""
+msgstr "အားလုံးကိုရွေးချယ်မည်"
 
 #: src/main.py:208
 msgid "View"
-msgstr ""
+msgstr "မြင်ကွင်း"
 
 #: src/main.py:209
 msgid "Reload"
-msgstr ""
+msgstr "အသစ်ပြန်စမည်။"
 
 #: src/main.py:210
 msgid "Actual Size"
-msgstr ""
+msgstr "မူလ အနေအထား"
 
 #: src/main.py:211
 msgid "Zoom In"
-msgstr ""
+msgstr "ပိုကြီးအောင် ချဲ့ကြည့်မည်"
 
 #: src/main.py:212
 msgid "Zoom Out"
-msgstr ""
+msgstr "သေးအောင် ချုံ့ကြည့်မည်"
 
 #: src/main.py:214
 msgid "Open in Browser"
-msgstr ""
+msgstr "ဘရော့ဇာတွင် ဖွင့်"
 
 #: src/main.py:217
 msgid "History"
-msgstr ""
+msgstr "History"
 
 #: src/main.py:218
 msgid "Back"
-msgstr ""
+msgstr "နောက်သို့"
 
 #: src/main.py:219
 msgid "Forward"
-msgstr ""
+msgstr "ရှေ့သို့"
 
 #: src/main.py:222
 msgid "Help"
-msgstr ""
+msgstr "အကူအညီ"
 
 #: src/main.py:223
 msgid "Documentation"
-msgstr ""
+msgstr "စာရွက်စာတန်း"
 
 #: src/main.py:224
 msgid "Community Forums"
-msgstr ""
+msgstr "စုပေါင်းဆွေးနွေးရာ ဖိုရမ်"
 
