@@ -26,6 +26,7 @@ endif
 
 .PHONY: kolibri.apk
 # Buld the debug version of the apk
+kolibri.apk: p4a_android_distro preseeded_kolibri_home
 kolibri.apk: p4a_android_distro
 	pew build android $(pew_release_flag)
 

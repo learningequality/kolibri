@@ -43,7 +43,7 @@ echo "Starting ${CONTAINER_ID}"
 docker start -i ${CONTAINER_ID}
 
 # copy the apk to our host. Handles permissions.
-echo -e "Coping APK \n\t From ${CONTAINER_ID}:${CONTAINER_HOME}/dist/ to ${PWD}"
+echo -e "Copying APK \n\t From ${CONTAINER_ID}:${CONTAINER_HOME}/dist/ to ${PWD}"
 docker cp ${CONTAINER_ID}:${CONTAINER_HOME}/dist/ .
 
 # manually remove the container afterward
