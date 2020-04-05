@@ -56,6 +56,7 @@ sys.path.append(kolibri_package_dir)
 
 import pew
 import pew.ui
+from pew.ui import PEWShortcut
 
 pew.set_app_name("Kolibri")
 
@@ -280,27 +281,27 @@ class Application(pew.ui.PEWApp):
         menu_bar.add_menu(file_menu)
 
         edit_menu = pew.ui.PEWMenu(_('Edit'))
-        edit_menu.add(_('Undo'), handler=window.on_undo, shortcut='CTRL+Z')
-        edit_menu.add(_('Redo'), handler=window.on_redo, shortcut='CTRL+SHIFT+Z')
+        edit_menu.add(_('Undo'), handler=window.on_undo, shortcut=PEWShortcut('Z', modifiers=['CTRL']))
+        edit_menu.add(_('Redo'), handler=window.on_redo, shortcut=PEWShortcut('Z', modifiers=['CTRL', 'SHIFT']))
         edit_menu.add_separator()
-        edit_menu.add(_('Cut'), command='cut', shortcut='CTRL+X')
-        edit_menu.add(_('Copy'), command='copy', shortcut='CTRL+C')
-        edit_menu.add(_('Paste'), command='paste', shortcut='CTRL+V')
-        edit_menu.add(_('Select All'), command='select-all', shortcut='CTRL+A')
+        edit_menu.add(_('Cut'), command='cut', shortcut=PEWShortcut('X', modifiers=['CTRL']))
+        edit_menu.add(_('Copy'), command='copy', shortcut=PEWShortcut('C', modifiers=['CTRL']))
+        edit_menu.add(_('Paste'), command='paste', shortcut=PEWShortcut('V', modifiers=['CTRL']))
+        edit_menu.add(_('Select All'), command='select-all', shortcut=PEWShortcut('A', modifiers=['CTRL']))
         menu_bar.add_menu(edit_menu)
 
         view_menu = pew.ui.PEWMenu(_('View'))
         view_menu.add(_('Reload'), handler=window.on_reload)
-        view_menu.add(_('Actual Size'), handler=window.on_actual_size, shortcut='CTRL+0')
-        view_menu.add(_('Zoom In'), handler=window.on_zoom_in, shortcut='CTRL++')
-        view_menu.add(_('Zoom Out'), handler=window.on_zoom_out, shortcut='CTRL+-')
+        view_menu.add(_('Actual Size'), handler=window.on_actual_size, shortcut=PEWShortcut('0', modifiers=['CTRL']))
+        view_menu.add(_('Zoom In'), handler=window.on_zoom_in, shortcut=PEWShortcut('+', modifiers=['CTRL']))
+        view_menu.add(_('Zoom Out'), handler=window.on_zoom_out, shortcut=PEWShortcut('-', modifiers=['CTRL']))
         view_menu.add_separator()
         view_menu.add(_('Open in Browser'), handler=window.on_open_in_browser)
         menu_bar.add_menu(view_menu)
 
         history_menu = pew.ui.PEWMenu(_('History'))
-        history_menu.add(_('Back'), handler=window.on_back, shortcut='CTRL+[')
-        history_menu.add(_('Forward'), handler=window.on_forward, shortcut='CTRL+]')
+        history_menu.add(_('Back'), handler=window.on_back, shortcut=PEWShortcut('[', modifiers=['CTRL']))
+        history_menu.add(_('Forward'), handler=window.on_forward, shortcut=PEWShortcut(']', modifiers=['CTRL']))
         menu_bar.add_menu(history_menu)
 
         help_menu = pew.ui.PEWMenu(_('Help'))
