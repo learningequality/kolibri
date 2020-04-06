@@ -46,8 +46,14 @@ export default {
       // otherwise show the whole class list
       return state.classList.length !== 1;
     },
-    userIsAuthorizedForCoach(state, getters) {
-      return getters.isCoach || getters.isAdmin || getters.isSuperuser;
+    userIsAuthorizedForCoach(state, getters, rootState) {
+      if (getters.isSuperuser) {
+        return true;
+      } else if (getters.isCoach || getters.isAdmin) {
+        return state.classSummary.facility_id === rootState.core.session.facility_id;
+      } else {
+        return false;
+      }
     },
     inMultipleFacilityPage(state, getters) {
       return getters.isSuperuser && state.core.facilities.length > 1;

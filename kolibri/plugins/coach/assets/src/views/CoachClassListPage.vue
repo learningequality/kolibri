@@ -2,7 +2,7 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coreString('coachLabel')"
+    :appBarTitle="appBarTitle"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="false"
@@ -70,6 +70,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import find from 'lodash/find';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
   import commonCoach from './common';
@@ -101,6 +102,19 @@
         }
 
         return '';
+      },
+      appBarTitle() {
+        let facilityName;
+        const { facility_id } = this.$route.query;
+        if (facility_id) {
+          const match = find(this.$store.state.core.facilities, { id: facility_id }) || {};
+          facilityName = match.name;
+        }
+        if (facilityName) {
+          return this.coachString('coachLabelWithOneName', { name: facilityName });
+        } else {
+          return this.coachString('coachLabel');
+        }
       },
     },
     $trs: {

@@ -25,6 +25,8 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   classLabel: 'Class',
   classesLabel: 'Classes', // Kept for use in common.js
   coachLabel: 'Coach', // Kept here for use in common.js
+  coachLabelWithOneName: 'Coach – {name}',
+  coachLabelWithOneTwoNames: 'Coach – {name1} – {name2}',
   descriptionLabel: 'Description',
   descriptionMissingLabel: 'No description',
   detailsLabel: 'Details',
