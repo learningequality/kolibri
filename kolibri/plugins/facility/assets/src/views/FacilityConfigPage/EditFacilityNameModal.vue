@@ -59,7 +59,7 @@
         return '';
       },
       nameIsInvalid() {
-        return Boolean(this.nameIsInvalidText || this.isDuplicated);
+        return Boolean(this.nameIsInvalidText);
       },
     },
     methods: {

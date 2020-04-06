@@ -148,7 +148,7 @@
         return null;
       },
       lastPartId() {
-        return this.facilityId.substr(this.facilityId.length - 4);
+        return this.facilityId.slice(0, 4);
       },
     },
     watch: {
