@@ -379,15 +379,17 @@ class SessionViewSet(viewsets.ViewSet):
         session = user.session_data
         session.update({"id": session_key, "server_time": server_time})
 
-        visitor_cookie_expiry = datetime.utcnow() + timedelta(days=365000)
-        visitor_id = str(uuid4())
+        visitor_cookie_expiry = datetime.utcnow() + timedelta(days=365)
 
         if isinstance(user, AnonymousUser):
             response = Response(session)
             if not request.COOKIES.get("visitor_id"):
+                visitor_id = str(uuid4())
                 response.set_cookie(
                     "visitor_id", visitor_id, expires=visitor_cookie_expiry
                 )
+            else:
+                response.set_cookie("visitor_id", request.COOKIES.get("visitor_id"), expires=visitor_cookie_expiry)
             return response
         # Set last activity on session to the current time to prevent session timeout
         # Only do this for logged in users, as anonymous users cannot get logged out!
@@ -401,5 +403,8 @@ class SessionViewSet(viewsets.ViewSet):
 
         response = Response(session)
         if not request.COOKIES.get("visitor_id"):
+            visitor_id = str(uuid4())
             response.set_cookie("visitor_id", visitor_id, expires=visitor_cookie_expiry)
+        else:
+            response.set_cookie("visitor_id", request.COOKIES.get("visitor_id"), expires=visitor_cookie_expiry)
         return response
