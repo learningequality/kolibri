@@ -389,7 +389,11 @@ class SessionViewSet(viewsets.ViewSet):
                     "visitor_id", visitor_id, expires=visitor_cookie_expiry
                 )
             else:
-                response.set_cookie("visitor_id", request.COOKIES.get("visitor_id"), expires=visitor_cookie_expiry)
+                response.set_cookie(
+                    "visitor_id",
+                    request.COOKIES.get("visitor_id"),
+                    expires=visitor_cookie_expiry,
+                )
             return response
         # Set last activity on session to the current time to prevent session timeout
         # Only do this for logged in users, as anonymous users cannot get logged out!
@@ -406,5 +410,9 @@ class SessionViewSet(viewsets.ViewSet):
             visitor_id = str(uuid4())
             response.set_cookie("visitor_id", visitor_id, expires=visitor_cookie_expiry)
         else:
-            response.set_cookie("visitor_id", request.COOKIES.get("visitor_id"), expires=visitor_cookie_expiry)
+            response.set_cookie(
+                "visitor_id",
+                request.COOKIES.get("visitor_id"),
+                expires=visitor_cookie_expiry,
+            )
         return response
