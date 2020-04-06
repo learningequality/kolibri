@@ -2,6 +2,7 @@ import { redirectBrowser } from 'kolibri.utils.redirectBrowser';
 import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
 import { httpClient } from 'kolibri.client';
 import urls from 'kolibri.urls';
+import sortLanguages from 'kolibri.utils.sortLanguages';
 
 export default {
   methods: {
@@ -18,25 +19,10 @@ export default {
         redirectBrowser(response.entity);
       });
     },
-    compareLanguages(a, b) {
-      if (a.id === currentLanguage) {
-        return -1;
-      }
-      if (b.id === currentLanguage) {
-        return 1;
-      }
-      if (a.lang_name.toLowerCase() < b.lang_name.toLowerCase()) {
-        return -1;
-      }
-      if (b.lang_name.toLowerCase() < a.lang_name.toLowerCase()) {
-        return 1;
-      }
-      return 0;
-    },
   },
   computed: {
     languageOptions() {
-      return Object.values(availableLanguages).sort(this.compareLanguages);
+      return sortLanguages(Object.values(availableLanguages), currentLanguage);
     },
   },
 };

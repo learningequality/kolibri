@@ -93,7 +93,8 @@
   import urls from 'kolibri.urls';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import { availableLanguages } from 'kolibri.utils.i18n';
+  import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
+  import sortLanguages from 'kolibri.utils.sortLanguages';
   import { LandingPageChoices } from '../../constants';
   import { getDeviceSettings, saveDeviceSettings } from './api';
 
@@ -126,15 +127,17 @@
     },
     computed: {
       languageOptions() {
-        return [
-          this.browserDefaultOption,
-          ...map(availableLanguages, language => {
+        let languages = sortLanguages(Object.values(availableLanguages), currentLanguage).map(
+          language => {
             return {
               value: language.id,
               label: language.lang_name,
             };
-          }).sort(this.compareLanguages),
-        ];
+          }
+        );
+        languages.splice(1, 0, this.browserDefaultOption);
+
+        return languages;
       },
       facilitySettingsUrl() {
         const getUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
@@ -205,15 +208,6 @@
           .catch(() => {
             this.saveStatus = 'ERROR';
           });
-      },
-      compareLanguages(a, b) {
-        if (a.label.toLowerCase() < b.label.toLowerCase()) {
-          return -1;
-        }
-        if (b.label.toLowerCase() < a.label.toLowerCase()) {
-          return 1;
-        }
-        return 0;
       },
       getDeviceSettings,
       saveDeviceSettings,
