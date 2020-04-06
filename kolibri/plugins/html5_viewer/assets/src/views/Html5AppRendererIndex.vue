@@ -61,11 +61,10 @@
         return nameSpace;
       },
       rooturl() {
-        const iOSCheck = iOSTest.exec(navigator.userAgent);
-        const isOS8 = iOSCheck ? Number(iOSCheck[1].split('_')[0]) <= 8 : false;
-        const iOS8orIE11 = isOS8 || IE11Test.test(navigator.userAgent);
+        const isOS = iOSTest.test(navigator.userAgent);
+        const iOSorIE11 = isOS || IE11Test.test(navigator.userAgent);
         // Skip hashi on requests for these browsers
-        return this.defaultFile.storage_url + (iOS8orIE11 ? '?SKIP_HASHI=true' : '');
+        return this.defaultFile.storage_url + (iOSorIE11 ? '?SKIP_HASHI=true' : '');
       },
     },
     mounted() {
