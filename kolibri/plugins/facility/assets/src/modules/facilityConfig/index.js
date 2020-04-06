@@ -10,6 +10,7 @@ function defaultState() {
     settingsCopy: {},
     facilityNameSaved: false,
     facilityNameError: false,
+    facilities: [],
   };
 }
 

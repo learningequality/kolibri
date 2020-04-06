@@ -19,6 +19,7 @@
         :invalidText="nameIsInvalidText"
         :maxlength="50"
         @blur="nameBlurred = true"
+        @input="handleInput"
       />
     </div>
   </KModal>
@@ -29,6 +30,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { mapState } from 'vuex';
 
   export default {
     name: 'EditFacilityNameModal',
@@ -48,24 +50,26 @@
       };
     },
     computed: {
+      ...mapState('facilityConfig', ['facilities']),
       nameIsInvalidText() {
-        this.checkDuplicated();
-        if (this.nameBlurred || this.formSubmitted) {
-          if (this.name === '') {
-            return this.coreString('requiredFieldError');
-          }
-          if (this.isDuplicated) return this.coreString('facilityDuplicated');
+        if (this.name === '') {
+          return this.coreString('requiredFieldError');
         }
+        if (this.isDuplicated) return this.coreString('facilityDuplicated');
         return '';
       },
       nameIsInvalid() {
-        //facilityDuplicated
-        return Boolean(this.nameIsInvalidText);
+        return Boolean(this.nameIsInvalidText || this.isDuplicated);
       },
     },
     methods: {
-      checkDuplicated() {
-        this.isDuplicated = false;
+      handleInput($event) {
+        if (this.facilityName != $event) this.facilityNameIsUnique($event);
+      },
+      facilityNameIsUnique(value) {
+        this.isDuplicated = !!this.facilities.find(
+          ({ name }) => name.toLowerCase() === value.toLowerCase()
+        );
       },
       handleSubmit() {
         this.formSubmitted = true;
