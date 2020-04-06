@@ -9,7 +9,7 @@ export function showFacilityConfigPage(store) {
   const resourceRequests = [
     FacilityResource.fetchModel({ id: FACILITY_ID }),
     FacilityDatasetResource.fetchCollection({ getParams: { facility_id: FACILITY_ID } }),
-    FacilityResource.fetchCollection(),
+    FacilityResource.fetchCollection({ force: true }),
   ];
 
   return Promise.all(resourceRequests)

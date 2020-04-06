@@ -10,6 +10,7 @@ const fakeFacility = {
   name: 'Nalanda Maths',
 };
 
+const fakeFacilities = [fakeFacility];
 const fakeDatasets = [
   {
     id: 'dataset_2',
@@ -44,6 +45,7 @@ describe('facility config page actions', () => {
     it('when resources load successfully', () => {
       FacilityStub.__getModelFetchReturns(fakeFacility);
       DatasetStub.__getCollectionFetchReturns(fakeDatasets);
+      FacilityStub.__getCollectionFetchReturns(fakeFacilities);
       const expectedState = {
         facilityDatasetId: 'dataset_2',
         facilityName: 'Nalanda Maths',
@@ -81,6 +83,7 @@ describe('facility config page actions', () => {
       it('when fetching Facility fails', () => {
         FacilityStub.__getModelFetchReturns('incomprehensible error', true);
         DatasetStub.__getCollectionFetchReturns(fakeDatasets);
+        FacilityStub.__getCollectionFetchReturns(fakeFacilities);
         return showFacilityConfigPage(store).then(() => {
           expect(commitStub).toHaveBeenCalledWith(
             'facilityConfig/SET_STATE',
@@ -92,6 +95,7 @@ describe('facility config page actions', () => {
       it('when fetching FacilityDataset fails', () => {
         FacilityStub.__getModelFetchReturns(fakeFacility);
         DatasetStub.__getCollectionFetchReturns('incomprehensible error', true);
+        FacilityStub.__getCollectionFetchReturns(fakeFacilities);
         return showFacilityConfigPage(store).then(() => {
           expect(commitStub).toHaveBeenCalledWith(
             'facilityConfig/SET_STATE',
