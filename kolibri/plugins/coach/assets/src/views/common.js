@@ -144,7 +144,7 @@ export default {
   mixins: [coachStringsMixin],
   computed: {
     ...mapGetters(['isAdmin', 'isCoach', 'isSuperuser']),
-    ...mapState('classSummary', { classId: 'id', className: 'name' }),
+    ...mapState('classSummary', { classId: 'id', className: 'name', facilityId: 'facility_id' }),
     ...mapState('classSummary', [
       'adHocGroupsMap',
       'coachMap',
@@ -188,7 +188,17 @@ export default {
       'getExamAvgScore',
     ]),
     userIsAuthorized() {
-      return this.isCoach || this.isAdmin || this.isSuperuser;
+      if (this.isSuperuser) {
+        return true;
+      }
+      if (this.isCoach || this.isAdmin) {
+        if (this.$store.state.route.name === 'CoachClassListPage') {
+          return true;
+        } else if (this.facilityId) {
+          return this.facilityId === this.$store.state.core.session.facility_id;
+        }
+      }
+      return false;
     },
     PageNames() {
       return PageNames;
