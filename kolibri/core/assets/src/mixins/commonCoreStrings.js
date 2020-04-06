@@ -3,8 +3,6 @@ import { createTranslator } from 'kolibri.utils.i18n';
 export const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
   cancelAction: 'Cancel',
-  changesSaved: 'Changes saved',
-  changesNotSaved: 'Changes were not saved',
   clearAction: {
     message: 'Clear',
     context:

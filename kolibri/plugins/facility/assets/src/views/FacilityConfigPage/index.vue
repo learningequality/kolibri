@@ -154,13 +154,13 @@
     watch: {
       facilityNameSaved(val) {
         if (val) {
-          this.createSnackbar(this.coreString('changesSaved'));
+          this.createSnackbar(this.coreString('changesSavedNotification'));
           this.$store.commit('facilityConfig/RESET_FACILITY_NAME_STATES');
         }
       },
       facilityNameError(val) {
         if (val) {
-          this.createSnackbar(this.coreString('changesNotSaved'));
+          this.createSnackbar(this.coreString('changesNotSavedNotification'));
           this.$store.commit('facilityConfig/RESET_FACILITY_NAME_STATES');
         }
       },
