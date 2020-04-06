@@ -76,17 +76,9 @@ export default [
       store.commit('manageSync/RESET_STATE');
     },
   },
-
   {
     name: PageNames.FACILITY_CONFIG_PAGE,
     path: '/settings',
-    handler: () => {
-      showFacilityConfigPage(store);
-    },
-  },
-  {
-    name: PageNames.FACILITY_CONFIG_PAGE,
-    path: '/all_facilities',
     handler: () => {
       showFacilityConfigPage(store);
     },
