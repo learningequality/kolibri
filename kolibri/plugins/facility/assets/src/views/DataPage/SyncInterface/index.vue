@@ -133,7 +133,7 @@
       Modals: () => Modals,
       facilities() {
         return this.$store.state.manageCSV.facilities.filter(
-          ({ id }) => id === this.$route.params.facility_id
+          ({ id }) => id === this.$store.getters.activeFacilityId
         );
       },
     },

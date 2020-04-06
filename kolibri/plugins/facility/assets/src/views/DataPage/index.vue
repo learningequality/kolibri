@@ -138,7 +138,7 @@
       // fetch task list after fetching facilities, to ensure proper syncing state
       FacilityResource.fetchCollection({ force: true }).then(facilities => {
         this.$store.commit('manageCSV/RESET_STATE');
-        this.$store.commit('manageCSV/SET_STATE', { facilities: facilities });
+        this.$store.commit('manageCSV/SET_STATE', { facilities });
         this.inDataExportPage && this.refreshTaskList() && this.startTaskPolling();
       });
     },

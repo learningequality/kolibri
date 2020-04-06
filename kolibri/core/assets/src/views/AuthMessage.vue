@@ -16,6 +16,13 @@
         appearance="basic-link"
       />
     </p>
+    <p v-else>
+      <KRouterLink
+        :text="$tr('goBackToHomeAction')"
+        :to="{ path: '/' }"
+        appearance="basic-link"
+      />
+    </p>
   </div>
 
 </template>

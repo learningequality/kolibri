@@ -29,17 +29,6 @@ export default [
     handler() {
       store.dispatch('preparePage', { isAsync: false });
     },
-    beforeEnter(to, from, next) {
-      console.log('yoyyoo');
-      next();
-    },
-  },
-  // A catch-all AuthMessage page that non-SuperAdmins will see.
-  // The global beforeEnter guard should redirect here if trying to access multi-facility
-  // functionality as a non-superuser
-  {
-    name: 'NoSuperUserPermissions',
-    path: '/not_superadmin',
   },
   // In the multi-facility case, the optional facility_id needs to be provided.
   // If it's missing, then we are likely in single-facility situation and we use

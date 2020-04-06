@@ -3,7 +3,7 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 
 export function showClassesPage(store, toRoute) {
   store.dispatch('preparePage');
-  const facilityId = toRoute.params.facility_id || store.getters.currentActiveFacility;
+  const facilityId = toRoute.params.facility_id || store.getters.activeFacilityId;
   return ClassroomResource.fetchCollection({
     getParams: { parent: facilityId },
     force: true,

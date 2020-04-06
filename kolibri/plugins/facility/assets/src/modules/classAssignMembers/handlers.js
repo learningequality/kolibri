@@ -10,7 +10,7 @@ export function showLearnerClassEnrollmentPage(store, toRoute) {
   store.dispatch('preparePage');
   // all users in facility
   const userPromise = FacilityUserResource.fetchCollection({
-    getParams: { member_of: facility_id || store.getters.currentActiveFacility },
+    getParams: { member_of: facility_id || store.getters.activeFacilityId },
   });
   // current class
   const classPromise = ClassroomResource.fetchModel({ id });
@@ -50,7 +50,7 @@ export function showCoachClassAssignmentPage(store, toRoute) {
   const { id, facility_id } = toRoute.params;
   store.commit('SET_PAGE_NAME', PageNames.CLASS_ASSIGN_COACH);
   store.commit('CORE_SET_PAGE_LOADING', true);
-  const facilityId = facility_id || store.getters.currentActiveFacility;
+  const facilityId = facility_id || store.getters.activeFacilityId;
   // all users in facility
   const userPromise = FacilityUserResource.fetchCollection({
     getParams: { member_of: facilityId },

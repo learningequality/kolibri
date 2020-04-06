@@ -41,7 +41,7 @@
         'isSuperuser',
         'inMultipleFacilityPage',
         'currentFacilityName',
-        'currentActiveFacility',
+        'activeFacilityId',
       ]),
       ...mapState('classAssignMembers', ['class']),
       pageName() {
@@ -57,7 +57,7 @@
           immersivePageRoute = {
             name: PageNames.CLASS_EDIT_MGMT_PAGE,
             params: {
-              facility_id: this.currentActiveFacility,
+              facility_id: this.activeFacilityId,
             },
           };
           if (this.class) {
@@ -71,7 +71,7 @@
           immersivePageRoute = {
             name: PageNames.USER_MGMT_PAGE,
             params: {
-              facility_id: this.currentActiveFacility,
+              facility_id: this.activeFacilityId,
             },
           };
           appBarTitle = this.coreString('usersLabel');
@@ -99,8 +99,17 @@
         };
       },
       userIsAuthorized() {
-        // TODO handle multiple facility case
-        return this.isAdmin || this.isSuperuser;
+        if (this.isSuperuser) {
+          // Superusers can view any facility
+          return true;
+        } else if (this.isAdmin) {
+          if (this.pageName === 'AllFacilitiesPage') {
+            return false;
+          }
+          // Admins can only see the facility they belong to
+          return this.$store.state.core.session.facility_id === this.activeFacilityId;
+        }
+        return false;
       },
     },
     $trs: {

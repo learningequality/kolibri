@@ -2,7 +2,7 @@ import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
 import { notificationTypes } from '../../constants';
 
 export function showFacilityConfigPage(store, toRoute) {
-  const facilityId = toRoute.params.facility_id || store.getters.currentActiveFacility;
+  const facilityId = toRoute.params.facility_id || store.getters.activeFacilityId;
   store.dispatch('preparePage');
   const resourceRequests = [
     FacilityResource.fetchModel({ id: facilityId }),

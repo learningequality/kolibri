@@ -32,7 +32,7 @@ export default {
     },
   },
   getters: {
-    currentActiveFacility(state, getters, rootState, rootGetters) {
+    activeFacilityId(state, getters, rootState, rootGetters) {
       // Return either the facility_id param in the route module,
       // or the currentFacilityId value from core.session
       return rootState.route.params.facility_id || rootGetters.currentFacilityId;
@@ -41,7 +41,7 @@ export default {
       return rootGetters.isSuperuser && rootState.route.params.facility_id;
     },
     currentFacilityName(state, getters, rootState) {
-      const match = find(rootState.core.facilities, { id: getters.currentActiveFacility });
+      const match = find(rootState.core.facilities, { id: getters.activeFacilityId });
       return match ? match.name : '';
     },
   },
