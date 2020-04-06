@@ -122,7 +122,7 @@ export default new Resource({
    *
    */
   import_users_from_csv(params) {
-    return this.postMultipart('importusersfromcsv', pickBy(params));
+    return this.postListEndpointMultipart('importusersfromcsv', pickBy(params));
   },
   /**
    * Initiates a Task that export users, classes and assign roles to a csv file
