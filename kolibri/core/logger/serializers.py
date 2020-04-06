@@ -27,11 +27,24 @@ class ContentSessionLogSerializer(KolibriModelSerializer):
 
     extra_fields = serializers.JSONField(default="{}")
 
+    """
+    If we don't have a user, set the visitor_id to the session_key
+    """
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        # Must ensure there is no user here to maintain user privacy for logging.
+        if request and hasattr(request, "COOKIES") and not validated_data.get("user"):
+            validated_data["visitor_id"] = request.COOKIES.get("visitor_id")
+        instance = super(ContentSessionLogSerializer, self).create(validated_data)
+        return instance
+
     class Meta:
         model = ContentSessionLog
         fields = (
             "id",
             "user",
+            "visitor_id",
             "content_id",
             "channel_id",
             "start_timestamp",
