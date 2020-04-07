@@ -182,7 +182,7 @@ base_option_spec = {
 }
 
 
-def __get_logger(KOLIBRI_HOME):
+def _get_logger(KOLIBRI_HOME):
     """
     We define a minimal default logger config here, since we can't yet
     load up Django settings.
@@ -197,14 +197,14 @@ def __get_logger(KOLIBRI_HOME):
     return logging.getLogger(__name__)
 
 
-def __get_option_spec():
+def _get_option_spec():
     """
     Combine the default option spec with any options that are defined in plugins
     """
     return extend_config_spec(base_option_spec)
 
 
-option_spec = SimpleLazyObject(__get_option_spec)
+option_spec = SimpleLazyObject(_get_option_spec)
 
 
 def get_configspec():
@@ -243,7 +243,7 @@ def clean_conf(conf):
 
 def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
 
-    logger = __get_logger(KOLIBRI_HOME)
+    logger = _get_logger(KOLIBRI_HOME)
 
     ini_path = os.path.join(KOLIBRI_HOME, ini_filename)
 
@@ -344,7 +344,7 @@ def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options
     that are not intended to be stored.
     """
 
-    logger = __get_logger(KOLIBRI_HOME)
+    logger = _get_logger(KOLIBRI_HOME)
 
     # load the current conf from disk into memory
     conf = read_options_file(KOLIBRI_HOME, ini_filename=ini_filename)
