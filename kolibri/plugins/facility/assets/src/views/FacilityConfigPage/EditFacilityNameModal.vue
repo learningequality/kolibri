@@ -4,6 +4,7 @@
     :title="$tr('title')"
     :submitText="coreString('saveAction')"
     :cancelText="coreString('cancelAction')"
+    :submitDisabled="isSubmitDisabled"
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
@@ -47,6 +48,7 @@
         nameBlurred: false,
         formSubmitted: false,
         isDuplicated: false,
+        isSubmitDisabled: true,
       };
     },
     computed: {
@@ -64,7 +66,8 @@
     },
     methods: {
       handleInput($event) {
-        if (this.facilityName != $event) this.facilityNameIsUnique($event);
+        this.isSubmitDisabled = this.facilityName === $event;
+        if (!this.isSubmitDisabled) this.facilityNameIsUnique($event);
       },
       facilityNameIsUnique(value) {
         this.isDuplicated = !!this.facilities.find(
