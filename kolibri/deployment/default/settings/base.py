@@ -263,7 +263,9 @@ SESSION_COOKIE_PATH = path_prefix
 # https://docs.djangoproject.com/en/1.9/topics/logging/
 
 LOGGING = get_logging_config(
-    conf.LOG_ROOT, debug=DEBUG, debug_database=conf.OPTIONS["Server"]["DEBUG_DATABASE"]
+    conf.LOG_ROOT,
+    debug=DEBUG,
+    debug_database=conf.OPTIONS["Server"]["DEBUG_LOG_DATABASE"],
 )
 
 
