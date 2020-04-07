@@ -1,5 +1,26 @@
-import { FacilityDatasetResource } from 'kolibri.resources';
+import { FacilityDatasetResource, FacilityResource } from 'kolibri.resources';
+
 import { notificationTypes } from '../../constants';
+
+export function saveFacilityName(store, payload) {
+  return FacilityResource.saveModel({
+    id: payload.id,
+    data: {
+      name: payload.name,
+    },
+  }).then(
+    facility => {
+      store.commit('UPDATE_FACILITIES', {
+        oldName: store.state.facilityName,
+        newName: facility.name,
+      });
+      store.commit('FACILITY_NAME_SAVED', facility.name);
+    },
+    error => {
+      store.commit('FACILITY_NAME_NOT_SAVED', error);
+    }
+  );
+}
 
 export function saveFacilityConfig(store) {
   store.commit('CONFIG_PAGE_NOTIFY', null);
