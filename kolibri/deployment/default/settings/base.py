@@ -298,7 +298,7 @@ AUTHENTICATION_BACKENDS = ["kolibri.core.auth.backends.FacilityUserBackend"]
 
 REST_FRAMEWORK = {
     "UNAUTHENTICATED_USER": "kolibri.core.auth.models.KolibriAnonymousUser",
-    "DEFAULT_CONTENT_NEGOTIATION_CLASS": "kolibri.core.negotiation.JSONOnlyContentNegotiation",
+    "DEFAULT_CONTENT_NEGOTIATION_CLASS": "kolibri.core.negotiation.LimitContentNegotiation",
     "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
 }
 
