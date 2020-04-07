@@ -189,7 +189,7 @@
       },
       sendFacilityName(name) {
         this.showEditFacilityModal = false;
-        this.saveFacilityName({ name: name, id: this.facilityId });
+        if (name != this.facilityName) this.saveFacilityName({ name: name, id: this.facilityId });
       },
       saveConfig() {
         this.$store.dispatch('facilityConfig/saveFacilityConfig').then(() => {

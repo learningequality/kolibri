@@ -53,6 +53,11 @@ export default {
       state.facilityNameError = false;
       state.facilityNameSaved = false;
     },
+    UPDATE_FACILITIES(state, payload) {
+      state.facilities.find(f => {
+        return f.name === payload.oldName;
+      }).name = payload.newName;
+    },
   },
   actions: {
     saveFacilityConfig,

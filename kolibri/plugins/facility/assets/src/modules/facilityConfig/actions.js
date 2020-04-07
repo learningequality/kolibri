@@ -10,6 +10,10 @@ export function saveFacilityName(store, payload) {
     },
   }).then(
     facility => {
+      store.commit('UPDATE_FACILITIES', {
+        oldName: store.state.facilityName,
+        newName: facility.name,
+      });
       store.commit('FACILITY_NAME_SAVED', facility.name);
     },
     error => {
