@@ -118,11 +118,13 @@
           <KRouterLink
             appearance="flat-button"
             :text="coreString('goBackAction')"
+            style="margin-top: 8px; margin-bottom: 8px;"
             :to="toolbarRoute"
           />
           <KButton
             :text="coreString('continueAction')"
             primary
+            style="margin-top: 8px; margin-bottom: 8px;"
             @click="continueProcess"
           />
         </KButtonGroup>

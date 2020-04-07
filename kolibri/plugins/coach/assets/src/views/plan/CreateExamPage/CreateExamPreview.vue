@@ -105,11 +105,13 @@
             appearance="flat-button"
             :text="coreString('goBackAction')"
             :to="toolbarRoute"
+            style="margin-top: 8px; margin-bottom: 8px;"
           />
           <KButton
             :text="coreString('finishAction')"
             :disabled="loadingNewQuestions"
             primary
+            style="margin-top: 8px; margin-bottom: 8px;"
             @click="submit"
           />
         </KButtonGroup>

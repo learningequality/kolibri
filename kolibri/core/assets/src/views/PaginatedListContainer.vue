@@ -29,6 +29,7 @@
           :ariaLabel="$tr('previousResults')"
           :disabled="previousButtonDisabled"
           size="small"
+          style="margin-top: 8px; margin-bottom: 8px;"
           icon="back"
           @click="changePage(-1)"
         />
@@ -36,6 +37,7 @@
           :ariaLabel="$tr('nextResults')"
           :disabled="nextButtonDisabled"
           size="small"
+          style="margin-top: 8px; margin-bottom: 8px;"
           icon="forward"
           @click="changePage(+1)"
         />
