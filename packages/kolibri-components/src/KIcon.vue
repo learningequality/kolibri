@@ -45,7 +45,8 @@
   <mat-svg v-else-if="icon ==='language'" name="language" category="action" :style="style" />
   <mat-svg v-else-if="icon ==='logout'" name="exit_to_app" category="action" :style="style" :class="flip" />
   <mat-svg v-else-if="icon ==='menu'" name="menu" category="navigation" :style="style" />
-  <mat-svg v-else-if="icon ==='search'" name="search" category="action" :style="style" />
+  <mat-svg v-else-if="icon ==='fullscreen'" name="fullscreen" category="navigation" :style="style" />
+  <mat-svg v-else-if="icon ==='fullscreen_exit'" name="fullscreen_exit" category="navigation" :style="style" />
   <!-- side nav -->
   <mat-svg v-else-if="icon ==='learn'" name="school" category="social" :style="style" />
   <mat-svg v-else-if="icon ==='device'" name="tablet_mac" category="hardware" :style="style" />
@@ -109,6 +110,8 @@
     'logout',
     'menu',
     'search',
+    'fullscreen',
+    'fullscreen_exit',
     // side nav
     'learn',
     'device',
