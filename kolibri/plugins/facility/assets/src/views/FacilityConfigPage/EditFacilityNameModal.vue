@@ -39,7 +39,7 @@
     props: {
       facilityName: {
         type: String,
-        required: false,
+        required: true,
       },
     },
     data() {

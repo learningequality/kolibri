@@ -43,6 +43,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   facilityCoachLabel: 'Facility coach',
   facilityLabel: 'Facility',
   facilityName: 'Facility name',
+  facilityNameWithId: '{facilityName} ({id})',
   facilityDuplicated: 'There is already a facility with this name on this device',
   fullNameLabel: 'Full name',
   genderLabel: 'Gender',

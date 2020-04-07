@@ -23,7 +23,7 @@
       <div class="mb">
         <h2>{{ coreString('facilityLabel') }}</h2>
         <p class="current-facility-name">
-          {{ facilityName }} ({{ lastPartId }})
+          {{ coreString('facilityNameWithId', { facilityName: facilityName, id: lastPartId }) }}
           <KButton
             appearance="basic-link"
             :text="coreString('editAction')"
