@@ -76,9 +76,12 @@ def cherrypy_access_log_middleware(get_response):
             ua=request.META.get("HTTP_USER_AGENT", "unknown").replace('"', "\\"),
         )
 
-        # Silence busy polling API endpoint:
+        # Silence busy polling API endpoints and PATCH requests:
         # https://github.com/learningequality/kolibri/issues/6459
-        if "/api/tasks/tasks/" in request.path_info:
+        log_as_debug = (
+            "/api/tasks/tasks/" in request.path_info or request.method == "PATCH"
+        )
+        if log_as_debug:
             cp_logger.debug(log_message)
         else:
             cp_logger.info(log_message)
