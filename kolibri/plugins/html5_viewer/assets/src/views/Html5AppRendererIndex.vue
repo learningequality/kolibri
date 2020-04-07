@@ -61,8 +61,8 @@
         return nameSpace;
       },
       rooturl() {
-        const isOS = iOSTest.test(navigator.userAgent);
-        const iOSorIE11 = isOS || IE11Test.test(navigator.userAgent);
+        const iOS = iOSTest.test(navigator.userAgent);
+        const iOSorIE11 = iOS || IE11Test.test(navigator.userAgent);
         // Skip hashi on requests for these browsers
         return this.defaultFile.storage_url + (iOSorIE11 ? '?SKIP_HASHI=true' : '');
       },
