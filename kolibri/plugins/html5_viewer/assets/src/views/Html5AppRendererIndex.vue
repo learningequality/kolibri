@@ -5,15 +5,31 @@
     class="html5-renderer"
     @changeFullscreen="isInFullscreen = $event"
   >
-    <KButton
-      :primary="false"
-      class="fullscreen-btn"
-      @click="$refs.html5Renderer.toggleFullscreen()"
+
+    <div
+      class="fullscreen-header"
+      :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
     >
-      <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
-      <mat-svg v-else name="fullscreen" category="navigation" />
-      {{ fullscreenText }}
-    </KButton>
+      <KButton
+        :primary="false"
+        appearance="flat-button"
+        @click="$refs.html5Renderer.toggleFullscreen()"
+      >
+        <mat-svg
+          v-if="isInFullscreen"
+          name="fullscreen_exit"
+          category="navigation"
+          class="fs-icon"
+        />
+        <mat-svg
+          v-else
+          name="fullscreen"
+          category="navigation"
+          class="fs-icon"
+        />
+        {{ fullscreenText }}
+      </KButton>
+    </div>
     <div class="iframe-container">
       <iframe
         ref="iframe"
@@ -128,14 +144,13 @@
 
   @import '~kolibri.styles.definitions';
 
-  .fullscreen-btn {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    width: 100%;
-    margin: 0;
+  .fullscreen-header {
     text-align: right;
-    box-shadow: none;
+  }
+
+  .fs-icon {
+    position: relative;
+    top: 6px;
   }
 
   .html5-renderer {
