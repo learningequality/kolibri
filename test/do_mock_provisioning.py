@@ -38,12 +38,12 @@ while time() < now + timeout and status_code != 201:
     try:
         response = requests.post(url, json=data)
         status_code = response.status_code
-    except requests.exceptions.RequestException:
-        pass
+    except requests.exceptions.RequestException as e:
+        print("Exception requesting provisioning API: {}".format(e))
 
 if status_code == 201:
     print("success!")
     exit(0)
 else:
-    print("failed with status %i" % status_code)
+    print("failed with status {}".format(status_code))
     exit(1)
