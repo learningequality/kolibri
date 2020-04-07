@@ -82,11 +82,10 @@ export default [
     path: '/',
     // Redirect to AllFacilitiesPage if a superuser and device has > 1 facility
     beforeEnter(to, from, next) {
-      const goToClasses = () => next({ name: 'CoachClassListPage' });
       if (store.getters.isSuperuser && store.state.core.facilities.length > 1) {
         next({ name: 'AllFacilitiesPage' });
       } else {
-        goToClasses();
+        next({ name: 'CoachClassListPage' });
       }
     },
   },
