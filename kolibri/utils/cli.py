@@ -114,6 +114,7 @@ debug_option = click.Option(
     default=False,
     is_flag=True,
     help="Display and log debug messages (for development)",
+    envvar="KOLIBRI_DEBUG",
 )
 
 debug_database_option = click.Option(
@@ -121,6 +122,7 @@ debug_database_option = click.Option(
     default=False,
     is_flag=True,
     help="Display and log database queries (for development), very noisy!",
+    envvar="KOLIBRI_DEBUG_LOG_DATABASE",
 )
 
 settings_option = click.Option(
