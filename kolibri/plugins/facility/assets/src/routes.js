@@ -1,5 +1,4 @@
 import store from 'kolibri.coreVue.vuex.store';
-import { FacilityResource } from 'kolibri.resources';
 import ClassEditPage from './views/ClassEditPage';
 import CoachClassAssignmentPage from './views/CoachClassAssignmentPage';
 import LearnerClassEnrollmentPage from './views/LearnerClassEnrollmentPage';
@@ -110,19 +109,10 @@ export default [
     path: '/',
     // Redirect to AllFacilitiesPage if a superuser and device has > 1 facility
     beforeEnter(to, from, next) {
-      const goToClasses = () => next({ name: PageNames.CLASS_MGMT_PAGE });
-      if (store.getters.isSuperuser) {
-        FacilityResource.fetchCollection()
-          .then(facilities => {
-            if (facilities.length > 1) {
-              next({ name: 'AllFacilitiesPage' });
-            } else {
-              goToClasses();
-            }
-          })
-          .catch(goToClasses);
+      if (store.state.core.facilities.length > 1 && store.getters.isSuperuser) {
+        next({ name: 'AllFacilitiesPage' });
       } else {
-        goToClasses();
+        next({ name: PageNames.CLASS_MGMT_PAGE });
       }
     },
   },

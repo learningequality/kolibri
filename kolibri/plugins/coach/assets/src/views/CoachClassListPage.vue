@@ -14,7 +14,7 @@
 
       <p>
         <KRouterLink
-          v-if="$store.getters.inMultipleFacilityPage"
+          v-if="inMultipleFacilityPage"
           :to="{ name: 'AllFacilitiesPage' }"
           :text="coreString('allFacilitiesLabel')"
         />
@@ -79,7 +79,7 @@
     name: 'CoachClassListPage',
     mixins: [commonCoach, commonCoreStrings],
     computed: {
-      ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
+      ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach', 'inMultipleFacilityPage']),
       ...mapState(['classList']),
       // Message that shows up when state.classList is empty
       emptyStateDetails() {
@@ -98,6 +98,9 @@
       createClassUrl() {
         const facilityUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
         if (facilityUrl) {
+          if (this.inMultipleFacilityPage) {
+            return `${facilityUrl()}#/${this.$route.query.facility_id}/classes`;
+          }
           return facilityUrl();
         }
 
