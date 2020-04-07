@@ -9,7 +9,7 @@ class LimitContentNegotiation(BaseContentNegotiation):
         """
         Always return JSONParser unless a 'multipart/form-data' content type is sent
         """
-        if 'multipart' in request.content_type:
+        if "multipart" in request.content_type:
             return MultiPartParser()
         return JSONParser()
 
