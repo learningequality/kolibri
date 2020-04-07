@@ -71,7 +71,7 @@ MESSAGES = {
         "Username only can contain characters, numbers and underscores"
     ),
     REQUIRED_COLUMN: _("The column '{}' is required"),
-    INVALID_HEADER: _("Mix of valid and invalid header labels found in first row"),
+    INVALID_HEADER: _("Mix of valid and/or invalid header labels found in first row"),
     NO_FACILITY: _(
         "No default facility exists, please make sure to provision this device before running this command"
     ),
@@ -608,6 +608,8 @@ class Command(AsyncCommand):
         with self.start_progress(total=100) as self.progress_update:
             # validate csv headers:
             has_header = self.csv_headers_validation(filepath)
+            if not has_header:
+                self.overall_error.append(MESSAGES[INVALID_HEADER])
             self.exit_if_error()
             self.progress_update(1)  # state=csv_headers
             try:
