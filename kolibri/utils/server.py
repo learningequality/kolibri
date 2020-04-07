@@ -99,7 +99,7 @@ class ServicesPlugin(SimplePlugin):
         scheduler.start_scheduler()
 
         if not conf.OPTIONS["Server"]["ZEROCONF_DISABLE"]:
-            # Register the Kolibri zeroconf service so it will be discoverable on the network
+            # Kolibri zeroconf service: Periodically scans network and broadcasts self
             from kolibri.core.discovery.utils.network.search import (
                 register_zeroconf_service,
             )
