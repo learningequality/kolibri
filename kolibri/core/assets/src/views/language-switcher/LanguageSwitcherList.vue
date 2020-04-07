@@ -18,16 +18,18 @@
         :text="language.lang_name"
         :title="language.english_name"
         class="lang"
+        style="margin-top: 8px; margin-bottom: 8px;"
         appearance="basic-link"
         @click="switchLanguage(language.id)"
       />
+
+      <KButton
+        :text="$tr('showMoreLanguagesSelector')"
+        :primary="false"
+        appearance="flat-button"
+        @click="showLanguageModal = true"
+      />
     </KButtonGroup>
-    <KButton
-      :text="$tr('showMoreLanguagesSelector')"
-      :primary="false"
-      appearance="flat-button"
-      @click="showLanguageModal = true"
-    />
     <LanguageSwitcherModal
       v-if="showLanguageModal"
       class="ta-l"

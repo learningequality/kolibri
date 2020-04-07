@@ -51,6 +51,7 @@
               :ariaLabel="$tr('previousResults')"
               :disabled="pageNum === 1"
               size="small"
+              style="margin-top: 8px; margin-bottom: 8px;"
               @click="goToPage(pageNum - 1)"
             />
             <KIconButton
@@ -58,6 +59,7 @@
               :ariaLabel="$tr('nextResults')"
               :disabled="numPages === 0 || pageNum === numPages"
               size="small"
+              style="margin-top: 8px; margin-bottom: 8px;"
               @click="goToPage(pageNum + 1)"
             />
           </KButtonGroup>

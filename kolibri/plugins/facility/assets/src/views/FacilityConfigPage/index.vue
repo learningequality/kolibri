@@ -45,6 +45,7 @@
               :primary="false"
               appearance="raised-button"
               :text="$tr('resetToDefaultSettings')"
+              style="margin-top: 8px; margin-bottom: 8px;"
               name="reset-settings"
               @click="showModal = true"
             />
@@ -54,6 +55,7 @@
               appearance="raised-button"
               :text="coreString('saveChangesAction')"
               name="save-settings"
+              style="margin-top: 8px; margin-bottom: 8px;"
               :disabled="!settingsHaveChanged"
               @click="saveConfig()"
             />
