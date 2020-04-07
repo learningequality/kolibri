@@ -53,19 +53,23 @@
     </form>
 
     <BottomAppBar>
-      <KButton
-        :text="coreString('cancelAction')"
-        appearance="flat-button"
-        :primary="false"
-        :disabled="disabled"
-        @click="$emit('cancel')"
-      />
-      <KButton
-        :text="coreString('saveChangesAction')"
-        :primary="true"
-        :disabled="disabled"
-        @click="submitData"
-      />
+      <KButtonGroup>
+        <KButton
+          :text="coreString('cancelAction')"
+          appearance="flat-button"
+          :primary="false"
+          :disabled="disabled"
+          style="margin-top: 8px; margin-bottom: 8px;"
+          @click="$emit('cancel')"
+        />
+        <KButton
+          :text="coreString('saveChangesAction')"
+          :primary="true"
+          :disabled="disabled"
+          style="margin-top: 8px; margin-bottom: 8px;"
+          @click="submitData"
+        />
+      </KButtonGroup>
     </BottomAppBar>
   </div>
 
