@@ -203,7 +203,7 @@ export default {
       if (this.isSuperuser) {
         return true;
       }
-      if (this.$store.state.route.name === 'CoachClassListPage') {
+      if (this.$route.name === 'CoachClassListPage') {
         return this.isCoach || this.isAdmin;
       }
       return this.$store.getters.userIsAuthorizedForCoach;

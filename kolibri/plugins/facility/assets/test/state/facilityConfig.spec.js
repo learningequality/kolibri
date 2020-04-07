@@ -23,12 +23,17 @@ const fakeDatasets = [
   { id: 'dataset_3' },
 ];
 
+const toRoute = {
+  params: {},
+};
+
 describe('facility config page actions', () => {
   let store;
   let commitStub;
 
   beforeEach(() => {
     store = makeStore();
+    store.state.route = { params: {} };
     commitStub = jest.spyOn(store, 'commit');
     Object.assign(store.state.core, {
       pageId: '123',
@@ -63,7 +68,7 @@ describe('facility config page actions', () => {
         }),
       };
 
-      return showFacilityConfigPage(store).then(() => {
+      return showFacilityConfigPage(store, toRoute).then(() => {
         expect(DatasetStub.getCollection).toHaveBeenCalledWith({ facility_id: 1 });
         expect(commitStub).toHaveBeenCalledWith(
           'facilityConfig/SET_STATE',
@@ -81,7 +86,7 @@ describe('facility config page actions', () => {
       it('when fetching Facility fails', () => {
         FacilityStub.__getModelFetchReturns('incomprehensible error', true);
         DatasetStub.__getCollectionFetchReturns(fakeDatasets);
-        return showFacilityConfigPage(store).then(() => {
+        return showFacilityConfigPage(store, toRoute).then(() => {
           expect(commitStub).toHaveBeenCalledWith(
             'facilityConfig/SET_STATE',
             expect.objectContaining(expectedState)
@@ -92,7 +97,7 @@ describe('facility config page actions', () => {
       it('when fetching FacilityDataset fails', () => {
         FacilityStub.__getModelFetchReturns(fakeFacility);
         DatasetStub.__getCollectionFetchReturns('incomprehensible error', true);
-        return showFacilityConfigPage(store).then(() => {
+        return showFacilityConfigPage(store, toRoute).then(() => {
           expect(commitStub).toHaveBeenCalledWith(
             'facilityConfig/SET_STATE',
             expect.objectContaining(expectedState)
