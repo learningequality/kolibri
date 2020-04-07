@@ -11,7 +11,7 @@
   "FacilityNameTextbox.facilityNameFieldMaxLengthReached": "Il nome della struttura non può contenere più di 50 caratteri",
   "FacilityPermissionsForm.adminManagedSetupDescription": "Scuole e altri contesti di apprendimento formale",
   "FacilityPermissionsForm.adminManagedSetupTitle": "Formale",
-  "FacilityPermissionsForm.facilityPermissionsSetupFormDescription": "Una struttura è la posizione in cui si sta installando Kolibri, come una scuola, un centro di formazione o una casa.",
+  "FacilityPermissionsForm.facilityPermissionsSetupFormDescription": "Una struttura è il luogo in cui si sta installando Kolibri, come una scuola, un centro di formazione o una casa.",
   "FacilityPermissionsForm.facilityPermissionsSetupFormHeader": "In che tipo di struttura stai installando Kolibri?",
   "FacilityPermissionsForm.informalSetupDescription": "Istruzione a casa, apprendimento individuale supplementare e altri usi informali",
   "FacilityPermissionsForm.informalSetupTitle": "Personale",
@@ -28,11 +28,11 @@
   "RequirePasswordForLearnersForm.header": "Abilitare le password sugli account degli studenti?",
   "RequirePasswordForLearnersForm.noOptionLabel": "No. Gli account degli studenti possono accedere solo con un nome utente",
   "RequirePasswordForLearnersForm.noOptionTooltip": "Utile per gli studenti più giovani o quando non sei preoccupato per la sicurezza dell'account",
-  "SetupWizardIndex.documentTitle": "Installazione Guidata",
-  "SetupWizardIndex.personalFacilityName": "Struttura Domestica {name}",
+  "SetupWizardIndex.documentTitle": "Installazione guidata",
+  "SetupWizardIndex.personalFacilityName": "Struttura domestica {name}",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "Questo account consente di gestire la struttura, le risorse e gli account utente su questo dispositivo",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "Crea un account super amministratore",
-  "SuperuserCredentialsForm.rememberThisAccountInformation": "Importante: ricorda queste informazioni sull'account. Scrivitele se necessario",
+  "SuperuserCredentialsForm.rememberThisAccountInformation": "Importante: ricorda queste informazioni sull'account. Scrivile se necessario",
   "YesNoForm.details": "È possibile modificarlo nelle impostazioni della struttura in un secondo momento",
   "YesNoForm.yesOptionLabel": "Si"
 }

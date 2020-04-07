@@ -1,6 +1,6 @@
 {
-  "MediaPlayerIndex.captions": "Didascalie",
-  "MediaPlayerIndex.captionsOff": "didascalie disattivate",
+  "MediaPlayerIndex.captions": "Sottotitoli",
+  "MediaPlayerIndex.captionsOff": "Disattiva sottotitoli",
   "MediaPlayerIndex.corruptionOrSupportError": "La riproduzione multimediale è stata interrotta a causa di un problema di corruzione o perché le funzionalità multimediali utilizzate non erano supportate dal browser",
   "MediaPlayerIndex.currentTime": "Ora attuale",
   "MediaPlayerIndex.durationTime": "Durata",
@@ -10,10 +10,10 @@
   "MediaPlayerIndex.fullscreen": "Schermo intero",
   "MediaPlayerIndex.languages": "Lingue",
   "MediaPlayerIndex.loaded": "Caricato",
-  "MediaPlayerIndex.mute": "Muto",
+  "MediaPlayerIndex.mute": "Silenzio",
   "MediaPlayerIndex.networkError": "Un errore di rete ha causato il fallimento del download dei media a metà ",
   "MediaPlayerIndex.nonFullscreen": "Non a schermo intero",
-  "MediaPlayerIndex.pause": "Pausa",
+  "MediaPlayerIndex.pause": "Metti in pausa",
   "MediaPlayerIndex.play": "Riproduci",
   "MediaPlayerIndex.playbackRate": "Velocità riproduzione",
   "MediaPlayerIndex.progressBar": "Barra di avanzamento",
@@ -27,8 +27,8 @@
   "MediaPlayerTranscript.transcriptBeginning": "Inizio della trascrizione",
   "MediaPlayerTranscript.transcriptEnd": "Fine della trascrizione",
   "SubtitlesMenuItem.subtitles": "Sottotitoli",
-  "TranscriptCue.textLabel": "Trascrizione del testo della didascalia",
-  "TranscriptCue.timeLabel": "Scrivere l'ora di inizio",
+  "TranscriptCue.textLabel": "Testo del sottotitolo attuale",
+  "TranscriptCue.timeLabel": "Tempo di inizio sottotitolo",
   "TranscriptCue.title": "Cerca in {startTime}",
   "TranscriptMenuItem.transcript": "Trascrizione"
 }
