@@ -197,7 +197,7 @@
   "PrivacyInfoModal.kolibriUsersP5": "Quando você utiliza Kolibri com sua conta de usuário, informações como seu nome, nome de usuário, idade, ano de nascimento, número de identificação, materiais visualizados e desempenho nas avaliações podem ficar disponíveis aos administradores e professores do seu centro educativo. Suas informações também podem ser utilizadas pelos desenvolvedores do Kolibri e compartilhadas com criadores de conteúdo para que podamos melhorar tanto a plataforma quanto seus conteúdos e, assim, melhor atender diferentes tipos de alunos e suas necessidades.",
   "PrivacyInfoModal.kolibriUsersP6": "Quando você utiliza Kolibri como convidado, os dados relacionados aos materiais que você visualiza podem ficar disponíveis a administradores e certos professores.",
   "PrivacyInfoModal.openIdH1": "Conectar a aplicativos de terceiros usando o Kolibri",
-  "PrivacyInfoModal.openIdP1": "É possível utilizar o Kolibri para se registrar ou conectar a aplicativos de terceiros. Se fizer isto, o outro aplicativo terá acesso ao seu nome de usuário do Kolibri, ID única de usuário e nome completo.",
+  "PrivacyInfoModal.openIdP1": "É possível utilizar o Kolibri para se registrar ou ingressar a aplicativos de terceiros. Se fizer isto, o outro aplicativo terá acesso ao seu nome de usuário do Kolibri, ID única de usuário e nome completo.",
   "ProgressBar.pct": "{0, number, percent}",
   "ProgressIcon.inProgress": "Em progresso",
   "ReportErrorModal.emailDescription": "Entre em contato com o nosso suporte técnico detalhando o erro e faremos o possível para ajudar.",
