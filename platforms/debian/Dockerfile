@@ -30,7 +30,7 @@ CMD cd /kolibribuild && \
     DEB_VERSION=`echo -n "$KOLIBRI_VERSION" | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'` && \
     cd kolibri-source* && \
     ls /kolibridist && \
-    uupdate --no-symlink -b -v "$DEB_VERSION" /kolibridist/kolibri-$KOLIBRI_VERSION.tar.gz && \
+    uupdate --no-symlink -b -v "$DEB_VERSION" /kolibridist/kolibri_archive.tar.gz && \
     cd "../kolibri-source-$DEB_VERSION" && \
     debuild --no-lintian -us -uc -Zgzip -z3 && \
     cd .. && \
