@@ -13,6 +13,7 @@ src/*.tar.gz:
 
 dist/kolibri_archive.tar.gz: src/*.tar.gz
 	@# Copy to dist, where it will be copied to container
+	mkdir -p dist
 	cp $< $@
 
 src/VERSION: dist/kolibri_archive.tar.gz

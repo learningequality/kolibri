@@ -14,6 +14,18 @@ then
   fi
 else
   echo "--- Downloading from pip"
-  mkdir -p src
-  pip3 download --no-binary=:all: -d ./src kolibri
+  TARBALL_DIR="/tmp/src"
+  CID_FILE="pip_dl_cid.txt"
+  docker create --cidfile $CID_FILE python:3 \
+    pip3 download \
+      --no-binary :all: \
+      -d $TARBALL_DIR \
+      kolibri
+
+  DOCKER_ID=$(cat $CID_FILE)
+  docker start -a $DOCKER_ID && rm $CID_FILE
+
+  # Copies entire directory, including folder name
+  docker cp $DOCKER_ID:$TARBALL_DIR .
+  docker rm $DOCKER_ID
 fi
