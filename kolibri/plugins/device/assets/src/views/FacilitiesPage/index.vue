@@ -33,6 +33,9 @@
           </td>
         </tr>
       </tbody>
+      <p class="visuallyhidden">
+        {{ $tr('facilityRemovedSnackbar') }}
+      </p>
     </CoreTable>
   </div>
 
@@ -72,6 +75,7 @@
     $trs: {
       syncAllAction: 'Sync all',
       importFacilityAction: 'Import facility',
+      facilityRemovedSnackbar: `Removed '{facilityName}' from this device`,
     },
   };
 
