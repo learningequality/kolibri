@@ -23,7 +23,14 @@
       <div class="mb">
         <h2>{{ coreString('facilityLabel') }}</h2>
         <p class="current-facility-name">
-          {{ facilityName }}
+          {{ coreString('facilityNameWithId', { facilityName: facilityName, id: lastPartId }) }}
+          <KButton
+            appearance="basic-link"
+            :text="coreString('editAction')"
+            name="edit-facilityname"
+            @click="showEditFacilityModal = true"
+          />
+
         </p>
       </div>
 
@@ -66,6 +73,13 @@
       @submit="resetToDefaultSettings"
       @cancel="showModal = false"
     />
+    <EditFacilityNameModal
+      v-if="showEditFacilityModal"
+      id="edit-facility"
+      :facilityName="facilityName"
+      @submit="sendFacilityName"
+      @cancel="showEditFacilityModal = false"
+    />
   </KPageContainer>
 
 </template>
@@ -73,12 +87,13 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapActions, mapGetters, mapState } from 'vuex';
   import camelCase from 'lodash/camelCase';
   import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
   import ConfirmResetModal from './ConfirmResetModal';
+  import EditFacilityNameModal from './EditFacilityNameModal';
   import Notifications from './ConfigPageNotifications';
 
   // See FacilityDataset in core.auth.models for details
@@ -100,17 +115,26 @@
     },
     components: {
       ConfirmResetModal,
+      EditFacilityNameModal,
       Notifications,
     },
     mixins: [commonCoreStrings],
     data() {
       return {
         showModal: false,
+        showEditFacilityModal: false,
         settingsCopy: {},
       };
     },
     computed: {
-      ...mapState('facilityConfig', ['facilityName', 'settings', 'notification']),
+      ...mapState('facilityConfig', [
+        'facilityName',
+        'facilityId',
+        'settings',
+        'notification',
+        'facilityNameSaved',
+        'facilityNameError',
+      ]),
       ...mapGetters(['isSuperuser']),
       settingsList: () => settingsList,
       settingsHaveChanged() {
@@ -123,12 +147,31 @@
         }
         return null;
       },
+      lastPartId() {
+        return this.facilityId.slice(0, 4);
+      },
+    },
+    watch: {
+      facilityNameSaved(val) {
+        if (val) {
+          this.createSnackbar(this.coreString('changesSavedNotification'));
+          this.$store.commit('facilityConfig/RESET_FACILITY_NAME_STATES');
+        }
+      },
+      facilityNameError(val) {
+        if (val) {
+          this.createSnackbar(this.coreString('changesNotSavedNotification'));
+          this.$store.commit('facilityConfig/RESET_FACILITY_NAME_STATES');
+        }
+      },
     },
     mounted() {
       this.copySettings();
     },
     methods: {
       camelCase,
+      ...mapActions('facilityConfig', ['saveFacilityName']),
+      ...mapActions(['createSnackbar']),
       toggleSetting(settingName) {
         this.$store.commit('facilityConfig/CONFIG_PAGE_MODIFY_SETTING', {
           name: settingName,
@@ -143,6 +186,10 @@
         this.$store.dispatch('facilityConfig/resetFacilityConfig').then(() => {
           this.copySettings();
         });
+      },
+      sendFacilityName(name) {
+        this.showEditFacilityModal = false;
+        if (name != this.facilityName) this.saveFacilityName({ name: name, id: this.facilityId });
       },
       saveConfig() {
         this.$store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
