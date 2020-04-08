@@ -17,6 +17,7 @@ from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import set_channel_metadata_fields
 from kolibri.core.content.utils.paths import get_channel_lookup_url
+from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import set_device_settings
 
 
@@ -100,10 +101,11 @@ class PublicAPITestCase(APITransactionTestCase):
     def test_info_endpoint(self):
         response = self.client.get(reverse("kolibri:core:info-list"))
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
+        settings = DeviceSettings.objects.get()
         self.assertEqual(response.data["application"], "kolibri")
         self.assertEqual(response.data["kolibri_version"], kolibri.__version__)
         self.assertEqual(response.data["instance_id"], instance_model.id)
-        self.assertEqual(response.data["device_name"], instance_model.hostname)
+        self.assertEqual(response.data["device_name"], settings.name)
         self.assertEqual(response.data["operating_system"], platform.system())
 
     def test_public_channel_list(self):
