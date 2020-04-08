@@ -2,7 +2,7 @@ export function getScripts(doc) {
   const $scripts = doc.querySelectorAll('template[hashi-script="true"]');
   return [].map.call($scripts, $template => {
     const parentNode = $template.parentNode;
-    const node = $template.content.children[0];
+    const node = $template.content.childNodes[0];
     if ($template.hasAttribute('async')) {
       node.setAttribute('async', node.getAttribute('async') || true);
     } else {
