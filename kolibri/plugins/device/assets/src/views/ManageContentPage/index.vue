@@ -33,15 +33,11 @@
         </KGridItem>
       </KGrid>
 
-      <TasksBar />
-
-      <p>
-        <KRouterLink
-          appearance="basic-link"
-          :text="$tr('taskManagerLink')"
-          :to="{ name: 'MANAGE_TASKS' }"
-        />
-      </p>
+      <TasksBar
+        :tasks="$store.state.manageContent.managedTasks"
+        :taskManagerLink=" { name: 'MANAGE_TASKS' }"
+        @clearall="handleClickClearAll"
+      />
 
       <p v-if="!channelsAreInstalled">
         {{ $tr('emptyChannelListMessage') }}
@@ -204,6 +200,9 @@
       handleSelectManage(channelId) {
         this.$router.push({ name: PageNames.MANAGE_CHANNEL, params: { channel_id: channelId } });
       },
+      handleClickClearAll() {
+        TaskResource.deleteFinishedTasks();
+      },
       // @public (used by taskNotificationMixin)
       onWatchedTaskFinished() {
         this.refreshChannelList();
@@ -216,7 +215,6 @@
       deleteChannels: 'Delete channels',
       editChannelOrder: 'Edit channel order',
       emptyChannelListMessage: 'No channels installed',
-      taskManagerLink: 'View task manager',
     },
   };
 
