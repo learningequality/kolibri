@@ -121,10 +121,12 @@
         return this.managedTasks.filter(task => task.status === TaskStatuses.COMPLETED).length;
       },
       sortedChannels() {
-        return sortBy(
-          this.installedChannelsWithResources,
-          channel => -this.channelOrders[channel.id]
-        );
+        return sortBy(this.installedChannelsWithResources, channel => {
+          // Push Channels with Tasks to the top
+          const order = -this.channelOrders[channel.id];
+          // Need to explicitly return a number to correctly sort in Firefox
+          return Number.isNaN(order) ? 1 : order;
+        });
       },
       channelsAreInstalled() {
         return this.installedChannelsWithResources.length > 0;
