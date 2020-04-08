@@ -8,5 +8,5 @@
   "icons": {"android": "icon.png"},
   "launch_images": {"android": "assets/launch-image.png"},
   "asset_dirs": ["assets"],
-  "extra_build_options": {"android": {"services": ["server:server.py"], "extra_permissions": [], "sdk": 23}}
+  "extra_build_options": {"android": {"services": ["kolibri:android_service.py"], "extra_permissions": [], "sdk": 23}}
 }

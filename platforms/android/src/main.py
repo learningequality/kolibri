@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 import time
@@ -16,35 +15,29 @@ pew.set_app_name("Kolibri")
 logging.info("Entering main.py...")
 
 
-def start_kolibri_server(port):
+def start_kolibri(port):
 
     if pew.ui.platform == "android":
 
-        from jnius import autoclass
-
-        PythonActivity = autoclass("org.kivy.android.PythonActivity")
-        service = autoclass('org.learningequality.Kolibri.ServiceServer')
-
-        # TODO: check for storage availability, allow user to chose sd card or internal
-        def get_home_folder():
-            kolibri_home_file = PythonActivity.mActivity.getExternalFilesDir(None)
-            return os.path.join(kolibri_home_file.toString(), "KOLIBRI_DATA")
+        from android_utils import get_home_folder, start_service, get_version_name
 
         logging.info("Starting kolibri server via Android service...")
 
-        service.start(PythonActivity.mActivity, json.dumps({
-            "HOME": get_home_folder(),
-            "PORT": port,
-            "VERSION": PythonActivity.getPackageManager().getPackageInfo(PythonActivity.getPackageName(), 0).versionName,
-        }))
+        start_service("kolibri", {
+            "KOLIBRI_HOME": get_home_folder(),
+            "KOLIBRI_HTTP_PORT": port,
+            "KOLIBRI_APK_VERSION_NAME": get_version_name(),
+        })
 
     else:
 
-        from server import start_django
+        from kolibri_utils import start_kolibri_server
+
+        os.environ["KOLIBRI_HTTP_PORT"] = port
 
         logging.info("Starting kolibri server directly as thread...")
 
-        thread = pew.ui.PEWThread(target=start_django, args=(port,))
+        thread = pew.ui.PEWThread(target=start_kolibri_server)
         thread.daemon = True
         thread.start()
 
@@ -62,8 +55,8 @@ class Application(pew.ui.PEWApp):
         self.kolibri_loaded = False
         self.view = pew.ui.WebUIView("Kolibri", self.loader_url, delegate=self)
 
-        # start thread
-        start_kolibri_server(PORT)
+        # start kolibri server
+        start_kolibri(PORT)
 
         self.load_thread = pew.ui.PEWThread(target=self.wait_for_server)
         self.load_thread.daemon = True
