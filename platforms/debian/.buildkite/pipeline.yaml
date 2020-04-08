@@ -1,0 +1,5 @@
+steps:
+  - block: Build Debian?
+    if: build.source == "trigger_job"
+  - label: Build :debian:?
+    command: make docker-deb
