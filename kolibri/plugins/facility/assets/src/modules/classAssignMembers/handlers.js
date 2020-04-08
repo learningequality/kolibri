@@ -2,7 +2,6 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { ClassroomResource, FacilityUserResource } from 'kolibri.resources';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import { PageNames } from '../../constants';
 import { _userState } from '../mappers';
 
 export function showLearnerClassEnrollmentPage(store, toRoute) {
@@ -48,7 +47,6 @@ const eligibleRoles = [
 
 export function showCoachClassAssignmentPage(store, toRoute) {
   const { id, facility_id } = toRoute.params;
-  store.commit('SET_PAGE_NAME', PageNames.CLASS_ASSIGN_COACH);
   store.commit('CORE_SET_PAGE_LOADING', true);
   const facilityId = facility_id || store.getters.activeFacilityId;
   // all users in facility
