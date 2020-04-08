@@ -74,7 +74,7 @@
           this.pageName === PageNames.USER_EDIT_PAGE ||
           this.pageName === PageNames.USER_CREATE_PAGE
         ) {
-          immersivePagePrimary = false;
+          immersivePagePrimary = true;
           immersivePageIcon = 'close';
           immersivePageRoute = this.$router.getRoute(PageNames.USER_MGMT_PAGE);
           appBarTitle = this.coreString('usersLabel');
