@@ -17,7 +17,12 @@
       <tbody slot="tbody">
         <tr>
           <td>
-            <div></div>
+            <div>
+              <h3>
+                <!-- Facility name with ID goes here -->
+              </h3>
+              <!-- Sync Status Widget Goes here -->
+            </div>
             <div>
               <KDropdownMenu
                 :text="coreString('optionsLabel')"
