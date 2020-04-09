@@ -1,3 +1,18 @@
+FROM alpine as make_dist
+
+RUN apk update && apk add \
+    make \
+    bash \
+    tar \
+    python3
+
+# If src is alredy present, shouldn't need to redownload
+COPY src src
+COPY Makefile .
+
+RUN make clean && make dist/kolibri_archive.tar.gz src/VERSION
+
+
 FROM ubuntu:bionic
 
 # Fetch some additional build requirements
@@ -24,14 +39,13 @@ RUN adduser --system --shell /bin/bash --home "/kolibribuild" kolibribuild && \
 
 # Build an unsigned package
 
-VOLUME /kolibridist/
+WORKDIR /kolibribuild
 
-CMD cd /kolibribuild && \
-    DEB_VERSION=`echo -n "$KOLIBRI_VERSION" | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'` && \
-    cd kolibri-source* && \
-    ls /kolibridist && \
-    uupdate --no-symlink -b -v "$DEB_VERSION" /kolibridist/kolibri_archive.tar.gz && \
-    cd "../kolibri-source-$DEB_VERSION" && \
-    debuild --no-lintian -us -uc -Zgzip -z3 && \
-    cd .. && \
-    cp *.deb /kolibridist/
+COPY . .
+
+COPY --from=make_dist dist dist
+COPY --from=make_dist src src
+
+ENTRYPOINT [ "make" ]
+
+CMD [ "dist/kolibri.deb" ]
