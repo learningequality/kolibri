@@ -4,7 +4,7 @@
     <div class="facility-select">
       <KRouterLink :to="backTo" :text="coreString('goBackAction')" icon="back" />
       <div>
-        <p>{{ $tr('canSignUpForFacilityLabel') }}</p>
+        <p>{{ label }}</p>
         <div v-for="facility in facilityList['enabled']" :key="facility.id" class="facility-name">
           <KButton appearance="basic-link" @click="setFacility(facility.id)">
             {{ facility.name }}
@@ -58,6 +58,11 @@
           return { enabled: this.facilities, disabled: [] };
         }
       },
+      label() {
+        return this.$route.query.next === PageNames.SIGN_UP
+          ? this.$tr('canSignUpForFacilityLabel')
+          : this.$tr('selectFacilityLabel');
+      },
     },
     methods: {
       setFacility(facilityId) {
@@ -71,6 +76,7 @@
       canSignUpForFacilityLabel:
         'Select the facility that you want to associate your new account with:',
       askAdminForAccountLabel: 'Ask your administrator to create an account for these facilities:',
+      selectFacilityLabel: 'Select the facility that has your account',
     },
   };
 

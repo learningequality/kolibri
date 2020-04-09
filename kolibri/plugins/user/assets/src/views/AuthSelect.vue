@@ -7,10 +7,8 @@
         <KRouterLink
           :text="$tr('createAccountAction')"
           :to="facilitySelectPage(PageNames.SIGN_UP)"
-          appearance="raised-button"
-          type="secondary"
+          appearance="flat-button"
           class="auth-button"
-          icon="back"
         />
       </div>
       <div>
@@ -18,8 +16,7 @@
         <KRouterLink
           :text="coreString('signInLabel')"
           :to="facilitySelectPage(PageNames.SIGN_IN)"
-          appearance="raised-button"
-          type="secondary"
+          appearance="flat-button"
           class="auth-button"
         />
       </div>
@@ -79,7 +76,7 @@
   }
 
   .auth-button {
-    margin-top: 16px;
+    margin-left: -16px;
   }
 
 </style>
