@@ -16,14 +16,13 @@ else
   echo "--- Downloading from pip"
   TARBALL_DIR="/tmp/src"
   CID_FILE="pip_dl_cid.txt"
-  docker create --cidfile $CID_FILE python:3 \
+  docker run --cidfile $CID_FILE python:3 \
     pip3 download \
       --no-binary :all: \
       -d $TARBALL_DIR \
       kolibri
 
-  DOCKER_ID=$(cat $CID_FILE)
-  docker start -a $DOCKER_ID && rm $CID_FILE
+  DOCKER_ID=$(cat $CID_FILE) && rm $CID_FILE
 
   # Copies entire directory, including folder name
   docker cp $DOCKER_ID:$TARBALL_DIR .
