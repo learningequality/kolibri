@@ -1,0 +1,331 @@
+<template>
+
+  <div class="fh">
+    <div class="wrapper-table">
+      <div class="main-row table-row" :style="backgroundImageStyle">
+        <div class="main-cell table-cell">
+          <div class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
+            <CoreLogo
+              v-if="$kolibriBranding.signIn.topLogo"
+              class="logo"
+              :src="$kolibriBranding.signIn.topLogo.src"
+              :alt="$kolibriBranding.signIn.topLogo.alt"
+              :style="$kolibriBranding.signIn.topLogo.style"
+            />
+            <h1
+              v-if="$kolibriBranding.signIn.showTitle"
+              class="kolibri-title"
+              :class="$computedClass({ color: $themeBrand.primary.v_300 })"
+              :style="$kolibriBranding.signIn.titleStyle"
+            >
+              {{ logoText }}
+            </h1>
+            <p
+              v-if="$kolibriBranding.signIn.showPoweredBy"
+              :style="$kolibriBranding.signIn.poweredByStyle"
+              class="small-text"
+            >
+              <KButton
+                v-if="oidcProviderFlow"
+                :text="$tr('poweredByKolibri')"
+                appearance="basic-link"
+                @click="whatsThisModalVisible = true"
+              />
+              <KExternalLink
+                v-else
+                :text="$tr('poweredByKolibri')"
+                :primary="true"
+                href="https://learningequality.org/r/powered_by_kolibri"
+                target="_blank"
+                appearance="basic-link"
+              />
+            </p>
+
+            <slot></slot>
+
+            <p class="create">
+
+            </p>
+            <div slot="options">
+              <component :is="component" v-for="component in loginOptions" :key="component.name" />
+            </div>
+            <p
+              v-if="showGuestAccess"
+              class="guest small-text"
+            >
+              <KExternalLink
+                :text="$tr('accessAsGuest')"
+                :href="guestURL"
+                :primary="true"
+                appearance="basic-link"
+              />
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="table-row">
+        <div class="footer-cell table-cell" :style="{ backgroundColor: $themeTokens.surface }">
+          <LanguageSwitcherFooter />
+          <div class="small-text">
+            <span class="version-string">
+              {{ versionMsg }}
+            </span>
+            <CoreLogo
+              v-if="this.$kolibriBranding.signIn.showKolibriFooterLogo"
+              class="footer-logo"
+            />
+            <span v-else> • </span>
+            <KButton
+              :text="coreString('usageAndPrivacyLabel')"
+              appearance="basic-link"
+              @click="privacyModalVisible = true"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <PrivacyInfoModal
+      v-if="privacyModalVisible"
+      @submit="privacyModalVisible = false"
+      @cancel="privacyModalVisible = false"
+    />
+
+    <KModal
+      v-if="whatsThisModalVisible"
+      :title="$tr('whatsThis')"
+      :submitText="coreString('closeAction')"
+      @submit="whatsThisModalVisible = false"
+      @cancel="whatsThisModalVisible = false"
+    >
+      <p>{{ $tr('oidcGenericExplanation') }}</p>
+      <p>
+        <KExternalLink
+          text="https://learningequality.org/kolibri"
+          :primary="true"
+          href="https://learningequality.org/r/powered_by_kolibri"
+          target="_blank"
+          appearance="basic-link"
+        />
+      </p>
+    </KModal>
+
+  </div>
+
+</template>
+
+
+<script>
+
+  import { mapGetters } from 'vuex';
+  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
+  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import branding from 'kolibri.utils.branding';
+  import loginComponents from 'kolibri.utils.loginComponents';
+  import urls from 'kolibri.urls';
+  import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
+  import plugin_data from 'plugin_data';
+
+  export default {
+    name: 'AuthBase',
+    components: { CoreLogo, LanguageSwitcherFooter, PrivacyInfoModal },
+    mixins: [commonCoreStrings],
+    data() {
+      return {
+        privacyModalVisible: false,
+        whatsThisModalVisible: false,
+      };
+    },
+    computed: {
+      ...mapGetters(['facilityConfig']),
+      backgroundImageStyle() {
+        if (this.$kolibriBranding.signIn.background) {
+          const scrimOpacity =
+            this.$kolibriBranding.signIn.scrimOpacity !== undefined
+              ? this.$kolibriBranding.signIn.scrimOpacity
+              : 0.7;
+          return {
+            backgroundColor: this.$themeTokens.primary,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.$kolibriBranding.signIn.background})`,
+          };
+        }
+        return { backgroundColor: this.$themeBrand.primary.v_900 };
+      },
+      guestURL() {
+        return urls['kolibri:core:guest']();
+      },
+      loginOptions() {
+        // POC, in the future sorting of different login options can be implemented
+        return [...loginComponents];
+      },
+      logoText() {
+        return this.$kolibriBranding.signIn.title
+          ? this.$kolibriBranding.signIn.title
+          : this.coreString('kolibriLabel');
+      },
+      oidcProviderFlow() {
+        return plugin_data.oidcProviderEnabled && this.nextParam;
+      },
+      showGuestAccess() {
+        return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
+      },
+
+      versionMsg() {
+        return this.$tr('poweredBy', { version: __version });
+      },
+    },
+    created() {
+      this.$kolibriBranding = branding;
+    },
+    $trs: {
+      accessAsGuest: 'Explore without account',
+      oidcGenericExplanation:
+        'Kolibri is an e-learning platform. You can also use your Kolibri account to log in to some third-party applications.',
+      // Disable the rule here because we will keep this unused string in case we need it later on
+      // eslint-disable-next-line kolibri/vue-no-unused-translations
+      oidcSpecificExplanation:
+        "You were sent here from the application '{app_name}'. Kolibri is an e-learning platform, and you can also use your Kolibri account to access '{app_name}'.",
+      poweredBy: 'Kolibri {version}',
+      poweredByKolibri: 'Powered by Kolibri',
+      whatsThis: "What's this?",
+    },
+  };
+
+</script>
+
+
+<style lang="scss" scoped>
+
+  @import '~kolibri.styles.definitions';
+
+  .fh {
+    height: 100%;
+  }
+
+  .wrapper-table {
+    display: table;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+  }
+
+  .table-row {
+    display: table-row;
+  }
+
+  .main-row {
+    text-align: center;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+  }
+
+  .table-cell {
+    display: table-cell;
+  }
+
+  .main-cell {
+    height: 100%;
+    vertical-align: middle;
+  }
+
+  .box {
+    @extend %dropshadow-16dp;
+
+    width: 360px;
+    padding: 16px 32px;
+    margin: 16px auto;
+    border-radius: $radius;
+  }
+
+  .login-btn {
+    width: calc(100% - 16px);
+  }
+
+  .create {
+    margin-top: 32px;
+    margin-bottom: 8px;
+  }
+
+  .guest {
+    margin-top: 8px;
+    margin-bottom: 16px;
+  }
+
+  .small-text {
+    font-size: 0.8em;
+  }
+
+  .version-string {
+    white-space: nowrap;
+  }
+
+  .footer-cell {
+    @extend %dropshadow-8dp;
+
+    padding: 16px;
+  }
+
+  .footer-cell .small-text {
+    margin-top: 8px;
+  }
+
+  .suggestions-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .suggestions {
+    @extend %dropshadow-1dp;
+
+    position: absolute;
+    z-index: 8;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    // Move up snug against the textbox
+    margin-top: -2em;
+    list-style-type: none;
+  }
+
+  .textbox-enter-active {
+    transition: opacity 0.5s;
+  }
+
+  .textbox-enter {
+    opacity: 0;
+  }
+
+  .list-leave-active {
+    transition: opacity 0.1s;
+  }
+
+  .textbox-leave {
+    transition: opacity 0s;
+  }
+
+  .logo {
+    width: 100%;
+    max-width: 65vh; // not compatible with older browsers
+    height: auto;
+  }
+
+  .kolibri-title {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 24px;
+    font-weight: 100;
+  }
+
+  .footer-logo {
+    position: relative;
+    top: -1px;
+    display: inline-block;
+    height: 24px;
+    margin-right: 10px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+</style>

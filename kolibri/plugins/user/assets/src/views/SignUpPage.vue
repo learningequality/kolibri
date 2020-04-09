@@ -40,12 +40,12 @@
             :disabled="busy"
           />
 
-          <template v-if="currentFacility">
+          <template v-if="selectedFacility.name">
             <h2>
               {{ coreString('facilityLabel') }}
             </h2>
             <p>
-              {{ currentFacility.label }}
+              {{ selectedFacility.name }}
             </p>
           </template>
 
@@ -98,11 +98,6 @@
       <LanguageSwitcherFooter />
     </div>
 
-    <FacilityModal
-      v-if="facilityModalVisible"
-      @cancel="closeFacilityModal"
-      @submit="closeFacilityModal"
-    />
   </div>
 
 </template>
@@ -121,12 +116,11 @@
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
-  import { redirectBrowser } from 'kolibri.utils.redirectBrowser';
+  import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { SignUpResource } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
-  import FacilityModal from './SignInPage/FacilityModal';
   import getUrlParameter from './getUrlParameter';
   import plugin_data from 'plugin_data';
 
@@ -140,7 +134,6 @@
       };
     },
     components: {
-      FacilityModal,
       LanguageSwitcherFooter,
       GenderSelect,
       BirthYearSelect,
@@ -164,11 +157,10 @@
         caughtErrors: [],
         busy: false,
         facilityModalVisible: false,
-        currentFacility: null,
       };
     },
     computed: {
-      ...mapGetters(['facilities']),
+      ...mapGetters(['facilities', 'selectedFacility']),
       atFirstStep() {
         return !this.$route.query.step;
       },
@@ -197,26 +189,17 @@
       }
       if (!this.$store.state.facilityId) {
         if (this.facilityList.length === 1) {
-          this.currentFacility = this.facilityList[0];
+          this.selectedFacility = this.facilityList[0];
         } else {
           this.facilityModalVisible = true;
         }
       } else {
-        this.currentFacility = this.facilityList.find(
+        this.selectedFacility = this.facilityList.find(
           ({ value }) => value === this.$store.state.facilityId
         );
       }
     },
     methods: {
-      closeFacilityModal() {
-        this.facilityModalVisible = false;
-        this.currentFacility = this.facilityList.find(
-          ({ value }) => value === this.$store.state.facilityId
-        );
-        this.$nextTick().then(() => {
-          this.$refs.fullNameTextbox.focus();
-        });
-      },
       checkForDuplicateUsername(username) {
         if (!username) {
           return Promise.resolve();
@@ -226,7 +209,7 @@
         // already exists in a facility
         return FacilityUsernameResource.fetchCollection({
           getParams: {
-            facility: this.currentFacility.value,
+            facility: this.selectedFacility.id,
             search: username,
           },
           force: true,
@@ -270,7 +253,7 @@
         if (canSubmit) {
           this.busy = true;
           const payload = {
-            facility: this.currentFacility.value,
+            facility: this.selectedFacility.value,
             full_name: this.name,
             username: this.username,
             password: this.password,

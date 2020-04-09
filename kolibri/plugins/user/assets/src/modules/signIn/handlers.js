@@ -20,8 +20,14 @@ export function showSignInPage(store) {
     Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, null);
   }
   store.dispatch('setFacilitiesAndConfig').then(() => {
-    // grabs facilityId from session, which is the backend's default on sign in page
-    store.commit('SET_FACILITY_ID', store.getters.currentFacilityId);
+    // Use selected id if available, otherwise get the default facility id from session
+    let facilityId;
+    if (store.getters.facilities.length > 1) {
+      facilityId = store.state.facilityId || store.getters.currentFacilityId;
+    } else {
+      facilityId = store.getters.currentFacilityId;
+    }
+    store.commit('SET_FACILITY_ID', facilityId);
     store.commit('signIn/SET_STATE', {
       hasMultipleFacilities: store.getters.facilities.length > 1,
     });

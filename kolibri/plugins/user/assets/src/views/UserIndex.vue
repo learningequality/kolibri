@@ -3,7 +3,7 @@
   <CoreBase
     v-bind="immersiveProperties"
     :appBarTitle="appBarTitle"
-    :fullScreen="pageName === PageNames.SIGN_IN"
+    :fullScreen="isFullscreenPage"
   >
     <component :is="currentPage" />
   </CoreBase>
@@ -13,10 +13,12 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
+  import AuthSelect from './AuthSelect';
+  import FacilitySelect from './FacilitySelect';
   import SignInPage from './SignInPage';
   import SignUpPage from './SignUpPage';
   import ProfilePage from './ProfilePage';
@@ -27,6 +29,8 @@
     [PageNames.SIGN_UP]: SignUpPage,
     [PageNames.PROFILE]: ProfilePage,
     [PageNames.PROFILE_EDIT]: ProfileEditPage,
+    [PageNames.AUTH_SELECT]: AuthSelect,
+    [PageNames.FACILITY_SELECT]: FacilitySelect,
   };
 
   export default {
@@ -37,12 +41,18 @@
     mixins: [commonCoreStrings],
     computed: {
       ...mapState(['pageName']),
+      ...mapGetters(['facilities']),
       immersiveProperties() {
         if (this.pageName === PageNames.SIGN_UP) {
           if (!this.$route.query.step) {
+            const backRoute =
+              this.facilities.length > 1
+                ? this.$router.getRoute(PageNames.AUTH_SELECT)
+                : this.$router.getRoute(PageNames.SIGN_IN);
+
             return {
               immersivePage: true,
-              immersivePageRoute: this.$router.getRoute(PageNames.SIGN_IN),
+              immersivePageRoute: backRoute,
               immersivePagePrimary: false,
               immersivePageIcon: 'close',
             };
@@ -82,6 +92,11 @@
       },
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
+      },
+      isFullscreenPage() {
+        return [PageNames.SIGN_IN, PageNames.AUTH_SELECT, PageNames.FACILITY_SELECT].includes(
+          this.pageName
+        );
       },
       PageNames() {
         return PageNames;
