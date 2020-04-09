@@ -1,19 +1,23 @@
 <template>
 
   <AuthBase>
-    <KRouterLink :to="backTo" :text="coreString('goBackAction')" />
-    <div>
-      <p>{{ $tr('canSignUpForFacilityLabel') }}</p>
-      <div v-for="facility in facilityList['enabled']" :key="facility.id">
-        <a href="#" @click.prevent="setFacility(facility.id)">
-          {{ facility.name }}
-        </a>
+    <div class="facility-select">
+      <KRouterLink :to="backTo" :text="coreString('goBackAction')" icon="back" />
+      <div>
+        <p>{{ $tr('canSignUpForFacilityLabel') }}</p>
+        <div v-for="facility in facilityList['enabled']" :key="facility.id" class="facility-name">
+          <KButton appearance="basic-link" @click="setFacility(facility.id)">
+            {{ facility.name }}
+          </KButton>
+        </div>
       </div>
-    </div>
-    <div v-if="facilityList['disabled'].length">
-      <p>{{ $tr('askAdminForAccountLabel') }}</p>
-      <div v-for="facility in facilityList['disabled']" :key="facility.id">
-        <div style="color: black; text-decoration:none;">
+      <div v-if="facilityList['disabled'].length" class="disabled-facilities">
+        <p>{{ $tr('askAdminForAccountLabel') }}</p>
+        <div
+          v-for="facility in facilityList['disabled']"
+          :key="facility.id"
+          class="disabled facility-name"
+        >
           {{ facility.name }}
         </div>
       </div>
@@ -75,135 +79,21 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
-  .fh {
-    height: 100%;
+  .facility-select {
+    text-align: left;
   }
 
-  .wrapper-table {
-    display: table;
-    width: 100%;
-    height: 100%;
-    text-align: center;
+  .disabled-facilities {
+    margin-top: 40px;
   }
 
-  .table-row {
-    display: table-row;
-  }
+  .facility-name {
+    margin-top: 16px;
 
-  .main-row {
-    text-align: center;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-  }
-
-  .table-cell {
-    display: table-cell;
-  }
-
-  .main-cell {
-    height: 100%;
-    vertical-align: middle;
-  }
-
-  .box {
-    @extend %dropshadow-16dp;
-
-    width: 300px;
-    padding: 16px 32px;
-    margin: 16px auto;
-    border-radius: $radius;
-  }
-
-  .login-btn {
-    width: calc(100% - 16px);
-  }
-
-  .create {
-    margin-top: 32px;
-    margin-bottom: 8px;
-  }
-
-  .guest {
-    margin-top: 8px;
-    margin-bottom: 16px;
-  }
-
-  .small-text {
-    font-size: 0.8em;
-  }
-
-  .version-string {
-    white-space: nowrap;
-  }
-
-  .footer-cell {
-    @extend %dropshadow-8dp;
-
-    padding: 16px;
-  }
-
-  .footer-cell .small-text {
-    margin-top: 8px;
-  }
-
-  .suggestions-wrapper {
-    position: relative;
-    width: 100%;
-  }
-
-  .suggestions {
-    @extend %dropshadow-1dp;
-
-    position: absolute;
-    z-index: 8;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    // Move up snug against the textbox
-    margin-top: -2em;
-    list-style-type: none;
-  }
-
-  .textbox-enter-active {
-    transition: opacity 0.5s;
-  }
-
-  .textbox-enter {
-    opacity: 0;
-  }
-
-  .list-leave-active {
-    transition: opacity 0.1s;
-  }
-
-  .textbox-leave {
-    transition: opacity 0s;
-  }
-
-  .logo {
-    width: 100%;
-    max-width: 65vh; // not compatible with older browsers
-    height: auto;
-  }
-
-  .kolibri-title {
-    margin-top: 0;
-    margin-bottom: 8px;
-    font-size: 24px;
-    font-weight: 100;
-  }
-
-  .footer-logo {
-    position: relative;
-    top: -1px;
-    display: inline-block;
-    height: 24px;
-    margin-right: 10px;
-    margin-left: 8px;
-    vertical-align: middle;
+    &.disabled {
+      color: black;
+      text-decoration: none;
+    }
   }
 
 </style>

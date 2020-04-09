@@ -135,7 +135,6 @@
         username: '',
         password: '',
         usernameSuggestions: [],
-        facilityModalVisible: this.$store.state.signIn.hasMultipleFacilities,
         suggestionTerm: '',
         showDropdown: true,
         highlightedIndex: -1,

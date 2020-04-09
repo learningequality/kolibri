@@ -98,9 +98,6 @@
           this.pageName
         );
       },
-      PageNames() {
-        return PageNames;
-      },
     },
     $trs: {
       userProfileTitle: 'Profile',

@@ -156,19 +156,12 @@
         birthYear: '',
         caughtErrors: [],
         busy: false,
-        facilityModalVisible: false,
       };
     },
     computed: {
-      ...mapGetters(['facilities', 'selectedFacility']),
+      ...mapGetters(['selectedFacility']),
       atFirstStep() {
         return !this.$route.query.step;
-      },
-      facilityList() {
-        return this.facilities.map(({ name, id }) => ({
-          label: name,
-          value: id,
-        }));
       },
       firstStepIsValid() {
         return every([this.nameValid, this.usernameValid, this.passwordValid]);
@@ -186,17 +179,6 @@
       // If no user input is in memory, reset the wizard
       if (!this.username) {
         this.goToFirstStep();
-      }
-      if (!this.$store.state.facilityId) {
-        if (this.facilityList.length === 1) {
-          this.selectedFacility = this.facilityList[0];
-        } else {
-          this.facilityModalVisible = true;
-        }
-      } else {
-        this.selectedFacility = this.facilityList.find(
-          ({ value }) => value === this.$store.state.facilityId
-        );
       }
     },
     methods: {

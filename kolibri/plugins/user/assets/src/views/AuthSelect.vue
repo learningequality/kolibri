@@ -1,13 +1,16 @@
 <template>
 
   <AuthBase>
-    <div class="auth-select" style="padding-top: 16px;">
-      <div v-if="canSignUp" style="margin-bottom: 24px;">
+    <div class="auth-select">
+      <div class="sign-up-prompt" style="margin-bottom: 24px;">
         <div>{{ $tr("newUserPrompt") }}</div>
         <KRouterLink
           :text="$tr('createAccountAction')"
           :to="facilitySelectPage(PageNames.SIGN_UP)"
-          appearance="flat-button"
+          appearance="raised-button"
+          type="secondary"
+          class="auth-button"
+          icon="back"
         />
       </div>
       <div>
@@ -15,7 +18,9 @@
         <KRouterLink
           :text="coreString('signInLabel')"
           :to="facilitySelectPage(PageNames.SIGN_IN)"
-          appearance="flat-button"
+          appearance="raised-button"
+          type="secondary"
+          class="auth-button"
         />
       </div>
     </div>
@@ -26,7 +31,6 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import AuthBase from './AuthBase';
@@ -36,10 +40,6 @@
     components: { AuthBase },
     mixins: [commonCoreStrings],
     computed: {
-      ...mapGetters(['facilityConfig']),
-      canSignUp() {
-        return this.facilityConfig.learner_can_sign_up;
-      },
       PageNames() {
         return PageNames;
       },
@@ -67,4 +67,19 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .auth-select {
+    padding-top: 16px;
+    text-align: left;
+  }
+
+  .sign-up-prompt {
+    margin-bottom: 24px;
+  }
+
+  .auth-button {
+    margin-top: 16px;
+  }
+
+</style>
