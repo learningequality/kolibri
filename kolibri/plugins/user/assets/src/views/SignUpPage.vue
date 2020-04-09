@@ -235,7 +235,7 @@
         if (canSubmit) {
           this.busy = true;
           const payload = {
-            facility: this.selectedFacility.value,
+            facility: this.selectedFacility.id,
             full_name: this.name,
             username: this.username,
             password: this.password,
