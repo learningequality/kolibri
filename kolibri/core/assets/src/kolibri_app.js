@@ -108,6 +108,10 @@ export default class KolibriApp extends KolibriModule {
   }
 
   ready() {
+    // VueRouter instance needs to be defined to use vuex-router-sync
+    if (!router._vueRouter) {
+      router.initRouter();
+    }
     sync(store, router);
 
     // Add the plugin-level mutations, getters, actions, but leave core module alone
