@@ -29,7 +29,7 @@ router.register(r"userprogress", TotalContentProgressViewSet, base_name="userpro
 
 router.urls.append(
     url(
-        r"^downloadcsvfile/(?P<log_type>.*)/$",
+        r"^downloadcsvfile/(?P<log_type>.*)/(?P<facility_id>.*)/$",
         download_csv_file,
         name="download_csv_file",
     )

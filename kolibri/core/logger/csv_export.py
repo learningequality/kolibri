@@ -16,12 +16,18 @@ from django.http.response import FileResponse
 
 from .models import ContentSessionLog
 from .models import ContentSummaryLog
+from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.utils import conf
 
 
 logger = logging.getLogger(__name__)
+
+CSV_EXPORT_FILENAMES = {
+    "session": "{}_content_session_logs.csv",
+    "summary": "{}_content_summary_logs.csv",
+}
 
 
 def cache_channel_name(obj):
@@ -180,14 +186,17 @@ def exported_logs_info(request):
     return HttpResponse(json.dumps(csv_statuses), content_type="application/json")
 
 
-def download_csv_file(request, log_type):
-    csv_export_filenames = {
-        "session": "content_session_logs.csv",
-        "summary": "content_summary_logs.csv",
-    }
-    if log_type in csv_export_filenames.keys():
+def download_csv_file(request, log_type, facility_id):
+    if facility_id:
+        facility_name = Facility.objects.get(pk=facility_id).name
+    else:
+        facility_name = request.user.facility.name
+
+    if log_type in CSV_EXPORT_FILENAMES.keys():
         filepath = os.path.join(
-            conf.KOLIBRI_HOME, "log_export", csv_export_filenames[log_type]
+            conf.KOLIBRI_HOME,
+            "log_export",
+            CSV_EXPORT_FILENAMES[log_type].format(facility_name),
         )
     else:
         filepath = None
@@ -203,7 +212,7 @@ def download_csv_file(request, log_type):
 
     # set the content-disposition as attachment to force download
     response["Content-Disposition"] = "attachment; filename={}".format(
-        csv_export_filenames[log_type]
+        CSV_EXPORT_FILENAMES[log_type].format(facility_name)
     )
 
     # set the content-length to the file size

@@ -9,6 +9,7 @@ const logging = logger.getLogger(__filename);
 function startCSVExport(store, logtype, creating, commitStart) {
   const params = {
     logtype: logtype,
+    facility: store.rootGetters.activeFacilityId,
   };
   if (!creating) {
     let promise = TaskResource.startexportlogcsv(params);
