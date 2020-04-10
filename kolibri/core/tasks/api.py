@@ -580,13 +580,16 @@ class TasksViewSet(viewsets.ViewSet):
 
         """
         csv_export_filenames = {
-            "session": "content_session_logs.csv",
-            "summary": "content_summary_logs.csv",
+            "session": "{}_content_session_logs.csv",
+            "summary": "{}_content_summary_logs.csv",
         }
+        facility = request.user.facility
         log_type = request.data.get("logtype", "summary")
         if log_type in csv_export_filenames.keys():
             logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
-            filepath = os.path.join(logs_dir, csv_export_filenames[log_type])
+            filepath = os.path.join(
+                logs_dir, csv_export_filenames[log_type].format(facility.name)
+            )
         else:
             raise Http404(
                 "Impossible to create a csv export file for {}".format(log_type)
@@ -605,6 +608,7 @@ class TasksViewSet(viewsets.ViewSet):
             "exportlogs",
             log_type=log_type,
             output_file=filepath,
+            facility=facility.id,
             overwrite="true",
             extra_metadata=job_metadata,
             track_progress=True,

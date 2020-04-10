@@ -89,7 +89,7 @@ def map_object(obj):
 classes_info = {
     "session": {
         "queryset": ContentSessionLog.objects.all(),
-        "filename": "content_session_logs.csv",
+        "filename": "{}_content_session_logs.csv",
         "db_columns": (
             "user__username",
             "user__facility__name",
@@ -104,7 +104,7 @@ classes_info = {
     },
     "summary": {
         "queryset": ContentSummaryLog.objects.all(),
-        "filename": "content_summary_logs.csv",
+        "filename": "{}_content_summary_logs.csv",
         "db_columns": (
             "user__username",
             "user__facility__name",
@@ -121,7 +121,8 @@ classes_info = {
 }
 
 
-def csv_file_generator(log_type, filepath, overwrite=False):
+def csv_file_generator(facility, log_type, filepath, overwrite=False):
+
     if log_type not in ("summary", "session"):
         raise ValueError(
             "Impossible to create a csv export file for {}".format(log_type)
@@ -131,7 +132,7 @@ def csv_file_generator(log_type, filepath, overwrite=False):
 
     if not overwrite and os.path.exists(filepath):
         raise ValueError("{} already exists".format(filepath))
-    queryset = log_info["queryset"]
+    queryset = log_info["queryset"].filter(dataset_id=facility.dataset_id)
 
     # Exclude completion timestamp for the sessionlog CSV
     header_labels = tuple(

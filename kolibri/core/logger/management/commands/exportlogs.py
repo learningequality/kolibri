@@ -1,10 +1,19 @@
 import logging
+import ntpath
 import os
-import sys
 
+from django.conf import settings
+from django.core.management.base import CommandError
+from django.utils import translation
+
+from kolibri.core.auth.constants.commands_errors import FILE_WRITE_ERROR
+from kolibri.core.auth.constants.commands_errors import MESSAGES
+from kolibri.core.auth.constants.commands_errors import NO_FACILITY
+from kolibri.core.auth.models import Facility
 from kolibri.core.logger.csv_export import classes_info
 from kolibri.core.logger.csv_export import csv_file_generator
 from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.tasks.utils import get_current_job
 
 logger = logging.getLogger(__name__)
 
@@ -37,29 +46,76 @@ class Command(AsyncCommand):
             default=False,
             help="Allows overwritten of the exported file in case it exists",
         )
+        parser.add_argument(
+            "--facility",
+            action="store",
+            type=str,
+            help="Facility id to import the users into",
+        )
+        parser.add_argument(
+            "--locale",
+            action="store",
+            type=str,
+            default=None,
+            help="Code of the language for the messages to be translated",
+        )
+
+    def get_facility(self, options):
+        if options["facility"]:
+            default_facility = Facility.objects.get(pk=options["facility"])
+        else:
+            default_facility = Facility.get_default_facility()
+
+        return default_facility
 
     def handle_async(self, *args, **options):
-        log_type = options["log_type"]
 
-        log_info = classes_info[log_type]
+        # set language for the translation of the messages
+        locale = settings.LANGUAGE_CODE if not options["locale"] else options["locale"]
+        translation.activate(locale)
 
-        if options["output_file"] is None:
-            filename = log_info["filename"]
+        self.overall_error = ""
+        job = get_current_job()
+
+        facility = self.get_facility(options)
+        if not facility:
+            self.overall_error = str(MESSAGES[NO_FACILITY])
+
         else:
-            filename = options["output_file"]
+            log_type = options["log_type"]
 
-        filepath = os.path.join(os.getcwd(), filename)
+            log_info = classes_info[log_type]
 
-        queryset = log_info["queryset"]
+            if options["output_file"] is None:
+                filename = log_info["filename"].format(facility.name)
+            else:
+                filename = options["output_file"]
 
-        total_rows = queryset.count()
+            filepath = os.path.join(os.getcwd(), filename)
 
-        with self.start_progress(total=total_rows) as progress_update:
-            try:
-                for row in csv_file_generator(
-                    log_type, filepath, overwrite=options["overwrite"]
-                ):
-                    progress_update(1)
-            except (ValueError, IOError) as e:
-                logger.error("Error trying to write csv file: {}".format(e))
-                sys.exit(1)
+            queryset = log_info["queryset"]
+
+            total_rows = queryset.count()
+
+            with self.start_progress(total=total_rows) as progress_update:
+                try:
+                    for row in csv_file_generator(
+                        facility, log_type, filepath, overwrite=options["overwrite"]
+                    ):
+                        progress_update(1)
+                except (ValueError, IOError) as e:
+                    self.overall_error = str(MESSAGES[FILE_WRITE_ERROR].format(e))
+
+        if job:
+            job.extra_metadata["overall_error"] = self.overall_error
+            self.job.extra_metadata["filename"] = ntpath.basename(filepath)
+            job.save_meta()
+        else:
+            if self.overall_error:
+                raise CommandError(self.overall_error)
+            else:
+                logger.info(
+                    "Created csv file {} with {} lines".format(filepath, total_rows)
+                )
+
+        translation.deactivate()
