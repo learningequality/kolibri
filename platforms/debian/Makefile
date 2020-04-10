@@ -3,7 +3,6 @@
 clean:
 	rm -f dist/*
 	rm -f src/VERSION
-	rm -f $(CIDFILE)
 
 # Doesn't have to run if you bring in your own tarball.
 src/*.tar.gz:
