@@ -3,18 +3,8 @@
   <div>
 
     <div>
-      <KGrid>
-        <KGridItem
-          :layout8="{ span: 4 }"
-          :layout12="{ span: 6 }"
-        >
-          <h1>{{ coreString('channelsLabel') }}</h1>
-        </KGridItem>
-        <KGridItem
-          :layout8="{ span: 4, alignment: 'right' }"
-          :layout12="{ span: 6, alignment: 'right' }"
-          class="buttons"
-        >
+      <HeaderWithOptions :headerText="coreString('channelsLabel')">
+        <template #options>
           <KDropdownMenu
             v-if="channelsAreInstalled"
             appearance="raised-button"
@@ -30,12 +20,13 @@
             class="import-btn"
             @click="startImportWorkflow()"
           />
-        </KGridItem>
-      </KGrid>
+        </template>
+      </HeaderWithOptions>
 
       <TasksBar
-        :tasks="$store.state.manageContent.managedTasks"
-        :taskManagerLink=" { name: 'MANAGE_TASKS' }"
+        v-if="managedTasks.length > 0"
+        :tasks="managedTasks"
+        :taskManagerLink="{ name: 'MANAGE_TASKS' }"
         @clearall="handleClickClearAll"
       />
 
@@ -81,6 +72,7 @@
   import { TaskResource } from 'kolibri.resources';
   import taskNotificationMixin from '../taskNotificationMixin';
   import { PageNames, TaskStatuses } from '../../constants';
+  import HeaderWithOptions from '../HeaderWithOptions';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -96,6 +88,7 @@
     components: {
       ChannelPanel,
       DeleteChannelModal,
+      HeaderWithOptions,
       SelectTransferSourceModal,
       TasksBar,
     },

@@ -8,6 +8,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       '\nButton that allows to clear a single *task* from the list in the task manager.\n\n\n',
   },
+  clearCompletedAction: 'Clear completed',
   closeAction: 'Close',
   confirmAction: 'Confirm',
   continueAction: 'Continue',
@@ -72,6 +73,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   searchLabel: 'Search',
   showCorrectAnswerLabel: 'Show correct answer',
   signInLabel: 'Sign in',
+  tasksLabel: 'Tasks',
   usageAndPrivacyLabel: 'Usage and privacy',
   userTypeLabel: 'User type',
   usernameLabel: 'Username',

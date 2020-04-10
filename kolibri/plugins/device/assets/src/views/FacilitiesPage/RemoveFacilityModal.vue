@@ -18,8 +18,9 @@
       </p>
       <!-- Insert checkbox -->
       <KCheckbox
-        v-model="confirmationChecked"
+        :checked="confirmationChecked"
         :label="$tr('removingFacilityConfirmation')"
+        @change="confirmationChecked = $event"
       />
     </template>
 
@@ -51,6 +52,10 @@
         type: Boolean,
         required: true,
       },
+      facility: {
+        type: Object,
+        required: true,
+      },
     },
     data() {
       return {
@@ -64,18 +69,18 @@
           : this.$tr('cannotRemoveFacilityHeader');
       },
       submitText() {
-        return this.canRemove ? this.coreString('removeAction') : this.coreString('cancelAction');
+        return this.canRemove ? this.coreString('removeAction') : null;
       },
       submitDisabled() {
-        return this.canRemove ? this.confirmationChecked : false;
+        return this.canRemove ? !this.confirmationChecked : true;
       },
       cancelText() {
-        return this.coreString('removeAction');
+        return this.canRemove ? this.coreString('cancelAction') : this.coreString('closeAction');
       },
       facilityName() {
         return this.coreString('nameWithIdInParens', {
-          name: 'Price Center',
-          id: 'B91D',
+          name: this.facility.name,
+          id: this.facility.id.slice(0, 4),
         });
       },
     },
@@ -91,13 +96,13 @@
     $trs: {
       removeFacilityHeader: 'Remove facility from this device',
       cannotRemoveFacilityHeader: 'Cannot remove facility',
-      willLoseAccessWarning: `You will lose access to all '{facilityName}' data`,
+      willLoseAccessWarning: `You will lose access to all '{facilityName}' data.`,
       facilityReloadExplanation:
-        'If you have synced this facility to Kolibri Data Portal or to another device on your local network, you may be able to load it back to this device',
+        'If you have synced this facility to Kolibri Data Portal or to another device on your local network, you may be able to load it back to this device.',
       removingFacilityConfirmation: 'I understand the consequences of removing the facility',
       cannotRemoveOwnFacilityExplanation:
-        'Super admins cannot remove facilities they are a member of',
-      signInAsOtherAdminExplanation: `You must sign in as a super admin of a facility different from '{facilityName}' in order to remove it from this device`,
+        'Super admins cannot remove facilities they are a member of.',
+      signInAsOtherAdminExplanation: `You must sign in as a super admin of a facility different from '{facilityName}' in order to remove it from this device.`,
     },
   };
 

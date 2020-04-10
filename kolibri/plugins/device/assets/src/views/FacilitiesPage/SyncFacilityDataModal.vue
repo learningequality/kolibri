@@ -12,7 +12,7 @@
       {{ $tr('mustBeConnectedToInternet') }}
     </p>
     <template v-slot:actions>
-      <KButton :text="coreString('cancelAction')" />
+      <KButton :text="coreString('cancelAction')" @click="$emit('cancel')" />
       <KButton
         :text="coreString('syncAction')"
         :disabled="submitDisabled"
@@ -31,9 +31,12 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+
   export default {
     name: 'SyncFacilityDataModal',
     components: {},
+    mixins: [commonCoreStrings],
     props: {},
     data() {
       return {};
@@ -47,8 +50,8 @@
     $trs: {
       syncAllFacilityDataHeader: 'Sync all facility data',
       syncExplanation:
-        'This will sync all registered facilities on this device to Kolibri Data Portal',
-      mustBeConnectedToInternet: 'You must be connected to the internet',
+        'This will sync all registered facilities on this device to Kolibri Data Portal.',
+      mustBeConnectedToInternet: 'You must be connected to the internet.',
       currentlyOfflineTooltip: 'You are currently offline',
       noFacilitiesTooltip: 'There are no registered facilities on this device',
     },

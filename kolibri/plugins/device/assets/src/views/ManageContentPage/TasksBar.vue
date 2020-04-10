@@ -21,6 +21,7 @@
         :text="$tr('clearCompletedAction')"
         @click="$emit('clearall')"
       />
+      <span>&nbsp;&nbsp;</span>
       <KRouterLink
         appearance="basic-link"
         :text="$tr('taskManagerLink')"
