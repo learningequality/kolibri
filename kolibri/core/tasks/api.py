@@ -604,7 +604,11 @@ class TasksViewSet(viewsets.ViewSet):
             "EXPORTSUMMARYLOGCSV" if log_type == "summary" else "EXPORTSESSIONLOGCSV"
         )
 
-        job_metadata = {"type": job_type, "started_by": request.user.pk}
+        job_metadata = {
+            "type": job_type,
+            "started_by": request.user.pk,
+            "facility": facility.id,
+        }
 
         job_id = priority_queue.enqueue(
             call_command,

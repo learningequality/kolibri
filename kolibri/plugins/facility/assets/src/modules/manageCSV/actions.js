@@ -57,16 +57,19 @@ function getExportedLogsInfo(store) {
 }
 
 function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitFinish) {
+  const myNewTasks = newTasks.filter(task => {
+    return task.facility === store.rootGetters.activeFacilityId;
+  });
   // if task job has already been fetched, just continually check if its completed
   if (taskId) {
-    const task = newTasks.find(task => task.id === taskId);
+    const task = myNewTasks.find(task => task.id === taskId);
 
     if (task && task.status === TaskStatuses.COMPLETED) {
       store.commit(commitFinish, new Date());
       TaskResource.deleteFinishedTask(taskId);
     }
   } else {
-    const running = newTasks.filter(task => {
+    const running = myNewTasks.filter(task => {
       return (
         task.type === taskType &&
         task.status !== TaskStatuses.COMPLETED &&
