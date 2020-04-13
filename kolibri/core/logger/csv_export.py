@@ -95,7 +95,7 @@ def map_object(obj):
 classes_info = {
     "session": {
         "queryset": ContentSessionLog.objects.all(),
-        "filename": "{}_content_session_logs.csv",
+        "filename": CSV_EXPORT_FILENAMES["session"],
         "db_columns": (
             "user__username",
             "user__facility__name",
@@ -110,7 +110,7 @@ classes_info = {
     },
     "summary": {
         "queryset": ContentSummaryLog.objects.all(),
-        "filename": "{}_content_summary_logs.csv",
+        "filename": CSV_EXPORT_FILENAMES["summary"],
         "db_columns": (
             "user__username",
             "user__facility__name",
@@ -163,21 +163,19 @@ def csv_file_generator(facility, log_type, filepath, overwrite=False):
             yield
 
 
-def exported_logs_info(request):
+def exported_logs_info(request, facility):
     """
     Get the last modification timestamp of the summary logs exported
 
     :returns: An object with the files informatin
     """
-
     logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
     csv_statuses = {}
-    csv_export_filenames = {
-        "session": "content_session_logs.csv",
-        "summary": "content_summary_logs.csv",
-    }
-    for log_type in csv_export_filenames.keys():
-        log_path = os.path.join(logs_dir, csv_export_filenames[log_type])
+
+    for log_type in CSV_EXPORT_FILENAMES.keys():
+        log_path = os.path.join(
+            logs_dir, CSV_EXPORT_FILENAMES[log_type].format(facility)
+        )
         if os.path.exists(log_path):
             csv_statuses[log_type] = os.path.getmtime(log_path)
         else:

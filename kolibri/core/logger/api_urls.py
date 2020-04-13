@@ -36,7 +36,11 @@ router.urls.append(
 )
 
 router.urls.append(
-    url(r"^exportedlogsinfo/$", exported_logs_info, name="exportedlogsinfo")
+    url(
+        r"^exportedlogsinfo/(?P<facility>.*)/$",
+        exported_logs_info,
+        name="exportedlogsinfo",
+    )
 )
 
 urlpatterns = router.urls
