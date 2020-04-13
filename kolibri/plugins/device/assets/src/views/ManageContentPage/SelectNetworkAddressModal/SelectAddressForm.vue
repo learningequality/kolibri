@@ -65,7 +65,10 @@
             v-model="selectedAddressId"
             class="radio-button"
             :value="d.instance_id"
-            :label="$tr('peerDeviceName', { identifier: d.id.slice(0,4) })"
+            :label="$tr('peerDeviceName', {
+              deviceName: d.device_name,
+              identifier: d.id.slice(0,4)
+            })"
             :description="d.base_url"
             :disabled="!d.available || discoveryFailed"
           />
@@ -296,7 +299,7 @@
       noAddressText: 'There are no addresses yet',
       refreshAddressesButtonLabel: 'Refresh addresses',
       peerDeviceName: {
-        message: 'Local Kolibri ({ identifier })',
+        message: '{deviceName} ({ identifier })',
         context:
           "\nRefers to the Kolibri's capability to import resources from other devices in the same *local* network (LAN), as opposed to importing from Studio which is online.",
       },

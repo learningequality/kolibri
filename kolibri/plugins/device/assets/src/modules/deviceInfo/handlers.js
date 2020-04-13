@@ -9,19 +9,24 @@ import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
  * and resolve validated data
  */
 export function getDeviceInfo() {
-  return client({ path: urls['kolibri:core:deviceinfo']() }).then(response => {
-    const data = response.entity;
+  const requests = [
+    client({ path: urls['kolibri:core:deviceinfo']() }),
+    client({ path: urls['kolibri:core:devicename']() }),
+  ];
+  return Promise.all(requests).then(([infoResponse, nameResponse]) => {
+    const data = infoResponse.entity;
     data.server_time = new Date(data.server_time);
     data.free_space = data.content_storage_free_space;
     data.content_storage_free_space = bytesForHumans(data.content_storage_free_space);
+    data.device_name = nameResponse.entity.name;
 
-    if (response.headers.Server.includes('0.0.0.0')) {
+    if (infoResponse.headers.Server.includes('0.0.0.0')) {
       if (isEmbeddedWebView) {
         data.server_type = 'Kolibri app server';
       } else {
         data.server_type = 'Kolibri internal server';
       }
-    } else data.server_type = response.headers.Server;
+    } else data.server_type = infoResponse.headers.Server;
 
     return data;
   });

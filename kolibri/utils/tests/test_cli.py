@@ -9,6 +9,7 @@ import os
 import tempfile
 
 import pytest
+from django.db.utils import OperationalError
 from mock import patch
 
 import kolibri
@@ -302,3 +303,18 @@ def test_list_plugins_disabled(echo_mock, plugins):
             echo_mock.call_args_list,
         )
     )
+
+
+@patch("kolibri.utils.cli._migrate_databases")
+@patch("kolibri.utils.cli.version_updated")
+def test_migrate_if_unmigrated(version_updated, _migrate_databases):
+    # No matter what, ensure that version_updated returns False
+    version_updated.return_value = False
+    from morango.models import InstanceIDModel
+
+    with patch.object(
+        InstanceIDModel, "get_or_create_current_instance"
+    ) as get_or_create_current_instance:
+        get_or_create_current_instance.side_effect = OperationalError("Test")
+        cli.initialize()
+        _migrate_databases.assert_called_once()

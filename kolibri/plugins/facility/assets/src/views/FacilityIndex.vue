@@ -57,6 +57,8 @@
       ...mapState(['pageName']),
       ...mapState('classAssignMembers', ['class']),
       immersivePageProps() {
+        let immersivePagePrimary = true;
+        let immersivePageIcon = 'arrow_back';
         let immersivePageRoute;
         let appBarTitle = '';
         if (
@@ -72,6 +74,8 @@
           this.pageName === PageNames.USER_EDIT_PAGE ||
           this.pageName === PageNames.USER_CREATE_PAGE
         ) {
+          immersivePagePrimary = true;
+          immersivePageIcon = 'close';
           immersivePageRoute = this.$router.getRoute(PageNames.USER_MGMT_PAGE);
           appBarTitle = this.coreString('usersLabel');
         }
@@ -79,9 +83,9 @@
         if (immersivePageRoute) {
           return {
             immersivePage: true,
-            immersivePageIcon: 'arrow_back',
-            immersivePageRoute: immersivePageRoute,
-            immersivePagePrimary: true,
+            immersivePageIcon,
+            immersivePageRoute,
+            immersivePagePrimary,
             appBarTitle,
           };
         }
