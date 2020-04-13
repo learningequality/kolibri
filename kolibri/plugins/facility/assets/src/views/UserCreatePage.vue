@@ -80,18 +80,18 @@
       </section>
 
       <div class="buttons">
-        <KButtonGroup>
+        <KButtonGroup style="margin-top: 8px;">
           <KButton
             type="submit"
             :text="coreString('saveAction')"
             :disabled="busy"
-            style="margin-top: 8px; margin-bottom: 8px;"
+
             :primary="true"
           />
           <KButton
             :text="coreString('cancelAction')"
             :disabled="busy"
-            style="margin-top: 8px; margin-bottom: 8px;"
+
             @click="goToUserManagementPage()"
           />
         </KButtonGroup>

@@ -1,24 +1,23 @@
 <template>
 
   <div>
-    <KIconButton
-      icon="language"
-      aria-hidden="true"
-      tabindex="-1"
-      class="globe"
-      @click="showLanguageModal = true"
-    />
-    <span class="selected" :title="selectedLanguage.english_name">
-      {{ selectedLanguage.lang_name }}
-    </span>
-    <KButtonGroup>
+    <KButtonGroup style="margin-top: 8px;">
+      <KIconButton
+        icon="language"
+        aria-hidden="true"
+        tabindex="-1"
+        class="globe"
+        @click="showLanguageModal = true"
+      />
+      <span class="selected" :title="selectedLanguage.english_name">
+        {{ selectedLanguage.lang_name }}
+      </span>
       <KButton
         v-for="language in buttonLanguages"
         :key="language.id"
         :text="language.lang_name"
         :title="language.english_name"
         class="lang"
-        style="margin-top: 8px; margin-bottom: 8px;"
         appearance="basic-link"
         @click="switchLanguage(language.id)"
       />
@@ -97,7 +96,7 @@
   }
 
   .selected {
-    margin: 8px;
+    margin-left: 8px;
   }
 
   .lang {

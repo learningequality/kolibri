@@ -84,11 +84,11 @@
         </transition>
       </KFixedGridItem>
       <KFixedGridItem span="3" alignment="right">
-        <KButtonGroup>
+        <KButtonGroup style="margin-top: 8px;">
           <KButton
             :text="coreString('cancelAction')"
             appearance="flat-button"
-            style="margin-top: 8px; margin-bottom: 8px;"
+
             @click="$emit('cancel')"
           />
           <KButton
@@ -96,7 +96,7 @@
             :primary="true"
             :disabled="submitDisabled"
             type="submit"
-            style="margin-top: 8px; margin-bottom: 8px;"
+
             @click="handleSubmit"
           />
         </KButtonGroup>

@@ -35,12 +35,12 @@
       />
 
       <div class="buttons">
-        <KButtonGroup>
+        <KButtonGroup style="margin-top: 8px;">
           <KButton
             :text="coreString('saveAction')"
             :disabled="formDisabled"
             type="submit"
-            style="margin-top: 8px; margin-bottom: 8px;"
+
             primary
           />
           <KButton
@@ -48,7 +48,7 @@
             :disabled="formDisabled"
             appearance="raised-button"
             :primary="false"
-            style="margin-top: 8px; margin-bottom: 8px;"
+
             @click="$router.push($router.getRoute('PROFILE'))"
           />
         </KButtonGroup>

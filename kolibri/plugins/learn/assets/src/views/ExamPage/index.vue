@@ -44,13 +44,12 @@
           </KPageContainer>
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
-            <KButtonGroup>
+            <KButtonGroup style="margin-top: 8px;">
               <KButton
                 :disabled="questionNumber === exam.question_count - 1"
                 :primary="true"
                 class="footer-button"
                 :dir="layoutDirReset"
-                style="margin-top: 8px; margin-bottom: 8px;"
                 @click="goToQuestion(questionNumber + 1)"
               >
                 {{ $tr('nextQuestion') }}
@@ -61,7 +60,6 @@
                 :primary="true"
                 class="footer-button"
                 :dir="layoutDirReset"
-                style="margin-top: 8px; margin-bottom: 8px;"
                 :class="{ 'left-align': windowIsSmall }"
                 @click="goToQuestion(questionNumber - 1)"
               >
