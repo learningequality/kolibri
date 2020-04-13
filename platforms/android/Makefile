@@ -13,6 +13,9 @@ src/kolibri: clean
 	rm -r src/kolibri 2> /dev/null || true
 	unzip -qo "whl/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
 	./delete_kolibri_blacklist.sh
+	# can remove the following and use requirements after we have a version of p4a with:
+	# https://github.com/kivy/python-for-android/pull/1437/files
+	pip install --target src/extra-packages flask plyer
 
 # Generate the project info file
 project_info.json: project_info.template src/kolibri scripts/create_project_info.py

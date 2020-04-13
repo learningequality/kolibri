@@ -1,5 +1,6 @@
 src/kolibri
 src/preseeded_kolibri_home
+src/extra-packages
 tmpenv
 whl/*
 

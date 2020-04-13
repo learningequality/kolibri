@@ -31,7 +31,7 @@ def get_timezone_name():
 
 def start_service(service_name, service_args):
     service = autoclass("org.learningequality.Kolibri.Service{}".format(service_name.title()))
-    service.start(PythonActivity.mActivity, json.dumps(service_args))
+    service.start(PythonActivity.mActivity, json.dumps(dict(service_args)))
 
 
 def get_service_args():
@@ -92,6 +92,28 @@ def share_by_intent(path=None, msg=None, app=None, mimetype=None):
     if app:
         sendIntent.setPackage(AndroidString(app))
     sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    get_activity().startActivity(sendIntent)
+
+
+
+def share_file(path, app=None, msg=None):
+
+    if not path.startswith("http"):
+        path = "file://" + path
+
+    logging.info("About to share path: " + path)
+
+    sendIntent = Intent()
+    sendIntent.setAction(Intent.ACTION_SEND)
+    parcelable = cast("android.os.Parcelable", Uri.parse(path))
+    sendIntent.putExtra(Intent.EXTRA_STREAM, parcelable)
+    if msg:
+        sendIntent.putExtra(Intent.EXTRA_TEXT, AndroidString(msg))
+    if app:
+        sendIntent.setPackage(AndroidString(app))
+    sendIntent.setType(AndroidString("*/*"))
+    sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     get_activity().startActivity(sendIntent)
 
 

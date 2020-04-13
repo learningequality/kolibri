@@ -1,3 +1,5 @@
+import initialization  # keep this first, to ensure we're set up for other imports
+
 import logging
 import os
 import time
@@ -9,33 +11,36 @@ logging.basicConfig(level=logging.DEBUG)
 import pew
 import pew.ui
 
-from config import PORT
+from config import KOLIBRI_PORT, FLASK_PORT
 
 pew.set_app_name("Kolibri")
 logging.info("Entering main.py...")
 
 
+if pew.ui.platform == "android":
+
+    from android_utils import get_home_folder, get_version_name
+
+    os.environ["KOLIBRI_HOME"] = get_home_folder()
+    os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
+
+
 def start_kolibri(port):
+
+    os.environ["KOLIBRI_HTTP_PORT"] = str(port)
 
     if pew.ui.platform == "android":
 
-        from android_utils import get_home_folder, start_service, get_version_name
-
         logging.info("Starting kolibri server via Android service...")
 
-        start_service("kolibri", {
-            "KOLIBRI_HOME": get_home_folder(),
-            "KOLIBRI_HTTP_PORT": port,
-            "KOLIBRI_APK_VERSION_NAME": get_version_name(),
-        })
+        from android_utils import start_service
+        start_service("kolibri", dict(os.environ))
 
     else:
 
-        from kolibri_utils import start_kolibri_server
-
-        os.environ["KOLIBRI_HTTP_PORT"] = str(port)
-
         logging.info("Starting kolibri server directly as thread...")
+
+        from kolibri_utils import start_kolibri_server
 
         thread = pew.ui.PEWThread(target=start_kolibri_server)
         thread.daemon = True
@@ -56,7 +61,7 @@ class Application(pew.ui.PEWApp):
         self.view = pew.ui.WebUIView("Kolibri", self.loader_url, delegate=self)
 
         # start kolibri server
-        start_kolibri(PORT)
+        start_kolibri(KOLIBRI_PORT)
 
         self.load_thread = pew.ui.PEWThread(target=self.wait_for_server)
         self.load_thread.daemon = True
@@ -89,7 +94,7 @@ class Application(pew.ui.PEWApp):
 
     def wait_for_server(self):
 
-        home_url = "http://localhost:{port}".format(port=PORT)
+        home_url = "http://localhost:{port}".format(port=KOLIBRI_PORT)
 
         # test url to see if server has started
         def running():
