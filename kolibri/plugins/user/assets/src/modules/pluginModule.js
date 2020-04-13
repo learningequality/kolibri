@@ -33,6 +33,7 @@ export default {
     },
   },
   getters: {
+    // Return the facility that was last selected or fallback to the default facility.
     selectedFacility(state, getters) {
       const selectedFacility = getters.facilities.find(f => f.id === state.facilityId);
       if (selectedFacility) {

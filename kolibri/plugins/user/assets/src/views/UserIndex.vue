@@ -41,12 +41,12 @@
     mixins: [commonCoreStrings],
     computed: {
       ...mapState(['pageName']),
-      ...mapGetters(['facilities']),
+      ...mapGetters(['facilities', 'selectedFacility']),
       immersiveProperties() {
         if (this.pageName === PageNames.SIGN_UP) {
           if (!this.$route.query.step) {
             const backRoute =
-              this.facilities.length > 1
+              this.facilities.length > 1 && !this.selectedFacility
                 ? this.$router.getRoute(PageNames.AUTH_SELECT)
                 : this.$router.getRoute(PageNames.SIGN_IN);
 

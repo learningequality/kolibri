@@ -92,16 +92,16 @@
         </p>
 
         <p
-        v-if="showGuestAccess"
-        class="guest"
-      >
-        <KExternalLink
-          :text="$tr('accessAsGuest')"
-          :href="guestURL"
-          :primary="true"
-          appearance="basic-link"
-        />
-      </p>
+          v-if="showGuestAccess"
+          class="guest"
+        >
+          <KExternalLink
+            :text="$tr('accessAsGuest')"
+            :href="guestURL"
+            :primary="true"
+            appearance="basic-link"
+          />
+        </p>
 
       </form>
     </KPageContainer>

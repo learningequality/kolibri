@@ -66,9 +66,10 @@
     },
     methods: {
       setFacility(facilityId) {
-        console.log(`setting facId ${facilityId}`);
         this.$store.dispatch('setFacilityId', { facilityId }).then(() => {
-          this.$router.push({ name: this.$route.query.next });
+          this.$store.dispatch('getFacilityConfig', facilityId).then(() => {
+            this.$router.push({ name: this.$route.query.next });
+          });
         });
       },
     },
