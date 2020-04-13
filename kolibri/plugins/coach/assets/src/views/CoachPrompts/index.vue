@@ -7,7 +7,7 @@
       Prompt 1
     </h2>
     <h3>
-      Steps to create a new lesson
+      {{ strings('CreatingNewLesson', 'header') }}
     </h3>
     <p>
       Lesson objective
@@ -185,7 +185,7 @@
       Whole class model
     </p>
     <p>
-      Definition: 
+      Definition:
     </p>
     <p>
       Example
@@ -366,7 +366,7 @@
     </h3>
 
     <p>
-      The ‘Group’ feature in Kolibri will allow you to meet learning needs of different learners. 
+      The ‘Group’ feature in Kolibri will allow you to meet learning needs of different learners.
     </p>
     <p>
       Creating ‘groups’
@@ -980,21 +980,21 @@
     </h2>
 
     <h3>
-      Analyze Group reports
+      {{ string('AnalyzingGroupReports', 'header') }}
     </h3>
 
     <p>
-      Use the data to inform learner grouping and differentiation
+      {{ string('AnalyzingGroupReports', 'p1') }}
     </p>
     <ul>
       <li>
-        Choose learner groups
+        {{ string('AnalyzingGroupReports', 'list_1_item_1') }}
       </li>
       <li>
-        Create seating charts
+        {{ string('AnalyzingGroupReports', 'list_1_item_2') }}
       </li>
       <li>
-        Adjust learning needs and assign further resources accordingly
+        {{ string('AnalyzingGroupReports', 'list_1_item_3') }}
       </li>
     </ul>
     <p>
@@ -1020,9 +1020,27 @@
 
 <script>
 
+  import { createTranslator } from 'kolibri.utils.i18n';
+
+  const strings = {};
+  strings['CreatingNewLesson'] = createTranslator('CreatingNewLesson', {
+    header: 'Steps to create a new lesson',
+  });
+  strings['AnalyzingGroupReports'] = createTranslator('AnalyzingGroupReports', {
+    header: 'Analyze Group reports',
+    p1: 'Use the data to inform learner grouping and differentiation',
+    list_1_item_1: 'Choose learner groups',
+    list_1_item_2: 'Create seating charts',
+    list_1_item_3: 'Adjust learning needs and assign further resources accordingly',
+  });
+
   export default {
     name: 'CoachPrompts',
-    $trs: {},
+    methods: {
+      string(translator, key, args) {
+        return strings[translator].$tr(key, args);
+      },
+    },
   };
 
 </script>
