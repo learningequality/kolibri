@@ -4,7 +4,7 @@
 
     <AuthBase>
       <div
-        v-if="hasMultipleFacilities && selectedFacility.name"
+        v-if="hasMultipleFacilities && selectedFacility.preset !== 'informal'"
         style="margin-bottom: 8px;"
       >
         <span style="margin-right: 8px;">
