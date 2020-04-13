@@ -116,6 +116,7 @@
         'availableSessionCSVLog',
         'availableSummaryCSVLog',
       ]),
+      ...mapGetters(['activeFacilityId']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       cannotDownload() {
         return isEmbeddedWebView;
@@ -170,10 +171,16 @@
         }
       },
       downloadSessionLog() {
-        window.open(urls['kolibri:core:download_csv_file']('session'), '_blank');
+        window.open(
+          urls['kolibri:core:download_csv_file']('session', this.activeFacilityId),
+          '_blank'
+        );
       },
       downloadSummaryLog() {
-        window.open(urls['kolibri:core:download_csv_file']('summary'), '_blank');
+        window.open(
+          urls['kolibri:core:download_csv_file']('summary', this.activeFacilityId),
+          '_blank'
+        );
       },
     },
     $trs: {
