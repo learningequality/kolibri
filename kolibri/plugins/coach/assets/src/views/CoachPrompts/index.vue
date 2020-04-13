@@ -37,11 +37,11 @@
     </h2>
 
     <h3>
-      Choosing Kolibri resources
+      Choose Kolibri resources
     </h3>
 
     <p>
-      As you add resources, ask:
+      As you add resources think about:
     </p>
     <ul>
       <li>
@@ -66,7 +66,7 @@
     </h2>
 
     <h3>
-      Use "Questioning" along with a Kolibri resource
+      Use questions along with a Kolibri resource
     </h3>
 
     <p>
@@ -81,11 +81,11 @@
         What Kolibri resource will you use for your lesson objective?
       </li>
       <li>
-        Go through the resource and create some question statements
+        Go through the resource and create some question statements.
       </li>
     </ul>
     <p>
-      What questions will you ask-
+      What questions will you ask:
     </p>
     <ul>
       <li>
@@ -106,30 +106,30 @@
     </p>
     <ul>
       <li>
-        Ask a variety of questions throughout the lesson
+        Ask a variety of questions throughout the lesson.
       </li>
       <li>
-        Give appropriate wait time after asking questions
+        Give appropriate wait time after asking questions.
       </li>
       <li>
-        Respond to learner questions
+        Respond to learner questions.
       </li>
       <li>
-        Provide encouraging feedback to both correct and incorrect responses
+        Provide encouraging feedback to both correct and incorrect responses.
       </li>
     </ul>
     <p>
       Remember
     </p>
     <p>
-      The 6 levels classified as per Bloom"s Taxonomy below, can be used to structure learning objectives, lessons, assessments, and questioning
+      The 6 levels classified as per Bloom"s Taxonomy below, can be used to structure learning objectives, lessons, assessments, and questioning.
     </p>
     <p>
       Level 1. Knowledge
     </p>
     <ul>
       <li>
-        Question cues: List, define, tell, label
+        Question cues: list, define, tell, label
       </li>
     </ul>
     <p>
@@ -137,7 +137,7 @@
     </p>
     <ul>
       <li>
-        Question cues: Describe, name, identify, discuss
+        Question cues: describe, name, identify, discuss
       </li>
     </ul>
     <p>
@@ -145,7 +145,7 @@
     </p>
     <ul>
       <li>
-        Question cues: Modify, solve, change, explain
+        Question cues: modify, solve, change, explain
       </li>
     </ul>
     <p>
@@ -153,7 +153,7 @@
     </p>
     <ul>
       <li>
-        Question cues: Analyze, separate, compare, contrast
+        Question cues: analyze, separate, compare, contrast
       </li>
     </ul>
     <p>
@@ -161,7 +161,7 @@
     </p>
     <ul>
       <li>
-        Question cues: Create, construct, plan, role-play
+        Question cues: create, construct, plan, role-play
       </li>
     </ul>
     <p>
@@ -169,7 +169,7 @@
     </p>
     <ul>
       <li>
-        Question cues: Give opinion, criticize, discriminate, summarize
+        Question cues: give opinion, criticize, discriminate, summarize
       </li>
     </ul>
 
@@ -185,13 +185,13 @@
       Whole class model
     </p>
     <p>
-      Definition?
+      Definition: 
     </p>
     <p>
       Example
     </p>
     <p>
-      Here is how a school in Guatemala adapted the whole class model by bridging technology with traditional instruction for a Math lesson. During the lesson all learners -
+      Here is how a school in Guatemala adapted the whole class model by bridging technology with traditional instruction for a Math lesson. During the lesson all learners:
     </p>
     <ul>
       <li>
@@ -209,63 +209,30 @@
       Rotation model
     </p>
     <p>
-      Learners rotate on a fixed schedule between activities in small groups, individually or as a whole class. One of the activities (or "stations") that learners rotate through is using Kolibri
+      Learners rotate on a fixed schedule between activities in small groups, individually or as a whole class. One of the activities (or "stations") that learners rotate through is using Kolibri.
     </p>
     <p>
       Example 1
     </p>
     <p>
-      The image below is an example of a rotation model with 2 stations. Learners rotate in small groups / individually / as a whole class between these stations
+      Below is an example of a rotation model with 2 stations. Learners rotate in small groups / individually / as a whole class between these stations.
     </p>
-    <div>
-      <table>
-        <tr>
-          <th>
-            <p>Station 1</p>
-            <p>Kolibri learning</p>
-          </th>
-          <td><img src="./kolibri.png"></td>
-        </tr>
-        <tr>
-          <th>
-            <p>Station 2</p>
-            <p>Guided practice</p>
-          </th>
-          <td><img src="./guided.png"></td>
-        </tr>
-      </table>
-    </div>
+    <p>Station 1 - Kolibri learning</p>
+    <p><img src="./kolibri.png" alt=""></p>
+    <p>Station 2 - Guided practice</p>
+    <p><img src="./guided.png" alt=""></p>
     <p>
       Example 2
     </p>
     <p>
-      The image below is a rotation model example with 3 learning stations. Learners can rotate in small groups/individually or as a whole class between these stations. Station 3 can include worksheets, free time or related small group work
+      Below is a rotation model example with 3 learning stations. Learners can rotate in small groups/individually or as a whole class between these stations. Station 3 can include worksheets, free time or related small group work
     </p>
-    <div>
-      <table>
-        <tr>
-          <th>
-            <p>Station 1</p>
-            <p>Kolibri learning</p>
-          </th>
-          <td><img src="./kolibri.png"></td>
-        </tr>
-        <tr>
-          <th>
-            <p>Station 2</p>
-            <p>Guided practice</p>
-          </th>
-          <td><img src="./guided.png"></td>
-        </tr>
-        <tr>
-          <th>
-            <p>Station 3</p>
-            <p>Independent activity</p>
-          </th>
-          <td><img src="./independent.png"></td>
-        </tr>
-      </table>
-    </div>
+    <p>Station 1 - Kolibri learning</p>
+    <p><img src="./kolibri.png" alt=""></p>
+    <p>Station 2 - Guided practice</p>
+    <p><img src="./guided.png" alt=""></p>
+    <p>Station 3 - Independent Activity</p>
+    <p><img src="./independent.png" alt=""></p>
     <p>
       Peer Tutoring
     </p>
@@ -277,10 +244,10 @@
     </p>
     <ul>
       <li>
-        Learner who has already mastered a topic with a learner who could benefit from review
+        Learner who has already mastered a topic with a learner who could benefit from review.
       </li>
       <li>
-        Learners with similar mastery levels to facilitate progressing through new content at similar rates
+        Learners with similar mastery levels to facilitate progressing through new content at similar rates.
       </li>
     </ul>
     <hr>
@@ -288,7 +255,7 @@
       Roving Teacher
     </p>
     <p>
-      Coach moves around the classroom while learners work independently or in pairs/groups on Kolibri, stepping in for assistance as needed. The coach can -
+      Coach moves around the classroom while learners work independently or in pairs/groups on Kolibri, stepping in for assistance as needed. The coach can:
     </p>
     <ul>
       <li>
@@ -299,14 +266,14 @@
       </li>
     </ul>
     <p>
-      Ideal for the coach who wants to use time more effectively with learners who need it most, through individual attention or organizing groups of multiple struggling learners
+      Ideal for the coach who wants to use time more effectively with learners who need it most, through individual attention or organizing groups of multiple struggling learners.
     </p>
     <hr>
     <p>
       Supplementary resource
     </p>
     <p>
-      In this model, technology is available within the classroom, or after class time in a library or resource room. Learners access Kolibri to review content, check understanding, and follow their own interests
+      In this model, technology is available within the classroom, or after class time in a library or resource room. Learners access Kolibri to review content, check understanding, and follow their own interests.
     </p>
     <hr>
     <p>
@@ -337,22 +304,22 @@
     </p>
     <ul>
       <li>
-        I have a clear goal on how I want to leverage technology through this class
+        I have a clear goal on how I want to leverage technology through this class.
       </li>
       <li>
-        I have identified the objectives that I will be teaching this week
+        I have identified the objectives that I will be teaching this week.
       </li>
       <li>
-        I have gone through the content and incorporated relevant content pieces in my plan
+        I have gone through the content and incorporated relevant content pieces in my plan.
       </li>
       <li>
-        I have assigned quizzes to learners before class
+        I have assigned quizzes to learners before class.
       </li>
       <li>
-        I have assigned lessons to learners before class
+        I have assigned lessons to learners before class.
       </li>
       <li>
-        I have reviewed student progress from the previous session
+        I have reviewed student progress from the previous session.
       </li>
     </ul>
     <p>
@@ -360,16 +327,16 @@
     </p>
     <ul>
       <li>
-        I have navigated through the platform and am comfortable using the different features
+        I have navigated through the platform and am comfortable using the different features.
       </li>
       <li>
-        My server and local WiFi network / Ethernet connection are working properly
+        My server and local WiFi network / Ethernet connection are working properly.
       </li>
       <li>
-        The hardware that is required is fully charged
+        The hardware that is required is fully charged.
       </li>
       <li>
-        All the hardware in my classroom are in good working condition
+        All the hardware in my classroom are in good working condition.
       </li>
     </ul>
     <p>
@@ -377,13 +344,13 @@
     </p>
     <ul>
       <li>
-        My classroom layout allows for learners to work independently and also work in groups/collaborate during the session
+        My classroom layout allows for learners to work independently and also work in groups/collaborate during the session.
       </li>
       <li>
-        Learners follow a procedure when they need to ask for assistance
+        Learners follow a procedure when they need to ask for assistance.
       </li>
       <li>
-        I have written down the classroom procedures, best practices and rules for learners to see during Kolibri sessions
+        I have written down the classroom procedures, best practices and rules for learners to see during Kolibri sessions.
       </li>
     </ul>
 
@@ -399,10 +366,10 @@
     </h3>
 
     <p>
-      The "Group" feature in Kolibri will allow you to meet learning needs of different learners
+      The ‘Group’ feature in Kolibri will allow you to meet learning needs of different learners. 
     </p>
     <p>
-      Creating "groups"
+      Creating ‘groups’
     </p>
     <ul>
       <li>
@@ -426,19 +393,19 @@
     </p>
     <ul>
       <li>
-        Learners who have been absent or missed classes
+        Learners who have been absent or missed classes.
       </li>
       <li>
-        Learners who need more help from a coach
+        Learners who need more help from a coach.
       </li>
       <li>
-        Learners who need help from other learners
+        Learners who need help from other learners.
       </li>
       <li>
-        Learners who are competent but simply need more practice
+        Learners who are competent but simply need more practice.
       </li>
       <li>
-        Learners who are very competent and need advanced material
+        Learners who are very competent and need advanced material.
       </li>
     </ul>
     <p>
@@ -456,7 +423,7 @@
       </li>
     </ul>
     <p>
-      Use the Lessons features and search in Kolibri for appropriate resources based on the learning needs of the groups created
+      Use the Lessons features and search in Kolibri for appropriate resources based on the learning needs of the groups created.
     </p>
 
     <h2>
@@ -464,18 +431,18 @@
     </h2>
 
     <h3>
-      Setting rules for group work
+      Set rules for group work
     </h3>
 
     <p>
-      Involve learners in setting up their own ground rules for group work using Kolibri
+      Involve learners in setting up their own ground rules for group work using Kolibri.
     </p>
 
     <p>
       Step 1
     </p>
     <p>
-      Write these 3 prompts on the board
+      Write these 3 prompts on the board:
     </p>
     <ul>
       <li>
@@ -492,7 +459,7 @@
       Step 2
     </p>
     <p>
-      Give them an example:
+      Give an example for each prompt:
     </p>
     <ul>
       <li>
@@ -521,16 +488,16 @@
     </p>
     <ul>
       <li>
-        Ask learners to work in groups and discuss various suggestions
+        Ask learners to work in groups and discuss various suggestions.
       </li>
       <li>
-        Ask a learner in each group to take notes and report to the class later
+        Ask a learner in each group to take notes and report to the class later.
       </li>
       <li>
-        After all reports are heard, write the suggestions on the board and work on it more with your learners and prepare a class charter
+        After all reports are heard, write the suggestions on the board and work on it more with your learners and prepare a class charter.
       </li>
       <li>
-        Put the charter on the wall to keep everyone accountable to it
+        Put the charter on the wall to keep everyone accountable to it.
       </li>
     </ul>
     <p>
@@ -540,15 +507,12 @@
       Content is available under Creative Commons Attribution-ShareAlike
     </p>
 
-    <p>
-      Source: Adapted this from OER4SCHOOLS video
-    </p>
     <h2>
       Prompt 2.2
     </h2>
 
     <h3>
-      Preparing for group work
+      Prepare for group work
     </h3>
 
     <p>
@@ -579,15 +543,15 @@
     </p>
     <ul>
       <li>
-        Talk to learners about their past experiences with group work
+        Talk to learners about their past experiences with group work.
       </li>
       <li>
-        Allow them to establish some ground rules for successful collaboration before introducing any hardware
+        Allow them to establish some ground rules for successful collaboration before introducing any hardware.
       </li>
     </ul>
-    <p>
+    <h3>
       Features of group sizes and recommendations for use:
-    </p>
+    </h3>
 
     <p>
       Group size
@@ -624,14 +588,14 @@
             <p>Option 1</p>
             <p>Next to each other</p>
           </th>
-          <td><img src="./pair.png"></td>
+          <td><img src="./pair.png" alt="" /></td>
         </tr>
         <tr>
           <th>
             <p>Option 2</p>
             <p>In a triangle</p>
           </th>
-          <td><img src="./triangle.png"></td>
+          <td><img src="./triangle.png" alt="" /></td>
         </tr>
       </table>
     </div>
@@ -673,28 +637,28 @@
             <p>Option 1</p>
             <p>In a square</p>
           </th>
-          <td><img src="./square.png"></td>
+          <td><img src="./square.png" alt="" /></td>
         </tr>
         <tr>
           <th>
             <p>Option 2</p>
             <p>In a rectangle</p>
           </th>
-          <td><img src="./rectangle.png"></td>
+          <td><img src="./rectangle.png" alt="" /></td>
         </tr>
         <tr>
           <th>
             <p>Option 2</p>
             <p>In a circle</p>
           </th>
-          <td><img src="./circle.png"></td>
+          <td><img src="./circle.png" alt="" /></td>
         </tr>
         <tr>
           <th>
             <p>Option 2</p>
             <p>In a horseshoe</p>
           </th>
-          <td><img src="./horseshoe.png"></td>
+          <td><img src="./horseshoe.png" alt="" /></td>
         </tr>
       </table>
     </div>
@@ -731,14 +695,14 @@
             <p>Option 2</p>
             <p>In a circle</p>
           </th>
-          <td><img src="./circle.png"></td>
+          <td><img src="./circle.png" alt="" /></td>
         </tr>
         <tr>
           <th>
             <p>Option 2</p>
             <p>In a horseshoe</p>
           </th>
-          <td><img src="./horseshoe.png"></td>
+          <td><img src="./horseshoe.png" alt="" /></td>
         </tr>
       </table>
     </div>
@@ -850,7 +814,7 @@
     </h2>
 
     <h3>
-      Support learners who have "completed"
+      Support learners who ‘completed’ a lesson
     </h3>
 
     <p>
@@ -903,7 +867,7 @@
     </h2>
 
     <h3>
-      Support learners who "need help"
+      Support learners who ‘need help’ with a lesson
     </h3>
 
     <p>
@@ -957,7 +921,7 @@
     </h2>
 
     <h3>
-      Analyzing Quiz reports
+      Analyze Quiz reports
     </h3>
 
     <p>
@@ -1016,7 +980,7 @@
     </h2>
 
     <h3>
-      Analyzing Group reports
+      Analyze Group reports
     </h3>
 
     <p>
