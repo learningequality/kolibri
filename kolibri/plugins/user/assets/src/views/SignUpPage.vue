@@ -91,6 +91,18 @@
           />
         </p>
 
+        <p
+        v-if="showGuestAccess"
+        class="guest"
+      >
+        <KExternalLink
+          :text="$tr('accessAsGuest')"
+          :href="guestURL"
+          :primary="true"
+          appearance="basic-link"
+        />
+      </p>
+
       </form>
     </KPageContainer>
 
@@ -119,6 +131,7 @@
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import urls from 'kolibri.urls';
   import { SignUpResource } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import getUrlParameter from './getUrlParameter';
@@ -165,6 +178,9 @@
       },
       firstStepIsValid() {
         return every([this.nameValid, this.usernameValid, this.passwordValid]);
+      },
+      guestURL() {
+        return urls['kolibri:core:guest']();
       },
       nextParam() {
         // query is after hash
@@ -228,6 +244,9 @@
         } else {
           this.focusOnInvalidField();
         }
+      },
+      showGuestAccess() {
+        return this.selectedFacility.dataset.allow_guest_access;
       },
       submitNewFacilityUser() {
         this.formSubmitted = true;
@@ -294,6 +313,7 @@
           'It will be visible to administrators. It will also be used to help improve the software and resources for different learner types and needs.',
         context: '\nDetails on how the demographic information requested in the form will be used.',
       },
+      accessAsGuest: 'Explore without account',
       privacyLinkText: {
         message: 'Learn more about usage and privacy',
         context:
@@ -336,6 +356,11 @@
 
   .select {
     margin: 18px 0 36px;
+  }
+
+  .guest {
+    display: block;
+    margin: 0 auto;
   }
 
 </style>
