@@ -591,7 +591,8 @@ class TasksViewSet(viewsets.ViewSet):
         if log_type in CSV_EXPORT_FILENAMES.keys():
             logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
             filepath = os.path.join(
-                logs_dir, CSV_EXPORT_FILENAMES[log_type].format(facility.name)
+                logs_dir,
+                CSV_EXPORT_FILENAMES[log_type].format(facility.name, facility_id[:4]),
             )
         else:
             raise Http404(

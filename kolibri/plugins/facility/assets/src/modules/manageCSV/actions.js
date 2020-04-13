@@ -40,7 +40,10 @@ function startSessionCSVExport(store) {
 
 function getExportedLogsInfo(store) {
   return client({
-    path: urls['kolibri:core:exportedlogsinfo'](store.rootGetters.currentFacilityName),
+    path: urls['kolibri:core:exportedlogsinfo'](
+      store.rootGetters.activeFacilityId,
+      store.rootGetters.currentFacilityName
+    ),
   }).then(response => {
     const data = response.entity;
     let sessionTimeStamp = null;

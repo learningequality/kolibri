@@ -87,7 +87,7 @@ class Command(AsyncCommand):
             log_info = classes_info[log_type]
 
             if options["output_file"] is None:
-                filename = log_info["filename"].format(facility.name)
+                filename = log_info["filename"].format(facility.name, facility.id[:4])
             else:
                 filename = options["output_file"]
 

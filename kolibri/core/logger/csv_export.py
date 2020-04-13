@@ -25,8 +25,8 @@ from kolibri.utils import conf
 logger = logging.getLogger(__name__)
 
 CSV_EXPORT_FILENAMES = {
-    "session": "{}_content_session_logs.csv",
-    "summary": "{}_content_summary_logs.csv",
+    "session": "{}_{}_content_session_logs.csv",
+    "summary": "{}_{}_content_summary_logs.csv",
 }
 
 
@@ -163,7 +163,7 @@ def csv_file_generator(facility, log_type, filepath, overwrite=False):
             yield
 
 
-def exported_logs_info(request, facility):
+def exported_logs_info(request, facility_id, facility):
     """
     Get the last modification timestamp of the summary logs exported
 
@@ -174,7 +174,7 @@ def exported_logs_info(request, facility):
 
     for log_type in CSV_EXPORT_FILENAMES.keys():
         log_path = os.path.join(
-            logs_dir, CSV_EXPORT_FILENAMES[log_type].format(facility)
+            logs_dir, CSV_EXPORT_FILENAMES[log_type].format(facility, facility_id[:4])
         )
         if os.path.exists(log_path):
             csv_statuses[log_type] = os.path.getmtime(log_path)
@@ -189,12 +189,13 @@ def download_csv_file(request, log_type, facility_id):
         facility_name = Facility.objects.get(pk=facility_id).name
     else:
         facility_name = request.user.facility.name
+        facility_id = request.user.facility.id
 
     if log_type in CSV_EXPORT_FILENAMES.keys():
         filepath = os.path.join(
             conf.KOLIBRI_HOME,
             "log_export",
-            CSV_EXPORT_FILENAMES[log_type].format(facility_name),
+            CSV_EXPORT_FILENAMES[log_type].format(facility_name, facility_id[:4]),
         )
     else:
         filepath = None
@@ -210,7 +211,7 @@ def download_csv_file(request, log_type, facility_id):
 
     # set the content-disposition as attachment to force download
     response["Content-Disposition"] = "attachment; filename={}".format(
-        CSV_EXPORT_FILENAMES[log_type].format(facility_name)
+        CSV_EXPORT_FILENAMES[log_type].format(facility_name, facility_id[:4])
     )
 
     # set the content-length to the file size

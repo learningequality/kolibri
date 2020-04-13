@@ -37,7 +37,7 @@ router.urls.append(
 
 router.urls.append(
     url(
-        r"^exportedlogsinfo/(?P<facility>.*)/$",
+        r"^exportedlogsinfo/(?P<facility_id>.*)/(?P<facility>.*)/$",
         exported_logs_info,
         name="exportedlogsinfo",
     )
