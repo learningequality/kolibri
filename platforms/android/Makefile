@@ -3,9 +3,9 @@ clean:
 	- rm -rf dist/android/*.apk project_info.json ./src/kolibri
 
 deepclean: clean
-	rm -r $(HOME)/.local/share/python-for-android
-	rm -r build
-	yes y | docker system prune -a
+	rm -r $(HOME)/.local/share/python-for-android || true
+	rm -r build || true
+	yes y | docker system prune -a || true
 	rm build_docker 2> /dev/null
 
 # Extract the whl file
@@ -20,8 +20,6 @@ project_info.json: project_info.template src/kolibri scripts/create_project_info
 
 .PHONY: p4a_android_distro
 p4a_android_distro: whitelist.txt project_info.json
-	mkdir -p $(HOME)/.local/share/python-for-android/packages/openssl/
-	wget https://www.openssl.org/source/old/1.0.2/openssl-1.0.2p.tar.gz -O $(HOME)/.local/share/python-for-android/packages/openssl/openssl-1.0.2p.tar.gz
 	pew init android
 
 ifdef P4A_RELEASE_KEYSTORE_PASSWD

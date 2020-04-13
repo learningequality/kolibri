@@ -33,7 +33,7 @@ def start_kolibri(port):
 
         from kolibri_utils import start_kolibri_server
 
-        os.environ["KOLIBRI_HTTP_PORT"] = port
+        os.environ["KOLIBRI_HTTP_PORT"] = str(port)
 
         logging.info("Starting kolibri server directly as thread...")
 
