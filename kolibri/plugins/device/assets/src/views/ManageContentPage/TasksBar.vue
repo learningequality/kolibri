@@ -18,7 +18,7 @@
       <KButton
         v-if="showClearCompletedButton"
         appearance="basic-link"
-        :text="$tr('clearCompletedAction')"
+        :text="coreString('clearCompletedTasksAction')"
         @click="$emit('clearall')"
       />
       <span>&nbsp;&nbsp;</span>
@@ -85,7 +85,6 @@
     $trs: {
       someTasksComplete:
         '{done, number} of {total, plural, one {{total, number} task} other {{total, number} tasks}} complete',
-      clearCompletedAction: 'Clear completed',
       taskManagerLink: 'View task manager',
     },
   };

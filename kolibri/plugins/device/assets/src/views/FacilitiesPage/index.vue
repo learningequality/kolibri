@@ -162,9 +162,19 @@
       },
     },
     $trs: {
-      syncAllAction: 'Sync all',
-      importFacilityAction: 'Import facility',
-      facilityRemovedSnackbar: `Removed '{facilityName}' from this device`,
+      syncAllAction: {
+        message: 'Sync all',
+        context:
+          'Label for a button used to synchronize all facilities at once with the data portal',
+      },
+      importFacilityAction: {
+        message: 'Import facility',
+        context: 'Label for a button used to import a facility on the device',
+      },
+      facilityRemovedSnackbar: {
+        message: `Removed '{facilityName}' from this device`,
+        context: 'Notification that appears after a facility has been deleted',
+      },
     },
   };
 

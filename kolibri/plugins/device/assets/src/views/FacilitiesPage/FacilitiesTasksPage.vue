@@ -8,12 +8,10 @@
       />
     </p>
 
-    <HeaderWithOptions
-      :headerText="coreString('facilitiesLabel')"
-    >
+    <HeaderWithOptions :headerText="coreString('tasksLabel')">
       <template #options>
         <KButton
-          :text="coreString('clearCompletedAction')"
+          :text="coreString('clearCompletedTasksAction')"
           @click="handleClickClearAll"
         />
       </template>

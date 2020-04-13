@@ -94,15 +94,36 @@
       },
     },
     $trs: {
-      removeFacilityHeader: 'Remove facility from this device',
-      cannotRemoveFacilityHeader: 'Cannot remove facility',
-      willLoseAccessWarning: `You will lose access to all '{facilityName}' data.`,
-      facilityReloadExplanation:
-        'If you have synced this facility to Kolibri Data Portal or to another device on your local network, you may be able to load it back to this device.',
-      removingFacilityConfirmation: 'I understand the consequences of removing the facility',
-      cannotRemoveOwnFacilityExplanation:
-        'Super admins cannot remove facilities they are a member of.',
-      signInAsOtherAdminExplanation: `You must sign in as a super admin of a facility different from '{facilityName}' in order to remove it from this device.`,
+      removeFacilityHeader: {
+        message: 'Remove facility from this device',
+        context:
+          'Title of the modal window where the user confirms the removal of a facility from the device',
+      },
+      cannotRemoveFacilityHeader: {
+        message: 'Cannot remove facility',
+        context: 'Title of the modal window if user is unable to remove the facility',
+      },
+      willLoseAccessWarning: {
+        message: `You will lose access to all '{facilityName}' data.`,
+        context: '',
+      },
+      facilityReloadExplanation: {
+        message:
+          'If you have synced this facility to Kolibri Data Portal or to another device on your local network, you may be able to load it back to this device.',
+        context: 'Modal description text when removing a facility that has previously been synced',
+      },
+      removingFacilityConfirmation: {
+        message: 'I understand the consequences of removing the facility',
+        context: '',
+      },
+      cannotRemoveOwnFacilityExplanation: {
+        message: 'Super admins cannot remove facilities they are a member of.',
+        context: 'Modal description text',
+      },
+      signInAsOtherAdminExplanation: {
+        message: `You must sign in as a super admin of a facility different from '{facilityName}' in order to remove it from this device.`,
+        context: 'Modal description text',
+      },
     },
   };
 

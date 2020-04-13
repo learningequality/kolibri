@@ -48,12 +48,26 @@
     },
     methods: {},
     $trs: {
-      syncAllFacilityDataHeader: 'Sync all facility data',
-      syncExplanation:
-        'This will sync all registered facilities on this device to Kolibri Data Portal.',
-      mustBeConnectedToInternet: 'You must be connected to the internet.',
-      currentlyOfflineTooltip: 'You are currently offline',
-      noFacilitiesTooltip: 'There are no registered facilities on this device',
+      syncAllFacilityDataHeader: {
+        message: 'Sync all facility data',
+        context: 'Title of the modal window',
+      },
+      syncExplanation: {
+        message: 'This will sync all registered facilities on this device to Kolibri Data Portal.',
+        context: 'Modal description text',
+      },
+      mustBeConnectedToInternet: {
+        message: 'You must be connected to the internet.',
+        context: 'Modal description text',
+      },
+      currentlyOfflineTooltip: {
+        message: 'You are currently offline',
+        context: `Floating notification message that appears over the 'Sync' button and indicates why is it not active`,
+      },
+      noFacilitiesTooltip: {
+        message: 'There are no registered facilities on this device',
+        context: `Floating notification message that appears over the 'Sync' button and indicates why is it not active`,
+      },
     },
   };
 
