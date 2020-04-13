@@ -11,11 +11,19 @@
     <HeaderWithOptions :headerText="coreString('tasksLabel')">
       <template #options>
         <KButton
-          :text="coreString('clearCompletedTasksAction')"
+          :text="taskString('clearCompletedTasksAction')"
           @click="handleClickClearAll"
         />
       </template>
     </HeaderWithOptions>
+
+    <div>
+      <FacilityTaskPanel
+        v-for="(task, idx) in tasks"
+        :key="idx"
+        :task="task"
+      />
+    </div>
 
   </div>
 
@@ -26,19 +34,27 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import HeaderWithOptions from '../HeaderWithOptions';
+  import taskStrings from '../taskStrings';
+  import FacilityTaskPanel from './FacilityTaskPanel';
+  import { taskPanelTasks } from './mockData';
 
   export default {
     name: 'FacilitiesTasksPage',
     components: {
+      FacilityTaskPanel,
       HeaderWithOptions,
     },
     mixins: [commonCoreStrings],
     props: {},
-    data() {
-      return {};
+    computed: {
+      tasks() {
+        return taskPanelTasks;
+      },
     },
-    computed: {},
     methods: {
+      taskString(...args) {
+        return taskStrings.$tr(...args);
+      },
       handleClickClearAll() {},
     },
     $trs: {
