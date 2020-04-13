@@ -3,7 +3,7 @@
   <BottomAppBar>
     <span class="message">{{ selectedMessage }}</span>
     <template v-if="actionType === 'manage'">
-      <KButtonGroup>
+      <KButtonGroup style="margin-top: 8px;">
         <KButton
           :disabled="$attrs.disabled || buttonsDisabled"
           :text="coreString('deleteAction')"
