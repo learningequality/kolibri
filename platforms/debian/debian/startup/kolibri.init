@@ -46,8 +46,8 @@ fi
 
 case "$1" in
   start)
-    # run ka-lite as another user, the one who generated this file
-    su $KOLIBRI_USER -c "$KOLIBRI_COMMAND start"
+    # run kolibri as another user, the one who generated this file
+    /sbin/runuser $KOLIBRI_USER -c "$KOLIBRI_COMMAND start"
     ;;
   stop)
     su $KOLIBRI_USER -c "$KOLIBRI_COMMAND stop"
