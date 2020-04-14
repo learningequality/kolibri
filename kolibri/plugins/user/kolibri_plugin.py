@@ -26,7 +26,7 @@ class UserAsset(webpack_hooks.WebpackBundleHook):
     def plugin_data(self):
         return {
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),
-            "allowGuestAccess": get_device_setting("allow_guest_access")
+            "allowGuestAccess": get_device_setting("allow_guest_access"),
         }
 
 

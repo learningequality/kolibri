@@ -47,7 +47,7 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
 
     @property
     def plugin_data(self):
-        return { "allowGuestAccess": get_device_setting("allow_guest_access") }
+        return {"allowGuestAccess": get_device_setting("allow_guest_access")}
 
 
 @register_hook
