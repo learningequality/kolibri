@@ -16,7 +16,7 @@
         <div
           v-for="facility in facilityList['disabled']"
           :key="facility.id"
-          class="disabled facility-name"
+          class="facility-name"
         >
           {{ facility.name }}
         </div>
@@ -96,11 +96,6 @@
 
   .facility-name {
     margin-top: 16px;
-
-    &.disabled {
-      color: black;
-      text-decoration: none;
-    }
   }
 
 </style>
