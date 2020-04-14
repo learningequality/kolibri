@@ -222,7 +222,7 @@
         return { name: PageNames.SIGN_UP };
       },
       showFacilityName() {
-        return this.hasMultipleFacilities || this.selectedFacility.dataset.preset !== 'personal';
+        return this.hasMultipleFacilities || this.selectedFacility.dataset.preset !== 'informal';
       },
     },
     watch: {
