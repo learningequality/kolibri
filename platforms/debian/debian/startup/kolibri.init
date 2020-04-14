@@ -50,13 +50,13 @@ case "$1" in
     /sbin/runuser $KOLIBRI_USER -c "$KOLIBRI_COMMAND start"
     ;;
   stop)
-    su $KOLIBRI_USER -c "$KOLIBRI_COMMAND stop"
+    /sbin/runuser $KOLIBRI_USER -c "$KOLIBRI_COMMAND stop"
     ;;
   restart)
-    su $KOLIBRI_USER -c "$KOLIBRI_COMMAND restart"
+    /sbin/runuser $KOLIBRI_USER -c "$KOLIBRI_COMMAND restart"
     ;;
   status)
-    su $KOLIBRI_USER -c "$KOLIBRI_COMMAND status"
+    /sbin/runuser $KOLIBRI_USER -c "$KOLIBRI_COMMAND status"
     ;;
   *)
     log_success_msg "Usage: /etc/init.d/kolibri {start|stop|restart|status}"
