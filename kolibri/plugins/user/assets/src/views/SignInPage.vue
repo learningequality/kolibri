@@ -3,14 +3,12 @@
   <div class="fh">
 
     <AuthBase>
-      <div
-        v-if="hasMultipleFacilities"
-        style="margin-bottom: 8px;"
-      >
-        <span style="margin-right: 8px;">
+      <div v-if="hasMultipleFacilities || showFacilityName" style="margin-bottom: 8px;">
+        <span v-if="showFacilityName" style="margin-right: 8px;">
           {{ $tr("signInToFacilityLabel", { facility: selectedFacility.name }) }}
         </span>
         <KRouterLink
+          v-if="hasMultipleFacilities"
           :text="$tr('changeLabel')"
           :to="{
             name: PageNames.FACILITY_SELECT,
@@ -222,6 +220,9 @@
           return { name: PageNames.SIGN_UP, query: { next: this.nextParam } };
         }
         return { name: PageNames.SIGN_UP };
+      },
+      showFacilityName() {
+        return this.hasMultipleFacilities || this.selectedFacility.dataset.preset !== 'personal';
       },
     },
     watch: {
