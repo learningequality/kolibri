@@ -4,6 +4,12 @@ kolibri-source (0.13.2-0ubuntu1) bionic; urgency=medium
 
  -- Lingyi Wang <lingyi@learningequality.org>  Thu, 16 Apr 2020 18:22:55 -0400
 
+kolibri-source (0.13.1-0ubuntu2) trusty; urgency=medium
+
+  * Use runuser on Ubuntu 16.04+ to fix systemd issue #90
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 14 Apr 2020 12:18:15 +0200
+
 kolibri-source (0.13.1-0ubuntu1) bionic; urgency=medium
 
   * Kolibri v0.13.1 is released! Read the changes here: https://github.com/learningequality/kolibri/blob/v0.13.1/CHANGELOG.md#0131
