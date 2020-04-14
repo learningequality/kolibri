@@ -117,7 +117,6 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -138,7 +137,6 @@
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig']),
       backgroundImageStyle() {
         if (this.$kolibriBranding.signIn.background) {
           const scrimOpacity =
@@ -168,7 +166,7 @@
         return plugin_data.oidcProviderEnabled && this.nextParam;
       },
       showGuestAccess() {
-        return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
+        return plugin_data.allowGuestAccess && !this.oidcProviderFlow;
       },
 
       versionMsg() {

@@ -9,6 +9,7 @@ from kolibri.core.auth.constants.user_kinds import LEARNER
 from kolibri.core.content.hooks import ContentNodeDisplayHook
 from kolibri.core.device.utils import is_landing_page
 from kolibri.core.device.utils import LANDING_PAGE_LEARN
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack import hooks as webpack_hooks
@@ -43,6 +44,10 @@ class LearnNavItem(NavigationHook):
 @register_hook
 class LearnAsset(webpack_hooks.WebpackBundleHook):
     bundle_id = "app"
+
+    @property
+    def plugin_data(self):
+        return { "allowGuestAccess": get_device_setting("allow_guest_access") }
 
 
 @register_hook

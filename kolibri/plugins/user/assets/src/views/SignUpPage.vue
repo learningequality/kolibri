@@ -190,6 +190,9 @@
         // query is before hash
         return getUrlParameter('next');
       },
+      showGuestAccess() {
+        return plugin_data.allowGuestAccess;
+      },
     },
     beforeMount() {
       // If no user input is in memory, reset the wizard
@@ -244,9 +247,6 @@
         } else {
           this.focusOnInvalidField();
         }
-      },
-      showGuestAccess() {
-        return this.selectedFacility.dataset.allow_guest_access;
       },
       submitNewFacilityUser() {
         this.formSubmitted = true;
