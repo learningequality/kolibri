@@ -31,7 +31,7 @@ Architecture: all
 Depends: python3 (>= 3.4),
          python3-pkg-resources,
          adduser
-Recommends: python3-cryptography
+Recommends: python3-cryptography (>= 1.2.3)
 Description: The offline app for universal education
  An educational platform for learners of all ages.
  .
