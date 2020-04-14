@@ -21,6 +21,16 @@ PIDFILE_UWSGI=/var/run/$NAME/uwsgi.pid
 # Exit if the package is not installed
 [ -x "$MAIN" ] || exit 0
 
+# Prefer runuser over su
+# See: https://github.com/learningequality/kolibri-installer-debian/issues/90
+# Check if runuser exists - it doesn't on 14.04
+if which runuser > /dev/null
+then
+  SU_COMMAND="runuser"
+else
+  SU_COMMAND="su"
+fi
+
 # Read configuration variable file if it is present
 [ -r $CONFIG_FILE ] || { echo "Configuration not found: $CONFIG_FILE" && exit 1 ;}
 [ -r $CONFIG_FILE ] && . $CONFIG_FILE
@@ -52,7 +62,7 @@ do_start()
   #   1 if daemon was already running
   #   2 if daemon could not be started
   # upgrade nginx and kolibri configurations:
-  su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py"
+  $SU_COMMAND $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py"
   # ensure kolibri application is running:
   do_check_nginx
   su $KOLIBRI_USER -c "$KOLIBRI_COMMAND start &"

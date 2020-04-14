@@ -1,3 +1,9 @@
+kolibri-server (0.3.7~beta1-0ubuntu2) bionic; urgency=medium
+
+  * Use runuser instead of su (potential systemd issue) #54
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 14 Apr 2020 12:41:39 +0200
+
 kolibri-server (0.3.7~beta1-0ubuntu1) bionic; urgency=medium
 
   [ José L. Redrejo Rodríguez ]
