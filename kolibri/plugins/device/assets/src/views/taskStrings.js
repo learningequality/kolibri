@@ -1,6 +1,6 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
-export default createTranslator('TaskStrings', {
+const taskStrings = createTranslator('TaskStrings', {
   // Generic Task strings
   taskWaitingStatus: {
     message: 'Waiting',
@@ -27,12 +27,16 @@ export default createTranslator('TaskStrings', {
     context: 'A catch-all status for unknown task statuses',
   },
   taskStartedByLabel: {
-    message: `Started by: '{username}'`,
+    message: `Started by '{username}'`,
     context: 'Displays the user that started a task',
   },
   clearCompletedTasksAction: {
     message: 'Clear completed',
     context: 'Label for buttons that clear completed tasks',
+  },
+  unknownUsername: {
+    message: 'Unknown user',
+    context: 'A placeholder username if the username is not attached to Task',
   },
 
   // Sync Facility Task strings
@@ -68,6 +72,14 @@ export default createTranslator('TaskStrings', {
     message: `Sync '{facilityName}'`,
     context: 'Description of sync-facility task',
   },
+  syncStepAndDescription: {
+    message: '{step, number} of {total, number}: {description}',
+    context: 'Template for message of the form "Step 1 of 7: Establishing connection"',
+  },
+  syncBytesSentAndReceived: {
+    message: `{bytesSent} sent • {bytesReceived} received`,
+    context: 'Amounts of data transferred in sync task',
+  },
 
   // Remove Facility Task strings
   removingFacilityStatus: {
@@ -78,4 +90,18 @@ export default createTranslator('TaskStrings', {
     message: `Remove '{facilityName}'`,
     context: 'Description of a remove-facility task',
   },
+  removeFacilitySuccessStatus: {
+    message: 'Facility successfully removed',
+    context: 'Message that shows after Facility is successfully removed',
+  },
 });
+
+export default taskStrings;
+
+export const taskStringsMixin = {
+  methods: {
+    getTaskString(...args) {
+      return taskStrings.$tr(...args);
+    },
+  },
+};
