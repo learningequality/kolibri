@@ -104,6 +104,7 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { FacilityUsernameResource } from 'kolibri.resources';
+  import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
@@ -222,7 +223,9 @@
         return { name: PageNames.SIGN_UP };
       },
       showFacilityName() {
-        return this.hasMultipleFacilities || this.selectedFacility.dataset.preset !== 'informal';
+        return (
+          this.hasMultipleFacilities || get(this.selectedFacility, 'dataset.preset') !== 'informal'
+        );
       },
     },
     watch: {
