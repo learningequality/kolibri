@@ -88,9 +88,10 @@ do_stop_uwsgi()
   #   other if a failure occurred
   start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE_UWSGI --name uwsgi
   RETVAL="$?"
-  [ "$RETVAL" = 2 ] && return 2
   # Many daemons don't delete their pidfiles when they exit.
   rm -f $PIDFILE_UWSGI
+  rm -f /tmp/kolibri_uwsgi.sock
+  [ "$RETVAL" = 2 ] && return 2
   return 0
 }
 
@@ -115,8 +116,6 @@ do_stop() {
   do_stop_uwsgi
 
   retval=$?
-  rm -f $PIDFILE_UWSGI
-  rm -f /tmp/kolibri_uwsgi.sock
   [ $retval -eq 0 ]
   return $retval
 }
