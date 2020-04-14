@@ -116,7 +116,6 @@ do_stop() {
   do_stop_uwsgi
 
   retval=$?
-  [ $retval -eq 0 ]
   return $retval
 }
 
