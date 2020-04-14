@@ -30,7 +30,7 @@ from launchpadlib.launchpad import Launchpad
 
 PPA_OWNER = 'learningequality'
 PPA_NAME = 'kolibri-proposed'
-PACKAGE_WHITELIST = ['kolibri-server-source']
+PACKAGE_WHITELIST = ['kolibri-server']
 
 SOURCE_SERIES = 'bionic'
 TARGET_SERIESES = ['xenial', 'bionic', 'disco', 'eoan']
