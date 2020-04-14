@@ -64,8 +64,6 @@
   import UpdateYourProfileModal from './UpdateYourProfileModal';
   import plugin_data from 'plugin_data';
 
-  console.log(plugin_data);
-
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: ChannelsPage,
     [PageNames.TOPICS_CHANNEL]: TopicsPage,
