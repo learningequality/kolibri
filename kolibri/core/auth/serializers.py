@@ -91,6 +91,7 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
             "location",
             "allow_guest_access",
             "registered",
+            "preset",
         )
 
     def get_allow_guest_access(self, instance):

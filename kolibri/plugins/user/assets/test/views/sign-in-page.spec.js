@@ -5,11 +5,18 @@ import makeStore from '../makeStore';
 jest.mock('kolibri.urls');
 
 function makeWrapper() {
+  const store = makeStore();
+  store.state.facilityId = '123';
+  store.state.core.facilities.push({
+    id: '123',
+    name: 'test facility',
+  });
   return mount(SignInPage, {
-    store: makeStore(),
+    store,
   });
 }
 
+//
 describe('signInPage component', () => {
   it('smoke test', () => {
     const wrapper = makeWrapper();
