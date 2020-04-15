@@ -48,6 +48,8 @@
         return this.$route.name;
       },
       immersivePageProps() {
+        let immersivePagePrimary = true;
+        let immersivePageIcon = 'arrow_back';
         let immersivePageRoute;
         let appBarTitle = '';
         if (
@@ -80,9 +82,9 @@
         if (immersivePageRoute) {
           return {
             immersivePage: true,
-            immersivePageIcon: 'arrow_back',
-            immersivePageRoute: immersivePageRoute,
-            immersivePagePrimary: true,
+            immersivePageIcon,
+            immersivePageRoute,
+            immersivePagePrimary,
             appBarTitle,
           };
         }

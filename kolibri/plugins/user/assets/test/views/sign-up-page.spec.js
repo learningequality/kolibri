@@ -9,6 +9,7 @@ localVue.use(VueRouter);
 function makeWrapper() {
   const store = makeStore();
   store.state.core.facilities = [{ id: 1, name: 'facility' }];
+  store.state.facilityId = 1;
   return mount(SignUpPage, {
     store,
     router: new VueRouter({

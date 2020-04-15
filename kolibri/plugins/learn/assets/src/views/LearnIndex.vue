@@ -62,6 +62,7 @@
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
   import UpdateYourProfileModal from './UpdateYourProfileModal';
+  import plugin_data from 'plugin_data';
 
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: ChannelsPage,
@@ -96,7 +97,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'canAccessUnassignedContent']),
+      ...mapGetters(['isUserLoggedIn', 'canAccessUnassignedContent']),
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
         currentLesson: 'currentLesson',
@@ -111,7 +112,7 @@
       ...mapState('examReportViewer', ['exam']),
       ...mapState(['pageName']),
       userIsAuthorized() {
-        return this.facilityConfig.allow_guest_access || this.isUserLoggedIn;
+        return plugin_data.allowGuestAccess || this.isUserLoggedIn;
       },
       currentPage() {
         return pageNameToComponentMap[this.pageName] || null;

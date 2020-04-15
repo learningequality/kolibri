@@ -86,6 +86,7 @@ import PrivacyLinkAndModal from '../views/userAccounts/PrivacyLinkAndModal.vue';
 import PaginatedListContainer from '../views/PaginatedListContainer';
 import PageStatus from '../views/ExamReport/PageStatus';
 import branding from '../utils/branding';
+import sortLanguages from '../utils/sortLanguages';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -208,5 +209,6 @@ export default {
     bytesForHumans,
     branding,
     scriptLoader,
+    sortLanguages,
   },
 };
