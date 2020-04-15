@@ -656,9 +656,7 @@ class Command(AsyncCommand):
                     Classroom.objects.create(
                         name=classroom.name, parent=classroom.parent
                     )
-                # clear users from classes to be updated:
-                update_classes = [c.id for c in db_update_classes]
-                Membership.objects.filter(collection__in=update_classes).delete()
+
                 self.add_classes_memberships(
                     classes, users_data, db_new_classes + db_update_classes
                 )
