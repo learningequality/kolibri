@@ -2,6 +2,18 @@
 
 List of the most important changes for each release.
 
+## 0.13.2
+
+### Changed or fixed
+
+- In the Device Page, fixed multiple bugs related to managing channels.
+
+### Internationalization and localization
+
+- Added Italian
+
+([0.13.2 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.13.2))
+
 ## 0.13.1
 
 ### Added
