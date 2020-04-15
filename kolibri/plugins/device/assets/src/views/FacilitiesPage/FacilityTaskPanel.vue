@@ -3,7 +3,7 @@
   <TaskPanel
     :statusMsg="taskInfo.statusMsg"
     :headingMsg="taskInfo.headingMsg"
-    :task="taskInfo.taskData"
+    :task="task"
     :showCircularLoader="taskInfo.isRunning"
   >
     <template #underheading>
@@ -55,9 +55,6 @@
         }
         return null;
       },
-    },
-    methods: {
-      taskIsRunningPred(task) {},
     },
     $trs: {},
   };

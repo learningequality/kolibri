@@ -18,7 +18,7 @@
       <KButton
         v-if="showClearCompletedButton"
         appearance="basic-link"
-        :text="coreString('clearCompletedTasksAction')"
+        :text="getTaskString('clearCompletedTasksAction')"
         @click="$emit('clearall')"
       />
       <span>&nbsp;&nbsp;</span>
@@ -40,11 +40,12 @@
   import some from 'lodash/some';
   import sumBy from 'lodash/sumBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import { taskIsClearable } from '../../constants';
 
   export default {
     name: 'TasksBar',
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin, commonTaskStrings],
     props: {
       tasks: {
         type: Array,

@@ -86,12 +86,12 @@
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import { taskIsClearable, TaskStatuses } from '../../constants';
-  import { taskStringsMixin } from '../taskStrings';
 
   export default {
     name: 'TaskPanel',
-    mixins: [commonCoreStrings, responsiveWindowMixin, taskStringsMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin, commonTaskStrings],
     props: {
       task: {
         type: Object,

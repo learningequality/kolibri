@@ -96,12 +96,12 @@ const taskStrings = createTranslator('TaskStrings', {
   },
 });
 
-export default taskStrings;
+export function getTaskString(...args) {
+  return taskStrings.$tr(...args);
+}
 
-export const taskStringsMixin = {
+export default {
   methods: {
-    getTaskString(...args) {
-      return taskStrings.$tr(...args);
-    },
+    getTaskString,
   },
 };

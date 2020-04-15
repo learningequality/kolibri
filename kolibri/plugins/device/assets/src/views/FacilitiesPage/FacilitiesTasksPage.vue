@@ -11,7 +11,7 @@
     <HeaderWithOptions :headerText="coreString('tasksLabel')">
       <template #options>
         <KButton
-          :text="taskString('clearCompletedTasksAction')"
+          :text="getTaskString('clearCompletedTasksAction')"
           @click="handleClickClearAll"
         />
       </template>
@@ -33,8 +33,8 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import HeaderWithOptions from '../HeaderWithOptions';
-  import taskStrings from '../taskStrings';
   import FacilityTaskPanel from './FacilityTaskPanel';
   import { taskPanelTasks } from './mockData';
 
@@ -44,7 +44,7 @@
       FacilityTaskPanel,
       HeaderWithOptions,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonTaskStrings],
     props: {},
     computed: {
       tasks() {
@@ -52,9 +52,6 @@
       },
     },
     methods: {
-      taskString(...args) {
-        return taskStrings.$tr(...args);
-      },
       handleClickClearAll() {},
     },
     $trs: {

@@ -1,7 +1,7 @@
 import { coreStrings } from 'kolibri.coreVue.mixins.commonCoreStrings';
+import { getTaskString } from 'kolibri.coreVue.mixins.commonTaskStrings';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
 import { taskIsClearable, TaskStatuses } from '../constants';
-import taskStrings from './taskStrings';
 
 const SyncTaskStatuses = {
   SESSION_CREATION: 'SESSION_CREATION',
@@ -25,28 +25,29 @@ const syncTaskStatusToStepMap = {
 };
 
 const genericStatusToDescriptionMap = {
-  [TaskStatuses.PENDING]: taskStrings.$tr('taskWaitingStatus'),
-  [TaskStatuses.COMPLETED]: taskStrings.$tr('taskFinishedStatus'),
-  [TaskStatuses.CANCELED]: taskStrings.$tr('taskCanceledStatus'),
-  [TaskStatuses.CANCELING]: taskStrings.$tr('taskCancelingStatus'),
-  [TaskStatuses.FAILED]: taskStrings.$tr('taskFailedStatus'),
+  [TaskStatuses.PENDING]: getTaskString('taskWaitingStatus'),
+  [TaskStatuses.COMPLETED]: getTaskString('taskFinishedStatus'),
+  [TaskStatuses.CANCELED]: getTaskString('taskCanceledStatus'),
+  [TaskStatuses.CANCELING]: getTaskString('taskCancelingStatus'),
+  [TaskStatuses.FAILED]: getTaskString('taskFailedStatus'),
 };
 
 export const syncStatusToDescriptionMap = {
   ...genericStatusToDescriptionMap,
-  [SyncTaskStatuses.SESSION_CREATION]: taskStrings.$tr('establishingConnectionStatus'),
-  [SyncTaskStatuses.REMOTE_QUEUING]: taskStrings.$tr('remotelyPreparingDataStatus'),
-  [SyncTaskStatuses.PULLING]: taskStrings.$tr('receivingDataStatus'),
-  [SyncTaskStatuses.LOCAL_DEQUEUING]: taskStrings.$tr('locallyIntegratingDataStatus'),
-  [SyncTaskStatuses.LOCAL_QUEUING]: taskStrings.$tr('locallyPreparingDataStatus'),
-  [SyncTaskStatuses.PUSHING]: taskStrings.$tr('sendingDataStatus'),
-  [SyncTaskStatuses.REMOTE_DEQUEUING]: taskStrings.$tr('remotelyIntegratingDataStatus'),
+  [SyncTaskStatuses.SESSION_CREATION]: getTaskString('establishingConnectionStatus'),
+  [SyncTaskStatuses.REMOTE_QUEUING]: getTaskString('remotelyPreparingDataStatus'),
+  [SyncTaskStatuses.PULLING]: getTaskString('receivingDataStatus'),
+  [SyncTaskStatuses.LOCAL_DEQUEUING]: getTaskString('locallyIntegratingDataStatus'),
+  [SyncTaskStatuses.LOCAL_QUEUING]: getTaskString('locallyPreparingDataStatus'),
+  [SyncTaskStatuses.PUSHING]: getTaskString('sendingDataStatus'),
+  [SyncTaskStatuses.REMOTE_DEQUEUING]: getTaskString('remotelyIntegratingDataStatus'),
 };
 
 function formatNameWithId(name, id) {
   return coreStrings.$tr('nameWithIdInParens', { name, id: id.slice(0, 4) });
 }
 
+// Consolidates logic on how Sync-Facility Tasks should be displayed
 export function syncFacilityTaskDisplayInfo(task) {
   let statusMsg;
   let bytesTransferredMsg = '';
@@ -55,10 +56,10 @@ export function syncFacilityTaskDisplayInfo(task) {
   const deviceNameMsg = formatNameWithId(task.device_name, task.device_id);
   const syncStep = syncTaskStatusToStepMap[task.status];
   const statusDescription =
-    syncStatusToDescriptionMap[task.status] || taskStrings.$tr('taskUnknownStatus');
+    syncStatusToDescriptionMap[task.status] || getTaskString('taskUnknownStatus');
 
   if (syncStep) {
-    statusMsg = taskStrings.$tr('syncStepAndDescription', {
+    statusMsg = getTaskString('syncStepAndDescription', {
       step: syncStep,
       total: 7,
       description: statusDescription,
@@ -68,7 +69,7 @@ export function syncFacilityTaskDisplayInfo(task) {
   }
 
   if (task.status === TaskStatuses.COMPLETED) {
-    bytesTransferredMsg = taskStrings.$tr('syncBytesSentAndReceived', {
+    bytesTransferredMsg = getTaskString('syncBytesSentAndReceived', {
       bytesReceived: bytesForHumans(task.bytes_received),
       bytesSent: bytesForHumans(task.bytes_sent),
     });
@@ -77,36 +78,36 @@ export function syncFacilityTaskDisplayInfo(task) {
   const canClear = taskIsClearable(task);
 
   return {
-    headingMsg: taskStrings.$tr('syncFacilityTaskLabel', { facilityName }),
+    headingMsg: getTaskString('syncFacilityTaskLabel', { facilityName }),
     statusMsg,
-    startedByMsg: taskStrings.$tr('taskStartedByLabel', { username: task.started_by_username }),
+    startedByMsg: getTaskString('taskStartedByLabel', { username: task.started_by_username }),
     bytesTransferredMsg,
     deviceNameMsg,
     isRunning: Boolean(syncStep),
     canClear,
     canCancel: !canClear,
     canRetry: task.status === TaskStatuses.FAILED,
-    taskData: task,
   };
 }
 
 export const removeStatusToDescriptionMap = {
   ...genericStatusToDescriptionMap,
-  REMOVING_FACILITY: taskStrings.$tr('removingFacilityStatus'),
+  REMOVING_FACILITY: getTaskString('removingFacilityStatus'),
 };
 
+// Consolidates logic on how Remove-Facility Tasks should be displayed
 export function removeFacilityTaskDisplayInfo(task) {
   const facilityName = formatNameWithId(task.facility_name, task.facility_id);
   const statusDescription =
-    removeStatusToDescriptionMap[task.status] || taskStrings.$tr('taskUnknownStatus');
+    removeStatusToDescriptionMap[task.status] || getTaskString('taskUnknownStatus');
 
   return {
-    headingMsg: taskStrings.$tr('removeFacilityTaskLabel', { facilityName }),
+    headingMsg: getTaskString('removeFacilityTaskLabel', { facilityName }),
     statusMsg: statusDescription,
-    startedByMsg: taskStrings.$tr('taskStartedByLabel', { username: task.started_by_username }),
+    startedByMsg: getTaskString('taskStartedByLabel', { username: task.started_by_username }),
+    isRunning: task.status === 'REMOVING_FACILITY',
     canClear: taskIsClearable(task),
     canCancel: !taskIsClearable(task) && task.status !== 'REMOVING_FACILITY',
     canRetry: task.status === TaskStatuses.FAILED,
-    taskData: task,
   };
 }

@@ -45,6 +45,7 @@ import AuthMessage from '../views/AuthMessage';
 import FilterTextbox from '../views/FilterTextbox';
 import router from '../router';
 import commonCoreStrings from '../mixins/commonCoreStrings';
+import commonTaskStrings from '../mixins/taskStrings';
 import CoreFullscreen from '../views/CoreFullscreen';
 import definitions from '../styles/definitions.scss';
 import keenVars from '../keen-config/variables.scss';
@@ -182,6 +183,7 @@ export default {
       responsiveWindowMixin,
       responsiveElementMixin,
       commonCoreStrings,
+      commonTaskStrings,
     },
   },
   resources,
