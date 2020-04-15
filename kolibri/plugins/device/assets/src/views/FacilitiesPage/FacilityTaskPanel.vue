@@ -1,12 +1,20 @@
 <template>
 
-  <div>
-    <p>{{ taskInfo.statusMsg }}</p>
-    <p>{{ taskinfo.bytesTransferredMsg }}</p>
-    <p>{{ taskInfo.title }}</p>
-    <p>{{ taskInfo.deviceNameMsg }}</p>
-    <p>{{ taskInfo.startedByMsg }}</p>
-  </div>
+  <TaskPanel
+    :statusMsg="taskInfo.statusMsg"
+    :headingMsg="taskInfo.headingMsg"
+    :task="taskInfo.taskData"
+    :showCircularLoader="taskInfo.isRunning"
+  >
+    <template #underheading>
+      <p v-if="taskInfo.deviceNameMsg">
+        {{ taskInfo.deviceNameMsg }}
+      </p>
+      <p v-if="taskInfo.bytesTransferredMsg">
+        {{ taskInfo.bytesTransferredMsg }}
+      </p>
+    </template>
+  </TaskPanel>
 
 </template>
 
@@ -14,11 +22,14 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { syncTaskDisplayInfo, removeFacilityTaskDisplayInfo } from '../syncTaskUtils';
+  import { syncFacilityTaskDisplayInfo, removeFacilityTaskDisplayInfo } from '../syncTaskUtils';
+  import TaskPanel from './TaskPanel';
 
   export default {
     name: 'FacilityTaskPanel',
-    components: {},
+    components: {
+      TaskPanel,
+    },
     mixins: [commonCoreStrings],
     props: {
       task: {
@@ -38,14 +49,16 @@
       },
       taskInfo() {
         if (this.isSyncTask) {
-          return syncTaskDisplayInfo(this.task);
+          return syncFacilityTaskDisplayInfo(this.task);
         } else if (this.isRemoveTask) {
           return removeFacilityTaskDisplayInfo(this.task);
         }
         return null;
       },
     },
-    methods: {},
+    methods: {
+      taskIsRunningPred(task) {},
+    },
     $trs: {},
   };
 

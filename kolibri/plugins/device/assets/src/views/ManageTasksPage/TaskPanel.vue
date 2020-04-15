@@ -43,7 +43,7 @@
             :style="{ backgroundColor: $themeTokens.fineLine }"
           />
           <span v-if="taskPercentage" class="details-percentage">
-            {{ $tr('progressPercentage', { progress: taskPercentage }) }}
+            {{ $formatNumber(taskPercentage, { style: 'percent' }) }}
           </span>
         </template>
         <template v-else-if="taskIsCanceling">
@@ -277,7 +277,6 @@
       // Catch-all strings if the channel or username doesn't get attached to Task
       unknownUsername: 'Unknown user',
       unknownChannelName: '(Channel name unavailable)',
-      progressPercentage: '{progress, number, percent}',
       /* eslint-disable kolibri/vue-no-unused-translations */
       // stubs
       stopAction: 'Stop',
