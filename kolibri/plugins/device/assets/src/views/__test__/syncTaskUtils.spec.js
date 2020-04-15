@@ -37,7 +37,7 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
       expect(syncFacilityTaskDisplayInfo(task)).toMatchObject({
         headingMsg: "Sync 'invariant facility (fac1)'",
         startedByMsg: "Started by 'invariant user'",
-        deviceNameMsg: 'invariant device (dev1)',
+        deviceNameMsg: "'invariant device (dev1)'",
       });
     });
   });

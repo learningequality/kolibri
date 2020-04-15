@@ -51,7 +51,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   facilitiesLabel: 'Facilities',
   facilityName: 'Facility name',
   facilityNameWithId: '{facilityName} ({id})',
-  nameWithIdInParens: '{name} ({id})',
   facilityDuplicated: 'There is already a facility with this name on this device',
   fullNameLabel: 'Full name',
   genderLabel: 'Gender',
@@ -86,6 +85,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // Errors
   requiredFieldError: 'This field is required',
   usernameNotAlphaNumError: 'Username can only contain letters, numbers, and underscores',
+
+  // Formatting
+  nameWithIdInParens: '{name} ({id})',
+  quotedPhrase: `'{phrase}'`,
 
   // Demographic-specific strings
   genderOptionMale: 'Male',

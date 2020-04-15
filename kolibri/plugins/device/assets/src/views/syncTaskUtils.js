@@ -1,5 +1,5 @@
-import { coreStrings } from 'kolibri.coreVue.mixins.commonCoreStrings';
-import { getTaskString } from 'kolibri.coreVue.mixins.commonTaskStrings';
+import coreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
 import { taskIsClearable, TaskStatuses } from '../constants';
 
@@ -13,6 +13,9 @@ const SyncTaskStatuses = {
   REMOTE_DEQUEUING: 'REMOTE_DEQUEUING',
   REMOVING_FACILITY: 'REMOVING_FACILITY',
 };
+
+const { getTaskString } = taskStrings.methods;
+const { coreString } = coreStrings.methods;
 
 const syncTaskStatusToStepMap = {
   [SyncTaskStatuses.SESSION_CREATION]: 1,
@@ -44,7 +47,7 @@ export const syncStatusToDescriptionMap = {
 };
 
 function formatNameWithId(name, id) {
-  return coreStrings.$tr('nameWithIdInParens', { name, id: id.slice(0, 4) });
+  return coreString('nameWithIdInParens', { name, id: id.slice(0, 4) });
 }
 
 // Consolidates logic on how Sync-Facility Tasks should be displayed
@@ -53,7 +56,9 @@ export function syncFacilityTaskDisplayInfo(task) {
   let bytesTransferredMsg = '';
 
   const facilityName = formatNameWithId(task.facility_name, task.facility_id);
-  const deviceNameMsg = formatNameWithId(task.device_name, task.device_id);
+  const deviceNameMsg = coreString('quotedPhrase', {
+    phrase: formatNameWithId(task.device_name, task.device_id),
+  });
   const syncStep = syncTaskStatusToStepMap[task.status];
   const statusDescription =
     syncStatusToDescriptionMap[task.status] || getTaskString('taskUnknownStatus');

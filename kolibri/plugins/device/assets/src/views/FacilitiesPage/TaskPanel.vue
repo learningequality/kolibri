@@ -4,7 +4,7 @@
     <div class="icon">
       <transition mode="out-in">
         <KCircularLoader
-          v-if="showCircularLoader"
+          v-if="showCircularLoader || taskIsCanceling"
           :size="24"
           :stroke="5"
         />
@@ -35,9 +35,11 @@
         {{ headingMsg }}
       </h2>
 
-      <slot name="underheading"></slot>
+      <p v-if="underHeadingMsg" class="fs0">
+        {{ underHeadingMsg }}
+      </p>
 
-      <div v-if="loaderType" class="details-progress-bar">
+      <div v-if="loaderType && !statusHidesLoader" class="details-progress-bar">
         <template v-if="loaderType === 'determinate'">
           <KLinearLoader
             class="k-linear-loader"
@@ -61,20 +63,35 @@
         </template>
       </div>
 
-      <slot name="underprogressbar"></slot>
+      <p v-if="underProgressMsg" class="fs0">
+        {{ underProgressMsg }}
+      </p>
 
-      <p class="details-startedby" :style="{ color: $themeTokens.annotation }">
+      <p class="fs0" :style="{ color: $themeTokens.annotation }">
         {{ startedByMsg }}
       </p>
     </div>
 
     <div class="buttons" :class="{ 'button-lift': Boolean(loaderType) }">
       <KButton
-        v-if="taskIsCancellable || taskIsClearable"
+        v-if="buttonSet === 'cancel'"
         :disabled="taskIsCanceling"
-        :text="buttonLabel"
+        :text="coreString('cancelAction')"
         appearance="flat-button"
-        @click="handleClick"
+        @click="$emit('cancel')"
+      />
+      <KButton
+        v-if="buttonSet === 'clear' || buttonSet === 'retry'"
+        :text="coreString('clearAction')"
+        appearance="flat-button"
+        @click="$emit('clear')"
+      />
+      <KButton
+        v-if="buttonSet === 'retry'"
+        :text="coreString('retryAction')"
+        appearance="raised-button"
+        primary
+        @click="$emit('retry')"
       />
     </div>
   </div>
@@ -87,7 +104,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
-  import { taskIsClearable, TaskStatuses } from '../../constants';
+  import { TaskStatuses } from '../../constants';
 
   export default {
     name: 'TaskPanel',
@@ -105,9 +122,17 @@
         type: String,
         required: true,
       },
+      underHeadingMsg: {
+        type: String,
+        required: false,
+      },
+      underProgressMsg: {
+        type: String,
+        required: false,
+      },
       showCircularLoader: {
         type: Boolean,
-        required: true,
+        default: false,
       },
       loaderType: {
         type: String,
@@ -116,14 +141,15 @@
           return value === 'determinate' || value === 'indeterminate';
         },
       },
+      buttonSet: {
+        type: String,
+        required: false,
+        validator(value) {
+          return value === '' || value === 'clear' || value === 'cancel' || value === 'retry';
+        },
+      },
     },
     computed: {
-      buttonLabel() {
-        if (this.taskIsClearable) {
-          return this.coreString('clearAction');
-        }
-        return this.coreString('cancelAction');
-      },
       taskIsCompleted() {
         return this.task.status === TaskStatuses.COMPLETED;
       },
@@ -136,35 +162,21 @@
       taskIsFailed() {
         return this.task.status === TaskStatuses.FAILED || this.taskIsCanceled;
       },
-      taskIsCancellable() {
-        return this.task.cancellable;
-      },
-      taskIsClearable() {
-        return taskIsClearable(this.task);
-      },
       taskPercentage() {
         return this.task.percentage;
       },
-      // loaderType() {
-      //   // Show an indeterminate loader while bulk import is still in pre-importcontent step.
-      //   if (this.taskPercentage === null) {
-      //     return 'indeterminate';
-      //   }
-      //   return 'determinate';
-      // },
       startedByMsg() {
         return this.getTaskString('taskStartedByLabel', {
-          user: this.task.started_by_username || this.getTaskString('unknownUsername'),
+          username: this.task.started_by_username || this.getTaskString('unknownUsername'),
         });
       },
-    },
-    methods: {
-      handleClick() {
-        if (this.taskIsCompleted || this.taskIsFailed) {
-          this.$emit('clickclear');
-        } else {
-          this.$emit('clickcancel');
-        }
+      statusHidesLoader() {
+        return (
+          this.task.status === TaskStatuses.PENDING ||
+          this.taskIsCompleted ||
+          this.taskIsCanceling ||
+          this.taskIsFailed
+        );
       },
     },
   };
@@ -253,7 +265,7 @@
     font-size: $fs1;
   }
 
-  .details-startedby {
+  .fs0 {
     font-size: $fs0;
   }
 

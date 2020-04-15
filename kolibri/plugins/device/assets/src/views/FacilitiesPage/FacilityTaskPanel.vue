@@ -3,18 +3,13 @@
   <TaskPanel
     :statusMsg="taskInfo.statusMsg"
     :headingMsg="taskInfo.headingMsg"
+    :underHeadingMsg="underHeadingMsg"
+    :underProgressMsg="underProgressMsg"
     :task="task"
+    :loaderType="loaderType"
     :showCircularLoader="taskInfo.isRunning"
-  >
-    <template #underheading>
-      <p v-if="taskInfo.deviceNameMsg">
-        {{ taskInfo.deviceNameMsg }}
-      </p>
-      <p v-if="taskInfo.bytesTransferredMsg">
-        {{ taskInfo.bytesTransferredMsg }}
-      </p>
-    </template>
-  </TaskPanel>
+    :buttonSet="buttonSet"
+  />
 
 </template>
 
@@ -54,6 +49,24 @@
           return removeFacilityTaskDisplayInfo(this.task);
         }
         return null;
+      },
+      loaderType() {
+        return 'determinate';
+      },
+      underHeadingMsg() {
+        return this.taskInfo.deviceNameMsg;
+      },
+      underProgressMsg() {
+        return this.taskInfo.bytesTransferredMsg;
+      },
+      buttonSet() {
+        if (this.taskInfo.canCancel) {
+          return 'cancel';
+        } else if (this.taskInfo.canClear) {
+          return this.taskInfo.canRetry ? 'retry' : 'clear';
+        } else {
+          return '';
+        }
       },
     },
     $trs: {},
