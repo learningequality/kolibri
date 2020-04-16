@@ -354,6 +354,7 @@ export default {
       });
       Object.assign(state, {
         id: summary.id,
+        facility_id: summary.facility_id,
         name: summary.name,
         coachMap: _itemMap(summary.coaches, 'id'),
         learnerMap: _itemMap(summary.learners, 'id'),

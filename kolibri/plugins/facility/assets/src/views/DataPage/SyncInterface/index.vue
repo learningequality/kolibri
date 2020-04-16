@@ -129,8 +129,13 @@
     }),
     computed: {
       ...mapState('manageSync', ['modalShown']),
-      ...mapState('manageCSV', ['facilityTaskId', 'facilities']),
+      ...mapState('manageCSV', ['facilityTaskId']),
       Modals: () => Modals,
+      facilities() {
+        return this.$store.state.manageCSV.facilities.filter(
+          ({ id }) => id === this.$store.getters.activeFacilityId
+        );
+      },
     },
     methods: {
       ...mapActions('manageSync', ['displayModal']),

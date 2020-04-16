@@ -1,16 +1,14 @@
 import { FacilityUserResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { PageNames } from '../../constants';
 import { _userState } from '../mappers';
 
 // An action for setting up the initial state of the app by fetching data from the server
-export function showUserPage(store) {
-  store.dispatch('preparePage', {
-    name: PageNames.USER_MGMT_PAGE,
-  });
+export function showUserPage(store, toRoute) {
+  store.dispatch('preparePage');
+  const facilityId = toRoute.params.facility_id || store.getters.activeFacilityId;
 
   return FacilityUserResource.fetchCollection({
-    getParams: { member_of: store.getters.currentFacilityId },
+    getParams: { member_of: facilityId },
     force: true,
   }).only(
     samePageCheckGenerator(store),

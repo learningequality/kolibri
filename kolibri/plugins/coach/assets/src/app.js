@@ -20,20 +20,35 @@ class CoachToolsModule extends KolibriApp {
   }
   ready() {
     router.beforeEach((to, from, next) => {
+      const promises = [];
       // Clear the snackbar at every navigation to prevent it from re-appearing
       // when the next page component mounts.
       if (this.store.state.core.snackbar.isVisible) {
         this.store.dispatch('clearSnackbar');
       }
       this.store.commit('SET_PAGE_NAME', to.name);
-      if (!['CoachClassListPage', 'StatusTestPage', 'CoachPrompts'].includes(to.name)) {
-        this.store
-          .dispatch('initClassInfo', to.params.classId)
-          .then(next, error => this.store.dispatch('handleApiError', error));
+      if (
+        to.name &&
+        !['CoachClassListPage', 'StatusTestPage', 'CoachPrompts', 'AllFacilitiesPage'].includes(
+          to.name
+        )
+      ) {
+        promises.push(this.store.dispatch('initClassInfo', to.params.classId));
+      } else {
+        this.store.dispatch('coachNotifications/stopPolling');
+      }
+      if (this.store.getters.isSuperuser && this.store.state.core.facilities.length === 0) {
+        promises.push(this.store.dispatch('getFacilities').catch(() => {}));
+      }
+      if (promises.length > 0) {
+        Promise.all(promises).then(next, error => {
+          this.store.dispatch('handleApiError', error);
+        });
       } else {
         next();
       }
     });
+
     router.afterEach((toRoute, fromRoute) => {
       this.store.dispatch('resetModuleState', { toRoute, fromRoute });
     });

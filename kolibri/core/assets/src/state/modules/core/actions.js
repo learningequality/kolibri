@@ -287,7 +287,7 @@ export function saveDismissedNotification(store, notification_id) {
 
 export function getFacilities(store) {
   return FacilityResource.fetchCollection().then(facilities => {
-    store.commit('CORE_SET_FACILITIES', facilities);
+    store.commit('CORE_SET_FACILITIES', [...facilities]);
   });
 }
 

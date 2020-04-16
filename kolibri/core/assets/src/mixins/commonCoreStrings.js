@@ -28,6 +28,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
 
   // labels, phrases, titles, headers...
   adminLabel: 'Admin',
+  allFacilitiesLabel: 'All facilities',
   allLabel: 'All',
   allLessonsLabel: 'All lessons',
   birthYearLabel: 'Birth year',
@@ -42,6 +43,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   devicePermissionsLabel: 'Device permissions',
   facilityCoachLabel: 'Facility coach',
   facilityLabel: 'Facility',
+  facilitiesLabel: 'Facilities',
   facilityName: 'Facility name',
   facilityNameWithId: '{facilityName} ({id})',
   facilityDuplicated: 'There is already a facility with this name on this device',
@@ -53,6 +55,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   learnersLabel: 'Learners',
   lessonsLabel: 'Lessons',
   loadingLabel: 'Loading…',
+  nameLabel: 'Name',
   noUsersExistLabel: 'No users exist',
   optionsLabel: 'Options',
   passwordLabel: 'Password',

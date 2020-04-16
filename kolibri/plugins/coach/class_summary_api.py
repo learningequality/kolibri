@@ -345,6 +345,7 @@ class ClassSummaryViewSet(viewsets.ViewSet):
 
         output = {
             "id": pk,
+            "facility_id": classroom.parent.id,
             "name": classroom.name,
             "coaches": serialize_users(
                 FacilityUser.objects.filter(

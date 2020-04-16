@@ -116,13 +116,13 @@
         'availableSessionCSVLog',
         'availableSummaryCSVLog',
       ]),
-      ...mapState(['pageName']),
+      ...mapGetters(['activeFacilityId']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       cannotDownload() {
         return isEmbeddedWebView;
       },
       inDataExportPage() {
-        return this.pageName === PageNames.DATA_EXPORT_PAGE;
+        return this.$route.name === PageNames.DATA_EXPORT_PAGE;
       },
       noDlStyle() {
         return {
@@ -139,7 +139,7 @@
       // fetch task list after fetching facilities, to ensure proper syncing state
       FacilityResource.fetchCollection({ force: true }).then(facilities => {
         this.$store.commit('manageCSV/RESET_STATE');
-        this.$store.commit('manageCSV/SET_STATE', { facilities: facilities });
+        this.$store.commit('manageCSV/SET_STATE', { facilities });
         this.inDataExportPage && this.refreshTaskList() && this.startTaskPolling();
       });
     },
@@ -171,10 +171,16 @@
         }
       },
       downloadSessionLog() {
-        window.open(urls['kolibri:core:download_csv_file']('session'), '_blank');
+        window.open(
+          urls['kolibri:core:download_csv_file']('session', this.activeFacilityId),
+          '_blank'
+        );
       },
       downloadSummaryLog() {
-        window.open(urls['kolibri:core:download_csv_file']('summary'), '_blank');
+        window.open(
+          urls['kolibri:core:download_csv_file']('summary', this.activeFacilityId),
+          '_blank'
+        );
       },
     },
     $trs: {

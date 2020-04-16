@@ -62,7 +62,9 @@ class TaskAPIPermissionsTestCase(APITestCase):
     def test_exportlogs_permissions(self):
         with patch("kolibri.core.tasks.api._job_to_response", return_value={}):
             response = self.client.post(
-                reverse("kolibri:core:task-startexportlogcsv"), format="json"
+                reverse("kolibri:core:task-startexportlogcsv"),
+                {"facility": self.facility.pk},
+                format="json",
             )
         self.assertEqual(response.status_code, 200)
 
