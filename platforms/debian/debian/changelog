@@ -1,3 +1,21 @@
+kolibri-source (0.13.2-0ubuntu1) bionic; urgency=medium
+
+  * Kolibri v0.13.2 is released! Read the changes here: https://github.com/learningequality/kolibri/blob/v0.13.2/CHANGELOG.md#0132
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Thu, 16 Apr 2020 18:22:55 -0400
+
+kolibri-source (0.13.1-0ubuntu1) bionic; urgency=medium
+
+  * Kolibri v0.13.1 is released! Read the changes here: https://github.com/learningequality/kolibri/blob/v0.13.1/CHANGELOG.md#0131
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Fri, 14 Feb 2020 19:44:59 -0500
+
+kolibri-source (0.13.0-0ubuntu1) bionic; urgency=medium
+
+  * Kolibri 0.13.0 release. Read the changes here: https://github.com/learningequality/kolibri/blob/v0.13.0/CHANGELOG.md
+
+ -- Lingyi Wang <lingyi@learningequality.org>  Fri, 20 Dec 2019 21:16:06 -0500
+
 kolibri-source (0.12.9-0ubuntu2) bionic; urgency=high
 
   * Fixed error in postinst script
@@ -45,7 +63,7 @@ kolibri-source (0.12.6-0ubuntu1) trusty; urgency=medium
 
 kolibri-source (0.12.5-0ubuntu2) trusty; urgency=medium
 
-  * debian/rules: remove morango python 2 syntax file 
+  * debian/rules: remove morango python 2 syntax file
 
  -- Lingyi Wang <lingyi@learningequality.org>  Fri, 21 Jun 2019 12:55:53 -0400
 
