@@ -6,7 +6,8 @@ List of the most important changes for each release.
 
 ### Changed or fixed
 
-- In the Device Page, fixed multiple bugs related to managing channels.
+- Fixed: In the Device Page, multiple bugs related to managing channels.
+- Fixed: Problems viewing African Storybook content on iPads running iOS 9.
 
 ### Internationalization and localization
 
