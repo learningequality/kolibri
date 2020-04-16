@@ -104,13 +104,13 @@
 
   import { mapState, mapActions } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import ConfirmationRegisterModal from 'kolibri.coreVue.components.ConfirmationRegisterModal';
+  import RegisterFacilityModal from 'kolibri.coreVue.components.RegisterFacilityModal';
   import UiIcon from 'keen-ui/src/UiIcon';
   import { now } from 'kolibri.utils.serverClock';
   import { TaskResource } from 'kolibri.resources';
   import { Modals } from '../../../constants';
   import PrivacyModal from './PrivacyModal';
-  import RegisterFacilityModal from './RegisterFacilityModal';
-  import ConfirmationRegisterModal from './ConfirmationRegisterModal';
 
   export default {
     name: 'SyncInterface',

@@ -89,6 +89,8 @@ import PaginatedListContainer from '../views/PaginatedListContainer';
 import PageStatus from '../views/ExamReport/PageStatus';
 import branding from '../utils/branding';
 import sortLanguages from '../utils/sortLanguages';
+import ConfirmationRegisterModal from '../views/sync/ConfirmationRegisterModal';
+import RegisterFacilityModal from '../views/sync/RegisterFacilityModal';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -178,6 +180,8 @@ export default {
       PaginatedListContainer,
       PrivacyLinkAndModal,
       PageStatus,
+      ConfirmationRegisterModal,
+      RegisterFacilityModal,
     },
     router,
     mixins: {
