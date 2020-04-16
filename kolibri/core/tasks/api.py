@@ -187,8 +187,8 @@ class TasksViewSet(viewsets.ViewSet):
     @list_route(methods=["post"])
     def startchannelupdate(self, request):
 
-        sourcetype = request.data.pop("sourcetype", None)
-        new_version = request.data.pop("new_version", None)
+        sourcetype = request.data.get("sourcetype", None)
+        new_version = request.data.get("new_version", None)
 
         if sourcetype == "remote":
             task = validate_remote_import_task(request, request.data)

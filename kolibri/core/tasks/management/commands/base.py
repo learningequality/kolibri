@@ -1,4 +1,5 @@
 import abc
+import logging
 import sys
 from collections import namedtuple
 
@@ -7,6 +8,8 @@ from django.core.management.base import BaseCommand
 
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import get_current_job
+
+logger = logging.getLogger(__name__)
 
 Progress = namedtuple(
     "Progress", ["progress_fraction", "message", "extra_data", "level"]
@@ -35,12 +38,17 @@ class ProgressTracker:
             # as we only want to display progress bars from the command line.
             try:
                 click.get_current_context()
-                self.progressbar = click.progressbar(length=total, width=0)
+                # Coerce to an integer for safety, as click uses Python `range` on this
+                # value, which requires an integer argument
+                # N.B. because we are only doing this in Python3, safe to just use int,
+                # as long is Py2 only
+                self.progressbar = click.progressbar(length=int(total), width=0)
             except RuntimeError:
                 self.progressbar = None
 
     def update_progress(self, increment=1, message="", extra_data=None):
         if self.progressbar:
+            # Click only enforces integers on the total (because it is implemented assuming a length)
             self.progressbar.update(increment)
         self.progress += increment
         self.message = message

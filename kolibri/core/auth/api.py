@@ -3,7 +3,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import time
+from datetime import datetime
+from datetime import timedelta
 from itertools import groupby
+from uuid import uuid4
 
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
@@ -482,7 +485,7 @@ class SessionViewSet(viewsets.ViewSet):
             request.session["first_login"] = not UserSessionLog.objects.filter(
                 user=user
             ).exists()
-            return Response(self.get_session(request))
+            return self.get_session_response(request)
         elif (
             not password
             and FacilityUser.objects.filter(
@@ -514,16 +517,31 @@ class SessionViewSet(viewsets.ViewSet):
         return Response([])
 
     def retrieve(self, request, pk=None):
-        return Response(self.get_session(request))
+        return self.get_session_response(request)
 
-    def get_session(self, request):
+    def get_session_response(self, request):
         user = request.user
         session_key = "current"
         server_time = now()
         session = user.session_data
         session.update({"id": session_key, "server_time": server_time})
+
+        visitor_cookie_expiry = datetime.utcnow() + timedelta(days=365)
+
         if isinstance(user, AnonymousUser):
-            return session
+            response = Response(session)
+            if not request.COOKIES.get("visitor_id"):
+                visitor_id = str(uuid4())
+                response.set_cookie(
+                    "visitor_id", visitor_id, expires=visitor_cookie_expiry
+                )
+            else:
+                response.set_cookie(
+                    "visitor_id",
+                    request.COOKIES.get("visitor_id"),
+                    expires=visitor_cookie_expiry,
+                )
+            return response
         # Set last activity on session to the current time to prevent session timeout
         # Only do this for logged in users, as anonymous users cannot get logged out!
         request.session["last_session_request"] = int(time.time())
@@ -534,4 +552,14 @@ class SessionViewSet(viewsets.ViewSet):
         if active and isinstance(user, FacilityUser):
             UserSessionLog.update_log(user)
 
-        return session
+        response = Response(session)
+        if not request.COOKIES.get("visitor_id"):
+            visitor_id = str(uuid4())
+            response.set_cookie("visitor_id", visitor_id, expires=visitor_cookie_expiry)
+        else:
+            response.set_cookie(
+                "visitor_id",
+                request.COOKIES.get("visitor_id"),
+                expires=visitor_cookie_expiry,
+            )
+        return response
