@@ -85,6 +85,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // Errors
   requiredFieldError: 'This field is required',
   usernameNotAlphaNumError: 'Username can only contain letters, numbers, and underscores',
+  invalidCredentialsError: 'Incorrect username or password',
 
   // Formatting
   nameWithIdInParens: '{name} ({id})',

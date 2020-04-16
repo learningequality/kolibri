@@ -46,6 +46,7 @@ import FilterTextbox from '../views/FilterTextbox';
 import router from '../router';
 import commonCoreStrings from '../mixins/commonCoreStrings';
 import commonTaskStrings from '../mixins/taskStrings';
+import commonSyncElements from '../mixins/commonSyncElements';
 import CoreFullscreen from '../views/CoreFullscreen';
 import definitions from '../styles/definitions.scss';
 import keenVars from '../keen-config/variables.scss';
@@ -184,6 +185,7 @@ export default {
       responsiveElementMixin,
       commonCoreStrings,
       commonTaskStrings,
+      commonSyncElements,
     },
   },
   resources,
