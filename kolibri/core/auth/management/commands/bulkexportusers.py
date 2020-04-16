@@ -147,7 +147,7 @@ def csv_file_generator(facility, filepath, overwrite=True):
             if item["username"] not in usernames:
                 writer.writerow(map_output(item))
                 usernames.add(item["username"])
-                yield
+            yield item
 
 
 class Command(AsyncCommand):
