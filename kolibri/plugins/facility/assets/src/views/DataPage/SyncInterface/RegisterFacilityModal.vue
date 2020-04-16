@@ -15,7 +15,7 @@
       :label="$tr('projectToken')"
       :autofocus="true"
       :invalid="invalid"
-      :invalidText="tokenIsInvalidText"
+      :invalidText="$tr('invalidToken')"
       @input="invalid = false"
     />
   </KModal>
@@ -25,12 +25,10 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { PortalResource } from 'kolibri.resources';
-  import { Modals } from '../../../constants';
 
   export default {
     name: 'RegisterFacilityModal',
@@ -42,25 +40,21 @@
         invalid: false,
       };
     },
-    computed: {
-      tokenIsInvalidText() {
-        return this.$tr('invalidToken');
-      },
-    },
     methods: {
-      ...mapActions('manageSync', ['displayModal']),
       closeModal() {
         this.$emit('cancel');
       },
       validateToken() {
+        // TODO synchronously handle empty strings
         const strippedToken = this.token.replace('-', '');
         this.submitting = true;
         PortalResource.validateToken(strippedToken)
           .then(response => {
             this.submitting = false;
-            this.$store.commit('manageSync/SET_PROJECT_NAME', response.entity.name);
-            this.$store.commit('manageSync/SET_TOKEN', strippedToken);
-            this.displayModal(Modals.CONFIRMATION_REGISTER);
+            this.$emit('success', {
+              name: response.entity.name,
+              token: strippedToken,
+            });
           })
           .catch(error => {
             const errorsCaught = CatchErrors(error, [
@@ -86,8 +80,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
-
-</style>
+<style lang="scss" scoped></style>

@@ -86,6 +86,7 @@
     <RegisterFacilityModal
       v-if="modalShown === Modals.REGISTER_FACILITY"
       @cancel="displayModal(false)"
+      @success="handleValidateSuccess"
     />
     <ConfirmationRegisterModal
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
@@ -147,6 +148,12 @@
         TaskResource.dataportalsync(facility.id).then(response => {
           this.$store.commit('manageCSV/START_FACILITY_SYNC', response.entity);
         });
+      },
+      handleValidateSuccess(payload) {
+        const { projectName, token } = payload;
+        this.$store.commit('manageSync/SET_PROJECT_NAME', projectName);
+        this.$store.commit('manageSync/SET_TOKEN', token);
+        this.displayModal(Modals.CONFIRMATION_REGISTER);
       },
     },
     $trs: {
