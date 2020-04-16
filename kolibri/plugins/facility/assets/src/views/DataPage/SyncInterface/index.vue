@@ -91,10 +91,6 @@
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
       @cancel="displayModal(false)"
     />
-    <AlreadyRegisteredModal
-      v-if="modalShown === Modals.ALREADY_REGISTERED"
-      @cancel="displayModal(false)"
-    />
 
   </KPageContainer>
 
@@ -112,7 +108,6 @@
   import PrivacyModal from './PrivacyModal';
   import RegisterFacilityModal from './RegisterFacilityModal';
   import ConfirmationRegisterModal from './ConfirmationRegisterModal';
-  import AlreadyRegisteredModal from './AlreadyRegisteredModal';
 
   export default {
     name: 'SyncInterface',
@@ -121,7 +116,6 @@
       PrivacyModal,
       RegisterFacilityModal,
       ConfirmationRegisterModal,
-      AlreadyRegisteredModal,
       UiIcon,
     },
     data: () => ({

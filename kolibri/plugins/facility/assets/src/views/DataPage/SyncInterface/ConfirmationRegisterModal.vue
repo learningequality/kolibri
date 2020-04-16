@@ -3,12 +3,18 @@
   <KModal
     :title="$tr('registerFacility')"
     :submitText="$tr('register')"
-    :cancelText="$tr('cancel')"
+    :cancelText="alreadyRegistered ? coreString('closeAction') : coreString('cancelAction')"
     @submit="registerFacility"
     @cancel="closeModal"
   >
-    <p>{{ $tr('registerWith', { name: projectName }) }}</p>
-    <p>{{ $tr('dataSaved') }}</p>
+    <template v-if="!alreadyRegistered">
+      <p>{{ $tr('registerWith', { name: projectName }) }}</p>
+      <p>{{ $tr('dataSaved') }}</p>
+    </template>
+
+    <template v-else>
+      {{ $tr('alreadyRegistered', { name: projectName }) }}
+    </template>
 
   </KModal>
 
@@ -18,13 +24,19 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { FacilityDatasetResource, PortalResource } from 'kolibri.resources';
-  import { Modals } from '../../../constants';
 
   export default {
     name: 'ConfirmationRegisterModal',
+    mixins: [commonCoreStrings],
+    data() {
+      return {
+        alreadyRegistered: false,
+      };
+    },
     computed: {
       ...mapState('manageSync', ['projectName', 'targetFacility', 'token']),
     },
@@ -57,7 +69,7 @@
             ]);
             if (errorsCaught) {
               this.submitting = false;
-              this.displayModal(Modals.ALREADY_REGISTERED);
+              this.alreadyRegistered = true;
             } else {
               this.$store.dispatch('handleApiError', error);
             }
@@ -73,7 +85,11 @@
           '\nKolibri is asking for a confirmation before registering the facility with a project called {name}.',
       },
       dataSaved: 'Data will be saved to the cloud',
-      cancel: 'Cancel',
+      alreadyRegistered: {
+        message: "Already registered with '{name}'",
+        context:
+          '\nOnce a facility has been registered on the Kolibri Data Portal, if admin makes a second attempt to register, Kolibri will reply with this reminder that the facility has already been registered with a project called {name}.',
+      },
     },
   };
 

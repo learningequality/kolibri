@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('registerFacility')"
-    :submitText="$tr('continue')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreString('continueAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="submitting"
     @submit="validateToken"
     @cancel="closeModal"
@@ -26,6 +26,7 @@
 <script>
 
   import { mapActions } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { PortalResource } from 'kolibri.resources';
@@ -33,6 +34,7 @@
 
   export default {
     name: 'RegisterFacilityModal',
+    mixins: [commonCoreStrings],
     data() {
       return {
         submitting: false,
@@ -78,8 +80,6 @@
       enterToken: 'Enter a project token from Kolibri Data Portal',
       projectToken: 'Project token',
       invalidToken: 'Invalid token',
-      continue: 'Continue',
-      cancel: 'Cancel',
     },
   };
 
