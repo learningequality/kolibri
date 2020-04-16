@@ -6,11 +6,12 @@
       <template #options>
         <KButton
           :text="$tr('syncAllAction')"
-          @click="showSyncFacilityDataModal = true"
+          @click="showSyncAllFacilitiesModal = true"
         />
         <KButton
           :text="$tr('importFacilityAction')"
           primary
+          @click="showImportFacilityModal = true"
         />
       </template>
     </HeaderWithOptions>
@@ -64,10 +65,15 @@
       @submit="handleSubmitRemoval"
       @cancel="facilitySelectedForRemoval = null"
     />
-    <SyncFacilityDataModal
-      v-if="showSyncFacilityDataModal"
-      @submit="showSyncFacilityDataModal = false"
-      @cancel="showSyncFacilityDataModal = false"
+    <SyncAllFacilitiesModal
+      v-if="showSyncAllFacilitiesModal"
+      @submit="showSyncAllFacilitiesModal = false"
+      @cancel="showSyncAllFacilitiesModal = false"
+    />
+    <ImportFacilityModal
+      v-if="showImportFacilityModal"
+      @submit="showImportFacilityModal = false"
+      @cancel="showImportFacilityModal = false"
     />
   </div>
 
@@ -81,23 +87,25 @@
   import TasksBar from '../ManageContentPage/TasksBar.vue';
   import HeaderWithOptions from '../HeaderWithOptions';
   import RemoveFacilityModal from './RemoveFacilityModal';
-  import SyncFacilityDataModal from './SyncFacilityDataModal';
+  import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
+  import ImportFacilityModal from './ImportFacilityModal';
 
   export default {
     name: 'FacilitiesPage',
     components: {
       CoreTable,
       HeaderWithOptions,
+      ImportFacilityModal,
       RemoveFacilityModal,
-      SyncFacilityDataModal,
+      SyncAllFacilitiesModal,
       TasksBar,
     },
     mixins: [commonCoreStrings],
     props: {},
     data() {
       return {
-        showSyncFacilityDataModal: false,
-        // showImportFacilityModal: false,
+        showSyncAllFacilitiesModal: false,
+        showImportFacilityModal: false,
         showRemoveFacilityModal: false,
         facilitySelectedForRemoval: null,
         facilitiesTasks: [

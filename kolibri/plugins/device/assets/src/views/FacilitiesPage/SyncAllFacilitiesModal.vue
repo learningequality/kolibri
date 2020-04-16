@@ -34,7 +34,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
-    name: 'SyncFacilityDataModal',
+    name: 'SyncAllFacilitiesModal',
     components: {},
     mixins: [commonCoreStrings],
     props: {},
