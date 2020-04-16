@@ -29,3 +29,4 @@ export { default as LessonResource } from './lesson';
 export { default as AttemptLogResource } from './attemptLog';
 export { default as PingbackNotificationResource } from './pingbackNotification';
 export { default as PingbackNotificationDismissedResource } from './pingbackNotificationDismissed';
+export { default as PortalResource } from './portal';

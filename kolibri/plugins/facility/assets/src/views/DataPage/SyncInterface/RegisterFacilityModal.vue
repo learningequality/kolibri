@@ -28,7 +28,7 @@
   import { mapActions } from 'vuex';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import { PortalResource } from '../../../apiResources';
+  import { PortalResource } from 'kolibri.resources';
   import { Modals } from '../../../constants';
 
   export default {

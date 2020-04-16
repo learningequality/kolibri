@@ -9,11 +9,13 @@ const syncStrings = createTranslator('CommonSyncStrings', {
   },
   selectNetworkAddressTitle: {
     message: 'Select network address',
-    context: 'Title of menu where user selects a device at an address in order to communicate with it',
+    context:
+      'Title of menu where user selects a device at an address in order to communicate with it',
   },
   newAddressTitle: {
     message: 'New address',
-    context: 'Title of the menu where the user manually adds a new device address from where to import a facility',
+    context:
+      'Title of the menu where the user manually adds a new device address from where to import a facility',
   },
   addNewAddressAction: {
     message: 'Add new address',
@@ -21,7 +23,8 @@ const syncStrings = createTranslator('CommonSyncStrings', {
   },
   selectFacilityTitle: {
     message: 'Select facility',
-    context: 'Title of the modal window where the user selects a facility to import from the source device',
+    context:
+      'Title of the modal window where the user selects a facility to import from the source device',
   },
   adminCredentialsTitle: {
     message: 'Enter admin credentials',
@@ -46,5 +49,5 @@ export default {
       // TODO switch to using the last 4 characters
       return this.getCommonSyncString('nameWithIdFragment', { name, id: id.slice(0, 4) });
     },
-  }
-}
+  },
+};
