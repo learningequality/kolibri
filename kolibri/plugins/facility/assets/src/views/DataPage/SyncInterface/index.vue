@@ -90,7 +90,9 @@
     />
     <ConfirmationRegisterModal
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
+      v-bind="{ projectName, targetFacility, token }"
       @cancel="displayModal(false)"
+      @success="handleConfirmationSuccess"
     />
 
   </KPageContainer>
@@ -123,7 +125,7 @@
       now: now(),
     }),
     computed: {
-      ...mapState('manageSync', ['modalShown']),
+      ...mapState('manageSync', ['modalShown', 'projectName', 'targetFacility', 'token']),
       ...mapState('manageCSV', ['facilityTaskId']),
       Modals: () => Modals,
       facilities() {
@@ -154,6 +156,11 @@
         this.$store.commit('manageSync/SET_PROJECT_NAME', projectName);
         this.$store.commit('manageSync/SET_TOKEN', token);
         this.displayModal(Modals.CONFIRMATION_REGISTER);
+      },
+      handleConfirmationSuccess(payload) {
+        const { targetFacility } = payload;
+        this.$store.commit('manageCSV/SET_REGISTERED', targetFacility);
+        this.displayModal(false);
       },
     },
     $trs: {

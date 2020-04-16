@@ -3,9 +3,9 @@
   <KModal
     :title="$tr('registerFacility')"
     :submitText="$tr('register')"
-    :cancelText="alreadyRegistered ? coreString('closeAction') : coreString('cancelAction')"
+    :cancelText="cancelText"
     @submit="registerFacility"
-    @cancel="closeModal"
+    @cancel="$emit('cancel')"
   >
     <template v-if="!alreadyRegistered">
       <p>{{ $tr('registerWith', { name: projectName }) }}</p>
@@ -23,7 +23,6 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
@@ -32,19 +31,33 @@
   export default {
     name: 'ConfirmationRegisterModal',
     mixins: [commonCoreStrings],
+    props: {
+      projectName: {
+        type: String,
+        required: true,
+      },
+      targetFacility: {
+        type: Object,
+        required: true,
+      },
+      token: {
+        type: String,
+        required: true,
+      },
+    },
     data() {
       return {
         alreadyRegistered: false,
       };
     },
     computed: {
-      ...mapState('manageSync', ['projectName', 'targetFacility', 'token']),
+      cancelText() {
+        return this.alreadyRegistered
+          ? this.coreString('closeAction')
+          : this.coreString('cancelAction');
+      },
     },
     methods: {
-      ...mapActions('manageSync', ['displayModal']),
-      closeModal() {
-        this.$emit('cancel');
-      },
       registerFacility() {
         this.submitting = true;
         PortalResource.registerFacility({
@@ -58,9 +71,7 @@
               data: { registered: true },
               exists: true,
             }).then(() => {
-              this.$store.commit('manageCSV/SET_REGISTERED', this.targetFacility);
               this.submitting = false;
-              this.displayModal(false);
             });
           })
           .catch(error => {
@@ -96,8 +107,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
-
-</style>
+<style lang="scss" scoped></style>
