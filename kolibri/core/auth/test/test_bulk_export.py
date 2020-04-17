@@ -1,14 +1,10 @@
-"""
-Tests that ensure the correct items are returned from api calls.
-Also tests whether the users with permissions can create logs.
-"""
 import csv
 import sys
 import tempfile
 
 from django.test import TestCase
 
-from ..management.commands import bulkexportusers
+from ..management.commands import bulkexportusers as b
 from .helpers import create_dummy_facility_data
 from kolibri.core.auth.constants import role_kinds
 
@@ -22,14 +18,14 @@ def test_not_specified():
         "birth_year": "1969",
         "gender": "NOT_SPECIFIED",
     }
-    assert bulkexportusers.not_specified("gender", row) is None
-    assert bulkexportusers.not_specified("username", row) == "Bob"
-    assert bulkexportusers.not_specified("password", row) is None
+    assert b.not_specified("gender", row) is None
+    assert b.not_specified("username", row) == "Bob"
+    assert b.not_specified("password", row) is None
 
 
 def test_kind_of_roles():
-    assert bulkexportusers.kind_of_roles("kind", {"kind": None}) == "LEARNER"
-    assert bulkexportusers.kind_of_roles("kind", {"kind": "coACh"}) == "COACH"
+    assert b.kind_of_roles("kind", {"kind": None}) == "LEARNER"
+    assert b.kind_of_roles("kind", {"kind": "coACh"}) == "COACH"
 
 
 def test_map_output():
@@ -44,7 +40,7 @@ def test_map_output():
         "assigned": None,
         "enrolled": None,
     }
-    mapped_obj = bulkexportusers.map_output(row)
+    mapped_obj = b.map_output(row)
     assert mapped_obj == {
         "Username (USERNAME)": "Bob",
         "Password (PASSWORD)": None,
@@ -68,7 +64,7 @@ class UserExportTestCase(TestCase):
         _, self.filepath = tempfile.mkstemp(suffix=".csv")
 
         self.csv_rows = []
-        for row in bulkexportusers.csv_file_generator(
+        for row in b.csv_file_generator(
             self.facility, self.filepath, True,
         ):
             self.csv_rows.append(row)
@@ -127,5 +123,5 @@ class UserExportTestCase(TestCase):
             results = list(row for row in csv.DictReader(f))
         for i, row in enumerate(results):
             assert (
-                row[bulkexportusers.labels["username"]] == self.csv_rows[i]["username"]
+                row[b.labels["username"]] == self.csv_rows[i]["username"]
             )

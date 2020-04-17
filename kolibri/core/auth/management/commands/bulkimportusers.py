@@ -94,8 +94,9 @@ def number_range(min, max, allow_null=False):
         if v == DEFERRED:
             return checker
         if allow_null and not v:
-            return checker
-        if int(v) < min or int(v) > max:
+            return None
+
+        if v is None or (int(v) < min or int(v) > max):
             raise ValueError(v)
 
     return checker
@@ -112,8 +113,9 @@ def value_length(length, allow_null=False):
         if v == DEFERRED:
             return checker
         if allow_null and v is None:
-            return checker
-        if len(v) > length:
+            return None
+
+        if v is None or len(v) > length:
             raise ValueError(v)
 
     return checker
@@ -150,6 +152,8 @@ def valid_name(username=True, allow_null=False):
     def checker(v):
         if allow_null and v is None:
             return checker
+        if v is None:
+            raise ValueError(v)
         has_punc = "[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;\"'<>,\.\?]"  # noqa
         if not username:
             has_punc = "[`~!@#$%^&*()\+={}\[\]\|\\\/:;\"'<>\.\?]"  # noqa
@@ -382,15 +386,15 @@ class Command(AsyncCommand):
             }
             neutral_header = self.header_translation.keys()
             # If every item in the first row matches an item in the fieldnames, consider it a header row
-            if all(col in self.fieldnames for col in neutral_header):
+            if all(col in fieldnames for col in neutral_header):
                 has_header = True
 
                 # If any col is missing from the header, it's an error
-                for col in self.fieldnames:
+                for col in fieldnames:
                     if col not in neutral_header:
                         self.overall_error.append(MESSAGES[REQUIRED_COLUMN].format(col))
 
-            elif any(col in self.fieldnames for col in neutral_header):
+            elif any(col in fieldnames for col in neutral_header):
                 self.overall_error.append(MESSAGES[INVALID_HEADER])
 
         return has_header
@@ -651,7 +655,6 @@ class Command(AsyncCommand):
         self.job = get_current_job()
         filepath = options["filepath"]
         self.default_facility = self.get_facility(options)
-        self.fieldnames = fieldnames
         self.number_lines = self.get_number_lines(filepath)
         self.exit_if_error()
 
@@ -664,10 +667,7 @@ class Command(AsyncCommand):
             self.progress_update(1)  # state=csv_headers
             try:
                 with open(filepath) as f:
-                    if has_header:
-                        reader = csv.DictReader(f, strict=True)
-                    else:
-                        reader = csv.DictReader(f, fieldnames=fieldnames, strict=True)
+                    reader = csv.DictReader(f, strict=True)
                     per_line_errors, classes, users, roles = self.csv_values_validation(
                         reader, self.header_translation
                     )
