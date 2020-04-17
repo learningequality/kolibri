@@ -67,7 +67,7 @@ launch: project_info.json
 	pew build android $(pew_release_flag)
 	adb uninstall org.learningequality.Kolibri || true 2> /dev/null
 	rm dist/android/Kolibri-0-debug.apk || true 2> /dev/null
-	adb install dist/android/*-debug.apk
+	adb install dist/android/*-debug-*.apk
 	adb shell am start -n org.learningequality.Kolibri/org.kivy.android.PythonActivity
 	sleep 5
 	adb logcat | grep -i -E "python|kolibr| `adb shell ps | grep ' org.learningequality.Kolibri$$' | tr -s [:space:] ' ' | cut -d' ' -f2` " | grep -E -v "WifiTrafficPoller"

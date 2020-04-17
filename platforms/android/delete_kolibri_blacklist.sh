@@ -8,6 +8,9 @@ rm -r src/kolibri/dist/Cryptodome
 rm -r src/kolibri/plugins/demo_server
 rm -r src/kolibri/plugins/style_guide
 
+# remove python2-only stuff
+rm -r src/kolibri/dist/py2only
+
 # remove pycountry and replace with stub
 # (only used by getlang_by_alpha2 in le-utils, which Kolibri doesn't call)
 rm -r src/kolibri/dist/pycountry/*
