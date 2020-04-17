@@ -6,12 +6,12 @@
       <template #options>
         <KButton
           :text="$tr('syncAllAction')"
-          @click="showSyncAllFacilitiesModal = true"
+          @click="showSyncAllModal = true"
         />
         <KButton
           :text="$tr('importFacilityAction')"
           primary
-          @click="showImportFacilityModal = true"
+          @click="showImportModal = true"
         />
       </template>
     </HeaderWithOptions>
@@ -45,7 +45,10 @@
           </td>
           <td class="button-col">
             <div>
-              <KButton :text="coreString('syncAction')" />
+              <KButton
+                :text="coreString('syncAction')"
+                @click="facilityForSync = facility"
+              />
               <KDropdownMenu
                 :text="coreString('optionsLabel')"
                 :options="options"
@@ -59,21 +62,35 @@
     </CoreTable>
 
     <RemoveFacilityModal
-      v-if="Boolean(facilitySelectedForRemoval)"
-      :canRemove="facilitySelectedForRemoval.canRemove"
-      :facility="facilitySelectedForRemoval"
+      v-if="Boolean(facilityForRemoval)"
+      :canRemove="facilityForRemoval.canRemove"
+      :facility="facilityForRemoval"
       @submit="handleSubmitRemoval"
-      @cancel="facilitySelectedForRemoval = null"
+      @cancel="facilityForRemoval = null"
     />
+
     <SyncAllFacilitiesModal
-      v-if="showSyncAllFacilitiesModal"
-      @submit="showSyncAllFacilitiesModal = false"
-      @cancel="showSyncAllFacilitiesModal = false"
+      v-if="showSyncAllModal"
+      @submit="showSyncAllModal = false"
+      @cancel="showSyncAllModal = false"
     />
+
     <ImportFacilityModal
-      v-if="showImportFacilityModal"
-      @submit="showImportFacilityModal = false"
-      @cancel="showImportFacilityModal = false"
+      v-if="showImportModal"
+      @submit="showImportModal = false"
+      @cancel="showImportModal = false"
+    />
+
+    <RegisterFacilityModal
+      v-if="Boolean(facilityForRegister)"
+      :facility="facilityForRegister"
+      @cancel="facilityForRegister = null"
+    />
+
+    <SyncFacilityModal
+      v-if="Boolean(facilityForSync)"
+      @submit="facilityForSync = null"
+      @cancel="facilityForSync = null"
     />
   </div>
 
@@ -84,10 +101,12 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import RegisterFacilityModal from 'kolibri.coreVue.components.RegisterFacilityModal';
   import TasksBar from '../ManageContentPage/TasksBar.vue';
   import HeaderWithOptions from '../HeaderWithOptions';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
+  import SyncFacilityModal from './SyncFacilityModal';
   import ImportFacilityModal from './ImportFacilityModal';
 
   export default {
@@ -96,7 +115,9 @@
       CoreTable,
       HeaderWithOptions,
       ImportFacilityModal,
+      RegisterFacilityModal,
       RemoveFacilityModal,
+      SyncFacilityModal,
       SyncAllFacilitiesModal,
       TasksBar,
     },
@@ -104,10 +125,11 @@
     props: {},
     data() {
       return {
-        showSyncAllFacilitiesModal: false,
-        showImportFacilityModal: false,
-        showRemoveFacilityModal: false,
-        facilitySelectedForRemoval: null,
+        showSyncAllModal: false,
+        showImportModal: false,
+        facilityForSync: null,
+        facilityForRemoval: null,
+        facilityForRegister: null,
         facilitiesTasks: [
           {
             status: 'COMPLETED',
@@ -149,14 +171,15 @@
     methods: {
       handleOptionSelect(option, facility) {
         if (option === 'REMOVE') {
-          this.facilitySelectedForRemoval = facility;
-          this.showRemoveFacilityModal = true;
+          this.facilityForRemoval = facility;
+        } else if (option === 'REGISTER') {
+          this.facilityForRegister = facility;
         }
       },
       handleSubmitRemoval() {
-        if (this.facilitySelectedForRemoval) {
-          const facilityName = this.facilitySelectedForRemoval.name;
-          this.facilitySelectedForRemoval = null;
+        if (this.facilityForRemoval) {
+          const facilityName = this.facilityForRemoval.name;
+          this.facilityForRemoval = null;
           this.$store.dispatch(
             'createSnackbar',
             this.$tr('facilityRemovedSnackbar', {
