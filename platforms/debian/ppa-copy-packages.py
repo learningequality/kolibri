@@ -29,7 +29,7 @@ PPA_OWNER = 'learningequality'
 PPA_NAME = 'kolibri-proposed'
 PACKAGE_WHITELIST = ['kolibri-source']
 
-SOURCE_SERIES = 'trusty'
+SOURCE_SERIES = 'bionic'
 TARGET_SERIESES = ['trusty', 'xenial', 'bionic', 'disco', 'eoan']
 POCKET = 'Release'
 
