@@ -1,0 +1,6 @@
+#!/usr/bin/env @PYTHON@
+
+import sys
+from kolibri_gnome import main
+sys.exit(main.main())
+
