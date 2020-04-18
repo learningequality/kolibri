@@ -3,7 +3,7 @@ clean:
 	- rm -rf dist/android/*.apk project_info.json ./src/kolibri
 
 deepclean: clean
-	rm -r $(HOME)/.local/share/python-for-android || true
+	python-for-android clean_dists
 	rm -r build || true
 	rm -r dist || true
 	yes y | docker system prune -a || true
@@ -71,4 +71,4 @@ launch: project_info.json
 	adb install dist/android/*-debug-*.apk
 	adb shell am start -n org.learningequality.Kolibri/org.kivy.android.PythonActivity
 	sleep 5
-	adb logcat | grep -i -E "python|kolibr| `adb shell ps | grep ' org.learningequality.Kolibri$$' | tr -s [:space:] ' ' | cut -d' ' -f2` " | grep -E -v "WifiTrafficPoller"
+	adb logcat | grep -i -E "python|kolibr| `adb shell ps | grep ' org.learningequality.Kolibri$$' | tr -s [:space:] ' ' | cut -d' ' -f2` " | grep -E -v "WifiTrafficPoller|localhost:5000|NetworkManagementSocketTagger|No jobs to start"

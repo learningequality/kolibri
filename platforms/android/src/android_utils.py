@@ -5,15 +5,19 @@ from jnius import autoclass, cast, jnius
 
 logging.basicConfig(level=logging.DEBUG)
 
-AndroidString = autoclass('java.lang.String')
-Intent = autoclass('android.content.Intent')
+AndroidString = autoclass("java.lang.String")
+Context = autoclass("android.content.Context")
+Intent = autoclass("android.content.Intent")
 NotificationBuilder = autoclass("android.app.Notification$Builder")
+NotificationManager = autoclass("android.app.NotificationManager")
 PackageManager = autoclass("android.content.pm.PackageManager")
 PendingIntent = autoclass("android.app.PendingIntent")
 PythonActivity = autoclass("org.kivy.android.PythonActivity")
 Timezone = autoclass("java.util.TimeZone")
-Uri = autoclass('android.net.Uri')
+Uri = autoclass("android.net.Uri")
 
+ANDROID_VERSION = autoclass("android.os.Build$VERSION")
+SDK_INT = ANDROID_VERSION.SDK_INT
 
 def is_service_context():
     return "PYTHON_SERVICE_ARGUMENT" in os.environ
@@ -48,6 +52,9 @@ def get_activity():
         return cast("android.app.Service", get_service())
     else:
         return PythonActivity.mActivity
+
+
+Drawable = autoclass("{}.R$drawable".format(get_activity().getPackageName()))
 
 
 def is_app_installed(app_id):
@@ -121,7 +128,17 @@ def make_service_foreground(title, message):
     service = get_service()
     Drawable = autoclass("{}.R$drawable".format(service.getPackageName()))
     app_context = service.getApplication().getApplicationContext()
-    notification_builder = NotificationBuilder(app_context)
+
+    if SDK_INT >= 26:
+        NotificationChannel = autoclass("android.app.NotificationChannel")
+        notification_service = cast(NotificationManager, get_activity().getSystemService(Context.NOTIFICATION_SERVICE))
+        channel_id = get_activity().getPackageName()
+        app_channel = NotificationChannel(channel_id, "Kolibri Background Server", NotificationManager.IMPORTANCE_DEFAULT)
+        notification_service.createNotificationChannel(app_channel)
+        notification_builder = NotificationBuilder(app_context, channel_id)
+    else:
+        notification_builder = NotificationBuilder(app_context)
+
     notification_builder.setContentTitle(AndroidString(title))
     notification_builder.setContentText(AndroidString(message))
     notification_intent = Intent(app_context, PythonActivity)
