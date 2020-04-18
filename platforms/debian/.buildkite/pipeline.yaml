@@ -1,6 +1,5 @@
 steps:
   - block: Build Debian?
-    if: build.source == "trigger_job"
-
-  - label: Build :debian:?
+    if: build.env("LE_KOLIBRI_RELEASE")
+  - label: :debian:
     command: .buildkite/build.sh
