@@ -3,7 +3,8 @@ import initialization  # keep this first, to ensure we're set up for other impor
 import logging
 import os
 import time
-import urllib2
+import urllib.error
+import urllib.request
 
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
 logging.basicConfig(level=logging.DEBUG)
@@ -99,9 +100,10 @@ class Application(pew.ui.PEWApp):
         # test url to see if server has started
         def running():
             try:
-                urllib2.urlopen(home_url)
+                with urllib.request.urlopen(home_url) as response:
+                   response.read()
                 return True
-            except urllib2.URLError:
+            except urllib.error.URLError:
                 return False
 
         # Tie up this thread until the server is running
