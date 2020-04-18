@@ -44,8 +44,8 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
   python get-pip.py && \
   pip install cython virtualenv && \
   # get kevin's custom packages
-  pip install -e git+https://github.com/kollivier/pyeverywhere@dev#egg=pyeverywhere && \
-  pip install -e git+https://github.com/kollivier/python-for-android@webview_plus#egg=python-for-android && \
+  pip install -e git+https://github.com/kollivier/pyeverywhere@p4a_update#egg=pyeverywhere && \
+  pip install -e git+https://github.com/kollivier/python-for-android@pew_webview#egg=python-for-android && \
   useradd -lm kivy
 
 USER kivy:kivy

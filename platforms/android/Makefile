@@ -5,6 +5,7 @@ clean:
 deepclean: clean
 	rm -r $(HOME)/.local/share/python-for-android || true
 	rm -r build || true
+	rm -r dist || true
 	yes y | docker system prune -a || true
 	rm build_docker 2> /dev/null
 
