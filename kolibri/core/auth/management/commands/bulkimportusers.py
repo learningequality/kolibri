@@ -14,6 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.collection_kinds import CLASSROOM
 from kolibri.core.auth.constants.demographics import choices
+from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -90,6 +91,8 @@ def number_range(min, max, allow_null=False):
     """
 
     def checker(v):
+        if v == DEFERRED:
+            return checker
         if allow_null and not v:
             return checker
         if int(v) < min or int(v) > max:
@@ -106,6 +109,8 @@ def value_length(length, allow_null=False):
     """
 
     def checker(v):
+        if v == DEFERRED:
+            return checker
         if allow_null and v is None:
             return checker
         if len(v) > length:
@@ -126,6 +131,8 @@ def enumeration(*args):
         members = tuple(map(str.lower, args))
 
     def checker(value):
+        if value == DEFERRED:
+            return checker
         if value.lower() not in members:
             raise ValueError(value)
 
@@ -395,11 +402,15 @@ class Command(AsyncCommand):
         else:
             password = DEFAULT_PASSWORD
         gender = user_row.get(self.header_translation["GENDER"], None)
+        gender = None if gender.upper() == DEFERRED else gender
         if gender:
             gender = gender.strip().upper()
         birth_year = user_row.get(self.header_translation["BIRTH_YEAR"], None)
+        birth_year = None if birth_year.upper() == DEFERRED else birth_year
         id_number = user_row.get(self.header_translation["IDENTIFIER"], None)
+        id_number = None if id_number.upper() == DEFERRED else id_number
         full_name = user_row.get(self.header_translation["FULL_NAME"], None)
+
         return {
             "password": password,
             "gender": gender,
@@ -690,10 +701,15 @@ class Command(AsyncCommand):
                 users_data = {u.username: u for u in db_users}
                 self.add_roles(users_data, roles)
 
+                db_created_classes = []
                 for classroom in db_new_classes:
-                    Classroom.objects.create(
+                    created_class = Classroom.objects.create(
                         name=classroom.name, parent=classroom.parent
                     )
+
+                    db_created_classes.append(created_class)
+                # hack to get ids created by Morango:
+                db_new_classes = db_created_classes
 
                 self.add_classes_memberships(
                     classes, users_data, db_new_classes + db_update_classes
