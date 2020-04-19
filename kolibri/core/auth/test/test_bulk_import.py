@@ -1,4 +1,6 @@
 import csv
+import io
+import sys
 import tempfile
 
 import pytest
@@ -6,7 +8,9 @@ from django.core.management import call_command
 from django.test import TestCase
 
 from ..management.commands import bulkimportusers as b
+from ..management.commands.bulkexportusers import labels
 from .helpers import create_dummy_facility_data
+from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import FacilityUser
@@ -90,13 +94,35 @@ class ImportTestCase(TestCase):
         FacilityUser.objects.all().delete()
         Classroom.objects.all().delete()
 
-        with open(self.filepath, "r") as source:
-            self.header = next(csv.reader(source, strict=True))
+    def create_csv(self, filepath, rows):
+        header_labels = labels.values()
 
-    def test_import_from_export_csv(self):
-        header_translation = {
-            l.partition("(")[2].partition(")")[0]: l for l in self.header
-        }
+        if sys.version_info[0] < 3:
+            csv_file = io.open(filepath, "wb")
+        else:
+            csv_file = io.open(filepath, "w", newline="")
+
+        with csv_file as f:
+            writer = csv.writer(f)
+            writer.writerow(header_labels)
+            for item in rows:
+                # writer.writerow(map_output(item))
+                writer.writerow(item)
+
+    def import_exported_csv(self):
+        # import exported csv
+        call_command(
+            "bulkimportusers", self.filepath, facility=self.facility.id,
+        )
+        current_classes = Classroom.objects.filter(parent_id=self.facility).all()
+        for classroom in current_classes:
+            assert len(classroom.get_members()) == CLASSROOMS
+            assert len(classroom.get_coaches()) == 1
+
+    def test_dryrun_from_export_csv(self):
+        with open(self.filepath, "r") as source:
+            header = next(csv.reader(source, strict=True))
+        header_translation = {l.partition("(")[2].partition(")")[0]: l for l in header}
         cmd = b.Command()
 
         with open(self.filepath) as source:
@@ -111,3 +137,109 @@ class ImportTestCase(TestCase):
         assert roles[role_kinds.COACH] == ["faccoach"]
         assert "classcoach0" in roles[role_kinds.ASSIGNABLE_COACH]
         assert "classcoach1" in roles[role_kinds.ASSIGNABLE_COACH]
+        enrolled_classes = classes[0]
+        assert enrolled_classes["classroom0"] == ["learnerag", "learnerclass0group0"]
+        assert enrolled_classes["classroom1"] == ["learnerag", "learnerclass1group0"]
+        assigned_classes = classes[1]
+        assert assigned_classes["classroom0"] == ["classcoach0"]
+        assert assigned_classes["classroom1"] == ["classcoach1"]
+
+    def test_delete_users_and_classes(self):
+        self.import_exported_csv()
+
+        # new csv to import and clear classes and delete non-admin users:
+        _, new_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = []
+        rows.append(
+            [
+                "new_learner",
+                None,
+                None,
+                "LEARNER",
+                None,
+                "2001",
+                "FEMALE",
+                "new_class",
+                None,
+            ]
+        )
+        rows.append(
+            ["new_coach", None, None, "COACH", None, "1969", "MALE", None, "new_class"]
+        )
+        self.create_csv(new_filepath, rows)
+        call_command(
+            "bulkimportusers", new_filepath, "--delete", facility=self.facility.id,
+        )
+
+        # Previous users have been deleted, excepting the existing admin:
+        learners = FacilityUser.objects.filter(
+            facility=self.facility, roles__kind=None
+        ).all()
+        assert len(learners) == 1
+        coaches = FacilityUser.objects.filter(
+            facility=self.facility,
+            roles__collection_id=self.facility,
+            roles__kind=role_kinds.COACH,
+        ).all()
+        assert len(coaches) == 1
+        admins = FacilityUser.objects.filter(
+            facility=self.facility,
+            roles__collection_id=self.facility,
+            roles__kind=role_kinds.ADMIN,
+        ).all()
+        assert len(admins) == 1
+
+        new_current_classes = Classroom.objects.filter(parent_id=self.facility).all()
+        for classroom in new_current_classes:
+            if classroom.name != "new_class":
+                # classes have been cleared:
+                assert len(classroom.get_members()) == 0
+                assert len(classroom.get_coaches()) == 0
+            else:
+                # new class has been created with one coach and learner
+                assert len(classroom.get_members()) == 1
+                assert len(classroom.get_coaches()) == 1
+
+    def test_add_users_and_classes(self):
+        self.import_exported_csv()
+        old_users = FacilityUser.objects.count()
+        # new csv to import and update classes, adding users and keeping previous not been in the csv:
+        _, new_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = []
+        rows.append(
+            [
+                "new_learner",
+                None,
+                None,
+                "LEARNER",
+                "kalite",
+                "2001",
+                "FEMALE",
+                "classroom1,classroom0",
+            ]
+        )
+        rows.append(
+            ["new_coach", None, None, "COACH", None, "1969", "MALE", None, "classroom0"]
+        )
+        self.create_csv(new_filepath, rows)
+        call_command(
+            "bulkimportusers", new_filepath, facility=self.facility.id,
+        )
+        assert FacilityUser.objects.count() == old_users + 2
+        current_classes = Classroom.objects.filter(parent_id=self.facility).all()
+        for classroom in current_classes:
+            if classroom.name == "classroom0":
+                assert len(classroom.get_coaches()) == 2
+            else:
+                assert len(classroom.get_coaches()) == 1
+            assert (
+                len(classroom.get_members()) == 3
+            )  # ['learnerag', 'learnerclassXgroup0', 'new_learner']
+
+        # check demographics import:
+        new_learner = FacilityUser.objects.get(username="new_learner")
+        assert new_learner.gender == demographics.FEMALE
+        assert new_learner.birth_year == "2001"
+        assert new_learner.id_number == "kalite"
+        new_coach = FacilityUser.objects.get(username="new_coach")
+        assert new_coach.gender == demographics.MALE
