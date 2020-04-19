@@ -46,11 +46,10 @@
         @change="filesChanged"
       >
     </p>
-    <!-- Temporarily remove this functionality for MVP
-    <p>
+    <!-- Temporarily remove this functionality for MVP -->
+    <p v-if="false">
       <KCheckbox :label="$tr('labelDelete')" @change="toggleDelete" />
     </p>
-     -->
     <p>
       <KButton
         text="Cancel"

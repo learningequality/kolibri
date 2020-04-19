@@ -12,6 +12,7 @@ from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.constants.collection_kinds import CLASSROOM
 from kolibri.core.auth.constants.demographics import choices
 from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.models import Classroom
@@ -156,6 +157,22 @@ def valid_name(username=True, allow_null=False):
             raise ValueError(v)
 
     return checker
+
+
+def reverse_dict(original):
+    """
+    Returns a dictionary based on an original dictionary
+    where previous keys are values and previous values pass
+    to be the keys
+    """
+    final = {}
+    for k, value in original.items():
+        if type(value) == list:
+            for v in value:
+                final.setdefault(v, []).append(k)
+        else:
+            final.setdefault(value, []).append(k)
+    return final
 
 
 class Validator(object):
@@ -436,7 +453,7 @@ class Command(AsyncCommand):
                 user_obj = FacilityUser.objects.get(
                     username=user, facility=self.default_facility
                 )
-                keeping_users.append(user_obj.id)
+                keeping_users.append(user_obj)
                 if self.compare_fields(user_obj, values):
                     update_users.append(user_obj)
             else:
@@ -521,7 +538,7 @@ class Command(AsyncCommand):
     def get_delete(self, options, keeping_users, update_classes):
         if not options["delete"]:
             return ([], [])
-        users_not_to_delete = keeping_users
+        users_not_to_delete = [u.id for u in keeping_users]
         admins = self.default_facility.get_admins()
         users_not_to_delete += admins.values_list("id", flat=True)
         if options["userid"]:
@@ -594,6 +611,28 @@ class Command(AsyncCommand):
             sys.exit(1)
         return
 
+    def remove_memberships(self, users, enrolled, assigned):
+        users_enrolled = reverse_dict(enrolled)
+        users_assigned = reverse_dict(assigned)
+        for user in users:
+            # enrolled:
+            to_remove = user.memberships.filter(collection__kind=CLASSROOM)
+            if user.username in users_enrolled.keys():
+                to_remove.exclude(
+                    collection__name__in=users_enrolled[user.username]
+                ).delete()
+            else:
+                to_remove.delete()
+
+            # assigned:
+            to_remove = user.roles.filter(collection__kind=CLASSROOM)
+            if user.username in users_assigned.keys():
+                to_remove.exclude(
+                    collection__name__in=users_assigned[user.username]
+                ).delete()
+            else:
+                to_remove.delete()
+
     def handle_async(self, *args, **options):
         # initialize stats data structures:
         self.overall_error = []
@@ -635,7 +674,6 @@ class Command(AsyncCommand):
             except (ValueError, FileNotFoundError, csv.Error) as e:
                 self.overall_error.append(MESSAGES[FILE_READ_ERROR].format(e))
                 self.exit_if_error()
-
             db_new_users, db_update_users, keeping_users = self.build_users_objects(
                 users
             )
@@ -668,16 +706,15 @@ class Command(AsyncCommand):
                     created_class = Classroom.objects.create(
                         name=classroom.name, parent=classroom.parent
                     )
+
                     db_created_classes.append(created_class)
                 # hack to get ids created by Morango:
                 db_new_classes = db_created_classes
-                # clear users from classes to be updated:
-                update_classes = [c.id for c in db_update_classes]
-                Membership.objects.filter(collection__in=update_classes).delete()
+
                 self.add_classes_memberships(
                     classes, users_data, db_new_classes + db_update_classes
                 )
-
+                self.remove_memberships(keeping_users, classes[0], classes[1])
             classes_report = {
                 "created": len(db_new_classes),
                 "updated": len(db_update_classes),
