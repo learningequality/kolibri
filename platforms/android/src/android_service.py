@@ -1,12 +1,16 @@
 import initialization  # keep this first, to ensure we're set up for other imports
 
+import flask
 import logging
 import os
 import pew.ui
 import shutil
 import time
 
+from config import FLASK_PORT
 
+from android_utils import share_by_intent
+from kolibri_utils import get_content_file_path
 
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
 logging.basicConfig(level=logging.DEBUG)
@@ -37,5 +41,25 @@ thread = pew.ui.PEWThread(target=start_kolibri_server)
 thread.daemon = True
 thread.start()
 
-while True:
-    time.sleep(1)
+# start a parallel Flask server as a backchannel for triggering events
+flaskapp = flask.Flask(__name__)
+
+@flaskapp.route('/share_by_intent')
+def do_share_by_intent():
+
+    args = flask.request.args
+    allowed_args = ["filename", "path", "msg", "app", "mimetype"]
+    kwargs = {key: args[key] for key in args if key in allowed_args}
+
+    if "filename" in kwargs:
+        kwargs["path"] = get_content_file_path(kwargs.pop("filename"))
+
+    logging.error("Sharing: {}".format(kwargs))
+
+    share_by_intent(**kwargs)
+
+    return "<html><body style='background: white;'>OK, boomer</body></html>"
+
+
+if __name__ == "__main__":
+    flaskapp.run(host="localhost", port=FLASK_PORT)

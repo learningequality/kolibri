@@ -12,6 +12,6 @@ def start_kolibri_server():
     main(["start", "--foreground"])
 
 
-def get_file_path(filename):
+def get_content_file_path(filename):
     from kolibri.core.content.utils.paths import get_content_storage_file_path
     return get_content_storage_file_path(filename)

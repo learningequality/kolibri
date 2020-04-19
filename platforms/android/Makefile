@@ -14,9 +14,6 @@ src/kolibri: clean
 	rm -r src/kolibri 2> /dev/null || true
 	unzip -qo "whl/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
 	./delete_kolibri_blacklist.sh
-	# can remove the following and use requirements after we have a version of p4a with:
-	# https://github.com/kivy/python-for-android/pull/1437/files
-	pip install --target src/extra-packages flask plyer
 
 # Generate the project info file
 project_info.json: project_info.template src/kolibri scripts/create_project_info.py
@@ -48,9 +45,10 @@ preseeded_kolibri_home: export PYTHONPATH := tmpenv
 preseeded_kolibri_home:
 	rm -r tmpenv 2> /dev/null || true
 	rm -r src/preseeded_kolibri_home 2> /dev/null || true
+	pip uninstall kolibri 2> /dev/null || true
 	pip install --target tmpenv whl/*.whl
 	tmpenv/bin/kolibri start --port=16294
-	sleep 5
+	sleep 1
 	tmpenv/bin/kolibri stop
 	sleep 1
 	yes yes | tmpenv/bin/kolibri manage deprovision
@@ -67,8 +65,8 @@ run_docker: build_docker
 launch: project_info.json
 	pew build android $(pew_release_flag)
 	adb uninstall org.learningequality.Kolibri || true 2> /dev/null
-	rm dist/android/Kolibri-0-debug.apk || true 2> /dev/null
+# 	rm dist/android/Kolibri-0-debug.apk || true 2> /dev/null
 	adb install dist/android/*-debug-*.apk
 	adb shell am start -n org.learningequality.Kolibri/org.kivy.android.PythonActivity
-	sleep 5
+	sleep 1
 	adb logcat | grep -i -E "python|kolibr| `adb shell ps | grep ' org.learningequality.Kolibri$$' | tr -s [:space:] ' ' | cut -d' ' -f2` " | grep -E -v "WifiTrafficPoller|localhost:5000|NetworkManagementSocketTagger|No jobs to start"

@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 import pew
 import pew.ui
 
-from config import KOLIBRI_PORT, FLASK_PORT
+from config import KOLIBRI_PORT
 
 pew.set_app_name("Kolibri")
 logging.info("Entering main.py...")

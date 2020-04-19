@@ -3,10 +3,18 @@
   "version": "${apk_version}",
   "build_number": "${build_number}",
   "identifier": "org.learningequality.Kolibri",
-  "requirements": {"android": ["python3", "android", "pyjnius", "genericndkbuild", "sqlite3", "cryptography", "pyopenssl", "openssl", "six"]},
+  "requirements": {"android": ["python3", "android", "pyjnius", "genericndkbuild", "sqlite3", "cryptography", "pyopenssl", "openssl", "six", "flask"]},
   "whitelist_file": {"android": "whitelist.txt"},
   "icons": {"android": "icon.png"},
   "launch_images": {"android": "assets/launch-image.png"},
   "asset_dirs": ["assets"],
-  "extra_build_options": {"android": {"services": ["kolibri:android_service.py"], "extra_permissions": ["FOREGROUND_SERVICE"], "sdk": 29, "minsdk": 21}}
+  "extra_build_options": {
+    "android": {
+      "services": ["kolibri:android_service.py"],
+      "extra_permissions": ["FOREGROUND_SERVICE"],
+      "sdk": 29,
+      "minsdk": 21,
+      "fileprovider_paths_filename": "fileprovider_paths.xml"
+    }
+  }
 }

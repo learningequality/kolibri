@@ -7,6 +7,9 @@ logging.basicConfig(level=logging.DEBUG)
 
 AndroidString = autoclass("java.lang.String")
 Context = autoclass("android.content.Context")
+Environment = autoclass("android.os.Environment")
+File = autoclass("java.io.File")
+FileProvider = autoclass('android.support.v4.content.FileProvider')
 Intent = autoclass("android.content.Intent")
 NotificationBuilder = autoclass("android.app.Notification$Builder")
 NotificationManager = autoclass("android.app.NotificationManager")
@@ -18,6 +21,7 @@ Uri = autoclass("android.net.Uri")
 
 ANDROID_VERSION = autoclass("android.os.Build$VERSION")
 SDK_INT = ANDROID_VERSION.SDK_INT
+
 
 def is_service_context():
     return "PYTHON_SERVICE_ARGUMENT" in os.environ
@@ -54,9 +58,6 @@ def get_activity():
         return PythonActivity.mActivity
 
 
-Drawable = autoclass("{}.R$drawable".format(get_activity().getPackageName()))
-
-
 def is_app_installed(app_id):
 
     manager = get_activity().getPackageManager()
@@ -79,16 +80,19 @@ def send_whatsapp_message(msg):
     share_by_intent(msg=msg, app="com.whatsapp")
 
 
-def share_by_intent(path=None, msg=None, app=None, mimetype=None):
+def share_by_intent(path=None, filename=None, msg=None, app=None, mimetype=None):
 
-    assert path or msg, "Must provide either a file path or a msg to share"
+    assert path or msg or filename, "Must provide either a path, a filename, or a msg to share"
 
     sendIntent = Intent()
     sendIntent.setAction(Intent.ACTION_SEND)
     if path:
-        if not path.startswith("http"):
-            path = "file://" + path
-        parcelable = cast("android.os.Parcelable", Uri.parse(path))
+        uri = FileProvider.getUriForFile(
+            Context.getApplicationContext(),
+            "org.learningequality.Kolibri.fileprovider",
+            File(path)
+        )
+        parcelable = cast("android.os.Parcelable", uri)
         sendIntent.putExtra(Intent.EXTRA_STREAM, parcelable)
         sendIntent.setType(AndroidString(mimetype or "*/*"))
         sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -99,28 +103,6 @@ def share_by_intent(path=None, msg=None, app=None, mimetype=None):
     if app:
         sendIntent.setPackage(AndroidString(app))
     sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    get_activity().startActivity(sendIntent)
-
-
-
-def share_file(path, app=None, msg=None):
-
-    if not path.startswith("http"):
-        path = "file://" + path
-
-    logging.info("About to share path: " + path)
-
-    sendIntent = Intent()
-    sendIntent.setAction(Intent.ACTION_SEND)
-    parcelable = cast("android.os.Parcelable", Uri.parse(path))
-    sendIntent.putExtra(Intent.EXTRA_STREAM, parcelable)
-    if msg:
-        sendIntent.putExtra(Intent.EXTRA_TEXT, AndroidString(msg))
-    if app:
-        sendIntent.setPackage(AndroidString(app))
-    sendIntent.setType(AndroidString("*/*"))
-    sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     get_activity().startActivity(sendIntent)
 
 
