@@ -9,6 +9,6 @@ Feature: Admin bulk export of users and classrooms
   Scenario: Export a CSV file containing all users in the facility
     When I click on "Export" button under *Import and export users* heading
     Then I see the loading indicator
-      And after some seconds I see the *Open/Save as* window, or the file 'users_<date>_<time>.csv' is automatically saved on my local drive, depending on the browser defaults
+      And after some seconds I see the *Open/Save as* window, or the file 'users_<date>_<time>.csv' is automatically saved on my local drive, depending on the browser defaults # <date> is current date and <time> current time, for example users_20200420_194415.csv
     Then I open the csv file
       And users belong only to my facility, even if there are more facilities in the device
