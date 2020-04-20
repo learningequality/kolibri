@@ -37,7 +37,9 @@ class GroupConcatSubqueryTestCase(TestCase):
 
         query = Classroom.objects.values("pk").annotate(
             enrolled=GroupConcatSubquery(
-                User.objects.filter(memberships__classroom_id=models.OuterRef("id")).values("name"),
+                User.objects.filter(
+                    memberships__classroom_id=models.OuterRef("id")
+                ).values("name"),
                 field="name",
             )
         )
