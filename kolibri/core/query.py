@@ -28,7 +28,7 @@ class GroupConcatSubquery(Subquery):
 
     def as_postgresql(self, compiler, connection):
         self.template = (
-            "(SELECT STRING_AGG(%(field)s) FROM (%(subquery)s) AS %(field)s__sum)"
+            "(SELECT STRING_AGG(%(field)s, ',') FROM (%(subquery)s) AS %(field)s__sum)"
         )
         return super(GroupConcatSubquery, self).as_sql(compiler, connection)
 
