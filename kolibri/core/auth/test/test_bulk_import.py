@@ -95,7 +95,7 @@ class ImportTestCase(TestCase):
         Classroom.objects.all().delete()
 
     def create_csv(self, filepath, rows):
-        header_labels = labels.values()
+        header_labels = list(labels.values())
 
         if sys.version_info[0] < 3:
             csv_file = io.open(filepath, "wb")
@@ -106,7 +106,6 @@ class ImportTestCase(TestCase):
             writer = csv.writer(f)
             writer.writerow(header_labels)
             for item in rows:
-                # writer.writerow(map_output(item))
                 writer.writerow(item)
 
     def import_exported_csv(self):
