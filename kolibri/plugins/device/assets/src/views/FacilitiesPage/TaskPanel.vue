@@ -221,7 +221,6 @@
 
   .details {
     flex-grow: 1;
-    width: 100%;
     padding: 16px;
 
     .task-panel-sm & {

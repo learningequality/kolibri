@@ -21,6 +21,8 @@
       <FacilityTaskPanel
         v-for="(task, idx) in tasks"
         :key="idx"
+        class="task-panel"
+        :style="{ borderBottomColor: $themePalette.grey.v_200 }"
         :task="task"
       />
     </div>
@@ -97,6 +99,14 @@
 
   .buttons {
     margin: auto;
+  }
+
+  .task-panel {
+    border-bottom: 1px solid;
+
+    &:last-of-type {
+      border-bottom-style: none;
+    }
   }
 
 </style>
