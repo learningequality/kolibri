@@ -64,9 +64,7 @@ class UserExportTestCase(TestCase):
         _, self.filepath = tempfile.mkstemp(suffix=".csv")
 
         self.csv_rows = []
-        for row in b.csv_file_generator(
-            self.facility, self.filepath, True,
-        ):
+        for row in b.csv_file_generator(self.facility, self.filepath, True,):
             self.csv_rows.append(row)
 
     def test_exported_rows(self):
@@ -122,6 +120,4 @@ class UserExportTestCase(TestCase):
         with csv_file as f:
             results = list(row for row in csv.DictReader(f))
         for i, row in enumerate(results):
-            assert (
-                row[b.labels["username"]] == self.csv_rows[i]["username"]
-            )
+            assert row[b.labels["username"]] == self.csv_rows[i]["username"]
