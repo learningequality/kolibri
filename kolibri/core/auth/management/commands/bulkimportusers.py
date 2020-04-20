@@ -349,7 +349,7 @@ class Command(AsyncCommand):
 
         validator.add_check(
             "GENDER",
-            enumeration("", *tuple(val[0] for val in choices)),
+            enumeration("", *tuple(str(val[0]) for val in choices)),
             MESSAGES[INVALID].format("GENDER"),
         )
         validator.add_check(
