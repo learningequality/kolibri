@@ -67,7 +67,7 @@
   "RecommendedSubpage.nextStepsPageHeader": "Pasos siguientes",
   "RecommendedSubpage.popularPageHeader": "Más popular",
   "SearchBox.audio": "Audio",
-  "SearchBox.clearButtonLabel": "Borrar",
+  "SearchBox.clearButtonLabel": "Eliminar",
   "SearchBox.documents": "Documentos",
   "SearchBox.exercises": "Ejercicios",
   "SearchBox.html5": "Apps",
@@ -81,7 +81,7 @@
   "TopicsPage.documentTitleForChannel": "Temas - { channelTitle }",
   "TopicsPage.documentTitleForTopic": "{ topicTitle } - { channelTitle }",
   "TotalPoints.pointsTooltip": "Has ganado { points, number } puntos",
-  "UpdateYourProfileModal.skipUpdateProfileAction": "Saltar",
+  "UpdateYourProfileModal.skipUpdateProfileAction": "Omitir",
   "UpdateYourProfileModal.title": "Actualizar el perfil",
   "UpdateYourProfileModal.updateProfileExplanation": "Falta información en tu perfil. ¿Quieres actualizarlo?"
 }

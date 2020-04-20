@@ -372,12 +372,13 @@ def update(old_version, new_version):
     cache.clear()
 
 
-main_help = """Kolibri management commands
+main_help = """Kolibri command-line utility
 
-For more information, see:
-https://kolibri.readthedocs.io/en/latest/advanced.html
+Details for each main command: kolibri COMMAND --help
 
-You can also run: kolibri COMMAND --help
+List of additional management commands: kolibri manage help
+
+For more information, see: https://kolibri.readthedocs.io/
 """
 
 

@@ -122,7 +122,7 @@
   "FilePresetStrings.high_res_video": "دقة عالية ({fileSize})",
   "FilePresetStrings.html5_zip": "ملف HTML5 مضغوظ ({fileSize})",
   "FilePresetStrings.low_res_video": "دقة منخفضة ({fileSize})",
-  "FilePresetStrings.slideshow_image": "صور عرض الشرائح ({fileSize})",
+  "FilePresetStrings.slideshow_image": "عرض الصورة بشكل شرائح({fileSize})",
   "FilePresetStrings.slideshow_manifest": "عرض الشرائح ({fileSize})",
   "FilePresetStrings.thumbnail": "صورة مصغرة ({fileSize})",
   "FilePresetStrings.vector_video": "تم توجيهها ({fileSize})",
