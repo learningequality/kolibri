@@ -1,0 +1,5 @@
+#!/usr/bin/env @PYTHON@
+
+import sys
+from kolibri_gnome.search_provider.main import main
+sys.exit(main())
