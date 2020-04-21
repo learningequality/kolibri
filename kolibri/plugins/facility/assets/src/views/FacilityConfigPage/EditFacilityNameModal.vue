@@ -83,7 +83,7 @@
     $trs: {
       renameFacilityExplanation: {
         message:
-          'Warning: This will remain the same facility, and the new name may be synced to other devices that are also linked to this facility',
+          'Warning: Only the facility name will be changed, and the new name will be synced and updated on other devices linked to this facility.',
         context: 'Explanation of what consequences renaming will have',
       },
       title: 'Rename facility',
