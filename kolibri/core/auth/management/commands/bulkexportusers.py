@@ -46,8 +46,8 @@ labels = OrderedDict(
         ("id_number", _("Identifier ({})".format("IDENTIFIER"))),
         ("birth_year", _("Birth year ({})".format("BIRTH_YEAR"))),
         ("gender", _("Gender ({})".format("GENDER"))),
-        ("assigned", _("Enrolled in ({})".format("ENROLLED_IN"))),
-        ("enrolled", _("Assigned to ({})".format("ASSIGNED_TO"))),
+        ("enrolled", _("Enrolled in ({})".format("ENROLLED_IN"))),
+        ("assigned", _("Assigned to ({})".format("ASSIGNED_TO"))),
     )
 )
 
@@ -147,7 +147,7 @@ def csv_file_generator(facility, filepath, overwrite=True):
             if item["username"] not in usernames:
                 writer.writerow(map_output(item))
                 usernames.add(item["username"])
-                yield
+            yield item
 
 
 class Command(AsyncCommand):
