@@ -1,4 +1,5 @@
-subdir('dbus-1')
+subdir('applications')
+subdir('dbus')
 subdir('gnome-shell')
 subdir('icons')
 subdir('kolibri-gnome')

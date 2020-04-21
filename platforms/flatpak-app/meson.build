@@ -7,7 +7,6 @@ datadir = join_paths(get_option('prefix'), get_option('datadir'))
 
 kolibri_gnome_datadir = join_paths(datadir, 'kolibri-gnome')
 
-
 kolibri_gnome_config = configuration_data()
 kolibri_gnome_config.set('bindir', bindir)
 kolibri_gnome_config.set('PYTHON', 'python3')

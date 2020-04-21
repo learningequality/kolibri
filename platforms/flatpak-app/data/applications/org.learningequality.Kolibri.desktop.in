@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Terminal=false
+Name=Kolibri
+Comment=Offline education technology platform
+Keywords=education;multimedia;videos;learning;quiz;
+Categories=Education;
+DBusActivatable=true
+Exec=@bindir@/kolibri-gnome
+Icon=org.learningequality.Kolibri

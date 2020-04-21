@@ -1,0 +1,6 @@
+option(
+  'dbus_session_bus_services_dir',
+  type: 'string',
+  value: '',
+  description: 'DBus session services directory'
+)
