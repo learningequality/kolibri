@@ -10,12 +10,7 @@ Wants=network-online.target
 Type=forking
 ExecStart=/etc/init.d/kolibri-server start
 ExecStop=/etc/init.d/kolibri-server stop
-TimeoutStartSec=infinity
-TimeoutStopSec=10
 KillMode=mixed
 
 [Install]
 WantedBy=multi-user.target
-
-[Timer]
-OnStartupSec=20
