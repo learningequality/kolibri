@@ -1,6 +1,5 @@
 #!/usr/bin/env @PYTHON@
 
 import sys
-from kolibri_gnome import main
-sys.exit(main.main())
-
+from kolibri_gnome.desktop_launcher.main import main
+sys.exit(main())

@@ -8,10 +8,10 @@ import pew
 import pew.ui
 from pew.ui import PEWShortcut
 
-from . import config
+from .. import config
+from ..utils import KOLIBRI_URL, KOLIBRI_HOME
 from .kolibri_redirect import KolibriPoller
 from .kolibri_service import KolibriServiceThread
-from .utils import KOLIBRI_URL, KOLIBRI_HOME
 
 
 class MenuEventHandler:
@@ -86,6 +86,8 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
 
 
 class Application(pew.ui.PEWApp):
+    application_id = 'org.learningequality.Kolibri'
+
     def __init__(self, *args, **kwargs):
         self.kolibri_service_thread = None
         super().__init__(*args, **kwargs)

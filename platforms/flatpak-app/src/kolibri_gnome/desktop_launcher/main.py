@@ -4,12 +4,12 @@ import logging
 
 import pew
 
-from . import config
+from ..utils import init_gettext, init_logging
 from .application import Application
 
 def main():
-    gettext.bindtextdomain(config.APP_ID, config.LOCALE_DIR)
-    gettext.textdomain(config.APP_ID)
+    init_gettext()
+    init_logging('kolibri-gnome.txt')
 
     pew.set_app_name("Kolibri")
 

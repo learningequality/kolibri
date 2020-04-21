@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 # An idle monitor for Kolibri. Stops Kolibri, and itself, if it does not
 # receive a request after a certain amount of time.
 
@@ -10,7 +8,8 @@ import time
 
 from kolibri.utils.server import get_urls, STATUS_STARTING_UP
 
-from .utils import KOLIBRI_IDLE_TIMEOUT_SECS, get_kolibri_running_tasks
+from ..utils import KOLIBRI_IDLE_TIMEOUT_SECS
+from .service_utils import get_kolibri_running_tasks
 
 
 class KolibriIdleMonitorThread(threading.Thread):

@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 APP_ID = 'org.learningequality.Kolibri'
 DATA_DIR = '@KOLIBRI_GNOME_DATADIR@'
 LOCALE_DIR = None

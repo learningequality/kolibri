@@ -1,15 +1,6 @@
-#!/usr/bin/python3
-
-import fcntl
-import io
-import json
 import os
-import socket
-import subprocess
-import urllib.request
 
-from contextlib import contextmanager
-from urllib.error import URLError
+from . import config
 
 
 USER_HOME = os.path.expanduser("~")
@@ -37,50 +28,27 @@ DEFAULT_KOLIBRI_HOME = os.path.join(USER_HOME, ".kolibri")
 KOLIBRI_HOME = os.environ.get("KOLIBRI_HOME", DEFAULT_KOLIBRI_HOME)
 
 
-@contextmanager
-def singleton_service(service='kolibri', state=''):
-    # Ensures that only a single copy of a service is running on the system,
-    # including in different containers.
-    lockfile_path = os.path.join(XDG_DATA_HOME, "{}.lock".format(service))
-    with open(lockfile_path, "w") as lockfile:
-        with _flocked(lockfile):
-            lockfile.write(state)
-            lockfile.flush()
-            yield
+def init_gettext():
+    import gettext
+    gettext.bindtextdomain(config.APP_ID, config.LOCALE_DIR)
+    gettext.textdomain(config.APP_ID)
 
 
-def is_kolibri_socket_open():
-    with socket.socket() as sock:
-        return sock.connect_ex(("127.0.0.1", KOLIBRI_HTTP_PORT)) == 0
+def init_logging(logfile_name='kolibri-app.txt'):
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
 
+    root_dir = os.path.dirname(os.path.abspath(__file__))
+    locale_root_dir = os.path.join(root_dir, 'locale')
+    if root_dir.endswith('src'):
+        locale_root_dir = os.path.join(root_dir, '..', 'locale')
 
-def get_is_kolibri_responding():
-    # Check if Kolibri is responding to http requests at the expected URL.
+    from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 
-    try:
-        response = urllib.request.urlopen('{}/api/public/info'.format(KOLIBRI_URL))
-    except URLError:
-        return False
+    log_dir = os.path.join(KOLIBRI_HOME, 'logs')
+    os.makedirs(log_dir, exist_ok=True)
+    log_filename = os.path.join(log_dir, logfile_name)
 
-    if response.status != 200:
-        return False
-
-    try:
-        data = json.load(response)
-    except json.JSONDecodeError:
-        return False
-
-    return data.get('application') == 'kolibri'
-
-
-def get_kolibri_running_tasks():
-    return subprocess.run("/app/bin/check_for_running_tasks.sh").returncode
-
-
-@contextmanager
-def _flocked(fd):
-    try:
-        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        yield
-    finally:
-        fcntl.flock(fd, fcntl.LOCK_UN)
+    root_logger = logging.getLogger()
+    file_handler = KolibriTimedRotatingFileHandler(filename=log_filename, when='midnight', backupCount=30)
+    root_logger.addHandler(file_handler)

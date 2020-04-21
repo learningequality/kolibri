@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 # Displays a loading screen, and then redirects to Kolibri once it is
 # responding. Stops automatically if it does not receive a request after a
 # certain amount of time.
@@ -11,7 +9,8 @@ import time
 
 from urllib.parse import urlparse, parse_qs
 
-from .utils import KOLIBRI_URL, get_is_kolibri_responding
+from ..utils import KOLIBRI_URL
+from .service_utils import get_is_kolibri_responding
 
 
 WWW_DIR = '/app/www'
