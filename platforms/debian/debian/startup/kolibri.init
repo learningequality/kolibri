@@ -64,7 +64,8 @@ case "$1" in
     $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND stop"
     ;;
   restart)
-    $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND restart"
+    $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND stop"
+    $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND start"
     ;;
   status)
     $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND status"

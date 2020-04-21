@@ -1,3 +1,9 @@
+kolibri-source (0.13.2-0ubuntu4) trusty; urgency=medium
+
+  * Restore "restart" system service command
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 21 Apr 2020 12:12:32 +0200
+
 kolibri-source (0.13.2-0ubuntu3) trusty; urgency=medium
 
   * Restoring 14.04 support: Changing dist target to trusty
