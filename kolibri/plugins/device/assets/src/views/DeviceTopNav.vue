@@ -16,6 +16,13 @@
       <mat-svg name="https" category="action" />
     </NavbarLink>
     <NavbarLink
+      v-if="isSuperuser"
+      :title="coreString('facilitiesLabel')"
+      :link="$router.getRoute('FACILITIES_PAGE')"
+    >
+      <mat-svg name="business" category="communication" />
+    </NavbarLink>
+    <NavbarLink
       :title="$tr('infoLabel')"
       :link="$router.getRoute('DEVICE_INFO_PAGE')"
     >

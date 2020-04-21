@@ -3,18 +3,8 @@
   <div>
 
     <div>
-      <KGrid>
-        <KGridItem
-          :layout8="{ span: 4 }"
-          :layout12="{ span: 6 }"
-        >
-          <h1>{{ coreString('channelsLabel') }}</h1>
-        </KGridItem>
-        <KGridItem
-          :layout8="{ span: 4, alignment: 'right' }"
-          :layout12="{ span: 6, alignment: 'right' }"
-          class="buttons"
-        >
+      <HeaderWithOptions :headerText="coreString('channelsLabel')">
+        <template #options>
           <KDropdownMenu
             v-if="channelsAreInstalled"
             appearance="raised-button"
@@ -30,18 +20,15 @@
             class="import-btn"
             @click="startImportWorkflow()"
           />
-        </KGridItem>
-      </KGrid>
+        </template>
+      </HeaderWithOptions>
 
-      <TasksBar />
-
-      <p>
-        <KRouterLink
-          appearance="basic-link"
-          :text="$tr('taskManagerLink')"
-          :to="{ name: 'MANAGE_TASKS' }"
-        />
-      </p>
+      <TasksBar
+        v-if="managedTasks.length > 0"
+        :tasks="managedTasks"
+        :taskManagerLink="{ name: 'MANAGE_TASKS' }"
+        @clearall="handleClickClearAll"
+      />
 
       <p v-if="!channelsAreInstalled">
         {{ $tr('emptyChannelListMessage') }}
@@ -85,6 +72,7 @@
   import { TaskResource } from 'kolibri.resources';
   import taskNotificationMixin from '../taskNotificationMixin';
   import { PageNames, TaskStatuses } from '../../constants';
+  import HeaderWithOptions from '../HeaderWithOptions';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -100,6 +88,7 @@
     components: {
       ChannelPanel,
       DeleteChannelModal,
+      HeaderWithOptions,
       SelectTransferSourceModal,
       TasksBar,
     },
@@ -204,6 +193,9 @@
       handleSelectManage(channelId) {
         this.$router.push({ name: PageNames.MANAGE_CHANNEL, params: { channel_id: channelId } });
       },
+      handleClickClearAll() {
+        TaskResource.deleteFinishedTasks();
+      },
       // @public (used by taskNotificationMixin)
       onWatchedTaskFinished() {
         this.refreshChannelList();
@@ -216,7 +208,6 @@
       deleteChannels: 'Delete channels',
       editChannelOrder: 'Edit channel order',
       emptyChannelListMessage: 'No channels installed',
-      taskManagerLink: 'View task manager',
     },
   };
 

@@ -16,12 +16,17 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   editDetailsAction: 'Edit details',
   finishAction: 'Finish',
   goBackAction: 'Go back',
+  registerAction: {
+    message: 'Register',
+    context: 'Register a facility to the Kolibri Data Portal',
+  },
   retryAction: 'Retry',
   removeAction: 'Remove',
   saveAction: 'Save',
   saveChangesAction: 'Save changes',
   selectAllOnPageAction: 'Select all on page',
   showAction: 'Show',
+  syncAction: 'Sync',
   updateAction: 'Update',
   viewAction: 'View',
   viewTasksAction: 'View tasks',
@@ -66,6 +71,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   searchLabel: 'Search',
   showCorrectAnswerLabel: 'Show correct answer',
   signInLabel: 'Sign in',
+  tasksLabel: 'Tasks',
   usageAndPrivacyLabel: 'Usage and privacy',
   userTypeLabel: 'User type',
   usernameLabel: 'Username',
@@ -79,6 +85,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // Errors
   requiredFieldError: 'This field is required',
   usernameNotAlphaNumError: 'Username can only contain letters, numbers, and underscores',
+  invalidCredentialsError: 'Incorrect username or password',
+
+  // Formatting
+  nameWithIdInParens: '{name} ({id})',
+  quotedPhrase: `'{phrase}'`,
 
   // Demographic-specific strings
   genderOptionMale: 'Male',
