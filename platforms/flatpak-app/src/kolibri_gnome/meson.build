@@ -2,11 +2,8 @@ python = import('python')
 python_installation = python.find_installation('python3')
 
 kolibri_gnome_sources = [
-    'run_kolibri.py',
-    'utils.py',
+    'globals.py',
     '__init__.py',
-    'run_kolibri_desktop.py',
-    'run_kolibri_service.py',
 ]
 
 python_installation.install_sources(
@@ -14,30 +11,39 @@ python_installation.install_sources(
     subdir: 'kolibri_gnome'
 )
 
+desktop_launcher_sources = [
+    'desktop_launcher/application.py',
+    'desktop_launcher/__init__.py',
+    'desktop_launcher/main.py',
+]
+
+python_installation.install_sources(
+    desktop_launcher_sources,
+    subdir: 'kolibri_gnome/desktop_launcher'
+)
+
+kolibri_service_sources = [
+    'kolibri_service/__init__.py',
+    'kolibri_service/kolibri_idle_monitor.py',
+    'kolibri_service/kolibri_redirect.py',
+    'kolibri_service/kolibri_service.py',
+    'kolibri_service/utils.py',
+]
+
+python_installation.install_sources(
+    kolibri_service_sources,
+    subdir: 'kolibri_gnome/kolibri_service'
+)
+
 search_provider_sources = [
-    'search_provider/__init__.py',
     'search_provider/application.py',
+    'search_provider/__init__.py',
     'search_provider/main.py',
 ]
 
 python_installation.install_sources(
     search_provider_sources,
     subdir: 'kolibri_gnome/search_provider'
-)
-
-desktop_launcher_sources = [
-    'desktop_launcher/kolibri_service.py',
-    'desktop_launcher/__init__.py',
-    'desktop_launcher/application.py',
-    'desktop_launcher/kolibri_redirect.py',
-    'desktop_launcher/kolibri_idle_monitor.py',
-    'desktop_launcher/main.py',
-    'desktop_launcher/service_utils.py',
-]
-
-python_installation.install_sources(
-    desktop_launcher_sources,
-    subdir: 'kolibri_gnome/desktop_launcher'
 )
 
 configure_file(

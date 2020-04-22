@@ -8,7 +8,7 @@ import urllib.request
 from contextlib import contextmanager
 from urllib.error import URLError
 
-from ..utils import KOLIBRI_HTTP_PORT, KOLIBRI_URL, XDG_DATA_HOME
+from ..globals import KOLIBRI_HTTP_PORT, KOLIBRI_URL, XDG_DATA_HOME
 
 
 def is_kolibri_socket_open():

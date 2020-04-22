@@ -9,8 +9,8 @@ import time
 
 from urllib.parse import urlparse, parse_qs
 
-from ..utils import KOLIBRI_URL
-from .service_utils import get_is_kolibri_responding
+from ..globals import KOLIBRI_URL
+from .utils import get_is_kolibri_responding
 
 
 WWW_DIR = '/app/www'

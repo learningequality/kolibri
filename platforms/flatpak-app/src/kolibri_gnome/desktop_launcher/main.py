@@ -4,7 +4,7 @@ import logging
 
 import pew
 
-from ..utils import init_gettext, init_logging
+from ..globals import init_gettext, init_logging
 from .application import Application
 
 def main():

@@ -8,8 +8,8 @@ import threading
 from kolibri.utils import server
 from kolibri.utils import cli
 
-from ..utils import KOLIBRI_URL
-from .service_utils import singleton_service
+from ..globals import KOLIBRI_URL
+from .utils import singleton_service
 
 
 class KolibriServiceThread(threading.Thread):

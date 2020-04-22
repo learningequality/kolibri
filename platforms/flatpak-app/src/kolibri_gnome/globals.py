@@ -8,7 +8,7 @@ USER_HOME = os.path.expanduser("~")
 XDG_DATA_HOME = os.environ.get('XDG_DATA_HOME', os.path.join(USER_HOME, ".local", "share"))
 
 KOLIBRI_IDLE_TIMEOUT_MINS = int(os.environ.get("KOLIBRI_IDLE_TIMEOUT_MINS", 60))
-KOLIBRI_IDLE_TIMEOUT_SECS = KOLIBRI_IDLE_TIMEOUT_MINS * 60
+KOLIBRI_IDLE_TIMEOUT_SECS = int(os.environ.get("KOLIBRI_IDLE_TIMEOUT_SECS", KOLIBRI_IDLE_TIMEOUT_MINS * 60))
 
 # Get KOLIBRI_HTTP_PORT from kolibri.utils.conf if needed.
 # This will fail in an environment where Kolibri is supposed to run as a

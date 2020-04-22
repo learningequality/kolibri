@@ -8,8 +8,8 @@ import time
 
 from kolibri.utils.server import get_urls, STATUS_STARTING_UP
 
-from ..utils import KOLIBRI_IDLE_TIMEOUT_SECS
-from .service_utils import get_kolibri_running_tasks
+from ..globals import KOLIBRI_IDLE_TIMEOUT_SECS
+from .utils import get_kolibri_running_tasks
 
 
 class KolibriIdleMonitorThread(threading.Thread):

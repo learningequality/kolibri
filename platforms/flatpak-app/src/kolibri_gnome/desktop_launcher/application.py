@@ -2,6 +2,7 @@ import logging
 import os
 import subprocess
 import threading
+import time
 from gettext import gettext as _
 
 import pew
@@ -9,9 +10,10 @@ import pew.ui
 from pew.ui import PEWShortcut
 
 from .. import config
-from ..utils import KOLIBRI_URL, KOLIBRI_HOME
-from .kolibri_redirect import KolibriPoller
-from .kolibri_service import KolibriServiceThread
+from ..globals import KOLIBRI_URL, KOLIBRI_HOME
+from ..kolibri_service.utils import get_is_kolibri_responding
+from ..kolibri_service.kolibri_service import KolibriServiceThread
+from ..kolibri_service.kolibri_idle_monitor import KolibriIdleMonitorThread
 
 
 class MenuEventHandler:
@@ -55,18 +57,13 @@ class MenuEventHandler:
     def on_zoom_out(self):
         self.set_zoom_level(self.get_zoom_level() - 1)
 
-    # FIXME: Remove these once the native menu handlers are restored
-    def on_redo(self):
-        self.webview.Redo()
-
-    def on_undo(self):
-        self.webview.Undo()
+    def get_url(self):
+        raise NotImplementedError()
 
 
 class KolibriView(pew.ui.WebUIView, MenuEventHandler):
     def __init__(self, *args, **kwargs):
-        super(KolibriView, self).__init__(*args, **kwargs)
-        MenuEventHandler.__init__(self)
+        super().__init__(*args, **kwargs)
 
     def shutdown(self):
         """
@@ -109,7 +106,9 @@ class Application(pew.ui.PEWApp):
         self.windows = [self.view]
 
         # start server
-        self.start_server()
+        self.run_thread = pew.ui.PEWThread(target=self.run_server)
+        self.run_thread.daemon = False
+        self.run_thread.start()
 
         self.load_thread = pew.ui.PEWThread(target=self.wait_for_server)
         self.load_thread.daemon = True
@@ -122,16 +121,30 @@ class Application(pew.ui.PEWApp):
 
         return 0
 
-    def start_server(self):
+    def shutdown(self):
+        print("Application: shutdown")
+        super().shutdown()
+
+    def run_server(self):
         logging.info("Preparing to start Kolibri server...")
 
-        if self.kolibri_service_thread:
-            logging.warning("Kolibri service thread is already running")
-            self.kolibri_service_thread.stop()
+        kolibri_idle_monitor = KolibriIdleMonitorThread()
+        kolibri_service = KolibriServiceThread(
+            heartbeat_port=kolibri_idle_monitor.idle_monitor_port
+        )
+        kolibri_idle_monitor.set_kolibri_service(
+            kolibri_service
+        )
 
-        self.kolibri_service_thread = KolibriServiceThread()
-        self.kolibri_service_thread.daemon = True
-        self.kolibri_service_thread.start()
+        print("Starting Kolibri idle monitor...")
+        kolibri_idle_monitor.start()
+        print("Starting Kolibri service...")
+        kolibri_service.start()
+
+        kolibri_service.join()
+        print("Kolibri service stopped.")
+        kolibri_idle_monitor.stop()
+        print("Kolibri idle monitor stopped.")
 
     def create_kolibri_window(self, url):
         window = KolibriView("Kolibri", url, delegate=self)
@@ -189,22 +202,15 @@ class Application(pew.ui.PEWApp):
         # Make sure that any attempts to use back functionality don't take us back to the loading screen
         # For more info, see: https://stackoverflow.com/questions/8103532/how-to-clear-webview-history-in-android
         if not self.kolibri_loaded and url != self.loader_url:
-            # FIXME: Change pew to reference the native webview as webview.native_webview rather than webview.webview
-            # for clarity.
             self.kolibri_loaded = True
             self.view.clear_history()
 
     def wait_for_server(self):
-        kolibri_responding_event = threading.Event()
-        kolibri_poller_thread = KolibriPoller(kolibri_responding_event)
-
-        kolibri_poller_thread.start()
-
-        is_responding = kolibri_responding_event.is_set()
-        while not is_responding:
-            is_responding = kolibri_responding_event.wait(timeout=None)
-
-        kolibri_poller_thread.stop()
+        while not get_is_kolibri_responding():
+            # There is a corner case here where Kolibri may be running (lock
+            # file is created), but responding at a different URL than we
+            # expect. This is very unlikely, so we are ignoring it here.
+            time.sleep(2)
 
         # Check for saved URL, which exists when the app was put to sleep last time it ran
         saved_state = self.view.get_view_state()
