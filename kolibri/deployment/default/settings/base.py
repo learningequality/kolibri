@@ -54,7 +54,7 @@ LOCALE_PATHS = [os.path.join(KOLIBRI_MODULE_PATH, "locale")]
 SECRET_KEY = "f@ey3)y^03r9^@mou97apom*+c1m#b1!cwbm50^s4yk72xce27"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = conf.OPTIONS["Server"]["DEBUG"]
 
 ALLOWED_HOSTS = ["*"]
 
@@ -88,6 +88,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "kolibri.core.analytics.middleware.cherrypy_access_log_middleware",
     "django.middleware.cache.UpdateCacheMiddleware",
     "kolibri.core.analytics.middleware.MetricsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -278,7 +279,11 @@ SESSION_COOKIE_PATH = path_prefix
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
 
-LOGGING = get_logging_config(conf.LOG_ROOT)
+LOGGING = get_logging_config(
+    conf.LOG_ROOT,
+    debug=DEBUG,
+    debug_database=conf.OPTIONS["Server"]["DEBUG_LOG_DATABASE"],
+)
 
 
 # Customizing Django auth system

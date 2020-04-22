@@ -44,6 +44,7 @@ class Worker(object):
     def shutdown_workers(self, wait=True):
         # First cancel all running jobs
         for job_id in self.future_job_mapping:
+            logger.info("Canceling job id {}.".format(job_id))
             self.cancel(job_id)
         # Now shutdown the workers
         self.workers.shutdown(wait=wait)
@@ -81,6 +82,7 @@ class Worker(object):
         self.report_success(job.job_id, result)
 
     def shutdown(self, wait=False):
+        logger.info("Asking job schedulers to shut down.")
         self.job_checker.stop()
         self.shutdown_workers(wait=wait)
         if wait:

@@ -76,7 +76,7 @@ class InfiniteLoopThread(compat.Thread):
         self.wait = wait_between_runs
 
     def run(self):
-        self.logger.info(
+        self.logger.debug(
             "Started new {name} thread ID#{id}".format(
                 name=self.thread_name, id=self.thread_id
             )
@@ -84,7 +84,7 @@ class InfiniteLoopThread(compat.Thread):
 
         while True:
             if self.shutdown_event.wait(self.DEFAULT_TIMEOUT_SECONDS):
-                self.logger.warning(
+                self.logger.debug(
                     "{name} shut down event received; closing.".format(
                         name=self.thread_name
                     )

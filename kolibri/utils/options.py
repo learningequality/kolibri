@@ -15,7 +15,6 @@ except NotImplementedError:
     psutil = None
 
 
-from kolibri.utils.logger import get_base_logging_config
 from kolibri.plugins.utils.options import extend_config_spec
 
 
@@ -130,6 +129,12 @@ base_option_spec = {
             "default": False,
             "envvars": ("KOLIBRI_SERVER_PROFILE",),
         },
+        "DEBUG": {"type": "boolean", "default": False, "envvars": ("KOLIBRI_DEBUG",)},
+        "DEBUG_LOG_DATABASE": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_DEBUG_LOG_DATABASE",),
+        },
     },
     "Paths": {
         "CONTENT_DIR": {
@@ -177,24 +182,29 @@ base_option_spec = {
 }
 
 
-def get_logger(KOLIBRI_HOME):
+def _get_logger(KOLIBRI_HOME):
     """
-    We define a minimal default logger config here, since we can't yet load up Django settings.
+    We define a minimal default logger config here, since we can't yet
+    load up Django settings.
+
+    NB! Since logging can be defined by options, the logging from some
+    of the functions in this module do not use fully customized logging.
     """
     from kolibri.utils.conf import LOG_ROOT
+    from kolibri.utils.logger import get_default_logging_config
 
-    logging.config.dictConfig(get_base_logging_config(LOG_ROOT))
+    logging.config.dictConfig(get_default_logging_config(LOG_ROOT))
     return logging.getLogger(__name__)
 
 
-def __get_option_spec():
+def _get_option_spec():
     """
     Combine the default option spec with any options that are defined in plugins
     """
     return extend_config_spec(base_option_spec)
 
 
-option_spec = SimpleLazyObject(__get_option_spec)
+option_spec = SimpleLazyObject(_get_option_spec)
 
 
 def get_configspec():
@@ -233,7 +243,7 @@ def clean_conf(conf):
 
 def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
 
-    logger = get_logger(KOLIBRI_HOME)
+    logger = _get_logger(KOLIBRI_HOME)
 
     ini_path = os.path.join(KOLIBRI_HOME, ini_filename)
 
@@ -325,8 +335,16 @@ def _expand_paths(basepath, pathdict):
 
 
 def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options.ini"):
+    """
+    Updates the configuration file on top of what is currently in the
+    file.
 
-    logger = get_logger(KOLIBRI_HOME)
+    Note to future: Do not change the implementation to write the
+    in-memory conf.OPTIONS as it can contain temporary in-memory values
+    that are not intended to be stored.
+    """
+
+    logger = _get_logger(KOLIBRI_HOME)
 
     # load the current conf from disk into memory
     conf = read_options_file(KOLIBRI_HOME, ini_filename=ini_filename)
