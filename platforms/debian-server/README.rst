@@ -10,14 +10,14 @@ Building and developing
 
 To fetch and build a new version of this package, the following workflow is suggested:
 
-1. Install the `kolibri-proposed development PPA <https://launchpad.net/~learningequality/+archive/ubuntu/kolibri-proposed>`__
-1. Enable source repositories in ``/etc/apt/sources.list.d/learningequality-ubuntu-kolibri-proposed*``
-1. Run ``apt update``
-1. Fetch the latest source package: ``apt source kolibri-server``
-1. Run ``dch`` to edit the changelog
-1. Make changes in ``<unpakced-package>/debian`` and run ``debuild`` in order to test a new build.
-1. Copy your changed files in ``<unpakced-package>/debian`` to your git checkout
-1. Create a PR
+#. Install the `kolibri-proposed development PPA <https://launchpad.net/~learningequality/+archive/ubuntu/kolibri-proposed>`__
+#. Enable source repositories in ``/etc/apt/sources.list.d/learningequality-ubuntu-kolibri-proposed*``
+#. Run ``apt update``
+#. Fetch the latest source package: ``apt source kolibri-server``
+#. Run ``dch`` to edit the changelog
+#. Make changes in ``<unpakced-package>/debian`` and run ``debuild`` in order to test a new build.
+#. Copy your changed files in ``<unpakced-package>/debian`` to your git checkout
+#. Create a PR
 
 You can optimize this workflow according to your own needs.
 
@@ -28,12 +28,12 @@ Working in the repo
 
 You can also make changes in the cloned repository in the following workflow:
 
-1. Make your changes
-1. Run `dch`, carefully noting your release notes
-1. Build the package with `make dist`
-1. Test the package with  `sudo dpkg -i ../kolibri-server_VERSION.deb`
-1. If you have further changes, you can keep editing and invoking `make dist`
-1. Finally, commit your changes and open a PR, including your entry in `debian/changelog`
+#. Make your changes
+#. Run `dch`, carefully noting your release notes
+#. Build the package with `make dist`
+#. Test the package with  `sudo dpkg -i ../kolibri-server_VERSION.deb`
+#. If you have further changes, you can keep editing and invoking `make dist`
+#. Finally, commit your changes and open a PR, including your entry in `debian/changelog`
 
 Releasing
 ---------
@@ -42,9 +42,9 @@ Push new changes to ``kolibri-proposed`` and test them there.
 
 To build packages for all current Ubuntu release series:
 
-1. Install Launchpadlib: ``sudo apt install python-launchpadlib``
-1. Run ``ppa-copy-packages.py`` script to copy the builds for Xenial to all other currently active and supported Ubuntu releases on Launchpad. The script is run from command line with ``python2 ppa-copy-packages.py``. After this, you should be prompted to create an API key for your Launchpad account.
-1. When a release in ``kolibri-proposed`` should be released as a stable release, use the binary copy function on Launchpad to copy builds from ``kolibri-proposed``.
+#. Install Launchpadlib: ``sudo apt install python-launchpadlib``
+#. Run ``ppa-copy-packages.py`` script to copy the builds for Xenial to all other currently active and supported Ubuntu releases on Launchpad. The script is run from command line with ``python2 ppa-copy-packages.py``. After this, you should be prompted to create an API key for your Launchpad account.
+#. When a release in ``kolibri-proposed`` should be released as a stable release, use the binary copy function on Launchpad to copy builds from ``kolibri-proposed``.
 
 Overview
 --------
