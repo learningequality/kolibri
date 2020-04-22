@@ -1,11 +1,7 @@
+from collections import deque
 from gi.repository import Gio, GLib
 
-from kolibri.dist import django
-django.setup()
-
-from kolibri.core.content.api import ContentNodeSearchViewset
-from kolibri.core.content.models import ContentNode
-from kolibri.dist.rest_framework.test import APIRequestFactory
+from ..globals import kolibri_api_get_json
 
 
 ICON_LOOKUP = {
@@ -56,9 +52,7 @@ class SearchProvider:
         self.__application = application
         self.__registered_ids = []
         self.__method_outargs = {}
-
-        self.launcher = None
-        # TODO: self.launcher should be org.learningequality.Kolibri (the desktop application)
+        self.__nodes_cache = deque(maxlen=30)
 
     def register_on_connection(self, connection, object_path):
         info = Gio.DBusNodeInfo.new_for_xml(self.INTERFACE_XML)
@@ -85,7 +79,6 @@ class SearchProvider:
         self.__application.hold()
 
         out_args = self.__method_outargs[method_name]
-        print("CALLING METHOD", method_name)
         if out_args != '()':
             variant = GLib.Variant(out_args, result)
             invocation.return_value(variant)
@@ -95,25 +88,13 @@ class SearchProvider:
         self.__application.release()
 
     def GetInitialResultSet(self, terms):
-        return self.__get_search_result_ids(terms)
+        return list(self.__iter_item_ids_for_terms_list(terms))
 
     def GetSubsearchResultSet(self, previous_results, terms):
-        return self.__get_search_result_ids(terms)
+        return list(self.__iter_item_ids_for_terms_list(terms))
 
     def GetResultMetas(self, item_ids):
-        results = []
-        for item_id in item_ids:
-            node = ContentNode.objects.get(id=item_id.split("/")[-1])
-            node_icon = ICON_LOOKUP.get(node.kind, "application-x-executable")
-            results.append(
-                {
-                    "id": GLib.Variant('s', item_id),
-                    "name": GLib.Variant('s', node.title),
-                    "description": GLib.Variant('s', node.description),
-                    "gicon": GLib.Variant('s', node_icon)
-                }
-            )
-        return results
+        return list(self.__iter_nodes_for_item_ids(item_ids))
 
     def ActivateResult(self, item_id, terms, timestamp):
         self.__activate_kolibri(item_id, terms)
@@ -121,22 +102,55 @@ class SearchProvider:
     def LaunchSearch(self, terms, timestamp):
         self.__activate_kolibri("", terms)
 
-    def __activate_kolibri(self, uris, terms):
+    def __activate_kolibri(self, item_id, terms):
         kolibri_launcher = Gio.Application(
             application_id="org.learningequality.Kolibri",
             flags=Gio.ApplicationFlags.IS_LAUNCHER
         )
-        kolibri_launcher.run()
+        args = [item_id]
+        # for term in terms:
+        #     args.extend(('--term', term))
+        return kolibri_launcher.run(args)
 
-    @staticmethod
-    def __get_search_result_ids(terms):
-        request = APIRequestFactory().get("", {"search": terms, "max_results": 10})
-        search_view = ContentNodeSearchViewset.as_view({"get": "list"})
-        response = search_view(request)
-        return [
-            ("t/" if result["kind"] == "topic" else "c/") + result["id"]
-            for result in response.data["results"]
-        ]
+
+    def __iter_item_ids_for_terms_list(self, terms):
+        for term in terms:
+            yield from self.__iter_item_ids_for_term(term)
+
+    def __iter_item_ids_for_term(self, term):
+        response = kolibri_api_get_json(
+            '/api/content/contentnode_search',
+            {'search': term, 'max_results': 10},
+            dict()
+        )
+
+        nodes_cache = dict(self.__nodes_cache)
+
+        for node in response.get('results', []):
+            if node.get('kind') == 'topic':
+                item_id = 't/{}'.format(node.get('id'))
+            else:
+                item_id = 'c/{}'.format(node.get('id'))
+            if item_id not in nodes_cache:
+                self.__nodes_cache.append((item_id, node))
+            yield item_id
+
+    def __iter_nodes_for_item_ids(self, item_ids):
+        nodes_cache = dict(self.__nodes_cache)
+
+        item_nodes = (
+            (item_id, nodes_cache.get(item_id)) for item_id in item_ids
+            if item_id in nodes_cache
+        )
+
+        for item_id, node in item_nodes:
+            node_icon = ICON_LOOKUP.get(node.get('kind'), "application-x-executable")
+            yield {
+                "id": GLib.Variant('s', item_id),
+                "name": GLib.Variant('s', node.get('title')),
+                "description": GLib.Variant('s', node.get('description')),
+                "gicon": GLib.Variant('s', node_icon)
+            }
 
 
 class Application(Gio.Application):
