@@ -1,5 +1,5 @@
 Feature: Super Admin bulk import users into a facility
-    Super Admin needs to be able to do a bulk import of users and classes using the command line
+    Super Admin needs to be able to do a bulk import of users using the command line, together with the information about the classes they are enrolled or assigned to
 
   Background:
     Given that the Kolibri server has one device with one or more facilities
@@ -14,7 +14,7 @@ Feature: Super Admin bulk import users into a facility
     Then I see a report containing the number of users and classes to be created, deleted and updated
       And I see the list of errors, if any
     When I open the facility in the browser
-      And I can see the new users and classes have been created, with the coaches assigned and the learners enrolled
+    Then I can see the new users and classes have been created, with the coaches assigned and the learners enrolled
       And none of the preexisting users have been modified # still assigned/enrolled as they were before.
 
   Scenario: Execute the import command and review the users and classes are deleted and updated

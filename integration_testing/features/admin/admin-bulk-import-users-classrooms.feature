@@ -5,7 +5,7 @@ Feature: Admin bulk export of users and classrooms
     Given I am signed in to Kolibri as a facility admin user
       And I am on *Facility > Data* page
 
-  Scenario: See CSV the file format requirements
+  Scenario: See the CSV file format requirements
     When I click the *Import* button under *Import and export users* heading
     Then I see a new window with a text explaining the consequences of importing
     When I click on the *View spreadsheet format reference* link
