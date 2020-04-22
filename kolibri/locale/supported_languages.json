@@ -21,6 +21,13 @@
     "default_font": "NotoSansBengali"
   },
   {
+    "crowdin_code": "zh-CN",
+    "intl_code": "zh",
+    "language_name": "简化字",
+    "english_name": "Simplified Chinese",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "en",
     "intl_code": "en",
     "language_name": "English",
@@ -83,6 +90,13 @@
     "english_name": "Italian",
     "default_font": "NotoSans"
   },
+  {
+    "crowdin_code": "km",
+    "intl_code": "km",
+    "language_name": "ភាសាខ្មែរ",
+    "english_name": "Khmer",
+    "default_font": "NotoSansKhmer"
+  },
     {
     "crowdin_code": "ko",
     "intl_code": "ko",
@@ -103,6 +117,13 @@
     "language_name": "ဗမာစာ",
     "english_name": "Burmese",
     "default_font": "NotoSansMyanmar"
+  },
+  {
+    "crowdin_code": "ne-NP",
+    "intl_code": "ne-np",
+    "language_name": "नेपाली",
+    "english_name": "Nepali",
+    "default_font": "NotoSansDevanagari"
   },
   {
     "crowdin_code": "ny",

@@ -44,7 +44,7 @@ htmlcov/
 kolibrihome_test/
 
 # Translations
-*.mo
+# *.mo
 kolibri/locale/en/
 kolibri/locale/CSV_FILES/**/*
 
