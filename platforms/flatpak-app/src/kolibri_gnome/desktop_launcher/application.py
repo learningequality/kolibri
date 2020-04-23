@@ -13,7 +13,6 @@ from .. import config
 from ..globals import KOLIBRI_URL, KOLIBRI_HOME
 from ..kolibri_service.utils import get_is_kolibri_responding
 from ..kolibri_service.kolibri_service import KolibriServiceThread
-from ..kolibri_service.kolibri_idle_monitor import KolibriIdleMonitorThread
 
 
 class MenuEventHandler:
@@ -24,11 +23,7 @@ class MenuEventHandler:
         subprocess.call(['xdg-open', 'https://community.learningequality.org/'])
 
     def on_new_window(self):
-        app = pew.ui.get_app()
-        if app:
-            window = app.create_kolibri_window(KOLIBRI_URL)
-            app.windows.append(window)
-            window.show()
+        self.open_window()
 
     def on_close_window(self):
         self.close()
@@ -60,10 +55,24 @@ class MenuEventHandler:
     def get_url(self):
         raise NotImplementedError()
 
+    def open_window(self):
+        raise NotImplementedError()
+
 
 class KolibriView(pew.ui.WebUIView, MenuEventHandler):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, name, url, load_event=None, **kwargs):
+        if load_event.is_set():
+            super().__init__(name, url, **kwargs)
+            self.__redirect_thread = None
+        else:
+            delegate = kwargs.get('delegate')
+            super().__init__(name, delegate.loader_url, **kwargs)
+            self.__redirect_thread = pew.ui.PEWThread(
+                target=self.redirect_on_load,
+                args=(load_event, url)
+            )
+            self.__redirect_thread.daemon = True
+            self.__redirect_thread.start()
 
     def shutdown(self):
         """
@@ -74,154 +83,146 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
         """
         app = pew.ui.get_app()
         if app:
-            app.windows.remove(self)
-            if len(app.windows) > 0:
-                # if we still have open windows, don't run shutdown
-                return
+            app.shutdown()
 
-        super(KolibriView, self).shutdown()
+    def redirect_on_load(self, event, url):
+        if event.wait():
+            self.load_url(url)
+
+    def open_window(self):
+        target_url = self.get_url()
+        if target_url == self.delegate.loader_url:
+            target_url = KOLIBRI_URL
+        self.delegate.open_window(target_url)
 
 
-class Application(pew.ui.PEWApp):
-    application_id = 'org.learningequality.Kolibri'
-
+class KolibriWindow(KolibriView):
     def __init__(self, *args, **kwargs):
-        self.kolibri_service_thread = None
         super().__init__(*args, **kwargs)
-
-    def setUp(self):
-        """
-        Start your UI and app run loop here.
-        """
-
-        # TODO: Generated translated loading screen, or detect language code
-        #       and find the closest match like in kolibri-installer-mac.
-
-        loader_page = os.path.abspath(os.path.join(config.DATA_DIR, 'assets', '_load.html'))
-        self.loader_url = 'file://{}'.format(loader_page)
-        self.kolibri_loaded = False
-
-        self.view = self.create_kolibri_window(self.loader_url)
-
-        self.windows = [self.view]
-
-        # start server
-        self.run_thread = pew.ui.PEWThread(target=self.run_server)
-        self.run_thread.daemon = False
-        self.run_thread.start()
-
-        self.load_thread = pew.ui.PEWThread(target=self.wait_for_server)
-        self.load_thread.daemon = True
-        self.load_thread.start()
-
-        # make sure we show the UI before run completes, as otherwise
-        # it is possible the run can complete before the UI is shown,
-        # causing the app to shut down early
-        self.view.show()
-
-        return 0
-
-    def shutdown(self):
-        print("Application: shutdown")
-        super().shutdown()
-
-    def run_server(self):
-        logging.info("Preparing to start Kolibri server...")
-
-        kolibri_idle_monitor = KolibriIdleMonitorThread()
-        kolibri_service = KolibriServiceThread(
-            heartbeat_port=kolibri_idle_monitor.idle_monitor_port
-        )
-        kolibri_idle_monitor.set_kolibri_service(
-            kolibri_service
-        )
-
-        print("Starting Kolibri idle monitor...")
-        kolibri_idle_monitor.start()
-        print("Starting Kolibri service...")
-        kolibri_service.start()
-
-        kolibri_service.join()
-        print("Kolibri service stopped.")
-        kolibri_idle_monitor.stop()
-        print("Kolibri idle monitor stopped.")
-
-    def create_kolibri_window(self, url):
-        window = KolibriView("Kolibri", url, delegate=self)
 
         # create menu bar, we do this per-window for cross-platform purposes
         menu_bar = pew.ui.PEWMenuBar()
 
         file_menu = pew.ui.PEWMenu(_('File'))
-        file_menu.add(_('New Window'), handler=window.on_new_window)
-        file_menu.add(_('Close Window'), handler=window.on_close_window)
+        file_menu.add(_('New Window'), handler=self.on_new_window, shortcut=PEWShortcut('N', modifiers=['CTRL']))
+        file_menu.add(_('Close Window'), handler=self.on_close_window, shortcut=PEWShortcut('W', modifiers=['CTRL']))
         file_menu.add_separator()
-        file_menu.add(_('Open Kolibri Home Folder'), handler=window.on_open_kolibri_home)
+        file_menu.add(_('Open Kolibri Home Folder'), handler=self.on_open_kolibri_home)
 
         menu_bar.add_menu(file_menu)
 
         view_menu = pew.ui.PEWMenu(_('View'))
-        view_menu.add(_('Reload'), handler=window.on_reload)
-        view_menu.add(_('Actual Size'), handler=window.on_actual_size, shortcut=PEWShortcut('0', modifiers=['CTRL']))
-        view_menu.add(_('Zoom In'), handler=window.on_zoom_in, shortcut=PEWShortcut('+', modifiers=['CTRL']))
-        view_menu.add(_('Zoom Out'), handler=window.on_zoom_out, shortcut=PEWShortcut('-', modifiers=['CTRL']))
+        view_menu.add(_('Reload'), handler=self.on_reload)
+        view_menu.add(_('Actual Size'), handler=self.on_actual_size, shortcut=PEWShortcut('0', modifiers=['CTRL']))
+        view_menu.add(_('Zoom In'), handler=self.on_zoom_in, shortcut=PEWShortcut('+', modifiers=['CTRL']))
+        view_menu.add(_('Zoom Out'), handler=self.on_zoom_out, shortcut=PEWShortcut('-', modifiers=['CTRL']))
         view_menu.add_separator()
-        view_menu.add(_('Open in Browser'), handler=window.on_open_in_browser)
+        view_menu.add(_('Open in Browser'), handler=self.on_open_in_browser)
         menu_bar.add_menu(view_menu)
 
         history_menu = pew.ui.PEWMenu(_('History'))
-        history_menu.add(_('Back'), handler=window.on_back, shortcut=PEWShortcut('[', modifiers=['CTRL']))
-        history_menu.add(_('Forward'), handler=window.on_forward, shortcut=PEWShortcut(']', modifiers=['CTRL']))
+        history_menu.add(_('Back'), handler=self.on_back, shortcut=PEWShortcut('[', modifiers=['CTRL']))
+        history_menu.add(_('Forward'), handler=self.on_forward, shortcut=PEWShortcut(']', modifiers=['CTRL']))
         menu_bar.add_menu(history_menu)
 
         help_menu = pew.ui.PEWMenu(_('Help'))
-        help_menu.add(_('Documentation'), handler=window.on_documentation, shortcut=PEWShortcut('F1'))
-        help_menu.add(_('Community Forums'), handler=window.on_forums)
+        help_menu.add(_('Documentation'), handler=self.on_documentation, shortcut=PEWShortcut('F1'))
+        help_menu.add(_('Community Forums'), handler=self.on_forums)
         menu_bar.add_menu(help_menu)
 
-        window.set_menubar(menu_bar)
+        self.set_menubar(menu_bar)
 
-        return window
+
+class Application(pew.ui.PEWApp):
+    application_id = config.APP_ID
+
+    def __init__(self, *args, **kwargs):
+        self.kolibri_service = None
+
+        loader_page = os.path.abspath(os.path.join(config.DATA_DIR, 'assets', '_load.html'))
+        self.loader_url = 'file://{}'.format(loader_page)
+
+        self.kolibri_loaded = threading.Event()
+        self.windows = []
+
+        super().__init__(*args, **kwargs)
+
+    def init_ui(self):
+        # TODO: Generated translated loading screen, or detect language code
+        #       and find the closest match like in kolibri-installer-mac.
+
+        # start server
+        self.kolibri_run_thread = pew.ui.PEWThread(target=self.run_server)
+        self.kolibri_run_thread.daemon = False
+        self.kolibri_run_thread.start()
+
+        self.kolibri_wait_thread = pew.ui.PEWThread(target=self.wait_for_server)
+        self.kolibri_wait_thread.daemon = True
+        self.kolibri_wait_thread.start()
+
+        # make sure we show the UI before run completes, as otherwise
+        # it is possible the run can complete before the UI is shown,
+        # causing the app to shut down early
+        main_window = self.__open_window(KOLIBRI_URL)
+
+        # Check for saved URL, which exists when the app was put to sleep last time it ran
+        saved_state = main_window.get_view_state()
+        logging.debug('Persisted View State: {}'.format(main_window.get_view_state()))
+
+        if "URL" in saved_state and saved_state["URL"].startswith(KOLIBRI_URL):
+            pew.ui.run_on_main_thread(main_window.load_url, saved_state["URL"])
+
+        return 0
+
+    def shutdown(self):
+        # for window in self.windows:
+        #     window.close(check_shutdown=False)
+
+        if self.kolibri_service:
+            shutdown_thread = pew.ui.PEWThread(target=self.kolibri_service.stop_kolibri)
+            shutdown_thread.start()
+
+        super().shutdown()
+
+    def run_server(self):
+        logging.info("Starting Kolibri server...")
+        self.kolibri_service = KolibriServiceThread()
+        self.kolibri_service.start()
+        self.kolibri_service.join()
+        self.kolibri_service = None
+
+    def wait_for_server(self):
+        while not get_is_kolibri_responding():
+            # There is a corner case here where Kolibri may be running (lock
+            # file is created), but responding at a different URL than we
+            # expect. This is unlikely, so we are ignoring it here.
+            time.sleep(1)
+        logging.info("Kolibri server is responding")
+        self.kolibri_loaded.set()
 
     def should_load_url(self, url):
         if url.startswith(KOLIBRI_URL):
             return True
-        elif url == self.loader_url and not self.kolibri_loaded:
-            return not self.kolibri_loaded
+        elif url == self.loader_url:
+            return not self.kolibri_loaded.is_set()
         else:
             subprocess.call(['xdg-open', url])
             return False
 
         return True
 
-    def page_loaded(self, url):
-        """
-        This is a PyEverywhere delegate method to let us know the WebView is ready to use.
-        """
+    def open_window(self, target_url):
+        self.__open_window(target_url)
 
-        # Make sure that any attempts to use back functionality don't take us back to the loading screen
-        # For more info, see: https://stackoverflow.com/questions/8103532/how-to-clear-webview-history-in-android
-        if not self.kolibri_loaded and url != self.loader_url:
-            self.kolibri_loaded = True
-            self.view.clear_history()
+    def __open_window(self, target_url):
+        window = KolibriWindow(_("Kolibri"), target_url, load_event=self.kolibri_loaded, delegate=self)
+        self.windows.append(window)
+        window.show()
+        return window
 
-    def wait_for_server(self):
-        while not get_is_kolibri_responding():
-            # There is a corner case here where Kolibri may be running (lock
-            # file is created), but responding at a different URL than we
-            # expect. This is very unlikely, so we are ignoring it here.
-            time.sleep(2)
 
-        # Check for saved URL, which exists when the app was put to sleep last time it ran
-        saved_state = self.view.get_view_state()
-        logging.debug('Persisted View State: {}'.format(self.view.get_view_state()))
 
-        if "URL" in saved_state and saved_state["URL"].startswith(KOLIBRI_URL):
-            pew.ui.run_on_main_thread(self.view.load_url, saved_state["URL"])
             return
 
-        pew.ui.run_on_main_thread(self.view.load_url, KOLIBRI_URL)
 
-    def get_main_window(self):
-        return self.view
 
