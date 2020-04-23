@@ -233,15 +233,21 @@ class Application(pew.ui.PEWApp):
             return
 
         if parse.path and parse.path != '/':
-            item_path = '/learn/#/topics/{}'.format(parse.path)
+            item_path = '/learn'.format(parse.path)
+            item_fragment = '/topics{}'.format(parse.path)
         elif parse.query:
-            item_path = '/learn/#/search'
+            item_path = '/learn'
+            item_fragment = '/search'.format(parse.path)
         else:
             item_path = '/'
+            item_fragment = ''
+
+        if parse.query:
+            item_fragment += '?{}'.format(parse.query)
 
         target_url = KOLIBRI_URL_PARSE._replace(
             path=item_path,
-            query=parse.query
+            fragment=item_fragment
         )
 
         self.__open_window(urlunparse(target_url))
