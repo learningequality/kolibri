@@ -4,13 +4,14 @@ import subprocess
 import threading
 import time
 from gettext import gettext as _
+from urllib.parse import urlparse, urlunparse
 
 import pew
 import pew.ui
 from pew.ui import PEWShortcut
 
 from .. import config
-from ..globals import KOLIBRI_URL, KOLIBRI_HOME
+from ..globals import KOLIBRI_HOME, KOLIBRI_URL, KOLIBRI_URL_PARSE
 from ..kolibri_service.utils import get_is_kolibri_responding
 from ..kolibri_service.kolibri_service import KolibriServiceThread
 
@@ -220,9 +221,27 @@ class Application(pew.ui.PEWApp):
         window.show()
         return window
 
+    def handle_open_file_uris(self, uris):
+        for uri in uris:
+            self.__open_window_for_kolibri_scheme_uri(uri)
 
+    def __open_window_for_kolibri_scheme_uri(self, kolibri_uri):
+        parse = urlparse(kolibri_uri)
 
+        if parse.scheme != 'kolibri':
+            logging.info("Invalid URI scheme", kolibri_uri)
             return
 
+        if parse.path and parse.path != '/':
+            item_path = '/learn/#/topics/{}'.format(parse.path)
+        elif parse.query:
+            item_path = '/learn/#/search'
+        else:
+            item_path = '/'
 
+        target_url = KOLIBRI_URL_PARSE._replace(
+            path=item_path,
+            query=parse.query
+        )
 
+        self.__open_window(urlunparse(target_url))
