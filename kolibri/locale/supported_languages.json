@@ -22,7 +22,7 @@
   },
   {
     "crowdin_code": "zh-CN",
-    "intl_code": "zh",
+    "intl_code": "zh-hans",
     "language_name": "简化字",
     "english_name": "Simplified Chinese",
     "default_font": "NotoSans"

@@ -26,10 +26,10 @@ module.exports = function(locale) {
           resolve(() => require('intl/locale-data/jsonp/bn-BD.js'));
         });
       });
-    case 'zh':
+    case 'zh-hans':
       return new Promise(function(resolve) {
-        require.ensure(['intl/locale-data/jsonp/zh.js'], function(require) {
-          resolve(() => require('intl/locale-data/jsonp/zh.js'));
+        require.ensure(['intl/locale-data/jsonp/zh-Hans.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/zh-Hans.js'));
         });
       });
     case 'en':

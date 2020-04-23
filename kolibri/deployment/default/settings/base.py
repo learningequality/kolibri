@@ -219,29 +219,19 @@ EXTRA_LANG_INFO = {
         "name": "Gujarati",
         "name_local": "ગુજરાતી",
     },
-    "km": {
-        "bidi": False,
-        "code": "km",
-        "name": "Khmer",
-        "name_local": "ភាសាខ្មែរ",
-    },
+    "km": {"bidi": False, "code": "km", "name": "Khmer", "name_local": "ភាសាខ្មែរ",},
     "nyn": {
         "bidi": False,
         "code": "nyn",
         "name": "Chichewa, Chewa, Nyanja",
         "name_local": "Chinyanja",
     },
-    "yo": {
-        "bidi": False,
-        "code": "yo",
-        "name": "Yoruba",
-        "name_local": "Yorùbá"
-    },
+    "yo": {"bidi": False, "code": "yo", "name": "Yoruba", "name_local": "Yorùbá"},
     "zh": {
         "bidi": False,
-        "code": "zh",
+        "code": "zh-hans",
         "name": "Simplified Chinese",
-        "name_local": "简化字"
+        "name_local": "简化字",
     },
     "zu": {"bidi": False, "code": "zu", "name": "Zulu", "name_local": "isiZulu"},
 }
