@@ -25,6 +25,17 @@ PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
 . /lib/lsb/init-functions
 
+# Prefer runuser over su
+# See: https://github.com/learningequality/kolibri-installer-debian/issues/90
+# Check if runuser exists - it doesn't on 14.04
+if which runuser > /dev/null
+then
+  SU_COMMAND="runuser"
+else
+  SU_COMMAND="su"
+fi
+
+
 set -o allexport
 . /etc/default/kolibri
 set +o allexport
@@ -47,16 +58,17 @@ fi
 case "$1" in
   start)
     # run kolibri as another user, the one who generated this file
-    /sbin/runuser $KOLIBRI_USER -c "$KOLIBRI_COMMAND start"
+    $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND start"
     ;;
   stop)
-    /sbin/runuser $KOLIBRI_USER -c "$KOLIBRI_COMMAND stop"
+    $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND stop"
     ;;
   restart)
-    /sbin/runuser $KOLIBRI_USER -c "$KOLIBRI_COMMAND restart"
+    $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND stop"
+    $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND start"
     ;;
   status)
-    /sbin/runuser $KOLIBRI_USER -c "$KOLIBRI_COMMAND status"
+    $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND status"
     ;;
   *)
     log_success_msg "Usage: /etc/init.d/kolibri {start|stop|restart|status}"
