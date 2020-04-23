@@ -1,6 +1,9 @@
-from collections import deque
-from gi.repository import Gio, GLib
+import os
+import subprocess
 
+from gi.repository import Gdk, Gio, GLib
+
+from .. import config
 from ..globals import kolibri_api_get_json
 
 
@@ -52,7 +55,6 @@ class SearchProvider:
         self.__application = application
         self.__registered_ids = []
         self.__method_outargs = {}
-        self.__nodes_cache = deque(maxlen=30)
 
     def register_on_connection(self, connection, object_path):
         info = Gio.DBusNodeInfo.new_for_xml(self.INTERFACE_XML)
@@ -103,47 +105,37 @@ class SearchProvider:
         self.__activate_kolibri("", terms)
 
     def __activate_kolibri(self, item_id, terms):
-        kolibri_launcher = Gio.Application(
-            application_id="org.learningequality.Kolibri",
-            flags=Gio.ApplicationFlags.IS_LAUNCHER
+        kolibri_url = 'kolibri:{item_id}?searchTerm={term}'.format(
+            item_id=item_id,
+            term=' '.join(terms)
         )
-        args = [item_id]
-        # for term in terms:
-        #     args.extend(('--term', term))
-        return kolibri_launcher.run(args)
-
+        app_info = Gio.DesktopAppInfo.new(config.APP_ID + '.desktop')
+        return app_info.launch_uris([kolibri_url], None)
 
     def __iter_item_ids_for_terms_list(self, terms):
-        for term in terms:
-            yield from self.__iter_item_ids_for_term(term)
+        yield from self.__iter_item_ids_for_term(' '.join(terms))
 
     def __iter_item_ids_for_term(self, term):
-        response = kolibri_api_get_json(
+        search_data = kolibri_api_get_json(
             '/api/content/contentnode_search',
-            {'search': term, 'max_results': 10},
-            dict()
+            query={'search': term, 'max_results': 10},
+            default=dict()
         )
 
-        nodes_cache = dict(self.__nodes_cache)
-
-        for node in response.get('results', []):
+        for node in search_data.get('results', []):
             if node.get('kind') == 'topic':
                 item_id = 't/{}'.format(node.get('id'))
             else:
                 item_id = 'c/{}'.format(node.get('id'))
-            if item_id not in nodes_cache:
-                self.__nodes_cache.append((item_id, node))
             yield item_id
 
     def __iter_nodes_for_item_ids(self, item_ids):
-        nodes_cache = dict(self.__nodes_cache)
-
-        item_nodes = (
-            (item_id, nodes_cache.get(item_id)) for item_id in item_ids
-            if item_id in nodes_cache
-        )
-
-        for item_id, node in item_nodes:
+        for item_id in item_ids:
+            kind_code, node_id = item_id.split('/', 1)
+            node = kolibri_api_get_json(
+                '/api/content/contentnode/{}'.format(node_id),
+                default=dict()
+            )
             node_icon = ICON_LOOKUP.get(node.get('kind'), "application-x-executable")
             yield {
                 "id": GLib.Variant('s', item_id),
