@@ -65,6 +65,13 @@ matrix:
       sudo: true
       env:
         - TOX_ENV=py3.7
+
+    - python: 3.8
+      dist: bionic
+      sudo: true
+      env:
+        - TOX_ENV=py3.8
+
     - python: "2.7"
       env:
         - TOX_ENV=node10.x
