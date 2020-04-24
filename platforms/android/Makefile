@@ -1,3 +1,5 @@
+ARCH=
+
 # Clear out apks
 clean:
 	- rm -rf dist/android/*.apk project_info.json ./src/kolibri
@@ -21,7 +23,7 @@ project_info.json: project_info.template src/kolibri scripts/create_project_info
 
 .PHONY: p4a_android_distro
 p4a_android_distro: whitelist.txt project_info.json
-	pew init android
+	pew init android $(ARCH)
 
 ifdef P4A_RELEASE_KEYSTORE_PASSWD
 pew_release_flag = --release
@@ -30,7 +32,7 @@ endif
 .PHONY: kolibri.apk
 # Build the debug version of the apk
 kolibri.apk: p4a_android_distro preseeded_kolibri_home
-	pew build android $(pew_release_flag)
+	pew build android $(pew_release_flag) $(ARCH)
 
 # DOCKER BUILD
 
@@ -63,7 +65,7 @@ run_docker: build_docker
 	./scripts/rundocker.sh
 
 launch: project_info.json
-	pew build android $(pew_release_flag)
+	pew build android $(pew_release_flag) $(ARCH)
 	adb uninstall org.learningequality.Kolibri || true 2> /dev/null
 # 	rm dist/android/Kolibri-0-debug.apk || true 2> /dev/null
 	adb install dist/android/*-debug-*.apk
