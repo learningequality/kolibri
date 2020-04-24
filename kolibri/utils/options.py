@@ -58,6 +58,40 @@ SUPPORTED_LANGUAGES = "supported"
 BETA_LANGUAGES = "beta"
 
 
+def _set_en_first(value):
+    if "en" in value:
+        value.insert(0, value.pop(value.index("en")))
+
+
+def _coerce_language_value(value):
+    value = str(value)
+    if value == ALL_LANGUAGES:
+        value = list(KOLIBRI_LANGUAGE_INFO.keys())
+        if not value:
+            raise VdtValueError(ALL_LANGUAGES)
+        # For our default lists that contain en, promote it to the
+        # first so that it is the Django default language
+        _set_en_first(value)
+        return value
+    if value == SUPPORTED_LANGUAGES:
+        value = list(KOLIBRI_SUPPORTED_LANGUAGES)
+        if not value:
+            raise VdtValueError(SUPPORTED_LANGUAGES)
+        # For our default lists that contain en, promote it to the
+        # first so that it is the Django default language
+        _set_en_first(value)
+        return value
+    if value == BETA_LANGUAGES:
+        # en doesn't exist here
+        value = list(
+            set(KOLIBRI_LANGUAGE_INFO.keys()) - set(KOLIBRI_SUPPORTED_LANGUAGES)
+        )
+        if not value:
+            raise VdtValueError(BETA_LANGUAGES)
+        return value
+    return [value]
+
+
 def language_list(value):
     """
     Check that the supplied value is a list of languages,
@@ -66,17 +100,7 @@ def language_list(value):
     # Check the supplied value is a list
     if not isinstance(value, list):
         try:
-            value = str(value)
-            if value == ALL_LANGUAGES:
-                value = list(KOLIBRI_LANGUAGE_INFO.keys())
-            elif value == SUPPORTED_LANGUAGES:
-                value = KOLIBRI_SUPPORTED_LANGUAGES
-            elif value == BETA_LANGUAGES:
-                value = list(
-                    set(KOLIBRI_LANGUAGE_INFO.keys()) - set(KOLIBRI_SUPPORTED_LANGUAGES)
-                )
-            else:
-                value = [value]
+            value = _coerce_language_value(value)
         except ValueError:
             raise VdtTypeError(value)
 
@@ -86,6 +110,9 @@ def language_list(value):
             errors.append(entry)
     if errors:
         raise VdtValueError(errors)
+
+    if not value:
+        raise VdtValueError(value)
 
     return value
 
