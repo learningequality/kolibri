@@ -407,3 +407,18 @@ You can also specify a particular git hash or tag:
 Make sure to test re-generating font files after updating the sources.
 
 .. note:: We attempt to download fonts from the repo. It is possible that the structure of this repo will change over time, and the download script might need to be updated after changing which version of the repo we're pinned to.
+
+
+Configuring language options
+----------------------------
+
+The languages available in an instance of Kolibri can be configured using a few mechanisms including:
+
+* An environment variable (``KOLIBRI_LANGUAGES``)
+* An *options.ini* file (in ``LANGUAGES`` under ``[Deployment]`` )
+* Overwriting the option in a *kolibri_plugin.py* plugin config file
+
+It takes a comma separated list of ``intl_code`` language codes. It can also take these special codes:
+
+* ``kolibri-supported`` will include all languages listed in ``KOLIBRI_SUPPORTED_LANGUAGES``
+* ``kolibri-all`` will include all languages defined in *language_info.json*
