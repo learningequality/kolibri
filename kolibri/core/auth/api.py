@@ -148,7 +148,7 @@ class FacilityUserFilter(FilterSet):
     )
 
     def filter_member_of(self, queryset, name, value):
-        return queryset.filter(memberships__collection=value)
+        return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
 
     class Meta:
         model = FacilityUser
