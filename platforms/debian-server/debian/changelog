@@ -1,3 +1,9 @@
+kolibri-server (0.3.7~beta1-0ubuntu3) UNRELEASED; urgency=medium
+
+  * Build kolibri-server as a native package
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Fri, 24 Apr 2020 17:17:03 +0200
+
 kolibri-server (0.3.7~beta1-0ubuntu2) bionic; urgency=medium
 
   * Use runuser instead of su (potential systemd issue) #54
