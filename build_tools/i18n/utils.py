@@ -17,13 +17,13 @@ LOCALE_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "kolibri", "locale")
 )
 SOURCE_PATH = os.path.join(LOCALE_PATH, "en", "LC_MESSAGES")
-SUPPORTED_LANGS_PATH = os.path.join(LOCALE_PATH, "supported_languages.json")
+LANGUAGE_INFO_PATH = os.path.join(LOCALE_PATH, "language_info.json")
 PERSEUS_LOCALE_PATH = os.path.join(
     os.path.dirname(kolibri_exercise_perseus_plugin.__file__), "locale"
 )
 PERSEUS_SOURCE_PATH = os.path.join(PERSEUS_LOCALE_PATH, "en", "LC_MESSAGES")
 
-# Keys used in supported_languages.json
+# Keys used in language_info.json
 KEY_CROWDIN_CODE = "crowdin_code"
 KEY_INTL_CODE = "intl_code"
 KEY_LANG_NAME = "language_name"
@@ -70,9 +70,9 @@ def memoize(func):
 
 
 @memoize
-def supported_languages(include_in_context=False, include_english=False):
+def available_languages(include_in_context=False, include_english=False):
     result = []
-    with io.open(SUPPORTED_LANGS_PATH, mode="r", encoding="utf-8") as f:
+    with io.open(LANGUAGE_INFO_PATH, mode="r", encoding="utf-8") as f:
         languages = json.load(f)
     for lang in languages:
         if include_english or lang[KEY_INTL_CODE] != "en":
@@ -117,7 +117,7 @@ def json_dump_formatted(data, file_path, file_name):
     # Ensure that the directory exists for the file to be opened inside of.
     try:
         os.makedirs(file_path)
-    except:
+    except Exception:
         # Path already exists
         pass
 

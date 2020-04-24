@@ -27,7 +27,7 @@ def get_installed_app_locale_path(appname):
 
 def _get_supported_language_info():
     file_path = os.path.join(
-        os.path.dirname(kolibri.__file__), "locale", "supported_languages.json"
+        os.path.dirname(kolibri.__file__), "locale", "language_info.json"
     )
     with io.open(file_path, encoding="utf-8") as f:
         return json.load(f)
