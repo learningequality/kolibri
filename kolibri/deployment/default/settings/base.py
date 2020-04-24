@@ -235,9 +235,9 @@ EXTRA_LANG_INFO = {
 locale.LANG_INFO.update(EXTRA_LANG_INFO)
 
 LANGUAGE_CODE = (
-    conf.OPTIONS["Deployment"]["LANGUAGES"][0]
-    if conf.OPTIONS["Deployment"]["LANGUAGES"]
-    else "en"
+    "en"
+    if "en" in conf.OPTIONS["Deployment"]["LANGUAGES"]
+    else conf.OPTIONS["Deployment"]["LANGUAGES"][0]
 )
 
 try:

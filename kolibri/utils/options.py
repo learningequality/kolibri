@@ -7,7 +7,6 @@ from configobj import flatten_errors
 from configobj import get_extra_values
 from django.utils.functional import SimpleLazyObject
 from validate import Validator
-from validate import VdtTypeError
 from validate import VdtValueError
 
 try:
@@ -53,68 +52,63 @@ def calculate_thread_pool():
     return MIN_POOL
 
 
-ALL_LANGUAGES = "all"
-SUPPORTED_LANGUAGES = "supported"
-BETA_LANGUAGES = "beta"
+ALL_LANGUAGES = "kolibri-all"
+SUPPORTED_LANGUAGES = "kolibri-supported"
 
 
-def _set_en_first(value):
-    if "en" in value:
-        value.insert(0, value.pop(value.index("en")))
-
-
-def _coerce_language_value(value):
+def _process_language_string(value):
+    """
+    Used to validate string values.
+    The only valid argument in this case is that it is a string
+    so we first try to coerce it to a string, then do some checks
+    to see if it is any of our special values. Then if it is an
+    appropriate language code value.
+    If no value is appropriate, raise a ValueError.
+    """
     value = str(value)
     if value == ALL_LANGUAGES:
-        value = list(KOLIBRI_LANGUAGE_INFO.keys())
-        if not value:
-            raise VdtValueError(ALL_LANGUAGES)
-        # For our default lists that contain en, promote it to the
-        # first so that it is the Django default language
-        _set_en_first(value)
-        return value
+        return list(KOLIBRI_LANGUAGE_INFO.keys())
     if value == SUPPORTED_LANGUAGES:
-        value = list(KOLIBRI_SUPPORTED_LANGUAGES)
-        if not value:
-            raise VdtValueError(SUPPORTED_LANGUAGES)
-        # For our default lists that contain en, promote it to the
-        # first so that it is the Django default language
-        _set_en_first(value)
-        return value
-    if value == BETA_LANGUAGES:
-        # en doesn't exist here
-        value = list(
-            set(KOLIBRI_LANGUAGE_INFO.keys()) - set(KOLIBRI_SUPPORTED_LANGUAGES)
-        )
-        if not value:
-            raise VdtValueError(BETA_LANGUAGES)
-        return value
-    return [value]
+        return list(KOLIBRI_SUPPORTED_LANGUAGES)
+    if value in KOLIBRI_LANGUAGE_INFO:
+        return [value]
+    raise ValueError
 
 
 def language_list(value):
     """
     Check that the supplied value is a list of languages,
     or a single language, or a special shortcut parameter.
+    In the case that it is a special shortcut name, we return the full list
+    of relevant languages for that parameter, or throw a validation error
+    if that parameter would return an empty list.
+    If a single language code is the parameter, this function will return a list
+    with that language code as the only member.
+
+    :param Union[str, list[str]] value: Either a string or a list of strings
+    String can be any value that is a key of KOLIBRI_LANGUAGE_INFO
+    or one of the special strings represented by ALL_LANGUAGES or SUPPORTED_LANGUAGES
+    A list must be a list of these strings.
     """
     # Check the supplied value is a list
     if not isinstance(value, list):
-        try:
-            value = _coerce_language_value(value)
-        except ValueError:
-            raise VdtTypeError(value)
+        value = [value]
 
+    out = set()
     errors = []
     for entry in value:
-        if entry not in KOLIBRI_LANGUAGE_INFO:
+        try:
+            entry_list = _process_language_string(entry)
+            out.update(entry_list)
+        except ValueError:
             errors.append(entry)
     if errors:
         raise VdtValueError(errors)
 
-    if not value:
+    if not out:
         raise VdtValueError(value)
 
-    return value
+    return sorted(list(out))
 
 
 base_option_spec = {
@@ -236,7 +230,7 @@ base_option_spec = {
         },
         "LANGUAGES": {
             "type": "language_list",
-            "default": "supported",
+            "default": SUPPORTED_LANGUAGES,
             "envvars": ("KOLIBRI_LANGUAGES",),
         },
     },
