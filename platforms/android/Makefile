@@ -1,4 +1,11 @@
+# run with `make ... ARCH=64bit` to build for v8a
 ARCH=
+
+ifeq ($(ARCH), 64bit)
+  ARM_VER=v8a
+else
+  ARM_VER=v7a
+endif
 
 # Clear out apks
 clean:
@@ -64,11 +71,16 @@ preseeded_kolibri_home:
 run_docker: build_docker
 	./scripts/rundocker.sh
 
-launch: project_info.json
+softbuild: project_info.json
 	pew build android $(pew_release_flag) $(ARCH)
+
+install:
 	adb uninstall org.learningequality.Kolibri || true 2> /dev/null
-# 	rm dist/android/Kolibri-0-debug.apk || true 2> /dev/null
-	adb install dist/android/*-debug-*.apk
+	adb install dist/android/*$(ARM_VER)-debug-*.apk
+
+run: install
 	adb shell am start -n org.learningequality.Kolibri/org.kivy.android.PythonActivity
 	sleep 1
 	adb logcat | grep -i -E "python|kolibr| `adb shell ps | grep ' org.learningequality.Kolibri$$' | tr -s [:space:] ' ' | cut -d' ' -f2` " | grep -E -v "WifiTrafficPoller|localhost:5000|NetworkManagementSocketTagger|No jobs to start"
+
+launch: softbuild run
