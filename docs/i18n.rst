@@ -349,7 +349,7 @@ Check in all the updated files to git and submit them in a PR to the release bra
 Adding a newly supported language
 ---------------------------------
 
-In order to add a new supported language to Kolibri, the appropriate language information object must be added to the array in ``kolibri/locale/supported_languages.json``.
+In order to add a new language to Kolibri, the appropriate language information object must be added to the array in ``kolibri/locale/language_info.json``.
 
 .. warning::
 
@@ -381,6 +381,9 @@ If the language doesn't exist in Django, you may get errors when trying to view 
 
 The ``--force`` flag will bypass .gitignore
 
+To test unsupported languages, you can use the `Deployment` section `LANGUAGES` option in the Kolibri options.ini. Either set the value to ``all`` to activate all languages, or add the specific Intl language code as the value.
+
+Once the language has been fully translated and is ready for use in Kolibri, its Intl language code must be added to the ``KOLIBRI_SUPPORTED_LANGUAGES`` list in ``kolibri/utils/i18n.py``.
 
 Updating font files
 ~~~~~~~~~~~~~~~~~~~
