@@ -7,6 +7,8 @@ from configobj import flatten_errors
 from configobj import get_extra_values
 from django.utils.functional import SimpleLazyObject
 from validate import Validator
+from validate import VdtTypeError
+from validate import VdtValueError
 
 try:
     import kolibri.utils.pskolibri as psutil
@@ -15,6 +17,8 @@ except NotImplementedError:
     psutil = None
 
 
+from kolibri.utils.i18n import KOLIBRI_LANGUAGE_INFO
+from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 from kolibri.utils.logger import get_base_logging_config
 from kolibri.plugins.utils.options import extend_config_spec
 
@@ -47,6 +51,43 @@ def calculate_thread_pool():
     ):  # Considering MacOS has at least 4 Gb of RAM
         return MAX_POOL
     return MIN_POOL
+
+
+ALL_LANGUAGES = "all"
+SUPPORTED_LANGUAGES = "supported"
+BETA_LANGUAGES = "beta"
+
+
+def language_list(value):
+    """
+    Check that the supplied value is a list of languages,
+    or a single language, or a special shortcut parameter.
+    """
+    # Check the supplied value is a list
+    if not isinstance(value, list):
+        try:
+            value = str(value)
+            if value == ALL_LANGUAGES:
+                value = list(KOLIBRI_LANGUAGE_INFO.keys())
+            elif value == SUPPORTED_LANGUAGES:
+                value = KOLIBRI_SUPPORTED_LANGUAGES
+            elif value == BETA_LANGUAGES:
+                value = list(
+                    set(KOLIBRI_LANGUAGE_INFO.keys()) - set(KOLIBRI_SUPPORTED_LANGUAGES)
+                )
+            else:
+                value = [value]
+        except ValueError:
+            raise VdtTypeError(value)
+
+    errors = []
+    for entry in value:
+        if entry not in KOLIBRI_LANGUAGE_INFO:
+            errors.append(entry)
+    if errors:
+        raise VdtValueError(errors)
+
+    return value
 
 
 base_option_spec = {
@@ -166,6 +207,11 @@ base_option_spec = {
             "envvars": ("KOLIBRI_URL_PATH_PREFIX",),
             "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
         },
+        "LANGUAGES": {
+            "type": "language_list",
+            "default": "supported",
+            "envvars": ("KOLIBRI_LANGUAGES",),
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
@@ -175,6 +221,10 @@ base_option_spec = {
         },
     },
 }
+
+
+def get_validator():
+    return Validator({"language_list": language_list})
 
 
 def get_logger(KOLIBRI_HOME):
@@ -240,7 +290,7 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
     conf = ConfigObj(ini_path, configspec=get_configspec())
 
     # validate once up front to ensure section structure is in place
-    conf.validate(Validator())
+    conf.validate(get_validator())
 
     # keep track of which options were overridden using environment variables, to support error reporting
     using_env_vars = {}
@@ -261,7 +311,7 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
 
     conf = clean_conf(conf)
 
-    validation = conf.validate(Validator(), preserve_errors=True)
+    validation = conf.validate(get_validator(), preserve_errors=True)
 
     # loop over and display any errors with config values, and then bail
     if validation is not True:
@@ -308,7 +358,7 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
         )
 
     # run validation once again to fill in any default values for options we deleted due to issues
-    conf.validate(Validator())
+    conf.validate(get_validator())
 
     # ensure all arguments under section "Paths" are fully resolved and expanded, relative to KOLIBRI_HOME
     _expand_paths(KOLIBRI_HOME, conf.get("Paths", {}))
@@ -335,7 +385,7 @@ def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options
     conf[section][key] = value
 
     # check for any errors with the provided value, and abort
-    validation = conf.validate(Validator(), preserve_errors=True)
+    validation = conf.validate(get_validator(), preserve_errors=True)
     if validation is not True:
         error = validation.get(section, {}).get(key) or "unknown error"
         raise ValueError(
