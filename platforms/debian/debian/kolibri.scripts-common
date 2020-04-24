@@ -107,6 +107,7 @@ default_user_conf() {
 # KOLIBRI_HOME="~/.kolibri"
 # KOLIBRI_LISTEN_PORT="8080"
 # KOLIBRI_COMMAND="kolibri"
+# KOLIBRI_DEBUG=1  # Switches on debug log level (noisy!)
 # DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
 
 EOF
