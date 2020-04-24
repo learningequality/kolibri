@@ -38,15 +38,14 @@ def init_gettext():
     gettext.bindtextdomain(config.APP_ID, config.LOCALE_DIR)
     gettext.textdomain(config.APP_ID)
 
+    # root_dir = os.path.dirname(os.path.abspath(__file__))
+    # locale_root_dir = os.path.join(root_dir, 'locale')
+    # if root_dir.endswith('src'):
+    #     locale_root_dir = os.path.join(root_dir, '..', 'locale')
 
 def init_logging(logfile_name='kolibri-app.txt'):
     import logging
     logging.basicConfig(level=logging.DEBUG)
-
-    root_dir = os.path.dirname(os.path.abspath(__file__))
-    locale_root_dir = os.path.join(root_dir, 'locale')
-    if root_dir.endswith('src'):
-        locale_root_dir = os.path.join(root_dir, '..', 'locale')
 
     from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 

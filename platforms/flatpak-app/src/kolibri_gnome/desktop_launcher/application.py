@@ -145,8 +145,11 @@ class Application(pew.ui.PEWApp):
         loader_page = os.path.abspath(os.path.join(config.DATA_DIR, 'assets', '_load.html'))
         self.loader_url = 'file://{}'.format(loader_page)
 
-        self.kolibri_loaded = threading.Event()
-        self.windows = []
+        self.__kolibri_loaded = threading.Event()
+        self.__kolibri_service = None
+
+        self.__kolibri_run_thread = None
+        self.__kolibri_wait_thread = None
 
         super().__init__(*args, **kwargs)
 
@@ -155,13 +158,13 @@ class Application(pew.ui.PEWApp):
         #       and find the closest match like in kolibri-installer-mac.
 
         # start server
-        self.kolibri_run_thread = pew.ui.PEWThread(target=self.run_server)
-        self.kolibri_run_thread.daemon = False
-        self.kolibri_run_thread.start()
+        self.__kolibri_run_thread = pew.ui.PEWThread(target=self.run_server)
+        self.__kolibri_run_thread.daemon = False
+        self.__kolibri_run_thread.start()
 
-        self.kolibri_wait_thread = pew.ui.PEWThread(target=self.wait_for_server)
-        self.kolibri_wait_thread.daemon = True
-        self.kolibri_wait_thread.start()
+        self.__kolibri_wait_thread = pew.ui.PEWThread(target=self.wait_for_server)
+        self.__kolibri_wait_thread.daemon = True
+        self.__kolibri_wait_thread.start()
 
         # make sure we show the UI before run completes, as otherwise
         # it is possible the run can complete before the UI is shown,
@@ -178,21 +181,18 @@ class Application(pew.ui.PEWApp):
         return 0
 
     def shutdown(self):
-        # for window in self.windows:
-        #     window.close(check_shutdown=False)
-
-        if self.kolibri_service:
-            shutdown_thread = pew.ui.PEWThread(target=self.kolibri_service.stop_kolibri)
-            shutdown_thread.start()
+        if self.__kolibri_service:
+            logging.info("Stopping Kolibri server...")
+            self.__kolibri_service.stop_kolibri()
 
         super().shutdown()
 
     def run_server(self):
         logging.info("Starting Kolibri server...")
-        self.kolibri_service = KolibriServiceThread()
-        self.kolibri_service.start()
-        self.kolibri_service.join()
-        self.kolibri_service = None
+        self.__kolibri_service = KolibriServiceThread()
+        self.__kolibri_service.start()
+        self.__kolibri_service.join()
+        self.__kolibri_service = None
 
     def wait_for_server(self):
         while not get_is_kolibri_responding():
@@ -201,13 +201,17 @@ class Application(pew.ui.PEWApp):
             # expect. This is unlikely, so we are ignoring it here.
             time.sleep(1)
         logging.info("Kolibri server is responding")
-        self.kolibri_loaded.set()
+        self.__kolibri_loaded.set()
+
+    def join(self):
+        if self.__kolibri_run_thread:
+            self.__kolibri_run_thread.join()
 
     def should_load_url(self, url):
         if url.startswith(KOLIBRI_URL):
             return True
         elif url == self.loader_url:
-            return not self.kolibri_loaded.is_set()
+            return not self.__kolibri_loaded.is_set()
         else:
             subprocess.call(['xdg-open', url])
             return False
@@ -218,8 +222,7 @@ class Application(pew.ui.PEWApp):
         self.__open_window(target_url)
 
     def __open_window(self, target_url):
-        window = KolibriWindow(_("Kolibri"), target_url, load_event=self.kolibri_loaded, delegate=self)
-        self.windows.append(window)
+        window = KolibriWindow(_("Kolibri"), target_url, load_event=self.__kolibri_loaded, delegate=self)
         window.show()
         return window
 

@@ -3,17 +3,17 @@ gi.require_version('Gdk', '3.0')
 gi.require_version('Gtk', '3.0')
 
 import datetime
-import gettext
 import logging
+
+from ..globals import init_gettext, init_logging
+init_logging('kolibri-gnome.txt')
+init_gettext()
 
 import pew
 
-from ..globals import init_gettext, init_logging
 from .application import Application
 
 def main():
-    init_gettext()
-    init_logging('kolibri-gnome.txt')
 
     pew.set_app_name("Kolibri")
 
@@ -28,4 +28,7 @@ def main():
 
     app = Application()
     app.run()
+    app.join()
+
+    logging.info("Stopped at: {}".format(datetime.datetime.today()))
 

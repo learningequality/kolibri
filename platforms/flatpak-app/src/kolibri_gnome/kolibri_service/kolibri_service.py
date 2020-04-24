@@ -2,6 +2,7 @@
 
 import io
 import os
+import signal
 import subprocess
 import threading
 
@@ -19,6 +20,7 @@ class KolibriServiceThread(threading.Thread):
             kolibri_env['KOLIBRI_HEARTBEAT_PORT'] = str(heartbeat_port)
         self.__kolibri_env = kolibri_env
         self.__kolibri_exitcode = None
+        self.__kolibri_process = None
         super().__init__()
 
     @property
@@ -26,8 +28,8 @@ class KolibriServiceThread(threading.Thread):
         return self.__kolibri_exitcode
 
     def stop_kolibri(self):
-        process = subprocess.Popen(["kolibri", "stop"])
-        return process.wait()
+        if self.__kolibri_process:
+            self.__kolibri_process.send_signal(signal.SIGINT)
 
     def run(self):
         try:
@@ -48,22 +50,23 @@ class KolibriServiceThread(threading.Thread):
 
         if status in [server.STATUS_STOPPED, server.STATUS_FAILED_TO_START, server.STATUS_UNKNOWN]:
             print("Starting Kolibri...")
-            process = subprocess.Popen(["kolibri", "start", "--foreground"], **popen_args)
+            self.__kolibri_process = subprocess.Popen(["kolibri", "start", "--foreground"], **popen_args)
         elif status in [server.STATUS_NOT_RESPONDING]:
             print("Restarting Kolibri...")
-            process = subprocess.Popen(["kolibri", "restart"], **popen_args)
+            self.__kolibri_process = subprocess.Popen(["kolibri", "restart"], **popen_args)
         elif status in [server.STATUS_UNCLEAN_SHUTDOWN, server.STATUS_FAILED_TO_START]:
             print("Clearing lock files and starting Kolibri...")
             if os.path.exists(server.STARTUP_LOCK):
                 os.remove(server.STARTUP_LOCK)
             if os.path.exists(server.PID_FILE):
                 os.remove(server.PID_FILE)
-            process = subprocess.Popen(["kolibri", "start", "--foreground"], **popen_args)
+            self.__kolibri_process = subprocess.Popen(["kolibri", "start", "--foreground"], **popen_args)
         else:
             print("Warning: not starting Kolibri because its status is ({}): {}".format(
                 status, cli.status.codes[status]
             ))
-            process = None
+            self.__kolibri_process = None
 
-        if process:
-            self.__kolibri_exitcode = process.wait()
+        if self.__kolibri_process:
+            self.__kolibri_exitcode = self.__kolibri_process.wait()
+            self.__kolibri_process = None
