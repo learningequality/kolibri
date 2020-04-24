@@ -137,6 +137,8 @@ class KolibriWindow(KolibriView):
 class Application(pew.ui.PEWApp):
     application_id = config.APP_ID
 
+    handles_open_file_uris = True
+
     def __init__(self, *args, **kwargs):
         self.kolibri_service = None
 
