@@ -19,12 +19,12 @@ release: translations
 	dch -i
 
 dist: orig
-	dpkg-buildpackage -S
+	dpkg-buildpackage -S -us -uc
 
 # Solution from: https://stackoverflow.com/a/43145972/405682
 VERSION:=$(shell dpkg-parsechangelog -S Version | sed -rne 's,([^-\+]+)+(\+dfsg)*.*,\1,p'i)
 UPSTREAM_PACKAGE:=kolibri-server_${VERSION}.orig.tar.gz
 orig:
 	@echo "Creating .orig tarball: ../${UPSTREAM_PACKAGE}"
-	tar caf ../${UPSTREAM_PACKAGE} . --exclude debian --exclude .git
+	tar caf ../${UPSTREAM_PACKAGE} .  --exclude .git
 	debuild -uc -us
