@@ -35,20 +35,20 @@ from uuid import uuid4
 from .constants import collection_kinds
 from .constants import role_kinds
 from .filters import HierarchyRelationsFilter
+from .models import AdHocGroup
 from .models import Classroom
 from .models import Collection
 from .models import Facility
 from .models import FacilityDataset
 from .models import FacilityUser
-from .models import AdHocGroup
 from .models import LearnerGroup
 from .models import Membership
 from .models import Role
+from .serializers import AdHocGroupSerializer
 from .serializers import ClassroomSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
 from .serializers import FacilityUserSerializer
-from .serializers import AdHocGroupSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
@@ -150,9 +150,7 @@ class FacilityUserFilter(FilterSet):
     )
 
     def filter_member_of(self, queryset, name, value):
-        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            target_user=F("id"), ancestor_collection=value
-        )
+        return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
 
     class Meta:
         model = FacilityUser
