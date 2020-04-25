@@ -27,7 +27,7 @@
       @click="switchLanguage(language.id)"
     />
     <KButton
-      v-if="buttonLanguages.length > numVisibleLanguages + 1"
+      v-if="numSelectableLanguages > numVisibleLanguages + 1"
       :text="$tr('showMoreLanguagesSelector')"
       :primary="false"
       appearance="flat-button"
@@ -60,6 +60,10 @@
     language_priorities[lang] = index + 1;
   });
 
+  const selectableLanguages = Object.values(availableLanguages).filter(
+    lang => lang.id !== currentLanguage
+  );
+
   export default {
     name: 'LanguageSwitcherList',
     components: {
@@ -82,15 +86,16 @@
         }
         return this.windowBreakpoint;
       },
+      numSelectableLanguages() {
+        return selectableLanguages.length;
+      },
       buttonLanguages() {
-        let buttonLanguages = Object.keys(availableLanguages).filter(
-          lang => lang !== currentLanguage
-        );
+        let buttonLanguages = selectableLanguages;
         if (buttonLanguages.length > this.numVisibleLanguages + 1) {
           buttonLanguages = buttonLanguages
             .sort((a, b) => {
-              const aP = language_priorities[a];
-              const bP = language_priorities[b];
+              const aP = language_priorities[a.id];
+              const bP = language_priorities[b.id];
               if (aP && bP) {
                 return aP - bP;
               } else if (aP && !bP) {
