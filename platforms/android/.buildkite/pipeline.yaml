@@ -8,8 +8,10 @@ steps:
     env: KOLIBRI_ANDROID_BUILD_MODE=dev
 
   - block: "Build release Android APK?"
-    # Always block when not a release
+    # Always block when not a release | Want to dupe the conditional from above,
+    # but leaving it like this for dev velocity.
     if: build.env("LE_KOLIBRI_RELEASE") == "false"
+    # if: build.source == "trigger_job" && build.env("LE_KOLIBRI_RELEASE") == "false"
 
   - label: "Build Release Android APK (32bit) :tada:"
     command: ".buildkite/build.sh"
