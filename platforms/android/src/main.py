@@ -1,8 +1,10 @@
-import json
+import initialization  # keep this first, to ensure we're set up for other imports
+
 import logging
 import os
 import time
-import urllib2
+import urllib.error
+import urllib.request
 
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
 logging.basicConfig(level=logging.DEBUG)
@@ -10,41 +12,38 @@ logging.basicConfig(level=logging.DEBUG)
 import pew
 import pew.ui
 
-from config import PORT
+from config import KOLIBRI_PORT
 
 pew.set_app_name("Kolibri")
 logging.info("Entering main.py...")
 
 
-def start_kolibri_server(port):
+if pew.ui.platform == "android":
+
+    from android_utils import get_home_folder, get_version_name
+
+    os.environ["KOLIBRI_HOME"] = get_home_folder()
+    os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
+
+
+def start_kolibri(port):
+
+    os.environ["KOLIBRI_HTTP_PORT"] = str(port)
 
     if pew.ui.platform == "android":
 
-        from jnius import autoclass
-
-        PythonActivity = autoclass("org.kivy.android.PythonActivity")
-        service = autoclass('org.learningequality.Kolibri.ServiceServer')
-
-        # TODO: check for storage availability, allow user to chose sd card or internal
-        def get_home_folder():
-            kolibri_home_file = PythonActivity.mActivity.getExternalFilesDir(None)
-            return kolibri_home_file.toString()
-
         logging.info("Starting kolibri server via Android service...")
 
-        service.start(PythonActivity.mActivity, json.dumps({
-            "HOME": get_home_folder(),
-            "PORT": port,
-            "VERSION": PythonActivity.getPackageManager().getPackageInfo(PythonActivity.getPackageName(), 0).versionName,
-        }))
+        from android_utils import start_service
+        start_service("kolibri", dict(os.environ))
 
     else:
 
-        from server import start_django
-
         logging.info("Starting kolibri server directly as thread...")
 
-        thread = pew.ui.PEWThread(target=start_django, args=(port,))
+        from kolibri_utils import start_kolibri_server
+
+        thread = pew.ui.PEWThread(target=start_kolibri_server)
         thread.daemon = True
         thread.start()
 
@@ -62,8 +61,8 @@ class Application(pew.ui.PEWApp):
         self.kolibri_loaded = False
         self.view = pew.ui.WebUIView("Kolibri", self.loader_url, delegate=self)
 
-        # start thread
-        start_kolibri_server(PORT)
+        # start kolibri server
+        start_kolibri(KOLIBRI_PORT)
 
         self.load_thread = pew.ui.PEWThread(target=self.wait_for_server)
         self.load_thread.daemon = True
@@ -96,14 +95,15 @@ class Application(pew.ui.PEWApp):
 
     def wait_for_server(self):
 
-        home_url = "http://localhost:{port}".format(port=PORT)
+        home_url = "http://localhost:{port}".format(port=KOLIBRI_PORT)
 
         # test url to see if server has started
         def running():
             try:
-                urllib2.urlopen(home_url)
+                with urllib.request.urlopen(home_url) as response:
+                   response.read()
                 return True
-            except urllib2.URLError:
+            except urllib.error.URLError:
                 return False
 
         # Tie up this thread until the server is running
