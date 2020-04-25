@@ -14,11 +14,13 @@ RUN dpkg --add-architecture i386 && \
     cython \
     gcc \
     git \
+    iproute2 \
     libffi-dev \
     libltdl-dev\
     libncurses5:i386 \
     libstdc++6:i386 \
     libtool \
+    locales \
     lsb-release \
     openjdk-8-jdk \
     python-dev \
@@ -27,12 +29,17 @@ RUN dpkg --add-architecture i386 && \
     wget \
     xclip \
     xsel \
+    zip \
     zlib1g-dev \
     zlib1g:i386 \
     python-wxgtk3.0 \
     libgtk-3-dev \
     python3 \
     && apt-get clean
+
+# Use java 1.8 because Ubuntu's gradle version doesn't support 1.11
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+ENV PATH=$PATH:$JAVA_HOME
 
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
   python3 get-pip.py
@@ -55,6 +62,8 @@ RUN pip install cython virtualenv && \
   pip install -e git+https://github.com/kollivier/python-for-android@pew_webview#egg=python-for-android && \
   useradd -lm kivy
 
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen
 ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 
 USER kivy:kivy
