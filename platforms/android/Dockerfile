@@ -1,4 +1,4 @@
-FROM ubuntu:16.04 as build
+FROM ubuntu:bionic as build
 LABEL maintainer="Learning Equality <info@learningequality.org>" tag="kolibrikivy"
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -31,8 +31,17 @@ RUN dpkg --add-architecture i386 && \
     zlib1g:i386 \
     python-wxgtk3.0 \
     libgtk-3-dev \
+    python3 \
     && apt-get clean
 
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+  python3 get-pip.py
+
+# Ensure that python is using python3
+# copying approach from official python images
+ENV PATH /usr/local/bin:$PATH
+RUN cd /usr/local/bin && \
+  ln -s $(which python3) python
 
 # Allows us to invalidate cache if those repos update.
 # Intentionally not pinning for dev velocity.
@@ -40,13 +49,13 @@ ADD https://github.com/kollivier/python-for-android/archive/webview_plus.zip p4a
 ADD https://github.com/kollivier/pyeverywhere/archive/dev.zip pew.zip
 
 # install python dependencies
-RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
-  python get-pip.py && \
-  pip install cython virtualenv && \
+RUN pip install cython virtualenv && \
   # get kevin's custom packages
   pip install -e git+https://github.com/kollivier/pyeverywhere@p4a_update#egg=pyeverywhere && \
   pip install -e git+https://github.com/kollivier/python-for-android@pew_webview#egg=python-for-android && \
   useradd -lm kivy
+
+ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 
 USER kivy:kivy
 WORKDIR /home/kivy
