@@ -27,6 +27,7 @@
       @click="switchLanguage(language.id)"
     />
     <KButton
+      v-if="buttonLanguages.length > numVisibleLanguages + 1"
       :text="$tr('showMoreLanguagesSelector')"
       :primary="false"
       appearance="flat-button"
@@ -51,6 +52,14 @@
   import languageSwitcherMixin from './mixin';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
 
+  const prioritized_languages = ['en', 'ar', 'es-419', 'hi-in', 'fr-fr', 'sw-tz'];
+
+  const language_priorities = {};
+
+  prioritized_languages.forEach((lang, index) => {
+    language_priorities[lang] = index + 1;
+  });
+
   export default {
     name: 'LanguageSwitcherList',
     components: {
@@ -74,13 +83,26 @@
         return this.windowBreakpoint;
       },
       buttonLanguages() {
-        const prioritized_languages = ['en', 'ar', 'es-419', 'hi-in', 'fr-fr', 'sw-tz'];
-        return prioritized_languages
-          .filter(lang => availableLanguages[lang] !== undefined)
-          .filter(lang => lang !== currentLanguage)
-          .map(lang => availableLanguages[lang])
-          .slice(0, this.numVisibleLanguages)
-          .sort(this.compareLanguages);
+        let buttonLanguages = Object.keys(availableLanguages).filter(
+          lang => lang !== currentLanguage
+        );
+        if (buttonLanguages.length > this.numVisibleLanguages + 1) {
+          buttonLanguages = buttonLanguages
+            .sort((a, b) => {
+              const aP = language_priorities[a];
+              const bP = language_priorities[b];
+              if (aP && bP) {
+                return aP - bP;
+              } else if (aP && !bP) {
+                return -1;
+              } else if (!aP && bP) {
+                return 1;
+              }
+              return this.compareLanguages(a, b);
+            })
+            .slice(0, this.numVisibleLanguages);
+        }
+        return buttonLanguages.sort(this.compareLanguages);
       },
     },
     $trs: {
