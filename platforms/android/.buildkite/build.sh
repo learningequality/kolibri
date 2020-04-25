@@ -28,8 +28,8 @@ mv ./dist/android/*.apk ./dist
 if [[ $LE_TRIGGERED_FROM_JOB_ID && $BUILDKITE_TRIGGERED_FROM_BUILD_ID ]]
 then
   echo "--- Uploading artifact to parent job"
-  buildkite-agent artifact upload dist/*-release.apk --job $LE_TRIGGERED_FROM_JOB_ID
+  buildkite-agent artifact upload dist/*.apk --job $LE_TRIGGERED_FROM_JOB_ID
 fi
 
 echo "--- Uploading artifact"
-buildkite-agent artifact upload dist/*-release.apk
+buildkite-agent artifact upload dist/*.apk
