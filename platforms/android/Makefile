@@ -40,6 +40,7 @@ endif
 kolibri.apk: p4a_android_distro preseeded_kolibri_home
 	pew build android $(pew_release_flag) ${ARCH}
 
+
 # DOCKER BUILD
 
 # Build the docker image. Should only ever need to be rebuilt if project requirements change.
