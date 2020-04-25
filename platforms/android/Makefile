@@ -38,7 +38,7 @@ endif
 .PHONY: kolibri.apk
 # Build the debug version of the apk
 kolibri.apk: p4a_android_distro preseeded_kolibri_home
-	pew build android $(pew_release_flag) ${ARCH}
+	pew build $(pew_release_flag) android ${ARCH}
 
 
 # DOCKER BUILD
@@ -72,7 +72,7 @@ run_docker: build_docker
 	./scripts/rundocker.sh
 
 softbuild: project_info.json
-	pew build android $(pew_release_flag) ${ARCH}
+	pew build $(pew_release_flag) android ${ARCH}
 
 install:
 	adb uninstall org.learningequality.Kolibri || true 2> /dev/null
