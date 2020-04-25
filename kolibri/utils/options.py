@@ -282,7 +282,11 @@ def get_configspec():
             default = attrs.get("default", "")
             the_type = attrs["type"]
             args = ["%r" % op for op in attrs.get("options", [])] + [
-                "default='{default}'".format(default=default)
+                "default=list('{default_list}')".format(
+                    default_list="','".join(default)
+                )
+                if isinstance(default, list)
+                else "default='{default}'".format(default=default)
             ]
             line = "{name} = {type}({args})".format(
                 name=name, type=the_type, args=", ".join(args)
