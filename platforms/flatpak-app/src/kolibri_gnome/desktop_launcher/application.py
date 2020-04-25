@@ -61,19 +61,26 @@ class MenuEventHandler:
 
 
 class KolibriView(pew.ui.WebUIView, MenuEventHandler):
-    def __init__(self, name, url, load_event=None, **kwargs):
-        if load_event.is_set():
-            super().__init__(name, url, **kwargs)
-            self.__redirect_thread = None
-        else:
-            delegate = kwargs.get('delegate')
+    def __init__(self, name, url, **kwargs):
+        delegate = kwargs.get('delegate')
+
+        if delegate.is_kolibri_loading():
             super().__init__(name, delegate.loader_url, **kwargs)
             self.__redirect_thread = pew.ui.PEWThread(
                 target=self.redirect_on_load,
-                args=(load_event, url)
+                args=(delegate, url)
             )
             self.__redirect_thread.daemon = True
             self.__redirect_thread.start()
+        elif not delegate.is_kolibri_alive():
+            super().__init__(name, delegate.loader_url, **kwargs)
+            pew.ui.run_on_main_thread(
+                self.evaluate_javascript,
+                'window.onload = function() { show_error() }'
+            )
+        else:
+            super().__init__(name, url, **kwargs)
+            self.__redirect_thread = None
 
     def shutdown(self):
         """
@@ -86,9 +93,15 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
         if app:
             app.shutdown()
 
-    def redirect_on_load(self, event, url):
-        if event.wait():
-            self.load_url(url)
+    def redirect_on_load(self, delegate, url):
+        if delegate.wait_for_kolibri():
+            if delegate.is_kolibri_alive():
+                self.load_url(url)
+            else:
+                pew.ui.run_on_main_thread(
+                    self.evaluate_javascript,
+                    'show_error()'
+                )
 
     def open_window(self):
         target_url = self.get_url()
@@ -142,10 +155,14 @@ class Application(pew.ui.PEWApp):
     def __init__(self, *args, **kwargs):
         self.kolibri_service = None
 
+        # TODO: Generated translated loading screen, or detect language code
+        #       and find the closest match like in kolibri-installer-mac.
+
         loader_page = os.path.abspath(os.path.join(config.DATA_DIR, 'assets', '_load.html'))
         self.loader_url = 'file://{}'.format(loader_page)
 
         self.__kolibri_loaded = threading.Event()
+        self.__kolibri_loaded_success = None
         self.__kolibri_service = None
 
         self.__kolibri_run_thread = None
@@ -154,9 +171,6 @@ class Application(pew.ui.PEWApp):
         super().__init__(*args, **kwargs)
 
     def init_ui(self):
-        # TODO: Generated translated loading screen, or detect language code
-        #       and find the closest match like in kolibri-installer-mac.
-
         # start server
         self.__kolibri_run_thread = pew.ui.PEWThread(target=self.run_server)
         self.__kolibri_run_thread.daemon = False
@@ -181,7 +195,7 @@ class Application(pew.ui.PEWApp):
         return 0
 
     def shutdown(self):
-        if self.__kolibri_service:
+        if self.__kolibri_service.is_alive():
             logging.info("Stopping Kolibri server...")
             self.__kolibri_service.stop_kolibri()
 
@@ -192,16 +206,31 @@ class Application(pew.ui.PEWApp):
         self.__kolibri_service = KolibriServiceThread()
         self.__kolibri_service.start()
         self.__kolibri_service.join()
-        self.__kolibri_service = None
 
     def wait_for_server(self):
         while not get_is_kolibri_responding():
             # There is a corner case here where Kolibri may be running (lock
             # file is created), but responding at a different URL than we
             # expect. This is unlikely, so we are ignoring it here.
+            if not self.__kolibri_service.is_alive():
+                logging.warning("Kolibri server has died")
+                self.__kolibri_loaded_success = False
+                self.__kolibri_loaded.set()
+                return
             time.sleep(1)
+
         logging.info("Kolibri server is responding")
+        self.__kolibri_loaded_success = True
         self.__kolibri_loaded.set()
+
+    def is_kolibri_loading(self):
+        return not self.__kolibri_loaded.is_set()
+
+    def wait_for_kolibri(self):
+        return self.__kolibri_loaded.wait()
+
+    def is_kolibri_alive(self):
+        return self.__kolibri_loaded.is_set() and self.__kolibri_loaded_success
 
     def join(self):
         if self.__kolibri_run_thread:
@@ -211,7 +240,7 @@ class Application(pew.ui.PEWApp):
         if url.startswith(KOLIBRI_URL):
             return True
         elif url == self.loader_url:
-            return not self.__kolibri_loaded.is_set()
+            return self.is_kolibri_loading() or not self.is_kolibri_alive()
         else:
             subprocess.call(['xdg-open', url])
             return False
@@ -222,7 +251,7 @@ class Application(pew.ui.PEWApp):
         self.__open_window(target_url)
 
     def __open_window(self, target_url):
-        window = KolibriWindow(_("Kolibri"), target_url, load_event=self.__kolibri_loaded, delegate=self)
+        window = KolibriWindow(_("Kolibri"), target_url, delegate=self)
         window.show()
         return window
 
@@ -239,7 +268,7 @@ class Application(pew.ui.PEWApp):
 
         if parse.path and parse.path != '/':
             item_path = '/learn'.format(parse.path)
-            item_fragment = '/topics{}'.format(parse.path)
+            item_fragment = '/topics/{}'.format(parse.path)
         elif parse.query:
             item_path = '/learn'
             item_fragment = '/search'.format(parse.path)
