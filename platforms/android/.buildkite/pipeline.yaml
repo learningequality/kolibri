@@ -1,20 +1,20 @@
 steps:
-  - block: "Build dev APK?"
-    # Always run if this is a Kolibri release
-    if: build.env("LE_KOLIBRI_RELEASE") != "true"
+  - block: "Build APK?"
+    # Block if this is triggered from Kolibri pipeline and is not a release
+    if:  build.source == "trigger_job" && build.env("LE_KOLIBRI_RELEASE") == "false"
 
-  - label: "Build dev APK"
+  - label: "Build dev Android APK"
     command: ".buildkite/build.sh"
     env: KOLIBRI_ANDROID_BUILD_MODE=dev
 
-  - block: "Build release APK?"
-    # Always run if this is a Kolibri release
-    if: build.env("LE_KOLIBRI_RELEASE") == "true"
+  - block: "Build release Android APK?"
+    # Always block when not a release
+    if: build.env("LE_KOLIBRI_RELEASE") == "false"
 
-  - label: "Build Release APK (32bit) :tada:"
+  - label: "Build Release Android APK (32bit) :tada:"
     command: ".buildkite/build.sh"
     env: KOLIBRI_ANDROID_BUILD_MODE=release
 
-  - label: "Build Release APK (64bit) :tada:"
+  - label: "Build Release Android APK (64bit) :tada:"
     command: ".buildkite/build.sh"
     env: KOLIBRI_ANDROID_BUILD_MODE=release ARCH=64bit
