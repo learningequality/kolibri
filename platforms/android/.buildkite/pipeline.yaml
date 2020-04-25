@@ -11,6 +11,10 @@ steps:
     # Always run if this is a Kolibri release
     if: build.env("LE_KOLIBRI_RELEASE") == "true"
 
-  - label: "Build Release APK :tada:"
+  - label: "Build Release APK (32bit) :tada:"
     command: ".buildkite/build.sh"
     env: KOLIBRI_ANDROID_BUILD_MODE=release
+
+  - label: "Build Release APK (64bit) :tada:"
+    command: ".buildkite/build.sh"
+    env: KOLIBRI_ANDROID_BUILD_MODE=release ARCH=64bit
