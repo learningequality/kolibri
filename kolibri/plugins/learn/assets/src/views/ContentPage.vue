@@ -97,7 +97,9 @@
       <ShareButton
         v-if="canShare"
         :filename="primaryFilename"
-        :text="$tr('shareMessage', {title: content.title, copyrightHolder: content.license_owner})"
+        :text="$tr('shareMessage', {title: content.title,
+                                    topic: content.breadcrumbs.slice(-1)[0].title,
+                                    copyrightHolder: content.license_owner})"
         class="share-button"
       />
 
@@ -332,7 +334,7 @@
       license: 'License: {license}',
       toggleLicenseDescription: 'Toggle license description',
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
-      shareMessage: '"{title}" (from {copyrightHolder})',
+      shareMessage: '"{title}" (in "{topic}"), from {copyrightHolder}',
       nextResource: 'Next resource',
       documentTitle: '{ contentTitle } - { channelTitle }',
     },
