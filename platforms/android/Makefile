@@ -1,7 +1,6 @@
-# run with `make ... ARCH=64bit` to build for v8a
-ARCH=
+# run with envvar `ARCH=64bit` to build for v8a
 
-ifeq ($(ARCH), 64bit)
+ifeq (${ARCH}, 64bit)
   ARM_VER=v8a
 else
   ARM_VER=v7a
@@ -30,7 +29,7 @@ project_info.json: project_info.template src/kolibri scripts/create_project_info
 
 .PHONY: p4a_android_distro
 p4a_android_distro: whitelist.txt project_info.json
-	pew init android $(ARCH)
+	pew init android ${ARCH}
 
 ifdef P4A_RELEASE_KEYSTORE_PASSWD
 pew_release_flag = --release
@@ -39,7 +38,8 @@ endif
 .PHONY: kolibri.apk
 # Build the debug version of the apk
 kolibri.apk: p4a_android_distro preseeded_kolibri_home
-	pew build android $(pew_release_flag) $(ARCH)
+	pew build $(pew_release_flag) android ${ARCH}
+
 
 # DOCKER BUILD
 
@@ -72,7 +72,7 @@ run_docker: build_docker
 	./scripts/rundocker.sh
 
 softbuild: project_info.json
-	pew build android $(pew_release_flag) $(ARCH)
+	pew build $(pew_release_flag) android ${ARCH}
 
 install:
 	adb uninstall org.learningequality.Kolibri || true 2> /dev/null

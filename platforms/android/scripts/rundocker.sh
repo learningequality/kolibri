@@ -5,7 +5,7 @@ set -e
 CONTAINER_HOME=/home/kivy
 
 # Specifies the name of the docker volume used to store p4a cache
-P4A_CACHE=p4a_cache
+P4A_CACHE=p4a_cache_$ARCH
 PEW_CACHE=pew_cache
 
 CID_FILE=kolibri-android-app-container-id.cid.txt
@@ -19,6 +19,7 @@ docker create -it \
   --env P4A_RELEASE_KEYALIAS \
   --env P4A_RELEASE_KEYSTORE_PASSWD \
   --env P4A_RELEASE_KEYALIAS_PASSWD \
+  --env ARCH \
   --cidfile ${CID_FILE} \
   android_kolibri
 
