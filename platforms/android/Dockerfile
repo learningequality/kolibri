@@ -72,6 +72,9 @@ ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 USER kivy:kivy
 WORKDIR /home/kivy
 
+# make sure the build is from scratch on a per-architecture basis
+ARG ARCH=$ARCH
+
 # Initializes the directory, owned by new user. Volume mounts adopt existing permissions, etc.
 RUN mkdir ~/.local ~/.pyeverywhere
 
