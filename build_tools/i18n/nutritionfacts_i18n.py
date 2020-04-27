@@ -49,12 +49,12 @@ def main(title, message, link_text):
     Generate JSON suitable for sending in nutrition facts notifications
     """
 
-    supported_languages = utils.supported_languages(
+    available_languages = utils.available_languages(
         include_in_context=False, include_english=True
     )
 
     output = {}
-    for lang_object in supported_languages:
+    for lang_object in available_languages:
         file_path = os.path.join(utils.local_locale_path(lang_object), FILE_NAME)
         i18n = {}
 

@@ -182,8 +182,12 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
 
 # django-specific format, e.g.: [ ('bn-bd', 'বাংলা'), ('en', 'English'), ...]
 LANGUAGES = [
-    (lang["intl_code"], lang["language_name"])
-    for lang in i18n.KOLIBRI_SUPPORTED_LANGUAGES
+    (
+        i18n.KOLIBRI_LANGUAGE_INFO[lang_code]["intl_code"],
+        i18n.KOLIBRI_LANGUAGE_INFO[lang_code]["language_name"],
+    )
+    for lang_code in conf.OPTIONS["Deployment"]["LANGUAGES"]
+    if lang_code in i18n.KOLIBRI_LANGUAGE_INFO
 ]
 
 # Some languages are not supported out-of-the-box by Django
@@ -230,7 +234,11 @@ EXTRA_LANG_INFO = {
 }
 locale.LANG_INFO.update(EXTRA_LANG_INFO)
 
-LANGUAGE_CODE = "en"
+LANGUAGE_CODE = (
+    "en"
+    if "en" in conf.OPTIONS["Deployment"]["LANGUAGES"]
+    else conf.OPTIONS["Deployment"]["LANGUAGES"][0]
+)
 
 try:
     TIME_ZONE = get_localzone().zone
