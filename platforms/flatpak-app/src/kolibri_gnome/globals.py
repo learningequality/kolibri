@@ -32,6 +32,13 @@ KOLIBRI_URL_PARSE = urlparse(KOLIBRI_URL)
 DEFAULT_KOLIBRI_HOME = os.path.join(USER_HOME, ".kolibri")
 KOLIBRI_HOME = os.environ.get("KOLIBRI_HOME", DEFAULT_KOLIBRI_HOME)
 
+IS_KOLIBRI_LOCAL = os.access(KOLIBRI_HOME, os.W_OK)
+
+if IS_KOLIBRI_LOCAL:
+    LOCAL_KOLIBRI_HOME = KOLIBRI_HOME
+else:
+    LOCAL_KOLIBRI_HOME = os.environ.get("LOCAL_KOLIBRI_HOME", DEFAULT_KOLIBRI_HOME)
+
 
 def init_gettext():
     import gettext

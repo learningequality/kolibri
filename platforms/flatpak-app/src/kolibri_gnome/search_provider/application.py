@@ -1,10 +1,14 @@
-import os
-import subprocess
-
 from gi.repository import Gdk, Gio, GLib
 
 from .. import config
-from ..globals import kolibri_api_get_json
+from ..globals import IS_KOLIBRI_LOCAL, kolibri_api_get_json
+
+if IS_KOLIBRI_LOCAL:
+    from kolibri.dist import django
+    django.setup()
+
+    from kolibri.core.content.api import ContentNodeSearchViewset, ContentNodeViewset
+    from kolibri.dist.rest_framework.test import APIRequestFactory
 
 
 ICON_LOOKUP = {
@@ -18,7 +22,7 @@ ICON_LOOKUP = {
 }
 
 
-class SearchProvider:
+class SearchProvider(object):
     INTERFACE_XML = """
     <!DOCTYPE node PUBLIC
      '-//freedesktop//DTD D-BUS Object Introspection 1.0//EN'
@@ -90,10 +94,10 @@ class SearchProvider:
         self.__application.release()
 
     def GetInitialResultSet(self, terms):
-        return list(self.__iter_item_ids_for_terms_list(terms))
+        return list(self.__iter_item_ids_for_search(' '.join(terms)))
 
     def GetSubsearchResultSet(self, previous_results, terms):
-        return list(self.__iter_item_ids_for_terms_list(terms))
+        return list(self.__iter_item_ids_for_search(' '.join(terms)))
 
     def GetResultMetas(self, item_ids):
         return list(self.__iter_nodes_for_item_ids(item_ids))
@@ -112,37 +116,62 @@ class SearchProvider:
         app_info = Gio.DesktopAppInfo.new(config.APP_ID + '.desktop')
         return app_info.launch_uris([kolibri_url], None)
 
-    def __iter_item_ids_for_terms_list(self, terms):
-        yield from self.__iter_item_ids_for_term(' '.join(terms))
-
-    def __iter_item_ids_for_term(self, term):
-        search_data = kolibri_api_get_json(
-            '/api/content/contentnode_search',
-            query={'search': term, 'max_results': 10},
-            default=dict()
-        )
-
-        for node in search_data.get('results', []):
-            if node.get('kind') == 'topic':
-                item_id = 't/{}'.format(node.get('id'))
+    def __iter_item_ids_for_search(self, search):
+        for node_data in self.get_search_results(search):
+            if node_data.get('kind') == 'topic':
+                item_id = 't/{}'.format(node_data.get('id'))
             else:
-                item_id = 'c/{}'.format(node.get('id'))
+                item_id = 'c/{}'.format(node_data.get('id'))
             yield item_id
 
     def __iter_nodes_for_item_ids(self, item_ids):
         for item_id in item_ids:
-            kind_code, node_id = item_id.split('/', 1)
-            node = kolibri_api_get_json(
-                '/api/content/contentnode/{}'.format(node_id),
-                default=dict()
-            )
-            node_icon = ICON_LOOKUP.get(node.get('kind'), "application-x-executable")
+            _kind_code, node_id = item_id.split('/', 1)
+            node_data = self.get_node_data(node_id)
+            node_icon = ICON_LOOKUP.get(node_data.get('kind'), "application-x-executable")
             yield {
                 "id": GLib.Variant('s', item_id),
-                "name": GLib.Variant('s', node.get('title')),
-                "description": GLib.Variant('s', node.get('description')),
+                "name": GLib.Variant('s', node_data.get('title')),
+                "description": GLib.Variant('s', node_data.get('description')),
                 "gicon": GLib.Variant('s', node_icon)
             }
+
+    def get_search_results(self, search):
+        raise NotImplementedError()
+
+    def get_node_data(self, node_id):
+        raise NotImplementedError()
+
+
+class LocalSearchProvider(SearchProvider):
+    def get_search_results(self, search):
+        request = APIRequestFactory().get("", {"search": search, "max_results": 10})
+        search_view = ContentNodeSearchViewset.as_view({"get": "list"})
+        response = search_view(request)
+        return response.data.get('results', [])
+
+    def get_node_data(self, node_id):
+        request = APIRequestFactory().get("", {})
+        node_view = ContentNodeViewset.as_view({"get": "retrieve"})
+        response = node_view(request, pk=node_id)
+        return response.data
+
+
+class RemoteSearchProvider(SearchProvider):
+    def get_search_results(self, search):
+        response = kolibri_api_get_json(
+            '/api/content/contentnode_search',
+            query={'search': search, 'max_results': 10},
+            default=dict()
+        )
+        return response.get('results')
+
+    def get_node_data(self, node_id):
+        response = kolibri_api_get_json(
+            '/api/content/contentnode/{}'.format(node_id),
+            default=dict()
+        )
+        return response
 
 
 class Application(Gio.Application):
@@ -169,7 +198,11 @@ class Application(Gio.Application):
         if not dbus_connection or not dbus_object_path:
             return
 
-        self.__search_provider = SearchProvider(self)
+        if IS_KOLIBRI_LOCAL:
+            self.__search_provider = LocalSearchProvider(self)
+        else:
+            self.__search_provider = RemoteSearchProvider(self)
+
         self.__search_provider.register_on_connection(
             dbus_connection,
             dbus_object_path
