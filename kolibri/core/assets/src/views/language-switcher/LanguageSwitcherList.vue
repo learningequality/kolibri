@@ -54,12 +54,6 @@
 
   const prioritizedLanguages = ['en', 'ar', 'es-419', 'hi-in', 'fr-fr', 'sw-tz'];
 
-  const languagePriorities = {};
-
-  prioritizedLanguages.forEach((lang, index) => {
-    languagePriorities[lang] = index + 1;
-  });
-
   export default {
     name: 'LanguageSwitcherList',
     components: {
@@ -89,24 +83,24 @@
         return this.selectableLanguages.length;
       },
       buttonLanguages() {
-        let buttonLanguages = this.selectableLanguages;
-        if (buttonLanguages.length > this.numVisibleLanguages + 1) {
-          buttonLanguages = buttonLanguages
-            .sort((a, b) => {
-              const aP = languagePriorities[a.id];
-              const bP = languagePriorities[b.id];
-              if (aP && bP) {
-                return aP - bP;
-              } else if (aP && !bP) {
-                return -1;
-              } else if (!aP && bP) {
-                return 1;
-              }
-              return this.compareLanguages(a, b);
-            })
-            .slice(0, this.numVisibleLanguages);
+        if (this.selectableLanguages.length <= this.numVisibleLanguages + 1) {
+          return this.selectableLanguages.slice().sort(this.compareLanguages);
         }
-        return buttonLanguages.sort(this.compareLanguages);
+        return this.selectableLanguages
+          .slice()
+          .sort((a, b) => {
+            const aPriority = prioritizedLanguages.includes(a.id);
+            const bPriority = prioritizedLanguages.includes(b.id);
+            if (aPriority && bPriority) {
+              return this.compareLanguages(a, b);
+            } else if (aPriority && !bPriority) {
+              return -1;
+            } else if (!aPriority && bPriority) {
+              return 1;
+            }
+            return this.compareLanguages(a, b);
+          })
+          .slice(0, this.numVisibleLanguages);
       },
     },
     $trs: {
