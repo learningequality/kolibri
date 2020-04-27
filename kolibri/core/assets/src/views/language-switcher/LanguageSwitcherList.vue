@@ -49,6 +49,7 @@
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import { compareLanguages } from 'kolibri.utils.sortLanguages';
   import languageSwitcherMixin from './mixin';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
 
@@ -84,7 +85,7 @@
       },
       buttonLanguages() {
         if (this.selectableLanguages.length <= this.numVisibleLanguages + 1) {
-          return this.selectableLanguages.slice().sort(this.compareLanguages);
+          return this.selectableLanguages.slice().sort(compareLanguages);
         }
         return this.selectableLanguages
           .slice()
@@ -92,13 +93,13 @@
             const aPriority = prioritizedLanguages.includes(a.id);
             const bPriority = prioritizedLanguages.includes(b.id);
             if (aPriority && bPriority) {
-              return this.compareLanguages(a, b);
+              return compareLanguages(a, b);
             } else if (aPriority && !bPriority) {
               return -1;
             } else if (!aPriority && bPriority) {
               return 1;
             }
-            return this.compareLanguages(a, b);
+            return compareLanguages(a, b);
           })
           .slice(0, this.numVisibleLanguages);
       },

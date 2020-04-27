@@ -26,7 +26,7 @@ export default function sortLanguages(availableLanguages, currentLanguageId) {
   return sortedLanguages;
 }
 
-function compareLanguages(a, b) {
+export function compareLanguages(a, b) {
   if (a.lang_name.toLowerCase() < b.lang_name.toLowerCase()) {
     return -1;
   }
