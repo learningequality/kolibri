@@ -24,6 +24,6 @@ option_spec = {
             "type": "string",
             "default": "",
             "envvars": ("KOLIBRI_OIDC_JWKS_URI",),
-        }
+        },
     }
 }
