@@ -52,12 +52,12 @@
   import languageSwitcherMixin from './mixin';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
 
-  const prioritized_languages = ['en', 'ar', 'es-419', 'hi-in', 'fr-fr', 'sw-tz'];
+  const prioritizedLanguages = ['en', 'ar', 'es-419', 'hi-in', 'fr-fr', 'sw-tz'];
 
-  const language_priorities = {};
+  const languagePriorities = {};
 
-  prioritized_languages.forEach((lang, index) => {
-    language_priorities[lang] = index + 1;
+  prioritizedLanguages.forEach((lang, index) => {
+    languagePriorities[lang] = index + 1;
   });
 
   export default {
@@ -93,8 +93,8 @@
         if (buttonLanguages.length > this.numVisibleLanguages + 1) {
           buttonLanguages = buttonLanguages
             .sort((a, b) => {
-              const aP = language_priorities[a.id];
-              const bP = language_priorities[b.id];
+              const aP = languagePriorities[a.id];
+              const bP = languagePriorities[b.id];
               if (aP && bP) {
                 return aP - bP;
               } else if (aP && !bP) {
