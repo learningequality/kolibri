@@ -2,6 +2,19 @@
 
 List of the most important changes for each release.
 
+## 0.13.2
+
+### Changed or fixed
+
+- Fixed: In the Device Page, multiple bugs related to managing channels.
+- Fixed: Problems viewing African Storybook content on iPads running iOS 9.
+
+### Internationalization and localization
+
+- Added Italian
+
+([0.13.2 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.13.2))
+
 ## 0.13.1
 
 ### Added

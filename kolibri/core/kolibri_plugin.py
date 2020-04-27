@@ -118,14 +118,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
 
         languages = {}
         for code, language_name in settings.LANGUAGES:
-            lang_info = next(
-                (
-                    lang
-                    for lang in i18n.KOLIBRI_SUPPORTED_LANGUAGES
-                    if lang["intl_code"] == code
-                ),
-                None,
-            )
+            lang_info = i18n.KOLIBRI_LANGUAGE_INFO[code]
             languages[code] = {
                 # Format to match the schema of the content Language model
                 "id": code,

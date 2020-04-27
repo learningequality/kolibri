@@ -25,13 +25,43 @@ def get_installed_app_locale_path(appname):
     return None
 
 
-def _get_supported_language_info():
+def _get_language_info():
     file_path = os.path.join(
-        os.path.dirname(kolibri.__file__), "locale", "supported_languages.json"
+        os.path.dirname(kolibri.__file__), "locale", "language_info.json"
     )
     with io.open(file_path, encoding="utf-8") as f:
-        return json.load(f)
+        languages = json.load(f)
+        output = {}
+        for language in languages:
+            output[language["intl_code"]] = language
+        return output
 
 
 # Kolibri format
-KOLIBRI_SUPPORTED_LANGUAGES = _get_supported_language_info()
+KOLIBRI_LANGUAGE_INFO = _get_language_info()
+
+# List of intl codes that Kolibri officially supports
+KOLIBRI_SUPPORTED_LANGUAGES = [
+    "ar",
+    "bg-bg",
+    "bn-bd",
+    "en",
+    "es-es",
+    "es-419",
+    "fa",
+    "fr-fr",
+    "ff-cm",
+    "gu-in",
+    "hi-in",
+    "it",
+    "ko",
+    "mr",
+    "my",
+    "nyn",
+    "pt-br",
+    "sw-tz",
+    "te",
+    "ur-pk",
+    "vi",
+    "yo",
+]

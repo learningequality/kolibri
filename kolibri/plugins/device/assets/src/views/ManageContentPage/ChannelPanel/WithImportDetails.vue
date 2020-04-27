@@ -173,7 +173,7 @@
       newLabel: {
         message: 'New',
         context:
-          '\nReffers to CHANNEL; indicates that it was recently updated, imported, and unlocked',
+          '\nRefers to CHANNEL; indicates that it was recently updated, imported, and unlocked',
       },
       unlistedChannelTooltip: 'Unlisted channel',
       newVersionMessage: 'New version available',

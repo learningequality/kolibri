@@ -230,6 +230,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
                 "gc": {
                     gender: FacilityUser.objects.filter(gender=gender).count()
                     for (gender, _) in demographics.choices
+                    if FacilityUser.objects.filter(gender=gender).exists()
                 },
             },
             "dsnl": {},
