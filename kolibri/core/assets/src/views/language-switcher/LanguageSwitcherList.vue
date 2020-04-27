@@ -60,10 +60,6 @@
     language_priorities[lang] = index + 1;
   });
 
-  const selectableLanguages = Object.values(availableLanguages).filter(
-    lang => lang.id !== currentLanguage
-  );
-
   export default {
     name: 'LanguageSwitcherList',
     components: {
@@ -77,6 +73,9 @@
       };
     },
     computed: {
+      selectableLanguages() {
+        return Object.values(availableLanguages).filter(lang => lang.id !== currentLanguage);
+      },
       selectedLanguage() {
         return availableLanguages[currentLanguage];
       },
@@ -87,10 +86,10 @@
         return this.windowBreakpoint;
       },
       numSelectableLanguages() {
-        return selectableLanguages.length;
+        return this.selectableLanguages.length;
       },
       buttonLanguages() {
-        let buttonLanguages = selectableLanguages;
+        let buttonLanguages = this.selectableLanguages;
         if (buttonLanguages.length > this.numVisibleLanguages + 1) {
           buttonLanguages = buttonLanguages
             .sort((a, b) => {
