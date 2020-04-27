@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const { lint } = require('kolibri-tools/lib/lint');
 
-const supportedLanguages = require('../../kolibri/locale/supported_languages.json');
+const languageInfo = require('../../kolibri/locale/language_info.json');
 
 const commonHeader = `
 /*
@@ -35,10 +35,7 @@ const vueIntlFooter = `
 `;
 
 const vueIntlModule =
-  commonHeader +
-  vueIntlHeader +
-  supportedLanguages.map(generateVueIntlItems).join('') +
-  vueIntlFooter;
+  commonHeader + vueIntlHeader + languageInfo.map(generateVueIntlItems).join('') + vueIntlFooter;
 
 const vueIntlModulePath = path.resolve(
   __dirname,
@@ -97,7 +94,7 @@ const intlFooter = `
 `;
 
 const intlModule =
-  commonHeader + intlHeader + supportedLanguages.map(generateIntlItems).join('') + intlFooter;
+  commonHeader + intlHeader + languageInfo.map(generateIntlItems).join('') + intlFooter;
 
 const intlModulePath = path.resolve(
   __dirname,
