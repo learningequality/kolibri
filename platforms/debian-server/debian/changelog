@@ -1,8 +1,9 @@
-kolibri-server (0.3.7~beta1-0ubuntu3) UNRELEASED; urgency=medium
+kolibri-server (0.3.7~beta1-0ubuntu4) UNRELEASED; urgency=medium
 
   * Build kolibri-server as a native package
+  * If port 80 is selected when using debconf, remove default nginx symlink
 
- -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Fri, 24 Apr 2020 17:17:03 +0200
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 27 Apr 2020 19:45:44 +0200
 
 kolibri-server (0.3.7~beta1-0ubuntu2) bionic; urgency=medium
 
