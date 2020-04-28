@@ -4,6 +4,7 @@ gi.require_version('Gtk', '3.0')
 
 import datetime
 import logging
+import sys
 
 from ..globals import init_gettext, init_logging
 init_logging('kolibri-gnome.txt')
@@ -14,7 +15,6 @@ import pew
 from .application import Application
 
 def main():
-
     pew.set_app_name("Kolibri")
 
     # Since the log files can contain multiple runs, make the first printout very visible to quickly show
@@ -31,4 +31,9 @@ def main():
     app.join()
 
     logging.info("Stopped at: {}".format(datetime.datetime.today()))
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+    main()
 

@@ -1,7 +1,7 @@
 import json
 import os
 from urllib.error import URLError
-from urllib.parse import urlencode, urlparse, urlunparse
+from urllib.parse import urlencode, urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 
 from . import config
@@ -27,7 +27,7 @@ else:
     KOLIBRI_HTTP_PORT = OPTIONS["Deployment"]["HTTP_PORT"]
 
 KOLIBRI_URL = "http://127.0.0.1:{}".format(KOLIBRI_HTTP_PORT)
-KOLIBRI_URL_PARSE = urlparse(KOLIBRI_URL)
+KOLIBRI_URL_SPLIT = urlsplit(KOLIBRI_URL)
 
 DEFAULT_KOLIBRI_HOME = os.path.join(USER_HOME, ".kolibri")
 KOLIBRI_HOME = os.environ.get("KOLIBRI_HOME", DEFAULT_KOLIBRI_HOME)
@@ -56,7 +56,7 @@ def init_logging(logfile_name='kolibri-app.txt'):
 
     from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 
-    log_dir = os.path.join(KOLIBRI_HOME, 'logs')
+    log_dir = os.path.join(LOCAL_KOLIBRI_HOME, 'logs')
     os.makedirs(log_dir, exist_ok=True)
     log_filename = os.path.join(log_dir, logfile_name)
 
@@ -65,11 +65,11 @@ def init_logging(logfile_name='kolibri-app.txt'):
     root_logger.addHandler(file_handler)
 
 def kolibri_api_get_json(path, query={}, default=None):
-    request_url = KOLIBRI_URL_PARSE._replace(
+    request_url = KOLIBRI_URL_SPLIT._replace(
         path=path,
         query=urlencode(query)
     )
-    request = Request(urlunparse(request_url))
+    request = Request(urlunsplit(request_url))
 
     try:
         response = urlopen(request)
@@ -82,3 +82,4 @@ def kolibri_api_get_json(path, query={}, default=None):
         return default
 
     return data
+

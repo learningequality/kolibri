@@ -1,3 +1,3 @@
 [D-BUS Service]
 Name=org.learningequality.Kolibri
-Exec=@bindir@/kolibri-gnome
+Exec=@BINDIR@/kolibri-gnome

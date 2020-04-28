@@ -1,5 +1,5 @@
-#!/usr/bin/env @PYTHON@
+#!/bin/sh
 
-import sys
-from kolibri_gnome.search_provider.main import main
-sys.exit(main())
+source @KOLIBRI_GNOME_LIBEXECDIR@/kolibri-gnome-env.sh
+
+@PYTHON@ -m "kolibri_gnome.search_provider.main"
