@@ -16,6 +16,12 @@ class DeviceManagementModule extends KolibriApp {
   }
   ready() {
     // reset module states after leaving their respective page
+    router.beforeEach((to, from, next) => {
+      if (this.store.getters.isSuperuser && this.store.state.core.facilities.length === 0) {
+        this.store.dispatch('getFacilities').then(next, next);
+      }
+      next();
+    });
     router.afterEach((toRoute, fromRoute) => {
       this.store.dispatch('resetModuleState', { toRoute, fromRoute });
     });

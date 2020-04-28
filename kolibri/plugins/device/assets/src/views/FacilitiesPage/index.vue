@@ -256,6 +256,7 @@
     padding: 4px;
     padding-top: 8px;
     text-align: right;
+    vertical-align: middle;
 
     .sync {
       margin-right: 0;
