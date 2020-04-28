@@ -71,6 +71,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   searchLabel: 'Search',
   showCorrectAnswerLabel: 'Show correct answer',
   signInLabel: 'Sign in',
+  superAdminLabel: 'Super admin',
   tasksLabel: 'Tasks',
   usageAndPrivacyLabel: 'Usage and privacy',
   userTypeLabel: 'User type',

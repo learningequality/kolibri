@@ -4,8 +4,10 @@ import CreateLearnerAccountForm from '../../src/views/onboarding-forms/CreateLea
 
 function makeWrapper(options) {
   const store = makeStore();
-  if (options.preset) {
-    store.commit('SET_FACILITY_PRESET', options.preset);
+  if (options.preset === 'formal') {
+    store.dispatch('setFormalUsageDefaults');
+  } else {
+    store.dispatch('setNonformalUsageDefaults');
   }
   if (options.previousChoice !== undefined) {
     store.commit('SET_LEARNER_CAN_SIGN_UP', options.previousChoice);
@@ -27,11 +29,6 @@ describe('CreateLearnerAccountForm', () => {
   it('has the correct default with "formal" preset', () => {
     const { wrapper } = makeWrapper({ preset: 'formal' });
     expect(wrapper.vm.settingIsEnabled).toEqual(false);
-  });
-
-  it('has the correct default with "informal" preset', () => {
-    const { wrapper } = makeWrapper({ preset: 'informal' });
-    expect(wrapper.vm.settingIsEnabled).toEqual(true);
   });
 
   it('if user has set it in a previous step, it is kept', () => {

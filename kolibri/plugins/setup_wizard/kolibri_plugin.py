@@ -16,6 +16,15 @@ class SetupWizardPlugin(KolibriPluginBase):
 class SetupWizardAsset(webpack_hooks.WebpackBundleHook):
     bundle_id = "app"
 
+    @property
+    def plugin_data(self):
+        from kolibri.core.device.models import get_device_hostname
+
+        return {
+            # used as default for Device Name step
+            "device_hostname": get_device_hostname()
+        }
+
 
 @register_hook
 class SetupWizardHook(SetupHook):

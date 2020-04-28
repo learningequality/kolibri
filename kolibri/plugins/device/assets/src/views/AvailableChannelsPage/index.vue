@@ -21,6 +21,7 @@
       <template v-slot:abovechannels>
         <p>
           <KButton
+            v-if="channelsAreAvailable"
             appearance="basic-link"
             :text="multipleMode ? $tr('selectTopicsAndResources') : $tr('selectEntireChannels')"
             @click="toggleMultipleMode"
@@ -262,7 +263,7 @@
             return this.$tr('importFromDisk', { driveName: this.selectedDrive.name });
           case TransferTypes.PEERIMPORT:
             return this.$tr('importFromPeer', {
-              deviceName: this.selectedPeer.device_name,
+              deviceName: this.selectedPeer.device_name || this.selectedPeer.nickname,
               address: this.selectedPeer.base_url,
             });
           default:

@@ -1,20 +1,32 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
-import { currentLanguage } from 'kolibri.utils.i18n';
+import { currentLanguage, createTranslator } from 'kolibri.utils.i18n';
 import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
+import { Presets, permissionPresets } from '../constants';
+
+const SetupStrings = createTranslator('SetupStrings', {
+  personalFacilityName: {
+    message: 'Home Facility {name}',
+    context: 'Template for a facility name for personal setups',
+  },
+});
 
 const { NOT_SPECIFIED } = DemographicConstants;
 
 export default {
   state: {
+    started: false,
+    // The shape of onboardingData needs to match the DevisionProvisionSerializer
     onboardingData: {
+      // If device name is null, it will default to hostname. Blank names aren't allowed.
+      device_name: null,
       // Set in DefaultLanguageForm
       language_id: currentLanguage,
       // Set in FacilityPermissionsForm
       facility: {
         name: '',
       },
-      preset: 'nonformal',
+      preset: null,
       // Set in GuessAccessForm
       allow_guest_access: null,
       // Keys match schema of FacilityDatasetModel
@@ -37,12 +49,23 @@ export default {
     },
     loading: false,
     error: false,
-    onboardingStep: 1,
   },
   actions: {
-    provisionDevice(store, onboardingData) {
+    provisionDevice(store) {
+      const onboardingData = store.state.onboardingData;
+
       // Make a copy so data is available when 'kolibriLogin' is called
       const superuser = { ...onboardingData.superuser };
+
+      // Strip out onboarding data so serializer can apply defaults
+      if (onboardingData.preset === Presets.PERSONAL) {
+        onboardingData.settings = {};
+        onboardingData.device_name = null;
+        onboardingData.facility.name = SetupStrings.$tr('personalFacilityName', {
+          name: store.state.onboardingData.superuser.full_name,
+        }).slice(0, 49);
+      }
+
       store.commit('SET_LOADING', true);
 
       return client({ path: urls['kolibri:core:deviceprovision'](), entity: onboardingData }).then(
@@ -56,8 +79,37 @@ export default {
         }
       );
     },
+    setPersonalUsageDefaults(store) {
+      store.commit('SET_FACILITY_PRESET', Presets.PERSONAL);
+    },
+    setFormalUsageDefaults(store) {
+      const defaults = permissionPresets.formal.mappings;
+      store.commit('SET_FACILITY_PRESET', Presets.FORMAL);
+      store.commit('SET_ALLOW_GUEST_ACCESS', false);
+      store.commit('SET_LEARNER_CAN_SIGN_UP', defaults.learner_can_sign_up);
+      store.commit(
+        'SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD',
+        defaults.learner_can_login_with_no_password
+      );
+    },
+    setNonformalUsageDefaults(store) {
+      const defaults = permissionPresets.nonformal.mappings;
+      store.commit('SET_FACILITY_PRESET', Presets.NONFORMAL);
+      store.commit('SET_ALLOW_GUEST_ACCESS', true);
+      store.commit('SET_LEARNER_CAN_SIGN_UP', defaults.learner_can_sign_up);
+      store.commit(
+        'SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD',
+        defaults.learner_can_login_with_no_password
+      );
+    },
   },
   mutations: {
+    START_SETUP(state) {
+      state.started = true;
+    },
+    SET_DEVICE_NAME(state, value) {
+      state.onboardingData.device_name = value;
+    },
     CLEAR_PASSWORD(state) {
       state.onboardingData.superuser.password = '';
     },
@@ -67,7 +119,7 @@ export default {
     SET_FACILITY_NAME(state, name) {
       state.onboardingData.facility.name = name;
     },
-    SET_SU(state, payload) {
+    SET_SUPERUSER_CREDENTIALS(state, payload) {
       state.onboardingData.superuser = {
         ...state.onboardingData.superuser,
         ...payload,
@@ -93,15 +145,6 @@ export default {
     },
     SET_ERROR(state, errorFlag) {
       state.error = errorFlag;
-    },
-    INCREMENT_ONBOARDING_STEP(state) {
-      state.onboardingStep++;
-    },
-    DECREMENT_ONBOARDING_STEP(state) {
-      state.onboardingStep--;
-    },
-    SET_ONBOARDING_STEP(state, step) {
-      state.onboardingStep = step;
     },
   },
 };

@@ -32,16 +32,7 @@
       <tbody slot="tbody">
         <tr v-for="(facility, idx) in facilities" :key="idx">
           <td>
-            <div>
-              <h3>
-                <!-- Facility name with ID goes here -->
-                {{ coreString('nameWithIdInParens', {
-                  name: facility.name,
-                  id: facility.id.slice(0, 4)
-                }) }}
-              </h3>
-              Sync Status Widget Goes here
-            </div>
+            <FacilityNameAndSyncStatus :facility="facility" />
           </td>
           <td class="button-col">
             <div>
@@ -75,7 +66,7 @@
       @cancel="showSyncAllModal = false"
     />
 
-    <ImportFacilityModal
+    <ImportFacilityModalGroup
       v-if="showImportModal"
       @submit="showImportModal = false"
       @cancel="showImportModal = false"
@@ -87,7 +78,7 @@
       @cancel="facilityForRegister = null"
     />
 
-    <SyncFacilityModal
+    <SyncFacilityModalGroup
       v-if="Boolean(facilityForSync)"
       @submit="facilityForSync = null"
       @cancel="facilityForSync = null"
@@ -101,23 +92,27 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import RegisterFacilityModal from 'kolibri.coreVue.components.RegisterFacilityModal';
+  import {
+    FacilityNameAndSyncStatus,
+    RegisterFacilityModal,
+  } from 'kolibri.coreVue.componentSets.sync';
   import TasksBar from '../ManageContentPage/TasksBar.vue';
   import HeaderWithOptions from '../HeaderWithOptions';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
-  import SyncFacilityModal from './SyncFacilityModal';
-  import ImportFacilityModal from './ImportFacilityModal';
+  import SyncFacilityModalGroup from './SyncFacilityModalGroup';
+  import ImportFacilityModalGroup from './ImportFacilityModalGroup';
 
   export default {
     name: 'FacilitiesPage',
     components: {
       CoreTable,
       HeaderWithOptions,
-      ImportFacilityModal,
+      FacilityNameAndSyncStatus,
+      ImportFacilityModalGroup,
       RegisterFacilityModal,
       RemoveFacilityModal,
-      SyncFacilityModal,
+      SyncFacilityModalGroup,
       SyncAllFacilitiesModal,
       TasksBar,
     },
@@ -156,15 +151,54 @@
       facilities() {
         return [
           {
-            name: 'Can remove',
-            id: '1234',
+            name: 'Atkinson Hall (d81c)',
+            id: 'D81C',
+            syncing: false,
+            dataset: {
+              registered: false,
+            },
+            last_sync_failed: false,
+            last_synced: null,
             canRemove: true,
           },
           {
-            name: 'Cannot remove',
-            id: '4321',
-            canRemove: false,
+            name: 'Atkinson Hall (d81c)',
+            id: 'D81C',
+            syncing: true,
+            dataset: {
+              registered: true,
+            },
+            last_sync_failed: false,
+            last_synced: null,
+            canRemove: true,
           },
+          {
+            name: 'Atkinson Hall (d81c)',
+            id: 'D81C',
+            syncing: false,
+            dataset: {
+              registered: true,
+            },
+            last_sync_failed: false,
+            last_synced: 1588036798109,
+            canRemove: true,
+          },
+          {
+            name: 'Atkinson Hall (d81c)',
+            id: 'D81C',
+            syncing: false,
+            dataset: {
+              registered: true,
+            },
+            last_sync_failed: true,
+            last_synced: 1588036798109,
+            canRemove: true,
+          },
+          // {
+          //   name: 'Cannot remove',
+          //   id: '4321',
+          //   canRemove: false,
+          // },
         ];
       },
     },
