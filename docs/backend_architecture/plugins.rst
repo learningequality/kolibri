@@ -19,7 +19,7 @@ Defining a plugin
 -----------------
 
 A plugin must have a Python module inside it called ``kolibri_plugin``, inside this there must be an object subclassed
-from ``KolibriPluginBase`` - here is a minimal example::
+from ``KolibriPluginBase`` - here is a minimal example:
 
 .. code-block:: python
 
@@ -28,12 +28,12 @@ from ``KolibriPluginBase`` - here is a minimal example::
     class ExamplePlugin(KolibriPluginBase):
         pass
 
-The Python module that contains this ``kolibri_plugin`` module can now be enabled and disabled as a plugin. If the module
-path for the plugin is ``kolibri_example_plugin`` then it could be enabled by::
+The Python module that contains this ``kolibri_plugin`` module can now be enabled and disabled as a plugin.
+If the module path for the plugin is ``kolibri.plugins.example_plugin`` then it could be enabled by:
 
 .. code-block:: bash
 
-    kolibri plugin enable kolibri_example_plugin
+    kolibri plugin enable kolibri.plugins.example_plugin
 
 The above command can be passed multiple plugin names to enable at once.
 If Kolibri is running, it needs to be restarted for the change to take effect.
@@ -42,9 +42,9 @@ Similarly, to disable the plugin the following command can be used:
 
 .. code-block:: bash
 
-    kolibri plugin disable kolibri_example_plugin
+    kolibri plugin disable kolibri.plugins.example_plugin
 
-To exactly set the currently enabled plugins (disabling all other plugins, and enabling the ones specified) you can do this::
+To exactly set the currently enabled plugins (disabling all other plugins, and enabling the ones specified) you can do this:
 
 .. code-block:: bash
 
@@ -71,7 +71,7 @@ options to be extended by a plugin. These are set
         settings = "settings"
 
 These are all path references to modules within the plugin itself, so options would be accessible on the Python module path
-as ``kolibri_example_plugin.options``.
+as ``kolibri.plugins.example_plugin.options``.
 
 ``untranslated_view_urls``, ``translated_view_urls`` should both be standard Django urls modules in the plugin that expose
 a ``urlpatterns`` variable - the first will be mounted as API urls - with no language prefixing, the second will be mounted
