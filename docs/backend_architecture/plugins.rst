@@ -38,7 +38,7 @@ path for the plugin is ``kolibri_example_plugin`` then it could be enabled by::
 The above command can be passed multiple plugin names to enable at once.
 If Kolibri is running, it needs to be restarted for the change to take effect.
 
-Similarly, to disable the plugin the following command can be used::
+Similarly, to disable the plugin the following command can be used:
 
 .. code-block:: bash
 
