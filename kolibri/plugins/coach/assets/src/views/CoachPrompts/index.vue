@@ -815,109 +815,98 @@
 
     <section>
       <h1>
-        Prompts while viewing "        Lesson reports"
+        {{ string('SupportLearnersCompletedLesson', 'header') }}
       </h1>
-      <h2>
-        Prompt 4
-      </h2>
-
-      <h3>
-        Support learners who ‘completed’ a lesson
-      </h3>
 
       <p>
-        If a learner/group has completed, ask:
+        {{ string('SupportLearnersCompletedLesson', 'p1') }}
       </p>
       <ul>
         <li>
-          A "how" or a "why" question
+          {{ string('SupportLearnersCompletedLesson', 'list_1_item_1') }}
         </li>
         <li>
-          For evidence
+          {{ string('SupportLearnersCompletedLesson', 'list_1_item_2') }}
         </li>
         <li>
-          To reach the same answer with a different working
+          {{ string('SupportLearnersCompletedLesson', 'list_1_item_3') }}
         </li>
       </ul>
       <p>
-        Encourage learners to extend their responses
+        {{ string('SupportLearnersCompletedLesson', 'p2') }}
       </p>
       <ul>
         <li>
-          Use verbal prompts. Example: &#39;Keep going&#39;, &#39;develop.&#39;
+          {{ string('SupportLearnersCompletedLesson', 'list_2_item_1') }}
         </li>
         <li>
-          Use non-verbal prompts. Example:  Make a rolling motion with the hands etc.
+          {{ string('SupportLearnersCompletedLesson', 'list_2_item_2') }}
         </li>
       </ul>
       <p>
-        After assessing mastery
+        {{ string('SupportLearnersCompletedLesson', 'p3') }}
       </p>
       <ul>
         <li>
-          Assign learners additional resources using the Lessons feature in Kolibri
+          {{ string('SupportLearnersCompletedLesson', 'list_3_item_1') }}
         </li>
         <li>
-          Pair them up with a learner who needs help
+          {{ string('SupportLearnersCompletedLesson', 'list_3_item_2') }}
         </li>
       </ul>
       <p>
-        Evaluate teaching strategies
+        {{ string('SupportLearnersCompletedLesson', 'p4') }}
       </p>
       <ul>
         <li>
-          Which teaching strategies helped to have a smooth and engaging class?
+          {{ string('SupportLearnersCompletedLesson', 'list_4_item_1') }}
         </li>
       </ul>
 
-      <h2>
-        Prompt 4.1
-      </h2>
-
-      <h3>
-        Support learners who ‘need help’ with a lesson
-      </h3>
+      <h1>
+        {{ string('SupportLearnersNeedHelpLesson', 'header') }}
+      </h1>
 
       <p>
-        Provide with a small hint
+        {{ string('SupportLearnersNeedHelpLesson', 'p1') }}
       </p>
       <ul>
         <li>
-          Share a different example
+          {{ string('SupportLearnersNeedHelpLesson', 'list_1_item_1') }}
         </li>
         <li>
-          Give some context
+          {{ string('SupportLearnersNeedHelpLesson', 'list_1_item_2') }}
         </li>
         <li>
-          Tell the rule, but not the answer
+          {{ string('SupportLearnersNeedHelpLesson', 'list_1_item_3') }}
         </li>
         <li>
-          Provide the first or earlier step in the thought process
+          {{ string('SupportLearnersNeedHelpLesson', 'list_1_item_4') }}
         </li>
         <li>
-          Repeat the learner&#39;s wrong answer back to them
+          {{ string('SupportLearnersNeedHelpLesson', 'list_1_item_5') }}
         </li>
       </ul>
       <p>
-        Encourage learners to extend their responses with -
+        {{ string('SupportLearnersNeedHelpLesson', 'p2') }}
       </p>
       <ul>
         <li>
-          Verbal prompts. Example:  &#39;Keep going&#39;, &#39;develop.&#39;
+          {{ string('SupportLearnersNeedHelpLesson', 'list_2_item_1') }}
         </li>
         <li>
-          Non-verbal prompts. Example: Make a rolling motion with the hands etc.
+          {{ string('SupportLearnersNeedHelpLesson', 'list_2_item_2') }}
         </li>
       </ul>
       <p>
-        After assessing their understanding -
+        {{ string('SupportLearnersNeedHelpLesson', 'p3') }}
       </p>
       <ul>
         <li>
-          Assign additional resources using the "lessons" feature in Kolibri based on their specific learning needs
+          {{ string('SupportLearnersNeedHelpLesson', 'list_3_item_1') }}
         </li>
         <li>
-          Pair them up with a learner who has achieved mastery for the particular objective
+          {{ string('SupportLearnersNeedHelpLesson', 'list_3_item_2') }}
         </li>
       </ul>
     </section>
@@ -1021,6 +1010,40 @@
   const strings = {};
   strings['CreatingNewLesson'] = createTranslator('CreatingNewLesson', {
     header: 'Steps to create a new lesson',
+  });
+
+  strings['SupportLearnersCompletedLesson'] = createTranslator('SupportLearnersCompletedLesson', {
+    header: 'Support learners who have ‘completed’ a lesson',
+    p1: 'If a learner or group have completed a lesson',
+    list_1_item_1: 'Probe further and ask a ‘how’ or a ‘why’ question',
+    list_1_item_2: 'Ask the learner/group to present their solution/steps to you or the class',
+    list_1_item_3: 'Ask the learner/group to reach the same solution using a different approach',
+    p2: 'Encourage learners to extend their responses',
+    list_2_item_1: 'Verbal prompts examples: &#39;Keep going&#39;, &#39;Develop&#39;',
+    list_2_item_2: 'Non-verbal prompt example: make a rolling motion with the hands etc.',
+    p3: 'After assessing mastery',
+    list_3_item_1: 'Assign learners additional resources using the Lessons feature in Kolibri',
+    list_3_item_2: 'Pair them up with a learner who needs help',
+    p4: 'Evaluate teaching strategies',
+    list_4_item_1: 'Which teaching strategies helped to have a smooth and engaging class?',
+  });
+
+  strings['SupportLearnersNeedHelpLesson'] = createTranslator('SupportLearnersNeedHelpLesson', {
+    header: 'Support learners who ‘need help’ with a lesson',
+    p1: 'Provide small hints',
+    list_1_item_1: 'Share a different example',
+    list_1_item_2: 'Give some context',
+    list_1_item_3: 'Tell the rule, but not the answer',
+    list_1_item_4: 'Provide the first or earlier step in the thought process',
+    list_1_item_5: 'Repeat the learner&#39;s wrong answer back to them',
+    p2: 'Encourage learners to extend their responses',
+    list_2_item_1: 'Verbal prompts examples: &#39;Keep going&#39;, &#39;Develop&#39;',
+    list_2_item_2: 'Non-verbal prompt example: make a rolling motion with the hands etc.',
+    p3: 'After assessing their understanding',
+    list_3_item_1:
+      'Assign additional resources using the Lessons feature in Kolibri based on their specific learning needs.',
+    list_3_item_2:
+      'Pair them up with a learner who has achieved mastery for the particular objective.',
   });
 
   strings['AnalyzeQuizReports'] = createTranslator('AnalyzeQuizReports', {
