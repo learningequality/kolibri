@@ -2,8 +2,6 @@ import logging
 import traceback
 
 from concurrent.futures import CancelledError
-from concurrent.futures._base import CANCELLED
-from concurrent.futures._base import CANCELLED_AND_NOTIFIED
 
 from kolibri.core.tasks.compat import MULTIPROCESS
 from kolibri.core.tasks.exceptions import UserCancelledError
@@ -180,13 +178,8 @@ class Worker(object):
             return True
         else:
             if future.running():
-                # Already running, but let's mark the future as cancelled
-                # anyway, to make sure that calling future.result() will raise an error.
-                # Our cancelling callback will then check this variable to see its state,
-                # and exit if it's cancelled.
-                from concurrent.futures._base import CANCELLED
-
-                future._state = CANCELLED
+                # Already running, so we manually mark the future as cancelled
+                setattr(future, "_is_cancelled", True)
                 return False
             else:  # probably finished already, too late to cancel!
                 return False
@@ -204,9 +197,8 @@ class Worker(object):
         """
 
         future = self.future_job_mapping[job_id]
-        is_cancelled = future._state in [CANCELLED, CANCELLED_AND_NOTIFIED]
 
-        if is_cancelled:
+        if getattr(future, "_is_cancelled", False):
             raise UserCancelledError()
 
 

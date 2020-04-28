@@ -131,7 +131,7 @@ def _font_priorities(default_font):
         font_names.append(NOTO_SANS_LATIN)
 
     # then look at the rest of the supported languages' default fonts
-    for lang_info in utils.supported_languages():
+    for lang_info in utils.available_languages():
         name = lang_info[utils.KEY_DEFAULT_FONT]
         if name not in font_names:
             font_names.append(name)
@@ -301,7 +301,7 @@ def command_gen_full_fonts():
         _write_full_font(font_name, is_bold=False)
         _write_full_font(font_name, is_bold=True)
 
-    languages = utils.supported_languages(include_in_context=True, include_english=True)
+    languages = utils.available_languages(include_in_context=True, include_english=True)
     for lang_info in languages:
         _gen_full_css_modern(lang_info)
         _gen_full_css_basic(lang_info)
@@ -433,7 +433,7 @@ def _get_common_strings():
     strings.extend([chr(c) for c in range(32, 127)])
 
     # text from language names, both lower- and upper-case
-    languages = utils.supported_languages(include_in_context=True, include_english=True)
+    languages = utils.available_languages(include_in_context=True, include_english=True)
     for lang in languages:
         strings.append(lang[utils.KEY_LANG_NAME])
         strings.append(lang[utils.KEY_LANG_NAME].upper())
@@ -521,7 +521,7 @@ def command_gen_subset_fonts():
         subset_bold_path=_woff_font_path(SCOPE_COMMON, is_bold=True),
     )
 
-    languages = utils.supported_languages(include_in_context=True, include_english=True)
+    languages = utils.available_languages(include_in_context=True, include_english=True)
     for lang_info in languages:
         logging.info("gen subset for {}".format(lang_info[utils.KEY_ENG_NAME]))
         strings = []
@@ -540,7 +540,7 @@ def command_gen_subset_fonts():
     _generate_inline_font_css(name=SCOPE_COMMON, font_family=SCOPE_COMMON)
 
     # generate language-specific subset font files
-    languages = utils.supported_languages(include_in_context=True, include_english=True)
+    languages = utils.available_languages(include_in_context=True, include_english=True)
     for lang in languages:
         _generate_inline_font_css(
             name=_scoped(SCOPE_SUBSET, lang[utils.KEY_INTL_CODE]),

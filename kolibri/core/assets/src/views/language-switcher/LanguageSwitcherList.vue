@@ -27,6 +27,7 @@
       @click="switchLanguage(language.id)"
     />
     <KButton
+      v-if="numSelectableLanguages > numVisibleLanguages + 1"
       :text="$tr('showMoreLanguagesSelector')"
       :primary="false"
       appearance="flat-button"
@@ -48,8 +49,11 @@
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import { compareLanguages } from 'kolibri.utils.sortLanguages';
   import languageSwitcherMixin from './mixin';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
+
+  const prioritizedLanguages = ['en', 'ar', 'es-419', 'hi-in', 'fr-fr', 'sw-tz'];
 
   export default {
     name: 'LanguageSwitcherList',
@@ -64,6 +68,9 @@
       };
     },
     computed: {
+      selectableLanguages() {
+        return Object.values(availableLanguages).filter(lang => lang.id !== currentLanguage);
+      },
       selectedLanguage() {
         return availableLanguages[currentLanguage];
       },
@@ -73,14 +80,28 @@
         }
         return this.windowBreakpoint;
       },
+      numSelectableLanguages() {
+        return this.selectableLanguages.length;
+      },
       buttonLanguages() {
-        const prioritized_languages = ['en', 'ar', 'es-419', 'hi-in', 'fr-fr', 'sw-tz'];
-        return prioritized_languages
-          .filter(lang => availableLanguages[lang] !== undefined)
-          .filter(lang => lang !== currentLanguage)
-          .map(lang => availableLanguages[lang])
-          .slice(0, this.numVisibleLanguages)
-          .sort(this.compareLanguages);
+        if (this.selectableLanguages.length <= this.numVisibleLanguages + 1) {
+          return this.selectableLanguages.slice().sort(compareLanguages);
+        }
+        return this.selectableLanguages
+          .slice()
+          .sort((a, b) => {
+            const aPriority = prioritizedLanguages.includes(a.id);
+            const bPriority = prioritizedLanguages.includes(b.id);
+            if (aPriority && bPriority) {
+              return compareLanguages(a, b);
+            } else if (aPriority && !bPriority) {
+              return -1;
+            } else if (!aPriority && bPriority) {
+              return 1;
+            }
+            return compareLanguages(a, b);
+          })
+          .slice(0, this.numVisibleLanguages);
       },
     },
     $trs: {

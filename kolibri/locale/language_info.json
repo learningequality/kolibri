@@ -77,6 +77,13 @@
     "default_font": "NotoSansDevanagari"
   },
   {
+    "crowdin_code": "it",
+    "intl_code": "it",
+    "language_name": "Italiano",
+    "english_name": "Italian",
+    "default_font": "NotoSans"
+  },
+    {
     "crowdin_code": "ko",
     "intl_code": "ko",
     "language_name": "한국어",
