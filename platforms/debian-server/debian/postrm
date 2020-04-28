@@ -5,6 +5,10 @@ case "$1" in
   remove|purge)
     rm -f /etc/nginx/conf.d/kolibri.conf
     rm -Rf /etc/kolibri/nginx.d
+    if [ ! -L "/etc/nginx/sites-enabled/default" ] && [ -f "/etc/kolibri/nginx_default" ] ;then
+        ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+        rm -f /etc/kolibri/nginx_default
+    fi
     service nginx reload || true
     service kolibri restart || true
     ;;
