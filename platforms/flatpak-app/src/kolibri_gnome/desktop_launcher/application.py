@@ -4,14 +4,14 @@ import subprocess
 import threading
 import time
 from gettext import gettext as _
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlsplit, urlunsplit
 
 import pew
 import pew.ui
 from pew.ui import PEWShortcut
 
 from .. import config
-from ..globals import KOLIBRI_HOME, KOLIBRI_URL, KOLIBRI_URL_PARSE
+from ..globals import KOLIBRI_HOME, KOLIBRI_URL, KOLIBRI_URL_SPLIT
 from ..kolibri_service.utils import get_is_kolibri_responding
 from ..kolibri_service.kolibri_service import KolibriServiceThread
 
@@ -83,15 +83,7 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
             self.__redirect_thread = None
 
     def shutdown(self):
-        """
-        By default, WebUIView assumes a single window, to work the same on mobile and desktops.
-        Since we allow for multiple windows, make sure we only really shutdown once all windows are
-        closed.
-        :return:
-        """
-        app = pew.ui.get_app()
-        if app:
-            app.shutdown()
+        self.delegate.remove_window(self)
 
     def redirect_on_load(self, delegate, url):
         if delegate.wait_for_kolibri():
@@ -168,6 +160,8 @@ class Application(pew.ui.PEWApp):
         self.__kolibri_run_thread = None
         self.__kolibri_wait_thread = None
 
+        self.__windows = []
+
         super().__init__(*args, **kwargs)
 
     def init_ui(self):
@@ -195,7 +189,7 @@ class Application(pew.ui.PEWApp):
         return 0
 
     def shutdown(self):
-        if self.__kolibri_service.is_alive():
+        if self.__kolibri_service and self.__kolibri_service.is_alive():
             logging.info("Stopping Kolibri server...")
             self.__kolibri_service.stop_kolibri()
 
@@ -212,7 +206,12 @@ class Application(pew.ui.PEWApp):
             # There is a corner case here where Kolibri may be running (lock
             # file is created), but responding at a different URL than we
             # expect. This is unlikely, so we are ignoring it here.
-            if not self.__kolibri_service.is_alive():
+            if not self.__kolibri_service:
+                logging.warning("Kolibri server was not started")
+                self.__kolibri_loaded_success = False
+                self.__kolibri_loaded.set()
+                return
+            elif not self.__kolibri_service.is_alive():
                 logging.warning("Kolibri server has died")
                 self.__kolibri_loaded_success = False
                 self.__kolibri_loaded.set()
@@ -241,7 +240,7 @@ class Application(pew.ui.PEWApp):
             return True
         elif url == self.loader_url:
             return self.is_kolibri_loading() or not self.is_kolibri_alive()
-        else:
+        elif not url.startswith('about:'):
             subprocess.call(['xdg-open', url])
             return False
 
@@ -250,8 +249,15 @@ class Application(pew.ui.PEWApp):
     def open_window(self, target_url):
         self.__open_window(target_url)
 
+    def add_window(self, window):
+        self.__windows.add(window)
+
+    def remove_window(self, window):
+        self.__windows.remove(window)
+
     def __open_window(self, target_url):
         window = KolibriWindow(_("Kolibri"), target_url, delegate=self)
+        self.add_window(window)
         window.show()
         return window
 
@@ -259,19 +265,24 @@ class Application(pew.ui.PEWApp):
         for uri in uris:
             self.__open_window_for_kolibri_scheme_uri(uri)
 
-    def __open_window_for_kolibri_scheme_uri(self, kolibri_uri):
-        parse = urlparse(kolibri_uri)
+    def __open_window_for_kolibri_scheme_uri(self, kolibri_scheme_uri):
+        parse = urlsplit(kolibri_scheme_uri)
 
         if parse.scheme != 'kolibri':
-            logging.info("Invalid URI scheme", kolibri_uri)
+            logging.info("Invalid URI scheme", kolibri_scheme_uri)
             return
 
         if parse.path and parse.path != '/':
-            item_path = '/learn'.format(parse.path)
-            item_fragment = '/topics/{}'.format(parse.path)
+            item_path = '/learn'
+            if parse.path.startswith('/'):
+                # Sometimes the path has a / prefix. We need to avoid double
+                # slashes for Kolibri's JavaScript router.
+                item_fragment = '/topics' + parse.path
+            else:
+                item_fragment = '/topics/' + parse.path
         elif parse.query:
             item_path = '/learn'
-            item_fragment = '/search'.format(parse.path)
+            item_fragment = '/search'
         else:
             item_path = '/'
             item_fragment = ''
@@ -279,7 +290,7 @@ class Application(pew.ui.PEWApp):
         if parse.query:
             item_fragment += '?{}'.format(parse.query)
 
-        target_url = KOLIBRI_URL_PARSE._replace(
+        target_url = KOLIBRI_URL_SPLIT._replace(
             path=item_path,
             fragment=item_fragment
         )

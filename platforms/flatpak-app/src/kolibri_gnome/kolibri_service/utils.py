@@ -8,7 +8,7 @@ import urllib.request
 from contextlib import contextmanager
 from urllib.error import URLError
 
-from ..globals import KOLIBRI_HTTP_PORT, KOLIBRI_URL, XDG_DATA_HOME
+from ..globals import KOLIBRI_HTTP_PORT, XDG_DATA_HOME, kolibri_api_get_json
 
 
 def is_kolibri_socket_open():
@@ -17,21 +17,8 @@ def is_kolibri_socket_open():
 
 def get_is_kolibri_responding():
     # Check if Kolibri is responding to http requests at the expected URL.
-
-    try:
-        response = urllib.request.urlopen('{}/api/public/info'.format(KOLIBRI_URL))
-    except URLError:
-        return False
-
-    if response.status != 200:
-        return False
-
-    try:
-        data = json.load(response)
-    except json.JSONDecodeError:
-        return False
-
-    return data.get('application') == 'kolibri'
+    info = kolibri_api_get_json('/api/public/info', default=dict())
+    return info.get('application') == 'kolibri'
 
 def get_kolibri_running_tasks():
     return subprocess.run("/app/bin/check_for_running_tasks.sh").returncode

@@ -109,7 +109,7 @@ class SearchProvider(object):
         self.__activate_kolibri("", terms)
 
     def __activate_kolibri(self, item_id, terms):
-        kolibri_url = 'kolibri:{item_id}?searchTerm={term}'.format(
+        kolibri_url = 'kolibri:///{item_id}?searchTerm={term}'.format(
             item_id=item_id,
             term=' '.join(terms)
         )
@@ -164,7 +164,7 @@ class RemoteSearchProvider(SearchProvider):
             query={'search': search, 'max_results': 10},
             default=dict()
         )
-        return response.get('results')
+        return response.get('results', [])
 
     def get_node_data(self, node_id):
         response = kolibri_api_get_json(
