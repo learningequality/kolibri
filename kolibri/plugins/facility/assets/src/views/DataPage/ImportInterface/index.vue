@@ -6,32 +6,42 @@
     <p>
       {{ $tr('sectionDescription') }}
     </p>
-    <p>
-      {{ $tr('exportCSV') }}
-    </p>
+    <ul>
+      <li>{{ $tr('exportCSV') }}</li>
+      <li>{{ $tr('editCSV') }}</li>
+      <li>{{ $tr('importCSV') }}</li>
+    </ul>
     <p>
       <KButton
-        :text="$tr('export')"
-        appearance="raised-button"
-        style="margin: 0;"
-        :disabled="isExporting"
-        @click="exportCsv"
+        appearance="basic-link"
+        :text="$tr('viewFormat')"
+        @click="showInfoModal = true"
       />
-      <DataPageTaskProgress v-if="isExporting" class="generating">
-        {{ $tr('generatingCSV') }}
-      </DataPageTaskProgress>
     </p>
-    <p>
-      {{ $tr('importCSV') }}
-    </p>
-    <p>
+    <p style="margin-top: 24px;">
       <KRouterLink
         :text="$tr('import')"
         appearance="raised-button"
+        style="margin: 0 16px 0 0;"
         :to="$router.getRoute('IMPORT_CSV_PAGE')"
-        style="margin: 0;"
       />
+      <KButton
+        :text="$tr('export')"
+        appearance="raised-button"
+        style="margin: 0 16px 0 0;"
+        :disabled="isExporting"
+        @click="exportCsv"
+      />
+      <DataPageTaskProgress v-if="isExporting">
+        {{ $tr('generatingCSV') }}
+      </DataPageTaskProgress>
     </p>
+
+
+    <CsvInfoModal
+      v-if="showInfoModal"
+      @cancel="showInfoModal = false"
+    />
 
   </KPageContainer>
 
@@ -44,11 +54,18 @@
   import { mapState, mapActions } from 'vuex';
   import { UsersExportStatuses } from '../../../constants';
   import DataPageTaskProgress from '../DataPageTaskProgress';
+  import CsvInfoModal from '../../CsvInfoModal';
 
   export default {
     name: 'ImportInterface',
     components: {
       DataPageTaskProgress,
+      CsvInfoModal,
+    },
+    data() {
+      return {
+        showInfoModal: false,
+      };
     },
     computed: {
       ...mapState('manageCSV', ['exportUsersStatus', 'exportUsersFilename']),
@@ -74,23 +91,19 @@
     },
     $trs: {
       sectionTitle: 'Import and export users',
-      sectionDescription: 'You can manage users in bulk using spreadsheets.',
-      exportCSV: 'Export a CSV file containing all users in the facility:',
+      sectionDescription: 'You can manage users and classes in bulk:',
+      exportCSV:
+        'Export a CSV file which contains all users, and the classes that they are associated with',
+      editCSV: 'Edit user info using an external spreadsheet program',
+      importCSV: 'Import a CSV file to create and update users',
       export: 'Export',
-      importCSV: 'Add new users and update existing users from a CSV:',
       import: 'Import',
       generatingCSV: 'Generating CSV...',
+      viewFormat: 'View spreadsheet format reference',
     },
   };
 
 </script>
 
 
-<style lang="scss" scoped>
-
-  .generating {
-    margin: 8px;
-    margin-left: 16px;
-  }
-
-</style>
+<style lang="scss" scoped></style>

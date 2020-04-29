@@ -42,8 +42,8 @@
             <div>{{ $tr('possibleValues') }}</div>
             <ul>
               <li><code>ADMIN</code></li>
-              <li><code>COACH</code></li>
-              <li><code>ASSIGNABLE_COACH</code></li>
+              <li><code>FACILITY_COACH</code></li>
+              <li><code>CLASS_COACH</code></li>
               <li><code>LEARNER</code></li>
             </ul>
           </td>
