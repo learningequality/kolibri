@@ -33,6 +33,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
 
   // labels, phrases, titles, headers...
   adminLabel: 'Admin',
+  allClassesLabel: 'All classes',
   allFacilitiesLabel: 'All facilities',
   allLabel: 'All',
   allLessonsLabel: 'All lessons',
