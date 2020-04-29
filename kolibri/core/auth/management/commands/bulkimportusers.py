@@ -48,8 +48,8 @@ fieldnames = (
 roles_map = {
     "LEARNER": None,
     "ADMIN": role_kinds.ADMIN,
-    "COACH": role_kinds.COACH,
-    "ASSIGNABLE_COACH": role_kinds.ASSIGNABLE_COACH,
+    "FACILITY_COACH": role_kinds.COACH,
+    "CLASS_COACH": role_kinds.ASSIGNABLE_COACH,
 }
 
 # Error messages ###

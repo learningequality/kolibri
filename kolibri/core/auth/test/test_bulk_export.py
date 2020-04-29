@@ -25,7 +25,7 @@ def test_not_specified():
 
 def test_kind_of_roles():
     assert b.kind_of_roles("kind", {"kind": None}) == "LEARNER"
-    assert b.kind_of_roles("kind", {"kind": "coACh"}) == "COACH"
+    assert b.kind_of_roles("kind", {"kind": "coACh"}) == "FACILITY_COACH"
 
 
 def test_map_output():
@@ -45,7 +45,7 @@ def test_map_output():
         "Username (USERNAME)": "Bob",
         "Password (PASSWORD)": None,
         "Full name (FULL_NAME)": None,
-        "User type (USER_TYPE)": "COACH",
+        "User type (USER_TYPE)": "FACILITY_COACH",
         "Identifier (IDENTIFIER)": None,
         "Birth year (BIRTH_YEAR)": "1969",
         "Gender (GENDER)": "MALE",

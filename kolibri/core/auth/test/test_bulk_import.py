@@ -165,7 +165,17 @@ class ImportTestCase(TestCase):
             ]
         )
         rows.append(
-            ["new_coach", None, None, "COACH", None, "1969", "MALE", None, "new_class"]
+            [
+                "new_coach",
+                None,
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                None,
+                "new_class",
+            ]
         )
         self.create_csv(new_filepath, rows)
         call_command(
@@ -220,7 +230,17 @@ class ImportTestCase(TestCase):
             ]
         )
         rows.append(
-            ["new_coach", None, None, "COACH", None, "1969", "MALE", None, "classroom0"]
+            [
+                "new_coach",
+                None,
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                None,
+                "classroom0",
+            ]
         )
         self.create_csv(new_filepath, rows)
         call_command(

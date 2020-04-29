@@ -19,6 +19,7 @@ from .bulkimportusers import FILE_WRITE_ERROR
 from .bulkimportusers import MESSAGES
 from .bulkimportusers import NO_FACILITY
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -27,7 +28,6 @@ from kolibri.core.query import GroupConcatSubquery
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
-
 
 try:
     FileNotFoundError
@@ -66,14 +66,14 @@ db_columns = (
 # These constants must be entered vertbatim in the CSV
 roles_map = {
     role_kinds.ADMIN: "ADMIN",
-    role_kinds.COACH: "COACH",
-    role_kinds.ASSIGNABLE_COACH: "ASSIGNABLE_COACH",
+    role_kinds.COACH: "FACILITY_COACH",
+    role_kinds.ASSIGNABLE_COACH: "CLASS_COACH",
 }
 
 
 def not_specified(field, obj):
     val = obj[field]
-    return None if val == "NOT_SPECIFIED" else val
+    return None if (val == "NOT_SPECIFIED" or val == DEFERRED) else val
 
 
 def kind_of_roles(field, obj):
