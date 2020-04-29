@@ -9,5 +9,5 @@ kolibri.plugins.coach
 kolibri.plugins.user
 kolibri_exercise_perseus_plugin
 kolibri.plugins.epub_viewer
-kolibri.plugins.profuturo_mvp
+kolibri.plugins.default_theme
 kolibri.plugins.slideshow_viewer
