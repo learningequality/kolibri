@@ -80,6 +80,7 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
                 self.__load_url_error()
             else:
                 super().load_url(url)
+        self.present_window()
 
     def get_target_url(self):
         return self.__target_url
