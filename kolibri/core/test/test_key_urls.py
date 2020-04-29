@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.urls.exceptions import NoReverseMatch
 from mock import patch
@@ -173,8 +174,7 @@ class LogoutLanguagePersistenceTest(APITestCase):
 
     def test_persistent_language_on_namespaced_logout(self):
         # Test that namespaced /{lang_code}/logout persists that namespace.
-        # Test a few language codes
-        for lang_code in ["sw-tz", "fr-fr", "es-es"]:
+        for lang_code in [lang[0] for lang in settings.LANGUAGES]:
             self.client.login(**self.credentials)
             response = self.client.post("/{}/logout".format(lang_code))
             self.assertTrue(lang_code in response.url)
@@ -191,7 +191,8 @@ class LogoutLanguagePersistenceTest(APITestCase):
 
         self.client.login(**self.credentials)
         session = self.client.session
-        session[LANGUAGE_SESSION_KEY] = "sw-tz"
+        test_lang = settings.LANGUAGES[-1][0]
+        session[LANGUAGE_SESSION_KEY] = test_lang
         session.save()
         response = self.client.post("/logout")
-        self.assertTrue("sw-tz" in response.url)
+        self.assertTrue(test_lang in response.url)
