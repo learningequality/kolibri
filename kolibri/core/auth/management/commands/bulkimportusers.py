@@ -408,9 +408,13 @@ class Command(AsyncCommand):
 
         gender = user_row.get(self.header_translation["GENDER"], "").strip().upper()
         gender = "" if gender == DEFERRED else gender
-        birth_year = user_row.get(self.header_translation["BIRTH_YEAR"], "").strip().upper()
+        birth_year = (
+            user_row.get(self.header_translation["BIRTH_YEAR"], "").strip().upper()
+        )
         birth_year = "" if birth_year == DEFERRED else birth_year
-        id_number = user_row.get(self.header_translation["IDENTIFIER"], "").strip().upper()
+        id_number = (
+            user_row.get(self.header_translation["IDENTIFIER"], "").strip().upper()
+        )
         id_number = "" if id_number == DEFERRED else id_number
         full_name = user_row.get(self.header_translation["FULL_NAME"], None)
 
