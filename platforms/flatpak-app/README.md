@@ -4,7 +4,7 @@ Kolibri desktop front-end for GNOME.
 
 ### Requirements
 
-- Python 3.6
+- Python 3.6+
 
 ### Getting started
 

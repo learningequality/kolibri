@@ -6,17 +6,17 @@ import sys
 
 from .application import Application
 
-from ..globals import init_gettext, init_logging
+from ..globals import init_gettext
 
 def main():
     init_gettext()
-    init_logging('kolibri-gnome-search-provider.txt')
+    # init_logging('kolibri-gnome-search-provider.txt')
 
     application = Application()
     return application.run()
 
 
 if __name__ == "__main__":
-    sys.exit(main())
-    main()
+    result = main()
+    sys.exit(result)
 

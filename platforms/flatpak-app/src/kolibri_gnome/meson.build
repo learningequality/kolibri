@@ -39,6 +39,7 @@ search_provider_sources = [
     'search_provider/application.py',
     'search_provider/__init__.py',
     'search_provider/main.py',
+    'search_provider/utils.py',
 ]
 
 python_installation.install_sources(

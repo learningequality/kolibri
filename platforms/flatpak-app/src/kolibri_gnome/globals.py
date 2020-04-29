@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from urllib.error import URLError
 from urllib.parse import urlencode, urlsplit, urlunsplit
@@ -50,9 +51,8 @@ def init_gettext():
     # if root_dir.endswith('src'):
     #     locale_root_dir = os.path.join(root_dir, '..', 'locale')
 
-def init_logging(logfile_name='kolibri-app.txt'):
-    import logging
-    logging.basicConfig(level=logging.DEBUG)
+def init_logging(logfile_name='kolibri-app.txt', level=logging.DEBUG):
+    logging.basicConfig(level=level)
 
     from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 
