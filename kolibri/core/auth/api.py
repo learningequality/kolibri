@@ -407,13 +407,4 @@ class SessionViewSet(viewsets.ViewSet):
             UserSessionLog.update_log(user)
 
         response = Response(session)
-        if not request.COOKIES.get("visitor_id"):
-            visitor_id = str(uuid4().hex)
-            response.set_cookie("visitor_id", visitor_id, expires=visitor_cookie_expiry)
-        else:
-            response.set_cookie(
-                "visitor_id",
-                request.COOKIES.get("visitor_id"),
-                expires=visitor_cookie_expiry,
-            )
         return response
