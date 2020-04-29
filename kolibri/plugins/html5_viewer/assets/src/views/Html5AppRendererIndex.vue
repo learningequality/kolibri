@@ -162,7 +162,6 @@
 
   .html5-renderer {
     position: relative;
-    height: 500px;
     text-align: center;
   }
 
@@ -177,7 +176,7 @@
     top: 0;
     bottom: 0;
     width: 100%;
-    height: 100%;
+    height: 560px;
     overflow: visible;
   }
 
