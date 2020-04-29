@@ -13,9 +13,9 @@
 
     <template v-else>
       <template v-if="isFinished">
-        <h2 style="color: green;">
+        <UiAlert :dismissible="false" type="success">
           {{ $tr('success') }}
-        </h2>
+        </UiAlert>
         <p>{{ $tr('changesMade') }}</p>
       </template>
       <template v-else>
@@ -162,10 +162,14 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import UiAlert from 'keen-ui/src/UiAlert';
   import { CSVImportStatuses } from '../../constants';
 
   export default {
     name: 'Preview',
+    components: {
+      UiAlert,
+    },
     computed: {
       isError() {
         return this.status === CSVImportStatuses.ERRORS;
@@ -197,7 +201,7 @@
     },
     $trs: {
       importError: 'Importing is not possible due to the following errors:',
-      success: 'SUCCESS!',
+      success: 'The import succeeded',
       changesMade: 'The following changes were made:',
       summary: 'Summary of changes if you choose to import:',
       updated: 'Updated',
