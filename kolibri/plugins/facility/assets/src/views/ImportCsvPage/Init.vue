@@ -66,7 +66,7 @@
       />
     </p>
 
-    <InfoModal
+    <CsvInfoModal
       v-if="showInfoModal"
       @cancel="showInfoModal = false"
     />
@@ -79,12 +79,12 @@
 
 <script>
 
-  import InfoModal from './InfoModal';
+  import CsvInfoModal from '../CsvInfoModal';
 
   export default {
     name: 'Init',
     components: {
-      InfoModal,
+      CsvInfoModal,
     },
     data() {
       return {
