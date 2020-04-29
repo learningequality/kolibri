@@ -30,7 +30,7 @@ class MenuEventHandler:
         self.close()
 
     def on_open_in_browser(self):
-        subprocess.call(['xdg-open', self.get_url()])
+        subprocess.call(['xdg-open', self.get_target_url()])
 
     def on_open_kolibri_home(self):
         subprocess.call(['xdg-open', KOLIBRI_HOME])
@@ -62,38 +62,56 @@ class MenuEventHandler:
 
 class KolibriView(pew.ui.WebUIView, MenuEventHandler):
     def __init__(self, name, url, **kwargs):
-        delegate = kwargs.get('delegate')
+        self.__target_url = None
+        self.__load_url_lock = threading.Lock()
+        self.__redirect_thread = None
 
-        if delegate.is_kolibri_loading():
-            super().__init__(name, delegate.loader_url, **kwargs)
-            self.__redirect_thread = pew.ui.PEWThread(
-                target=self.redirect_on_load,
-                args=(delegate, url)
-            )
-            self.__redirect_thread.daemon = True
-            self.__redirect_thread.start()
-        elif not delegate.is_kolibri_alive():
-            super().__init__(name, delegate.loader_url, **kwargs)
-            pew.ui.run_on_main_thread(
-                self.evaluate_javascript,
-                'window.onload = function() { show_error() }'
-            )
-        else:
-            super().__init__(name, url, **kwargs)
-            self.__redirect_thread = None
+        super().__init__(name, url, **kwargs)
 
     def shutdown(self):
         self.delegate.remove_window(self)
 
-    def redirect_on_load(self, delegate, url):
-        if delegate.wait_for_kolibri():
-            if delegate.is_kolibri_alive():
-                self.load_url(url)
+    def load_url(self, url, with_redirect=True):
+        with self.__load_url_lock:
+            self.__target_url = url
+            if with_redirect and self.delegate.is_kolibri_loading():
+                self.__load_url_loading()
+            elif with_redirect and not self.delegate.is_kolibri_alive():
+                self.__load_url_error()
             else:
-                pew.ui.run_on_main_thread(
-                    self.evaluate_javascript,
-                    'show_error()'
-                )
+                super().load_url(url)
+
+    def get_target_url(self):
+        return self.__target_url
+
+    def __load_url_loading(self):
+        if self.current_url != self.delegate.loader_url:
+            super().load_url(self.delegate.loader_url)
+
+        if not self.__redirect_thread:
+            self.__redirect_thread = pew.ui.PEWThread(
+                target=self.__do_redirect_on_load,
+                args=()
+            )
+            self.__redirect_thread.daemon = True
+            self.__redirect_thread.start()
+
+    def __load_url_error(self):
+        if self.current_url == self.delegate.loader_url:
+            pew.ui.run_on_main_thread(
+                self.evaluate_javascript,
+                'show_error()'
+            )
+        else:
+            super().load_url(self.delegate.loader_url)
+            pew.ui.run_on_main_thread(
+                self.evaluate_javascript,
+                'window.onload = function() { show_error() }'
+            )
+
+    def __do_redirect_on_load(self):
+        if self.delegate.wait_for_kolibri():
+            self.load_url(self.__target_url)
 
     def open_window(self):
         target_url = self.get_url()
@@ -165,6 +183,8 @@ class Application(pew.ui.PEWApp):
         super().__init__(*args, **kwargs)
 
     def init_ui(self):
+        logging.warning("INIT UI")
+
         # start server
         self.__kolibri_run_thread = pew.ui.PEWThread(target=self.run_server)
         self.__kolibri_run_thread.daemon = False
@@ -250,7 +270,7 @@ class Application(pew.ui.PEWApp):
         self.__open_window(target_url)
 
     def add_window(self, window):
-        self.__windows.add(window)
+        self.__windows.append(window)
 
     def remove_window(self, window):
         self.__windows.remove(window)
@@ -295,4 +315,16 @@ class Application(pew.ui.PEWApp):
             fragment=item_fragment
         )
 
-        self.__open_window(urlunparse(target_url))
+        blank_window = self.__find_blank_window()
+
+        if blank_window:
+            blank_window.load_url(urlunsplit(target_url))
+        else:
+            self.__open_window(urlunsplit(target_url))
+
+    def __find_blank_window(self):
+        for window in reversed(self.__windows):
+            if window.get_target_url() == KOLIBRI_URL:
+                return window
+        return None
+
