@@ -24,8 +24,6 @@ python_installation.install_sources(
 
 kolibri_service_sources = [
     'kolibri_service/__init__.py',
-    'kolibri_service/kolibri_idle_monitor.py',
-    'kolibri_service/kolibri_redirect.py',
     'kolibri_service/kolibri_service.py',
     'kolibri_service/utils.py',
 ]
