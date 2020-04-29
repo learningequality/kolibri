@@ -1,3 +1,4 @@
-APP_ID = 'org.learningequality.Kolibri'
-DATA_DIR = '@KOLIBRI_GNOME_DATADIR@'
-LOCALE_DIR = None
+APP_ID = "org.learningequality.Kolibri"
+DATA_DIR = "@KOLIBRI_GNOME_DATADIR@"
+GETTEXT_PACKAGE = "@GETTEXT_PACKAGE@"
+LOCALE_DIR = "@LOCALE_DIR@"

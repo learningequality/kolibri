@@ -3,9 +3,13 @@ Type=Application
 Terminal=false
 Name=Kolibri
 Comment=Offline education technology platform
+# TRANSLATORS: These are search terms to find this application.
+#              Terms MUST be separated by semicolons, and end with a semicolon.
 Keywords=education;multimedia;videos;learning;quiz;
 Categories=Education;
-Exec=@BINDIR@/kolibri-gnome %U
+Exec=kolibri-gnome %U
 StartupNotify=true
 DBusActivatable=true
+# TRANSLATORS: This is an icon file name.
+#              Do not translate or transliterate this text!
 Icon=org.learningequality.Kolibri

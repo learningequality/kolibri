@@ -15,6 +15,7 @@ desktop_launcher_sources = [
     'desktop_launcher/application.py',
     'desktop_launcher/__init__.py',
     'desktop_launcher/main.py',
+    'desktop_launcher/utils.py',
 ]
 
 python_installation.install_sources(

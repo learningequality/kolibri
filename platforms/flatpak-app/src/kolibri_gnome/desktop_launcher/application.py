@@ -11,9 +11,11 @@ import pew.ui
 from pew.ui import PEWShortcut
 
 from .. import config
+
 from ..globals import KOLIBRI_HOME, KOLIBRI_URL, KOLIBRI_URL_SPLIT
 from ..kolibri_service.utils import get_is_kolibri_responding
 from ..kolibri_service.kolibri_service import KolibriServiceThread
+from .utils import get_localized_file
 
 
 class MenuEventHandler:
@@ -169,8 +171,14 @@ class Application(pew.ui.PEWApp):
         # TODO: Generated translated loading screen, or detect language code
         #       and find the closest match like in kolibri-installer-mac.
 
-        loader_page = os.path.abspath(os.path.join(config.DATA_DIR, 'assets', '_load.html'))
-        self.loader_url = 'file://{}'.format(loader_page)
+        loader_path = get_localized_file(
+            os.path.join(config.DATA_DIR, 'assets', '_load-{}.html'),
+            os.path.join(config.DATA_DIR, 'assets', '_load.html'),
+        )
+        self.loader_url = 'file://{path}'.format(
+            path=os.path.abspath(loader_path)
+        )
+        print("FOUND LOADER URL", self.loader_url)
 
         self.__kolibri_loaded = threading.Event()
         self.__kolibri_loaded_success = None
@@ -184,8 +192,6 @@ class Application(pew.ui.PEWApp):
         super().__init__(*args, **kwargs)
 
     def init_ui(self):
-        logging.warning("INIT UI")
-
         # start server
         self.__kolibri_run_thread = pew.ui.PEWThread(target=self.run_server)
         self.__kolibri_run_thread.daemon = False
@@ -202,7 +208,7 @@ class Application(pew.ui.PEWApp):
 
         # Check for saved URL, which exists when the app was put to sleep last time it ran
         saved_state = main_window.get_view_state()
-        logging.debug('Persisted View State: {}'.format(main_window.get_view_state()))
+        logging.debug("Persisted View State: %s", saved_state)
 
         if "URL" in saved_state and saved_state["URL"].startswith(KOLIBRI_URL):
             pew.ui.run_on_main_thread(main_window.load_url, saved_state["URL"])
@@ -290,7 +296,7 @@ class Application(pew.ui.PEWApp):
         parse = urlsplit(kolibri_scheme_uri)
 
         if parse.scheme != 'kolibri':
-            logging.info("Invalid URI scheme", kolibri_scheme_uri)
+            logging.info("Invalid URI scheme: %s", kolibri_scheme_uri)
             return
 
         if parse.path and parse.path != '/':

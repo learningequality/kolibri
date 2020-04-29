@@ -1,0 +1,5 @@
+# List of source files containing translatable strings.
+# Please keep this file sorted alphabetically.
+data/applications/org.learningequality.Kolibri.desktop.in
+data/metainfo/org.learningequality.Kolibri.metainfo.xml.in
+src/kolibri_gnome/desktop_launcher/application.py

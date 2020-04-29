@@ -1,3 +1,4 @@
+import gettext
 import json
 import logging
 import os
@@ -42,14 +43,8 @@ else:
 
 
 def init_gettext():
-    import gettext
-    gettext.bindtextdomain(config.APP_ID, config.LOCALE_DIR)
-    gettext.textdomain(config.APP_ID)
-
-    # root_dir = os.path.dirname(os.path.abspath(__file__))
-    # locale_root_dir = os.path.join(root_dir, 'locale')
-    # if root_dir.endswith('src'):
-    #     locale_root_dir = os.path.join(root_dir, '..', 'locale')
+    gettext.bindtextdomain(config.GETTEXT_PACKAGE, config.LOCALE_DIR)
+    gettext.textdomain(config.GETTEXT_PACKAGE)
 
 def init_logging(logfile_name='kolibri-app.txt', level=logging.DEBUG):
     logging.basicConfig(level=level)
@@ -63,6 +58,18 @@ def init_logging(logfile_name='kolibri-app.txt', level=logging.DEBUG):
     root_logger = logging.getLogger()
     file_handler = KolibriTimedRotatingFileHandler(filename=log_filename, when='midnight', backupCount=30)
     root_logger.addHandler(file_handler)
+
+def get_current_language():
+    try:
+        translations = gettext.translation(config.GETTEXT_PACKAGE, localedir=config.LOCALE_DIR)
+        locale_info = translations.info()
+    except FileNotFoundError as e:
+        logging.warning("Error loading translation file: %s", e)
+        language = None
+    else:
+        language = locale_info.get('language')
+
+    return language
 
 def kolibri_api_get_json(path, query={}, default=None):
     request_url = KOLIBRI_URL_SPLIT._replace(
