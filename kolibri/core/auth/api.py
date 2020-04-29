@@ -3,8 +3,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import time
+from datetime import datetime
+from datetime import timedelta
+from uuid import uuid4
 
-from datetime import datetime, timedelta
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth import logout
@@ -25,7 +27,6 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
-from uuid import uuid4
 
 from .constants import collection_kinds
 from .constants import role_kinds
@@ -384,7 +385,7 @@ class SessionViewSet(viewsets.ViewSet):
         if isinstance(user, AnonymousUser):
             response = Response(session)
             if not request.COOKIES.get("visitor_id"):
-                visitor_id = str(uuid4())
+                visitor_id = str(uuid4().hex)
                 response.set_cookie(
                     "visitor_id", visitor_id, expires=visitor_cookie_expiry
                 )
@@ -407,7 +408,7 @@ class SessionViewSet(viewsets.ViewSet):
 
         response = Response(session)
         if not request.COOKIES.get("visitor_id"):
-            visitor_id = str(uuid4())
+            visitor_id = str(uuid4().hex)
             response.set_cookie("visitor_id", visitor_id, expires=visitor_cookie_expiry)
         else:
             response.set_cookie(
