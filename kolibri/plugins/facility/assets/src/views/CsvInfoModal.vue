@@ -11,33 +11,45 @@
     <p>{{ $tr('sectionDescription') }}</p>
 
     <table>
+      <thead>
+        <tr>
+          <th>{{ $tr('columnNameHeader') }}</th>
+          <th>{{ $tr('columnIDHeader') }}</th>
+          <th>{{ $tr('columnInfoHeader') }}</th>
+        </tr>
+      </thead>
       <tbody>
         <tr>
-          <th>
-            {{ $tr('username') }} (USERNAME)
-          </th>
-          <td>{{ $tr('required') }}</td>
-          <td>{{ $tr('usernameValidation') }}</td>
+          <td>
+            {{ $tr('username') }}<br>
+            <span class="label" :style="label">{{ $tr('required') }}</span>
+          </td>
+          <td><code>USERNAME</code></td>
+
+          <td>{{ $tr('usernameInfo') }}</td>
         </tr>
         <tr>
-          <th>
-            {{ $tr('password') }} (PASSWORD)
-          </th>
-          <td>{{ $tr('passwordDescription') }}</td>
-          <td>{{ $tr('passwordValidation') }}</td>
+          <td>
+            {{ $tr('password') }}<br>
+            <span class="label" :style="label">{{ $tr('required') }}</span>
+          </td>
+          <td><code>PASSWORD</code></td>
+          <td>{{ $tr('passwordInfo') }} <code>*</code></td>
         </tr>
         <tr>
-          <th>
-            {{ $tr('fullName') }} (FULL_NAME)
-          </th>
-          <td>{{ $tr('required') }}</td>
-          <td>{{ $tr('fullNameValidation') }}</td>
+          <td>
+            {{ $tr('fullName') }}<br>
+            <span class="label" :style="label">{{ $tr('required') }}</span>
+          </td>
+          <td><code>FULL_NAME</code></td>
+          <td>{{ $tr('fullNameInfo') }}</td>
         </tr>
         <tr>
-          <th>
-            {{ $tr('userType') }} (USER_TYPE)
-          </th>
-          <td>{{ $tr('required') }}</td>
+          <td>
+            {{ $tr('userType') }}<br>
+            <span class="label" :style="label">{{ $tr('required') }}</span>
+          </td>
+          <td><code>USER_TYPE</code></td>
           <td>
             <div>{{ $tr('possibleValues') }}</div>
             <ul>
@@ -49,24 +61,27 @@
           </td>
         </tr>
         <tr>
-          <th>
-            {{ $tr('identifier') }} (IDENTIFIER)
-          </th>
-          <td>{{ $tr('optional') }}</td>
-          <td>{{ $tr('identifierValidation') }}</td>
+          <td>
+            {{ $tr('identifier') }}<br>
+            <span class="label" :style="label">{{ $tr('optional') }}</span>
+          </td>
+          <td><code>IDENTIFIER</code></td>
+          <td>{{ $tr('identifierInfo') }}</td>
         </tr>
         <tr>
-          <th>
-            {{ $tr('birthYear') }} (BIRTH_YEAR)
-          </th>
-          <td>{{ $tr('optional') }}</td>
-          <td>{{ $tr('yearValidation') }}</td>
+          <td>
+            {{ $tr('birthYear') }}<br>
+            <span class="label" :style="label">{{ $tr('optional') }}</span>
+          </td>
+          <td><code>BIRTH_YEAR</code></td>
+          <td>{{ $tr('yearInfo') }}</td>
         </tr>
         <tr>
-          <th>
-            {{ $tr('gender') }} (GENDER)
-          </th>
-          <td>{{ $tr('optional') }}</td>
+          <td>
+            {{ $tr('gender') }}<br>
+            <span class="label" :style="label">{{ $tr('optional') }}</span>
+          </td>
+          <td><code>GENDER</code></td>
           <td>
             <div>{{ $tr('possibleValues') }}</div>
             <ul>
@@ -77,18 +92,34 @@
           </td>
         </tr>
         <tr>
-          <th>
-            {{ $tr('enrolled') }} (ENROLLED_IN)
-          </th>
-          <td>{{ $tr('optional') }}</td>
-          <td>{{ $tr('listClasses') }}</td>
+          <td>
+            {{ $tr('enrolled') }}<br>
+            <span class="label" :style="label">{{ $tr('optional') }}</span>
+          </td>
+          <td><code>ENROLLED_IN</code></td>
+          <td>
+            <div>{{ $tr('listClassesEnrolled') }}</div>
+            <ul>
+              <li>{{ $tr('listClassesEnrolledL1') }}</li>
+              <li>{{ $tr('listClassesEnrolledL2') }}</li>
+              <li>{{ $tr('listClassesEnrolledL3') }}</li>
+            </ul>
+          </td>
         </tr>
         <tr>
-          <th>
-            {{ $tr('assigned') }} (ASSIGNED_TO)
-          </th>
-          <td>{{ $tr('optional') }}</td>
-          <td>{{ $tr('listClasses') }}</td>
+          <td>
+            {{ $tr('assigned') }}<br>
+            <span class="label" :style="label">{{ $tr('optional') }}</span>
+          </td>
+          <td><code>ASSIGNED_TO</code></td>
+          <td>
+            <div>{{ $tr('listClassesAssigned') }}</div>
+            <ul>
+              <li>{{ $tr('listClassesAssignedL1') }}</li>
+              <li>{{ $tr('listClassesAssignedL2') }}</li>
+              <li>{{ $tr('listClassesAssignedL3') }}</li>
+            </ul>
+          </td>
         </tr>
 
       </tbody>
@@ -102,8 +133,12 @@
 <script>
 
   export default {
-    name: 'InfoModal',
-    components: {},
+    name: 'CsvInfoModal',
+    computed: {
+      label() {
+        return { color: this.$themeTokens.annotation };
+      },
+    },
     methods: {
       closeModal() {
         this.$emit('cancel');
@@ -112,19 +147,28 @@
     $trs: {
       csvDetails: 'CSV details',
       sectionDescription:
-        'A CSV spreadsheet should use the first row as a header. It must contain the following columns in any order:',
+        'A CSV spreadsheet should use the first row as a header, and contain the following columns:',
       close: 'Close',
       required: 'Required',
       optional: 'Optional',
-      usernameValidation:
-        'Less than 125 chars and only can contain characters, numbers and underscores',
-      passwordDescription: "If it's not provided the system will set it to 'kolibri'",
-      passwordValidation: 'At most 128 chars',
-      fullNameValidation: 'At most 125 chars',
+      usernameInfo: 'Maximum 125 characters. Can contain letters, numbers and underscores',
+      passwordInfo: 'Maximum 125 characters. To leave unchanged, use an asterisk:',
+      fullNameInfo: 'Maximum 125 characters',
       possibleValues: 'Possible values:',
-      identifierValidation: 'At most 64 chars. Examples: student ID number or email address',
-      yearValidation: 'A four-digit number (greater than 1900)',
-      listClasses: 'List of class names, separated by commas',
+      identifierInfo:
+        'Any identifying string, such as a student ID or email address. Maximum 64 characters',
+      yearInfo: 'A four-digit year, greater than 1900',
+      listClassesEnrolled: 'Classes to enroll the user in as a learner:',
+      listClassesEnrolledL1: 'Can be any type of user',
+      listClassesEnrolledL2: 'List of class names, separated by commas',
+      listClassesEnrolledL3: 'If an existing class does not match by name, it will be created',
+      listClassesAssigned: 'Classes to assign the user to as a coach:',
+      listClassesAssignedL1: 'Valid only for Coach and Admin user types',
+      listClassesAssignedL2: 'List of class names, separated by commas',
+      listClassesAssignedL3: 'If an existing class does not match by name, it will be created',
+      columnNameHeader: 'Column',
+      columnIDHeader: 'Identifier',
+      columnInfoHeader: 'Information',
       username: 'Username',
       password: 'Password',
       fullName: 'Full name',
@@ -132,8 +176,8 @@
       identifier: 'Identifier',
       birthYear: 'Birth year',
       gender: 'Gender',
-      enrolled: 'Enrolled in',
-      assigned: 'Assigned to',
+      enrolled: 'Learner enrollment',
+      assigned: 'Coach assignment',
     },
   };
 
@@ -148,6 +192,15 @@
     line-height: 1.5em;
     text-align: left;
     vertical-align: top;
+  }
+
+  .label {
+    font-size: smaller;
+    font-weight: normal;
+  }
+
+  ul {
+    margin: 0;
   }
 
 </style>

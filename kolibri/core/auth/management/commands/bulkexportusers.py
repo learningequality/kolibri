@@ -46,8 +46,8 @@ labels = OrderedDict(
         ("id_number", _("Identifier ({})".format("IDENTIFIER"))),
         ("birth_year", _("Birth year ({})".format("BIRTH_YEAR"))),
         ("gender", _("Gender ({})".format("GENDER"))),
-        ("enrolled", _("Enrolled in ({})".format("ENROLLED_IN"))),
-        ("assigned", _("Assigned to ({})".format("ASSIGNED_TO"))),
+        ("enrolled", _("Learner enrollment ({})".format("ENROLLED_IN"))),
+        ("assigned", _("Coach assignment ({})".format("ASSIGNED_TO"))),
     )
 )
 

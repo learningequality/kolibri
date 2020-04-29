@@ -49,8 +49,8 @@ def test_map_output():
         "Identifier (IDENTIFIER)": None,
         "Birth year (BIRTH_YEAR)": "1969",
         "Gender (GENDER)": "MALE",
-        "Enrolled in (ENROLLED_IN)": None,
-        "Assigned to (ASSIGNED_TO)": None,
+        "Learner enrollment (ENROLLED_IN)": None,
+        "Coach assignment (ASSIGNED_TO)": None,
     }
 
 
