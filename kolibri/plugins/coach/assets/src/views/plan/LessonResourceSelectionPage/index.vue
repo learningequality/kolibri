@@ -62,7 +62,7 @@
 
     <BottomAppBar>
       <KRouterLink
-        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coreString('finishAction')"
+        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coreString('closeAction')"
         :primary="true"
         appearance="raised-button"
         :to="exitButtonRoute"
