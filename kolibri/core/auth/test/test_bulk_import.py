@@ -241,6 +241,6 @@ class ImportTestCase(TestCase):
         new_learner = FacilityUser.objects.get(username="new_learner")
         assert new_learner.gender == demographics.FEMALE
         assert new_learner.birth_year == "2001"
-        assert new_learner.id_number == "kalite"
+        assert new_learner.id_number == "KALITE"
         new_coach = FacilityUser.objects.get(username="new_coach")
         assert new_coach.gender == demographics.MALE
