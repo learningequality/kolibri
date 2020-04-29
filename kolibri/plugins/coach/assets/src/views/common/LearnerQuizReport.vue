@@ -20,8 +20,8 @@
       :questions="questions"
       :exerciseContentNodes="exerciseContentNodes"
     />
-    <div v-else class="no-exercise-x">
-      <mat-svg category="navigation" name="close" />
+    <div v-else>
+      {{ $tr('noAttemptsInExam') }}
     </div>
   </KPageContainer>
 
@@ -82,7 +82,9 @@
         });
       },
     },
-    $trs: {},
+    $trs: {
+      noAttemptsInExam: 'This exam has not been started yet',
+    },
   };
 
 </script>
