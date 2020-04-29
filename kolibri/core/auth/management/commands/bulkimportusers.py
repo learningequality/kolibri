@@ -405,14 +405,14 @@ class Command(AsyncCommand):
             password = make_password(password)
         else:
             password = DEFAULT_PASSWORD
-        gender = user_row.get(self.header_translation["GENDER"], None)
-        gender = None if gender.upper() == DEFERRED else gender
+        gender = user_row.get(self.header_translation["GENDER"], '')
+        gender = '' if gender.upper() == DEFERRED else gender
         if gender:
             gender = gender.strip().upper()
-        birth_year = user_row.get(self.header_translation["BIRTH_YEAR"], None)
-        birth_year = None if birth_year.upper() == DEFERRED else birth_year
-        id_number = user_row.get(self.header_translation["IDENTIFIER"], None)
-        id_number = None if id_number.upper() == DEFERRED else id_number
+        birth_year = user_row.get(self.header_translation["BIRTH_YEAR"], '')
+        birth_year = '' if birth_year.upper() == DEFERRED else birth_year
+        id_number = user_row.get(self.header_translation["IDENTIFIER"], '')
+        id_number = '' if id_number.upper() == DEFERRED else id_number
         full_name = user_row.get(self.header_translation["FULL_NAME"], None)
 
         return {
