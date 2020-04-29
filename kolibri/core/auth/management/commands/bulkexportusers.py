@@ -145,6 +145,7 @@ def csv_file_generator(facility, filepath, overwrite=True):
 
         for item in query.values(*db_columns):
             if item["username"] not in usernames:
+                item["password"] = "*"
                 writer.writerow(map_output(item))
                 usernames.add(item["username"])
             yield item
