@@ -38,6 +38,7 @@ INTERNAL_PLUGINS = [
     "kolibri.plugins.user",
     "kolibri.plugins.style_guide",
     "kolibri.plugins.epub_viewer",
-    "kolibri.plugins.default_theme",
+    # "kolibri.plugins.default_theme",  # TODO: temporary
     "kolibri.plugins.slideshow_viewer",
+    "kolibri.plugins.profuturo_mvp",  # TODO: temporary
 ]

@@ -86,9 +86,10 @@ const client = options => {
       options.params[cacheBust] = cacheBust;
     }
   }
+  const mimeType = options.multipart ? 'multipart/form-data' : 'application/json';
   return baseClient
     .wrap(disconnectInterceptor)
-    .wrap(mime, { mime: 'application/json' })
+    .wrap(mime, { mime: mimeType })
     .wrap(loginTimeoutDetection)
     .wrap(serverDisconnectDetection)(options)
     .then(response => {

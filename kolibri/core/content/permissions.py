@@ -17,3 +17,7 @@ class CanExportLogs(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return _user_is_admin_for_own_facility(request.user)
+
+
+class CanImportUsers(CanExportLogs):
+    pass

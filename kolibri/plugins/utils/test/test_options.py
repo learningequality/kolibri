@@ -18,22 +18,6 @@ def test_raise_if_overwrite_core_option():
             extend_config_spec(base_config_spec)
 
 
-def test_not_raise_if_overwrite_core_option_default_only():
-    base_config_spec = {"Server": {"DEPLOY": {"type": "string", "default": "hey you!"}}}
-    plugin_config_spec = {"Server": {"DEPLOY": {"default": "you got served"}}}
-    plugin_options_mock = ModuleType("options_mock")
-    setattr(plugin_options_mock, "option_spec", plugin_config_spec)
-    plugin_mock = MagicMock(options_module=plugin_options_mock)
-    plugins = [plugin_mock]
-    try:
-        with patch("kolibri.plugins.utils.options.registered_plugins", plugins):
-            extend_config_spec(base_config_spec)
-    except ValueError:
-        pytest.fail(
-            "Error raised when only overwriting the default value of a core option"
-        )
-
-
 def test_warn_if_multiple_plugins_add_option():
     base_config_spec = {"Server": {"DEPLOY": {"type": "string"}}}
     plugin_config_spec = {
@@ -58,16 +42,16 @@ def test_can_update_default():
     base_config_spec = {
         "Server": {"DEPLOY": {"type": "string", "default": "why thank you!"}}
     }
-    plugin_config_spec = {"Server": {"DEPLOY": {"default": "you got served"}}}
-    plugin_options_mock = ModuleType("options_mock")
-    setattr(plugin_options_mock, "option_spec", plugin_config_spec)
-    plugin_mock = MagicMock(options_module=plugin_options_mock)
+    plugin_default_spec = {"Server": {"DEPLOY": "you got served"}}
+    plugin_option_defaults_mock = ModuleType("option_defaults_mock")
+    setattr(plugin_option_defaults_mock, "option_defaults", plugin_default_spec)
+    plugin_mock = MagicMock(option_defaults_module=plugin_option_defaults_mock)
     plugins = [plugin_mock]
     with patch("kolibri.plugins.utils.options.registered_plugins", plugins):
         final_spec = extend_config_spec(base_config_spec)
         assert (
             final_spec["Server"]["DEPLOY"]["default"]
-            == plugin_config_spec["Server"]["DEPLOY"]["default"]
+            == plugin_default_spec["Server"]["DEPLOY"]
         )
 
 
