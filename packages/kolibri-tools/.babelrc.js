@@ -1,11 +1,16 @@
 module.exports = {
   env: {
     test: {
-      presets: ['env'],
+      presets: [
+        [
+          '@babel/preset-env',
+          {
+            useBuiltIns: false,
+          },
+        ],
+      ],
       plugins: [
-        'transform-runtime',
-        'transform-es2015-modules-commonjs',
-        'transform-object-rest-spread',
+        '@babel/plugin-transform-runtime',
       ],
     },
   },
