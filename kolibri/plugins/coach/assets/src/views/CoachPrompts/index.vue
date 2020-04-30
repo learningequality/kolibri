@@ -358,458 +358,397 @@
 
     <section>
       <h1>
-        Prompts while "Planning a group"
+        {{ string('StrategiesGroupingLearners', 'header') }}
       </h1>
+
+      <p>
+        {{ string('StrategiesGroupingLearners', 'p1') }}
+      </p>
+      <p>
+        {{ string('StrategiesGroupingLearners', 'p2') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('StrategiesGroupingLearners', 'list_1_item_1') }}
+        </li>
+        <li>
+          {{ string('StrategiesGroupingLearners', 'list_1_item_2') }}
+        </li>
+        <li>
+          {{ string('StrategiesGroupingLearners', 'list_1_item_3') }}
+        </li>
+        <li>
+          {{ string('StrategiesGroupingLearners', 'list_1_item_4') }}
+        </li>
+        <li>
+          {{ string('StrategiesGroupingLearners', 'list_1_item_5') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('StrategiesGroupingLearners', 'p3') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('StrategiesGroupingLearners', 'list_2_item_1') }}
+        </li>
+        <li>
+          {{ string('StrategiesGroupingLearners', 'list_2_item_2') }}
+        </li>
+        <li>
+          {{ string('StrategiesGroupingLearners', 'list_2_item_3') }}
+        </li>
+        <li>
+          {{ string('StrategiesGroupingLearners', 'list_2_item_4') }}
+        </li>
+        <li>
+          {{ string('StrategiesGroupingLearners', 'list_2_item_5') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('StrategiesGroupingLearners', 'p4') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('StrategiesGroupingLearners', 'list_3_item_1') }}
+        </li>
+        <li>
+          {{ string('StrategiesGroupingLearners', 'list_3_item_2') }}
+        </li>
+        <li>
+          {{ string('StrategiesGroupingLearners', 'list_3_item_3') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('StrategiesGroupingLearners', 'p5') }}
+      </p>
+
+      <h1>
+        {{ string('SetRulesGroupWork', 'header') }}
+      </h1>
+
+      <p>
+        {{ string('SetRulesGroupWork', 'p1') }}
+      </p>
+
+      <p>
+        {{ string('SetRulesGroupWork', 'p2') }}
+      </p>
+
+      <ul>
+        <li>
+          {{ string('SetRulesGroupWork', 'list_1_item_1') }}
+        </li>
+        <li>
+          {{ string('SetRulesGroupWork', 'list_1_item_2') }}
+        </li>
+        <li>
+          {{ string('SetRulesGroupWork', 'list_1_item_3') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('SetRulesGroupWork', 'p3') }}
+      </p>
+
+      <ul>
+        <li>
+          {{ string('SetRulesGroupWork', 'list_2_item_1') }}
+        </li>
+        <li>
+          {{ string('SetRulesGroupWork', 'list_2_item_2') }}
+        </li>
+        <li>
+          {{ string('SetRulesGroupWork', 'list_2_item_3') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('SetRulesGroupWork', 'p4') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('SetRulesGroupWork', 'list_3_item_1') }}
+        </li>
+        <li>
+          {{ string('SetRulesGroupWork', 'list_3_item_2') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('SetRulesGroupWork', 'p5') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('SetRulesGroupWork', 'list_4_item_1') }}
+        </li>
+        <li>
+          {{ string('SetRulesGroupWork', 'list_4_item_2') }}
+        </li>
+        <li>
+          {{ string('SetRulesGroupWork', 'list_4_item_3') }}
+        </li>
+        <li>
+          {{ string('SetRulesGroupWork', 'list_4_item_4') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('SetRulesGroupWork', 'p6') }}
+      </p>
+
+      <h1>
+        {{ string('PrepareGroupWork', 'header') }}
+      </h1>
+
+      <p>
+        {{ string('PrepareGroupWork', 'p1') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('PrepareGroupWork', 'list_1_item_1') }}
+        </li>
+        <li>
+          {{ string('PrepareGroupWork', 'list_1_item_2') }}
+        </li>
+        <li>
+          {{ string('PrepareGroupWork', 'list_1_item_3') }}
+        </li>
+        <li>
+          {{ string('PrepareGroupWork', 'list_1_item_4') }}
+        </li>
+        <li>
+          {{ string('PrepareGroupWork', 'list_1_item_5') }}
+        </li>
+        <li>
+          {{ string('PrepareGroupWork', 'list_1_item_6') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('PrepareGroupWork', 'p2') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('PrepareGroupWork', 'list_2_item_1') }}
+        </li>
+        <li>
+          {{ string('PrepareGroupWork', 'list_2_item_2') }}
+        </li>
+      </ul>
+
       <h2>
-        Prompt 2
+        {{ string('PrepareGroupWork', 'header2') }}
       </h2>
 
-      <h3>
-        Strategies to group learners and address learning needs
-      </h3>
-
       <p>
-        The ‘Group’ feature in Kolibri will allow you to meet learning needs of different learners.
+        {{ string('PrepareGroupWork', 'p3') }}
       </p>
       <p>
-        Creating ‘groups’
+        {{ string('PrepareGroupWork', 'list_3_item_1') }}
+      </p>
+
+      <p>
+        {{ string('PrepareGroupWork', 'p4') }}
       </p>
       <ul>
         <li>
-          What are your goals when grouping learners?
+          {{ string('PrepareGroupWork', 'list_4_item_1') }}
         </li>
         <li>
-          Do you want groups where all learners are the same level or different levels?
+          {{ string('PrepareGroupWork', 'list_4_item_2') }}
         </li>
         <li>
-          How can you best support the varying needs of your learners?
+          {{ string('PrepareGroupWork', 'list_4_item_3') }}
         </li>
         <li>
-          How often would the groups change?
-        </li>
-        <li>
-          Will learners be in multiple groups at the same time according to needs?
+          {{ string('PrepareGroupWork', 'list_4_item_4') }}
         </li>
       </ul>
       <p>
-        Examples of grouping strategies
-      </p>
-      <ul>
-        <li>
-          Learners who have been absent or missed classes.
-        </li>
-        <li>
-          Learners who need more help from a coach.
-        </li>
-        <li>
-          Learners who need help from other learners.
-        </li>
-        <li>
-          Learners who are competent but simply need more practice.
-        </li>
-        <li>
-          Learners who are very competent and need advanced material.
-        </li>
-      </ul>
-      <p>
-        Addressing learning needs of different groups
-      </p>
-      <ul>
-        <li>
-          Does the group need new materials? Less complicated material?
-        </li>
-        <li>
-          Does the group need another activity or exercise?
-        </li>
-        <li>
-          Does the group need more information? Which information and how?
-        </li>
-      </ul>
-      <p>
-        Use the Lessons features and search in Kolibri for appropriate resources based on the learning needs of the groups created.
-      </p>
-
-      <h2>
-        Prompt 2.1
-      </h2>
-
-      <h3>
-        Set rules for group work
-      </h3>
-
-      <p>
-        Involve learners in setting up their own ground rules for group work using Kolibri.
-      </p>
-
-      <p>
-        Step 1
+        {{ string('PrepareGroupWork', 'p5') }}
       </p>
       <p>
-        Write these 3 prompts on the board:
-      </p>
-      <ul>
-        <li>
-          Something that I have noticed
-        </li>
-        <li>
-          A change I would like to see
-        </li>
-        <li>
-          A rule I would like to suggest
-        </li>
-      </ul>
-      <p>
-        Step 2
+        {{ string('PrepareGroupWork', 'p6') }}
       </p>
       <p>
-        Give an example for each prompt:
-      </p>
-      <ul>
-        <li>
-          Something that I have noticed - Distributing devices takes a long time
-        </li>
-        <li>
-          A change I would like to see - Faster distributing and collection of devices
-        </li>
-        <li>
-          A rule I would like to suggest - Assign 2 learners to distribute and collect devices
-        </li>
-      </ul>
-      <p>
-        Step 3
-      </p>
-      <ul>
-        <li>
-          Give learners individual time to think and come up with suggestions
-        </li>
-        <li>
-          Let your learners know that you trust them to make constructive suggestions that are helpful to both learners and the coach
-        </li>
-      </ul>
-      <p>
-        Step 4
-      </p>
-      <ul>
-        <li>
-          Ask learners to work in groups and discuss various suggestions.
-        </li>
-        <li>
-          Ask a learner in each group to take notes and report to the class later.
-        </li>
-        <li>
-          After all reports are heard, write the suggestions on the board and work on it more with your learners and prepare a class charter.
-        </li>
-        <li>
-          Put the charter on the wall to keep everyone accountable to it.
-        </li>
-      </ul>
-      <p>
-        Adapted from "OER4Schools"
+        <img src="./pair.png" alt="">
       </p>
       <p>
-        Content is available under Creative Commons Attribution-ShareAlike
-      </p>
-
-      <h2>
-        Prompt 2.2
-      </h2>
-
-      <h3>
-        Prepare for group work
-      </h3>
-
-      <p>
-        Physical Space
-      </p>
-      <ul>
-        <li>
-          How will learners be physically arranged in groups?
-        </li>
-        <li>
-          Do you want learners to circle up? If there are desks, how do you want to arrange the desks?
-        </li>
-        <li>
-          If the desks cannot be moved, how should learners be seated around the desks?
-        </li>
-        <li>
-          Will all learners be able to sit comfortably with their devices?
-        </li>
-        <li>
-          How will the layout of your classroom impact sound in the room?
-        </li>
-        <li>
-          How can you moderate the activity to control sound?
-        </li>
-      </ul>
-      <p>
-        Remember
-      </p>
-      <ul>
-        <li>
-          Talk to learners about their past experiences with group work.
-        </li>
-        <li>
-          Allow them to establish some ground rules for successful collaboration before introducing any hardware.
-        </li>
-      </ul>
-      <h3>
-        Features of group sizes and recommendations for use:
-      </h3>
-
-      <p>
-        Group size
+        {{ string('PrepareGroupWork', 'p7') }}
       </p>
       <p>
-        2 to 3 learners
+        <img src="./triangle.png" alt="">
       </p>
-
-      <p>
-        Recommended use cases
-      </p>
-      <ul>
-        <li>
-          Ideal for working with computers.
-        </li>
-        <li>
-          For drill and practice of previous/new concepts
-        </li>
-        <li>
-          Sharing of personal experiences
-        </li>
-        <li>
-          When use of 1 resource is expected by all group members at the same time
-        </li>
-      </ul>
-      <p>
-        Seating arrangement
-      </p>
-
-      <div>
-        <table>
-          <tr>
-            <th>
-              <p>Option 1</p>
-              <p>Next to each other</p>
-            </th>
-            <td><img src="./pair.png" alt=""></td>
-          </tr>
-          <tr>
-            <th>
-              <p>Option 2</p>
-              <p>In a triangle</p>
-            </th>
-            <td><img src="./triangle.png" alt=""></td>
-          </tr>
-        </table>
-      </div>
 
       <hr>
 
       <p>
-        Group size
+        {{ string('PrepareGroupWork', 'p8') }}
       </p>
       <p>
-        4 - 6 learners
+        {{ string('PrepareGroupWork', 'list_5_item_1') }}
       </p>
 
       <p>
-        Recommended use cases
+        {{ string('PrepareGroupWork', 'p9') }}
       </p>
       <ul>
         <li>
-          When objective is to explore a new concept rather than drill and practice
+          {{ string('PrepareGroupWork', 'list_6_item_1') }}
         </li>
         <li>
-          When learners take turns to use resources within the group
+          {{ string('PrepareGroupWork', 'list_6_item_2') }}
         </li>
         <li>
-          For group work outside the classroom as peers ensure each other"s safety and peer pressure keeps focus on learning
+          {{ string('PrepareGroupWork', 'list_6_item_3') }}
         </li>
         <li>
-          Useful when the expected outcome is writing or a performance
+          {{ string('PrepareGroupWork', 'list_6_item_4') }}
         </li>
       </ul>
       <p>
-        Seating arrangement
+        {{ string('PrepareGroupWork', 'p10') }}
       </p>
-
-      <div>
-        <table>
-          <tr>
-            <th>
-              <p>Option 1</p>
-              <p>In a square</p>
-            </th>
-            <td><img src="./square.png" alt=""></td>
-          </tr>
-          <tr>
-            <th>
-              <p>Option 2</p>
-              <p>In a rectangle</p>
-            </th>
-            <td><img src="./rectangle.png" alt=""></td>
-          </tr>
-          <tr>
-            <th>
-              <p>Option 2</p>
-              <p>In a circle</p>
-            </th>
-            <td><img src="./circle.png" alt=""></td>
-          </tr>
-          <tr>
-            <th>
-              <p>Option 2</p>
-              <p>In a horseshoe</p>
-            </th>
-            <td><img src="./horseshoe.png" alt=""></td>
-          </tr>
-        </table>
-      </div>
-
+      <p>
+        {{ string('PrepareGroupWork', 'p11') }}
+      </p>
+      <p>
+        <img src="./square.png" alt="">
+      </p>
+      <p>
+        {{ string('PrepareGroupWork', 'p12') }}
+      </p>
+      <p>
+        <img src="./rectangle.png" alt="">
+      </p>
+      <p>
+        {{ string('PrepareGroupWork', 'p13') }}
+      </p>
+      <p>
+        <img src="./circle.png" alt="">
+      </p>
+      <p>
+        {{ string('PrepareGroupWork', 'p14') }}
+      </p>
+      <p>
+        <img src="./horseshoe.png" alt="">
+      </p>
 
       <hr>
 
       <p>
-        Group size
+        {{ string('PrepareGroupWork', 'p15') }}
       </p>
       <p>
-        7 - 12 learners
+        {{ string('PrepareGroupWork', 'list_7_item_1') }}
       </p>
 
       <p>
-        Recommended use cases
+        {{ string('PrepareGroupWork', 'p16') }}
       </p>
       <ul>
         <li>
-          When expected outcome is a performance, such as drama or puppet show, as more time can be given for each presentation
+          {{ string('PrepareGroupWork', 'list_8_item_1') }}
         </li>
         <li>
-          When concept requires further sub-grouping
+          {{ string('PrepareGroupWork', 'list_8_item_2') }}
         </li>
       </ul>
       <p>
-        Seating arrangement
-      </p>
-
-      <div>
-        <table>
-          <tr>
-            <th>
-              <p>Option 2</p>
-              <p>In a circle</p>
-            </th>
-            <td><img src="./circle.png" alt=""></td>
-          </tr>
-          <tr>
-            <th>
-              <p>Option 2</p>
-              <p>In a horseshoe</p>
-            </th>
-            <td><img src="./horseshoe.png" alt=""></td>
-          </tr>
-        </table>
-      </div>
-
-      <p>
-        Arranged in subgroups of 2, 3, 4, 5 or 6
-      </p>
-
-
-      <p>
-        Adapted from "OER4Schools"
+        {{ string('PrepareGroupWork', 'p17') }}
       </p>
       <p>
-        Content is available under Creative Commons Attribution-ShareAlike or Attribution-NonCommercial unless otherwise noted
+        {{ string('PrepareGroupWork', 'p18') }}
+      </p>
+      <p>
+        <img src="./circle.png" alt="">
+      </p>
+      <p>
+        {{ string('PrepareGroupWork', 'p19') }}
+      </p>
+      <p>
+        <img src="./horseshoe.png" alt="">
       </p>
 
       <p>
-        Adapted from "OER4Schools"
+        {{ string('PrepareGroupWork', 'p20') }}
       </p>
+      <p>
+        {{ string('PrepareGroupWork', 'p21') }}
+      </p>
+
     </section>
 
     <section>
       <h1>
-        Prompts while "Planning a quiz"
+        {{ string('StrategiesPlanningQuizzes', 'header') }}
       </h1>
-      <h2>
-        Prompt 3
-      </h2>
-
-      <h3>
-        Strategies for planning quizzes
-      </h3>
 
       <p>
-        Set learning objectives
+        {{ string('StrategiesPlanningQuizzes', 'p1') }}
       </p>
       <ul>
         <li>
-          Learning objectives are the objectives of the lesson you want learners to perceive and strive toward achieving
+          {{ string('StrategiesPlanningQuizzes', 'list_1_item_1') }}
+        </li>
+        <li>
+          {{ string('StrategiesPlanningQuizzes', 'list_1_item_2') }}
         </li>
       </ul>
       <p>
-        Imagine different use cases
+        {{ string('StrategiesPlanningQuizzes', 'p2') }}
       </p>
       <ul>
         <li>
-          Pre-quiz: quiz to understand learner levels on a particular topic before it is taught
+          {{ string('StrategiesPlanningQuizzes', 'list_2_item_1') }}
         </li>
         <li>
-          Post-quiz quiz to understand learner levels on a particular topic after it is taught
+          {{ string('StrategiesPlanningQuizzes', 'list_2_item_2') }}
         </li>
         <li>
-          Differentiated quizzes - different quizzes assigned to different groups of learners to meet their learning needs
+          {{ string('StrategiesPlanningQuizzes', 'list_2_item_3') }}
         </li>
       </ul>
 
-      <h2>
-        Prompt 3.1
-      </h2>
-
-      <h3>
-        Use quiz data to adjust and inform instruction
-      </h3>
+      <h1>
+        {{ string('UseQuizData', 'header') }}
+      </h1>
 
       <p>
-        Reflect on the Pre-Quiz score
+        {{ string('UseQuizData', 'p1') }}
       </p>
       <ul>
         <li>
-          What learning  objectives have learners mastered?
+          {{ string('UseQuizData', 'list_1_item_1') }}
         </li>
         <li>
-          What are their needs?
+          {{ string('UseQuizData', 'list_1_item_2') }}
         </li>
       </ul><p>
-        (Pre-Quiz is a formative assessment taken to understand learner levels on a particular topic before it is taught)
+        {{ string('UseQuizData', 'p2') }}
       </p>
 
       <p>
-        Set goals based on the data
+        {{ string('UseQuizData', 'p3') }}
       </p>
       <ul>
         <li>
-          What goals do you need to set for your learners based on their needs and their mastery?
+          {{ string('UseQuizData', 'list_2_item_1') }}
         </li>
         <li>
-          Are there different goals for different learners?
+          {{ string('UseQuizData', 'list_2_item_2') }}
         </li>
         <li>
-          How will you achieve these goals?
+          {{ string('UseQuizData', 'list_2_item_3') }}
         </li>
       </ul>
       <p>
-        Reflect on the Post-Quiz score
+        {{ string('UseQuizData', 'p4') }}
       </p>
       <ul>
         <li>
-          Have the goals been met? Why/Why not?
+          {{ string('UseQuizData', 'list_3_item_1') }}
         </li>
         <li>
-          What are your next steps?
+          {{ string('UseQuizData', 'list_3_item_2') }}
         </li>
       </ul><p>
-        (Post-Quiz is a formative assessment taken to understand learner levels on a particular topic after it is taught)
+        {{ string('UseQuizData', 'p5') }}
       </p>
     </section>
 
@@ -1010,6 +949,141 @@
   const strings = {};
   strings['CreatingNewLesson'] = createTranslator('CreatingNewLesson', {
     header: 'Steps to create a new lesson',
+  });
+
+  strings['StrategiesGroupingLearners'] = createTranslator('StrategiesGroupingLearners', {
+    header: 'Strategies to group learners and address learning needs',
+    p1:
+      'The ‘Group’ feature in Kolibri will allow you to meet learning needs of different learners.',
+    p2: 'Creating ‘groups’',
+    list_1_item_1: 'What are your goals when grouping learners?',
+    list_1_item_2: 'Do you want groups where all learners are the same level or different levels?',
+    list_1_item_3: 'How can you best support the varying needs of your learners?',
+    list_1_item_4: 'How often would the groups change?',
+    list_1_item_5: 'Will learners be in multiple groups at the same time according to needs?',
+    p3: 'Examples of grouping strategies',
+    list_2_item_1: 'Learners who have been absent or missed classes.',
+    list_2_item_2: 'Learners who need more help from a coach.',
+    list_2_item_3: 'Learners who need help from other learners.',
+    list_2_item_4: 'Learners who are competent but simply need more practice.',
+    list_2_item_5: 'Learners who are very competent and need advanced material.',
+    p4: 'Addressing learning needs of different groups',
+    list_3_item_1: 'Does the group need new materials? Less complicated material?',
+    list_3_item_2: 'Does the group need another activity or exercise?',
+    list_3_item_3: 'Does the group need more information? Which information and how?',
+    p5:
+      'Use the Lessons features and search Kolibri for appropriate resources based on the learning needs of the groups you created.',
+  });
+
+  strings['SetRulesGroupWork'] = createTranslator('SetRulesGroupWork', {
+    header: 'Set rules for group work',
+    p1: 'Involve learners in setting up their own ground rules for group work using Kolibri.',
+    p2: 'Step 1 - Write these 3 prompts on the board:',
+    list_1_item_1: 'Something that I have noticed',
+    list_1_item_2: 'A change I would like to see',
+    list_1_item_3: 'A rule I would like to suggest',
+    p3: 'Step 2 - Give an example for each prompt:',
+    list_2_item_1: 'Something that I have noticed - Distributing devices takes a long time',
+    list_2_item_2: 'A change I would like to see - Faster distributing and collection of devices',
+    list_2_item_3:
+      'A rule I would like to suggest - Assign 2 learners to distribute and collect devices',
+    p4: 'Step 3',
+    list_3_item_1: 'Give learners individual time to think and come up with suggestions.',
+    list_3_item_2:
+      'Let your learners know that you trust them to make constructive suggestions that are helpful to both learners and the coach.',
+    p5: 'Step 4',
+    list_4_item_1: 'Ask learners to work in groups and discuss various suggestions.',
+    list_4_item_2: 'Ask a learner in each group to take notes and report to the class later.',
+    list_4_item_3:
+      'After all reports are heard, write the suggestions on the board, and work on them more with your learners to prepare a class charter.',
+    list_4_item_4: 'Put the charter on the wall to keep everyone accountable to it.',
+    p6:
+      'Adapted from ‘OER4Schools’; Content is available under Creative Commons Attribution-ShareAlike or Attribution-NonCommercial unless otherwise noted',
+  });
+
+  strings['PrepareGroupWork'] = createTranslator('PrepareGroupWork', {
+    header: 'Prepare for group work',
+    p1: 'Physical Space',
+    list_1_item_1: 'How will learners be physically arranged in groups?',
+    list_1_item_2:
+      'Do you want learners to circle up? If there are desks, how do you want to arrange the desks?',
+    list_1_item_3: 'If the desks cannot be moved, how should learners be seated around the desks?',
+    list_1_item_4: 'Will all learners be able to sit comfortably with their devices?',
+    list_1_item_5: 'How will the layout of your classroom impact sound in the room?',
+    list_1_item_6: 'How can you moderate the activity to control sound?',
+    p2: 'Remember',
+    list_2_item_1: 'Talk to learners about their past experiences with group work.',
+    list_2_item_2:
+      'Allow them to establish some ground rules for successful collaboration before introducing any hardware.',
+    header2: 'Features of group sizes and recommendations for use',
+    p3: 'Group size',
+    list_3_item_1: '2 to 3 learners',
+    p4: 'Recommended use cases',
+    list_4_item_1: 'Ideal for working with computers',
+    list_4_item_2: 'For drill and practice of previous/new concepts',
+    list_4_item_3: 'Sharing of personal experiences',
+    list_4_item_4: 'When use of 1 resource is expected by all group members at the same time',
+    p5: 'Seating arrangement',
+    p6: 'Option 1: Next to each other',
+    p7: 'Option 2: In a triangle',
+    p8: 'Group size',
+    list_5_item_1: '4 to 6 learners',
+    p9: 'Recommended use cases',
+    list_6_item_1: 'When the objective is to explore a new concept rather than drill and practice',
+    list_6_item_2: 'When learners take turns to use resources within the group',
+    list_6_item_3: 'For group work outside the classroom',
+    list_6_item_4: 'Useful when the expected outcome is writing or a performance',
+    p10: 'Seating arrangement',
+    p11: 'Option 1: In a square',
+    p12: 'Option 2: In a rectangle',
+    p13: 'Option 3: In a circle',
+    p14: 'Option 4: In a horseshue',
+    p15: 'Group size',
+    list_7_item_1: '7 to 12 learners',
+    p16: 'Recommended use cases',
+    list_8_item_1:
+      'When the expected outcome is a performance, such as drama or puppet show, as more time can be given for each presentation.',
+    list_8_item_2: 'When concept requires further sub-grouping.',
+    p17: 'Seating arrangement',
+    p18: 'Option 1: In a circle',
+    p19: 'Option 2: In a horseshue',
+    p20: 'Arranged in subgroups of 2, 3, 4, 5 or 6',
+    p21:
+      'Adapted from ‘OER4Schools’; Content is available under Creative Commons Attribution-ShareAlike or Attribution-NonCommercial unless otherwise noted',
+  });
+
+  strings['StrategiesPlanningQuizzes'] = createTranslator('StrategiesPlanningQuizzes', {
+    header: 'Strategies for planning quizzes',
+    p1: 'Set learning objectives. Think about:',
+    list_1_item_1:
+      'What are the learning objectives for the quiz? What skills and knowledge points do you want to assess?',
+    list_1_item_2: 'Will all the learners be assessed for the same learning objective?',
+    p2: 'Imagine different use cases',
+    list_2_item_1:
+      'Pre-quiz: quiz to understand learner levels on a particular topic before it is taught',
+    list_2_item_2:
+      'Post-quiz quiz to understand learner levels on a particular topic after it is taught',
+    list_2_item_3:
+      'Differentiated quizzes - different quizzes assigned to different groups of learners to meet their learning needs',
+  });
+
+  strings['UseQuizData'] = createTranslator('UseQuizData', {
+    header: 'Use quiz data to adjust and inform instruction',
+    p1: 'Reflect on the Pre-Quiz score',
+    list_1_item_1: 'What learning objectives have learners mastered?',
+    list_1_item_2: 'What are their needs?',
+    p2:
+      '(Pre-Quiz is a formative assessment taken to understand learner levels on a particular topic before it is taught)',
+    p3: 'Set goals based on the data',
+    list_2_item_1:
+      'What goals do you need to set for your learners based on their needs and their mastery?',
+    list_2_item_2: 'Are there different goals for different learners?',
+    list_2_item_3: 'How will you achieve these goals?',
+    p4: 'Reflect on the Post-Quiz score',
+    list_3_item_1: 'Have the goals been met? Why or why not?',
+    list_3_item_2: 'What are your next steps?',
+    p5:
+      '(Post-Quiz is a formative assessment taken to understand learner levels on a particular topic after it is taught)',
   });
 
   strings['SupportLearnersCompletedLesson'] = createTranslator('SupportLearnersCompletedLesson', {
