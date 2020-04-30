@@ -6,14 +6,9 @@
     :disabled="selectedFacilityId === ''"
     @submit="handleSubmit"
   >
-    <!-- DELETE THIS -->
-    <KButton
-      text="Toggle Single Facility Example"
-      @click="singleFacilityExample = !singleFacilityExample"
-    />
     <div>
       <!-- Only one Facility -->
-      <template v-if="singleFacilityExample || facilities.length === 1">
+      <template v-if="facilities.length === 1">
         <FacilityAdminCredentialsForm
           ref="credentials"
           :facility="facilities[0]"
@@ -82,15 +77,10 @@
 
       if (this.facilities.length === 1) {
         selectedFacilityId = this.facilities[0].id;
-      } else if (this.singleFacilityExample) {
-        // DELETE
-        selectedFacilityId = this.facilities[0].id;
       }
       return {
         selectedFacilityId,
         shouldValidate: false,
-        // DELETE
-        singleFacilityExample: false,
       };
     },
     computed: {

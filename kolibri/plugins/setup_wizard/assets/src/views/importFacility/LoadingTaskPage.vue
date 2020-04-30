@@ -3,11 +3,6 @@
   <OnboardingForm
     :header="header"
   >
-    <!-- DELETE THIS -->
-    <KButton
-      text="Toggle Example"
-      @click="toggleExample()"
-    />
     <FacilityTaskPanel :task="loadingTask" />
 
     <template #buttons>
@@ -76,7 +71,6 @@
       return {
         loadingTask: makeSyncTask('COMPLETED'),
         statuses: ['COMPLETED', 'PULLING', 'PENDING'],
-        showSuccessExample: true,
       };
     },
     computed: {
@@ -95,17 +89,9 @@
           this.simulateTask();
         }, 1000);
       },
-      toggleExample() {
-        this.showSuccessExample = !this.showSuccessExample;
-        if (this.showSuccessExample) {
-          this.statuses = ['COMPLETED', 'PULLING', 'PENDING'];
-        } else {
-          this.statuses = ['FAILED', 'PULLING', 'PENDING'];
-        }
-        this.simulateTask();
-      },
       retryImport() {
-        this.toggleExample();
+        this.statuses = ['COMPLETED', 'PULLING', 'PENDING'];
+        this.simulateTask();
       },
       startOver() {
         this.$router.replace('/');
