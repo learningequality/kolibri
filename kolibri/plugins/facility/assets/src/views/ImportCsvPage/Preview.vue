@@ -207,7 +207,10 @@
       updated: 'Updated',
       added: 'Added',
       deleted: 'Deleted',
-      skipped: 'Skipped',
+      skipped: {
+        message: 'Skipped',
+        context: 'Refers to rows in the CSV file.\n\n',
+      },
       users: 'Users',
       classes: 'Classes',
       someSkipped: 'Some rows were skipped:',

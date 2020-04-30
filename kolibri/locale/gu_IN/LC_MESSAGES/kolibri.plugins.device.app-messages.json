@@ -62,7 +62,7 @@
   "DeleteChannelModal.titleSingleChannel": "ચેનલ કાઢી નાખો",
   "DeleteExportChannelsPage.channelSelectedMessage": "{bytesText} પસંદ કરેલ",
   "DeleteExportChannelsPage.channelsOnDevice": "ઉપકરણ પરની ચેનલો",
-  "DeleteExportChannelsPage.deleteAppBarTitle": "ચેનલો કાઢી નાખો",
+  "DeleteExportChannelsPage.deleteAppBarTitle": "ચેનલો ના કાઢી નાખો",
   "DeleteExportChannelsPage.exportAppBarTitle": "ચેનલો નિકાસ કરો",
   "DeleteResourcesModal.confirmationQuestionMultipleResources": "શું તમે ખરેખર તમારા ઉપકરણમાંથી આ સંસાધનોને કા નાખવા માંગો છો?",
   "DeleteResourcesModal.confirmationQuestionOneResource": "શું તમે ખરેખર તમારા ઉપકરણમાંથી આ સ્રોતને કા નાખવા માંગો છો?",
