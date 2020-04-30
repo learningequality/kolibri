@@ -1,0 +1,135 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri-mac-app\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-29 15:40-0700\n"
+"PO-Revision-Date: 2019-12-17 04:35\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Chewa\n"
+"Language: ny_MW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: kolibri-mac-app\n"
+"X-Crowdin-Language: ny\n"
+"X-Crowdin-File: macapp.pot\n"
+
+#: data/applications/org.learningequality.Kolibri.desktop.in:5
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:4
+#: src/kolibri_gnome/desktop_launcher/application.py:278
+msgid "Kolibri"
+msgstr ""
+
+#: data/applications/org.learningequality.Kolibri.desktop.in:6
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:6
+msgid "Offline education technology platform"
+msgstr ""
+
+#. TRANSLATORS: These are search terms to find this application.
+#. Terms MUST be separated by semicolons, and end with a semicolon.
+#: data/applications/org.learningequality.Kolibri.desktop.in:9
+msgid "education;multimedia;videos;learning;quiz;"
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:5
+msgid "Learning Equality"
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:15
+msgid ""
+"Kolibri makes high quality education technology available in low-resource "
+"communities such as rural schools, refugee camps, orphanages, non-formal "
+"school systems, and prison systems. Running on a wide variety of hardware, "
+"it enables offline access to a rich set of content and tools to support "
+"learners, coaches, and administrators."
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:20
+msgid "Browsing content channels in Kolibri"
+msgstr ""
+
+#: src/kolibri_gnome/desktop_launcher/application.py:131
+msgid "File"
+msgstr "Failo"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:132
+msgid "New Window"
+msgstr "Tsamba lanyuwani"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:133
+msgid "Close Window"
+msgstr "Tsekani Tsamba"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:135
+msgid "Open Kolibri Home Folder"
+msgstr "Tsekulani Foda ya Kolibri"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:139
+msgid "View"
+msgstr "Onani"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:140
+msgid "Reload"
+msgstr "Panganinso"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:141
+msgid "Actual Size"
+msgstr "Kukula kwake kwenikweni"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:142
+msgid "Zoom In"
+msgstr "Kulitsani"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:143
+msgid "Zoom Out"
+msgstr "Chepetsani"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:145
+msgid "Open in Browser"
+msgstr "Tsekulani Tsamba lolowera pa intaneti"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:148
+msgid "History"
+msgstr "Zomwe mwachita m'mbuyo"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:149
+msgid "Back"
+msgstr "Bwelerani m'mbuyo"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:150
+msgid "Forward"
+msgstr "Pitani m'tsogolo"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:153
+msgid "Help"
+msgstr "Pezani Chithandizo"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:154
+msgid "Documentation"
+msgstr "Kaundula wa zolembalemba"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:155
+msgid "Community Forums"
+msgstr "Mkumano wa pa intaneti"
+
+#~ msgid "Edit"
+#~ msgstr "Sinthani zina ndi zina"
+
+#~ msgid "Undo"
+#~ msgstr "Chotsani zomwe mwasintha"
+
+#~ msgid "Redo"
+#~ msgstr "Chitaninso"
+
+#~ msgid "Cut"
+#~ msgstr "Sunthani zonse"
+
+#~ msgid "Copy"
+#~ msgstr "Kopelani"
+
+#~ msgid "Paste"
+#~ msgstr "Ikani apa zomwe m'nakopela/m'nasuntha"
+
+#~ msgid "Select All"
+#~ msgstr "Sankhani zonse"
