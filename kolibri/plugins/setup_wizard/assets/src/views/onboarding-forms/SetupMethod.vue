@@ -66,13 +66,7 @@
         });
       },
       handleSubmit(address) {
-        if (address.dynamic) {
-          this.createStaticNetworkLocation(address).then(() => {
-            this.goToImport(address.id);
-          });
-        } else {
-          this.goToImport(address.id);
-        }
+        this.goToImport(address.id);
       },
     },
     $trs: {
