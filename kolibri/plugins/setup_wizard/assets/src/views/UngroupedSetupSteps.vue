@@ -21,8 +21,8 @@
 
   const PagePairs = [
     // [current page, next page(s)]
-    ['DEFAULT_LANGUAGE', 'PLANNED_USE'],
-    ['PLANNED_USE', 'DEVICE_NAME'],
+    ['DEFAULT_LANGUAGE', 'GETTING_STARTED'],
+    ['GETTING_STARTED', 'DEVICE_NAME'],
     ['DEVICE_NAME', 'PUBLIC_SETUP_METHOD'],
   ];
 

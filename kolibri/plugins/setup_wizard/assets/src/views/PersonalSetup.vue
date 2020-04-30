@@ -36,7 +36,7 @@
     methods: {
       goToLastStep() {
         this.$router.push({
-          name: 'PLANNED_USE',
+          name: 'GETTING_STARTED',
         });
       },
       finalizeOnboardingData() {
