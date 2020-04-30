@@ -184,10 +184,18 @@ class Application(pew.ui.PEWApp):
         self.__kolibri_wait_thread = None
 
         self.__windows = []
+        self.__did_init_ui = False
 
         super().__init__(*args, **kwargs)
 
     def init_ui(self):
+        self.__did_init_ui = True
+
+        # keep running in the background with pew/gtk apps
+        # TODO: implement this in pyeverywhere
+        if hasattr(self, 'gtk_application'):
+            self.gtk_application.set_inactivity_timeout(30000)
+
         # start server
         self.__kolibri_run_thread = pew.ui.PEWThread(target=self.run_server)
         self.__kolibri_run_thread.daemon = False
@@ -210,6 +218,10 @@ class Application(pew.ui.PEWApp):
             pew.ui.run_on_main_thread(main_window.load_url, saved_state["URL"])
 
         return 0
+
+    def handle_command_line(self, argv):
+        if self.__did_init_ui and len(self.__windows) == 0:
+            self.__open_window(KOLIBRI_URL)
 
     def shutdown(self):
         if self.__kolibri_service and self.__kolibri_service.is_alive():
