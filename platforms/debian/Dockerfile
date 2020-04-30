@@ -6,11 +6,11 @@ RUN apk update && apk add \
     tar \
     python3
 
-# If src is alredy present, shouldn't need to redownload
-COPY src src
+# If build-src is alredy present, shouldn't need to redownload
+COPY build-src build-src
 COPY Makefile .
 
-RUN make clean && make dist/kolibri_archive.tar.gz src/VERSION
+RUN make clean && make dist/kolibri_archive.tar.gz build-src/VERSION
 
 
 FROM ubuntu:bionic
@@ -44,7 +44,7 @@ WORKDIR /kolibribuild
 COPY . .
 
 COPY --from=make_dist dist dist
-COPY --from=make_dist src src
+COPY --from=make_dist build-src build-src
 
 ENTRYPOINT [ "make" ]
 

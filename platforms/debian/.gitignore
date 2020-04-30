@@ -1,2 +1,4 @@
 # This is by benjaoming's convention the directory to use when dev'ing locally
 build/
+build-src/
+dist/
