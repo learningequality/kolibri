@@ -1,6 +1,6 @@
 import DeviceNameForm from './views/onboarding-forms/DeviceNameForm';
 import DefaultLanguageForm from './views/onboarding-forms/DefaultLanguageForm';
-import PlannedUseForm from './views/onboarding-forms/PlannedUseForm';
+import GettingStartedForm from './views/onboarding-forms/GettingStartedForm';
 import SetupMethod from './views/onboarding-forms/SetupMethod';
 import UngroupedSetupSteps from './views/UngroupedSetupSteps';
 import PersonalSetup from './views/PersonalSetup';
@@ -20,7 +20,7 @@ export default [
       {
         path: 'planned_use',
         name: 'PLANNED_USE',
-        component: PlannedUseForm,
+        component: GettingStartedForm,
       },
       {
         path: 'public_setup_method',

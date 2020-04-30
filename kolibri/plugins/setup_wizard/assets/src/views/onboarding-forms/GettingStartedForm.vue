@@ -1,20 +1,20 @@
 <template>
 
   <OnboardingForm
-    :header="$tr('plannedUseHeader')"
+    :header="$tr('gettingStarted')"
     @submit="handleSubmit"
   >
     <KRadioButton
       v-model="selected"
       :value="Options.PERSONAL"
-      :label="$tr('personalUseLabel')"
-      :description="$tr('personalUseDescription')"
+      :label="$tr('quickStartLabel')"
+      :description="$tr('quickStartDescription')"
     />
     <KRadioButton
       v-model="selected"
       :value="Options.PUBLIC"
-      :label="$tr('publicUseLabel')"
-      :description="$tr('publicUseDescription')"
+      :label="$tr('advancedSetupLabel')"
+      :description="$tr('advancedSetupDescription')"
     />
   </OnboardingForm>
 
@@ -32,7 +32,7 @@
   });
 
   export default {
-    name: 'PlannedUseForm',
+    name: 'GettingStartedForm',
     components: {
       OnboardingForm,
     },
@@ -66,25 +66,25 @@
       },
     },
     $trs: {
-      plannedUseHeader: {
+      gettingStarted: {
         message: 'How are you using Kolibri?',
         context: 'Page title for the device setup step',
       },
-      personalUseLabel: {
-        message: 'Personal use',
+      quickStartLabel: {
+        message: 'Quick start',
         context: 'Label for the radio button option in the device setup',
       },
-      personalUseDescription: {
-        message: 'Homeschooling, supplementary individual learning, and other self-directed use',
+      quickStartDescription: {
+        message: 'For homeschooling, supplementary individual learning, and other self-directed use',
         context: 'Option description text',
       },
-      publicUseLabel: {
-        message: 'Public use',
+      advancedSetupLabel: {
+        message: 'Advanced setup',
         context: 'Label for the radio button option in the device setup',
       },
-      publicUseDescription: {
+      advancedSetupDescription: {
         message:
-          'A school, educational program, organization or other group learning setting that will share the use of Kolibri',
+          'For schools, educational programs, organizations, or other group learning settings that will share the use of Kolibri',
         context: 'Option description text',
       },
     },
