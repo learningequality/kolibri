@@ -168,9 +168,6 @@ class Application(pew.ui.PEWApp):
     def __init__(self, *args, **kwargs):
         self.kolibri_service = None
 
-        # TODO: Generated translated loading screen, or detect language code
-        #       and find the closest match like in kolibri-installer-mac.
-
         loader_path = get_localized_file(
             os.path.join(config.DATA_DIR, 'assets', '_load-{}.html'),
             os.path.join(config.DATA_DIR, 'assets', '_load.html'),
@@ -178,7 +175,6 @@ class Application(pew.ui.PEWApp):
         self.loader_url = 'file://{path}'.format(
             path=os.path.abspath(loader_path)
         )
-        print("FOUND LOADER URL", self.loader_url)
 
         self.__kolibri_loaded = threading.Event()
         self.__kolibri_loaded_success = None
