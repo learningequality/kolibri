@@ -184,12 +184,33 @@ class Application(pew.ui.PEWApp):
         self.__kolibri_wait_thread = None
 
         self.__windows = []
-        self.__did_init_ui = False
+        self.__did_init_service = False
 
         super().__init__(*args, **kwargs)
 
     def init_ui(self):
-        self.__did_init_ui = True
+        self.__init_service()
+
+        if len(self.__windows) > 0:
+            return
+
+        # make sure we show the UI before run completes, as otherwise
+        # it is possible the run can complete before the UI is shown,
+        # causing the app to shut down early
+        main_window = self.__open_window(KOLIBRI_URL)
+
+        # Check for saved URL, which exists when the app was put to sleep last time it ran
+        saved_state = main_window.get_view_state()
+        logging.debug("Persisted View State: %s", saved_state)
+
+        if "URL" in saved_state and saved_state["URL"].startswith(KOLIBRI_URL):
+            pew.ui.run_on_main_thread(main_window.load_url, saved_state["URL"])
+
+    def __init_service(self):
+        if self.__did_init_service:
+            return
+
+        self.__did_init_service = True
 
         # keep running in the background with pew/gtk apps
         # TODO: implement this in pyeverywhere
@@ -204,20 +225,6 @@ class Application(pew.ui.PEWApp):
         self.__kolibri_wait_thread = pew.ui.PEWThread(target=self.wait_for_server)
         self.__kolibri_wait_thread.daemon = True
         self.__kolibri_wait_thread.start()
-
-        # make sure we show the UI before run completes, as otherwise
-        # it is possible the run can complete before the UI is shown,
-        # causing the app to shut down early
-        main_window = self.__open_window(KOLIBRI_URL)
-
-        # Check for saved URL, which exists when the app was put to sleep last time it ran
-        saved_state = main_window.get_view_state()
-        logging.debug("Persisted View State: %s", saved_state)
-
-        if "URL" in saved_state and saved_state["URL"].startswith(KOLIBRI_URL):
-            pew.ui.run_on_main_thread(main_window.load_url, saved_state["URL"])
-
-        return 0
 
     def shutdown(self):
         if self.__kolibri_service and self.__kolibri_service.is_alive():
@@ -292,16 +299,9 @@ class Application(pew.ui.PEWApp):
         window.show()
         return window
 
-    def handle_command_line(self, argv):
-        if self.__did_init_ui and len(self.__windows) == 0:
-            self.__open_window(KOLIBRI_URL)
-
     def handle_open_file_uris(self, uris):
         for uri in uris:
             self.__open_window_for_kolibri_scheme_uri(uri)
-
-        if self.__did_init_ui and len(self.__windows) == 0:
-            self.__open_window(KOLIBRI_URL)
 
     def __open_window_for_kolibri_scheme_uri(self, kolibri_scheme_uri):
         parse = urlsplit(kolibri_scheme_uri)
