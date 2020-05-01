@@ -3,7 +3,6 @@ from django.db.models import Aggregate
 from django.db.models import CharField
 from django.db.models import IntegerField
 from django.db.models import Subquery
-from django.db.models.fields import CharField
 
 try:
     from django.contrib.postgres.aggregates import ArrayAgg
