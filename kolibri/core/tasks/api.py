@@ -635,7 +635,7 @@ class TasksViewSet(viewsets.ViewSet):
         userid = request.user.pk
         facility = request.user.facility.id
         job_type = "IMPORTUSERSFROMCSV"
-        job_metadata = {"type": job_type, "started_by": userid}
+        job_metadata = {"type": job_type, "started_by": userid, "facility": facility}
         job_args = ["bulkimportusers"]
         if dryrun:
             job_args.append("--dryrun")
@@ -666,8 +666,11 @@ class TasksViewSet(viewsets.ViewSet):
         """
         facility = request.user.facility.id
         job_type = "EXPORTUSERSTOCSV"
-        job_metadata = {"type": job_type, "started_by": request.user.pk}
-
+        job_metadata = {
+            "type": job_type,
+            "started_by": request.user.pk,
+            "facility": facility,
+        }
         job_id = priority_queue.enqueue(
             call_command,
             "bulkexportusers",
