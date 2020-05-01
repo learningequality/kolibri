@@ -212,11 +212,6 @@ class Application(pew.ui.PEWApp):
 
         self.__did_init_service = True
 
-        # keep running in the background with pew/gtk apps
-        # TODO: implement this in pyeverywhere
-        if hasattr(self, 'gtk_application'):
-            self.gtk_application.set_inactivity_timeout(30000)
-
         # start server
         self.__kolibri_run_thread = pew.ui.PEWThread(target=self.run_server)
         self.__kolibri_run_thread.daemon = False
