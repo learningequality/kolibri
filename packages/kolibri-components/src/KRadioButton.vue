@@ -1,10 +1,7 @@
 <template>
 
   <!-- HTML makes clicking label apply to input by default -->
-  <label
-    :class="['k-radio-button', { disabled }]"
-    :style="{ color: disabled ? $themeTokens.textDisabled : '' }"
-  >
+  <label :class="['k-radio-button', { disabled }]" :style="{ color: disabled ? $themeTokens.textDisabled : '' }">
     <!-- v-model listens for @input event by default -->
     <!-- @input has compatibility issues for input of type radio -->
     <!-- Here, manually listen for @change (no compatibility issues) -->
@@ -23,29 +20,13 @@
       @keydown="$emit('keydown', $event)"
     >
     <!-- the radio buttons the user sees -->
-    <mat-svg
-      v-if="isChecked"
-      category="toggle"
-      name="radio_button_checked"
-      class="checked"
-      :style="[{ fill: $themeTokens.primary }, disabledStyle, activeStyle ]"
-    />
-    <mat-svg
-      v-else
-      category="toggle"
-      name="radio_button_unchecked"
-      class="unchecked"
-      :style="[{ fill: $themeTokens.annotation }, disabledStyle, activeStyle ]"
-    />
+    <mat-svg v-if="isChecked" category="toggle" name="radio_button_checked" class="checked" :style="[{ fill: $themeTokens.primary }, disabledStyle, activeStyle ]" />
+    <mat-svg v-else category="toggle" name="radio_button_unchecked" class="unchecked" :style="[{ fill: $themeTokens.annotation }, disabledStyle, activeStyle ]" />
 
     <span class="text" dir="auto">
       <span class="truncate-text">{{ label }}</span>
 
-      <span
-        v-if="description"
-        class="description"
-        :style="[{ color: disabled ? '' : $themeTokens.annotation }, disabledStyle ]"
-      >
+      <span v-if="description" class="description" :style="[{ color: disabled ? '' : $themeTokens.annotation }, disabledStyle ]">
         {{ description }}
       </span>
       <slot></slot>
@@ -125,7 +106,11 @@
         return this.active ? this.$coreOutline : {};
       },
       disabledStyle() {
-        return this.disabled ? { fill: this.$themeTokens.textDisabled } : {};
+        return this.disabled
+          ? {
+              fill: this.$themeTokens.textDisabled,
+            }
+          : {};
       },
     },
 
@@ -189,8 +174,8 @@
     height: $radio-height;
   }
 
-  .text,
-  .description {
+  .description,
+  .text {
     display: inline-block;
   }
   .text {
@@ -204,7 +189,8 @@
     line-height: normal;
   }
   .truncate-text {
-    display: block;
+    display: inline-block;
+    width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
   }
