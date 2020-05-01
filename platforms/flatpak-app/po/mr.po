@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri-mac-app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-29 15:40-0700\n"
+"POT-Creation-Date: 2020-05-01 10:35-0700\n"
 "PO-Revision-Date: 2019-12-05 17:50\n"
 "Last-Translator: learningequality\n"
 "Language-Team: Marathi\n"
@@ -18,7 +18,7 @@ msgstr ""
 
 #: data/applications/org.learningequality.Kolibri.desktop.in:5
 #: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:4
-#: src/kolibri_gnome/desktop_launcher/application.py:278
+#: src/kolibri_gnome/desktop_launcher/application.py:294
 msgid "Kolibri"
 msgstr ""
 
@@ -28,8 +28,9 @@ msgid "Offline education technology platform"
 msgstr ""
 
 #. TRANSLATORS: These are search terms to find this application.
-#. Terms MUST be separated by semicolons, and end with a semicolon.
-#: data/applications/org.learningequality.Kolibri.desktop.in:9
+#. Terms MUST be separated by semicolons.
+#. This list must end with a semicolon.
+#: data/applications/org.learningequality.Kolibri.desktop.in:10
 msgid "education;multimedia;videos;learning;quiz;"
 msgstr ""
 
@@ -50,67 +51,67 @@ msgstr ""
 msgid "Browsing content channels in Kolibri"
 msgstr ""
 
-#: src/kolibri_gnome/desktop_launcher/application.py:131
+#: src/kolibri_gnome/desktop_launcher/application.py:133
 msgid "File"
 msgstr "फाइल"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:132
+#: src/kolibri_gnome/desktop_launcher/application.py:134
 msgid "New Window"
 msgstr "नवीन विंडो"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:133
+#: src/kolibri_gnome/desktop_launcher/application.py:135
 msgid "Close Window"
 msgstr "विंडो बंद करा"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:135
+#: src/kolibri_gnome/desktop_launcher/application.py:137
 msgid "Open Kolibri Home Folder"
 msgstr "कोलिब्री होम फोल्डर उघडा"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:139
+#: src/kolibri_gnome/desktop_launcher/application.py:141
 msgid "View"
 msgstr "पहा"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:140
+#: src/kolibri_gnome/desktop_launcher/application.py:142
 msgid "Reload"
 msgstr "रिलोड"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:141
+#: src/kolibri_gnome/desktop_launcher/application.py:143
 msgid "Actual Size"
 msgstr "मूळ आकार"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:142
+#: src/kolibri_gnome/desktop_launcher/application.py:144
 msgid "Zoom In"
 msgstr "झूम इन"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:143
+#: src/kolibri_gnome/desktop_launcher/application.py:145
 msgid "Zoom Out"
 msgstr "झूम आउट"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:145
+#: src/kolibri_gnome/desktop_launcher/application.py:147
 msgid "Open in Browser"
 msgstr "ब्राउझरमध्ये उघडा"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:148
+#: src/kolibri_gnome/desktop_launcher/application.py:150
 msgid "History"
 msgstr "इतिहास"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:149
+#: src/kolibri_gnome/desktop_launcher/application.py:151
 msgid "Back"
 msgstr "मागे"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:150
+#: src/kolibri_gnome/desktop_launcher/application.py:152
 msgid "Forward"
 msgstr "पुढे"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:153
+#: src/kolibri_gnome/desktop_launcher/application.py:155
 msgid "Help"
 msgstr "मदत"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:154
+#: src/kolibri_gnome/desktop_launcher/application.py:156
 msgid "Documentation"
 msgstr "माहिती"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:155
+#: src/kolibri_gnome/desktop_launcher/application.py:157
 msgid "Community Forums"
 msgstr "कम्युनिटी फोरम"
 

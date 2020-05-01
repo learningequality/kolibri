@@ -219,10 +219,6 @@ class Application(pew.ui.PEWApp):
 
         return 0
 
-    def handle_command_line(self, argv):
-        if self.__did_init_ui and len(self.__windows) == 0:
-            self.__open_window(KOLIBRI_URL)
-
     def shutdown(self):
         if self.__kolibri_service and self.__kolibri_service.is_alive():
             logging.info("Stopping Kolibri server...")
@@ -296,9 +292,16 @@ class Application(pew.ui.PEWApp):
         window.show()
         return window
 
+    def handle_command_line(self, argv):
+        if self.__did_init_ui and len(self.__windows) == 0:
+            self.__open_window(KOLIBRI_URL)
+
     def handle_open_file_uris(self, uris):
         for uri in uris:
             self.__open_window_for_kolibri_scheme_uri(uri)
+
+        if self.__did_init_ui and len(self.__windows) == 0:
+            self.__open_window(KOLIBRI_URL)
 
     def __open_window_for_kolibri_scheme_uri(self, kolibri_scheme_uri):
         parse = urlsplit(kolibri_scheme_uri)

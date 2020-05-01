@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri-mac-app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-29 15:40-0700\n"
+"POT-Creation-Date: 2020-05-01 10:35-0700\n"
 "PO-Revision-Date: 2019-12-17 04:35\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Burmese\n"
@@ -17,7 +17,7 @@ msgstr ""
 
 #: data/applications/org.learningequality.Kolibri.desktop.in:5
 #: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:4
-#: src/kolibri_gnome/desktop_launcher/application.py:278
+#: src/kolibri_gnome/desktop_launcher/application.py:294
 msgid "Kolibri"
 msgstr ""
 
@@ -27,8 +27,9 @@ msgid "Offline education technology platform"
 msgstr ""
 
 #. TRANSLATORS: These are search terms to find this application.
-#. Terms MUST be separated by semicolons, and end with a semicolon.
-#: data/applications/org.learningequality.Kolibri.desktop.in:9
+#. Terms MUST be separated by semicolons.
+#. This list must end with a semicolon.
+#: data/applications/org.learningequality.Kolibri.desktop.in:10
 msgid "education;multimedia;videos;learning;quiz;"
 msgstr ""
 
@@ -49,67 +50,67 @@ msgstr ""
 msgid "Browsing content channels in Kolibri"
 msgstr ""
 
-#: src/kolibri_gnome/desktop_launcher/application.py:131
+#: src/kolibri_gnome/desktop_launcher/application.py:133
 msgid "File"
 msgstr "ဖိုင်"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:132
+#: src/kolibri_gnome/desktop_launcher/application.py:134
 msgid "New Window"
 msgstr "၀င်းဒိုးအသစ် "
 
-#: src/kolibri_gnome/desktop_launcher/application.py:133
+#: src/kolibri_gnome/desktop_launcher/application.py:135
 msgid "Close Window"
 msgstr "၀င်းဒိုးပိတ်မည်"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:135
+#: src/kolibri_gnome/desktop_launcher/application.py:137
 msgid "Open Kolibri Home Folder"
 msgstr "ကလီဘရီ၏ မူလ သိုမှီးထားရာနေရာကို ဖွင့်မည်။"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:139
+#: src/kolibri_gnome/desktop_launcher/application.py:141
 msgid "View"
 msgstr "မြင်ကွင်း"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:140
+#: src/kolibri_gnome/desktop_launcher/application.py:142
 msgid "Reload"
 msgstr "အသစ်ပြန်စမည်။"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:141
+#: src/kolibri_gnome/desktop_launcher/application.py:143
 msgid "Actual Size"
 msgstr "မူလ အနေအထား"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:142
+#: src/kolibri_gnome/desktop_launcher/application.py:144
 msgid "Zoom In"
 msgstr "ပိုကြီးအောင် ချဲ့ကြည့်မည်"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:143
+#: src/kolibri_gnome/desktop_launcher/application.py:145
 msgid "Zoom Out"
 msgstr "သေးအောင် ချုံ့ကြည့်မည်"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:145
+#: src/kolibri_gnome/desktop_launcher/application.py:147
 msgid "Open in Browser"
 msgstr "ဘရော့ဇာတွင် ဖွင့်"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:148
+#: src/kolibri_gnome/desktop_launcher/application.py:150
 msgid "History"
 msgstr "History"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:149
+#: src/kolibri_gnome/desktop_launcher/application.py:151
 msgid "Back"
 msgstr "နောက်သို့"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:150
+#: src/kolibri_gnome/desktop_launcher/application.py:152
 msgid "Forward"
 msgstr "ရှေ့သို့"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:153
+#: src/kolibri_gnome/desktop_launcher/application.py:155
 msgid "Help"
 msgstr "အကူအညီ"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:154
+#: src/kolibri_gnome/desktop_launcher/application.py:156
 msgid "Documentation"
 msgstr "စာရွက်စာတန်း"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:155
+#: src/kolibri_gnome/desktop_launcher/application.py:157
 msgid "Community Forums"
 msgstr "စုပေါင်းဆွေးနွေးရာ ဖိုရမ်"
 
