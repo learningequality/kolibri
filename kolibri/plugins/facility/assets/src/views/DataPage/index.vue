@@ -126,7 +126,7 @@
         return isEmbeddedWebView;
       },
       pollForTasks() {
-        return this.$route.name === PageNames.DATA_PAGE;
+        return this.$route.name === PageNames.DATA_EXPORT_PAGE;
       },
       noDlStyle() {
         return {

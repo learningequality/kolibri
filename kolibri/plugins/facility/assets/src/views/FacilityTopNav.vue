@@ -21,7 +21,7 @@
     </NavbarLink>
     <NavbarLink
       :title="$tr('data')"
-      :link="linkify(PageNames.DATA_PAGE)"
+      :link="linkify(PageNames.DATA_EXPORT_PAGE)"
     >
       <mat-svg name="save" category="content" />
     </NavbarLink>

@@ -77,7 +77,7 @@
           };
           appBarTitle = this.coreString('usersLabel');
         } else if (this.pageName === PageNames.IMPORT_CSV_PAGE) {
-          immersivePageRoute = this.$router.getRoute(PageNames.DATA_PAGE);
+          immersivePageRoute = this.$router.getRoute(PageNames.DATA_EXPORT_PAGE);
           appBarTitle = this.$tr('importPageHeader');
         }
 
