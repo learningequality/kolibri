@@ -367,9 +367,6 @@ def run_plugin_updates():
                 ", ".join(config["UPDATED_PLUGINS"])
             )
         )
-        logger.info("Copying updated static files")
-        # Collect any static files
-        call_command("collectstatic", interactive=False, verbosity=0)
 
         update_manager = PluginUpdateManager(config["UPDATED_PLUGINS"])
 
@@ -381,6 +378,8 @@ def run_plugin_updates():
                     ", ".join(update_manager.errors)
                 )
             )
+        return True
+    return False
 
 
 def autoremove_unavailable_plugins():
