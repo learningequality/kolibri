@@ -27,12 +27,12 @@ Feature: Super Admin bulk import users into a facility
     Then I see the users have been modified with the new data from the CSV
       And I see that the non-admin users not listed in the CSV file have been deleted
       And I see that old classes not listed in the CSV file have been deleted
-      And the facility contains just classes and users listed in the CSV file 
+      And the facility contains just classes and users listed in the CSV file
 
 # CSV file content example (for the first row, texts not inside parenthesis may be translated) :
-Username (USERNAME),Password (PASSWORD),Full name (FULL_NAME),User type (USER_TYPE),Identifier (IDENTIFIER),Birth year (BIRTH_YEAR),Gender (GENDER),Enrolled in (ENROLLED_IN),Assigned to (ASSIGNED_TO)
+Username (USERNAME),Password (PASSWORD),Full name (FULL_NAME),User type (USER_TYPE),Identifier (IDENTIFIER),Birth year (BIRTH_YEAR),Gender (GENDER),Learner enrollment (ENROLLED_IN),Coach assignment (ASSIGNED_TO)
 jkrowling,,Too bad to be here,STUDENT,Potter1,1899,FEMALE,Literature 0,
 ignored_data,,You are not a coach,LEARNER,,,,,Ignored class
-new_coach,,Miguel de Cervantes,COACH,Sancho1,1969,MALE,,Literature 1
-student1,,William Shakespeare,LEARNER,Otelo1,2001,MALE,Literature 1,
+new_coach,*,Miguel de Cervantes,COACH,Sancho1,1969,MALE,,Literature 1
+student1,*,William Shakespeare,LEARNER,Otelo1,2001,MALE,Literature 1,
 student2,,Agatha Christie,LEARNER,Poirot1,1999,FEMALE,"Literature 1,Chemistry2",

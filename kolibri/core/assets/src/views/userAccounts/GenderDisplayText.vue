@@ -1,6 +1,6 @@
 <template>
 
-  <span v-if="displayText">
+  <span v-if="isSpecified && displayText">
     {{ displayText }}
   </span>
   <KEmptyPlaceholder v-else />
@@ -13,7 +13,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { FacilityUserGender } from 'kolibri.coreVue.vuex.constants';
 
-  const { NOT_SPECIFIED, MALE, FEMALE } = FacilityUserGender;
+  const { NOT_SPECIFIED, DEFERRED, MALE, FEMALE } = FacilityUserGender;
 
   export default {
     name: 'GenderDisplayText',
@@ -24,16 +24,16 @@
       },
     },
     computed: {
+      isSpecified() {
+        return this.gender !== NOT_SPECIFIED && this.birthYear !== DEFERRED;
+      },
       displayText() {
-        if (this.gender === NOT_SPECIFIED) {
-          return this.coreString('genderOptionNotSpecified');
-        } else if (this.gender === MALE) {
+        if (this.gender === MALE) {
           return this.coreString('genderOptionMale');
         } else if (this.gender === FEMALE) {
           return this.coreString('genderOptionFemale');
-        } else {
-          return '';
         }
+        return null;
       },
     },
   };

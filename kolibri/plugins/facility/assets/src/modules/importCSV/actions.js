@@ -42,8 +42,11 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
 
     if (task && task.status === TaskStatuses.COMPLETED) {
       store.commit(commitFinish, task);
-      // TaskResource.deleteFinishedTask(taskId);
     } else if (task && task.status === TaskStatuses.FAILED) {
+      if (typeof task.overall_error === 'undefined') {
+        store.dispatch('handleApiError', task.traceback, { root: true });
+      }
+
       store.commit('SET_FAILED', task);
     }
   } else {
