@@ -40,7 +40,6 @@
 
     <span class="text" dir="auto">
       <span class="truncate-text">{{ label }}</span>
-
       <span
         v-if="description"
         class="description"
@@ -204,7 +203,8 @@
     line-height: normal;
   }
   .truncate-text {
-    display: block;
+    display: inline-block;
+    width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
   }
