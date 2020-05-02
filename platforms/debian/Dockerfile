@@ -1,4 +1,4 @@
-FROM alpine as make_dist
+FROM alpine
 
 RUN apk update && apk add \
     make \
