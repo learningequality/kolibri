@@ -3,355 +3,355 @@
   <!-- eslint-disable max-len -->
   <div class="wrapper">
     <section>
-      <h1>Prompts while "Planning a lesson"</h1>
-      <h2>
-        Prompt 1
-      </h2>
-      <h3>
-        {{ strings('CreatingNewLesson', 'header') }}
-      </h3>
+      <h1>
+        {{ strings('CreateNewLesson', 'header') }}
+      </h1>
       <p>
-        Lesson objective
+        {{ strings('CreateNewLesson', 'p1') }}
       </p>
       <ul>
         <li>
-          At the end of this session, the learner will be able to ___
+          {{ strings('CreateNewLesson', 'list_1_item_1') }}
         </li>
       </ul>
       <p>
-        Current learner knowledge
+        {{ strings('CreateNewLesson', 'p2') }}
       </p>
       <ul>
         <li>
-          What do the learners already know about this topic?
+          {{ strings('CreateNewLesson', 'list_2_item_1') }}
         </li>
         <li>
-          How will the learners tell you what they know about this topic?
+          {{ strings('CreateNewLesson', 'list_2_item_2') }}
         </li>
         <li>
-          What else about the topic are they interested in finding out?
+          {{ strings('CreateNewLesson', 'list_2_item_3') }}
         </li>
       </ul>
+
+      <h1>
+        {{ string('ChooseKolibriResources', 'header') }}
+      </h1>
+
+      <p>
+        {{ string('ChooseKolibriResources', 'p1') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('ChooseKolibriResources', 'list_1_item_1') }}
+        </li>
+        <li>
+          {{ string('ChooseKolibriResources', 'list_1_item_2') }}
+        </li>
+        <li>
+          {{ string('ChooseKolibriResources', 'list_1_item_3') }}
+        </li>
+        <li>
+          {{ string('ChooseKolibriResources', 'list_1_item_4') }}
+        </li>
+        <li>
+          {{ string('ChooseKolibriResources', 'list_1_item_5') }}
+        </li>
+      </ul>
+
+      <h1>
+        {{ string('UseQuestionsWithKolibri', 'header') }}
+      </h1>
+
+      <p>
+        {{ string('UseQuestionsWithKolibri', 'p1') }}
+      </p>
+
+      <p>
+        {{ string('UseQuestionsWithKolibri', 'p2') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_1_item_1') }}
+        </li>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_1_item_2') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('UseQuestionsWithKolibri', 'p3') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_2_item_1') }}
+        </li>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_2_item_2') }}
+        </li>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_2_item_3') }}
+        </li>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_2_item_4') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('UseQuestionsWithKolibri', 'p4') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_3_item_1') }}
+        </li>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_3_item_2') }}
+        </li>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_3_item_3') }}
+        </li>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_3_item_4') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('UseQuestionsWithKolibri', 'p5') }}
+      </p>
+      <p>
+        {{ string('UseQuestionsWithKolibri', 'p6') }}
+      </p>
+      <p>
+        {{ string('UseQuestionsWithKolibri', 'p7') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_4_item_1') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('UseQuestionsWithKolibri', 'p8') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_5_item_1') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('UseQuestionsWithKolibri', 'p9') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_6_item_1') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('UseQuestionsWithKolibri', 'p10') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_7_item_1') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('UseQuestionsWithKolibri', 'p11') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_8_item_1') }}
+        </li>
+      </ul>
+      <p>
+        {{ string('UseQuestionsWithKolibri', 'p12') }}
+      </p>
+      <ul>
+        <li>
+          {{ string('UseQuestionsWithKolibri', 'list_9_item_1') }}
+        </li>
+      </ul>
+
+      <h1>
+        {{ string('BlendedLearningImplementationModels', 'header') }}
+      </h1>
 
       <h2>
-        Prompt 1.1
+        {{ string('BlendedLearningImplementationModels', 'header2') }}
       </h2>
-
-      <h3>
-        Choose Kolibri resources
-      </h3>
-
       <p>
-        As you add resources think about:
+        {{ string('BlendedLearningImplementationModels', 'p1') }}
+      </p>
+      <h3>
+        {{ string('BlendedLearningImplementationModels', 'header3') }}
+      </h3>
+      <p>
+        {{ string('BlendedLearningImplementationModels', 'p2') }}
       </p>
       <ul>
         <li>
-          Which resources match this topic best?
+          {{ string('BlendedLearningImplementationModels', 'list_1_item_1') }}
         </li>
         <li>
-          How are you planning to use the resources?
+          {{ string('BlendedLearningImplementationModels', 'list_1_item_2') }}
         </li>
         <li>
-          Will learners access resources in groups or individually?
-        </li>
-        <li>
-          How will you enhance learning with that resource?
-        </li>
-        <li>
-          What teaching techniques will you use to increase learner engagement with this resource?
+          {{ string('BlendedLearningImplementationModels', 'list_1_item_3') }}
         </li>
       </ul>
-
+      <hr>
       <h2>
-        Prompt 1.2
+        {{ string('BlendedLearningImplementationModels', 'header4') }}
       </h2>
-
-      <h3>
-        Use questions along with a Kolibri resource
-      </h3>
-
       <p>
-        Increase learner engagement with content and promote active learning with questions.
-      </p>
-
-      <p>
-        Identify resources
-      </p>
-      <ul>
-        <li>
-          What Kolibri resource will you use for your lesson objective?
-        </li>
-        <li>
-          Go through the resource and create some question statements.
-        </li>
-      </ul>
-      <p>
-        What questions will you ask:
-      </p>
-      <ul>
-        <li>
-          At the beginning of the lesson?
-        </li>
-        <li>
-          While learners are looking at the resources?
-        </li>
-        <li>
-          After learners look at the resources?
-        </li>
-        <li>
-          To summarize the lesson?
-        </li>
-      </ul>
-      <p>
-        Remember
-      </p>
-      <ul>
-        <li>
-          Ask a variety of questions throughout the lesson.
-        </li>
-        <li>
-          Give appropriate wait time after asking questions.
-        </li>
-        <li>
-          Respond to learner questions.
-        </li>
-        <li>
-          Provide encouraging feedback to both correct and incorrect responses.
-        </li>
-      </ul>
-      <p>
-        Remember
+        {{ string('BlendedLearningImplementationModels', 'p3') }}
       </p>
       <p>
-        The 6 levels classified as per Bloom"s Taxonomy below, can be used to structure learning objectives, lessons, assessments, and questioning.
+        {{ string('BlendedLearningImplementationModels', 'header5') }}
       </p>
       <p>
-        Level 1. Knowledge
+        {{ string('BlendedLearningImplementationModels', 'p4') }}
+      </p>
+      <p>
+        {{ string('BlendedLearningImplementationModels', 'p5') }}
+      </p>
+      <p>
+        <img src="./kolibri.png" :alt="string('BlendedLearningImplementationModels', 'img_alt')">
+      </p>
+      <p>
+        {{ string('BlendedLearningImplementationModels', 'p6') }}
+      </p>
+      <p>
+        <img src="./guided.png" :alt="string('BlendedLearningImplementationModels', 'img_alt_2')">
+      </p>
+      <p>
+        {{ string('BlendedLearningImplementationModels', 'header6') }}
+      </p>
+      <p>
+        {{ string('BlendedLearningImplementationModels', 'p7') }}
+      </p>
+      <p>
+        {{ string('BlendedLearningImplementationModels', 'p8') }}
+      </p>
+      <p>
+        <img src="./kolibri.png" :alt="string('BlendedLearningImplementationModels', 'img_alt')">
+      </p>
+      <p>
+        {{ string('BlendedLearningImplementationModels', 'p9') }}
+      </p>
+      <p>
+        <img src="./guided.png" :alt="string('BlendedLearningImplementationModels', 'img_alt_2')">
+      </p>
+      <p>
+        {{ string('BlendedLearningImplementationModels', 'p10') }}
+      </p>
+      <p>
+        <img src="./independent.png" :alt="string('BlendedLearningImplementationModels', 'img_alt_3')">
+      </p>
+      <p>
+        {{ string('BlendedLearningImplementationModels', 'header7') }}
+      </p>
+      <p>
+        {{ string('BlendedLearningImplementationModels', 'p11') }}
+      </p>
+      <p>
+        {{ string('BlendedLearningImplementationModels', 'p12') }}
       </p>
       <ul>
         <li>
-          Question cues: list, define, tell, label
-        </li>
-      </ul>
-      <p>
-        Level 2. Comprehension
-      </p>
-      <ul>
-        <li>
-          Question cues: describe, name, identify, discuss
-        </li>
-      </ul>
-      <p>
-        Level 3. Application
-      </p>
-      <ul>
-        <li>
-          Question cues: modify, solve, change, explain
-        </li>
-      </ul>
-      <p>
-        Level 4 - Analysis
-      </p>
-      <ul>
-        <li>
-          Question cues: analyze, separate, compare, contrast
-        </li>
-      </ul>
-      <p>
-        Level 5. Synthesis
-      </p>
-      <ul>
-        <li>
-          Question cues: create, construct, plan, role-play
-        </li>
-      </ul>
-      <p>
-        Level 6. Evaluation
-      </p>
-      <ul>
-        <li>
-          Question cues: give opinion, criticize, discriminate, summarize
-        </li>
-      </ul>
-
-      <h2>
-        Prompt 1.3
-      </h2>
-
-      <h3>
-        Blended learning implementation models
-      </h3>
-
-      <p>
-        Whole class model
-      </p>
-      <p>
-        Definition:
-      </p>
-      <p>
-        Example
-      </p>
-      <p>
-        Here is how a school in Guatemala adapted the whole class model by bridging technology with traditional instruction for a Math lesson. During the lesson all learners:
-      </p>
-      <ul>
-        <li>
-          Viewed a Kolibri resource on a projector
+          {{ string('BlendedLearningImplementationModels', 'list_2_item_1') }}
         </li>
         <li>
-          Practiced Kolibri exercises independently
-        </li>
-        <li>
-          Engaged in another coach-led activity without using any technology
+          {{ string('BlendedLearningImplementationModels', 'list_2_item_2') }}
         </li>
       </ul>
       <hr>
       <p>
-        Rotation model
+        {{ string('BlendedLearningImplementationModels', 'header8') }}
       </p>
       <p>
-        Learners rotate on a fixed schedule between activities in small groups, individually or as a whole class. One of the activities (or "stations") that learners rotate through is using Kolibri.
-      </p>
-      <p>
-        Example 1
-      </p>
-      <p>
-        Below is an example of a rotation model with 2 stations. Learners rotate in small groups / individually / as a whole class between these stations.
-      </p>
-      <p>Station 1 - Kolibri learning</p>
-      <p><img src="./kolibri.png" alt=""></p>
-      <p>Station 2 - Guided practice</p>
-      <p><img src="./guided.png" alt=""></p>
-      <p>
-        Example 2
-      </p>
-      <p>
-        Below is a rotation model example with 3 learning stations. Learners can rotate in small groups/individually or as a whole class between these stations. Station 3 can include worksheets, free time or related small group work
-      </p>
-      <p>Station 1 - Kolibri learning</p>
-      <p><img src="./kolibri.png" alt=""></p>
-      <p>Station 2 - Guided practice</p>
-      <p><img src="./guided.png" alt=""></p>
-      <p>Station 3 - Independent Activity</p>
-      <p><img src="./independent.png" alt=""></p>
-      <p>
-        Peer Tutoring
-      </p>
-      <p>
-        Coach pairs learners to help one another understand concepts on Kolibri. This promotes learner empowerment through teaching one another and frees up time for the coach to assist those who need additional support.
-      </p>
-      <p>
-        Potential pairing options
+        {{ string('BlendedLearningImplementationModels', 'p13') }}
       </p>
       <ul>
         <li>
-          Learner who has already mastered a topic with a learner who could benefit from review.
+          {{ string('BlendedLearningImplementationModels', 'list_3_item_1') }}
         </li>
         <li>
-          Learners with similar mastery levels to facilitate progressing through new content at similar rates.
-        </li>
-      </ul>
-      <hr>
-      <p>
-        Roving Teacher
-      </p>
-      <p>
-        Coach moves around the classroom while learners work independently or in pairs/groups on Kolibri, stepping in for assistance as needed. The coach can:
-      </p>
-      <ul>
-        <li>
-          Provide supplemental support to learners
-        </li>
-        <li>
-          Deliver small group lessons or 1-1 interventions as needed
+          {{ string('BlendedLearningImplementationModels', 'list_3_item_2') }}
         </li>
       </ul>
       <p>
-        Ideal for the coach who wants to use time more effectively with learners who need it most, through individual attention or organizing groups of multiple struggling learners.
+        {{ string('BlendedLearningImplementationModels', 'p14') }}
       </p>
       <hr>
       <p>
-        Supplementary resource
+        {{ string('BlendedLearningImplementationModels', 'header9') }}
       </p>
       <p>
-        In this model, technology is available within the classroom, or after class time in a library or resource room. Learners access Kolibri to review content, check understanding, and follow their own interests.
+        {{ string('BlendedLearningImplementationModels', 'p15') }}
       </p>
       <hr>
       <p>
-        Reflect
+        {{ string('BlendedLearningImplementationModels', 'header10') }}
       </p>
       <ul>
         <li>
-          What are the potential benefits and disadvantages of each model?
+          {{ string('BlendedLearningImplementationModels', 'list_4_item_1') }}
         </li>
         <li>
-          What help or assistance would you need to implement these different models?
+          {{ string('BlendedLearningImplementationModels', 'list_4_item_2') }}
         </li>
         <li>
-          What changes would you need to make in your current teaching style to try these different models?
+          {{ string('BlendedLearningImplementationModels', 'list_4_item_3') }}
         </li>
       </ul>
 
-      <h2>
-        Prompt 1.4
-      </h2>
-
-      <h3>
-        Kolibri Session Checklist
-      </h3>
+      <h1>
+        {{ string('KolibriSessionChecklist', 'header') }}
+      </h1>
 
       <p>
-        Planning Checklist
+        {{ string('KolibriSessionChecklist', 'p1') }}
       </p>
       <ul>
         <li>
-          I have a clear goal on how I want to leverage technology through this class.
+          {{ string('KolibriSessionChecklist', 'list_1_item_1') }}
         </li>
         <li>
-          I have identified the objectives that I will be teaching this week.
+          {{ string('KolibriSessionChecklist', 'list_1_item_2') }}
         </li>
         <li>
-          I have gone through the content and incorporated relevant content pieces in my plan.
+          {{ string('KolibriSessionChecklist', 'list_1_item_3') }}
         </li>
         <li>
-          I have assigned quizzes to learners before class.
+          {{ string('KolibriSessionChecklist', 'list_1_item_4') }}
         </li>
         <li>
-          I have assigned lessons to learners before class.
+          {{ string('KolibriSessionChecklist', 'list_1_item_5') }}
         </li>
         <li>
-          I have reviewed student progress from the previous session.
+          {{ string('KolibriSessionChecklist', 'list_1_item_6') }}
         </li>
       </ul>
       <p>
-        Hardware/Software Checklist for Kolibri use:
+        {{ string('KolibriSessionChecklist', 'p2') }}
       </p>
       <ul>
         <li>
-          I have navigated through the platform and am comfortable using the different features.
+          {{ string('KolibriSessionChecklist', 'list_2_item_1') }}
         </li>
         <li>
-          My server and local WiFi network / Ethernet connection are working properly.
+          {{ string('KolibriSessionChecklist', 'list_2_item_2') }}
         </li>
         <li>
-          The hardware that is required is fully charged.
+          {{ string('KolibriSessionChecklist', 'list_2_item_3') }}
         </li>
         <li>
-          All the hardware in my classroom are in good working condition.
+          {{ string('KolibriSessionChecklist', 'list_2_item_4') }}
         </li>
       </ul>
       <p>
-        Classroom Management Checklist:
+        {{ string('KolibriSessionChecklist', 'p3') }}
       </p>
       <ul>
         <li>
-          My classroom layout allows for learners to work independently and also work in groups/collaborate during the session.
+          {{ string('KolibriSessionChecklist', 'list_3_item_1') }}
         </li>
         <li>
-          Learners follow a procedure when they need to ask for assistance.
+          {{ string('KolibriSessionChecklist', 'list_3_item_2') }}
         </li>
         <li>
-          I have written down the classroom procedures, best practices and rules for learners to see during Kolibri sessions.
+          {{ string('KolibriSessionChecklist', 'list_3_item_3') }}
         </li>
       </ul>
     </section>
@@ -947,8 +947,138 @@
   import { createTranslator } from 'kolibri.utils.i18n';
 
   const strings = {};
-  strings['CreatingNewLesson'] = createTranslator('CreatingNewLesson', {
+  strings['CreateNewLesson'] = createTranslator('CreateNewLesson', {
     header: 'Steps to create a new lesson',
+    p1: 'Lesson objective',
+    list_1_item_1: 'At the end of this session, the learner will be able to ___',
+    p2: 'Current learner knowledge',
+    list_2_item_1: 'What do the learners already know about this topic?',
+    list_2_item_2: 'How will the learners tell you what they know about this topic?',
+    list_2_item_3: 'What else about the topic are they interested in finding out?',
+  });
+
+  strings['ChooseKolibriResources'] = createTranslator('ChooseKolibriResources', {
+    header: 'Choose Kolibri resources',
+    p1: 'As you add resources think about:',
+    list_1_item_1: 'Which resources match this topic best?',
+    list_1_item_2: 'How are you planning to use the resources?',
+    list_1_item_3: 'Will learners access resources in groups or individually?',
+    list_1_item_4: 'How will you enhance learning with that resource?',
+    list_1_item_5:
+      'What teaching techniques will you use to increase learner engagement with this resource?',
+  });
+
+  strings['UseQuestionsWithKolibri'] = createTranslator('UseQuestionsWithKolibri', {
+    header: 'Use questions together with Kolibri resources',
+    p1: 'Increase learner engagement with content and promote active learning with questions.',
+    p2: 'Identify resources',
+    list_1_item_1: 'What Kolibri resource will you use for your lesson objective?',
+    list_1_item_2: 'Go through the resources and create some question statements.',
+    p3: 'What questions will you ask:',
+    list_2_item_1: 'At the beginning of the lesson?',
+    list_2_item_2: 'While learners are looking at the resources?',
+    list_2_item_3: 'After learners look at the resources?',
+    list_2_item_4: 'To summarize the lesson?',
+    p4: 'Remember',
+    list_3_item_1: 'Ask a variety of questions throughout the lesson.',
+    list_3_item_2: 'Give appropriate wait time after asking questions.',
+    list_3_item_3: 'Respond to learner questions.',
+    list_3_item_4: 'Provide encouraging feedback to both correct and incorrect responses.',
+    p5: 'Remember',
+    p6:
+      'The 6 levels classified as per Bloom’s Taxonomy below, can be used to structure learning objectives, lessons, assessments, and questioning.',
+    p7: 'Level 1. Knowledge',
+    list_4_item_1: 'Question cues: list, define, tell, label',
+    p8: 'Level 2. Comprehension',
+    list_5_item_1: 'Question cues: describe, name, identify, discuss',
+    p9: 'Level 3. Application',
+    list_6_item_1: 'Question cues: modify, solve, change, explain',
+    p10: 'Level 4. Analysis',
+    list_7_item_1: 'Question cues: analyze, separate, compare, contrast',
+    p11: 'Level 5. Synthesis',
+    list_8_item_1: 'Question cues: create, construct, plan, role-play',
+    p12: 'Level 6. Evaluation',
+    list_9_item_1: 'Question cues: give opinion, criticize, discriminate, summarize',
+  });
+
+  strings['BlendedLearningImplementationModels'] = createTranslator(
+    'BlendedLearningImplementationModels',
+    {
+      header: 'Blended learning implementation models',
+      header2: 'Whole class model',
+      p1:
+        '‘Whole class model’ broadly encompasses any blended learning model that involves the full class working on the same activity. Learners follow the facilitation of a teacher together to progress through the material and class activities. Use of this model can also include full class rotations through a series of stations or the roving teacher model.',
+      header3: 'Example',
+      p2:
+        'Here is how a school in Guatemala adapted the whole class model by bridging technology with traditional instruction for a Math lesson. During the lesson all learners:',
+      list_1_item_1: 'Viewed a Kolibri resource on a projector',
+      list_1_item_2: 'Practiced Kolibri exercises independently',
+      list_1_item_3: 'Engaged in another coach-led activity without using any technology',
+      header4: 'Rotation model',
+      p3:
+        'Learners rotate on a fixed schedule between activities in small groups, individually or as a whole class. One of the activities (or ‘stations’) that learners rotate through is using Kolibri.',
+      header5: 'Example 1',
+      p4:
+        'The image below is an example of a rotation model with 2 stations. Learners rotate in small groups / individually / as a whole class between these stations.',
+      p5: 'Station 1: Kolibri Learning',
+      img_alt: 'Device with Kolibri running on Station 1.',
+      p6: 'Station 2: Guided Practice',
+      img_alt_2: 'Students grouped around the tutor at Station 2.',
+      header6: 'Example 2',
+      p7:
+        'The image below is a rotation model example with 3 learning stations. Learners can rotate in small groups/individually or as a whole class between these stations. Station 3 can include worksheets, free time or related small group work.',
+      p8: 'Station 1: Kolibri Learning',
+      p9: 'Station 2: Guided Practice',
+      p10: 'Station 3: Independent Activity',
+      img_alt_3: 'Single students engaging in independent activity.',
+      header7: 'Peer Tutoring',
+      p11:
+        'Coach pairs learners to help one another understand concepts on Kolibri. This promotes learner empowerment through teaching one another and frees up time for the coach to assist those who need additional support.',
+      p12: 'Potential pairing options',
+      list_2_item_1:
+        'Learner who has already mastered a topic with a learner who could benefit from review.',
+      list_2_item_2:
+        'Learners with similar mastery levels to facilitate progressing through new content at similar rates.',
+      header8: 'Roving Teacher',
+      p13:
+        'Coach moves around the classroom while learners work independently or in pairs/groups on Kolibri, stepping in for assistance as needed. The coach can:',
+      list_3_item_1: 'Provide supplemental support to learners',
+      list_3_item_2: 'Deliver small group lessons or 1-1 interventions as needed',
+      p14:
+        'Ideal for the coach who wants to use time more effectively with learners who need it most, through individual attention or by organizing groups of multiple struggling learners.',
+      header9: 'Supplementary resource',
+      p15:
+        'In this model, technology is available within the classroom, or after class time in a library or resource room. Learners access Kolibri to review content, check understanding, and follow their own interests.',
+      header10: 'Reflect',
+      list_4_item_1: 'What are the potential benefits and disadvantages of each model?',
+      list_4_item_2: 'What help or assistance would you need to implement these different models?',
+      list_4_item_3:
+        'What changes would you need to make in your current teaching style to try these different models?',
+    }
+  );
+
+  strings['KolibriSessionChecklist'] = createTranslator('KolibriSessionChecklist', {
+    header: 'Kolibri Session Checklist',
+    p1: 'Planning Checklist:',
+    list_1_item_1: 'I have a clear goal on how I want to leverage technology through this class.',
+    list_1_item_2: 'I have identified the objectives that I will be teaching this week.',
+    list_1_item_3:
+      'I have gone through the content and incorporated relevant content pieces in my plan.',
+    list_1_item_4: 'I have assigned quizzes to learners before class.',
+    list_1_item_5: 'I have assigned lessons to learners before class.',
+    list_1_item_6: 'I have reviewed student progress from the previous session.',
+    p2: 'Hardware/Software Checklist for Kolibri use:',
+    list_2_item_1:
+      'I have navigated through the platform and am comfortable using the different features.',
+    list_2_item_2: 'My server and local WiFi or cabled connection are working properly.',
+    list_2_item_3: 'The hardware that is required is fully charged.',
+    list_2_item_4: 'All the hardware in my classroom are in good working condition.',
+    p4: 'Classroom Management Checklist:',
+    list_3_item_1:
+      'My classroom layout allows for learners to work independently and also work in groups/collaborate during the session.',
+    list_3_item_2: 'Learners follow a procedure when they need to ask for assistance.',
+    list_3_item_3:
+      'I have written down the classroom procedures, best practices and rules for learners to see during Kolibri sessions.',
   });
 
   strings['StrategiesGroupingLearners'] = createTranslator('StrategiesGroupingLearners', {
@@ -1172,3 +1302,4 @@
   }
 
 </style>
+
