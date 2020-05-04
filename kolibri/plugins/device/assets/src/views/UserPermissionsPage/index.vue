@@ -57,7 +57,7 @@
           }"
         >
           <li>{{ $tr('superAdminExplanation1') }}</li>
-          <li>{{ $tr('superAdminExplanation2') }}</li>
+          <li>{{ $tr('superAdminExplanation2', { facilityName }) }}</li>
         </ul>
       </div>
 
@@ -230,8 +230,9 @@
       saveSuccessfulNotification: 'Changes saved!',
       userDoesNotExist: 'User does not exist',
       superAdminExplanation1:
-        'Has all device permissions and can manage device permissions of other users',
-      superAdminExplanation2: 'Has admin permissions for all facilities on this device',
+        'Has all device permissions and can manage the device permissions of other users',
+      superAdminExplanation2:
+        "Has admin permissions for all facilities on this device, but is still a member of the facility '{facilityName}'",
       you: 'You',
     },
   };

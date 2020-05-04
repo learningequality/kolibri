@@ -67,6 +67,14 @@
       devicePermissionsDescription: 'Make changes to what users can manage on your device',
       searchPlaceholder: 'Search for a user…',
       documentTitle: 'Manage Device Permissions',
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      adminsLabel: 'Admins',
+      canManageContentLabel: 'Can manage content',
+      superAdminLabel: 'Super admin',
+      noDevicePermissionsLabel: 'No device permissions',
+      allPermissionsFilterLabel: 'All',
+      allUserTypeFilter: 'All',
+      allFacilityFilter: 'All',
     },
   };
 
