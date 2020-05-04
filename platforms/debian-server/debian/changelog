@@ -1,4 +1,4 @@
-kolibri-server (0.3.8-0ubuntu1) bionic; urgency=medium
+kolibri-server (0.4.0-0ubuntu1) UNRELEASED; urgency=medium
 
   * Log to ~/.kolibri/logs/uwsgi.log
   * Adds a logrotate rule in /etc/logrotate.d/kolibri
