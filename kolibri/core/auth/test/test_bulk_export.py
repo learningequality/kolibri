@@ -112,12 +112,30 @@ class UserExportTestCase(TestCase):
             class_number = learner["username"][12:13]
             assert learner["enrolled"] == "classroom{}".format(class_number)
 
-    def test_csv_file(self):
+    def test_passwords_as_asterisks(self):
+        for row in self.csv_rows:
+            assert row['password'] == "*"
+
+    def get_data_from_csv_file(self):
         if sys.version_info[0] < 3:
             csv_file = open(self.filepath, "rb")
         else:
             csv_file = open(self.filepath, "r", newline="")
         with csv_file as f:
             results = list(row for row in csv.DictReader(f))
+        return results
+
+    def test_csv_file(self):
+        results = self.get_data_from_csv_file()
         for i, row in enumerate(results):
             assert row[b.labels["username"]] == self.csv_rows[i]["username"]
+
+    def test_coach_names_in_csv_file(self):
+        results = self.get_data_from_csv_file()
+        coach = self.data["facility_coach"].username
+        assignable_coaches = [u.username for u in self.data["classroom_coaches"]]
+        for row in results:
+            if row[b.labels['username']] == coach:
+                assert row[b.labels["kind"]] == "FACILITY_COACH"
+            elif row[b.labels['username']] in assignable_coaches:
+                assert row[b.labels["kind"]] == "CLASS_COACH"

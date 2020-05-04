@@ -121,7 +121,7 @@ class ImportTestCase(TestCase):
     def test_dryrun_from_export_csv(self):
         with open(self.filepath, "r") as source:
             header = next(csv.reader(source, strict=True))
-        header_translation = {l.partition("(")[2].partition(")")[0]: l for l in header}
+        header_translation = {lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header}
         cmd = b.Command()
 
         with open(self.filepath) as source:
