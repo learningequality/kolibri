@@ -4,6 +4,7 @@ kolibri-server (0.4.0-0ubuntu1) UNRELEASED; urgency=medium
   * Adds a logrotate rule in /etc/logrotate.d/kolibri
   * Fix some syntax issues in init.d script
   * Use bash for init.d script
+  * Set GID of UWSGI process to same as UID's primary group
 
  -- Benjamin Bach <benjamin@learningequality.org>  Thu, 19 Mar 2020 12:07:10 +0100
 

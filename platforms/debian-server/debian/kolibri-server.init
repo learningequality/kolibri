@@ -41,10 +41,12 @@ fi
 
 KOLIBRI_USER_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"
 
+KOLIBRI_GID=`id -g $KOLIBRI_USER`
+
 # Expands ~ in the KOLIBRI_HOME to the KOLIBRI_USER's HOME
 KOLIBRI_HOME=${KOLIBRI_HOME//\~/"$KOLIBRI_USER_HOME"}
 
-DAEMON_UWSGI_ARGS="--ini /etc/kolibri/dist/uwsgi.ini --uid=$KOLIBRI_USER \
+DAEMON_UWSGI_ARGS="--ini /etc/kolibri/dist/uwsgi.ini --uid=$KOLIBRI_USER --gid=$KOLIBRI_GID \
   --env=KOLIBRI_HOME=$KOLIBRI_HOME --daemonize=$KOLIBRI_HOME/logs/uwsgi.log --pidfile=$PIDFILE_UWSGI \
   --logfile-chown"
 
