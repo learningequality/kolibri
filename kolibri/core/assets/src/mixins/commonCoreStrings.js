@@ -92,6 +92,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // Formatting
   nameWithIdInParens: '{name} ({id})',
   quotedPhrase: `'{phrase}'`,
+  dashSeparatedPair: '{item1} - {item2}',
+  dashSeparatedTriple: '{item1} - {item2} - {item3}',
 
   // Demographic-specific strings
   genderOptionMale: 'Male',
