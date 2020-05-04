@@ -230,7 +230,7 @@ class Application(pew.ui.PEWApp):
 
     def run_server(self):
         logging.info("Starting Kolibri server...")
-        self.__kolibri_service = KolibriServiceThread()
+        self.__kolibri_service = KolibriServiceThread(retry_timeout_secs=10)
         self.__kolibri_service.start()
         self.__kolibri_service.join()
 
