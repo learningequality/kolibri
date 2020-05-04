@@ -93,7 +93,7 @@
       localNetworkOrInternet: 'Local network or internet',
       localDrives: 'Attached drive or memory card',
       studioDescription:
-        'Import resources from the Kolibri Content Library if you are connected to the internet',
+        'Import resources from Kolibri Studio if you are connected to the internet',
       networkDescription:
         'Import resources from another instance of Kolibri running on another device, either in the same local network or on the internet',
       localDescription:
