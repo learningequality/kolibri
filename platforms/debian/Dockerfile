@@ -1,4 +1,4 @@
-FROM alpine
+FROM alpine as make_dist
 
 RUN apk update && apk add \
     make \
@@ -6,11 +6,11 @@ RUN apk update && apk add \
     tar \
     python3
 
-# If build-src is alredy present, shouldn't need to redownload
-COPY build-src build-src
+# If build_src is alredy present, shouldn't need to redownload
+COPY build_src build_src
 COPY Makefile .
 
-RUN make clean && make dist/kolibri_archive.tar.gz build-src/VERSION
+RUN make clean && make dist/kolibri_archive.tar.gz build_src/VERSION
 
 
 FROM ubuntu:bionic
@@ -44,7 +44,7 @@ WORKDIR /kolibribuild
 COPY . .
 
 COPY --from=make_dist dist dist
-COPY --from=make_dist build-src build-src
+COPY --from=make_dist build_src build_src
 
 ENTRYPOINT [ "make" ]
 

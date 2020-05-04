@@ -1,26 +1,23 @@
 .ONESHELL:
 
 clean:
-	rm -f dist/*
-	rm -f build-src/VERSION
-
-build-src/:
-	mkdir build-src
+	rm -f dist/* build_src/VERSION *.cid
 
 # Doesn't have to run if you bring in your own tarball.
-build-src/*.tar.gz: build-src/
-	pip3 download --no-binary :all: -d build-src kolibri
+build_src/%.tar.gz:
+	mkdir -p build_src
+	pip3 download --no-binary :all: -d build_src kolibri
 
 
 # Need a reliable name so `make` knows what to look for.
 # Copying rather than renaming in place so that users
-# can plop their own tarball in `build-src` if so desired.
-dist/kolibri_archive.tar.gz: build-src/*.tar.gz
+# can plop their own tarball in `build_src` if so desired.
+dist/kolibri_archive.tar.gz: build_src/*.tar.gz
 	@# Copy to dist, where it will be copied to container
 	mkdir -p dist
 	cp $< $@
 
-build-src/VERSION: dist/kolibri_archive.tar.gz
+build_src/VERSION: dist/kolibri_archive.tar.gz
 	@# Use head of archive list to determine version location
 	ARCHIVE_ROOT=$$(tar -tf $< | head -1)
 	VERSION_PATH=$${ARCHIVE_ROOT}kolibri/VERSION
@@ -29,7 +26,7 @@ build-src/VERSION: dist/kolibri_archive.tar.gz
 	mv $$VERSION_PATH $@
 	rm -r $$ARCHIVE_ROOT
 
-dist/%.deb: build-src/VERSION dist/kolibri_archive.tar.gz
+dist/%.deb: build_src/VERSION dist/kolibri_archive.tar.gz
 	export KOLIBRI_VERSION=$$(cat $<)
 	DEB_VERSION=`echo -n "$KOLIBRI_VERSION" | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'`
 	cd kolibri-source*
@@ -42,7 +39,8 @@ dist/%.deb: build-src/VERSION dist/kolibri_archive.tar.gz
 
 
 .PHONY: docker-deb
-docker-deb: build-src/
+docker-deb:
+	mkdir -p build_src
 	build_scripts/docker_build.sh
 
 .PHONY: docker-test
