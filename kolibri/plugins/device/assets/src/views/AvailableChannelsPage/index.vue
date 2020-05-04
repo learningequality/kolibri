@@ -267,7 +267,7 @@
               address: this.selectedPeer.base_url,
             });
           default:
-            return this.$tr('kolibriCentralServer');
+            return this.$tr('importFromKolibriStudio');
         }
       },
       channelIsOnDevice(channel) {
@@ -383,7 +383,7 @@
       importResourcesHeader: 'Select resources for import',
       importFromDisk: `Import from '{driveName}'`,
       importFromPeer: `Import from '{deviceName}' ({address})`,
-      kolibriCentralServer: 'Kolibri Studio channels',
+      importFromKolibriStudio: 'Import from Kolibri Studio',
       channelTokenButtonLabel: 'Import with token',
       pageLoadError: 'There was a problem loading this page…',
       documentTitleForLocalImport: "Available Channels on '{driveName}'",
