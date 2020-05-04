@@ -26,15 +26,15 @@
           {{ $tr('syncing') }}
         </template>
         <template v-else>
-          <template v-if="facility.last_sync_failed">
+          <span v-if="facility.last_sync_failed" class="sync-message">
             {{ $tr('syncFailed') }}
-          </template>
-          <template v-if="facility.last_synced === null">
+          </span>
+          <span v-if="facility.last_synced === null" class="sync-message">
             {{ $tr('neverSynced') }}
-          </template>
-          <template v-else>
+          </span>
+          <span v-else class="sync-message">
             {{ $tr('lastSync') }} {{ formattedTime(facility.last_synced) }}
-          </template>
+          </span>
         </template>
       </span>
     </div>
@@ -100,7 +100,7 @@
         context:
           '\nThis is used to indicate when an event occurred. It\'s associated with the label "Last successful sync:"',
       },
-      syncFailed: 'Most recent sync failed.',
+      syncFailed: 'Most recent sync failed',
       syncing: 'Syncing',
     },
   };
@@ -112,13 +112,18 @@
 
   .name {
     display: inline-block;
-    margin-right: 8px;
+    margin: 8px;
+    margin-left: 0;
   }
 
   .loader {
     top: 3px;
     display: inline-block;
     margin-right: 8px;
+  }
+
+  .sync-message {
+    display: block;
   }
 
 </style>
