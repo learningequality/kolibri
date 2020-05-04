@@ -18,9 +18,18 @@ case "$1" in
     # create nginx configurations:
     ln -sf /etc/kolibri/dist/nginx.conf /etc/nginx/conf.d/kolibri.conf
     db_get kolibri-server/port
-    su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -d $RET"
+    PORT=$RET
+    su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -d $PORT"
+    if [ -L "/etc/nginx/sites-enabled/default" ] && [ "$PORT" = "80" ] ;then
+        rm  /etc/nginx/sites-enabled/default
+        touch /etc/kolibri/nginx_default
+    elif [ ! -L "/etc/nginx/sites-enabled/default" ] && [ "$PORT" != "80" ]  && [ -f "/etc/kolibri/nginx_default" ] ;then
+        ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+        rm -f /etc/kolibri/nginx_default
+    fi
     echo "include $DAEMON_HOME/nginx.conf;" > /etc/kolibri/nginx.d/099-user.conf
     service nginx reload || true
+    service kolibri-server force-reload || true
     ;;
   abort-upgrade|abort-remove|abort-deconfigure)
     ;;
