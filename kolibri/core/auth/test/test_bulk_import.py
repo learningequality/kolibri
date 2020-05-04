@@ -129,7 +129,9 @@ class ImportTestCase(TestCase):
     def test_dryrun_from_export_csv(self):
         with open(self.filepath, "r") as source:
             header = next(csv.reader(source, strict=True))
-        header_translation = {lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header}
+        header_translation = {
+            lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
+        }
         cmd = b.Command()
 
         with open(self.filepath) as source:
@@ -186,7 +188,9 @@ class ImportTestCase(TestCase):
 
         with open(new_filepath, "r") as source:
             header = next(csv.reader(source, strict=True))
-        header_translation = {lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header}
+        header_translation = {
+            lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
+        }
         cmd = b.Command()
 
         with open(new_filepath, "r") as source:
@@ -195,7 +199,7 @@ class ImportTestCase(TestCase):
                 reader, header_translation
             )
         assert len(per_line_errors) == 1
-        assert per_line_errors[0]['message'] == "The column 'PASSWORD' is required"
+        assert per_line_errors[0]["message"] == "The column 'PASSWORD' is required"
 
     def test_delete_users_and_classes(self):
         self.import_exported_csv()

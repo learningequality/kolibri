@@ -114,7 +114,7 @@ class UserExportTestCase(TestCase):
 
     def test_passwords_as_asterisks(self):
         for row in self.csv_rows:
-            assert row['password'] == "*"
+            assert row["password"] == "*"
 
     def get_data_from_csv_file(self):
         if sys.version_info[0] < 3:
@@ -135,7 +135,7 @@ class UserExportTestCase(TestCase):
         coach = self.data["facility_coach"].username
         assignable_coaches = [u.username for u in self.data["classroom_coaches"]]
         for row in results:
-            if row[b.labels['username']] == coach:
+            if row[b.labels["username"]] == coach:
                 assert row[b.labels["kind"]] == "FACILITY_COACH"
-            elif row[b.labels['username']] in assignable_coaches:
+            elif row[b.labels["username"]] in assignable_coaches:
                 assert row[b.labels["kind"]] == "CLASS_COACH"

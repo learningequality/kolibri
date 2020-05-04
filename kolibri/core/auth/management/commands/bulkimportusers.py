@@ -107,6 +107,7 @@ def not_empty():
     Return a value check function which raises a ValueError if the supplied
     value is None or an empty string
     """
+
     def checker(v):
         if v is None:
             raise ValueError(v)
