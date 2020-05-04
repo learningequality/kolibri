@@ -71,6 +71,9 @@
       canManageContentLabel: 'Can manage content',
       superAdminLabel: 'Super admin',
       noDevicePermissionsLabel: 'No device permissions',
+      allPermissionsFilterLabel: 'All',
+      allUserTypeFilter: 'All',
+      allFacilityFilter: 'All',
     },
   };
 
