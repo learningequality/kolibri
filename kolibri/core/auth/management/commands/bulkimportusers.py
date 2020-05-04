@@ -102,6 +102,20 @@ def number_range(min, max, allow_null=False):
     return checker
 
 
+def not_empty():
+    """
+    Return a value check function which raises a ValueError if the supplied
+    value is None or an empty string
+    """
+    def checker(v):
+        if v is None:
+            raise ValueError(v)
+        if len(v) == 0:
+            raise ValueError(v)
+
+    return checker
+
+
 def value_length(length, allow_null=False):
     """
     Return a value check function which raises a ValueError if the supplied
@@ -339,7 +353,13 @@ class Command(AsyncCommand):
             "USERNAME", valid_name(), MESSAGES[INVALID_USERNAME],
         )
         validator.add_check(
+            "USERNAME", not_empty(), MESSAGES[REQUIRED_COLUMN].format("USERNAME")
+        )
+        validator.add_check(
             "PASSWORD", value_length(128), MESSAGES[TOO_LONG].format("PASSWORD")
+        )
+        validator.add_check(
+            "PASSWORD", not_empty(), MESSAGES[REQUIRED_COLUMN].format("PASSWORD")
         )
         validator.add_check(
             "USER_TYPE",
@@ -382,7 +402,7 @@ class Command(AsyncCommand):
             header = next(csv.reader(f, strict=True))
             has_header = False
             self.header_translation = {
-                l.partition("(")[2].partition(")")[0]: l for l in header
+                lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
             }
             neutral_header = self.header_translation.keys()
             # If every item in the first row matches an item in the fieldnames, consider it a header row

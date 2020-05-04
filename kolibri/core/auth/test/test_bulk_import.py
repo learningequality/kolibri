@@ -60,7 +60,6 @@ def test_enumeration_validator():
 
 def test_valid_name_validator():
     check = b.valid_name()
-    # pytest.set_trace()
     assert check("bob123") is None
     with pytest.raises(ValueError):
         check("bob 123")
@@ -74,6 +73,15 @@ def test_valid_name_validator():
 
     check = b.valid_name(allow_null=True)
     check(None) is None
+
+
+def test_not_empty():
+    check = b.not_empty()
+    assert check("hello") is None
+    with pytest.raises(ValueError):
+        check(None)
+    with pytest.raises(ValueError):
+        check("")
 
 
 class ImportTestCase(TestCase):
@@ -145,10 +153,7 @@ class ImportTestCase(TestCase):
         assert assigned_classes["classroom0"] == ["classcoach0"]
         assert assigned_classes["classroom1"] == ["classcoach1"]
 
-    def test_delete_users_and_classes(self):
-        self.import_exported_csv()
-
-        # new csv to import and clear classes and delete non-admin users:
+    def test_password_is_required(self):
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
         rows = []
         rows.append(
@@ -167,7 +172,54 @@ class ImportTestCase(TestCase):
         rows.append(
             [
                 "new_coach",
+                "*",
                 None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                None,
+                "new_class",
+            ]
+        )
+        self.create_csv(new_filepath, rows)
+
+        with open(new_filepath, "r") as source:
+            header = next(csv.reader(source, strict=True))
+        header_translation = {lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header}
+        cmd = b.Command()
+
+        with open(new_filepath, "r") as source:
+            reader = csv.DictReader(source, strict=True)
+            per_line_errors, classes, users, roles = cmd.csv_values_validation(
+                reader, header_translation
+            )
+        assert len(per_line_errors) == 1
+        assert per_line_errors[0]['message'] == "The column 'PASSWORD' is required"
+
+    def test_delete_users_and_classes(self):
+        self.import_exported_csv()
+
+        # new csv to import and clear classes and delete non-admin users:
+        _, new_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = []
+        rows.append(
+            [
+                "new_learner",
+                "*",
+                None,
+                "LEARNER",
+                None,
+                "2001",
+                "FEMALE",
+                "new_class",
+                None,
+            ]
+        )
+        rows.append(
+            [
+                "new_coach",
+                "*",
                 None,
                 "FACILITY_COACH",
                 None,
@@ -220,7 +272,7 @@ class ImportTestCase(TestCase):
         rows.append(
             [
                 "new_learner",
-                None,
+                "*",
                 None,
                 "LEARNER",
                 "kalite",
@@ -232,7 +284,7 @@ class ImportTestCase(TestCase):
         rows.append(
             [
                 "new_coach",
-                None,
+                "*",
                 None,
                 "FACILITY_COACH",
                 None,
