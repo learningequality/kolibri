@@ -9,7 +9,10 @@
 # Description:       Multicore server setup for Kolibri, an offline education platform
 ### END INIT INFO
 
-# Do NOT "set -e"
+# Crash if a sub-process crashes. This is important to discover
+# errors in this script. It might be changed in the future.
+set -e
+
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="kolibri-server"
@@ -45,7 +48,7 @@ KOLIBRI_USER_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"
 DAEMON_HOME="$KOLIBRI_USER_HOME/.kolibri"
 
 DAEMON_UWSGI_ARGS="--ini /etc/kolibri/dist/uwsgi.ini --uid=$KOLIBRI_USER \
-  --env=KOLIBRI_HOME=$DAEMON_HOME --daemonize=$DAEMON_HOME/uwsgi.log --pidfile=$PIDFILE_UWSGI"
+  --env=KOLIBRI_HOME=$DAEMON_HOME --daemonize=$DAEMON_HOME/uwsgi.log --pidfile2=$PIDFILE_UWSGI"
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
