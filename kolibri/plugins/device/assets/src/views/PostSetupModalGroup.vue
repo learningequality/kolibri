@@ -7,6 +7,10 @@
       @submit="handleSubmit"
     />
 
+    <PermissionsChangeModal
+      v-if="step === Steps.PERMISSIONS_CHANGE"
+      newRole="superadmin"
+    />
     <SelectAddressForm
       v-else-if="step === Steps.SELECT_SOURCE_FACILITY_PEER"
       :title="getCommonSyncString('selectSourceTitle')"
@@ -32,9 +36,11 @@
   import { SelectAddressForm } from 'kolibri.coreVue.componentSets.sync';
   import { availableChannelsPageLink } from './ManageContentPage/manageContentLinks';
   import WelcomeModal from './WelcomeModal';
+  import PermissionsChangeModal from './PermissionsChangeModal';
 
   const Steps = Object.freeze({
     WELCOME: 'WELCOME',
+    PERMISSIONS_CHANGE: 'PERMISSIONS_CHANGE',
     SELECT_SOURCE_FACILITY_PEER: 'SELECT_SOURCE_FACILITY_PEER',
     SELECT_SOURCE_NORMAL: 'SELECT_SOURCE_NORMAL',
   });
@@ -42,6 +48,7 @@
   export default {
     name: 'PostSetupModalGroup',
     components: {
+      PermissionsChangeModal,
       WelcomeModal,
       SelectAddressForm,
     },

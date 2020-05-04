@@ -8,7 +8,7 @@
     <p
       v-for="(paragraph, idx) in paragraphs"
       :key="idx"
-      class="welcome-modal-description"
+      class="paragraph"
     >
       {{ paragraph }}
     </p>
@@ -63,12 +63,8 @@
 
 <style lang="scss" scoped>
 
-  .welcome-modal-description {
+  .paragraph {
     margin-top: 16px;
-  }
-  .welcome-modal-dismiss-button {
-    margin-top: 24px;
-    margin-bottom: 16px;
   }
 
 </style>
