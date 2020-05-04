@@ -45,7 +45,8 @@ KOLIBRI_USER_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"
 KOLIBRI_HOME=${KOLIBRI_HOME//\~/"$KOLIBRI_USER_HOME"}
 
 DAEMON_UWSGI_ARGS="--ini /etc/kolibri/dist/uwsgi.ini --uid=$KOLIBRI_USER \
-  --env=KOLIBRI_HOME=$KOLIBRI_HOME --daemonize=$KOLIBRI_HOME/logs/uwsgi.log --pidfile=$PIDFILE_UWSGI"
+  --env=KOLIBRI_HOME=$KOLIBRI_HOME --daemonize=$KOLIBRI_HOME/logs/uwsgi.log --pidfile=$PIDFILE_UWSGI \
+  --logfile-chown"
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
