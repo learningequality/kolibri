@@ -73,6 +73,11 @@
 
   export default {
     name: 'FacilitiesTasksPage',
+    metaInfo() {
+      return {
+        title: this.coreString('tasksLabel'),
+      };
+    },
     components: {
       FacilityTaskPanel,
       HeaderWithOptions,

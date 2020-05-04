@@ -105,6 +105,11 @@
 
   export default {
     name: 'FacilitiesPage',
+    metaInfo() {
+      return {
+        title: this.coreString('facilitiesLabel'),
+      };
+    },
     components: {
       CoreTable,
       HeaderWithOptions,
