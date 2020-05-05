@@ -69,7 +69,7 @@ class UserExportTestCase(TestCase):
 
     def test_exported_rows(self):
         # total number of users created by create_dummy_facility_data:
-        # superuser = 1
+        # superuser = 1 (not exported)
         # facility admin = 1
         # facility coach = 1
         # orphan_users = 3
@@ -77,7 +77,7 @@ class UserExportTestCase(TestCase):
         # classroom_coaches = CLASSROOMS
         # learners =  CLASSROOMS
         # 1 learner in all classrooms
-        assert len(self.csv_rows) == 7 + CLASSROOMS * 3
+        assert len(self.csv_rows) == 6 + CLASSROOMS * 3
 
     def test_roles(self):
         admin = self.data["facility_admin"].username
