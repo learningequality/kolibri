@@ -1,5 +1,6 @@
 steps:
-  - block: Build Debian?
-    if: build.env("LE_KOLIBRI_RELEASE")
-  - label: :debian:
+  - block: "Build :debian:?"
+    # Autoblock only for non-release builds.
+    if: build.source == "trigger_job"
+  - label: ":debian:"
     command: .buildkite/build.sh
