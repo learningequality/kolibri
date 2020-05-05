@@ -144,6 +144,8 @@ def csv_file_generator(facility, filepath, overwrite=True):
         )
 
         for item in query.values(*db_columns):
+            if item["kind"] == role_kinds.ADMIN:
+                continue
             if item["username"] not in usernames:
                 item["password"] = "*"
                 writer.writerow(map_output(item))
