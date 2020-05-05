@@ -28,7 +28,6 @@ except NameError:
     FileNotFoundError = IOError
 
 logger = logging.getLogger(__name__)
-DEFAULT_PASSWORD = make_password("kolibri")
 
 # TODO: decide whether these should be internationalized
 fieldnames = (
@@ -48,8 +47,8 @@ fieldnames = (
 roles_map = {
     "LEARNER": None,
     "ADMIN": role_kinds.ADMIN,
-    "COACH": role_kinds.COACH,
-    "ASSIGNABLE_COACH": role_kinds.ASSIGNABLE_COACH,
+    "FACILITY_COACH": role_kinds.COACH,
+    "CLASS_COACH": role_kinds.ASSIGNABLE_COACH,
 }
 
 # Error messages ###
@@ -63,6 +62,7 @@ INVALID_HEADER = 6
 NO_FACILITY = 7
 FILE_READ_ERROR = 8
 FILE_WRITE_ERROR = 9
+REQUIRED_PASSWORD = 10
 
 MESSAGES = {
     UNEXPECTED_EXCEPTION: _("Unexpected exception [{}]: {}"),
@@ -79,6 +79,9 @@ MESSAGES = {
     ),
     FILE_READ_ERROR: _("Error trying to read csv file: {}"),
     FILE_WRITE_ERROR: _("Error trying to write csv file: {}"),
+    REQUIRED_PASSWORD: _(
+        "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
+    ),
 }
 
 # Validators ###
@@ -97,6 +100,21 @@ def number_range(min, max, allow_null=False):
             return None
 
         if v is None or (int(v) < min or int(v) > max):
+            raise ValueError(v)
+
+    return checker
+
+
+def not_empty():
+    """
+    Return a value check function which raises a ValueError if the supplied
+    value is None or an empty string
+    """
+
+    def checker(v):
+        if v is None:
+            raise ValueError(v)
+        if len(v) == 0:
             raise ValueError(v)
 
     return checker
@@ -211,17 +229,20 @@ class Validator(object):
 
     def check_classroom(self, row, username):
         def append_users(class_list, key):
+            class_list_normalized = {c.lower(): c for c in class_list.keys()}
             try:
-                classes_list = row.get(key, None).split(",")
+                classes_list = [c.strip() for c in row.get(key, None).split(",")]
                 for classroom in classes_list:
                     if not classroom:
                         continue
-                    if classroom in class_list:
-                        class_list[classroom].append(username)
+                    if classroom.lower() in class_list_normalized:
+                        classroom_real_name = class_list_normalized[classroom.lower()]
+                        class_list[classroom_real_name].append(username)
                     else:
                         class_list[classroom] = [
                             username,
                         ]
+                        class_list_normalized[classroom.lower()] = classroom
             except AttributeError:
                 # there are not members of 'key'
                 pass
@@ -320,6 +341,13 @@ class Command(AsyncCommand):
             default=None,
             help="Code of the language for the messages to be translated",
         )
+        parser.add_argument(
+            "--errorlines",
+            action="store",
+            type=str,
+            default=None,
+            help="File to store errors output (to be used in internal tests only)",
+        )
 
     def csv_values_validation(self, reader, header_translation):
         per_line_errors = []
@@ -339,8 +367,12 @@ class Command(AsyncCommand):
             "USERNAME", valid_name(), MESSAGES[INVALID_USERNAME],
         )
         validator.add_check(
+            "USERNAME", not_empty(), MESSAGES[REQUIRED_COLUMN].format("USERNAME")
+        )
+        validator.add_check(
             "PASSWORD", value_length(128), MESSAGES[TOO_LONG].format("PASSWORD")
         )
+        validator.add_check("PASSWORD", not_empty(), MESSAGES[REQUIRED_PASSWORD])
         validator.add_check(
             "USER_TYPE",
             enumeration(*roles_map.keys()),
@@ -369,6 +401,18 @@ class Command(AsyncCommand):
         row_errors = validator.validate(reader)
         for err in row_errors:
             per_line_errors.append(err)
+        # cleaning classes names:
+        normalized_learner_classroooms = {c.lower(): c for c in validator.classrooms}
+        coach_classrooms = [cl for cl in validator.coach_classrooms]
+        for classroom in coach_classrooms:
+            normalized_name = classroom.lower()
+            if normalized_name in normalized_learner_classroooms:
+                real_name = normalized_learner_classroooms[normalized_name]
+                if classroom != real_name:
+                    validator.coach_classrooms[
+                        real_name
+                    ] = validator.coach_classrooms.pop(classroom)
+
         return (
             per_line_errors,
             (validator.classrooms, validator.coach_classrooms),
@@ -382,7 +426,7 @@ class Command(AsyncCommand):
             header = next(csv.reader(f, strict=True))
             has_header = False
             self.header_translation = {
-                l.partition("(")[2].partition(")")[0]: l for l in header
+                lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
             }
             neutral_header = self.header_translation.keys()
             # If every item in the first row matches an item in the fieldnames, consider it a header row
@@ -401,10 +445,10 @@ class Command(AsyncCommand):
 
     def get_field_values(self, user_row):
         password = user_row.get(self.header_translation["PASSWORD"], None)
-        if password:
+        if password != "*":
             password = make_password(password)
         else:
-            password = DEFAULT_PASSWORD
+            password = None
 
         gender = user_row.get(self.header_translation["GENDER"], "").strip().upper()
         gender = "" if gender == DEFERRED else gender
@@ -429,12 +473,10 @@ class Command(AsyncCommand):
     def compare_fields(self, user_obj, values):
         changed = False
         for field in values:
-            if field == "password":
-                # Change password if it was not blank
-                if values["password"] != DEFAULT_PASSWORD:
-                    changed = True
-            elif getattr(user_obj, field) != values[field]:
+            if getattr(user_obj, field) != values[field]:
                 changed = True
+            if field == "password" and values["password"] is None:
+                changed = False
             if changed:
                 setattr(user_obj, field, values[field])
         return changed
@@ -443,6 +485,7 @@ class Command(AsyncCommand):
         new_users = list()
         update_users = list()
         keeping_users = list()
+        per_line_errors = list()
         existing_users = (
             FacilityUser.objects.filter(facility=self.default_facility)
             .filter(username__in=users.keys())
@@ -464,14 +507,25 @@ class Command(AsyncCommand):
                 if self.compare_fields(user_obj, values):
                     update_users.append(user_obj)
             else:
-                user_obj = FacilityUser(username=user, facility=self.default_facility)
-                # user_obj.id = user_obj.calculate_uuid()  # Morango does not work properly with this
-                for field in values:
-                    if values[field]:
-                        setattr(user_obj, field, values[field])
-                new_users.append(user_obj)
+                if not values["password"]:
+                    error = {
+                        "row": "USERNAME:{}".format(user),
+                        "message": MESSAGES[REQUIRED_PASSWORD],
+                        "field": "password",
+                        "value": "*",
+                    }
+                    per_line_errors.append(error)
+                else:
+                    user_obj = FacilityUser(
+                        username=user, facility=self.default_facility
+                    )
+                    # user_obj.id = user_obj.calculate_uuid()  # Morango does not work properly with this
+                    for field in values:
+                        if values[field]:
+                            setattr(user_obj, field, values[field])
+                    new_users.append(user_obj)
 
-        return (new_users, update_users, keeping_users)
+        return (new_users, update_users, keeping_users, per_line_errors)
 
     def db_validate_list(self, db_list, users=False):
         errors = []
@@ -498,29 +552,46 @@ class Command(AsyncCommand):
         return errors
 
     def build_classes_objects(self, classes):
+        """
+        Using current database info, builds the list of classes to be
+        updated or created.
+        It also returns an updated classes list, using the case insensitive
+        names of the classes that were already in the database
+        `classes` - Tuple containing two dictionaries: enrolled classes + assigned classes
+        Returns:
+        new_classes - List of database objects of classes to be created
+        update_classes - List of database objects of classes to be updated
+        fixed_classes - Same original classes tuple, but with the names normalized
+
+        """
         new_classes = list()
         update_classes = list()
-        total_classes = set(
-            [k for k in classes[0].keys()] + [v for v in classes[1].keys()]
-        )
+        total_classes = set([k for k in classes[0]] + [v for v in classes[1]])
         existing_classes = (
             Classroom.objects.filter(parent=self.default_facility)
-            .filter(name__in=total_classes)
+            # .filter(name__in=total_classes)  # can't be done if classes names are case insensitive
             .values_list("name", flat=True)
         )
 
+        normalized_name_existing = {c.lower(): c for c in existing_classes}
         for classroom in total_classes:
-            if classroom in existing_classes:
+            if classroom.lower() in normalized_name_existing:
+                real_name = normalized_name_existing[classroom.lower()]
                 class_obj = Classroom.objects.get(
-                    name=classroom, parent=self.default_facility
+                    name=real_name, parent=self.default_facility
                 )
                 update_classes.append(class_obj)
+                if real_name != classroom:
+                    if classroom in classes[0]:
+                        classes[0][real_name] = classes[0].pop(classroom)
+                    if classroom in classes[1]:
+                        classes[1][real_name] = classes[1].pop(classroom)
             else:
                 class_obj = Classroom(name=classroom, parent=self.default_facility)
                 class_obj.id = class_obj.calculate_uuid()
                 new_classes.append(class_obj)
         self.progress_update(1)
-        return (new_classes, update_classes)
+        return (new_classes, update_classes, classes)
 
     def get_facility(self, options):
         if options["facility"]:
@@ -588,20 +659,26 @@ class Command(AsyncCommand):
         for classroom in enrolled:
             db_class = classes[classroom]
             for username in enrolled[classroom]:
-                user = self.get_user(username, users)
-                if not user.is_member_of(db_class):
-                    db_class.add_member(user)
+                # db validation might have rejected a csv validated user:
+                if username in users:
+                    user = self.get_user(username, users)
+                    if not user.is_member_of(db_class):
+                        db_class.add_member(user)
         for classroom in assigned:
             db_class = classes[classroom]
             for username in assigned[classroom]:
-                user = self.get_user(username, users)
-                db_class.add_coach(user)
+                # db validation might have rejected a csv validated user:
+                if username in users:
+                    user = self.get_user(username, users)
+                    db_class.add_coach(user)
 
     def add_roles(self, users, roles):
         for role in roles.keys():
             for username in roles[role]:
-                user = self.get_user(username, users)
-                self.default_facility.add_role(user, role)
+                # db validation might have rejected a csv validated user:
+                if username in users:
+                    user = self.get_user(username, users)
+                    self.default_facility.add_role(user, role)
 
     def exit_if_error(self):
         if self.overall_error:
@@ -640,6 +717,32 @@ class Command(AsyncCommand):
             else:
                 to_remove.delete()
 
+    def output_messages(
+        self, per_line_errors, classes_report, users_report, filepath, errorlines
+    ):
+        # Show output error messages on loggers, job metadata or io errorlines for testing
+        # freeze message translations:
+        for line in per_line_errors:
+            line["message"] = str(line["message"])
+        self.overall_error = [str(msg) for msg in self.overall_error]
+
+        if self.job:
+            self.job.extra_metadata["overall_error"] = self.overall_error
+            self.job.extra_metadata["per_line_errors"] = per_line_errors
+            self.job.extra_metadata["classes"] = classes_report
+            self.job.extra_metadata["users"] = users_report
+            self.job.extra_metadata["filename"] = ntpath.basename(filepath)
+            self.job.save_meta()
+        else:
+            logger.info("File errors: {}".format(str(self.overall_error)))
+            logger.info("Data errors: {}".format(str(per_line_errors)))
+            logger.info("Classes report: {}".format(str(classes_report)))
+            logger.info("Users report: {}".format(str(users_report)))
+            if errorlines:
+                for line in per_line_errors:
+                    errorlines.write(str(line))
+                    errorlines.write("\n")
+
     def handle_async(self, *args, **options):
         # initialize stats data structures:
         self.overall_error = []
@@ -677,11 +780,19 @@ class Command(AsyncCommand):
             except (ValueError, FileNotFoundError, csv.Error) as e:
                 self.overall_error.append(MESSAGES[FILE_READ_ERROR].format(e))
                 self.exit_if_error()
-            db_new_users, db_update_users, keeping_users = self.build_users_objects(
-                users
-            )
-            db_new_classes, db_update_classes = self.build_classes_objects(classes)
-
+            (
+                db_new_users,
+                db_update_users,
+                keeping_users,
+                more_line_errors,
+            ) = self.build_users_objects(users)
+            per_line_errors += more_line_errors
+            (
+                db_new_classes,
+                db_update_classes,
+                fixed_classes,
+            ) = self.build_classes_objects(classes)
+            classes = fixed_classes
             users_to_delete, classes_to_clear = self.get_delete(
                 options, keeping_users, db_update_classes
             )
@@ -729,22 +840,12 @@ class Command(AsyncCommand):
                 "deleted": len(users_to_delete),
             }
 
-            # freeze message translations:
-            for line in per_line_errors:
-                line["message"] = str(line["message"])
-            self.overall_error = [str(msg) for msg in self.overall_error]
-
-            if self.job:
-                self.job.extra_metadata["overall_error"] = self.overall_error
-                self.job.extra_metadata["per_line_errors"] = per_line_errors
-                self.job.extra_metadata["classes"] = classes_report
-                self.job.extra_metadata["users"] = users_report
-                self.job.extra_metadata["filename"] = ntpath.basename(filepath)
-                self.job.save_meta()
-            else:
-                logger.info("File errors: {}".format(str(self.overall_error)))
-                logger.info("Data errors: {}".format(str(per_line_errors)))
-                logger.info("Classes report: {}".format(str(classes_report)))
-                logger.info("Users report: {}".format(str(users_report)))
+            self.output_messages(
+                per_line_errors,
+                classes_report,
+                users_report,
+                filepath,
+                options["errorlines"],
+            )
 
         translation.deactivate()

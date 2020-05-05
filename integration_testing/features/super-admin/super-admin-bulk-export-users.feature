@@ -10,7 +10,7 @@ Feature: Super Admin export users for a facility in a device with manage bulkexp
       And I browse the folder where I executed the command
     Then I see the 'users_<date>_<time>.csv' file # <date> is current date and <time> current time, for example users_20200420_194415.csv
     When I open the file with a text editor or a spreadsheet application
-      And I see one row per user in the current facility
+      And I see one row per user in the current facility (excepting super admins)
       And each row lists user info and classes they are enrolled or assigned (if they are a coach)
 
   Scenario: Execute the bulkexportusers command and review the header in the output file is translated

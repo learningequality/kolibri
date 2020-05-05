@@ -25,7 +25,7 @@ def test_not_specified():
 
 def test_kind_of_roles():
     assert b.kind_of_roles("kind", {"kind": None}) == "LEARNER"
-    assert b.kind_of_roles("kind", {"kind": "coACh"}) == "COACH"
+    assert b.kind_of_roles("kind", {"kind": "coACh"}) == "FACILITY_COACH"
 
 
 def test_map_output():
@@ -45,7 +45,7 @@ def test_map_output():
         "Username (USERNAME)": "Bob",
         "Password (PASSWORD)": None,
         "Full name (FULL_NAME)": None,
-        "User type (USER_TYPE)": "COACH",
+        "User type (USER_TYPE)": "FACILITY_COACH",
         "Identifier (IDENTIFIER)": None,
         "Birth year (BIRTH_YEAR)": "1969",
         "Gender (GENDER)": "MALE",
@@ -69,7 +69,7 @@ class UserExportTestCase(TestCase):
 
     def test_exported_rows(self):
         # total number of users created by create_dummy_facility_data:
-        # superuser = 1
+        # superuser = 1 (not exported)
         # facility admin = 1
         # facility coach = 1
         # orphan_users = 3
@@ -77,7 +77,7 @@ class UserExportTestCase(TestCase):
         # classroom_coaches = CLASSROOMS
         # learners =  CLASSROOMS
         # 1 learner in all classrooms
-        assert len(self.csv_rows) == 7 + CLASSROOMS * 3
+        assert len(self.csv_rows) == 6 + CLASSROOMS * 3
 
     def test_roles(self):
         admin = self.data["facility_admin"].username
@@ -112,12 +112,30 @@ class UserExportTestCase(TestCase):
             class_number = learner["username"][12:13]
             assert learner["enrolled"] == "classroom{}".format(class_number)
 
-    def test_csv_file(self):
+    def test_passwords_as_asterisks(self):
+        for row in self.csv_rows:
+            assert row["password"] == "*"
+
+    def get_data_from_csv_file(self):
         if sys.version_info[0] < 3:
             csv_file = open(self.filepath, "rb")
         else:
             csv_file = open(self.filepath, "r", newline="")
         with csv_file as f:
             results = list(row for row in csv.DictReader(f))
+        return results
+
+    def test_csv_file(self):
+        results = self.get_data_from_csv_file()
         for i, row in enumerate(results):
             assert row[b.labels["username"]] == self.csv_rows[i]["username"]
+
+    def test_coach_names_in_csv_file(self):
+        results = self.get_data_from_csv_file()
+        coach = self.data["facility_coach"].username
+        assignable_coaches = [u.username for u in self.data["classroom_coaches"]]
+        for row in results:
+            if row[b.labels["username"]] == coach:
+                assert row[b.labels["kind"]] == "FACILITY_COACH"
+            elif row[b.labels["username"]] in assignable_coaches:
+                assert row[b.labels["kind"]] == "CLASS_COACH"

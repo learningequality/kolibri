@@ -15,6 +15,11 @@ from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import FacilityUser
 
+if sys.version_info[0] < 3:
+    from cStringIO import StringIO
+else:
+    from io import StringIO
+
 
 CLASSROOMS = 2
 
@@ -60,7 +65,6 @@ def test_enumeration_validator():
 
 def test_valid_name_validator():
     check = b.valid_name()
-    # pytest.set_trace()
     assert check("bob123") is None
     with pytest.raises(ValueError):
         check("bob 123")
@@ -74,6 +78,15 @@ def test_valid_name_validator():
 
     check = b.valid_name(allow_null=True)
     check(None) is None
+
+
+def test_not_empty():
+    check = b.not_empty()
+    assert check("hello") is None
+    with pytest.raises(ValueError):
+        check(None)
+    with pytest.raises(ValueError):
+        check("")
 
 
 class ImportTestCase(TestCase):
@@ -109,6 +122,17 @@ class ImportTestCase(TestCase):
                 writer.writerow(item)
 
     def import_exported_csv(self):
+        # Replace asterisk in passwords to be able to import it
+        _, new_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = list()
+        with open(self.filepath) as source:
+            reader = csv.reader(source, strict=True)
+            for row in reader:
+                if row[1] == "*":
+                    row[1] = "temp_password"
+                rows.append(row)
+        self.create_csv(new_filepath, rows[1:])  # remove header
+        self.filepath = new_filepath
         # import exported csv
         call_command(
             "bulkimportusers", self.filepath, facility=self.facility.id,
@@ -121,7 +145,9 @@ class ImportTestCase(TestCase):
     def test_dryrun_from_export_csv(self):
         with open(self.filepath, "r") as source:
             header = next(csv.reader(source, strict=True))
-        header_translation = {l.partition("(")[2].partition(")")[0]: l for l in header}
+        header_translation = {
+            lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
+        }
         cmd = b.Command()
 
         with open(self.filepath) as source:
@@ -130,9 +156,9 @@ class ImportTestCase(TestCase):
                 reader, header_translation
             )
 
-        assert len(users) == 13
+        assert len(users) == 12  # admins have not been exported
+        # assert roles[role_kinds.ADMIN] == ["facadmin"]
         assert per_line_errors == []
-        assert roles[role_kinds.ADMIN] == ["facadmin"]
         assert roles[role_kinds.COACH] == ["faccoach"]
         assert "classcoach0" in roles[role_kinds.ASSIGNABLE_COACH]
         assert "classcoach1" in roles[role_kinds.ASSIGNABLE_COACH]
@@ -145,13 +171,9 @@ class ImportTestCase(TestCase):
         assert assigned_classes["classroom0"] == ["classcoach0"]
         assert assigned_classes["classroom1"] == ["classcoach1"]
 
-    def test_delete_users_and_classes(self):
-        self.import_exported_csv()
-
-        # new csv to import and clear classes and delete non-admin users:
+    def test_password_is_required(self):
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
-        rows = []
-        rows.append(
+        rows = [
             [
                 "new_learner",
                 None,
@@ -162,11 +184,155 @@ class ImportTestCase(TestCase):
                 "FEMALE",
                 "new_class",
                 None,
-            ]
+            ],
+            [
+                "new_coach",
+                "*",
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                None,
+                "new_class",
+            ],
+            [
+                "another_new_coach",
+                "passwd1",
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                None,
+                "new_class",
+            ],
+        ]
+        self.create_csv(new_filepath, rows)
+
+        with open(new_filepath, "r") as source:
+            header = next(csv.reader(source, strict=True))
+        header_translation = {
+            lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
+        }
+        cmd = b.Command()
+
+        with open(new_filepath, "r") as source:
+            reader = csv.DictReader(source, strict=True)
+            per_line_errors, classes, users, roles = cmd.csv_values_validation(
+                reader, header_translation
+            )
+        assert len(per_line_errors) == 1
+        assert (
+            per_line_errors[0]["message"]
+            == "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"  # noqa: W503
         )
-        rows.append(
-            ["new_coach", None, None, "COACH", None, "1969", "MALE", None, "new_class"]
+        out_log = StringIO()
+        call_command(
+            "bulkimportusers",
+            new_filepath,
+            facility=self.facility.id,
+            errorlines=out_log,
         )
+        result = out_log.getvalue().split("\n")
+        # validation when checking db content should trigger an error for '*'  password for a non-existing user:
+        assert "'value': '*'" in result[1]
+        assert "new_coach" in result[1]
+
+    def test_asterisk_in_password(self):
+        _, first_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = [
+            [
+                "new_learner",
+                "passwd1",
+                None,
+                "LEARNER",
+                None,
+                "2001",
+                "FEMALE",
+                "new_class",
+                None,
+            ],
+            [
+                "new_coach",
+                "passwd2",
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                None,
+                "new_class",
+            ],
+        ]
+        self.create_csv(first_filepath, rows)
+        call_command(
+            "bulkimportusers", first_filepath, facility=self.facility.id,
+        )
+        passwd1 = FacilityUser.objects.get(username="new_learner").password
+        passwd2 = FacilityUser.objects.get(username="new_coach").password
+
+        # let's edit the users with a new import
+        _, second_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = [
+            [
+                "new_learner",
+                "passwd3",
+                None,
+                "LEARNER",
+                None,
+                "2001",
+                "FEMALE",
+                "new_class",
+                None,
+            ],
+            [
+                "new_coach",
+                "*",
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                None,
+                "new_class",
+            ],
+        ]
+        self.create_csv(second_filepath, rows)
+        call_command("bulkimportusers", second_filepath, facility=self.facility.id)
+        assert passwd1 != FacilityUser.objects.get(username="new_learner").password
+        # When updating, an asterisk should keep the previous password:
+        assert passwd2 == FacilityUser.objects.get(username="new_coach").password
+
+    def test_delete_users_and_classes(self):
+        self.import_exported_csv()
+
+        # new csv to import and clear classes and delete non-admin users:
+        _, new_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = [
+            [
+                "new_learner",
+                "passwd1",
+                None,
+                "LEARNER",
+                None,
+                "2001",
+                "FEMALE",
+                "new_class",
+                None,
+            ],
+            [
+                "new_coach",
+                "passwd2",
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                None,
+                "new_class",
+            ],
+        ]
         self.create_csv(new_filepath, rows)
         call_command(
             "bulkimportusers", new_filepath, "--delete", facility=self.facility.id,
@@ -188,7 +354,7 @@ class ImportTestCase(TestCase):
             roles__collection_id=self.facility,
             roles__kind=role_kinds.ADMIN,
         ).all()
-        assert len(admins) == 1
+        assert len(admins) == 0  # admins have not been exported
 
         new_current_classes = Classroom.objects.filter(parent_id=self.facility).all()
         for classroom in new_current_classes:
@@ -206,22 +372,29 @@ class ImportTestCase(TestCase):
         old_users = FacilityUser.objects.count()
         # new csv to import and update classes, adding users and keeping previous not been in the csv:
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
-        rows = []
-        rows.append(
+        rows = [
             [
                 "new_learner",
-                None,
+                "passwd1",
                 None,
                 "LEARNER",
                 "kalite",
                 "2001",
                 "FEMALE",
                 "classroom1,classroom0",
-            ]
-        )
-        rows.append(
-            ["new_coach", None, None, "COACH", None, "1969", "MALE", None, "classroom0"]
-        )
+            ],
+            [
+                "new_coach",
+                "passwd2",
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                None,
+                "classroom0",
+            ],
+        ]
         self.create_csv(new_filepath, rows)
         call_command(
             "bulkimportusers", new_filepath, facility=self.facility.id,
@@ -244,3 +417,57 @@ class ImportTestCase(TestCase):
         assert new_learner.id_number == "KALITE"
         new_coach = FacilityUser.objects.get(username="new_coach")
         assert new_coach.gender == demographics.MALE
+
+    def test_classes_names_case_insensitive(self):
+        _, new_filepath = tempfile.mkstemp(suffix=".csv")
+        # first inside the same csv file
+        rows = [
+            [
+                "learner1",
+                "passwd1",
+                None,
+                "LEARNER",
+                "kalite",
+                "2001",
+                "FEMALE",
+                " My class,another class ",
+            ],
+            [
+                "coach1",
+                "passwd2",
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                "My Class",
+                "My other class,  AnotheR ClasS",
+            ],
+        ]
+        self.create_csv(new_filepath, rows)
+        call_command(
+            "bulkimportusers", new_filepath, facility=self.facility.id,
+        )
+        classrooms = Classroom.objects.all()
+        assert len(classrooms) == 3
+
+        # now, testing it's insensitive with database names:
+        rows = [
+            [
+                "learner2",
+                "passwd2",
+                None,
+                "LEARNER",
+                "kolibri",
+                "2001",
+                "FEMALE",
+                " My CLASS, Just another class ",
+                "Another CLASS ",
+            ],
+        ]
+        self.create_csv(new_filepath, rows)
+        call_command(
+            "bulkimportusers", new_filepath, facility=self.facility.id,
+        )
+        classrooms = Classroom.objects.all()
+        assert len(classrooms) == 4
