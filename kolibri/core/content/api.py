@@ -5,6 +5,7 @@ from random import sample
 
 import requests
 from django.core.cache import cache
+from django.core.urlresolvers import reverse
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
@@ -22,6 +23,7 @@ from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
 from rest_framework import mixins
@@ -51,6 +53,7 @@ from kolibri.core.content.utils.importability_annotation import (
     get_channel_stats_from_studio,
 )
 from kolibri.core.content.utils.paths import get_channel_lookup_url
+from kolibri.core.content.utils.paths import get_content_file_name
 from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.content.utils.stopwords import stopwords_set
@@ -58,6 +61,7 @@ from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQSum
 
 logger = logging.getLogger(__name__)
@@ -153,6 +157,7 @@ class ContentNodeFilter(IdFilter):
     in_exam = CharFilter(method="filter_in_exam")
     exclude_content_ids = CharFilter(method="filter_exclude_content_ids")
     kind_in = CharFilter(method="filter_kind_in")
+    parent = UUIDFilter("parent")
 
     class Meta:
         model = models.ContentNode
@@ -231,50 +236,145 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
+def map_assessmentmetadata(obj):
+    assessmentmetadata = {}
+    assessmentmetadata["assessment_item_ids"] = obj.pop("assessment_item_ids")
+    assessmentmetadata["number_of_assessments"] = obj.pop("number_of_assessments")
+    assessmentmetadata["mastery_model"] = obj.pop("mastery_model")
+    assessmentmetadata["randomize"] = obj.pop("randomize")
+    assessmentmetadata["is_manipulable"] = obj.pop("is_manipulable")
+    if all(map(lambda x: x is None, assessmentmetadata.values())):
+        return None
+    return assessmentmetadata
+
+
+def map_files(obj):
+    keys = [
+        "id",
+        "priority",
+        "available",
+        "file_size",
+        "extension",
+        "checksum",
+        "preset",
+        "lang",
+        "supplementary",
+        "thumbnail",
+    ]
+
+    def set_urls(file):
+        download_filename = models.get_download_filename(
+            obj["title"],
+            models.PRESET_LOOKUP.get(file["preset"], _("Unknown format")),
+            file["extension"],
+        )
+        file["download_url"] = reverse(
+            "kolibri:core:downloadcontent",
+            kwargs={
+                "filename": get_content_file_name(file),
+                "new_filename": download_filename,
+            },
+        )
+        file["storage_url"] = get_local_content_storage_file_url(file)
+        return file
+
+    return list(
+        map(
+            set_urls,
+            (
+                dict(zip(keys, file_tuple))
+                for file_tuple in zip(*(obj.pop("file_" + key) for key in keys))
+            ),
+        )
+    )
+
+
 @method_decorator(cache_forever, name="dispatch")
-class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.ContentNodeSerializer
+class ContentNodeViewset(ValuesViewset):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeFilter
     pagination_class = OptionalPageNumberPagination
 
-    def prefetch_related(self, queryset):
-        return queryset.prefetch_related(
-            "assessmentmetadata", "files", "files__local_file"
-        ).select_related("lang")
+    values = (
+        "id",
+        "author",
+        "available",
+        "channel_id",
+        "coach_content",
+        "content_id",
+        "description",
+        "kind",
+        "lang",
+        "license_description",
+        "license_name",
+        "license_owner",
+        "num_coach_contents",
+        "options",
+        "parent",
+        "sort_order",
+        "title",
+        "assessment_item_ids",
+        "number_of_assessments",
+        "mastery_model",
+        "randomize",
+        "is_manipulable",
+        "file_id",
+        "file_priority",
+        "file_available",
+        "file_file_size",
+        "file_extension",
+        "file_checksum",
+        "file_preset",
+        "file_lang",
+        "file_supplementary",
+        "file_thumbnail",
+    )
 
-    def get_queryset(self, prefetch=True):
-        queryset = models.ContentNode.objects.filter(available=True)
-        if prefetch:
-            return self.prefetch_related(queryset)
-        return queryset
+    field_map = {"assessmentmetadata": map_assessmentmetadata, "files": map_files}
 
-    def get_object(self, prefetch=True):
-        """
-        Returns the object the view is displaying.
-        You may want to override this if you need to provide non-standard
-        queryset lookups.  Eg if objects are referenced using multiple
-        keyword arguments in the url conf.
-        """
-        queryset = self.filter_queryset(self.get_queryset(prefetch=prefetch))
+    read_only = True
 
-        # Perform the lookup filtering.
-        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-
-        assert lookup_url_kwarg in self.kwargs, (
-            "Expected view %s to be called with a URL keyword argument "
-            'named "%s". Fix your URL conf, or set the `.lookup_field` '
-            "attribute on the view correctly."
-            % (self.__class__.__name__, lookup_url_kwarg)
+    def annotate_queryset(self, queryset):
+        queryset = annotate_array_aggregate(
+            queryset,
+            file_id="files__id",
+            file_priority="files__priority",
+            file_available="files__local_file__available",
+            file_file_size="files__local_file__file_size",
+            file_extension="files__local_file__extension",
+            file_checksum="files__local_file__id",
+            file_preset="files__preset",
+            file_lang="files__lang",
+            file_supplementary="files__supplementary",
+            file_thumbnail="files__thumbnail",
+        )
+        assessmentmetadata_query = models.AssessmentMetaData.objects.filter(
+            contentnode=OuterRef("id")
+        ).order_by()
+        return queryset.annotate(
+            assessment_item_ids=Subquery(
+                assessmentmetadata_query.values_list("assessment_item_ids", flat=True)[
+                    :1
+                ]
+            ),
+            number_of_assessments=Subquery(
+                assessmentmetadata_query.values_list(
+                    "number_of_assessments", flat=True
+                )[:1]
+            ),
+            mastery_model=Subquery(
+                assessmentmetadata_query.values_list("mastery_model", flat=True)[:1]
+            ),
+            randomize=Subquery(
+                assessmentmetadata_query.values_list("randomize", flat=True)[:1]
+            ),
+            is_manipulable=Subquery(
+                assessmentmetadata_query.values_list("is_manipulable", flat=True)[:1]
+            ),
         )
 
-        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
-        obj = get_object_or_404(queryset, **filter_kwargs)
-
-        # May raise a permission denied
-        self.check_object_permissions(self.request, obj)
-
-        return obj
+    def get_queryset(self):
+        return models.ContentNode.objects.filter(available=True)
 
     @list_route(methods=["get"])
     def descendants(self, request):
