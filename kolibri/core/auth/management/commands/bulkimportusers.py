@@ -229,22 +229,22 @@ class Validator(object):
 
     def check_classroom(self, row, username):
         def append_users(class_list, key):
-            class_list_normalized = {c.casefold(): c for c in class_list.keys()}
+            class_list_normalized = {c.lower(): c for c in class_list.keys()}
             try:
                 classes_list = [c.strip() for c in row.get(key, None).split(",")]
                 for classroom in classes_list:
                     if not classroom:
                         continue
-                    if classroom.casefold() in class_list_normalized:
+                    if classroom.lower() in class_list_normalized:
                         classroom_real_name = class_list_normalized[
-                            classroom.casefold()
+                            classroom.lower()
                         ]
                         class_list[classroom_real_name].append(username)
                     else:
                         class_list[classroom] = [
                             username,
                         ]
-                        class_list_normalized[classroom.casefold()] = classroom
+                        class_list_normalized[classroom.lower()] = classroom
             except AttributeError:
                 # there are not members of 'key'
                 pass
@@ -404,9 +404,9 @@ class Command(AsyncCommand):
         for err in row_errors:
             per_line_errors.append(err)
         # cleaning classes names:
-        normalized_learner_classroooms = {c.casefold(): c for c in validator.classrooms}
+        normalized_learner_classroooms = {c.lower(): c for c in validator.classrooms}
         for classroom in validator.coach_classrooms:
-            normalized_name = classroom.casefold()
+            normalized_name = classroom.lower()
             if normalized_name in normalized_learner_classroooms:
                 real_name = normalized_learner_classroooms[normalized_name]
                 if classroom != real_name:
@@ -574,10 +574,10 @@ class Command(AsyncCommand):
             .values_list("name", flat=True)
         )
 
-        normalized_name_existing = {c.casefold(): c for c in existing_classes}
+        normalized_name_existing = {c.lower(): c for c in existing_classes}
         for classroom in total_classes:
-            if classroom.casefold() in normalized_name_existing:
-                real_name = normalized_name_existing[classroom.casefold()]
+            if classroom.lower() in normalized_name_existing:
+                real_name = normalized_name_existing[classroom.lower()]
                 class_obj = Classroom.objects.get(
                     name=real_name, parent=self.default_facility
                 )
