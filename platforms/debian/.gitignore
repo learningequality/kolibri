@@ -1,4 +1,9 @@
 # This is by benjaoming's convention the directory to use when dev'ing locally
 build/
+# The location of the kolibri .tar.gz we're building against.
+# Make recipes depend on this, and will download from PyPi if empty.
 build_src/
+# The location of built .deb, whether built locally or with docker;
+# Docker copies the .deb over from its container to this directory.
+# Also the bound directory for `docker-test` target.
 dist/

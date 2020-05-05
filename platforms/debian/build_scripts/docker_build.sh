@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# A file, managed by Docker, with the ID of the created container.
+# Provides a consistent, unique reference to the container without using a tag.
+# Tags don't work well with concurrent builds run by the same script.
 CIDFILE=docker-deb.cid
 
 docker image build -t "learningequality/kolibri-deb" .

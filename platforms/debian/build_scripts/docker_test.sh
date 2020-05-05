@@ -2,7 +2,12 @@
 
 # set -euo pipefail
 
-DOCKER_IMAGES="ubuntu:xenial ubuntu:bionic ubuntu:trusty"
+DOCKER_IMAGES="
+  ubuntu:focal \
+  ubuntu:bionic \
+  ubuntu:xenial \
+  ubuntu:trusty \
+"
 export BOUND_DIR="/kolibri-deb"
 
 for IMAGE in $DOCKER_IMAGES
