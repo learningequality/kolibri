@@ -236,9 +236,7 @@ class Validator(object):
                     if not classroom:
                         continue
                     if classroom.lower() in class_list_normalized:
-                        classroom_real_name = class_list_normalized[
-                            classroom.lower()
-                        ]
+                        classroom_real_name = class_list_normalized[classroom.lower()]
                         class_list[classroom_real_name].append(username)
                     else:
                         class_list[classroom] = [
