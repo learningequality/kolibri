@@ -685,7 +685,9 @@ class Command(AsyncCommand):
             else:
                 to_remove.delete()
 
-    def output_messages(self, per_line_errors, classes_report, users_report, filepath, errorlines):
+    def output_messages(
+        self, per_line_errors, classes_report, users_report, filepath, errorlines
+    ):
         # Show output error messages on loggers, job metadata or io errorlines for testing
         # freeze message translations:
         for line in per_line_errors:
@@ -802,6 +804,12 @@ class Command(AsyncCommand):
                 "deleted": len(users_to_delete),
             }
 
-            self.output_messages(per_line_errors, classes_report, users_report, filepath, options["errorlines"])
+            self.output_messages(
+                per_line_errors,
+                classes_report,
+                users_report,
+                filepath,
+                options["errorlines"],
+            )
 
         translation.deactivate()
