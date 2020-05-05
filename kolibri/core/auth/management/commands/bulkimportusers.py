@@ -28,7 +28,6 @@ except NameError:
     FileNotFoundError = IOError
 
 logger = logging.getLogger(__name__)
-DEFAULT_PASSWORD = make_password("kolibri")
 
 # TODO: decide whether these should be internationalized
 fieldnames = (
@@ -63,6 +62,7 @@ INVALID_HEADER = 6
 NO_FACILITY = 7
 FILE_READ_ERROR = 8
 FILE_WRITE_ERROR = 9
+REQUIRED_PASSWORD = 10
 
 MESSAGES = {
     UNEXPECTED_EXCEPTION: _("Unexpected exception [{}]: {}"),
@@ -79,6 +79,9 @@ MESSAGES = {
     ),
     FILE_READ_ERROR: _("Error trying to read csv file: {}"),
     FILE_WRITE_ERROR: _("Error trying to write csv file: {}"),
+    REQUIRED_PASSWORD: _(
+        "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
+    ),
 }
 
 # Validators ###
@@ -335,6 +338,13 @@ class Command(AsyncCommand):
             default=None,
             help="Code of the language for the messages to be translated",
         )
+        parser.add_argument(
+            "--errorlines",
+            action="store",
+            type=str,
+            default=None,
+            help="File to store errors output (to be used in internal tests only)",
+        )
 
     def csv_values_validation(self, reader, header_translation):
         per_line_errors = []
@@ -359,9 +369,7 @@ class Command(AsyncCommand):
         validator.add_check(
             "PASSWORD", value_length(128), MESSAGES[TOO_LONG].format("PASSWORD")
         )
-        validator.add_check(
-            "PASSWORD", not_empty(), MESSAGES[REQUIRED_COLUMN].format("PASSWORD")
-        )
+        validator.add_check("PASSWORD", not_empty(), MESSAGES[REQUIRED_PASSWORD])
         validator.add_check(
             "USER_TYPE",
             enumeration(*roles_map.keys()),
@@ -422,10 +430,10 @@ class Command(AsyncCommand):
 
     def get_field_values(self, user_row):
         password = user_row.get(self.header_translation["PASSWORD"], None)
-        if password:
+        if password != "*":
             password = make_password(password)
         else:
-            password = DEFAULT_PASSWORD
+            password = None
 
         gender = user_row.get(self.header_translation["GENDER"], "").strip().upper()
         gender = "" if gender == DEFERRED else gender
@@ -450,12 +458,10 @@ class Command(AsyncCommand):
     def compare_fields(self, user_obj, values):
         changed = False
         for field in values:
-            if field == "password":
-                # Change password if it was not blank
-                if values["password"] != DEFAULT_PASSWORD:
-                    changed = True
-            elif getattr(user_obj, field) != values[field]:
+            if getattr(user_obj, field) != values[field]:
                 changed = True
+            if field == "password" and values["password"] is None:
+                changed = False
             if changed:
                 setattr(user_obj, field, values[field])
         return changed
@@ -464,6 +470,7 @@ class Command(AsyncCommand):
         new_users = list()
         update_users = list()
         keeping_users = list()
+        per_line_errors = list()
         existing_users = (
             FacilityUser.objects.filter(facility=self.default_facility)
             .filter(username__in=users.keys())
@@ -485,14 +492,25 @@ class Command(AsyncCommand):
                 if self.compare_fields(user_obj, values):
                     update_users.append(user_obj)
             else:
-                user_obj = FacilityUser(username=user, facility=self.default_facility)
-                # user_obj.id = user_obj.calculate_uuid()  # Morango does not work properly with this
-                for field in values:
-                    if values[field]:
-                        setattr(user_obj, field, values[field])
-                new_users.append(user_obj)
+                if not values["password"]:
+                    error = {
+                        "row": "USERNAME:{}".format(user),
+                        "message": MESSAGES[REQUIRED_PASSWORD],
+                        "field": "password",
+                        "value": "*",
+                    }
+                    per_line_errors.append(error)
+                else:
+                    user_obj = FacilityUser(
+                        username=user, facility=self.default_facility
+                    )
+                    # user_obj.id = user_obj.calculate_uuid()  # Morango does not work properly with this
+                    for field in values:
+                        if values[field]:
+                            setattr(user_obj, field, values[field])
+                    new_users.append(user_obj)
 
-        return (new_users, update_users, keeping_users)
+        return (new_users, update_users, keeping_users, per_line_errors)
 
     def db_validate_list(self, db_list, users=False):
         errors = []
@@ -609,20 +627,26 @@ class Command(AsyncCommand):
         for classroom in enrolled:
             db_class = classes[classroom]
             for username in enrolled[classroom]:
-                user = self.get_user(username, users)
-                if not user.is_member_of(db_class):
-                    db_class.add_member(user)
+                # db validation might have rejected a csv validated user:
+                if username in users:
+                    user = self.get_user(username, users)
+                    if not user.is_member_of(db_class):
+                        db_class.add_member(user)
         for classroom in assigned:
             db_class = classes[classroom]
             for username in assigned[classroom]:
-                user = self.get_user(username, users)
-                db_class.add_coach(user)
+                # db validation might have rejected a csv validated user:
+                if username in users:
+                    user = self.get_user(username, users)
+                    db_class.add_coach(user)
 
     def add_roles(self, users, roles):
         for role in roles.keys():
             for username in roles[role]:
-                user = self.get_user(username, users)
-                self.default_facility.add_role(user, role)
+                # db validation might have rejected a csv validated user:
+                if username in users:
+                    user = self.get_user(username, users)
+                    self.default_facility.add_role(user, role)
 
     def exit_if_error(self):
         if self.overall_error:
@@ -661,6 +685,30 @@ class Command(AsyncCommand):
             else:
                 to_remove.delete()
 
+    def output_messages(self, per_line_errors, classes_report, users_report, filepath, errorlines):
+        # Show output error messages on loggers, job metadata or io errorlines for testing
+        # freeze message translations:
+        for line in per_line_errors:
+            line["message"] = str(line["message"])
+        self.overall_error = [str(msg) for msg in self.overall_error]
+
+        if self.job:
+            self.job.extra_metadata["overall_error"] = self.overall_error
+            self.job.extra_metadata["per_line_errors"] = per_line_errors
+            self.job.extra_metadata["classes"] = classes_report
+            self.job.extra_metadata["users"] = users_report
+            self.job.extra_metadata["filename"] = ntpath.basename(filepath)
+            self.job.save_meta()
+        else:
+            logger.info("File errors: {}".format(str(self.overall_error)))
+            logger.info("Data errors: {}".format(str(per_line_errors)))
+            logger.info("Classes report: {}".format(str(classes_report)))
+            logger.info("Users report: {}".format(str(users_report)))
+            if errorlines:
+                for line in per_line_errors:
+                    errorlines.write(str(line))
+                    errorlines.write("\n")
+
     def handle_async(self, *args, **options):
         # initialize stats data structures:
         self.overall_error = []
@@ -698,9 +746,13 @@ class Command(AsyncCommand):
             except (ValueError, FileNotFoundError, csv.Error) as e:
                 self.overall_error.append(MESSAGES[FILE_READ_ERROR].format(e))
                 self.exit_if_error()
-            db_new_users, db_update_users, keeping_users = self.build_users_objects(
-                users
-            )
+            (
+                db_new_users,
+                db_update_users,
+                keeping_users,
+                more_line_errors,
+            ) = self.build_users_objects(users)
+            per_line_errors += more_line_errors
             db_new_classes, db_update_classes = self.build_classes_objects(classes)
 
             users_to_delete, classes_to_clear = self.get_delete(
@@ -750,22 +802,6 @@ class Command(AsyncCommand):
                 "deleted": len(users_to_delete),
             }
 
-            # freeze message translations:
-            for line in per_line_errors:
-                line["message"] = str(line["message"])
-            self.overall_error = [str(msg) for msg in self.overall_error]
-
-            if self.job:
-                self.job.extra_metadata["overall_error"] = self.overall_error
-                self.job.extra_metadata["per_line_errors"] = per_line_errors
-                self.job.extra_metadata["classes"] = classes_report
-                self.job.extra_metadata["users"] = users_report
-                self.job.extra_metadata["filename"] = ntpath.basename(filepath)
-                self.job.save_meta()
-            else:
-                logger.info("File errors: {}".format(str(self.overall_error)))
-                logger.info("Data errors: {}".format(str(per_line_errors)))
-                logger.info("Classes report: {}".format(str(classes_report)))
-                logger.info("Users report: {}".format(str(users_report)))
+            self.output_messages(per_line_errors, classes_report, users_report, filepath, options["errorlines"])
 
         translation.deactivate()

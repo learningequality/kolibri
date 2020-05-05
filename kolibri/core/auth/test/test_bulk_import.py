@@ -15,6 +15,11 @@ from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import FacilityUser
 
+if sys.version_info[0] < 3:
+    from cStringIO import StringIO
+else:
+    from io import StringIO
+
 
 CLASSROOMS = 2
 
@@ -117,6 +122,17 @@ class ImportTestCase(TestCase):
                 writer.writerow(item)
 
     def import_exported_csv(self):
+        # Replace asterisk in passwords to be able to import it
+        _, new_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = list()
+        with open(self.filepath) as source:
+            reader = csv.reader(source, strict=True)
+            for row in reader:
+                if row[1] == "*":
+                    row[1] = "temp_password"
+                rows.append(row)
+        self.create_csv(new_filepath, rows[1:])  # remove header
+        self.filepath = new_filepath
         # import exported csv
         call_command(
             "bulkimportusers", self.filepath, facility=self.facility.id,
@@ -157,8 +173,7 @@ class ImportTestCase(TestCase):
 
     def test_password_is_required(self):
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
-        rows = []
-        rows.append(
+        rows = [
             [
                 "new_learner",
                 None,
@@ -169,9 +184,7 @@ class ImportTestCase(TestCase):
                 "FEMALE",
                 "new_class",
                 None,
-            ]
-        )
-        rows.append(
+            ],
             [
                 "new_coach",
                 "*",
@@ -182,8 +195,19 @@ class ImportTestCase(TestCase):
                 "MALE",
                 None,
                 "new_class",
-            ]
-        )
+            ],
+            [
+                "another_new_coach",
+                "passwd1",
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                None,
+                "new_class",
+            ],
+        ]
         self.create_csv(new_filepath, rows)
 
         with open(new_filepath, "r") as source:
@@ -199,7 +223,86 @@ class ImportTestCase(TestCase):
                 reader, header_translation
             )
         assert len(per_line_errors) == 1
-        assert per_line_errors[0]["message"] == "The column 'PASSWORD' is required"
+        assert (
+            per_line_errors[0]["message"]
+            == "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"  # noqa: W503
+        )
+        out_log = StringIO()
+        call_command(
+            "bulkimportusers",
+            new_filepath,
+            facility=self.facility.id,
+            errorlines=out_log,
+        )
+        result = out_log.getvalue().split("\n")
+        # validation when checking db content should trigger an error for '*'  password for a non-existing user:
+        assert "'value': '*'" in result[1]
+        assert "new_coach" in result[1]
+
+    def test_asterisk_in_password(self):
+        _, first_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = [
+            [
+                "new_learner",
+                "passwd1",
+                None,
+                "LEARNER",
+                None,
+                "2001",
+                "FEMALE",
+                "new_class",
+                None,
+            ],
+            [
+                "new_coach",
+                "passwd2",
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                None,
+                "new_class",
+            ],
+        ]
+        self.create_csv(first_filepath, rows)
+        call_command(
+            "bulkimportusers", first_filepath, facility=self.facility.id,
+        )
+        passwd1 = FacilityUser.objects.get(username="new_learner").password
+        passwd2 = FacilityUser.objects.get(username="new_coach").password
+
+        # let's edit the users with a new import
+        _, second_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = [
+            [
+                "new_learner",
+                "passwd3",
+                None,
+                "LEARNER",
+                None,
+                "2001",
+                "FEMALE",
+                "new_class",
+                None,
+            ],
+            [
+                "new_coach",
+                "*",
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                None,
+                "new_class",
+            ],
+        ]
+        self.create_csv(second_filepath, rows)
+        call_command("bulkimportusers", second_filepath, facility=self.facility.id)
+        assert passwd1 != FacilityUser.objects.get(username="new_learner").password
+        # When updating, an asterisk should keep the previous password:
+        assert passwd2 == FacilityUser.objects.get(username="new_coach").password
 
     def test_delete_users_and_classes(self):
         self.import_exported_csv()
@@ -210,7 +313,7 @@ class ImportTestCase(TestCase):
         rows.append(
             [
                 "new_learner",
-                "*",
+                "passwd1",
                 None,
                 "LEARNER",
                 None,
@@ -223,7 +326,7 @@ class ImportTestCase(TestCase):
         rows.append(
             [
                 "new_coach",
-                "*",
+                "passwd2",
                 None,
                 "FACILITY_COACH",
                 None,
@@ -276,7 +379,7 @@ class ImportTestCase(TestCase):
         rows.append(
             [
                 "new_learner",
-                "*",
+                "passwd1",
                 None,
                 "LEARNER",
                 "kalite",
@@ -288,7 +391,7 @@ class ImportTestCase(TestCase):
         rows.append(
             [
                 "new_coach",
-                "*",
+                "passwd2",
                 None,
                 "FACILITY_COACH",
                 None,
