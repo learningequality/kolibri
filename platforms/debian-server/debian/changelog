@@ -6,6 +6,7 @@ kolibri-server (0.3.7~beta1-0ubuntu4) UNRELEASED; urgency=medium
 
   [ Benjamin Bach ]
   * Silence startup error when redis cache is empty #63
+  * Move HTML error pages to /usr/share/kolibri/error_pages/ #70
 
  -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 27 Apr 2020 19:45:44 +0200
 
