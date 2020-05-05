@@ -44,4 +44,5 @@ docker-deb:
 	build_scripts/docker_build.sh
 
 .PHONY: docker-test
-docker-test: dist/%.deb
+docker-test:
+	build_scripts/docker_test.sh
