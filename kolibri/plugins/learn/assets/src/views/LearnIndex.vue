@@ -195,7 +195,8 @@
             immersivePage: true,
             immersivePageRoute,
             immersivePagePrimary: true,
-            immersivePageIcon: 'arrow_back',
+            # Changed from back_arrow for ProFuturo branch because their content references a close button
+            immersivePageIcon: 'close',
           };
         }
 
