@@ -17,5 +17,5 @@ fi
 
 make docker-deb
 
-# Upload built kolibri windows installer at buildkite artifact.
+# Upload all built .deb files (one) as a buildkite artifact.
 buildkite-agent artifact upload './dist/*.deb'
