@@ -236,6 +236,13 @@ export function licenseLongName(leUtilsLicenseName) {
 
 // Translated license descriptions, aimed at creators of the content
 export function licenseDescriptionForCreator(leUtilsLicenseName, leUtilsLicenseDescription) {
+  if (
+    leUtilsLicenseName === 'Special Permissions' &&
+    leUtilsLicenseDescription &&
+    leUtilsLicenseDescription.length
+  ) {
+    return leUtilsLicenseDescription;
+  }
   if (licenseDescriptionCreatorStrings[leUtilsLicenseName]) {
     return creatorDescriptionTranslator.$tr(leUtilsLicenseName);
   }
@@ -244,6 +251,13 @@ export function licenseDescriptionForCreator(leUtilsLicenseName, leUtilsLicenseD
 
 // Translated license descriptions, aimed at users and consumers of the content
 export function licenseDescriptionForConsumer(leUtilsLicenseName, leUtilsLicenseDescription) {
+  if (
+    leUtilsLicenseName === 'Special Permissions' &&
+    leUtilsLicenseDescription &&
+    leUtilsLicenseDescription.length
+  ) {
+    return leUtilsLicenseDescription;
+  }
   if (licenseDescriptionConsumerStrings[leUtilsLicenseName]) {
     return consumerDescriptionTranslator.$tr(leUtilsLicenseName);
   }
