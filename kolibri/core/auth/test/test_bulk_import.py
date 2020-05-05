@@ -156,9 +156,9 @@ class ImportTestCase(TestCase):
                 reader, header_translation
             )
 
-        assert len(users) == 13
+        assert len(users) == 12  # admins have not been exported
+        # assert roles[role_kinds.ADMIN] == ["facadmin"]
         assert per_line_errors == []
-        assert roles[role_kinds.ADMIN] == ["facadmin"]
         assert roles[role_kinds.COACH] == ["faccoach"]
         assert "classcoach0" in roles[role_kinds.ASSIGNABLE_COACH]
         assert "classcoach1" in roles[role_kinds.ASSIGNABLE_COACH]
@@ -309,8 +309,7 @@ class ImportTestCase(TestCase):
 
         # new csv to import and clear classes and delete non-admin users:
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
-        rows = []
-        rows.append(
+        rows = [
             [
                 "new_learner",
                 "passwd1",
@@ -321,9 +320,7 @@ class ImportTestCase(TestCase):
                 "FEMALE",
                 "new_class",
                 None,
-            ]
-        )
-        rows.append(
+            ],
             [
                 "new_coach",
                 "passwd2",
@@ -334,8 +331,8 @@ class ImportTestCase(TestCase):
                 "MALE",
                 None,
                 "new_class",
-            ]
-        )
+            ],
+        ]
         self.create_csv(new_filepath, rows)
         call_command(
             "bulkimportusers", new_filepath, "--delete", facility=self.facility.id,
@@ -357,7 +354,7 @@ class ImportTestCase(TestCase):
             roles__collection_id=self.facility,
             roles__kind=role_kinds.ADMIN,
         ).all()
-        assert len(admins) == 1
+        assert len(admins) == 0  # admins have not been exported
 
         new_current_classes = Classroom.objects.filter(parent_id=self.facility).all()
         for classroom in new_current_classes:
@@ -375,8 +372,7 @@ class ImportTestCase(TestCase):
         old_users = FacilityUser.objects.count()
         # new csv to import and update classes, adding users and keeping previous not been in the csv:
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
-        rows = []
-        rows.append(
+        rows = [
             [
                 "new_learner",
                 "passwd1",
@@ -386,9 +382,7 @@ class ImportTestCase(TestCase):
                 "2001",
                 "FEMALE",
                 "classroom1,classroom0",
-            ]
-        )
-        rows.append(
+            ],
             [
                 "new_coach",
                 "passwd2",
@@ -399,8 +393,8 @@ class ImportTestCase(TestCase):
                 "MALE",
                 None,
                 "classroom0",
-            ]
-        )
+            ],
+        ]
         self.create_csv(new_filepath, rows)
         call_command(
             "bulkimportusers", new_filepath, facility=self.facility.id,
@@ -423,3 +417,57 @@ class ImportTestCase(TestCase):
         assert new_learner.id_number == "KALITE"
         new_coach = FacilityUser.objects.get(username="new_coach")
         assert new_coach.gender == demographics.MALE
+
+    def test_classes_names_case_insensitive(self):
+        _, new_filepath = tempfile.mkstemp(suffix=".csv")
+        # first inside the same csv file
+        rows = [
+            [
+                "learner1",
+                "passwd1",
+                None,
+                "LEARNER",
+                "kalite",
+                "2001",
+                "FEMALE",
+                " My class,another class ",
+            ],
+            [
+                "coach1",
+                "passwd2",
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                "My Class",
+                "My other class,  AnotheR ClasS",
+            ],
+        ]
+        self.create_csv(new_filepath, rows)
+        call_command(
+            "bulkimportusers", new_filepath, facility=self.facility.id,
+        )
+        classrooms = Classroom.objects.all()
+        assert len(classrooms) == 3
+
+        # now, testing it's insensitive with database names:
+        rows = [
+            [
+                "learner2",
+                "passwd2",
+                None,
+                "LEARNER",
+                "kolibri",
+                "2001",
+                "FEMALE",
+                " My CLASS, Just another class ",
+                "Another CLASS ",
+            ],
+        ]
+        self.create_csv(new_filepath, rows)
+        call_command(
+            "bulkimportusers", new_filepath, facility=self.facility.id,
+        )
+        classrooms = Classroom.objects.all()
+        assert len(classrooms) == 4

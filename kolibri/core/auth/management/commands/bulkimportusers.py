@@ -229,17 +229,22 @@ class Validator(object):
 
     def check_classroom(self, row, username):
         def append_users(class_list, key):
+            class_list_normalized = {c.casefold(): c for c in class_list.keys()}
             try:
-                classes_list = row.get(key, None).split(",")
+                classes_list = [c.strip() for c in row.get(key, None).split(",")]
                 for classroom in classes_list:
                     if not classroom:
                         continue
-                    if classroom in class_list:
-                        class_list[classroom].append(username)
+                    if classroom.casefold() in class_list_normalized:
+                        classroom_real_name = class_list_normalized[
+                            classroom.casefold()
+                        ]
+                        class_list[classroom_real_name].append(username)
                     else:
                         class_list[classroom] = [
                             username,
                         ]
+                        class_list_normalized[classroom.casefold()] = classroom
             except AttributeError:
                 # there are not members of 'key'
                 pass
@@ -398,6 +403,17 @@ class Command(AsyncCommand):
         row_errors = validator.validate(reader)
         for err in row_errors:
             per_line_errors.append(err)
+        # cleaning classes names:
+        normalized_learner_classroooms = {c.casefold(): c for c in validator.classrooms}
+        for classroom in validator.coach_classrooms:
+            normalized_name = classroom.casefold()
+            if normalized_name in normalized_learner_classroooms:
+                real_name = normalized_learner_classroooms[normalized_name]
+                if classroom != real_name:
+                    validator.coach_classrooms[
+                        real_name
+                    ] = validator.coach_classrooms.pop(classroom)
+
         return (
             per_line_errors,
             (validator.classrooms, validator.coach_classrooms),
@@ -537,29 +553,46 @@ class Command(AsyncCommand):
         return errors
 
     def build_classes_objects(self, classes):
+        """
+        Using current database info, builds the list of classes to be
+        updated or created.
+        It also returns an updated classes list, using the case insensitive
+        names of the classes that were already in the database
+        `classes` - Tuple containing two dictionaries: enrolled classes + assigned classes
+        Returns:
+        new_classes - List of database objects of classes to be created
+        update_classes - List of database objects of classes to be updated
+        fixed_classes - Same original classes tuple, but with the names normalized
+
+        """
         new_classes = list()
         update_classes = list()
-        total_classes = set(
-            [k for k in classes[0].keys()] + [v for v in classes[1].keys()]
-        )
+        total_classes = set([k for k in classes[0]] + [v for v in classes[1]])
         existing_classes = (
             Classroom.objects.filter(parent=self.default_facility)
-            .filter(name__in=total_classes)
+            # .filter(name__in=total_classes)  # can't be done if classes names are case insensitive
             .values_list("name", flat=True)
         )
 
+        normalized_name_existing = {c.casefold(): c for c in existing_classes}
         for classroom in total_classes:
-            if classroom in existing_classes:
+            if classroom.casefold() in normalized_name_existing:
+                real_name = normalized_name_existing[classroom.casefold()]
                 class_obj = Classroom.objects.get(
-                    name=classroom, parent=self.default_facility
+                    name=real_name, parent=self.default_facility
                 )
                 update_classes.append(class_obj)
+                if real_name != classroom:
+                    if classroom in classes[0]:
+                        classes[0][real_name] = classes[0].pop(classroom)
+                    if classroom in classes[1]:
+                        classes[1][real_name] = classes[1].pop(classroom)
             else:
                 class_obj = Classroom(name=classroom, parent=self.default_facility)
                 class_obj.id = class_obj.calculate_uuid()
                 new_classes.append(class_obj)
         self.progress_update(1)
-        return (new_classes, update_classes)
+        return (new_classes, update_classes, classes)
 
     def get_facility(self, options):
         if options["facility"]:
@@ -755,8 +788,12 @@ class Command(AsyncCommand):
                 more_line_errors,
             ) = self.build_users_objects(users)
             per_line_errors += more_line_errors
-            db_new_classes, db_update_classes = self.build_classes_objects(classes)
-
+            (
+                db_new_classes,
+                db_update_classes,
+                fixed_classes,
+            ) = self.build_classes_objects(classes)
+            classes = fixed_classes
             users_to_delete, classes_to_clear = self.get_delete(
                 options, keeping_users, db_update_classes
             )
