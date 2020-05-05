@@ -2,16 +2,11 @@
 
 set -euo pipefail
 
-DOCKER_IMAGES="
-  ubuntu:focal \
-  ubuntu:bionic \
-  ubuntu:xenial \
-  ubuntu:trusty \
-"
 export BOUND_DIR="/kolibri-deb"
 
 # Running a script in runtime rather than building new images so cache is never
 # used. Catches package repository changes, etc.
+# DOCKER_IMAGES supplied by make.
 for IMAGE in $DOCKER_IMAGES
 do
   docker run \
