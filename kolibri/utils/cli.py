@@ -340,24 +340,8 @@ def initialize(skip_update=False):  # noqa: max-complexity=12
 
     _setup_django()
 
-<<<<<<< HEAD
-    if version_updated(kolibri.__version__, version) and not skip_update:
-        conditional_backup(kolibri.__version__, version)
-=======
     if updated and not skip_update:
-        if should_back_up(kolibri.__version__, version):
-            # Non-dev version change, make a backup no matter what.
-            from kolibri.core.deviceadmin.utils import dbbackup
-
-            try:
-                backup = dbbackup(version)
-                logger.info("Backed up database to: {path}".format(path=backup))
-            except IncompatibleDatabase:
-                logger.warning(
-                    "Skipped automatic database backup, not compatible with "
-                    "this DB engine."
-                )
->>>>>>> remotes/le/pf-mvp
+        conditional_backup(kolibri.__version__, version)
 
         if version:
             logger.info(
@@ -432,14 +416,7 @@ def update(old_version, new_version):
     except server.NotRunning:
         pass
 
-<<<<<<< HEAD
-    call_command("collectstatic", interactive=False, verbosity=0)
-
     _migrate_databases()
-=======
-    migrate_databases()
->>>>>>> remotes/le/pf-mvp
-
     run_upgrades(old_version, new_version)
 
     with open(version_file(), "w") as f:
