@@ -1,7 +1,11 @@
 kolibri-server (0.3.7~beta1-0ubuntu4) UNRELEASED; urgency=medium
 
+  [ José L. Redrejo Rodríguez ]
   * Build kolibri-server as a native package
   * If port 80 is selected when using debconf, remove default nginx symlink
+
+  [ Benjamin Bach ]
+  * Silence startup error when redis cache is empty #63
 
  -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 27 Apr 2020 19:45:44 +0200
 
