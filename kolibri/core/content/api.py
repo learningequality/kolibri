@@ -519,67 +519,9 @@ class ContentNodeViewset(ValuesViewset):
             {"kind": next_item.kind, "id": next_item.id, "title": next_item.title}
         )
 
-
-def process_thumbnail(obj):
-    file = {}
-    file["id"] = obj.pop("file_id")
-    file["extension"] = obj.pop("file_extension")
-    file["available"] = obj.pop("file_available")
-    file["thumbnail"] = obj.pop("file_thumbnail")
-    file["storage_url"] = get_local_content_storage_file_url(file)
-    if file["id"] is not None:
-        return [file]
-    else:
-        return []
-
-
-@method_decorator(cache_forever, name="dispatch")
-class ContentNodeSlimViewset(ValuesViewset):
-    filter_backends = (DjangoFilterBackend,)
-    filter_class = ContentNodeFilter
-    pagination_class = OptionalPageNumberPagination
-    values = (
-        "id",
-        "parent",
-        "description",
-        "channel_id",
-        "content_id",
-        "kind",
-        "title",
-        "num_coach_contents",
-        "file_thumbnail",
-        "file_id",
-        "file_extension",
-        "file_available",
-    )
-
-    field_map = {"files": process_thumbnail}
-
-    def annotate_queryset(self, queryset):
-        thumbnail_query = models.File.objects.filter(
-            contentnode=OuterRef("id"), thumbnail=True
-        ).order_by()
-        return queryset.annotate(
-            file_thumbnail=Subquery(
-                thumbnail_query.values_list("thumbnail", flat=True)[:1]
-            ),
-            file_id=Subquery(
-                thumbnail_query.values_list("local_file__id", flat=True)[:1]
-            ),
-            file_extension=Subquery(
-                thumbnail_query.values_list("local_file__extension", flat=True)[:1]
-            ),
-            file_available=Subquery(
-                thumbnail_query.values_list("local_file__available", flat=True)[:1]
-            ),
-        )
-
-    def get_queryset(self):
-        return models.ContentNode.objects.filter(available=True)
-
     @detail_route(methods=["get"])
     def ancestors(self, request, **kwargs):
-        cache_key = "contentnode_slim_ancestors_{pk}".format(pk=kwargs.get("pk"))
+        cache_key = "contentnode_ancestors_{pk}".format(pk=kwargs.get("pk"))
 
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
@@ -792,7 +734,7 @@ def union(queries):
 
 
 @query_params_required(search=str, max_results=int, max_results__default=30)
-class ContentNodeSearchViewset(ContentNodeSlimViewset):
+class ContentNodeSearchViewset(ContentNodeViewset):
     def search(self, value, max_results, filter=True):
         """
         Implement various filtering strategies in order to get a wide range of search results.

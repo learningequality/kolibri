@@ -1,12 +1,7 @@
 import pickBy from 'lodash/pickBy';
 import uniq from 'lodash/uniq';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import {
-  ContentNodeResource,
-  ContentNodeSlimResource,
-  ContentNodeSearchResource,
-  ChannelResource,
-} from 'kolibri.resources';
+import { ContentNodeResource, ContentNodeSearchResource, ChannelResource } from 'kolibri.resources';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
@@ -59,7 +54,7 @@ export function showExamCreationTopicPage(store, params) {
         kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
       },
     });
-    const ancestorsPromise = ContentNodeSlimResource.fetchAncestors(topicId);
+    const ancestorsPromise = ContentNodeResource.fetchAncestors(topicId);
     const loadRequirements = [topicNodePromise, childNodesPromise, ancestorsPromise];
 
     return Promise.all(loadRequirements).then(([topicNode, childNodes, ancestors]) => {

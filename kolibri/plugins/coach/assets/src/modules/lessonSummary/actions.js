@@ -1,4 +1,4 @@
-import { LessonResource, ContentNodeSlimResource } from 'kolibri.resources';
+import { LessonResource, ContentNodeResource } from 'kolibri.resources';
 
 export function resetLessonSummaryState(store) {
   store.commit('RESET_STATE');
@@ -40,7 +40,7 @@ export function getResourceCache(store, resourceIds) {
   }
 
   if (nonCachedResourceIds.length) {
-    return ContentNodeSlimResource.fetchCollection({
+    return ContentNodeResource.fetchCollection({
       getParams: {
         ids: nonCachedResourceIds,
       },

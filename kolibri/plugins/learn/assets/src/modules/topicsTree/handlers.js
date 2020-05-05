@@ -1,8 +1,4 @@
-import {
-  ContentNodeSlimResource,
-  ContentNodeResource,
-  ContentNodeProgressResource,
-} from 'kolibri.resources';
+import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
@@ -24,7 +20,7 @@ export function showTopicsContent(store, id) {
   const promises = [
     ContentNodeResource.fetchModel({ id }),
     ContentNodeResource.fetchNextContent(id),
-    ContentNodeSlimResource.fetchAncestors(id),
+    ContentNodeResource.fetchAncestors(id),
     store.dispatch('setChannelInfo'),
   ];
   ConditionalPromise.all(promises).only(
@@ -53,13 +49,13 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
     store.commit('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
     const promises = [
       ContentNodeResource.fetchModel({ id }), // the topic
-      ContentNodeSlimResource.fetchCollection({
+      ContentNodeResource.fetchCollection({
         getParams: {
           parent: id,
           user_kind: store.getters.getUserKind,
         },
       }), // the topic's children
-      ContentNodeSlimResource.fetchAncestors(id), // the topic's ancestors
+      ContentNodeResource.fetchAncestors(id), // the topic's ancestors
       store.dispatch('setChannelInfo'),
     ];
 
