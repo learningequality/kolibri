@@ -1,4 +1,5 @@
 import { createTranslator } from 'kolibri.utils.i18n';
+import notificationStrings from './notificationStrings';
 
 export const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
@@ -119,6 +120,9 @@ export default {
   methods: {
     coreString(key, args) {
       return coreStrings.$tr(key, args);
+    },
+    showSnackbarNotification(key, args) {
+      this.$store.dispatch('createSnackbar', notificationStrings.$tr(key, args));
     },
   },
 };
