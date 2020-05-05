@@ -403,7 +403,8 @@ class Command(AsyncCommand):
             per_line_errors.append(err)
         # cleaning classes names:
         normalized_learner_classroooms = {c.lower(): c for c in validator.classrooms}
-        for classroom in validator.coach_classrooms:
+        coach_classrooms = validator.coach_classrooms.keys()
+        for classroom in coach_classrooms:
             normalized_name = classroom.lower()
             if normalized_name in normalized_learner_classroooms:
                 real_name = normalized_learner_classroooms[normalized_name]
