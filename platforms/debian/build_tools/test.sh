@@ -1,4 +1,9 @@
 #! /usr/bin/env bash
+
+# This script runs INSIDE DOCKER CONTAINERS, not locally.
+# Called by build_tools/docker_test.sh
+# Make edits to the tests run within each environment here.
+
 set -euo pipefail
 DEBIAN_FRONTEND=noninteractive
 

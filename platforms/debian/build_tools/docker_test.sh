@@ -10,6 +10,8 @@ DOCKER_IMAGES="
 "
 export BOUND_DIR="/kolibri-deb"
 
+# Running a script in runtime rather than building new images so cache is never
+# used. Catches package repository changes, etc.
 for IMAGE in $DOCKER_IMAGES
 do
   docker run \

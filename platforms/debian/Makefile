@@ -26,6 +26,8 @@ build_src/VERSION: dist/kolibri_archive.tar.gz
 	mv $$VERSION_PATH $@
 	rm -r $$ARCHIVE_ROOT
 
+# Meant to be used for local dev. Can be called with alias below.
+# If something changes in the way you build locally, please update this recipe.
 dist/%.deb: build_src/VERSION dist/kolibri_archive.tar.gz
 	export KOLIBRI_VERSION=$$(cat $<)
 	DEB_VERSION=`echo -n "$KOLIBRI_VERSION" | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'`
@@ -37,10 +39,13 @@ dist/%.deb: build_src/VERSION dist/kolibri_archive.tar.gz
 	cd ..
 	mv *.deb dist/
 
+.PHONY: kolibri.deb
+kolibri.deb: dist/kolibri.deb
 
 .PHONY: docker-deb
 docker-deb:
 	mkdir -p build_src
+	# Essentially just calls make dist/%.deb in a prepared docker container
 	build_tools/docker_build.sh
 
 .PHONY: docker-test
