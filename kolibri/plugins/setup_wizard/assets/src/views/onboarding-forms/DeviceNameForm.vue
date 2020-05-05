@@ -24,9 +24,6 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import OnboardingForm from './OnboardingForm';
-  import plugin_data from 'plugin_data';
-
-  const defaultName = plugin_data.device_hostname;
 
   export default {
     name: 'DeviceNameForm',
@@ -36,7 +33,7 @@
     mixins: [commonCoreStrings],
     data() {
       return {
-        value: this.$store.state.onboardingData.deviceName || defaultName,
+        value: this.$store.state.onboardingData.deviceName || '',
         shouldValidate: false,
       };
     },

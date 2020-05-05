@@ -75,7 +75,8 @@
         context: 'Label for the radio button option in the device setup',
       },
       quickStartDescription: {
-        message: 'For homeschooling, supplementary individual learning, and other self-directed use',
+        message:
+          'For homeschooling, supplementary individual learning, and other self-directed use',
         context: 'Option description text',
       },
       advancedSetupLabel: {

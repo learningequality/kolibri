@@ -30,8 +30,7 @@ export default createTranslator('NotificationStrings', {
     context: 'Enrolling learners into group or class',
   },
   learnersEnrolledWithCount: {
-    message:
-      '{count, number} {count, plural, one {learner enrolled} other {learners enrolled}}',
+    message: '{count, number} {count, plural, one {learner enrolled} other {learners enrolled}}',
     context: 'Enrolling learners into group or class',
   },
   learnersRemovedNoCount: {
@@ -39,8 +38,7 @@ export default createTranslator('NotificationStrings', {
     context: 'Removing (unenrolling) learners from a group or class',
   },
   learnersRemovedWithCount: {
-    message:
-      '{count, number} {count, plural, one {learner removed} other {learners removed}}',
+    message: '{count, number} {count, plural, one {learner removed} other {learners removed}}',
     context: 'Removing (unenrolling) learners from a group or class',
   },
   userCreated: {
@@ -72,13 +70,11 @@ export default createTranslator('NotificationStrings', {
     context: 'Adding a single resource to a lesson',
   },
   resourcesAddedWithCount: {
-    message:
-      '{count, number} {count, plural, one {resource added} other {resources added}}',
+    message: '{count, number} {count, plural, one {resource added} other {resources added}}',
     context: 'Adding resources to a lesson',
   },
   resourcesRemovedWithCount: {
-    message:
-      '{count, number} {count, plural, one {resource removed} other {resources removed}}',
+    message: '{count, number} {count, plural, one {resource removed} other {resources removed}}',
     context: 'Removing resources from a lesson',
   },
   quizCreated: {
