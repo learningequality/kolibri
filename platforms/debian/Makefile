@@ -41,8 +41,8 @@ dist/%.deb: build_src/VERSION dist/kolibri_archive.tar.gz
 .PHONY: docker-deb
 docker-deb:
 	mkdir -p build_src
-	build_scripts/docker_build.sh
+	build_tools/docker_build.sh
 
 .PHONY: docker-test
 docker-test:
-	build_scripts/docker_test.sh
+	build_tools/docker_test.sh

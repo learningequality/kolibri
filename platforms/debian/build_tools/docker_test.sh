@@ -14,5 +14,5 @@ for IMAGE in $DOCKER_IMAGES
 do
   docker run \
     --rm -it -v $PWD:$BOUND_DIR -e BOUND_DIR $IMAGE \
-    $BOUND_DIR/build_scripts/test.sh
+    $BOUND_DIR/build_tools/test.sh
 done
