@@ -39,14 +39,14 @@
     />
 
     <span class="text" dir="auto">
-      <span class="truncate-text">{{ label }}</span>
-      <span
+      <div class="truncate-text">{{ label }}</div>
+      <div
         v-if="description"
         class="description"
         :style="[{ color: disabled ? '' : $themeTokens.annotation }, disabledStyle ]"
       >
         {{ description }}
-      </span>
+      </div>
       <slot></slot>
     </span>
 
@@ -188,25 +188,21 @@
     height: $radio-height;
   }
 
-  .text,
-  .description {
-    display: inline-block;
-  }
   .text {
+    display: inline-block;
     max-width: calc(100% - #{$radio-height});
     padding-left: 8px;
     line-height: $radio-height;
   }
-  .description {
-    width: 100%;
-    font-size: 12px;
-    line-height: normal;
-  }
+
   .truncate-text {
-    display: inline-block;
-    width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .description {
+    font-size: 12px;
+    line-height: normal;
   }
 
 </style>
