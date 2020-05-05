@@ -319,11 +319,11 @@ def parse_package_page(files, pk_version, index_url):  # noqa C901
             if index_url == PYPI_DOWNLOAD:
                 sys.exit(1)
 
-    # Copy the packages in cp34 to cp35, cp36, cp37 due to abi3 tag.
+    # Copy the packages in cp34 to cp35, cp36, cp37, cp38 due to abi3 tag.
     # https://cryptography.io/en/latest/faq/#why-are-there-no-wheels-for-python-3-5-on-linux-or-macos
     if index_url == PYPI_DOWNLOAD:
         abi3_src = os.path.join(DIST_CEXT, "cp34", "Linux")
-        python_versions = ["cp35", "cp36", "cp37"]
+        python_versions = ["cp35", "cp36", "cp37", "cp38"]
         for version in python_versions:
             abi3_dst = os.path.join(DIST_CEXT, version, "Linux")
             shutil.copytree(abi3_src, abi3_dst)
