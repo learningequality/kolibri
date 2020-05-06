@@ -37,7 +37,20 @@ except NameError:
 logger = logging.getLogger(__name__)
 
 # TODO: decide whether these should be internationalized
-labels = OrderedDict()
+labels = OrderedDict(
+    (
+        ("username", _("Username ({})").format("USERNAME")),
+        ("password", _("Password ({})").format("PASSWORD")),
+        ("full_name", _("Full name ({})").format("FULL_NAME")),
+        ("kind", _("User type ({})").format("USER_TYPE")),
+        ("id_number", _("Identifier ({})").format("IDENTIFIER")),
+        ("birth_year", _("Birth year ({})").format("BIRTH_YEAR")),
+        ("gender", _("Gender ({})").format("GENDER")),
+        ("enrolled", _("Learner enrollment ({})").format("ENROLLED_IN")),
+        ("assigned", _("Coach assignment ({})").format("ASSIGNED_TO")),
+    )
+)
+
 db_columns = (
     "username",
     "id",
