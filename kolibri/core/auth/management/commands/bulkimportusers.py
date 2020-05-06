@@ -304,6 +304,7 @@ class Validator(object):
             # if there aren't any errors, let's add the user and classes
             if not error_flag:
                 self.check_classroom(row, username)
+                row["position"] = index + 1
                 self.users[username] = row
 
 
@@ -512,9 +513,10 @@ class Command(AsyncCommand):
             else:
                 if not values["password"]:
                     error = {
-                        "row": "USERNAME:{}".format(user),
+                        "row": users[user]["position"],
+                        "username": user,
                         "message": MESSAGES[REQUIRED_PASSWORD],
-                        "field": "password",
+                        "field": "PASSWORD",
                         "value": "*",
                     }
                     per_line_errors.append(error)
