@@ -61,11 +61,11 @@ msgstr "Género ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:49
 msgid "Learner enrollment ({})"
-msgstr "Estudiante inscripción ({})"
+msgstr "Inscrito como estudiante ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:50
 msgid "Coach assignment ({})"
-msgstr "Tutor asignación ({})"
+msgstr "Asignado como tutor ({})"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:68
 msgid "Unexpected error [{}]: {}"
@@ -167,4 +167,3 @@ msgstr "Autorización del proveedor de OpenID"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "Petición de permiso"
-
