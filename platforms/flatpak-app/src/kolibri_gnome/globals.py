@@ -11,6 +11,7 @@ from . import config
 
 USER_HOME = os.path.expanduser("~")
 
+XDG_CURRENT_DESKTOP = os.environ.get('XDG_CURRENT_DESKTOP')
 XDG_DATA_HOME = os.environ.get('XDG_DATA_HOME', os.path.join(USER_HOME, ".local", "share"))
 
 KOLIBRI_IDLE_TIMEOUT_MINS = int(os.environ.get("KOLIBRI_IDLE_TIMEOUT_MINS", 60))
@@ -70,6 +71,11 @@ def get_current_language():
         language = locale_info.get('language')
 
     return language
+
+def is_kolibri_responding():
+    # Check if Kolibri is responding to http requests at the expected URL.
+    info = kolibri_api_get_json('/api/public/info', default=dict())
+    return info.get('application') == 'kolibri'
 
 def kolibri_api_get_json(path, query={}, default=None):
     request_url = KOLIBRI_URL_SPLIT._replace(

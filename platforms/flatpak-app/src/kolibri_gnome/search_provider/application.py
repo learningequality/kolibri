@@ -2,15 +2,8 @@ import functools
 from gi.repository import Gdk, Gio, GLib
 
 from .. import config
-from ..globals import IS_KOLIBRI_LOCAL, kolibri_api_get_json
+from ..globals import IS_KOLIBRI_LOCAL, is_kolibri_responding
 from .utils import gapplication_hold
-
-if IS_KOLIBRI_LOCAL:
-    from kolibri.dist import django
-    django.setup()
-
-    from kolibri.core.content.api import ContentNodeSearchViewset, ContentNodeViewset
-    from kolibri.dist.rest_framework.test import APIRequestFactory
 
 
 ICON_LOOKUP = {
@@ -94,6 +87,16 @@ class SearchProvider(object):
         self.__method_outargs = {}
         self.__existing_jobs = dict()
 
+    @staticmethod
+    def is_available():
+        raise NotImplementedError()
+
+    def get_search_results(self, search):
+        raise NotImplementedError()
+
+    def get_node_data(self, node_id):
+        raise NotImplementedError()
+
     def register_on_connection(self, connection, object_path):
         info = Gio.DBusNodeInfo.new_for_xml(self.INTERFACE_XML)
         for interface in info.interfaces:
@@ -122,7 +125,6 @@ class SearchProvider(object):
         job = DbusMethodJob(self.__application, method_name, method, args, out_args, invocation)
         cancellable = Gio.Cancellable()
         if self.__existing_jobs.get(method_name):
-            print("Cancel existing job")
             self.__existing_jobs[method_name].cancel()
         self.__existing_jobs[method_name] = cancellable
         Gio.io_scheduler_push_job(job.run_async, None, GLib.PRIORITY_DEFAULT, cancellable)
@@ -179,21 +181,30 @@ class SearchProvider(object):
                 "gicon": GLib.Variant('s', node_icon)
             }
 
-    def get_search_results(self, search):
-        raise NotImplementedError()
-
-    def get_node_data(self, node_id):
-        raise NotImplementedError()
-
 
 class LocalSearchProvider(SearchProvider):
+    def __init__(self, *args, **kwargs):
+        from kolibri.dist import django
+        django.setup()
+        super().__init__(*args, **kwargs)
+
+    @staticmethod
+    def is_available():
+        return IS_KOLIBRI_LOCAL
+
     def get_search_results(self, search):
+        from kolibri.core.content.api import ContentNodeSearchViewset
+        from kolibri.dist.rest_framework.test import APIRequestFactory
+
         request = APIRequestFactory().get("", {"search": search, "max_results": 10})
         search_view = ContentNodeSearchViewset.as_view({"get": "list"})
         response = search_view(request)
         return response.data.get('results', [])
 
     def get_node_data(self, node_id):
+        from kolibri.core.content.api import ContentNodeViewset
+        from kolibri.dist.rest_framework.test import APIRequestFactory
+
         request = APIRequestFactory().get("", {})
         node_view = ContentNodeViewset.as_view({"get": "retrieve"})
         response = node_view(request, pk=node_id)
@@ -201,7 +212,13 @@ class LocalSearchProvider(SearchProvider):
 
 
 class RemoteSearchProvider(SearchProvider):
+    @staticmethod
+    def is_available():
+        return is_kolibri_responding()
+
     def get_search_results(self, search):
+        from ..globals import kolibri_api_get_json
+
         response = kolibri_api_get_json(
             '/api/content/contentnode_search',
             query={'search': search, 'max_results': 10},
@@ -210,6 +227,8 @@ class RemoteSearchProvider(SearchProvider):
         return response.get('results', [])
 
     def get_node_data(self, node_id):
+        from ..globals import kolibri_api_get_json
+
         response = kolibri_api_get_json(
             '/api/content/contentnode/{}'.format(node_id),
             default=dict()
@@ -228,12 +247,15 @@ class Application(Gio.Application):
         self.connect('activate', self.__on_activate)
 
     def do_dbus_register(self, dbus_connection, object_path):
-        if IS_KOLIBRI_LOCAL:
+        if RemoteSearchProvider.is_available():
+            self.__search_provider = RemoteSearchProvider(self)
+        elif LocalSearchProvider.is_available():
             self.__search_provider = LocalSearchProvider(self)
         else:
-            self.__search_provider = RemoteSearchProvider(self)
+            self.__search_provider = None
 
-        self.__search_provider.register_on_connection(dbus_connection, object_path)
+        if self.__search_provider:
+            self.__search_provider.register_on_connection(dbus_connection, object_path)
 
         return True
 

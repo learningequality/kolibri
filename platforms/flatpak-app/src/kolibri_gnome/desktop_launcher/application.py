@@ -12,7 +12,7 @@ from pew.ui import PEWShortcut
 
 from .. import config
 
-from ..globals import KOLIBRI_HOME, KOLIBRI_URL, KOLIBRI_URL_SPLIT, XDG_CURRENT_DESKTOP, get_is_kolibri_responding
+from ..globals import KOLIBRI_HOME, KOLIBRI_URL, KOLIBRI_URL_SPLIT, XDG_CURRENT_DESKTOP, is_kolibri_responding
 from ..kolibri_service.kolibri_service import KolibriServiceThread
 from .utils import get_localized_file
 
@@ -240,7 +240,7 @@ class Application(pew.ui.PEWApp):
         self.__kolibri_service.join()
 
     def wait_for_server(self):
-        while not get_is_kolibri_responding():
+        while not is_kolibri_responding():
             # There is a corner case here where Kolibri may be running (lock
             # file is created), but responding at a different URL than we
             # expect. This is unlikely, so we are ignoring it here.
