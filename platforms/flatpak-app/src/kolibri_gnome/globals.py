@@ -28,7 +28,7 @@ else:
     from kolibri.utils.conf import OPTIONS
     KOLIBRI_HTTP_PORT = OPTIONS["Deployment"]["HTTP_PORT"]
 
-KOLIBRI_URL = "http://127.0.0.1:{}".format(KOLIBRI_HTTP_PORT)
+KOLIBRI_URL = "http://localhost:{}".format(KOLIBRI_HTTP_PORT)
 KOLIBRI_URL_SPLIT = urlsplit(KOLIBRI_URL)
 
 DEFAULT_KOLIBRI_HOME = os.path.join(USER_HOME, ".kolibri")
