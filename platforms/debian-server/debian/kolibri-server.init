@@ -39,12 +39,7 @@ fi
 [ "$KOLIBRI_USER"=="" ] || { echo "$KOLIBRI_USER not set" && exit 1 ;}
 [ "$KOLIBRI_HOME"=="" ] || { echo "$KOLIBRI_HOME not set" && exit 1 ;}
 
-KOLIBRI_USER_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"
-
 KOLIBRI_GID=`id -g $KOLIBRI_USER`
-
-# Expands ~ in the KOLIBRI_HOME to the KOLIBRI_USER's HOME
-KOLIBRI_HOME=${KOLIBRI_HOME//\~/"$KOLIBRI_USER_HOME"}
 
 DAEMON_UWSGI_ARGS="--ini /etc/kolibri/dist/uwsgi.ini --uid=$KOLIBRI_USER --gid=$KOLIBRI_GID \
   --env=KOLIBRI_HOME=$KOLIBRI_HOME --daemonize=$KOLIBRI_HOME/logs/uwsgi.log --pidfile=$PIDFILE_UWSGI \
