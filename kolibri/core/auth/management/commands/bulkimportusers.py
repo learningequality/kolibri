@@ -65,17 +65,17 @@ FILE_WRITE_ERROR = 9
 REQUIRED_PASSWORD = 10
 
 MESSAGES = {
-    UNEXPECTED_EXCEPTION: _("Unexpected exception [{}]: {}"),
-    TOO_LONG: _("'{}' is too long"),
-    INVALID: _("Not a valid '{}'"),
-    DUPLICATED_USERNAME: _("Duplicated Username"),
+    UNEXPECTED_EXCEPTION: _("Unexpected error [{}]: {}"),
+    TOO_LONG: _("Value in column '{}' is too many characters"),
+    INVALID: _("Invalid value in column '{}'"),
+    DUPLICATED_USERNAME: _("Username is duplicated"),
     INVALID_USERNAME: _(
         "Username only can contain characters, numbers and underscores"
     ),
     REQUIRED_COLUMN: _("The column '{}' is required"),
-    INVALID_HEADER: _("Mix of valid and/or invalid header labels found in first row"),
+    INVALID_HEADER: _("Invalid header label found in the first row"),
     NO_FACILITY: _(
-        "No default facility exists, please make sure to provision this device before running this command"
+        "No default facility exists. Make sure to provision this device before importing"
     ),
     FILE_READ_ERROR: _("Error trying to read csv file: {}"),
     FILE_WRITE_ERROR: _("Error trying to write csv file: {}"),

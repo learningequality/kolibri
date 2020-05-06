@@ -37,20 +37,7 @@ except NameError:
 logger = logging.getLogger(__name__)
 
 # TODO: decide whether these should be internationalized
-labels = OrderedDict(
-    (
-        ("username", _("Username ({})".format("USERNAME"))),
-        ("password", _("Password ({})".format("PASSWORD"))),
-        ("full_name", _("Full name ({})".format("FULL_NAME"))),
-        ("kind", _("User type ({})").format("USER_TYPE")),
-        ("id_number", _("Identifier ({})".format("IDENTIFIER"))),
-        ("birth_year", _("Birth year ({})".format("BIRTH_YEAR"))),
-        ("gender", _("Gender ({})".format("GENDER"))),
-        ("enrolled", _("Learner enrollment ({})".format("ENROLLED_IN"))),
-        ("assigned", _("Coach assignment ({})".format("ASSIGNED_TO"))),
-    )
-)
-
+labels = OrderedDict()
 db_columns = (
     "username",
     "id",
@@ -96,6 +83,23 @@ def map_output(obj):
         elif header in obj:
             mapped_obj[label] = obj[header]
     return mapped_obj
+
+
+def translate_labels():
+    global labels
+    labels = OrderedDict(
+        (
+            ("username", _("Username ({})").format("USERNAME")),
+            ("password", _("Password ({})").format("PASSWORD")),
+            ("full_name", _("Full name ({})").format("FULL_NAME")),
+            ("kind", _("User type ({})").format("USER_TYPE")),
+            ("id_number", _("Identifier ({})").format("IDENTIFIER")),
+            ("birth_year", _("Birth year ({})").format("BIRTH_YEAR")),
+            ("gender", _("Gender ({})").format("GENDER")),
+            ("enrolled", _("Learner enrollment ({})").format("ENROLLED_IN")),
+            ("assigned", _("Coach assignment ({})").format("ASSIGNED_TO")),
+        )
+    )
 
 
 def csv_file_generator(facility, filepath, overwrite=True):
@@ -211,6 +215,7 @@ class Command(AsyncCommand):
         # set language for the translation of the messages
         locale = settings.LANGUAGE_CODE if not options["locale"] else options["locale"]
         translation.activate(locale)
+        translate_labels()
 
         self.overall_error = []
         filepath = self.get_filepath(options)
