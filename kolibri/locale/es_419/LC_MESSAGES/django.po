@@ -1,0 +1,170 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-30 16:30-0700\n"
+"PO-Revision-Date: 2020-05-05 22:47\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Spanish, Latin America\n"
+"Language: es_LA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: la\n"
+"X-Crowdin-File: /for-profuturo-only/django.po\n"
+
+#: kolibri/core/auth/constants/collection_kinds.py:15
+msgid "Facility"
+msgstr "Centro educativo"
+
+#: kolibri/core/auth/constants/collection_kinds.py:16
+msgid "Classroom"
+msgstr "Salón de clase"
+
+#: kolibri/core/auth/constants/collection_kinds.py:17
+msgid "Learner group"
+msgstr "Equipo de estudiantes"
+
+#: kolibri/core/auth/constants/collection_kinds.py:18
+msgid "Ad hoc learners group"
+msgstr "Ad hoc grupo de estudiantes"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:42
+msgid "Username ({})"
+msgstr "Nombre de usuario ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:43
+msgid "Password ({})"
+msgstr "Contraseña ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:44
+msgid "Full name ({})"
+msgstr "Nombre completo ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:45
+msgid "User type ({})"
+msgstr "Tipo de usuario ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:46
+msgid "Identifier ({})"
+msgstr "Identificador ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:47
+msgid "Birth year ({})"
+msgstr "Año de nacimiento ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:48
+msgid "Gender ({})"
+msgstr "Género ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:49
+msgid "Learner enrollment ({})"
+msgstr "Estudiante inscripción ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:50
+msgid "Coach assignment ({})"
+msgstr "Tutor asignación ({})"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:68
+msgid "Unexpected error [{}]: {}"
+msgstr "Error inesperado [{}]: {}"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:69
+msgid "Value in column '{}' is too many characters"
+msgstr "Valor en la columna '{}' más dígitos del permitido"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:70
+msgid "Invalid value in column '{}'"
+msgstr "Valor incorrecto en la columna '{}'"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:71
+msgid "Username is duplicated"
+msgstr "Nombre de usuario duplicado"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:73
+msgid "Username only can contain characters, numbers and underscores"
+msgstr "Los nombres de usuario solo pueden contener letras, números y guiones bajos"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:75
+msgid "The column '{}' is required"
+msgstr "La columna '{}' es obligatoria"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:76
+msgid "Invalid header label found in the first row"
+msgstr "Etiqueta de encabezado incorrecta en la primera fila"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:78
+msgid "No default facility exists. Make sure to provision this device before importing"
+msgstr "El dispositivo no tiene configurado ningún centro educativo. Asegúrese que exista un centro antes de importar usuarios."
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:80
+msgid "Error trying to read csv file: {}"
+msgstr "Error al intentar leer el archivo CSV: {}"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:81
+msgid "Error trying to write csv file: {}"
+msgstr "Error al intentar guardar el archivo CSV: {}"
+
+#: kolibri/core/content/api.py:149
+msgid "Content"
+msgstr "Contenido"
+
+#: kolibri/core/content/api.py:910
+msgid "The requested channel does not exist on the content server"
+msgstr "El canal solicitado no existe en el servidor de contenidos"
+
+#: kolibri/core/content/models.py:165
+msgid "Unknown format"
+msgstr "Formato desconocido"
+
+#: kolibri/core/device/serializers.py:42
+msgid "Language is not supported by Kolibri"
+msgstr "Kolibri todavía no está disponible en este idioma"
+
+#: kolibri/core/tasks/api.py:54
+msgid "There was a network error."
+msgstr "Hubo un error de red."
+
+#: kolibri/core/tasks/api.py:56
+msgid "There was a disk access error."
+msgstr "Hubo un error de acceso a disco."
+
+#: kolibri/core/tasks/api.py:58
+msgid "There was an unknown error."
+msgstr "Se ha producido un error desconocido."
+
+#: kolibri/core/templates/kolibri/base.html:13
+#: kolibri/core/templates/kolibri/unsupported_browser.html:13
+msgid "Kolibri"
+msgstr "Kolibri"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:42
+msgid "Unsupported browser"
+msgstr "Navegador no compatible"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:43
+msgid "Sorry, your browser version is not supported."
+msgstr "La versión del navegador no está soportada."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:44
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "Para utilizar el Kolibri, recomendamos usar Firefox o Chrome."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:45
+msgid "You can also try updating your current browser."
+msgstr "También puedes actualizar tu navegador actual."
+
+#: kolibri/core/views.py:174
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "Fue imposible redirigir página correctamente. Es probable que Kolibri está mal configurado"
+
+#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
+msgid "OpenID Provider Authorization"
+msgstr "Autorización del proveedor de OpenID"
+
+#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
+msgid "Request for Permission"
+msgstr "Petición de permiso"
+
