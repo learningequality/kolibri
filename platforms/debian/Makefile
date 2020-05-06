@@ -1,7 +1,7 @@
 .ONESHELL:
 
 clean:
-	rm -f dist/* build_src/VERSION *.cid
+	rm -f dist/* dist/VERSION *.cid
 
 # Doesn't have to run if you bring in your own tarball.
 build_src/%.tar.gz:
@@ -17,7 +17,7 @@ dist/kolibri_archive.tar.gz: build_src/*.tar.gz
 	mkdir -p dist
 	cp $< $@
 
-build_src/VERSION: dist/kolibri_archive.tar.gz
+dist/VERSION: dist/kolibri_archive.tar.gz
 	@# Use head of archive list to determine version location
 	ARCHIVE_ROOT=$$(tar -tf $< | head -1)
 	VERSION_PATH=$${ARCHIVE_ROOT}kolibri/VERSION
@@ -28,7 +28,7 @@ build_src/VERSION: dist/kolibri_archive.tar.gz
 
 # Meant to be used for local dev. Can be called with alias below.
 # If something changes in the way you build locally, please update this recipe.
-dist/%.deb: build_src/VERSION dist/kolibri_archive.tar.gz
+dist/%.deb: dist/VERSION dist/kolibri_archive.tar.gz
 	export KOLIBRI_VERSION=$$(cat $<)
 	DEB_VERSION=`echo -n "$KOLIBRI_VERSION" | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'`
 	cd kolibri-source*

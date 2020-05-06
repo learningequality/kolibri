@@ -10,7 +10,7 @@ RUN apk update && apk add \
 COPY build_src build_src
 COPY Makefile .
 
-RUN make clean && make dist/kolibri_archive.tar.gz build_src/VERSION
+RUN make clean && make dist/kolibri_archive.tar.gz dist/VERSION
 
 
 FROM ubuntu:bionic
