@@ -160,7 +160,7 @@ class KolibriWindow(KolibriView):
 
     def show(self):
         # Maximize windows on Endless OS
-        if XDG_CURRENT_DESKTOP == 'endless:GNOME':
+        if hasattr(self, 'gtk_window') and XDG_CURRENT_DESKTOP == 'endless:GNOME':
             self.gtk_window.maximize()
         super().show()
 
