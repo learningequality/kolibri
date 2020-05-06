@@ -3,10 +3,12 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import time
+from datetime import datetime
+from datetime import timedelta
 from functools import partial
 from itertools import groupby
+from uuid import uuid4
 
-from datetime import datetime, timedelta
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth import logout
@@ -30,7 +32,6 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
-from uuid import uuid4
 
 from .constants import collection_kinds
 from .constants import role_kinds
