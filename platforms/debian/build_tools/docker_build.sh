@@ -7,6 +7,9 @@ set -euo pipefail
 # Tags don't work well with concurrent builds run by the same script.
 CIDFILE=docker-deb.cid
 
+# Required dir if pre-populating tarball
+mkdir -p build_src
+
 docker image build -t "learningequality/kolibri-deb" .
 docker run --cidfile $CIDFILE "learningequality/kolibri-deb"
 

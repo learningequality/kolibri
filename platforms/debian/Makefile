@@ -44,12 +44,13 @@ kolibri.deb: dist/kolibri.deb
 
 .PHONY: docker-deb
 docker-deb:
-	mkdir -p build_src
 	# Essentially just calls make dist/%.deb in a prepared docker container.
 	# After building, it copies the .deb into the dist/ dir.
 	build_tools/docker_build.sh
 
-# Docker images in which tests will run
+# Docker images in which tests will run.
+# Can override this variable locally with make, or by exporting prior to calling
+# the script directly.
 DOCKER_IMAGES="\
   ubuntu:focal \
   ubuntu:bionic \

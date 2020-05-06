@@ -13,6 +13,7 @@ export LANG=C.UTF-8
 apt-get -y update
 apt-get install -y python3-pkg-resources
 
+# BOUND_DIR set in build_tools/docker_test.sh
 debconf-set-selections $BOUND_DIR/build_tools/preseed.cfg
 dpkg -i $BOUND_DIR/dist/*.deb
 

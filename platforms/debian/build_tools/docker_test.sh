@@ -9,6 +9,7 @@ export BOUND_DIR="/kolibri-deb"
 # DOCKER_IMAGES supplied by make.
 for IMAGE in $DOCKER_IMAGES
 do
+  echo "Running tests in $IMAGE"
   docker run \
     --rm \
     -v $PWD/build_tools:$BOUND_DIR/build_tools \
