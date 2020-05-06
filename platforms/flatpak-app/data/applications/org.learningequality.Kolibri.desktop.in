@@ -15,4 +15,5 @@ DBusActivatable=true
 #              Do not translate or transliterate this text!
 Icon=org.learningequality.Kolibri
 MimeType=x-scheme-handler/kolibri;
+X-Endless-LaunchMaximized=true
 

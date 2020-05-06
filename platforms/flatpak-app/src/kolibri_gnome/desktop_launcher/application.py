@@ -12,8 +12,7 @@ from pew.ui import PEWShortcut
 
 from .. import config
 
-from ..globals import KOLIBRI_HOME, KOLIBRI_URL, KOLIBRI_URL_SPLIT
-from ..kolibri_service.utils import get_is_kolibri_responding
+from ..globals import KOLIBRI_HOME, KOLIBRI_URL, KOLIBRI_URL_SPLIT, XDG_CURRENT_DESKTOP, get_is_kolibri_responding
 from ..kolibri_service.kolibri_service import KolibriServiceThread
 from .utils import get_localized_file
 
@@ -158,6 +157,12 @@ class KolibriWindow(KolibriView):
         menu_bar.add_menu(help_menu)
 
         self.set_menubar(menu_bar)
+
+    def show(self):
+        # Maximize windows on Endless OS
+        if XDG_CURRENT_DESKTOP == 'endless:GNOME':
+            self.gtk_window.maximize()
+        super().show()
 
 
 class Application(pew.ui.PEWApp):
