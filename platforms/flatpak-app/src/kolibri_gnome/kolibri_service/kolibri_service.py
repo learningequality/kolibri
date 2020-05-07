@@ -16,12 +16,8 @@ from .utils import singleton_service
 
 
 class KolibriServiceThread(threading.Thread):
-    def __init__(self, heartbeat_port=None, retry_timeout_secs=None):
-        kolibri_env = os.environ.copy()
-        if heartbeat_port:
-            kolibri_env['KOLIBRI_HEARTBEAT_PORT'] = str(heartbeat_port)
+    def __init__(self, retry_timeout_secs=None):
         self.__retry_timeout_secs = retry_timeout_secs
-        self.__kolibri_env = kolibri_env
         self.__kolibri_exitcode = None
         self.__kolibri_process = None
         self.__running = threading.Event()
@@ -58,23 +54,18 @@ class KolibriServiceThread(threading.Thread):
 
     def __run_kolibri_process(self):
         status = server.get_urls()[0]
-        logging.info("Kolibri status ({}): {}".format(status, cli.status.codes[status]))
-
-        popen_args = {
-            'env': self.__kolibri_env,
-            'close_fds': False
-        }
+        logging.info("Kolibri status (%s): %s", status, cli.status.codes[status])
 
         if status in [server.STATUS_STOPPED, server.STATUS_FAILED_TO_START, server.STATUS_UNKNOWN]:
             logging.info("Starting Kolibri...")
-            self.__kolibri_process = subprocess.Popen(["kolibri", "start", "--foreground"], **popen_args)
+            self.__kolibri_process = subprocess.Popen(["kolibri", "start", "--foreground"])
         elif status in [server.STATUS_UNCLEAN_SHUTDOWN, server.STATUS_FAILED_TO_START]:
             logging.info("Clearing lock files and starting Kolibri...")
             if os.path.exists(server.STARTUP_LOCK):
                 os.remove(server.STARTUP_LOCK)
             if os.path.exists(server.PID_FILE):
                 os.remove(server.PID_FILE)
-            self.__kolibri_process = subprocess.Popen(["kolibri", "start", "--foreground"], **popen_args)
+            self.__kolibri_process = subprocess.Popen(["kolibri", "start", "--foreground"])
         else:
             logging.warning("Not starting Kolibri because its status is ({}): {}".format(
                 status, cli.status.codes[status]
