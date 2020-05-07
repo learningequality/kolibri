@@ -22,13 +22,13 @@ export default createTranslator('NotificationStrings', {
     message: '{count, plural, one {Learner enrolled} other {Learners enrolled}}',
     context: 'Enrolling learners into group or class',
   },
-  learnersEnrolledWithCount: {
-    message: '{count, number} {count, plural, one {learner enrolled} other {learners enrolled}}',
-    context: 'Enrolling learners into group or class',
-  },
   learnersRemovedNoCount: {
     message: '{count, plural, one {Learner removed} other {Learners removed}}',
     context: 'Removing (unenrolling) learners from a group or class',
+  },
+  learnersEnrolledWithCount: {
+    message: '{count, number} {count, plural, one {learner enrolled} other {learners enrolled}}',
+    context: 'Enrolling learners into group or class',
   },
   learnersRemovedWithCount: {
     message: '{count, number} {count, plural, one {learner removed} other {learners removed}}',
