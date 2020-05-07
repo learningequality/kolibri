@@ -1,5 +1,6 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
+// TODO add error messages
 export default createTranslator('NotificationStrings', {
   classCreated: {
     message: 'Class created',

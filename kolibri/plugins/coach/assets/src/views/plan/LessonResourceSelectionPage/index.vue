@@ -266,16 +266,14 @@
         removeFromSelectedResources: 'REMOVE_FROM_WORKING_RESOURCES',
       }),
       showResourcesDifferenceMessage(difference) {
-        let text;
         if (difference === 0) {
           return;
         }
         if (difference > 0) {
-          text = this.$tr('resourcesAddedSnackbarText', { count: difference });
+          this.showSnackbarNotification('resourcesAddedWithCount', { count: difference });
         } else {
-          text = this.$tr('resourcesRemovedSnackbarText', { count: -difference });
+          this.showSnackbarNotification('resourcesRemovedWithCount', { count: -difference });
         }
-        this.createSnackbar(text);
       },
       showResourcesChangedError() {
         this.createSnackbar(this.$tr('resourcesChangedErrorSnackbarText'));
@@ -396,10 +394,6 @@
       totalResourcesSelected:
         '{total, number, integer} {total, plural, one {resource} other {resources}} in this lesson',
       documentTitle: `Manage resources in '{lessonName}'`,
-      resourcesAddedSnackbarText:
-        'Added {count, number, integer} {count, plural, one {resource} other {resources}} to lesson',
-      resourcesRemovedSnackbarText:
-        'Removed {count, number, integer} {count, plural, one {resource} other {resources}} from lesson',
       resourcesChangedErrorSnackbarText: 'There was a problem updating this lesson',
       saveBeforeExitSnackbarText: 'Saving your changes…',
       // only shown on search page

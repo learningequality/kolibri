@@ -131,11 +131,11 @@
           });
       },
       handleSubmitDelete() {
-        const { title, id } = this.currentLesson;
+        const { id } = this.currentLesson;
         return LessonResource.deleteModel({ id })
           .then(() => {
             this.$router.replace(this.$router.getRoute('PLAN_LESSONS_ROOT'), () => {
-              this.$store.dispatch('createSnackbar', this.$tr('lessonDeleted', { title }));
+              this.showSnackbarNotification('lessonDeleted');
             });
           })
           .catch(error => {
@@ -151,7 +151,6 @@
       copyOfLesson: 'Copy of { lessonTitle }',
       copiedLessonTo: `Copied lesson to '{classroomName}'`,
       uniqueTitleError: `A lesson titled '{title}' already exists in '{className}'`,
-      lessonDeleted: `Lesson '{title}' was deleted`,
     },
   };
 

@@ -122,8 +122,16 @@ export default {
     coreString(key, args) {
       return coreStrings.$tr(key, args);
     },
-    showSnackbarNotification(key, args) {
-      this.$store.dispatch('createSnackbar', notificationStrings.$tr(key, args));
+    showSnackbarNotification(key, args, coreCreateSnackbarArgs) {
+      let text = notificationStrings.$tr(key, args);
+      if (coreCreateSnackbarArgs) {
+        this.$store.commit('CORE_CREATE_SNACKBAR', {
+          ...coreCreateSnackbarArgs,
+          text,
+        });
+      } else {
+        this.$store.dispatch('createSnackbar', text);
+      }
     },
   },
 };
