@@ -1,13 +1,17 @@
 import logging
+logger = logging.getLogger(__name__)
+
 import os
 import subprocess
 import threading
 import time
+
 from gettext import gettext as _
 from urllib.parse import urlsplit, urlunsplit
 
 import pew
 import pew.ui
+
 from pew.ui import PEWShortcut
 
 from .. import config
@@ -206,7 +210,7 @@ class Application(pew.ui.PEWApp):
 
         # Check for saved URL, which exists when the app was put to sleep last time it ran
         saved_state = main_window.get_view_state()
-        logging.debug("Persisted View State: %s", saved_state)
+        logger.debug("Persisted View State: %s", saved_state)
 
         if "URL" in saved_state and saved_state["URL"].startswith(KOLIBRI_URL):
             pew.ui.run_on_main_thread(main_window.load_url, saved_state["URL"])
@@ -228,13 +232,13 @@ class Application(pew.ui.PEWApp):
 
     def shutdown(self):
         if self.__kolibri_service and self.__kolibri_service.is_alive():
-            logging.info("Stopping Kolibri server...")
+            logger.info("Stopping Kolibri service...")
             self.__kolibri_service.stop_kolibri()
 
         super().shutdown()
 
     def run_server(self):
-        logging.info("Starting Kolibri server...")
+        logger.info("Starting Kolibri service...")
         self.__kolibri_service = KolibriServiceThread(retry_timeout_secs=10)
         self.__kolibri_service.start()
         self.__kolibri_service.join()
@@ -245,18 +249,18 @@ class Application(pew.ui.PEWApp):
             # file is created), but responding at a different URL than we
             # expect. This is unlikely, so we are ignoring it here.
             if not self.__kolibri_service:
-                logging.warning("Kolibri server was not started")
+                logger.warning("Kolibri service was not started")
                 self.__kolibri_loaded_success = False
                 self.__kolibri_loaded.set()
                 return
             elif not self.__kolibri_service.is_alive():
-                logging.warning("Kolibri server has died")
+                logger.warning("Kolibri service has died")
                 self.__kolibri_loaded_success = False
                 self.__kolibri_loaded.set()
                 return
             time.sleep(1)
 
-        logging.info("Kolibri server is responding")
+        logger.info("Kolibri service is responding")
         self.__kolibri_loaded_success = True
         self.__kolibri_loaded.set()
 
@@ -307,7 +311,7 @@ class Application(pew.ui.PEWApp):
         parse = urlsplit(kolibri_scheme_uri)
 
         if parse.scheme != 'kolibri':
-            logging.info("Invalid URI scheme: %s", kolibri_scheme_uri)
+            logger.info("Invalid URI scheme: %s", kolibri_scheme_uri)
             return
 
         if parse.path and parse.path != '/':

@@ -1,7 +1,9 @@
 # Starts Kolibri, recovering from improper exits if required.
 
-import io
 import logging
+logger = logging.getLogger(__name__)
+
+import io
 import os
 import signal
 import subprocess
@@ -30,7 +32,8 @@ class KolibriServiceThread(threading.Thread):
     def stop_kolibri(self):
         self.__running.clear()
         if self.__kolibri_process:
-            self.__kolibri_process.send_signal(signal.SIGINT)
+            logger.info("Stopping Kolibri...")
+            subprocess.Popen(["kolibri", "stop"])
 
     def run(self):
         self.__running.set()
@@ -39,14 +42,14 @@ class KolibriServiceThread(threading.Thread):
             try:
                 return self.__run()
             except io.BlockingIOError:
-                logging.warning("Kolibri is already running in another process.")
+                logger.warning("Kolibri is already running in another process.")
                 if self.__retry_timeout_secs is not None:
-                    logging.info("Trying again in %d seconds...", self.__retry_timeout_secs)
+                    logger.info("Trying again in %d seconds...", self.__retry_timeout_secs)
                     time.sleep(self.__retry_timeout_secs)
                 else:
                     return None
 
-        logging.info("Kolibri is not starting. Giving up.")
+        logger.info("Kolibri is not starting. Giving up.")
 
     def __run(self):
         with singleton_service('kolibri', KOLIBRI_URL):
@@ -54,20 +57,20 @@ class KolibriServiceThread(threading.Thread):
 
     def __run_kolibri_process(self):
         status = server.get_urls()[0]
-        logging.info("Kolibri status (%s): %s", status, cli.status.codes[status])
+        logger.debug("Kolibri status (%s): %s", status, cli.status.codes[status])
 
         if status in [server.STATUS_STOPPED, server.STATUS_FAILED_TO_START, server.STATUS_UNKNOWN]:
-            logging.info("Starting Kolibri...")
+            logger.info("Starting Kolibri...")
             self.__kolibri_process = subprocess.Popen(["kolibri", "start", "--foreground"])
         elif status in [server.STATUS_UNCLEAN_SHUTDOWN, server.STATUS_FAILED_TO_START]:
-            logging.info("Clearing lock files and starting Kolibri...")
+            logger.info("Clearing lock files and starting Kolibri...")
             if os.path.exists(server.STARTUP_LOCK):
                 os.remove(server.STARTUP_LOCK)
             if os.path.exists(server.PID_FILE):
                 os.remove(server.PID_FILE)
             self.__kolibri_process = subprocess.Popen(["kolibri", "start", "--foreground"])
         else:
-            logging.warning("Not starting Kolibri because its status is ({}): {}".format(
+            logger.warning("Not starting Kolibri because its status is ({}): {}".format(
                 status, cli.status.codes[status]
             ))
             self.__kolibri_process = None

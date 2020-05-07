@@ -1,6 +1,8 @@
+import logging
+logger = logging.getLogger(__name__)
+
 import gettext
 import json
-import logging
 import os
 from urllib.error import URLError
 from urllib.parse import urlencode, urlsplit, urlunsplit
@@ -65,7 +67,7 @@ def get_current_language():
         translations = gettext.translation(config.GETTEXT_PACKAGE, localedir=config.LOCALE_DIR)
         locale_info = translations.info()
     except FileNotFoundError as e:
-        logging.warning("Error loading translation file: %s", e)
+        logger.warning("Error loading translation file: %s", e)
         language = None
     else:
         language = locale_info.get('language')
