@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 
 # TODO: decide whether these should be internationalized
 fieldnames = (
+    "UUID",
     "USERNAME",
     "PASSWORD",
     "FULL_NAME",
@@ -63,6 +64,7 @@ NO_FACILITY = 7
 FILE_READ_ERROR = 8
 FILE_WRITE_ERROR = 9
 REQUIRED_PASSWORD = 10
+NON_EXISTENT_UUID = 11
 
 MESSAGES = {
     UNEXPECTED_EXCEPTION: _("Unexpected exception [{}]: {}"),
@@ -82,6 +84,7 @@ MESSAGES = {
     REQUIRED_PASSWORD: _(
         "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
     ),
+    NON_EXISTENT_UUID: _("Imposible to update {} because the provided Unique ID does not exist in this facility")
 }
 
 # Validators ###
@@ -489,7 +492,7 @@ class Command(AsyncCommand):
         existing_users = (
             FacilityUser.objects.filter(facility=self.default_facility)
             .filter(username__in=users.keys())
-            .values_list("username", flat=True)
+            .values_list("id", flat=True)
         )
 
         # creating the users takes half of the time
@@ -499,9 +502,9 @@ class Command(AsyncCommand):
             self.progress_update(progress)
             user_row = users[user]
             values = self.get_field_values(user_row)
-            if user in existing_users:
+            if user_row["UUID"] in existing_users:
                 user_obj = FacilityUser.objects.get(
-                    username=user, facility=self.default_facility
+                    id=user_row["UUID"], facility=self.default_facility
                 )
                 keeping_users.append(user_obj)
                 if self.compare_fields(user_obj, values):
