@@ -496,12 +496,6 @@ class ImportTestCase(TestCase):
         classrooms = Classroom.objects.all()
         assert len(classrooms) == 4
 
-    def test_update_username(self):
-        self.import_exported_csv()
-        user_to_update = FacilityUser.objects.get(username="learnerag")
-        print(user_to_update.id)
-        print("ola")
-
     def test_non_existing_uuid(self):
         self.import_exported_csv()
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
