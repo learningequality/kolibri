@@ -10,21 +10,13 @@ export default createTranslator('NotificationStrings', {
     message: 'Class deleted',
     context: 'Deleting a class',
   },
-  coachAssigned: {
-    message: 'Coach assigned',
-    context: 'Assigning one coach to a class',
+  coachesAssignedNoCount: {
+    message: '{count, plural, one {Coach assigned} other {Coaches assigned}}',
+    context: 'Assigning coaches to a class',
   },
-  coachesAssigned: {
-    message: 'Coaches assigned',
-    context: 'Assigning multiple coaches to a class',
-  },
-  coachRemoved: {
-    message: 'Coach removed',
-    context: 'Removing (unassigning) one coach from a class',
-  },
-  coachesRemoved: {
-    message: 'Coach removed',
-    context: 'Removing (unassigning) multiple coaches from a class',
+  coachesRemovedNoCount: {
+    message: '{count, plural, one {Coach removed} other {Coaches removed}}',
+    context: 'Removing coaches from a class',
   },
   learnersEnrolledNoCount: {
     message: '{count, plural, one {Learner enrolled} other {Learners enrolled}}',

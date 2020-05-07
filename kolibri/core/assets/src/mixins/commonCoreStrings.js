@@ -123,7 +123,7 @@ export default {
       return coreStrings.$tr(key, args);
     },
     showSnackbarNotification(key, args, coreCreateSnackbarArgs) {
-      let text = notificationStrings.$tr(key, args);
+      let text = notificationStrings.$tr(key, args || {});
       if (coreCreateSnackbarArgs) {
         this.$store.commit('CORE_CREATE_SNACKBAR', {
           ...coreCreateSnackbarArgs,
