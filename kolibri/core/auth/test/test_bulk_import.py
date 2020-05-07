@@ -180,7 +180,7 @@ class ImportTestCase(TestCase):
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
         rows = [
             [
-                "uuid1",
+                None,
                 "new_learner",
                 None,
                 None,
@@ -192,7 +192,7 @@ class ImportTestCase(TestCase):
                 None,
             ],
             [
-                "uuid2",
+                None,
                 "new_coach",
                 "*",
                 None,
@@ -204,7 +204,7 @@ class ImportTestCase(TestCase):
                 "new_class",
             ],
             [
-                "uuid3",
+                None,
                 "another_new_coach",
                 "passwd1",
                 None,
@@ -252,7 +252,7 @@ class ImportTestCase(TestCase):
         _, first_filepath = tempfile.mkstemp(suffix=".csv")
         rows = [
             [
-                "uuid4",
+                None,
                 "new_learner",
                 "passwd1",
                 None,
@@ -264,7 +264,7 @@ class ImportTestCase(TestCase):
                 None,
             ],
             [
-                "uuid5",
+                None,
                 "new_coach",
                 "passwd2",
                 None,
@@ -280,14 +280,18 @@ class ImportTestCase(TestCase):
         call_command(
             "bulkimportusers", first_filepath, facility=self.facility.id,
         )
-        passwd1 = FacilityUser.objects.get(username="new_learner").password
-        passwd2 = FacilityUser.objects.get(username="new_coach").password
+        user1 = FacilityUser.objects.get(username="new_learner")
+        passwd1 = user1.password
+        uid1 = user1.id
+        user2 = FacilityUser.objects.get(username="new_coach")
+        passwd2 = user2.password
+        uid2 = user2.id
 
         # let's edit the users with a new import
         _, second_filepath = tempfile.mkstemp(suffix=".csv")
         rows = [
             [
-                "uuid6",
+                uid1,
                 "new_learner",
                 "passwd3",
                 None,
@@ -299,7 +303,7 @@ class ImportTestCase(TestCase):
                 None,
             ],
             [
-                "uuid7",
+                uid2,
                 "new_coach",
                 "*",
                 None,
@@ -324,7 +328,7 @@ class ImportTestCase(TestCase):
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
         rows = [
             [
-                "uuid8",
+                None,
                 "new_learner",
                 "passwd1",
                 None,
@@ -336,7 +340,7 @@ class ImportTestCase(TestCase):
                 None,
             ],
             [
-                "uuid9",
+                None,
                 "new_coach",
                 "passwd2",
                 None,
@@ -389,7 +393,7 @@ class ImportTestCase(TestCase):
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
         rows = [
             [
-                "uuid10",
+                None,
                 "new_learner",
                 "passwd1",
                 None,
@@ -400,7 +404,7 @@ class ImportTestCase(TestCase):
                 "classroom1,classroom0",
             ],
             [
-                "uuid11",
+                None,
                 "new_coach",
                 "passwd2",
                 None,
@@ -440,7 +444,7 @@ class ImportTestCase(TestCase):
         # first inside the same csv file
         rows = [
             [
-                "uuid12",
+                None,
                 "learner1",
                 "passwd1",
                 None,
@@ -451,7 +455,7 @@ class ImportTestCase(TestCase):
                 " My class,another class ",
             ],
             [
-                "uuid13",
+                None,
                 "coach1",
                 "passwd2",
                 None,
@@ -473,7 +477,7 @@ class ImportTestCase(TestCase):
         # now, testing it's insensitive with database names:
         rows = [
             [
-                "uuid14",
+                None,
                 "learner2",
                 "passwd2",
                 None,
@@ -509,7 +513,7 @@ class ImportTestCase(TestCase):
                 row[2] = "*"
                 rows.append(row)
         self.create_csv(new_filepath, rows[1:])  # remove header
-        number_of_rows = len(rows)
+        number_of_rows = len(rows) - 1  # exclude header
         # import exported csv
         out_log = StringIO()
         call_command(
@@ -518,6 +522,6 @@ class ImportTestCase(TestCase):
             facility=self.facility.id,
             errorlines=out_log,
         )
-        result = out_log.getvalue().split("\n")
+        result = out_log.getvalue().strip().split("\n")
 
-        assert len(result) == number_of_rows - 1  # exclude header
+        assert len(result) == number_of_rows
