@@ -49,6 +49,7 @@ from kolibri.utils.logger import get_base_logging_config
 from kolibri.utils.sanity_checks import check_django_stack_ready
 from kolibri.utils.sanity_checks import DatabaseInaccessible
 from kolibri.utils.sanity_checks import DatabaseNotMigrated
+from kolibri.utils.system import CAN_USE_SYMLINKS
 
 
 logger = logging.getLogger(__name__)
@@ -328,7 +329,9 @@ def initialize(skip_update=False):  # noqa: max-complexity=12
 
     version = get_version()
 
-    if version_updated(kolibri.__version__, version):
+    updated = version_updated(kolibri.__version__, version)
+
+    if updated:
         check_plugin_config_file_location(version)
         # Reset the enabled plugins to the defaults
         # This needs to be run before dbbackup because
@@ -337,7 +340,7 @@ def initialize(skip_update=False):  # noqa: max-complexity=12
 
     _setup_django()
 
-    if version_updated(kolibri.__version__, version) and not skip_update:
+    if updated and not skip_update:
         conditional_backup(kolibri.__version__, version)
 
         if version:
@@ -355,7 +358,19 @@ def initialize(skip_update=False):  # noqa: max-complexity=12
     if not skip_update:
         # Run any plugin specific updates here in case they were missed by
         # our Kolibri version based update logic.
-        run_plugin_updates()
+        updated = run_plugin_updates() or updated
+
+        if updated:
+            logger.info("Copying updated static files")
+            # Collect any static files
+            collectstatic_options = {
+                "interactive": False,
+                "verbosity": 0,
+                "clear": True,
+            }
+            if CAN_USE_SYMLINKS:
+                collectstatic_options["link"] = True
+            call_command("collectstatic", **collectstatic_options)
 
         check_django_stack_ready()
         try:
@@ -400,8 +415,6 @@ def update(old_version, new_version):
 
     except server.NotRunning:
         pass
-
-    call_command("collectstatic", interactive=False, verbosity=0)
 
     _migrate_databases()
 
