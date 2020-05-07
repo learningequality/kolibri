@@ -2,6 +2,12 @@
 
   <KPageContainer>
 
+    <p>
+      <KRouterLink
+        :text="coreString('allClassesLabel')"
+        :to="{ name: 'CLASS_MGMT_PAGE' }"
+      />
+    </p>
     <div>
       <h1 class="title-header" dir="auto">
         <KLabeledIcon icon="classroom" :label="currentClass.name" />

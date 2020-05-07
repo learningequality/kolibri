@@ -6,6 +6,7 @@
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="false"
+    :pageTitle="coreString('allFacilitiesLabel')"
   >
     <KPageContainer>
       <h1>{{ coreString('facilitiesLabel') }} </h1>

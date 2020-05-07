@@ -5,24 +5,13 @@
     :submitText="coreString('continueAction')"
     @submit="$emit('submit')"
   >
-    <template v-if="showPostSyncVersion">
-      <p class="welcome-modal-description">
-        {{ $tr('welcomeModalContentDescription') }}
-      </p>
-
-      <p class="welcome-modal-description">
-        {{ $tr('welcomeModalPermissionsDescription') }}
-      </p>
-    </template>
-    <template v-else>
-      <p class="welcome-modal-description">
-        {{ $tr('postSyncWelcomeMessage1') }}
-      </p>
-
-      <p class="welcome-modal-description">
-        {{ $tr('postSyncWelcomeMessage2', { facilityName }) }}
-      </p>
-    </template>
+    <p
+      v-for="(paragraph, idx) in paragraphs"
+      :key="idx"
+      class="paragraph"
+    >
+      {{ paragraph }}
+    </p>
   </KModal>
 
 </template>
@@ -35,19 +24,32 @@
   export default {
     name: 'WelcomeModal',
     mixins: [commonCoreStrings],
-    computed: {
-      showPostSyncVersion() {
-        return false;
+    props: {
+      importedFacility: {
+        type: Object,
+        required: false,
       },
-      facilityName() {
-        return 'the facility';
+    },
+    computed: {
+      paragraphs() {
+        if (this.importedFacility) {
+          return [
+            this.$tr('postSyncWelcomeMessage1'),
+            this.$tr('postSyncWelcomeMessage2', { facilityName: this.importedFacility.name }),
+          ];
+        } else {
+          return [
+            this.$tr('welcomeModalContentDescription'),
+            this.$tr('welcomeModalPermissionsDescription'),
+          ];
+        }
       },
     },
     render: createElement => window.setTimeout(createElement, 750),
     $trs: {
       welcomeModalHeader: 'Welcome to Kolibri!',
       welcomeModalContentDescription:
-        'The first thing you should do is import some resources from the Channel tab.',
+        'The first thing you should do is import some resources from the Channels tab.',
       welcomeModalPermissionsDescription:
         'The super admin account you created during setup has special permissions to do this. Learn more in the Permissions tab later.',
       postSyncWelcomeMessage1:
@@ -61,12 +63,8 @@
 
 <style lang="scss" scoped>
 
-  .welcome-modal-description {
+  .paragraph {
     margin-top: 16px;
-  }
-  .welcome-modal-dismiss-button {
-    margin-top: 24px;
-    margin-bottom: 16px;
   }
 
 </style>

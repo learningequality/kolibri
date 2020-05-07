@@ -1,3 +1,4 @@
+import { StaticNetworkLocationResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 
 // Strings that might be shared among syncing-related UIs across plugins.
@@ -38,6 +39,11 @@ const syncStrings = createTranslator('CommonSyncStrings', {
     message: 'Import facility',
     context: 'Label for a button used to import a facility on the device',
   },
+  distinctFacilityNameExplanation: {
+    message: `This facility is different from '{facilities}'. These facilities will not sync.`,
+    context:
+      'Explanation that is shown if two facilities with the same name but different IDs are on the device',
+  },
 });
 
 export default {
@@ -48,6 +54,12 @@ export default {
     formatNameAndId(name, id) {
       // TODO switch to using the last 4 characters
       return this.getCommonSyncString('nameWithIdFragment', { name, id: id.slice(0, 4) });
+    },
+    createStaticNetworkLocation({ base_url, device_name }) {
+      return StaticNetworkLocationResource.createModel({
+        base_url,
+        nickname: device_name,
+      }).save();
     },
   },
 };
