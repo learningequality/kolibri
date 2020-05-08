@@ -12,27 +12,27 @@ export default createTranslator('NotificationStrings', {
   },
   coachesAssignedNoCount: {
     message: '{count, plural, one {Coach assigned} other {Coaches assigned}}',
-    context: 'Assigning coaches to a class',
+    context: 'Assigning an unspecified number of coaches to a class',
   },
   coachesRemovedNoCount: {
     message: '{count, plural, one {Coach removed} other {Coaches removed}}',
-    context: 'Removing coaches from a class',
+    context: 'Removing an unspecified number of coaches from a class',
   },
   learnersEnrolledNoCount: {
     message: '{count, plural, one {Learner enrolled} other {Learners enrolled}}',
-    context: 'Enrolling learners into group or class',
+    context: 'Enrolling an unspecified number of learners into group or class',
   },
   learnersRemovedNoCount: {
     message: '{count, plural, one {Learner removed} other {Learners removed}}',
-    context: 'Removing (unenrolling) learners from a group or class',
+    context: 'Removing (unenrolling) an unspecified number of learners from a group or class',
   },
   learnersEnrolledWithCount: {
     message: '{count, number} {count, plural, one {learner enrolled} other {learners enrolled}}',
-    context: 'Enrolling learners into group or class',
+    context: 'Enrolling a specified number of learners into group or class',
   },
   learnersRemovedWithCount: {
     message: '{count, number} {count, plural, one {learner removed} other {learners removed}}',
-    context: 'Removing (unenrolling) learners from a group or class',
+    context: 'Removing (unenrolling) a specified number of learners from a group or class',
   },
   userCreated: {
     message: 'User created',
@@ -62,25 +62,21 @@ export default createTranslator('NotificationStrings', {
     message: 'Lesson deleted',
     context: 'Deleting a lesson',
   },
-  resourceAdded: {
-    message: 'Resource added',
-    context: 'Adding a single resource to a lesson',
-  },
   resourcesAddedWithCount: {
     message: '{count, number} {count, plural, one {resource added} other {resources added}}',
-    context: 'Adding resources to a lesson',
+    context: 'Adding a specified number of resources to a lesson',
   },
   resourcesRemovedWithCount: {
     message: '{count, number} {count, plural, one {resource removed} other {resources removed}}',
-    context: 'Removing resources from a lesson',
+    context: 'Removing a specified number of resources from a lesson',
   },
   resourcesAddedNoCount: {
     message: '{count, plural, one {Resource added} other {Resources added}}',
-    context: 'Adding resources to a lesson',
+    context: 'Adding an unspecified number of resources to a lesson',
   },
   resourcesRemovedNoCount: {
     message: '{count, plural, one {Resource removed} other {Resources removed}}',
-    context: 'Removing resources from a lesson',
+    context: 'Removing an unspecified number of resources from a lesson',
   },
   resourceOrderChanged: {
     message: 'Resource order changed',
@@ -106,4 +102,12 @@ export default createTranslator('NotificationStrings', {
     message: 'Group deleted',
     context: 'Deleting a learner group',
   },
+  // TODO move more messages into this namespace:
+  // - "Quiz started"
+  // - "Quiz Ended"
+  // - "Quiz report is not visible to learners"
+  // - "Quiz report is visible to learners
+  // - "Lesson is visible to learners"
+  // - "Lesson is not visible to learners"
+  // - "Profile details updated"
 });
