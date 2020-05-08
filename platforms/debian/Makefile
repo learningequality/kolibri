@@ -29,14 +29,19 @@ dist/VERSION: dist/kolibri_archive.tar.gz
 # Meant to be used for local dev. Can be called with alias below.
 # If something changes in the way you build locally, please update this recipe.
 dist/%.deb: dist/VERSION dist/kolibri_archive.tar.gz
-	export KOLIBRI_VERSION=$$(cat $<)
-	DEB_VERSION=`echo -n "$KOLIBRI_VERSION" | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'`
-	cd kolibri-source*
-	ls /dist
-	uupdate --no-symlink -b -v "$DEB_VERSION" /dist/kolibri_archive.tar.gz
-	cd "../kolibri-source-$DEB_VERSION"
+	DEBIAN_FRONTEND=noninteractive
+	DEB_VERSION=`cat dist/VERSION | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'`
+
+	# Go to current kolibri source to run uupdate, then come back
+	cd kolibri-source-*
+	uupdate --no-symlink -b -v $${DEB_VERSION} ../dist/kolibri_archive.tar.gz
+	cd -
+
+	# Go to new kolibri source to run debuild, then come back
+	cd kolibri-source-$${DEB_VERSION}
 	debuild --no-lintian -us -uc -Zgzip -z3
-	cd ..
+	cd -
+
 	mv *.deb dist/
 
 .PHONY: kolibri.deb
