@@ -35,10 +35,11 @@ case "$1" in
     if [ -e "/etc/logrotate.d" ] # && ! [ -e "$LOGROTATE_CONF" ]
     then
       # Issues with string substitution for "\n" caused this pattern
-      echo "\"${KOLIBRI_HOME}/logs/uwsgi/*.log\" {" > "$LOGROTATE_CONF"
+      echo "\"${KOLIBRI_HOME}/logs/uwsgi.log\" {" > "$LOGROTATE_CONF"
       echo "  copytruncate" >> "$LOGROTATE_CONF"
-      echo "  daily" >> "$LOGROTATE_CONF"
-      echo "  rotate 5" >> "$LOGROTATE_CONF"
+      echo "  weekly" >> "$LOGROTATE_CONF"
+      echo "  rotate 150" >> "$LOGROTATE_CONF"
+      echo "  size 2M" >> "$LOGROTATE_CONF"
       echo "  compress" >> "$LOGROTATE_CONF"
       echo "  delaycompress" >> "$LOGROTATE_CONF"
       echo "  missingok" >> "$LOGROTATE_CONF"
