@@ -11,7 +11,7 @@ CIDFILE=docker-deb.cid
 mkdir -p build_src
 
 docker image build -t "learningequality/kolibri-deb" .
-docker run --cidfile $CIDFILE "learningequality/kolibri-deb"
+docker run -i --cidfile $CIDFILE "learningequality/kolibri-deb" || rm $CIDFILE
 
 CID=$(cat $CIDFILE)
 
