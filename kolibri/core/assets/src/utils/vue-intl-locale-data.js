@@ -30,5 +30,6 @@ module.exports = function() {
   data.push(require('vue-intl/locale-data/ur.js'));
   data.push(require('vue-intl/locale-data/vi.js'));
   data.push(require('vue-intl/locale-data/yo.js'));
+  data.push(require('vue-intl/locale-data/zh.js'));
   return data;
 };

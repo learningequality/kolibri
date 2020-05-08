@@ -229,6 +229,12 @@ EXTRA_LANG_INFO = {
         "name": "Chichewa, Chewa, Nyanja",
         "name_local": "Chinyanja",
     },
+    "zh": {
+        "bidi": False,
+        "code": "zh-hans",
+        "name": "Simplified Chinese",
+        "name_local": "简化字",
+    },
     "yo": {"bidi": False, "code": "yo", "name": "Yoruba", "name_local": "Yorùbá"},
     "zu": {"bidi": False, "code": "zu", "name": "Zulu", "name_local": "isiZulu"},
 }
