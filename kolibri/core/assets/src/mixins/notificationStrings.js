@@ -109,5 +109,4 @@ export default createTranslator('NotificationStrings', {
   // - "Quiz report is visible to learners
   // - "Lesson is visible to learners"
   // - "Lesson is not visible to learners"
-  // - "Profile details updated"
 });
