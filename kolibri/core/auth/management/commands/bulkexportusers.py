@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 # TODO: decide whether these should be internationalized
 labels = OrderedDict(
     (
-        ("id", _("User Unique ID ({})".format("UUID"))),
+        ("id", _("Database ID ({})".format("UUID"))),
         ("username", _("Username ({})".format("USERNAME"))),
         ("password", _("Password ({})".format("PASSWORD"))),
         ("full_name", _("Full name ({})".format("FULL_NAME"))),

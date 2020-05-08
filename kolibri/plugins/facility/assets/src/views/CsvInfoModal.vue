@@ -22,10 +22,9 @@
         <tr>
           <td>
             {{ $tr('uuid') }}<br>
-            <span class="label" :style="label">{{ $tr('required') }}</span>
+            <span class="label" :style="label">{{ $tr('optional') }}</span>
           </td>
           <td><code>UUID</code></td>
-
           <td>{{ $tr('uuidInfo') }}</td>
         </tr>
         <tr>
@@ -34,7 +33,6 @@
             <span class="label" :style="label">{{ $tr('required') }}</span>
           </td>
           <td><code>USERNAME</code></td>
-
           <td>{{ $tr('usernameInfo') }}</td>
         </tr>
         <tr>
@@ -161,7 +159,7 @@
       required: 'Required',
       optional: 'Optional',
       uuidInfo:
-        'Empty to create a new user. To update the user it has to be the User Unique Identifier from the Kolibri database',
+        'An ID used by Kolibri to uniquely identify a user. Leave it blank to create a new user',
       usernameInfo: 'Maximum 125 characters. Can contain letters, numbers and underscores',
       passwordInfo: 'Maximum 125 characters. To leave unchanged, use an asterisk:',
       fullNameInfo: 'Maximum 125 characters',
@@ -180,7 +178,7 @@
       columnNameHeader: 'Column',
       columnIDHeader: 'Identifier',
       columnInfoHeader: 'Information',
-      uuid: 'User Unique Identifier',
+      uuid: 'Database ID',
       username: 'Username',
       password: 'Password',
       fullName: 'Full name',

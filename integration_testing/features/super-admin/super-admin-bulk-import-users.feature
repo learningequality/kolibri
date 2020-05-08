@@ -30,7 +30,7 @@ Feature: Super Admin bulk import users into a facility
       And the facility contains just classes and users listed in the CSV file
 
 # CSV file content example (for the first row, texts not inside parenthesis may be translated). For the UUID column, it will be empty to create the user, otherwise it will contain an uuid4 :
-User Unique ID (UUID),Username (USERNAME),Password (PASSWORD),Full name (FULL_NAME),User type (USER_TYPE),Identifier (IDENTIFIER),Birth year (BIRTH_YEAR),Gender (GENDER),Learner enrollment (ENROLLED_IN),Coach assignment (ASSIGNED_TO)
+Database ID (UUID),Username (USERNAME),Password (PASSWORD),Full name (FULL_NAME),User type (USER_TYPE),Identifier (IDENTIFIER),Birth year (BIRTH_YEAR),Gender (GENDER),Learner enrollment (ENROLLED_IN),Coach assignment (ASSIGNED_TO)
 ,jkrowling,passwd1,Too bad to be here,STUDENT,Potter1,1899,FEMALE,Literature 0,
 ,ignored_data,passwd2,You are not a coach,LEARNER,,,,,Ignored class
 ,new_coach,passwd3,Miguel de Cervantes,CLASS_COACH,Sancho1,1969,MALE,,Literature 1

@@ -87,9 +87,9 @@ MESSAGES = {
         "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
     ),
     NON_EXISTENT_UUID: _(
-        "Imposible to update {} because the provided Unique ID does not exist in this facility"
+        "Cannot update update '{}' because no user with that database ID exists in this facility"
     ),
-    INVALID_UUID: _("Provided User Unique Identifier is not valid"),
+    INVALID_UUID: _("Database ID is not valid"),
 }
 
 # Validators ###
