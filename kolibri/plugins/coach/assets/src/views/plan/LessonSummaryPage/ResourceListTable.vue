@@ -187,12 +187,12 @@
         this.setWorkingResources(resources);
         this.autoSave(this.lessonId, resources);
 
-        this.showSnackbarNotification('resourceOrderChanged');
+        this.showSnackbarNotification('resourceOrderSaved');
       },
       handleDrag({ newArray }) {
         this.setWorkingResources(newArray);
         this.autoSave(this.lessonId, newArray);
-        this.showSnackbarNotification('resourceOrderChanged');
+        this.showSnackbarNotification('resourceOrderSaved');
       },
       autoSave(id, resources) {
         this.saveLessonResources({ lessonId: id, resourceIds: resources }).catch(() => {

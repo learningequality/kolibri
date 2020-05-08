@@ -78,9 +78,9 @@ export default createTranslator('NotificationStrings', {
     message: '{count, plural, one {Resource removed} other {Resources removed}}',
     context: 'Removing an unspecified number of resources from a lesson',
   },
-  resourceOrderChanged: {
-    message: 'Resource order changed',
-    context: 'Changing the order of resources in a lesson',
+  resourceOrderSaved: {
+    message: 'Resource order saved',
+    context: 'Saving the new order of resources in a lesson',
   },
   quizCopied: {
     message: 'Quiz copied',
