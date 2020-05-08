@@ -41,10 +41,13 @@ RUN adduser --system --shell /bin/bash --home "/kolibribuild" kolibribuild && \
 
 WORKDIR /kolibribuild
 
-COPY . .
-
+COPY --from=make_dist Makefile .
 COPY --from=make_dist dist dist
 COPY --from=make_dist build_src build_src
+COPY build_tools build_tools
+COPY debian debian
+
+
 
 ENTRYPOINT [ "make" ]
 
