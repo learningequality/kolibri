@@ -13,9 +13,6 @@ case "$1" in
     # perhaps some day the group name will be set by the kolibri package
     KOLIBRI_GROUP=`id $KOLIBRI_USER -gn`
 
-    KOLIBRI_USER_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"
-    DAEMON_HOME="$KOLIBRI_USER_HOME/.kolibri"
-
     # to avoid problems with previous installations of kolibri-server beta versions:
     rm -f /etc/kolibri/nginx.d/port.conf
 
@@ -31,14 +28,14 @@ case "$1" in
         ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
         rm -f /etc/kolibri/nginx_default
     fi
-    echo "include $DAEMON_HOME/nginx.conf;" > /etc/kolibri/nginx.d/099-user.conf
+    echo "include $KOLIBRI_HOME/nginx.conf;" > /etc/kolibri/nginx.d/099-user.conf
 
     # Write logrotate configuration if it's not already written
     LOGROTATE_CONF="/etc/logrotate.d/kolibri"
     if [ -e "/etc/logrotate.d" ] # && ! [ -e "$LOGROTATE_CONF" ]
     then
       # Issues with string substitution for "\n" caused this pattern
-      echo "\"${DAEMON_HOME}/logs/uwsgi/*.log\" {" > "$LOGROTATE_CONF"
+      echo "\"${KOLIBRI_HOME}/logs/uwsgi/*.log\" {" > "$LOGROTATE_CONF"
       echo "  copytruncate" >> "$LOGROTATE_CONF"
       echo "  daily" >> "$LOGROTATE_CONF"
       echo "  rotate 5" >> "$LOGROTATE_CONF"
