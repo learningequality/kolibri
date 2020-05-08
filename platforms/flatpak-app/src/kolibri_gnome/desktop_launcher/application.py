@@ -203,9 +203,6 @@ class Application(pew.ui.PEWApp):
         if len(self.__windows) > 0:
             return
 
-        # make sure we show the UI before run completes, as otherwise
-        # it is possible the run can complete before the UI is shown,
-        # causing the app to shut down early
         main_window = self.__open_window(KOLIBRI_URL)
 
         # Check for saved URL, which exists when the app was put to sleep last time it ran
@@ -345,6 +342,9 @@ class Application(pew.ui.PEWApp):
             self.__open_window(urlunsplit(target_url))
 
     def __find_blank_window(self):
+        # If a window hasn't navigated away from the landing page, we will
+        # treat it as a "blank" window which can be reused to show content
+        # from handle_open_file_uris.
         for window in reversed(self.__windows):
             if window.get_target_url() == KOLIBRI_URL:
                 return window
