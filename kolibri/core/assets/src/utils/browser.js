@@ -37,4 +37,11 @@ export function isEmbeddedWebView() {
   return isEmbedded || isAndroidWebView();
 }
 
+export function isAppView() {
+  const isLocal = window.location.host !== '127.0.0.1' || window.location.host !== 'localhost';
+  // TODO: Check that the web view auth cookie has been set here
+  const hasWebViewCookie = true;
+  return isEmbeddedWebView() && isLocal && hasWebViewCookie;
+}
+
 export const fullscreenApiIsSupported = ScreenFull.enabled && !isAndroidWebView();

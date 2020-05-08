@@ -40,4 +40,5 @@ INTERNAL_PLUGINS = [
     "kolibri.plugins.epub_viewer",
     "kolibri.plugins.default_theme",
     "kolibri.plugins.slideshow_viewer",
+    "kolibri.plugins.app",
 ]
