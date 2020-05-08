@@ -9,6 +9,10 @@ case "$1" in
 
     # get KOLIBRI_USER from kolibri installer package:
     . /etc/default/kolibri
+
+    # perhaps some day the group name will be set by the kolibri package
+    KOLIBRI_GROUP=`id $KOLIBRI_USER -gn`
+
     KOLIBRI_USER_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"
     DAEMON_HOME="$KOLIBRI_USER_HOME/.kolibri"
 
@@ -42,6 +46,7 @@ case "$1" in
       echo "  delaycompress" >> "$LOGROTATE_CONF"
       echo "  missingok" >> "$LOGROTATE_CONF"
       echo "  notifempty" >> "$LOGROTATE_CONF"
+      echo "  create 0644 $KOLIBRI_USER $KOLIBRI_GROUP" >> "$LOGROTATE_CONF"
       echo "}" >> "$LOGROTATE_CONF"
     fi
 
