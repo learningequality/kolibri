@@ -54,6 +54,10 @@ export default createTranslator('NotificationStrings', {
     message: 'Lesson created',
     context: 'Creating a new lesson',
   },
+  lessonCopied: {
+    message: 'Lesson copied',
+    context: 'Copying a lesson to a classroom',
+  },
   lessonDeleted: {
     message: 'Lesson deleted',
     context: 'Deleting a lesson',
@@ -69,6 +73,22 @@ export default createTranslator('NotificationStrings', {
   resourcesRemovedWithCount: {
     message: '{count, number} {count, plural, one {resource removed} other {resources removed}}',
     context: 'Removing resources from a lesson',
+  },
+  resourcesAddedNoCount: {
+    message: '{count, plural, one {Resource added} other {Resources added}}',
+    context: 'Adding resources to a lesson',
+  },
+  resourcesRemovedNoCount: {
+    message: '{count, plural, one {Resource removed} other {Resources removed}}',
+    context: 'Removing resources from a lesson',
+  },
+  resourceOrderChanged: {
+    message: 'Resource order changed',
+    context: 'Changing the order of resources in a lesson',
+  },
+  quizCopied: {
+    message: 'Quiz copied',
+    context: 'Copying a quiz to a classroom',
   },
   quizCreated: {
     message: 'Quiz created',

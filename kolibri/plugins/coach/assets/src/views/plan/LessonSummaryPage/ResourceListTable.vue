@@ -128,7 +128,7 @@
       }
     },
     methods: {
-      ...mapActions(['createSnackbar', 'clearSnackbar']),
+      ...mapActions(['clearSnackbar']),
       ...mapActions('lessonSummary', ['saveLessonResources', 'updateCurrentLesson']),
       ...mapMutations('lessonSummary', {
         removeFromWorkingResources: 'REMOVE_FROM_WORKING_RESOURCES',
@@ -187,12 +187,12 @@
         this.setWorkingResources(resources);
         this.autoSave(this.lessonId, resources);
 
-        this.createSnackbar(this.$tr('resourceReorderConfirmationMessage'));
+        this.showSnackbarNotification('resourceOrderChanged');
       },
       handleDrag({ newArray }) {
         this.setWorkingResources(newArray);
         this.autoSave(this.lessonId, newArray);
-        this.createSnackbar(this.$tr('resourceReorderConfirmationMessage'));
+        this.showSnackbarNotification('resourceOrderChanged');
       },
       autoSave(id, resources) {
         this.saveLessonResources({ lessonId: id, resourceIds: resources }).catch(() => {
@@ -205,7 +205,6 @@
       },
     },
     $trs: {
-      resourceReorderConfirmationMessage: 'New lesson order saved',
       undoActionPrompt: 'Undo',
       moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',
       moveResourceDownButtonDescription: 'Move this resource one position down in this lesson',

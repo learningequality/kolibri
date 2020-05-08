@@ -106,10 +106,7 @@
                   this.$store.dispatch('classSummary/refreshClassSummary');
                 }
                 this.closeModal();
-                this.$store.dispatch(
-                  'createSnackbar',
-                  this.$tr('copiedLessonTo', { classroomName })
-                );
+                this.showSnackbarNotification('lessonCopied');
               })
               .catch(error => {
                 const caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
@@ -149,7 +146,6 @@
       deleteLessonTitle: 'Delete lesson',
       deleteLessonConfirmation: "Are you sure you want to delete '{ title }'?",
       copyOfLesson: 'Copy of { lessonTitle }',
-      copiedLessonTo: `Copied lesson to '{classroomName}'`,
       uniqueTitleError: `A lesson titled '{title}' already exists in '{className}'`,
     },
   };

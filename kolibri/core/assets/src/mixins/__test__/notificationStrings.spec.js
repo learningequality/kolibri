@@ -9,6 +9,8 @@ describe('Coach Notification Strings', () => {
     ['learnersRemovedWithCount', '10 learners removed', '1 learner removed'],
     ['resourcesAddedWithCount', '10 resources added', '1 resource added'],
     ['resourcesRemovedWithCount', '10 resources removed', '1 resource removed'],
+    ['resourcesAddedNoCount', 'Resources added', 'Resource added'],
+    ['resourcesRemovedNoCount', 'Resources removed', 'Resource removed'],
     ['coachesAssignedNoCount', 'Coaches assigned', 'Coach assigned'],
     ['coachesRemovedNoCount', 'Coaches removed', 'Coach removed'],
   ];

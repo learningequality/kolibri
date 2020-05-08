@@ -198,7 +198,7 @@
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
-            this.showSnackbarNotification('learnersEnrolledWithCount', {
+            this.showSnackbarNotification('learnersEnrolledNoCount', {
               count: this.selectedUsers.length,
             });
           });

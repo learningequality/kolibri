@@ -222,6 +222,7 @@
                 className,
               })
               .then(result => {
+                this.showSnackbarNotification('quizCopied');
                 // If exam was copied to the current classroom, add it to the classSummary module
                 if (classroomId === this.classId) {
                   const object = {
