@@ -12,7 +12,6 @@ Package: kolibri-server
 Architecture: all
 Recommends: anacron
 Depends: kolibri (>= 0.12.6), nginx-full, uwsgi (>= 2.0.12), uwsgi-plugin-python3, redis-server (>=4.0), python3 (>= 3.4)
-Pre-Depends: bash
 Enhances: kolibri
 Description: Improve Kolibri server network configuration
  This package automates uwsgi and nginx configuration for
