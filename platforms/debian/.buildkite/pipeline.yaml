@@ -6,17 +6,17 @@ steps:
     command: .buildkite/build.sh
   - label: Test ubuntu:focal
     env:
-      - DOCKER_IMAGES: ubuntu:focal
+      DOCKER_IMAGES: ubuntu:focal
     command: .buildkite/test.sh
   - label: Test ubuntu:bionic
     env:
-      - DOCKER_IMAGES: ubuntu:bionic
+      DOCKER_IMAGES: ubuntu:bionic
     command: .buildkite/test.sh
   - label: Test ubuntu:xenial
     env:
-      - DOCKER_IMAGES: ubuntu:xenial
+      DOCKER_IMAGES: ubuntu:xenial
     command: .buildkite/test.sh
   - label: Test ubuntu:trusty
     env:
-      - DOCKER_IMAGES: ubuntu:trusty
+      DOCKER_IMAGES: ubuntu:trusty
     command: .buildkite/test.sh

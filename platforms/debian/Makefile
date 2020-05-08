@@ -53,15 +53,6 @@ docker-deb:
 	# After building, it copies the .deb into the dist/ dir.
 	build_tools/docker_build.sh
 
-# Docker images in which tests will run.
-# Can override this variable locally with make, or by exporting prior to calling
-# the script directly.
-DOCKER_IMAGES="\
-  ubuntu:focal \
-  ubuntu:bionic \
-  ubuntu:xenial \
-  ubuntu:trusty \
-"
 .PHONY: docker-test
 docker-test:
 	export DOCKER_IMAGES=$(DOCKER_IMAGES) && build_tools/docker_test.sh
