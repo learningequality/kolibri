@@ -5,7 +5,7 @@
 # Make edits to the tests run within each environment here.
 
 set -euo pipefail
-DEBIAN_FRONTEND=noninteractive
+export DEBIAN_FRONTEND=noninteractive
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 

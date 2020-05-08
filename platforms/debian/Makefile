@@ -29,7 +29,7 @@ dist/VERSION: dist/kolibri_archive.tar.gz
 # Meant to be used for local dev. Can be called with alias below.
 # If something changes in the way you build locally, please update this recipe.
 dist/%.deb: dist/VERSION dist/kolibri_archive.tar.gz
-	DEBIAN_FRONTEND=noninteractive
+	export DEBIAN_FRONTEND=noninteractive
 	DEB_VERSION=`cat dist/VERSION | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'`
 
 	# Go to current kolibri source to run uupdate, then come back
