@@ -238,6 +238,7 @@ class ImportTestCase(TestCase):
         # validation when checking db content should trigger an error for '*'  password for a non-existing user:
         assert "'value': '*'" in result[1]
         assert "new_coach" in result[1]
+        assert "'row': 2" in result[1]
 
     def test_asterisk_in_password(self):
         _, first_filepath = tempfile.mkstemp(suffix=".csv")
