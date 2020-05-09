@@ -159,7 +159,7 @@
               updates: this.getUpdates(),
             })
             .then(() => {
-              this.$store.dispatch('createSnackbar', this.$tr('updateSuccessNotification'));
+              this.showSnackbarNotification('changesSaved');
               this.$router.push(this.$router.getRoute('PROFILE'));
             })
             .catch(error => {
@@ -187,7 +187,6 @@
     },
     $trs: {
       editProfileHeader: 'Edit profile',
-      updateSuccessNotification: 'Profile details updated',
     },
   };
 

@@ -1,5 +1,6 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
+// TODO add error messages
 export default createTranslator('NotificationStrings', {
   classCreated: {
     message: 'Class created',
@@ -9,37 +10,29 @@ export default createTranslator('NotificationStrings', {
     message: 'Class deleted',
     context: 'Deleting a class',
   },
-  coachAssigned: {
-    message: 'Coach assigned',
-    context: 'Assigning one coach to a class',
+  coachesAssignedNoCount: {
+    message: '{count, plural, one {Coach assigned} other {Coaches assigned}}',
+    context: 'Assigning an unspecified number of coaches to a class',
   },
-  coachesAssigned: {
-    message: 'Coaches assigned',
-    context: 'Assigning multiple coaches to a class',
-  },
-  coachRemoved: {
-    message: 'Coach removed',
-    context: 'Removing (unassigning) one coach from a class',
-  },
-  coachesRemoved: {
-    message: 'Coach removed',
-    context: 'Removing (unassigning) multiple coaches from a class',
+  coachesRemovedNoCount: {
+    message: '{count, plural, one {Coach removed} other {Coaches removed}}',
+    context: 'Removing an unspecified number of coaches from a class',
   },
   learnersEnrolledNoCount: {
     message: '{count, plural, one {Learner enrolled} other {Learners enrolled}}',
-    context: 'Enrolling learners into group or class',
-  },
-  learnersEnrolledWithCount: {
-    message: '{count, number} {count, plural, one {learner enrolled} other {learners enrolled}}',
-    context: 'Enrolling learners into group or class',
+    context: 'Enrolling an unspecified number of learners into group or class',
   },
   learnersRemovedNoCount: {
     message: '{count, plural, one {Learner removed} other {Learners removed}}',
-    context: 'Removing (unenrolling) learners from a group or class',
+    context: 'Removing (unenrolling) an unspecified number of learners from a group or class',
+  },
+  learnersEnrolledWithCount: {
+    message: '{count, number} {count, plural, one {learner enrolled} other {learners enrolled}}',
+    context: 'Enrolling a specified number of learners into group or class',
   },
   learnersRemovedWithCount: {
     message: '{count, number} {count, plural, one {learner removed} other {learners removed}}',
-    context: 'Removing (unenrolling) learners from a group or class',
+    context: 'Removing (unenrolling) a specified number of learners from a group or class',
   },
   userCreated: {
     message: 'User created',
@@ -61,21 +54,37 @@ export default createTranslator('NotificationStrings', {
     message: 'Lesson created',
     context: 'Creating a new lesson',
   },
+  lessonCopied: {
+    message: 'Lesson copied',
+    context: 'Copying a lesson to a classroom',
+  },
   lessonDeleted: {
     message: 'Lesson deleted',
     context: 'Deleting a lesson',
   },
-  resourceAdded: {
-    message: 'Resource added',
-    context: 'Adding a single resource to a lesson',
-  },
   resourcesAddedWithCount: {
     message: '{count, number} {count, plural, one {resource added} other {resources added}}',
-    context: 'Adding resources to a lesson',
+    context: 'Adding a specified number of resources to a lesson',
   },
   resourcesRemovedWithCount: {
     message: '{count, number} {count, plural, one {resource removed} other {resources removed}}',
-    context: 'Removing resources from a lesson',
+    context: 'Removing a specified number of resources from a lesson',
+  },
+  resourcesAddedNoCount: {
+    message: '{count, plural, one {Resource added} other {Resources added}}',
+    context: 'Adding an unspecified number of resources to a lesson',
+  },
+  resourcesRemovedNoCount: {
+    message: '{count, plural, one {Resource removed} other {Resources removed}}',
+    context: 'Removing an unspecified number of resources from a lesson',
+  },
+  resourceOrderSaved: {
+    message: 'Resource order saved',
+    context: 'Saving the new order of resources in a lesson',
+  },
+  quizCopied: {
+    message: 'Quiz copied',
+    context: 'Copying a quiz to a classroom',
   },
   quizCreated: {
     message: 'Quiz created',
@@ -93,4 +102,11 @@ export default createTranslator('NotificationStrings', {
     message: 'Group deleted',
     context: 'Deleting a learner group',
   },
+  // TODO move more messages into this namespace:
+  // - "Quiz started"
+  // - "Quiz Ended"
+  // - "Quiz report is not visible to learners"
+  // - "Quiz report is visible to learners
+  // - "Lesson is visible to learners"
+  // - "Lesson is not visible to learners"
 });

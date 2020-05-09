@@ -190,7 +190,6 @@
     },
     methods: {
       ...mapActions('userPermissions', ['addOrUpdateUserPermissions']),
-      ...mapActions(['createSnackbar']),
       save() {
         this.uiBlocked = true;
         this.saveProgress = IN_PROGRESS;
@@ -200,7 +199,7 @@
           can_manage_content: this.devicePermissionsChecked,
         })
           .then(() => {
-            this.createSnackbar(this.$tr('permissionChangeConfirmation'));
+            this.showSnackbarNotification('changesSaved');
             this.saveProgress = SUCCESS;
             this.uiBlocked = false;
             this.goBack();
@@ -223,7 +222,6 @@
       },
       documentTitle: "{ name }'s Device Permissions",
       makeSuperAdmin: 'Make super admin',
-      permissionChangeConfirmation: 'Changes saved',
       saveButton: 'Save Changes',
       saveFailureNotification: 'There was a problem saving these changes.',
       saveInProgressNotification: 'Saving...',
