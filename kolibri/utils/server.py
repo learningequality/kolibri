@@ -202,6 +202,54 @@ def calculate_cache_size():
     return MIN_CACHE
 
 
+class MultiStaticDispatcher(cherrypy._cpdispatch.Dispatcher):
+    """
+    A special cherrypy Dispatcher extension to dispatch static content from a series
+    of directories on a search path. The first directory in which a file is found for
+    the path is used, and if it's not found in any of them, then the handler for the
+    first one is used, which will then likely return a NotFound error.
+    """
+
+    def __init__(self, search_paths, *args, **kwargs):
+
+        assert len(search_paths) >= 1, "Must provide at least one path in search_paths"
+
+        self.static_handlers = []
+
+        # build a cherrypy static file handler for each of the directories in search path
+        for search_path in search_paths:
+
+            search_path = os.path.normpath(os.path.expanduser(search_path))
+
+            content_files_handler = cherrypy.tools.staticdir.handler(
+                section="/", dir=search_path
+            )
+
+            content_files_handler.search_path = search_path
+
+            self.static_handlers.append(content_files_handler)
+
+        super(MultiStaticDispatcher, self).__init__(*args, **kwargs)
+
+    def find_handler(self, path):
+
+        super(MultiStaticDispatcher, self).find_handler(path)
+
+        # loop over all the static handlers to see if they have the file we want
+        for handler in self.static_handlers:
+
+            filepath = os.path.join(handler.search_path, path.strip("/"))
+
+            # ensure the user-provided path doesn't try to jump up levels
+            if not os.path.normpath(filepath).startswith(handler.search_path):
+                continue
+
+            if os.path.exists(filepath):
+                return (handler, [])
+
+        return (self.static_handlers[0], [])
+
+
 def configure_http_server(port):
     # Mount the application
     from kolibri.deployment.default.wsgi import application
@@ -227,16 +275,15 @@ def configure_http_server(port):
     )
 
     # Mount content files
-    content_files_handler = cherrypy.tools.staticdir.handler(
-        section="/", dir=paths.get_content_dir_path()
-    )
-
-    url_path_prefix = conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
-
+    CONTENT_ROOT = "/" + paths.get_content_url(
+        conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+    ).lstrip("/")
+    content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
+    dispatcher = MultiStaticDispatcher(content_dirs)
     cherrypy.tree.mount(
-        content_files_handler,
-        "/{}".format(paths.get_content_url(url_path_prefix).lstrip("/")),
-        config={"/": {"tools.caching.on": False}},
+        None,
+        CONTENT_ROOT,
+        config={"/": {"tools.caching.on": False, "request.dispatch": dispatcher}},
     )
 
     # Instantiate a new server object

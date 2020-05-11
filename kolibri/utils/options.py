@@ -198,7 +198,12 @@ base_option_spec = {
             "type": "string",
             "default": "content",
             "envvars": ("KOLIBRI_CONTENT_DIR",),
-        }
+        },
+        "CONTENT_FALLBACK_DIRS": {
+            "type": "string",
+            "default": "",
+            "envvars": ("KOLIBRI_CONTENT_FALLBACK_DIRS",),
+        },
     },
     "Urls": {
         "CENTRAL_CONTENT_BASE_URL": {
@@ -239,7 +244,7 @@ base_option_spec = {
             "type": "integer",
             "default": 2,
             "envvars": ("KOLIBRI_PICKLE_PROTOCOL",),
-        },
+        }
     },
 }
 
@@ -396,7 +401,8 @@ def _expand_paths(basepath, pathdict):
     Resolve all paths in a dict, relative to a base path, and after expanding "~" into the user's home directory.
     """
     for key, path in pathdict.items():
-        pathdict[key] = os.path.join(basepath, os.path.expanduser(path))
+        if path:
+            pathdict[key] = os.path.join(basepath, os.path.expanduser(path))
 
 
 def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options.ini"):

@@ -16,6 +16,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateView
 from django.views.generic.base import View
 from django.views.i18n import LANGUAGE_QUERY_PARAMETER
+from django.views.static import serve
 
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Role
@@ -187,3 +188,23 @@ class StatusCheckView(View):
         Confirms that the server is up
         """
         return HttpResponse()
+
+
+def static_serve_with_fallbacks(search_paths):
+    """
+    Serve a static file by iterating over search_paths until a matching file is found.
+    If a matching file is not found on any of the paths, a 404 will be raised.
+    """
+
+    def serve_func(request, path, document_root=None):
+
+        for search_path in search_paths:
+            try:
+                return serve(request, path, document_root=search_path)
+            except Http404:
+                pass
+
+        # allow the Http404 to be raised, since we couldn't find the file anywhere
+        return serve(request, path, document_root=search_paths[0])
+
+    return serve_func

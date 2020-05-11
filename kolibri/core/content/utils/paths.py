@@ -57,6 +57,26 @@ def get_content_dir_path(datafolder=None):
     )
 
 
+def get_content_fallback_paths():
+    return [
+        path.strip()
+        for path in conf.OPTIONS["Paths"]["CONTENT_FALLBACK_DIRS"]
+        .replace(",", ";")
+        .split(";")
+        if path.strip()
+    ]
+
+
+def existing_file_path_in_content_fallback_dirs(subpath):
+    # see whether the file exists in any of our content fallback directories
+    for prefix in get_content_fallback_paths():
+        path = os.path.join(prefix, subpath)
+        if os.path.exists(path):
+            return path
+    # if not, return None
+    return None
+
+
 def get_content_database_dir_path(datafolder=None):
     """
     Returns the path to the content sqlite databases
@@ -78,9 +98,16 @@ def get_content_database_file_path(channel_id, datafolder=None):
     Given a channel_id, returns the path to the sqlite3 file
     ($HOME/.kolibri/content/databases/<channel_id>.sqlite3 on POSIX systems, by default)
     """
-    return os.path.join(
-        get_content_database_dir_path(datafolder), "{}.sqlite3".format(channel_id)
+    suffix = "{}.sqlite3".format(channel_id)
+    primary_path = os.path.join(get_content_database_dir_path(datafolder), suffix)
+    # if the primary path already exists, or the datapath is overridden, use the primary path
+    if os.path.exists(primary_path) or datafolder is not None:
+        return primary_path
+    backup_path = existing_file_path_in_content_fallback_dirs(
+        os.path.join("databases", suffix)
     )
+    # return backup path if one exists; otherwise, return the primary path (even though it doesn't exist yet)
+    return backup_path or primary_path
 
 
 def get_upgrade_content_database_file_path(channel_id, datafolder=None):
@@ -109,9 +136,16 @@ def get_content_storage_file_path(filename, datafolder=None):
         raise InvalidStorageFilenameError(
             "'{}' is not a valid content storage filename".format(filename)
         )
-    return os.path.join(
-        get_content_storage_dir_path(datafolder), filename[0], filename[1], filename
+    suffix = os.path.join(filename[0], filename[1], filename)
+    primary_path = os.path.join(get_content_storage_dir_path(datafolder), suffix)
+    # if the primary path already exists, or the datapath is overridden, use the primary path
+    if os.path.exists(primary_path) or datafolder is not None:
+        return primary_path
+    backup_path = existing_file_path_in_content_fallback_dirs(
+        os.path.join("storage", suffix)
     )
+    # return backup path if one exists; otherwise, return the primary path (even though it doesn't exist yet)
+    return backup_path or primary_path
 
 
 # URL PATHS
