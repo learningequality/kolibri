@@ -40,6 +40,7 @@ logger = logging.getLogger(__name__)
 # TODO: decide whether these should be internationalized
 labels = OrderedDict(
     (
+        ("id", _("Database ID ({})").format("UUID")),
         ("username", _("Username ({})").format("USERNAME")),
         ("password", _("Password ({})").format("PASSWORD")),
         ("full_name", _("Full name ({})").format("FULL_NAME")),
@@ -121,6 +122,7 @@ def translate_labels():
     global labels
     labels = OrderedDict(
         (
+            ("id", _("Database ID ({})").format("UUID")),
             ("username", _("Username ({})").format("USERNAME")),
             ("password", _("Password ({})").format("PASSWORD")),
             ("full_name", _("Full name ({})").format("FULL_NAME")),
