@@ -48,7 +48,7 @@
             :disabled="!a.available || !a.hasContent"
           />
           <KButton
-            v-if="!readOnlyStaticAddrersses"
+            v-if="!hideSavedAddresses"
             :key="`forget-${idx}`"
             :text="$tr('forgetAddressButtonLabel')"
             appearance="basic-link"
@@ -57,7 +57,7 @@
         </div>
       </template>
 
-      <hr v-if="discoveredAddresses.length > 0">
+      <hr v-if="!hideSavedAddresses && discoveredAddresses.length > 0">
 
       <template v-for="d in discoveredAddresses">
         <div :key="`div-${d.id}`">
@@ -140,9 +140,8 @@
         required: false,
         default: '',
       },
-      // Customizes the component specifically for the PostSetupModalGroup
-      // Turns off: discovery + add new + forget
-      readOnlyStaticAddrersses: {
+      // Hides "New address" button and other saved locations
+      hideSavedAddresses: {
         type: Boolean,
         default: false,
       },
@@ -176,7 +175,7 @@
         );
       },
       newAddressButtonDisabled() {
-        return this.readOnlyStaticAddrersses || this.stage === this.Stages.FETCHING_ADDRESSES;
+        return this.hideSavedAddresses || this.stage === this.Stages.FETCHING_ADDRESSES;
       },
       requestsFailed() {
         return (
@@ -212,9 +211,7 @@
       },
     },
     beforeMount() {
-      if (!this.readOnlyStaticAddrersses) {
-        this.startDiscoveryPolling();
-      }
+      this.startDiscoveryPolling();
       return this.refreshSavedAddressList();
     },
     mounted() {
