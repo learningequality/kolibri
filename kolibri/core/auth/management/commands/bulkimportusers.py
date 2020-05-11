@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.core.management.base import CommandError
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.collection_kinds import CLASSROOM
@@ -65,15 +66,24 @@ FILE_WRITE_ERROR = 9
 REQUIRED_PASSWORD = 10
 
 MESSAGES = {
-    UNEXPECTED_EXCEPTION: _("Unexpected error [{}]: {}"),
+    UNEXPECTED_EXCEPTION: pgettext_lazy(
+        "Error message that might appear when there's a programming error importing a CSV file",
+        "Unexpected error [{}]: {}",
+    ),
     TOO_LONG: _("Value in column '{}' is too many characters"),
     INVALID: _("Invalid value in column '{}'"),
     DUPLICATED_USERNAME: _("Username is duplicated"),
     INVALID_USERNAME: _(
         "Username only can contain characters, numbers and underscores"
     ),
-    REQUIRED_COLUMN: _("The column '{}' is required"),
-    INVALID_HEADER: _("Invalid header label found in the first row"),
+    REQUIRED_COLUMN: pgettext_lazy(
+        "Importing a CSV file, there's a column that has not been added to the file",
+        "The column '{}' is required",
+    ),
+    INVALID_HEADER: pgettext_lazy(
+        "Importing a CSV file, the name of a column in the header is not correct (or is missed)",
+        "Invalid header label found in the first row",
+    ),
     NO_FACILITY: _(
         "No default facility exists. Make sure to provision this device before importing"
     ),

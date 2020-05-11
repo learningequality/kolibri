@@ -14,6 +14,7 @@ from django.db.models import OuterRef
 from django.db.models import Subquery
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from .bulkimportusers import FILE_WRITE_ERROR
 from .bulkimportusers import MESSAGES
@@ -42,12 +43,30 @@ labels = OrderedDict(
         ("username", _("Username ({})").format("USERNAME")),
         ("password", _("Password ({})").format("PASSWORD")),
         ("full_name", _("Full name ({})").format("FULL_NAME")),
-        ("kind", _("User type ({})").format("USER_TYPE")),
+        (
+            "kind",
+            pgettext_lazy(
+                "CSV header for the type of user: ADMIN, LEARNER, COACH...",
+                "User type ({})",
+            ).format("USER_TYPE"),
+        ),
         ("id_number", _("Identifier ({})").format("IDENTIFIER")),
         ("birth_year", _("Birth year ({})").format("BIRTH_YEAR")),
         ("gender", _("Gender ({})").format("GENDER")),
-        ("enrolled", _("Learner enrollment ({})").format("ENROLLED_IN")),
-        ("assigned", _("Coach assignment ({})").format("ASSIGNED_TO")),
+        (
+            "enrolled",
+            pgettext_lazy(
+                "CSV file header for the list of classrooms names where the learner is going to be enrolled",
+                "Learner enrollment ({})",
+            ).format("ENROLLED_IN"),
+        ),
+        (
+            "assigned",
+            pgettext_lazy(
+                "CSV file header for the list of classrooms names where the tutor is going to be a coach",
+                "Coach assignment ({})",
+            ).format("ASSIGNED_TO"),
+        ),
     )
 )
 
@@ -105,12 +124,30 @@ def translate_labels():
             ("username", _("Username ({})").format("USERNAME")),
             ("password", _("Password ({})").format("PASSWORD")),
             ("full_name", _("Full name ({})").format("FULL_NAME")),
-            ("kind", _("User type ({})").format("USER_TYPE")),
+            (
+                "kind",
+                pgettext_lazy(
+                    "CSV header for the type of user: ADMIN, LEARNER, COACH...",
+                    "User type ({})",
+                ).format("USER_TYPE"),
+            ),
             ("id_number", _("Identifier ({})").format("IDENTIFIER")),
             ("birth_year", _("Birth year ({})").format("BIRTH_YEAR")),
             ("gender", _("Gender ({})").format("GENDER")),
-            ("enrolled", _("Learner enrollment ({})").format("ENROLLED_IN")),
-            ("assigned", _("Coach assignment ({})").format("ASSIGNED_TO")),
+            (
+                "enrolled",
+                pgettext_lazy(
+                    "CSV file header for the list of classrooms names where the learner is going to be enrolled",
+                    "Learner enrollment ({})",
+                ).format("ENROLLED_IN"),
+            ),
+            (
+                "assigned",
+                pgettext_lazy(
+                    "CSV file header for the list of classrooms names where the tutor is going to be a coach",
+                    "Coach assignment ({})",
+                ).format("ASSIGNED_TO"),
+            ),
         )
     )
 
