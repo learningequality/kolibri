@@ -8,7 +8,10 @@ from datetime import datetime
 
 from django.http import Http404
 from django.http.response import FileResponse
+from django.utils import translation
 from django.utils.decorators import method_decorator
+from django.utils.translation import get_language_from_request
+from django.utils.translation import pgettext
 from django.views.generic.base import TemplateView
 
 from kolibri.core.decorators import cache_no_user_data
@@ -21,6 +24,8 @@ class FacilityManagementView(TemplateView):
 
 
 def download_csv_file(request, filename):
+    locale = get_language_from_request(request)
+    translation.activate(locale)
     filepath = os.path.join(conf.KOLIBRI_HOME, "temp", filename)
 
     # if the file does not exist on disk, return a 404
@@ -33,11 +38,15 @@ def download_csv_file(request, filename):
     response["Content-Type"] = "text/csv"
 
     # set the content-disposition as attachment to force download
-    response["Content-Disposition"] = "attachment; filename=users_{}.csv".format(
-        datetime.now().strftime("%Y%m%d_%H%M%S")
+    exported_filename = pgettext(
+        "Name of a CSV file exporting the users of the facility", "users_{}.csv"
+    ).format(datetime.now().strftime("%Y%m%d_%H%M%S"))
+    response["Content-Disposition"] = "attachment; filename={}".format(
+        str(exported_filename)
     )
 
     # set the content-length to the file size
     response["Content-Length"] = os.path.getsize(filepath)
+    translation.deactivate()
 
     return response
