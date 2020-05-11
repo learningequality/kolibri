@@ -1,0 +1,22 @@
+steps:
+  - block: "Build :debian:?"
+    # Autoblock only for non-release builds.
+    if: build.source == "trigger_job"
+  - label: ":debian:"
+    command: .buildkite/build.sh
+  - label: Test ubuntu:focal
+    env:
+      DOCKER_IMAGES: ubuntu:focal
+    command: .buildkite/test.sh
+  - label: Test ubuntu:bionic
+    env:
+      DOCKER_IMAGES: ubuntu:bionic
+    command: .buildkite/test.sh
+  - label: Test ubuntu:xenial
+    env:
+      DOCKER_IMAGES: ubuntu:xenial
+    command: .buildkite/test.sh
+  - label: Test ubuntu:trusty
+    env:
+      DOCKER_IMAGES: ubuntu:trusty
+    command: .buildkite/test.sh
