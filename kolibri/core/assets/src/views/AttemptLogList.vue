@@ -26,6 +26,7 @@
         >
           <a
             ref="attemptListOption"
+            class="attempt-item-link"
             role="option"
             :aria-selected="isSelected(index).toString()"
             :tabindex="isSelected(index) ? 0 : -1"
@@ -209,12 +210,11 @@
     display: block;
     min-width: 120px;
     clear: both;
-  }
-
-  .attempt-item > a {
-    display: block;
-    padding-left: 20px;
-    cursor: pointer;
+    .attempt-item-link {
+      display: block;
+      padding-left: 20px;
+      cursor: pointer;
+    }
   }
 
 </style>

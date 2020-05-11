@@ -1,6 +1,6 @@
 <template>
 
-  <table>
+  <table style="min-width: 200px;">
     <slot></slot>
   </table>
 
@@ -16,10 +16,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  table {
-    min-width: 200px;
-  }
-
-</style>
+<style lang="scss" scoped></style>

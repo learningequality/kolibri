@@ -1,12 +1,12 @@
 <template>
 
   <tr>
-    <th>
+    <th class="table-key-value-default-style" style="text-align: left;">
       <slot name="key">
         {{ keyText }}
       </slot>
     </th>
-    <td>
+    <td class="table-key-value-default-style">
       <slot name="value">
         {{ valueText }}
       </slot>
@@ -37,12 +37,7 @@
 
 <style lang="scss" scoped>
 
-  th {
-    text-align: left;
-  }
-
-  th,
-  td {
+  .table-key-value-default-style {
     height: 2em;
     padding-right: 24px;
     font-size: 14px;
