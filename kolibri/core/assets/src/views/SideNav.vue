@@ -80,6 +80,7 @@
                 <p
                   v-for="(line, index) in $kolibriBranding.sideNav.brandedFooter.paragraphArray"
                   :key="index"
+                  style="margin: 0;"
                 >
                   {{ line }}
                 </p>
@@ -359,9 +360,6 @@
     margin-top: 8px;
     font-size: 12px;
     line-height: 16px;
-    p {
-      margin: 0;
-    }
   }
 
   .side-nav-backdrop {

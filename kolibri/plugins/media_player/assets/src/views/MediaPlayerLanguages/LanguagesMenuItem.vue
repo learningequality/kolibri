@@ -1,6 +1,6 @@
 <template>
 
-  <li class="vjs-languages-menu-item vjs-menu-item">
+  <li class="vjs-languages-menu-item vjs-menu-item" style="text-align: left !important;">
     <KRadioButton
       ref="kRadioButton"
       name="languages-menu-item"
@@ -53,10 +53,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  li {
-    text-align: left !important;
-  }
-
-</style>
+<style lang="scss" scoped></style>

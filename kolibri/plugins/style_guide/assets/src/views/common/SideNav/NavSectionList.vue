@@ -5,7 +5,7 @@
     <div class="section-heading">
       {{ title }}
     </div>
-    <ul>
+    <ul class="ul-default-style">
       <slot></slot>
     </ul>
   </div>
@@ -30,7 +30,7 @@
 
 <style lang="scss" scoped>
 
-  ul {
+  .ul-default-style {
     padding: 0;
     margin: 0;
     list-style-type: none;
