@@ -152,8 +152,11 @@ class FacilityUserFilter(FilterSet):
         return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
 
     def filter_is_admin(self, queryset, name, value):
-        if (value is True):
-            return queryset.filter(Q(devicepermissions__is_superuser=True) | Q(roles__kind__contains="admin"))
+        if value is True:
+            return queryset.filter(
+                Q(devicepermissions__is_superuser=True)
+                | Q(roles__kind__contains="admin")
+            )
         else:
             return queryset.filter(Q(devicepermissions__is_superuser=True))
             # return queryset.exclude(Q(is_superuser=True) | Q(kind="admin"))
