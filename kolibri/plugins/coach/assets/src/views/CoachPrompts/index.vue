@@ -983,9 +983,9 @@
     list_3_item_3: 'Respond to learner questions.',
     list_3_item_4: 'Provide encouraging feedback to both correct and incorrect responses.',
     p5: {
-        message: 'Remember',
-        context: 'Verb in imperative form.',
-      },
+      message: 'Remember',
+      context: 'Verb in imperative form.',
+    },
     p6:
       'The 6 levels of per Bloom’s Taxonomy below, can be used to structure learning objectives, lessons, assessments, and questioning.',
     p7: 'Level 1. Knowledge',
