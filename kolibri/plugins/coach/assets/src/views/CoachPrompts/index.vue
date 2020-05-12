@@ -303,6 +303,7 @@
       <p>
         {{ string('KolibriSessionChecklist', 'p1') }}
       </p>
+
       <ul>
         <li>
           {{ string('KolibriSessionChecklist', 'list_1_item_1') }}
@@ -318,9 +319,6 @@
         </li>
         <li>
           {{ string('KolibriSessionChecklist', 'list_1_item_5') }}
-        </li>
-        <li>
-          {{ string('KolibriSessionChecklist', 'list_1_item_6') }}
         </li>
       </ul>
       <p>
@@ -822,9 +820,6 @@
         <li>
           {{ string('SupportLearnersNeedHelpLesson', 'list_1_item_4') }}
         </li>
-        <li>
-          {{ string('SupportLearnersNeedHelpLesson', 'list_1_item_5') }}
-        </li>
       </ul>
       <p>
         {{ string('SupportLearnersNeedHelpLesson', 'p2') }}
@@ -948,13 +943,13 @@
 
   const strings = {};
   strings['CreateNewLesson'] = createTranslator('CreateNewLesson', {
-    header: 'Steps to create a new lesson',
+    header: 'Create a new lesson',
     p1: 'Lesson objective',
     list_1_item_1: 'At the end of this session, the learner will be able to ___',
     p2: 'Current learner knowledge',
     list_2_item_1: 'What do the learners already know about this topic?',
     list_2_item_2: 'How will the learners tell you what they know about this topic?',
-    list_2_item_3: 'What else about the topic are they interested in finding out?',
+    list_2_item_3: 'What else are they interested in finding out?',
   });
 
   strings['ChooseKolibriResources'] = createTranslator('ChooseKolibriResources', {
@@ -963,30 +958,36 @@
     list_1_item_1: 'Which resources match this topic best?',
     list_1_item_2: 'How are you planning to use the resources?',
     list_1_item_3: 'Will learners access resources in groups or individually?',
-    list_1_item_4: 'How will you enhance learning with that resource?',
+    list_1_item_4: 'How will this resource enhance learning?',
     list_1_item_5:
-      'What teaching techniques will you use to increase learner engagement with this resource?',
+      'What teaching techniques will you use to help learners engage with this resource?',
   });
 
   strings['UseQuestionsWithKolibri'] = createTranslator('UseQuestionsWithKolibri', {
-    header: 'Use questions together with Kolibri resources',
-    p1: 'Increase learner engagement with content and promote active learning with questions.',
+    header: 'Use questions with Kolibri resources',
+    p1: 'Encourage learners to explore resources more deeply and learn actively with assessments.',
     p2: 'Identify resources',
-    list_1_item_1: 'What Kolibri resource will you use for your lesson objective?',
-    list_1_item_2: 'Go through the resources and create some question statements.',
+    list_1_item_1: 'Consider: what Kolibri resource will you use to meet your lesson objective?',
+    list_1_item_2: 'Sample and evaluate the resources and create relevant questions statements.',
     p3: 'What questions will you ask:',
     list_2_item_1: 'At the beginning of the lesson?',
-    list_2_item_2: 'While learners are looking at the resources?',
-    list_2_item_3: 'After learners look at the resources?',
+    list_2_item_2: 'While learners are using the resources?',
+    list_2_item_3: 'After learners use the resources?',
     list_2_item_4: 'To summarize the lesson?',
-    p4: 'Remember',
+    p4: {
+      message: 'Remember',
+      context: 'Verb in imperative form.',
+    },
     list_3_item_1: 'Ask a variety of questions throughout the lesson.',
     list_3_item_2: 'Give appropriate wait time after asking questions.',
     list_3_item_3: 'Respond to learner questions.',
     list_3_item_4: 'Provide encouraging feedback to both correct and incorrect responses.',
-    p5: 'Remember',
+    p5: {
+        message: 'Remember',
+        context: 'Verb in imperative form.',
+      },
     p6:
-      'The 6 levels classified as per Bloom’s Taxonomy below, can be used to structure learning objectives, lessons, assessments, and questioning.',
+      'The 6 levels of per Bloom’s Taxonomy below, can be used to structure learning objectives, lessons, assessments, and questioning.',
     p7: 'Level 1. Knowledge',
     list_4_item_1: 'Question cues: list, define, tell, label',
     p8: 'Level 2. Comprehension',
@@ -1005,12 +1006,12 @@
     'BlendedLearningImplementationModels',
     {
       header: 'Blended learning implementation models',
-      header2: 'Whole class model',
+      header2: 'Whole-class model',
       p1:
-        '‘Whole class model’ broadly encompasses any blended learning model that involves the full class working on the same activity. Learners follow the facilitation of a teacher together to progress through the material and class activities. Use of this model can also include full class rotations through a series of stations or the roving teacher model.',
+        '‘Whole-class model’ broadly encompasses any blended learning model that involves the full class working on the same activity. Learners follow the facilitation of a teacher together to progress through the material and class activities. This model can also involve a rowing teacher or full class rotations through a series of stations.',
       header3: 'Example',
       p2:
-        'Here is how a school in Guatemala adapted the whole class model by bridging technology with traditional instruction for a Math lesson. During the lesson all learners:',
+        'Here is how a school in Guatemala adapted the whole class model by bridging technology with traditional instruction for a Math lesson. During the lesson, all learners:',
       list_1_item_1: 'Viewed a Kolibri resource on a projector',
       list_1_item_2: 'Practiced Kolibri exercises independently',
       list_1_item_3: 'Engaged in another coach-led activity without using any technology',
@@ -1038,7 +1039,7 @@
       list_2_item_1:
         'Learner who has already mastered a topic with a learner who could benefit from review.',
       list_2_item_2:
-        'Learners with similar mastery levels to facilitate progressing through new content at similar rates.',
+        'Learners with similar mastery levels to facilitate progressing through new material at similar rates.',
       header8: 'Roving Teacher',
       p13:
         'Coach moves around the classroom while learners work independently or in pairs/groups on Kolibri, stepping in for assistance as needed. The coach can:',
@@ -1048,10 +1049,10 @@
         'Ideal for the coach who wants to use time more effectively with learners who need it most, through individual attention or by organizing groups of multiple struggling learners.',
       header9: 'Supplementary resource',
       p15:
-        'In this model, technology is available within the classroom, or after class time in a library or resource room. Learners access Kolibri to review content, check understanding, and follow their own interests.',
+        'In this model, technology is available within the classroom, or after class time in a library or resource room. Learners access Kolibri to review material, check understanding, and follow their own interests.',
       header10: 'Reflect',
       list_4_item_1: 'What are the potential benefits and disadvantages of each model?',
-      list_4_item_2: 'What help or assistance would you need to implement these different models?',
+      list_4_item_2: 'What help would you need to implement these different models?',
       list_4_item_3:
         'What changes would you need to make in your current teaching style to try these different models?',
     }
@@ -1063,16 +1064,17 @@
     list_1_item_1: 'I have a clear goal on how I want to leverage technology through this class.',
     list_1_item_2: 'I have identified the objectives that I will be teaching this week.',
     list_1_item_3:
-      'I have gone through the content and incorporated relevant content pieces in my plan.',
-    list_1_item_4: 'I have assigned quizzes to learners before class.',
-    list_1_item_5: 'I have assigned lessons to learners before class.',
-    list_1_item_6: 'I have reviewed student progress from the previous session.',
+      'I have gone through the resources and incorporated those relevant into my plan.',
+    list_1_item_4:
+      'I have assigned quizzes or lessons to learners before class, if applicable to my context.',
+    list_1_item_5: 'I have reviewed student progress from the previous session.',
     p2: 'Hardware/Software Checklist for Kolibri use:',
     list_2_item_1:
       'I have navigated through the platform and am comfortable using the different features.',
-    list_2_item_2: 'My server and local WiFi or cabled connection are working properly.',
+    list_2_item_2:
+      'My server and local WiFi or cabled connection are working properly (if using a server and client model).',
     list_2_item_3: 'The hardware that is required is fully charged.',
-    list_2_item_4: 'All the hardware in my classroom are in good working condition.',
+    list_2_item_4: 'All the hardware in my classroom is in good working condition.',
     p4: 'Classroom Management Checklist:',
     list_3_item_1:
       'My classroom layout allows for learners to work independently and also work in groups/collaborate during the session.',
@@ -1083,20 +1085,19 @@
 
   strings['StrategiesGroupingLearners'] = createTranslator('StrategiesGroupingLearners', {
     header: 'Strategies to group learners and address learning needs',
-    p1:
-      'The ‘Group’ feature in Kolibri will allow you to meet learning needs of different learners.',
+    p1: 'The ‘Group’ feature in Kolibri will allow you to meet the needs of different learners.',
     p2: 'Creating ‘groups’',
     list_1_item_1: 'What are your goals when grouping learners?',
-    list_1_item_2: 'Do you want groups where all learners are the same level or different levels?',
+    list_1_item_2: 'Do you want groups where all learners have the same needs or different needs?',
     list_1_item_3: 'How can you best support the varying needs of your learners?',
     list_1_item_4: 'How often would the groups change?',
-    list_1_item_5: 'Will learners be in multiple groups at the same time according to needs?',
+    list_1_item_5: 'Will learners be in multiple groups at the same time according to their needs?',
     p3: 'Examples of grouping strategies',
     list_2_item_1: 'Learners who have been absent or missed classes.',
     list_2_item_2: 'Learners who need more help from a coach.',
     list_2_item_3: 'Learners who need help from other learners.',
-    list_2_item_4: 'Learners who are competent but simply need more practice.',
-    list_2_item_5: 'Learners who are very competent and need advanced material.',
+    list_2_item_4: 'Learners who are proficient but simply need more practice.',
+    list_2_item_5: 'Learners who are very proficient and need advanced material.',
     p4: 'Addressing learning needs of different groups',
     list_3_item_1: 'Does the group need new materials? Less complicated material?',
     list_3_item_2: 'Does the group need another activity or exercise?',
@@ -1107,8 +1108,8 @@
 
   strings['SetRulesGroupWork'] = createTranslator('SetRulesGroupWork', {
     header: 'Set rules for group work',
-    p1: 'Involve learners in setting up their own ground rules for group work using Kolibri.',
-    p2: 'Step 1 - Write these 3 prompts on the board:',
+    p1: 'Involve learners in setting their own ground rules for group work using Kolibri.',
+    p2: 'Step 1 - Write any of these 3 prompts on the board:',
     list_1_item_1: 'Something that I have noticed',
     list_1_item_2: 'A change I would like to see',
     list_1_item_3: 'A rule I would like to suggest',
@@ -1125,15 +1126,18 @@
     list_4_item_1: 'Ask learners to work in groups and discuss various suggestions.',
     list_4_item_2: 'Ask a learner in each group to take notes and report to the class later.',
     list_4_item_3:
-      'After all reports are heard, write the suggestions on the board, and work on them more with your learners to prepare a class charter.',
-    list_4_item_4: 'Put the charter on the wall to keep everyone accountable to it.',
+      'After all reports are heard, write the suggestions on the board, and refine them with your learners to prepare a class charter.',
+    list_4_item_4: 'Display the charter to keep everyone accountable to it.',
     p6:
-      'Adapted from ‘OER4Schools’; Content is available under Creative Commons Attribution-ShareAlike or Attribution-NonCommercial unless otherwise noted',
+      'These guidelines are adapted from ‘OER4Schools’; Content is available under Creative Commons Attribution-ShareAlike or Attribution-NonCommercial unless otherwise noted',
   });
 
   strings['PrepareGroupWork'] = createTranslator('PrepareGroupWork', {
     header: 'Prepare for group work',
-    p1: 'Physical Space',
+    p1: {
+      message: 'Physical Space',
+      context: 'Refers to space in the class or a learning environment.',
+    },
     list_1_item_1: 'How will learners be physically arranged in groups?',
     list_1_item_2:
       'Do you want learners to circle up? If there are desks, how do you want to arrange the desks?',
@@ -1141,7 +1145,10 @@
     list_1_item_4: 'Will all learners be able to sit comfortably with their devices?',
     list_1_item_5: 'How will the layout of your classroom impact sound in the room?',
     list_1_item_6: 'How can you moderate the activity to control sound?',
-    p2: 'Remember',
+    p2: {
+      message: 'Remember',
+      context: 'Verb in imperative form.',
+    },
     list_2_item_1: 'Talk to learners about their past experiences with group work.',
     list_2_item_2:
       'Allow them to establish some ground rules for successful collaboration before introducing any hardware.',
@@ -1153,7 +1160,10 @@
     list_4_item_2: 'For drill and practice of previous/new concepts',
     list_4_item_3: 'Sharing of personal experiences',
     list_4_item_4: 'When use of 1 resource is expected by all group members at the same time',
-    p5: 'Seating arrangement',
+    p5: {
+      message: 'Seating arrangement',
+      context: 'Refers to arranging the way learners sit in a class',
+    },
     p6: 'Option 1: Next to each other',
     p7: 'Option 2: In a triangle',
     p8: 'Group size',
@@ -1163,23 +1173,29 @@
     list_6_item_2: 'When learners take turns to use resources within the group',
     list_6_item_3: 'For group work outside the classroom',
     list_6_item_4: 'Useful when the expected outcome is writing or a performance',
-    p10: 'Seating arrangement',
+    p10: {
+      message: 'Seating arrangement',
+      context: 'Refers to arranging the way learners sit in a class',
+    },
     p11: 'Option 1: In a square',
     p12: 'Option 2: In a rectangle',
     p13: 'Option 3: In a circle',
-    p14: 'Option 4: In a horseshue',
+    p14: 'Option 4: In a horseshoe',
     p15: 'Group size',
     list_7_item_1: '7 to 12 learners',
     p16: 'Recommended use cases',
     list_8_item_1:
       'When the expected outcome is a performance, such as drama or puppet show, as more time can be given for each presentation.',
     list_8_item_2: 'When concept requires further sub-grouping.',
-    p17: 'Seating arrangement',
+    p17: {
+      message: 'Seating arrangement',
+      context: 'Refers to arranging the way learners sit in a class',
+    },
     p18: 'Option 1: In a circle',
-    p19: 'Option 2: In a horseshue',
+    p19: 'Option 2: In a horseshoe',
     p20: 'Arranged in subgroups of 2, 3, 4, 5 or 6',
     p21:
-      'Adapted from ‘OER4Schools’; Content is available under Creative Commons Attribution-ShareAlike or Attribution-NonCommercial unless otherwise noted',
+      'These guidelines are adapted from ‘OER4Schools’; Content is available under Creative Commons Attribution-ShareAlike or Attribution-NonCommercial unless otherwise noted',
   });
 
   strings['StrategiesPlanningQuizzes'] = createTranslator('StrategiesPlanningQuizzes', {
@@ -1188,22 +1204,22 @@
     list_1_item_1:
       'What are the learning objectives for the quiz? What skills and knowledge points do you want to assess?',
     list_1_item_2: 'Will all the learners be assessed for the same learning objective?',
-    p2: 'Imagine different use cases',
+    p2: 'Imagine different situations',
     list_2_item_1:
-      'Pre-quiz: quiz to understand learner levels on a particular topic before it is taught',
+      'Pre-quiz: quiz to understand learner understanding on a particular topic before it is taught',
     list_2_item_2:
-      'Post-quiz quiz to understand learner levels on a particular topic after it is taught',
+      'Post-quiz quiz to understand learner understanding on a particular topic after it is taught',
     list_2_item_3:
       'Differentiated quizzes - different quizzes assigned to different groups of learners to meet their learning needs',
   });
 
   strings['UseQuizData'] = createTranslator('UseQuizData', {
     header: 'Use quiz data to adjust and inform instruction',
-    p1: 'Reflect on the Pre-Quiz score',
+    p1: 'Reflect on the Pre-quiz score',
     list_1_item_1: 'What learning objectives have learners mastered?',
     list_1_item_2: 'What are their needs?',
     p2:
-      '(Pre-Quiz is a formative assessment taken to understand learner levels on a particular topic before it is taught)',
+      '(A Pre-quiz is a formative assessment taken to understand learner understanding on a particular topic before it is taught)',
     p3: 'Set goals based on the data',
     list_2_item_1:
       'What goals do you need to set for your learners based on their needs and their mastery?',
@@ -1239,7 +1255,6 @@
     list_1_item_2: 'Give some context',
     list_1_item_3: 'Tell the rule, but not the answer',
     list_1_item_4: 'Provide the first or earlier step in the thought process',
-    list_1_item_5: 'Repeat the learner&#39;s wrong answer back to them',
     p2: 'Encourage learners to extend their responses',
     list_2_item_1: 'Verbal prompts examples: &#39;Keep going&#39;, &#39;Develop&#39;',
     list_2_item_2: 'Non-verbal prompt example: make a rolling motion with the hands etc.',
@@ -1270,7 +1285,10 @@
   });
 
   strings['AnalyzeGroupReports'] = createTranslator('AnalyzeGroupReports', {
-    header: 'Analyze Group reports',
+    header: {
+      message: 'Analyze Group reports',
+      context: 'Coach prompt (suggestion) title',
+    },
     p1: 'Use the data to inform learner grouping and differentiation',
     list_1_item_1: 'Choose learner groups',
     list_1_item_2: 'Create seating charts',
