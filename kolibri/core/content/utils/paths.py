@@ -17,6 +17,16 @@ POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".perseus", ".zip", ".h5p"])
 # TODO: add ".epub" and ".epub3" if epub-equivalent of ZipContentView implemented
 
 
+def _maybe_makedirs(path):
+    if not os.path.isdir(path):
+        try:
+            os.makedirs(path)
+        # When importing from USB etc, it does not need to create
+        # directories under external drives that are not writable.
+        except OSError:
+            pass
+
+
 def get_attribute(obj, key):
     """
     Get an attribute from an object, regardless of whether it is a dict or an object
@@ -49,22 +59,28 @@ def get_local_content_storage_file_url(obj):
 # DISK PATHS
 
 
-def get_content_dir_path(datafolder=None):
-    return (
-        os.path.join(datafolder, "content")
-        if datafolder
-        else conf.OPTIONS["Paths"]["CONTENT_DIR"]
-    )
+def get_content_dir_path(datafolder=None, contentfolder=None):
+    if contentfolder:
+        return contentfolder
+    elif datafolder:
+        return os.path.join(datafolder, "content")
+    else:
+        return conf.OPTIONS["Paths"]["CONTENT_DIR"]
 
 
 def get_content_fallback_paths():
-    return [
-        path.strip()
-        for path in conf.OPTIONS["Paths"]["CONTENT_FALLBACK_DIRS"]
-        .replace(",", ";")
-        .split(";")
-        if path.strip()
-    ]
+    paths = []
+    fallback_dirs = conf.OPTIONS["Paths"]["CONTENT_FALLBACK_DIRS"].split(";")
+    for path in fallback_dirs:
+        path = path.strip()
+        if not path:
+            continue
+        paths.append(path)
+    return paths
+
+
+def get_all_content_dir_paths():
+    return [get_content_dir_path()] + get_content_fallback_paths()
 
 
 def existing_file_path_in_content_fallback_dirs(subpath):
@@ -77,69 +93,94 @@ def existing_file_path_in_content_fallback_dirs(subpath):
     return None
 
 
-def get_content_database_dir_path(datafolder=None):
+def get_content_database_dir_path(datafolder=None, contentfolder=None):
     """
     Returns the path to the content sqlite databases
     ($HOME/.kolibri/content/databases on POSIX systems, by default)
     """
-    path = os.path.join(get_content_dir_path(datafolder), "databases")
-    if not os.path.isdir(path):
-        try:
-            os.makedirs(path)
-        # When importing from USB, it does not need to create a database
-        # directory under the external drives that are not writable.
-        except OSError:
-            pass
+    path = os.path.join(
+        get_content_dir_path(datafolder=datafolder, contentfolder=contentfolder),
+        "databases",
+    )
+    _maybe_makedirs(path)
     return path
 
 
-def get_content_database_file_path(channel_id, datafolder=None):
+def get_content_database_file_path(channel_id, datafolder=None, contentfolder=None):
     """
     Given a channel_id, returns the path to the sqlite3 file
     ($HOME/.kolibri/content/databases/<channel_id>.sqlite3 on POSIX systems, by default)
     """
     suffix = "{}.sqlite3".format(channel_id)
-    primary_path = os.path.join(get_content_database_dir_path(datafolder), suffix)
-    # if the primary path already exists, or the datapath is overridden, use the primary path
-    if os.path.exists(primary_path) or datafolder is not None:
+    primary_path = os.path.join(
+        get_content_database_dir_path(
+            datafolder=datafolder, contentfolder=contentfolder
+        ),
+        suffix,
+    )
+    # if the primary path already exists, or the datafolder/contentfolder is overridden, use the primary path
+    if (
+        os.path.exists(primary_path)
+        or datafolder is not None
+        or contentfolder is not None
+    ):
         return primary_path
     backup_path = existing_file_path_in_content_fallback_dirs(
         os.path.join("databases", suffix)
     )
-    # return backup path if one exists; otherwise, return the primary path (even though it doesn't exist yet)
+    # return backup path if one exists; otherwise, return primary path (even though it doesn't exist yet)
     return backup_path or primary_path
 
 
-def get_upgrade_content_database_file_path(channel_id, datafolder=None):
+def get_upgrade_content_database_file_path(
+    channel_id, datafolder=None, contentfolder=None
+):
     return os.path.join(
-        get_content_database_dir_path(datafolder),
+        get_content_database_dir_path(
+            datafolder=datafolder, contentfolder=contentfolder
+        ),
         "{}-upgrade.sqlite3".format(channel_id),
     )
 
 
-def get_annotated_content_database_file_path(channel_id, datafolder=None):
+def get_annotated_content_database_file_path(
+    channel_id, datafolder=None, contentfolder=None
+):
     return os.path.join(
-        get_content_database_dir_path(datafolder),
+        get_content_database_dir_path(
+            datafolder=datafolder, contentfolder=contentfolder
+        ),
         "{}-annotated.sqlite3".format(channel_id),
     )
 
 
-def get_content_storage_dir_path(datafolder=None):
-    path = os.path.join(get_content_dir_path(datafolder), "storage")
-    if not os.path.isdir(path):
-        os.makedirs(path)
+def get_content_storage_dir_path(datafolder=None, contentfolder=None):
+    path = os.path.join(
+        get_content_dir_path(datafolder=datafolder, contentfolder=contentfolder),
+        "storage",
+    )
+    _maybe_makedirs(path)
     return path
 
 
-def get_content_storage_file_path(filename, datafolder=None):
+def get_content_storage_file_path(filename, datafolder=None, contentfolder=None):
     if not VALID_STORAGE_FILENAME.match(filename):
         raise InvalidStorageFilenameError(
             "'{}' is not a valid content storage filename".format(filename)
         )
     suffix = os.path.join(filename[0], filename[1], filename)
-    primary_path = os.path.join(get_content_storage_dir_path(datafolder), suffix)
+    primary_path = os.path.join(
+        get_content_storage_dir_path(
+            datafolder=datafolder, contentfolder=contentfolder
+        ),
+        suffix,
+    )
     # if the primary path already exists, or the datapath is overridden, use the primary path
-    if os.path.exists(primary_path) or datafolder is not None:
+    if (
+        os.path.exists(primary_path)
+        or datafolder is not None
+        or contentfolder is not None
+    ):
         return primary_path
     backup_path = existing_file_path_in_content_fallback_dirs(
         os.path.join("storage", suffix)
