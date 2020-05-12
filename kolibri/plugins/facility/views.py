@@ -39,7 +39,8 @@ def download_csv_file(request, filename):
 
     # set the content-disposition as attachment to force download
     exported_filename = pgettext(
-        "Name of a CSV file exporting the users of the facility", "users_{}.csv"
+        "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation",
+        "users_{}.csv",
     ).format(datetime.now().strftime("%Y%m%d_%H%M%S"))
     response["Content-Disposition"] = "attachment; filename={}".format(
         str(exported_filename)

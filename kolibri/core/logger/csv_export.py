@@ -188,11 +188,11 @@ def download_csv_file(request, log_type):
 
     csv_translated_filenames = {
         "session": pgettext(
-            "Name of a CSV file exporting the logs for the content sessions",
+            "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation",
             "content_session_logs.csv",
         ),
         "summary": pgettext(
-            "Name of a CSV file exporting the logs for the content summaries",
+            "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation",
             "content_summary_logs.csv",
         ),
     }
