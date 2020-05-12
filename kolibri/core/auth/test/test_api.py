@@ -630,6 +630,61 @@ class UserRetrieveTestCase(APITestCase):
         )
 
 
+class FacilityUserFilterTestCase(APITestCase):
+    def setUp(self):
+        provision_device()
+        # Fixtures: 2 facilities with 1 learner + 1 admin each
+        self.facility_1 = FacilityFactory.create()
+        self.facility_2 = FacilityFactory.create()
+
+        self.user_1 = FacilityUserFactory.create(
+            facility=self.facility_1, username="learner_1"
+        )
+        self.admin_1 = FacilityUserFactory.create(
+            facility=self.facility_1, username="admin_1"
+        )
+        self.facility_1.add_admin(self.admin_1)
+
+        self.user_2 = FacilityUserFactory.create(
+            facility=self.facility_2, username="learner_2"
+        )
+        self.admin_2 = FacilityUserFactory.create(
+            facility=self.facility_2, username="admin_2"
+        )
+        self.facility_2.add_admin(self.admin_2)
+
+        # Superuser is in facility 1
+        self.superuser = create_superuser(self.facility_1, username="a_superuser")
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility_1,
+        )
+
+    def _sort_by_username(self, data):
+        return sorted(data, key=lambda x: x["username"])
+
+    def test_user_member_of_filter(self):
+        response = self.client.get(
+            reverse("kolibri:core:facilityuser-list"), {"member_of": self.facility_1.id}
+        )
+        data = self._sort_by_username(response.data)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["id"], self.superuser.id)
+        self.assertEqual(data[1]["id"], self.admin_1.id)
+        self.assertEqual(data[2]["id"], self.user_1.id)
+
+    def test_user_is_admin_filter(self):
+        response = self.client.get(
+            reverse("kolibri:core:facilityuser-list"), {"is_admin": True}
+        )
+        data = self._sort_by_username(response.data)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]["id"], self.superuser.id)
+        self.assertEqual(data[1]["id"], self.admin_1.id)
+        self.assertEqual(data[2]["id"], self.admin_2.id)
+
+
 class LoginLogoutTestCase(APITestCase):
     def setUp(self):
         provision_device()

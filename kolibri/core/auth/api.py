@@ -24,6 +24,7 @@ from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
+from django_filters.rest_framework import BooleanFilter
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
@@ -145,12 +146,21 @@ class FacilityUserFilter(FilterSet):
         method="filter_member_of", queryset=Collection.objects.all()
     )
 
+    is_admin = BooleanFilter(method="filter_is_admin")
+
     def filter_member_of(self, queryset, name, value):
         return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
 
+    def filter_is_admin(self, queryset, name, value):
+        if (value is True):
+            return queryset.filter(Q(devicepermissions__is_superuser=True) | Q(roles__kind__contains="admin"))
+        else:
+            return queryset.filter(Q(devicepermissions__is_superuser=True))
+            # return queryset.exclude(Q(is_superuser=True) | Q(kind="admin"))
+
     class Meta:
         model = FacilityUser
-        fields = ["member_of"]
+        fields = ["member_of", "is_admin"]
 
 
 class FacilityUserViewSet(ValuesViewset):
