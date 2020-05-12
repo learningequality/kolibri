@@ -47,7 +47,7 @@ labels = OrderedDict(
         (
             "kind",
             pgettext_lazy(
-                "CSV header for the type of user: ADMIN, LEARNER, COACH...",
+                "CSV column header for the type of user: ADMIN, LEARNER, COACH...",
                 "User type ({})",
             ).format("USER_TYPE"),
         ),
@@ -57,14 +57,14 @@ labels = OrderedDict(
         (
             "enrolled",
             pgettext_lazy(
-                "CSV file header for the list of classrooms names where the learner is going to be enrolled",
+                "CSV column header for the list of classrooms names where the learner is going to be enrolled",
                 "Learner enrollment ({})",
             ).format("ENROLLED_IN"),
         ),
         (
             "assigned",
             pgettext_lazy(
-                "CSV file header for the list of classrooms names where the tutor is going to be a coach",
+                "CSV column header for the list of classrooms names where the tutor is going to be a coach",
                 "Coach assignment ({})",
             ).format("ASSIGNED_TO"),
         ),

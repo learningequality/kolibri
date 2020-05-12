@@ -81,11 +81,11 @@ MESSAGES = {
         "Username only can contain characters, numbers and underscores"
     ),
     REQUIRED_COLUMN: pgettext_lazy(
-        "Importing a CSV file, there's a column that has not been added to the file",
+        "Error message indicating that the CSV file selected for import is missing a required column",
         "The column '{}' is required",
     ),
     INVALID_HEADER: pgettext_lazy(
-        "Importing a CSV file, the name of a column in the header is not correct (or is missed)",
+        "Error message indicating that one column header in the CSV file selected for import is missing or incorrect",
         "Invalid header label found in the first row",
     ),
     NO_FACILITY: _(
