@@ -57,7 +57,7 @@
           }"
         >
           <li>{{ $tr('superAdminExplanation1') }}</li>
-          <li>{{ $tr('superAdminExplanation2') }}</li>
+          <li>{{ $tr('superAdminExplanation2', { facilityName }) }}</li>
         </ul>
       </div>
 
@@ -190,7 +190,6 @@
     },
     methods: {
       ...mapActions('userPermissions', ['addOrUpdateUserPermissions']),
-      ...mapActions(['createSnackbar']),
       save() {
         this.uiBlocked = true;
         this.saveProgress = IN_PROGRESS;
@@ -200,7 +199,7 @@
           can_manage_content: this.devicePermissionsChecked,
         })
           .then(() => {
-            this.createSnackbar(this.$tr('permissionChangeConfirmation'));
+            this.showSnackbarNotification('changesSaved');
             this.saveProgress = SUCCESS;
             this.uiBlocked = false;
             this.goBack();
@@ -223,15 +222,15 @@
       },
       documentTitle: "{ name }'s Device Permissions",
       makeSuperAdmin: 'Make super admin',
-      permissionChangeConfirmation: 'Changes saved',
       saveButton: 'Save Changes',
       saveFailureNotification: 'There was a problem saving these changes.',
       saveInProgressNotification: 'Saving...',
       saveSuccessfulNotification: 'Changes saved!',
       userDoesNotExist: 'User does not exist',
       superAdminExplanation1:
-        'Has all device permissions and can manage device permissions of other users',
-      superAdminExplanation2: 'Has admin permissions for all facilities on this device',
+        'Has all device permissions and can manage the device permissions of other users',
+      superAdminExplanation2:
+        "Has admin permissions for all facilities on this device, but is still a member of the facility '{facilityName}'",
       you: 'You',
     },
   };

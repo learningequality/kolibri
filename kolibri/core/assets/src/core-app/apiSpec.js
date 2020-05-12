@@ -45,6 +45,8 @@ import AuthMessage from '../views/AuthMessage';
 import FilterTextbox from '../views/FilterTextbox';
 import router from '../router';
 import commonCoreStrings from '../mixins/commonCoreStrings';
+import commonTaskStrings from '../mixins/taskStrings';
+import commonSyncElements from '../mixins/commonSyncElements';
 import CoreFullscreen from '../views/CoreFullscreen';
 import definitions from '../styles/definitions.scss';
 import keenVars from '../keen-config/variables.scss';
@@ -87,6 +89,7 @@ import PaginatedListContainer from '../views/PaginatedListContainer';
 import PageStatus from '../views/ExamReport/PageStatus';
 import branding from '../utils/branding';
 import sortLanguages from '../utils/sortLanguages';
+import * as sync from '../views/sync/syncComponentSet';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -177,11 +180,16 @@ export default {
       PrivacyLinkAndModal,
       PageStatus,
     },
+    componentSets: {
+      sync,
+    },
     router,
     mixins: {
       responsiveWindowMixin,
       responsiveElementMixin,
       commonCoreStrings,
+      commonTaskStrings,
+      commonSyncElements,
     },
   },
   resources,

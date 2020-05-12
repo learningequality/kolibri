@@ -81,7 +81,7 @@
   "TopicsPage.documentTitleForChannel": "Temas - { channelTitle }",
   "TopicsPage.documentTitleForTopic": "{ topicTitle } - { channelTitle }",
   "TotalPoints.pointsTooltip": "Has ganado { points, number } puntos",
-  "UpdateYourProfileModal.skipUpdateProfileAction": "Saltar",
+  "UpdateYourProfileModal.skipUpdateProfileAction": "Omitir",
   "UpdateYourProfileModal.title": "Actualizar el perfil",
   "UpdateYourProfileModal.updateProfileExplanation": "Falta información en tu perfil. ¿Quieres actualizarlo?"
 }

@@ -181,7 +181,10 @@
         }
         if (this.sortedFilteredUsers.length === 0 && this.filterInput !== '') {
           // TODO internationalize this
-          return `${this.$tr('noUsersMatch')}: '${this.filterInput}'`;
+          return this.coreString('labelColonThenDetails', {
+            label: this.$tr('noUsersMatch'),
+            details: this.filterInput,
+          });
         }
 
         return '';
@@ -189,14 +192,15 @@
     },
     methods: {
       ...mapActions('groups', ['addUsersToGroup']),
-      ...mapActions(['createSnackbar']),
       addSelectedUsersToGroup() {
         this.addUsersToGroup({
           groupId: this.currentGroup.id,
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
-            this.createSnackbar(this.coachString('updatedNotification'));
+            this.showSnackbarNotification('learnersEnrolledNoCount', {
+              count: this.selectedUsers.length,
+            });
           });
         });
       },

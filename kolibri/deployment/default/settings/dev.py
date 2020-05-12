@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 
 from .base import *  # noqa isort:skip @UnusedWildImport
 
+DEBUG = True
+
 # Settings might be tuples, so switch to lists
 INSTALLED_APPS = list(INSTALLED_APPS) + ["rest_framework_swagger"]  # noqa F405
 webpack_middleware = "kolibri.core.webpack.middleware.WebpackErrorHandler"
@@ -24,6 +26,11 @@ CACHES = {
 
 REST_FRAMEWORK = {
     "UNAUTHENTICATED_USER": "kolibri.core.auth.models.KolibriAnonymousUser",
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        # Activate basic auth for external API testing tools
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",

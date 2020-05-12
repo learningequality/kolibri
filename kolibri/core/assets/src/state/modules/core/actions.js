@@ -287,22 +287,21 @@ export function saveDismissedNotification(store, notification_id) {
 
 export function getFacilities(store) {
   return FacilityResource.fetchCollection().then(facilities => {
-    store.commit('CORE_SET_FACILITIES', facilities);
+    store.commit('CORE_SET_FACILITIES', [...facilities]);
   });
 }
 
 export function getFacilityConfig(store, facilityId) {
-  const { facilities, currentFacilityId } = store.getters;
+  const { currentFacilityId, selectedFacility } = store.getters;
   let facId = facilityId || currentFacilityId;
   if (!facId) {
     // No facility Id, so nothing good is going to happen here.
     // Redirect and let Kolibri sort it out.
     return Promise.resolve(redirectBrowser());
   }
-  const currentFacility = facilities.find(facility => facility.id === facId);
   let datasetPromise;
-  if (currentFacility && typeof currentFacility.dataset === 'object') {
-    datasetPromise = Promise.resolve([currentFacility.dataset]);
+  if (selectedFacility && typeof selectedFacility.dataset === 'object') {
+    datasetPromise = Promise.resolve([selectedFacility.dataset]);
   } else {
     datasetPromise = FacilityDatasetResource.fetchCollection({
       getParams: {

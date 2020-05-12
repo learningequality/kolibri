@@ -2,8 +2,7 @@
 
   <OnboardingForm
     :header="$tr('languageFormHeader')"
-    :submitText="submitText"
-    @submit="setLanguage"
+    @submit="handleSubmit"
   >
     <LanguageSwitcherList />
   </OnboardingForm>
@@ -13,7 +12,6 @@
 
 <script>
 
-  import { mapMutations, mapState } from 'vuex';
   import LanguageSwitcherList from 'kolibri.coreVue.components.LanguageSwitcherList';
   import OnboardingForm from './OnboardingForm';
 
@@ -23,24 +21,11 @@
       OnboardingForm,
       LanguageSwitcherList,
     },
-    props: {
-      submitText: {
-        type: String,
-        required: true,
-      },
-    },
-    computed: {
-      ...mapState({
-        currentLanguageId: state => state.onboardingData.language_id,
-      }),
-    },
     methods: {
-      ...mapMutations({
-        submitDefaultLanguage: 'SET_LANGUAGE',
-      }),
-      setLanguage() {
-        this.submitDefaultLanguage(this.currentLanguageId);
-        this.$emit('submit');
+      handleSubmit() {
+        const currentLanguageId = this.$store.state.onboardingData.language_id;
+        this.$store.commit('SET_LANGUAGE', currentLanguageId);
+        this.$emit('click_next');
       },
     },
     $trs: {

@@ -9,6 +9,7 @@ const logging = logger.getLogger(__filename);
 function startCSVExport(store, logtype, creating, commitStart) {
   const params = {
     logtype: logtype,
+    facility: store.rootGetters.activeFacilityId,
   };
   if (!creating) {
     let promise = TaskResource.startexportlogcsv(params);
@@ -39,7 +40,10 @@ function startSessionCSVExport(store) {
 
 function getExportedLogsInfo(store) {
   return client({
-    path: urls['kolibri:core:exportedlogsinfo'](),
+    path: urls['kolibri:core:exportedlogsinfo'](
+      store.rootGetters.activeFacilityId,
+      store.rootGetters.currentFacilityName
+    ),
   }).then(response => {
     const data = response.entity;
     let sessionTimeStamp = null;
@@ -56,16 +60,19 @@ function getExportedLogsInfo(store) {
 }
 
 function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitFinish) {
+  const myNewTasks = newTasks.filter(task => {
+    return task.facility === store.rootGetters.activeFacilityId;
+  });
   // if task job has already been fetched, just continually check if its completed
   if (taskId) {
-    const task = newTasks.find(task => task.id === taskId);
+    const task = myNewTasks.find(task => task.id === taskId);
 
     if (task && task.status === TaskStatuses.COMPLETED) {
       store.commit(commitFinish, new Date());
       TaskResource.deleteFinishedTask(taskId);
     }
   } else {
-    const running = newTasks.filter(task => {
+    const running = myNewTasks.filter(task => {
       return (
         task.type === taskType &&
         task.status !== TaskStatuses.COMPLETED &&

@@ -48,7 +48,14 @@
       PageNames: () => PageNames,
     },
     methods: {
-      linkify: name => ({ name }),
+      linkify(name) {
+        return {
+          name,
+          params: {
+            facility_id: this.$route.params.facility_id,
+          },
+        };
+      },
     },
     $trs: {
       data: 'Data',

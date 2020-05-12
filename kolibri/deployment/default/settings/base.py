@@ -54,7 +54,7 @@ LOCALE_PATHS = [os.path.join(KOLIBRI_MODULE_PATH, "locale")]
 SECRET_KEY = "f@ey3)y^03r9^@mou97apom*+c1m#b1!cwbm50^s4yk72xce27"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = conf.OPTIONS["Server"]["DEBUG"]
 
 ALLOWED_HOSTS = ["*"]
 
@@ -88,6 +88,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "kolibri.core.analytics.middleware.cherrypy_access_log_middleware",
     "django.middleware.cache.UpdateCacheMiddleware",
     "kolibri.core.analytics.middleware.MetricsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -182,8 +183,12 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
 
 # django-specific format, e.g.: [ ('bn-bd', 'বাংলা'), ('en', 'English'), ...]
 LANGUAGES = [
-    (lang["intl_code"], lang["language_name"])
-    for lang in i18n.KOLIBRI_SUPPORTED_LANGUAGES
+    (
+        i18n.KOLIBRI_LANGUAGE_INFO[lang_code]["intl_code"],
+        i18n.KOLIBRI_LANGUAGE_INFO[lang_code]["language_name"],
+    )
+    for lang_code in conf.OPTIONS["Deployment"]["LANGUAGES"]
+    if lang_code in i18n.KOLIBRI_LANGUAGE_INFO
 ]
 
 # Some languages are not supported out-of-the-box by Django
@@ -230,7 +235,11 @@ EXTRA_LANG_INFO = {
 }
 locale.LANG_INFO.update(EXTRA_LANG_INFO)
 
-LANGUAGE_CODE = "en"
+LANGUAGE_CODE = (
+    "en"
+    if "en" in conf.OPTIONS["Deployment"]["LANGUAGES"]
+    else conf.OPTIONS["Deployment"]["LANGUAGES"][0]
+)
 
 try:
     TIME_ZONE = get_localzone().zone
@@ -278,7 +287,11 @@ SESSION_COOKIE_PATH = path_prefix
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
 
-LOGGING = get_logging_config(conf.LOG_ROOT)
+LOGGING = get_logging_config(
+    conf.LOG_ROOT,
+    debug=DEBUG,
+    debug_database=conf.OPTIONS["Server"]["DEBUG_LOG_DATABASE"],
+)
 
 
 # Customizing Django auth system
@@ -298,6 +311,9 @@ AUTHENTICATION_BACKENDS = ["kolibri.core.auth.backends.FacilityUserBackend"]
 
 REST_FRAMEWORK = {
     "UNAUTHENTICATED_USER": "kolibri.core.auth.models.KolibriAnonymousUser",
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+    ],
     "DEFAULT_CONTENT_NEGOTIATION_CLASS": "kolibri.core.negotiation.JSONOnlyContentNegotiation",
     "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
 }

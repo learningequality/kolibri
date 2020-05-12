@@ -5,7 +5,6 @@ import union from 'lodash/union';
 import shuffled from 'kolibri.utils.shuffled';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
-import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import router from 'kolibri.coreVue.router';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -13,10 +12,6 @@ import { PageNames } from '../../constants';
 import { MAX_QUESTIONS } from '../../constants/examConstants';
 import { createExam } from '../examShared/exams';
 import selectQuestions from './selectQuestions';
-
-const snackbarTranslator = createTranslator('ExamCreateSnackbarTexts', {
-  newExamCreated: 'New quiz created',
-});
 
 export function resetExamCreationState(store) {
   store.commit('RESET_STATE');
@@ -105,8 +100,7 @@ export function createExamAndRoute(store, { classId, adHocGroupId }) {
   };
 
   return createExam(store, exam).then(() => {
-    router.push({ name: PageNames.EXAMS });
-    store.dispatch('createSnackbar', snackbarTranslator.$tr('newExamCreated'), { root: true });
+    return router.push({ name: PageNames.EXAMS });
   });
 }
 

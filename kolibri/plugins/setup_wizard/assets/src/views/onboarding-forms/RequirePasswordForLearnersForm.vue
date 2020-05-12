@@ -4,9 +4,8 @@
     :noOptionLabel="$tr('noOptionLabel')"
     :noOptionTooltip="$tr('noOptionTooltip')"
     :settingIsEnabled="settingIsEnabled"
-    :submitText="submitText"
     :headerText="$tr('header')"
-    @submit="setSetting"
+    @submit="handleSubmit"
   />
 
 </template>
@@ -21,28 +20,18 @@
     components: {
       YesNoForm,
     },
-    props: {
-      submitText: {
-        type: String,
-        required: true,
-      },
-    },
     data() {
-      const { settings, preset } = this.$store.state.onboardingData;
-      if (settings.learner_can_login_with_no_password !== null) {
-        return {
-          settingIsEnabled: settings.learner_can_login_with_no_password,
-        };
-      }
-      // Default is False only for "formal" preset
       return {
-        settingIsEnabled: preset !== 'formal',
+        // NOTE: The 'Yes' option should set this to false
+        settingIsEnabled: !this.$store.state.onboardingData.settings
+          .learner_can_login_with_no_password,
       };
     },
     methods: {
-      setSetting(setting) {
-        this.$store.commit('SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD', setting);
-        this.$emit('submit');
+      handleSubmit(setting) {
+        // NOTE: Notice that setting is negated
+        this.$store.commit('SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD', !setting);
+        this.$emit('click_next');
       },
     },
     $trs: {

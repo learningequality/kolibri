@@ -8,9 +8,9 @@
       <p>
         {{ $tr('pageDescription') }}
         <KExternalLink
-          v-if="facilitySettingsUrl"
+          v-if="!isMultiFacilitySuperuser && getFacilitySettingsPath()"
           :text="$tr('facilitySettings')"
-          :href="facilitySettingsUrl"
+          :href="getFacilitySettingsPath()"
         />
       </p>
     </section>
@@ -82,6 +82,21 @@
         @click="handleClickSave"
       />
     </section>
+
+    <!-- List of separate links to Facility Settings pages -->
+    <section v-if="isMultiFacilitySuperuser">
+      <h2>{{ $tr('configureFacilitySettingsHeader') }}</h2>
+      <ul class="ul-reset">
+        <template v-for="(facility, idx) in facilities">
+          <li :key="idx">
+            <KExternalLink
+              :text="facility.name"
+              :href="getFacilitySettingsPath(facility.id)"
+            />
+          </li>
+        </template>
+      </ul>
+    </section>
   </div>
 
 </template>
@@ -126,6 +141,12 @@
       };
     },
     computed: {
+      facilities() {
+        return this.$store.getters.facilities;
+      },
+      isMultiFacilitySuperuser() {
+        return this.$store.getters.isSuperuser && this.facilities.length > 1;
+      },
       languageOptions() {
         let languages = sortLanguages(Object.values(availableLanguages), currentLanguage).map(
           language => {
@@ -138,13 +159,6 @@
         languages.splice(1, 0, this.browserDefaultOption);
 
         return languages;
-      },
-      facilitySettingsUrl() {
-        const getUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
-        if (getUrl) {
-          return getUrl() + '#/settings';
-        }
-        return null;
       },
       disableAllowGuestAccess() {
         return (
@@ -184,6 +198,16 @@
     methods: {
       resetSaveStatus() {
         this.saveStatus = null;
+      },
+      getFacilitySettingsPath(facilityId = '') {
+        const getUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
+        if (getUrl) {
+          if (facilityId) {
+            return getUrl() + `#/${facilityId}/settings`;
+          }
+          return getUrl() + '#/settings';
+        }
+        return '';
       },
       handleClickSave() {
         const {
@@ -229,6 +253,7 @@
       },
       unlistedChannels: 'Allow other computers on this network to import my unlisted channels',
       lockedContent: 'Learners should only see resources assigned to them in classes',
+      configureFacilitySettingsHeader: 'Configure facility settings',
     },
   };
 
@@ -239,6 +264,16 @@
 
   .save-button {
     margin-left: 0;
+  }
+
+  .ul-reset {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+
+    li {
+      margin-bottom: 8px;
+    }
   }
 
 </style>

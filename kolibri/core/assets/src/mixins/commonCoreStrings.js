@@ -1,4 +1,5 @@
 import { createTranslator } from 'kolibri.utils.i18n';
+import notificationStrings from './notificationStrings';
 
 export const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
@@ -16,18 +17,25 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   editDetailsAction: 'Edit details',
   finishAction: 'Finish',
   goBackAction: 'Go back',
+  registerAction: {
+    message: 'Register',
+    context: 'Register a facility to the Kolibri Data Portal',
+  },
   retryAction: 'Retry',
   removeAction: 'Remove',
   saveAction: 'Save',
   saveChangesAction: 'Save changes',
   selectAllOnPageAction: 'Select all on page',
   showAction: 'Show',
+  syncAction: 'Sync',
   updateAction: 'Update',
   viewAction: 'View',
   viewTasksAction: 'View tasks',
 
   // labels, phrases, titles, headers...
   adminLabel: 'Admin',
+  allClassesLabel: 'All classes',
+  allFacilitiesLabel: 'All facilities',
   allLabel: 'All',
   allLessonsLabel: 'All lessons',
   birthYearLabel: 'Birth year',
@@ -42,6 +50,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   devicePermissionsLabel: 'Device permissions',
   facilityCoachLabel: 'Facility coach',
   facilityLabel: 'Facility',
+  facilitiesLabel: 'Facilities',
   facilityName: 'Facility name',
   facilityNameWithId: '{facilityName} ({id})',
   facilityDuplicated: 'There is already a facility with this name on this device',
@@ -53,6 +62,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   learnersLabel: 'Learners',
   lessonsLabel: 'Lessons',
   loadingLabel: 'Loading…',
+  nameLabel: 'Name',
   noUsersExistLabel: 'No users exist',
   optionsLabel: 'Options',
   passwordLabel: 'Password',
@@ -63,6 +73,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   searchLabel: 'Search',
   showCorrectAnswerLabel: 'Show correct answer',
   signInLabel: 'Sign in',
+  superAdminLabel: 'Super admin',
+  tasksLabel: 'Tasks',
   usageAndPrivacyLabel: 'Usage and privacy',
   userTypeLabel: 'User type',
   usernameLabel: 'Username',
@@ -76,6 +88,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // Errors
   requiredFieldError: 'This field is required',
   usernameNotAlphaNumError: 'Username can only contain letters, numbers, and underscores',
+  invalidCredentialsError: 'Incorrect username or password',
+
+  // Formatting
+  nameWithIdInParens: '{name} ({id})',
+  quotedPhrase: `'{phrase}'`,
+  dashSeparatedPair: '{item1} - {item2}',
+  dashSeparatedTriple: '{item1} - {item2} - {item3}',
+  labelColonThenDetails: '{label}: {details}',
 
   // Demographic-specific strings
   genderOptionMale: 'Male',
@@ -101,6 +121,17 @@ export default {
   methods: {
     coreString(key, args) {
       return coreStrings.$tr(key, args);
+    },
+    showSnackbarNotification(key, args, coreCreateSnackbarArgs) {
+      let text = notificationStrings.$tr(key, args || {});
+      if (coreCreateSnackbarArgs) {
+        this.$store.commit('CORE_CREATE_SNACKBAR', {
+          ...coreCreateSnackbarArgs,
+          text,
+        });
+      } else {
+        this.$store.dispatch('createSnackbar', text);
+      }
     },
   },
 };

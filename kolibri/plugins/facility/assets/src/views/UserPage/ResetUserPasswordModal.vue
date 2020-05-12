@@ -70,10 +70,7 @@
           .then(() => {
             this.busy = false;
             this.$emit('cancel');
-            this.$store.dispatch(
-              'createSnackbar',
-              this.$tr('passwordChangedNotification', { username: this.username })
-            );
+            this.showSnackbarNotification('passwordReset');
           })
           .catch(error => this.$store.dispatch('handleApiError', error));
       },
@@ -88,7 +85,6 @@
     $trs: {
       resetPassword: 'Reset user password',
       username: 'Username: ',
-      passwordChangedNotification: "Password changed for '{username}'",
     },
   };
 

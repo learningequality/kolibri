@@ -1,0 +1,156 @@
+[
+  {
+    "crowdin_code": "ar",
+    "intl_code": "ar",
+    "language_name": "العَرَبِيَّة‎‎",
+    "english_name": "Arabic",
+    "default_font": "NotoSansArabic"
+  },
+  {
+    "crowdin_code": "bg",
+    "intl_code": "bg-bg",
+    "language_name": "Български",
+    "english_name": "Bulgarian",
+    "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "bn",
+    "intl_code": "bn-bd",
+    "language_name": "বাংলা",
+    "english_name": "Bengali",
+    "default_font": "NotoSansBengali"
+  },
+  {
+    "crowdin_code": "en",
+    "intl_code": "en",
+    "language_name": "English",
+    "english_name": "English",
+    "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "es-ES",
+    "intl_code": "es-es",
+    "language_name": "Español (España)",
+    "english_name": "Spanish (Spain)",
+    "default_font": "NotoSans"
+  },
+    {
+    "crowdin_code": "la",
+    "intl_code": "es-419",
+    "language_name": "Español",
+    "english_name": "Spanish (Latin America)",
+    "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "fa",
+    "intl_code": "fa",
+    "language_name": "فارسی",
+    "english_name": "Farsi",
+    "default_font": "NotoSansArabic"
+  },
+  {
+    "crowdin_code": "fr",
+    "intl_code": "fr-fr",
+    "language_name": "Français",
+    "english_name": "French",
+    "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "fv",
+    "intl_code": "ff-cm",
+    "language_name": "Fulfulde Mbororoore",
+    "english_name": "Fulfulde (Cameroon)",
+    "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "gu-IN",
+    "intl_code": "gu-in",
+    "language_name": "ગુજરાતી",
+    "english_name": "Gujarati",
+    "default_font": "NotoSansGujarati"
+  },
+  {
+    "crowdin_code": "hi",
+    "intl_code": "hi-in",
+    "language_name": "हिंदी (भारत)",
+    "english_name": "Hindi (India)",
+    "default_font": "NotoSansDevanagari"
+  },
+  {
+    "crowdin_code": "it",
+    "intl_code": "it",
+    "language_name": "Italiano",
+    "english_name": "Italian",
+    "default_font": "NotoSans"
+  },
+    {
+    "crowdin_code": "ko",
+    "intl_code": "ko",
+    "language_name": "한국어",
+    "english_name": "Korean",
+    "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "mr",
+    "intl_code": "mr",
+    "language_name": "मराठी",
+    "english_name": "Marathi",
+    "default_font": "NotoSansDevanagari"
+  },
+  {
+    "crowdin_code": "my",
+    "intl_code": "my",
+    "language_name": "ဗမာစာ",
+    "english_name": "Burmese",
+    "default_font": "NotoSansMyanmar"
+  },
+  {
+    "crowdin_code": "ny",
+    "intl_code": "nyn",
+    "language_name": "Chinyanja",
+    "english_name": "Chichewa, Chewa, Nyanja",
+    "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "pt-BR",
+    "intl_code": "pt-br",
+    "language_name": "Português (Brasil)",
+    "english_name": "Portuguese (Brazil)",
+    "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "sw-TZ",
+    "intl_code": "sw-tz",
+    "language_name": "Kiswahili",
+    "english_name": "Swahili",
+    "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "te",
+    "intl_code": "te",
+    "language_name": "తెలుగు",
+    "english_name": "Telugu",
+    "default_font": "NotoSansTelugu"
+  },
+  {
+    "crowdin_code": "ur-PK",
+    "intl_code": "ur-pk",
+    "language_name": "اُردو (پاکستان)‏",
+    "english_name": "Urdu (Pakistan)",
+    "default_font": "NotoSansArabic"
+  },
+  {
+    "crowdin_code": "vi",
+    "intl_code": "vi",
+    "language_name": "Tiếng Việt",
+    "english_name": "Vietnamese",
+    "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "yo",
+    "intl_code": "yo",
+    "language_name": "Yorùbá",
+    "english_name": "Yoruba",
+    "default_font": "NotoSans"
+  }
+]

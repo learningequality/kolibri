@@ -7,6 +7,8 @@ import { PageNames } from '../constants';
 import DeleteExportChannelsPage from '../views/ManageContentPage/DeleteExportChannelsPage';
 import DeviceInfoPage from '../views/DeviceInfoPage';
 import DeviceSettingsPage from '../views/DeviceSettingsPage';
+import FacilitiesPage from '../views/FacilitiesPage';
+import FacilitiesTasksPage from '../views/FacilitiesPage/FacilitiesTasksPage';
 import ManageContentPage from '../views/ManageContentPage';
 import ManagePermissionsPage from '../views/ManagePermissionsPage';
 import ManageTasksPage from '../views/ManageTasksPage';
@@ -45,6 +47,15 @@ const routes = [
       store.dispatch('preparePage', { name });
       showManageContentPage(store).then(hideLoadingScreen);
     },
+    // fetch the facilities if redirecting from /welcome, since the WelcomeModal
+    // needs it
+    beforeEnter(to, from, next) {
+      if (to.redirectedFrom === '/welcome') {
+        store.dispatch('getFacilities').then(next, next);
+      } else {
+        next();
+      }
+    },
   },
   {
     name: PageNames.MANAGE_PERMISSIONS_PAGE,
@@ -53,6 +64,22 @@ const routes = [
     handler: ({ name }) => {
       store.dispatch('preparePage', { name });
       showManagePermissionsPage(store).then(hideLoadingScreen);
+    },
+  },
+  {
+    name: 'FACILITIES_PAGE',
+    component: withAuthMessage(FacilitiesPage, 'superuser'),
+    path: '/facilities',
+    handler: ({ name }) => {
+      store.dispatch('preparePage', { name, isAsync: false });
+    },
+  },
+  {
+    name: 'FACILITIES_TASKS_PAGE',
+    component: withAuthMessage(FacilitiesTasksPage, 'superuser'),
+    path: '/facilities/tasks',
+    handler: ({ name }) => {
+      store.dispatch('preparePage', { name, isAsync: false });
     },
   },
   {

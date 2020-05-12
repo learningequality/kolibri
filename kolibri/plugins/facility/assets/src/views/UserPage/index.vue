@@ -13,11 +13,12 @@
         :layout8="{ span: 4 }"
         :layout12="{ span: 6 }"
       >
-        <KButton
+        <KRouterLink
           :text="$tr('newUserButtonLabel')"
           :primary="true"
+          appearance="raised-button"
           class="move-down"
-          @click="$router.push($router.getRoute('USER_CREATE_PAGE'))"
+          :to="newUserLink"
         />
       </KGridItem>
     </KGrid>
@@ -124,6 +125,14 @@
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
           { label: this.$tr('superAdmins'), value: UserKinds.SUPERUSER },
         ];
+      },
+      newUserLink() {
+        return {
+          name: 'USER_CREATE_PAGE',
+          params: {
+            facility_id: this.$route.params.facility_id,
+          },
+        };
       },
     },
     beforeMount() {

@@ -186,7 +186,7 @@ def pretranslate(branch, approve_all=False):
         "{}/{}".format(branch, f) for f in crowdin_files(branch, get_crowdin_details())
     ]
     params.extend([("files[]", file) for file in files])
-    codes = [lang[utils.KEY_CROWDIN_CODE] for lang in utils.supported_languages()]
+    codes = [lang[utils.KEY_CROWDIN_CODE] for lang in utils.available_languages()]
     params.extend([("languages[]", code) for code in codes])
 
     msg = (
@@ -269,10 +269,10 @@ def upload_translations(branch):
     checkPerseus()
     checkApiKey()
 
-    supported_languages = utils.supported_languages(
+    available_languages = utils.available_languages(
         include_in_context=False, include_english=False
     )
-    for lang_object in supported_languages:
+    for lang_object in available_languages:
         _upload_translation(branch, lang_object)
 
 
@@ -286,7 +286,7 @@ def _csv_to_json():
     Convert all CSV json files to JSON and ensure consistent diffs with ordered keys
     """
 
-    for lang_object in utils.supported_languages(include_in_context=True):
+    for lang_object in utils.available_languages(include_in_context=True):
         locale_path = utils.local_locale_path(lang_object)
         perseus_path = utils.local_perseus_locale_path(lang_object)
 
@@ -394,7 +394,7 @@ def download_translations(branch):
     _wipe_translations(utils.LOCALE_PATH)
     _wipe_translations(utils.PERSEUS_LOCALE_PATH)
 
-    for lang_object in utils.supported_languages(include_in_context=True):
+    for lang_object in utils.available_languages(include_in_context=True):
         code = lang_object[utils.KEY_CROWDIN_CODE]
         url = DOWNLOAD_URL.format(language=code, branch=branch)
         r = requests.get(url)
@@ -421,7 +421,6 @@ def download_translations(branch):
         except Exception as e:
             logging.error("Ignoring an exception")
             logging.error(e)
-            pass
 
     # TODO Don't need to format here... going to do this in the new command.
     _csv_to_json()  # clean them up to make git diffs more meaningful
@@ -615,7 +614,7 @@ def translation_stats(branch):
     words_total = 0
 
     sorted_languages = sorted(
-        utils.supported_languages(), key=lambda x: x[utils.KEY_ENG_NAME]
+        utils.available_languages(), key=lambda x: x[utils.KEY_ENG_NAME]
     )
     for lang in sorted_languages:
 

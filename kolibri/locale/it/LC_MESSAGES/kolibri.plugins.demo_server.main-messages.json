@@ -1,0 +1,11 @@
+{
+  "DemoServerBannerContent.demoServerA1": "Leggi la documentazione",
+  "DemoServerBannerContent.demoServerA2": "Scarica e installa l'ultima versione",
+  "DemoServerBannerContent.demoServerHeader": "Benvenuti nel sito demo di Kolibri",
+  "DemoServerBannerContent.demoServerL1": "Studente ({user}/{pass} o accesso come ospite)",
+  "DemoServerBannerContent.demoServerL2": "Insegnante ({user}/{pass})",
+  "DemoServerBannerContent.demoServerL3": "Amministratore ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "Esplora uno dei tre tipi di utenti principali:",
+  "DemoServerBannerContent.demoServerP2": "Questa versione online di Kolibri è solo a scopo dimostrativo. Utenti e dati verranno periodicamente eliminati. La demo mostra le funzionalità dell'ultima versione di Kolibri e tutte le risorse trovate sono degli esempi.",
+  "DemoServerBannerContent.demoServerP3": "Per saperne di più sull'uso di Kolibri in un contesto offline e comprendere meglio la piattaforma:"
+}

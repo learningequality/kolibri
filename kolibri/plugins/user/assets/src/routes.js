@@ -13,7 +13,12 @@ export default [
       if (store.getters.isUserLoggedIn) {
         router.replace({ name: PageNames.PROFILE });
       } else {
-        router.replace({ name: PageNames.SIGN_IN });
+        // AUTH_SELECT for multiple facilities device
+        if (store.getters.facilities.length > 1 && !store.state.facilityId) {
+          router.replace({ name: PageNames.AUTH_SELECT });
+        } else {
+          router.replace({ name: PageNames.SIGN_IN });
+        }
       }
     },
   },
@@ -24,7 +29,13 @@ export default [
       if (store.getters.isUserLoggedIn) {
         router.replace({ name: PageNames.PROFILE });
       } else {
-        showSignInPage(store);
+        // If we're on multiple facility device, show auth_select when
+        // there is no facilityId
+        if (store.getters.facilities.length > 1 && !store.state.facilityId) {
+          router.replace({ name: PageNames.AUTH_SELECT });
+        } else {
+          showSignInPage(store);
+        }
       }
     },
   },
@@ -37,6 +48,32 @@ export default [
         return Promise.resolve();
       } else {
         return showSignUpPage(store, fromRoute);
+      }
+    },
+  },
+  {
+    name: PageNames.AUTH_SELECT,
+    path: '/signin-or-signup',
+    handler: () => {
+      if (store.getters.isUserLoggedIn) {
+        router.replace({ name: PageNames.PROFILE });
+      } else {
+        store.dispatch('resetAndSetPageName', {
+          pageName: PageNames.AUTH_SELECT,
+        });
+      }
+    },
+  },
+  {
+    name: PageNames.FACILITY_SELECT,
+    path: '/facilities',
+    handler: () => {
+      if (store.getters.isUserLoggedIn) {
+        router.replace({ name: PageNames.PROFILE });
+      } else {
+        store.dispatch('resetAndSetPageName', {
+          pageName: PageNames.FACILITY_SELECT,
+        });
       }
     },
   },

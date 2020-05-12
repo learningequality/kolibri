@@ -11,13 +11,12 @@ function makeWrapper() {
   const els = {
     nonFormalRadioButton: () => wrapper.findAll({ name: 'KRadioButton' }).at(0),
     formalRadioButton: () => wrapper.findAll({ name: 'KRadioButton' }).at(1),
-    personalRadioButton: () => wrapper.findAll({ name: 'KRadioButton' }).at(2),
     nonFormalTextbox: () => wrapper.findAll({ name: 'FacilityNameTextbox' }).at(0),
     formalTextbox: () => wrapper.findAll({ name: 'FacilityNameTextbox' }).at(1),
   }
   const actions = {
     simulateSubmit: () => wrapper.find({ name: 'OnboardingForm' }).vm.$emit('submit'),
-    selectPreset: preset => wrapper.setData({ selectedPreset: preset }),
+    selectPreset: preset => wrapper.setData({ selected: preset }),
   };
   jest.spyOn(wrapper.vm, '$emit');
   return { wrapper, store, els, actions };
@@ -40,20 +39,11 @@ describe('FacilityPermissionsForm', () => {
     expect(els.formalTextbox().isVisible()).toEqual(true);
   });
 
-  it('selecting "personal" does not show any textboxes', async () => {
-    const { els, actions, wrapper } = makeWrapper();
-    actions.selectPreset('informal');
-    await wrapper.vm.$nextTick();
-    expect(els.personalRadioButton().vm.isChecked).toEqual(true);
-    expect(els.nonFormalTextbox().isVisible()).toEqual(false);
-    expect(els.formalTextbox().isVisible()).toEqual(false);
-  });
-
   describe('submitting', () => {
     function testVuex(store, wrapper, expected) {
       expect(store.state.onboardingData.facility.name).toEqual(expected.name);
       expect(store.state.onboardingData.preset).toEqual(expected.preset);
-      expect(wrapper.vm.$emit).toHaveBeenCalledWith('submit');
+      expect(wrapper.vm.$emit).toHaveBeenCalledWith('click_next');
     }
 
     it('does not submit if "non-formal" and facility name is empty', () => {
@@ -95,16 +85,6 @@ describe('FacilityPermissionsForm', () => {
       testVuex(store, wrapper, {
         name: 'Formal Facility',
         preset: 'formal',
-      });
-    });
-
-    it('submitting with "personal" updates vuex correctly', () => {
-      const { actions, store, wrapper } = makeWrapper();
-      actions.selectPreset('informal');
-      actions.simulateSubmit();
-      testVuex(store, wrapper, {
-        name: '',
-        preset: 'informal',
       });
     });
   });

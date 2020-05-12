@@ -97,6 +97,8 @@
           this.renameGroup({
             groupId: this.groupId,
             newGroupName: this.name,
+          }).then(() => {
+            this.showSnackbarNotification('changesSaved');
           });
         } else {
           this.$refs.name.focus();

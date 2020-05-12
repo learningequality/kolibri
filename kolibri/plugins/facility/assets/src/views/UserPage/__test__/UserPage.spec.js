@@ -1,11 +1,16 @@
-import { mount } from '@vue/test-utils';
+import { mount, RouterLinkStub } from '@vue/test-utils';
 import makeStore from '../../../../test/makeStore';
 import UserPage from '../index';
+
+UserPage.computed.newUserLink = () => ({});
 
 function makeWrapper() {
   const store = makeStore();
   const wrapper = mount(UserPage, {
     store,
+    stubs: {
+      RouterLink: RouterLinkStub,
+    },
   });
   return { wrapper, store };
 }

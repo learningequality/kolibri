@@ -10,6 +10,8 @@ export function saveFacilityName(store, payload) {
     },
   }).then(
     facility => {
+      // Refresh facility list to get new name
+      store.dispatch('getFacilities', null, { root: true });
       store.commit('UPDATE_FACILITIES', {
         oldName: store.state.facilityName,
         newName: facility.name,

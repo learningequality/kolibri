@@ -36,6 +36,6 @@ describe('SuperuserCredentialsForm', () => {
       birth_year: 'NOT_SPECIFIED',
       gender: 'NOT_SPECIFIED',
     });
-    expect(wrapper.vm.$emit).toHaveBeenCalledWith('submit');
+    expect(wrapper.vm.$emit).toHaveBeenCalledWith('click_next');
   });
 });

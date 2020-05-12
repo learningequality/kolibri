@@ -7,6 +7,7 @@ from configobj import flatten_errors
 from configobj import get_extra_values
 from django.utils.functional import SimpleLazyObject
 from validate import Validator
+from validate import VdtValueError
 
 try:
     import kolibri.utils.pskolibri as psutil
@@ -15,7 +16,8 @@ except NotImplementedError:
     psutil = None
 
 
-from kolibri.utils.logger import get_base_logging_config
+from kolibri.utils.i18n import KOLIBRI_LANGUAGE_INFO
+from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 from kolibri.plugins.utils.options import extend_config_spec
 
 
@@ -47,6 +49,65 @@ def calculate_thread_pool():
     ):  # Considering MacOS has at least 4 Gb of RAM
         return MAX_POOL
     return MIN_POOL
+
+
+ALL_LANGUAGES = "kolibri-all"
+SUPPORTED_LANGUAGES = "kolibri-supported"
+
+
+def _process_language_string(value):
+    """
+    Used to validate string values.
+    The only valid argument in this case is that it is a string
+    so we first try to coerce it to a string, then do some checks
+    to see if it is any of our special values. Then if it is an
+    appropriate language code value.
+    If no value is appropriate, raise a ValueError.
+    """
+    value = str(value)
+    if value == ALL_LANGUAGES:
+        return list(KOLIBRI_LANGUAGE_INFO.keys())
+    if value == SUPPORTED_LANGUAGES:
+        return list(KOLIBRI_SUPPORTED_LANGUAGES)
+    if value in KOLIBRI_LANGUAGE_INFO:
+        return [value]
+    raise ValueError
+
+
+def language_list(value):
+    """
+    Check that the supplied value is a list of languages,
+    or a single language, or a special shortcut parameter.
+    In the case that it is a special shortcut name, we return the full list
+    of relevant languages for that parameter, or throw a validation error
+    if that parameter would return an empty list.
+    If a single language code is the parameter, this function will return a list
+    with that language code as the only member.
+
+    :param Union[str, list[str]] value: Either a string or a list of strings
+    String can be any value that is a key of KOLIBRI_LANGUAGE_INFO
+    or one of the special strings represented by ALL_LANGUAGES or SUPPORTED_LANGUAGES
+    A list must be a list of these strings.
+    """
+    # Check the supplied value is a list
+    if not isinstance(value, list):
+        value = [value]
+
+    out = set()
+    errors = []
+    for entry in value:
+        try:
+            entry_list = _process_language_string(entry)
+            out.update(entry_list)
+        except ValueError:
+            errors.append(entry)
+    if errors:
+        raise VdtValueError(errors)
+
+    if not out:
+        raise VdtValueError(value)
+
+    return sorted(list(out))
 
 
 base_option_spec = {
@@ -130,6 +191,12 @@ base_option_spec = {
             "default": False,
             "envvars": ("KOLIBRI_SERVER_PROFILE",),
         },
+        "DEBUG": {"type": "boolean", "default": False, "envvars": ("KOLIBRI_DEBUG",)},
+        "DEBUG_LOG_DATABASE": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_DEBUG_LOG_DATABASE",),
+        },
     },
     "Paths": {
         "CONTENT_DIR": {
@@ -166,6 +233,11 @@ base_option_spec = {
             "envvars": ("KOLIBRI_URL_PATH_PREFIX",),
             "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
         },
+        "LANGUAGES": {
+            "type": "language_list",
+            "default": SUPPORTED_LANGUAGES,
+            "envvars": ("KOLIBRI_LANGUAGES",),
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
@@ -177,24 +249,33 @@ base_option_spec = {
 }
 
 
-def get_logger(KOLIBRI_HOME):
+def _get_validator():
+    return Validator({"language_list": language_list})
+
+
+def _get_logger(KOLIBRI_HOME):
     """
-    We define a minimal default logger config here, since we can't yet load up Django settings.
+    We define a minimal default logger config here, since we can't yet
+    load up Django settings.
+
+    NB! Since logging can be defined by options, the logging from some
+    of the functions in this module do not use fully customized logging.
     """
     from kolibri.utils.conf import LOG_ROOT
+    from kolibri.utils.logger import get_default_logging_config
 
-    logging.config.dictConfig(get_base_logging_config(LOG_ROOT))
+    logging.config.dictConfig(get_default_logging_config(LOG_ROOT))
     return logging.getLogger(__name__)
 
 
-def __get_option_spec():
+def _get_option_spec():
     """
     Combine the default option spec with any options that are defined in plugins
     """
     return extend_config_spec(base_option_spec)
 
 
-option_spec = SimpleLazyObject(__get_option_spec)
+option_spec = SimpleLazyObject(_get_option_spec)
 
 
 def get_configspec():
@@ -211,7 +292,11 @@ def get_configspec():
             default = attrs.get("default", "")
             the_type = attrs["type"]
             args = ["%r" % op for op in attrs.get("options", [])] + [
-                "default='{default}'".format(default=default)
+                "default=list('{default_list}')".format(
+                    default_list="','".join(default)
+                )
+                if isinstance(default, list)
+                else "default='{default}'".format(default=default)
             ]
             line = "{name} = {type}({args})".format(
                 name=name, type=the_type, args=", ".join(args)
@@ -233,14 +318,14 @@ def clean_conf(conf):
 
 def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
 
-    logger = get_logger(KOLIBRI_HOME)
+    logger = _get_logger(KOLIBRI_HOME)
 
     ini_path = os.path.join(KOLIBRI_HOME, ini_filename)
 
     conf = ConfigObj(ini_path, configspec=get_configspec())
 
     # validate once up front to ensure section structure is in place
-    conf.validate(Validator())
+    conf.validate(_get_validator())
 
     # keep track of which options were overridden using environment variables, to support error reporting
     using_env_vars = {}
@@ -261,7 +346,7 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
 
     conf = clean_conf(conf)
 
-    validation = conf.validate(Validator(), preserve_errors=True)
+    validation = conf.validate(_get_validator(), preserve_errors=True)
 
     # loop over and display any errors with config values, and then bail
     if validation is not True:
@@ -308,7 +393,7 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
         )
 
     # run validation once again to fill in any default values for options we deleted due to issues
-    conf.validate(Validator())
+    conf.validate(_get_validator())
 
     # ensure all arguments under section "Paths" are fully resolved and expanded, relative to KOLIBRI_HOME
     _expand_paths(KOLIBRI_HOME, conf.get("Paths", {}))
@@ -325,8 +410,16 @@ def _expand_paths(basepath, pathdict):
 
 
 def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options.ini"):
+    """
+    Updates the configuration file on top of what is currently in the
+    file.
 
-    logger = get_logger(KOLIBRI_HOME)
+    Note to future: Do not change the implementation to write the
+    in-memory conf.OPTIONS as it can contain temporary in-memory values
+    that are not intended to be stored.
+    """
+
+    logger = _get_logger(KOLIBRI_HOME)
 
     # load the current conf from disk into memory
     conf = read_options_file(KOLIBRI_HOME, ini_filename=ini_filename)
@@ -335,7 +428,7 @@ def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options
     conf[section][key] = value
 
     # check for any errors with the provided value, and abort
-    validation = conf.validate(Validator(), preserve_errors=True)
+    validation = conf.validate(_get_validator(), preserve_errors=True)
     if validation is not True:
         error = validation.get(section, {}).get(key) or "unknown error"
         raise ValueError(

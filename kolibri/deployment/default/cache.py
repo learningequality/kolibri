@@ -21,13 +21,14 @@ def recreate_cache():
     os.mkdir(diskcache_location)
     diskcache_cache = Cache(diskcache_location, disk_pickle_protocol=pickle_protocol)
     diskcache_cache.close()
+    return diskcache_cache
 
 
 try:
     diskcache_cache = Cache(diskcache_location, disk_pickle_protocol=pickle_protocol)
     diskcache_cache.close()
 except DatabaseError:
-    recreate_cache()
+    diskcache_cache = recreate_cache()
 
 # Default to LocMemCache, as it has the simplest configuration
 default_cache = {

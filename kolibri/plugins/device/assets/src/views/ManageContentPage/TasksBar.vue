@@ -18,8 +18,14 @@
       <KButton
         v-if="showClearCompletedButton"
         appearance="basic-link"
-        :text="clearCompletedString"
-        @click="handleClickClearAll"
+        :text="getTaskString('clearCompletedTasksAction')"
+        @click="$emit('clearall')"
+      />
+      <span>&nbsp;&nbsp;</span>
+      <KRouterLink
+        appearance="basic-link"
+        :text="$tr('taskManagerLink')"
+        :to="taskManagerLink"
       />
     </p>
 
@@ -30,41 +36,38 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import some from 'lodash/some';
   import sumBy from 'lodash/sumBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { TaskResource } from 'kolibri.resources';
-  import ManageTasksPage from '../ManageTasksPage';
+  import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import { taskIsClearable } from '../../constants';
-
-  const manageTasksStrings = crossComponentTranslator(ManageTasksPage);
 
   export default {
     name: 'TasksBar',
-    mixins: [commonCoreStrings, responsiveWindowMixin],
-    computed: {
-      ...mapGetters('manageContent', ['managedTasks']),
-      clearCompletedString() {
-        /* eslint-disable kolibri/vue-no-undefined-string-uses */
-        // TODO remove
-        // shows up as 'undefined', possibly due to cross component translator
-        return manageTasksStrings.$tr('clearCompletedAction');
-        /* eslint-enable kolibri/vue-no-undefined-string-uses */
+    mixins: [commonCoreStrings, responsiveWindowMixin, commonTaskStrings],
+    props: {
+      tasks: {
+        type: Array,
+        required: true,
       },
+      taskManagerLink: {
+        type: Object,
+        required: true,
+      },
+    },
+    computed: {
       showClearCompletedButton() {
-        return some(this.managedTasks, taskIsClearable);
+        return some(this.tasks, taskIsClearable);
       },
       totalTasks() {
-        return this.managedTasks.length;
+        return this.tasks.length;
       },
       clearableTasks() {
-        return this.managedTasks.filter(t => taskIsClearable(t));
+        return this.tasks.filter(t => taskIsClearable(t));
       },
       inProgressTasks() {
-        return this.managedTasks.filter(t => !taskIsClearable(t));
+        return this.tasks.filter(t => !taskIsClearable(t));
       },
       progress() {
         return (
@@ -80,14 +83,10 @@
         });
       },
     },
-    methods: {
-      handleClickClearAll() {
-        TaskResource.deleteFinishedTasks();
-      },
-    },
     $trs: {
       someTasksComplete:
         '{done, number} of {total, plural, one {{total, number} task} other {{total, number} tasks}} complete',
+      taskManagerLink: 'View task manager',
     },
   };
 

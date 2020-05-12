@@ -16,12 +16,18 @@ from django.http.response import FileResponse
 
 from .models import ContentSessionLog
 from .models import ContentSummaryLog
+from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.utils import conf
 
 
 logger = logging.getLogger(__name__)
+
+CSV_EXPORT_FILENAMES = {
+    "session": "{}_{}_content_session_logs.csv",
+    "summary": "{}_{}_content_summary_logs.csv",
+}
 
 
 def cache_channel_name(obj):
@@ -89,7 +95,7 @@ def map_object(obj):
 classes_info = {
     "session": {
         "queryset": ContentSessionLog.objects.all(),
-        "filename": "content_session_logs.csv",
+        "filename": CSV_EXPORT_FILENAMES["session"],
         "db_columns": (
             "user__username",
             "user__facility__name",
@@ -104,7 +110,7 @@ classes_info = {
     },
     "summary": {
         "queryset": ContentSummaryLog.objects.all(),
-        "filename": "content_summary_logs.csv",
+        "filename": CSV_EXPORT_FILENAMES["summary"],
         "db_columns": (
             "user__username",
             "user__facility__name",
@@ -121,7 +127,8 @@ classes_info = {
 }
 
 
-def csv_file_generator(log_type, filepath, overwrite=False):
+def csv_file_generator(facility, log_type, filepath, overwrite=False):
+
     if log_type not in ("summary", "session"):
         raise ValueError(
             "Impossible to create a csv export file for {}".format(log_type)
@@ -131,7 +138,7 @@ def csv_file_generator(log_type, filepath, overwrite=False):
 
     if not overwrite and os.path.exists(filepath):
         raise ValueError("{} already exists".format(filepath))
-    queryset = log_info["queryset"]
+    queryset = log_info["queryset"].filter(dataset_id=facility.dataset_id)
 
     # Exclude completion timestamp for the sessionlog CSV
     header_labels = tuple(
@@ -156,21 +163,19 @@ def csv_file_generator(log_type, filepath, overwrite=False):
             yield
 
 
-def exported_logs_info(request):
+def exported_logs_info(request, facility_id, facility):
     """
     Get the last modification timestamp of the summary logs exported
 
     :returns: An object with the files informatin
     """
-
     logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
     csv_statuses = {}
-    csv_export_filenames = {
-        "session": "content_session_logs.csv",
-        "summary": "content_summary_logs.csv",
-    }
-    for log_type in csv_export_filenames.keys():
-        log_path = os.path.join(logs_dir, csv_export_filenames[log_type])
+
+    for log_type in CSV_EXPORT_FILENAMES.keys():
+        log_path = os.path.join(
+            logs_dir, CSV_EXPORT_FILENAMES[log_type].format(facility, facility_id[:4])
+        )
         if os.path.exists(log_path):
             csv_statuses[log_type] = os.path.getmtime(log_path)
         else:
@@ -179,14 +184,18 @@ def exported_logs_info(request):
     return HttpResponse(json.dumps(csv_statuses), content_type="application/json")
 
 
-def download_csv_file(request, log_type):
-    csv_export_filenames = {
-        "session": "content_session_logs.csv",
-        "summary": "content_summary_logs.csv",
-    }
-    if log_type in csv_export_filenames.keys():
+def download_csv_file(request, log_type, facility_id):
+    if facility_id:
+        facility_name = Facility.objects.get(pk=facility_id).name
+    else:
+        facility_name = request.user.facility.name
+        facility_id = request.user.facility.id
+
+    if log_type in CSV_EXPORT_FILENAMES.keys():
         filepath = os.path.join(
-            conf.KOLIBRI_HOME, "log_export", csv_export_filenames[log_type]
+            conf.KOLIBRI_HOME,
+            "log_export",
+            CSV_EXPORT_FILENAMES[log_type].format(facility_name, facility_id[:4]),
         )
     else:
         filepath = None
@@ -202,7 +211,7 @@ def download_csv_file(request, log_type):
 
     # set the content-disposition as attachment to force download
     response["Content-Disposition"] = "attachment; filename={}".format(
-        csv_export_filenames[log_type]
+        CSV_EXPORT_FILENAMES[log_type].format(facility_name, facility_id[:4])
     )
 
     # set the content-length to the file size

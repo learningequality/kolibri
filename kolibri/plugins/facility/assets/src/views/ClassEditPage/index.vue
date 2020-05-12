@@ -2,6 +2,12 @@
 
   <KPageContainer>
 
+    <p>
+      <KRouterLink
+        :text="coreString('allClassesLabel')"
+        :to="{ name: 'CLASS_MGMT_PAGE' }"
+      />
+    </p>
     <div>
       <h1 class="title-header" dir="auto">
         <KLabeledIcon icon="classroom" :label="currentClass.name" />
@@ -149,20 +155,22 @@
       learnerEnrollmentLink() {
         return {
           name: PageNames.CLASS_ENROLL_LEARNER,
+          params: {
+            facility_id: this.$route.params.facility_id,
+          },
         };
       },
       coachAssignmentLink() {
         return {
           name: PageNames.CLASS_ASSIGN_COACH,
+          params: {
+            facility_id: this.$route.params.facility_id,
+          },
         };
       },
     },
     methods: {
-      ...mapActions('classEditManagement', [
-        'displayModal',
-        'removeClassLearner',
-        'removeClassCoach',
-      ]),
+      ...mapActions('classEditManagement', ['displayModal']),
       closeModal() {
         this.displayModal(false);
       },
@@ -170,6 +178,16 @@
         this.userToBeRemoved = user;
         this.removalAction = removalAction;
         this.displayModal(Modals.REMOVE_USER);
+      },
+      removeClassCoach(args) {
+        this.$store.dispatch('classEditManagement/removeClassCoach', args).then(() => {
+          this.showSnackbarNotification('coachesRemovedNoCount', { count: 1 });
+        });
+      },
+      removeClassLearner(args) {
+        this.$store.dispatch('classEditManagement/removeClassLearner', args).then(() => {
+          this.showSnackbarNotification('learnersRemovedNoCount', { count: 1 });
+        });
       },
     },
     $trs: {

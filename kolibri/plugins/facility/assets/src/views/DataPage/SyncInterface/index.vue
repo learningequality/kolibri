@@ -21,43 +21,7 @@
       <transition-group slot="tbody" tag="tbody" name="list">
         <tr v-for="facility in facilities" :key="facility.id">
           <td>
-            <div>
-              <h2 class="name">
-                {{ facility.name }}
-                <UiIcon v-if="facility.dataset.registered" ref="icon">
-                  <mat-svg
-                    name="verified_user"
-                    category="action"
-                    :style="{ fill: $themePalette.green.v_500 }"
-                  />
-                </UiIcon>
-                <KTooltip
-                  reference="icon"
-                  :refs="$refs"
-                >
-                  {{ $tr('registeredAlready') }}
-                </KTooltip>
-              </h2>
-            </div>
-            <div>
-              <span>
-                <template v-if="facility.syncing">
-                  <KCircularLoader class="loader" :size="16" :delay="false" />
-                  {{ $tr('syncing') }}
-                </template>
-                <template v-else>
-                  <template v-if="facility.last_sync_failed">
-                    {{ $tr('syncFailed') }}
-                  </template>
-                  <template v-if="facility.last_synced === null">
-                    {{ $tr('neverSynced') }}
-                  </template>
-                  <template v-else>
-                    {{ $tr('lastSync') }} {{ formattedTime(facility.last_synced) }}
-                  </template>
-                </template>
-              </span>
-            </div>
+            <FacilityNameAndSyncStatus :facility="facility" />
           </td>
           <td class="button-col">
             <KButton
@@ -86,14 +50,13 @@
     <RegisterFacilityModal
       v-if="modalShown === Modals.REGISTER_FACILITY"
       @cancel="displayModal(false)"
+      @success="handleValidateSuccess"
     />
     <ConfirmationRegisterModal
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
+      v-bind="{ projectName, targetFacility, token }"
       @cancel="displayModal(false)"
-    />
-    <AlreadyRegisteredModal
-      v-if="modalShown === Modals.ALREADY_REGISTERED"
-      @cancel="displayModal(false)"
+      @success="handleConfirmationSuccess"
     />
 
   </KPageContainer>
@@ -105,32 +68,33 @@
 
   import { mapState, mapActions } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import UiIcon from 'keen-ui/src/UiIcon';
-  import { now } from 'kolibri.utils.serverClock';
+  import {
+    FacilityNameAndSyncStatus,
+    ConfirmationRegisterModal,
+    RegisterFacilityModal,
+  } from 'kolibri.coreVue.componentSets.sync';
   import { TaskResource } from 'kolibri.resources';
   import { Modals } from '../../../constants';
   import PrivacyModal from './PrivacyModal';
-  import RegisterFacilityModal from './RegisterFacilityModal';
-  import ConfirmationRegisterModal from './ConfirmationRegisterModal';
-  import AlreadyRegisteredModal from './AlreadyRegisteredModal';
 
   export default {
     name: 'SyncInterface',
     components: {
       CoreTable,
       PrivacyModal,
+      FacilityNameAndSyncStatus,
       RegisterFacilityModal,
       ConfirmationRegisterModal,
-      AlreadyRegisteredModal,
-      UiIcon,
     },
-    data: () => ({
-      now: now(),
-    }),
     computed: {
-      ...mapState('manageSync', ['modalShown']),
-      ...mapState('manageCSV', ['facilityTaskId', 'facilities']),
+      ...mapState('manageSync', ['modalShown', 'projectName', 'targetFacility', 'token']),
+      ...mapState('manageCSV', ['facilityTaskId']),
       Modals: () => Modals,
+      facilities() {
+        return this.$store.state.manageCSV.facilities.filter(
+          ({ id }) => id === this.$store.getters.activeFacilityId
+        );
+      },
     },
     methods: {
       ...mapActions('manageSync', ['displayModal']),
@@ -138,16 +102,21 @@
         this.$store.commit('manageSync/SET_TARGET_FACILITY', facility);
         this.displayModal(Modals.REGISTER_FACILITY);
       },
-      formattedTime(lastSyncedDate) {
-        if (this.now - new Date(lastSyncedDate) < 10000) {
-          return this.$tr('justNow');
-        }
-        return this.$formatRelative(lastSyncedDate, { now: this.now });
-      },
       sync(facility) {
         TaskResource.dataportalsync(facility.id).then(response => {
           this.$store.commit('manageCSV/START_FACILITY_SYNC', response.entity);
         });
+      },
+      handleValidateSuccess(payload) {
+        const { projectName, token } = payload;
+        this.$store.commit('manageSync/SET_PROJECT_NAME', projectName);
+        this.$store.commit('manageSync/SET_TOKEN', token);
+        this.displayModal(Modals.CONFIRMATION_REGISTER);
+      },
+      handleConfirmationSuccess(payload) {
+        const { targetFacility } = payload;
+        this.$store.commit('manageCSV/SET_REGISTERED', targetFacility);
+        this.displayModal(false);
       },
     },
     $trs: {
@@ -157,21 +126,7 @@
       learnMore: 'Usage and privacy',
       facility: 'Facility',
       register: 'Register',
-      registeredAlready: 'Registered to `Kolibri Data Portal`',
       sync: 'Sync',
-      neverSynced: {
-        message: 'Never synced',
-        context:
-          '\nThis is associated with the label "Last successful sync:", and the subject is the Facility',
-      },
-      lastSync: 'Last successful sync:',
-      justNow: {
-        message: 'Just now',
-        context:
-          '\nThis is used to indicate when an event occurred. It\'s associated with the label "Last successful sync:"',
-      },
-      syncFailed: 'Most recent sync failed.',
-      syncing: 'Syncing',
     },
   };
 

@@ -1,5 +1,6 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
+import AllFacilitiesPage from '../views/AllFacilitiesPage';
 import CoachClassListPage from '../views/CoachClassListPage';
 import HomePage from '../views/home/HomePage';
 import CoachPrompts from '../views/CoachPrompts';
@@ -12,11 +13,18 @@ export default [
   ...planRoutes,
   ...reportRoutes,
   {
-    path: '/',
-    component: CoachClassListPage,
+    path: '/facilities',
+    component: AllFacilitiesPage,
     handler() {
+      store.dispatch('notLoading');
+    },
+  },
+  {
+    path: '/classes',
+    component: CoachClassListPage,
+    handler(toRoute) {
       store.dispatch('loading');
-      store.dispatch('setClassList').then(
+      store.dispatch('setClassList', toRoute.query.facility_id).then(
         () => {
           if (!store.getters.classListPageEnabled) {
             // If no class list page, redirect to
@@ -71,7 +79,14 @@ export default [
     },
   },
   {
-    path: '*',
-    redirect: '/',
+    path: '/',
+    // Redirect to AllFacilitiesPage if a superuser and device has > 1 facility
+    beforeEnter(to, from, next) {
+      if (store.getters.isSuperuser && store.state.core.facilities.length > 1) {
+        next({ name: 'AllFacilitiesPage' });
+      } else {
+        next({ name: 'CoachClassListPage' });
+      }
+    },
   },
 ];

@@ -1,11 +1,15 @@
 import heartbeat from 'kolibri.heartbeat';
 import RootVue from './views/SetupWizardIndex';
 import pluginModule from './modules/pluginModule';
+import routes from './routes';
 import KolibriApp from 'kolibri_app';
 
 class OnboardingApp extends KolibriApp {
   get RootVue() {
     return RootVue;
+  }
+  get routes() {
+    return routes;
   }
   get pluginModule() {
     return pluginModule;
