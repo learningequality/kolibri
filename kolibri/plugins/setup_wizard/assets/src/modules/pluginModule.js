@@ -51,6 +51,13 @@ export default {
     error: false,
   },
   actions: {
+    getFacilityAdmins() {
+      return client({
+        path: urls['kolibri:kolibri.plugins.setupWizard:facilityadminsList'](),
+      }).then(response => {
+        return response.entity;
+      });
+    },
     provisionDevice(store) {
       const onboardingData = store.state.onboardingData;
 

@@ -1,6 +1,7 @@
 <template>
 
   <SuperuserCredentialsForm
+    v-if="!loading"
     :header="$tr('header')"
     :description="$tr('description')"
     @click_next="handleClickNext"
@@ -63,23 +64,6 @@
 
   const CREATE_NEW_SUPER_ADMIN = 'CREATE_NEW_SUPER_ADMIN';
 
-  const fakeAdmins = [
-    {
-      id: '1234',
-      username: 'superadmin',
-    },
-    {
-      id: '2345',
-      username: 'otheradmin1',
-    },
-    {
-      id: '3456',
-      username: 'otheradmin2',
-    },
-  ];
-
-  // TODO
-  // - Required field validation for simple password
   export default {
     name: 'SelectSuperAdminAccountForm',
     components: {
@@ -130,11 +114,16 @@
     },
     methods: {
       fetchFacilityAdmins() {
-        return Promise.resolve(fakeAdmins).then(() => {
-          this.facilityAdmins = [...fakeAdmins];
-          this.selected = { ...this.dropdownOptions[0] };
-          this.loading = false;
-        });
+        this.$store
+          .dispatch('getFacilityAdmins')
+          .then(admins => {
+            this.facilityAdmins = [...admins];
+            this.selected = { ...this.dropdownOptions[0] };
+            this.loading = false;
+          })
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+          });
       },
       resetFormAndRefocus() {
         this.shouldValidate = false;
