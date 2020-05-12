@@ -585,9 +585,7 @@ class ChannelImport(object):
         # detach the content database from the primary database so we don't get errors trying to attach it again later
         if self.destination.engine.name == "sqlite":
             try:
-                self.destination.session.execute(
-                    text("DETACH 'sourcedb'".format(path=self.source_db_path))
-                )
+                self.destination.session.execute(text("DETACH 'sourcedb'"))
             except OperationalError:
                 # silently ignore if the database was already detached, as then we're good to go
                 pass
