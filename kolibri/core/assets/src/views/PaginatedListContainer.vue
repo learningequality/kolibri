@@ -2,11 +2,11 @@
 
   <div>
     <KGrid>
-      <KGridItem :layout12="{ span: 3 }">
+      <KGridItem :layout12="{ span: 7 }">
         <slot name="otherFilter"></slot>
       </KGridItem>
       <KGridItem
-        :layout12="{ span: 9, alignment: 'right' }"
+        :layout12="{ span: 5, alignment: 'right' }"
         class="text-filter"
       >
         <FilterTextbox
