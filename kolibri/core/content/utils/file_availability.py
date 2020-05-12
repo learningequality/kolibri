@@ -11,7 +11,7 @@ from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.paths import get_content_storage_dir_path
 from kolibri.core.content.utils.paths import get_file_checksums_url
 from kolibri.core.discovery.models import NetworkLocation
-from kolibri.core.utils.cache import CrossProcessCache
+from kolibri.core.utils.cache import get_process_cache
 
 checksum_regex = re.compile("^([a-f0-9]{32})$")
 
@@ -37,7 +37,7 @@ def _generate_mask_from_integer(integer_mask):
         integer_mask //= 2
 
 
-cache = CrossProcessCache(3600)
+cache = get_process_cache
 
 
 def get_available_checksums_from_remote(channel_id, peer_id):

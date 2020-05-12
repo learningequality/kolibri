@@ -4,7 +4,7 @@ from contextlib import closing
 from . import errors
 from .client import NetworkClient
 from .urls import parse_address_into_components
-from kolibri.core.utils.cache import CrossProcessCache
+from kolibri.core.utils.cache import get_process_cache
 from kolibri.core.utils.nothing import Nothing
 
 
@@ -37,8 +37,11 @@ def check_device_info(base_url):
         return INVALID_DEVICE_INFO
 
 
-device_info_cache = CrossProcessCache(3)
-device_port_open_cache = CrossProcessCache(60)
+cache = get_process_cache()
+
+DEVICE_INFO_TIMEOUT = 3
+
+DEVICE_PORT_TIMEOUT = 60
 
 
 class CachedDeviceConnectionChecker(object):
@@ -49,13 +52,13 @@ class CachedDeviceConnectionChecker(object):
         info = check_device_info(self.base_url)
 
         if info:
-            device_info_cache.set(self.base_url, info)
+            cache.set(self.base_url, info, DEVICE_INFO_TIMEOUT)
 
         return info
 
     @property
     def device_info(self):
-        return device_info_cache.get(self.base_url)
+        return cache.get(self.base_url)
 
     @property
     def valid_device_info(self):
@@ -76,13 +79,13 @@ class CachedDeviceConnectionChecker(object):
     def device_port_open(self):
         """ check to see if a port is open at a given `base_url` """
 
-        cached = device_port_open_cache.get(self.base_url)
+        cached = cache.get(self.base_url)
 
         if cached:
             return cached
 
         result = check_if_port_open(self.base_url)
-        device_port_open_cache.set(self.base_url, result)
+        cache.set(self.base_url, result, DEVICE_PORT_TIMEOUT)
 
         return result
 

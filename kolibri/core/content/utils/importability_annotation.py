@@ -22,7 +22,7 @@ from kolibri.core.content.utils.file_availability import (
 from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_remote,
 )
-from kolibri.core.utils.cache import CrossProcessCache
+from kolibri.core.utils.cache import get_process_cache
 
 logger = logging.getLogger(__name__)
 
@@ -248,7 +248,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):
     return stats
 
 
-cache = CrossProcessCache(3600)
+cache = get_process_cache()
 
 
 CHANNEL_STATS_CACHED_KEYS = "CHANNEL_STATS_CACHED_KEYS_{channel_id}"
