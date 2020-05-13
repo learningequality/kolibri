@@ -58,6 +58,15 @@ export default {
         return response.entity;
       });
     },
+    grantSuperuserPermisions(store, data) {
+      return client({
+        path: urls['kolibri:kolibri.plugins.setupWizard:grantsuperuserpermissionsList'](),
+        entity: {
+          user_id: data.user_id,
+          password: data.password,
+        },
+      });
+    },
     provisionDevice(store) {
       const onboardingData = store.state.onboardingData;
 

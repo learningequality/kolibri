@@ -7,6 +7,9 @@
     @click_next="handleClickNext"
   >
     <template v-slot:aboveform>
+      <p v-if="error" class="error">
+        {{ coreString('invalidCredentialsError') }}
+      </p>
       <p>
         {{ $tr('chooseAdminPrompt', {
           facility: facility.name
@@ -83,6 +86,8 @@
         password: '',
         passwordValid: false,
         shouldValidate: false,
+        loading: true,
+        error: false,
         facilityAdmins: [],
       };
     },
@@ -131,10 +136,27 @@
           this.$refs.password.resetAndFocus();
         }
       },
+      grantPermissions(data) {
+        this.error = false;
+        return this.$store.dispatch('grantSuperuserPermisions', data);
+      },
       handleClickNext() {
         this.shouldValidate = true;
-        if (this.existingUser && !this.passwordValid) {
-          this.$refs.password.focus();
+        if (this.existingUser) {
+          if (this.passwordValid) {
+            this.grantPermissions({
+              user_id: this.selected.value,
+              password: this.password,
+            })
+              .then(() => {
+                this.$emit('click_next');
+              })
+              .catch(() => {
+                this.error = true;
+              });
+          } else {
+            this.$refs.password.focus();
+          }
         } else {
           this.$emit('click_next');
         }
@@ -177,6 +199,10 @@
   .select {
     max-width: 400px;
     margin: 24px 0;
+  }
+
+  .error {
+    color: red;
   }
 
 </style>

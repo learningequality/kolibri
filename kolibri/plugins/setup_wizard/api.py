@@ -1,7 +1,7 @@
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
-from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import BasePermission
@@ -11,7 +11,7 @@ from rest_framework.permissions import BasePermission
 class HasPermissionDuringSetup(BasePermission):
     def has_permission(self, request, view):
         from kolibri.core.device.utils import device_provisioned
-        return device_provisioned()
+        return not device_provisioned()
 
 
 class FacilityAdminView(GenericViewSet):
@@ -48,7 +48,7 @@ class GrantSuperuserPermissionsView(GenericViewSet):
 
         # Step 2: Test the password
         if not facilityuser.check_password(password):
-            raise AuthenticationFailed()
+            raise PermissionDenied()
 
         # Step 3: If it succeeds, create a DevicePermissions model for
         # the user
