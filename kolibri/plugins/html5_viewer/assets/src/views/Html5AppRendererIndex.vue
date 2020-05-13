@@ -3,7 +3,7 @@
   <CoreFullscreen
     ref="html5Renderer"
     class="html5-renderer"
-    :style="{height: iframeHeight, width: iframeWidth}"
+    :style="{ height: iframeHeight, width: iframeWidth }"
     @changeFullscreen="isInFullscreen = $event"
   >
     <UiIconButton
