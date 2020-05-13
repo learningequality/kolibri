@@ -331,7 +331,6 @@
       },
     },
     methods: {
-      ...mapActions(['createSnackbar']),
       ...mapActions('examCreation', [
         'addToSelectedExercises',
         'removeFromSelectedExercises',
@@ -398,45 +397,44 @@
         return '';
       },
       toggleTopicInWorkingResources(isChecked) {
-        let snackbarString;
         if (isChecked) {
           this.showError = false;
+          // NOTE must call snackbar first before mutating the exercise list
+          this.showSnackbarNotification('resourcesAddedWithCount', {
+            count: this.addableExercises.length,
+          });
           this.addToSelectedExercises(this.addableExercises);
-          snackbarString = 'added';
         } else {
+          this.showSnackbarNotification('resourcesRemovedWithCount', {
+            count: this.allExercises.length,
+          });
           this.removeFromSelectedExercises(this.allExercises);
-          snackbarString = 'removed';
         }
-        this.createSnackbar(this.$tr(snackbarString, { item: this.topicTitle }));
       },
       toggleSelected({ checked, contentId }) {
         let exercises;
-        let snackbarString;
         const contentNode = this.contentList.find(item => item.id === contentId);
         const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
         if (checked && isTopic) {
           this.showError = false;
           exercises = contentNode.exercises;
           this.addToSelectedExercises(exercises);
-          snackbarString = 'added';
         } else if (checked && !isTopic) {
           this.showError = false;
           exercises = [contentNode];
           this.addToSelectedExercises(exercises);
-          snackbarString = 'added';
         } else if (!checked && isTopic) {
           exercises = contentNode.exercises;
           this.removeFromSelectedExercises(exercises);
-          snackbarString = 'removed';
         } else if (!checked && !isTopic) {
           exercises = [contentNode];
           this.removeFromSelectedExercises(exercises);
-          snackbarString = 'removed';
         }
 
-        if (snackbarString) {
-          this.createSnackbar(this.$tr(snackbarString, { item: contentNode.title }));
-        }
+        this.showSnackbarNotification(
+          checked ? 'resourcesAddedWithCount' : 'resourcesRemovedWithCount',
+          { count: exercises.length }
+        );
       },
       handleMoreResults() {
         this.moreResultsState = 'waiting';
@@ -494,15 +492,8 @@
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
       noneSelected: 'No exercises are selected',
       exitSearchButtonLabel: 'Exit search',
-      // TODO: Handle singular/plural
       selectionInformation:
-        '{count, number, integer} of {total, number, integer} resources selected',
-      // TODO: Interpolate strings correctly
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      /* The items below are referred to dynamically */
-      added: "Added '{item}'",
-      removed: "Removed '{item}'",
-      /* eslint-enable kolibri/vue-no-unused-translations */
+        '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
     },
   };
 

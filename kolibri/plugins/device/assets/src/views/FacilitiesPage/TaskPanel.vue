@@ -31,7 +31,7 @@
         {{ statusMsg }}
       </p>
 
-      <h2 class="details-description">
+      <h2 v-if="headingMsg" class="details-description">
         {{ headingMsg }}
       </h2>
 
@@ -67,7 +67,7 @@
         {{ underProgressMsg }}
       </p>
 
-      <p class="fs0" :style="{ color: $themeTokens.annotation }">
+      <p v-if="startedByMsg" class="fs0" :style="{ color: $themeTokens.annotation }">
         {{ startedByMsg }}
       </p>
     </div>
@@ -166,6 +166,9 @@
         return this.task.percentage;
       },
       startedByMsg() {
+        if (!this.task.started_by_username) {
+          return '';
+        }
         return this.getTaskString('taskStartedByLabel', {
           username: this.task.started_by_username || this.getTaskString('unknownUsername'),
         });

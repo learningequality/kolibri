@@ -180,7 +180,7 @@
         this.$store.dispatch('notLoading');
       },
       goBackToSummaryPage() {
-        this.$router.push(this.previousPageRoute);
+        return this.$router.push(this.previousPageRoute);
       },
       saveLessonModel(data) {
         if (isEmpty(data)) {
@@ -208,7 +208,11 @@
         }
 
         return this.saveLessonModel(data)
-          .then(this.goBackToSummaryPage)
+          .then(() => {
+            this.goBackToSummaryPage().then(() => {
+              this.showSnackbarNotification('changesSaved');
+            });
+          })
           .catch(() => {
             this.disabled = false;
             this.$store.dispatch('createSnackbar', this.$tr('submitErrorMessage'));

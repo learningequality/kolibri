@@ -69,6 +69,7 @@
       documentTitle: 'Manage Device Permissions',
       /* eslint-disable kolibri/vue-no-unused-translations */
       adminsLabel: 'Admins',
+      permissionsLabel: 'Permissions',
       canManageContentLabel: 'Can manage content',
       superAdminLabel: 'Super admin',
       noDevicePermissionsLabel: 'No device permissions',

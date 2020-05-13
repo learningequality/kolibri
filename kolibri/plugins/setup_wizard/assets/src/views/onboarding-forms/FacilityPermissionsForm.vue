@@ -2,18 +2,17 @@
 
   <div>
     <OnboardingForm
-      :header="$tr('facilityPermissionsSetupFormHeader')"
+      :header="$tr('learningEnvironmentHeader')"
       :description="$tr('facilityPermissionsSetupFormDescription')"
-      :submitText="submitText"
-      @submit="setPermissions"
+      @submit="handleSubmit"
     >
       <KRadioButton
         ref="first-button"
-        v-model="selectedPreset"
+        v-model="selected"
         class="permission-preset-radio-button"
-        value="nonformal"
-        :label="$tr('selfManagedSetupTitle')"
-        :description="$tr('selfManagedSetupDescription')"
+        :value="Presets.NONFORMAL"
+        :label="$tr('nonFormalLabel')"
+        :description="$tr('nonFormalDescription')"
       />
       <FacilityNameTextbox
         v-show="nonformalIsSelected"
@@ -22,24 +21,16 @@
       />
 
       <KRadioButton
-        v-model="selectedPreset"
+        v-model="selected"
         class="permission-preset-radio-button"
-        value="formal"
-        :label="$tr('adminManagedSetupTitle')"
-        :description="$tr('adminManagedSetupDescription')"
+        :value="Presets.FORMAL"
+        :label="$tr('formalLabel')"
+        :description="$tr('formalDescription')"
       />
       <FacilityNameTextbox
         v-show="formalIsSelected"
         ref="facility-name-formal"
         class="facility-name-form"
-      />
-
-      <KRadioButton
-        v-model="selectedPreset"
-        class="permission-preset-radio-button"
-        value="informal"
-        :label="$tr('informalSetupTitle')"
-        :description="$tr('informalSetupDescription')"
       />
     </OnboardingForm>
   </div>
@@ -49,7 +40,7 @@
 
 <script>
 
-  import { mapMutations } from 'vuex';
+  import { Presets } from '../../constants';
   import OnboardingForm from './OnboardingForm';
   import FacilityNameTextbox from './FacilityNameTextbox';
 
@@ -59,23 +50,18 @@
       FacilityNameTextbox,
       OnboardingForm,
     },
-    props: {
-      submitText: {
-        type: String,
-        required: true,
-      },
-    },
     data() {
       return {
-        selectedPreset: this.$store.state.onboardingData.preset,
+        selected: this.$store.state.onboardingData.preset || Presets.NONFORMAL,
+        Presets,
       };
     },
     computed: {
       formalIsSelected() {
-        return this.selectedPreset === 'formal';
+        return this.selected === Presets.FORMAL;
       },
       nonformalIsSelected() {
-        return this.selectedPreset === 'nonformal';
+        return this.selected === Presets.NONFORMAL;
       },
       submittedFacilityName() {
         if (this.nonformalIsSelected) {
@@ -89,14 +75,11 @@
         }
       },
       formIsValid() {
-        if (this.nonformalIsSelected || this.formalIsSelected) {
-          return this.submittedFacilityName !== '';
-        }
-        return true;
+        return this.submittedFacilityName !== '';
       },
     },
     watch: {
-      selectedPreset() {
+      selected() {
         return this.$nextTick().then(() => {
           this.focusOnTextbox();
         });
@@ -106,10 +89,6 @@
       this.focusOnTextbox();
     },
     methods: {
-      ...mapMutations({
-        setFacilityPreset: 'SET_FACILITY_PRESET',
-        setFacilityName: 'SET_FACILITY_NAME',
-      }),
       focusOnTextbox() {
         if (this.nonformalIsSelected) {
           return this.$refs['facility-name-nonformal'].focus();
@@ -117,27 +96,48 @@
           return this.$refs['facility-name-formal'].focus();
         }
       },
-      setPermissions() {
+      handleSubmit() {
         if (this.formIsValid) {
-          this.setFacilityPreset(this.selectedPreset);
-          this.setFacilityName(this.submittedFacilityName);
-          this.$emit('submit');
+          this.$store.commit('SET_FACILITY_NAME', this.submittedFacilityName);
+
+          // Pre-select defaults for the next 3 Yes/No sections
+          if (this.formalIsSelected) {
+            this.$store.dispatch('setFormalUsageDefaults');
+          } else {
+            this.$store.dispatch('setNonformalUsageDefaults');
+          }
+          this.$emit('click_next');
+        } else {
+          this.focusOnTextbox();
         }
       },
     },
     $trs: {
-      facilityPermissionsSetupFormHeader: 'What kind of facility are you installing Kolibri in?',
+      learningEnvironmentHeader: {
+        message: 'What kind of learning environment is your facility?',
+        context: 'Page title',
+      },
       facilityPermissionsSetupFormDescription:
         'A facility is the location where you are installing Kolibri, such as a school, training center, or a home.',
-      adminManagedSetupTitle: 'Formal',
-      adminManagedSetupDescription: 'Schools and other formal learning contexts',
-      selfManagedSetupTitle: 'Non-formal',
-      selfManagedSetupDescription:
-        'Libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
-      informalSetupTitle: 'Personal',
-      informalSetupDescription:
-        'Homeschooling, supplementary individual learning, and other informal use',
+      formalLabel: {
+        message: 'Formal',
+        context: 'Label for the radio button option in the facility setup',
+      },
+      formalDescription: {
+        message: 'Schools and other formal learning contexts',
+        context: 'Option description text',
+      },
+      nonFormalLabel: {
+        message: 'Non-formal',
+        context: 'Label for the radio button option in the facility setup',
+      },
+      nonFormalDescription: {
+        message:
+          'Libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
+        context: 'Option description text',
+      },
     },
+    //
   };
 
 </script>

@@ -37,6 +37,11 @@
 
   export default {
     name: 'AllFacilitiesPage',
+    metaInfo() {
+      return {
+        title: this.coreString('allFacilitiesLabel'),
+      };
+    },
     components: {
       CoreTable,
     },

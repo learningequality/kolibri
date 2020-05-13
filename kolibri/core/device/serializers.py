@@ -48,16 +48,17 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     preset = serializers.ChoiceField(choices=choices)
     superuser = NoFacilityFacilityUserSerializer()
     language_id = serializers.CharField(max_length=15)
+    device_name = serializers.CharField(max_length=50, allow_null=True)
     settings = serializers.JSONField()
-    allow_guest_access = serializers.BooleanField()
+    allow_guest_access = serializers.BooleanField(allow_null=True)
 
     class Meta:
         fields = (
             "facility",
-            "dataset",
             "superuser",
             "language_id",
             "settings",
+            "device_name",
             "allow_guest_access",
         )
 
@@ -79,7 +80,8 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             # overwrite the settings in dataset_data with validated_data.settings
             custom_settings = validated_data.pop("settings")
             for key, value in custom_settings.items():
-                setattr(facility.dataset, key, value)
+                if value is not None:
+                    setattr(facility.dataset, key, value)
             facility.dataset.save()
             superuser_data = validated_data.pop("superuser")
             superuser_data["facility"] = facility
@@ -91,10 +93,11 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             facility.add_role(superuser, ADMIN)
             DevicePermissions.objects.create(user=superuser, is_superuser=True)
             language_id = validated_data.pop("language_id")
-            allow_guest_access = validated_data.pop(
-                "allow_guest_access", preset != "formal"
-            )
+            allow_guest_access = validated_data.pop("allow_guest_access")
+            if allow_guest_access is None:
+                allow_guest_access = preset != "formal"
             provision_device(
+                device_name=validated_data["device_name"],
                 language_id=language_id,
                 default_facility=facility,
                 allow_guest_access=allow_guest_access,
