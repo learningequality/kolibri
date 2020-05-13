@@ -129,8 +129,9 @@
       },
       usersFilteredByDropdown() {
         /*
-         * We create 3 filter functions here which are conditionally passed to filters
-         * which will result in a list of users filtered by the dropdown options selected
+         * We create 3 filter functions here which are conditionally passed to
+         * Array.prototype.filter() functions called on all users which will result
+         * in a set of users filtered per the options selected in the filters.
          */
         let users = this.facilityUsers;
 
