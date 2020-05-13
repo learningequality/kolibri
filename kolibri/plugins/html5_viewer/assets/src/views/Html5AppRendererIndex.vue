@@ -45,7 +45,6 @@
   // Regex vendored from https://github.com/faisalman/ua-parser-js/blob/master/src/ua-parser.js
   const iOSTest = /ip[honead]{2,4}(?:.*os\s([\w]+)\slike\smac|;\sopera)/i;
   const IE11Test = /(trident).+rv[:\s]([\w.]+).+like\sgecko/i;
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'Html5AppRendererIndex',
@@ -69,10 +68,10 @@
         return this.defaultFile.storage_url + (iOSorIE11 ? '?SKIP_HASHI=true' : '');
       },
       iframeHeight() {
-        return (this.options.size && this.options.size.height) || '500px';
+        return (this.options && this.options.height) || '500px';
       },
       iframeWidth() {
-        return (this.options.size && this.options.size.width) || 'auto';
+        return (this.options && this.options.width) || 'auto';
       },
     },
     mounted() {
