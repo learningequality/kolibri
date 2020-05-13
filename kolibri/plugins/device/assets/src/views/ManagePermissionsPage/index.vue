@@ -138,12 +138,13 @@
         const isInSelectedFacility = user => user.facility == this.facilityFilter.value;
 
         const isSelectedUserType = user => {
-          // LEARNER doesn't come with a role, so check for it.
+          // Learners don't have a `role` associated with them, so if the filter is asking
+          // for learners, check that here.
           if (user.roles.length === 0) {
             return this.userTypeFilter.value === UserKinds.LEARNER;
           }
           if (this.userTypeFilter.value === UserKinds.COACH) {
-            // There are 2 kinds of coach roles and both have UserKinds.COACH in them.
+            // Check for both kinds of coach roles
             return Boolean(
               user.roles.find(
                 role => role.kind === UserKinds.COACH || role.kind === UserKinds.ASSIGNABLE_COACH
@@ -159,11 +160,12 @@
               )
             );
           }
+
           // Should never get here because all possible options are accounted for above.
-          // But we need a return here just in case.
           return false;
         };
 
+        // Last filter function for the permissions
         const isSelectedPermissions = user => {
           const userPermissions = this.userPermissions(user.id);
           switch (this.permissionsFilter.value) {
@@ -185,7 +187,7 @@
         };
 
         // Applying the filters. Only applied if ALL_FILTER isn't selected.
-        // Only filter facility if the device has multiple facilities.
+        // Only filter by facility if the device has multiple facilities.
         if (this.hasMultipleFacilities) {
           users =
             this.facilityFilter.value === ALL_FILTER ? users : users.filter(isInSelectedFacility);
@@ -202,7 +204,7 @@
     watch: {
       // These watchers update the coreBase/query when the dropdown
       // selections are changed. This lets us persist the values across
-      // routes easily.
+      // routes within Device.
       permissionsFilter(value) {
         const query = this.query;
         query.permissionsFilter = value;
@@ -221,7 +223,7 @@
     },
     beforeMount() {
       // Set all filters initial values here. If the value exists in
-      // coreBase/query, then we use it here. Otherwise, we default to ALL
+      // coreBase/query, then we use it, otherwise, we default to ALL.
       this.facilityFilter = this.query.facilityFilter || this.facilityOptions[0];
       this.permissionsFilter = this.query.permissionsFilter || this.permissionsOptions[0];
       this.userTypeFilter = this.query.userTypeFilter || this.userTypeOptions[0];
