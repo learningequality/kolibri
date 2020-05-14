@@ -30,7 +30,7 @@
         {{ fullscreenText }}
       </KButton>
     </div>
-    <div class="iframe-container">
+    <div class="iframe-container" :style="containerStyle">
       <iframe
         ref="iframe"
         class="iframe"
@@ -94,6 +94,16 @@
           language: this.lang.id,
           timeSpent: this.timeSpent,
         };
+      },
+      containerStyle() {
+        if (this.isInFullscreen) {
+          return {
+            position: 'absolute',
+            top: '50px',
+            bottom: 0,
+          };
+        }
+        return { height: '560px' };
       },
     },
     watch: {
@@ -173,10 +183,7 @@
   .iframe-container {
     @extend %momentum-scroll;
 
-    top: 0;
-    bottom: 0;
     width: 100%;
-    height: 560px;
     overflow: visible;
   }
 

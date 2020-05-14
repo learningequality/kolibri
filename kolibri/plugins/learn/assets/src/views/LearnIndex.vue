@@ -124,7 +124,7 @@
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
             immersivePagePrimary: true,
-            immersivePageIcon: 'arrow_back',
+            immersivePageIcon: 'close',
           };
         }
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
@@ -133,7 +133,7 @@
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
             immersivePagePrimary: true,
-            immersivePageIcon: 'arrow_back',
+            immersivePageIcon: 'close',
           };
         }
         if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
@@ -156,7 +156,7 @@
             // Default to the Learn root page if there is no lastRoute to return to.
             immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
             immersivePagePrimary: true,
-            immersivePageIcon: 'arrow_back',
+            immersivePageIcon: 'close',
           };
         }
 
@@ -196,7 +196,7 @@
             immersivePage: true,
             immersivePageRoute,
             immersivePagePrimary: true,
-            immersivePageIcon: 'arrow_back',
+            immersivePageIcon: 'close',
           };
         }
 

@@ -12,15 +12,12 @@
     </template>
 
     <template v-else>
-      <template v-if="isFinished">
-        <UiAlert :dismissible="false" type="success">
-          {{ $tr('success') }}
-        </UiAlert>
-        <p>{{ $tr('changesMade') }}</p>
-      </template>
-      <template v-else>
-        <p>{{ $tr('summary') }}</p>
-      </template>
+      <p v-if="isFinished">
+        {{ $tr('changesMade') }}
+      </p>
+      <p v-else>
+        {{ $tr('summary') }}
+      </p>
 
       <table class="indent">
         <thead>
@@ -128,14 +125,19 @@
 
     </template>
 
-    <p v-if="isFinished && !isError">
-      <KButton
-        :text="$tr('close')"
-        appearance="raised-button"
-        primary
-        @click="$emit('done')"
-      />
-    </p>
+    <template v-if="isFinished && !isError">
+      <UiAlert :dismissible="false" type="success" style="margin-top: 16px;">
+        {{ $tr('success') }}
+      </UiAlert>
+      <p>
+        <KButton
+          :text="$tr('close')"
+          appearance="raised-button"
+          primary
+          @click="$emit('done')"
+        />
+      </p>
+    </template>
     <p v-else>
       <KButton
         :text="$tr('back')"
@@ -213,8 +215,8 @@
       },
       users: 'Users',
       classes: 'Classes',
-      someSkipped: 'Some rows were skipped:',
-      someRowErrors: 'Some rows have errors and will be skipped if you continue:',
+      someSkipped: 'These rows were skipped:',
+      someRowErrors: 'These rows have errors and will be skipped if you continue:',
       rowNumber: 'Row number',
       columnName: 'Column name',
       value: 'Value',

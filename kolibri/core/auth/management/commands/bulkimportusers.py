@@ -3,6 +3,7 @@ import logging
 import ntpath
 import re
 import sys
+from uuid import UUID
 
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
@@ -10,6 +11,7 @@ from django.core.exceptions import ValidationError
 from django.core.management.base import CommandError
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.collection_kinds import CLASSROOM
@@ -31,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 # TODO: decide whether these should be internationalized
 fieldnames = (
+    "UUID",
     "USERNAME",
     "PASSWORD",
     "FULL_NAME",
@@ -63,25 +66,40 @@ NO_FACILITY = 7
 FILE_READ_ERROR = 8
 FILE_WRITE_ERROR = 9
 REQUIRED_PASSWORD = 10
+NON_EXISTENT_UUID = 11
+INVALID_UUID = 12
 
 MESSAGES = {
-    UNEXPECTED_EXCEPTION: _("Unexpected exception [{}]: {}"),
-    TOO_LONG: _("'{}' is too long"),
-    INVALID: _("Not a valid '{}'"),
-    DUPLICATED_USERNAME: _("Duplicated Username"),
+    UNEXPECTED_EXCEPTION: pgettext_lazy(
+        "Error message that might appear when there's a programming error importing a CSV file",
+        "Unexpected error [{}]: {}",
+    ),
+    TOO_LONG: _("Value in column '{}' is too many characters"),
+    INVALID: _("Invalid value in column '{}'"),
+    DUPLICATED_USERNAME: _("Username is duplicated"),
     INVALID_USERNAME: _(
         "Username only can contain characters, numbers and underscores"
     ),
-    REQUIRED_COLUMN: _("The column '{}' is required"),
-    INVALID_HEADER: _("Mix of valid and/or invalid header labels found in first row"),
+    REQUIRED_COLUMN: pgettext_lazy(
+        "Error message indicating that the CSV file selected for import is missing a required column",
+        "The column '{}' is required",
+    ),
+    INVALID_HEADER: pgettext_lazy(
+        "Error message indicating that one column header in the CSV file selected for import is missing or incorrect",
+        "Invalid header label found in the first row",
+    ),
     NO_FACILITY: _(
-        "No default facility exists, please make sure to provision this device before running this command"
+        "No default facility exists. Make sure to provision this device before importing"
     ),
     FILE_READ_ERROR: _("Error trying to read csv file: {}"),
     FILE_WRITE_ERROR: _("Error trying to write csv file: {}"),
     REQUIRED_PASSWORD: _(
         "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
     ),
+    NON_EXISTENT_UUID: _(
+        "Cannot update update '{}' because no user with that database ID exists in this facility"
+    ),
+    INVALID_UUID: _("Database ID is not valid"),
 }
 
 # Validators ###
@@ -134,6 +152,23 @@ def value_length(length, allow_null=False):
             return None
 
         if v is None or len(v) > length:
+            raise ValueError(v)
+
+    return checker
+
+
+def valid_uuid(allow_null=True):
+    """
+    Return a value check function which raises a ValueError if the supplied
+    value is ot a valid uuid
+    """
+
+    def checker(v):
+        if allow_null and (v is None or v == ""):
+            return None
+        try:
+            UUID(v).version
+        except (ValueError, TypeError):
             raise ValueError(v)
 
     return checker
@@ -301,6 +336,7 @@ class Validator(object):
             # if there aren't any errors, let's add the user and classes
             if not error_flag:
                 self.check_classroom(row, username)
+                row["position"] = index + 1
                 self.users[username] = row
 
 
@@ -352,6 +388,7 @@ class Command(AsyncCommand):
     def csv_values_validation(self, reader, header_translation):
         per_line_errors = []
         validator = Validator(header_translation)
+        validator.add_check("UUID", valid_uuid(), MESSAGES[INVALID_UUID])
         validator.add_check(
             "FULL_NAME", value_length(125), MESSAGES[TOO_LONG].format("FULL_NAME")
         )
@@ -412,7 +449,6 @@ class Command(AsyncCommand):
                     validator.coach_classrooms[
                         real_name
                     ] = validator.coach_classrooms.pop(classroom)
-
         return (
             per_line_errors,
             (validator.classrooms, validator.coach_classrooms),
@@ -463,6 +499,8 @@ class Command(AsyncCommand):
         full_name = user_row.get(self.header_translation["FULL_NAME"], None)
 
         return {
+            "uuid": user_row.get(self.header_translation["UUID"], ""),
+            "username": user_row.get(self.header_translation["USERNAME"], ""),
             "password": password,
             "gender": gender,
             "birth_year": birth_year,
@@ -473,12 +511,12 @@ class Command(AsyncCommand):
     def compare_fields(self, user_obj, values):
         changed = False
         for field in values:
-            if getattr(user_obj, field) != values[field]:
-                changed = True
-            if field == "password" and values["password"] is None:
-                changed = False
-            if changed:
-                setattr(user_obj, field, values[field])
+            if field == "uuid":
+                continue  # uuid can't be updated
+            if field != "password" or values["password"] is not None:
+                if getattr(user_obj, field) != values[field]:
+                    changed = True
+                    setattr(user_obj, field, values[field])
         return changed
 
     def build_users_objects(self, users):
@@ -486,32 +524,61 @@ class Command(AsyncCommand):
         update_users = list()
         keeping_users = list()
         per_line_errors = list()
+        users_uuid = [
+            u[self.header_translation["UUID"]]
+            for u in users.values()
+            if u[self.header_translation["UUID"]] != ""
+        ]
         existing_users = (
             FacilityUser.objects.filter(facility=self.default_facility)
-            .filter(username__in=users.keys())
-            .values_list("username", flat=True)
+            .filter(id__in=users_uuid)
+            .values_list("id", flat=True)
         )
 
         # creating the users takes half of the time
         progress = (100 / self.number_lines) * 0.5
-
         for user in users:
             self.progress_update(progress)
             user_row = users[user]
             values = self.get_field_values(user_row)
-            if user in existing_users:
+            if values["uuid"] in existing_users:
                 user_obj = FacilityUser.objects.get(
-                    username=user, facility=self.default_facility
+                    id=values["uuid"], facility=self.default_facility
                 )
                 keeping_users.append(user_obj)
+                if user_obj.username != user:
+                    # check for duplicated username in the facility
+                    existing_user = FacilityUser.objects.get(
+                        username=user, facility=self.default_facility
+                    )
+                    if existing_user:
+                        error = {
+                            "row": users[user]["position"],
+                            "username": user,
+                            "message": MESSAGES[DUPLICATED_USERNAME],
+                            "field": "USERNAME",
+                            "value": user,
+                        }
+                        per_line_errors.append(error)
+                        continue
                 if self.compare_fields(user_obj, values):
                     update_users.append(user_obj)
             else:
-                if not values["password"]:
+                if values["uuid"] != "":
                     error = {
-                        "row": "USERNAME:{}".format(user),
+                        "row": users[user]["position"],
+                        "username": user,
+                        "message": MESSAGES[NON_EXISTENT_UUID].format(user),
+                        "field": "PASSWORD",
+                        "value": "*",
+                    }
+                    per_line_errors.append(error)
+                elif not values["password"]:
+                    error = {
+                        "row": users[user]["position"],
+                        "username": user,
                         "message": MESSAGES[REQUIRED_PASSWORD],
-                        "field": "password",
+                        "field": "PASSWORD",
                         "value": "*",
                     }
                     per_line_errors.append(error)

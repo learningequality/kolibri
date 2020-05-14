@@ -14,6 +14,7 @@ from django.db.models import OuterRef
 from django.db.models import Subquery
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from .bulkimportusers import FILE_WRITE_ERROR
 from .bulkimportusers import MESSAGES
@@ -39,15 +40,34 @@ logger = logging.getLogger(__name__)
 # TODO: decide whether these should be internationalized
 labels = OrderedDict(
     (
-        ("username", _("Username ({})".format("USERNAME"))),
-        ("password", _("Password ({})".format("PASSWORD"))),
-        ("full_name", _("Full name ({})".format("FULL_NAME"))),
-        ("kind", _("User type ({})").format("USER_TYPE")),
-        ("id_number", _("Identifier ({})".format("IDENTIFIER"))),
-        ("birth_year", _("Birth year ({})".format("BIRTH_YEAR"))),
-        ("gender", _("Gender ({})".format("GENDER"))),
-        ("enrolled", _("Learner enrollment ({})".format("ENROLLED_IN"))),
-        ("assigned", _("Coach assignment ({})".format("ASSIGNED_TO"))),
+        ("id", _("Database ID ({})").format("UUID")),
+        ("username", _("Username ({})").format("USERNAME")),
+        ("password", _("Password ({})").format("PASSWORD")),
+        ("full_name", _("Full name ({})").format("FULL_NAME")),
+        (
+            "kind",
+            pgettext_lazy(
+                "CSV column header for the type of user: ADMIN, LEARNER, COACH...",
+                "User type ({})",
+            ).format("USER_TYPE"),
+        ),
+        ("id_number", _("Identifier ({})").format("IDENTIFIER")),
+        ("birth_year", _("Birth year ({})").format("BIRTH_YEAR")),
+        ("gender", _("Gender ({})").format("GENDER")),
+        (
+            "enrolled",
+            pgettext_lazy(
+                "CSV column header for the list of classrooms names where the learner is going to be enrolled",
+                "Learner enrollment ({})",
+            ).format("ENROLLED_IN"),
+        ),
+        (
+            "assigned",
+            pgettext_lazy(
+                "CSV column header for the list of classrooms names where the tutor is going to be a coach",
+                "Coach assignment ({})",
+            ).format("ASSIGNED_TO"),
+        ),
     )
 )
 
@@ -96,6 +116,42 @@ def map_output(obj):
         elif header in obj:
             mapped_obj[label] = obj[header]
     return mapped_obj
+
+
+def translate_labels():
+    global labels
+    labels = OrderedDict(
+        (
+            ("id", _("Database ID ({})").format("UUID")),
+            ("username", _("Username ({})").format("USERNAME")),
+            ("password", _("Password ({})").format("PASSWORD")),
+            ("full_name", _("Full name ({})").format("FULL_NAME")),
+            (
+                "kind",
+                pgettext_lazy(
+                    "CSV header for the type of user: ADMIN, LEARNER, COACH...",
+                    "User type ({})",
+                ).format("USER_TYPE"),
+            ),
+            ("id_number", _("Identifier ({})").format("IDENTIFIER")),
+            ("birth_year", _("Birth year ({})").format("BIRTH_YEAR")),
+            ("gender", _("Gender ({})").format("GENDER")),
+            (
+                "enrolled",
+                pgettext_lazy(
+                    "CSV file header for the list of classrooms names where the learner is going to be enrolled",
+                    "Learner enrollment ({})",
+                ).format("ENROLLED_IN"),
+            ),
+            (
+                "assigned",
+                pgettext_lazy(
+                    "CSV file header for the list of classrooms names where the tutor is going to be a coach",
+                    "Coach assignment ({})",
+                ).format("ASSIGNED_TO"),
+            ),
+        )
+    )
 
 
 def csv_file_generator(facility, filepath, overwrite=True):
@@ -211,6 +267,7 @@ class Command(AsyncCommand):
         # set language for the translation of the messages
         locale = settings.LANGUAGE_CODE if not options["locale"] else options["locale"]
         translation.activate(locale)
+        translate_labels()
 
         self.overall_error = []
         filepath = self.get_filepath(options)
