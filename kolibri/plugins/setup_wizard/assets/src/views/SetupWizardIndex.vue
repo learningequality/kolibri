@@ -15,23 +15,7 @@
     />
 
     <template v-else>
-      <ProgressToolbar
-        :currentStep="onboardingStep"
-        :totalSteps="totalOnboardingSteps"
-        :style="{ backgroundColor: $themeTokens.appBar }"
-        @backButtonClicked="goToPreviousStep"
-      />
-
-      <div class="page-wrapper">
-        <KPageContainer class="page-container">
-          <component
-            :is="currentOnboardingForm"
-            :submitText="submitText"
-            :class="!windowIsLarge ? 'mobile' : ''"
-            @submit="continueOnboarding"
-          />
-        </KPageContainer>
-      </div>
+      <router-view />
     </template>
 
   </div>
@@ -41,30 +25,11 @@
 
 <script>
 
-  import { mapActions, mapState, mapMutations } from 'vuex';
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import LoadingPage from './submission-states/LoadingPage';
   import ErrorPage from './submission-states/ErrorPage';
-  import ProgressToolbar from './ProgressToolbar';
-  import DefaultLanguageForm from './onboarding-forms/DefaultLanguageForm';
-  // Use the full path until we can figure out why module resolution isn't working on Travis
-  import SuperuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm.vue';
-  import FacilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
-  import GuestAccessForm from './onboarding-forms/GuestAccessForm';
-  import CreateLearnerAccountForm from './onboarding-forms/CreateLearnerAccountForm';
-  import RequirePasswordForLearnersForm from './onboarding-forms/RequirePasswordForLearnersForm';
-  import PersonalDataConsentForm from './onboarding-forms/PersonalDataConsentForm';
-
-  const stepToOnboardingFormMap = {
-    1: DefaultLanguageForm,
-    2: FacilityPermissionsForm,
-    3: GuestAccessForm,
-    4: CreateLearnerAccountForm,
-    5: RequirePasswordForLearnersForm,
-    6: SuperuserCredentialsForm,
-    7: PersonalDataConsentForm,
-  };
 
   export default {
     name: 'SetupWizardIndex',
@@ -74,66 +39,22 @@
       };
     },
     components: {
-      ProgressToolbar,
       LoadingPage,
       ErrorPage,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
-    data() {
-      return {
-        totalOnboardingSteps: 7,
-      };
-    },
     computed: {
-      ...mapState(['onboardingStep', 'onboardingData', 'loading', 'error']),
-      currentOnboardingForm() {
-        return stepToOnboardingFormMap[this.onboardingStep] || null;
-      },
-      isLastStep() {
-        return this.onboardingStep === this.totalOnboardingSteps;
-      },
-      submitText() {
-        return this.isLastStep
-          ? this.coreString('finishAction')
-          : this.coreString('continueAction');
-      },
+      ...mapState(['loading', 'error']),
     },
-    methods: {
-      ...mapActions(['provisionDevice']),
-      ...mapMutations({
-        goToNextStep: 'INCREMENT_ONBOARDING_STEP',
-        goToPreviousStep: 'DECREMENT_ONBOARDING_STEP',
-      }),
-      goToPreviousStep() {
-        // Clear password if going backwards from SuperUserCredentialsForm or
-        // PersonalDataConsentForm
-        if (this.onboardingStep === 6 || this.onboardingStep === 7) {
-          this.$store.commit('CLEAR_PASSWORD');
-        }
-        this.$store.commit('DECREMENT_ONBOARDING_STEP');
-      },
-      continueOnboarding() {
-        if (this.isLastStep) {
-          if (this.onboardingData.preset === 'informal') {
-            this.provisionDevice({
-              ...this.onboardingData,
-              facility: {
-                name: this.$tr('personalFacilityName', {
-                  name: this.onboardingData.superuser.full_name,
-                }),
-              },
-            });
-          } else {
-            this.provisionDevice(this.onboardingData);
-          }
-        } else {
-          this.goToNextStep();
-        }
-      },
+    // As a minimal precaution, we restart the entire wizard if a user refreshes in the middle
+    // and loses saved state
+    beforeMount() {
+      if (!this.$store.state.started) {
+        this.$router.replace('/');
+      }
     },
     $trs: {
       documentTitle: 'Setup Wizard',
-      personalFacilityName: 'Home Facility {name}',
     },
   };
 
@@ -176,10 +97,12 @@
     padding: 8px;
   }
 
-  .page-container {
+  // Override KPageContainer styles
+  /deep/ .page-container {
     max-width: 650px;
     padding: 36px;
     margin: auto;
+    overflow: visible;
   }
 
   .mobile {

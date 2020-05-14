@@ -4,8 +4,10 @@ import GuestAccessForm from '../../src/views/onboarding-forms/GuestAccessForm';
 
 function makeWrapper(options) {
   const store = makeStore();
-  if (options.preset) {
-    store.commit('SET_FACILITY_PRESET', options.preset);
+  if (options.preset === 'formal') {
+    store.dispatch('setFormalUsageDefaults');
+  } else {
+    store.dispatch('setNonformalUsageDefaults');
   }
   if (options.previousChoice !== undefined) {
     store.commit('SET_ALLOW_GUEST_ACCESS', options.previousChoice);
@@ -27,11 +29,6 @@ describe('GuestAccessForm', () => {
   it('has the correct default with "formal" preset', () => {
     const { wrapper } = makeWrapper({ preset: 'formal' });
     expect(wrapper.vm.settingIsEnabled).toEqual(false);
-  });
-
-  it('has the correct default with "informal" preset', () => {
-    const { wrapper } = makeWrapper({ preset: 'informal' });
-    expect(wrapper.vm.settingIsEnabled).toEqual(true);
   });
 
   it('if user has set it in a previous step, it is kept', () => {

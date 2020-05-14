@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="$tr('header')"
+    :title="$attrs.title || $tr('header')"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
     size="medium"
@@ -48,6 +48,7 @@
             :disabled="!a.available || !a.hasContent"
           />
           <KButton
+            v-if="!readOnlyStaticAddrersses"
             :key="`forget-${idx}`"
             :text="$tr('forgetAddressButtonLabel')"
             appearance="basic-link"
@@ -65,16 +66,15 @@
             v-model="selectedAddressId"
             class="radio-button"
             :value="d.instance_id"
-            :label="$tr('peerDeviceName', {
-              deviceName: d.device_name,
-              identifier: d.id.slice(0,4)
-            })"
+            :label="formatNameAndId(d.device_name, d.id)"
             :description="d.base_url"
             :disabled="!d.available || discoveryFailed"
           />
         </div>
       </template>
     </template>
+
+    <slot name="underbuttons"></slot>
 
     <KFixedGrid slot="actions" class="actions" numCols="4">
       <KFixedGridItem span="1">
@@ -97,7 +97,6 @@
           :primary="true"
           :disabled="submitDisabled"
           type="submit"
-          @click="handleSubmit"
         />
       </KFixedGridItem>
     </KFixedGrid>
@@ -109,10 +108,10 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
   import find from 'lodash/find';
   import UiAlert from 'keen-ui/src/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { deleteAddress, fetchStaticAddresses, fetchDynamicAddresses } from './api';
 
   const Stages = {
@@ -132,9 +131,21 @@
     components: {
       UiAlert,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonSyncElements],
     props: {
       discoverySpinnerTime: { type: Number, default: 2500 },
+      // Arg that's passed to fetchDynamic/StaticAddresses
+      fetchAddressArgs: {
+        type: String,
+        required: false,
+        default: '',
+      },
+      // Customizes the component specifically for the PostSetupModalGroup
+      // Turns off: discovery + add new + forget
+      readOnlyStaticAddrersses: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -150,8 +161,6 @@
       };
     },
     computed: {
-      ...mapGetters('manageContent/wizard', ['isImportingMore']),
-      ...mapState('manageContent/wizard', ['transferredChannel']),
       addresses() {
         return this.savedAddresses.concat(this.discoveredAddresses);
       },
@@ -167,7 +176,7 @@
         );
       },
       newAddressButtonDisabled() {
-        return this.stage === this.Stages.FETCHING_ADDRESSES;
+        return this.readOnlyStaticAddrersses || this.stage === this.Stages.FETCHING_ADDRESSES;
       },
       requestsFailed() {
         return (
@@ -203,7 +212,9 @@
       },
     },
     beforeMount() {
-      this.startDiscoveryPolling();
+      if (!this.readOnlyStaticAddrersses) {
+        this.startDiscoveryPolling();
+      }
       return this.refreshSavedAddressList();
     },
     mounted() {
@@ -220,7 +231,7 @@
       refreshSavedAddressList() {
         this.stage = this.Stages.FETCHING_ADDRESSES;
         this.savedAddresses = [];
-        return fetchStaticAddresses(this.isImportingMore ? this.transferredChannel.id : '')
+        return fetchStaticAddresses(this.fetchAddressArgs)
           .then(addresses => {
             this.savedAddresses = addresses;
             this.resetSelectedAddress();
@@ -256,7 +267,7 @@
       discoverPeers() {
         this.$parent.$emit('started_peer_discovery');
         this.discoveryStage = this.Stages.PEER_DISCOVERY_STARTED;
-        return fetchDynamicAddresses(this.isImportingMore ? this.transferredChannel.id : '')
+        return fetchDynamicAddresses(this.fetchAddressArgs)
           .then(devices => {
             this.discoveredAddresses = devices;
             this.$parent.$emit('finished_peer_discovery');
@@ -286,7 +297,9 @@
 
       handleSubmit() {
         if (this.selectedAddressId) {
-          this.$emit('submit', find(this.addresses, { id: this.selectedAddressId }));
+          const match = find(this.addresses, { id: this.selectedAddressId });
+          match.isDynamic = Boolean(find(this.discoveredAddresses, { id: this.selectedAddressId }));
+          this.$emit('submit', match);
         }
       },
     },
@@ -298,11 +311,6 @@
       newAddressButtonLabel: 'Add new address',
       noAddressText: 'There are no addresses yet',
       refreshAddressesButtonLabel: 'Refresh addresses',
-      peerDeviceName: {
-        message: '{deviceName} ({ identifier })',
-        context:
-          "\nRefers to the Kolibri's capability to import resources from other devices in the same *local* network (LAN), as opposed to importing from Studio which is online.",
-      },
     },
   };
 

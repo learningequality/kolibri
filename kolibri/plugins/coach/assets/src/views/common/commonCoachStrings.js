@@ -171,10 +171,53 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
 });
 
+// Strings for the Missing Content modals, tooltips, alerts, etc.
+const MissingContentStrings = createTranslator('MissingContentStrings', {
+  someResourcesMissingOrNotSupported: {
+    message: 'Some resources are missing or not supported',
+    context:
+      'Floating notification message that appears over the alert icon and indicates that there are missing resources',
+  },
+  resourceNotFoundOnDevice: {
+    message: 'Resource not found on device',
+    context: '',
+  },
+  resourcesUnavailableTitle: {
+    message: 'Resources unavailable',
+    context: 'Title of the modal window',
+  },
+  resourcesUnavailableP1: {
+    message:
+      'Some report data is missing, either because there are resources that were not found on the device, or because they are not compatible with your version of Kolibri.',
+    context: 'First paragraph of the "Resources Unavailable - Learn More" modal',
+  },
+  resourcesUnavailableP2: {
+    message:
+      'Consult your administrator for guidance or find channels in your network using an account that has permission to manage channels on this device.',
+    context: 'Second paragraph of the "Resources Unavailable - Learn More" modal',
+  },
+  upgradeKolibriTitle: {
+    message: 'Upgrade Kolibri to view resources',
+    context: 'Title of the modal window',
+  },
+  upgradeKolibriP1: {
+    message:
+      'Some resources are not supported by this version of Kolibri. You may need to upgrade to view them.',
+    context: 'First paragraph of the "Upgrade Kolibri to view resources" modal',
+  },
+  upgradeKolibriLinkText: {
+    message: 'Go to download page',
+    context: 'Link that goes on the bottom of the "Upgrade Kolibri to view resources" modal',
+  },
+});
+
 const coachStringsMixin = {
   methods: {
     coachString(key, args) {
       return coachStrings.$tr(key, args);
+    },
+    getMissingContentString(key, args) {
+      return MissingContentStrings.$tr(key, args);
     },
   },
 };

@@ -116,3 +116,20 @@ export function removeFacilityTaskDisplayInfo(task) {
     canRetry: task.status === TaskStatuses.FAILED,
   };
 }
+
+export function importFacilityTaskDisplayInfo(task) {
+  // Basically takes the sync output and removes things
+  const info = syncFacilityTaskDisplayInfo(task);
+  info.bytesTransferredMsg = '';
+  info.headingMsg = '';
+  if (task.status === TaskStatuses.FAILED) {
+    info.deviceNameMsg = getTaskString('importFailedStatus', { facilityName: task.facility_name });
+  } else if (task.status === TaskStatuses.COMPLETED) {
+    info.deviceNameMsg = getTaskString('importSuccessStatus', { facilityName: task.facility_name });
+  } else {
+    info.deviceNameMsg = '';
+  }
+  info.canRetry = false;
+  info.canClear = false;
+  return info;
+}

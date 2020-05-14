@@ -94,6 +94,16 @@ const taskStrings = createTranslator('TaskStrings', {
     message: 'Facility successfully removed',
     context: 'Message that shows after Facility is successfully removed',
   },
+
+  // Import Facility Task strings
+  importSuccessStatus: {
+    message: `'{facilityName}' successfully loaded to this device`,
+    context: '',
+  },
+  importFailedStatus: {
+    message: `Could not load '{facilityName}' to this device`,
+    context: '',
+  },
 });
 
 export function getTaskString(...args) {

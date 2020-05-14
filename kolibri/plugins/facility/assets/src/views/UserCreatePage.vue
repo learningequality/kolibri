@@ -225,10 +225,7 @@
       },
       handleSubmitSuccess() {
         this.goToUserManagementPage(() => {
-          this.$store.dispatch(
-            'createSnackbar',
-            this.$tr('userCreatedNotification', { username: this.username })
-          );
+          this.showSnackbarNotification('userCreated');
         });
       },
       handleSubmitFailure(error) {
@@ -256,7 +253,6 @@
       createNewUserHeader: 'Create new user',
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachDescription: 'Can instruct all classes in your facility',
-      userCreatedNotification: "User account for '{username}' was created",
     },
   };
 

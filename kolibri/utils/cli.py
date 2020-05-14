@@ -417,6 +417,7 @@ def update(old_version, new_version):
         pass
 
     _migrate_databases()
+
     run_upgrades(old_version, new_version)
 
     with open(version_file(), "w") as f:
