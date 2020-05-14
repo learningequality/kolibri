@@ -13,6 +13,7 @@ from django.core.cache import cache
 from django.http import Http404
 from django.http import HttpResponse
 from django.http.response import FileResponse
+from django.template.defaultfilters import slugify
 from django.utils import translation
 from django.utils.translation import get_language_from_request
 from django.utils.translation import pgettext
@@ -187,14 +188,24 @@ def download_csv_file(request, log_type):
     translation.activate(locale)
 
     csv_translated_filenames = {
-        "session": pgettext(
-            "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation",
-            "content_session_logs.csv",
-        ),
-        "summary": pgettext(
-            "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation",
-            "content_summary_logs.csv",
-        ),
+        "session": (
+            slugify(
+                pgettext(
+                    "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation",
+                    "content_session_logs",
+                )
+            )
+            + ".csv"
+        ).replace("-", "_"),
+        "summary": (
+            slugify(
+                pgettext(
+                    "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation",
+                    "content_summary_logs",
+                )
+            )
+            + ".csv"
+        ).replace("-", "_"),
     }
     csv_export_filenames = {
         "session": "content_session_logs.csv",

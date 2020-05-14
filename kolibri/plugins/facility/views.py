@@ -8,6 +8,7 @@ from datetime import datetime
 
 from django.http import Http404
 from django.http.response import FileResponse
+from django.template.defaultfilters import slugify
 from django.utils import translation
 from django.utils.decorators import method_decorator
 from django.utils.translation import get_language_from_request
@@ -38,10 +39,15 @@ def download_csv_file(request, filename):
     response["Content-Type"] = "text/csv"
 
     # set the content-disposition as attachment to force download
-    exported_filename = pgettext(
-        "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation",
-        "users_{}.csv",
-    ).format(datetime.now().strftime("%Y%m%d_%H%M%S"))
+    exported_filename = (
+        slugify(
+            pgettext(
+                "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation",
+                "users_{}",
+            ).format(datetime.now().strftime("%Y%m%d_%H%M%S"))
+        ).replace("-", "_")
+        + ".csv"
+    )
     response["Content-Disposition"] = "attachment; filename={}".format(
         str(exported_filename)
     )

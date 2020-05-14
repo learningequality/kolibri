@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-11 19:31+0200\n"
+"POT-Creation-Date: 2020-05-14 21:12+0200\n"
 "PO-Revision-Date: 2020-05-05 22:47\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish, Latin America\n"
@@ -156,15 +156,19 @@ msgstr "Formato desconocido"
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri todavía no está disponible en este idioma"
 
-#: kolibri/core/logger/csv_export.py:187
-msgctxt "Name of a CSV file exporting the logs for the content sessions"
-msgid "content_session_logs.csv"
-msgstr "registros_de_sesion.csv"
+#: kolibri/core/logger/csv_export.py:195
+msgctxt ""
+"Default name for the exported CSV file with content session logs. Please "
+"keep the underscores between words in the translation"
+msgid "content_session_logs"
+msgstr "registros_de_sesion"
 
-#: kolibri/core/logger/csv_export.py:191
-msgctxt "Name of a CSV file exporting the logs for the content summaries"
-msgid "content_summary_logs.csv"
-msgstr "registros_resumidos.csv"
+#: kolibri/core/logger/csv_export.py:203
+msgctxt ""
+"Default name for the exported CSV file with content summary logs. Please "
+"keep the underscores between words in the translation"
+msgid "content_summary_logs"
+msgstr "registros_resumidos"
 
 #: kolibri/core/tasks/api.py:54
 msgid "There was a network error."
@@ -207,10 +211,12 @@ msgstr ""
 "Fue imposible redirigir página correctamente. Es probable que Kolibri está "
 "mal configurado"
 
-#: kolibri/plugins/facility/views.py:38
-msgctxt "Name of a CSV file exporting the users of the facility"
-msgid "users_{}.csv"
-msgstr "usuarios_{}.csv"
+#: kolibri/plugins/facility/views.py:46
+msgctxt ""
+"Default name for the exported CSV file of facility user data. Please keep "
+"the underscore between words in the translation"
+msgid "users_{}"
+msgstr "usuarios_{}"
 
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
 msgid "OpenID Provider Authorization"
