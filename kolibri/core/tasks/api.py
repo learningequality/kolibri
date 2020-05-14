@@ -665,11 +665,13 @@ class TasksViewSet(viewsets.ViewSet):
         facility = request.user.facility.id
         job_type = "EXPORTUSERSTOCSV"
         job_metadata = {"type": job_type, "started_by": request.user.pk}
+        locale = get_language_from_request(request)
 
         job_id = priority_queue.enqueue(
             call_command,
             "bulkexportusers",
             facility=facility,
+            locale=locale,
             overwrite="true",
             extra_metadata=job_metadata,
             track_progress=True,
