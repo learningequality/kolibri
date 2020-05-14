@@ -439,7 +439,7 @@ export function getByKeyPath(obj, keyPath, localSchema, userData) {
   }
   // http://www.w3.org/TR/IndexedDB/#steps-for-extracting-a-key-from-a-value-using-a-key-path
   // This works for getting values from Objects by key and from Arrays by index
-  if (obj && obj.hasOwnProperty(keyPath)) {
+  if (obj && Object.prototype.hasOwnProperty.call(obj, keyPath)) {
     return obj[keyPath];
   }
   const period = keyPath.indexOf('.');
@@ -623,7 +623,7 @@ export default class SCORM extends BaseShim {
       return Math.max(Math.min((raw - min) / (max - min), 1), 0);
     }
     const lessonStatus = this.data.cmi.core.lesson_status;
-    if (statusProgressMap.hasOwnProperty(lessonStatus)) {
+    if (Object.prototype.hasOwnProperty.call(statusProgressMap, lessonStatus)) {
       return statusProgressMap[lessonStatus];
     }
     // Return null if we have no progress information to report.
