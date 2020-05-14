@@ -29,27 +29,28 @@ During the alpha phase is all the period when we should update our Python and Ja
 String chill and string freeze
 ------------------------------
 
-A "string chill" is when all new and updated user-facing strings are in ``develop``, and we can upload to crowdin and do a test translation internally. Generally we should translate the strings into at least two languages, and use this opportunity to make any final updates to the English source strings.
+* **String chill**: when all new and updated user-facing strings are in ``develop``, we upload them to Crowdin and do a test translation internally. We aim to translate the strings into at least two languages at this stage, and use this opportunity to make any final updates to the English source strings.
 
-Once the user-facing strings have been signed off, the i18n team should notify translators that translation can begin.
+* **String freeze**: when the internal review is finished and the user-facing strings have been signed off, the i18n team notifies external translators to begin their work. After this time, it can be highly disruptive to change English source strings because it requires communicating and coordinating with a large number of external contractors and volunteers with diverse schedules and time zones.
 
-This is the "string freeze": when we have finished reviewing strings internally, and are ready for external translators to begin their work. After this time, it can be highly disruptive to change English source strings because it requires communicating and coordinating with a large number of external contractors and volunteers with diverse schedules and time zones.
+  .. note:: The in-context translation server `kolibri-translate.learningequality.org <http://kolibri-translate.learningequality.org/>`__ should always be available for translation efforts.
 
-.. note:: The in-context translation server `kolibri-translate.learningequality.org <http://kolibri-translate.learningequality.org/>`__ should always be available for translation efforts.
+  Each minor release (``N.N.*``) is maintained in a CrowdIn Version Branch, following the existing naming scheme ``release-vN.N.x``. The branch is automatically created when running the first ``make i18n-upload`` command. CrowdIn will automatically reuse previously translated strings in new branches.
 
-Each minor release (``N.N.*``) is maintained in a CrowdIn Version Branch, following the existing naming scheme ``release-vN.N.x``. The branch is automatically created when running the first ``make i18n-upload`` command. CrowdIn will automatically reuse previously translated strings in new branches.
+  The strings for the upcoming release need to be uploaded as described in :ref:`crowdin`.
 
-The strings for the upcoming release should be uploaded to crowdin as described in :ref:`crowdin`. You can run ``make i18n-stats branch=<release-vN.N.x>`` to get figures on the translation work. Send the stats to the i18n team, whom can use them for communication with translators to measure the translation efforts needed.
+  * Run ``make i18n-stats branch=<release-vN.N.x>`` to get figures on the translation work.
+  * Send the stats to the i18n team, who will use them for communication with translators to measure the translation efforts needed.
 
-Strings from the Perseus plugin should also be revisited. They are maintained in the repo `learningequality/kolibri-exercise-perseus-plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`__, but the source strings are generated and uploaded through the main ``kolibri`` project. The translated files from CrowdIn such as ``kolibri_exercise_perseus_plugin.exercise_perseus_render_module-messages.json`` are downloaded through the ``kolibri-exercise-perseus-plugin`` project. For instructions, see :ref:`crowdin`.
+  Strings from the Perseus plugin also need to be revisited. They are maintained in the repo `learningequality/kolibri-exercise-perseus-plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`__, but the source strings are generated and uploaded through the main ``kolibri`` project. The translated files from CrowdIn such as ``kolibri_exercise_perseus_plugin.exercise_perseus_render_module-messages.json`` are downloaded through the ``kolibri-exercise-perseus-plugin`` project. For instructions, see :ref:`crowdin`.
 
-.. warning:: Strings exist in more places than just the Kolibri repo. Ensure we have translations for the Perseus plugin as well as other Crowdin projects such as Kolibri Server, and the Windows, Mac, Android, and Gnome apps.
+  .. warning:: Strings exist in more places than just the Kolibri repo. Ensure we have translations for the Perseus plugin as well as other Crowdin projects such as Kolibri Server, and the Windows, Mac, Android, and Gnome apps.
 
 
 Continuing the release process
 ------------------------------
 
-While translators are working, we will also be finishing final feature development and beginning integration testing using our suite of Gherkin stories. During this period, we'll also perform a number of internal "bug bashes" and share beta releases externally with the community for help with review and testing.
+While translators are working, we finish final feature development and begin integration testing using our suite of Gherkin scenarios. During this period, we also perform a number of internal "bug bashes" and share beta releases externally with the community for help with review and testing.
 
 .. note:: The latest beta releases are automatically deployed to `kolibri-beta.learningequality.org <https://kolibri-dev.learningequality.org/>`__.
 
