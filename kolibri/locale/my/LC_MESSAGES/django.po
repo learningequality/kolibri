@@ -167,4 +167,3 @@ msgstr "OpenID Provider ခွင့်ပြုခြင်း"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "ခွင့်ပြုချက်အတွက် တောင်းခံခြင်း"
-

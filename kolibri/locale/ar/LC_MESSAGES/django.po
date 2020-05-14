@@ -167,4 +167,3 @@ msgstr "ترخيص مزود معرف الدخول"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "طلب تصريح"
-

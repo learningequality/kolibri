@@ -167,4 +167,3 @@ msgstr "Kuvomereza kuti musakatule masamba a webusayiti"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "Request for Permission"
-

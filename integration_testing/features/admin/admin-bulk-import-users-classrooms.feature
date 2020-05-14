@@ -16,11 +16,11 @@ Feature: Admin bulk export of users and classrooms
     Then I see a new window with a text explaining the consequences of importing
       And I see the *Cancel* enabled button
       And I see the *Next* disabled button
-    When I click the *Browse* button 
+    When I click the *Browse* button
       And select a CSV file with the right format
     Then I see the *Next* button is now enabled
     When I click the *Next* button
-    Then I see the *Import users* window 
+    Then I see the *Import users* window
       And I see the loading indicator
     When the file is processed
     Then I see a list of the users and classes that are going to be updated and created

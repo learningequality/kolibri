@@ -167,4 +167,3 @@ msgstr "Ìfúnláṣẹ Olùpèsè OpenID"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "Bèèrè fún Àyè"
-
