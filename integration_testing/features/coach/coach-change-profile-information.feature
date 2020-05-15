@@ -4,7 +4,6 @@ Feature: Coach changes profile information
   Background:
     Given I am signed in to Kolibri as a coach user
       And I am on my <username> *Profile > Details* page
-      And facility is set up to allow learners and coaches to edit full names, usernames, and change their passwords
 
   Scenario: Coach changes username and full name
     When I click the *Edit* button
