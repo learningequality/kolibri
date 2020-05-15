@@ -217,7 +217,7 @@ class Command(AsyncCommand):
 
         if pulling:
             self._queueing_tracker_adapter(
-                sync_client.queueing,
+                sync_client.queuing,
                 "Remotely preparing data",
                 SYNC_REMOTE_QUEUEING,
                 False,
@@ -239,7 +239,7 @@ class Command(AsyncCommand):
 
         if pushing:
             self._queueing_tracker_adapter(
-                sync_client.queueing,
+                sync_client.queuing,
                 "Locally preparing data to send",
                 SYNC_LOCAL_QUEUEING,
                 True,
@@ -327,7 +327,7 @@ class Command(AsyncCommand):
         self, signal_group, message, sync_state, is_local, noninteractive
     ):
         """
-        Attaches a signal handler to queueing/dequeueing signals, filtered by `is_local` on
+        Attaches a signal handler to queuing/dequeuing signals, filtered by `is_local` on
         whether or not to match a local or remote signal
 
         :type signal_group: morango.sync.syncsession.SyncSignalGroup
