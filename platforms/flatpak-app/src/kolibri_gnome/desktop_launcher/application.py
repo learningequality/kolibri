@@ -35,7 +35,7 @@ class MenuEventHandler:
         self.close()
 
     def on_open_in_browser(self):
-        subprocess.call(['xdg-open', self.get_target_url()])
+        subprocess.call(['xdg-open', self.get_current_or_target_url()])
 
     def on_open_kolibri_home(self):
         subprocess.call(['xdg-open', KOLIBRI_HOME])
@@ -89,6 +89,15 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
 
     def get_target_url(self):
         return self.__target_url
+
+    def get_current_or_target_url(self):
+        if self.current_url == self.delegate.loader_url:
+            return self.__target_url
+        else:
+            return self.get_url()
+
+    def is_showing_loading_screen(self):
+        return self.current_url == self.delegate.loader_url
 
     def __load_url_loading(self):
         if self.current_url != self.delegate.loader_url:
