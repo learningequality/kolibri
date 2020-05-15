@@ -172,10 +172,22 @@ class KolibriWindow(KolibriView):
         self.set_menubar(menu_bar)
 
     def show(self):
+        # TODO: Handle this in pyeverywhere
+        self.gtk_webview.connect('create', self.__gtk_webview_on_create)
+
         # Maximize windows on Endless OS
         if hasattr(self, 'gtk_window') and XDG_CURRENT_DESKTOP == 'endless:GNOME':
             self.gtk_window.maximize()
         super().show()
+
+    def __gtk_webview_on_create(self, webview, navigation_action):
+        # TODO: It would be nice to do a bit more of this ourselves so we can
+        #       get to handling downloads: write file to  disk and open it.
+        #       Using xdg-open and letting the default browser take care of it
+        #       is a convenient shortcut, but less pleasant to use.
+        request_uri = navigation_action.get_request().get_uri()
+        subprocess.call(['xdg-open', request_uri])
+        return None
 
 
 class Application(pew.ui.PEWApp):
