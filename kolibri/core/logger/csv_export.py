@@ -13,6 +13,10 @@ from django.core.cache import cache
 from django.http import Http404
 from django.http import HttpResponse
 from django.http.response import FileResponse
+from django.template.defaultfilters import slugify
+from django.utils import translation
+from django.utils.translation import get_language_from_request
+from django.utils.translation import pgettext
 
 from .models import ContentSessionLog
 from .models import ContentSummaryLog
@@ -180,6 +184,29 @@ def exported_logs_info(request):
 
 
 def download_csv_file(request, log_type):
+    locale = get_language_from_request(request)
+    translation.activate(locale)
+
+    csv_translated_filenames = {
+        "session": (
+            slugify(
+                pgettext(
+                    "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation",
+                    "content_session_logs",
+                )
+            )
+            + ".csv"
+        ).replace("-", "_"),
+        "summary": (
+            slugify(
+                pgettext(
+                    "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation",
+                    "content_summary_logs",
+                )
+            )
+            + ".csv"
+        ).replace("-", "_"),
+    }
     csv_export_filenames = {
         "session": "content_session_logs.csv",
         "summary": "content_summary_logs.csv",
@@ -202,8 +229,9 @@ def download_csv_file(request, log_type):
 
     # set the content-disposition as attachment to force download
     response["Content-Disposition"] = "attachment; filename={}".format(
-        csv_export_filenames[log_type]
+        str(csv_translated_filenames[log_type])
     )
+    translation.deactivate()
 
     # set the content-length to the file size
     response["Content-Length"] = os.path.getsize(filepath)
