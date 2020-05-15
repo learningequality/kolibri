@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-14 21:12+0200\n"
+"POT-Creation-Date: 2020-05-11 18:23+0200\n"
 "PO-Revision-Date: 2020-05-05 22:47\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish, Latin America\n"
@@ -32,112 +32,126 @@ msgid "Ad hoc learners group"
 msgstr "Ad hoc grupo de estudiantes"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:42
-msgid "Database ID ({})"
-msgstr ""
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:43
+#: kolibri/core/auth/management/commands/bulkexportusers.py:123
 msgid "Username ({})"
 msgstr "Nombre de usuario ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:44
+#: kolibri/core/auth/management/commands/bulkexportusers.py:43
+#: kolibri/core/auth/management/commands/bulkexportusers.py:124
 msgid "Password ({})"
 msgstr "Contraseña ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:45
+#: kolibri/core/auth/management/commands/bulkexportusers.py:44
+#: kolibri/core/auth/management/commands/bulkexportusers.py:125
 msgid "Full name ({})"
 msgstr "Nombre completo ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:46
+#: kolibri/core/auth/management/commands/bulkexportusers.py:49
+#: kolibri/core/auth/management/commands/bulkexportusers.py:130
+#, fuzzy
+#| msgid "User type ({})"
+msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "Tipo de usuario ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:47
+#: kolibri/core/auth/management/commands/bulkexportusers.py:52
+#: kolibri/core/auth/management/commands/bulkexportusers.py:133
 msgid "Identifier ({})"
 msgstr "Identificador ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:48
+#: kolibri/core/auth/management/commands/bulkexportusers.py:53
+#: kolibri/core/auth/management/commands/bulkexportusers.py:134
 msgid "Birth year ({})"
 msgstr "Año de nacimiento ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:49
+#: kolibri/core/auth/management/commands/bulkexportusers.py:54
+#: kolibri/core/auth/management/commands/bulkexportusers.py:135
 msgid "Gender ({})"
 msgstr "Género ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:50
+#: kolibri/core/auth/management/commands/bulkexportusers.py:59
+#: kolibri/core/auth/management/commands/bulkexportusers.py:140
+#, fuzzy
+#| msgid "Learner enrollment ({})"
+msgctxt ""
+"CSV file header for the list of classrooms names where the learner is going "
+"to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "Estudiante inscripción ({})"
+msgstr "Inscrito como estudiante ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:51
+#: kolibri/core/auth/management/commands/bulkexportusers.py:66
+#: kolibri/core/auth/management/commands/bulkexportusers.py:147
+#, fuzzy
+#| msgid "Coach assignment ({})"
+msgctxt ""
+"CSV file header for the list of classrooms names where the tutor is going to "
+"be a coach"
 msgid "Coach assignment ({})"
-msgstr "Tutor asignación ({})"
+msgstr "Asignado como tutor ({})"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:72
+#: kolibri/core/auth/management/commands/bulkimportusers.py:71
 #, fuzzy
 #| msgid "Unexpected error [{}]: {}"
-msgid "Unexpected exception [{}]: {}"
+msgctxt ""
+"Error message that might appear when there's a programming error importing a "
+"CSV file"
+msgid "Unexpected error [{}]: {}"
 msgstr "Error inesperado [{}]: {}"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:73
-msgid "'{}' is too long"
-msgstr ""
+msgid "Value in column '{}' is too many characters"
+msgstr "El valor en la columna '{}' tiene más caracteres de los permitidos"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:74
-msgid "Not a valid '{}'"
-msgstr ""
+msgid "Invalid value in column '{}'"
+msgstr "Valor incorrecto en la columna '{}'"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:75
-msgid "Duplicated Username"
-msgstr ""
+msgid "Username is duplicated"
+msgstr "Nombre de usuario duplicado"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:77
 msgid "Username only can contain characters, numbers and underscores"
 msgstr ""
 "Los nombres de usuario solo pueden contener letras, números y guiones bajos"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:79
+#: kolibri/core/auth/management/commands/bulkimportusers.py:81
+#, fuzzy
+#| msgid "The column '{}' is required"
+msgctxt ""
+"Importing a CSV file, there's a column that has not been added to the file"
 msgid "The column '{}' is required"
 msgstr "La columna '{}' es obligatoria"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:80
+#: kolibri/core/auth/management/commands/bulkimportusers.py:85
 #, fuzzy
 #| msgid "Invalid header label found in the first row"
-msgid "Mix of valid and/or invalid header labels found in first row"
+msgctxt ""
+"Importing a CSV file, the name of a column in the header is not correct (or "
+"is missed)"
+msgid "Invalid header label found in the first row"
 msgstr "Etiqueta de encabezado incorrecta en la primera fila"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:82
-#, fuzzy
-#| msgid ""
-#| "No default facility exists. Make sure to provision this device before "
-#| "importing"
+#: kolibri/core/auth/management/commands/bulkimportusers.py:88
 msgid ""
-"No default facility exists, please make sure to provision this device before "
-"running this command"
+"No default facility exists. Make sure to provision this device before "
+"importing"
 msgstr ""
 "El dispositivo no tiene configurado ningún centro educativo. Asegúrese que "
 "exista un centro antes de importar usuarios."
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:84
+#: kolibri/core/auth/management/commands/bulkimportusers.py:90
 msgid "Error trying to read csv file: {}"
 msgstr "Error al intentar leer el archivo CSV: {}"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:85
+#: kolibri/core/auth/management/commands/bulkimportusers.py:91
 msgid "Error trying to write csv file: {}"
 msgstr "Error al intentar guardar el archivo CSV: {}"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:87
+#: kolibri/core/auth/management/commands/bulkimportusers.py:93
 msgid ""
 "The password field is required. To leave the password unchanged in existing "
 "users, insert an asterisk (*)"
-msgstr ""
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:90
-msgid ""
-"Cannot update update '{}' because no user with that database ID exists in "
-"this facility"
-msgstr ""
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:92
-msgid "Database ID is not valid"
 msgstr ""
 
 #: kolibri/core/content/api.py:149
@@ -155,20 +169,6 @@ msgstr "Formato desconocido"
 #: kolibri/core/device/serializers.py:42
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri todavía no está disponible en este idioma"
-
-#: kolibri/core/logger/csv_export.py:195
-msgctxt ""
-"Default name for the exported CSV file with content session logs. Please "
-"keep the underscores between words in the translation"
-msgid "content_session_logs"
-msgstr "registros_de_sesion"
-
-#: kolibri/core/logger/csv_export.py:203
-msgctxt ""
-"Default name for the exported CSV file with content summary logs. Please "
-"keep the underscores between words in the translation"
-msgid "content_summary_logs"
-msgstr "registros_resumidos"
 
 #: kolibri/core/tasks/api.py:54
 msgid "There was a network error."
@@ -211,13 +211,6 @@ msgstr ""
 "Fue imposible redirigir página correctamente. Es probable que Kolibri está "
 "mal configurado"
 
-#: kolibri/plugins/facility/views.py:46
-msgctxt ""
-"Default name for the exported CSV file of facility user data. Please keep "
-"the underscore between words in the translation"
-msgid "users_{}"
-msgstr "usuarios_{}"
-
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
 msgid "OpenID Provider Authorization"
 msgstr "Autorización del proveedor de OpenID"
@@ -225,12 +218,3 @@ msgstr "Autorización del proveedor de OpenID"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "Petición de permiso"
-
-#~ msgid "Value in column '{}' is too many characters"
-#~ msgstr "Valor en la columna '{}' más dígitos del permitido"
-
-#~ msgid "Invalid value in column '{}'"
-#~ msgstr "Valor incorrecto en la columna '{}'"
-
-#~ msgid "Username is duplicated"
-#~ msgstr "Nombre de usuario duplicado"
