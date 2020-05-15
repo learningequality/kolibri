@@ -15,7 +15,7 @@ from morango.sync.controller import MorangoProfileController
 from requests.exceptions import ConnectionError
 from six.moves.urllib.parse import urljoin
 
-from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import device_provisioned
@@ -52,7 +52,7 @@ class Command(AsyncCommand):
     def get_client_and_server_certs(self, username, password, dataset_id, nc):
         # get servers certificates which server has a private key for
         server_certs = nc.get_remote_certificates(
-            dataset_id, scope_def_id=FULL_FACILITY
+            dataset_id, scope_def_id=ScopeDefinitions.FULL_FACILITY
         )
         if not server_certs:
             raise CommandError(
@@ -66,7 +66,7 @@ class Command(AsyncCommand):
         owned_certs = (
             Certificate.objects.filter(id=dataset_id)
             .get_descendants(include_self=True)
-            .filter(scope_definition_id=FULL_FACILITY)
+            .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
             .exclude(_private_key=None)
         )
 
@@ -79,7 +79,7 @@ class Command(AsyncCommand):
                 password = getpass.getpass("Please enter password: ")
             client_cert = nc.certificate_signing_request(
                 server_cert,
-                FULL_FACILITY,
+                ScopeDefinitions.FULL_FACILITY,
                 {"dataset_id": dataset_id},
                 userargs=username,
                 password=password,

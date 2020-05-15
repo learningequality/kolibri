@@ -67,8 +67,7 @@ from .permissions.general import IsFromSameFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
 from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
-from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
-from kolibri.core.auth.constants.morango_scope_definitions import SINGLE_USER
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.device.utils import allow_learner_unassigned_resource_access
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
@@ -140,7 +139,7 @@ class FacilityDataset(FacilityDataSyncableModel):
         # if we don't already have a source ID, get one by generating a new root certificate, and using its ID
         if not self._morango_source_id:
             self._morango_source_id = Certificate.generate_root_certificate(
-                FULL_FACILITY
+                ScopeDefinitions.FULL_FACILITY
             ).id
         return self._morango_source_id
 
@@ -702,10 +701,10 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         if scope_params.get("dataset_id") != self.dataset_id:
             # if the request isn't for the same facility as this user, abort
             return False
-        if scope_definition_id == FULL_FACILITY:
+        if scope_definition_id == ScopeDefinitions.FULL_FACILITY:
             # if request is for full-facility syncing, return True only if user is a Facility Admin
             return self.has_role_for_collection(role_kinds.ADMIN, self.facility)
-        elif scope_definition_id == SINGLE_USER:
+        elif scope_definition_id == ScopeDefinitions.SINGLE_USER:
             # for single-user syncing, return True if this user *is* target user, or is admin for target user
             target_user = FacilityUser.objects.get(id=scope_params.get("user_id"))
             if self == target_user:

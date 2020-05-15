@@ -10,7 +10,7 @@ from django.utils.six.moves import input
 from morango.models import Certificate
 from six.moves.urllib.parse import urljoin
 
-from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
@@ -140,7 +140,9 @@ def get_client_and_server_certs(
     username, password, dataset_id, nc, noninteractive=False
 ):
     # get servers certificates which server has a private key for
-    server_certs = nc.get_remote_certificates(dataset_id, scope_def_id=FULL_FACILITY)
+    server_certs = nc.get_remote_certificates(
+        dataset_id, scope_def_id=ScopeDefinitions.FULL_FACILITY
+    )
     if not server_certs:
         raise CommandError(
             "Server does not have any certificates for dataset_id: {}".format(
@@ -153,7 +155,7 @@ def get_client_and_server_certs(
     owned_certs = (
         Certificate.objects.filter(id=dataset_id)
         .get_descendants(include_self=True)
-        .filter(scope_definition_id=FULL_FACILITY)
+        .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
         .exclude(_private_key=None)
     )
 
@@ -170,7 +172,7 @@ def get_client_and_server_certs(
 
         client_cert = nc.certificate_signing_request(
             server_cert,
-            FULL_FACILITY,
+            ScopeDefinitions.FULL_FACILITY,
             {"dataset_id": dataset_id},
             userargs=username,
             password=password,

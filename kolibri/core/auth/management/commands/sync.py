@@ -14,7 +14,8 @@ from ..utils import create_superuser_and_provision_device
 from ..utils import get_baseurl
 from ..utils import get_client_and_server_certs
 from ..utils import get_dataset_id
-from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
+from kolibri.core.auth.constants.morango_sync import State
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
@@ -123,7 +124,7 @@ class Command(AsyncCommand):
             # check for the certs we own for the specific facility
             client_cert = (
                 facility.dataset.get_owned_certificates()
-                .filter(scope_definition_id=FULL_FACILITY)
+                .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
                 .first()
             )
             if not client_cert:
@@ -139,7 +140,7 @@ class Command(AsyncCommand):
 
             # check if the server already has a cert for this facility
             server_certs = network_connection.get_remote_certificates(
-                dataset_id, scope_def_id=FULL_FACILITY
+                dataset_id, scope_def_id=ScopeDefinitions.FULL_FACILITY
             )
 
             # if necessary, push a cert up to the server
@@ -148,7 +149,7 @@ class Command(AsyncCommand):
                 if server_certs
                 else network_connection.push_signed_client_certificate_chain(
                     local_parent_cert=client_cert,
-                    scope_definition_id=FULL_FACILITY,
+                    scope_definition_id=ScopeDefinitions.FULL_FACILITY,
                     scope_params=scope_params,
                 )
             )
@@ -206,7 +207,7 @@ class Command(AsyncCommand):
             """
             logger.info("Creating transfer session")
             if self.job:
-                self.job.extra_metadata.update(sync_state=SYNC_SESSION_CREATION)
+                self.job.extra_metadata.update(sync_state=State.SESSION_CREATION)
 
         def session_destruction():
             logger.info("Destroying transfer session")
@@ -219,20 +220,20 @@ class Command(AsyncCommand):
             self._queueing_tracker_adapter(
                 sync_client.queuing,
                 "Remotely preparing data",
-                SYNC_REMOTE_QUEUEING,
+                State.REMOTE_QUEUING,
                 False,
                 noninteractive,
             )
             self._transfer_tracker_adapter(
                 sync_client.pulling,
                 "Receiving data ({})".format(transfer_message),
-                SYNC_PULLING,
+                State.PULLING,
                 noninteractive,
             )
             self._queueing_tracker_adapter(
                 sync_client.dequeuing,
                 "Locally integrating received data",
-                SYNC_LOCAL_DEQUEUEING,
+                State.LOCAL_DEQUEUING,
                 True,
                 noninteractive,
             )
@@ -241,20 +242,20 @@ class Command(AsyncCommand):
             self._queueing_tracker_adapter(
                 sync_client.queuing,
                 "Locally preparing data to send",
-                SYNC_LOCAL_QUEUEING,
+                State.LOCAL_QUEUING,
                 True,
                 noninteractive,
             )
             self._transfer_tracker_adapter(
                 sync_client.pushing,
                 "Sending data ({})".format(transfer_message),
-                SYNC_PUSHING,
+                State.PUSHING,
                 noninteractive,
             )
             self._queueing_tracker_adapter(
                 sync_client.dequeuing,
                 "Remotely integrating data",
-                SYNC_REMOTE_DEQUEUEING,
+                State.REMOTE_DEQUEUING,
                 False,
                 noninteractive,
             )
