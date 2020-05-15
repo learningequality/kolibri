@@ -48,3 +48,30 @@ class GetFacilityTestCase(TestCase):
         Facility.objects.create(name="a_facility")
         Facility.objects.create(name="b_facility")
         self.assertEqual(self.facility, utils.get_facility())
+
+
+class BytesForHumans(TestCase):
+    def test_bytes(self):
+        self.assertEqual("132B", utils.bytes_for_humans(132))
+
+    def test_kilobytes(self):
+        self.assertEqual("242.10KiB", utils.bytes_for_humans(242.1 * 1024))
+
+    def test_megabytes(self):
+        self.assertEqual("377.10MiB", utils.bytes_for_humans(377.1 * 1024 * 1024))
+
+    def test_gigabytes(self):
+        self.assertEqual(
+            "421.50GiB", utils.bytes_for_humans(421.5 * 1024 * 1024 * 1024)
+        )
+
+    def test_terabytes(self):
+        self.assertEqual(
+            "555.00TiB", utils.bytes_for_humans(555 * 1024 * 1024 * 1024 * 1024)
+        )
+
+    def test_petabytes(self):
+        self.assertEqual(
+            "611.77PiB",
+            utils.bytes_for_humans(611.77 * 1024 * 1024 * 1024 * 1024 * 1024),
+        )

@@ -1,4 +1,6 @@
 import json
+import logging
+import math
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -7,6 +9,7 @@ from morango.models import InstanceIDModel
 from morango.models import ScopeDefinition
 from morango.sync.controller import MorangoProfileController
 
+from ..utils import bytes_for_humans
 from ..utils import create_superuser_and_provision_device
 from ..utils import get_baseurl
 from ..utils import get_client_and_server_certs
@@ -18,6 +21,18 @@ from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.utils import conf
 
 DATA_PORTAL_SYNCING_BASE_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
+
+# sync state constants
+SYNC_SESSION_CREATION = "SESSION_CREATION"
+SYNC_REMOTE_QUEUEING = "REMOTE_QUEUEING"
+SYNC_PULLING = "PULLING"
+SYNC_LOCAL_DEQUEUEING = "LOCAL_DEUEUEING"
+SYNC_LOCAL_QUEUEING = "LOCAL_QUEUEING"
+SYNC_PUSHING = "PUSHING"
+SYNC_REMOTE_DEQUEUEING = "REMOTE_DEQUEUEING"
+
+
+logger = logging.getLogger(__name__)
 
 
 class Command(AsyncCommand):
@@ -151,10 +166,15 @@ class Command(AsyncCommand):
                 noninteractive=noninteractive,
             )
 
-        self.stdout.write("Syncing has been initiated (this may take a while)...")
+        logger.info("Syncing has been initiated (this may take a while)...")
 
         sync_client = network_connection.create_sync_session(
             client_cert, server_cert, chunk_size=chunk_size
+        )
+
+        # setup all progress trackers before starting so CLI progress is accurate
+        self._setup_progress_tracking(
+            sync_client, not no_pull, not no_push, noninteractive
         )
 
         # pull from server and push our own data to server
@@ -170,4 +190,166 @@ class Command(AsyncCommand):
                 username, dataset_id, noninteractive=noninteractive
             )
         sync_client.close_sync_session()
-        self.stdout.write("Syncing has been completed.")
+        logger.info("Syncing has been completed.")
+
+    def _setup_progress_tracking(self, sync_client, pulling, pushing, noninteractive):
+        """
+        Sets up progress trackers for the various sync stages
+
+        :type sync_client: morango.sync.syncsession.SyncClient
+        :type sync_filter: Filter
+        """
+
+        def session_creation():
+            """
+            A session is created individually for pushing and pulling
+            """
+            logger.info("Creating transfer session")
+            if self.job:
+                self.job.extra_metadata.update(sync_state=SYNC_SESSION_CREATION)
+
+        def session_destruction():
+            logger.info("Destroying transfer session")
+
+        sync_client.session.started.connect(session_creation)
+        sync_client.session.completed.connect(session_destruction)
+        transfer_message = "{records_transferred}/{records_total}, {transfer_total}"
+
+        if pulling:
+            self._queueing_tracker_adapter(
+                sync_client.queueing,
+                "Remotely preparing data",
+                SYNC_REMOTE_QUEUEING,
+                False,
+                noninteractive,
+            )
+            self._transfer_tracker_adapter(
+                sync_client.pulling,
+                "Receiving data ({})".format(transfer_message),
+                SYNC_PULLING,
+                noninteractive,
+            )
+            self._queueing_tracker_adapter(
+                sync_client.dequeuing,
+                "Locally integrating received data",
+                SYNC_LOCAL_DEQUEUEING,
+                True,
+                noninteractive,
+            )
+
+        if pushing:
+            self._queueing_tracker_adapter(
+                sync_client.queueing,
+                "Locally preparing data to send",
+                SYNC_LOCAL_QUEUEING,
+                True,
+                noninteractive,
+            )
+            self._transfer_tracker_adapter(
+                sync_client.pushing,
+                "Sending data ({})".format(transfer_message),
+                SYNC_PUSHING,
+                noninteractive,
+            )
+            self._queueing_tracker_adapter(
+                sync_client.dequeuing,
+                "Remotely integrating data",
+                SYNC_REMOTE_DEQUEUEING,
+                False,
+                noninteractive,
+            )
+
+    def _update_all_progress(self, progress_fraction, progress):
+        """
+        Override parent progress update callback to report from all of our progress trackers
+        """
+        total_progress = sum([p.progress for p in self.progresstrackers])
+        total = sum([p.total for p in self.progresstrackers])
+        progress_fraction = total_progress / float(total) if total > 0.0 else 0.0
+
+        if self.job:
+            self.job.update_progress(progress_fraction, 1.0)
+            self.job.extra_metadata.update(progress.extra_data)
+            self.job.save_meta()
+
+    def _transfer_tracker_adapter(
+        self, signal_group, message, sync_state, noninteractive
+    ):
+        """
+        Attaches a signal handler to pushing/pulling signals
+
+        :type signal_group: morango.sync.syncsession.SyncSignalGroup
+        :type message: str
+        :type sync_state: str
+        :type noninteractive: bool
+        """
+        tracker = self.start_progress(total=100)
+
+        def stats_msg(transfer_session):
+            transfer_total = (
+                transfer_session.bytes_sent + transfer_session.bytes_received
+            )
+            return message.format(
+                records_transferred=transfer_session.records_transferred,
+                records_total=transfer_session.records_total,
+                transfer_total=bytes_for_humans(transfer_total),
+            )
+
+        def stats(transfer_session):
+            logger.info(stats_msg(transfer_session))
+
+        def handler(transfer_session):
+            """
+            :type transfer_session: morango.models.core.TransferSession
+            """
+            progress = (
+                100
+                * transfer_session.records_transferred
+                / float(transfer_session.records_total)
+            )
+            tracker.update_progress(
+                increment=math.ceil(progress - tracker.progress),
+                message=stats_msg(transfer_session),
+                extra_data=dict(
+                    bytes_sent=transfer_session.bytes_sent,
+                    bytes_received=transfer_session.bytes_received,
+                    sync_state=sync_state,
+                ),
+            )
+
+        signal_group.started.connect(stats)
+        signal_group.connect(handler)
+
+        if noninteractive or tracker.progressbar is None:
+            signal_group.in_progress.connect(stats)
+
+    def _queueing_tracker_adapter(
+        self, signal_group, message, sync_state, is_local, noninteractive
+    ):
+        """
+        Attaches a signal handler to queueing/dequeueing signals, filtered by `is_local` on
+        whether or not to match a local or remote signal
+
+        :type signal_group: morango.sync.syncsession.SyncSignalGroup
+        :type message: str
+        :type sync_state: str
+        :type is_local: bool
+        :type noninteractive: bool
+        """
+        tracker = self.start_progress(total=2)
+
+        def started(local):
+            if local == is_local:
+                logger.info(message)
+
+        def handler(local):
+            if local == is_local:
+                tracker.update_progress(
+                    message=message, extra_data=dict(sync_state=sync_state)
+                )
+
+        if noninteractive or tracker.progressbar is None:
+            signal_group.started.connect(started)
+
+        signal_group.started.connect(handler)
+        signal_group.completed.connect(handler)
