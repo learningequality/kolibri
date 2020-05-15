@@ -2,6 +2,7 @@
 Utility methods for syncing.
 """
 import getpass
+from functools import wraps
 
 import requests
 from django.core.management.base import CommandError
@@ -245,3 +246,21 @@ def bytes_for_humans(size, suffix="B"):
             return "{:.2f}{}{}".format(size, prefix, suffix)
         size /= PREFIX_FACTOR_BYTES
     return "{:.2f}{}{}".format(size, "P", suffix)
+
+
+def run_once(f):
+    """
+    Runs a function once, useful for connection once to a signal
+    :type f: function
+    :rtype: function
+    """
+
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not wrapper.has_run:
+            result = f(*args, **kwargs)
+            wrapper.has_run = True
+            return result
+
+    wrapper.has_run = False
+    return wrapper

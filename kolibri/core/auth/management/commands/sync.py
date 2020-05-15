@@ -17,20 +17,12 @@ from ..utils import get_dataset_id
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.constants.morango_sync import State
 from kolibri.core.auth.management.utils import get_facility
+from kolibri.core.auth.management.utils import run_once
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.utils import conf
 
 DATA_PORTAL_SYNCING_BASE_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
-
-# sync state constants
-SYNC_SESSION_CREATION = "SESSION_CREATION"
-SYNC_REMOTE_QUEUEING = "REMOTE_QUEUEING"
-SYNC_PULLING = "PULLING"
-SYNC_LOCAL_DEQUEUEING = "LOCAL_DEUEUEING"
-SYNC_LOCAL_QUEUEING = "LOCAL_QUEUEING"
-SYNC_PUSHING = "PUSHING"
-SYNC_REMOTE_DEQUEUEING = "REMOTE_DEQUEUEING"
 
 
 logger = logging.getLogger(__name__)
@@ -180,9 +172,19 @@ class Command(AsyncCommand):
 
         # pull from server and push our own data to server
         if not no_pull:
+            self._session_tracker_adapter(
+                sync_client.session,
+                "Creating pull transfer session",
+                "Completed pull transfer session",
+            )
             with db_task_write_lock:
                 sync_client.initiate_pull(Filter(dataset_id))
         if not no_push:
+            self._session_tracker_adapter(
+                sync_client.session,
+                "Creating push transfer session",
+                "Completed push transfer session",
+            )
             with db_task_write_lock:
                 sync_client.initiate_push(Filter(dataset_id))
 
@@ -198,22 +200,10 @@ class Command(AsyncCommand):
         Sets up progress trackers for the various sync stages
 
         :type sync_client: morango.sync.syncsession.SyncClient
-        :type sync_filter: Filter
+        :type pulling: bool
+        :type pushing: bool
+        :type noninteractive: bool
         """
-
-        def session_creation():
-            """
-            A session is created individually for pushing and pulling
-            """
-            logger.info("Creating transfer session")
-            if self.job:
-                self.job.extra_metadata.update(sync_state=State.SESSION_CREATION)
-
-        def session_destruction():
-            logger.info("Destroying transfer session")
-
-        sync_client.session.started.connect(session_creation)
-        sync_client.session.completed.connect(session_destruction)
         transfer_message = "{records_transferred}/{records_total}, {transfer_total}"
 
         if pulling:
@@ -273,6 +263,31 @@ class Command(AsyncCommand):
             self.job.extra_metadata.update(progress.extra_data)
             self.job.save_meta()
 
+    def _session_tracker_adapter(self, signal_group, started_msg, completed_msg):
+        """
+        Attaches a signal handler to session creation signals
+
+        :type signal_group: morango.sync.syncsession.SyncSignalGroup
+        :type started_msg: str
+        :type completed_msg: str
+        """
+
+        @run_once
+        def session_creation():
+            """
+            A session is created individually for pushing and pulling
+            """
+            logger.info(started_msg)
+            if self.job:
+                self.job.extra_metadata.update(sync_state=State.SESSION_CREATION)
+
+        @run_once
+        def session_destruction():
+            logger.info(completed_msg)
+
+        signal_group.started.connect(session_creation)
+        signal_group.completed.connect(session_destruction)
+
     def _transfer_tracker_adapter(
         self, signal_group, message, sync_state, noninteractive
     ):
@@ -323,6 +338,9 @@ class Command(AsyncCommand):
 
         if noninteractive or tracker.progressbar is None:
             signal_group.in_progress.connect(stats)
+
+        # log one more time at end to capture in logging output
+        signal_group.completed.connect(stats)
 
     def _queueing_tracker_adapter(
         self, signal_group, message, sync_state, is_local, noninteractive
