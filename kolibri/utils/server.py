@@ -489,7 +489,10 @@ def installation_type(cmd_line=None):  # noqa:C901
             apt_repo = str(check_output(["apt-cache", "madison", "kolibri"]))
             if apt_repo:
                 install_type = "apt"
-        except CalledProcessError:  # kolibri package not installed!
+        except (
+            CalledProcessError,
+            FileNotFoundError,
+        ):  # kolibri package not installed!
             install_type = "whl"
         return install_type
 
