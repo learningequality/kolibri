@@ -20,6 +20,7 @@ import logging
 import os
 import signal
 import sys
+import tempfile
 import time
 
 import six
@@ -235,3 +236,25 @@ else:
     pid_exists = _windows_pid_exists
     kill_pid = _windows_kill_pid
     _become_daemon_function = _windows_become_daemon
+
+
+def _symlink_capability_check():
+    """
+    Function to try to establish a symlink
+    return True if it succeeds, return False otherwise.
+    """
+    fd, temp_target = tempfile.mkstemp()
+    temp_pathname = temp_target + ".lnk"
+    can_do = True
+    try:
+        os.symlink(temp_target, temp_pathname)
+        os.remove(temp_pathname)
+    except OSError:
+        can_do = False
+    # Explicitly close the file so that we can remove it on windows
+    os.close(fd)
+    os.remove(temp_target)
+    return can_do
+
+
+CAN_USE_SYMLINKS = _symlink_capability_check()

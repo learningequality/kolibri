@@ -6,17 +6,15 @@ For usage instructions, see:
 This set of functions interacts with the crowdin API as documented here:
     https://support.crowdin.com/api/api-integration-setup/
 """
-
-import click
 import csv
 import io
-import json
 import logging
 import os
 import shutil
 import sys
 import zipfile
 
+import click
 import requests
 import utils
 from tabulate import tabulate
@@ -188,7 +186,7 @@ def pretranslate(branch, approve_all=False):
         "{}/{}".format(branch, f) for f in crowdin_files(branch, get_crowdin_details())
     ]
     params.extend([("files[]", file) for file in files])
-    codes = [lang[utils.KEY_CROWDIN_CODE] for lang in utils.supported_languages()]
+    codes = [lang[utils.KEY_CROWDIN_CODE] for lang in utils.available_languages()]
     params.extend([("languages[]", code) for code in codes])
 
     msg = (
@@ -271,10 +269,10 @@ def upload_translations(branch):
     checkPerseus()
     checkApiKey()
 
-    supported_languages = utils.supported_languages(
+    available_languages = utils.available_languages(
         include_in_context=False, include_english=False
     )
-    for lang_object in supported_languages:
+    for lang_object in available_languages:
         _upload_translation(branch, lang_object)
 
 
@@ -288,7 +286,7 @@ def _csv_to_json():
     Convert all CSV json files to JSON and ensure consistent diffs with ordered keys
     """
 
-    for lang_object in utils.supported_languages(include_in_context=True):
+    for lang_object in utils.available_languages(include_in_context=True):
         locale_path = utils.local_locale_path(lang_object)
         perseus_path = utils.local_perseus_locale_path(lang_object)
 
@@ -322,7 +320,7 @@ def _csv_to_json():
                 csv_file = io.open(
                     csv_path, mode=mode, encoding=encoding, newline=newline
                 )
-            except EnvironmentError as e:
+            except EnvironmentError:
                 logging.info("Failed to find CSV file in: {}".format(csv_path))
                 continue
 
@@ -396,7 +394,7 @@ def download_translations(branch):
     _wipe_translations(utils.LOCALE_PATH)
     _wipe_translations(utils.PERSEUS_LOCALE_PATH)
 
-    for lang_object in utils.supported_languages(include_in_context=True):
+    for lang_object in utils.available_languages(include_in_context=True):
         code = lang_object[utils.KEY_CROWDIN_CODE]
         url = DOWNLOAD_URL.format(language=code, branch=branch)
         r = requests.get(url)
@@ -410,9 +408,9 @@ def download_translations(branch):
         perseus_target = os.path.join(
             utils.local_perseus_locale_csv_path(), lang_object["crowdin_code"]
         )
-        ## TODO - Update this to work with perseus properly - likely to need to update
-        ## the kolibri-exercise-perseus-plugin repo directly to produce a CSV for its
-        ## translations.
+        # TODO - Update this to work with perseus properly - likely to need to update
+        # the kolibri-exercise-perseus-plugin repo directly to produce a CSV for its
+        # translations.
         if not os.path.exists(perseus_target):
             os.makedirs(perseus_target)
         try:
@@ -420,10 +418,10 @@ def download_translations(branch):
                 os.path.join(target, lang_object["crowdin_code"], PERSEUS_CSV),
                 os.path.join(perseus_target, PERSEUS_CSV),
             )
-        except:
+        except Exception:
             pass
 
-    ## TODO Don't need to format here... going to do this in the new command.
+    # TODO Don't need to format here... going to do this in the new command.
     _csv_to_json()  # clean them up to make git diffs more meaningful
     logging.info("Crowdin: download succeeded!")
 
@@ -615,7 +613,7 @@ def translation_stats(branch):
     words_total = 0
 
     sorted_languages = sorted(
-        utils.supported_languages(), key=lambda x: x[utils.KEY_ENG_NAME]
+        utils.available_languages(), key=lambda x: x[utils.KEY_ENG_NAME]
     )
     for lang in sorted_languages:
 
