@@ -14,6 +14,7 @@
     />
 
     <KTextbox
+      v-if="showConfirmationInput"
       ref="confirm"
       v-model="confirmation"
       type="password"
@@ -43,6 +44,11 @@
       },
       shouldValidate: {
         type: Boolean,
+      },
+      // Set to false if you just want one password field
+      showConfirmationInput: {
+        type: Boolean,
+        default: true,
       },
     },
     data() {
@@ -81,7 +87,11 @@
         return '';
       },
       valid() {
-        return this.confirmationInvalidText === '' && this.passwordInvalidText === '';
+        let passwordValid = this.passwordInvalidText === '';
+        if (this.showConfirmationInput) {
+          return this.confirmationInvalidText === '' && passwordValid;
+        }
+        return passwordValid;
       },
     },
     watch: {
@@ -100,6 +110,12 @@
         } else if (this.shownConfirmationInvalidText) {
           this.$refs.confirm.focus();
         }
+      },
+      // @public
+      resetAndFocus() {
+        this.passwordBlurred = false;
+        this.$emit('update:value', '');
+        this.$refs.password.focus();
       },
     },
     $trs: {

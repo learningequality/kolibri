@@ -45,10 +45,7 @@
           .then(() => {
             this.$store.commit('userManagement/DELETE_USER', this.id);
             this.$emit('cancel');
-            this.$store.dispatch(
-              'createSnackbar',
-              this.$tr('userDeletedNotification', { username: this.username })
-            );
+            this.showSnackbarNotification('userDeleted');
           })
           .catch(error => {
             this.$store.dispatch('handleApiError', error);
@@ -59,7 +56,6 @@
       deleteUser: 'Delete user',
       confirmation: "Are you sure you want to delete the user '{ username }'?",
       warning: 'All data and logs for this user will be lost.',
-      userDeletedNotification: "User account for '{username}' was deleted",
     },
   };
 

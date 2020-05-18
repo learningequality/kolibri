@@ -36,6 +36,7 @@
 <script>
 
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import LessonRootPage from '../LessonsRootPage';
   import commonCoach from '../../common';
@@ -43,7 +44,7 @@
   export default {
     name: 'LessonCreationPage',
     components: { AssignmentDetailsModal },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       classId() {
         return this.$route.params.classId;
@@ -66,10 +67,14 @@
           }
           return assignment;
         });
-        this.$store.dispatch('lessonsRoot/createLesson', {
-          classId: this.classId,
-          payload: formData,
-        });
+        this.$store
+          .dispatch('lessonsRoot/createLesson', {
+            classId: this.classId,
+            payload: formData,
+          })
+          .then(() => {
+            this.showSnackbarNotification('lessonCreated');
+          });
       },
     },
   };

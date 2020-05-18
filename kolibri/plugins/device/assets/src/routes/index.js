@@ -47,6 +47,15 @@ const routes = [
       store.dispatch('preparePage', { name });
       showManageContentPage(store).then(hideLoadingScreen);
     },
+    // fetch the facilities if redirecting from /welcome, since the WelcomeModal
+    // needs it
+    beforeEnter(to, from, next) {
+      if (to.redirectedFrom === '/welcome') {
+        store.dispatch('getFacilities').then(next, next);
+      } else {
+        next();
+      }
+    },
   },
   {
     name: PageNames.MANAGE_PERMISSIONS_PAGE,

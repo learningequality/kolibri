@@ -68,7 +68,7 @@
       },
       submitText: {
         type: String,
-        required: true,
+        required: false,
       },
       settingIsEnabled: {
         type: Boolean,

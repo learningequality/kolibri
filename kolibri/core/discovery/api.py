@@ -5,10 +5,11 @@ from .models import NetworkLocation
 from .models import StaticNetworkLocation
 from .serializers import NetworkLocationSerializer
 from kolibri.core.content.permissions import CanManageContent
+from kolibri.core.device.permissions import NotProvisionedHasPermission
 
 
 class NetworkLocationViewSet(viewsets.ModelViewSet):
-    permission_classes = (CanManageContent,)
+    permission_classes = [CanManageContent | NotProvisionedHasPermission]
     serializer_class = NetworkLocationSerializer
     queryset = NetworkLocation.objects.all()
 

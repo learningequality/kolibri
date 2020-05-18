@@ -1,48 +1,34 @@
 <template>
 
-  <KModal
-    :title="$tr('selectLocalRemoteSourceTitle')"
-    size="medium"
-    :submitText="coreString('continueAction')"
-    :cancelText="coreString('cancelAction')"
+  <SelectSourceModal
     :submitDisabled="formIsDisabled"
+    :showLoadingMessage="formIsDisabled && !initialDelay"
     @submit="handleSubmit"
     @cancel="handleCancel"
   >
-    <UiAlert
-      v-if="formIsDisabled && !initialDelay"
-      type="info"
-      :dismissible="false"
-      class="delay"
-    >
-      {{ $tr('loadingMessage') }}
-    </UiAlert>
-
-    <div>
-      <KRadioButton
-        v-model="source"
-        :label="$tr('network')"
-        :value="ContentSources.KOLIBRI_STUDIO"
-        :disabled="kolibriStudioIsOffline || formIsDisabled"
-        :autofocus="!kolibriStudioIsOffline"
-        :description="$tr('studioDescription')"
-      />
-      <KRadioButton
-        v-model="source"
-        :label="$tr('localNetworkOrInternet')"
-        :value="ContentSources.PEER_KOLIBRI_SERVER"
-        :disabled="formIsDisabled"
-        :description="$tr('networkDescription')"
-      />
-      <KRadioButton
-        v-model="source"
-        :label="$tr('localDrives')"
-        :value="ContentSources.LOCAL_DRIVE"
-        :disabled="formIsDisabled"
-        :description="$tr('localDescription')"
-      />
-    </div>
-  </KModal>
+    <KRadioButton
+      v-model="source"
+      :label="$tr('network')"
+      :value="ContentSources.KOLIBRI_STUDIO"
+      :disabled="kolibriStudioIsOffline || formIsDisabled"
+      :autofocus="!kolibriStudioIsOffline"
+      :description="$tr('studioDescription')"
+    />
+    <KRadioButton
+      v-model="source"
+      :label="$tr('localNetworkOrInternet')"
+      :value="ContentSources.PEER_KOLIBRI_SERVER"
+      :disabled="formIsDisabled"
+      :description="$tr('networkDescription')"
+    />
+    <KRadioButton
+      v-model="source"
+      :label="$tr('localDrives')"
+      :value="ContentSources.LOCAL_DRIVE"
+      :disabled="formIsDisabled"
+      :description="$tr('localDescription')"
+    />
+  </SelectSourceModal>
 
 </template>
 
@@ -51,16 +37,14 @@
 
   import { mapActions, mapMutations } from 'vuex';
   import { RemoteChannelResource } from 'kolibri.resources';
-  import UiAlert from 'keen-ui/src/UiAlert';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentSources } from '../../../constants';
+  import SelectSourceModal from '../../SelectSourceModal';
 
   export default {
     name: 'SelectImportSourceModal',
     components: {
-      UiAlert,
+      SelectSourceModal,
     },
-    mixins: [commonCoreStrings],
     data() {
       return {
         source: ContentSources.KOLIBRI_STUDIO,
@@ -108,10 +92,8 @@
       network: 'Kolibri Studio (online)',
       localNetworkOrInternet: 'Local network or internet',
       localDrives: 'Attached drive or memory card',
-      selectLocalRemoteSourceTitle: 'Select a source',
-      loadingMessage: 'Loading connections…',
       studioDescription:
-        'Import resources from the Kolibri Content Library if you are connected to the internet',
+        'Import resources from Kolibri Studio if you are connected to the internet',
       networkDescription:
         'Import resources from another instance of Kolibri running on another device, either in the same local network or on the internet',
       localDescription:

@@ -1,4 +1,5 @@
 import { createTranslator } from 'kolibri.utils.i18n';
+import notificationStrings from './notificationStrings';
 
 export const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
@@ -33,6 +34,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
 
   // labels, phrases, titles, headers...
   adminLabel: 'Admin',
+  allClassesLabel: 'All classes',
   allFacilitiesLabel: 'All facilities',
   allLabel: 'All',
   allLessonsLabel: 'All lessons',
@@ -71,6 +73,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   searchLabel: 'Search',
   showCorrectAnswerLabel: 'Show correct answer',
   signInLabel: 'Sign in',
+  superAdminLabel: 'Super admin',
   tasksLabel: 'Tasks',
   usageAndPrivacyLabel: 'Usage and privacy',
   userTypeLabel: 'User type',
@@ -90,6 +93,9 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // Formatting
   nameWithIdInParens: '{name} ({id})',
   quotedPhrase: `'{phrase}'`,
+  dashSeparatedPair: '{item1} - {item2}',
+  dashSeparatedTriple: '{item1} - {item2} - {item3}',
+  labelColonThenDetails: '{label}: {details}',
 
   // Demographic-specific strings
   genderOptionMale: 'Male',
@@ -115,6 +121,17 @@ export default {
   methods: {
     coreString(key, args) {
       return coreStrings.$tr(key, args);
+    },
+    showSnackbarNotification(key, args, coreCreateSnackbarArgs) {
+      let text = notificationStrings.$tr(key, args || {});
+      if (coreCreateSnackbarArgs) {
+        this.$store.commit('CORE_CREATE_SNACKBAR', {
+          ...coreCreateSnackbarArgs,
+          text,
+        });
+      } else {
+        this.$store.dispatch('createSnackbar', text);
+      }
     },
   },
 };

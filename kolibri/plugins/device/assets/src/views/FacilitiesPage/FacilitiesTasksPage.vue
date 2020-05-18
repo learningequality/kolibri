@@ -45,11 +45,11 @@
     return {
       type: 'SYNC_FACILITY',
       status,
-      device_name: 'generic device',
-      device_id: 'dev123',
-      facility_name: 'generic facility',
-      facility_id: 'fac123',
-      started_by_username: 'generic user',
+      device_name: 'fcorp.local',
+      device_id: '4a9a',
+      facility_name: 'Atkinson Hall',
+      facility_id: 'D81C',
+      started_by_username: 'jb',
       bytes_sent: 1000000,
       bytes_received: 500000000,
       percentage: 0.6,
@@ -60,9 +60,9 @@
     return {
       type: 'REMOVE_FACILITY',
       status,
-      facility_name: 'removed facility',
-      facility_id: 'fac123',
-      started_by_username: 'removing user',
+      facility_name: 'Atkinson Hall',
+      facility_id: 'D81C',
+      started_by_username: 'jb',
       percentage: 0.7,
     };
   }
@@ -73,6 +73,11 @@
 
   export default {
     name: 'FacilitiesTasksPage',
+    metaInfo() {
+      return {
+        title: this.coreString('tasksLabel'),
+      };
+    },
     components: {
       FacilityTaskPanel,
       HeaderWithOptions,

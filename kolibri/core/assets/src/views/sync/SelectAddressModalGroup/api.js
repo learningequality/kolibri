@@ -1,9 +1,9 @@
-import { RemoteChannelResource } from 'kolibri.resources';
 import {
   NetworkLocationResource,
+  RemoteChannelResource,
   StaticNetworkLocationResource,
   DynamicNetworkLocationResource,
-} from '../../../apiResources';
+} from 'kolibri.resources';
 
 function channelIsAvailableAtLocation(channelId, location) {
   if (!location.available) {

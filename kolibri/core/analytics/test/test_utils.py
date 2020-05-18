@@ -300,6 +300,7 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
                         contentsummarylog__channel_id=self.channel.id, gender=gender
                     ).count()
                     for (gender, _) in demographics.choices
+                    if FacilityUser.objects.filter(gender=gender).exists()
                 },
             },
             "dsnl": {},

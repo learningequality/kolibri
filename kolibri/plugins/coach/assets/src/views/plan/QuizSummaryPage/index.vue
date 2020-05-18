@@ -222,6 +222,7 @@
                 className,
               })
               .then(result => {
+                this.showSnackbarNotification('quizCopied');
                 // If exam was copied to the current classroom, add it to the classSummary module
                 if (classroomId === this.classId) {
                   const object = {
@@ -263,10 +264,7 @@
           .then(() => {
             this.$store.commit('classSummary/DELETE_ITEM', { map: 'examMap', id: this.quiz.id });
             this.$router.replace(this.$router.getRoute('EXAMS'), () => {
-              this.$store.dispatch(
-                'createSnackbar',
-                this.$tr('quizDeletedNotification', { title: this.quiz.title })
-              );
+              this.showSnackbarNotification('quizDeleted');
             });
           })
           .catch(error => {
@@ -275,7 +273,6 @@
       },
     },
     $trs: {
-      quizDeletedNotification: `'{title}' was deleted`,
       uniqueTitleError: `A quiz titled '{title}' already exists in '{className}'`,
     },
   };
