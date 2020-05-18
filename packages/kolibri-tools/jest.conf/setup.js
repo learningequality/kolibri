@@ -11,6 +11,22 @@ import { i18nSetup } from 'kolibri.utils.i18n';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 import KContentPlugin from 'kolibri-design-system/lib/content/KContentPlugin';
 
+global.beforeEach(() => {
+  return new Promise(resolve => {
+    Aphrodite.StyleSheetTestUtils.suppressStyleInjection();
+    AphroditeNoImportant.StyleSheetTestUtils.suppressStyleInjection();
+    return process.nextTick(resolve);
+  });
+
+});
+
+global.afterEach(() => {
+  return new Promise(resolve => {
+    Aphrodite.StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
+    AphroditeNoImportant.StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
+    return process.nextTick(resolve);
+  });
+});
 
 // Register Vue plugins and components
 Vue.use(Vuex);
@@ -30,9 +46,9 @@ csrf.name = 'csrfmiddlewaretoken';
 csrf.value = 'csrfmiddlewaretoken';
 global.document.body.append(csrf);
 
+global.before
+
 Object.defineProperty(window, 'scrollTo', { value: () => {}, writable: true });
-Aphrodite.StyleSheetTestUtils.suppressStyleInjection();
-AphroditeNoImportant.StyleSheetTestUtils.suppressStyleInjection();
 
 // Shows better NodeJS unhandled promise rejection errors
 process.on('unhandledRejection', (reason, p) => {
