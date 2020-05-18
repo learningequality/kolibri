@@ -18,8 +18,8 @@ from django_js_reverse.rjsmin import jsmin
 import kolibri
 from kolibri.core.content.utils.paths import get_content_storage_url
 from kolibri.core.device.models import ContentCacheKey
-from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.hooks import NavigationHook
+from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.theme_hook import ThemeHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins.hooks import register_hook
@@ -109,14 +109,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
 
         languages = {}
         for code, language_name in settings.LANGUAGES:
-            lang_info = next(
-                (
-                    lang
-                    for lang in i18n.KOLIBRI_SUPPORTED_LANGUAGES
-                    if lang["intl_code"] == code
-                ),
-                None,
-            )
+            lang_info = i18n.KOLIBRI_LANGUAGE_INFO[code]
             languages[code] = {
                 # Format to match the schema of the content Language model
                 "id": code,

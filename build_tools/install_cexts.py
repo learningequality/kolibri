@@ -15,7 +15,7 @@ DIST_CEXT = os.path.join(
     "cext",
 )
 PYPI_DOWNLOAD = "https://pypi.python.org/simple/"
-PIWHEEL_DOWNLOAD = "https://www.piwheels.hostedpi.com/simple/"
+PIWHEEL_DOWNLOAD = "https://www.piwheels.org/simple/"
 
 
 def get_path_with_arch(platform, path, abi, implementation, python_version):
