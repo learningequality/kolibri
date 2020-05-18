@@ -39,7 +39,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 
   export default {
     name: 'ProgressIcon',

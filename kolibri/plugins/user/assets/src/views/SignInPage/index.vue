@@ -202,10 +202,10 @@
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import { validateUsername } from 'kolibri.utils.validators';
-  import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
+  import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import branding from 'kolibri.utils.branding';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import urls from 'kolibri.urls';
   import loginComponents from 'kolibri.utils.loginComponents';

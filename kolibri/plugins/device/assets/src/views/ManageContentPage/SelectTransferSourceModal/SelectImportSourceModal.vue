@@ -51,7 +51,7 @@
 
   import { mapActions, mapMutations } from 'vuex';
   import { RemoteChannelResource } from 'kolibri.resources';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentSources } from '../../../constants';
 

@@ -108,7 +108,7 @@
 
   import { mapState, mapActions } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
   import { now } from 'kolibri.utils.serverClock';
   import { TaskResource } from 'kolibri.resources';
   import { Modals } from '../../../constants';

@@ -112,7 +112,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import find from 'lodash/find';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { deleteAddress, fetchStaticAddresses, fetchDynamicAddresses } from './api';
 

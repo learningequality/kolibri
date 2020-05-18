@@ -92,7 +92,7 @@
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { availableLanguages } from 'kolibri.utils.i18n';
   import { LandingPageChoices } from '../../constants';
   import { getDeviceSettings, saveDeviceSettings } from './api';

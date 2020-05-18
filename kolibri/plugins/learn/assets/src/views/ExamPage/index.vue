@@ -135,7 +135,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import UiAlert from 'kolibri.coreVue.components.UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames } from '../../constants';

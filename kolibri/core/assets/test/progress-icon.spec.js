@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import store from 'kolibri.coreVue.vuex.store';
-import UiIcon from 'keen-ui/src/UiIcon';
+import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 import ProgressIcon from '../src/views/ProgressIcon';
 
 function testIcon(wrapper, expectedText) {

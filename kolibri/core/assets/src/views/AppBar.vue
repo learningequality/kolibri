@@ -112,7 +112,7 @@
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
-  import UiButton from 'keen-ui/src/UiButton';
+  import UiButton from 'kolibri-design-system/lib/keen/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import branding from 'kolibri.utils.branding';

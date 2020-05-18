@@ -87,7 +87,7 @@
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import Snackbar from './Snackbar';
 
   const SNACKBARS = { POINTS: 'POINTS', NEXT_RESOURCE: 'NEXT_RESOURCE' };

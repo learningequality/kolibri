@@ -51,7 +51,7 @@
 
   import { mapActions, mapState, mapGetters, mapMutations } from 'vuex';
   import find from 'lodash/find';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TransferTypes } from '../../../constants';
   import DriveList from './DriveList';
