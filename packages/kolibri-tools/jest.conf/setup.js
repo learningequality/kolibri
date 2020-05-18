@@ -17,7 +17,6 @@ global.beforeEach(() => {
     AphroditeNoImportant.StyleSheetTestUtils.suppressStyleInjection();
     return process.nextTick(resolve);
   });
-
 });
 
 global.afterEach(() => {
@@ -46,7 +45,6 @@ csrf.name = 'csrfmiddlewaretoken';
 csrf.value = 'csrfmiddlewaretoken';
 global.document.body.append(csrf);
 
-global.before
 
 Object.defineProperty(window, 'scrollTo', { value: () => {}, writable: true });
 
