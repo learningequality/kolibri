@@ -3,7 +3,7 @@ import router from 'kolibri.coreVue.router';
 import AllFacilitiesPage from '../views/AllFacilitiesPage';
 import CoachClassListPage from '../views/CoachClassListPage';
 import HomePage from '../views/home/HomePage';
-import CoachPrompts from '../views/CoachPrompts';
+// import CoachPrompts from '../views/CoachPrompts';
 import HomeActivityPage from '../views/home/HomeActivityPage';
 import StatusTestPage from '../views/common/status/StatusTestPage';
 import reportRoutes from './reportRoutes';
@@ -71,13 +71,15 @@ export default [
       store.dispatch('notLoading');
     },
   },
-  {
-    path: '/coach-prompts',
-    component: CoachPrompts,
-    handler() {
-      store.dispatch('notLoading');
-    },
-  },
+  // NOTE: Commenting out CoachPrompts route so the component and its messages
+  // won't be translated
+  // {
+  //   path: '/coach-prompts',
+  //   component: CoachPrompts,
+  //   handler() {
+  //     store.dispatch('notLoading');
+  //   },
+  // },
   {
     path: '/',
     // Redirect to AllFacilitiesPage if a superuser and device has > 1 facility
