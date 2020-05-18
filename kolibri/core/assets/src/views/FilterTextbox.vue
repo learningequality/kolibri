@@ -38,7 +38,7 @@
 <script>
 
   import throttle from 'lodash/throttle';
-  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
   /**
    * Used to filter items via text input
    */

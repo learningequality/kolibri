@@ -14,7 +14,7 @@
 
 import vue from 'vue';
 import vuex from 'vuex';
-import UiAlert from 'keen-ui/src/UiAlert';
+import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
 import responsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
 import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
 import scriptLoader from 'kolibri-design-system/lib/utils/scriptLoader';

@@ -76,6 +76,8 @@
     ConfirmationRegisterModal,
     RegisterFacilityModal,
   } from 'kolibri.coreVue.componentSets.sync';
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
+  import { now } from 'kolibri.utils.serverClock';
   import { TaskResource } from 'kolibri.resources';
   import { Modals } from '../../../constants';
   import PrivacyModal from './PrivacyModal';

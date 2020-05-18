@@ -110,7 +110,7 @@
 
   import { validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds, USER } from 'kolibri.coreVue.vuex.constants';
-  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 
   export default {
     name: 'ContentIcon',

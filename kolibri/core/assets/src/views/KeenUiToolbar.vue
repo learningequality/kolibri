@@ -1,6 +1,6 @@
 <script>
 
-  import UiToolbar from 'keen-ui/src/UiToolbar';
+  import UiToolbar from 'kolibri-design-system/lib/keen/UiToolbar';
 
   export default {
     name: 'KeenUiToolbar',

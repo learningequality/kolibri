@@ -11,8 +11,6 @@ import { i18nSetup } from 'kolibri.utils.i18n';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 import KContentPlugin from 'kolibri-design-system/lib/content/KContentPlugin';
 
-Aphrodite.StyleSheetTestUtils.suppressStyleInjection();
-AphroditeNoImportant.StyleSheetTestUtils.suppressStyleInjection();
 
 // Register Vue plugins and components
 Vue.use(Vuex);
@@ -33,6 +31,8 @@ csrf.value = 'csrfmiddlewaretoken';
 global.document.body.append(csrf);
 
 Object.defineProperty(window, 'scrollTo', { value: () => {}, writable: true });
+Aphrodite.StyleSheetTestUtils.suppressStyleInjection();
+AphroditeNoImportant.StyleSheetTestUtils.suppressStyleInjection();
 
 // Shows better NodeJS unhandled promise rejection errors
 process.on('unhandledRejection', (reason, p) => {

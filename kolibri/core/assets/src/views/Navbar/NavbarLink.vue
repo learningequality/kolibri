@@ -28,7 +28,7 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 
   /**
    Links for use inside the Navbar

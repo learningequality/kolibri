@@ -113,7 +113,7 @@
 <script>
 
   import find from 'lodash/find';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { deleteAddress, fetchStaticAddresses, fetchDynamicAddresses } from './api';
