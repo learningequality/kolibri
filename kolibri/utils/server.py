@@ -27,6 +27,11 @@ except NotImplementedError:
     # This module can't work on this OS
     psutil = None
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
 logger = logging.getLogger(__name__)
 
 # Status codes for kolibri
@@ -489,7 +494,10 @@ def installation_type(cmd_line=None):  # noqa:C901
             apt_repo = str(check_output(["apt-cache", "madison", "kolibri"]))
             if apt_repo:
                 install_type = "apt"
-        except CalledProcessError:  # kolibri package not installed!
+        except (
+            CalledProcessError,
+            FileNotFoundError,
+        ):  # kolibri package not installed!
             install_type = "whl"
         return install_type
 
