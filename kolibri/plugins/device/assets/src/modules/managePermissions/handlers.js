@@ -14,9 +14,8 @@ function fetchDevicePermissions() {
   });
 }
 
-function fetchFacilityUsers(store) {
-  const facilityId = store.getters.currentFacilityId;
-  return FacilityUserResource.fetchCollection({ getParams: { member_of: facilityId } });
+function fetchFacilityUsers() {
+  return FacilityUserResource.fetchCollection();
 }
 
 export function showManagePermissionsPage(store) {
