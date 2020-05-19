@@ -17,7 +17,7 @@ For the majority of development on a new release, PRs will target the ``develop`
 
 Make sure to target ``develop``, use the standard tag naming convention (e.g. ``v0.3.0-alpha1``), and mark it has a "pre-release".
 
-.. note:: The latest tagged releases are automatically deployed to `kolibri-dev.learningequality.org <https://kolibri-dev.learningequality.org/>`__.
+.. note:: The latest HEAD commit of ``develop`` is automatically deployed to `kolibri-dev.learningequality.org <https://kolibri-dev.learningequality.org/>`__.
 
 When a new alpha is published, *delete any older alphas* using Github's 'delete release' functionality. This will *not* delete the git tag.
 
@@ -54,7 +54,6 @@ While translators are working, we finish final feature development and begin int
 
 .. note:: The latest beta releases are automatically deployed to `kolibri-beta.learningequality.org <https://kolibri-dev.learningequality.org/>`__.
 
-The remainder of the release process is documented in structured workflows in the `Kolibri release process repo <https://github.com/learningequality/kolibri-release-process/>`__.
-
+The remainder of the release process is documented in structured workflows in the `Kolibri release process repo <https://github.com/learningequality/kolibri-release-process/>`__. (Note: this is currently a private repository because it interacts with internal Learning Equality systems)
 
 
