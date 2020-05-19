@@ -1,4 +1,5 @@
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.constants import user_kinds
 from kolibri.core.device.models import DevicePermissions
 from rest_framework.exceptions import NotFound
 from rest_framework.exceptions import PermissionDenied
@@ -11,6 +12,7 @@ from rest_framework.permissions import BasePermission
 class HasPermissionDuringSetup(BasePermission):
     def has_permission(self, request, view):
         from kolibri.core.device.utils import device_provisioned
+
         return not device_provisioned()
 
 
@@ -18,7 +20,8 @@ class FacilityAdminView(GenericViewSet):
     """
     Returns basic data about admins from the just-imported Facility
     """
-    permission_classes = (HasPermissionDuringSetup, )
+
+    permission_classes = (HasPermissionDuringSetup,)
 
     def list(self, request):
         # The filter is very loose, since we areassuming that the only
@@ -33,21 +36,24 @@ class GrantSuperuserPermissionsView(GenericViewSet):
     Given a FacilityUser and their credentials, creates a DevicePermissions
     record with is_superuser = True
     """
-    permission_classes = (HasPermissionDuringSetup, )
+
+    permission_classes = (HasPermissionDuringSetup,)
 
     def create(self, request):
         user_id = request.data.get("user_id", "")
         password = request.data.get("password", "")
 
         # Step 1: Get the Facility User object
-        # TODO fail if user isn't admin
         try:
             facilityuser = FacilityUser.objects.get(id=user_id)
         except (Exception, FacilityUser.DoesNotExist):
             raise NotFound()
 
-        # Step 2: Test the password
-        if not facilityuser.check_password(password):
+        # Step 2: Test for password and admin role
+        if (
+            not facilityuser.check_password(password)
+            or user_kinds.ADMIN not in facilityuser.session_data["kind"]
+        ):
             raise PermissionDenied()
 
         # Step 3: If it succeeds, create a DevicePermissions model for
@@ -67,7 +73,7 @@ class StartFacilityImportTaskView(GenericViewSet):
     a Facility Import task
     """
 
-    permission_classes = (HasPermissionDuringSetup, )
+    permission_classes = (HasPermissionDuringSetup,)
 
     def create(self, request):
         # Step 1: Send all of the info over to the facility-import endpoint
