@@ -27,6 +27,11 @@ except NotImplementedError:
     # This module can't work on this OS
     psutil = None
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
 logger = logging.getLogger(__name__)
 
 # Status codes for kolibri
