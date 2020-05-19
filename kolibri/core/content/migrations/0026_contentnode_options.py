@@ -3,19 +3,20 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
+
 import kolibri.core.fields
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('content', '0025_add_h5p_kind'),
+        ("content", "0025_add_h5p_kind"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='contentnode',
-            name='options',
+            model_name="contentnode",
+            name="options",
             field=kolibri.core.fields.JSONField(default={}),
         ),
     ]
