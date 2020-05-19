@@ -185,7 +185,10 @@
   import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 
   import { looseIndexOf, looseEqual } from 'kolibri-design-system/lib/keen/helpers/util';
-  import { scrollIntoView, resetScroll } from 'kolibri-design-system/lib/keen/helpers/element-scroll';
+  import {
+    scrollIntoView,
+    resetScroll,
+  } from 'kolibri-design-system/lib/keen/helpers/element-scroll';
   import config from 'kolibri-design-system/lib/keen/config';
   import KeenUiSelectOption from './KeenUiSelectOption.vue';
 
