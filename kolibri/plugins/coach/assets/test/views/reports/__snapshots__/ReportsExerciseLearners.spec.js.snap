@@ -12,7 +12,7 @@ exports[`ReportsExerciseLearners doesn't render groups information when show gro
         <th>Last activity</th>
       </tr>
     </thead>
-    <div tag="tbody" name="list">
+    <transition-group-stub tag="tbody" name="list">
       <tr data-test="entry">
         <td><span class="labeled-icon-wrapper"><span class="icon"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #212121; top: 2px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg></span> <span class="label" style="margin-left: 1.975em;"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_qhgpwa link"><span class="labeled-icon-wrapper"><span class="icon"><!----></span> <span class="label"><span dir="auto" class="debug-warning"><!----> <span>learner1</span>
           <!----></span></span> <span class="icon-after"><!----></span></span></a></span></span> <span class="icon-after"><!----></span></span></td>
@@ -45,7 +45,7 @@ exports[`ReportsExerciseLearners doesn't render groups information when show gro
   3 hours ago
 </span></td>
       </tr>
-    </div>
+    </transition-group-stub>
   </table>
 </div>
 `;
@@ -64,7 +64,7 @@ exports[`ReportsExerciseLearners renders all entries 1`] = `
         <th>Last activity</th>
       </tr>
     </thead>
-    <div tag="tbody" name="list">
+    <transition-group-stub tag="tbody" name="list">
       <tr data-test="entry">
         <td><span class="labeled-icon-wrapper"><span class="icon"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #212121; top: 2px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg></span> <span class="label" style="margin-left: 1.975em;"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_qhgpwa link"><span class="labeled-icon-wrapper"><span class="icon"><!----></span> <span class="label"><span dir="auto" class="debug-warning"><!----> <span>learner1</span>
           <!----></span></span> <span class="icon-after"><!----></span></span></a></span></span> <span class="icon-after"><!----></span></span></td>
@@ -105,7 +105,7 @@ exports[`ReportsExerciseLearners renders all entries 1`] = `
   3 hours ago
 </span></td>
       </tr>
-    </div>
+    </transition-group-stub>
   </table>
 </div>
 `;
