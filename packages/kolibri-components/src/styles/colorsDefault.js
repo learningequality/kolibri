@@ -8,6 +8,8 @@ export const defaultTokenMapping = {
   textDisabled: 'palette.grey.v_300',
   annotation: 'palette.grey.v_700',
   textInverted: 'palette.white',
+  link: 'brand.primary.v_400',
+  linkDark: 'brand.primary.v_700',
   loading: 'brand.secondary.v_200',
   focusOutline: 'brand.secondary.v_200',
   surface: 'palette.white',

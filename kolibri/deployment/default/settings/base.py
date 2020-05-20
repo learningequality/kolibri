@@ -314,7 +314,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
     ],
-    "DEFAULT_CONTENT_NEGOTIATION_CLASS": "kolibri.core.negotiation.JSONOnlyContentNegotiation",
+    "DEFAULT_CONTENT_NEGOTIATION_CLASS": "kolibri.core.negotiation.LimitContentNegotiation",
     "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
 }
 

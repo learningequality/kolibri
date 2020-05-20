@@ -68,7 +68,8 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
     const task = myNewTasks.find(task => task.id === taskId);
 
     if (task && task.status === TaskStatuses.COMPLETED) {
-      store.commit(commitFinish, new Date());
+      if (task.type === TaskTypes.EXPORTUSERSTOCSV) store.commit(commitFinish, task.filename);
+      else store.commit(commitFinish, new Date());
       TaskResource.deleteFinishedTask(taskId);
     }
   } else {
@@ -80,6 +81,16 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
       );
     });
     if (running.length > 0) store.commit(commitStart, running[0]);
+  }
+}
+
+function startExportUsers(store) {
+  if (!store.getters.exportingUsers) {
+    let promise = TaskResource.export_users_to_csv({});
+    return promise.then(task => {
+      store.commit('START_EXPORT_USERS', task.entity);
+      return task.entity.id;
+    });
   }
 }
 
@@ -112,6 +123,14 @@ function refreshTaskList(store) {
         'START_FACILITY_SYNC',
         'SET_FINISH_FACILITY_SYNC'
       );
+      checkTaskStatus(
+        store,
+        newTasks,
+        TaskTypes.EXPORTUSERSTOCSV,
+        store.state.exportUsersTaskId,
+        'START_EXPORT_USERS',
+        'SET_FINISH_EXPORT_USERS'
+      );
     })
     .catch(error => {
       logging.error('There was an error while fetching the task list: ', error);
@@ -123,4 +142,5 @@ export default {
   startSummaryCSVExport,
   startSessionCSVExport,
   getExportedLogsInfo,
+  startExportUsers,
 };

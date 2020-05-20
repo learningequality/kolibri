@@ -22,7 +22,7 @@ from kolibri.core.discovery.utils.network.errors import URLParseError
 
 
 def _interactive_client_facility_selection():
-    facilities = Facility.objects.all()
+    facilities = Facility.objects.all().order_by("name")
     message = "Please choose a facility to sync:\n"
     for idx, facility in enumerate(facilities):
         message += "{}. {}\n".format(idx + 1, facility.name)

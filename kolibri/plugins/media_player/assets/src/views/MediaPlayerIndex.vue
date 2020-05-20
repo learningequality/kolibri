@@ -400,7 +400,7 @@
       },
       recordProgress() {
         this.$emit(
-          'updateProgress',
+          'addProgress',
           Math.max(
             0,
             (this.dummyTime - this.progressStartingPoint) / Math.floor(this.player.duration())

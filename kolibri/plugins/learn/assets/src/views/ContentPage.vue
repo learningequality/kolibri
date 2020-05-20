@@ -22,9 +22,14 @@
         :files="content.files"
         :available="content.available"
         :extraFields="extraFields"
+        :progress="summaryProgress"
+        :userId="currentUserId"
+        :userFullName="fullName"
+        :timeSpent="summaryTimeSpent"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
+        @addProgress="addProgress"
         @updateContentState="updateContentState"
       />
 
@@ -41,6 +46,10 @@
         :channelId="channelId"
         :available="content.available"
         :extraFields="extraFields"
+        :progress="summaryProgress"
+        :userId="currentUserId"
+        :userFullName="fullName"
+        :timeSpent="summaryTimeSpent"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateExerciseProgress"
@@ -177,7 +186,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'pageMode']),
+      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'pageMode', 'currentUserId']),
       ...mapState(['pageName']),
       ...mapState('topicsTree', ['content', 'channel', 'recommended']),
       ...mapState('topicsTree', {
@@ -188,8 +197,10 @@
       ...mapState({
         masteryAttempts: state => state.core.logging.mastery.totalattempts,
         summaryProgress: state => state.core.logging.summary.progress,
+        summaryTimeSpent: state => state.core.logging.summary.time_spent,
         sessionProgress: state => state.core.logging.session.progress,
         extraFields: state => state.core.logging.summary.extra_fields,
+        fullName: state => state.core.session.full_name,
       }),
       isTopic() {
         return this.content.kind === ContentNodeKinds.TOPIC;
@@ -275,6 +286,7 @@
       ...mapActions({
         initSessionAction: 'initContentSession',
         updateProgressAction: 'updateProgress',
+        addProgressAction: 'addProgress',
         startTracking: 'startTrackingProgress',
         stopTracking: 'stopTrackingProgress',
         updateContentNodeState: 'updateContentState',
@@ -287,6 +299,12 @@
           updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
         );
         this.$emit('updateProgress', progressPercent);
+      },
+      addProgress(progressPercent, forceSave = false) {
+        this.addProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
+          updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
+        );
+        this.$emit('addProgress', progressPercent);
       },
       updateExerciseProgress(progressPercent) {
         this.$emit('updateProgress', progressPercent);
