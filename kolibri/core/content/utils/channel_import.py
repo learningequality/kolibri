@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.apps import apps
@@ -61,6 +62,8 @@ def convert_to_sqlite_value(python_value):
         return "1" if python_value else "0"
     elif python_value is None:
         return "null"
+    elif isinstance(python_value, dict) or isinstance(python_value, list):
+        return '"{}"'.format(json.dumps(python_value))
     else:
         return repr(python_value)
 
