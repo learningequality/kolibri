@@ -20,7 +20,7 @@
           @click="retryImport"
         />
         <KButton
-          text="Start over"
+          :text="coreString('starOverAction')"
           appearance="flat-button"
           @click="startOver"
         />
