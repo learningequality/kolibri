@@ -432,6 +432,7 @@
 
   .login-btn {
     width: calc(100% - 16px);
+    margin-top: 8px;
   }
 
   .create {

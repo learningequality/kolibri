@@ -10,22 +10,25 @@
       class="fullscreen-header"
       :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
     >
-    <UiIconButton>
-      <KIcon
-        v-if="isInFullscreen"
-        :color="$themeTokens.textInverted"
-        icon="fullscreen_exit"
-        style="top: 0; width: 24px; height: 24px;"
-      />
-      <KIcon
-        v-else
-        :color="$themeTokens.textInverted"
-        icon="fullscreen"
-        style="top: 0; width: 24px; height: 24px;"
-      />
-    </UiIconButton>
+      <KButton
+        :primary="false"
+        appearance="flat-button"
+        @click="$refs.html5Renderer.toggleFullscreen()"
+      >
+        <KIcon
+          v-if="isInFullscreen"
+          icon="fullscreen_exit"
+          class="fs-icon"
+        />
+        <KIcon
+          v-else
+          icon="fullscreen"
+          class="fs-icon"
+        />
+        {{ fullscreenText }}
+      </KButton>
     </div>
-    <div class="iframe-container">
+    <div class="iframe-container" :style="containerStyle">
       <iframe
         ref="iframe"
         class="iframe"
@@ -45,7 +48,6 @@
 <script>
 
   import { now } from 'kolibri.utils.serverClock';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
   import { nameSpace } from 'hashi/src/hashiBase';
@@ -163,7 +165,9 @@
 
   .fs-icon {
     position: relative;
-    top: 6px;
+    top: 8px;
+    width: 24px;
+    height: 24px;
   }
 
   .html5-renderer {

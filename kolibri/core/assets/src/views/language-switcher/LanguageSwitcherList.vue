@@ -23,19 +23,13 @@
       />
 
       <KButton
+        v-if="numSelectableLanguages > numVisibleLanguages + 1"
         :text="$tr('showMoreLanguagesSelector')"
         :primary="false"
         appearance="flat-button"
         @click="showLanguageModal = true"
       />
     </KButtonGroup>
-    <KButton
-      v-if="numSelectableLanguages > numVisibleLanguages + 1"
-      :text="$tr('showMoreLanguagesSelector')"
-      :primary="false"
-      appearance="flat-button"
-      @click="showLanguageModal = true"
-    />
     <LanguageSwitcherModal
       v-if="showLanguageModal"
       class="ta-l"
@@ -118,7 +112,6 @@
 
   .globe {
     position: relative;
-    top: -2px;
     right: -4px;
   }
 
