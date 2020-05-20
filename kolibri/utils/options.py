@@ -6,6 +6,7 @@ from configobj import ConfigObj
 from configobj import flatten_errors
 from configobj import get_extra_values
 from django.utils.functional import SimpleLazyObject
+from django.utils.six import string_types
 from validate import Validator
 from validate import VdtValueError
 
@@ -111,6 +112,25 @@ def language_list(value):
     return sorted(list(out))
 
 
+def path_list(value):
+    """
+    Check that the supplied value is a semicolon-delimited list of paths.
+    Note: we do not guarantee that these paths all currently exist.
+    """
+    if isinstance(value, string_types):
+        value = value.split(";")
+
+    if isinstance(value, list):
+        errors = []
+        for item in value:
+            if not isinstance(item, string_types):
+                errors.append(repr(item))
+        if errors:
+            raise VdtValueError(errors)
+
+    return value
+
+
 base_option_spec = {
     "Cache": {
         "CACHE_BACKEND": {
@@ -200,7 +220,7 @@ base_option_spec = {
             "envvars": ("KOLIBRI_CONTENT_DIR",),
         },
         "CONTENT_FALLBACK_DIRS": {
-            "type": "string",
+            "type": "path_list",
             "default": "",
             "envvars": ("KOLIBRI_CONTENT_FALLBACK_DIRS",),
         },
@@ -250,7 +270,7 @@ base_option_spec = {
 
 
 def get_validator():
-    return Validator({"language_list": language_list})
+    return Validator({"language_list": language_list, "path_list": path_list})
 
 
 def get_logger(KOLIBRI_HOME):
