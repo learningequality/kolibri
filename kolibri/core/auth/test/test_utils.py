@@ -42,10 +42,9 @@ class GetFacilityTestCase(TestCase):
         with self.assertRaisesRegexp(CommandError, "multiple facilities"):
             utils.get_facility(noninteractive=True)
 
-    @mock.patch("django.utils.six.moves.input", new=lambda x: "1")
-    def test_get_facility_multiple_facilities_interactive(self):
+    @mock.patch("kolibri.core.auth.management.utils.input", return_value="3")
+    def test_get_facility_multiple_facilities_interactive(self, input_mock):
         # Desired facility should be third item
         Facility.objects.create(name="a_facility")
         Facility.objects.create(name="b_facility")
-        utils.input = mock.MagicMock(name="input", return_value="3")
         self.assertEqual(self.facility, utils.get_facility())
