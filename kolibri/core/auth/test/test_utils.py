@@ -44,6 +44,8 @@ class GetFacilityTestCase(TestCase):
 
     @mock.patch("django.utils.six.moves.input", new=lambda x: "1")
     def test_get_facility_multiple_facilities_interactive(self):
-        utils.input = mock.MagicMock(name="input", return_value="1")
-        Facility.objects.create(name="facility2")
+        # Desired facility should be third item
+        Facility.objects.create(name="a_facility")
+        Facility.objects.create(name="b_facility")
+        utils.input = mock.MagicMock(name="input", return_value="3")
         self.assertEqual(self.facility, utils.get_facility())
