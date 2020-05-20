@@ -244,7 +244,7 @@ base_option_spec = {
             "type": "integer",
             "default": 2,
             "envvars": ("KOLIBRI_PICKLE_PROTOCOL",),
-        },
+        }
     },
 }
 
