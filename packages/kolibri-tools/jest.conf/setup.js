@@ -34,8 +34,7 @@ Vue.use(VueRouter);
 Vue.use(VueMeta);
 Vue.use(KThemePlugin);
 Vue.use(KContentPlugin);
-Vue.component("KSelect", KSelect);
-
+Vue.component('KSelect', KSelect);
 
 Vue.config.silent = true;
 Vue.config.devtools = false;
@@ -47,7 +46,6 @@ const csrf = global.document.createElement('input');
 csrf.name = 'csrfmiddlewaretoken';
 csrf.value = 'csrfmiddlewaretoken';
 global.document.body.append(csrf);
-
 
 Object.defineProperty(window, 'scrollTo', { value: () => {}, writable: true });
 
