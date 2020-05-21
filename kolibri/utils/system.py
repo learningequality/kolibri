@@ -197,8 +197,9 @@ def get_free_space(path=KOLIBRI_HOME):
             from jnius import autoclass
 
             StatFs = autoclass("android.os.StatFs")
+            AndroidString = autoclass("java.lang.String")
 
-            st = StatFs(KOLIBRI_HOME)
+            st = StatFs(AndroidString(path))
 
             try:
                 # for api version 18+

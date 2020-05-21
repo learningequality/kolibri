@@ -86,11 +86,24 @@
       </p>
     </section>
 
-    <DownloadButton
-      v-if="canDownload"
-      :files="downloadableFiles"
-      class="download-button"
-    />
+    <div>
+
+      <DownloadButton
+        v-if="canDownload"
+        :files="downloadableFiles"
+        class="download-button"
+      />
+
+      <ShareButton
+        v-if="canShare"
+        :filename="primaryFilename"
+        :text="$tr('shareMessage', {title: content.title,
+                                    topic: content.breadcrumbs.slice(-1)[0].title,
+                                    copyrightHolder: content.license_owner})"
+        class="share-button"
+      />
+
+    </div>
 
     <slot name="below_content">
       <template v-if="content.next_content">
@@ -128,7 +141,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
-  import { isEmbeddedWebView } from 'kolibri.utils.browser';
+  import { isEmbeddedWebView, isAndroidWebView } from 'kolibri.utils.browser';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
   import {
@@ -138,6 +151,7 @@
   } from 'kolibri.utils.licenseTranslations';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
+  import ShareButton from './ShareButton';
   import PageHeader from './PageHeader';
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
   import AssessmentWrapper from './AssessmentWrapper';
@@ -162,6 +176,7 @@
     components: {
       CoachContentLabel,
       PageHeader,
+      ShareButton,
       ContentCardGroupCarousel,
       DownloadButton,
       AssessmentWrapper,
@@ -204,6 +219,10 @@
         }
         return false;
       },
+      canShare() {
+        let supported_types = ['mp4', 'mp3', 'pdf', 'epub'];
+        return isAndroidWebView() && supported_types.includes(this.primaryFile.extension);
+      },
       description() {
         if (this.content && this.content.description) {
           const md = new markdownIt('zero', { breaks: true });
@@ -231,6 +250,12 @@
       },
       downloadableFiles() {
         return this.content.files.filter(file => !file.preset.endsWith('thumbnail'));
+      },
+      primaryFile() {
+        return this.content.files.filter(file => !file.preset.supplementary)[0];
+      },
+      primaryFilename() {
+        return `${this.primaryFile.checksum}.${this.primaryFile.extension}`;
       },
       nextContentLink() {
         // HACK Use a the Resource Viewer Link instead
@@ -309,6 +334,7 @@
       license: 'License: {license}',
       toggleLicenseDescription: 'Toggle license description',
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
+      shareMessage: '"{title}" (in "{topic}"), from {copyrightHolder}',
       nextResource: 'Next resource',
       documentTitle: '{ contentTitle } - { channelTitle }',
     },
@@ -332,8 +358,10 @@
     font-size: smaller;
   }
 
-  .download-button {
-    display: block;
+  .download-button,
+  .share-button {
+    display: inline-block;
+    margin: 16px 16px 0 0;
   }
 
   .license-details {

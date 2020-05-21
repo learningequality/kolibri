@@ -5,10 +5,10 @@ from subprocess import CalledProcessError
 from subprocess import check_output
 
 import cherrypy
-import ifcfg
 import requests
 from cherrypy.process.plugins import SimplePlugin
 from django.conf import settings
+from zeroconf import get_all_addresses
 
 import kolibri
 from .system import kill_pid
@@ -511,9 +511,8 @@ def get_urls(listen_port=None):
         urls = []
         if port:
             try:
-                interfaces = ifcfg.interfaces()
-                for interface in filter(lambda i: i["inet"], interfaces.values()):
-                    urls.append("http://{}:{}/".format(interface["inet"], port))
+                for ip in get_all_addresses():
+                    urls.append("http://{}:{}/".format(ip, port))
             except RuntimeError:
                 logger.error("Error retrieving network interface list!")
         return STATUS_RUNNING, urls
@@ -582,14 +581,12 @@ def installation_type(cmd_line=None):  # noqa:C901
         elif "start" in cmd_line:
             install_type = "whl"
     if on_android():
-        from jnius import autoclass
 
-        context = autoclass("org.kivy.android.PythonActivity")
-        version_name = (
-            context.getPackageManager()
-            .getPackageInfo(context.getPackageName(), 0)
-            .versionName
-        )
-        install_type = "apk - {}".format(version_name)
+        version_name = os.environ.get("KOLIBRI_APK_VERSION_NAME")
+
+        if version_name:
+            install_type = "apk - {}".format(version_name)
+        else:
+            install_type = "apk"
 
     return install_type
