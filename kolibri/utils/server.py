@@ -235,6 +235,9 @@ class MultiStaticDispatcher(cherrypy._cpdispatch.Dispatcher):
 
         super(MultiStaticDispatcher, self).find_handler(path)
 
+        if len(self.static_handlers) == 1:
+            return (self.static_handlers[0], [])
+
         # loop over all the static handlers to see if they have the file we want
         for handler in self.static_handlers:
 
