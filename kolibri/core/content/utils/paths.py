@@ -70,7 +70,7 @@ def get_content_dir_path(datafolder=None, contentfolder=None):
 
 def get_content_fallback_paths():
     paths = []
-    fallback_dirs = conf.OPTIONS["Paths"]["CONTENT_FALLBACK_DIRS"].split(";")
+    fallback_dirs = conf.OPTIONS["Paths"]["CONTENT_FALLBACK_DIRS"]
     for path in fallback_dirs:
         path = path.strip()
         if not path:
