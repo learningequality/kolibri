@@ -174,10 +174,15 @@ class KolibriWindow(KolibriView):
     def show(self):
         # TODO: Handle this in pyeverywhere
         self.gtk_webview.connect('create', self.__gtk_webview_on_create)
+        # Set a user agent so Kolibri behaves differently
+        # <https://github.com/learningequality/kolibri/blob/app-support/kolibri/core/assets/src/utils/browser.js#L25>
+        user_agent = self.gtk_webview.get_settings().get_user_agent()
+        self.set_user_agent(' '.join([user_agent, "KolibriApp/1.0"]))
 
         # Maximize windows on Endless OS
         if hasattr(self, 'gtk_window') and XDG_CURRENT_DESKTOP == 'endless:GNOME':
             self.gtk_window.maximize()
+
         super().show()
 
     def __gtk_webview_on_create(self, webview, navigation_action):
