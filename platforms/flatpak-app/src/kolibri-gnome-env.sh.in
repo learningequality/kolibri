@@ -2,20 +2,22 @@
 
 DJANGO_SETTINGS_MODULE="kolibri_gnome.kolibri_settings"
 
+export DJANGO_SETTINGS_MODULE
+
 XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 KOLIBRI_HOME="${KOLIBRI_HOME:-$XDG_DATA_HOME/kolibri}"
-LOCAL_KOLIBRI_HOME="${XDG_DATA_HOME}/kolibri"
-
-KOLIBRI_BIND_IP="${KOLIBRI_HOME:-$XDG_DATA_HOME/kolibri}"
 
 OLD_KOLIBRI_HOME="${XDG_DATA_HOME}/../.kolibri"
 
-if [[ -d "${OLD_KOLIBRI_HOME}" && ! -f ${KOLIBRI_HOME} ]]; then
+if [[ -d "${OLD_KOLIBRI_HOME}" && ! -e ${KOLIBRI_HOME} ]]; then
     echo "Moving KOLIBRI_HOME from '${OLD_KOLIBRI_HOME}' to '${KOLIBRI_HOME}'"
     mv "${OLD_KOLIBRI_HOME}" "${KOLIBRI_HOME}"
 fi
 
-export DJANGO_SETTINGS_MODULE
+if [[ -d "${X_KOLIBRI_HOME_TEMPLATE}" && ! -e ${KOLIBRI_HOME} ]]; then
+    echo "Copying KOLIBRI_HOME template to '${KOLIBRI_HOME}'"
+    cp -R "${X_KOLIBRI_HOME_TEMPLATE}" "${KOLIBRI_HOME}"
+fi
+
 export KOLIBRI_HOME
-export LOCAL_KOLIBRI_HOME
 

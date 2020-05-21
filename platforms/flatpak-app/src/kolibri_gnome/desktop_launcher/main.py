@@ -9,8 +9,6 @@ import datetime
 import sys
 
 from ..globals import init_gettext, init_logging
-init_logging('kolibri-gnome.txt')
-init_gettext()
 
 import pew
 
@@ -18,6 +16,9 @@ from .application import Application
 
 
 def main():
+    init_logging('kolibri-gnome.txt')
+    init_gettext()
+
     pew.set_app_name("Kolibri")
 
     # Since the log files can contain multiple runs, make the first printout very visible to quickly show
