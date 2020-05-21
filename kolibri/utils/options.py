@@ -416,13 +416,21 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
     return conf
 
 
+def _expand_path(basepath, path):
+    return os.path.join(basepath, os.path.expanduser(path))
+
+
 def _expand_paths(basepath, pathdict):
     """
     Resolve all paths in a dict, relative to a base path, and after expanding "~" into the user's home directory.
     """
     for key, path in pathdict.items():
-        if path:
-            pathdict[key] = os.path.join(basepath, os.path.expanduser(path))
+        if isinstance(path, string_types):
+            pathdict[key] = _expand_path(basepath, path)
+        elif isinstance(path, list):
+            pathdict[key] = [_expand_path(basepath, p) for p in path]
+        else:
+            raise Exception("Paths must be a single string or a semicolon-delimited list, not {}".format(type(path)))
 
 
 def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options.ini"):
