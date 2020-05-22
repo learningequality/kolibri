@@ -12,7 +12,7 @@ from ..globals import KOLIBRI_HTTP_PORT, XDG_DATA_HOME
 
 
 @contextmanager
-def singleton_service(service='kolibri', state=''):
+def singleton_service(service="kolibri", state=""):
     # Ensures that only a single copy of a service is running on the system,
     # including in different containers.
     lockfile_path = os.path.join(XDG_DATA_HOME, "{}.lock".format(service))
@@ -21,6 +21,7 @@ def singleton_service(service='kolibri', state=''):
             lockfile.write(state)
             lockfile.flush()
             yield
+
 
 @contextmanager
 def _flocked(fd):

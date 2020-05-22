@@ -8,4 +8,3 @@ def gapplication_hold(application):
         yield
     finally:
         application.release()
-

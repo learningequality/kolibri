@@ -1,4 +1,5 @@
 import logging
+
 logger = logging.getLogger(__name__)
 
 import os
@@ -16,17 +17,23 @@ from pew.ui import PEWShortcut
 
 from .. import config
 
-from ..globals import KOLIBRI_HOME, KOLIBRI_URL, KOLIBRI_URL_SPLIT, XDG_CURRENT_DESKTOP, is_kolibri_responding
+from ..globals import (
+    KOLIBRI_HOME,
+    KOLIBRI_URL,
+    KOLIBRI_URL_SPLIT,
+    XDG_CURRENT_DESKTOP,
+    is_kolibri_responding,
+)
 from ..kolibri_service.kolibri_service import KolibriServiceThread
 from .utils import get_localized_file
 
 
 class MenuEventHandler:
     def on_documentation(self):
-        subprocess.call(['xdg-open', 'https://kolibri.readthedocs.io/en/latest/'])
+        subprocess.call(["xdg-open", "https://kolibri.readthedocs.io/en/latest/"])
 
     def on_forums(self):
-        subprocess.call(['xdg-open', 'https://community.learningequality.org/'])
+        subprocess.call(["xdg-open", "https://community.learningequality.org/"])
 
     def on_new_window(self):
         self.open_window()
@@ -35,10 +42,10 @@ class MenuEventHandler:
         self.close()
 
     def on_open_in_browser(self):
-        subprocess.call(['xdg-open', self.get_current_or_target_url()])
+        subprocess.call(["xdg-open", self.get_current_or_target_url()])
 
     def on_open_kolibri_home(self):
-        subprocess.call(['xdg-open', KOLIBRI_HOME])
+        subprocess.call(["xdg-open", KOLIBRI_HOME])
 
     def on_back(self):
         self.go_back()
@@ -105,23 +112,18 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
 
         if not self.__redirect_thread:
             self.__redirect_thread = pew.ui.PEWThread(
-                target=self.__do_redirect_on_load,
-                args=()
+                target=self.__do_redirect_on_load, args=()
             )
             self.__redirect_thread.daemon = True
             self.__redirect_thread.start()
 
     def __load_url_error(self):
         if self.current_url == self.delegate.loader_url:
-            pew.ui.run_on_main_thread(
-                self.evaluate_javascript,
-                'show_error()'
-            )
+            pew.ui.run_on_main_thread(self.evaluate_javascript, "show_error()")
         else:
             super().load_url(self.delegate.loader_url)
             pew.ui.run_on_main_thread(
-                self.evaluate_javascript,
-                'window.onload = function() { show_error() }'
+                self.evaluate_javascript, "window.onload = function() { show_error() }"
             )
 
     def __do_redirect_on_load(self):
@@ -142,45 +144,77 @@ class KolibriWindow(KolibriView):
         # create menu bar, we do this per-window for cross-platform purposes
         menu_bar = pew.ui.PEWMenuBar()
 
-        file_menu = pew.ui.PEWMenu(_('File'))
-        file_menu.add(_('New Window'), handler=self.on_new_window, shortcut=PEWShortcut('N', modifiers=['CTRL']))
-        file_menu.add(_('Close Window'), handler=self.on_close_window, shortcut=PEWShortcut('W', modifiers=['CTRL']))
+        file_menu = pew.ui.PEWMenu(_("File"))
+        file_menu.add(
+            _("New Window"),
+            handler=self.on_new_window,
+            shortcut=PEWShortcut("N", modifiers=["CTRL"]),
+        )
+        file_menu.add(
+            _("Close Window"),
+            handler=self.on_close_window,
+            shortcut=PEWShortcut("W", modifiers=["CTRL"]),
+        )
         file_menu.add_separator()
-        file_menu.add(_('Open Kolibri Home Folder'), handler=self.on_open_kolibri_home)
+        file_menu.add(_("Open Kolibri Home Folder"), handler=self.on_open_kolibri_home)
 
         menu_bar.add_menu(file_menu)
 
-        view_menu = pew.ui.PEWMenu(_('View'))
-        view_menu.add(_('Reload'), handler=self.on_reload)
-        view_menu.add(_('Actual Size'), handler=self.on_actual_size, shortcut=PEWShortcut('0', modifiers=['CTRL']))
-        view_menu.add(_('Zoom In'), handler=self.on_zoom_in, shortcut=PEWShortcut('+', modifiers=['CTRL']))
-        view_menu.add(_('Zoom Out'), handler=self.on_zoom_out, shortcut=PEWShortcut('-', modifiers=['CTRL']))
+        view_menu = pew.ui.PEWMenu(_("View"))
+        view_menu.add(_("Reload"), handler=self.on_reload)
+        view_menu.add(
+            _("Actual Size"),
+            handler=self.on_actual_size,
+            shortcut=PEWShortcut("0", modifiers=["CTRL"]),
+        )
+        view_menu.add(
+            _("Zoom In"),
+            handler=self.on_zoom_in,
+            shortcut=PEWShortcut("+", modifiers=["CTRL"]),
+        )
+        view_menu.add(
+            _("Zoom Out"),
+            handler=self.on_zoom_out,
+            shortcut=PEWShortcut("-", modifiers=["CTRL"]),
+        )
         view_menu.add_separator()
-        view_menu.add(_('Open in Browser'), handler=self.on_open_in_browser)
+        view_menu.add(_("Open in Browser"), handler=self.on_open_in_browser)
         menu_bar.add_menu(view_menu)
 
-        history_menu = pew.ui.PEWMenu(_('History'))
-        history_menu.add(_('Back'), handler=self.on_back, shortcut=PEWShortcut('[', modifiers=['CTRL']))
-        history_menu.add(_('Forward'), handler=self.on_forward, shortcut=PEWShortcut(']', modifiers=['CTRL']))
+        history_menu = pew.ui.PEWMenu(_("History"))
+        history_menu.add(
+            _("Back"),
+            handler=self.on_back,
+            shortcut=PEWShortcut("[", modifiers=["CTRL"]),
+        )
+        history_menu.add(
+            _("Forward"),
+            handler=self.on_forward,
+            shortcut=PEWShortcut("]", modifiers=["CTRL"]),
+        )
         menu_bar.add_menu(history_menu)
 
-        help_menu = pew.ui.PEWMenu(_('Help'))
-        help_menu.add(_('Documentation'), handler=self.on_documentation, shortcut=PEWShortcut('F1'))
-        help_menu.add(_('Community Forums'), handler=self.on_forums)
+        help_menu = pew.ui.PEWMenu(_("Help"))
+        help_menu.add(
+            _("Documentation"),
+            handler=self.on_documentation,
+            shortcut=PEWShortcut("F1"),
+        )
+        help_menu.add(_("Community Forums"), handler=self.on_forums)
         menu_bar.add_menu(help_menu)
 
         self.set_menubar(menu_bar)
 
     def show(self):
         # TODO: Handle this in pyeverywhere
-        self.gtk_webview.connect('create', self.__gtk_webview_on_create)
+        self.gtk_webview.connect("create", self.__gtk_webview_on_create)
         # Set a user agent so Kolibri behaves differently
         # <https://github.com/learningequality/kolibri/blob/app-support/kolibri/core/assets/src/utils/browser.js#L25>
         user_agent = self.gtk_webview.get_settings().get_user_agent()
-        self.set_user_agent(' '.join([user_agent, "KolibriApp/1.0"]))
+        self.set_user_agent(" ".join([user_agent, "KolibriApp/1.0"]))
 
         # Maximize windows on Endless OS
-        if hasattr(self, 'gtk_window') and XDG_CURRENT_DESKTOP == 'endless:GNOME':
+        if hasattr(self, "gtk_window") and XDG_CURRENT_DESKTOP == "endless:GNOME":
             self.gtk_window.maximize()
 
         super().show()
@@ -191,7 +225,7 @@ class KolibriWindow(KolibriView):
         #       Using xdg-open and letting the default browser take care of it
         #       is a convenient shortcut, but less pleasant to use.
         request_uri = navigation_action.get_request().get_uri()
-        subprocess.call(['xdg-open', request_uri])
+        subprocess.call(["xdg-open", request_uri])
         return None
 
 
@@ -204,12 +238,10 @@ class Application(pew.ui.PEWApp):
         self.kolibri_service = None
 
         loader_path = get_localized_file(
-            os.path.join(config.DATA_DIR, 'assets', '_load-{}.html'),
-            os.path.join(config.DATA_DIR, 'assets', '_load.html'),
+            os.path.join(config.DATA_DIR, "assets", "_load-{}.html"),
+            os.path.join(config.DATA_DIR, "assets", "_load.html"),
         )
-        self.loader_url = 'file://{path}'.format(
-            path=os.path.abspath(loader_path)
-        )
+        self.loader_url = "file://{path}".format(path=os.path.abspath(loader_path))
 
         self.__kolibri_loaded = threading.Event()
         self.__kolibri_loaded_success = None
@@ -305,8 +337,8 @@ class Application(pew.ui.PEWApp):
             return True
         elif url == self.loader_url:
             return self.is_kolibri_loading() or not self.is_kolibri_alive()
-        elif not url.startswith('about:'):
-            subprocess.call(['xdg-open', url])
+        elif not url.startswith("about:"):
+            subprocess.call(["xdg-open", url])
             return False
 
         return True
@@ -333,32 +365,29 @@ class Application(pew.ui.PEWApp):
     def __open_window_for_kolibri_scheme_uri(self, kolibri_scheme_uri):
         parse = urlsplit(kolibri_scheme_uri)
 
-        if parse.scheme != 'kolibri':
+        if parse.scheme != "kolibri":
             logger.info("Invalid URI scheme: %s", kolibri_scheme_uri)
             return
 
-        if parse.path and parse.path != '/':
-            item_path = '/learn'
-            if parse.path.startswith('/'):
+        if parse.path and parse.path != "/":
+            item_path = "/learn"
+            if parse.path.startswith("/"):
                 # Sometimes the path has a / prefix. We need to avoid double
                 # slashes for Kolibri's JavaScript router.
-                item_fragment = '/topics' + parse.path
+                item_fragment = "/topics" + parse.path
             else:
-                item_fragment = '/topics/' + parse.path
+                item_fragment = "/topics/" + parse.path
         elif parse.query:
-            item_path = '/learn'
-            item_fragment = '/search'
+            item_path = "/learn"
+            item_fragment = "/search"
         else:
-            item_path = '/'
-            item_fragment = ''
+            item_path = "/"
+            item_fragment = ""
 
         if parse.query:
-            item_fragment += '?{}'.format(parse.query)
+            item_fragment += "?{}".format(parse.query)
 
-        target_url = KOLIBRI_URL_SPLIT._replace(
-            path=item_path,
-            fragment=item_fragment
-        )
+        target_url = KOLIBRI_URL_SPLIT._replace(path=item_path, fragment=item_fragment)
 
         blank_window = self.__find_blank_window()
 
@@ -375,4 +404,3 @@ class Application(pew.ui.PEWApp):
             if window.get_target_url() == KOLIBRI_URL:
                 return window
         return None
-

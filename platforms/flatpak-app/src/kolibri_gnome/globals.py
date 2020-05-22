@@ -1,4 +1,5 @@
 import logging
+
 logger = logging.getLogger(__name__)
 
 import gettext
@@ -13,11 +14,15 @@ from . import config
 
 USER_HOME = os.path.expanduser("~")
 
-XDG_CURRENT_DESKTOP = os.environ.get('XDG_CURRENT_DESKTOP')
-XDG_DATA_HOME = os.environ.get('XDG_DATA_HOME', os.path.join(USER_HOME, ".local", "share"))
+XDG_CURRENT_DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
+XDG_DATA_HOME = os.environ.get(
+    "XDG_DATA_HOME", os.path.join(USER_HOME, ".local", "share")
+)
 
 KOLIBRI_IDLE_TIMEOUT_MINS = int(os.environ.get("KOLIBRI_IDLE_TIMEOUT_MINS", 60))
-KOLIBRI_IDLE_TIMEOUT_SECS = int(os.environ.get("KOLIBRI_IDLE_TIMEOUT_SECS", KOLIBRI_IDLE_TIMEOUT_MINS * 60))
+KOLIBRI_IDLE_TIMEOUT_SECS = int(
+    os.environ.get("KOLIBRI_IDLE_TIMEOUT_SECS", KOLIBRI_IDLE_TIMEOUT_MINS * 60)
+)
 
 # Get KOLIBRI_HTTP_PORT from kolibri.utils.conf if needed.
 # This will fail in an environment where Kolibri is supposed to run as a
@@ -25,10 +30,11 @@ KOLIBRI_IDLE_TIMEOUT_SECS = int(os.environ.get("KOLIBRI_IDLE_TIMEOUT_SECS", KOLI
 # KOLIBRI_HOME. For that case, we check for the environment variable
 # ourselves.
 
-if 'KOLIBRI_HTTP_PORT' in os.environ:
+if "KOLIBRI_HTTP_PORT" in os.environ:
     KOLIBRI_HTTP_PORT = int(os.environ.get("KOLIBRI_HTTP_PORT"))
 else:
     from kolibri.utils.conf import OPTIONS
+
     KOLIBRI_HTTP_PORT = OPTIONS["Deployment"]["HTTP_PORT"]
 
 KOLIBRI_URL = "http://localhost:{}".format(KOLIBRI_HTTP_PORT)
@@ -49,41 +55,46 @@ def init_gettext():
     gettext.bindtextdomain(config.GETTEXT_PACKAGE, config.LOCALE_DIR)
     gettext.textdomain(config.GETTEXT_PACKAGE)
 
-def init_logging(logfile_name='kolibri-app.txt', level=logging.DEBUG):
+
+def init_logging(logfile_name="kolibri-app.txt", level=logging.DEBUG):
     logging.basicConfig(level=level)
 
     from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 
-    log_dir = os.path.join(LOCAL_KOLIBRI_HOME, 'logs')
+    log_dir = os.path.join(LOCAL_KOLIBRI_HOME, "logs")
     os.makedirs(log_dir, exist_ok=True)
     log_filename = os.path.join(log_dir, logfile_name)
 
     root_logger = logging.getLogger()
-    file_handler = KolibriTimedRotatingFileHandler(filename=log_filename, when='midnight', backupCount=30)
+    file_handler = KolibriTimedRotatingFileHandler(
+        filename=log_filename, when="midnight", backupCount=30
+    )
     root_logger.addHandler(file_handler)
+
 
 def get_current_language():
     try:
-        translations = gettext.translation(config.GETTEXT_PACKAGE, localedir=config.LOCALE_DIR)
+        translations = gettext.translation(
+            config.GETTEXT_PACKAGE, localedir=config.LOCALE_DIR
+        )
         locale_info = translations.info()
     except FileNotFoundError as e:
         logger.warning("Error loading translation file: %s", e)
         language = None
     else:
-        language = locale_info.get('language')
+        language = locale_info.get("language")
 
     return language
 
+
 def is_kolibri_responding():
     # Check if Kolibri is responding to http requests at the expected URL.
-    info = kolibri_api_get_json('/api/public/info', default=dict())
-    return info.get('application') == 'kolibri'
+    info = kolibri_api_get_json("/api/public/info", default=dict())
+    return info.get("application") == "kolibri"
+
 
 def kolibri_api_get_json(path, query={}, default=None):
-    request_url = KOLIBRI_URL_SPLIT._replace(
-        path=path,
-        query=urlencode(query)
-    )
+    request_url = KOLIBRI_URL_SPLIT._replace(path=path, query=urlencode(query))
     request = Request(urlunsplit(request_url))
 
     try:
@@ -97,4 +108,3 @@ def kolibri_api_get_json(path, query={}, default=None):
         return default
 
     return data
-

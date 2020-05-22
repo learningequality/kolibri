@@ -1,9 +1,11 @@
 import logging
+
 logger = logging.getLogger(__name__)
 
 import gi
-gi.require_version('Gdk', '3.0')
-gi.require_version('Gtk', '3.0')
+
+gi.require_version("Gdk", "3.0")
+gi.require_version("Gtk", "3.0")
 
 import datetime
 import sys
@@ -16,7 +18,7 @@ from .application import Application
 
 
 def main():
-    init_logging('kolibri-gnome.txt')
+    init_logging("kolibri-gnome.txt")
     init_gettext()
 
     pew.set_app_name("Kolibri")
@@ -40,4 +42,3 @@ def main():
 if __name__ == "__main__":
     result = main()
     sys.exit(result)
-

@@ -30,7 +30,7 @@ class DbusMethodJob(object):
         if not isinstance(result, tuple):
             result = (result,)
 
-        if self.__out_args != '()':
+        if self.__out_args != "()":
             variant = GLib.Variant(self.__out_args, result)
             self.__invocation.return_value(variant)
         else:
@@ -100,15 +100,15 @@ class SearchProvider(object):
     def register_on_connection(self, connection, object_path):
         info = Gio.DBusNodeInfo.new_for_xml(self.INTERFACE_XML)
         for interface in info.interfaces:
-            for method in interface .methods:
-                self.__method_outargs[method.name] = '({})'.format(
-                    ''.join([arg.signature for arg in method.out_args])
+            for method in interface.methods:
+                self.__method_outargs[method.name] = "({})".format(
+                    "".join([arg.signature for arg in method.out_args])
                 )
 
             object_id = connection.register_object(
                 object_path=object_path,
                 interface_info=interface,
-                method_call_closure=self.__on_method_call
+                method_call_closure=self.__on_method_call,
             )
             self.__registration_ids.append(object_id)
 
@@ -116,24 +116,36 @@ class SearchProvider(object):
         for registration_id in self.__registration_ids:
             connection.unregister_object(registration_id)
 
-    def __on_method_call(self, connection, sender, object_path,
-                         interface_name, method_name, parameters, invocation):
+    def __on_method_call(
+        self,
+        connection,
+        sender,
+        object_path,
+        interface_name,
+        method_name,
+        parameters,
+        invocation,
+    ):
         args = list(parameters.unpack())
         out_args = self.__method_outargs[method_name]
         method = getattr(self, method_name)
 
-        job = DbusMethodJob(self.__application, method_name, method, args, out_args, invocation)
+        job = DbusMethodJob(
+            self.__application, method_name, method, args, out_args, invocation
+        )
         cancellable = Gio.Cancellable()
         if self.__existing_jobs.get(method_name):
             self.__existing_jobs[method_name].cancel()
         self.__existing_jobs[method_name] = cancellable
-        Gio.io_scheduler_push_job(job.run_async, None, GLib.PRIORITY_DEFAULT, cancellable)
+        Gio.io_scheduler_push_job(
+            job.run_async, None, GLib.PRIORITY_DEFAULT, cancellable
+        )
 
     def GetInitialResultSet(self, terms, cancellable=None):
-        return self.__get_item_ids_for_search(' '.join(terms))
+        return self.__get_item_ids_for_search(" ".join(terms))
 
     def GetSubsearchResultSet(self, previous_results, terms, cancellable=None):
-        return self.__get_item_ids_for_search(' '.join(terms))
+        return self.__get_item_ids_for_search(" ".join(terms))
 
     def GetResultMetas(self, item_ids, cancellable=None):
         return self.__get_nodes_for_item_ids(item_ids)
@@ -145,11 +157,10 @@ class SearchProvider(object):
         self.__activate_kolibri("", terms)
 
     def __activate_kolibri(self, item_id, terms):
-        kolibri_url = 'kolibri:///{item_id}?searchTerm={term}'.format(
-            item_id=item_id,
-            term=' '.join(terms)
+        kolibri_url = "kolibri:///{item_id}?searchTerm={term}".format(
+            item_id=item_id, term=" ".join(terms)
         )
-        app_info = Gio.DesktopAppInfo.new(config.APP_ID + '.desktop')
+        app_info = Gio.DesktopAppInfo.new(config.APP_ID + ".desktop")
         return app_info.launch_uris([kolibri_url], None)
 
     def __get_item_ids_for_search(self, search):
@@ -163,28 +174,31 @@ class SearchProvider(object):
             return
 
         for node_data in self.get_search_results(search):
-            if node_data.get('kind') == 'topic':
-                item_id = 't/{}'.format(node_data.get('id'))
+            if node_data.get("kind") == "topic":
+                item_id = "t/{}".format(node_data.get("id"))
             else:
-                item_id = 'c/{}'.format(node_data.get('id'))
+                item_id = "c/{}".format(node_data.get("id"))
             yield item_id
 
     def __iter_nodes_for_item_ids(self, item_ids):
         for item_id in item_ids:
-            _kind_code, node_id = item_id.split('/', 1)
+            _kind_code, node_id = item_id.split("/", 1)
             node_data = self.get_node_data(node_id)
-            node_icon = ICON_LOOKUP.get(node_data.get('kind'), "application-x-executable")
+            node_icon = ICON_LOOKUP.get(
+                node_data.get("kind"), "application-x-executable"
+            )
             yield {
-                "id": GLib.Variant('s', item_id),
-                "name": GLib.Variant('s', node_data.get('title')),
-                "description": GLib.Variant('s', node_data.get('description')),
-                "gicon": GLib.Variant('s', node_icon)
+                "id": GLib.Variant("s", item_id),
+                "name": GLib.Variant("s", node_data.get("title")),
+                "description": GLib.Variant("s", node_data.get("description")),
+                "gicon": GLib.Variant("s", node_icon),
             }
 
 
 class LocalSearchProvider(SearchProvider):
     def __init__(self, *args, **kwargs):
         from kolibri.dist import django
+
         django.setup()
         super().__init__(*args, **kwargs)
 
@@ -199,7 +213,7 @@ class LocalSearchProvider(SearchProvider):
         request = APIRequestFactory().get("", {"search": search, "max_results": 10})
         search_view = ContentNodeSearchViewset.as_view({"get": "list"})
         response = search_view(request)
-        return response.data.get('results', [])
+        return response.data.get("results", [])
 
     def get_node_data(self, node_id):
         from kolibri.core.content.api import ContentNodeViewset
@@ -220,18 +234,17 @@ class RemoteSearchProvider(SearchProvider):
         from ..globals import kolibri_api_get_json
 
         response = kolibri_api_get_json(
-            '/api/content/contentnode_search',
-            query={'search': search, 'max_results': 10},
-            default=dict()
+            "/api/content/contentnode_search",
+            query={"search": search, "max_results": 10},
+            default=dict(),
         )
-        return response.get('results', [])
+        return response.get("results", [])
 
     def get_node_data(self, node_id):
         from ..globals import kolibri_api_get_json
 
         response = kolibri_api_get_json(
-            '/api/content/contentnode/{}'.format(node_id),
-            default=dict()
+            "/api/content/contentnode/{}".format(node_id), default=dict()
         )
         return response
 
@@ -241,10 +254,10 @@ class Application(Gio.Application):
         super().__init__(
             application_id="org.learningequality.Kolibri.SearchProvider",
             flags=Gio.ApplicationFlags.IS_SERVICE,
-            inactivity_timeout=30000
+            inactivity_timeout=30000,
         )
         self.__search_provider = None
-        self.connect('activate', self.__on_activate)
+        self.connect("activate", self.__on_activate)
 
     def do_dbus_register(self, dbus_connection, object_path):
         if RemoteSearchProvider.is_available():
@@ -267,4 +280,3 @@ class Application(Gio.Application):
 
     def __on_activate(self, application):
         pass
-
