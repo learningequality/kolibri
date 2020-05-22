@@ -30,12 +30,37 @@
       <div class="mb">
         <div class="settings">
           <template v-for="setting in settingsList">
-            <KCheckbox
-              :key="setting"
-              :label="$tr(camelCase(setting))"
-              :checked="settings[setting]"
-              @change="toggleSetting(setting)"
-            />
+            <template
+              v-if="
+                setting != 'learner_can_edit_password' &&
+                  setting != 'learner_can_login_with_no_password'
+              "
+            >
+              <KCheckbox
+                :key="setting"
+                :label="$tr(camelCase(setting))"
+                :checked="settings[setting]"
+                @change="toggleSetting(setting)"
+              />
+            </template>
+            <template v-else-if="setting === 'learner_can_login_with_no_password'">
+              <KCheckbox
+                :key="setting"
+                :label="$tr('learnerNeedPasswordToLogin')"
+                :checked="!settings['learner_can_login_with_no_password']"
+                @change="toggleSetting('learner_can_login_with_no_password')"
+              />
+              <span>
+                <KCheckbox
+                  :key="learner_can_edit_password"
+                  :disabled="enableChangePassword"
+                  :label="$tr('learnerCanEditPassword')"
+                  :checked="settings['learner_can_edit_password']"
+                  @change="toggleSetting('learner_can_edit_password')"
+                  class="checkbox-password"
+                />
+              </span>
+            </template>
           </template>
         </div>
 
@@ -123,6 +148,9 @@
         }
         return null;
       },
+      enableChangePassword() {
+        return this.settings['learner_can_login_with_no_password'];
+      },
     },
     mounted() {
       this.copySettings();
@@ -162,6 +190,7 @@
       learnerCanEditUsername: 'Allow learners to edit their username',
       learnerCanSignUp: 'Allow learners to create accounts',
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
+      learnerNeedPasswordToLogin: 'Require password for learners',
       showDownloadButtonInLearn: "Show 'download' button with resources",
       allowGuestAccess: 'Allow users to access resources without signing in',
       /* eslint-enable kolibri/vue-no-unused-translations */
@@ -191,4 +220,7 @@
     cursor: pointer;
   }
 
+  .checkbox-password {
+    margin-left: 24px;
+  }
 </style>

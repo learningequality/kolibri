@@ -66,7 +66,7 @@
                 {{ getPermissionString(key) }}
               </li>
             </ul>
-          </p>
+            </p>
         </td>
       </tr>
 
@@ -193,7 +193,7 @@
         return '';
       },
       canEditPassword() {
-        return this.isSuperuser || this.isCoach || this.facilityConfig.learner_can_edit_password;
+        return this.isSuperuser || this.isCoach || (this.facilityConfig.learner_can_edit_password  && !this.facilityConfig.learner_can_login_with_no_password);
       },
     },
     created() {
