@@ -77,4 +77,6 @@ urlpatterns += plugin_urls()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
-urlpatterns += static(paths.get_content_url("/"), view=static_serve_with_fallbacks(content_dirs))
+urlpatterns += static(
+    paths.get_content_url("/"), view=static_serve_with_fallbacks(content_dirs)
+)

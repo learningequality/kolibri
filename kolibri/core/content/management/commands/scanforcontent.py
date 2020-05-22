@@ -62,7 +62,9 @@ class Command(BaseCommand):
         channel_import_mode = options["channel_import_mode"]
         channels_to_include = options["channels"]
 
-        storage_channel_ids = get_channel_ids_for_content_dirs(get_all_content_dir_paths())
+        storage_channel_ids = get_channel_ids_for_content_dirs(
+            get_all_content_dir_paths()
+        )
         database_channel_ids = list(
             ChannelMetadata.objects.all().values_list("id", flat=True)
         )

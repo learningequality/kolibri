@@ -430,7 +430,11 @@ def _expand_paths(basepath, pathdict):
         elif isinstance(path, list):
             pathdict[key] = [_expand_path(basepath, p) for p in path]
         else:
-            raise Exception("Paths must be a single string or a semicolon-delimited list, not {}".format(type(path)))
+            raise Exception(
+                "Paths must be a single string or a semicolon-delimited list, not {}".format(
+                    type(path)
+                )
+            )
 
 
 def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options.ini"):
