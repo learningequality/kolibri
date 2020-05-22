@@ -211,7 +211,7 @@ class KolibriWindow(KolibriView):
         # Set a user agent so Kolibri behaves differently
         # <https://github.com/learningequality/kolibri/blob/app-support/kolibri/core/assets/src/utils/browser.js#L25>
         user_agent = self.gtk_webview.get_settings().get_user_agent()
-        self.set_user_agent(" ".join([user_agent, "KolibriApp/1.0"]))
+        self.set_user_agent(" ".join([user_agent, "Android", "wv", "KolibriApp/1.0"]))
 
         # Maximize windows on Endless OS
         if hasattr(self, "gtk_window") and XDG_CURRENT_DESKTOP == "endless:GNOME":
