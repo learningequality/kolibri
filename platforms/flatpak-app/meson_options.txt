@@ -1,0 +1,6 @@
+option(
+    'kolibri_home_template_dir',
+    type: 'string',
+    value: '',
+    description: 'Directory where a KOLIBRI_HOME template is located'
+)

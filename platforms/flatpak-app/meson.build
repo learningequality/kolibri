@@ -9,6 +9,8 @@ libexecdir = join_paths(get_option('prefix'), get_option('libexecdir'))
 locale_dir = join_paths(get_option('prefix'), get_option('localedir'))
 datadir = join_paths(get_option('prefix'), get_option('datadir'))
 
+kolibri_home_template_dir = get_option('kolibri_home_template_dir')
+
 po_dir = join_paths(meson.source_root(), 'po')
 
 kolibri_gnome_libexecdir = join_paths(libexecdir, 'kolibri-gnome')
@@ -21,6 +23,7 @@ kolibri_gnome_config.set('GETTEXT_PACKAGE', meson.project_name())
 kolibri_gnome_config.set('LOCALE_DIR', locale_dir)
 kolibri_gnome_config.set('KOLIBRI_GNOME_LIBEXECDIR', kolibri_gnome_libexecdir)
 kolibri_gnome_config.set('KOLIBRI_GNOME_DATADIR', kolibri_gnome_datadir)
+kolibri_gnome_config.set('KOLIBRI_HOME_TEMPLATE_DIR', kolibri_home_template_dir)
 
 subdir('data')
 subdir('po')
