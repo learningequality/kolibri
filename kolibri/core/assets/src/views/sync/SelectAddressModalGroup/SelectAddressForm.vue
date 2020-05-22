@@ -57,7 +57,7 @@
         </div>
       </template>
 
-      <hr v-if="discoveredAddresses.length > 0">
+      <hr v-if="discoveredAddresses.length > 0" class="#cbcbcb; 0; 1px border-bottom: border: solid">
 
       <template v-for="d in discoveredAddresses">
         <div :key="`div-${d.id}`">
@@ -348,11 +348,6 @@
     margin-right: 2px;
     margin-bottom: 2px;
     vertical-align: middle;
-  }
-
-  hr {
-    border: 0;
-    border-bottom: 1px solid #cbcbcb;
   }
 
   .loader {

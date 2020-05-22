@@ -2,12 +2,12 @@
 
   <div>
     <h1>{{ $tr('header') }}</h1>
-    <table>
+    <table class="16px; margin-top:">
       <tr>
-        <th>
+        <th class="table-header-default">
           {{ $tr('url', { count: deviceInfo.urls.length }) }}
         </th>
-        <td>
+        <td class="table-cell-default">
           <KExternalLink
             v-for="(url, index) in deviceInfo.urls"
             :key="index"
@@ -20,16 +20,26 @@
         </td>
       </tr>
       <tr>
-        <th>{{ $tr('freeDisk') }}</th>
-        <td>{{ deviceInfo.content_storage_free_space }}</td>
+        <th class="table-header-default">
+          {{ $tr('freeDisk') }}
+        </th>
+        <td class="table-cell-default">
+          {{ deviceInfo.content_storage_free_space }}
+        </td>
       </tr>
       <tr>
-        <th>{{ $tr('kolibriVersion') }}</th>
-        <td>{{ deviceInfo.version }}</td>
+        <th class="table-header-default">
+          {{ $tr('kolibriVersion') }}
+        </th>
+        <td class="table-cell-default">
+          {{ deviceInfo.version }}
+        </td>
       </tr>
       <tr>
-        <th>{{ coreString('deviceNameLabel') }}</th>
-        <td>
+        <th class="table-header-default">
+          {{ coreString('deviceNameLabel') }}
+        </th>
+        <td class="table-cell-default">
           {{ deviceNameWithId }}
           <KButton
             class="edit-button"
@@ -147,18 +157,14 @@
 
 <style lang="scss" scoped>
 
-  table {
-    margin-top: 16px;
-  }
-
-  th {
+  .table-header-default {
     padding-right: 24px;
     padding-bottom: 24px;
     text-align: left;
     vertical-align: top;
   }
 
-  td {
+  .table-cell-default {
     padding-bottom: 24px;
   }
 

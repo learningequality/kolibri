@@ -1,10 +1,6 @@
 <template>
 
-  <KFixedGrid
-    numCols="4"
-    class="page-status"
-    :style="{ backgroundColor: $themeTokens.surface }"
-  >
+  <KFixedGrid numCols="4" class="page-status" :style="{ backgroundColor: $themeTokens.surface }">
     <KFixedGridItem span="3">
       <div>
         <h1 class="title">
@@ -15,20 +11,20 @@
 
       <table class="scores">
         <tr>
-          <th>
+          <th class="scores_tablehead">
             {{ $tr('overallScore') }}
           </th>
-          <td>
+          <td class="scores_cell">
             <strong>
               {{ $formatNumber(score, { style: 'percent' }) }}
             </strong>
           </td>
         </tr>
         <tr>
-          <th>
+          <th class="scores_tablehead">
             {{ $tr('questionsCorrectLabel') }}
           </th>
-          <td>
+          <td class="scores_cell">
             {{ $tr('questionsCorrectValue', {
               correct: questionsCorrect, total: questions.length
             }) }}
@@ -78,7 +74,9 @@
         type: Boolean,
         default: false,
       },
-      completionTimestamp: { type: Date },
+      completionTimestamp: {
+        type: Date,
+      },
       contentName: {
         type: String,
         required: true,
@@ -151,12 +149,12 @@
     min-width: 200px;
     margin-top: 24px;
 
-    th {
+    .scores_tablehead {
       text-align: left;
     }
 
-    th,
-    td {
+    .scores_cell,
+    .scores_tablehead {
       height: 2em;
       padding-right: 24px;
       font-size: 14px;

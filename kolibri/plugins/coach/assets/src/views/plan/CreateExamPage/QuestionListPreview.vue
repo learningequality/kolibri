@@ -51,12 +51,14 @@
           <li
             v-for="(question, questionIndex) in selectedQuestions"
             :key="questionIndex"
+            class="list-padding"
           ></li>
         </ol>
         <ul v-else class="list-labels" aria-hidden>
           <li
             v-for="(question, questionIndex) in selectedQuestions"
             :key="questionIndex"
+            class="list-padding"
           ></li>
         </ul>
       </transition>
@@ -227,7 +229,7 @@
     margin-top: 0;
     font-weight: bold;
 
-    li {
+    .list-padding {
       padding: 8px;
     }
   }

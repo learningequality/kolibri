@@ -11,16 +11,16 @@
           <KLabeledIcon icon="person" :label="isCurrentUser ? $tr('you') : user.full_name" />
         </h1>
 
-        <table>
+        <table class="table-default">
           <tr>
-            <th>
+            <th class="table-headers">
               {{ coreString('usernameLabel') }}
             </th>
             <td>{{ user.username }}</td>
           </tr>
 
           <tr>
-            <th>
+            <th class="table-headers">
               {{ coreString('userTypeLabel') }}
             </th>
             <td>
@@ -29,7 +29,7 @@
           </tr>
 
           <tr>
-            <th>
+            <th class="table-headers">
               {{ coreString('facilityLabel') }}
             </th>
             <td dir="auto">
@@ -244,13 +244,13 @@
     margin-left: 0;
   }
 
-  table {
+  .table-default {
     line-height: 1.5em;
     text-align: left;
     table-layout: fixed;
-  }
-  th {
-    min-width: 112px;
+    .table-headers {
+      min-width: 112px;
+    }
   }
 
   .super-admin-checkbox {

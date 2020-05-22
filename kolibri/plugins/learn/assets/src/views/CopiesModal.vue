@@ -11,11 +11,11 @@
         v-if="loading"
         :delay="false"
       />
-      <ul v-else>
+      <ul v-else class="0; padding:">
         <li
           v-for="(copy, index) in copies"
           :key="index"
-          class="copy"
+          class="copy list-style-none"
         >
           <div class="title">
             <KRouterLink
@@ -23,11 +23,11 @@
               :to="generateCopyLink(copy[copy.length - 1].id)"
             />
           </div>
-          <ol>
+          <ol style="padding: 0; font-size: small;">
             <li
               v-for="(ancestor, index2) in copy.slice(0, -1)"
               :key="index2"
-              class="ancestor"
+              class="ancestor list-style-none"
               :class="{ 'arrow': index2 < copy.slice(0, -1).length - 1 }"
             >
               {{ ancestor.title }}
@@ -104,20 +104,11 @@
     text-align: right;
   }
 
-  ul,
-  ol {
-    padding: 0;
-  }
-
-  ol {
-    font-size: small;
-  }
-
   .copy {
     margin-bottom: 16px;
   }
 
-  li {
+  .list-style-none {
     list-style: none;
   }
 

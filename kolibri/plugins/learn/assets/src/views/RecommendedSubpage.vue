@@ -2,7 +2,9 @@
 
   <div>
     <KBreadcrumbs :items="breadcrumbItems" />
-    <h1>{{ header }}</h1>
+    <h1 class="21px; font-size:">
+      {{ header }}
+    </h1>
     <ContentCardGroupGrid
       :contents="recommendations"
       :genContentLink="genContentLink"
@@ -89,10 +91,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  h1 {
-    font-size: 21px;
-  }
-
-</style>
+<style lang="scss" scoped></style>

@@ -27,10 +27,10 @@
     </div>
 
     <div class="details">
-      <p class="details-status" :style="{ color: $themeTokens.annotation }">
+      <p class="default-margin details-status" :style="{ color: $themeTokens.annotation }">
         {{ statusText }}
       </p>
-      <h2 class="details-description">
+      <h2 class="default-margin details-description">
         {{ descriptionText }}
       </h2>
       <div v-if="taskIsRunning || taskIsCanceling" class="details-progress-bar">
@@ -56,16 +56,16 @@
         </template>
       </div>
       <template v-if="!taskIsCompleted && !taskIsCanceled">
-        <p v-if="sizeText" class="details-size">
+        <p v-if="sizeText" class="default-margin details-size">
           {{ sizeText }}
         </p>
       </template>
       <template v-else>
-        <p v-if="finishedSizeText" class="details-size">
+        <p v-if="finishedSizeText" class="default-margin details-size">
           {{ finishedSizeText }}
         </p>
       </template>
-      <p class="details-startedby" :style="{ color: $themeTokens.annotation }">
+      <p class="default-margin details-startedby" :style="{ color: $themeTokens.annotation }">
         {{ startedByText }}
       </p>
     </div>
@@ -305,8 +305,7 @@
   $fs1: 14px;
   $fs2: 16px;
 
-  p,
-  h2 {
+  .default-margin {
     margin: 8px 0;
   }
 

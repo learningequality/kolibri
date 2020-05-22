@@ -18,8 +18,10 @@
 
     <table>
       <tr>
-        <th>{{ $tr('points') }}</th>
-        <td class="points-cell">
+        <th class="table-header-cells-default text-align-left">
+          {{ $tr('points') }}
+        </th>
+        <td class="points-cell table-header-cells-default">
           <PointsIcon class="points-icon" />
           <span :style="{ color: $themeTokens.correct }">
             {{ $formatNumber(totalPoints) }}
@@ -28,9 +30,11 @@
       </tr>
 
       <tr>
-        <th>{{ coreString('userTypeLabel') }}</th>
+        <th class="table-header-cells-default text-align-left">
+          {{ coreString('userTypeLabel') }}
+        </th>
 
-        <td>
+        <td class="table-header-cells-default">
           <UserTypeDisplay
             :distinguishCoachTypes="false"
             :userType="getUserKind"
@@ -39,15 +43,19 @@
       </tr>
 
       <tr v-if="facilityName">
-        <th>{{ coreString('facilityLabel') }}</th>
-        <td>{{ facilityName }}</td>
+        <th class="table-header-cells-default text-align-left">
+          {{ coreString('facilityLabel') }}
+        </th>
+        <td class="table-header-cells-default">
+          {{ facilityName }}
+        </td>
       </tr>
 
       <tr v-if="userHasPermissions">
-        <th style="vertical-align: top">
+        <th class="table-header-cells-default text-align-left" style="vertical-align: top">
           {{ coreString('devicePermissionsLabel') }}
         </th>
-        <td>
+        <td class="table-header-cells-default">
           <KLabeledIcon>
             <PermissionsIcon
               slot="icon"
@@ -71,32 +79,46 @@
       </tr>
 
       <tr>
-        <th>{{ coreString('fullNameLabel') }}</th>
-        <td>{{ session.full_name }}</td>
+        <th class="table-header-cells-default text-align-left">
+          {{ coreString('fullNameLabel') }}
+        </th>
+        <td class="table-header-cells-default">
+          {{ session.full_name }}
+        </td>
       </tr>
 
       <tr>
-        <th>{{ coreString('usernameLabel') }}</th>
-        <td>{{ session.username }}</td>
+        <th class="table-header-cells-default text-align-left">
+          {{ coreString('usernameLabel') }}
+        </th>
+        <td class="table-header-cells-default">
+          {{ session.username }}
+        </td>
       </tr>
 
       <tr>
-        <th>{{ coreString('genderLabel') }}</th>
-        <td>
+        <th class="table-header-cells-default text-align-left">
+          {{ coreString('genderLabel') }}
+        </th>
+        <td class="table-header-cells-default">
           <GenderDisplayText :gender="facilityUser.gender" />
         </td>
       </tr>
 
       <tr>
-        <th>{{ coreString('birthYearLabel') }}</th>
-        <td>
+        <th class="table-header-cells-default text-align-left">
+          {{ coreString('birthYearLabel') }}
+        </th>
+        <td class="table-header-cells-default">
           <BirthYearDisplayText :birthYear="facilityUser.birth_year" />
         </td>
       </tr>
 
       <tr v-if="canEditPassword">
-        <th>{{ coreString('passwordLabel') }}</th>
-        <td>
+        <th class="table-header-cells-default text-align-left">
+          {{ coreString('passwordLabel') }}
+        </th>
+        <td class="table-header-cells-default">
           <KButton
             appearance="basic-link"
             :text="$tr('changePasswordPrompt')"
@@ -238,12 +260,11 @@
     display: inline-block;
   }
 
-  th {
+  .text-align-left {
     text-align: left;
   }
 
-  th,
-  td {
+  .table-header-cells-default {
     height: 2em;
     padding-top: 24px;
     padding-right: 24px;
@@ -259,10 +280,6 @@
     margin-left: 16px;
     font-size: 3em;
     font-weight: bold;
-  }
-
-  section {
-    margin-bottom: 36px;
   }
 
   .permissions-list {

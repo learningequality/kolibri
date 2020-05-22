@@ -19,11 +19,19 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>Props</th>
-            <th>Type</th>
-            <th>Required</th>
-            <th>Default</th>
-            <th class="stretch">
+            <th class="table-heads">
+              Props
+            </th>
+            <th class="table-heads">
+              Type
+            </th>
+            <th class="table-heads">
+              Required
+            </th>
+            <th class="table-heads">
+              Default
+            </th>
+            <th class="stretch table-heads">
               Description
             </th>
           </tr>
@@ -60,8 +68,10 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>Events</th>
-            <th class="stretch">
+            <th class="table-heads">
+              Events
+            </th>
+            <th class="stretch table-heads">
               Description
             </th>
           </tr>
@@ -83,8 +93,10 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>Slots</th>
-            <th class="stretch">
+            <th class="table-heads">
+              Slots
+            </th>
+            <th class="stretch table-heads">
               Description
             </th>
           </tr>
@@ -106,8 +118,10 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>Methods</th>
-            <th class="stretch">
+            <th class="table-heads">
+              Methods
+            </th>
+            <th class="stretch table-heads">
               Description
             </th>
           </tr>
@@ -189,7 +203,7 @@
 
 <style lang="scss" scoped>
 
-  th {
+  .table-heads {
     min-width: 50px;
   }
 

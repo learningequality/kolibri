@@ -30,20 +30,36 @@
     </div>
 
     <table class="channel-statistics">
-      <tr class="headers">
-        <th></th>
-        <th>{{ coreString('resourcesLabel') }}</th>
-        <th>{{ $tr('sizeCol') }}</th>
+      <tr>
+        <th class="text-align-right th-td-default"></th>
+        <th class="text-align-right th-td-default">
+          {{ coreString('resourcesLabel') }}
+        </th>
+        <th class="text-align-right th-td-default">
+          {{ $tr('sizeCol') }}
+        </th>
       </tr>
       <tr>
-        <th>{{ $tr('totalSizeRow') }}</th>
-        <td>{{ $tr('resourceCount', { count: channel.total_resources || 0 }) }}</td>
-        <td>{{ bytesForHumans(channel.total_file_size || 0) }}</td>
+        <th class="text-align-left th-td-default">
+          {{ $tr('totalSizeRow') }}
+        </th>
+        <td class="text-align-right th-td-default">
+          {{ $tr('resourceCount', { count: channel.total_resources || 0 }) }}
+        </td>
+        <td class="text-align-right th-td-default">
+          {{ bytesForHumans(channel.total_file_size || 0) }}
+        </td>
       </tr>
       <tr>
-        <th>{{ $tr('onDeviceRow') }}</th>
-        <td>{{ $tr('resourceCount', { count: channel.on_device_resources || 0 }) }}</td>
-        <td>{{ bytesForHumans(channel.on_device_file_size || 0) }}</td>
+        <th class="text-align-left th-td-default">
+          {{ $tr('onDeviceRow') }}
+        </th>
+        <td class="text-align-right th-td-default">
+          {{ $tr('resourceCount', { count: channel.on_device_resources || 0 }) }}
+        </td>
+        <td class="text-align-right th-td-default">
+          {{ bytesForHumans(channel.on_device_file_size || 0) }}
+        </td>
       </tr>
     </table>
   </section>
@@ -118,22 +134,20 @@
   .channel-statistics {
     min-width: 150px;
     margin: 16px 0;
-  }
 
-  th,
-  td {
-    height: 2em;
-    padding-right: 24px;
-    font-size: 14px;
-  }
+    .text-align-left {
+      text-align: left;
+    }
 
-  th {
-    text-align: left;
-  }
+    .text-align-right {
+      text-align: right;
+    }
 
-  .headers th,
-  td {
-    text-align: right;
+    .th-td-default {
+      height: 2em;
+      padding-right: 24px;
+      font-size: 14px;
+    }
   }
 
 </style>

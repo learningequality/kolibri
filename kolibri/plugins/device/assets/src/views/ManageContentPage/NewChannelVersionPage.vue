@@ -3,7 +3,7 @@
   <div v-if="!loadingChannel">
 
     <section>
-      <h1>
+      <h1 class="24px; font-size:">
         {{ versionAvailableText }}
       </h1>
       <p> {{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
@@ -23,8 +23,10 @@
       </p>
       <table v-if="!loadingChannel && !loadingTask">
         <tr>
-          <th>{{ $tr('resourcesAvailableForImport') }}</th>
-          <td class="col-2">
+          <th class="table-header table-padding">
+            {{ $tr('resourcesAvailableForImport') }}
+          </th>
+          <td class="col-2 table-cells table-padding">
             <span
               :class="{ 'count-added': newResources }"
               :style="{ color: $themeTokens.success }"
@@ -34,8 +36,10 @@
           </td>
         </tr>
         <tr>
-          <th>{{ $tr('resourcesToBeDeleted') }}</th>
-          <td>
+          <th class="table-header table-padding">
+            {{ $tr('resourcesToBeDeleted') }}
+          </th>
+          <td class="table-cells table-padding">
             <span
               :class="{ 'count-deleted': deletedResources }"
               :style="{ color: $themeTokens.error }"
@@ -43,7 +47,7 @@
               {{ deletedResources }}
             </span>
           </td>
-          <td>
+          <td class="table-cells table-padding">
             <CoreInfoIcon
               v-if="deletedResources"
               class="info-icon"
@@ -54,8 +58,10 @@
           </td>
         </tr>
         <tr>
-          <th>{{ $tr('resourcesToBeUpdated') }}</th>
-          <td>
+          <th class="table-header table-padding">
+            {{ $tr('resourcesToBeUpdated') }}
+          </th>
+          <td class="table-cells table-padding">
             {{ updatedResources }}
           </td>
         </tr>
@@ -79,10 +85,10 @@
 
     <dl>
       <template v-for="(note, idx) in sortedFilteredVersionNotes">
-        <dt :key="`dt-${idx}`">
+        <dt :key="`dt-${idx}`" class="bold; font-weight:">
           {{ $tr('versionNumberHeader', { version: note.version }) }}
         </dt>
-        <dd :key="`dd-${idx}`" dir="auto">
+        <dd :key="`dd-${idx}`" class="8px; margin-bottom:" dir="auto">
           {{ note.notes }}
         </dd>
       </template>
@@ -333,10 +339,6 @@
 
 <style lang="scss" scoped>
 
-  h1 {
-    font-size: 24px;
-  }
-
   .main-loader {
     margin-top: 8px;
   }
@@ -359,31 +361,21 @@
     margin-left: 16px;
   }
 
-  td,
-  th {
+  .table-padding {
     padding-top: 4px;
     padding-bottom: 4px;
   }
 
-  th {
+  .table-header {
     font-weight: normal;
     text-align: left;
   }
 
-  td {
+  .table-cells {
     text-align: right;
-  }
-
-  td.col-2 {
-    min-width: 120px;
-  }
-
-  dt {
-    font-weight: bold;
-  }
-
-  dd {
-    margin-bottom: 8px;
+    &.col-2 {
+      min-width: 120px;
+    }
   }
 
 </style>

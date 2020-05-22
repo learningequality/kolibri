@@ -27,15 +27,18 @@
     </div>
 
     <div class="details">
-      <p class="details-status" :style="{ color: $themeTokens.annotation }">
+      <p
+        class="default-margin details-status"
+        :style="{ color: $themeTokens.annotation }"
+      >
         {{ statusMsg }}
       </p>
 
-      <h2 v-if="headingMsg" class="details-description">
+      <h2 v-if="headingMsg" class="default-margin details-description">
         {{ headingMsg }}
       </h2>
 
-      <p v-if="underHeadingMsg" class="fs0">
+      <p v-if="underHeadingMsg" class="default-margin fs0">
         {{ underHeadingMsg }}
       </p>
 
@@ -63,13 +66,14 @@
         </template>
       </div>
 
-      <p v-if="underProgressMsg" class="fs0">
+      <p v-if="underProgressMsg" class="default-margin fs0">
         {{ underProgressMsg }}
       </p>
 
-      <p v-if="startedByMsg" class="fs0" :style="{ color: $themeTokens.annotation }">
+      <p v-if="startedByMsg" class="default-margin fs0" :style="{ color: $themeTokens.annotation }">
         {{ startedByMsg }}
       </p>
+      </h2>
     </div>
 
     <div class="buttons" :class="{ 'button-lift': Boolean(loaderType) }">
@@ -193,8 +197,7 @@
   $fs1: 14px;
   $fs2: 16px;
 
-  p,
-  h2 {
+  .default-margin {
     margin: 8px 0;
   }
 

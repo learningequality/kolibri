@@ -11,7 +11,9 @@
     </div>
 
     <div v-else>
-      <h2>{{ $tr('drivesFound') }}</h2>
+      <h2 style="font-size: 1em;">
+        {{ $tr('drivesFound') }}
+      </h2>
       <KRadioButton
         v-for="drive in drives"
         :key="drive.id"
@@ -93,10 +95,6 @@
   .error-svg {
     margin-right: 0.2em;
     margin-bottom: -6px;
-  }
-
-  h2 {
-    font-size: 1em;
   }
 
 </style>

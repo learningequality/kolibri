@@ -1,7 +1,9 @@
 <template>
 
   <div>
-    <h1>{{ $tr('header') }}</h1>
+    <h1 class="42px; margin-top:">
+      {{ $tr('header') }}
+    </h1>
     <p>
       <KExternalLink v-if="deviceContentUrl" :text="$tr('adminLink')" :href="deviceContentUrl" />
     </p>
@@ -48,10 +50,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  h1 {
-    margin-top: 42px; // height of toolbar
-  }
-
-</style>
+<style lang="scss" scoped></style>

@@ -23,7 +23,9 @@
       class="exercise-container"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
-      <h3>{{ coreString('questionNumberLabel', { questionNumber: questionNumber + 1 }) }}</h3>
+      <h3 style="margin-top: 0;">
+        {{ coreString('questionNumberLabel', { questionNumber: questionNumber + 1 }) }}
+      </h3>
 
       <KCheckbox
         :label="coreString('showCorrectAnswerLabel')"
@@ -194,10 +196,6 @@
 
   .exercise-container {
     padding: 8px;
-  }
-
-  h3 {
-    margin-top: 0;
   }
 
 </style>

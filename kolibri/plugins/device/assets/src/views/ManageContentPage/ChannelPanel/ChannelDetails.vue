@@ -1,33 +1,26 @@
 <template>
 
-  <div
-    class="channel-detail-panel"
-    :class="{ 'channel-detail-panel-sm': windowIsSmall }"
-  >
+  <div class="channel-detail-panel" :class="{ 'channel-detail-panel-sm': windowIsSmall }">
     <div class="col-1">
       <slot name="beforethumbnail"></slot>
-      <img
-        v-if="channel.thumbnail"
-        class="thumbnail"
-        :src="channel.thumbnail"
-      >
-      <mat-svg
-        v-else
-        category="navigation"
-        name="apps"
-        class="thumbnail-svg"
-        :style="{ backgroundColor: $themePalette.grey.v_200 }"
-      />
+      <img v-if="channel.thumbnail" class="thumbnail" :src="channel.thumbnail">
+      <mat-svg v-else category="navigation" name="apps" class="thumbnail-svg" :style="{ backgroundColor: $themePalette.grey.v_200 }" />
     </div>
 
     <div class="col-2">
       <div class="col-2-row-1">
         <div>
-          <h2 class="channel-name" dir="auto">
+          <h2
+            class="channel-name detail-default-margin detail-default-margin-sm"
+            dir="auto"
+          >
             {{ channel.name }}
           </h2>
           <slot name="belowname"></slot>
-          <p class="version" :style="{ color: $themeTokens.annotation }">
+          <p
+            class="detail-default-margin detail-default-margin-sm version"
+            :style="{ color: $themeTokens.annotation }"
+          >
             {{ $tr('versionNumber', { v: channelVersion || channel.version }) }}
           </p>
         </div>
@@ -35,14 +28,14 @@
 
       <div>
         <slot name="abovedescription"></slot>
-        <p class="description" dir="auto">
+        <p
+          class="description detail-default-margin detail-default-margin-sm"
+          dir="auto"
+        >
           {{ channel.description || $tr('defaultDescription') }}
         </p>
-        <p class="coach-content">
-          <CoachContentLabel
-            :value="channel.num_coach_contents"
-            :isTopic="true"
-          />
+        <p class="coach-content detail-default-margin detail-default-margin-sm">
+          <CoachContentLabel :value="channel.num_coach_contents" :isTopic="true" />
         </p>
         <slot name="belowdescription"></slot>
       </div>
@@ -89,8 +82,7 @@
   $thumbside: 128px;
   $thumbside-sm: 64px;
 
-  h2,
-  p {
+  .detail-default-margin {
     margin: 8px 0;
   }
 
@@ -156,8 +148,7 @@
     flex-direction: column;
     font-size: 0.9rem;
 
-    h2,
-    p {
+    .detail-default-margin-sm {
       margin: 4px 0;
     }
 
