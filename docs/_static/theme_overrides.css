@@ -5,3 +5,7 @@
     white-space: normal !important;
     vertical-align: top !important;
  }
+
+.rst-content ul li {
+	margin-bottom: 6px !important;
+}
