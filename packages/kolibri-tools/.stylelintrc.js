@@ -1,5 +1,8 @@
 module.exports = {
-  plugins: ['stylelint-csstree-validator'],
+  plugins: [
+    'stylelint-csstree-validator',
+    'stylelint-selector-tag-no-without-class'
+  ],
   extends: [
     'stylelint-config-standard',
     'stylelint-config-recommended-scss',
@@ -27,5 +30,17 @@ module.exports = {
 
     'order/properties-alphabetical-order': null,
     'scss/percent-placeholder-pattern': null,
+
+    // plugin/selector-tag-no-without-class settings
+    "plugin/selector-tag-no-without-class": [
+      "div", "span", "p", "a", "hr", "img", "br",
+      "i", "em", "b", "strong", "blockquote",
+      "ul", "ol", "li",
+      "section",
+      "dd", "dt",
+      "table", "tr", "td", "th", "tbody",
+      "h1", "h2", "h3", "h4", "h5", "h6"
+    ]
+
   },
 };
