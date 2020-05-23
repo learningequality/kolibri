@@ -55,5 +55,3 @@ While translators are working, we finish final feature development and begin int
 .. note:: The latest beta releases are automatically deployed to `kolibri-beta.learningequality.org <https://kolibri-dev.learningequality.org/>`__.
 
 The remainder of the release process is documented in structured workflows in the `Kolibri release process repo <https://github.com/learningequality/kolibri-release-process/>`__. (Note: this is currently a private repository because it interacts with internal Learning Equality systems)
-
-
