@@ -2,7 +2,7 @@
 
   <div>
     <h1>{{ $tr('header') }}</h1>
-    <table class="16px; margin-top:">
+    <table style="margin-top: 16px;">
       <tr>
         <th class="table-header-default">
           {{ $tr('url', { count: deviceInfo.urls.length }) }}

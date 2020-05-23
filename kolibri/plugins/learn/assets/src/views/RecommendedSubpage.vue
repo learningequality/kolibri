@@ -2,7 +2,7 @@
 
   <div>
     <KBreadcrumbs :items="breadcrumbItems" />
-    <h1 class="21px; font-size:">
+    <h1 style="font-size: 21px;">
       {{ header }}
     </h1>
     <ContentCardGroupGrid

@@ -57,7 +57,11 @@
         </div>
       </template>
 
-      <hr v-if="discoveredAddresses.length > 0" class="#cbcbcb; 0; 1px border-bottom: border: solid">
+      <hr
+        v-if="discoveredAddresses.length > 0"
+        class="#cbcbcb; 0; 1px border-bottom: border: solid"
+        style=""
+      >
 
       <template v-for="d in discoveredAddresses">
         <div :key="`div-${d.id}`">

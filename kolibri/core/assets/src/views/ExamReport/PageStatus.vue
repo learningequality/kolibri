@@ -11,20 +11,20 @@
 
       <table class="scores">
         <tr>
-          <th class="scores_tablehead">
+          <th class="scores-tablehead">
             {{ $tr('overallScore') }}
           </th>
-          <td class="scores_cell">
+          <td class="scores-cell">
             <strong>
               {{ $formatNumber(score, { style: 'percent' }) }}
             </strong>
           </td>
         </tr>
         <tr>
-          <th class="scores_tablehead">
+          <th class="scores-tablehead">
             {{ $tr('questionsCorrectLabel') }}
           </th>
-          <td class="scores_cell">
+          <td class="scores-cell">
             {{ $tr('questionsCorrectValue', {
               correct: questionsCorrect, total: questions.length
             }) }}
@@ -149,12 +149,12 @@
     min-width: 200px;
     margin-top: 24px;
 
-    .scores_tablehead {
+    .scores-tablehead {
       text-align: left;
     }
 
-    .scores_cell,
-    .scores_tablehead {
+    .scores-cell,
+    .scores-tablehead {
       height: 2em;
       padding-right: 24px;
       font-size: 14px;

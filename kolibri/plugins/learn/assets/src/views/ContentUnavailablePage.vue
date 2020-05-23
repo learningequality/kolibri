@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1 class="42px; margin-top:">
+    <h1 style="margin-top: 42px;">
       {{ $tr('header') }}
     </h1>
     <p>

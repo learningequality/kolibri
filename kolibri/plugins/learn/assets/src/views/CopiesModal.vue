@@ -11,7 +11,7 @@
         v-if="loading"
         :delay="false"
       />
-      <ul v-else class="0; padding:">
+      <ul v-else style="padding: 0;">
         <li
           v-for="(copy, index) in copies"
           :key="index"

@@ -73,8 +73,7 @@
       <p v-if="startedByMsg" class="default-margin fs0" :style="{ color: $themeTokens.annotation }">
         {{ startedByMsg }}
       </p>
-      </h2>
-    </div>
+    </div> 
 
     <div class="buttons" :class="{ 'button-lift': Boolean(loaderType) }">
       <KButton
