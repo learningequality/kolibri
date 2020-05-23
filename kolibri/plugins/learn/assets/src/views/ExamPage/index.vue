@@ -44,8 +44,24 @@
           </KPageContainer>
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
+            <UiIconButton
+              v-if="windowBreakpoint === 0"
+              :aria-label="$tr('nextQuestion')"
+              size="large"
+              type="secondary"
+              class="footer-button"
+              :disabled="questionNumber === exam.question_count - 1"
+              @click="goToQuestion(questionNumber + 1)"
+            >
+              <mat-svg
+                name="arrow_forward"
+                category="navigation"
+                :style="{fill: $themeTokens.primary}"
+              />
+            </UiIconButton>
             <KButton
-              :disabled="questionNumber===exam.question_count-1"
+              v-else
+              :disabled="questionNumber === exam.question_count - 1"
               :primary="true"
               class="footer-button"
               :dir="layoutDirReset"
@@ -54,8 +70,24 @@
               {{ $tr('nextQuestion') }}
               <KIcon icon="forward" color="white" class="forward-icon" />
             </KButton>
+            <UiIconButton
+              v-if="windowBreakpoint === 0"
+              :aria-label="$tr('previousQuestion')"
+              size="large"
+              type="secondary"
+              class="footer-button left-align"
+              :disabled="questionNumber === 0"
+              @click="goToQuestion(questionNumber - 1)"
+            >
+              <mat-svg
+                name="arrow_back"
+                category="navigation"
+                :style="{fill: $themeTokens.primary}"
+              />
+            </UiIconButton>
             <KButton
-              :disabled="questionNumber===0"
+              v-else
+              :disabled="questionNumber === 0"
               :primary="true"
               class="footer-button"
               :dir="layoutDirReset"
@@ -135,6 +167,7 @@
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames } from '../../constants';
@@ -150,6 +183,7 @@
     components: {
       AnswerHistory,
       UiAlert,
+      UiIconButton,
       BottomAppBar,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
