@@ -468,12 +468,14 @@ class SignUpViewSet(viewsets.ViewSet):
     def create(self, request):
 
         data = self.extract_request_data(request)
-
         # we validate the user's input, and if valid, login as user
         serialized_user = self.serializer_class(data=data)
+        if data["password"] == "":
+            data["password"] = "NOT_SPECIFIED"
         if serialized_user.is_valid(raise_exception=True):
             serialized_user.save()
-            serialized_user.instance.set_password(data["password"])
+            if data["password"] != "NOT_SPECIFIED":
+                serialized_user.instance.set_password(data["password"])
             serialized_user.instance.save()
             authenticated_user = authenticate(
                 username=data["username"],

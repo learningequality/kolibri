@@ -30,7 +30,7 @@
             :errors.sync="caughtErrors"
             :disabled="busy"
           />
-
+        <template v-if="showPasswordInput">
           <PasswordTextbox
             ref="passwordTextbox"
             autocomplete="new-password"
@@ -39,6 +39,7 @@
             :shouldValidate="formSubmitted"
             :disabled="busy"
           />
+      </template>
 
           <template v-if="currentFacility">
             <h2>
@@ -168,7 +169,7 @@
       };
     },
     computed: {
-      ...mapGetters(['facilities']),
+      ...mapGetters(['facilities', 'facilityConfig']),
       atFirstStep() {
         return !this.$route.query.step;
       },
@@ -189,6 +190,9 @@
         // query is before hash
         return getUrlParameter('next');
       },
+      showPasswordInput(){
+        return !this.facilityConfig.learner_can_login_with_no_password
+      }
     },
     beforeMount() {
       // If no user input is in memory, reset the wizard
