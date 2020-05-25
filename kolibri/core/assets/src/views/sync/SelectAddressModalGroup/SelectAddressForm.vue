@@ -59,8 +59,7 @@
 
       <hr
         v-if="discoveredAddresses.length > 0"
-        class="#cbcbcb; 0; 1px border-bottom: border: solid"
-        style=""
+        style="border: 0; border-bottom: 1px solid #cbcbcb;"
       >
 
       <template v-for="d in discoveredAddresses">

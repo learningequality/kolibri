@@ -3,7 +3,7 @@
   <div v-if="!loadingChannel">
 
     <section>
-      <h1 class="24px; font-size:">
+      <h1 style="font-size: 24px;">
         {{ versionAvailableText }}
       </h1>
       <p> {{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
@@ -85,10 +85,17 @@
 
     <dl>
       <template v-for="(note, idx) in sortedFilteredVersionNotes">
-        <dt :key="`dt-${idx}`" class="bold; font-weight:">
+        <dt
+          :key="`dt-${idx}`"
+          style="font-weight: bold;"
+        >
           {{ $tr('versionNumberHeader', { version: note.version }) }}
         </dt>
-        <dd :key="`dd-${idx}`" class="8px; margin-bottom:" dir="auto">
+        <dd
+          :key="`dd-${idx}`"
+          dir="auto"
+          style="margin-bottom: 8px;"
+        >
           {{ note.notes }}
         </dd>
       </template>

@@ -7,7 +7,10 @@ const defaultProps = {
   copyExplanation: '',
   assignmentQuestion: '',
   classId: 'class_2',
-  classList: [{ id: 'class_1', name: 'Class One' }, { id: 'class_2', name: 'Class Two' }],
+  classList: [
+    { id: 'class_1', name: 'Class One' },
+    { id: 'class_2', name: 'Class Two' },
+  ],
 };
 
 // prettier-ignore

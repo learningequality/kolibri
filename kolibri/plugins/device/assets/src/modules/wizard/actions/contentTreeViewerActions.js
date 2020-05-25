@@ -130,7 +130,10 @@ export function removeNodeForTransfer(store, node) {
         }
         if (ancestorResources === omittedResources) {
           // remove the ancestor from "include"
-          store.commit('REPLACE_INCLUDE_LIST', included.filter(n => n.id !== ancestor.id));
+          store.commit(
+            'REPLACE_INCLUDE_LIST',
+            included.filter(n => n.id !== ancestor.id)
+          );
           // remove all desceandants from "omit"
           store.commit(
             'REPLACE_OMIT_LIST',

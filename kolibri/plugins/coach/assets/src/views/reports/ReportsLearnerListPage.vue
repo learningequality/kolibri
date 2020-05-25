@@ -69,7 +69,10 @@
         const sorted = this._.sortBy(this.learners, ['name']);
         return sorted.map(learner => {
           const groupNames = this.getGroupNames(
-            this._.map(this.groups.filter(group => group.member_ids.includes(learner.id)), 'id')
+            this._.map(
+              this.groups.filter(group => group.member_ids.includes(learner.id)),
+              'id'
+            )
           );
           const examStatuses = this.examStatuses.filter(status => learner.id === status.learner_id);
           const contentStatuses = this.contentStatuses.filter(
