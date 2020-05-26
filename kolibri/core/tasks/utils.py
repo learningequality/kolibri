@@ -10,7 +10,7 @@ except ImportError:
     from threading import get_ident
 
 from kolibri.core.tasks import compat
-from kolibri.core.utils.cache import get_process_cache
+from kolibri.core.utils.cache import process_cache
 
 
 # An object on which to store data about the current job
@@ -174,4 +174,4 @@ class DiskCacheRLock(object):
         self.release()
 
 
-db_task_write_lock = DiskCacheRLock(get_process_cache(), "db_task_write_lock")
+db_task_write_lock = DiskCacheRLock(process_cache, "db_task_write_lock")

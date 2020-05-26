@@ -11,7 +11,7 @@ from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.paths import get_content_storage_dir_path
 from kolibri.core.content.utils.paths import get_file_checksums_url
 from kolibri.core.discovery.models import NetworkLocation
-from kolibri.core.utils.cache import get_process_cache
+from kolibri.core.utils.cache import process_cache
 
 checksum_regex = re.compile("^([a-f0-9]{32})$")
 
@@ -37,9 +37,6 @@ def _generate_mask_from_integer(integer_mask):
         integer_mask //= 2
 
 
-cache = get_process_cache
-
-
 def get_available_checksums_from_remote(channel_id, peer_id):
     """
     The current implementation prioritizes minimising requests to the remote server.
@@ -58,7 +55,7 @@ def get_available_checksums_from_remote(channel_id, peer_id):
     CACHE_KEY = "PEER_AVAILABLE_CHECKSUMS_{baseurl}_{channel_id}".format(
         baseurl=baseurl, channel_id=channel_id
     )
-    if CACHE_KEY not in cache:
+    if CACHE_KEY not in process_cache:
 
         channel_checksums = (
             LocalFile.objects.filter(
@@ -89,14 +86,14 @@ def get_available_checksums_from_remote(channel_id, peer_id):
                         channel_checksums, _generate_mask_from_integer(integer_mask)
                     )
                 )
-                cache.set(CACHE_KEY, checksums, 3600)
+                process_cache.set(CACHE_KEY, checksums, 3600)
             except (ValueError, TypeError):
                 # Bad JSON parsing will throw ValueError
                 # If the result of the json.loads is not iterable, a TypeError will be thrown
                 # If we end up here, just set checksums to None to allow us to cleanly continue
                 pass
     else:
-        checksums = cache.get(CACHE_KEY)
+        checksums = process_cache.get(CACHE_KEY)
     return checksums
 
 
@@ -109,8 +106,8 @@ def get_available_checksums_from_disk(channel_id, drive_id):
     PER_DISK_PER_CHANNEL_CACHE_KEY = "DISK_AVAILABLE_CHECKSUMS_{basepath}_{channel_id}".format(
         basepath=basepath, channel_id=channel_id
     )
-    if PER_DISK_PER_CHANNEL_CACHE_KEY not in cache:
-        if PER_DISK_CACHE_KEY not in cache:
+    if PER_DISK_PER_CHANNEL_CACHE_KEY not in process_cache:
+        if PER_DISK_CACHE_KEY not in process_cache:
             content_dir = get_content_storage_dir_path(datafolder=basepath)
 
             disk_checksums = []
@@ -123,15 +120,15 @@ def get_available_checksums_from_disk(channel_id, drive_id):
                         disk_checksums.append(checksum)
             # Cache is per device, so a relatively long lived one should
             # be fine.
-            cache.set(PER_DISK_CACHE_KEY, disk_checksums, 3600)
+            process_cache.set(PER_DISK_CACHE_KEY, disk_checksums, 3600)
         else:
-            disk_checksums = cache.get(PER_DISK_CACHE_KEY)
+            disk_checksums = process_cache.get(PER_DISK_CACHE_KEY)
         checksums = set(
             LocalFile.objects.filter(
                 files__contentnode__channel_id=channel_id
             ).values_list("id", flat=True)
         ).intersection(set(disk_checksums))
-        cache.set(PER_DISK_PER_CHANNEL_CACHE_KEY, checksums, 3600)
+        process_cache.set(PER_DISK_PER_CHANNEL_CACHE_KEY, checksums, 3600)
     else:
-        checksums = cache.get(PER_DISK_PER_CHANNEL_CACHE_KEY)
+        checksums = process_cache.get(PER_DISK_PER_CHANNEL_CACHE_KEY)
     return checksums
