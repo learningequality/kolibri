@@ -50,5 +50,5 @@ Feature: Import facility from a peer (post-setup)
 
 
 Examples:
-| ???      | ??? |
-| ?????!?! |
+| facility | peer   |
+| MySchool | MyPeer |
