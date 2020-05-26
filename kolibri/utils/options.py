@@ -233,6 +233,11 @@ base_option_spec = {
             "default": SUPPORTED_LANGUAGES,
             "envvars": ("KOLIBRI_LANGUAGES",),
         },
+        "STATIC_USE_SYMLINKS": {
+            "type": "boolean",
+            "default": True,
+            "envvars": ("KOLIBRI_STATIC_USE_SYMLINKS",),
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
