@@ -14,14 +14,15 @@ Feature: New landing page for super admins in Coach plugin
       And I see a list of <facilities> on the device
       And I see how many <classes> are in each <facility>
       And I don't see the *Coach* plugin subtabs
-        Scenario: View class list in facility
+      
+  Scenario: View class list in facility
     Given there is more than one facility on the device
       And I am on the *Coach > Facilities* page
     When I click on a <facility>
     Then I see the *Facility > Classes* page
       And I see *Coach - <facility>* in the action bar
       And I see a link above *Classes* for *All facilities*
-      And I don't see the *Coach* plugin subtabs
+      But I don't see the *Coach* plugin subtabs
 
   Scenario: View class in a facility
     Given there is more than one facility on the device
@@ -57,5 +58,5 @@ Feature: New landing page for super admins in Coach plugin
 
 
 Examples:
-| ???      | ??? |
-| ?????!?! |
+| facility | class   |
+| MySchool | MyClass |
