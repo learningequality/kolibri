@@ -7,7 +7,7 @@ Feature: Remove facility
 
   Scenario: Successfuly remove facility
     Given there are at least two facilities on my device
-    Given my super admin account is not a member of the <facility>
+     And my super admin account is not a member of the <facility>
     When I click *Options* for <facility>
     When I click *Remove facility*
     Then I see the modal to *Remove facility from this device*
@@ -62,5 +62,5 @@ Feature: Remove facility
 
 
 Examples:
-| ???      | ??? |
-| ?????!?! |
+| facility |
+| MySchool |
