@@ -14,7 +14,7 @@ Feature: New landing page for super admins in Facility plugin
       And I see a list of facilities on the device
       And I see how many classes are in each facility
       And I don't see the *Facility* plugin subtabs
-        
+
   Scenario: View facility
     Given there is more than one facility on the device
       And I am on the *Facility > Facilities* page

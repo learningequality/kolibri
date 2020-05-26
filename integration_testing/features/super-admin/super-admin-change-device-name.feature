@@ -9,7 +9,7 @@ Feature: Change device name
     # If upgrading from a pre-0.14 device, device name might not exist
     When I go to *Device > Info* page
     Then the value in the *Device name* field is the same as the host name
-    
+
   Scenario: Change device name
     When I click *Edit* next to the device name
     Then I see the *Device name* modal

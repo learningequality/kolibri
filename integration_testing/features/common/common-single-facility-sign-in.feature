@@ -9,7 +9,7 @@ Feature: Single facility sign in
     When I open Kolibri in the browser
     Then I see *Sign in to <facility>*
       And I see the sign in form
-      
+
 Examples:
 | facility |
 | MySchool |

@@ -14,7 +14,7 @@ Feature: New landing page for super admins in Coach plugin
       And I see a list of <facilities> on the device
       And I see how many <classes> are in each <facility>
       And I don't see the *Coach* plugin subtabs
-      
+
   Scenario: View class list in facility
     Given there is more than one facility on the device
       And I am on the *Coach > Facilities* page
