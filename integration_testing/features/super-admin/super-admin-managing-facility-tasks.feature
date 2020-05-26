@@ -84,5 +84,5 @@ Feature: Managing facility tasks
 
 
 Examples:
-| ???      | ??? |
-| ?????!?! |
+| facility | peer   | username |
+| MySchool | MyPeer | pincop   |
