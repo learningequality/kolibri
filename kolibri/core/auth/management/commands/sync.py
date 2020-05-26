@@ -193,6 +193,10 @@ class Command(AsyncCommand):
                 username, dataset_id, noninteractive=noninteractive
             )
         sync_client.close_sync_session()
+
+        if self.job:
+            self.job.extra_metadata.update(sync_state=State.COMPLETED)
+
         logger.info("Syncing has been completed.")
 
     def _setup_progress_tracking(self, sync_client, pulling, pushing, noninteractive):
