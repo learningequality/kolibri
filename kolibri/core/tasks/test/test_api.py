@@ -1,10 +1,13 @@
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from mock import ANY
 from mock import call
 from mock import Mock
 from mock import patch
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import NotAuthenticated
 from rest_framework.exceptions import ParseError
 from rest_framework.request import Request
 from rest_framework.test import APITestCase
@@ -15,7 +18,9 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.tasks.api import prepare_sync_task
+from kolibri.core.tasks.api import ResourceGoneError
 from kolibri.core.tasks.api import validate_and_prepare_peer_sync_job
 from kolibri.core.tasks.api import validate_prepare_sync_job
 from kolibri.core.tasks.exceptions import JobNotFound
@@ -462,3 +467,78 @@ class FacilityTaskHelperTestCase(TestCase):
         get_client_and_server_certs.assert_called_with(
             "tester", "mypassword", 123, network_connection, noninteractive=True
         )
+
+    def test_validate_and_prepare_peer_sync_job__no_baseurl(self):
+        req = Mock(spec=Request, data=dict(facility=123,),)
+
+        with self.assertRaises(ParseError, msg="Missing `baseurl` parameter"):
+            validate_and_prepare_peer_sync_job(req)
+
+    def test_validate_and_prepare_peer_sync_job__bad_url(self):
+        req = Mock(
+            spec=Request, data=dict(facility=123, baseurl="/com.bad.url.www//:sptth",),
+        )
+
+        with self.assertRaises(ParseError, msg="Invalid URL"):
+            validate_and_prepare_peer_sync_job(req)
+
+    @patch("kolibri.core.tasks.api.NetworkClient")
+    def test_validate_and_prepare_peer_sync_job__cannot_connect(self, NetworkClient):
+        req = Mock(
+            spec=Request,
+            data=dict(facility=123, baseurl="https://www.notfound.never",),
+        )
+
+        NetworkClient.side_effect = NetworkLocationNotFound()
+
+        with self.assertRaises(ResourceGoneError):
+            validate_and_prepare_peer_sync_job(req)
+
+    @patch("kolibri.core.tasks.api.MorangoProfileController")
+    @patch("kolibri.core.tasks.api.NetworkClient")
+    @patch("kolibri.core.tasks.api.get_client_and_server_certs")
+    def test_validate_and_prepare_peer_sync_job__not_authenticated(
+        self, get_client_and_server_certs, NetworkClient, MorangoProfileController
+    ):
+        req = Mock(
+            spec=Request,
+            data=dict(facility=123, baseurl="https://some.server.test/extra/stuff",),
+        )
+
+        client = NetworkClient.return_value
+        client.base_url = "https://some.server.test/"
+
+        network_connection = Mock()
+        controller = MorangoProfileController.return_value
+        controller.create_network_connection.return_value = network_connection
+        get_client_and_server_certs.side_effect = CommandError()
+
+        with self.assertRaises(NotAuthenticated):
+            validate_and_prepare_peer_sync_job(req, extra_metadata=dict(type="test"))
+
+    @patch("kolibri.core.tasks.api.MorangoProfileController")
+    @patch("kolibri.core.tasks.api.NetworkClient")
+    @patch("kolibri.core.tasks.api.get_client_and_server_certs")
+    def test_validate_and_prepare_peer_sync_job__authentication_failed(
+        self, get_client_and_server_certs, NetworkClient, MorangoProfileController
+    ):
+        req = Mock(
+            spec=Request,
+            data=dict(
+                facility=123,
+                baseurl="https://some.server.test/extra/stuff",
+                username="tester",
+                password="mypassword",
+            ),
+        )
+
+        client = NetworkClient.return_value
+        client.base_url = "https://some.server.test/"
+
+        network_connection = Mock()
+        controller = MorangoProfileController.return_value
+        controller.create_network_connection.return_value = network_connection
+        get_client_and_server_certs.side_effect = CommandError()
+
+        with self.assertRaises(AuthenticationFailed):
+            validate_and_prepare_peer_sync_job(req, extra_metadata=dict(type="test"))
