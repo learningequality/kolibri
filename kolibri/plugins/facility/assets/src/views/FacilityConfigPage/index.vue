@@ -51,12 +51,16 @@
                 @change="toggleSetting('learner_can_login_with_no_password')"
               />
               <span>
+                <KTooltip reference="editpassword" :refs="$refs">
+                    {{ $tr('explainingWhyPasswordCanBeChanged') }}
+                </KTooltip>
                 <KCheckbox
                   :key="learner_can_edit_password"
                   :disabled="enableChangePassword"
                   :label="$tr('learnerCanEditPassword')"
                   :checked="settings['learner_can_edit_password']"
                   @change="toggleSetting('learner_can_edit_password')"
+                  ref="editpassword"
                   class="checkbox-password"
                 />
               </span>
@@ -202,6 +206,7 @@
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to defaults',
       documentTitle: 'Configure Facility',
+      explainingWhyPasswordCanBeChanged: "Learners only can change their password if it's required to login",
     },
   };
 

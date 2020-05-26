@@ -205,7 +205,8 @@ class FacilityUserViewSet(ValuesViewset):
     def set_password_if_needed(self, instance, serializer):
         with transaction.atomic():
             if serializer.validated_data.get("password", ""):
-                instance.set_password(serializer.validated_data["password"])
+                if serializer.validated_data.get("password", "") != "NOT_SPECIFIED":
+                    instance.set_password(serializer.validated_data["password"])
                 instance.save()
         return instance
 
