@@ -24,11 +24,13 @@ class FacilityAdminView(GenericViewSet):
     permission_classes = (HasPermissionDuringSetup,)
 
     def list(self, request):
-        # The filter is very loose, since we areassuming that the only
+        # The filter is very loose, since we are assuming that the only
         # users are from the new facility
         queryset = FacilityUser.objects.filter(roles__kind__contains="admin")
-        data = [{"username": user.username, "id": user.id} for user in queryset]
-        return Response(data)
+        response_data = [
+            {"username": user.username, "id": user.id} for user in queryset
+        ]
+        return Response(response_data)
 
 
 class GrantSuperuserPermissionsView(GenericViewSet):
