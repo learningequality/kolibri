@@ -1,11 +1,12 @@
 from django.core.cache import caches
+from django.core.cache import InvalidCacheBackendError
 from django.utils.functional import SimpleLazyObject
 
 
 def __get_process_cache():
     try:
         return caches["process_cache"]
-    except KeyError:
+    except InvalidCacheBackendError:
         return caches["default"]
 
 
