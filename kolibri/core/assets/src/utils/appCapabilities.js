@@ -1,5 +1,7 @@
 import plugin_data from 'plugin_data';
 
+const appCapabilities = plugin_data.appCapabilities || {};
+
 export default {
-  launchIntent: plugin_data.appCapabilities.launch_intent,
+  launchIntent: appCapabilities.launch_intent,
 };
