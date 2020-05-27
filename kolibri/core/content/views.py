@@ -73,6 +73,11 @@ def get_path_or_404(zipped_filename):
         )
 
 
+def load_json_from_zipfile(zf, filepath):
+    with zf.open(filepath, "r") as f:
+        return json.loads(f)
+
+
 def recursive_h5p_dependencies(zf, data, prefix=""):
 
     jsfiles = OrderedDict()
@@ -82,8 +87,7 @@ def recursive_h5p_dependencies(zf, data, prefix=""):
     for dep in data.get("preloadedDependencies", []):
         packagepath = "{machineName}-{majorVersion}.{minorVersion}/".format(**dep)
         librarypath = packagepath + "library.json"
-        info = zf.getinfo(librarypath)
-        content = json.loads(zf.open(info).read())
+        content = load_json_from_zipfile(zf, librarypath)
         newjs, newcss = recursive_h5p_dependencies(zf, content, packagepath)
         cssfiles.update(newcss)
         jsfiles.update(newjs)
@@ -148,11 +152,14 @@ def get_h5p(zf, embedded_filepath):
     if not embedded_filepath:
         # Get the h5p bootloader, and then run it through our hashi templating code.
         # return the H5P bootloader code
-        h5pdata = json.loads(zf.open(zf.getinfo("h5p.json")).read())
+        try:
+            h5pdata = load_json_from_zipfile(zf, "h5p.json")
+            contentdata = load_json_from_zipfile(zf, "content/content.json")
+        except KeyError:
+            raise Http404("No valid h5p file was found at this location")
         jsfiles, cssfiles = recursive_h5p_dependencies(zf, h5pdata)
         jsfiles = jsfiles.keys()
         cssfiles = cssfiles.keys()
-        contentdata = zf.open(zf.getinfo("content/content.json")).read()
         path_includes_version = (
             "true"
             if "-" in [name for name in zf.namelist() if "/" in name][0]
@@ -168,7 +175,9 @@ def get_h5p(zf, embedded_filepath):
             {
                 "jsfiles": jsfiles,
                 "cssfiles": cssfiles,
-                "content": contentdata,
+                "content": json.dumps(
+                    json.dumps(contentdata, separators=(",", ":"), ensure_ascii=False)
+                ),
                 "library": "{machineName} {majorVersion}.{minorVersion}".format(
                     **main_library_data
                 ),
@@ -183,6 +192,8 @@ def get_h5p(zf, embedded_filepath):
     elif embedded_filepath.startswith("dist/"):
         # return static H5P dist resources
         path = finders.find("assets/h5p-standalone-" + embedded_filepath)
+        if path is None:
+            raise Http404("{} not found".format(embedded_filepath))
         # try to guess the MIME type of the embedded file being referenced
         content_type = (
             mimetypes.guess_type(embedded_filepath)[0] or "application/octet-stream"
