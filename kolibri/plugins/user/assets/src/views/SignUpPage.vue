@@ -30,16 +30,16 @@
             :errors.sync="caughtErrors"
             :disabled="busy"
           />
-        <template v-if="showPasswordInput">
-          <PasswordTextbox
-            ref="passwordTextbox"
-            autocomplete="new-password"
-            :value.sync="password"
-            :isValid.sync="passwordValid"
-            :shouldValidate="formSubmitted"
-            :disabled="busy"
-          />
-      </template>
+          <template v-if="showPasswordInput">
+            <PasswordTextbox
+              ref="passwordTextbox"
+              autocomplete="new-password"
+              :value.sync="password"
+              :isValid.sync="passwordValid"
+              :shouldValidate="formSubmitted"
+              :disabled="busy"
+            />
+          </template>
 
           <template v-if="currentFacility">
             <h2>
@@ -190,12 +190,10 @@
         // query is before hash
         return getUrlParameter('next');
       },
-      showPasswordInput(){
-        if (this.facilityConfig.learner_can_login_with_no_password)
-            if (this.password === "")
-                this.password = "NOT_SPECIFIED";
-        return !this.facilityConfig.learner_can_login_with_no_password
-      }
+      showPasswordInput() {
+        this.setEmptyPassword();
+        return !this.facilityConfig.learner_can_login_with_no_password;
+      },
     },
     beforeMount() {
       // If no user input is in memory, reset the wizard
@@ -223,6 +221,10 @@
         this.$nextTick().then(() => {
           this.$refs.fullNameTextbox.focus();
         });
+      },
+      setEmptyPassword() {
+        if (this.facilityConfig.learner_can_login_with_no_password)
+          if (this.password === '') this.password = 'NOT_SPECIFIED';
       },
       checkForDuplicateUsername(username) {
         if (!username) {

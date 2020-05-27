@@ -27,13 +27,13 @@
           :errors.sync="caughtErrors"
         />
         <template v-if="showPasswordInput">
-            <PasswordTextbox
-              ref="passwordTextbox"
-              :disabled="busy"
-              :value.sync="password"
-              :isValid.sync="passwordValid"
-              :shouldValidate="formSubmitted"
-            />
+          <PasswordTextbox
+            ref="passwordTextbox"
+            :disabled="busy"
+            :value.sync="password"
+            :isValid.sync="passwordValid"
+            :shouldValidate="formSubmitted"
+          />
         </template>
         <KSelect
           v-model="kind"
@@ -150,7 +150,7 @@
         busy: false,
         formSubmitted: false,
         caughtErrors: [],
-        showPasswordInput: true
+        showPasswordInput: true,
       };
     },
     computed: {
@@ -188,27 +188,26 @@
     },
     watch: {
       kind(val) {
-         this.showPasswordInput = ( val.value !== UserKinds.LEARNER
-                || !this.facilityConfig.learner_can_login_with_no_password
-                )
-         this.updatePasswordValues();
+        this.showPasswordInput =
+          val.value !== UserKinds.LEARNER ||
+          !this.facilityConfig.learner_can_login_with_no_password;
+        this.updatePasswordValues();
       },
     },
     mounted() {
       this.$store.dispatch('notLoading');
-      this.getFacilityConfig(this.currentFacilityId).then( () => {
+      this.getFacilityConfig(this.currentFacilityId).then(() => {
         this.showPasswordInput = !this.facilityConfig.learner_can_login_with_no_password;
         this.updatePasswordValues();
       });
     },
     methods: {
       ...mapActions(['getFacilityConfig']),
-      updatePasswordValues(){
-            if (!this.showPasswordInput) {
-                this.passwordValid = true;
-                if (this.password === "")
-                    this.password = "NOT_SPECIFIED";
-            }
+      updatePasswordValues() {
+        if (!this.showPasswordInput) {
+          this.passwordValid = true;
+          if (this.password === '') this.password = 'NOT_SPECIFIED';
+        }
       },
       goToUserManagementPage(onComplete) {
         this.$router.push(this.$router.getRoute('USER_MGMT_PAGE'), onComplete);
