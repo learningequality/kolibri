@@ -41,6 +41,10 @@ DEVICE_INFO_TIMEOUT = 3
 
 DEVICE_PORT_TIMEOUT = 60
 
+DEVICE_INFO_CACHE_KEY = "device_info_cache_{url}"
+
+DEVICE_PORT_CACHE_KEY = "device_port_cache_{url}"
+
 
 class CachedDeviceConnectionChecker(object):
     def __init__(self, base_url):
@@ -50,13 +54,17 @@ class CachedDeviceConnectionChecker(object):
         info = check_device_info(self.base_url)
 
         if info:
-            process_cache.set(self.base_url, info, DEVICE_INFO_TIMEOUT)
+            process_cache.set(
+                DEVICE_INFO_CACHE_KEY.format(url=self.base_url),
+                info,
+                DEVICE_INFO_TIMEOUT,
+            )
 
         return info
 
     @property
     def device_info(self):
-        return process_cache.get(self.base_url)
+        return process_cache.get(DEVICE_INFO_CACHE_KEY.format(url=self.base_url))
 
     @property
     def valid_device_info(self):
@@ -77,13 +85,15 @@ class CachedDeviceConnectionChecker(object):
     def device_port_open(self):
         """ check to see if a port is open at a given `base_url` """
 
-        cached = process_cache.get(self.base_url)
+        cached = process_cache.get(DEVICE_PORT_CACHE_KEY.format(url=self.base_url))
 
         if cached:
             return cached
 
         result = check_if_port_open(self.base_url)
-        process_cache.set(self.base_url, result, DEVICE_PORT_TIMEOUT)
+        process_cache.set(
+            DEVICE_PORT_CACHE_KEY.format(url=self.base_url), result, DEVICE_PORT_TIMEOUT
+        )
 
         return result
 
