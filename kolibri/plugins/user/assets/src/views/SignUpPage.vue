@@ -191,6 +191,9 @@
         return getUrlParameter('next');
       },
       showPasswordInput(){
+        if (this.facilityConfig.learner_can_login_with_no_password)
+            if (this.password === "")
+                this.password = "NOT_SPECIFIED";
         return !this.facilityConfig.learner_can_login_with_no_password
       }
     },

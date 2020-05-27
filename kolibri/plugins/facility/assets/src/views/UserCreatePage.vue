@@ -206,7 +206,8 @@
       updatePasswordValues(){
             if (!this.showPasswordInput) {
                 this.passwordValid = true;
-                this.password = 'NOT_SPECIFIED';
+                if (this.password === "")
+                    this.password = "NOT_SPECIFIED";
             }
       },
       goToUserManagementPage(onComplete) {

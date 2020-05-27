@@ -471,8 +471,6 @@ class SignUpViewSet(viewsets.ViewSet):
         data = self.extract_request_data(request)
         # we validate the user's input, and if valid, login as user
         serialized_user = self.serializer_class(data=data)
-        if data["password"] == "":
-            data["password"] = "NOT_SPECIFIED"
         if serialized_user.is_valid(raise_exception=True):
             serialized_user.save()
             if data["password"] != "NOT_SPECIFIED":
