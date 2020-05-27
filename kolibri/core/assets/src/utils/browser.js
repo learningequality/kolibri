@@ -1,5 +1,6 @@
 import ScreenFull from 'screenfull';
 import urls from 'kolibri.urls';
+import cookiejs from 'js-cookie';
 
 export function redirectBrowser(url) {
   window.location.href = url || urls['kolibri:core:redirect_user']();
@@ -39,8 +40,7 @@ export function isEmbeddedWebView() {
 
 export function isAppView() {
   const isLocal = window.location.host !== '127.0.0.1' || window.location.host !== 'localhost';
-  // TODO: Check that the web view auth cookie has been set here
-  const hasWebViewCookie = true;
+  const hasWebViewCookie = Boolean(cookiejs.get('app_key_cookie'));
   return isEmbeddedWebView() && isLocal && hasWebViewCookie;
 }
 
