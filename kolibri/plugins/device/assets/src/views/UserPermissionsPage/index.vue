@@ -88,10 +88,7 @@
           @click="goBack()"
         />
       </div>
-      <div v-show="uiBlocked">
-        {{ progressNotification }}
-      </div>
-      <div v-show="saveProgress === 'FAILURE'">
+      <div v-if="saveFailed">
         {{ $tr('saveFailureNotification') }}
       </div>
     </template>
@@ -109,10 +106,6 @@
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
 
-  const SUCCESS = 'SUCCESS';
-  const IN_PROGRESS = 'IN_PROGRESS';
-  const FAILURE = 'FAILURE';
-
   export default {
     name: 'UserPermissionsPage',
     metaInfo() {
@@ -128,7 +121,7 @@
     data() {
       return {
         devicePermissionsChecked: undefined,
-        saveProgress: undefined,
+        saveFailed: false,
         superuserChecked: undefined,
         uiBlocked: false,
       };
@@ -154,16 +147,6 @@
       },
       devicePermissionsDisabled() {
         return this.uiBlocked || this.superuserChecked;
-      },
-      progressNotification() {
-        switch (this.saveProgress) {
-          case IN_PROGRESS:
-            return this.$tr('saveInProgressNotification');
-          case SUCCESS:
-            return this.$tr('saveSuccessfulNotification');
-          default:
-            return '';
-        }
       },
       // "dirty check" of permissions
       permissionsAreUnchanged() {
@@ -192,7 +175,6 @@
       ...mapActions('userPermissions', ['addOrUpdateUserPermissions']),
       save() {
         this.uiBlocked = true;
-        this.saveProgress = IN_PROGRESS;
         this.addOrUpdateUserPermissions({
           userId: this.user.id,
           is_superuser: this.superuserChecked,
@@ -200,13 +182,12 @@
         })
           .then(() => {
             this.showSnackbarNotification('changesSaved');
-            this.saveProgress = SUCCESS;
             this.uiBlocked = false;
             this.goBack();
           })
           .catch(() => {
             this.uiBlocked = false;
-            this.saveProgress = FAILURE;
+            this.saveFailed = true;
           });
       },
       goBack() {
@@ -224,8 +205,6 @@
       makeSuperAdmin: 'Make super admin',
       saveButton: 'Save Changes',
       saveFailureNotification: 'There was a problem saving these changes.',
-      saveInProgressNotification: 'Saving...',
-      saveSuccessfulNotification: 'Changes saved!',
       userDoesNotExist: 'User does not exist',
       superAdminExplanation1:
         'Has all device permissions and can manage the device permissions of other users',

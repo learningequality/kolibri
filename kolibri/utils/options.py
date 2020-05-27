@@ -1,3 +1,56 @@
+"""
+This module is intended to allow customization of Kolibri settings with the
+options.ini file.
+The settings can be changed through environment variables or sections and keys
+in the options.ini file.
+The following options are supported:
+
+[Cache]
+CACHE_BACKEND
+CACHE_TIMEOUT
+CACHE_MAX_ENTRIES
+CACHE_PASSWORD
+CACHE_LOCATION
+CACHE_REDIS_MIN_DB
+
+[Database]
+DATABASE_ENGINE
+DATABASE_NAME
+DATABASE_PASSWORD
+DATABASE_USER
+DATABASE_HOST
+DATABASE_PORT
+
+[Server]
+CHERRYPY_START
+CHERRYPY_THREAD_POOL
+CHERRYPY_SOCKET_TIMEOUT
+CHERRYPY_QUEUE_SIZE
+CHERRYPY_QUEUE_TIMEOUT
+PROFILE
+
+[Paths]
+CONTENT_DIR
+
+[Urls]
+CENTRAL_CONTENT_BASE_URL
+DATA_PORTAL_SYNCING_BASE_URL
+
+[Deployment]
+HTTP_PORT
+RUN_MODE
+URL_PATH_PREFIX
+LANGUAGES
+STATIC_USE_SYMLINKS
+    We currently create symbolic links when collecting static files. The option
+    can be set to False to disable the feature to instead copy files to STATIC_ROOT.
+    This is useful for the cloud infrastructure where Nginx and Kolibri are set
+    up in separate network mounted volumes such that Nginx cannot access symlinked
+    static files in the other volume.
+
+[Python]
+PICKLE_PROTOCOL
+"""
 import logging.config
 import os
 import sys
@@ -237,6 +290,11 @@ base_option_spec = {
             "type": "language_list",
             "default": SUPPORTED_LANGUAGES,
             "envvars": ("KOLIBRI_LANGUAGES",),
+        },
+        "STATIC_USE_SYMLINKS": {
+            "type": "boolean",
+            "default": True,
+            "envvars": ("KOLIBRI_STATIC_USE_SYMLINKS",),
         },
     },
     "Python": {
