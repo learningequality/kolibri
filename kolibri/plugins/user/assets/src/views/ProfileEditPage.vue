@@ -117,9 +117,7 @@
         return true;
       },
       cancelButtonText() {
-        return this.status === 'SUCCESS'
-          ? this.coreString('closeAction')
-          : this.coreString('cancelAction');
+        return this.coreString('cancelAction');
       },
       formIsValid() {
         return every([this.fullNameValid, this.usernameValid]);
@@ -161,8 +159,8 @@
               updates: this.getUpdates(),
             })
             .then(() => {
-              this.status = 'SUCCESS';
               this.$store.dispatch('createSnackbar', this.$tr('updateSuccessNotification'));
+              this.$router.push(this.$router.getRoute('PROFILE'));
             })
             .catch(error => {
               this.status = 'FAILURE';
