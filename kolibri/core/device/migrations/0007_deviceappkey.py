@@ -12,15 +12,23 @@ from django.db import models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('device', '0006_migrate_guest_access'),
+        ("device", "0006_migrate_guest_access"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='DeviceAppKey',
+            name="DeviceAppKey",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('key', morango.models.fields.uuids.UUIDField(default=uuid.uuid4)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("key", morango.models.fields.uuids.UUIDField(default=uuid.uuid4)),
             ],
         ),
     ]
