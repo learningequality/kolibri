@@ -14,7 +14,7 @@ from kolibri.plugins.app.utils import interface
 from kolibri.plugins.app.utils import LAUNCH_INTENT
 
 
-class FromSameDevicePermissions(BasePermission):
+class FromSameDevicePermission(BasePermission):
     """
     Allow only users on the same device as the server
     """
@@ -23,9 +23,17 @@ class FromSameDevicePermissions(BasePermission):
         return request.META.get("REMOTE_ADDR") == "127.0.0.1"
 
 
+APP_KEY_COOKIE_NAME = "app_key_cookie"
+
+
+class FromAppViewPermission(BasePermission):
+    def has_permission(self, request, view):
+        return request.COOKIES.get(APP_KEY_COOKIE_NAME) == DeviceAppKey.get_app_key()
+
+
 class AppCommandsViewset(ViewSet):
 
-    permission_classes = (FromSameDevicePermissions,)
+    permission_classes = (FromSameDevicePermission, FromAppViewPermission)
 
     if LAUNCH_INTENT in interface:
 
@@ -41,11 +49,8 @@ class AppCommandsViewset(ViewSet):
             return Response()
 
 
-APP_KEY_COOKIE_NAME = "app_key_cookie"
-
-
 class InitializeAppView(APIView):
-    permission_classes = (FromSameDevicePermissions,)
+    permission_classes = (FromSameDevicePermission,)
 
     def get(self, request, token):
         app_key = DeviceAppKey.get_app_key()
