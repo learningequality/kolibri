@@ -75,7 +75,7 @@ def get_path_or_404(zipped_filename):
 
 def load_json_from_zipfile(zf, filepath):
     with zf.open(filepath, "r") as f:
-        return json.loads(f)
+        return json.load(f)
 
 
 def recursive_h5p_dependencies(zf, data, prefix=""):
