@@ -59,7 +59,7 @@ ADD https://github.com/kollivier/pyeverywhere/archive/$PEW_BRANCH.zip pew.zip
 ADD https://github.com/kollivier/python-for-android/archive/$P4A_BRANCH.zip p4a.zip
 
 # install python dependencies
-RUN pip install cython virtualenv && \
+RUN pip install cython virtualenv pbxproj && \
   # get kevin's custom packages
   pip install -e git+https://github.com/kollivier/pyeverywhere@$PEW_BRANCH#egg=pyeverywhere && \
   pip install -e git+https://github.com/kollivier/python-for-android@$P4A_BRANCH#egg=python-for-android && \
