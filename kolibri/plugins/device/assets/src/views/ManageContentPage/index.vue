@@ -166,6 +166,11 @@
         }
       },
     },
+    created() {
+      if (!this.channelsAreInstalled) {
+        this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
+      }
+    },
     methods: {
       ...mapActions('manageContent', ['refreshChannelList', 'startImportWorkflow']),
       handleSelect({ value }) {

@@ -31,13 +31,6 @@ const routes = [
     redirect: '/content',
   },
   {
-    path: '/welcome',
-    redirect: () => {
-      store.commit('SET_WELCOME_MODAL_VISIBLE', true);
-      return '/content';
-    },
-  },
-  {
     name: PageNames.MANAGE_CONTENT_PAGE,
     component: withAuthMessage(ManageContentPage, 'contentManager'),
     path: '/content',
