@@ -27,6 +27,7 @@ from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from six import string_types
 
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.auth.models import Facility
@@ -951,7 +952,7 @@ def validate_and_prepare_peer_sync_job(request, **kwargs):
     username = request.data.get("username", None)
     password = request.data.get("password", None)
 
-    controller = MorangoProfileController("facilitydata")
+    controller = MorangoProfileController(PROFILE_FACILITY_DATA)
     network_connection = controller.create_network_connection(baseurl)
 
     # try to get the certificate, which will save it if successful

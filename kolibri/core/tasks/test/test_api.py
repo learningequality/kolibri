@@ -12,6 +12,7 @@ from rest_framework.exceptions import ParseError
 from rest_framework.request import Request
 from rest_framework.test import APITestCase
 
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
@@ -459,7 +460,7 @@ class FacilityTaskHelperTestCase(TestCase):
         )
         self.assertEqual(expected, actual)
 
-        MorangoProfileController.assert_called_with("facilitydata")
+        MorangoProfileController.assert_called_with(PROFILE_FACILITY_DATA)
         controller.create_network_connection.assert_called_with(
             "https://some.server.test/"
         )
