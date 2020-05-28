@@ -16,6 +16,7 @@ from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_remote,
 )
 from kolibri.core.discovery.models import NetworkLocation
+from kolibri.core.utils.cache import process_cache
 
 
 def get_engine(connection_string):
@@ -34,6 +35,7 @@ class LocalFileByDisk(TransactionTestCase):
 
     def setUp(self):
         super(LocalFileByDisk, self).setUp()
+        process_cache.clear()
         self.mock_home_dir = tempfile.mkdtemp()
         self.mock_storage_dir = os.path.join(self.mock_home_dir, "content", "storage")
         os.makedirs(self.mock_storage_dir)
@@ -133,6 +135,7 @@ class LocalFileRemote(TransactionTestCase):
 
     def setUp(self):
         super(LocalFileRemote, self).setUp()
+        process_cache.clear()
         self.location = NetworkLocation.objects.create(base_url="test")
 
     @patch("kolibri.core.content.utils.file_availability.requests")
