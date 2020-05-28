@@ -55,11 +55,6 @@ file_manifest = {
         "description": "Tar file",
         "content_type": "application/gzip",
     },
-    # 'apk': {
-    #     'extension': 'apk',
-    #     'description': 'Android Installer',
-    #     'content_type': 'application/vnd.android.package-archive',
-    # },
 }
 
 gh = login(token=ACCESS_TOKEN)
