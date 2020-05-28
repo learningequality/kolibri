@@ -270,11 +270,16 @@ def run_server(port, serve_http=True):
 
     cherrypy.config.update(
         {
+            "engine.autoreload.on": False,
+            "checker.on": False,
+            "request.show_tracebacks": False,
+            "request.show_mismatched_params": False,
             "tools.expires.on": True,
             "tools.expires.secs": 31536000,
             "tools.caching.on": True,
             "tools.caching.maxobj_size": 2000000,
             "tools.caching.maxsize": calculate_cache_size(),
+            "tools.log_headers.on": False,
             "log.screen": False,
             "log.access_file": "",
             "log.error_file": "",
