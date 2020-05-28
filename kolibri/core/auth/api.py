@@ -56,6 +56,7 @@ from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ValuesViewset
+from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
@@ -539,7 +540,13 @@ class SessionViewSet(viewsets.ViewSet):
         session_key = "current"
         server_time = now()
         session = user.session_data
-        session.update({"id": session_key, "server_time": server_time})
+        session.update(
+            {
+                "id": session_key,
+                "server_time": server_time,
+                "app_context": valid_app_key_on_request(request),
+            }
+        )
 
         visitor_cookie_expiry = datetime.utcnow() + timedelta(days=365)
 

@@ -9,7 +9,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
-from kolibri.core.device.models import DeviceAppKey
+from kolibri.core.device.utils import set_app_key_on_response
+from kolibri.core.device.utils import valid_app_key
+from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.plugins.app.utils import interface
 from kolibri.plugins.app.utils import LAUNCH_INTENT
 
@@ -23,12 +25,9 @@ class FromSameDevicePermission(BasePermission):
         return request.META.get("REMOTE_ADDR") == "127.0.0.1"
 
 
-APP_KEY_COOKIE_NAME = "app_key_cookie"
-
-
 class FromAppViewPermission(BasePermission):
     def has_permission(self, request, view):
-        return request.COOKIES.get(APP_KEY_COOKIE_NAME) == DeviceAppKey.get_app_key()
+        return valid_app_key_on_request(request)
 
 
 class AppCommandsViewset(ViewSet):
@@ -53,8 +52,7 @@ class InitializeAppView(APIView):
     permission_classes = (FromSameDevicePermission,)
 
     def get(self, request, token):
-        app_key = DeviceAppKey.get_app_key()
-        if app_key != token:
+        if not valid_app_key(token):
             raise PermissionDenied("You have provided an invalid token")
         redirect_url = request.GET.get("next", "/")
         # Copied and modified from https://github.com/django/django/blob/stable/1.11.x/django/views/i18n.py#L40
@@ -72,6 +70,5 @@ class InitializeAppView(APIView):
                 require_https=request.is_secure(),
             ):
                 redirect_url = "/"
-        response = HttpResponseRedirect(redirect_url)
-        response.set_cookie(APP_KEY_COOKIE_NAME, app_key)
+        response = set_app_key_on_response(HttpResponseRedirect(redirect_url))
         return response

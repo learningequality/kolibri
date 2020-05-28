@@ -34,7 +34,7 @@ class AppInterface(object):
     def launch_intent(self, filename, message):
         if LAUNCH_INTENT not in self._capabilities:
             raise NotImplementedError(
-                "Launch intents is not supported on this platform"
+                "Launching intents is not supported on this platform"
             )
         return self._capabilities[LAUNCH_INTENT](filename=filename, message=message)
 

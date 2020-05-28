@@ -140,9 +140,8 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import client from 'kolibri.client';
-  import urls from 'kolibri.urls';
   import { isEmbeddedWebView, isAppView } from 'kolibri.utils.browser';
-  import { launchIntent } from 'kolibri.utils.appCapabilities';
+  import { can, actionUrls } from 'kolibri.utils.appCapabilities';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
   import {
@@ -220,7 +219,9 @@
       },
       canShare() {
         let supported_types = ['mp4', 'mp3', 'pdf', 'epub'];
-        return launchIntent && isAppView() && supported_types.includes(this.primaryFile.extension);
+        return (
+          can.launchIntent && isAppView() && supported_types.includes(this.primaryFile.extension)
+        );
       },
       description() {
         if (this.content && this.content.description) {
@@ -329,7 +330,7 @@
       },
       launchIntent() {
         return client.post({
-          path: urls['kolibri:kolibri.plugins.app:appcommands-launch_intent'](),
+          path: actionUrls.launchIntent,
           method: 'POST',
           params: {
             filename: this.primaryFilename,
