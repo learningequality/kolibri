@@ -233,7 +233,7 @@ EXTRA_LANG_INFO = {
         "bidi": False,
         "code": "zh-hans",
         "name": "Simplified Chinese",
-        "name_local": "简化字",
+        "name_local": "简体中文",
     },
     "yo": {"bidi": False, "code": "yo", "name": "Yoruba", "name_local": "Yorùbá"},
     "zu": {"bidi": False, "code": "zu", "name": "Zulu", "name_local": "isiZulu"},
