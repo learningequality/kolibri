@@ -11,20 +11,8 @@ steps:
 
   - wait
 
-  - label: Build Debian Packages
-    command: .buildkite/build_debian_pkgs.sh
-
-  - wait
-
   - label: Upload Release Artifacts
     command: .buildkite/setup_and_upload_artifact.sh
     if: build.tag != null
 
   - wait
-
-  - block: "Test .debs?"
-  - label: Test on Trusty, Xenial, Bionic
-    command:
-     - mkdir -p dist
-     - buildkite-agent artifact download 'dist/*.deb' dist/
-     - make docker-deb-test
