@@ -439,18 +439,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
 
     @property
     def channel_stats(self):
-        channel_stats = self.context["channel_stats"]
-        if channel_stats is not None:
-            # Convert ContentNode IDs to hex strings if they are UUID
-            # objects
-            stats_convert_id = {}
-            for key in channel_stats.keys():
-                if not isinstance(key, UUID):
-                    return channel_stats
-                contentnode_id = key.hex
-                stats_convert_id[contentnode_id] = channel_stats[key]
-            channel_stats = stats_convert_id
-        return channel_stats
+        return self.context["channel_stats"]
 
     def get_total_resources(self, instance):
         # channel_stats is None for export

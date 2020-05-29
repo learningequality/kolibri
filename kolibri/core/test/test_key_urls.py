@@ -37,9 +37,20 @@ class KolibriTagNavigationTestCase(APITestCase):
             response.get("location"), reverse("kolibri:kolibri.plugins.user:user")
         )
 
-    def test_redirect_root_to_learn_if_logged_in(self):
+    def test_redirect_root_to_device_if_superuser_logged_in(self):
         facility = FacilityFactory.create()
         do = create_superuser(facility)
+        provision_device()
+        self.client.login(username=do.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse("kolibri:core:root_redirect"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"),
+            reverse("kolibri:kolibri.plugins.device:device_management"),
+        )
+
+    def test_redirect_root_to_learn_if_logged_in(self):
+        do = FacilityUserFactory.create()
         provision_device()
         self.client.login(username=do.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse("kolibri:core:root_redirect"))
