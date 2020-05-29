@@ -1,12 +1,16 @@
 import importlib
 import logging
+import os
 import time
 import uuid
 
-from diskcache import RLock
+try:
+    from thread import get_ident
+except ImportError:
+    from threading import get_ident
 
 from kolibri.core.tasks import compat
-from kolibri.deployment.default.cache import diskcache_cache
+from kolibri.core.utils.cache import process_cache
 
 
 # An object on which to store data about the current job
@@ -122,12 +126,52 @@ class InfiniteLoopThread(compat.Thread):
         self.stop()
 
 
-class DiskCacheRLock(RLock):
+class DiskCacheRLock(object):
+    """
+    Vendored from
+    https://github.com/grantjenks/python-diskcache/blob/2d1f43ea2be4c82a430d245de6260c3e18059ba1/diskcache/recipes.py
+    """
+
+    def __init__(self, cache, key, expire=None):
+        self._cache = cache
+        self._key = key
+        self._expire = expire
+
+    def acquire(self):
+        "Acquire lock by incrementing count using spin-lock algorithm."
+        pid = os.getpid()
+        tid = get_ident()
+        pid_tid = "{}-{}".format(pid, tid)
+
+        while True:
+            value, count = self._cache.get(self._key, (None, 0))
+            if pid_tid == value or count == 0:
+                self._cache.set(
+                    self._key, (pid_tid, count + 1), self._expire,
+                )
+                return
+            time.sleep(0.001)
+
     def release(self):
-        super(DiskCacheRLock, self).release()
+        "Release lock by decrementing count."
+        pid = os.getpid()
+        tid = get_ident()
+        pid_tid = "{}-{}".format(pid, tid)
+
+        value, count = self._cache.get(self._key, default=(None, 0))
+        is_owned = pid_tid == value and count > 0
+        assert is_owned, "cannot release un-acquired lock"
+        self._cache.set(self._key, (value, count - 1), self._expire)
+
         # RLOCK leaves the db connection open after releasing the lock
         # Let's ensure it's correctly closed
         self._cache.close()
 
+    def __enter__(self):
+        self.acquire()
 
-db_task_write_lock = DiskCacheRLock(diskcache_cache, "db_task_write_lock")
+    def __exit__(self, *exc_info):
+        self.release()
+
+
+db_task_write_lock = DiskCacheRLock(process_cache, "db_task_write_lock")
