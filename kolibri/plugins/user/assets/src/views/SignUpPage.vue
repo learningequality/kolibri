@@ -30,16 +30,15 @@
             :errors.sync="caughtErrors"
             :disabled="busy"
           />
-          <template v-if="showPasswordInput">
-            <PasswordTextbox
-              ref="passwordTextbox"
-              autocomplete="new-password"
-              :value.sync="password"
-              :isValid.sync="passwordValid"
-              :shouldValidate="formSubmitted"
-              :disabled="busy"
-            />
-          </template>
+          <PasswordTextbox
+            v-if="showPasswordInput"
+            ref="passwordTextbox"
+            autocomplete="new-password"
+            :value.sync="password"
+            :isValid.sync="passwordValid"
+            :shouldValidate="formSubmitted"
+            :disabled="busy"
+          />
 
           <template v-if="currentFacility">
             <h2>
@@ -191,7 +190,6 @@
         return getUrlParameter('next');
       },
       showPasswordInput() {
-        this.setEmptyPassword();
         return !this.facilityConfig.learner_can_login_with_no_password;
       },
     },
@@ -221,10 +219,6 @@
         this.$nextTick().then(() => {
           this.$refs.fullNameTextbox.focus();
         });
-      },
-      setEmptyPassword() {
-        if (this.facilityConfig.learner_can_login_with_no_password)
-          if (this.password === '') this.password = 'NOT_SPECIFIED';
       },
       checkForDuplicateUsername(username) {
         if (!username) {
@@ -273,6 +267,13 @@
           this.focusOnInvalidField();
         }
       },
+      passwordToSave() {
+        if (this.facilityConfig.learner_can_login_with_no_password && this.password === '')
+          return 'NOT_SPECIFIED';
+
+        return this.password;
+      },
+
       submitNewFacilityUser() {
         this.formSubmitted = true;
         const canSubmit = this.firstStepIsValid && !this.busy;
@@ -282,7 +283,7 @@
             facility: this.currentFacility.value,
             full_name: this.name,
             username: this.username,
-            password: this.password,
+            password: this.passwordToSave(),
             // If user skips this part, these fields are marked as 'DEFERRED'
             // so they don't see a notification after logging in.
             gender: this.gender || DEFERRED,
