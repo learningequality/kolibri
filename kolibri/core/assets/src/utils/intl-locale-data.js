@@ -142,8 +142,8 @@ module.exports = function(locale) {
       });
     case 'zh-hans':
       return new Promise(function(resolve) {
-        require.ensure(['intl/locale-data/jsonp/zh-HANS.js'], function(require) {
-          resolve(() => require('intl/locale-data/jsonp/zh-HANS.js'));
+        require.ensure(['intl/locale-data/jsonp/zh-Hans.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/zh-Hans.js'));
         });
       });
     default:
