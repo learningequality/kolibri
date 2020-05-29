@@ -16,14 +16,14 @@ from kolibri.plugins.app.utils import interface
 from kolibri.plugins.app.utils import SHARE_FILE
 
 
-class FromAppViewPermission(BasePermission):
+class FromAppContextPermission(BasePermission):
     def has_permission(self, request, view):
         return valid_app_key_on_request(request)
 
 
 class AppCommandsViewset(ViewSet):
 
-    permission_classes = (FromAppViewPermission,)
+    permission_classes = (FromAppContextPermission,)
 
     if SHARE_FILE in interface:
 
