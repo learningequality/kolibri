@@ -234,7 +234,7 @@ EXTRA_LANG_INFO = {
         "bidi": False,
         "code": "zh-hans",
         "name": "Simplified Chinese",
-        "name_local": "简化字",
+        "name_local": "简体中文",
     },
     "yo": {"bidi": False, "code": "yo", "name": "Yoruba", "name_local": "Yorùbá"},
     "zu": {"bidi": False, "code": "zu", "name": "Zulu", "name_local": "isiZulu"},
@@ -318,7 +318,7 @@ AUTHENTICATION_BACKENDS = ["kolibri.core.auth.backends.FacilityUserBackend"]
 REST_FRAMEWORK = {
     "UNAUTHENTICATED_USER": "kolibri.core.auth.models.KolibriAnonymousUser",
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication"
+        "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_CONTENT_NEGOTIATION_CLASS": "kolibri.core.negotiation.LimitContentNegotiation",
     "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
