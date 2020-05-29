@@ -1,4 +1,5 @@
 import logging
+from uuid import UUID
 
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
@@ -27,6 +28,12 @@ from kolibri.core.utils.cache import process_cache
 logger = logging.getLogger(__name__)
 
 CONTENT_APP_NAME = KolibriContentConfig.label
+
+
+def coerce_key(key):
+    if isinstance(key, UUID):
+        return key.hex
+    return key
 
 
 def get_channel_annotation_stats(channel_id, checksums=None):
@@ -212,7 +219,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):
         )
 
         for stat in level_stats:
-            stats[stat[0]] = {
+            stats[coerce_key(stat[0])] = {
                 "coach_content": bool(stat[1]),
                 "num_coach_contents": stat[2] or 0,
                 "total_resources": stat[3] or 0,
@@ -234,7 +241,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):
         )
     ).fetchone()
 
-    stats[root_node_stats[0]] = {
+    stats[coerce_key(root_node_stats[0])] = {
         "coach_content": root_node_stats[1],
         "num_coach_contents": root_node_stats[2],
         "total_resources": root_node_stats[3],

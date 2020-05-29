@@ -43,10 +43,6 @@ class RoleBasedRedirectHook(KolibriHook):
     def url(self):
         pass
 
-    # Special flag to only redirect on first login
-    # Default to False
-    first_login = False
-
     def plugin_url(self, plugin_class, url_name):
         return plugin_url(plugin_class, url_name)
 
