@@ -62,11 +62,13 @@
       },
       currentlyOfflineTooltip: {
         message: 'You are currently offline',
-        context: `Floating notification message that appears over the 'Sync' button and indicates why is it not active`,
+        context:
+          "Floating notification message that appears over the 'Sync' button and indicates why is it not active",
       },
       noFacilitiesTooltip: {
         message: 'There are no registered facilities on this device',
-        context: `Floating notification message that appears over the 'Sync' button and indicates why is it not active`,
+        context:
+          "Floating notification message that appears over the 'Sync' button and indicates why is it not active",
       },
     },
   };

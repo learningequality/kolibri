@@ -99,7 +99,7 @@
     },
     $trs: {
       loadingFacilityTitle: {
-        message: `Loading '{facility}'`,
+        message: "Loading '{facility}'",
         context: 'Page title',
       },
     },
