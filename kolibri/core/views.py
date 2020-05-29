@@ -92,27 +92,11 @@ def get_urls_by_role(role):
             yield hook.url
 
 
-def get_url_by_role(role, first_login):
+def get_url_by_role(role):
     obj = next(
-        (
-            hook
-            for hook in RoleBasedRedirectHook.registered_hooks
-            if role in hook.roles and hook.first_login == first_login
-        ),
+        (hook for hook in RoleBasedRedirectHook.registered_hooks if role in hook.roles),
         None,
     )
-
-    if obj is None and first_login:
-        # If it is the first_login, do a fallback to find the non-first login behaviour when it is
-        # not available
-        obj = next(
-            (
-                hook
-                for hook in RoleBasedRedirectHook.registered_hooks
-                if role in hook.roles and hook.first_login is False
-            ),
-            None,
-        )
 
     if obj:
         return obj.url
@@ -124,7 +108,7 @@ class GuestRedirectView(View):
         Redirects a guest user to a learner accessible page.
         """
         if allow_guest_access():
-            return HttpResponseRedirect(get_url_by_role(user_kinds.LEARNER, False))
+            return HttpResponseRedirect(get_url_by_role(user_kinds.LEARNER))
         return RootURLRedirectView.as_view()(request)
 
 
@@ -149,24 +133,22 @@ class RootURLRedirectView(View):
             if SETUP_WIZARD_URLS:
                 return redirect(SETUP_WIZARD_URLS[0])
 
-        # Device is provisioned, so resume usual service.
-        first_login = request.session.get("first_login", False)
         if request.user.is_authenticated():
             url = None
             if request.user.is_superuser:
-                url = url or get_url_by_role(user_kinds.SUPERUSER, first_login)
+                url = url or get_url_by_role(user_kinds.SUPERUSER)
             roles = set(
                 Role.objects.filter(user_id=request.user.id)
                 .values_list("kind", flat=True)
                 .distinct()
             )
             if user_kinds.ADMIN in roles:
-                url = url or get_url_by_role(user_kinds.ADMIN, first_login)
+                url = url or get_url_by_role(user_kinds.ADMIN)
             if user_kinds.COACH in roles:
-                url = url or get_url_by_role(user_kinds.COACH, first_login)
-            url = url or get_url_by_role(user_kinds.LEARNER, first_login)
+                url = url or get_url_by_role(user_kinds.COACH)
+            url = url or get_url_by_role(user_kinds.LEARNER)
         else:
-            url = get_url_by_role(user_kinds.ANONYMOUS, first_login)
+            url = get_url_by_role(user_kinds.ANONYMOUS)
         if url:
             return HttpResponseRedirect(url)
         raise Http404(
