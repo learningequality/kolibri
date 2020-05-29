@@ -20,7 +20,8 @@ logging.StreamHandler(sys.stdout)
 # local paths
 FONTS_SOURCE = os.path.abspath(os.path.join(os.path.dirname(__file__), "noto_source"))
 
-FONT_MANIFEST_PATH = os.path.join(FONTS_SOURCE, "manifest.json")
+FONT_MANIFEST_NAME = "manifest.json"
+FONT_MANIFEST_PATH = os.path.join(FONTS_SOURCE, FONT_MANIFEST_NAME)
 with open(FONT_MANIFEST_PATH, "r") as mf:
     MANIFEST = json.load(mf)
 
@@ -188,7 +189,7 @@ def update_manifest(ref=None):
     font_info.update(_font_info(git_tree, ref, PHASE_3_PATH, _p3_download_url))
 
     new_manifest = {KEY_REF: ref, KEY_FONTS: font_info}
-    utils.json_dump_formatted(new_manifest, FONT_MANIFEST_PATH)
+    utils.json_dump_formatted(new_manifest, FONTS_SOURCE, FONT_MANIFEST_NAME)
 
 
 def fetch_fonts():
