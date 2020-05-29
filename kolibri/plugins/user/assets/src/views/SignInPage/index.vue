@@ -47,7 +47,14 @@
                 appearance="basic-link"
               />
             </p>
-            <form ref="form" class="login-form" @submit.prevent="signIn">
+
+            <UsersList 
+              v-if="shouldShowUsersList" 
+              :users="users"
+              @userSelected="dothethingsnow"
+            />
+
+            <form v-else ref="form" class="login-form" @submit.prevent="signIn">
               <UiAlert
                 v-if="invalidCredentials"
                 type="error"
@@ -212,6 +219,7 @@
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
   import getUrlParameter from '../getUrlParameter';
+  import UsersList from './UsersList';
   import FacilityModal from './FacilityModal';
   import plugin_data from 'plugin_data';
 
@@ -227,6 +235,7 @@
       CoreLogo,
       UiAutocompleteSuggestion,
       UiAlert,
+      UsersList,
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
@@ -249,7 +258,7 @@
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig']),
+      ...mapGetters(['facilityConfig', 'isAppContext']),
       // backend's default facility on load
       ...mapState(['facilityId']),
       ...mapState('signIn', ['hasMultipleFacilities']),
@@ -260,6 +269,9 @@
       }),
       simpleSignIn() {
         return this.facilityConfig.learner_can_login_with_no_password;
+      },
+      shouldShowUsersList() {
+        return this.users.length <= 16 && this.isAppContext;
       },
       suggestions() {
         // Filter suggestions on the client side so we don't hammer the server
@@ -276,6 +288,9 @@
           }
         }
         return '';
+      },
+      users() {
+        return [{ name: 'jake' }];
       },
       usernameIsInvalid() {
         return Boolean(this.usernameIsInvalidText);
