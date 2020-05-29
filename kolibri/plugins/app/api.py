@@ -13,16 +13,7 @@ from kolibri.core.device.utils import set_app_key_on_response
 from kolibri.core.device.utils import valid_app_key
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.plugins.app.utils import interface
-from kolibri.plugins.app.utils import LAUNCH_INTENT
-
-
-class FromSameDevicePermission(BasePermission):
-    """
-    Allow only users on the same device as the server
-    """
-
-    def has_permission(self, request, view):
-        return request.META.get("REMOTE_ADDR") == "127.0.0.1"
+from kolibri.plugins.app.utils import SHARE_FILE
 
 
 class FromAppViewPermission(BasePermission):
@@ -32,25 +23,23 @@ class FromAppViewPermission(BasePermission):
 
 class AppCommandsViewset(ViewSet):
 
-    permission_classes = (FromSameDevicePermission, FromAppViewPermission)
+    permission_classes = (FromAppViewPermission,)
 
-    if LAUNCH_INTENT in interface:
+    if SHARE_FILE in interface:
 
         @action(detail=False, methods=["post"])
-        def launch_intent(self, request):
+        def share_file(self, request):
             filename = request.data.get("filename")
             message = request.data.get("message")
             if filename is None or message is None:
                 raise APIException(
                     "filename and message parameters must be defined", code=412
                 )
-            interface.launch_intent(filename, message)
+            interface.share_file(filename, message)
             return Response()
 
 
 class InitializeAppView(APIView):
-    permission_classes = (FromSameDevicePermission,)
-
     def get(self, request, token):
         if not valid_app_key(token):
             raise PermissionDenied("You have provided an invalid token")
@@ -70,5 +59,6 @@ class InitializeAppView(APIView):
                 require_https=request.is_secure(),
             ):
                 redirect_url = "/"
-        response = set_app_key_on_response(HttpResponseRedirect(redirect_url))
+        response = HttpResponseRedirect(redirect_url)
+        set_app_key_on_response(response)
         return response

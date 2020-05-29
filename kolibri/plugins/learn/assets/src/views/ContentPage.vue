@@ -139,9 +139,8 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
-  import client from 'kolibri.client';
-  import { isEmbeddedWebView, isAppView } from 'kolibri.utils.browser';
-  import { can, actionUrls } from 'kolibri.utils.appCapabilities';
+  import { isEmbeddedWebView } from 'kolibri.utils.browser';
+  import { shareFile } from 'kolibri.utils.appCapabilities';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
   import {
@@ -219,9 +218,7 @@
       },
       canShare() {
         let supported_types = ['mp4', 'mp3', 'pdf', 'epub'];
-        return (
-          can.launchIntent && isAppView() && supported_types.includes(this.primaryFile.extension)
-        );
+        return shareFile && supported_types.includes(this.primaryFile.extension);
       },
       description() {
         if (this.content && this.content.description) {
@@ -329,18 +326,14 @@
         };
       },
       launchIntent() {
-        return client.post({
-          path: actionUrls.launchIntent,
-          method: 'POST',
-          params: {
-            filename: this.primaryFilename,
-            message: this.$tr('shareMessage', {
-              title: this.content.title,
-              topic: this.content.breadcrumbs.slice(-1)[0].title,
-              copyrightHolder: this.content.license_owner,
-            }),
-          },
-        });
+        return shareFile({
+          filename: this.primaryFilename,
+          message: this.$tr('shareMessage', {
+            title: this.content.title,
+            topic: this.content.breadcrumbs.slice(-1)[0].title,
+            copyrightHolder: this.content.license_owner,
+          }),
+        }).catch(() => {});
       },
     },
     $trs: {

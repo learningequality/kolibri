@@ -95,4 +95,3 @@ def set_app_key_on_response(response):
     from .models import DeviceAppKey
 
     response.set_cookie(APP_KEY_COOKIE_NAME, DeviceAppKey.get_app_key())
-    return response

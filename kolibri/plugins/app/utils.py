@@ -2,9 +2,9 @@ from kolibri.plugins.app.kolibri_plugin import App
 from kolibri.plugins.registry import registered_plugins
 
 
-LAUNCH_INTENT = "launch_intent"
+SHARE_FILE = "share_file"
 
-CAPABILITES = (LAUNCH_INTENT,)
+CAPABILITES = (SHARE_FILE,)
 
 
 class AppInterface(object):
@@ -31,12 +31,10 @@ class AppInterface(object):
             return {key: (key in self._capabilities) for key in CAPABILITES}
         return {key: False for key in CAPABILITES}
 
-    def launch_intent(self, filename, message):
-        if LAUNCH_INTENT not in self._capabilities:
-            raise NotImplementedError(
-                "Launching intents is not supported on this platform"
-            )
-        return self._capabilities[LAUNCH_INTENT](filename=filename, message=message)
+    def share_file(self, filename, message):
+        if SHARE_FILE not in self._capabilities:
+            raise NotImplementedError("Sharing files is not supported on this platform")
+        return self._capabilities[SHARE_FILE](filename=filename, message=message)
 
 
 interface = AppInterface()
