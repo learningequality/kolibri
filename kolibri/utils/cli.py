@@ -312,7 +312,7 @@ def initialize(skip_update=False):  # noqa: max-complexity=12
     check_debian_user(params.get("no_input"))
 
     setup_logging(
-        debug=params.get("debug"), debug_database=params.get("debug_database"),
+        debug=params.get("debug"), debug_database=params.get("debug_database")
     )
 
     skip_update = skip_update or params["skip_update"]

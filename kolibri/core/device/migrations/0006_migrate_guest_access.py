@@ -55,10 +55,8 @@ def revert_allow_guest_access(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("device", "0005_auto_20191203_0951"),
-    ]
+    dependencies = [("device", "0005_auto_20191203_0951")]
 
     operations = [
-        migrations.RunPython(migrate_allow_guest_access, revert_allow_guest_access),
+        migrations.RunPython(migrate_allow_guest_access, revert_allow_guest_access)
     ]

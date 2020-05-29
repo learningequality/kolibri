@@ -182,11 +182,14 @@
   import fuzzysearch from 'fuzzysearch';
   import startswith from 'lodash/startsWith';
   import sortby from 'lodash/sortBy';
-  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 
-  import { looseIndexOf, looseEqual } from 'keen-ui/src/helpers/util';
-  import { scrollIntoView, resetScroll } from 'keen-ui/src/helpers/element-scroll';
-  import config from 'keen-ui/src/config';
+  import { looseIndexOf, looseEqual } from 'kolibri-design-system/lib/keen/helpers/util';
+  import {
+    scrollIntoView,
+    resetScroll,
+  } from 'kolibri-design-system/lib/keen/helpers/element-scroll';
+  import config from 'kolibri-design-system/lib/keen/config';
   import KeenUiSelectOption from './KeenUiSelectOption.vue';
 
   export default {
@@ -791,8 +794,8 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-  @import '~keen-ui/src/styles/imports';
+  @import '../../styles/definitions';
+  @import 'kolibri-design-system/lib/keen/styles/imports';
 
   /* stylelint-disable csstree/validator */
 

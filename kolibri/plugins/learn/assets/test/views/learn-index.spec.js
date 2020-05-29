@@ -23,12 +23,16 @@ function makeWrapper(options) {
     stubs: {
       breadcrumbs: true,
       contentUnavailablePage: true,
-      CoreBase: `
-        <div>
-          <slot></slot>
-          <slot name="sub-nav"></slot>
-        </div>
-      `,
+      CoreBase: {
+        name: 'CoreBase',
+        props: ['showSubNav'],
+        template: `
+          <div>
+            <slot></slot>
+            <slot name="sub-nav"></slot>
+          </div>
+        `,
+      },
       topicsPage: true,
       TotalPoints: true,
     },

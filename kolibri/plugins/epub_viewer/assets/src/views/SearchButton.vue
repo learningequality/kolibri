@@ -1,29 +1,20 @@
 <template>
 
-  <UiIconButton
-    type="secondary"
+  <KIconButton
+    icon="search"
     :ariaLabel="$tr('toggleSearchSideBar')"
     data-test="search button"
+    size="small"
     @click="$emit('click')"
-  >
-    <mat-svg
-      name="search"
-      category="action"
-    />
-  </UiIconButton>
+  />
 
 </template>
 
 
 <script>
 
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-
   export default {
     name: 'SearchButton',
-    components: {
-      UiIconButton,
-    },
     $trs: {
       toggleSearchSideBar: 'Toggle search',
     },

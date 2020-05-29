@@ -44,27 +44,29 @@
           </KPageContainer>
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
-            <KButton
-              :disabled="questionNumber === exam.question_count - 1"
-              :primary="true"
-              class="footer-button"
-              :dir="layoutDirReset"
-              @click="goToQuestion(questionNumber + 1)"
-            >
-              {{ $tr('nextQuestion') }}
-              <KIcon icon="forward" color="white" class="forward-icon" />
-            </KButton>
-            <KButton
-              :disabled="questionNumber === 0"
-              :primary="true"
-              class="footer-button"
-              :dir="layoutDirReset"
-              :class="{ 'left-align': windowIsSmall }"
-              @click="goToQuestion(questionNumber - 1)"
-            >
-              <KIcon icon="back" color="white" class="back-icon" />
-              {{ $tr('previousQuestion') }}
-            </KButton>
+            <KButtonGroup style="margin-top: 8px;">
+              <KButton
+                :disabled="questionNumber === exam.question_count - 1"
+                :primary="true"
+                class="footer-button"
+                :dir="layoutDirReset"
+                @click="goToQuestion(questionNumber + 1)"
+              >
+                {{ $tr('nextQuestion') }}
+                <KIcon slot="iconAfter" icon="forward" color="white" class="forward-icon" />
+              </KButton>
+              <KButton
+                :disabled="questionNumber === 0"
+                :primary="true"
+                class="footer-button"
+                :dir="layoutDirReset"
+                :class="{ 'left-align': windowIsSmall }"
+                @click="goToQuestion(questionNumber - 1)"
+              >
+                <KIcon slot="icon" icon="back" color="white" class="back-icon" />
+                {{ $tr('previousQuestion') }}
+              </KButton>
+            </KButtonGroup>
 
             <!-- below prev/next buttons in tab and DOM order, in footer -->
             <div
@@ -98,7 +100,6 @@
                 :text="$tr('submitExam')"
                 :primary="false"
                 appearance="flat-button"
-                style="margin-left: 0"
                 @click="toggleModal"
               />
             </div>
@@ -134,7 +135,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import UiAlert from 'kolibri.coreVue.components.UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames } from '../../constants';

@@ -145,7 +145,7 @@ class KolibriZeroconfListener(object):
             try:
 
                 DynamicNetworkLocation.objects.update_or_create(
-                    dict(base_url=base_url, **device_info), id=id,
+                    dict(base_url=base_url, **device_info), id=id
                 )
 
                 logger.info(
@@ -165,7 +165,7 @@ class KolibriZeroconfListener(object):
                         The following exception was raised:
                         %s
                         """
-                    % (id, self.instances[id], traceback.format_exc(limit=1)),
+                    % (id, self.instances[id], traceback.format_exc(limit=1))
                 )
             finally:
                 connection.close()

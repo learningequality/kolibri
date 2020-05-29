@@ -19,53 +19,33 @@
       :class="$computedClass(linkStyle)"
     >
       <!-- TODO add aria label? -->
-      <UiIconButton
-        type="flat"
-        class="icon"
-        :style="{ fill: $themeTokens.textInverted }"
-        tabindex="-1"
-      >
-        <mat-svg
-          v-if="icon === 'close'"
-          name="close"
-          category="navigation"
-        />
-        <mat-svg
-          v-else-if="icon === 'arrow_back' && !isRtl"
-          name="arrow_back"
-          category="navigation"
-        />
-        <mat-svg
-          v-else-if="icon === 'arrow_back' && isRtl"
-          name="arrow_forward"
-          category="navigation"
-        />
-      </UiIconButton>
-    </router-link>
-
-    <UiIconButton
-      v-else
-      type="flat"
-      class="icon"
-      :style="{ fill: $themeTokens.textInverted }"
-      @click="$emit('navIconClick')"
-    >
-      <mat-svg
+      <KIconButton
         v-if="icon === 'close'"
-        name="close"
-        category="navigation"
+        icon="close"
+        :color="$themeTokens.textInverted"
+        tabindex="-1"
       />
-      <mat-svg
-        v-if="icon === 'arrow_back' && !isRtl"
-        name="arrow_back"
-        category="navigation"
+      <KIconButton
+        v-else
+        icon="back"
+        :color="$themeTokens.textInverted"
       />
-      <mat-svg
-        v-if="icon === 'arrow_back' && isRtl"
-        name="arrow_forward"
-        category="navigation"
+    </router-link>
+    <span v-else slot="icon">
+      <KIconButton
+        v-if="icon === 'close'"
+        icon="close"
+        :color="$themeTokens.textInverted"
+        tabindex="-1"
+        @click="$emit('navIconClick')"
       />
-    </UiIconButton>
+      <KIconButton
+        v-else
+        icon="back"
+        :color="$themeTokens.textInverted"
+        @click="$emit('navIconClick')"
+      />
+    </span>
   </UiToolbar>
 
 </template>
@@ -74,14 +54,12 @@
 <script>
 
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { validateLinkObject } from 'kolibri.utils.validators';
 
   export default {
     name: 'ImmersiveToolbar',
     components: {
       UiToolbar,
-      UiIconButton,
     },
     props: {
       appBarTitle: {

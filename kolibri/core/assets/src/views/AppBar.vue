@@ -13,18 +13,13 @@
       :raised="false"
       :removeBrandDivider="true"
     >
-      <UiIconButton
+      <KIconButton
         slot="icon"
-        type="secondary"
-        :aria-label="$tr('openNav')"
+        icon="menu"
+        :color="$themeTokens.textInverted"
+        :ariaLabel="$tr('openNav')"
         @click="$emit('toggleSideNav')"
-      >
-        <mat-svg
-          name="menu"
-          category="navigation"
-          :style="{ fill: $themeTokens.textInverted }"
-        />
-      </UiIconButton>
+      />
 
       <img
         v-if="$kolibriBranding.appBar.topLogo"
@@ -50,17 +45,15 @@
           :ariaLabel="$tr('userMenu')"
           @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
         >
-          <mat-svg
+          <KIcon
             slot="icon"
-            name="person"
-            category="social"
-            :style="{ fill: $themeTokens.textInverted }"
+            icon="person"
+            :style="{ fill: $themeTokens.textInverted, height: '24px', width: '24px', top: 0, }"
           />
           <span v-if="isUserLoggedIn" class="username" tabindex="-1">{{ dropdownName }}</span>
-          <mat-svg
-            name="arrow_drop_down"
-            category="navigation"
-            :style="{ fill: $themeTokens.textInverted }"
+          <KIcon
+            icon="dropdown"
+            :style="{ fill: $themeTokens.textInverted, height: '24px', width: '24px', top: 0, }"
           />
         </UiButton>
 
@@ -115,11 +108,11 @@
   import { mapGetters, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
-  import UiButton from 'keen-ui/src/UiButton';
+  import UiButton from 'kolibri-design-system/lib/keen/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import branding from 'kolibri.utils.branding';
@@ -133,7 +126,7 @@
     name: 'AppBar',
     components: {
       UiToolbar,
-      UiIconButton,
+      KIconButton,
       CoreMenu,
       UiButton,
       CoreMenuOption,
@@ -214,7 +207,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .user-menu-button {
     text-transform: none;

@@ -29,35 +29,25 @@
       >
 
       <div class="buttons-wrapper">
-        <UiIconButton
-          color="black"
+        <KIconButton
+          icon="clear"
+          :color="$themePalette.black"
           size="small"
           class="clear-button"
           :class="searchTerm === '' ? '' : 'clear-button-visible'"
           :ariaLabel="$tr('clearButtonLabel')"
           @click="clearSearchTerm"
-        >
-          <mat-svg
-            name="clear"
-            category="content"
-          />
-        </UiIconButton>
-
+        />
         <div class="submit-button-wrapper" :style="{ backgroundColor: $themeTokens.primary }">
-          <UiIconButton
-            type="secondary"
-            color="white"
+          <KIconButton
+            icon="search"
+            :color="$themeTokens.textInverted"
             class="submit-button"
             :disabled="!searchTermHasChanged"
             :ariaLabel="$tr('startSearchButtonLabel')"
             :style="{ fill: $themeTokens.textInverted }"
             @click="search"
-          >
-            <mat-svg
-              name="search"
-              category="action"
-            />
-          </UiIconButton>
+          />
         </div>
       </div>
     </div>
@@ -69,14 +59,10 @@
 
 <script>
 
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'LessonsSearchBox',
-    components: {
-      UiIconButton,
-    },
     mixins: [commonCoreStrings],
     data() {
       return {
@@ -122,7 +108,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   // TODO - consolidate with kFilterTextbox
   .box {
@@ -169,8 +155,8 @@
   .clear-button {
     width: 24px;
     height: 24px;
-    margin-right: 6px;
-    margin-left: 6px;
+    margin-right: 3px;
+    margin-left: 3px;
     vertical-align: middle;
     visibility: hidden;
   }

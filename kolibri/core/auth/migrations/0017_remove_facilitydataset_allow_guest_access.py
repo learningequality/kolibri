@@ -13,7 +13,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name="facilitydataset", name="allow_guest_access",
-        ),
+        migrations.RemoveField(model_name="facilitydataset", name="allow_guest_access")
     ]

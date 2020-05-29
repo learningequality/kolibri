@@ -72,15 +72,13 @@
         {{ $tr('license', { license: licenseShortName }) }}
 
         <template v-if="licenseDescription">
-          <UiIconButton
+          <KIconButton
+            :icon="licenceDescriptionIsVisible ? 'arrow_up' : 'arrow_down'"
             :ariaLabel="$tr('toggleLicenseDescription')"
             size="small"
             type="secondary"
             @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
-          >
-            <mat-svg v-if="licenceDescriptionIsVisible" name="expand_less" category="navigation" />
-            <mat-svg v-else name="expand_more" category="navigation" />
-          </UiIconButton>
+          />
           <div v-if="licenceDescriptionIsVisible" dir="auto" class="license-details">
             <p class="license-details-name">
               {{ licenseLongName }}
@@ -138,7 +136,6 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
   import {
     licenseShortName,
@@ -175,7 +172,6 @@
       DownloadButton,
       AssessmentWrapper,
       MasteredSnackbars,
-      UiIconButton,
     },
     mixins: [commonLearnStrings],
     data() {

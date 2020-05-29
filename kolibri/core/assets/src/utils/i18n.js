@@ -1,7 +1,7 @@
 import has from 'lodash/has';
 import vue from 'kolibri.lib.vue';
 import logger from 'kolibri.lib.logging';
-import { languageDirections, defaultLanguage } from 'kolibri-components/src/utils/i18n';
+import { languageDirections, defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
 import setupAndLoadFonts from './setupAndLoadFonts';
@@ -12,7 +12,7 @@ export {
   defaultLanguage,
   languageValidator,
   getContentLangDir,
-} from 'kolibri-components/src/utils/i18n';
+} from 'kolibri-design-system/lib/utils/i18n';
 
 const logging = logger.getLogger(__filename);
 

@@ -25,27 +25,21 @@
         :placeholder="coreString('searchLabel')"
       >
       <div class="search-buttons-wrapper">
-        <UiIconButton
-          color="black"
+        <KIconButton
+          icon="clear"
+          :color="$themeTokens.text"
           size="small"
           class="search-clear-button"
           :class="searchQuery === '' ? '' : 'search-clear-button-visible'"
-          :style="{ color: $themeTokens.text }"
           :ariaLabel="$tr('clearButtonLabel')"
           @click="handleClickClear"
-        >
-          <mat-svg
-            name="clear"
-            category="content"
-          />
-        </UiIconButton>
-
+        />
         <div
           class="search-submit-button-wrapper"
           :style="{ backgroundColor: $themeTokens.primaryDark }"
         >
-          <UiIconButton
-            type="secondary"
+          <KIconButton
+            :icon="icon"
             color="white"
             class="search-submit-button"
             :disabled="!searchUpdate"
@@ -53,18 +47,7 @@
             :style="{ fill: $themeTokens.textInverted }"
             :ariaLabel="$tr('startSearchButtonLabel')"
             @click="search"
-          >
-            <mat-svg
-              v-if="icon === 'search'"
-              name="search"
-              category="action"
-            />
-            <mat-svg
-              v-if="icon === 'arrow_forward'"
-              name="arrow_forward"
-              category="navigation"
-            />
-          </UiIconButton>
+          />
         </div>
       </div>
     </div>
@@ -73,10 +56,10 @@
       class="filters"
     >
       <div class="ib">
-        <mat-svg
-          category="content"
-          name="filter_list"
+        <KIcon
+          icon="filter_list"
           class="filter-icon"
+          style="width: 24px; height: 24px;"
         />
         <KSelect
           ref="contentKindFilter"
@@ -92,10 +75,10 @@
       <div
         class="ib"
       >
-        <mat-svg
-          category="navigation"
-          name="apps"
+        <KIcon
+          icon="channel"
           class="filter-icon"
+          style="width: 24px; height: 24px;"
         />
         <KSelect
           ref="channelFilter"
@@ -119,7 +102,6 @@
 
   import maxBy from 'lodash/maxBy';
   import { mapGetters, mapState } from 'vuex';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
@@ -137,9 +119,6 @@
 
   export default {
     name: 'SearchBox',
-    components: {
-      UiIconButton,
-    },
     mixins: [commonCoreStrings],
     props: {
       icon: {
@@ -295,7 +274,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .search-box {
     margin-right: 8px;
@@ -342,7 +321,6 @@
     width: 24px;
     height: 24px;
     margin-right: 6px;
-    margin-left: 6px;
     vertical-align: middle;
     visibility: hidden;
   }

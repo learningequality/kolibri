@@ -45,7 +45,7 @@
 
 <script>
 
-  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 
   export default {
     name: 'KeenUiSelectOption',
@@ -115,8 +115,8 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-  @import '~keen-ui/src/styles/imports';
+  @import '../../styles/definitions';
+  @import 'kolibri-design-system/lib/keen/styles/imports';
 
   /* stylelint-disable csstree/validator */
 

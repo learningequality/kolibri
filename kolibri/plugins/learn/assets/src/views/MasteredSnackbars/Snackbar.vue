@@ -10,13 +10,12 @@
           <slot name="content"></slot>
         </div>
         <div class="cell close-container">
-          <UiIconButton
+          <KIconButton
+            icon="close"
             size="small"
             :ariaLabel="coreString('closeAction')"
             @click="$emit('close')"
-          >
-            <mat-svg name="close" category="navigation" />
-          </UiIconButton>
+          />
         </div>
       </div>
     </div>
@@ -29,13 +28,9 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
     name: 'Snackbar',
-    components: {
-      UiIconButton,
-    },
     mixins: [commonCoreStrings],
     $trs: {},
   };
@@ -45,7 +40,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .snackbar {
     @extend %dropshadow-12dp;

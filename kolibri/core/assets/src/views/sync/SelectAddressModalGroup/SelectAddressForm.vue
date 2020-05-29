@@ -87,17 +87,21 @@
         </transition>
       </KFixedGridItem>
       <KFixedGridItem span="3" alignment="right">
-        <KButton
-          :text="coreString('cancelAction')"
-          appearance="flat-button"
-          @click="$emit('cancel')"
-        />
-        <KButton
-          :text="coreString('continueAction')"
-          :primary="true"
-          :disabled="submitDisabled"
-          type="submit"
-        />
+        <KButtonGroup style="margin-top: 8px;">
+          <KButton
+            :text="coreString('cancelAction')"
+            appearance="flat-button"
+
+            @click="$emit('cancel')"
+          />
+          <KButton
+            :text="coreString('continueAction')"
+            :primary="true"
+            :disabled="submitDisabled"
+            type="submit"
+            @click="handleSubmit"
+          />
+        </KButtonGroup>
       </KFixedGridItem>
     </KFixedGrid>
 
@@ -109,7 +113,7 @@
 <script>
 
   import find from 'lodash/find';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { deleteAddress, fetchStaticAddresses, fetchDynamicAddresses } from './api';

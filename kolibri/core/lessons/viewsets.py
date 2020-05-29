@@ -61,9 +61,7 @@ class LessonViewset(ValuesViewset):
         "assignment_ids",
     )
 
-    field_map = {
-        "classroom": _map_lesson_classroom,
-    }
+    field_map = {"classroom": _map_lesson_classroom}
 
     def consolidate(self, items):
         assignment_ids = []

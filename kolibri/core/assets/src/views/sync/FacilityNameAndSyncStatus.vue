@@ -45,7 +45,7 @@
 
 <script>
 
-  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
   import has from 'lodash/has';
   import every from 'lodash/every';
   import { now } from 'kolibri.utils.serverClock';

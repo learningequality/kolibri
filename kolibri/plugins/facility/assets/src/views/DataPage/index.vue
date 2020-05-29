@@ -18,8 +18,8 @@
           <p>
             <KButton
               :text="$tr('download')"
+              style="margin-right: 8px;"
               :disabled="!availableSessionCSVLog"
-              class="download-button"
               @click="downloadSessionLog"
             />
             <span v-if="noSessionLogs">{{ $tr('noLogsYet') }}</span>
@@ -50,8 +50,8 @@
           <p>
             <KButton
               :text="$tr('download')"
+              style="margin-right: 8px;"
               :disabled="!availableSummaryCSVLog"
-              class="download-button"
               @click="downloadSummaryLog"
             />
             <span v-if="noSummaryLogs">{{ $tr('noLogsYet') }}</span>
@@ -218,7 +218,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .infobox {
     padding: 8px;
@@ -226,10 +226,6 @@
     margin-left: -8px;
     font-size: 0.8em;
     border-radius: $radius;
-  }
-
-  .download-button {
-    margin-left: 0;
   }
 
 </style>

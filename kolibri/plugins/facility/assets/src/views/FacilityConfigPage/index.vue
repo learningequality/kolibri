@@ -47,22 +47,26 @@
         </div>
 
         <div>
-          <KButton
-            :primary="false"
-            appearance="raised-button"
-            :text="$tr('resetToDefaultSettings')"
-            name="reset-settings"
-            @click="showModal = true"
-          />
+          <KButtonGroup style="margin-top: 8px;">
+            <KButton
+              :primary="false"
+              appearance="raised-button"
+              :text="$tr('resetToDefaultSettings')"
 
-          <KButton
-            :primary="true"
-            appearance="raised-button"
-            :text="coreString('saveChangesAction')"
-            name="save-settings"
-            :disabled="!settingsHaveChanged"
-            @click="saveConfig()"
-          />
+              name="reset-settings"
+              @click="showModal = true"
+            />
+
+            <KButton
+              :primary="true"
+              appearance="raised-button"
+              :text="coreString('saveChangesAction')"
+              name="save-settings"
+
+              :disabled="!settingsHaveChanged"
+              @click="saveConfig()"
+            />
+          </KButtonGroup>
         </div>
       </div>
     </template>

@@ -356,7 +356,7 @@ Frontend dev tools
 
 `Vue.js devtools <https://github.com/vuejs/vue-devtools>`__ is a browser plugin that is very helpful when working with Vue.js components and Vuex.
 
-So ensure an more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylint.
+So ensure an more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylelint.
 
 
 Database setup

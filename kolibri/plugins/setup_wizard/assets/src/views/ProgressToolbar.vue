@@ -7,19 +7,22 @@
     textColor="white"
     :removeNavIcon="$attrs.removeNavIcon"
   >
-    <UiIconButton
+    <KIconButton
       slot="icon"
-      type="secondary"
+      icon="back"
       color="white"
       :class="{ 'rtl-icon': isRtl }"
       @click="$emit('click_back')"
     >
-      <mat-svg name="arrow_back" category="navigation" />
-    </UiIconButton>
-
-    <span>
-      {{ title || coreString('kolibriLabel') }}
-    </span>
+      <KIcon
+        icon="back"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
+      <span>
+        {{ title || coreString('kolibriLabel') }}
+      </span>
+    </KIconButton>
   </UiToolbar>
 
 </template>
@@ -29,13 +32,11 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
     name: 'ProgressToolbar',
     components: {
       UiToolbar,
-      UiIconButton,
     },
     mixins: [commonCoreStrings],
     props: {

@@ -12,7 +12,11 @@
     <HeaderWithOptions>
       <div slot="header">
         <h1 class="exam-title">
-          <KLabeledIcon :icon="examOrLesson" :label="resource.title" />
+          <!-- KLabeledIcon does not have an 'exam' token, but rather 'quiz' -->
+          <KLabeledIcon
+            :icon="examOrLesson === 'exam' ? 'quiz' : 'lesson'"
+            :label="resource.title"
+          />
         </h1>
         <StatusElapsedTime v-show="!$isPrint" :date="createdDate" actionType="created" />
       </div>

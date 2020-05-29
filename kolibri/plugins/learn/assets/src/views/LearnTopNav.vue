@@ -7,9 +7,10 @@
       :title="coreString('classesLabel')"
       :link="allClassesLink"
     >
-      <mat-svg
-        name="business"
-        category="communication"
+      <KIcon
+        icon="classroom"
+        style="top: 0; width: 24px; height: 24px;"
+        :color="$themeTokens.textInverted"
       />
     </NavbarLink>
     <NavbarLink
@@ -17,9 +18,10 @@
       :title="coreString('channelsLabel')"
       :link="channelsLink"
     >
-      <mat-svg
-        name="apps"
-        category="navigation"
+      <KIcon
+        icon="channel"
+        style="top: 0; width: 24px; height: 24px;"
+        :color="$themeTokens.textInverted"
       />
     </NavbarLink>
     <NavbarLink
@@ -27,9 +29,10 @@
       :title="learnString('recommendedLabel')"
       :link="recommendedLink"
     >
-      <mat-svg
-        name="forum"
-        category="communication"
+      <KIcon
+        icon="forum"
+        style="top: 0; width: 24px; height: 24px;"
+        :color="$themeTokens.textInverted"
       />
     </NavbarLink>
   </Navbar>
