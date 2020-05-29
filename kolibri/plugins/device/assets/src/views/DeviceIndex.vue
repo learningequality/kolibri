@@ -35,6 +35,8 @@
   import DeviceTopNav from './DeviceTopNav';
   import WelcomeModal from './WelcomeModal';
 
+  const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+
   export default {
     name: 'DeviceIndex',
     components: {
@@ -44,8 +46,11 @@
     },
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
-      ...mapState(['welcomeModalVisible']),
+      ...mapState({ welcomeModalVisibleState: 'welcomeModalVisible' }),
       ...mapState('coreBase', ['appBarTitle']),
+      welcomeModalVisible() {
+        return this.welcomeModalVisibleState && !window.sessionStorage.getItem(welcomeDimissalKey);
+      },
       pageName() {
         return this.$route.name;
       },
@@ -164,6 +169,7 @@
     methods: {
       ...mapActions('manageContent', ['refreshTaskList']),
       hideWelcomeModal() {
+        window.sessionStorage.setItem(welcomeDimissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
       },
       startTaskPolling() {
