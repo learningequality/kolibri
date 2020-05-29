@@ -65,9 +65,11 @@
         :color="color"
         style="top:0;"
       />
+      <!-- Note that there is currently no `activity` icon token defined -->
+      <!-- constant value comes all caps, but KIcon tokens are all lower case -->
       <KIcon
         v-if="is(ContentNodeKinds.ACTIVITY)"
-        :icon="ContentNodeKinds.ACTIVITY"
+        :icon="ContentNodeKinds.ACTIVITY.toLowerCase()"
         :class="[colorClass]"
         :color="color"
         style="top:0;"
@@ -86,9 +88,10 @@
         :color="color"
         style="top:0;"
       />
+      <!-- constant value comes all caps, but KIcon tokens are all lower case -->
       <KIcon
         v-if="is(ContentNodeKinds.CLASSROOM)"
-        :icon="ContentNodeKinds.CLASSROOM"
+        :icon="ContentNodeKinds.CLASSROOM.toLowerCase()"
         :class="[colorClass]"
         :color="color"
         style="top:0;"

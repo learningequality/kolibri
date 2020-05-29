@@ -24,7 +24,7 @@
       <span dir="auto" class="pagination-label">
         {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
       </span>
-      <KButtonGroup style="margin-top: 8px;">
+      <KButtonGroup>
         <KIconButton
           :ariaLabel="$tr('previousResults')"
           :disabled="previousButtonDisabled"
@@ -157,6 +157,12 @@
 
   .text-filter {
     margin-top: 14px;
+  }
+
+  .pagination-label {
+    position: relative;
+    top: -8px;
+    display: inline;
   }
 
 </style>

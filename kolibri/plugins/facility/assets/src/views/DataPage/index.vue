@@ -18,6 +18,7 @@
           <p>
             <KButton
               :text="$tr('download')"
+              style="margin-right: 8px;"
               :disabled="!availableSessionCSVLog"
               @click="downloadSessionLog"
             />
@@ -49,6 +50,7 @@
           <p>
             <KButton
               :text="$tr('download')"
+              style="margin-right: 8px;"
               :disabled="!availableSummaryCSVLog"
               @click="downloadSummaryLog"
             />
