@@ -4,7 +4,7 @@
   "AnswerIcon.correct": "正确",
   "AnswerIcon.hintUsed": "已使用提示",
   "AnswerIcon.incorrect": "错误",
-  "AnswerIcon.incorrectFirstTry": "不正确的第一次尝试",
+  "AnswerIcon.incorrectFirstTry": "第一次尝试错误",
   "AssessmentWrapper.check": "检查",
   "AssessmentWrapper.correct": "正确！",
   "AssessmentWrapper.goal": " {count, number, integer} {count, plural, other {正确}}回答",
