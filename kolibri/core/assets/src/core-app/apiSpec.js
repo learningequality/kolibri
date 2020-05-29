@@ -101,6 +101,7 @@ import CatchErrors from '../utils/CatchErrors';
 import UiIconButton from '../views/KeenUiIconButton.vue';
 import UiToolbar from '../views/KeenUiToolbar.vue';
 import shuffled from '../utils/shuffled';
+import appCapabilities from '../utils/appCapabilities';
 import * as client from './client';
 import urls from './urls';
 
@@ -189,6 +190,7 @@ export default {
   },
   urls,
   utils: {
+    appCapabilities,
     contentNode,
     browser,
     exams,
