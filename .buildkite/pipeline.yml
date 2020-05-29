@@ -18,13 +18,6 @@ steps:
         # Autoblock unless there's a tag associated with the commit. Usually a release.
         LE_KOLIBRI_RELEASE: "${BUILDKITE_TAG:-false}"
 
-    # Android build only requires whl file
-  # - label: Build Android APK
-  #   env:
-  #     KOLIBRI_ANDROID_BUILD_MODE: dev
-  #   command: &android_build
-  #     - .buildkite/build_apk.sh
-
   - label: Build Windows installer
     command: .buildkite/build_windows_installer.sh
 
@@ -61,12 +54,6 @@ steps:
   - block: "Create integration testing worksheet?"
   - label: Create integration testing
     command: .buildkite/build_worksheet.sh
-
-  # - block: "Build release APK?"
-  # - label: "Build Release APK"
-  #   env:
-  #     KOLIBRI_ANDROID_BUILD_MODE: release
-  #   command: *android_build
 
   - block: "Test .debs?"
   - label: Test on Trusty, Xenial, Bionic
