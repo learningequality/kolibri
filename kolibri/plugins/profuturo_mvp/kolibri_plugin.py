@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 from django.contrib.staticfiles.templatetags.staticfiles import static
 
 from kolibri.core import theme_hook
+from kolibri.core.hooks import FrontEndBaseSyncHook
+from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 
@@ -75,3 +77,14 @@ class ProfuturoThemeHook(theme_hook.ThemeHook):
                 theme_hook.SHOW_K_FOOTER_LOGO: True,
             },
         }
+
+
+@register_hook
+class TrackingAsset(webpack_hooks.WebpackBundleHook):
+    bundle_id = "track"
+    inline = True
+
+
+@register_hook
+class TrackingInclusionHook(FrontEndBaseSyncHook):
+    bundle_class = TrackingAsset
