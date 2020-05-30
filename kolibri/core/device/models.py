@@ -69,6 +69,7 @@ class DeviceSettings(models.Model):
     allow_guest_access = models.BooleanField(default=True)
     allow_peer_unlisted_channel_import = models.BooleanField(default=False)
     allow_learner_unassigned_resource_access = models.BooleanField(default=True)
+    allow_other_browsers_to_connect = models.NullBooleanField(null=True)
 
     def save(self, *args, **kwargs):
         self.pk = 1
