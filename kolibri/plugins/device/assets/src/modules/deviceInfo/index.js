@@ -25,11 +25,11 @@ export default {
       return client({
         path: urls['kolibri:core:devicename'](),
         method: 'PATCH',
-        entity: {
+        data: {
           name,
         },
       }).then(response => {
-        store.commit('SET_DEVICE_NAME', response.entity.name);
+        store.commit('SET_DEVICE_NAME', response.data.name);
       });
     },
   },

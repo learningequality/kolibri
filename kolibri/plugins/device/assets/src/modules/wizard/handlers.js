@@ -191,7 +191,7 @@ export function showSelectContentPage(store, params) {
             resolve({ ...channels[0] });
           },
           error => {
-            if (error.status.code === 404) {
+            if (error.response.status === 404) {
               reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO });
             } else {
               reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE });

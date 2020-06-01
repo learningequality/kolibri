@@ -1960,6 +1960,13 @@ axios@^0.18.0:
     follow-redirects "1.5.10"
     is-buffer "^2.0.2"
 
+axios@^0.19.2:
+  version "0.19.2"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.19.2.tgz#3ea36c5d8818d0d5f8a8a97a6d36b86cdc00cb27"
+  integrity sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==
+  dependencies:
+    follow-redirects "1.5.10"
+
 babel-code-frame@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-code-frame/-/babel-code-frame-6.26.0.tgz#63fd43f7dc1e3bb7ce35947db8fe369a3f58c74b"
@@ -14965,6 +14972,14 @@ x-is-string@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/x-is-string/-/x-is-string-0.1.0.tgz#474b50865af3a49a9c4657f05acd145458f77d82"
   integrity sha1-R0tQhlrzpJqcRlfwWs0UVFj3fYI=
+
+xhr-mock@^2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/xhr-mock/-/xhr-mock-2.5.1.tgz#c591498a8269cc1ce5fefac20d590357affd348b"
+  integrity sha512-UKOjItqjFgPUwQGPmRAzNBn8eTfIhcGjBVGvKYAWxUQPQsXNGD6KEckGTiHwyaAUp9C9igQlnN1Mp79KWCg7CQ==
+  dependencies:
+    global "^4.3.0"
+    url "^0.11.0"
 
 xml-name-validator@^3.0.0:
   version "3.0.0"

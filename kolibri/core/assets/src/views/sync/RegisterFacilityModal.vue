@@ -52,7 +52,7 @@
           .then(response => {
             this.submitting = false;
             this.$emit('success', {
-              name: response.entity.name,
+              name: response.data.name,
               token: strippedToken,
             });
           })

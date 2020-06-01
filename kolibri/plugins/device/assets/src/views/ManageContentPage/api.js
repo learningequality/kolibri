@@ -8,7 +8,7 @@ const kolibriStudioUrl = 'https://studio.learningequality.org';
 function getChannelOnDrive(driveId, channelId) {
   const reject = () => Promise.reject('CHANNEL_NOT_ON_DRIVE');
   return TaskResource.localDrives().then(response => {
-    const drives = response.entity;
+    const drives = response.data;
     const driveMatch = find(drives, { id: driveId });
     if (!driveMatch) {
       return reject();
@@ -104,7 +104,7 @@ export function fetchOrTriggerChannelDiffStatsTask(params) {
       return match;
     } else {
       return TaskResource.postListEndpoint('channeldiffstats', { ...taskAttrs, method }).then(
-        taskResponse => taskResponse.entity
+        taskResponse => taskResponse.data
       );
     }
   });
