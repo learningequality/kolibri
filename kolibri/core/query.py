@@ -43,11 +43,28 @@ class GroupConcatSubquery(Subquery):
 
 class GroupConcat(Aggregate):
     template = "GROUP_CONCAT(%(field)s)"
+    output_field = CharField()
+
+    def __init__(self, *args, **kwargs):
+        self.result_field = kwargs.pop("result_field", None)
+        super(GroupConcat, self).__init__(*args, **kwargs)
 
     def convert_value(self, value, expression, connection, context):
         if not value:
             return []
-        return value.split(",")
+        results = value.split(",")
+        if self.result_field is not None:
+            return map(self.result_field.to_python, results)
+        return results
+
+
+def get_source_field(model, field_path):
+    # Get the source field from the model so that we can properly coerce values
+    # this is necessary when we are using GroupConcat to return non-string fields.
+    paths = field_path.split("__")
+    while len(paths) > 1:
+        model = model._meta.get_field(paths.pop(0)).related_model
+    return model._meta.get_field(paths[0])
 
 
 def annotate_array_aggregate(queryset, **kwargs):
@@ -55,11 +72,12 @@ def annotate_array_aggregate(queryset, **kwargs):
         return queryset.annotate(
             **{target: NotNullArrayAgg(source) for target, source in kwargs.items()}
         )
+    model = queryset.model
     # Call values on "pk" to insert a GROUP BY to ensure the GROUP CONCAT
     # is called by row and not across the entire queryset.
     return queryset.values("pk").annotate(
         **{
-            target: GroupConcat(source, output_field=CharField())
+            target: GroupConcat(source, result_field=get_source_field(model, source))
             for target, source in kwargs.items()
         }
     )
