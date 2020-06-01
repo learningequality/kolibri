@@ -101,18 +101,18 @@
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig', 'isCoach', 'isLearner']),
+      ...mapGetters(['facilityConfig', 'isLearner']),
       formDisabled() {
         return this.status === 'BUSY';
       },
       canEditName() {
-        if (this.isLearner || this.isCoach) {
+        if (this.isLearner) {
           return this.facilityConfig.learner_can_edit_name;
         }
         return true;
       },
       canEditUsername() {
-        if (this.isLearner || this.isCoach) {
+        if (this.isLearner) {
           return this.facilityConfig.learner_can_edit_username;
         }
         return true;

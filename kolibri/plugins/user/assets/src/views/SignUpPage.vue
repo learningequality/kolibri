@@ -30,8 +30,8 @@
             :errors.sync="caughtErrors"
             :disabled="busy"
           />
-
           <PasswordTextbox
+            v-if="showPasswordInput"
             ref="passwordTextbox"
             autocomplete="new-password"
             :value.sync="password"
@@ -171,7 +171,7 @@
       };
     },
     computed: {
-      ...mapGetters(['selectedFacility']),
+      ...mapGetters(['selectedFacility', 'facilityConfig']),
       atFirstStep() {
         return !this.$route.query.step;
       },
@@ -191,6 +191,9 @@
       },
       showGuestAccess() {
         return plugin_data.allowGuestAccess;
+      },
+      showPasswordInput() {
+        return !this.facilityConfig.learner_can_login_with_no_password;
       },
     },
     beforeMount() {
@@ -247,6 +250,13 @@
           this.focusOnInvalidField();
         }
       },
+      passwordToSave() {
+        if (this.facilityConfig.learner_can_login_with_no_password && this.password === '')
+          return 'NOT_SPECIFIED';
+
+        return this.password;
+      },
+
       submitNewFacilityUser() {
         this.formSubmitted = true;
         const canSubmit = this.firstStepIsValid && !this.busy;
@@ -256,7 +266,7 @@
             facility: this.selectedFacility.id,
             full_name: this.name,
             username: this.username,
-            password: this.password,
+            password: this.passwordToSave(),
             // If user skips this part, these fields are marked as 'DEFERRED'
             // so they don't see a notification after logging in.
             gender: this.gender || DEFERRED,

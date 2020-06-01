@@ -76,7 +76,7 @@ const generateIntlItems = language => {
   filename += codes[1];
   if (codes[2]) {
     // Trailing four-letter strings of characters are Title-case
-    filename += '-' + codes[2][1].toUpperCase() + codes[2].substring(2)
+    filename += '-' + codes[2][1].toUpperCase() + codes[2].substring(2);
   }
   if (codes[3]) {
     // Trailing two-letter strings of characters are CAPITAL-case

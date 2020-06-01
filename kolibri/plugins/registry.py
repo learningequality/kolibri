@@ -38,6 +38,7 @@ from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 
 from kolibri.plugins import config
+from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import HookSingleInstanceError
 from kolibri.plugins.utils import initialize_kolibri_plugin
 from kolibri.plugins.utils import is_plugin_updated
@@ -63,6 +64,11 @@ class Registry(object):
 
     def __iter__(self):
         return iter(app for app in self._apps.values() if app is not None)
+
+    def __contains__(self, app):
+        if issubclass(app, KolibriPluginBase):
+            app = app.__module__.replace(".kolibri_plugin", "")
+        return app in self._apps
 
     def get(self, app):
         return self._apps.get(app, None)
