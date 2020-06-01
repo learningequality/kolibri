@@ -57,10 +57,10 @@
                 <mat-svg
                   name="arrow_forward"
                   category="navigation"
-                  :style="{fill: $themeTokens.primary}"
+                  :style="{ fill: $themeTokens.primary }"
                 />
-             </UiIconButton>
-             <KButton
+              </UiIconButton>
+              <KButton
                 v-else
                 :disabled="questionNumber === exam.question_count - 1"
                 :primary="true"
@@ -83,7 +83,7 @@
                 <mat-svg
                   name="arrow_back"
                   category="navigation"
-                  :style="{fill: $themeTokens.primary}"
+                  :style="{ fill: $themeTokens.primary }"
                 />
               </UiIconButton>
               <KButton
