@@ -54,9 +54,12 @@ class ContentTag(base_models.ContentTag):
 
 
 class ContentNodeQueryset(TreeQuerySet, FilterByUUIDQuerysetMixin):
-    def dedupe_by_content_id(self):
+    def dedupe_by_content_id(self, use_distinct=True):
+        # Cannot use distinct if queryset is also going to use annotate,
+        # so optional use_distinct flag can be used to fallback to the
+        # sqlite behaviour.
         # remove duplicate content nodes based on content_id
-        if connection.vendor == "sqlite":
+        if connection.vendor == "sqlite" or not use_distinct:
             # adapted from https://code.djangoproject.com/ticket/22696
             deduped_ids = (
                 self.values("content_id")

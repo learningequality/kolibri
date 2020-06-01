@@ -669,7 +669,7 @@ class ContentNodeViewset(ValuesViewset):
             most_popular = queryset.filter_by_content_ids(
                 list(content_counts_sorted[:20]), validate=False
             )
-            queryset = most_popular.dedupe_by_content_id()
+            queryset = most_popular.dedupe_by_content_id(use_distinct=False)
 
         data = self.serialize(queryset)
 
@@ -720,7 +720,7 @@ class ContentNodeViewset(ValuesViewset):
                 resume = queryset.filter_by_content_ids(
                     list(content_ids[:10]), validate=False
                 )
-                queryset = resume.dedupe_by_content_id()
+                queryset = resume.dedupe_by_content_id(use_distinct=False)
 
         return Response(self.serialize(queryset))
 
