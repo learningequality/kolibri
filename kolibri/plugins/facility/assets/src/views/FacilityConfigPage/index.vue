@@ -204,9 +204,9 @@
       // These are not going to be picked up by the linter because snake cased versions
       // are used to get the keys to these strings.
       /* eslint-disable kolibri/vue-no-unused-translations */
-      learnerCanEditName: 'Allow learners and coaches to edit their full name',
-      learnerCanEditPassword: 'Allow learners and coaches to change their password when signed in',
-      learnerCanEditUsername: 'Allow learners and coaches to edit their username',
+      learnerCanEditName: 'Allow learners to edit their full name',
+      learnerCanEditPassword: 'Allow learners to change their password when signed in',
+      learnerCanEditUsername: 'Allow learners to edit their username',
       learnerCanSignUp: 'Allow learners to create accounts',
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
       showDownloadButtonInLearn: "Show 'download' button with resources",
