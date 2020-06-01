@@ -251,6 +251,7 @@ def map_assessmentmetadata(obj):
 def map_files(obj):
     keys = [
         "id",
+        "checksum",
         "priority",
         "available",
         "file_size",
@@ -261,7 +262,12 @@ def map_files(obj):
         "thumbnail",
     ]
 
-    def set_urls(file):
+    def map_file(file):
+        url_lookup = {
+            "available": file["available"],
+            "id": file["checksum"],
+            "extension": file["extension"],
+        }
         download_filename = models.get_download_filename(
             obj["title"],
             models.PRESET_LOOKUP.get(file["preset"], _("Unknown format")),
@@ -270,16 +276,16 @@ def map_files(obj):
         file["download_url"] = reverse(
             "kolibri:core:downloadcontent",
             kwargs={
-                "filename": get_content_file_name(file),
+                "filename": get_content_file_name(url_lookup),
                 "new_filename": download_filename,
             },
         )
-        file["storage_url"] = get_local_content_storage_file_url(file)
+        file["storage_url"] = get_local_content_storage_file_url(url_lookup)
         return file
 
     return list(
         map(
-            set_urls,
+            map_file,
             (
                 dict(zip(keys, file_tuple))
                 for file_tuple in zip(*(obj.pop("file_" + key) for key in keys))
@@ -318,6 +324,7 @@ class ContentNodeViewset(ValuesViewset):
         "randomize",
         "is_manipulable",
         "file_id",
+        "file_checksum",
         "file_priority",
         "file_available",
         "file_file_size",
@@ -335,7 +342,8 @@ class ContentNodeViewset(ValuesViewset):
     def annotate_queryset(self, queryset):
         queryset = annotate_array_aggregate(
             queryset,
-            file_id="files__local_file__id",
+            file_checksum="files__local_file__id",
+            file_id="files__id",
             file_priority="files__priority",
             file_available="files__local_file__available",
             file_file_size="files__local_file__file_size",
