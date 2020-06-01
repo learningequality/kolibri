@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from django.core.cache import cache
 from django.db.models import Manager
 from django.db.models import Sum

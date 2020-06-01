@@ -39,8 +39,8 @@
           <template v-for="setting in settingsList">
             <template
               v-if="
-                setting != 'learner_can_edit_password' &&
-                  setting != 'learner_can_login_with_no_password'
+                setting !== 'learner_can_edit_password' &&
+                  setting !== 'learner_can_login_with_no_password'
               "
             >
               <KCheckbox
