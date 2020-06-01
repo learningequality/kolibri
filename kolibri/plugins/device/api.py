@@ -185,7 +185,6 @@ class RemoteAccess(APIView):
         - Being inside an authorized WebView (isAppContext is True)
         - The allow_other_browsers_to_connect setting from DeviceSettings
         """
-
         if interface.enabled:
             isAppContext = valid_app_key_on_request(request)
             allow_to_connect = allow_other_browsers_to_connect() or False

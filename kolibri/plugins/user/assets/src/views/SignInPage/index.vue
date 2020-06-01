@@ -27,7 +27,7 @@
             >
               {{ logoText }}
             </h1>
-            <div v-if="loginDisallowed">
+            <div v-if="!$store.getters.allowRemoteAccess">
               <p> {{ $tr('restrictedAccess') }}</p>
               <p> {{ $tr('restrictedAccessDescription') }} </p>
             </div>
@@ -220,7 +220,6 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import urls from 'kolibri.urls';
   import loginComponents from 'kolibri.utils.loginComponents';
-  import { isAppContext } from 'kolibri.utils.browser';
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
   import getUrlParameter from '../getUrlParameter';
@@ -270,9 +269,6 @@
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         busy: state => state.core.signInBusy,
       }),
-      loginDisallowed() {
-        return isAppContext() && false; // PENDING To get the device settings
-      },
       simpleSignIn() {
         return this.facilityConfig.learner_can_login_with_no_password;
       },
