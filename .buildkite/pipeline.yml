@@ -1,7 +1,6 @@
 steps:
   - label: Build Python packages
     command:
-     - make docker-clean
      - mkdir -p dist
      - .buildkite/build_whl.sh
 
@@ -20,11 +19,6 @@ steps:
   - label: Upload Release Artifacts
     command: .buildkite/setup_and_upload_artifact.sh
     if: build.tag != null
-
-  - wait
-
-  - label: Cleaning up
-    command: make docker-clean
 
   - wait
 
