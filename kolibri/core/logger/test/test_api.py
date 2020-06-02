@@ -11,12 +11,14 @@ import uuid
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.utils import timezone
+from le_utils.constants import exercises
 from mock import patch
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from ..models import ContentSessionLog
 from ..models import ContentSummaryLog
+from ..models import MasteryLog
 from ..models import UserSessionLog
 from ..serializers import ContentSessionLogSerializer
 from ..serializers import ContentSummaryLogSerializer
@@ -31,11 +33,13 @@ from kolibri.core.auth.test.test_api import ClassroomFactory
 from kolibri.core.auth.test.test_api import DUMMY_PASSWORD
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import LearnerGroupFactory
+from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
+from kolibri.utils.time_utils import local_now
 
 
 class ContentSessionLogAPITestCase(APITestCase):
@@ -806,6 +810,175 @@ class ExamAttemptLogAPITestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 403)
+
+    def tearDown(self):
+        self.client.logout()
+
+
+class LoggerActionViewSetStartSessionTestCase(APITestCase):
+    def setUp(self):
+        self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
+        self.user = FacilityUserFactory.create(facility=self.facility)
+
+        self.channel_id = uuid.uuid4().hex
+        self.content_id = uuid.uuid4().hex
+
+    def _make_request(self, data):
+        post_data = {"action": "start_session", "content_id": self.content_id}
+        post_data.update(data)
+        return self.client.post(
+            reverse("kolibri:core:logaction-start-session"),
+            data=post_data,
+            format="json",
+        )
+
+    def test_assessment_flag_required(self):
+        response = self._make_request({})
+        self.assertEqual(response.status_code, 400)
+
+    def test_assessment_flag_must_be_boolean(self):
+        response = self._make_request({"assessment": "false"})
+        self.assertEqual(response.status_code, 400)
+
+    def test_channel_id_required(self):
+        response = self._make_request({"assessment": False})
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_timestamp_required(self):
+        response = self._make_request(
+            {"assessment": False, "channel_id": self.channel_id}
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_anonymous_succeeds(self):
+        timestamp = local_now()
+        response = self._make_request(
+            {
+                "assessment": False,
+                "channel_id": self.channel_id,
+                "start_timestamp": timestamp,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ContentSessionLog.objects.all().count(), 1)
+        log = ContentSessionLog.objects.get()
+        self.assertEqual(log.content_id, self.content_id)
+        self.assertEqual(log.channel_id, self.channel_id)
+        self.assertEqual(timestamp, log.start_timestamp)
+        self.assertEqual(timestamp, log.end_timestamp)
+        self.assertEqual(ContentSummaryLog.objects.all().count(), 0)
+
+    def test_start_session_logged_in_succeeds(self):
+        timestamp = local_now()
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request(
+            {
+                "assessment": False,
+                "channel_id": self.channel_id,
+                "start_timestamp": timestamp,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ContentSessionLog.objects.all().count(), 1)
+        log = ContentSessionLog.objects.get()
+        self.assertEqual(log.content_id, self.content_id)
+        self.assertEqual(log.channel_id, self.channel_id)
+        self.assertEqual(timestamp, log.start_timestamp)
+        self.assertEqual(timestamp, log.end_timestamp)
+        self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        log = ContentSummaryLog.objects.get()
+        self.assertEqual(log.content_id, self.content_id)
+        self.assertEqual(log.channel_id, self.channel_id)
+        self.assertEqual(timestamp, log.start_timestamp)
+        self.assertEqual(timestamp, log.end_timestamp)
+        self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+
+    def test_start_assessment_session_anonymous_succeeds(self):
+        timestamp = local_now()
+        response = self._make_request(
+            {
+                "assessment": True,
+                "channel_id": self.channel_id,
+                "start_timestamp": timestamp,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ContentSessionLog.objects.all().count(), 1)
+        log = ContentSessionLog.objects.get()
+        self.assertEqual(log.content_id, self.content_id)
+        self.assertEqual(log.channel_id, self.channel_id)
+        self.assertEqual(timestamp, log.start_timestamp)
+        self.assertEqual(timestamp, log.end_timestamp)
+        self.assertEqual(ContentSummaryLog.objects.all().count(), 0)
+
+    def test_start_assessment_session_logged_in_no_mastery_model_fails(self):
+        timestamp = local_now()
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request(
+            {
+                "assessment": True,
+                "channel_id": self.channel_id,
+                "start_timestamp": timestamp,
+            }
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_assessment_session_logged_in_succeeds(self):
+        timestamp = local_now()
+        node = ContentNode.objects.create(
+            channel_id=self.channel_id, content_id=self.content_id, id=uuid.uuid4()
+        )
+        mastery_model = {"type": exercises.M_OF_N, "m": 8, "n": 10}
+        AssessmentMetaData.objects.create(
+            mastery_model=mastery_model,
+            contentnode=node,
+            id=uuid.uuid4(),
+            number_of_assessments=20,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request(
+            {
+                "assessment": True,
+                "channel_id": self.channel_id,
+                "start_timestamp": timestamp,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["mastery_criterion"], mastery_model)
+        self.assertEqual(ContentSessionLog.objects.all().count(), 1)
+        log = ContentSessionLog.objects.get()
+        self.assertEqual(log.content_id, self.content_id)
+        self.assertEqual(log.channel_id, self.channel_id)
+        self.assertEqual(timestamp, log.start_timestamp)
+        self.assertEqual(timestamp, log.end_timestamp)
+        self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        log = ContentSummaryLog.objects.get()
+        self.assertEqual(log.content_id, self.content_id)
+        self.assertEqual(log.channel_id, self.channel_id)
+        self.assertEqual(timestamp, log.start_timestamp)
+        self.assertEqual(timestamp, log.end_timestamp)
+        self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        log = MasteryLog.objects.get()
+        self.assertEqual(log.mastery_criterion, mastery_model)
 
     def tearDown(self):
         self.client.logout()
