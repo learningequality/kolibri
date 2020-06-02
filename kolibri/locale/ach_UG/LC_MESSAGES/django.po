@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-28 21:57-0700\n"
-"PO-Revision-Date: 2020-05-29 05:04\n"
+"POT-Creation-Date: 2020-01-24 13:01-0800\n"
+"PO-Revision-Date: 2020-02-10 18:29\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Acholi\n"
 "Language: ach_UG\n"
@@ -13,217 +13,82 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: ach\n"
-"X-Crowdin-File: /for-profuturo-only/django.po\n"
+"X-Crowdin-File: /release-v0.13.x/django.po\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Facility"
-msgstr "crwdns258808:0crwdne258808:0"
+msgstr "crwdns246367:0crwdne246367:0"
 
 #: kolibri/core/auth/constants/collection_kinds.py:16
 msgid "Classroom"
-msgstr "crwdns258810:0crwdne258810:0"
+msgstr "crwdns246369:0crwdne246369:0"
 
 #: kolibri/core/auth/constants/collection_kinds.py:17
 msgid "Learner group"
-msgstr "crwdns258812:0crwdne258812:0"
+msgstr "crwdns246371:0crwdne246371:0"
 
 #: kolibri/core/auth/constants/collection_kinds.py:18
 msgid "Ad hoc learners group"
-msgstr "crwdns258814:0crwdne258814:0"
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:43
-#: kolibri/core/auth/management/commands/bulkexportusers.py:125
-msgid "Database ID ({})"
-msgstr "crwdns275488:0crwdne275488:0"
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:44
-#: kolibri/core/auth/management/commands/bulkexportusers.py:126
-msgid "Username ({})"
-msgstr "crwdns258816:0crwdne258816:0"
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:45
-#: kolibri/core/auth/management/commands/bulkexportusers.py:127
-msgid "Password ({})"
-msgstr "crwdns258818:0crwdne258818:0"
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:46
-#: kolibri/core/auth/management/commands/bulkexportusers.py:128
-msgid "Full name ({})"
-msgstr "crwdns258820:0crwdne258820:0"
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:51
-msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
-msgid "User type ({})"
-msgstr "crwdns275490:0crwdne275490:0"
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:54
-#: kolibri/core/auth/management/commands/bulkexportusers.py:136
-msgid "Identifier ({})"
-msgstr "crwdns258824:0crwdne258824:0"
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:55
-#: kolibri/core/auth/management/commands/bulkexportusers.py:137
-msgid "Birth year ({})"
-msgstr "crwdns258826:0crwdne258826:0"
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:56
-#: kolibri/core/auth/management/commands/bulkexportusers.py:138
-msgid "Gender ({})"
-msgstr "crwdns258828:0crwdne258828:0"
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:61
-msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
-msgid "Learner enrollment ({})"
-msgstr "crwdns275492:0crwdne275492:0"
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:68
-msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
-msgid "Coach assignment ({})"
-msgstr "crwdns275494:0crwdne275494:0"
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:133
-msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
-msgid "User type ({})"
-msgstr "crwdns275496:0crwdne275496:0"
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:143
-msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
-msgid "Learner enrollment ({})"
-msgstr "crwdns275498:0crwdne275498:0"
-
-#: kolibri/core/auth/management/commands/bulkexportusers.py:150
-msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
-msgid "Coach assignment ({})"
-msgstr "crwdns275500:0crwdne275500:0"
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:75
-msgctxt "Error message that might appear when there's a programming error importing a CSV file"
-msgid "Unexpected error [{}]: {}"
-msgstr "crwdns275502:0crwdne275502:0"
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:77
-msgid "Value in column '{}' is too many characters"
-msgstr "crwdns261870:0crwdne261870:0"
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:78
-msgid "Invalid value in column '{}'"
-msgstr "crwdns261872:0crwdne261872:0"
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:79
-msgid "Username is duplicated"
-msgstr "crwdns261874:0crwdne261874:0"
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:81
-msgid "Username only can contain characters, numbers and underscores"
-msgstr "crwdns258842:0crwdne258842:0"
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:85
-msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
-msgid "The column '{}' is required"
-msgstr "crwdns275504:0crwdne275504:0"
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:89
-msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
-msgid "Invalid header label found in the first row"
-msgstr "crwdns275506:0crwdne275506:0"
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:92
-msgid "No default facility exists. Make sure to provision this device before importing"
-msgstr "crwdns261878:0crwdne261878:0"
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:94
-msgid "Error trying to read csv file: {}"
-msgstr "crwdns258850:0crwdne258850:0"
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:95
-msgid "Error trying to write csv file: {}"
-msgstr "crwdns258852:0crwdne258852:0"
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:97
-msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr "crwdns275508:0crwdne275508:0"
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:100
-msgid "Cannot update update '{}' because no user with that database ID exists in this facility"
-msgstr "crwdns275510:0crwdne275510:0"
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:102
-msgid "Database ID is not valid"
-msgstr "crwdns275512:0crwdne275512:0"
+msgstr "crwdns246373:0crwdne246373:0"
 
 #: kolibri/core/content/api.py:149
 msgid "Content"
-msgstr "crwdns258854:0crwdne258854:0"
+msgstr "crwdns246375:0crwdne246375:0"
 
 #: kolibri/core/content/api.py:910
 msgid "The requested channel does not exist on the content server"
-msgstr "crwdns258856:0crwdne258856:0"
+msgstr "crwdns246377:0crwdne246377:0"
 
 #: kolibri/core/content/models.py:165
 msgid "Unknown format"
-msgstr "crwdns258858:0crwdne258858:0"
+msgstr "crwdns246379:0crwdne246379:0"
 
 #: kolibri/core/device/serializers.py:42
 msgid "Language is not supported by Kolibri"
-msgstr "crwdns258860:0crwdne258860:0"
+msgstr "crwdns246381:0crwdne246381:0"
 
-#: kolibri/core/logger/csv_export.py:195
-msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
-msgid "content_session_logs"
-msgstr "crwdns275514:0crwdne275514:0"
-
-#: kolibri/core/logger/csv_export.py:204
-msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
-msgid "content_summary_logs"
-msgstr "crwdns275516:0crwdne275516:0"
-
-#: kolibri/core/tasks/api.py:54
+#: kolibri/core/tasks/api.py:46
 msgid "There was a network error."
-msgstr "crwdns258862:0crwdne258862:0"
+msgstr "crwdns246383:0crwdne246383:0"
 
-#: kolibri/core/tasks/api.py:56
+#: kolibri/core/tasks/api.py:48
 msgid "There was a disk access error."
-msgstr "crwdns258864:0crwdne258864:0"
+msgstr "crwdns246385:0crwdne246385:0"
 
-#: kolibri/core/tasks/api.py:58
+#: kolibri/core/tasks/api.py:50
 msgid "There was an unknown error."
-msgstr "crwdns258866:0crwdne258866:0"
+msgstr "crwdns246387:0crwdne246387:0"
 
 #: kolibri/core/templates/kolibri/base.html:13
 #: kolibri/core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
-msgstr "crwdns258868:0crwdne258868:0"
+msgstr "crwdns246389:0crwdne246389:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
-msgstr "crwdns258870:0crwdne258870:0"
+msgstr "crwdns246391:0crwdne246391:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
-msgstr "crwdns258872:0crwdne258872:0"
+msgstr "crwdns246393:0crwdne246393:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "crwdns258874:0crwdne258874:0"
+msgstr "crwdns246395:0crwdne246395:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
-msgstr "crwdns258876:0crwdne258876:0"
+msgstr "crwdns246397:0crwdne246397:0"
 
 #: kolibri/core/views.py:174
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr "crwdns258878:0crwdne258878:0"
-
-#: kolibri/plugins/facility/views.py:46
-msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
-msgid "users_{}"
-msgstr "crwdns275518:0crwdne275518:0"
+msgstr "crwdns246399:0crwdne246399:0"
 
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
 msgid "OpenID Provider Authorization"
-msgstr "crwdns258880:0crwdne258880:0"
+msgstr "crwdns246401:0crwdne246401:0"
 
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
-msgstr "crwdns258882:0crwdne258882:0"
+msgstr "crwdns246403:0crwdne246403:0"
 
