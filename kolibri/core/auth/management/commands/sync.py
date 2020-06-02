@@ -173,7 +173,7 @@ class Command(AsyncCommand):
         # pull from server and push our own data to server
         if not no_pull:
             self._session_tracker_adapter(
-                sync_client.session,
+                sync_client.signals.session,
                 "Creating pull transfer session",
                 "Completed pull transfer session",
             )
@@ -181,7 +181,7 @@ class Command(AsyncCommand):
                 sync_client.initiate_pull(Filter(dataset_id))
         if not no_push:
             self._session_tracker_adapter(
-                sync_client.session,
+                sync_client.signals.session,
                 "Creating push transfer session",
                 "Completed push transfer session",
             )
@@ -212,45 +212,45 @@ class Command(AsyncCommand):
 
         if pulling:
             self._queueing_tracker_adapter(
-                sync_client.queuing,
+                sync_client.signals.queuing,
                 "Remotely preparing data",
                 State.REMOTE_QUEUING,
                 False,
                 noninteractive,
             )
             self._transfer_tracker_adapter(
-                sync_client.pulling,
+                sync_client.signals.pulling,
                 "Receiving data ({})".format(transfer_message),
                 State.PULLING,
                 noninteractive,
             )
             self._queueing_tracker_adapter(
-                sync_client.dequeuing,
+                sync_client.signals.dequeuing,
                 "Locally integrating received data",
                 State.LOCAL_DEQUEUING,
-                True,
+                False,
                 noninteractive,
             )
 
         if pushing:
             self._queueing_tracker_adapter(
-                sync_client.queuing,
+                sync_client.signals.queuing,
                 "Locally preparing data to send",
                 State.LOCAL_QUEUING,
                 True,
                 noninteractive,
             )
             self._transfer_tracker_adapter(
-                sync_client.pushing,
+                sync_client.signals.pushing,
                 "Sending data ({})".format(transfer_message),
                 State.PUSHING,
                 noninteractive,
             )
             self._queueing_tracker_adapter(
-                sync_client.dequeuing,
+                sync_client.signals.dequeuing,
                 "Remotely integrating data",
                 State.REMOTE_DEQUEUING,
-                False,
+                True,
                 noninteractive,
             )
 
@@ -277,7 +277,7 @@ class Command(AsyncCommand):
         """
 
         @run_once
-        def session_creation():
+        def session_creation(transfer_session):
             """
             A session is created individually for pushing and pulling
             """
@@ -286,7 +286,9 @@ class Command(AsyncCommand):
                 self.job.extra_metadata.update(sync_state=State.SESSION_CREATION)
 
         @run_once
-        def session_destruction():
+        def session_destruction(transfer_session):
+            if transfer_session.records_total == 0:
+                logger.info("There are no records to transfer")
             logger.info(completed_msg)
 
         signal_group.started.connect(session_creation)
@@ -347,7 +349,7 @@ class Command(AsyncCommand):
         signal_group.completed.connect(stats)
 
     def _queueing_tracker_adapter(
-        self, signal_group, message, sync_state, is_local, noninteractive
+        self, signal_group, message, sync_state, is_push, noninteractive
     ):
         """
         Attaches a signal handler to queuing/dequeuing signals, filtered by `is_local` on
@@ -356,17 +358,17 @@ class Command(AsyncCommand):
         :type signal_group: morango.sync.syncsession.SyncSignalGroup
         :type message: str
         :type sync_state: str
-        :type is_local: bool
+        :type is_push: bool
         :type noninteractive: bool
         """
         tracker = self.start_progress(total=2)
 
-        def started(local):
-            if local == is_local:
+        def started(transfer_session):
+            if transfer_session.push == is_push:
                 logger.info(message)
 
-        def handler(local):
-            if local == is_local:
+        def handler(transfer_session):
+            if transfer_session.push == is_push:
                 tracker.update_progress(
                     message=message, extra_data=dict(sync_state=sync_state)
                 )
