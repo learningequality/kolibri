@@ -48,11 +48,145 @@
               />
             </p>
 
+            <!-- User Listing Flow - Android App Specific -->
+            <!-- Password creation flow - note: not the first thing seen -->
+            <div v-if="needsToCreatePassword" style="text-align: left">
+              <KButton 
+                appearance="basic-link"
+                text=""
+                @click="unselectListUser"
+              >
+                <mat-svg
+                  name="arrow_back"
+                  category="navigation"
+                  :style="{ 
+                    fill: $themeTokens.primary,
+                    height: '1.125em',
+                    width: '1.125em',
+                    position: 'relative',
+                    marginRight: '8px',
+                    top: '2px',
+                  }"
+                />{{ coreString('goBackAction') }}
+              </KButton>
+              <p>{{ $tr("needToMakeNewPasswordLabel", { user: selectedListUser.full_name }) }}</p>
+              <PasswordTextbox
+                ref="createPassword"
+                :autofocus="true"
+                :disabled="updatingPassword"
+                :value.sync="createdPassword"
+                :isValid.sync="createdPasswordConfirmation"
+                :shouldValidate="updatingPassword"
+              />
+              <KButton 
+                appearance="raised-button" 
+                :primary="true" 
+                :text="coreString('continueAction')"
+                style="margin: 24px auto 0; display:block;"
+                :disabled="updatingPassword"
+                @click="updatePasswordAndSignIn"
+              />
+
+            </div>
+
+            <!-- This is the base list of users -->
             <UsersList 
-              v-if="shouldShowUsersList" 
-              :users="users"
-              @userSelected="dothethingsnow"
+              v-else-if="shouldShowUsersList" 
+              :users="usersForCurrentFacility"
+              @userSelected="setSelectedListUser"
             />
+
+            <!-- Password Form for List User -->
+            <div v-else-if="showPasswordFormForListedUser" style="text-align: left">
+              <KButton 
+                appearance="basic-link"
+                text=""
+                @click="unselectListUser"
+              >
+                <mat-svg
+                  name="arrow_back"
+                  category="navigation"
+                  :style="{ 
+                    fill: $themeTokens.primary,
+                    height: '1.125em',
+                    width: '1.125em',
+                    position: 'relative',
+                    marginRight: '8px',
+                    top: '2px',
+                  }"
+                />{{ coreString('goBackAction') }}
+              </KButton>
+              <p>{{ $tr("greetUser", { user: selectedListUser.full_name }) }}</p>
+              <form ref="form" class="login-form" @submit.prevent="signIn">
+                <UiAlert
+                  v-if="invalidCredentials"
+                  type="error"
+                  :dismissible="false"
+                >
+                  {{ $tr('signInError') }}
+                </UiAlert>
+                <transition name="textbox">
+                  <KTextbox
+                    v-show="false"
+                    id="list-username"
+                    ref="list-username"
+                    v-model="username"
+                    autocomplete="username"
+                    :autofocus="!hasMultipleFacilities"
+                    :label="coreString('usernameLabel')"
+                    :invalid="usernameIsInvalid"
+                    :invalidText="usernameIsInvalidText"
+                    @blur="handleUsernameBlur"
+                    @input="showDropdown = true"
+                    @keydown="handleKeyboardNav"
+                  />
+                </transition>
+                <transition name="list">
+                  <div class="suggestions-wrapper">
+                    <ul
+                      v-if="simpleSignIn && suggestions.length"
+                      v-show="showDropdown"
+                      class="suggestions"
+                      :style="{backgroundColor: $themeTokens.surface}"
+                    >
+                      <UiAutocompleteSuggestion
+                        v-for="(suggestion, i) in suggestions"
+                        :key="i"
+                        :suggestion="suggestion"
+                        :style="suggestionStyle(i)"
+                        @mousedown.native="fillUsername(suggestion)"
+                      />
+                    </ul>
+                  </div>
+                </transition>
+                <transition name="textbox">
+                  <KTextbox
+                    id="list-password"
+                    ref="list-password"
+                    v-model="password"
+                    type="password"
+                    autocomplete="current-password"
+                    :label="coreString('passwordLabel')"
+                    :autofocus="simpleSignIn"
+                    :invalid="passwordIsInvalid"
+                    :invalidText="passwordIsInvalidText"
+                    :floatingLabel="!autoFilledByChromeAndNotEdited"
+                    @blur="passwordBlurred = true"
+                    @input="handlePasswordChanged"
+                  />
+                </transition>
+                <div>
+                  <KButton
+                    class="login-btn"
+                    type="submit"
+                    :text="coreString('signInLabel')"
+                    :primary="true"
+                    :disabled="busy"
+                  />
+                </div>
+              </form>
+            </div>
+            <!-- End User Listing Flow -->
 
             <form v-else ref="form" class="login-form" @submit.prevent="signIn">
               <UiAlert
@@ -208,6 +342,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
+  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
+  import client from 'kolibri.client';
   import { validateUsername } from 'kolibri.utils.validators';
   import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
@@ -237,6 +373,7 @@
       UiAlert,
       UsersList,
       LanguageSwitcherFooter,
+      PasswordTextbox,
       PrivacyInfoModal,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
@@ -255,6 +392,12 @@
         autoFilledByChromeAndNotEdited: false,
         privacyModalVisible: false,
         whatsThisModalVisible: false,
+        sanitizedUsers: [],
+        selectedListUser: null,
+        needsToCreatePassword: false,
+        createdPassword: '',
+        createdPasswordConfirmation: '',
+        updatingPassword: false,
       };
     },
     computed: {
@@ -271,7 +414,12 @@
         return this.facilityConfig.learner_can_login_with_no_password;
       },
       shouldShowUsersList() {
-        return this.users.length <= 16 && this.isAppContext;
+        return (
+          this.usersForCurrentFacility.length <= 16 && this.isAppContext && !this.selectedListUser
+        );
+      },
+      showPasswordFormForListedUser() {
+        return Boolean(this.selectedListUser);
       },
       suggestions() {
         // Filter suggestions on the client side so we don't hammer the server
@@ -289,8 +437,8 @@
         }
         return '';
       },
-      users() {
-        return [{ name: 'jake' }];
+      usersForCurrentFacility() {
+        return this.sanitizedUsers.filter(user => user.facility_id === this.facilityId);
       },
       usernameIsInvalid() {
         return Boolean(this.usernameIsInvalidText);
@@ -383,6 +531,7 @@
     },
     created() {
       this.$kolibriBranding = branding;
+      this.getUsersList();
     },
     mounted() {
       /*
@@ -406,6 +555,61 @@
     },
     methods: {
       ...mapActions(['kolibriLogin']),
+      // Going back to the beginning - undo what we may have
+      // changed so far.
+      unselectListUser() {
+        this.username = '';
+        this.selectedListUser = null;
+        this.needsToCreatePassword = false;
+      },
+      // Sets the selected list user and/or logs them in
+      setSelectedListUser(user) {
+        this.username = user.username;
+
+        // If the user is a learner and we don't require passwords
+        if (this.simpleSignIn && user.is_learner) {
+          // If not - then sign them in!
+          this.signIn();
+          return;
+        } else {
+          if (user.needs_password) {
+            // If they need a password, force them to make it
+            // need to set selectedListUser here as well
+            this.selectedListUser = user;
+            this.needsToCreatePassword = true;
+          } else {
+            this.selectedListUser = user;
+          }
+        }
+      },
+      updatePasswordAndSignIn() {
+        this.updatingPassword = false;
+        const user = this.selectedListUser;
+        const payload = { password: this.createdPassword };
+        const path = `/api/auth/facilityuser/${user.id}/`;
+        const method = 'PATCH';
+        this.kolibriLogin({
+          username: this.username,
+          password: this.createdPassword,
+          facility: this.facilityId,
+        }).then(() => {
+          client({ path, method }, payload)
+            .then(() => {
+              console.log('ok');
+            })
+            .catch(e => {
+              console.error(e);
+            });
+        });
+      },
+      getUsersList() {
+        const path = '/user/sanitized_users';
+        const method = 'GET';
+
+        client({ path, method }).then(({ entity }) => {
+          this.sanitizedUsers = entity;
+        });
+      },
       closeFacilityModal() {
         this.facilityModalVisible = false;
         this.$nextTick().then(() => {
@@ -541,6 +745,8 @@
       poweredBy: 'Kolibri {version}',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
       documentTitle: 'User Sign In',
+      greetUser: 'Hi, {user}',
+      needToMakeNewPasswordLabel: 'Hi, {user}. You need to set a new password for your account.',
     },
   };
 

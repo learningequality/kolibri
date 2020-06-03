@@ -1,16 +1,16 @@
 <template>
 
-  <div style="margin-left: 0px;">
+  <div>
     <KButton 
       v-for="user in users" 
       :key="user.name" 
-      style="width: 100%; text-align: left;"
+      style="width: 100%; text-align: left; margin-left: 0px;"
       @click="$emit('userSelected', user)"
     >
 
       <KIcon icon="person" style="margin-right: 8px" />
 
-      {{ user.name }}
+      {{ user.full_name }}
 
     </KButton>
   </div>
@@ -26,14 +26,6 @@
       users: {
         type: Array,
         required: true,
-      },
-    },
-    methods: {
-      handleUserSelection(user) {
-        // Do the things now.
-        // Do we require passwords?
-        // -> emit('logInThisPerson') and handle in parent?
-        // ------> probably this... to make it easy to integrate with mfd
       },
     },
   };
