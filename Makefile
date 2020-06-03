@@ -1,5 +1,5 @@
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
-.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-extract i18n-django-compilemessages i18n-upload i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font docker-whl docker-deb docker-deb-test docker-windows docker-demoserver docker-devserver
+.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-extract i18n-django-compilemessages i18n-upload i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font docker-whl docker-windows docker-demoserver docker-devserver
 
 help:
 	@echo "Usage:"
@@ -207,21 +207,6 @@ i18n-install-font:
 docker-whl: writeversion
 	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .
 	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-whl"
-
-docker-deb: writeversion
-	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"
-	docker image build -t "learningequality/kolibri-deb" -f docker/build_debian.dockerfile .
-	export KOLIBRI_VERSION=$$(cat kolibri/VERSION) && \
-	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb"
-
-docker-deb-test:
-	@echo "\n  !! This assumes that there are *.deb files in dist/ for testing !!\n"
-	# docker image build -t "learningequality/kolibri-deb-test-trusty" -f docker/test_trusty.dockerfile .
-	# docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-trusty"
-	docker image build -t "learningequality/kolibri-deb-test-xenial" -f docker/test_xenial.dockerfile .
-	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-xenial"
-	docker image build -t "learningequality/kolibri-deb-test-bionic" -f docker/test_bionic.dockerfile .
-	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-bionic"
 
 docker-windows: writeversion
 	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"

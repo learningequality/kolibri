@@ -228,9 +228,6 @@ all the necessary prerequisites for running Kolibri.
 The ``docker/`` directory contains the docker files and startup scripts needed for various tasks.
  * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies (image tag ``leaningequality:kolibirbase``).
  * ``docker/build_whl.dockerfile``: generates a ``.whl``, ``tar.gz``, and ``.pex`` files in ``dist/``
- * ``docker/build_debian.dockerfile``: used to build Kolibri ``.deb`` package, and additionally
-   the docker files ``test_bionic.dockerfile``, ``test_trusty.dockerfile``, and
-   ``test_xenial.dockerfile`` can be used for test-installing the ``.deb`` file.
  * ``docker/build_windows.dockerfile``: used to generate the Windows installer.
  * ``docker/dev.dockerfile``: container with full development setup, running devserver.
  * ``docker/demoserver.dockerfile``: runs the pex from ``KOLIBRI_PEX_URL`` with production setup.
