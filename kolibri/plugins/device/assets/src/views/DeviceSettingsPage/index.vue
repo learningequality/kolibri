@@ -102,6 +102,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import mapValues from 'lodash/map';
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
@@ -109,7 +110,6 @@
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { availableLanguages } from 'kolibri.utils.i18n';
-  import { isAppContext } from 'kolibri.utils.browser';
   import { LandingPageChoices } from '../../constants';
   import { getDeviceSettings, saveDeviceSettings } from './api';
 
@@ -142,9 +142,7 @@
       };
     },
     computed: {
-      isAppContext() {
-        return isAppContext();
-      },
+      ...mapGetters(['isAppContext']),
       languageOptions() {
         return [
           this.browserDefaultOption,
