@@ -75,6 +75,27 @@ class Command(BaseCommand):
             dest="num_exams",
             help="Number of exams to be created per class",
         )
+        parser.add_argument(
+            "--max-channels",
+            type=int,
+            default=2,
+            dest="max_channels",
+            help="Maximum number of channels to add activities to.",
+        )
+        parser.add_argument(
+            "--num-groups",
+            type=int,
+            default=2,
+            dest="num_groups",
+            help="Number of groups to be created per class.",
+        )
+        parser.add_argument(
+            "--device-name",
+            type=str,
+            default="",
+            dest="device_name",
+            help="Device name to use for this instance. This will be prefixed to the facilities, classes, and users to be created.",
+        )
 
     def handle(self, *args, **options):
         # Load in the user data from the csv file to give a predictable source of user data
@@ -88,6 +109,16 @@ class Command(BaseCommand):
         num_content_items = options["num_content_items"]
         num_lessons = options["num_lessons"]
         num_exams = options["num_exams"]
+        max_channels = options["max_channels"]
+        num_groups = options["num_groups"]
+        device_name = options["device_name"]
+
+        # TODO(cpauya): Default to the computer/VM name so we get a unique name for each VM automatically.
+        # if not device_name:
+        #     # Default to computer name.
+        #     import socket
+        #     device_name = socket.gethostname()
+        #     logger.info("Defaulting 'device_name' to '{0}'.".format(device_name))
 
         # Set the random seed so that all operations will be randomized predictably
         random.seed(options["seed"])
@@ -95,7 +126,10 @@ class Command(BaseCommand):
         # Generate data up to the current time
         now = timezone.now()
 
-        facilities = utils.get_or_create_facilities(n_facilities=options["facilities"])
+        facilities = utils.get_or_create_facilities(
+            n_facilities=options["facilities"],
+            device_name=device_name
+        )
 
         # Device needs to be provisioned before adding superusers
         if no_onboarding:
@@ -114,8 +148,13 @@ class Command(BaseCommand):
                 create_superuser(facility=facility)
 
             classrooms = utils.get_or_create_classrooms(
-                n_classes=n_classes, facility=facility
+                n_classes=n_classes, facility=facility, device_name=device_name
             )
+
+            # Get all channels for the instance and filter if specified.
+            channels = ChannelMetadata.objects.all()[:max_channels]
+            if not channels:
+                logger.info('No channels found, cannot add channel activities for learners.')
 
             # Get all the user data at once so that it is distinct across classrooms
             facility_user_data = random.sample(user_data, n_classes * n_users)
@@ -129,6 +168,7 @@ class Command(BaseCommand):
                     classroom=classroom,
                     user_data=classroom_user_data,
                     facility=facility,
+                    device_name=options["device_name"]
                 )
 
                 # Iterate through the slice of the facility_user_data specific to this classroom
@@ -141,7 +181,12 @@ class Command(BaseCommand):
                         n_content_items = int(base_data["Age"])
 
                     # Loop over all local channels to generate data for each channel
-                    for channel in ChannelMetadata.objects.all():
+                    logger.info('    Learner {learner}...'.format(learner=user))
+                    for channel in channels:
+                        logger.info(
+                            '      ==> Adding {channel} channel activity for learner {learner}...'.format(
+                                channel=channel, learner=user)
+                        )
                         utils.add_channel_activity_for_user(
                             n_content_items=n_content_items,
                             channel=channel,
@@ -153,7 +198,7 @@ class Command(BaseCommand):
                 utils.create_lessons_for_classroom(
                     classroom=classroom,
                     facility=facility,
-                    channels=ChannelMetadata.objects.all(),
+                    channels=channels,
                     lessons=num_lessons,
                     now=now,
                 )
@@ -162,7 +207,21 @@ class Command(BaseCommand):
                 utils.create_exams_for_classrooms(
                     classroom=classroom,
                     facility=facility,
-                    channels=ChannelMetadata.objects.all(),
+                    channels=channels,
                     exams=num_exams,
                     now=now,
+                    device_name=device_name
                 )
+
+                # create groups
+                utils.create_groups_for_classrooms(
+                    classroom=classroom,
+                    facility=facility,
+                    channels=channels,
+                    num_groups=num_groups,
+                    now=now,
+                    device_name=device_name
+                )
+        logger.info(
+            "Done."
+        )

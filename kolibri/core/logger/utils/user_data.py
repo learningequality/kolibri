@@ -36,18 +36,39 @@ logger = logging.getLogger(__name__)
 
 def get_or_create_facilities(**options):
     n_facilities = options["n_facilities"]
+    device_name = options["device_name"]
+
     n_on_device = Facility.objects.all().count()
     n_to_create = n_facilities - n_on_device
     if n_to_create > 0:
         print("Generating {n} facility object(s)".format(n=n_to_create))
         for i in range(0, n_to_create):
-            Facility.objects.create(name="Test Facility {i}".format(i=i + 1))
+            facility_name = "Test Facility {i}".format(i=i + 1)
+            if device_name:
+                # Prepend the device name to the facility.
+                facility_name = "{0} {1}".format(device_name, facility_name)
+            facility, created = Facility.objects.get_or_create(name=facility_name)
+            facility.dataset.location = device_name
+            facility.dataset.save()
+            logger.info("==> CREATED FACILITY {f}".format(f=facility))
+
+    # TODO(cpauya):
+    # # "Assign" the facilities to the device name via Facility.dataset.location field.
+    # when command is re-run with a different value?
+    # if device_name:
+    #     for f in Facility.objects.all():
+    #         logger.info("Assigning Facility '{f}' to device '{d}'.".format(f=f, d=device_name))
+    #         f.dataset.location = device_name
+    #         f.dataset.save()
+
     return Facility.objects.all()[0:n_facilities]
 
 
 def get_or_create_classrooms(**options):
     n_classes = options["n_classes"]
     facility = options["facility"]
+    device_name = options["device_name"]
+
     n_on_device = Classroom.objects.filter(parent=facility).count()
     n_to_create = n_classes - n_on_device
     if n_to_create > 0:
@@ -57,9 +78,13 @@ def get_or_create_classrooms(**options):
             )
         )
         for i in range(0, n_to_create):
+            class_name = "Classroom {i}{a}".format(i=i + 1, a=random.choice("ABCD"))
+            if device_name:
+                # Prepend the device name to the class.
+                class_name = "{0} {1}".format(device_name, class_name)
             Classroom.objects.create(
                 parent=facility,
-                name="Classroom {i}{a}".format(i=i + 1, a=random.choice("ABCD")),
+                name=class_name
             )
     return Classroom.objects.filter(parent=facility)[0:n_classes]
 
@@ -69,6 +94,7 @@ def get_or_create_classroom_users(**options):
     n_users = options["n_users"]
     user_data = options["user_data"]
     facility = options["facility"]
+    device_name = options["device_name"]
 
     # The headers in the user_data.csv file that we use to generate user Full Names
     # Note, we randomly pick from these to give deliberately varied (and sometimes idiosyncratic)
@@ -103,6 +129,9 @@ def get_or_create_classroom_users(**options):
                     if base_data[key]
                 ]
             )
+            if device_name:
+                # Prepend the device name to the user.
+                name = "{0} {1}".format(device_name, name)
             # calculate birth year
             birth_year = str(current_year - int(base_data["Age"]))
             # randomly assign gender
@@ -415,6 +444,7 @@ def create_exams_for_classrooms(**options):
     num_exams = options["exams"]
     facility = options["facility"]
     now = options["now"]
+    device_name = options["device_name"]
 
     if not channels:
         return
@@ -427,6 +457,9 @@ def create_exams_for_classrooms(**options):
         if not members:
             coach = FacilityUser.objects.create(username="coach", facility=facility)
             coach.set_password("password")
+            if device_name:
+                # Prepend the device_name to the new coach.
+                coach.name = "{0} {1}".format(device_name, coach.name)
             coach.save()
         else:
             coach = random.choice(members)
@@ -502,3 +535,62 @@ def create_exams_for_classrooms(**options):
                     examlog=examlog,
                     content_id=content_ids[i],
                 )
+
+
+def create_groups_for_classrooms(**options):
+    # TODO(cpauya): WIP
+
+    classroom = options["classroom"]
+    channels = options["channels"]
+    num_groups = options["num_groups"]
+    facility = options["facility"]
+    now = options["now"]
+    device_name = options["device_name"]
+
+    if not channels:
+        return
+
+    coaches = facility.get_coaches()
+    if coaches:
+        coach = random.choice(coaches)
+    else:
+        members = facility.get_members()
+        if not members:
+            coach = FacilityUser.objects.create(username="coach", facility=facility)
+            coach.set_password("password")
+            if device_name:
+                # Prepend the device_name to the new coach.
+                coach.name = "{0} {1}".format(device_name, coach.name)
+            coach.save()
+        else:
+            coach = random.choice(members)
+            facility.add_coach(coach)
+
+    for count in range(num_groups):
+
+        channel = random.choice(channels)
+        channel_content = ContentNode.objects.filter(channel_id=channel.id)
+        # don't add more than 10 resources per Lesson:
+        n_content_items = min(random.randint(0, channel_content.count() - 1), 10)
+        lesson_content = []
+        for i in range(0, n_content_items):
+            # Use this to randomly select a content node to generate the interaction for
+            random_node = random.choice(channel_content)
+            content = {
+                "contentnode_id": random_node.id,
+                "channel_id": channel.id,
+                "content_id": random_node.content_id,
+            }
+            lesson_content.append(content)
+
+        lesson = Lesson.objects.create(
+            title="Lesson {}-{a}".format(count, a=random.choice("ABCDEF")),
+            resources=lesson_content,
+            is_active=True,
+            collection=classroom,
+            created_by=coach,
+            date_created=now,
+        )
+        LessonAssignment.objects.create(
+            lesson=lesson, collection=classroom, assigned_by=coach
+        )
