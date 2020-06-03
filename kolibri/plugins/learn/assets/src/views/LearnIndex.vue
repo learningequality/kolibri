@@ -112,8 +112,7 @@
       ...mapState(['pageName']),
       userIsAuthorized() {
         return (
-          (this.facilityConfig.allow_guest_access &&
-           this.$store.getters.allowRemoteAccess) ||
+          (this.facilityConfig.allow_guest_access && this.$store.getters.allowRemoteAccess) ||
           this.isUserLoggedIn
         );
       },
