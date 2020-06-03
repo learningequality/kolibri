@@ -528,21 +528,4 @@
     vertical-align: middle;
   }
 
-  .buttons-container {
-    text-align: right;
-    button {
-      margin: 0 0 0 16px;
-    }
-  }
-
-  .items {
-    display: inline-block;
-  }
-
-  .numItems {
-    display: inline-block;
-    margin: 8px;
-    list-style: none;
-  }
-
 </style>
