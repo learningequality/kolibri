@@ -14,6 +14,7 @@ from django.contrib.auth import login
 from django.contrib.auth import logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
 from django.db import transaction
 from django.db.models import CharField
@@ -498,7 +499,7 @@ class SessionViewSet(viewsets.ViewSet):
             unauthenticated_user = FacilityUser.objects.get(
                 username__iexact=username, facility=facility_id
             )
-        except:
+        except ObjectDoesNotExist:
             unauthenticated_user = None
 
         user = authenticate(username=username, password=password, facility=facility_id)

@@ -77,6 +77,7 @@
                 :value.sync="createdPassword"
                 :isValid.sync="createdPasswordConfirmation"
                 :shouldValidate="updatingPassword"
+                @submitNewPassword="updatePasswordAndSignIn"
               />
               <KButton
                 appearance="raised-button"
