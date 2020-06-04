@@ -492,6 +492,15 @@ class SessionViewSet(viewsets.ViewSet):
         username = request.data.get("username", "")
         password = request.data.get("password", "")
         facility_id = request.data.get("facility", None)
+
+        # Find the FacilityUser we're looking for use later on
+        try:
+            unauthenticated_user = FacilityUser.objects.get(
+                username__iexact=username, facility=facility_id
+            )
+        except:
+            unauthenticated_user = None
+
         user = authenticate(username=username, password=password, facility=facility_id)
         if user is not None and user.is_active:
             # Correct password, and the user is marked "active"
@@ -502,6 +511,15 @@ class SessionViewSet(viewsets.ViewSet):
             request.session["first_login"] = not UserSessionLog.objects.filter(
                 user=user
             ).exists()
+            return self.get_session_response(request)
+        elif (
+            unauthenticated_user is not None
+            and unauthenticated_user.password == "NOT_SPECIFIED"
+        ):
+            # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
+            # while the "Require learners to log in with password" setting was disabled - but now
+            # it is enabled again.
+            login(request, unauthenticated_user)
             return self.get_session_response(request)
         elif (
             not password
