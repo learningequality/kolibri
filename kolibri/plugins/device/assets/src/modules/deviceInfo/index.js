@@ -23,7 +23,7 @@ export default {
   actions: {
     updateDeviceName(store, name) {
       return client({
-        path: urls['kolibri:core:devicename'](),
+        url: urls['kolibri:core:devicename'](),
         method: 'PATCH',
         data: {
           name,

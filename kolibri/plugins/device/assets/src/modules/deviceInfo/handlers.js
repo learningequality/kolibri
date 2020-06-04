@@ -10,8 +10,8 @@ import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
  */
 export function getDeviceInfo() {
   const requests = [
-    client({ path: urls['kolibri:core:deviceinfo']() }),
-    client({ path: urls['kolibri:core:devicename']() }),
+    client({ url: urls['kolibri:core:deviceinfo']() }),
+    client({ url: urls['kolibri:core:devicename']() }),
   ];
   return Promise.all(requests).then(([infoResponse, nameResponse]) => {
     const data = infoResponse.data;

@@ -4,9 +4,12 @@
 
 import qs from 'qs';
 import heartbeat from 'kolibri.heartbeat';
+import logger from 'kolibri.lib.logging';
 import store from 'kolibri.coreVue.vuex.store';
 import errorCodes from '../disconnectionErrorCodes';
 import clientFactory from './baseClient';
+
+export const logging = logger.getLogger(__filename);
 
 const baseClient = clientFactory();
 
@@ -73,6 +76,7 @@ const client = options => {
       // Provide backwards compatibility with the previous Rest JS API.
       options.url = options.path;
       delete options.path;
+      logging.warn('option path is deprecated, please use url option instead');
     }
   }
   const headers = { ...(options.headers || {}) };
