@@ -1,7 +1,6 @@
 steps:
   - label: Build Python packages
     command:
-     - make docker-clean
      - mkdir -p dist
      - .buildkite/build_whl.sh
 
@@ -55,20 +54,9 @@ steps:
 
   - wait
 
-  - label: Cleaning up
-    command: make docker-clean
-
-  - wait
-
   - block: "Create integration testing worksheet?"
   - label: Create integration testing
     command: .buildkite/build_worksheet.sh
-
-  # - block: "Build release APK?"
-  # - label: "Build Release APK"
-  #   env:
-  #     KOLIBRI_ANDROID_BUILD_MODE: release
-  #   command: *android_build
 
   - block: "Test .debs?"
   - label: Test on Trusty, Xenial, Bionic
