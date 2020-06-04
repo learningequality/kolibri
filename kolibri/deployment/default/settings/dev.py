@@ -7,7 +7,7 @@ from .base import *  # noqa isort:skip @UnusedWildImport
 DEBUG = True
 
 # Settings might be tuples, so switch to lists
-INSTALLED_APPS = list(INSTALLED_APPS) + ["rest_framework_swagger"]  # noqa F405
+INSTALLED_APPS = list(INSTALLED_APPS) + ["drf_yasg"]  # noqa F405
 webpack_middleware = "kolibri.core.webpack.middleware.WebpackErrorHandler"
 MIDDLEWARE = list(MIDDLEWARE) + [webpack_middleware]  # noqa F405
 
