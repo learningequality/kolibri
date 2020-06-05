@@ -278,7 +278,7 @@ class Command(AsyncCommand):
         with self.start_progress(total=total_rows) as progress_update:
             try:
                 for row in csv_file_generator(
-                    facility, filepath, overwrite=options["overwrite"],
+                    facility, filepath, overwrite=options["overwrite"]
                 ):
                     progress_update(1)
             except (ValueError, IOError) as e:

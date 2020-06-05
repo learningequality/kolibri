@@ -64,7 +64,7 @@ class UserExportTestCase(TestCase):
         _, self.filepath = tempfile.mkstemp(suffix=".csv")
 
         self.csv_rows = []
-        for row in b.csv_file_generator(self.facility, self.filepath, True,):
+        for row in b.csv_file_generator(self.facility, self.filepath, True):
             self.csv_rows.append(row)
 
     def test_exported_rows(self):
