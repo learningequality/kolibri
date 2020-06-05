@@ -543,7 +543,7 @@
       },
       restrictedAccessDescription: {
         message:
-          "To change this, sign in as a super admin and enable 'Allow others to connect to Kolibri from a browser or over the network', located in 'Device settings'",
+          'To change this, sign in as a super admin and update the Device network access settings',
         context: 'Error message description',
       },
     },
