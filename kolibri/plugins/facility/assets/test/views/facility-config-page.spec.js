@@ -44,7 +44,7 @@ describe('facility config page view', () => {
       'Allow learners to edit their full name',
       'Allow learners to create accounts',
       'Require password for learners',
-      'Allow learners to change their password when signed in',
+      'Allow learners to edit their password when signed in',
       "Show 'download' button with resources",
     ];
     labels.forEach((label, idx) => {

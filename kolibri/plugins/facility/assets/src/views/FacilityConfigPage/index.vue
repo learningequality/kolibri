@@ -235,7 +235,7 @@
       // are used to get the keys to these strings.
       /* eslint-disable kolibri/vue-no-unused-translations */
       learnerCanEditName: 'Allow learners to edit their full name',
-      learnerCanEditPassword: 'Allow learners to change their password when signed in',
+      learnerCanEditPassword: 'Allow learners to edit their password when signed in',
       learnerCanEditUsername: 'Allow learners to edit their username',
       learnerCanSignUp: 'Allow learners to create accounts',
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
