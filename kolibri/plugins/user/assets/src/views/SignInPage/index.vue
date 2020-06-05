@@ -537,9 +537,15 @@
       poweredBy: 'Kolibri {version}',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
       documentTitle: 'User Sign In',
-      restrictedAccess: 'Access to Kolibri has been restricted for external devices',
-      restrictedAccessDescription:
-        "To change this, log in as a super admin and enable 'Allow others to connect to Kolibri from a browser or over the network', located in 'Device settings'",
+      restrictedAccess: {
+        message: 'Access to Kolibri has been restricted for external devices',
+        context: 'Error message description',
+      },
+      restrictedAccessDescription: {
+        message:
+          "To change this, sign in as a super admin and enable 'Allow others to connect to Kolibri from a browser or over the network', located in 'Device settings'",
+        context: 'Error message description',
+      },
     },
   };
 

@@ -51,11 +51,8 @@
         @change="allowOtherBrowsersToConnect = $event"
       >
         <span> {{ $tr('allowExternalConnectionsApp') }}
-          <CoreInfoIcon
-            class="info-icon"
-            :tooltipText="$tr('externalConnectionsWarningTooltip')"
-            :iconAriaLabel="$tr('externalConnectionsWarningAriaLabel')"
-          />
+          <p>{{ $tr('allowExternalConnectionsAppDescription') }}</p>
+
         </span>
       </KCheckbox>
       <p>
@@ -107,7 +104,6 @@
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { availableLanguages } from 'kolibri.utils.i18n';
   import { LandingPageChoices } from '../../constants';
@@ -121,7 +117,6 @@
       };
     },
     components: {
-      CoreInfoIcon,
       UiAlert,
     },
     mixins: [commonCoreStrings],
@@ -249,20 +244,14 @@
       unlistedChannels: 'Allow other computers on this network to import my unlisted channels',
       lockedContent: 'Learners should only see resources assigned to them in classes',
       allowExternalConnectionsApp: {
-        message:
-          'Allow others to connect to your device from a browser or over the network to access Kolibri',
-        context: 'This setting is visible only When Kolibri runs on an Android app',
+        message: 'Allow others in the network to access Kolibri on this device using a browser',
+        context: 'Description of a device setting option. This option is visible only When Kolibri runs on an Android app',
       },
-      externalConnectionsWarningTooltip: {
+      allowExternalConnectionsAppDescription: {
         message:
-          'Enabling this setting along with password free login may be a potential security concern',
+          'If learners are allowed to sign in with no password on this device, enabling this may allow external devices to view the user data, which could be a potential security concern.',
         context:
-          "A tooltip will warn the user of the risks of allowing external connection in an Android app if users don't use passwords",
-      },
-      externalConnectionsWarningAriaLabel: {
-        message: 'About allowing others to connect to your device',
-        context:
-          "Warns the user of the potential security risk if this setting is enabled together with users accesing without password\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
+          'Warns the user of the potential security risk if this setting is enabled together with users accesing without password',
       },
     },
   };
