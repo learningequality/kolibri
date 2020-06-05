@@ -294,19 +294,21 @@ def configure_http_server(port):
         config={"/": {"tools.caching.on": False, "request.dispatch": dispatcher}},
     )
 
-    # Instantiate a new server object
-    server = cherrypy._cpserver.Server()
-
     # Configure the server
-    server.socket_host = LISTEN_ADDRESS
-    server.socket_port = port
-    server.thread_pool = conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"]
-    server.socket_timeout = conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"]
-    server.accepted_queue_size = conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"]
-    server.accepted_queue_timeout = conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"]
-
+    cherrypy.config.update(
+        {
+            "server.socket_host": LISTEN_ADDRESS,
+            "server.socket_port": port,
+            "server.thread_pool": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
+            "server.socket_timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
+            "server.accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+            "server.accepted_queue_timeout": conf.OPTIONS["Server"][
+                "CHERRYPY_QUEUE_TIMEOUT"
+            ],
+        }
+    )
     # Subscribe this server
-    server.subscribe()
+    cherrypy.server.subscribe()
 
 
 def run_server(port, serve_http=True):
@@ -318,12 +320,16 @@ def run_server(port, serve_http=True):
 
     cherrypy.config.update(
         {
-            "environment": "production",
+            "engine.autoreload.on": False,
+            "checker.on": False,
+            "request.show_tracebacks": False,
+            "request.show_mismatched_params": False,
             "tools.expires.on": True,
             "tools.expires.secs": 31536000,
             "tools.caching.on": True,
             "tools.caching.maxobj_size": 2000000,
             "tools.caching.maxsize": calculate_cache_size(),
+            "tools.log_headers.on": False,
             "log.screen": False,
             "log.access_file": "",
             "log.error_file": "",
