@@ -17,12 +17,17 @@ steps:
         # Autoblock unless there's a tag associated with the commit. Usually a release.
         LE_KOLIBRI_RELEASE: "${BUILDKITE_TAG:-false}"
 
-  - label: Build Windows installer
-    command: .buildkite/build_windows_installer.sh
-
-  - label: Build Debian Packages
-    command: .buildkite/build_debian_pkgs.sh
+  - trigger: "kolibri-debian"
+    label: ":debian:"
     key: deb-build
+    build:
+      message: "${BUILDKITE_MESSAGE}"
+      env:
+        LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
+        LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
+        # Determines whether build will be autoblocked or not.
+        # Autoblock unless there's a tag associated with the commit. Usually a release.
+        LE_KOLIBRI_RELEASE: "${BUILDKITE_TAG:-false}"
 
   - trigger: "kolibri-raspbian-image"
     label: ":raspberry-pi:"
@@ -37,6 +42,9 @@ steps:
     depends_on:
       - deb-build
 
+  - label: Build Windows installer
+    command: .buildkite/build_windows_installer.sh
+
   - wait
 
   - label: Upload Release Artifacts
@@ -48,10 +56,3 @@ steps:
   - block: "Create integration testing worksheet?"
   - label: Create integration testing
     command: .buildkite/build_worksheet.sh
-
-  - block: "Test .debs?"
-  - label: Test on Trusty, Xenial, Bionic
-    command:
-     - mkdir -p dist
-     - buildkite-agent artifact download 'dist/*.deb' dist/
-     - make docker-deb-test
