@@ -1,7 +1,6 @@
 import io
 import json
 import os
-import pickle
 import shutil
 import sys
 from collections import defaultdict
@@ -12,17 +11,21 @@ from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.db import connections
+from sqlacodegen.codegen import CodeGenerator
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
-from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
 
 from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
+from kolibri.core.content.utils.sqlalchemybridge import (
+    coerce_version_name_to_valid_module_path,
+)
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
-from kolibri.core.content.utils.sqlalchemybridge import SCHEMA_PATH_TEMPLATE
+from kolibri.core.content.utils.sqlalchemybridge import prepare_base
 from kolibri.core.content.utils.sqlalchemybridge import SharingPool
+from kolibri.core.content.utils.sqlalchemybridge import SQLALCHEMY_CLASSES_PATH_TEMPLATE
 
 DATA_PATH_TEMPLATE = os.path.join(
     os.path.dirname(__file__), "../../fixtures/{name}_content_data.json"
@@ -93,13 +96,23 @@ class Command(BaseCommand):
             if name != "channelmetadatacache"
         ]
         metadata.reflect(bind=engine, only=table_names)
-        Base = automap_base(metadata=metadata)
+        Base = prepare_base(metadata, name=version)
         # TODO map relationship backreferences using the django names
-        Base.prepare()
         session = sessionmaker(bind=engine, autoflush=False)()
 
-        with open(SCHEMA_PATH_TEMPLATE.format(name=version), "wb") as f:
-            pickle.dump(metadata, f, protocol=2)
+        metadata.bind = engine
+
+        generator = CodeGenerator(
+            metadata, False, False, True, True, False, nocomments=False
+        )
+
+        with io.open(
+            SQLALCHEMY_CLASSES_PATH_TEMPLATE.format(
+                name=coerce_version_name_to_valid_module_path(version)
+            ),
+            "w",
+        ) as f:
+            generator.render(f)
 
         # Only do this if we are generating a new export schema version
         if not no_export_schema:
