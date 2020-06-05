@@ -193,9 +193,10 @@
         return '';
       },
       canEditPassword() {
-        const learner_can_edit = this.facilityConfig.learner_can_edit_password &&
-            !this.facilityConfig.learner_can_login_with_no_password;
-        return this.isSuperuser ||this.isCoach || learner_can_edit;
+        const learner_can_edit =
+          this.facilityConfig.learner_can_edit_password &&
+          !this.facilityConfig.learner_can_login_with_no_password;
+        return this.isSuperuser || this.isCoach || learner_can_edit;
       },
     },
     created() {
