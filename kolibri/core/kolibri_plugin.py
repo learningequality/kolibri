@@ -22,6 +22,7 @@ from kolibri.core.hooks import NavigationHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.theme_hook import ThemeHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
+from kolibri.plugins.app.utils import interface
 from kolibri.plugins.hooks import register_hook
 from kolibri.utils import i18n
 from kolibri.utils.conf import OPTIONS
@@ -106,6 +107,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             "fullCSSFileBasic": full_file.format(
                 static_root, language_code, "basic", kolibri.__version__
             ),
+            "appCapabilities": interface.capabilities,
             "contentCacheKey": ContentCacheKey.get_cache_key(),
             "languageGlobals": self.language_globals(),
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),

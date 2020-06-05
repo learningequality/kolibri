@@ -1,7 +1,6 @@
 steps:
   - label: Build Python packages
     command:
-     - make docker-clean
      - mkdir -p dist
      - .buildkite/build_whl.sh
 
@@ -18,12 +17,14 @@ steps:
         # Autoblock unless there's a tag associated with the commit. Usually a release.
         LE_KOLIBRI_RELEASE: "${BUILDKITE_TAG:-false}"
 
-    # Android build only requires whl file
-  # - label: Build Android APK
-  #   env:
-  #     KOLIBRI_ANDROID_BUILD_MODE: dev
-  #   command: &android_build
-  #     - .buildkite/build_apk.sh
+  - label: ":android:"
+    trigger: "kolibri-android-installer"
+    build:
+      message: "${BUILDKITE_MESSAGE}"
+      env:
+        LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
+        LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
+        LE_TRIGGERED_FROM_KOLIBRI_VERSION_TAG: "${BUILDKITE_TAG}"
 
   - label: Build Windows installer
     command: .buildkite/build_windows_installer.sh
@@ -53,20 +54,9 @@ steps:
 
   - wait
 
-  - label: Cleaning up
-    command: make docker-clean
-
-  - wait
-
   - block: "Create integration testing worksheet?"
   - label: Create integration testing
     command: .buildkite/build_worksheet.sh
-
-  # - block: "Build release APK?"
-  # - label: "Build Release APK"
-  #   env:
-  #     KOLIBRI_ANDROID_BUILD_MODE: release
-  #   command: *android_build
 
   - block: "Test .debs?"
   - label: Test on Trusty, Xenial, Bionic

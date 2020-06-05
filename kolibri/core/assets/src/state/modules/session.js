@@ -2,6 +2,7 @@ import some from 'lodash/some';
 import { UserKinds } from '../../constants';
 
 export const baseSessionState = {
+  app_context: false,
   can_manage_content: false,
   can_access_unassigned_content: false,
   facility_id: undefined,
@@ -72,6 +73,9 @@ export default {
     },
     session(state) {
       return state;
+    },
+    isAppContext(state) {
+      return state.app_context;
     },
   },
   mutations: {
