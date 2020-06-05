@@ -10,6 +10,7 @@
     "date-fns": "^1.28.2",
     "fontfaceobserver": "^2.0.13",
     "frame-throttle": "^3.0.0",
+    "hammerjs": "^2.0.8",
     "intl": "^1.2.4",
     "js-cookie": "^2.1.2",
     "keen-ui": "https://github.com/learningequality/Keen-UI/",

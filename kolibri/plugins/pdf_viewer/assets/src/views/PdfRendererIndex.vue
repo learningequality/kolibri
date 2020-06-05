@@ -74,6 +74,7 @@
 
   import { mapGetters } from 'vuex';
   import PDFJSLib from 'pdfjs-dist';
+  import Hammer from 'hammerjs';
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
   import { RecycleList } from 'vue-virtual-scroller';
@@ -122,6 +123,28 @@
     }),
     computed: {
       ...mapGetters(['sessionTimeSpent']),
+      // Returns whether or not the current device is iOS.
+      // Probably not perfect, but worked in testing.
+      iOS() {
+        var iDevices = [
+          'iPad Simulator',
+          'iPhone Simulator',
+          'iPod Simulator',
+          'iPad',
+          'iPhone',
+          'iPod',
+        ];
+
+        if (navigator.platform) {
+          while (iDevices.length) {
+            if (navigator.platform === iDevices.pop()) {
+              return true;
+            }
+          }
+        }
+
+        return false;
+      },
       targetTime() {
         return this.totalPages * 30;
       },
@@ -139,6 +162,19 @@
       },
     },
     watch: {
+      recycleListIsMounted(newVal) {
+        // On iOS pinch zooming always targets the document no matter what.
+        // meta viewport attrs for `user-scalable` are ignored in iOS because
+        // Apple considered it an a11y issue not to. So pinch-zooming on iOS
+        // does not work well because - even if you zoom in on the PDF, the whole
+        // screen zooms too which is jarring.
+        if (newVal === true && !this.iOS) {
+          const hammer = Hammer(this.$refs.recycleList.$el);
+          hammer.get('pinch').set({ enable: true });
+          hammer.on('pinchin', throttle(this.zoomOut, 1000));
+          hammer.on('pinchout', throttle(this.zoomIn, 1000));
+        }
+      },
       scale(newScale, oldScale) {
         // Listen to changes in scale, as we have to rerender every visible page if it changes.
         const noChange = newScale === oldScale;
