@@ -8,6 +8,7 @@
 
 process.env.DEV_SERVER = true;
 
+const os = require('os');
 const path = require('path');
 const WebpackDevServer = require('webpack-dev-server');
 const webpack = require('webpack');
@@ -15,6 +16,21 @@ const openInEditor = require('launch-editor-middleware');
 const webpackBaseConfig = require('./webpack.config.base');
 const logger = require('./logging');
 const { getEnvVars } = require('./build');
+
+// Serve webpack files over local network
+const ifaces = os.networkInterfaces();
+// address defaults to localhost
+let address = 'localhost';
+// Find the IP of your machine on your local network and make that the address
+Object.keys(ifaces).forEach(dev => {
+  ifaces[dev].filter(details => {
+    // Check to see if we're still at default `localhost` value otherwise we'll go through
+    // all of the interfaces - the local IP that we want should be early in this list
+    if (address === 'localhost' && details.family === 'IPv4' && details.internal === false) {
+      address = details.address;
+    }
+  });
+});
 
 const buildLogging = logger.getLogger('Kolibri Webpack Dev Server');
 
@@ -27,7 +43,7 @@ function genPublicPath(address, port, basePath) {
 }
 
 const CONFIG = {
-  address: 'localhost',
+  address,
   host: '0.0.0.0',
   basePath: 'js-dist',
 };
