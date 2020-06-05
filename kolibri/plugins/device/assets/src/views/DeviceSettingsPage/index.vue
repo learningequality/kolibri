@@ -245,7 +245,8 @@
       lockedContent: 'Learners should only see resources assigned to them in classes',
       allowExternalConnectionsApp: {
         message: 'Allow others in the network to access Kolibri on this device using a browser',
-        context: 'Description of a device setting option. This option is visible only When Kolibri runs on an Android app',
+        context:
+          'Description of a device setting option. This option is visible only When Kolibri runs on an Android app',
       },
       allowExternalConnectionsAppDescription: {
         message:
