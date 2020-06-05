@@ -146,9 +146,7 @@ class DiskCacheRLock(object):
         while True:
             value, count = self._cache.get(self._key, (None, 0))
             if pid_tid == value or count == 0:
-                self._cache.set(
-                    self._key, (pid_tid, count + 1), self._expire,
-                )
+                self._cache.set(self._key, (pid_tid, count + 1), self._expire)
                 return
             time.sleep(0.001)
 
