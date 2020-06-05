@@ -12,7 +12,7 @@ Talk to us
 
 * Get support in our `Community Forums <http://community.learningequality.org/>`__.
 * Email us at info@learningequality.org
-* Visit the ``#kolibri`` room on Freenode IRC
+* Visit the ``#kolibri`` room on Freenode IRC.
 
 Translate
 ---------
@@ -26,8 +26,8 @@ You can ask questions, make suggestions, and report issues in the `community for
 
 If you are proposing a new feature or giving feedback on an existing feature:
 
-* Explain in detail what you're trying to do and why the existing system isn't working for you
-* Keep the scope as narrow as possible, to make it easier to understand the specific problem you're trying to address
+* Explain in detail what you're trying to do and why the existing system isn't working for you.
+* Keep the scope as narrow as possible, to make it easier to understand the specific problem you're trying to address.
 
 If you have found a bug and are comfortable using Github and Markdown, you can create a `Github issue <https://github.com/learningequality/kolibri/issues>`__. Please search the existing issues first to see if it's already been reported.
 
