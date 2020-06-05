@@ -417,7 +417,7 @@
         );
       },
       allUsers() {
-        return plugin_data.deviceUsers;
+        return plugin_data.deviceUsers || [];
       },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
