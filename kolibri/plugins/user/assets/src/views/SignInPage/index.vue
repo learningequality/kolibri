@@ -27,118 +27,129 @@
             >
               {{ logoText }}
             </h1>
-            <p
-              v-if="$kolibriBranding.signIn.showPoweredBy"
-              :style="$kolibriBranding.signIn.poweredByStyle"
-              class="small-text"
-            >
-              <KButton
-                v-if="oidcProviderFlow"
-                :text="$tr('poweredByKolibri')"
-                appearance="basic-link"
-                @click="whatsThisModalVisible = true"
-              />
-              <KExternalLink
-                v-else
-                :text="$tr('poweredByKolibri')"
-                :primary="true"
-                href="https://learningequality.org/r/powered_by_kolibri"
-                target="_blank"
-                appearance="basic-link"
-              />
-            </p>
-            <form ref="form" class="login-form" @submit.prevent="signIn">
-              <UiAlert
-                v-if="invalidCredentials"
-                type="error"
-                :dismissible="false"
+            <div v-if="!$store.getters.allowRemoteAccess">
+              <p> {{ $tr('restrictedAccess') }}</p>
+              <p> {{ $tr('restrictedAccessDescription') }} </p>
+            </div>
+            <span v-else>
+              <p
+                v-if="$kolibriBranding.signIn.showPoweredBy"
+                :style="$kolibriBranding.signIn.poweredByStyle"
+                class="small-text"
               >
-                {{ $tr('signInError') }}
-              </UiAlert>
-              <transition name="textbox">
-                <KTextbox
-                  id="username"
-                  ref="username"
-                  v-model="username"
-                  autocomplete="username"
-                  :autofocus="!hasMultipleFacilities"
-                  :label="coreString('usernameLabel')"
-                  :invalid="usernameIsInvalid"
-                  :invalidText="usernameIsInvalidText"
-                  @blur="handleUsernameBlur"
-                  @input="showDropdown = true"
-                  @keydown="handleKeyboardNav"
-                />
-              </transition>
-              <transition name="list">
-                <div class="suggestions-wrapper">
-                  <ul
-                    v-if="simpleSignIn && suggestions.length"
-                    v-show="showDropdown"
-                    class="suggestions"
-                    :style="{backgroundColor: $themeTokens.surface}"
-                  >
-                    <UiAutocompleteSuggestion
-                      v-for="(suggestion, i) in suggestions"
-                      :key="i"
-                      :suggestion="suggestion"
-                      :style="suggestionStyle(i)"
-                      @mousedown.native="fillUsername(suggestion)"
-                    />
-                  </ul>
-                </div>
-              </transition>
-              <transition name="textbox">
-                <KTextbox
-                  v-if="needPasswordField"
-                  id="password"
-                  ref="password"
-                  v-model="password"
-                  type="password"
-                  autocomplete="current-password"
-                  :label="coreString('passwordLabel')"
-                  :autofocus="simpleSignIn"
-                  :invalid="passwordIsInvalid"
-                  :invalidText="passwordIsInvalidText"
-                  :floatingLabel="!autoFilledByChromeAndNotEdited"
-                  @blur="passwordBlurred = true"
-                  @input="handlePasswordChanged"
-                />
-              </transition>
-              <div>
                 <KButton
-                  class="login-btn"
-                  type="submit"
-                  :text="coreString('signInLabel')"
+                  v-if="oidcProviderFlow"
+                  :text="$tr('poweredByKolibri')"
+                  appearance="basic-link"
+                  @click="whatsThisModalVisible = true"
+                />
+                <KExternalLink
+                  v-else
+                  :text="$tr('poweredByKolibri')"
                   :primary="true"
-                  :disabled="busy"
+                  href="https://learningequality.org/r/powered_by_kolibri"
+                  target="_blank"
+                  appearance="basic-link"
+                />
+              </p>
+              <form ref="form" class="login-form" @submit.prevent="signIn">
+                <UiAlert
+                  v-if="invalidCredentials"
+                  type="error"
+                  :dismissible="false"
+                >
+                  {{ $tr('signInError') }}
+                </UiAlert>
+                <transition name="textbox">
+                  <KTextbox
+                    id="username"
+                    ref="username"
+                    v-model="username"
+                    autocomplete="username"
+                    :autofocus="!hasMultipleFacilities"
+                    :label="coreString('usernameLabel')"
+                    :invalid="usernameIsInvalid"
+                    :invalidText="usernameIsInvalidText"
+                    @blur="handleUsernameBlur"
+                    @input="showDropdown = true"
+                    @keydown="handleKeyboardNav"
+                  />
+                </transition>
+                <transition name="list">
+                  <div class="suggestions-wrapper">
+                    <ul
+                      v-if="simpleSignIn && suggestions.length"
+                      v-show="showDropdown"
+                      class="suggestions"
+                      :style="{backgroundColor: $themeTokens.surface}"
+                    >
+                      <UiAutocompleteSuggestion
+                        v-for="(suggestion, i) in suggestions"
+                        :key="i"
+                        :suggestion="suggestion"
+                        :style="suggestionStyle(i)"
+                        @mousedown.native="fillUsername(suggestion)"
+                      />
+                    </ul>
+                  </div>
+                </transition>
+                <transition name="textbox">
+                  <KTextbox
+                    v-if="needPasswordField"
+                    id="password"
+                    ref="password"
+                    v-model="password"
+                    type="password"
+                    autocomplete="current-password"
+                    :label="coreString('passwordLabel')"
+                    :autofocus="simpleSignIn"
+                    :invalid="passwordIsInvalid"
+                    :invalidText="passwordIsInvalidText"
+                    :floatingLabel="!autoFilledByChromeAndNotEdited"
+                    @blur="passwordBlurred = true"
+                    @input="handlePasswordChanged"
+                  />
+                </transition>
+                <div>
+                  <KButton
+                    class="login-btn"
+                    type="submit"
+                    :text="coreString('signInLabel')"
+                    :primary="true"
+                    :disabled="busy"
+                  />
+                </div>
+              </form>
+
+              <p class="create">
+                <KRouterLink
+                  v-if="canSignUp"
+                  :text="$tr('createAccountAction')"
+                  :to="signUpPage"
+                  :primary="true"
+                  appearance="flat-button"
+                />
+              </p>
+              <div slot="options">
+                <component
+                  :is="component"
+                  v-for="component in loginOptions"
+                  :key="component.name"
                 />
               </div>
-            </form>
+              <p
+                v-if="showGuestAccess"
+                class="guest small-text"
+              >
+                <KExternalLink
+                  :text="$tr('accessAsGuest')"
+                  :href="guestURL"
+                  :primary="true"
+                  appearance="basic-link"
+                />
+              </p>
 
-            <p class="create">
-              <KRouterLink
-                v-if="canSignUp"
-                :text="$tr('createAccountAction')"
-                :to="signUpPage"
-                :primary="true"
-                appearance="flat-button"
-              />
-            </p>
-            <div slot="options">
-              <component :is="component" v-for="component in loginOptions" :key="component.name" />
-            </div>
-            <p
-              v-if="showGuestAccess"
-              class="guest small-text"
-            >
-              <KExternalLink
-                :text="$tr('accessAsGuest')"
-                :href="guestURL"
-                :primary="true"
-                appearance="basic-link"
-              />
-            </p>
+            </span>
           </div>
         </div>
       </div>
@@ -526,6 +537,15 @@
       poweredBy: 'Kolibri {version}',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
       documentTitle: 'User Sign In',
+      restrictedAccess: {
+        message: 'Access to Kolibri has been restricted for external devices',
+        context: 'Error message description',
+      },
+      restrictedAccessDescription: {
+        message:
+          'To change this, sign in as a super admin and update the Device network access settings',
+        context: 'Error message description',
+      },
     },
   };
 

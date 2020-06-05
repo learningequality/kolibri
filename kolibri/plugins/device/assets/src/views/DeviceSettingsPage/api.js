@@ -11,6 +11,7 @@ export function getDeviceSettings() {
       allowGuestAccess: entity.allow_guest_access,
       allowLearnerUnassignedResourceAccess: entity.allow_learner_unassigned_resource_access,
       allowPeerUnlistedChannelImport: entity.allow_peer_unlisted_channel_import,
+      allowOtherBrowsersToConnect: entity.allow_other_browsers_to_connect,
     };
   });
 }
@@ -26,6 +27,7 @@ export function saveDeviceSettings(settings) {
       allow_guest_access: settings.allowGuestAccess,
       allow_learner_unassigned_resource_access: settings.allowLearnerUnassignedResourceAccess,
       allow_peer_unlisted_channel_import: settings.allowPeerUnlistedChannelImport,
+      allow_other_browsers_to_connect: settings.allowOtherBrowsersToConnect,
     },
   });
 }

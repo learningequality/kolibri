@@ -46,4 +46,7 @@ export default {
   SET_CORE_BANNER_VISIBLE(state) {
     state.demoBannerVisible = true;
   },
+  SET_REMOTE_BROWSER_PERMISSION(state, enabled) {
+    state.allowRemoteAccess = enabled;
+  },
 };
