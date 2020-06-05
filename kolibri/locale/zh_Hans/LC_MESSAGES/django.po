@@ -13,7 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: zh-CN\n"
-"X-Crowdin-File: /for-profuturo-only/django.po\n"
+"X-Crowdin-File: /release-v0.13.x/django.po\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Facility"
@@ -149,7 +149,7 @@ msgstr ""
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:102
 msgid "Database ID is not valid"
-msgstr ""
+msgstr "特设学习小组"
 
 #: kolibri/core/content/api.py:149
 msgid "Content"
@@ -226,4 +226,3 @@ msgstr "OpenID提供方授权"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "请求许可"
-

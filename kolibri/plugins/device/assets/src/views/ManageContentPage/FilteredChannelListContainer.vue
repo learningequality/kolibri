@@ -61,7 +61,7 @@
   import differenceBy from 'lodash/differenceBy';
   import unionBy from 'lodash/unionBy';
   import uniqBy from 'lodash/uniqBy';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
 
   export default {

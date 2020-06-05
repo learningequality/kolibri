@@ -41,10 +41,10 @@ describe('facility config page view', () => {
     expect(checkboxes.length).toEqual(6);
     const labels = [
       'Allow learners to edit their username',
-      'Allow learners to change their password when signed in',
+      'Allow learners to edit their password when signed in',
       'Allow learners to edit their full name',
       'Allow learners to create accounts',
-      'Allow learners to sign in with no password',
+      'Require password for learners',
       "Show 'download' button with resources",
     ];
     labels.forEach((label, idx) => {

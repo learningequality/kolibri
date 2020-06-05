@@ -1,35 +1,21 @@
 <template>
 
-  <UiIconButton
+  <KIconButton
+    :icon="isRtl ? 'keyboard_arrow_right' : 'keyboard_arrow_left'"
     class="previous-button"
     :class="{ 'previous-button-white': color === 'white' }"
+    :color="color"
     :ariaLabel="$tr('goToPreviousPage')"
     @click="$emit('goToPreviousPage')"
-  >
-    <mat-svg
-      v-if="isRtl"
-      name="chevron_right"
-      category="navigation"
-    />
-    <mat-svg
-      v-else
-      name="chevron_left"
-      category="navigation"
-    />
-  </UiIconButton>
+  />
 
 </template>
 
 
 <script>
 
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-
   export default {
     name: 'PreviousButton',
-    components: {
-      UiIconButton,
-    },
     props: {
       // TODO - refactor to use themes properly
       color: {
@@ -38,10 +24,6 @@
         validator(val) {
           return ['black', 'white'].includes(val);
         },
-      },
-      isRtl: {
-        type: Boolean,
-        required: true,
       },
     },
     $trs: {
@@ -61,7 +43,7 @@
   }
 
   .previous-button-white {
-    svg {
+    /deep/ svg {
       border-color: white;
       fill: white;
     }

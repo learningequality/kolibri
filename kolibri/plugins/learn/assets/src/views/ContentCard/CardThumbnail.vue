@@ -10,7 +10,7 @@
       v-if="!thumbnail"
       :kind="kind"
       class="type-icon"
-      :style="{ color: $themeTokens.annotation }"
+      :color="$themeTokens.annotation"
     />
 
     <ProgressIcon
@@ -39,7 +39,7 @@
         :kind="kind"
         :showTooltip="true"
         class="content-icon"
-        :style="{ color: $themeTokens.textInverted }"
+        :color="$themeTokens.textInverted"
       />
     </div>
 

@@ -6,6 +6,7 @@
       <KRouterLink
         v-if="$store.getters.inMultipleFacilityPage"
         :to="{ name: 'AllFacilitiesPage' }"
+        icon="back"
         :text="coreString('allFacilitiesLabel')"
       />
     </p>

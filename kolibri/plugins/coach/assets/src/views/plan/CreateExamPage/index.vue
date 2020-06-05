@@ -49,24 +49,20 @@
             class="number-field"
             @blur="numQuestionsBlurred = true"
           />
-          <UiIconButton
-            type="flat"
+          <KIconButton
+            icon="minus_sign"
             aria-hidden="true"
             class="number-btn"
             :disabled="numQuestions === 1"
             @click="numQuestions -= 1"
-          >
-            <mat-svg name="remove" category="content" />
-          </UiIconButton>
-          <UiIconButton
-            type="flat"
+          />
+          <KIconButton
+            icon="plus_sign"
             aria-hidden="true"
             class="number-btn"
             :disabled="numQuestions === maxQs"
             @click="numQuestions += 1"
-          >
-            <mat-svg name="add" category="content" />
-          </UiIconButton>
+          />
         </KGridItem>
       </KGrid>
 
@@ -118,16 +114,18 @@
         />
       </BottomAppBar>
       <BottomAppBar v-else>
-        <KRouterLink
-          appearance="flat-button"
-          :text="coreString('goBackAction')"
-          :to="toolbarRoute"
-        />
-        <KButton
-          :text="coreString('continueAction')"
-          primary
-          @click="continueProcess"
-        />
+        <KButtonGroup style="margin-top: 8px;">
+          <KRouterLink
+            appearance="flat-button"
+            :text="coreString('goBackAction')"
+            :to="toolbarRoute"
+          />
+          <KButton
+            :text="coreString('continueAction')"
+            primary
+            @click="continueProcess"
+          />
+        </KButtonGroup>
       </BottomAppBar>
 
     </KPageContainer>
@@ -142,10 +140,9 @@
   import { mapState, mapActions, mapGetters } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import UiAlert from 'kolibri.coreVue.components.UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants/';
@@ -165,7 +162,6 @@
       LessonsSearchFilters,
       ResourceSelectionBreadcrumbs,
       ContentCardList,
-      UiIconButton,
       BottomAppBar,
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],

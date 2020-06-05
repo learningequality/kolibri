@@ -43,6 +43,9 @@
         :topicsLink="topicsLink"
       />
 
+      <h2>{{ topicTitle }}</h2>
+      <p>{{ topicDescription }}</p>
+
       <ContentCardList
         v-if="!isExiting"
         :contentList="filteredContentList"
@@ -201,6 +204,18 @@
       },
       channelsLink() {
         return this.selectionRootLink();
+      },
+      topicTitle() {
+        if (!this.ancestors.length) {
+          return '';
+        }
+        return this.ancestors[this.ancestors.length - 1].title;
+      },
+      topicDescription() {
+        if (!this.ancestors.length) {
+          return '';
+        }
+        return this.ancestors[this.ancestors.length - 1].description;
       },
       exitButtonRoute() {
         const lastId = this.$route.query.last_id;

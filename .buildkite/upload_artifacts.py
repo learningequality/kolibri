@@ -69,11 +69,6 @@ file_manifest = {
         "description": "Raspberry Pi Image",
         "content_type": "application/x-zip-compressed",
     },
-    # 'apk': {
-    #     'extension': 'apk',
-    #     'description': 'Android Installer',
-    #     'content_type': 'application/vnd.android.package-archive',
-    # },
 }
 
 gh = login(token=ACCESS_TOKEN)

@@ -5,33 +5,29 @@
     :style="{ border: `2px solid ${selected ? $themeTokens.text : $themeTokens.textDisabled }` }"
   >
     <template v-if="isAnswer">
-      <mat-svg
+      <KIcon
         v-if="interaction.correct"
         class="svg-item"
-        category="action"
-        name="check_circle"
+        icon="correct"
         :style="[svgItemBorder, { fill: $themeTokens.correct }]"
       />
-      <mat-svg
+      <KIcon
         v-if="!interaction.correct"
         class="svg-item"
-        category="navigation"
-        name="cancel"
+        icon="incorrect"
         :style="[svgItemBorder, { fill: $themeTokens.incorrect }]"
       />
     </template>
-    <mat-svg
+    <KIcon
       v-else-if="isHint"
       class="svg-item"
-      category="action"
-      name="lightbulb_outline"
+      icon="hint"
       :style="[svgItemBorder, { fill: $themeTokens.annotation } ]"
     />
-    <mat-svg
+    <KIcon
       v-else-if="isError"
       class="svg-item"
-      category="alert"
-      name="error_outline"
+      icon="helpNeeded"
       :style="[svgItemBorder, { fill: $themeTokens.annotation } ]"
     />
   </div>

@@ -13,8 +13,18 @@
       size="small"
       @click="$refs.slideshowRenderer.toggleFullscreen()"
     >
-      <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
-      <mat-svg v-else name="fullscreen" category="navigation" />
+      <KIcon
+        v-if="isInFullscreen"
+        icon="fullscreen_exit"
+        :color="$themeTokens.textInverted"
+        style="top:0; width: 24px; height: 24px;"
+      />
+      <KIcon
+        v-else
+        icon="fullscreen"
+        :color="$themeTokens.textInverted"
+        style="top:0; width: 24px; height: 24px;"
+      />
     </UiIconButton>
     <Hooper
       v-if="slides.length"
@@ -63,7 +73,7 @@
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import {
     Hooper,

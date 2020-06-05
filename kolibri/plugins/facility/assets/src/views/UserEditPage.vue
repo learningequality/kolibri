@@ -94,17 +94,21 @@
         {{ $tr('forceLogoutWarning') }}
       </p>
       <div class="buttons">
-        <KButton
-          type="submit"
-          :text="coreString('saveAction')"
-          :disabled="formDisabled"
-          :primary="true"
-        />
-        <KButton
-          :text="cancelButtonText"
-          :disabled="formDisabled"
-          @click="goToUserManagementPage()"
-        />
+        <KButtonGroup style="margin-top: 8px;">
+          <KButton
+            type="submit"
+            :text="coreString('saveAction')"
+            :disabled="formDisabled"
+
+            :primary="true"
+          />
+          <KButton
+            :text="cancelButtonText"
+            :disabled="formDisabled"
+
+            @click="goToUserManagementPage()"
+          />
+        </KButtonGroup>
       </div>
 
     </form>

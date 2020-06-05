@@ -20,8 +20,8 @@ from kolibri.core.content.utils.annotation import set_content_visibility_from_di
 from kolibri.core.content.utils.channel_import import FutureSchemaError
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
 from kolibri.core.content.utils.channel_import import InvalidSchemaVersionError
-from kolibri.core.content.utils.channels import get_channel_ids_for_content_database_dir
-from kolibri.core.content.utils.paths import get_content_database_dir_path
+from kolibri.core.content.utils.channels import get_channel_ids_for_content_dirs
+from kolibri.core.content.utils.paths import get_all_content_dir_paths
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.sqlalchemybridge import Bridge
 from kolibri.core.upgrade import version_upgrade
@@ -40,9 +40,7 @@ def import_external_content_dbs():
     scan through the content database folder for all channel content databases,
     and pull the data from each database if we have not already imported it.
     """
-    channel_ids = get_channel_ids_for_content_database_dir(
-        get_content_database_dir_path()
-    )
+    channel_ids = get_channel_ids_for_content_dirs(get_all_content_dir_paths())
     for channel_id in channel_ids:
         if not ChannelMetadata.objects.filter(id=channel_id).exists():
             try:

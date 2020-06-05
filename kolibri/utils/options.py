@@ -59,6 +59,7 @@ from configobj import ConfigObj
 from configobj import flatten_errors
 from configobj import get_extra_values
 from django.utils.functional import SimpleLazyObject
+from django.utils.six import string_types
 from validate import Validator
 from validate import VdtValueError
 
@@ -163,6 +164,25 @@ def language_list(value):
     return sorted(list(out))
 
 
+def path_list(value):
+    """
+    Check that the supplied value is a semicolon-delimited list of paths.
+    Note: we do not guarantee that these paths all currently exist.
+    """
+    if isinstance(value, string_types):
+        value = value.split(";")
+
+    if isinstance(value, list):
+        errors = []
+        for item in value:
+            if not isinstance(item, string_types):
+                errors.append(repr(item))
+        if errors:
+            raise VdtValueError(errors)
+
+    return value
+
+
 base_option_spec = {
     "Cache": {
         "CACHE_BACKEND": {
@@ -256,7 +276,12 @@ base_option_spec = {
             "type": "string",
             "default": "content",
             "envvars": ("KOLIBRI_CONTENT_DIR",),
-        }
+        },
+        "CONTENT_FALLBACK_DIRS": {
+            "type": "path_list",
+            "default": "",
+            "envvars": ("KOLIBRI_CONTENT_FALLBACK_DIRS",),
+        },
     },
     "Urls": {
         "CENTRAL_CONTENT_BASE_URL": {
@@ -302,13 +327,13 @@ base_option_spec = {
             "type": "integer",
             "default": 2,
             "envvars": ("KOLIBRI_PICKLE_PROTOCOL",),
-        },
+        }
     },
 }
 
 
 def _get_validator():
-    return Validator({"language_list": language_list})
+    return Validator({"language_list": language_list, "path_list": path_list})
 
 
 def _get_logger(KOLIBRI_HOME):
@@ -459,12 +484,25 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
     return conf
 
 
+def _expand_path(basepath, path):
+    return os.path.join(basepath, os.path.expanduser(path))
+
+
 def _expand_paths(basepath, pathdict):
     """
     Resolve all paths in a dict, relative to a base path, and after expanding "~" into the user's home directory.
     """
     for key, path in pathdict.items():
-        pathdict[key] = os.path.join(basepath, os.path.expanduser(path))
+        if isinstance(path, string_types):
+            pathdict[key] = _expand_path(basepath, path)
+        elif isinstance(path, list):
+            pathdict[key] = [_expand_path(basepath, p) for p in path]
+        else:
+            raise Exception(
+                "Paths must be a single string or a semicolon-delimited list, not {}".format(
+                    type(path)
+                )
+            )
 
 
 def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options.ini"):

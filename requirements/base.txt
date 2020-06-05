@@ -24,12 +24,11 @@ morango==0.4.12
 tzlocal==1.5.1
 pytz==2018.5
 python-dateutil==2.7.5
-ifcfg==0.21b1
 sqlalchemy==1.2.10
 semver==2.8.1
 django-redis-cache==2.0.0
 redis==3.2.1
 html5lib==1.0.1
-zeroconf-py2compat==0.19.4
+zeroconf-py2compat==0.19.6
 django-oidc-provider==0.7.0
 Click==7.0

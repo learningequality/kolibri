@@ -124,7 +124,7 @@
       questionsLeft:
         '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',
       completedPercentLabel: {
-        message: 'Completed: {score}%',
+        message: 'Score: {score}%',
         context: 'A label shown to learners on a quiz card when the quiz is completed',
       },
     },

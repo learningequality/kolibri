@@ -198,7 +198,7 @@
   "IndividualLearnerSelector.onlyShowingEnrolledLabel": "Mostrando apenas os alunos inscritos nesta classe",
   "IndividualLearnerSelector.searchPlaceholder": "Buscar usuário…",
   "IndividualLearnerSelector.selectAllLabel": "Selecionar tudo nesta página",
-  "IndividualLearnerSelector.selectedIndividualLearnersLabel": "Selecionar alunos ",
+  "IndividualLearnerSelector.selectedIndividualLearnersLabel": "Selecionar um único(a) aluno(a)",
   "LearnersCompleted.allOfMoreThanTwo": "Completado por {total, number, integer} {total, plural, one {aluno} other {alunos}}",
   "LearnersCompleted.allOfMoreThanTwoShort": "Completados por todos {total, number, integer}",
   "LearnersCompleted.count": "{count, plural, other {Completado por}} {count, number, integer} {count, plural, one {aluno} other {alunos}}",

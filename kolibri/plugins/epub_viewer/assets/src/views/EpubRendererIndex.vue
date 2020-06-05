@@ -706,7 +706,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
   @import './EpubStyles';
 
   $top-bar-height: 36px;

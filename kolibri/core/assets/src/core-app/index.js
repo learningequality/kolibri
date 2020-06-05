@@ -5,16 +5,12 @@
 // polyfill for older browsers
 // TODO: rtibbles whittle down these polyfills to only what is needed for the application
 import 'core-js';
-// Required to setup Keen UI, should be imported only once in your project
-import 'keen-ui/src/bootstrap';
-import '../keen-config/font-stack.scss';
 import '../styles/main.scss';
 import urls from 'kolibri.urls';
-import * as theme from 'kolibri-components/src/styles/theme';
-import generateGlobalStyles from 'kolibri-components/src/styles/generateGlobalStyles';
-import trackInputModality from 'kolibri-components/src/styles/trackInputModality';
-import trackMediaType from 'kolibri-components/src/styles/trackMediaType';
-import keenUiConfig from 'keen-ui/src/config';
+import * as theme from 'kolibri-design-system/lib/styles/theme';
+import generateGlobalStyles from 'kolibri-design-system/lib/styles/generateGlobalStyles';
+import trackInputModality from 'kolibri-design-system/lib/styles/trackInputModality';
+import trackMediaType from 'kolibri-design-system/lib/styles/trackMediaType';
 import branding from 'kolibri.utils.branding';
 import logging from 'kolibri.lib.logging';
 import store from 'kolibri.coreVue.vuex.store';
@@ -22,10 +18,10 @@ import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
-import KThemePlugin from 'kolibri-components/src/KThemePlugin';
+import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 import heartbeat from 'kolibri.heartbeat';
-import KContentPlugin from 'kolibri-components/src/content/KContentPlugin';
-import keenOptions from '../keen-config/options.json';
+import KContentPlugin from 'kolibri-design-system/lib/content/KContentPlugin';
+import KSelect from '../views/KSelect';
 import { i18nSetup, languageDirection } from '../utils/i18n';
 import ContentRendererErrorComponent from '../views/ContentRenderer/ContentRendererError';
 import apiSpec from './apiSpec';
@@ -62,9 +58,6 @@ theme.setTokenMapping(kolibriTheme.tokenMapping);
 // set up branding
 branding.setBranding(kolibriTheme);
 
-// configure Keen
-keenUiConfig.set(keenOptions);
-
 // global styles
 generateGlobalStyles();
 
@@ -91,6 +84,8 @@ Vue.use(KContentPlugin, {
   coreApp,
   registerContentActivity: heartbeat.setActive,
 });
+
+Vue.component('KSelect', KSelect);
 
 // Start the heartbeat polling here, as any URL needs should be set by now
 heartbeat.startPolling();

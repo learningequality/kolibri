@@ -8,54 +8,8 @@
   To reference these values (and those defined in the theme), add the following
   line to your comonent's scss block:
 
-    @import '~kolibri.styles.definitions';
+    @import '~kolibri-design-system/lib/styles/definitions';
 */
 
 // Add items from the design system
-@import '~kolibri-components/src/styles/styleDefinitions';
-
-/*
-  Mixins for font-family to ensure that the full fonts are not referenced until they've
-  been loaded using the FontFaceObserver in i18n.js.
-
-  Even though partials are loaded immediately, we need the 'partial-fonts-loaded' class
-  for CSS specificity purposes.
-*/
-@mixin font-family-noto {
-  .partial-fonts-loaded & {
-    font-family: 'noto-subset', 'noto-common', sans-serif;
-  }
-  .full-fonts-loaded & {
-    // Continue to include the common and subset font subsets since they may contain
-    // glyphs not available in the language's default font.
-    font-family: 'noto-full', 'noto-subset', 'noto-common', sans-serif;
-  }
-}
-
-/*
-  Use of this mixin can help prompt the browser to use the GPU for certain DOM elements.
-  This can help with certain CSS animations and other transitions.
-
-  For details, see https://www.smashingmagazine.com/2016/12/gpu-animation-doing-it-right/
-*/
-%enable-gpu-acceleration {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 10000px;
-}
-
-// Use this mixin in select containers where the content is likely going to be
-// very large and mobile users may benefit from a smooth touch scroll experience.
-%momentum-scroll {
-  -webkit-overflow-scrolling: touch;
-}
-
-// Accelerate and decelerate easing functions from
-// from https://material.io/design/motion/speed.html#easing.
-%md-accelerate-func {
-  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
-}
-
-%md-decelerate-func {
-  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
-}
+@import 'kolibri-design-system/lib/styles/definitions';

@@ -37,32 +37,59 @@
       <div class="mb">
         <div class="settings">
           <template v-for="setting in settingsList">
-            <KCheckbox
-              :key="setting"
-              :label="$tr(camelCase(setting))"
-              :checked="settings[setting]"
-              @change="toggleSetting(setting)"
-            />
+            <template
+              v-if="
+                setting !== 'learner_can_edit_password' &&
+                  setting !== 'learner_can_login_with_no_password'
+              "
+            >
+              <KCheckbox
+                :key="setting"
+                :label="$tr(camelCase(setting))"
+                :checked="settings[setting]"
+                @change="toggleSetting(setting)"
+              />
+            </template>
+            <template v-else-if="setting === 'learner_can_login_with_no_password'">
+              <KCheckbox
+                :key="setting"
+                :label="$tr('learnerNeedPasswordToLogin')"
+                :checked="!settings['learner_can_login_with_no_password']"
+                @change="toggleSetting('learner_can_login_with_no_password')"
+              />
+              <KCheckbox
+                :key="setting + 'learner_can_edit_password'"
+                :disabled="enableChangePassword"
+                :label="$tr('learnerCanEditPassword')"
+                :checked="settings['learner_can_edit_password']"
+                class="checkbox-password"
+                @change="toggleSetting('learner_can_edit_password')"
+              />
+            </template>
           </template>
         </div>
 
         <div>
-          <KButton
-            :primary="false"
-            appearance="raised-button"
-            :text="$tr('resetToDefaultSettings')"
-            name="reset-settings"
-            @click="showModal = true"
-          />
+          <KButtonGroup style="margin-top: 8px;">
+            <KButton
+              :primary="false"
+              appearance="raised-button"
+              :text="$tr('resetToDefaultSettings')"
 
-          <KButton
-            :primary="true"
-            appearance="raised-button"
-            :text="coreString('saveChangesAction')"
-            name="save-settings"
-            :disabled="!settingsHaveChanged"
-            @click="saveConfig()"
-          />
+              name="reset-settings"
+              @click="showModal = true"
+            />
+
+            <KButton
+              :primary="true"
+              appearance="raised-button"
+              :text="coreString('saveChangesAction')"
+              name="save-settings"
+
+              :disabled="!settingsHaveChanged"
+              @click="saveConfig()"
+            />
+          </KButtonGroup>
         </div>
       </div>
     </template>
@@ -150,6 +177,9 @@
       lastPartId() {
         return this.facilityId.slice(0, 4);
       },
+      enableChangePassword() {
+        return this.settings['learner_can_login_with_no_password'];
+      },
     },
     watch: {
       facilityNameSaved(val) {
@@ -205,10 +235,11 @@
       // are used to get the keys to these strings.
       /* eslint-disable kolibri/vue-no-unused-translations */
       learnerCanEditName: 'Allow learners to edit their full name',
-      learnerCanEditPassword: 'Allow learners to change their password when signed in',
+      learnerCanEditPassword: 'Allow learners to edit their password when signed in',
       learnerCanEditUsername: 'Allow learners to edit their username',
       learnerCanSignUp: 'Allow learners to create accounts',
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
+      learnerNeedPasswordToLogin: 'Require password for learners',
       showDownloadButtonInLearn: "Show 'download' button with resources",
       allowGuestAccess: 'Allow users to access resources without signing in',
       /* eslint-enable kolibri/vue-no-unused-translations */
@@ -236,6 +267,10 @@
     margin-bottom: 2rem;
     font-weight: bold;
     cursor: pointer;
+  }
+
+  .checkbox-password {
+    margin-left: 24px;
   }
 
 </style>

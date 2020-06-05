@@ -34,12 +34,12 @@
         :disabled="formDisabled"
       />
 
-      <div class="buttons">
+      <KButtonGroup class="buttons">
         <KButton
-          class="no-margin"
           :text="coreString('saveAction')"
           :disabled="formDisabled"
           type="submit"
+
           primary
         />
         <KButton
@@ -47,9 +47,10 @@
           :disabled="formDisabled"
           appearance="raised-button"
           :primary="false"
+
           @click="$router.push($router.getRoute('PROFILE'))"
         />
-      </div>
+      </KButtonGroup>
     </form>
   </KPageContainer>
 
@@ -207,7 +208,7 @@
   }
 
   .buttons {
-    margin: 36px 0 18px;
+    padding: 18px 0;
 
     button:first-of-type {
       margin-left: 0;

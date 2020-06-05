@@ -203,7 +203,10 @@
           selected.push(id);
           return this.$emit('input', selected);
         }
-        return this.$emit('input', selected.filter(selectedId => selectedId !== id));
+        return this.$emit(
+          'input',
+          selected.filter(selectedId => selectedId !== id)
+        );
       },
     },
     $trs: {

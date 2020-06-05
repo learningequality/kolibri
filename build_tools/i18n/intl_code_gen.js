@@ -62,18 +62,38 @@ const generateIntlItems = language => {
    * Note that not all codes have two parts, e.g. 'en' vs 'es-mx'.
    */
 
-  const codes = language.intl_code.split('-');
-  let file_name = codes[0];
-  if (codes.length > 1) {
-    file_name += '-' + codes[1].toUpperCase();
+  // For examples, see:
+  // https://github.com/andyearnshaw/Intl.js/tree/master/locale-data/jsonp
+  const pattern = /^(\w{2,3})(-\w{4})?(-\w{2})?(-\d+)?$/;
+  const codes = language.intl_code.match(pattern);
+  if (!codes) {
+    console.error(`Unable to parse code: '${language.intl_code}'`);
   }
+
+  let filename = '';
+
+  // Always start with a 2- or 3-character sequence of lowercase letters
+  filename += codes[1];
+  if (codes[2]) {
+    // Trailing four-letter strings of characters are Title-case
+    filename += '-' + codes[2][1].toUpperCase() + codes[2].substring(2);
+  }
+  if (codes[3]) {
+    // Trailing two-letter strings of characters are CAPITAL-case
+    filename += codes[3].toUpperCase();
+  }
+  if (codes[4]) {
+    // Trailing runs of numbers
+    filename += codes[4];
+  }
+
   return `
     case '${language.intl_code}':
       return new Promise(function(resolve) {
         require.ensure(
-          ['intl/locale-data/jsonp/${file_name}.js'],
+          ['intl/locale-data/jsonp/${filename}.js'],
           function(require) {
-            resolve(() => require('intl/locale-data/jsonp/${file_name}.js'));
+            resolve(() => require('intl/locale-data/jsonp/${filename}.js'));
           }
         );
       });`;

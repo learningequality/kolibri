@@ -75,7 +75,6 @@
         <KButton
           :disabled="saveDisabled"
           :text="$tr('saveButton')"
-          class="no-margin"
           :primary="true"
           appearance="raised-button"
           @click="save()"
@@ -218,10 +217,6 @@
 
 
 <style lang="scss" scoped>
-
-  .no-margin {
-    margin-left: 0;
-  }
 
   table {
     line-height: 1.5em;
