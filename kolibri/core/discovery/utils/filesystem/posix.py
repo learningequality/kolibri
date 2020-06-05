@@ -76,14 +76,16 @@ def get_drive_list():
 
     if sys.platform == "darwin":
         MOUNT_PARSER = OSX_MOUNT_PARSER
-    elif on_android():
-        MOUNT_PARSER = RAW_MOUNT_PARSER
     else:
         MOUNT_PARSER = LINUX_MOUNT_PARSER
 
     try:
         drivelist = subprocess.Popen("mount", shell=True, stdout=subprocess.PIPE)
         drivelisto, err = drivelist.communicate()
+        # Some Android devices at least now use the LINUX_MOUNT_PARSER format.
+        # Try it and revert to RAW_MOUNT_PARSER if we can't find any matches with it.
+        if on_android() and not MOUNT_PARSER.match(drivelisto.decode()):
+            MOUNT_PARSER = RAW_MOUNT_PARSER
     except OSError:  # couldn't run `mount`, let's try reading the /etc/mounts listing directly
         with open("/proc/mounts") as f:
             drivelisto = f.read()
