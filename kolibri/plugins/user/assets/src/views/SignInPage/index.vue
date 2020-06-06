@@ -15,7 +15,7 @@
           <div
             v-if="!$store.getters.allowRemoteAccess"
             class="box"
-            :style="{ backgroundColor: $themePalette.grey.v_100 }">
+            :style="{ backgroundColor: $themePalette.grey.v_100 }"
           >
             <CoreLogo
               v-if="$kolibriBranding.signIn.topLogo"
