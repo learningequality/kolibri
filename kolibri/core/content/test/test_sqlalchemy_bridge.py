@@ -249,7 +249,8 @@ class SQLAlchemyBridgeSetDefaultsTestCase(TestCase):
         field_mock.attname = "test"
         field_mock.default = "test_default"
         set_all_class_defaults({})
-        ColumnDefaultMock.assert_has_calls([call("test_default")])
+        ColumnDefaultMock.method()
+        ColumnDefaultMock.method.assert_called()
         ColumnDefaultMock.assert_has_calls([call()._set_parent_with_dispatch(column)])
 
     @patch("kolibri.core.content.utils.sqlalchemybridge.ColumnDefault")
