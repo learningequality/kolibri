@@ -18,7 +18,6 @@ import {
 import { now, setServerTime } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import client from 'kolibri.client';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
