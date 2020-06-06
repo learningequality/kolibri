@@ -1,5 +1,5 @@
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
-.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-glossary i18n-upload-glossary docker-clean docker-whl docker-deb docker-deb-test docker-windows docker-demoserver docker-devserver docker-envlist
+.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-glossary i18n-upload-glossary docker-whl docker-windows docker-demoserver docker-devserver docker-envlist
 
 help:
 	@echo "Usage:"
@@ -238,10 +238,6 @@ i18n-download-glossary:
 i18n-upload-glossary:
 	python build_tools/i18n/crowdin.py upload-glossary
 
-docker-clean:
-	docker container prune -f
-	docker image prune -f
-
 docker-whl: writeversion docker-envlist
 	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .
 	docker run \
@@ -249,23 +245,6 @@ docker-whl: writeversion docker-envlist
 		-v $$PWD/dist:/kolibridist \
 		-v yarn_cache:/yarn_cache \
 		"learningequality/kolibri-whl"
-	git checkout -- ./docker/env.list  # restore env.list file
-
-docker-deb: writeversion docker-envlist
-	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"
-	docker image build -t "learningequality/kolibri-deb" -f docker/build_debian.dockerfile .
-	export KOLIBRI_VERSION=$$(cat kolibri/VERSION) && \
-	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb"
-	git checkout -- ./docker/env.list  # restore env.list file
-
-docker-deb-test: docker-envlist
-	@echo "\n  !! This assumes that there are *.deb files in dist/ for testing !!\n"
-	# docker image build -t "learningequality/kolibri-deb-test-trusty" -f docker/test_trusty.dockerfile .
-	# docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-trusty"
-	docker image build -t "learningequality/kolibri-deb-test-xenial" -f docker/test_xenial.dockerfile .
-	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-xenial"
-	docker image build -t "learningequality/kolibri-deb-test-bionic" -f docker/test_bionic.dockerfile .
-	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-deb-test-bionic"
 	git checkout -- ./docker/env.list  # restore env.list file
 
 docker-windows: writeversion docker-envlist

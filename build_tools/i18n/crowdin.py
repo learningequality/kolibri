@@ -87,6 +87,7 @@ CROWDIN_API_KEY = os.environ["CROWDIN_API_KEY"]
 CROWDIN_API_URL = "https://api.crowdin.com/api/project/{proj}/{cmd}?key={key}{params}"
 
 PERSEUS_CSV = "kolibri_exercise_perseus_plugin.main-messages.csv"
+DJANGO_PO = "django.po"
 GLOSSARY_XML_FILE = "glossary.tbx"
 
 DETAILS_URL = CROWDIN_API_URL.format(
@@ -281,9 +282,10 @@ Convert CSV to JSON command
 """
 
 
-def _csv_to_json():
+def _process_downloaded_files():
     """
-    Convert all CSV json files to JSON and ensure consistent diffs with ordered keys
+    Convert all CSV json files to JSON and ensure consistent diffs with ordered keys.
+    Also copy over django.po files
     """
 
     for lang_object in utils.available_languages(include_in_context=True):
@@ -301,16 +303,20 @@ def _csv_to_json():
         if not os.path.exists(perseus_locale_dir_path):
             os.makedirs(perseus_locale_dir_path)
 
-        csv_dirs = os.listdir(csv_locale_dir_path) + os.listdir(perseus_locale_dir_path)
+        files = os.listdir(csv_locale_dir_path) + os.listdir(perseus_locale_dir_path)
 
-        for file_name in csv_dirs:
-            if "csv" not in file_name:
+        for file_name in files:
+            if file_name == PERSEUS_CSV:
+                file_path = os.path.join(perseus_locale_dir_path, file_name)
+            else:
+                file_path = os.path.join(csv_locale_dir_path, file_name)
+
+            if file_name == DJANGO_PO:
+                shutil.move(file_path, locale_path)
                 continue
 
-            if file_name == PERSEUS_CSV:
-                csv_path = os.path.join(perseus_locale_dir_path, file_name)
-            else:
-                csv_path = os.path.join(csv_locale_dir_path, file_name)
+            if "csv" not in file_name:
+                continue
 
             # Account for csv reading differences in Pythons 2 and 3
             try:
@@ -318,10 +324,10 @@ def _csv_to_json():
                 mode = "r+b" if sys.version_info[0] < 3 else "r"
                 encoding = None if sys.version_info[0] < 3 else "utf-8"
                 csv_file = io.open(
-                    csv_path, mode=mode, encoding=encoding, newline=newline
+                    file_path, mode=mode, encoding=encoding, newline=newline
                 )
             except EnvironmentError:
-                logging.info("Failed to find CSV file in: {}".format(csv_path))
+                logging.info("Failed to find CSV file in: {}".format(file_path))
                 continue
 
             with csv_file as f:
@@ -356,7 +362,7 @@ def convert_files():
     """
     Convert downloaded CSV files to JSON
     """
-    _csv_to_json()
+    _process_downloaded_files()
     logging.info("Kolibri: CSV to JSON conversion succeeded!")
 
 
@@ -422,7 +428,7 @@ def download_translations(branch):
             pass
 
     # TODO Don't need to format here... going to do this in the new command.
-    _csv_to_json()  # clean them up to make git diffs more meaningful
+    _process_downloaded_files()  # clean them up to make git diffs more meaningful
     logging.info("Crowdin: download succeeded!")
 
 
