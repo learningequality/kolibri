@@ -507,11 +507,6 @@ class SessionViewSet(viewsets.ViewSet):
             # Correct password, and the user is marked "active"
             login(request, user)
             # Success!
-            # Is this the first time this user has logged in?
-            # If so, they will not have any UserSessionLogs until we call get_session.
-            request.session["first_login"] = not UserSessionLog.objects.filter(
-                user=user
-            ).exists()
             return self.get_session_response(request)
         elif (
             unauthenticated_user is not None

@@ -59,6 +59,10 @@ def allow_peer_unlisted_channel_import():
     return get_device_setting("allow_peer_unlisted_channel_import", False)
 
 
+def allow_other_browsers_to_connect():
+    return get_device_setting("allow_other_browsers_to_connect", False)
+
+
 def set_device_settings(**kwargs):
     from .models import DeviceSettings
 

@@ -18,6 +18,7 @@ import {
 import { now, setServerTime } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import client from 'kolibri.client';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
@@ -345,6 +346,16 @@ export function saveDismissedNotification(store, notification_id) {
     .catch(error => {
       store.dispatch('handleApiError', error);
     });
+}
+
+export function getRemoteAccessPermission(store) {
+  return client({
+    method: 'POST',
+    path: urls['kolibri:kolibri.plugins.device:allowremoteaccess'](),
+  }).then(response => {
+    const data = response.entity;
+    store.commit('SET_REMOTE_BROWSER_PERMISSION', data.allowed);
+  });
 }
 
 export function getFacilities(store) {

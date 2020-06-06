@@ -20,6 +20,7 @@ schema_view = get_swagger_view(title="Kolibri API")
 urlpatterns = urlpatterns + [
     url(r"^__open-in-editor/", webpack_redirect_view),
     url(r"^api_explorer/", schema_view),
+    url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]
 
 if getattr(settings, "DEBUG_PANEL_ACTIVE", False):

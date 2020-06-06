@@ -11,7 +11,32 @@
     <div class="wrapper-table">
       <div class="table-row main-row" :style="backgroundImageStyle">
         <div class="table-cell main-cell">
-          <div class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
+          <!-- remote access disabled -->
+          <div
+            v-if="!$store.getters.allowRemoteAccess"
+            class="box"
+            :style="{ backgroundColor: $themePalette.grey.v_100 }">
+          >
+            <CoreLogo
+              v-if="$kolibriBranding.signIn.topLogo"
+              class="logo"
+              :src="$kolibriBranding.signIn.topLogo.src"
+              :alt="$kolibriBranding.signIn.topLogo.alt"
+              :style="$kolibriBranding.signIn.topLogo.style"
+            />
+            <h1
+              v-if="$kolibriBranding.signIn.showTitle"
+              class="kolibri-title"
+              :class="$computedClass({color: $themeBrand.primary.v_300})"
+              :style="$kolibriBranding.signIn.titleStyle"
+            >
+              {{ logoText }}
+            </h1>
+            <p> {{ $tr('restrictedAccess') }}</p>
+            <p> {{ $tr('restrictedAccessDescription') }} </p>
+          </div>
+          <!-- remote access enabled -->
+          <div v-else class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
             <CoreLogo
               v-if="$kolibriBranding.signIn.topLogo"
               class="logo"
@@ -727,6 +752,15 @@
       greetUser: 'Hi, {user}',
       needToMakeNewPasswordLabel: 'Hi, {user}. You need to set a new password for your account.',
       nextLabel: 'Next',
+      restrictedAccess: {
+        message: 'Access to Kolibri has been restricted for external devices',
+        context: 'Error message description',
+      },
+      restrictedAccessDescription: {
+        message:
+          'To change this, sign in as a super admin and update the Device network access settings',
+        context: 'Error message description',
+      },
     },
   };
 
