@@ -15,7 +15,7 @@ allowable_sandbox_tokens = set(
         "allow-presentation",
         "allow-same-origin",
         "allow-scripts",
-        "allow-storage-access-by-user-activation ",
+        "allow-storage-access-by-user-activation",
         "allow-top-navigation",
         "allow-top-navigation-by-user-activation",
     ]
