@@ -8,14 +8,10 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("content", "0023_contentnode_on_device_resources"),
-    ]
+    dependencies = [("content", "0023_contentnode_on_device_resources")]
 
     operations = [
         migrations.AddField(
-            model_name="channelmetadata",
-            name="public",
-            field=models.NullBooleanField(),
-        ),
+            model_name="channelmetadata", name="public", field=models.NullBooleanField()
+        )
     ]

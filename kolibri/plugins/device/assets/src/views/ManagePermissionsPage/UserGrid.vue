@@ -7,6 +7,9 @@
         <tr>
           <th>{{ coreString('fullNameLabel') }}</th>
           <th>{{ coreString('usernameLabel') }}</th>
+          <th v-if="hasMultipleFacilities">
+            {{ coreString('facilityLabel') }}
+          </th>
           <th></th>
         </tr>
       </thead>
@@ -27,10 +30,16 @@
               {{ user.username }}
             </span>
           </td>
+          <td v-if="hasMultipleFacilities">
+            <span dir="auto" class="maxwidth">
+              {{ userFacility(user.facility) }}
+            </span>
+          </td>
           <td class="btn-col">
             <KButton
               appearance="flat-button"
               :text="permissionsButtonText(user.username)"
+              style="margin-top: 6px;"
               @click="goToUserPermissionsPage(user.id)"
             />
           </td>
@@ -45,7 +54,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
@@ -70,14 +79,21 @@
       },
     },
     computed: {
+      ...mapGetters(['facilities']),
       ...mapState({
         isCurrentUser: state => username => state.core.session.username === username,
       }),
       emptyMessage() {
         return this.$tr('noUsersMatching', { searchFilter: this.filterText });
       },
+      hasMultipleFacilities() {
+        return this.facilities.length > 1;
+      },
     },
     methods: {
+      userFacility(facId) {
+        return this.facilities.find(fac => fac.id === facId).name || '';
+      },
       fullNameLabel({ username, full_name }) {
         if (this.isCurrentUser(username)) {
           return this.$tr('selfUsernameLabel', { full_name });
@@ -111,7 +127,7 @@
     $trs: {
       viewPermissions: 'View Permissions',
       editPermissions: 'Edit Permissions',
-      noUsersMatching: 'No users matching "{searchFilter}"',
+      noUsersMatching: 'No users matching filters',
       selfUsernameLabel: '{full_name} (You)',
     },
   };

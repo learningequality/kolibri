@@ -112,7 +112,7 @@
       },
       contentIcon() {
         if (this.objectType === NotificationObjects.QUIZ) {
-          return 'exam';
+          return 'quiz';
         } else if (this.objectType === NotificationObjects.LESSON) {
           return 'lesson';
         } else {
@@ -145,7 +145,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .icon {
     // vertically align icon

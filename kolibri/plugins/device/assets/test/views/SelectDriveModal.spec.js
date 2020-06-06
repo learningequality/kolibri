@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
-import KModal from 'kolibri-components/src/KModal';
-import UiAlert from 'keen-ui/src/UiAlert';
+import KModal from 'kolibri-design-system/lib/KModal';
+import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
 import SelectDriveModal from '../../src/views/ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 

@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import hashlib
 import io
 import json
+import logging
 import mimetypes
 import os
 import zipfile
@@ -40,6 +41,8 @@ mimetypes.init([os.path.join(os.path.dirname(__file__), "constants", "mime.types
 
 HASHI_FILENAME = None
 
+logger = logging.getLogger(__name__)
+
 
 def get_hashi_filename():
     global HASHI_FILENAME
@@ -73,6 +76,11 @@ def get_path_or_404(zipped_filename):
         )
 
 
+def load_json_from_zipfile(zf, filepath):
+    with zf.open(filepath, "r") as f:
+        return json.load(f)
+
+
 def recursive_h5p_dependencies(zf, data, prefix=""):
 
     jsfiles = OrderedDict()
@@ -82,8 +90,7 @@ def recursive_h5p_dependencies(zf, data, prefix=""):
     for dep in data.get("preloadedDependencies", []):
         packagepath = "{machineName}-{majorVersion}.{minorVersion}/".format(**dep)
         librarypath = packagepath + "library.json"
-        info = zf.getinfo(librarypath)
-        content = json.loads(zf.open(info).read())
+        content = load_json_from_zipfile(zf, librarypath)
         newjs, newcss = recursive_h5p_dependencies(zf, content, packagepath)
         cssfiles.update(newcss)
         jsfiles.update(newjs)
@@ -112,6 +119,7 @@ def replace_script(parent, script):
 def parse_html(content):
     try:
         document = html5lib.parse(content, namespaceHTMLElements=False)
+
         if not document:
             # Could not parse
             return content
@@ -131,7 +139,30 @@ def parse_html(content):
                 )
             },
         )
-        return html5lib.serialize(
+        # Currently, html5lib strips the doctype, but it's important for correct rendering, so check the original
+        # content for the doctype and, if found, prepend it to the content serialized by html5lib
+        doctype = None
+        try:
+            # Now parse the content as a dom tree instead, so that we capture
+            # any doctype node as a dom node that we can read.
+            tree_builder_dom = html5lib.treebuilders.getTreeBuilder("dom")
+            parser_dom = html5lib.HTMLParser(
+                tree_builder_dom, namespaceHTMLElements=False
+            )
+            tree = parser_dom.parse(content)
+            # By HTML Spec if doctype is included, it must be the first thing
+            # in the document, so it has to be the first child node of the document
+            doctype_node = tree.childNodes[0]
+
+            # Check that this node is in fact a doctype node
+            if doctype_node.nodeType == doctype_node.DOCUMENT_TYPE_NODE:
+                # render to a string by calling the toxml method
+                # toxml uses single quotes by default, replace with ""
+                doctype = doctype_node.toxml().replace("'", '"')
+        except Exception as e:
+            logger.warn("Error in HTML5 parsing to determine doctype {}".format(e))
+
+        html = html5lib.serialize(
             document,
             quote_attr_values="always",
             omit_optional_tags=False,
@@ -139,6 +170,11 @@ def parse_html(content):
             use_trailing_solidus=True,
             space_before_trailing_solidus=False,
         )
+
+        if doctype:
+            html = doctype + html
+
+        return html
     except html5lib.html5parser.ParseError:
         return content
 
@@ -148,11 +184,14 @@ def get_h5p(zf, embedded_filepath):
     if not embedded_filepath:
         # Get the h5p bootloader, and then run it through our hashi templating code.
         # return the H5P bootloader code
-        h5pdata = json.loads(zf.open(zf.getinfo("h5p.json")).read())
+        try:
+            h5pdata = load_json_from_zipfile(zf, "h5p.json")
+            contentdata = load_json_from_zipfile(zf, "content/content.json")
+        except KeyError:
+            raise Http404("No valid h5p file was found at this location")
         jsfiles, cssfiles = recursive_h5p_dependencies(zf, h5pdata)
         jsfiles = jsfiles.keys()
         cssfiles = cssfiles.keys()
-        contentdata = zf.open(zf.getinfo("content/content.json")).read()
         path_includes_version = (
             "true"
             if "-" in [name for name in zf.namelist() if "/" in name][0]
@@ -168,7 +207,9 @@ def get_h5p(zf, embedded_filepath):
             {
                 "jsfiles": jsfiles,
                 "cssfiles": cssfiles,
-                "content": contentdata,
+                "content": json.dumps(
+                    json.dumps(contentdata, separators=(",", ":"), ensure_ascii=False)
+                ),
                 "library": "{machineName} {majorVersion}.{minorVersion}".format(
                     **main_library_data
                 ),
@@ -183,6 +224,8 @@ def get_h5p(zf, embedded_filepath):
     elif embedded_filepath.startswith("dist/"):
         # return static H5P dist resources
         path = finders.find("assets/h5p-standalone-" + embedded_filepath)
+        if path is None:
+            raise Http404("{} not found".format(embedded_filepath))
         # try to guess the MIME type of the embedded file being referenced
         content_type = (
             mimetypes.guess_type(embedded_filepath)[0] or "application/octet-stream"
@@ -256,6 +299,23 @@ class ZipContentView(View):
         Handles GET requests and serves a static file from within the zip file.
         """
         zipped_path = get_path_or_404(zipped_filename)
+
+        # Sometimes due to URL concatenation, we get URLs with double-slashes in them, like //path/to/file.html.
+        # the zipped_filename and embedded_filepath are defined by the regex capturing groups in the URL defined
+        # in urls.py in the same folder as this file:
+        # r"^zipcontent/(?P<zipped_filename>[^/]+)/(?P<embedded_filepath>.*)"
+        # If the embedded_filepath contains a leading slash because of an input URL like:
+        # /zipcontent/filename.zip//file.html
+        # then the embedded_filepath will have a value of "/file.html"
+        # we detect this leading slash in embedded_filepath and remove it.
+        if embedded_filepath.startswith("/"):
+            embedded_filepath = embedded_filepath[1:]
+        # Any double-slashes later in the URL will be present as double-slashes, such as:
+        # /zipcontent/filename.zip/path//file.html
+        # giving an embedded_filepath value of "path//file.html"
+        # Normalize the path by converting double-slashes occurring later in the path to a single slash.
+        # This would change our example embedded_filepath to "path/file.html" which will resolve properly.
+        embedded_filepath = embedded_filepath.replace("//", "/")
 
         # if client has a cached version, use that (we can safely assume nothing has changed, due to MD5)
         if request.META.get("HTTP_IF_MODIFIED_SINCE"):

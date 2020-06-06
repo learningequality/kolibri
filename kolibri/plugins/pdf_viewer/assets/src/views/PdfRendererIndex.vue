@@ -47,22 +47,32 @@
         size="large"
         @click="$refs.pdfRenderer.toggleFullscreen()"
       >
-        <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
-        <mat-svg v-else name="fullscreen" category="navigation" />
+        <KIcon
+          v-if="isInFullscreen"
+          icon="fullscreen_exit"
+          :color="$themeTokens.textInverted"
+          style="top:0; width: 24px; height: 24px;"
+        />
+        <KIcon
+          v-else
+          icon="fullscreen"
+          :color="$themeTokens.textInverted"
+          style="top:0; width: 24px; height: 24px;"
+        />
       </UiIconButton>
       <UiIconButton
         class="button-zoom-in controls"
         aria-controls="pdf-container"
         @click="zoomIn"
       >
-        <mat-svg name="add" category="content" />
+        <KIcon icon="plus_sign" style="top:0; width: 24px; height: 24px;" />
       </UiIconButton>
       <UiIconButton
         class="button-zoom-out controls"
         aria-controls="pdf-container"
         @click="zoomOut"
       >
-        <mat-svg name="remove" category="content" />
+        <KIcon icon="minus_sign" style="top:0; width: 24px; height: 24px;" />
       </UiIconButton>
     </template>
   </CoreFullscreen>
@@ -85,7 +95,7 @@
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import urls from 'kolibri.urls';
 
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
 
   import PdfPage from './PdfPage';
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
@@ -333,7 +343,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .pdf-renderer {
     @extend %momentum-scroll;

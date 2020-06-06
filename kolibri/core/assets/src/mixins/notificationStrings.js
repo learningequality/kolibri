@@ -44,7 +44,8 @@ export default createTranslator('NotificationStrings', {
   },
   passwordReset: {
     message: 'Password reset',
-    context: 'Updating user password',
+    context:
+      'Text will appear as a notification at the bottom after the user password has been reset',
   },
   changesSaved: {
     message: 'Changes saved',
@@ -88,7 +89,7 @@ export default createTranslator('NotificationStrings', {
   },
   quizCreated: {
     message: 'Quiz created',
-    context: 'Creating a new quiz',
+    context: 'Text will appear as a notification at the bottom after the new quiz is created',
   },
   quizDeleted: {
     message: 'Quiz deleted',

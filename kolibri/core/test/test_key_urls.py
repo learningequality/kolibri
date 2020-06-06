@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.urls.exceptions import NoReverseMatch
 from mock import patch
@@ -36,9 +37,20 @@ class KolibriTagNavigationTestCase(APITestCase):
             response.get("location"), reverse("kolibri:kolibri.plugins.user:user")
         )
 
-    def test_redirect_root_to_learn_if_logged_in(self):
+    def test_redirect_root_to_device_if_superuser_logged_in(self):
         facility = FacilityFactory.create()
         do = create_superuser(facility)
+        provision_device()
+        self.client.login(username=do.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse("kolibri:core:root_redirect"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"),
+            reverse("kolibri:kolibri.plugins.device:device_management"),
+        )
+
+    def test_redirect_root_to_learn_if_logged_in(self):
+        do = FacilityUserFactory.create()
         provision_device()
         self.client.login(username=do.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse("kolibri:core:root_redirect"))
@@ -173,8 +185,7 @@ class LogoutLanguagePersistenceTest(APITestCase):
 
     def test_persistent_language_on_namespaced_logout(self):
         # Test that namespaced /{lang_code}/logout persists that namespace.
-        # Test a few language codes
-        for lang_code in ["sw-tz", "fr-fr", "es-es"]:
+        for lang_code in [lang[0] for lang in settings.LANGUAGES]:
             self.client.login(**self.credentials)
             response = self.client.post("/{}/logout".format(lang_code))
             self.assertTrue(lang_code in response.url)
@@ -191,7 +202,8 @@ class LogoutLanguagePersistenceTest(APITestCase):
 
         self.client.login(**self.credentials)
         session = self.client.session
-        session[LANGUAGE_SESSION_KEY] = "sw-tz"
+        test_lang = settings.LANGUAGES[-1][0]
+        session[LANGUAGE_SESSION_KEY] = test_lang
         session.save()
         response = self.client.post("/logout")
-        self.assertTrue("sw-tz" in response.url)
+        self.assertTrue(test_lang in response.url)

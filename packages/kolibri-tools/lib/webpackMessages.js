@@ -95,14 +95,14 @@ class WebpackMessages {
   }
 
   apply(compiler) {
-    const name = this.name ? `${this.name} bundle` : '';
+    const name = this.name ? `'${this.name}' bundle` : '';
     const onStart = () => logging.info(`Building ${name}...`);
 
     const onComplete = stats => {
       const messages = format(stats);
 
       if (messages.errors.length) {
-        return logging.error(this.format(`Failed to compile${name}!`, messages.errors));
+        return logging.error(this.format(`Failed to compile ${name}!`, messages.errors));
       }
 
       if (messages.warnings.length) {

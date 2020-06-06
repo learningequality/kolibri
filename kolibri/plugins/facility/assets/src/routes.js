@@ -3,6 +3,7 @@ import ClassEditPage from './views/ClassEditPage';
 import CoachClassAssignmentPage from './views/CoachClassAssignmentPage';
 import LearnerClassEnrollmentPage from './views/LearnerClassEnrollmentPage';
 import DataPage from './views/DataPage';
+import ImportCsvPage from './views/ImportCsvPage';
 import FacilitiesConfigPage from './views/FacilityConfigPage';
 import ManageClassPage from './views/ManageClassPage';
 import UserPage from './views/UserPage';
@@ -95,6 +96,14 @@ export default [
     handler: () => {
       store.dispatch('preparePage', { isAsync: false });
       store.commit('manageSync/RESET_STATE');
+    },
+  },
+  {
+    name: PageNames.IMPORT_CSV_PAGE,
+    component: ImportCsvPage,
+    path: '/:facility_id?/data/import',
+    handler: () => {
+      store.dispatch('preparePage', { isAsync: false });
     },
   },
   {

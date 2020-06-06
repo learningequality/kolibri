@@ -27,6 +27,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   saveChangesAction: 'Save changes',
   selectAllOnPageAction: 'Select all on page',
   showAction: 'Show',
+  startOverAction: 'Start over',
   syncAction: 'Sync',
   updateAction: 'Update',
   viewAction: 'View',

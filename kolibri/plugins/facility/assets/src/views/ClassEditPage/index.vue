@@ -6,6 +6,7 @@
       <KRouterLink
         :text="coreString('allClassesLabel')"
         :to="{ name: 'CLASS_MGMT_PAGE' }"
+        icon="back"
       />
     </p>
     <div>

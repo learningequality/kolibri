@@ -10,25 +10,23 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("discovery", "0001_initial"),
-    ]
+    dependencies = [("discovery", "0001_initial")]
 
     operations = [
         migrations.CreateModel(
             name="DynamicNetworkLocation",
             fields=[],
-            options={"proxy": True, "indexes": [],},
+            options={"proxy": True, "indexes": []},
             bases=("discovery.networklocation",),
         ),
         migrations.CreateModel(
             name="StaticNetworkLocation",
             fields=[],
-            options={"proxy": True, "indexes": [],},
+            options={"proxy": True, "indexes": []},
             bases=("discovery.networklocation",),
         ),
         migrations.AlterModelOptions(
-            name="networklocation", options={"ordering": ["added"]},
+            name="networklocation", options={"ordering": ["added"]}
         ),
         migrations.AddField(
             model_name="networklocation",

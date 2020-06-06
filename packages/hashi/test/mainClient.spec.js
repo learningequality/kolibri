@@ -7,32 +7,28 @@ describe('Hashi mainClient', () => {
   beforeEach(() => {
     iframe = document.createElement('iframe');
     iframe.name = nameSpace;
-    hashi = new Hashi({ iframe });
-  });
-  describe('constructor method', () => {
-    it('should set ready to false', () => {
-      expect(hashi.ready).toBe(false);
+    // contentWindow is undefined on jsdom simulation of an iframe
+    // so we use a proxy here to expose the local window
+    // object instead.
+    const iframeProxy = new Proxy(iframe, {
+      get(obj, prop) {
+        if (prop === 'contentWindow') {
+          return window;
+        }
+        return obj[prop];
+      },
     });
-    it('should bind a listener to a ready event to set ready to true on the Hashi object', () => {
-      return new Promise(resolve => {
-        hashi.on(events.READY, () => {
-          resolve();
-        });
-        hashi.mediator.sendLocalMessage({ nameSpace, event: events.READY });
-      }).then(() => {
-        expect(hashi.ready).toBe(true);
-      });
-    });
+    hashi = new Hashi({ iframe: iframeProxy });
   });
   describe('initialize method', () => {
-    it('should call __setData immediately if ready is true', () => {
+    it('should call __setData immediately', () => {
       const data = {};
-      hashi.ready = true;
+      const userData = {};
       hashi.__setData = jest.fn();
-      hashi.initialize(data);
-      expect(hashi.__setData).toHaveBeenCalledWith(data);
+      hashi.initialize(data, userData);
+      expect(hashi.__setData).toHaveBeenCalledWith(data, userData);
     });
-    it('should fire a ready check if ready is false', () => {
+    it('should fire a ready check', () => {
       hashi.mediator.sendMessage = jest.fn();
       hashi.initialize();
       expect(hashi.mediator.sendMessage).toHaveBeenCalledWith({
@@ -43,34 +39,63 @@ describe('Hashi mainClient', () => {
     });
     it('should call __setData once a ready event is fired', () => {
       const data = {};
+      const userData = {};
       return new Promise(resolve => {
-        hashi.__setData = jest.fn();
         hashi.mediator.sendMessage = jest.fn();
-        hashi.initialize(data);
-        expect(hashi.__setData).not.toHaveBeenCalled();
+        hashi.initialize(data, userData);
         hashi.on(events.READY, () => {
           resolve();
         });
+        hashi.__setData = jest.fn();
         hashi.mediator.sendLocalMessage({ nameSpace, event: events.READY, data: true });
       }).then(() => {
-        expect(hashi.__setData).toHaveBeenCalledWith(data);
+        expect(hashi.__setData).toHaveBeenCalledWith(hashi.data, userData);
       });
     });
-    it('should call __setData once a second ready event is fired, even if ready was already set to true by the first', () => {
+    it('should call __setData once a second ready event is fired', () => {
       const data = {};
+      const userData = {};
       hashi.mediator.sendMessage = jest.fn();
-      hashi.ready = true;
-      hashi.initialize(data);
+      hashi.initialize(data, userData);
       return new Promise(resolve => {
         hashi.__setData = jest.fn();
-        hashi.mediator.sendMessage = jest.fn();
-        expect(hashi.__setData).not.toHaveBeenCalled();
         hashi.on(events.READY, () => {
           resolve();
         });
         hashi.mediator.sendLocalMessage({ nameSpace, event: events.READY, data: true });
       }).then(() => {
-        expect(hashi.__setData).toHaveBeenCalledWith(data);
+        expect(hashi.__setData).toHaveBeenCalledWith(hashi.data, userData);
+      });
+    });
+    it('should call __setData once a second ready event is fired with any updated data', () => {
+      const data = {};
+      const userData = {};
+      const updatedUserData = { userId: 'test' };
+      hashi.mediator.sendMessage = jest.fn();
+      hashi.initialize(data, userData);
+      return new Promise(resolve => {
+        hashi.__setData = jest.fn();
+        hashi.updateData({
+          contentState: { localStorage: { test: 'this' } },
+          userData: updatedUserData,
+        });
+        hashi.on(events.READY, () => {
+          resolve();
+        });
+        hashi.mediator.sendLocalMessage({ nameSpace, event: events.READY, data: true });
+      }).then(() => {
+        expect(hashi.__setData).toHaveBeenCalledWith(hashi.data, updatedUserData);
+      });
+    });
+    it('should call mediator sendMessage with the readycheck event', () => {
+      const data = {};
+      const userData = {};
+      hashi.mediator.sendMessage = jest.fn();
+      hashi.initialize(data, userData);
+      expect(hashi.mediator.sendMessage).toHaveBeenCalledWith({
+        nameSpace,
+        event: events.READYCHECK,
+        data: true,
       });
     });
   });
@@ -91,19 +116,6 @@ describe('Hashi mainClient', () => {
         expect(storage.setData).toHaveBeenCalledWith(data[storage.nameSpace]);
       });
     });
-    it('should call on with the stateupdate event', () => {
-      hashi.mediator.sendMessage = jest.fn();
-      const data = {};
-      Object.keys(hashi.storage).forEach(key => {
-        const storage = hashi.storage[key];
-        storage.on = jest.fn();
-      });
-      hashi.__setData(data);
-      Object.keys(hashi.storage).forEach(key => {
-        const storage = hashi.storage[key];
-        expect(storage.on.mock.calls[0][0]).toEqual(events.STATEUPDATE);
-      });
-    });
     it('should call setNow on the cookie storage if now is defined', () => {
       hashi.mediator.sendMessage = jest.fn();
       const data = {};
@@ -119,14 +131,25 @@ describe('Hashi mainClient', () => {
       hashi.__setData(data);
       expect(hashi.storage.cookie.setNow).not.toHaveBeenCalled();
     });
-    it('should call mediator sendMessage with the ready event', () => {
+    it('should set the userData if it is defined', () => {
       hashi.mediator.sendMessage = jest.fn();
       const data = {};
-      hashi.__setData(data);
-      expect(hashi.mediator.sendMessage).toHaveBeenCalledWith({
-        nameSpace,
-        event: events.READY,
-        data: true,
+      const userData = {};
+      hashi.__setData(data, userData);
+      expect(hashi.userData).toEqual(userData);
+    });
+  });
+  describe('__setListeners method', () => {
+    it('should call on with the stateupdate event', () => {
+      hashi.mediator.sendMessage = jest.fn();
+      Object.keys(hashi.storage).forEach(key => {
+        const storage = hashi.storage[key];
+        storage.on = jest.fn();
+      });
+      hashi.__setListeners();
+      Object.keys(hashi.storage).forEach(key => {
+        const storage = hashi.storage[key];
+        expect(storage.on.mock.calls[0][0]).toEqual(events.STATEUPDATE);
       });
     });
   });
@@ -152,6 +175,16 @@ describe('Hashi mainClient', () => {
       };
       data[localStorage.nameSpace] = localStorageData;
       localStorage.setData(localStorageData);
+      const SCORM = hashi.storage.SCORM;
+      const SCORMData = {
+        cmi: {
+          core: {
+            lesson_status: 'passed',
+          },
+        },
+      };
+      data[SCORM.nameSpace] = SCORMData;
+      SCORM.setData(SCORMData);
       expect(hashi.data).toEqual(data);
     });
   });

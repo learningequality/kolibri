@@ -121,7 +121,8 @@
         context: 'Modal description text',
       },
       signInAsOtherAdminExplanation: {
-        message: `You must sign in as a super admin of a facility different from '{facilityName}' in order to remove it from this device.`,
+        message:
+          "You must sign in as a super admin of a facility different from '{facilityName}' in order to remove it from this device.",
         context: 'Modal description text',
       },
     },

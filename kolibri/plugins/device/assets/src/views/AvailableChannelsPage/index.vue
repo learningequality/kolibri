@@ -30,7 +30,6 @@
         <p v-if="showUnlistedChannels">
           <KButton
             data-test="token-button"
-            class="token-button"
             :text="$tr('channelTokenButtonLabel')"
             appearance="raised-button"
             name="showtokenmodal"
@@ -116,7 +115,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
@@ -416,10 +415,6 @@
   .channel-list-header {
     padding: 16px 0;
     font-size: 14px;
-  }
-
-  .token-button {
-    margin-left: 0;
   }
 
 </style>

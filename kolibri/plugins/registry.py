@@ -38,10 +38,13 @@ from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 
 from kolibri.plugins import config
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import HookSingleInstanceError
 from kolibri.plugins.utils import initialize_kolibri_plugin
 from kolibri.plugins.utils import is_plugin_updated
 from kolibri.plugins.utils import MultiplePlugins
 from kolibri.plugins.utils import PluginDoesNotExist
+from kolibri.plugins.utils import PluginLoadsApp
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +65,11 @@ class Registry(object):
     def __iter__(self):
         return iter(app for app in self._apps.values() if app is not None)
 
+    def __contains__(self, app):
+        if issubclass(app, KolibriPluginBase):
+            app = app.__module__.replace(".kolibri_plugin", "")
+        return app in self._apps
+
     def get(self, app):
         return self._apps.get(app, None)
 
@@ -79,10 +87,22 @@ class Registry(object):
                     if is_plugin_updated(app):
                         config["UPDATED_PLUGINS"].add(app)
                         config.save()
-            except (MultiplePlugins, ImportError):
-                logger.warn("Cannot initialize plugin {}".format(app))
-            except PluginDoesNotExist:
-                pass
+            except (
+                PluginDoesNotExist,
+                MultiplePlugins,
+                ImportError,
+                HookSingleInstanceError,
+                PluginLoadsApp,
+            ) as e:
+                logger.error("Cannot initialize plugin {}".format(app))
+                logger.error(str(e))
+                logger.error("Disabling plugin {}".format(app))
+                config.clear_plugin(app)
+                if isinstance(e, PluginLoadsApp):
+                    logger.error(
+                        "Please restart Kolibri now that this plugin is disabled"
+                    )
+                    raise
 
     def register_non_plugins(self, apps):
         """

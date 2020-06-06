@@ -1,0 +1,169 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-30 16:30-0700\n"
+"PO-Revision-Date: 2020-04-30 23:33\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Hindi\n"
+"Language: hi_IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: hi\n"
+"X-Crowdin-File: /for-profuturo-only/django.po\n"
+
+#: kolibri/core/auth/constants/collection_kinds.py:15
+msgid "Facility"
+msgstr "सुविधा"
+
+#: kolibri/core/auth/constants/collection_kinds.py:16
+msgid "Classroom"
+msgstr "कक्षा"
+
+#: kolibri/core/auth/constants/collection_kinds.py:17
+msgid "Learner group"
+msgstr "पाठक समूह"
+
+#: kolibri/core/auth/constants/collection_kinds.py:18
+msgid "Ad hoc learners group"
+msgstr "विशेष शिक्षार्थीयोंका समूह "
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:42
+msgid "Username ({})"
+msgstr "उपयोगकर्ता नाम ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:43
+msgid "Password ({})"
+msgstr "पासवर्ड ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:44
+msgid "Full name ({})"
+msgstr "पूरा नाम ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:45
+msgid "User type ({})"
+msgstr "उपयोगकर्ता प्रकार ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:46
+msgid "Identifier ({})"
+msgstr "पहचान पत्र ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:47
+msgid "Birth year ({})"
+msgstr "जन्म वर्ष ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:48
+msgid "Gender ({})"
+msgstr "लिंग ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:49
+msgid "Learner enrollment ({})"
+msgstr ""
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:50
+msgid "Coach assignment ({})"
+msgstr ""
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:68
+msgid "Unexpected error [{}]: {}"
+msgstr ""
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:69
+msgid "Value in column '{}' is too many characters"
+msgstr ""
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:70
+msgid "Invalid value in column '{}'"
+msgstr ""
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:71
+msgid "Username is duplicated"
+msgstr ""
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:73
+msgid "Username only can contain characters, numbers and underscores"
+msgstr ""
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:75
+msgid "The column '{}' is required"
+msgstr ""
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:76
+msgid "Invalid header label found in the first row"
+msgstr ""
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:78
+msgid "No default facility exists. Make sure to provision this device before importing"
+msgstr ""
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:80
+msgid "Error trying to read csv file: {}"
+msgstr ""
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:81
+msgid "Error trying to write csv file: {}"
+msgstr ""
+
+#: kolibri/core/content/api.py:149
+msgid "Content"
+msgstr "सामग्री"
+
+#: kolibri/core/content/api.py:910
+msgid "The requested channel does not exist on the content server"
+msgstr "अनुरोध किए गए चैनल सामग्री सर्वर पर मौजूद नहीं है"
+
+#: kolibri/core/content/models.py:165
+msgid "Unknown format"
+msgstr "अज्ञात स्वरूप"
+
+#: kolibri/core/device/serializers.py:42
+msgid "Language is not supported by Kolibri"
+msgstr "भाषा कोलिब्री द्वारा समर्थित नहीं है"
+
+#: kolibri/core/tasks/api.py:54
+msgid "There was a network error."
+msgstr "नेटवर्क में कोई त्रुटि थी ।"
+
+#: kolibri/core/tasks/api.py:56
+msgid "There was a disk access error."
+msgstr "डिस्क तक पहुंचने में त्रुटि थी ।"
+
+#: kolibri/core/tasks/api.py:58
+msgid "There was an unknown error."
+msgstr "कोई अज्ञात त्रुटि थी ।"
+
+#: kolibri/core/templates/kolibri/base.html:13
+#: kolibri/core/templates/kolibri/unsupported_browser.html:13
+msgid "Kolibri"
+msgstr "कोलिब्री"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:42
+msgid "Unsupported browser"
+msgstr "असमर्थित ब्राउज़र"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:43
+msgid "Sorry, your browser version is not supported."
+msgstr "क्षमा करें, आपका ब्राउज़र संस्करण समर्थित नहीं है।"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:44
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "कोलिब्री उपयोग करने के लिए, हम Firefox या Chrome का उपयोग करने की सलाह देते हैं ।"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:45
+msgid "You can also try updating your current browser."
+msgstr "आप अपने वर्तमान ब्राउज़र को अपडेट करने का प्रयास भी कर सकते हैं ।"
+
+#: kolibri/core/views.py:174
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "कोई उपयुक्त रीडायरेक्ट पृष्ठ नहीं मिले । संभावना है कि कोलिब्री की व्यवस्था ठीक से नहीं की गई है"
+
+#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
+msgid "OpenID Provider Authorization"
+msgstr "ओपन आईडी प्रदाता प्राधिकरण"
+
+#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
+msgid "Request for Permission"
+msgstr "अनुमति का अनुरोध करें"

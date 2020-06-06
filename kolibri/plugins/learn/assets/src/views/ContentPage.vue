@@ -23,9 +23,14 @@
         :options="content.options"
         :available="content.available"
         :extraFields="extraFields"
+        :progress="summaryProgress"
+        :userId="currentUserId"
+        :userFullName="fullName"
+        :timeSpent="summaryTimeSpent"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
+        @addProgress="addProgress"
         @updateContentState="updateContentState"
       />
 
@@ -42,6 +47,10 @@
         :channelId="channelId"
         :available="content.available"
         :extraFields="extraFields"
+        :progress="summaryProgress"
+        :userId="currentUserId"
+        :userFullName="fullName"
+        :timeSpent="summaryTimeSpent"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateExerciseProgress"
@@ -64,15 +73,13 @@
         {{ $tr('license', { license: licenseShortName }) }}
 
         <template v-if="licenseDescription">
-          <UiIconButton
+          <KIconButton
+            :icon="licenceDescriptionIsVisible ? 'arrow_up' : 'arrow_down'"
             :ariaLabel="$tr('toggleLicenseDescription')"
             size="small"
             type="secondary"
             @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
-          >
-            <mat-svg v-if="licenceDescriptionIsVisible" name="expand_less" category="navigation" />
-            <mat-svg v-else name="expand_more" category="navigation" />
-          </UiIconButton>
+          />
           <div v-if="licenceDescriptionIsVisible" dir="auto" class="license-details">
             <p class="license-details-name">
               {{ licenseLongName }}
@@ -87,11 +94,22 @@
       </p>
     </section>
 
-    <DownloadButton
-      v-if="canDownload"
-      :files="downloadableFiles"
-      class="download-button"
-    />
+    <div>
+
+      <DownloadButton
+        v-if="canDownload"
+        :files="downloadableFiles"
+        class="download-button"
+      />
+
+      <KButton
+        v-if="canShare"
+        :text="$tr('shareFile')"
+        class="share-button"
+        @click="launchIntent()"
+      />
+
+    </div>
 
     <slot name="below_content">
       <template v-if="content.next_content">
@@ -130,7 +148,7 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import { shareFile } from 'kolibri.utils.appCapabilities';
   import markdownIt from 'markdown-it';
   import {
     licenseShortName,
@@ -167,7 +185,6 @@
       DownloadButton,
       AssessmentWrapper,
       MasteredSnackbars,
-      UiIconButton,
     },
     mixins: [commonLearnStrings],
     data() {
@@ -178,7 +195,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'pageMode']),
+      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'pageMode', 'currentUserId']),
       ...mapState(['pageName']),
       ...mapState('topicsTree', ['content', 'channel', 'recommended']),
       ...mapState('topicsTree', {
@@ -189,8 +206,10 @@
       ...mapState({
         masteryAttempts: state => state.core.logging.mastery.totalattempts,
         summaryProgress: state => state.core.logging.summary.progress,
+        summaryTimeSpent: state => state.core.logging.summary.time_spent,
         sessionProgress: state => state.core.logging.session.progress,
         extraFields: state => state.core.logging.summary.extra_fields,
+        fullName: state => state.core.session.full_name,
       }),
       isTopic() {
         return this.content.kind === ContentNodeKinds.TOPIC;
@@ -204,6 +223,10 @@
           );
         }
         return false;
+      },
+      canShare() {
+        let supported_types = ['mp4', 'mp3', 'pdf', 'epub'];
+        return shareFile && supported_types.includes(this.primaryFile.extension);
       },
       description() {
         if (this.content && this.content.description) {
@@ -232,6 +255,12 @@
       },
       downloadableFiles() {
         return this.content.files.filter(file => !file.preset.endsWith('thumbnail'));
+      },
+      primaryFile() {
+        return this.content.files.filter(file => !file.preset.supplementary)[0];
+      },
+      primaryFilename() {
+        return `${this.primaryFile.checksum}.${this.primaryFile.extension}`;
       },
       nextContentLink() {
         // HACK Use a the Resource Viewer Link instead
@@ -276,6 +305,7 @@
       ...mapActions({
         initSessionAction: 'initContentSession',
         updateProgressAction: 'updateProgress',
+        addProgressAction: 'addProgress',
         startTracking: 'startTrackingProgress',
         stopTracking: 'stopTrackingProgress',
         updateContentNodeState: 'updateContentState',
@@ -288,6 +318,12 @@
           updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
         );
         this.$emit('updateProgress', progressPercent);
+      },
+      addProgress(progressPercent, forceSave = false) {
+        this.addProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
+          updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
+        );
+        this.$emit('addProgress', progressPercent);
       },
       updateExerciseProgress(progressPercent) {
         this.$emit('updateProgress', progressPercent);
@@ -304,14 +340,26 @@
           params: { id },
         };
       },
+      launchIntent() {
+        return shareFile({
+          filename: this.primaryFilename,
+          message: this.$tr('shareMessage', {
+            title: this.content.title,
+            topic: this.content.breadcrumbs.slice(-1)[0].title,
+            copyrightHolder: this.content.license_owner,
+          }),
+        }).catch(() => {});
+      },
     },
     $trs: {
       author: 'Author: {author}',
       license: 'License: {license}',
       toggleLicenseDescription: 'Toggle license description',
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
+      shareMessage: '"{title}" (in "{topic}"), from {copyrightHolder}',
       nextResource: 'Next resource',
       documentTitle: '{ contentTitle } - { channelTitle }',
+      shareFile: 'Share',
     },
   };
 
@@ -333,8 +381,10 @@
     font-size: smaller;
   }
 
-  .download-button {
-    display: block;
+  .download-button,
+  .share-button {
+    display: inline-block;
+    margin: 16px 16px 0 0;
   }
 
   .license-details {

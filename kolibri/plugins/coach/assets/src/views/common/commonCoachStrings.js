@@ -207,7 +207,8 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
   },
   upgradeKolibriLinkText: {
     message: 'Go to download page',
-    context: 'Link that goes on the bottom of the "Upgrade Kolibri to view resources" modal',
+    context:
+      'Text for the link displayed at the bottom of the "Upgrade Kolibri to view resources" modal',
   },
 });
 

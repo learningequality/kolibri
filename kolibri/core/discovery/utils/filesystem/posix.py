@@ -152,7 +152,8 @@ def _get_drive_usage(path):
         from jnius import autoclass
 
         StatFs = autoclass("android.os.StatFs")
-        stats = StatFs(path)
+        AndroidString = autoclass("java.lang.String")
+        stats = StatFs(AndroidString(path))
         return {
             "total": stats.getBlockCountLong() * stats.getBlockSizeLong(),
             "free": stats.getAvailableBlocksLong() * stats.getBlockSizeLong(),

@@ -4,17 +4,15 @@
     <div v-if="$attrs.show" class="task-progress">
       <div class="dtc progress-icon">
         <transition name="fade" mode="out-in">
-          <mat-svg
+          <KIcon
             v-if="taskHasFailed"
-            category="alert"
-            name="error"
-            :style="{ fill: $themeTokens.error }"
+            icon="error"
+            :color="$themeTokens.error"
           />
-          <mat-svg
+          <KIcon
             v-else-if="taskHasCompleted"
-            category="action"
-            name="check_circle"
-            :style="{ fill: $themeTokens.success }"
+            icon="correct"
+            :color="$themeTokens.success"
           />
           <KCircularLoader
             v-else

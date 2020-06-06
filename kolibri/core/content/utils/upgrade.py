@@ -40,7 +40,7 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
         elif method == "disk":
             drive = get_mounted_drive_by_id(drive_id)
             call_command(
-                "importchannel", "disk", channel_id, drive.datafolder, no_upgrade=True,
+                "importchannel", "disk", channel_id, drive.datafolder, no_upgrade=True
             )
 
         # create all fields/tables at the annotated destination db, based on the current schema version

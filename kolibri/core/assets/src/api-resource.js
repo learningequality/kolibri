@@ -877,7 +877,7 @@ export class Resource {
    * depending on method
    * @return {Promise}         Promise that resolves with the request
    */
-  accessEndpoint(method, listName, args = {}) {
+  accessEndpoint(method, listName, args = {}, multipart = false) {
     if (!listName) {
       throw TypeError('A listName must be specified');
     }
@@ -892,6 +892,7 @@ export class Resource {
       method,
       entity,
       params,
+      multipart,
     });
   }
 
@@ -913,6 +914,18 @@ export class Resource {
    */
   postListEndpoint(listName, params = {}) {
     return this.accessEndpoint('POST', listName, params);
+  }
+
+  /**
+   * Call a POST on a custom list endpoint and use
+   * 'multipart/form-data' as Mimetype instead of 'application/json'.
+   *
+   * @param  {string} listName The name given to the list endpoint
+   * @param  {Object} args     The body of the request
+   * @return {Promise}         Promise that resolves with the request
+   */
+  postListEndpointMultipart(listName, params = {}) {
+    return this.accessEndpoint('POST', listName, params, true);
   }
 
   /**

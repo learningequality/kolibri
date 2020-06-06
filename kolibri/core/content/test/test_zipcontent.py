@@ -38,10 +38,22 @@ class ZipContentTestCase(TestCase):
     )
     empty_html_name = "empty.html"
     empty_html_str = ""
+    doctype_name = "doctype.html"
+    doctype = """
+    <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+    """
+    doctype_str = doctype + "<html><head><script>test</script></head></html>"
+    html5_doctype_name = "html5_doctype.html"
+    html5_doctype = "<!DOCTYPE HTML>"
+    html5_doctype_str = (
+        html5_doctype + "<html><head><script>test</script></head></html>"
+    )
     test_name_1 = "testfile1.txt"
     test_str_1 = "This is a test!"
     test_name_2 = "testfile2.txt"
     test_str_2 = "And another test..."
+    embedded_file_name = "test/this/path/test.txt"
+    embedded_file_str = "Embedded file test"
 
     def setUp(self):
 
@@ -64,8 +76,11 @@ class ZipContentTestCase(TestCase):
             zf.writestr(self.script_name, self.script_str)
             zf.writestr(self.async_script_name, self.async_script_str)
             zf.writestr(self.empty_html_name, self.empty_html_str)
+            zf.writestr(self.doctype_name, self.doctype_str)
+            zf.writestr(self.html5_doctype_name, self.html5_doctype_str)
             zf.writestr(self.test_name_1, self.test_str_1)
             zf.writestr(self.test_name_2, self.test_str_2)
+            zf.writestr(self.embedded_file_name, self.embedded_file_str)
 
         self.zip_file_obj = LocalFile(
             id=self.hash, extension=self.extension, available=True
@@ -181,6 +196,32 @@ class ZipContentTestCase(TestCase):
         )
         self.assertEqual(response.content.decode("utf-8"), content)
 
+    def test_request_for_html_body_script_with_extra_slash_return_hashi_modified_html(
+        self, filename_patch
+    ):
+        response = self.client.get(self.zip_file_base_url + "/" + self.script_name)
+        content = (
+            '<html><head><template hashi-script="true"><script>test</script></template><script src="/static/content/hashi123.js"></script></head>'
+            + "<body></body></html>"
+        )
+        self.assertEqual(response.content.decode("utf-8"), content)
+
+    def test_request_for_embedded_file_return_embedded_file(self, filename_patch):
+        response = self.client.get(self.zip_file_base_url + self.embedded_file_name)
+        self.assertEqual(
+            next(response.streaming_content).decode(), self.embedded_file_str
+        )
+
+    def test_request_for_embedded_file_with_double_slashes_return_embedded_file(
+        self, filename_patch
+    ):
+        response = self.client.get(
+            self.zip_file_base_url + self.embedded_file_name.replace("/", "//")
+        )
+        self.assertEqual(
+            next(response.streaming_content).decode(), self.embedded_file_str
+        )
+
     def test_request_for_html_body_script_skip_get_param_return_unmodified_html(
         self, filename_patch
     ):
@@ -188,6 +229,18 @@ class ZipContentTestCase(TestCase):
             self.zip_file_base_url + self.script_name + "?SKIP_HASHI=true"
         )
         self.assertEqual(next(response.streaming_content).decode(), self.script_str)
+
+    def test_request_for_html_doctype_return_with_doctype(self, filename_patch):
+        response = self.client.get(self.zip_file_base_url + self.doctype_name)
+        content = response.content.decode("utf-8")
+        self.assertEqual(
+            content[:92].lower().replace("  ", " "), self.doctype.strip().lower()
+        )
+
+    def test_request_for_html5_doctype_return_with_doctype(self, filename_patch):
+        response = self.client.get(self.zip_file_base_url + self.html5_doctype_name)
+        content = response.content.decode("utf-8")
+        self.assertEqual(content[:15].lower(), self.html5_doctype.strip().lower())
 
     def test_request_for_html_body_script_return_correct_length_header(
         self, filename_patch

@@ -162,11 +162,11 @@
         context: 'Explanation of what the super admin account is used for on device',
       },
       chooseAdminPrompt: {
-        message: `Choose an admin from '{facility}' or create a new super admin.`,
+        message: "Choose an admin from '{facility}' or create a new super admin.",
         context: 'Prompt that goes above a select input of options for admins',
       },
       enterPasswordPrompt: {
-        message: `Enter the password for '{username}'`,
+        message: "Enter the password for '{username}'",
         context: 'Prompt that goes above the password input',
       },
       createSuperAdminOption: {
@@ -174,7 +174,7 @@
         context: 'Option in a select input',
       },
       accountFacilityExplanation: {
-        message: `This account will be associated with the facility '{facility}'`,
+        message: "This account will be associated with the facility '{facility}'",
         context: 'Explanation that goes above the new user form',
       },
     },

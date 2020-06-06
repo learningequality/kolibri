@@ -23,13 +23,7 @@ versionTools.setVersion(path.resolve(__dirname, 'kolibri-tools/package.json'), v
 versionTools.setVersion(path.resolve(__dirname, 'eslint-plugin-kolibri/package.json'), version);
 
 /*
- * Step 4 - Set the version of the kolibri-components package by the current Kolibri version
- */
-
-versionTools.setVersion(path.resolve(__dirname, 'kolibri-components/package.json'), version);
-
-/*
- * Step 5 - Set version of the kolibri-tools dev dependency
+ * Step 4 - Set version of the kolibri-tools dev dependency
  */
 
 versionTools.setDependencyVersion(
@@ -65,22 +59,6 @@ versionTools.setDependencyVersion(
   version
 );
 
-/*
- * Step 7 - Set version of the kolibri-components dependency
- */
-
-versionTools.setDependencyVersion(
-  'kolibri-components',
-  path.resolve(__dirname, 'kolibri-core-for-export/package.json'),
-  version
-);
-
-versionTools.setDependencyVersion(
-  'kolibri-components',
-  path.resolve(__dirname, '../kolibri/core/package.json'),
-  version
-);
-
 // If the version is a prerelease use the 'next' tag to prevent auto upgrades, otherwise use latest.
 const tag = versionTools.isPrerelease(version) ? 'next' : 'latest';
 
@@ -94,6 +72,6 @@ function publishCommand(workspace) {
   });
 }
 
-['eslint-plugin-kolibri', 'kolibri', 'kolibri-tools', 'kolibri-components'].forEach(publishCommand);
+['eslint-plugin-kolibri', 'kolibri', 'kolibri-tools'].forEach(publishCommand);
 
 process.chdir(currentCwd);

@@ -64,4 +64,5 @@ KOLIBRI_SUPPORTED_LANGUAGES = [
     "ur-pk",
     "vi",
     "yo",
+    "zh-hans",
 ]

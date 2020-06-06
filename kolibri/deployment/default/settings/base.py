@@ -230,6 +230,12 @@ EXTRA_LANG_INFO = {
         "name": "Chichewa, Chewa, Nyanja",
         "name_local": "Chinyanja",
     },
+    "zh": {
+        "bidi": False,
+        "code": "zh-hans",
+        "name": "Simplified Chinese",
+        "name_local": "简体中文",
+    },
     "yo": {"bidi": False, "code": "yo", "name": "Yoruba", "name_local": "Yorùbá"},
     "zu": {"bidi": False, "code": "zu", "name": "Zulu", "name_local": "isiZulu"},
 }
@@ -314,7 +320,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
     ],
-    "DEFAULT_CONTENT_NEGOTIATION_CLASS": "kolibri.core.negotiation.JSONOnlyContentNegotiation",
+    "DEFAULT_CONTENT_NEGOTIATION_CLASS": "kolibri.core.negotiation.LimitContentNegotiation",
     "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
 }
 

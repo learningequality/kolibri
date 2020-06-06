@@ -1,0 +1,11 @@
+{
+  "DemoServerBannerContent.demoServerA1": "阅读文档",
+  "DemoServerBannerContent.demoServerA2": "下载并安装最新版本",
+  "DemoServerBannerContent.demoServerHeader": "欢迎来到 Kolibri 的演示网站",
+  "DemoServerBannerContent.demoServerL1": "学习者 ({user}/{pass} 或使用访客用户)",
+  "DemoServerBannerContent.demoServerL2": "教练 ({user}/{pass})",
+  "DemoServerBannerContent.demoServerL3": "管理员 ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "了解三种主要用户类型中的任何一种：",
+  "DemoServerBannerContent.demoServerP2": "这个Kolibri的在线版本仅用于演示。用户和数据将定期删除。演示展示了最新Kolibri版本的特性，其中的所有资源都是示例。",
+  "DemoServerBannerContent.demoServerP3": "了解更多关于在离线环境下使用Kolibri的信息，更好地理解这个平台："
+}

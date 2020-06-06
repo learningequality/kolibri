@@ -92,10 +92,6 @@
     margin-bottom: 8px;
   }
 
-  .onboarding-form-submit {
-    margin: 0;
-  }
-
   .form-footer {
     margin: 24px 0;
     margin-top: 24px;

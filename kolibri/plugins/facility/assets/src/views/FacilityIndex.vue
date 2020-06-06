@@ -48,8 +48,8 @@
         return this.$route.name;
       },
       immersivePageProps() {
-        let immersivePagePrimary = true;
-        let immersivePageIcon = 'arrow_back';
+        let immersivePagePrimary = false;
+        let immersivePageIcon = 'close';
         let immersivePageRoute;
         let appBarTitle = '';
         if (
@@ -65,8 +65,7 @@
           if (this.class) {
             appBarTitle = this.class.name || '';
           }
-        }
-        if (
+        } else if (
           this.pageName === PageNames.USER_EDIT_PAGE ||
           this.pageName === PageNames.USER_CREATE_PAGE
         ) {
@@ -77,6 +76,9 @@
             },
           };
           appBarTitle = this.coreString('usersLabel');
+        } else if (this.pageName === PageNames.IMPORT_CSV_PAGE) {
+          immersivePageRoute = this.$router.getRoute(PageNames.DATA_EXPORT_PAGE);
+          appBarTitle = this.$tr('importPageHeader');
         }
 
         if (immersivePageRoute) {
@@ -117,6 +119,7 @@
     $trs: {
       adminOrSuperuser: 'You must be signed in as an admin or super admin to view this page',
       facilityLabelWithName: 'Facility – {facilityName}',
+      importPageHeader: 'Import users from spreadsheet',
     },
   };
 
