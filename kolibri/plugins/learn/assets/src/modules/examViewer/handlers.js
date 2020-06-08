@@ -110,7 +110,7 @@ export function showExam(store, params, alreadyOnQuiz) {
             if (questions.some(question => !question.question_id)) {
               store.dispatch(
                 'handleError',
-                `This exam cannot be displayed:\nQuestion sources: ${JSON.stringify(
+                `This quiz cannot be displayed:\nQuestion sources: ${JSON.stringify(
                   questions
                 )}\nExam: ${JSON.stringify(exam)}`
               );
@@ -120,7 +120,7 @@ export function showExam(store, params, alreadyOnQuiz) {
             else if (questionNumber >= questions.length) {
               store.dispatch(
                 'handleError',
-                `Question number ${questionNumber} is not valid for this exam`
+                `Question number ${questionNumber} is not valid for this quiz`
               );
               return;
             }
