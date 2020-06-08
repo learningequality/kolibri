@@ -171,7 +171,7 @@
       listClassesEnrolledL1: 'Can be any type of user',
       listClassesEnrolledL2: 'Write the class names separated by commas',
       listClassesEnrolledL3:
-        'If an existing class does not match by name, a new class with that name  it will be created',
+        'If an existing class does not match by name, a new class with that name will be created',
       listClassesAssigned: {
         message: 'Classes to which the user will be assigned as a coach:',
         context:
