@@ -193,7 +193,7 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
   },
   resourcesUnavailableP2: {
     message:
-      'Consult your administrator for guidance or find channels in your network using an account that has permission to manage channels on this device.',
+      'Consult your administrator for guidance, or use an account with device permissions to manage content channels.',
     context: 'Second paragraph of the "Resources Unavailable - Learn More" modal',
   },
   upgradeKolibriTitle: {
