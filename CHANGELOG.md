@@ -2,6 +2,20 @@
 
 List of the most important changes for each release.
 
+## 0.13.3
+
+### Changed or fixed
+
+- Fixed: Infinite-loop bug when logging into Kolibri through Internet In A Box (IIAB)
+- Fixed: Performance issues and timeouts when viewing large lists of users on the Facility page
+- Fixed: Startup errors when Kolibri is installed via `pip` on non-debian-based Linux distributions
+
+### Internationalization and localization
+
+- Added Simplified Chinese
+
+([0.13.3 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.13.3))
+
 ## 0.13.2
 
 ### Changed or fixed
