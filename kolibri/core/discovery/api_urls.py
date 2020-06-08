@@ -3,6 +3,7 @@ from rest_framework import routers
 from .api import DynamicNetworkLocationViewSet
 from .api import NetworkLocationViewSet
 from .api import StaticNetworkLocationViewSet
+from .api import NetworkLocationFacilitiesView
 
 router = routers.SimpleRouter()
 
@@ -17,5 +18,7 @@ router.register(
     DynamicNetworkLocationViewSet,
     base_name="dynamicnetworklocation",
 )
+
+router.register(r"networklocation_facilities", NetworkLocationFacilitiesView, basename="networklocation_facilities")
 
 urlpatterns = router.urls
