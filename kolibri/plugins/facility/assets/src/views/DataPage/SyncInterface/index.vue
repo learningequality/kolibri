@@ -108,14 +108,13 @@
         });
       },
       handleValidateSuccess(payload) {
-        const { projectName, token } = payload;
-        this.$store.commit('manageSync/SET_PROJECT_NAME', projectName);
+        const { name, token } = payload;
+        this.$store.commit('manageSync/SET_PROJECT_NAME', name);
         this.$store.commit('manageSync/SET_TOKEN', token);
         this.displayModal(Modals.CONFIRMATION_REGISTER);
       },
       handleConfirmationSuccess(payload) {
-        const { targetFacility } = payload;
-        this.$store.commit('manageCSV/SET_REGISTERED', targetFacility);
+        this.$store.commit('manageCSV/SET_REGISTERED', payload);
         this.displayModal(false);
       },
     },

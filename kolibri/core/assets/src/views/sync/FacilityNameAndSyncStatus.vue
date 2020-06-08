@@ -46,17 +46,7 @@
 <script>
 
   import UiIcon from 'keen-ui/src/UiIcon';
-  import has from 'lodash/has';
-  import every from 'lodash/every';
   import { now } from 'kolibri.utils.serverClock';
-
-  const facilityFields = [
-    'name',
-    'dataset.registered',
-    'syncing',
-    'last_sync_failed',
-    'last_synced',
-  ];
 
   export default {
     name: 'FacilityNameAndSyncStatus',
@@ -68,9 +58,6 @@
       facility: {
         type: Object,
         required: true,
-        validator(value) {
-          return every(facilityFields, field => has(value, field));
-        },
       },
     },
     data() {
