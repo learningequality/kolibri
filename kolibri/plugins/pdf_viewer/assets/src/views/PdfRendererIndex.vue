@@ -15,6 +15,52 @@
     />
 
     <template v-else>
+      <transition name="slide">
+        <div
+          v-if="showControls"
+          class="fullscreen-header"
+          :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
+        >
+          <UiIconButton
+            class="button-zoom-in controls"
+            aria-controls="pdf-container"
+            @click="zoomIn"
+          >
+            <mat-svg
+              name="add"
+              category="content"
+            />
+          </UiIconButton>
+          <UiIconButton
+            class="button-zoom-out controls"
+            aria-controls="pdf-container"
+            @click="zoomOut"
+          >
+            <mat-svg
+              name="remove"
+              category="content"
+            />
+          </UiIconButton>
+          <KButton
+            class="fullscreen-button"
+            :primary="false"
+            appearance="flat-button"
+            @click="$refs.pdfRenderer.toggleFullscreen()"
+          >
+            <mat-svg
+              v-if="isInFullscreen"
+              name="fullscreen_exit"
+              category="navigation"
+            />
+            <mat-svg
+              v-else
+              name="fullscreen"
+              category="navigation"
+            />
+            {{ fullscreenText }}
+          </KButton>
+        </div>
+      </transition>
       <RecycleList
         ref="recycleList"
         :items="pdfPages"
@@ -37,33 +83,6 @@
           />
         </template>
       </RecycleList>
-
-      <UiIconButton
-        class="controls button-fullscreen"
-        :style="{ fill: $themeTokens.textInverted }"
-        aria-controls="pdf-container"
-        :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-        color="primary"
-        size="large"
-        @click="$refs.pdfRenderer.toggleFullscreen()"
-      >
-        <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
-        <mat-svg v-else name="fullscreen" category="navigation" />
-      </UiIconButton>
-      <UiIconButton
-        class="controls button-zoom-in"
-        aria-controls="pdf-container"
-        @click="zoomIn"
-      >
-        <mat-svg name="add" category="content" />
-      </UiIconButton>
-      <UiIconButton
-        class="controls button-zoom-out"
-        aria-controls="pdf-container"
-        @click="zoomOut"
-      >
-        <mat-svg name="remove" category="content" />
-      </UiIconButton>
     </template>
   </CoreFullscreen>
 
@@ -119,6 +138,7 @@
       isInFullscreen: false,
       currentLocation: 0,
       updateContentStateInterval: null,
+      showControls: true,
     }),
     computed: {
       ...mapGetters(['sessionTimeSpent']),
@@ -137,6 +157,9 @@
         }
         return 0;
       },
+      fullscreenText() {
+        return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
+      },
     },
     watch: {
       scale(newScale, oldScale) {
@@ -152,6 +175,14 @@
       elementHeight() {
         if (this.recycleListIsMounted) {
           this.debounceForceUpdateRecycleList();
+        }
+      },
+      // Listen to change in scroll position to determine whether we show top control bar or not
+      currentLocation(newPos, oldPos) {
+        if (newPos > oldPos) {
+          this.showControls = false;
+        } else {
+          this.showControls = true;
         }
       },
     },
@@ -333,36 +364,27 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
+  $controls-height: 40px;
 
   .pdf-renderer {
     @extend %momentum-scroll;
+    @extend %dropshadow-2dp;
 
     position: relative;
     height: 500px;
+    // This ensures that showing vs hiding the controls
+    // will not cover visible content below (ie, author name)
+    margin-bottom: $controls-height;
+    overflow-y: hidden;
   }
 
   .controls {
-    position: absolute;
-    z-index: 6; // material spec - snackbar and FAB
-  }
-
-  .button-fullscreen {
-    top: 16px;
-    right: 21px;
-  }
-
-  .button-zoom-in,
-  .button-zoom-out {
-    right: 27px;
-  }
-
-  .button-zoom-in {
-    top: 80px;
-  }
-
-  .button-zoom-out {
-    top: 132px;
+    position: relative;
+    z-index: 0; // Hide icons with transition
+    width: 24px;
+    height: 24px;
+    margin: 0 4px;
   }
 
   .progress-bar {
@@ -376,6 +398,33 @@
     .item-wrapper {
       overflow-x: auto;
     }
+  }
+
+  .fullscreen-button {
+    margin: 0;
+
+    svg {
+      position: relative;
+      top: 8px;
+    }
+  }
+
+  .fullscreen-header {
+    height: $controls-height;
+    text-align: end;
+  }
+
+  .slide-enter-active {
+    transition: all 0.3s ease;
+  }
+
+  .slide-leave-active {
+    transition: all 0.3s ease;
+  }
+
+  .slide-enter,
+  .slide-leave-to {
+    height: 0;
   }
 
 </style>
