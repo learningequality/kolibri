@@ -188,6 +188,7 @@
     },
     created() {
       this.currentLocation = this.savedLocation;
+      this.showControls = true; // Ensures it shows on load even if we're scrolled
       const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
 
       // pass callback to update loading bar
@@ -415,11 +416,15 @@
   }
 
   .slide-enter-active {
-    transition: all 0.3s ease;
+    @extend %md-accelerate-func;
+
+    transition: all 0.3s;
   }
 
   .slide-leave-active {
-    transition: all 0.3s ease;
+    @extend %md-decelerate-func;
+
+    transition: all 0.3s;
   }
 
   .slide-enter,
