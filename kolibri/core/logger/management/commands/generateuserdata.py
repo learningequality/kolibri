@@ -30,7 +30,11 @@ class Command(BaseCommand):
         )
         # Specify a set number of users to generate data for per class
         parser.add_argument(
-            "--users", type=int, default=20, dest="users", help="Users per class"
+            "--users",
+            type=int,
+            default=20,
+            dest="users",
+            help="Users to be created per class.",
         )
         # How many classes to generate and generate data for
         parser.add_argument(
@@ -38,7 +42,7 @@ class Command(BaseCommand):
             type=int,
             default=2,
             dest="classes",
-            help="Classes per facility",
+            help="Classes to be created per facility.",
         )
         # Slightly different from above, in that it will only generate new facilities if there are fewer facilities
         # on the device than specified
@@ -47,34 +51,63 @@ class Command(BaseCommand):
             type=int,
             default=1,
             dest="facilities",
-            help="Number of facilities",
+            help="Number of facilities to create.",
         )
         parser.add_argument(
             "--no-onboarding",
             action="store_true",
             dest="no_onboarding",
-            help="Automatically create superusers and skip onboarding",
+            help="Automatically create superusers and skip onboarding.",
         )
         parser.add_argument(
             "--num-content-items",
             type=int,
             dest="num_content_items",
-            help="Number of content interactions per user",
+            help="Number of content interactions per user.",
         )
         parser.add_argument(
             "--num-lessons",
             type=int,
             default=5,
             dest="num_lessons",
-            help="Number of lessons to be created per class",
+            help="Number of lessons to be created per class.",
         )
         parser.add_argument(
             "--num-exams",
             type=int,
             default=2,
             dest="num_exams",
-            help="Number of exams to be created per class",
+            help="Number of exams to be created per class.",
         )
+        parser.add_argument(
+            "--max-channels",
+            type=int,
+            default=2,
+            dest="max_channels",
+            help="Maximum number of channels to add activities to.",
+        )
+        parser.add_argument(
+            "--num-groups",
+            type=int,
+            default=2,
+            dest="num_groups",
+            help="Number of groups to be created per class.",
+        )
+        parser.add_argument(
+            "--device-name",
+            type=str,
+            default="",
+            dest="device_name",
+            help="Device name to use for this instance. This will be prefixed to the facilities, classes, and users to be created.",
+        )
+        # TODO(cpauya):
+        # parser.add_argument(
+        #     "--channel-token",
+        #     type=str,
+        #     default="",
+        #     dest="channel_token",
+        #     help="Process learner activities only for the channel with this token.  Overrides the max_channels argument.",
+        # )
 
     def handle(self, *args, **options):
         # Load in the user data from the csv file to give a predictable source of user data
@@ -82,20 +115,37 @@ class Command(BaseCommand):
         with io.open(data_path, mode="r", encoding="utf-8") as f:
             user_data = [data for data in csv.DictReader(f)]
 
+        n_seed = options["seed"]
+        n_facilities = options["facilities"]
         n_users = options["users"]
         n_classes = options["classes"]
         no_onboarding = options["no_onboarding"]
         num_content_items = options["num_content_items"]
         num_lessons = options["num_lessons"]
         num_exams = options["num_exams"]
+        max_channels = options["max_channels"]
+        num_groups = options["num_groups"]
+        device_name = options["device_name"]
+        # TODO(cpauya):
+        # channel_token = options["channel_token"]
+
+        # TODO(cpauya): Default to the computer/VM name so we get a unique name for each VM automatically.
+        # if not device_name:
+        #     # Default to computer name.
+        #     # REF: https://stackoverflow.com/questions/4271740/how-can-i-use-python-to-get-the-system-hostname#4271755
+        #     import socket
+        #     device_name = socket.gethostname()
+        #     logger.info("Defaulting 'device_name' to '{0}'.".format(device_name))
 
         # Set the random seed so that all operations will be randomized predictably
-        random.seed(options["seed"])
+        random.seed(n_seed)
 
         # Generate data up to the current time
         now = timezone.now()
 
-        facilities = utils.get_or_create_facilities(n_facilities=options["facilities"])
+        facilities = utils.get_or_create_facilities(
+            n_facilities=n_facilities, device_name=device_name
+        )
 
         # Device needs to be provisioned before adding superusers
         if no_onboarding:
@@ -114,8 +164,24 @@ class Command(BaseCommand):
                 create_superuser(facility=facility)
 
             classrooms = utils.get_or_create_classrooms(
-                n_classes=n_classes, facility=facility
+                n_classes=n_classes, facility=facility, device_name=device_name
             )
+
+            # TODO(cpauya):
+            # if channel_token:
+            #     # TODO(cpauya): which table do we get the channel_token field?
+            #     channels = ChannelMetadata.objects.filter(channel_token=channel_token)
+            # else:
+            #     channels = ChannelMetadata.objects.all()[:max_channels]
+
+            channels = ChannelMetadata.objects.all()
+            if max_channels and max_channels > 0:
+                channels = channels[:max_channels]
+
+            if not channels:
+                logger.info(
+                    "No channels found, cannot add channel activities for learners."
+                )
 
             # Get all the user data at once so that it is distinct across classrooms
             facility_user_data = random.sample(user_data, n_classes * n_users)
@@ -129,6 +195,7 @@ class Command(BaseCommand):
                     classroom=classroom,
                     user_data=classroom_user_data,
                     facility=facility,
+                    device_name=device_name,
                 )
 
                 # Iterate through the slice of the facility_user_data specific to this classroom
@@ -141,7 +208,15 @@ class Command(BaseCommand):
                         n_content_items = int(base_data["Age"])
 
                     # Loop over all local channels to generate data for each channel
-                    for channel in ChannelMetadata.objects.all():
+                    logger.info("    Learner {learner}...".format(learner=user))
+                    for channel in channels:
+                        # TODO(cpauya): check for issue as per Richard's report
+                        # REF: https://github.com/learningequality/kolibri/pull/6983#issuecomment-638980072
+                        logger.info(
+                            "      ==> Adding {channel} channel activity for learner {learner}...".format(
+                                channel=channel, learner=user
+                            )
+                        )
                         utils.add_channel_activity_for_user(
                             n_content_items=n_content_items,
                             channel=channel,
@@ -165,4 +240,15 @@ class Command(BaseCommand):
                     channels=ChannelMetadata.objects.all(),
                     exams=num_exams,
                     now=now,
+                    device_name=device_name,
+                )
+
+                # TODO(cpauya): create groups
+                utils.create_groups_for_classrooms(
+                    classroom=classroom,
+                    facility=facility,
+                    channels=ChannelMetadata.objects.all(),
+                    num_groups=num_groups,
+                    now=now,
+                    device_name=device_name,
                 )
