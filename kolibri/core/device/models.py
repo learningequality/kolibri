@@ -10,6 +10,7 @@ from .utils import LANDING_PAGE_LEARN
 from .utils import LANDING_PAGE_SIGN_IN
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.plugins.app.utils import interface
 
 device_permissions_fields = ["is_superuser", "can_manage_content"]
 
@@ -44,6 +45,10 @@ class DeviceSettingsManager(models.Manager):
         return model
 
 
+def app_is_enabled():
+    return interface.enabled
+
+
 class DeviceSettings(models.Model):
     """
     This class stores data about settings particular to this device
@@ -69,7 +74,7 @@ class DeviceSettings(models.Model):
     allow_guest_access = models.BooleanField(default=True)
     allow_peer_unlisted_channel_import = models.BooleanField(default=False)
     allow_learner_unassigned_resource_access = models.BooleanField(default=True)
-    allow_other_browsers_to_connect = models.NullBooleanField(null=True)
+    allow_other_browsers_to_connect = models.BooleanField(default=app_is_enabled)
 
     def save(self, *args, **kwargs):
         self.pk = 1

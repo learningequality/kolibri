@@ -23,11 +23,6 @@ from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.import_export_content import calculate_files_to_transfer
 from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
 from kolibri.core.device.models import ContentCacheKey
-from kolibri.core.device.utils import (
-    valid_app_key_on_request,
-    allow_other_browsers_to_connect,
-)
-from kolibri.plugins.app.utils import interface
 
 
 class DeviceChannelMetadataSerializer(ChannelMetadataSerializer):
@@ -176,19 +171,3 @@ class DeviceChannelOrderView(APIView):
         )
         ContentCacheKey.update_cache_key()
         return Response({})
-
-
-class RemoteAccess(APIView):
-    def post(self, request, *args, **kwargs):
-        """ Decide if browser requests are allowed or not depending on:
-        - Being in an android app (app plugin is enabled)
-        - Being inside an authorized WebView (isAppContext is True)
-        - The allow_other_browsers_to_connect setting from DeviceSettings
-        """
-        if interface.enabled:
-            isAppContext = valid_app_key_on_request(request)
-            allow_to_connect = allow_other_browsers_to_connect() or False
-            return Response({"allowed": (isAppContext or allow_to_connect)})
-        else:
-            # if the app plugin is not enabled, remote access is enabled by default
-            return Response({"allowed": True})

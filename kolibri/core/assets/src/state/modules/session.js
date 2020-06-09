@@ -40,7 +40,7 @@ export default {
       return state.can_manage_content;
     },
     canAccessUnassignedContent(state, getters) {
-      return state.can_access_unassigned_content && getters.allowRemoteAccess;
+      return state.can_access_unassigned_content && getters.allowAccess;
     },
     isSuperuser(state) {
       return state.kind.includes(UserKinds.SUPERUSER);
