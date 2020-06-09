@@ -122,7 +122,7 @@
       },
       signInAsOtherAdminExplanation: {
         message:
-          "You must sign in as a super admin of a facility different from '{facilityName}' in order to remove it from this device.",
+          "You cannot remove the facility that your user is a member of. To remove '{facilityName}', create a super admin in a different facility and sign in as them.",
         context: 'Modal description text',
       },
     },

@@ -91,7 +91,7 @@
     },
     $trs: {
       sectionTitle: 'Import and export users',
-      sectionDescription: 'You can manage users and classes in bulk:',
+      sectionDescription: 'You can manage, import and export many users and classes at once:',
       exportCSV:
         'Export a CSV file which contains all users, and the classes that they are associated with',
       editCSV: 'Edit user info using an external spreadsheet program',

@@ -74,7 +74,10 @@ MESSAGES = {
         "Error message that might appear when there's a programming error importing a CSV file",
         "Unexpected error [{}]: {}",
     ),
-    TOO_LONG: _("Value in column '{}' is too many characters"),
+    TOO_LONG: pgettext_lazy(
+        "Error when the command is executed in the Terminal (command prompt)",
+        "Value in column '{}' has too many characters",
+    ),
     INVALID: _("Invalid value in column '{}'"),
     DUPLICATED_USERNAME: _("Username is duplicated"),
     INVALID_USERNAME: _(
@@ -88,8 +91,9 @@ MESSAGES = {
         "Error message indicating that one column header in the CSV file selected for import is missing or incorrect",
         "Invalid header label found in the first row",
     ),
-    NO_FACILITY: _(
-        "No default facility exists. Make sure to provision this device before importing"
+    NO_FACILITY: pgettext_lazy(
+        "Error when the command is executed in the Terminal (command prompt)",
+        "No default facility exists. Make sure to set up a facility on the  device before importing users and classes",
     ),
     FILE_READ_ERROR: _("Error trying to read csv file: {}"),
     FILE_WRITE_ERROR: _("Error trying to write csv file: {}"),
@@ -97,7 +101,7 @@ MESSAGES = {
         "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
     ),
     NON_EXISTENT_UUID: _(
-        "Cannot update update '{}' because no user with that database ID exists in this facility"
+        "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
     ),
     INVALID_UUID: _("Database ID is not valid"),
 }

@@ -85,7 +85,7 @@
     },
     $trs: {
       someTasksComplete:
-        '{done, number} of {total, plural, one {{total, number} task} other {{total, number} tasks}} complete',
+        '{done, number} of {total, plural, one {{total, number} task completed} other {{total, number} tasks completed}}',
       taskManagerLink: 'View task manager',
     },
   };

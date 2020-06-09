@@ -127,7 +127,7 @@
     $trs: {
       viewPermissions: 'View Permissions',
       editPermissions: 'Edit Permissions',
-      noUsersMatching: 'No users matching filters',
+      noUsersMatching: 'No users match the selected filters',
       selfUsernameLabel: '{full_name} (You)',
     },
   };

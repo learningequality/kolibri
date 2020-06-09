@@ -169,10 +169,15 @@
       yearInfo: 'A four-digit year, greater than 1900',
       listClassesEnrolled: 'Classes to enroll the user in as a learner:',
       listClassesEnrolledL1: 'Can be any type of user',
-      listClassesEnrolledL2: 'List of class names, separated by commas',
-      listClassesEnrolledL3: 'If an existing class does not match by name, it will be created',
-      listClassesAssigned: 'Classes to assign the user to as a coach:',
-      listClassesAssignedL1: 'Valid only for Coach and Admin user types',
+      listClassesEnrolledL2: 'Write the class names separated by commas',
+      listClassesEnrolledL3:
+        'If an existing class does not match by name, a new class with that name will be created',
+      listClassesAssigned: {
+        message: 'Classes to which the user will be assigned as a coach:',
+        context:
+          'Description of a column in the CSV (comma separated values) file used to import and export users. Values in this column indicate classes where a coach user will be assigned to.',
+      },
+      listClassesAssignedL1: 'Do not use for learner users',
       listClassesAssignedL2: 'List of class names, separated by commas',
       listClassesAssignedL3: 'If an existing class does not match by name, it will be created',
       columnNameHeader: 'Column',

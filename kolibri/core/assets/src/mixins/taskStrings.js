@@ -101,7 +101,7 @@ const taskStrings = createTranslator('TaskStrings', {
     context: '',
   },
   importFailedStatus: {
-    message: `Could not load '{facilityName}' to this device`,
+    message: `Could not import '{facilityName}'`,
     context: '',
   },
 });

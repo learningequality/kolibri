@@ -76,7 +76,7 @@
           'Label on radio button for Kolibri Data Portal, which requires an internet connection',
       },
       dataPortalDescription: {
-        message: 'Sync to Kolibri Data Portal if your facility is registered to a Project',
+        message: 'Sync to Kolibri Data Portal if your facility is registered',
         context: 'Description of the sync option',
       },
       localNetworkLabel: {
@@ -85,7 +85,7 @@
       },
       localNetworkDescription: {
         message:
-          'Sync facility data with another instance of Kolibri, either in the same local network or on the internet',
+          'Sync facility data with another instance of Kolibri on your local network or the internet',
         context: 'Description of the sync option',
       },
     },
