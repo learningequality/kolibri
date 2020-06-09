@@ -13,16 +13,10 @@
       color="white"
       :class="{ 'rtl-icon': isRtl }"
       @click="$emit('click_back')"
-    >
-      <KIcon
-        icon="back"
-        :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
-      />
-      <span>
-        {{ title || coreString('kolibriLabel') }}
-      </span>
-    </KIconButton>
+    />
+    <span>
+      {{ title || coreString('kolibriLabel') }}
+    </span>
   </UiToolbar>
 
 </template>
