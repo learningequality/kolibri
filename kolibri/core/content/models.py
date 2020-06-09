@@ -56,16 +56,22 @@ class ContentTag(base_models.ContentTag):
 class ContentNodeQueryset(TreeQuerySet, FilterByUUIDQuerysetMixin):
     def dedupe_by_content_id(self, use_distinct=True):
         # Cannot use distinct if queryset is also going to use annotate,
-        # so optional use_distinct flag can be used to fallback to the
-        # sqlite behaviour.
+        # so optional use_distinct flag can be used to fallback to a subquery
         # remove duplicate content nodes based on content_id
         if connection.vendor == "sqlite" or not use_distinct:
-            # adapted from https://code.djangoproject.com/ticket/22696
-            deduped_ids = (
-                self.values("content_id")
-                .annotate(node_id=Min("id"))
-                .values_list("node_id", flat=True)
-            )
+            if connection.vendor == "postgresql":
+                # Create a subquery of all contentnodes deduped by content_id
+                # to avoid calling distinct on an annotated queryset.
+                deduped_ids = self.model.objects.order_by("content_id").distinct(
+                    "content_id"
+                )
+            else:
+                # adapted from https://code.djangoproject.com/ticket/22696
+                deduped_ids = (
+                    self.values("content_id")
+                    .annotate(node_id=Min("id"))
+                    .values_list("node_id", flat=True)
+                )
             return self.filter_by_uuids(deduped_ids)
 
         # when using postgres, we can call distinct on a specific column
