@@ -13,7 +13,7 @@
         <div class="table-cell main-cell">
           <!-- remote access disabled -->
           <div
-            v-if="!$store.getters.allowRemoteAccess"
+            v-if="!$store.getters.allowAccess"
             class="box"
             :style="{ backgroundColor: $themePalette.grey.v_100 }"
           >
