@@ -1,29 +1,20 @@
 <template>
 
-  <UiIconButton
-    type="secondary"
+  <KIconButton
+    icon="tune"
     :ariaLabel="$tr('toggleSettingsSideBar')"
     data-test="settings button"
+    size="small"
     @click="$emit('click')"
-  >
-    <mat-svg
-      name="tune"
-      category="image"
-    />
-  </UiIconButton>
+  />
 
 </template>
 
 
 <script>
 
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-
   export default {
     name: 'SettingsButton',
-    components: {
-      UiIconButton,
-    },
     $trs: {
       toggleSettingsSideBar: 'Toggle settings',
     },

@@ -47,13 +47,10 @@ oriented data synchronization.
       :class="{ 'mobile': windowIsSmall }"
     >
       <div class="overall-status" :style="{ color: $themeTokens.text }">
-        <mat-svg
-          name="stars"
-          category="action"
-          :style="{
-            fill: success ? $themeTokens.mastered : $themePalette.grey.v_200,
-            marginBottom: '-6px',
-          }"
+        <KIcon
+          icon="mastered"
+          :color="success ? $themeTokens.mastered : $themePalette.grey.v_200"
+          style="margin-bottom: -6px;"
         />
         <div class="overall-status-text">
           <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
@@ -71,7 +68,6 @@ oriented data synchronization.
               <KButton
                 v-if="!complete"
                 appearance="raised-button"
-                class="question-btn"
                 :text="$tr('check')"
                 :primary="true"
                 :class="{ shaking: shake }"
@@ -81,7 +77,6 @@ oriented data synchronization.
               <KButton
                 v-else
                 appearance="raised-button"
-                class="question-btn"
                 :text="$tr('next')"
                 :primary="true"
                 @click="nextQuestion"
@@ -114,7 +109,7 @@ oriented data synchronization.
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import shuffled from 'kolibri.utils.shuffled';
   import { now } from 'kolibri.utils.serverClock';
-  import UiAlert from 'kolibri.coreVue.components.UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
@@ -532,7 +527,7 @@ oriented data synchronization.
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .attempts-container {
     height: 111px;
@@ -575,10 +570,6 @@ oriented data synchronization.
     padding-left: 8px;
     overflow-x: auto;
     overflow-y: hidden;
-  }
-
-  .question-btn {
-    margin: 0;
   }
 
   // checkAnswer btn animation

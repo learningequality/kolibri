@@ -21,15 +21,12 @@ class DeviceManagementAsset(WebpackBundleHook):
 
 
 @register_hook
-class DeviceFirstTimeRedirect(RoleBasedRedirectHook):
+class DeviceRedirect(RoleBasedRedirectHook):
     roles = (SUPERUSER,)
-    first_login = True
 
     @property
     def url(self):
-        return (
-            self.plugin_url(DeviceManagementPlugin, "device_management") + "#/welcome"
-        )
+        return self.plugin_url(DeviceManagementPlugin, "device_management")
 
 
 @register_hook

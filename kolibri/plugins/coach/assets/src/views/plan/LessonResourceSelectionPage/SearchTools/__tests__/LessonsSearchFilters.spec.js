@@ -51,7 +51,10 @@ describe('LessonsSearchFilters', () => {
       searchResults: {
         channel_ids: ['123'],
         content_kinds: [],
-        results: [{ kind: 'html5', channel_id: '123' }, { kind: 'exercise', channel_id: '123' }],
+        results: [
+          { kind: 'html5', channel_id: '123' },
+          { kind: 'exercise', channel_id: '123' },
+        ],
       },
     });
     await wrapper.vm.$nextTick();

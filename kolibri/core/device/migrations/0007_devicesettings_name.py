@@ -10,9 +10,7 @@ import kolibri.core.device.models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("device", "0006_migrate_guest_access"),
-    ]
+    dependencies = [("device", "0006_migrate_guest_access")]
 
     operations = [
         migrations.AddField(
@@ -21,5 +19,5 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 default=kolibri.core.device.models.get_device_hostname, max_length=50
             ),
-        ),
+        )
     ]

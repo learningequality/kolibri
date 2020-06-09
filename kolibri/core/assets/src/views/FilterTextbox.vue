@@ -6,7 +6,7 @@
       :style="{ color: $themeTokens.annotation }"
       :ariaLabel="$tr('filter')"
     >
-      <mat-svg name="search" category="action" />
+      <KIcon icon="search" />
     </UiIcon>
 
     <input
@@ -22,17 +22,14 @@
       :autofocus="autofocus"
     >
 
-    <UiIconButton
-      color="black"
+    <KIconButton
       size="small"
       class="k-filter-clear-button"
+      icon="clear"
       :class="model === '' ? '' : 'k-filter-clear-button-visible'"
-      :style="{ color: $themeTokens.text }"
       :ariaLabel="$tr('clear')"
       @click="model = ''"
-    >
-      <mat-svg name="clear" category="content" />
-    </UiIconButton>
+    />
   </div>
 
 </template>
@@ -41,8 +38,7 @@
 <script>
 
   import throttle from 'lodash/throttle';
-  import UiIcon from 'keen-ui/src/UiIcon';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
   /**
    * Used to filter items via text input
    */
@@ -50,7 +46,6 @@
     name: 'FilterTextbox',
     components: {
       UiIcon,
-      UiIconButton,
     },
     props: {
       /**
@@ -119,7 +114,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .k-filter {
     position: relative;
@@ -130,7 +125,7 @@
 
   .k-filter-icon {
     position: absolute;
-    top: 9px;
+    top: 6px;
     left: 0;
     margin-right: 8px;
     margin-left: 8px;
@@ -151,7 +146,7 @@
 
   .k-filter-clear-button {
     position: absolute;
-    top: 9px;
+    top: 6px;
     right: 0;
     width: 24px;
     height: 24px;

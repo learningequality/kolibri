@@ -263,9 +263,6 @@ The ``docker/`` directory contains the docker files and startup scripts needed f
 
  * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies (image tag ``leaningequality:kolibirbase``).
  * ``docker/build_whl.dockerfile``: generates a ``.whl``, ``tar.gz``, and ``.pex`` files in ``dist/``
- * ``docker/build_debian.dockerfile``: used to build Kolibri ``.deb`` package, and additionally
-   the docker files ``test_bionic.dockerfile``, ``test_trusty.dockerfile``, and
-   ``test_xenial.dockerfile`` can be used for test-installing the ``.deb`` file.
  * ``docker/build_windows.dockerfile``: used to generate the Windows installer.
  * ``docker/dev.dockerfile``: container with full development setup, running devserver.
  * ``docker/demoserver.dockerfile``: runs the pex from ``KOLIBRI_PEX_URL`` with production setup.
@@ -356,7 +353,7 @@ Frontend dev tools
 
 `Vue.js devtools <https://github.com/vuejs/vue-devtools>`__ is a browser plugin that is very helpful when working with Vue.js components and Vuex.
 
-So ensure an more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylint.
+So ensure an more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylelint.
 
 
 Database setup

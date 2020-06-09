@@ -17,10 +17,7 @@ class WebpackErrorHandler:
             logger.error("WebpackError: {}".format(str(exception)))
             for key in exception.extra_info:
                 logger.error("{}: {}".format(key, exception.extra_info[key]))
-            context = {
-                "message": str(exception),
-                "extra_info": exception.extra_info,
-            }
+            context = {"message": str(exception), "extra_info": exception.extra_info}
             return render(request, "kolibri/webpack_error.html", context)
         return None
 

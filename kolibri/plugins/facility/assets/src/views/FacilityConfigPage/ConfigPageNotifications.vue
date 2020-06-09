@@ -31,7 +31,7 @@
 
 <script>
 
-  import UiAlert from 'kolibri.coreVue.components.UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { notificationTypes } from '../../constants';
 
   export default {

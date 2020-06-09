@@ -50,7 +50,7 @@
   import find from 'lodash/find';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { TaskResource } from 'kolibri.resources';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import DeviceChannelResource from '../../apiResources/deviceChannel';
   import taskNotificationMixin from '../taskNotificationMixin';
   import SelectionBottomBar from './SelectionBottomBar';

@@ -15,16 +15,14 @@
         appearance="flat-button"
         @click="$refs.html5Renderer.toggleFullscreen()"
       >
-        <mat-svg
+        <KIcon
           v-if="isInFullscreen"
-          name="fullscreen_exit"
-          category="navigation"
+          icon="fullscreen_exit"
           class="fs-icon"
         />
-        <mat-svg
+        <KIcon
           v-else
-          name="fullscreen"
-          category="navigation"
+          icon="fullscreen"
           class="fs-icon"
         />
         {{ fullscreenText }}
@@ -159,7 +157,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .fullscreen-header {
     text-align: right;
@@ -167,7 +165,9 @@
 
   .fs-icon {
     position: relative;
-    top: 6px;
+    top: 8px;
+    width: 24px;
+    height: 24px;
   }
 
   .html5-renderer {

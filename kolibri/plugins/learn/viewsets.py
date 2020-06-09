@@ -180,9 +180,7 @@ class LearnerLessonViewset(ValuesViewset):
         "collection__parent_id",
     )
 
-    field_map = {
-        "classroom": _map_lesson_classroom,
-    }
+    field_map = {"classroom": _map_lesson_classroom}
 
     def get_queryset(self):
         if self.request.user.is_anonymous():

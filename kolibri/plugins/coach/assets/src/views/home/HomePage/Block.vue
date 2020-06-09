@@ -65,7 +65,7 @@
   .btn {
     position: relative;
     top: 4px;
-    right: -24px;
+    right: -8px;
     // Override inline-table rule to get focus outline to show.
     // May not be safe to do everywhere, since it could cause
     // vertical alignment issues like in #5606

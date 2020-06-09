@@ -126,7 +126,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
   .ui-menu-header {
     padding: 1rem 1rem 1rem 50px;
     font-size: 0.9375rem;

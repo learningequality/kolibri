@@ -391,9 +391,7 @@ class DeviceInfoTestCase(APITestCase):
 
 
 class DeviceNameTestCase(APITestCase):
-    device_name = {
-        "name": "test device",
-    }
+    device_name = {"name": "test device"}
 
     def setUp(self):
         super(DeviceNameTestCase, self).setUp()

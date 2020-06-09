@@ -2,20 +2,18 @@
 
   <span class="pos-rel">
     <span ref="icon">
-      <mat-svg
+      <KIcon
         v-if="hasSuperAdminPermission"
         class="icon super-admin"
         :style="{ fill: $themeTokens.superAdmin }"
-        name="vpn_key"
-        category="communication"
+        icon="permission"
       />
 
-      <mat-svg
+      <KIcon
         v-else-if="hasLimitedPermissions"
         class="icon some-permissions"
         :style="{ fill: $themeTokens.text }"
-        name="vpn_key"
-        category="communication"
+        icon="permission"
       />
     </span>
     <KTooltip

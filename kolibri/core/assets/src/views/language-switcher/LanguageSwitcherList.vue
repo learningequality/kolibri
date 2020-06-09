@@ -1,39 +1,35 @@
 <template>
 
   <div>
-    <UiIconButton
-      type="secondary"
-      class="globe"
-      aria-hidden="true"
-      tabindex="-1"
-      @click="showLanguageModal = true"
-    >
-      <mat-svg
-        name="language"
-        category="action"
+    <KButtonGroup style="margin-top: 8px;">
+      <KIconButton
+        icon="language"
+        aria-hidden="true"
+        tabindex="-1"
+        class="globe"
+        @click="showLanguageModal = true"
       />
-    </UiIconButton>
+      <span class="selected" :title="selectedLanguage.english_name">
+        {{ selectedLanguage.lang_name }}
+      </span>
+      <KButton
+        v-for="language in buttonLanguages"
+        :key="language.id"
+        :text="language.lang_name"
+        :title="language.english_name"
+        class="lang"
+        appearance="basic-link"
+        @click="switchLanguage(language.id)"
+      />
 
-    <span class="selected" :title="selectedLanguage.english_name">
-      {{ selectedLanguage.lang_name }}
-    </span>
-    <KButton
-      v-for="language in buttonLanguages"
-      :key="language.id"
-      :text="language.lang_name"
-      :title="language.english_name"
-      class="lang"
-      appearance="basic-link"
-      @click="switchLanguage(language.id)"
-    />
-    <KButton
-      v-if="numSelectableLanguages > numVisibleLanguages + 1"
-      :text="$tr('showMoreLanguagesSelector')"
-      :primary="false"
-      appearance="flat-button"
-      class="more"
-      @click="showLanguageModal = true"
-    />
+      <KButton
+        v-if="numSelectableLanguages > numVisibleLanguages + 1"
+        :text="$tr('showMoreLanguagesSelector')"
+        :primary="false"
+        appearance="flat-button"
+        @click="showLanguageModal = true"
+      />
+    </KButtonGroup>
     <LanguageSwitcherModal
       v-if="showLanguageModal"
       class="ta-l"
@@ -48,7 +44,6 @@
 
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { compareLanguages } from 'kolibri.utils.sortLanguages';
   import languageSwitcherMixin from './mixin';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
@@ -59,7 +54,6 @@
     name: 'LanguageSwitcherList',
     components: {
       LanguageSwitcherModal,
-      UiIconButton,
     },
     mixins: [responsiveWindowMixin, languageSwitcherMixin],
     data() {
@@ -118,25 +112,15 @@
 
   .globe {
     position: relative;
-    top: -2px;
     right: -4px;
   }
 
   .selected {
-    margin: 8px;
+    margin-left: 8px;
   }
 
   .lang {
     @include font-family-language-names;
-
-    margin-right: 8px;
-    margin-left: 8px;
-  }
-
-  .more {
-    margin: 0;
-    margin-top: 8px;
-    margin-bottom: 8px;
   }
 
   .ta-l {

@@ -242,7 +242,7 @@
         context: 'Label for a button used to import a facility on the device',
       },
       facilityRemovedSnackbar: {
-        message: `Removed '{facilityName}' from this device`,
+        message: "Removed '{facilityName}' from this device",
         context: 'Notification that appears after a facility has been deleted',
       },
     },

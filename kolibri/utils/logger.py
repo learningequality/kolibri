@@ -276,7 +276,7 @@ def get_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "level": "ERROR",
                 "class": "django.utils.log.AdminEmailHandler",
                 "filters": ["require_debug_false"],
-            },
+            }
         }
     )
     # Add the mail_admins handler

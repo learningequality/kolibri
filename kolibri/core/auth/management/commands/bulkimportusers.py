@@ -274,9 +274,7 @@ class Validator(object):
                         classroom_real_name = class_list_normalized[classroom.lower()]
                         class_list[classroom_real_name].append(username)
                     else:
-                        class_list[classroom] = [
-                            username,
-                        ]
+                        class_list[classroom] = [username]
                         class_list_normalized[classroom.lower()] = classroom
             except AttributeError:
                 # there are not members of 'key'
@@ -400,9 +398,7 @@ class Command(AsyncCommand):
         validator.add_check(
             "USERNAME", value_length(125), MESSAGES[TOO_LONG].format("USERNAME")
         )
-        validator.add_check(
-            "USERNAME", valid_name(), MESSAGES[INVALID_USERNAME],
-        )
+        validator.add_check("USERNAME", valid_name(), MESSAGES[INVALID_USERNAME])
         validator.add_check(
             "USERNAME", not_empty(), MESSAGES[REQUIRED_COLUMN].format("USERNAME")
         )

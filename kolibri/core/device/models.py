@@ -1,9 +1,11 @@
 import platform
 import time
+from uuid import uuid4
 
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models
+from morango.models import UUIDField
 
 from .utils import LANDING_PAGE_LEARN
 from .utils import LANDING_PAGE_SIGN_IN
@@ -119,4 +121,41 @@ class ContentCacheKey(models.Model):
                 cache_key = cls.update_cache_key()
             key = cache_key.key
             cache.set(CONTENT_CACHE_KEY_CACHE_KEY, key, 5000)
+        return key
+
+
+APP_KEY_CACHE_KEY = "app_key"
+
+
+class DeviceAppKey(models.Model):
+    """
+    This class stores a key that is checked to make sure that a webview
+    is making requests from a privileged device (i.e. from inside an
+    app-wrapper webview)
+    """
+
+    key = UUIDField(default=uuid4)
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super(DeviceAppKey, self).save(*args, **kwargs)
+
+    @classmethod
+    def update_app_key(cls):
+        app_key, created = cls.objects.get_or_create()
+        app_key.key = uuid4()
+        app_key.save()
+        cache.set(APP_KEY_CACHE_KEY, app_key.key, 5000)
+        return app_key
+
+    @classmethod
+    def get_app_key(cls):
+        key = cache.get(APP_KEY_CACHE_KEY)
+        if key is None:
+            try:
+                app_key = cls.objects.get()
+            except cls.DoesNotExist:
+                app_key = cls.update_app_key()
+            key = app_key.key
+            cache.set(APP_KEY_CACHE_KEY, key, 5000)
         return key

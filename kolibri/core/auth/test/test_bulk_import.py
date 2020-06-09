@@ -139,9 +139,7 @@ class ImportTestCase(TestCase):
         self.create_csv(new_filepath, rows[1:])  # remove header
         self.filepath = new_filepath
         # import exported csv
-        call_command(
-            "bulkimportusers", self.filepath, facility=self.facility.id,
-        )
+        call_command("bulkimportusers", self.filepath, facility=self.facility.id)
         current_classes = Classroom.objects.filter(parent_id=self.facility).all()
         for classroom in current_classes:
             assert len(classroom.get_members()) == CLASSROOMS
@@ -277,9 +275,7 @@ class ImportTestCase(TestCase):
             ],
         ]
         self.create_csv(first_filepath, rows)
-        call_command(
-            "bulkimportusers", first_filepath, facility=self.facility.id,
-        )
+        call_command("bulkimportusers", first_filepath, facility=self.facility.id)
         user1 = FacilityUser.objects.get(username="new_learner")
         passwd1 = user1.password
         uid1 = user1.id
@@ -354,7 +350,7 @@ class ImportTestCase(TestCase):
         ]
         self.create_csv(new_filepath, rows)
         call_command(
-            "bulkimportusers", new_filepath, "--delete", facility=self.facility.id,
+            "bulkimportusers", new_filepath, "--delete", facility=self.facility.id
         )
 
         # Previous users have been deleted, excepting the existing admin:
@@ -417,9 +413,7 @@ class ImportTestCase(TestCase):
             ],
         ]
         self.create_csv(new_filepath, rows)
-        call_command(
-            "bulkimportusers", new_filepath, facility=self.facility.id,
-        )
+        call_command("bulkimportusers", new_filepath, facility=self.facility.id)
         assert FacilityUser.objects.count() == old_users + 2
         current_classes = Classroom.objects.filter(parent_id=self.facility).all()
         for classroom in current_classes:
@@ -468,9 +462,7 @@ class ImportTestCase(TestCase):
             ],
         ]
         self.create_csv(new_filepath, rows)
-        call_command(
-            "bulkimportusers", new_filepath, facility=self.facility.id,
-        )
+        call_command("bulkimportusers", new_filepath, facility=self.facility.id)
         classrooms = Classroom.objects.all()
         assert len(classrooms) == 3
 
@@ -487,12 +479,10 @@ class ImportTestCase(TestCase):
                 "FEMALE",
                 " My CLASS, Just another class ",
                 "Another CLASS ",
-            ],
+            ]
         ]
         self.create_csv(new_filepath, rows)
-        call_command(
-            "bulkimportusers", new_filepath, facility=self.facility.id,
-        )
+        call_command("bulkimportusers", new_filepath, facility=self.facility.id)
         classrooms = Classroom.objects.all()
         assert len(classrooms) == 4
 

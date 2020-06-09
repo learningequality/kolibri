@@ -5,10 +5,10 @@ from subprocess import CalledProcessError
 from subprocess import check_output
 
 import cherrypy
-import ifcfg
 import requests
 from cherrypy.process.plugins import SimplePlugin
 from django.conf import settings
+from zeroconf import get_all_addresses
 
 import kolibri
 from .system import kill_pid
@@ -26,6 +26,11 @@ try:
 except NotImplementedError:
     # This module can't work on this OS
     psutil = None
+
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
 
 logger = logging.getLogger(__name__)
 
@@ -202,6 +207,57 @@ def calculate_cache_size():
     return MIN_CACHE
 
 
+class MultiStaticDispatcher(cherrypy._cpdispatch.Dispatcher):
+    """
+    A special cherrypy Dispatcher extension to dispatch static content from a series
+    of directories on a search path. The first directory in which a file is found for
+    the path is used, and if it's not found in any of them, then the handler for the
+    first one is used, which will then likely return a NotFound error.
+    """
+
+    def __init__(self, search_paths, *args, **kwargs):
+
+        assert len(search_paths) >= 1, "Must provide at least one path in search_paths"
+
+        self.static_handlers = []
+
+        # build a cherrypy static file handler for each of the directories in search path
+        for search_path in search_paths:
+
+            search_path = os.path.normpath(os.path.expanduser(search_path))
+
+            content_files_handler = cherrypy.tools.staticdir.handler(
+                section="/", dir=search_path
+            )
+
+            content_files_handler.search_path = search_path
+
+            self.static_handlers.append(content_files_handler)
+
+        super(MultiStaticDispatcher, self).__init__(*args, **kwargs)
+
+    def find_handler(self, path):
+
+        super(MultiStaticDispatcher, self).find_handler(path)
+
+        if len(self.static_handlers) == 1:
+            return (self.static_handlers[0], [])
+
+        # loop over all the static handlers to see if they have the file we want
+        for handler in self.static_handlers:
+
+            filepath = os.path.join(handler.search_path, path.strip("/"))
+
+            # ensure the user-provided path doesn't try to jump up levels
+            if not os.path.normpath(filepath).startswith(handler.search_path):
+                continue
+
+            if os.path.exists(filepath):
+                return (handler, [])
+
+        return (self.static_handlers[0], [])
+
+
 def configure_http_server(port):
     # Mount the application
     from kolibri.deployment.default.wsgi import application
@@ -227,31 +283,32 @@ def configure_http_server(port):
     )
 
     # Mount content files
-    content_files_handler = cherrypy.tools.staticdir.handler(
-        section="/", dir=paths.get_content_dir_path()
-    )
-
-    url_path_prefix = conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
-
+    CONTENT_ROOT = "/" + paths.get_content_url(
+        conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+    ).lstrip("/")
+    content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
+    dispatcher = MultiStaticDispatcher(content_dirs)
     cherrypy.tree.mount(
-        content_files_handler,
-        "/{}".format(paths.get_content_url(url_path_prefix).lstrip("/")),
-        config={"/": {"tools.caching.on": False}},
+        None,
+        CONTENT_ROOT,
+        config={"/": {"tools.caching.on": False, "request.dispatch": dispatcher}},
     )
-
-    # Instantiate a new server object
-    server = cherrypy._cpserver.Server()
 
     # Configure the server
-    server.socket_host = LISTEN_ADDRESS
-    server.socket_port = port
-    server.thread_pool = conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"]
-    server.socket_timeout = conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"]
-    server.accepted_queue_size = conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"]
-    server.accepted_queue_timeout = conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"]
-
+    cherrypy.config.update(
+        {
+            "server.socket_host": LISTEN_ADDRESS,
+            "server.socket_port": port,
+            "server.thread_pool": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
+            "server.socket_timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
+            "server.accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+            "server.accepted_queue_timeout": conf.OPTIONS["Server"][
+                "CHERRYPY_QUEUE_TIMEOUT"
+            ],
+        }
+    )
     # Subscribe this server
-    server.subscribe()
+    cherrypy.server.subscribe()
 
 
 def run_server(port, serve_http=True):
@@ -263,12 +320,16 @@ def run_server(port, serve_http=True):
 
     cherrypy.config.update(
         {
-            "environment": "production",
+            "engine.autoreload.on": False,
+            "checker.on": False,
+            "request.show_tracebacks": False,
+            "request.show_mismatched_params": False,
             "tools.expires.on": True,
             "tools.expires.secs": 31536000,
             "tools.caching.on": True,
             "tools.caching.maxobj_size": 2000000,
             "tools.caching.maxsize": calculate_cache_size(),
+            "tools.log_headers.on": False,
             "log.screen": False,
             "log.access_file": "",
             "log.error_file": "",
@@ -461,9 +522,8 @@ def get_urls(listen_port=None):
         urls = []
         if port:
             try:
-                interfaces = ifcfg.interfaces()
-                for interface in filter(lambda i: i["inet"], interfaces.values()):
-                    urls.append("http://{}:{}/".format(interface["inet"], port))
+                for ip in get_all_addresses():
+                    urls.append("http://{}:{}/".format(ip, port))
             except RuntimeError:
                 logger.error("Error retrieving network interface list!")
         return STATUS_RUNNING, urls
@@ -489,7 +549,10 @@ def installation_type(cmd_line=None):  # noqa:C901
             apt_repo = str(check_output(["apt-cache", "madison", "kolibri"]))
             if apt_repo:
                 install_type = "apt"
-        except CalledProcessError:  # kolibri package not installed!
+        except (
+            CalledProcessError,
+            FileNotFoundError,
+        ):  # kolibri package not installed!
             install_type = "whl"
         return install_type
 
@@ -532,14 +595,12 @@ def installation_type(cmd_line=None):  # noqa:C901
         elif "start" in cmd_line:
             install_type = "whl"
     if on_android():
-        from jnius import autoclass
 
-        context = autoclass("org.kivy.android.PythonActivity")
-        version_name = (
-            context.getPackageManager()
-            .getPackageInfo(context.getPackageName(), 0)
-            .versionName
-        )
-        install_type = "apk - {}".format(version_name)
+        version_name = os.environ.get("KOLIBRI_APK_VERSION_NAME")
+
+        if version_name:
+            install_type = "apk - {}".format(version_name)
+        else:
+            install_type = "apk"
 
     return install_type

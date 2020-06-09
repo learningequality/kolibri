@@ -1,4 +1,5 @@
 import logging
+from uuid import UUID
 
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
@@ -22,11 +23,17 @@ from kolibri.core.content.utils.file_availability import (
 from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_remote,
 )
-from kolibri.core.utils.cache import CrossProcessCache
+from kolibri.core.utils.cache import process_cache
 
 logger = logging.getLogger(__name__)
 
 CONTENT_APP_NAME = KolibriContentConfig.label
+
+
+def coerce_key(key):
+    if isinstance(key, UUID):
+        return key.hex
+    return key
 
 
 def get_channel_annotation_stats(channel_id, checksums=None):
@@ -212,7 +219,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):
         )
 
         for stat in level_stats:
-            stats[stat[0]] = {
+            stats[coerce_key(stat[0])] = {
                 "coach_content": bool(stat[1]),
                 "num_coach_contents": stat[2] or 0,
                 "total_resources": stat[3] or 0,
@@ -234,7 +241,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):
         )
     ).fetchone()
 
-    stats[root_node_stats[0]] = {
+    stats[coerce_key(root_node_stats[0])] = {
         "coach_content": root_node_stats[1],
         "num_coach_contents": root_node_stats[2],
         "total_resources": root_node_stats[3],
@@ -248,20 +255,17 @@ def get_channel_annotation_stats(channel_id, checksums=None):
     return stats
 
 
-cache = CrossProcessCache(3600)
-
-
 CHANNEL_STATS_CACHED_KEYS = "CHANNEL_STATS_CACHED_KEYS_{channel_id}"
 
 
 # Used for tracking which keys are cached for which channel
 # we can then clear these when necessary
 def register_key_as_cached(key, channel_id):
-    cached_keys = cache.get(
+    cached_keys = process_cache.get(
         CHANNEL_STATS_CACHED_KEYS.format(channel_id=channel_id), set()
     )
     cached_keys.add(key)
-    cache.set(
+    process_cache.set(
         CHANNEL_STATS_CACHED_KEYS.format(channel_id=channel_id), cached_keys, None
     )
 
@@ -270,13 +274,13 @@ def get_channel_stats_from_disk(channel_id, drive_id):
     CACHE_KEY = "DISK_CHANNEL_STATS_{drive_id}_{channel_id}".format(
         drive_id=drive_id, channel_id=channel_id
     )
-    if CACHE_KEY not in cache:
+    if CACHE_KEY not in process_cache:
         checksums = get_available_checksums_from_disk(channel_id, drive_id)
         channel_stats = get_channel_annotation_stats(channel_id, checksums)
-        cache.set(CACHE_KEY, channel_stats, 3600)
+        process_cache.set(CACHE_KEY, channel_stats, 3600)
         register_key_as_cached(CACHE_KEY, channel_id)
     else:
-        channel_stats = cache.get(CACHE_KEY)
+        channel_stats = process_cache.get(CACHE_KEY)
     return channel_stats
 
 
@@ -284,31 +288,33 @@ def get_channel_stats_from_peer(channel_id, peer_id):
     CACHE_KEY = "PEER_CHANNEL_STATS_{peer_id}_{channel_id}".format(
         peer_id=peer_id, channel_id=channel_id
     )
-    if CACHE_KEY not in cache:
+    if CACHE_KEY not in process_cache:
         checksums = get_available_checksums_from_remote(channel_id, peer_id)
         channel_stats = get_channel_annotation_stats(channel_id, checksums)
-        cache.set(CACHE_KEY, channel_stats, 3600)
+        process_cache.set(CACHE_KEY, channel_stats, 3600)
         register_key_as_cached(CACHE_KEY, channel_id)
     else:
-        channel_stats = cache.get(CACHE_KEY)
+        channel_stats = process_cache.get(CACHE_KEY)
     return channel_stats
 
 
 def get_channel_stats_from_studio(channel_id):
     CACHE_KEY = "STUDIO_CHANNEL_STATS_{channel_id}".format(channel_id=channel_id)
-    if CACHE_KEY not in cache:
+    if CACHE_KEY not in process_cache:
         channel_stats = get_channel_annotation_stats(channel_id)
-        cache.set(CACHE_KEY, channel_stats, 3600)
+        process_cache.set(CACHE_KEY, channel_stats, 3600)
         register_key_as_cached(CACHE_KEY, channel_id)
     else:
-        channel_stats = cache.get(CACHE_KEY)
+        channel_stats = process_cache.get(CACHE_KEY)
     return channel_stats
 
 
 def clear_channel_stats(channel_id):
-    cached_keys = cache.get(
+    cached_keys = process_cache.get(
         CHANNEL_STATS_CACHED_KEYS.format(channel_id=channel_id), set()
     )
     for key in cached_keys:
-        cache.delete(key)
-    cache.set(CHANNEL_STATS_CACHED_KEYS.format(channel_id=channel_id), set(), None)
+        process_cache.delete(key)
+    process_cache.set(
+        CHANNEL_STATS_CACHED_KEYS.format(channel_id=channel_id), set(), None
+    )

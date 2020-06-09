@@ -41,7 +41,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .bottom {
     @extend %dropshadow-8dp;

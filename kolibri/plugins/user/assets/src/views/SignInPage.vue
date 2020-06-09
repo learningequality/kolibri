@@ -108,8 +108,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
-  import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { PageNames } from '../constants';
   import getUrlParameter from './getUrlParameter';
@@ -384,7 +384,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .fh {
     height: 100%;
@@ -432,6 +432,7 @@
 
   .login-btn {
     width: calc(100% - 16px);
+    margin-top: 8px;
   }
 
   .create {

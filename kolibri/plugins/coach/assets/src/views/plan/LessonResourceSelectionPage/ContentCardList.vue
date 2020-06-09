@@ -49,7 +49,7 @@
       />
       <!-- TODO introduce messages in next version -->
       <p v-else-if="viewMoreButtonState === 'error'">
-        <mat-svg category="alert" name="error" />
+        <KIcon icon="error" />
         <!-- {{ $tr('moreResultsError') }} -->
       </p>
       <!-- <p v-else-if="viewMoreButtonState === 'no_more_results'">

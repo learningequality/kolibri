@@ -175,7 +175,7 @@ def _MPTT_descendant_ids_statement(bridge, node_ids, min_boundary, max_boundary)
 
 
 def _create_batch_update_statement(
-    bridge, channel_id, min_boundary, max_boundary, node_ids, exclude_node_ids,
+    bridge, channel_id, min_boundary, max_boundary, node_ids, exclude_node_ids
 ):
     ContentNodeTable = bridge.get_table(ContentNode)
 
@@ -195,7 +195,7 @@ def _create_batch_update_statement(
         # Construct a statement that restricts which nodes we update
         # in this batch by the specified inclusion constraints
         node_ids_statement = _MPTT_descendant_ids_statement(
-            bridge, node_ids, min_boundary, max_boundary,
+            bridge, node_ids, min_boundary, max_boundary
         )
         # Add this statement to the query
         batch_statement = batch_statement.where(
@@ -206,7 +206,7 @@ def _create_batch_update_statement(
         # Construct a statement that restricts nodes we update
         # in this batch by the specified exclusion constraints
         exclude_node_ids_statement = _MPTT_descendant_ids_statement(
-            bridge, exclude_node_ids, min_boundary, max_boundary,
+            bridge, exclude_node_ids, min_boundary, max_boundary
         )
         # Add this statement to the query
         batch_statement = batch_statement.where(
@@ -222,7 +222,7 @@ def _calculate_batch_params(bridge, channel_id, node_ids, exclude_node_ids):
     # highest rght value for this channel.
     max_rght = connection.execute(
         select([func.max(ContentNodeTable.c.rght)]).where(
-            ContentNodeTable.c.channel_id == channel_id,
+            ContentNodeTable.c.channel_id == channel_id
         )
     ).scalar()
 
@@ -657,7 +657,7 @@ def set_content_visibility(
 ):
     mark_local_files_as_available(checksums)
     update_content_metadata(
-        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, public=public,
+        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, public=public
     )
 
 

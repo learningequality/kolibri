@@ -1,29 +1,20 @@
 <template>
 
-  <UiIconButton
-    type="secondary"
+  <KIconButton
+    icon="list"
     :ariaLabel="$tr('toggleTocSideBar')"
     data-test="toc button"
+    size="small"
     @click="$emit('click')"
-  >
-    <mat-svg
-      name="list"
-      category="action"
-    />
-  </UiIconButton>
+  />
 
 </template>
 
 
 <script>
 
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-
   export default {
     name: 'TocButton',
-    components: {
-      UiIconButton,
-    },
     $trs: {
       toggleTocSideBar: 'Toggle table of contents',
     },

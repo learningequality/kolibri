@@ -27,6 +27,7 @@ import six
 from django.db import connections
 
 from .conf import KOLIBRI_HOME
+from .conf import OPTIONS
 from kolibri.utils.android import on_android
 
 logger = logging.getLogger(__name__)
@@ -197,8 +198,9 @@ def get_free_space(path=KOLIBRI_HOME):
             from jnius import autoclass
 
             StatFs = autoclass("android.os.StatFs")
+            AndroidString = autoclass("java.lang.String")
 
-            st = StatFs(KOLIBRI_HOME)
+            st = StatFs(AndroidString(path))
 
             try:
                 # for api version 18+
@@ -242,6 +244,10 @@ def _symlink_capability_check():
     Function to try to establish a symlink
     return True if it succeeds, return False otherwise.
     """
+    # If STATIC_USE_SYMLINKS has been set to False, return False directly
+    if not OPTIONS["Deployment"]["STATIC_USE_SYMLINKS"]:
+        return False
+
     fd, temp_target = tempfile.mkstemp()
     temp_pathname = temp_target + ".lnk"
     can_do = True

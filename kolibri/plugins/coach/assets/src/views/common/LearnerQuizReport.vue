@@ -83,7 +83,7 @@
       },
     },
     $trs: {
-      noAttemptsInExam: 'This exam has not been started yet',
+      noAttemptsInExam: 'This quiz has not been started yet',
     },
   };
 

@@ -43,6 +43,7 @@ from .views import GuestRedirectView
 from .views import logout_view
 from .views import RootURLRedirectView
 from .views import set_language
+from .views import static_serve_with_fallbacks
 from .views import StatusCheckView
 from .views import UnsupportedBrowserView
 from kolibri.core.content.utils import paths
@@ -75,6 +76,7 @@ urlpatterns += plugin_urls()
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
 urlpatterns += static(
-    paths.get_content_url("/"), document_root=paths.get_content_dir_path()
+    paths.get_content_url("/"), view=static_serve_with_fallbacks(content_dirs)
 )

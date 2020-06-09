@@ -45,42 +45,24 @@
               numFilteredUsers
             }) }}
           </span>
-          <UiIconButton
-            type="primary"
-            :ariaLabel="$tr('previousResults')"
-            :disabled="pageNum === 1"
-            size="small"
-            @click="goToPage(pageNum - 1)"
-          >
-            <mat-svg
-              v-if="isRtl"
-              name="chevron_right"
-              category="navigation"
+          <KButtonGroup style="margin-top: 8px;">
+            <KIconButton
+              icon="keyboard_arrow_left"
+              :ariaLabel="$tr('previousResults')"
+              :disabled="pageNum === 1"
+              size="small"
+
+              @click="goToPage(pageNum - 1)"
             />
-            <mat-svg
-              v-else
-              name="chevron_left"
-              category="navigation"
+            <KIconButton
+              icon="keyboard_arrow_right"
+              :ariaLabel="$tr('nextResults')"
+              :disabled="numPages === 0 || pageNum === numPages"
+              size="small"
+
+              @click="goToPage(pageNum + 1)"
             />
-          </UiIconButton>
-          <UiIconButton
-            type="primary"
-            :ariaLabel="$tr('nextResults')"
-            :disabled="numPages === 0 || pageNum === numPages"
-            size="small"
-            @click="goToPage(pageNum + 1)"
-          >
-            <mat-svg
-              v-if="isRtl"
-              name="chevron_left"
-              category="navigation"
-            />
-            <mat-svg
-              v-else
-              name="chevron_right"
-              category="navigation"
-            />
-          </UiIconButton>
+          </KButtonGroup>
         </nav>
 
         <div class="footer">
@@ -105,7 +87,6 @@
   import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
@@ -115,7 +96,6 @@
   export default {
     name: 'GroupEnrollPage',
     components: {
-      UiIconButton,
       FilterTextbox,
       UserTable,
     },

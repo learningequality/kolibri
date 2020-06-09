@@ -14,7 +14,6 @@
             :primary="true"
             :text="coachString('openQuizLabel')"
             type="button"
-            style="margin: 0;"
             @click="showConfirmationModal = true"
           />
         </KGridItem>
@@ -30,7 +29,6 @@
           <KButton
             :text="coachString('closeQuizLabel')"
             type="submit"
-            style="margin: 0;"
             :appearanceOverrides="cancelStyleOverrides"
             @click="showCancellationModal = true"
           />
@@ -43,7 +41,7 @@
           <StatusElapsedTime
             :date="examDateOpened"
             actionType="opened"
-            style="margin-top: 8px; display: block;"
+            style="display: block; margin-top: 8px;"
           />
         </KGridItem>
       </div>

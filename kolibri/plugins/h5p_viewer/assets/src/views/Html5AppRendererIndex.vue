@@ -13,8 +13,8 @@
       size="large"
       @click="$refs.html5Renderer.toggleFullscreen()"
     >
-      <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
-      <mat-svg v-else name="fullscreen" category="navigation" />
+      <KIcon v-if="isInFullscreen" icon="fullscreen_exit" />
+      <KIcon v-else icon="fullscreen" />
     </UiIconButton>
     <div class="iframe-container">
       <iframe
@@ -36,7 +36,7 @@
 <script>
 
   import { now } from 'kolibri.utils.serverClock';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
   import { nameSpace } from 'hashi/src/hashiBase';
@@ -99,7 +99,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .btn {
     position: absolute;

@@ -41,24 +41,13 @@
           @click="$emit('searchButtonClicked')"
         />
 
-        <UiIconButton
+        <KIconButton
           ref="fullscreenButton"
-          type="secondary"
+          :icon="isInFullscreen ? 'fullscreen_exit' : 'fullscreen'"
           :ariaLabel="$tr('toggleFullscreen')"
+          size="small"
           @click="$emit('fullscreenButtonClicked')"
-        >
-          <mat-svg
-            v-if="isInFullscreen"
-            name="fullscreen_exit"
-            category="navigation"
-          />
-          <mat-svg
-            v-else
-            name="fullscreen"
-            category="navigation"
-          />
-        </UiIconButton>
-
+        />
       </KGridItem>
     </KGrid>
   </div>
@@ -68,7 +57,6 @@
 
 <script>
 
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import TocButton from './TocButton';
   import SettingsButton from './SettingsButton';
   import SearchButton from './SearchButton';
@@ -76,7 +64,6 @@
   export default {
     name: 'TopBar',
     components: {
-      UiIconButton,
       TocButton,
       SettingsButton,
       SearchButton,

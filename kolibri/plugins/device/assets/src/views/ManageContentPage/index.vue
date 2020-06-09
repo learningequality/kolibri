@@ -17,7 +17,6 @@
           <KButton
             :text="$tr('import')"
             :primary="true"
-            class="import-btn"
             @click="startImportWorkflow()"
           />
         </template>
@@ -159,6 +158,11 @@
         }
       },
     },
+    created() {
+      if (!this.channelsAreInstalled) {
+        this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
+      }
+    },
     methods: {
       ...mapActions('manageContent', ['refreshChannelList', 'startImportWorkflow']),
       handleSelect({ value }) {
@@ -225,10 +229,6 @@
   .options-btn {
     margin: 0;
     margin-right: 16px;
-  }
-
-  .import-btn {
-    margin: 0;
   }
 
 </style>

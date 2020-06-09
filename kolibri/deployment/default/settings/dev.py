@@ -7,7 +7,7 @@ from .base import *  # noqa isort:skip @UnusedWildImport
 DEBUG = True
 
 # Settings might be tuples, so switch to lists
-INSTALLED_APPS = list(INSTALLED_APPS) + ["rest_framework_swagger"]  # noqa F405
+INSTALLED_APPS = list(INSTALLED_APPS) + ["drf_yasg"]  # noqa F405
 webpack_middleware = "kolibri.core.webpack.middleware.WebpackErrorHandler"
 MIDDLEWARE = list(MIDDLEWARE) + [webpack_middleware]  # noqa F405
 
@@ -17,11 +17,19 @@ ROOT_URLCONF = "kolibri.deployment.default.dev_urls"
 
 DEVELOPER_MODE = True
 
+try:
+    process_cache = CACHES["process_cache"]  # noqa F405
+except KeyError:
+    process_cache = None
+
 # Create a memcache for each cache
 CACHES = {
     key: {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
     for key in CACHES.keys()  # noqa F405
 }
+
+if process_cache:
+    CACHES["process_cache"] = process_cache
 
 
 REST_FRAMEWORK = {

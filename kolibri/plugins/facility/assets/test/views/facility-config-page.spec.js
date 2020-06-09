@@ -40,11 +40,11 @@ describe('facility config page view', () => {
     const checkboxes = wrapper.findAll({ name: 'KCheckbox' });
     expect(checkboxes.length).toEqual(6);
     const labels = [
-      'Allow learners and coaches to edit their username',
-      'Allow learners and coaches to change their password when signed in',
-      'Allow learners and coaches to edit their full name',
+      'Allow learners to edit their username',
+      'Allow learners to edit their full name',
       'Allow learners to create accounts',
-      'Allow learners to sign in with no password',
+      'Require password for learners',
+      'Allow learners to edit their password when signed in',
       "Show 'download' button with resources",
     ];
     labels.forEach((label, idx) => {

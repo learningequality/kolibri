@@ -27,7 +27,7 @@ const taskStrings = createTranslator('TaskStrings', {
     context: 'A catch-all status for unknown task statuses',
   },
   taskStartedByLabel: {
-    message: `Started by '{username}'`,
+    message: "Started by '{username}'",
     context: 'Displays the user that started a task',
   },
   clearCompletedTasksAction: {
@@ -69,7 +69,7 @@ const taskStrings = createTranslator('TaskStrings', {
     context: 'Sync task status',
   },
   syncFacilityTaskLabel: {
-    message: `Sync '{facilityName}'`,
+    message: "Sync '{facilityName}'",
     context: 'Description of sync-facility task',
   },
   syncStepAndDescription: {
@@ -77,7 +77,7 @@ const taskStrings = createTranslator('TaskStrings', {
     context: 'Template for message of the form "Step 1 of 7: Establishing connection"',
   },
   syncBytesSentAndReceived: {
-    message: `{bytesSent} sent • {bytesReceived} received`,
+    message: '{bytesSent} sent • {bytesReceived} received',
     context: 'Amounts of data transferred in sync task',
   },
 
@@ -87,7 +87,7 @@ const taskStrings = createTranslator('TaskStrings', {
     context: 'Remove facility task status',
   },
   removeFacilityTaskLabel: {
-    message: `Remove '{facilityName}'`,
+    message: "Remove '{facilityName}'",
     context: 'Description of a remove-facility task',
   },
   removeFacilitySuccessStatus: {

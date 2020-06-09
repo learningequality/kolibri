@@ -28,7 +28,7 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 
   /**
    Links for use inside the Navbar
@@ -74,7 +74,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .list-item {
     display: inline-block;
