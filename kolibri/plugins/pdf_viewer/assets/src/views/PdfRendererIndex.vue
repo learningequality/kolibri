@@ -126,7 +126,7 @@
       // Returns whether or not the current device is iOS.
       // Probably not perfect, but worked in testing.
       iOS() {
-        var iDevices = [
+        const iDevices = [
           'iPad Simulator',
           'iPhone Simulator',
           'iPod Simulator',
@@ -134,16 +134,7 @@
           'iPhone',
           'iPod',
         ];
-
-        if (navigator.platform) {
-          while (iDevices.length) {
-            if (navigator.platform === iDevices.pop()) {
-              return true;
-            }
-          }
-        }
-
-        return false;
+        return iDevices.includes(navigator.platform);
       },
       targetTime() {
         return this.totalPages * 30;
