@@ -99,7 +99,8 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
     @property
     def plugin_data(self):
         return {
-            "allowRemoteAccess": allow_other_browsers_to_connect(),
+            "allowRemoteAccess": allow_other_browsers_to_connect()
+            or not interface.enabled,
             "appCapabilities": interface.capabilities,
             "contentCacheKey": ContentCacheKey.get_cache_key(),
             "languageGlobals": self.language_globals(),
