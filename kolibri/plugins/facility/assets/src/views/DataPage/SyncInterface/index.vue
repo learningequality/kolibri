@@ -18,31 +18,29 @@
           <th>{{ $tr('facility') }}</th>
         </tr>
       </thead>
-      <transition-group slot="tbody" tag="tbody" name="list">
-        <tr v-for="facility in facilities" :key="facility.id">
+      <tbody slot="tbody">
+        <tr>
           <td>
-            <FacilityNameAndSyncStatus :facility="facility" />
+            <FacilityNameAndSyncStatus :facility="theFacility" />
           </td>
           <td class="button-col">
-            <KButtonGroup style="margin-top: 8px;">
+            <KButtonGroup style="margin-top: 8px; overflow: visible">
               <KButton
                 appearance="raised-button"
                 :text="$tr('register')"
                 :disabled="facilityTaskId !== ''"
-
-                @click="register(facility)"
+                @click="register()"
               />
               <KButton
                 appearance="raised-button"
                 :text="$tr('sync')"
-
-                :disabled="facilityTaskId !== '' || !facility.dataset.registered"
-                @click="sync(facility)"
+                :disabled="facilityTaskId !== '' || !theFacility.dataset.registered"
+                @click="sync()"
               />
             </KButtonGroup>
           </td>
         </tr>
-      </transition-group>
+      </tbody>
     </CoreTable>
 
     <PrivacyModal
@@ -57,7 +55,7 @@
     />
     <ConfirmationRegisterModal
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
-      v-bind="{ projectName, targetFacility, token }"
+      v-bind="{ projectName, targetFacility: theFacility, token }"
       @cancel="displayModal(null)"
       @success="handleConfirmationSuccess"
     />
@@ -69,6 +67,7 @@
 
 <script>
 
+  import find from 'lodash/find';
   import { mapState } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import {
@@ -93,29 +92,27 @@
       return {
         projectName: '',
         token: '',
-        targetFacility: null,
         modalShown: null,
       };
     },
     computed: {
       ...mapState('manageCSV', ['facilityTaskId']),
       Modals: () => Modals,
-      facilities() {
-        return this.$store.state.manageCSV.facilities.filter(
-          ({ id }) => id === this.$store.getters.activeFacilityId
-        );
+      theFacility() {
+        return find(this.$store.state.manageCSV.facilities, {
+          id: this.$store.getters.activeFacilityId,
+        });
       },
     },
     methods: {
       displayModal(modal) {
         this.modalShown = modal;
       },
-      register(facility) {
-        this.targetFacility = facility;
+      register() {
         this.modalShown = Modals.REGISTER_FACILITY;
       },
-      sync(facility) {
-        TaskResource.dataportalsync(facility.id).then(response => {
+      sync() {
+        TaskResource.dataportalsync(this.theFacility.id).then(response => {
           this.$store.commit('manageCSV/START_FACILITY_SYNC', response.entity);
         });
       },
