@@ -86,13 +86,14 @@ class Command(BaseCommand):
             dest="max_channels",
             help="Maximum number of channels to add activities to.",
         )
-        parser.add_argument(
-            "--num-groups",
-            type=int,
-            default=2,
-            dest="num_groups",
-            help="Number of groups to be created per class.",
-        )
+        # TODO(cpauya):
+        # parser.add_argument(
+        #     "--num-groups",
+        #     type=int,
+        #     default=2,
+        #     dest="num_groups",
+        #     help="Number of groups to be created per class.",
+        # )
         parser.add_argument(
             "--device-name",
             type=str,
@@ -124,9 +125,9 @@ class Command(BaseCommand):
         num_lessons = options["num_lessons"]
         num_exams = options["num_exams"]
         max_channels = options["max_channels"]
-        num_groups = options["num_groups"]
         device_name = options["device_name"]
         # TODO(cpauya):
+        # num_groups = options["num_groups"]
         # channel_token = options["channel_token"]
 
         # TODO(cpauya): Default to the computer/VM name so we get a unique name for each VM automatically.
@@ -135,7 +136,7 @@ class Command(BaseCommand):
         #     # REF: https://stackoverflow.com/questions/4271740/how-can-i-use-python-to-get-the-system-hostname#4271755
         #     import socket
         #     device_name = socket.gethostname()
-        #     logger.info("Defaulting 'device_name' to '{0}'.".format(device_name))
+        #     utils.logger_info("Defaulting 'device_name' to '{0}'.".format(device_name))
 
         # Set the random seed so that all operations will be randomized predictably
         random.seed(n_seed)
@@ -149,14 +150,14 @@ class Command(BaseCommand):
 
         # Device needs to be provisioned before adding superusers
         if no_onboarding:
-            logger.info(
+            utils.logger_info(
                 "Provisioning device. Onboarding will be skipped after starting server."
             )
             provision_device()
 
         for facility in facilities:
             if no_onboarding:
-                logger.info(
+                utils.logger_info(
                     'Creating superuser "superuser" with password "password" at facility {facility}.'.format(
                         facility=facility.name
                     )
@@ -179,7 +180,7 @@ class Command(BaseCommand):
                 channels = channels[:max_channels]
 
             if not channels:
-                logger.info(
+                utils.logger_info(
                     "No channels found, cannot add channel activities for learners."
                 )
 
@@ -208,11 +209,11 @@ class Command(BaseCommand):
                         n_content_items = int(base_data["Age"])
 
                     # Loop over all local channels to generate data for each channel
-                    logger.info("    Learner {learner}...".format(learner=user))
+                    utils.logger_info("    Learner {learner}...".format(learner=user))
                     for channel in channels:
                         # TODO(cpauya): check for issue as per Richard's report
                         # REF: https://github.com/learningequality/kolibri/pull/6983#issuecomment-638980072
-                        logger.info(
+                        utils.logger_info(
                             "      ==> Adding {channel} channel activity for learner {learner}...".format(
                                 channel=channel, learner=user
                             )
@@ -243,12 +244,12 @@ class Command(BaseCommand):
                     device_name=device_name,
                 )
 
-                # TODO(cpauya): create groups
-                utils.create_groups_for_classrooms(
-                    classroom=classroom,
-                    facility=facility,
-                    channels=ChannelMetadata.objects.all(),
-                    num_groups=num_groups,
-                    now=now,
-                    device_name=device_name,
-                )
+                # # TODO(cpauya): create groups
+                # utils.create_groups_for_classrooms(
+                #     classroom=classroom,
+                #     facility=facility,
+                #     channels=ChannelMetadata.objects.all(),
+                #     num_groups=num_groups,
+                #     now=now,
+                #     device_name=device_name,
+                # )

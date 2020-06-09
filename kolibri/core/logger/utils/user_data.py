@@ -34,6 +34,16 @@ from kolibri.core.logger.models import MasteryLog
 logger = logging.getLogger(__name__)
 
 
+def logger_info(message):
+    # Encapsulate logging in an exception handler to capture encoding errors:
+    # * UnicodeEncodeError
+    # TODO(cpauya): Don't just pass on everything, capture only encoding-related issues.
+    try:
+        logger.info(message)
+    except Exception:
+        pass
+
+
 def get_or_create_facilities(**options):
     n_facilities = options["n_facilities"]
     device_name = options["device_name"]
@@ -51,7 +61,7 @@ def get_or_create_facilities(**options):
             facility.dataset.location = device_name
             facility.dataset.save()
             if created:
-                logger.info("==> CREATED FACILITY {f}".format(f=facility))
+                logger_info("==> CREATED FACILITY {f}".format(f=facility))
 
     return Facility.objects.all()[0:n_facilities]
 
@@ -64,7 +74,7 @@ def get_or_create_classrooms(**options):
     device_name = options["device_name"]
 
     if n_to_create > 0:
-        logger.info(
+        logger_info(
             "Generating {n} classroom object(s) for facility: {name}".format(
                 n=n_to_create, name=facility.name
             )
@@ -79,7 +89,7 @@ def get_or_create_classrooms(**options):
                 parent=facility, name=class_name,
             )
             if created:
-                logger.info("==> CREATED Class {c}".format(c=classroom))
+                logger_info("==> CREATED Class {c}".format(c=classroom))
     return Classroom.objects.filter(parent=facility)[0:n_classes]
 
 
@@ -105,7 +115,7 @@ def get_or_create_classroom_users(**options):
     current_year = datetime.datetime.now().year
     n_to_create = n_users - n_in_classroom
     if n_to_create > 0:
-        logger.info(
+        logger_info(
             "Generating {n} user object(s) for class: {classroom} in facility: {facility}".format(
                 n=n_to_create, classroom=classroom, facility=facility
             )
@@ -534,7 +544,7 @@ def create_exams_for_classrooms(**options):
 # TODO(cpauya): WIP
 # def create_groups_for_classrooms(**options):
 #     # Creates specified number of groups per class.
-
+#
 #     classroom = options["classroom"]
 #     facility = options["facility"]
 #     channels = options["channels"]
@@ -568,4 +578,4 @@ def create_exams_for_classrooms(**options):
 #             return
 
 #         for group in groups:
-#             logger.info("==> group {group}".format(group=group))
+#             logger_info("==> group {group}".format(group=group))
