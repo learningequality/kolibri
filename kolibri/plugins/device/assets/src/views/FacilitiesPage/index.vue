@@ -2,6 +2,9 @@
 
   <div>
 
+    <pre>
+      {{ JSON.stringify(syncTaskIds, null, 2) }}
+    </pre>
     <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
       <template #options>
         <KButton
@@ -93,8 +96,9 @@
 
     <SyncFacilityModalGroup
       v-if="Boolean(facilityForSync)"
-      @submit="facilityForSync = null"
-      @cancel="facilityForSync = null"
+      :facilityForSync="facilityForSync"
+      @close="facilityForSync = null"
+      @success="handleStartSyncSuccess"
     />
   </div>
 
@@ -154,6 +158,7 @@
         facilityForRegister: null,
         kdpProject: null,
         facilitiesTasks: [],
+        syncTaskIds: [],
       };
     },
     computed: {
@@ -216,6 +221,10 @@
       clearRegistrationState() {
         this.facilityForRegister = null;
         this.kdpProject = null;
+      },
+      handleStartSyncSuccess(taskId) {
+        this.syncTaskIds = [...this.syncTaskIds, taskId];
+        this.facilityForSync = null;
       },
     },
     $trs: {

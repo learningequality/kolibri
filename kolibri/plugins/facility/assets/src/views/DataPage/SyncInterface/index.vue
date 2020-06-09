@@ -77,7 +77,7 @@
     ConfirmationRegisterModal,
     RegisterFacilityModal,
   } from 'kolibri.coreVue.componentSets.sync';
-  import { TaskResource } from 'kolibri.resources';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { Modals } from '../../../constants';
   import PrivacyModal from './PrivacyModal';
 
@@ -90,6 +90,7 @@
       RegisterFacilityModal,
       ConfirmationRegisterModal,
     },
+    mixins: [commonSyncElements],
     data() {
       return {
         projectName: '',
@@ -114,7 +115,7 @@
         this.modalShown = Modals.REGISTER_FACILITY;
       },
       sync() {
-        TaskResource.dataportalsync(this.theFacility.id).then(response => {
+        return this.startKdpSyncTask(this.theFacility.id).then(response => {
           this.$store.commit('manageCSV/START_FACILITY_SYNC', response.entity);
         });
       },

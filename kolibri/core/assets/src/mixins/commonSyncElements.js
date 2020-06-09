@@ -1,4 +1,4 @@
-import { StaticNetworkLocationResource } from 'kolibri.resources';
+import { StaticNetworkLocationResource, TaskResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 
 // Strings that might be shared among syncing-related UIs across plugins.
@@ -60,6 +60,12 @@ export default {
         base_url,
         nickname: device_name,
       }).save();
+    },
+    startKdpSyncTask(facilityId) {
+      return TaskResource.dataportalsync(facilityId).then(response => {
+        // TODO update for axios
+        return response.entity;
+      });
     },
   },
 };

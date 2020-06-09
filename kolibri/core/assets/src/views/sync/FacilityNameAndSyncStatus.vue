@@ -21,7 +21,7 @@
     </div>
     <div>
       <span>
-        <template v-if="facility.syncing">
+        <template v-if="facility.syncing || isSyncing">
           <KCircularLoader class="loader" :size="16" :delay="false" />
           {{ $tr('syncing') }}
         </template>
@@ -58,6 +58,10 @@
       facility: {
         type: Object,
         required: true,
+      },
+      isSyncing: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
