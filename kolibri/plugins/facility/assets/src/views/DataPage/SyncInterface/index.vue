@@ -50,14 +50,16 @@
 
     <RegisterFacilityModal
       v-if="modalShown === Modals.REGISTER_FACILITY"
-      @cancel="displayModal(null)"
       @success="handleValidateSuccess"
+      @cancel="displayModal(null)"
     />
     <ConfirmationRegisterModal
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
-      v-bind="{ projectName, targetFacility: theFacility, token }"
-      @cancel="displayModal(null)"
+      :targetFacility="theFacility"
+      :projectName="projectName"
+      :token="token"
       @success="handleConfirmationSuccess"
+      @cancel="displayModal(null)"
     />
 
   </KPageContainer>
@@ -116,8 +118,7 @@
           this.$store.commit('manageCSV/START_FACILITY_SYNC', response.entity);
         });
       },
-      handleValidateSuccess(payload) {
-        const { name, token } = payload;
+      handleValidateSuccess({ name, token }) {
         this.projectName = name;
         this.token = token;
         this.modalShown = Modals.CONFIRMATION_REGISTER;

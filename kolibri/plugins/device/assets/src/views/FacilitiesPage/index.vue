@@ -72,11 +72,24 @@
       @cancel="showImportModal = false"
     />
 
-    <RegisterFacilityModal
-      v-if="Boolean(facilityForRegister)"
-      :facility="facilityForRegister"
-      @cancel="facilityForRegister = null"
-    />
+    <!-- NOTE similar code for KDP Registration in SyncInterface -->
+    <template v-if="Boolean(facilityForRegister)">
+      <RegisterFacilityModal
+        v-if="!kdpProject"
+        :facility="facilityForRegister"
+        @success="handleValidateSuccess"
+        @cancel="clearRegistrationState"
+      />
+
+      <ConfirmationRegisterModal
+        v-else
+        :targetFacility="facilityForRegister"
+        :projectName="kdpProject.name"
+        :token="kdpProject.token"
+        @success="handleConfirmationSuccess"
+        @cancel="clearRegistrationState"
+      />
+    </template>
 
     <SyncFacilityModalGroup
       v-if="Boolean(facilityForSync)"
@@ -96,8 +109,9 @@
   import {
     FacilityNameAndSyncStatus,
     RegisterFacilityModal,
+    ConfirmationRegisterModal,
   } from 'kolibri.coreVue.componentSets.sync';
-  import TasksBar from '../ManageContentPage/TasksBar.vue';
+  import TasksBar from '../ManageContentPage/TasksBar';
   import HeaderWithOptions from '../HeaderWithOptions';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
@@ -117,6 +131,7 @@
       };
     },
     components: {
+      ConfirmationRegisterModal,
       CoreTable,
       HeaderWithOptions,
       FacilityNameAndSyncStatus,
@@ -137,6 +152,7 @@
         facilityForSync: null,
         facilityForRemoval: null,
         facilityForRegister: null,
+        kdpProject: null,
         facilitiesTasks: [],
       };
     },
@@ -155,9 +171,8 @@
       },
     },
     beforeMount() {
-      FacilityResource.fetchCollection().then(facilities => {
-        this.facilities = [...facilities];
-      });
+      this.fetchFacilites();
+      // TODO start polling for tasks
     },
     methods: {
       facilityCanBeRemoved() {
@@ -183,8 +198,24 @@
           );
         }
       },
+      fetchFacilites() {
+        return FacilityResource.fetchCollection({ force: true }).then(facilities => {
+          this.facilities = [...facilities];
+        });
+      },
       handleClickClearAll() {
         this.facilitiesTasks = [];
+      },
+      handleValidateSuccess({ name, token }) {
+        this.kdpProject = { name, token };
+      },
+      handleConfirmationSuccess() {
+        this.fetchFacilites();
+        this.clearRegistrationState();
+      },
+      clearRegistrationState() {
+        this.facilityForRegister = null;
+        this.kdpProject = null;
       },
     },
     $trs: {
