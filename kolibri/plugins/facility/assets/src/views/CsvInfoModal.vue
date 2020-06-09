@@ -171,7 +171,8 @@
       listClassesEnrolledL1: 'Can be any type of user',
       listClassesEnrolledL2: {
         message: 'Write the class names separated by commas',
-        context: 'Refers to values in a column of the CSV (comma separated values) file used to import users. When a user is assigned to coach multiple classes, the class names in this field must be separated by commas.',
+        context:
+          'Refers to values in a column of the CSV (comma separated values) file used to import users. When a user is assigned to coach multiple classes, the class names in this field must be separated by commas.',
       },
       listClassesEnrolledL3: {
         message:
