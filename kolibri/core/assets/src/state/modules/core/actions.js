@@ -1,3 +1,4 @@
+import client from 'kolibri.client';
 import debounce from 'lodash/debounce';
 import pick from 'lodash/pick';
 import logger from 'kolibri.lib.logging';
@@ -170,6 +171,10 @@ export function clearError(store) {
   store.commit('CORE_SET_ERROR', null);
 }
 
+export function clearLoginError(store) {
+  store.commit('CORE_SET_LOGIN_ERROR', null);
+}
+
 export function handleApiError(store, errorObject) {
   let error = errorObject;
   if (typeof errorObject === 'object' && !(errorObject instanceof Error)) {
@@ -204,6 +209,63 @@ export function setSession(store, { session, clientNow }) {
   }
   session = pick(session, Object.keys(baseSessionState));
   store.commit('CORE_SET_SESSION', session);
+}
+
+/**
+ * Signs in user and then sets their password
+ * this is used in the case where a learner has created an
+ * account without a password. At sign in, they will
+ * give a password - we sign them in to create the session,
+ * then we make a request to update their password before
+ * redirecting.
+ *
+ * @param {object} store The store.
+ * @param {object} sessionPayload The session payload.
+ */
+export function kolibriLoginWithNewPassword(store, payload) {
+  store.commit('CORE_SET_SIGN_IN_BUSY', true);
+  Lockr.set(UPDATE_MODAL_DISMISSED, false);
+
+  const { username, password, facility, user } = payload;
+
+  const sessionPayload = {
+    username,
+    password,
+    facility,
+  };
+
+  return SessionResource.saveModel({ data: sessionPayload })
+    .then(() => {
+      const path = `/api/auth/facilityuser/${user.id}/`;
+      const method = 'PATCH';
+      const entity = { password };
+      client({ path, method, entity }).then(() => {
+        // OIDC redirect
+        if (sessionPayload.next) {
+          redirectBrowser(sessionPayload.next);
+        }
+        // Normal redirect on login
+        else {
+          redirectBrowser();
+        }
+      });
+    })
+    .catch(error => {
+      store.commit('CORE_SET_SIGN_IN_BUSY', false);
+      const errorsCaught = CatchErrors(error, [
+        ERROR_CONSTANTS.INVALID_CREDENTIALS,
+        ERROR_CONSTANTS.MISSING_PASSWORD,
+      ]);
+      if (errorsCaught) {
+        if (errorsCaught.includes(ERROR_CONSTANTS.INVALID_CREDENTIALS)) {
+          store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.INVALID_CREDENTIALS);
+        } else if (errorsCaught.includes(ERROR_CONSTANTS.MISSING_PASSWORD)) {
+          store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.PASSWORD_MISSING);
+        }
+      } else {
+        store.dispatch('handleApiError', error);
+      }
+    });
 }
 
 /**
@@ -283,6 +345,16 @@ export function saveDismissedNotification(store, notification_id) {
     .catch(error => {
       store.dispatch('handleApiError', error);
     });
+}
+
+export function getRemoteAccessPermission(store) {
+  return client({
+    method: 'POST',
+    path: urls['kolibri:kolibri.plugins.device:allowremoteaccess'](),
+  }).then(response => {
+    const data = response.entity;
+    store.commit('SET_REMOTE_BROWSER_PERMISSION', data.allowed);
+  });
 }
 
 export function getFacilities(store) {

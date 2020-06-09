@@ -1,0 +1,94 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-01-24 13:01-0800\n"
+"PO-Revision-Date: 2020-02-10 18:29\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Acholi\n"
+"Language: ach_UG\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: ach\n"
+"X-Crowdin-File: /release-v0.13.x/django.po\n"
+
+#: kolibri/core/auth/constants/collection_kinds.py:15
+msgid "Facility"
+msgstr "crwdns246367:0crwdne246367:0"
+
+#: kolibri/core/auth/constants/collection_kinds.py:16
+msgid "Classroom"
+msgstr "crwdns246369:0crwdne246369:0"
+
+#: kolibri/core/auth/constants/collection_kinds.py:17
+msgid "Learner group"
+msgstr "crwdns246371:0crwdne246371:0"
+
+#: kolibri/core/auth/constants/collection_kinds.py:18
+msgid "Ad hoc learners group"
+msgstr "crwdns246373:0crwdne246373:0"
+
+#: kolibri/core/content/api.py:149
+msgid "Content"
+msgstr "crwdns246375:0crwdne246375:0"
+
+#: kolibri/core/content/api.py:910
+msgid "The requested channel does not exist on the content server"
+msgstr "crwdns246377:0crwdne246377:0"
+
+#: kolibri/core/content/models.py:165
+msgid "Unknown format"
+msgstr "crwdns246379:0crwdne246379:0"
+
+#: kolibri/core/device/serializers.py:42
+msgid "Language is not supported by Kolibri"
+msgstr "crwdns246381:0crwdne246381:0"
+
+#: kolibri/core/tasks/api.py:46
+msgid "There was a network error."
+msgstr "crwdns246383:0crwdne246383:0"
+
+#: kolibri/core/tasks/api.py:48
+msgid "There was a disk access error."
+msgstr "crwdns246385:0crwdne246385:0"
+
+#: kolibri/core/tasks/api.py:50
+msgid "There was an unknown error."
+msgstr "crwdns246387:0crwdne246387:0"
+
+#: kolibri/core/templates/kolibri/base.html:13
+#: kolibri/core/templates/kolibri/unsupported_browser.html:13
+msgid "Kolibri"
+msgstr "crwdns246389:0crwdne246389:0"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:42
+msgid "Unsupported browser"
+msgstr "crwdns246391:0crwdne246391:0"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:43
+msgid "Sorry, your browser version is not supported."
+msgstr "crwdns246393:0crwdne246393:0"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:44
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "crwdns246395:0crwdne246395:0"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:45
+msgid "You can also try updating your current browser."
+msgstr "crwdns246397:0crwdne246397:0"
+
+#: kolibri/core/views.py:174
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "crwdns246399:0crwdne246399:0"
+
+#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
+msgid "OpenID Provider Authorization"
+msgstr "crwdns246401:0crwdne246401:0"
+
+#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
+msgid "Request for Permission"
+msgstr "crwdns246403:0crwdne246403:0"
+

@@ -94,13 +94,11 @@
         class="download-button"
       />
 
-      <ShareButton
+      <KButton
         v-if="canShare"
-        :filename="primaryFilename"
-        :text="$tr('shareMessage', {title: content.title,
-                                    topic: content.breadcrumbs.slice(-1)[0].title,
-                                    copyrightHolder: content.license_owner})"
+        :text="$tr('shareFile')"
         class="share-button"
+        @click="launchIntent()"
       />
 
     </div>
@@ -141,7 +139,8 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
-  import { isEmbeddedWebView, isAndroidWebView } from 'kolibri.utils.browser';
+  import { isEmbeddedWebView } from 'kolibri.utils.browser';
+  import { shareFile } from 'kolibri.utils.appCapabilities';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
   import {
@@ -151,7 +150,6 @@
   } from 'kolibri.utils.licenseTranslations';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
-  import ShareButton from './ShareButton';
   import PageHeader from './PageHeader';
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
   import AssessmentWrapper from './AssessmentWrapper';
@@ -176,7 +174,6 @@
     components: {
       CoachContentLabel,
       PageHeader,
-      ShareButton,
       ContentCardGroupCarousel,
       DownloadButton,
       AssessmentWrapper,
@@ -221,7 +218,7 @@
       },
       canShare() {
         let supported_types = ['mp4', 'mp3', 'pdf', 'epub'];
-        return isAndroidWebView() && supported_types.includes(this.primaryFile.extension);
+        return shareFile && supported_types.includes(this.primaryFile.extension);
       },
       description() {
         if (this.content && this.content.description) {
@@ -328,6 +325,16 @@
           params: { id },
         };
       },
+      launchIntent() {
+        return shareFile({
+          filename: this.primaryFilename,
+          message: this.$tr('shareMessage', {
+            title: this.content.title,
+            topic: this.content.breadcrumbs.slice(-1)[0].title,
+            copyrightHolder: this.content.license_owner,
+          }),
+        }).catch(() => {});
+      },
     },
     $trs: {
       author: 'Author: {author}',
@@ -337,6 +344,7 @@
       shareMessage: '"{title}" (in "{topic}"), from {copyrightHolder}',
       nextResource: 'Next resource',
       documentTitle: '{ contentTitle } - { channelTitle }',
+      shareFile: 'Share',
     },
   };
 

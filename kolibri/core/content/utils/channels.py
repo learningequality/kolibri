@@ -13,6 +13,16 @@ from kolibri.utils.uuids import is_valid_uuid
 logger = logging.getLogger(__name__)
 
 
+def get_channel_ids_for_content_dirs(content_dirs):
+    database_dir_paths = [
+        get_content_database_dir_path(contentfolder=path) for path in content_dirs
+    ]
+    channel_ids = set()
+    for path in database_dir_paths:
+        channel_ids.update(get_channel_ids_for_content_database_dir(path))
+    return list(channel_ids)
+
+
 def get_channel_ids_for_content_database_dir(content_database_dir):
     """
     Returns a list of channel IDs for the channel databases that exist in a content database directory.

@@ -111,7 +111,10 @@
       ...mapState('examReportViewer', ['exam']),
       ...mapState(['pageName']),
       userIsAuthorized() {
-        return this.facilityConfig.allow_guest_access || this.isUserLoggedIn;
+        return (
+          (this.facilityConfig.allow_guest_access && this.$store.getters.allowRemoteAccess) ||
+          this.isUserLoggedIn
+        );
       },
       currentPage() {
         return pageNameToComponentMap[this.pageName] || null;

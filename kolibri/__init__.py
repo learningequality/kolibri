@@ -15,7 +15,7 @@ env.set_env()
 
 #: This may not be the exact version as it's subject to modification with
 #: get_version() - use ``kolibri.__version__`` for the exact version string.
-VERSION = (0, 13, 3, "alpha", 0)
+VERSION = (0, 13, 4, "alpha", 0)
 
 __author__ = "Learning Equality"
 __email__ = "info@learningequality.org"
@@ -40,4 +40,5 @@ INTERNAL_PLUGINS = [
     "kolibri.plugins.epub_viewer",
     "kolibri.plugins.default_theme",
     "kolibri.plugins.slideshow_viewer",
+    "kolibri.plugins.app",
 ]

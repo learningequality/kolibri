@@ -100,26 +100,24 @@
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig', 'isCoach', 'isLearner']),
+      ...mapGetters(['facilityConfig', 'isLearner']),
       formDisabled() {
         return this.status === 'BUSY';
       },
       canEditName() {
-        if (this.isLearner || this.isCoach) {
+        if (this.isLearner) {
           return this.facilityConfig.learner_can_edit_name;
         }
         return true;
       },
       canEditUsername() {
-        if (this.isLearner || this.isCoach) {
+        if (this.isLearner) {
           return this.facilityConfig.learner_can_edit_username;
         }
         return true;
       },
       cancelButtonText() {
-        return this.status === 'SUCCESS'
-          ? this.coreString('closeAction')
-          : this.coreString('cancelAction');
+        return this.coreString('cancelAction');
       },
       formIsValid() {
         return every([this.fullNameValid, this.usernameValid]);
@@ -161,8 +159,8 @@
               updates: this.getUpdates(),
             })
             .then(() => {
-              this.status = 'SUCCESS';
               this.$store.dispatch('createSnackbar', this.$tr('updateSuccessNotification'));
+              this.$router.push(this.$router.getRoute('PROFILE'));
             })
             .catch(error => {
               this.status = 'FAILURE';

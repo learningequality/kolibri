@@ -1,5 +1,6 @@
 import ScreenFull from 'screenfull';
 import urls from 'kolibri.urls';
+import store from 'kolibri.coreVue.vuex.store';
 
 export function redirectBrowser(url) {
   window.location.href = url || urls['kolibri:core:redirect_user']();
@@ -35,6 +36,12 @@ export function isEmbeddedWebView() {
   }
 
   return isEmbedded || isAndroidWebView();
+}
+
+export function isAppContext() {
+  // TODO can potentially refactor this to just be used as a core vuex getter,
+  // rather than this intermediary function.
+  return store.getters.isAppContext;
 }
 
 export const fullscreenApiIsSupported = ScreenFull.enabled && !isAndroidWebView();
