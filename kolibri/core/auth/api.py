@@ -57,6 +57,7 @@ from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ValuesViewset
+from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
@@ -493,6 +494,14 @@ class SessionViewSet(viewsets.ViewSet):
         username = request.data.get("username", "")
         password = request.data.get("password", "")
         facility_id = request.data.get("facility", None)
+
+        if not allow_other_browsers_to_connect() and not valid_app_key_on_request(
+            request
+        ):
+            return Response(
+                [{"id": error_constants.INVALID_CREDENTIALS, "metadata": {}}],
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
         # Find the FacilityUser we're looking for use later on
         try:
