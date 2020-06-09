@@ -1,6 +1,5 @@
-
-Manual testing & QA
-===================
+General Notes
+=============
 
 Accessibility (a11y) testing
 ----------------------------
@@ -14,14 +13,7 @@ Inclusive design benefits all users, and we strive to make Kolibri accessible fo
 * Page has one main **heading** (H1) and `consecutive lower heading levels <http://accessiblehtmlheadings.com/>`__.
 
 
-Here are a few tools that we use in testing for accessibility:
-
-* WAVE Evaluation Tool - `Firefox Add-on <https://addons.mozilla.org/en-US/firefox/addon/wave-accessibility-tool/>`__ and `Chrome extension <https://chrome.google.com/webstore/detail/wave-evaluation-tool/jbbplnpkjmmeebjpijfedlgcdilocofh>`__.
-* `tota11y <http://khan.github.io/tota11y/>`__ accessibility visualization toolkit - bookmarklet for Firefox and Chrome.
-* `Accessibility Developer Tools <https://chrome.google.com/webstore/detail/accessibility-developer-t/fpkknkljclfencbdbgkenhalefipecmb>`__ - Chrome extension.
-* aXe Accessibility Engine - `Firefox Add-on <https://addons.mozilla.org/en-us/firefox/addon/axe-devtools/>`__ and `Chrome extension <https://chrome.google.com/webstore/detail/axe/lhdoppojpmngadmnindnejefpokejbdd>`__.
-
-There is a much longer list on our `Kolibri Accessibility Tools Wiki page <https://github.com/learningequality/kolibri/wiki/Accessibility-Resources-(Tools)>`__ if you want to go deeper, but these four should be enough to help you avoid the most important accessibility pitfalls.
+Please also visit the :doc:`/manual_testing/a11y_resources/index` section of the manual testing documentation
 
 
 Cross-browser and OS testing
@@ -32,28 +24,34 @@ It's vital to ensure that our app works across a wide range of browsers and oper
 In particular, we want to ensure that Kolibri runs on major browsers that match any of `the following criteria <http://browserl.ist/?q=%3E+1%25%2C+last+2+versions%2C+ie+%3E%3D+9%2C+Firefox+ESR>`__:
 
  * within the last two versions
- * IE 9+ on Windows XP and up
+ * IE 11+
  * has at least 1% of global usage stats
 
 Here are some useful options, in order of simplicity:
 
-**BrowserStack**
+BrowserStack
+~~~~~~~~~~~~
 
 `BrowserStack <https://www.browserstack.com/>`__ is an incredibly useful tool for cross-browser and OS testing. In particular, it's easy to install plugin which forwards ``localhost`` to a VM running on their servers, which in turn is displayed in your browser.
 
-**Amazon Workspaces**
+Amazon Workspaces
+~~~~~~~~~~~~~~~~~
 
 In some situations, simply having a browser is not enough. For example, a developer may need to test Windows-specific backend or installer code from another OS. In many situations, a virtual machine is appropriate - however these can be slow to download and run.
 
 Amazon's `AWS Workspaces <https://aws.amazon.com/workspaces/>`__ provides a faster alternative. They run Windows VMs in their cloud, and developers can RDP in.
 
-**Local Virtual Machines**
+Local Virtual Machines
+~~~~~~~~~~~~~~~~~~~~~~
 
 Workspaces is very useful, but it has limitations: only a small range of OSes are available, and connectivity and provisioning are required.
 
-An alternative is to run the guest operating system inside a virtual machine using e.g. `VirtualBox <https://www.virtualbox.org/wiki/Downloads>`__. This also gives more developer flexibility, including e.g. shared directories between the guest and host systems. `This tutorial <https://docs.google.com/document/d/1CG4Z0hofN0ipsny9mDf1xr2C_eY5c-T2nUbhlz2eZjA/edit>`__ shows how to test Kolibri in a VM.
+An alternative is to run the guest operating system inside a virtual machine using e.g. `VirtualBox <https://www.virtualbox.org/wiki/Downloads>`__. This also gives more developer flexibility, including e.g. shared directories between the guest and host systems.
 
-**Hardware**
+There is also a :doc:`/manual_testing/testing_with_vms/index` section, which we hope will help you to use virtual machines.
+
+Hardware
+~~~~~~~~
 
 There are some situations where actual hardware is necessary to test the application. This is particularly true when virtualization might prohibit or impede testing features, such as lower-level driver interactions.
 

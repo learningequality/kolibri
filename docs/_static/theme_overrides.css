@@ -6,6 +6,25 @@
     vertical-align: top !important;
  }
 
-.rst-content ul li {
-	margin-bottom: 6px !important;
-}
+ .rst-content .section ol p, .rst-content .section ul p {
+  margin-bottom: 0px;
+ }
+
+ .rst-content #contents.hidden-first-item > ul:nth-of-type(1) {
+   margin-left: 0;
+   padding-left: 0;
+ }
+ .rst-content #contents.hidden-first-item > ul:nth-of-type(1) > li {
+   list-style: none;
+   margin-left: 0;
+   padding-left: 0;
+ }
+ .rst-content #contents.hidden-first-item > ul:nth-of-type(1) > li > p {
+   display: none;
+ }
+ .rst-content #contents.hidden-first-item ul li li {
+   list-style: disc;
+ }
+ .rst-content #contents.hidden-first-item ul li li li {
+   list-style: circle;
+ }
