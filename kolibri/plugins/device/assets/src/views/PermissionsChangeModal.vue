@@ -41,10 +41,13 @@
     },
     render: createElement => window.setTimeout(createElement, 750),
     $trs: {
-      header: 'Your permissions have changed',
+      header: {
+        message: 'Your permissions have changed',
+        context: 'Modal window title',
+      },
       superAdminMessage1: 'Your role has been changed to Super Admin.',
       superAdminMessage2:
-        'You can now manage channels and the permissions of other users. Learn morein the Permissions tab.',
+        'You can now manage channels and the permissions of other users. Learn more in the Permissions tab.',
       manageContentMessage1: 'You have been given permissions to manage content on this device.',
     },
   };

@@ -370,7 +370,11 @@
       },
     },
     $trs: {
-      changeLabel: 'Change',
+      changeLabel: {
+        message: 'Change',
+        context:
+          '(verb) Link to change the facility to sign in when the device has more than one facility',
+      },
       createAccountAction: 'Create an account',
       signInError: 'Incorrect username or password',
       signInToFacilityLabel: "Sign into '{facility}'",
