@@ -6,7 +6,6 @@ import classManagement from './classManagement';
 import facilityConfig from './facilityConfig';
 import userManagement from './userManagement';
 import manageCSV from './manageCSV';
-import manageSync from './manageSync';
 import importCSV from './importCSV';
 
 export default {
@@ -53,7 +52,6 @@ export default {
     userManagement,
     facilityConfig,
     manageCSV,
-    manageSync,
     importCSV,
   },
 };

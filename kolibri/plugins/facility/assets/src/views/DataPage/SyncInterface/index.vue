@@ -47,18 +47,18 @@
 
     <PrivacyModal
       v-if="modalShown === Modals.PRIVACY"
-      @cancel="displayModal(false)"
+      @cancel="displayModal(null)"
     />
 
     <RegisterFacilityModal
       v-if="modalShown === Modals.REGISTER_FACILITY"
-      @cancel="displayModal(false)"
+      @cancel="displayModal(null)"
       @success="handleValidateSuccess"
     />
     <ConfirmationRegisterModal
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
       v-bind="{ projectName, targetFacility, token }"
-      @cancel="displayModal(false)"
+      @cancel="displayModal(null)"
       @success="handleConfirmationSuccess"
     />
 
@@ -69,7 +69,7 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import {
     FacilityNameAndSyncStatus,
@@ -89,8 +89,15 @@
       RegisterFacilityModal,
       ConfirmationRegisterModal,
     },
+    data() {
+      return {
+        projectName: '',
+        token: '',
+        targetFacility: null,
+        modalShown: null,
+      };
+    },
     computed: {
-      ...mapState('manageSync', ['modalShown', 'projectName', 'targetFacility', 'token']),
       ...mapState('manageCSV', ['facilityTaskId']),
       Modals: () => Modals,
       facilities() {
@@ -100,10 +107,12 @@
       },
     },
     methods: {
-      ...mapActions('manageSync', ['displayModal']),
+      displayModal(modal) {
+        this.modalShown = modal;
+      },
       register(facility) {
-        this.$store.commit('manageSync/SET_TARGET_FACILITY', facility);
-        this.displayModal(Modals.REGISTER_FACILITY);
+        this.targetFacility = facility;
+        this.modalShown = Modals.REGISTER_FACILITY;
       },
       sync(facility) {
         TaskResource.dataportalsync(facility.id).then(response => {
@@ -112,13 +121,13 @@
       },
       handleValidateSuccess(payload) {
         const { name, token } = payload;
-        this.$store.commit('manageSync/SET_PROJECT_NAME', name);
-        this.$store.commit('manageSync/SET_TOKEN', token);
-        this.displayModal(Modals.CONFIRMATION_REGISTER);
+        this.projectName = name;
+        this.token = token;
+        this.modalShown = Modals.CONFIRMATION_REGISTER;
       },
       handleConfirmationSuccess(payload) {
         this.$store.commit('manageCSV/SET_REGISTERED', payload);
-        this.displayModal(false);
+        this.modalShown = null;
       },
     },
     $trs: {
