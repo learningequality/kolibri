@@ -54,7 +54,7 @@
 
     <RemoveFacilityModal
       v-if="Boolean(facilityForRemoval)"
-      :canRemove="facilityForRemoval.canRemove"
+      :canRemove="facilityCanBeRemoved(facilityForRemoval)"
       :facility="facilityForRemoval"
       @submit="handleSubmitRemoval"
       @cancel="facilityForRemoval = null"
@@ -92,6 +92,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import { FacilityResource } from 'kolibri.resources';
   import {
     FacilityNameAndSyncStatus,
     RegisterFacilityModal,
@@ -102,6 +103,11 @@
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
   import SyncFacilityModalGroup from './SyncFacilityModalGroup';
   import ImportFacilityModalGroup from './ImportFacilityModalGroup';
+
+  const Options = Object.freeze({
+    REGISTER: 'REGISTER',
+    REMOVE: 'REMOVE',
+  });
 
   export default {
     name: 'FacilitiesPage',
@@ -127,17 +133,11 @@
       return {
         showSyncAllModal: false,
         showImportModal: false,
+        facilities: [],
         facilityForSync: null,
         facilityForRemoval: null,
         facilityForRegister: null,
-        facilitiesTasks: [
-          {
-            status: 'COMPLETED',
-          },
-          {
-            status: 'RUNNING',
-          },
-        ],
+        facilitiesTasks: [],
       };
     },
     computed: {
@@ -145,73 +145,29 @@
         return [
           {
             label: this.coreString('registerAction'),
-            value: 'REGISTER',
+            value: Options.REGISTER,
           },
           {
             label: this.coreString('removeAction'),
-            value: 'REMOVE',
+            value: Options.REMOVE,
           },
-        ];
-      },
-      facilities() {
-        return [
-          {
-            name: 'Atkinson Hall (d81c)',
-            id: 'D81C',
-            syncing: false,
-            dataset: {
-              registered: false,
-            },
-            last_sync_failed: false,
-            last_synced: null,
-            canRemove: true,
-          },
-          {
-            name: 'Atkinson Hall (d81c)',
-            id: 'D81C',
-            syncing: true,
-            dataset: {
-              registered: true,
-            },
-            last_sync_failed: false,
-            last_synced: null,
-            canRemove: true,
-          },
-          {
-            name: 'Atkinson Hall (d81c)',
-            id: 'D81C',
-            syncing: false,
-            dataset: {
-              registered: true,
-            },
-            last_sync_failed: false,
-            last_synced: 1588036798109,
-            canRemove: true,
-          },
-          {
-            name: 'Atkinson Hall (d81c)',
-            id: 'D81C',
-            syncing: false,
-            dataset: {
-              registered: true,
-            },
-            last_sync_failed: true,
-            last_synced: 1588036798109,
-            canRemove: true,
-          },
-          // {
-          //   name: 'Cannot remove',
-          //   id: '4321',
-          //   canRemove: false,
-          // },
         ];
       },
     },
+    beforeMount() {
+      FacilityResource.fetchCollection().then(facilities => {
+        this.facilities = [...facilities];
+      });
+    },
     methods: {
+      facilityCanBeRemoved() {
+        // TODO return false if user is in the facility (determine from session)
+        return true;
+      },
       handleOptionSelect(option, facility) {
-        if (option === 'REMOVE') {
+        if (option === Options.REMOVE) {
           this.facilityForRemoval = facility;
-        } else if (option === 'REGISTER') {
+        } else if (option === Options.REGISTER) {
           this.facilityForRegister = facility;
         }
       },
