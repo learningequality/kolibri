@@ -66,6 +66,7 @@ from kolibri.core.query import ArrayAgg
 from kolibri.core.query import GroupConcat
 from kolibri.core.query import process_uuid_aggregate
 from kolibri.core.query import SQCount
+from kolibri.plugins.app.utils import interface
 
 
 class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
@@ -495,8 +496,11 @@ class SessionViewSet(viewsets.ViewSet):
         password = request.data.get("password", "")
         facility_id = request.data.get("facility", None)
 
-        if not allow_other_browsers_to_connect() and not valid_app_key_on_request(
-            request
+        # Only enforce this when running in an app
+        if (
+            interface.enabled
+            and not allow_other_browsers_to_connect()
+            and not valid_app_key_on_request(request)
         ):
             return Response(
                 [{"id": error_constants.INVALID_CREDENTIALS, "metadata": {}}],
