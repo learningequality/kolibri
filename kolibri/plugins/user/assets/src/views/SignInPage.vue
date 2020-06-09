@@ -122,7 +122,7 @@
                 v-if="simpleSignIn && suggestions.length"
                 v-show="showDropdown"
                 class="suggestions"
-                :style="{backgroundColor: $themeTokens.surface}"
+                :style="{ backgroundColor: $themeTokens.surface }"
               >
                 <UiAutocompleteSuggestion
                   v-for="(suggestion, i) in suggestions"
@@ -192,7 +192,7 @@
               v-if="simpleSignIn && suggestions.length"
               v-show="showDropdown"
               class="suggestions"
-              :style="{backgroundColor: $themeTokens.surface}"
+              :style="{ backgroundColor: $themeTokens.surface }"
             >
               <UiAutocompleteSuggestion
                 v-for="(suggestion, i) in suggestions"
@@ -235,11 +235,11 @@
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import urls from 'kolibri.urls';
+  import loginComponents from 'kolibri.utils.loginComponents';
   import { PageNames } from '../constants';
   import getUrlParameter from './getUrlParameter';
   import AuthBase from './AuthBase';
-  import urls from 'kolibri.urls';
-  import loginComponents from 'kolibri.utils.loginComponents';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import UsersList from './UsersList';
   import plugin_data from 'plugin_data';
@@ -356,7 +356,7 @@
       },
       needPasswordField() {
         return !this.simpleSignIn || Boolean(this.passwordMissing || this.invalidCredentials);
-      }
+      },
       canSignUp() {
         return this.facilityConfig.learner_can_sign_up;
       },

@@ -23,10 +23,8 @@ from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.import_export_content import calculate_files_to_transfer
 from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
 from kolibri.core.device.models import ContentCacheKey
-from kolibri.core.device.utils import (
-    valid_app_key_on_request,
-    allow_other_browsers_to_connect,
-)
+from kolibri.core.device.utils import allow_other_browsers_to_connect
+from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.plugins.app.utils import interface
 
 

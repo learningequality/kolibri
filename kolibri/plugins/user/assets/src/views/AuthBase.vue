@@ -1,4 +1,5 @@
 <template>
+
   <div class="fh">
     <div class="wrapper-table">
       <div class="main-row table-row" :style="backgroundImageStyle">
@@ -128,6 +129,7 @@
       </p>
     </KModal>
   </div>
+
 </template>
 
 
