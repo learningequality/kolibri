@@ -1,10 +1,34 @@
 <template>
-
   <div class="fh">
     <div class="wrapper-table">
       <div class="main-row table-row" :style="backgroundImageStyle">
         <div class="main-cell table-cell">
-          <div class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
+          <!-- remote access disabled -->
+          <div
+            v-if="!$store.getters.allowRemoteAccess"
+            class="box"
+            :style="{ backgroundColor: $themePalette.grey.v_100 }"
+          >
+            <CoreLogo
+              v-if="$kolibriBranding.signIn.topLogo"
+              class="logo"
+              :src="$kolibriBranding.signIn.topLogo.src"
+              :alt="$kolibriBranding.signIn.topLogo.alt"
+              :style="$kolibriBranding.signIn.topLogo.style"
+            />
+            <h1
+              v-if="$kolibriBranding.signIn.showTitle"
+              class="kolibri-title"
+              :class="$computedClass({ color: $themeBrand.primary.v_300 })"
+              :style="$kolibriBranding.signIn.titleStyle"
+            >
+              {{ logoText }}
+            </h1>
+            <p>{{ $tr('restrictedAccess') }}</p>
+            <p>{{ $tr('restrictedAccessDescription') }}</p>
+          </div>
+          <!-- remote access enabled -->
+          <div v-else class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
             <CoreLogo
               v-if="$kolibriBranding.signIn.topLogo"
               class="logo"
@@ -43,16 +67,10 @@
 
             <slot></slot>
 
-            <p class="create">
-
-            </p>
             <div slot="options">
               <component :is="component" v-for="component in loginOptions" :key="component.name" />
             </div>
-            <p
-              v-if="showGuestAccess"
-              class="guest small-text"
-            >
+            <p v-if="showGuestAccess" class="guest small-text">
               <KExternalLink
                 :text="$tr('accessAsGuest')"
                 :href="guestURL"
@@ -109,9 +127,7 @@
         />
       </p>
     </KModal>
-
   </div>
-
 </template>
 
 

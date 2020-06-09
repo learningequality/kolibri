@@ -43,6 +43,7 @@ urlpatterns = urlpatterns + [
     url(
         r"^redoc/$", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"
     ),
+    url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]
 
 if getattr(settings, "DEBUG_PANEL_ACTIVE", False):

@@ -11,6 +11,7 @@
       v-bind="$attrs"
       @blur="passwordBlurred = true"
       @input="$emit('update:value', $event)"
+      @keydown.enter="checkErrorsAndSubmit"
     />
 
     <KTextbox
@@ -24,6 +25,7 @@
       :invalidText="shownConfirmationInvalidText"
       :autocomplete="$attrs.autocomplete"
       @blur="confirmationBlurred = true"
+      @keydown.enter="checkErrorsAndSubmit"
     />
   </div>
 
@@ -116,6 +118,14 @@
         this.passwordBlurred = false;
         this.$emit('update:value', '');
         this.$refs.password.focus();
+      },
+      checkErrorsAndSubmit(e) {
+        if (this.valid) {
+          this.$emit('submitNewPassword');
+        } else {
+          // Blurring will cause validation errors to show if needed
+          e.target.blur();
+        }
       },
     },
     $trs: {

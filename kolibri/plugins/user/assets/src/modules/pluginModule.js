@@ -16,7 +16,9 @@ export default {
     },
     setFacilitiesAndConfig(store) {
       return store.dispatch('getFacilities').then(() => {
-        return store.dispatch('getFacilityConfig');
+        return store.dispatch('getFacilityConfig').then(() => {
+          store.dispatch('getRemoteAccessPermission');
+        });
       });
     },
     resetModuleState(store, { toRoute, fromRoute }) {

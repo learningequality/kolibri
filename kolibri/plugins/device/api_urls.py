@@ -5,6 +5,7 @@ from rest_framework import routers
 from .api import CalculateImportExportSizeView
 from .api import DeviceChannelMetadataViewSet
 from .api import DeviceChannelOrderView
+from .api import RemoteAccess
 
 router = routers.SimpleRouter()
 
@@ -24,4 +25,5 @@ urlpatterns = [
         CalculateImportExportSizeView.as_view(),
         name="importexportsizeview",
     ),
+    url(r"allowremoteaccess", RemoteAccess.as_view(), name="allowremoteaccess",),
 ]
