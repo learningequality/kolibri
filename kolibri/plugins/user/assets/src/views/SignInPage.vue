@@ -229,18 +229,14 @@
   import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
-  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import urls from 'kolibri.urls';
-  import loginComponents from 'kolibri.utils.loginComponents';
   import { PageNames } from '../constants';
   import getUrlParameter from './getUrlParameter';
   import AuthBase from './AuthBase';
-  import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import UsersList from './UsersList';
   import plugin_data from 'plugin_data';
 
@@ -258,7 +254,6 @@
       UiAutocompleteSuggestion,
       UiAlert,
       UsersList,
-      LanguageSwitcherFooter,
       PasswordTextbox,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
@@ -274,7 +269,6 @@
         passwordBlurred: false,
         formSubmitted: false,
         autoFilledByChromeAndNotEdited: false,
-        whatsThisModalVisible: false,
         selectedListUser: null,
         needsToCreatePassword: false,
         createdPassword: '',
@@ -290,9 +284,6 @@
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         busy: state => state.core.signInBusy,
       }),
-      canSignUp() {
-        return this.facilityConfig.learner_can_sign_up;
-      },
       simpleSignIn() {
         return this.facilityConfig.learner_can_login_with_no_password;
       },
@@ -354,48 +345,6 @@
         }
         return !this.usernameIsInvalid && !this.passwordIsInvalid;
       },
-      needPasswordField() {
-        return !this.simpleSignIn || Boolean(this.passwordMissing || this.invalidCredentials);
-      },
-      canSignUp() {
-        return this.facilityConfig.learner_can_sign_up;
-      },
-      signUpPage() {
-        if (this.nextParam) {
-          return { name: PageNames.SIGN_UP, query: { next: this.nextParam } };
-        }
-        return { name: PageNames.SIGN_UP };
-      },
-      versionMsg() {
-        return this.$tr('poweredBy', { version: __version });
-      },
-      showGuestAccess() {
-        return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
-      },
-      logoText() {
-        return this.$kolibriBranding.signIn.title
-          ? this.$kolibriBranding.signIn.title
-          : this.coreString('kolibriLabel');
-      },
-      guestURL() {
-        return urls['kolibri:core:guest']();
-      },
-      backgroundImageStyle() {
-        if (this.$kolibriBranding.signIn.background) {
-          const scrimOpacity =
-            this.$kolibriBranding.signIn.scrimOpacity !== undefined
-              ? this.$kolibriBranding.signIn.scrimOpacity
-              : 0.7;
-          return {
-            backgroundColor: this.$themeTokens.primary,
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.$kolibriBranding.signIn.background})`,
-          };
-        }
-        return { backgroundColor: this.$themeBrand.primary.v_900 };
-      },
-      oidcProviderFlow() {
-        return plugin_data.oidcProviderEnabled && this.nextParam;
-      },
       nextParam() {
         // query is after hash
         if (this.$route.query.next) {
@@ -406,12 +355,6 @@
       },
       PageNames() {
         return PageNames;
-      },
-      signUpPage() {
-        if (this.nextParam) {
-          return { name: PageNames.SIGN_UP, query: { next: this.nextParam } };
-        }
-        return { name: PageNames.SIGN_UP };
       },
       showFacilityName() {
         return (
@@ -492,12 +435,6 @@
           user: this.selectedListUser,
         };
         this.kolibriLoginWithNewPassword(payload).catch();
-      },
-      closeFacilityModal() {
-        this.facilityModalVisible = false;
-        this.$nextTick().then(() => {
-          this.$refs.username.focus();
-        });
       },
       setSuggestionTerm(newVal) {
         if (newVal !== null && typeof newVal !== 'undefined') {
@@ -616,7 +553,6 @@
     },
     $trs: {
       changeLabel: 'Change',
-      createAccountAction: 'Create an account',
       signInError: 'Incorrect username or password',
       signInToFacilityLabel: "Sign into '{facility}'",
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
@@ -624,15 +560,6 @@
       greetUser: 'Hi, {user}',
       needToMakeNewPasswordLabel: 'Hi, {user}. You need to set a new password for your account.',
       nextLabel: 'Next',
-      restrictedAccess: {
-        message: 'Access to Kolibri has been restricted for external devices',
-        context: 'Error message description',
-      },
-      restrictedAccessDescription: {
-        message:
-          'To change this, sign in as a super admin and update the Device network access settings',
-        context: 'Error message description',
-      },
     },
   };
 

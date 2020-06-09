@@ -205,6 +205,15 @@
       poweredBy: 'Kolibri {version}',
       poweredByKolibri: 'Powered by Kolibri',
       whatsThis: "What's this?",
+      restrictedAccess: {
+        message: 'Access to Kolibri has been restricted for external devices',
+        context: 'Error message description',
+      },
+      restrictedAccessDescription: {
+        message:
+          'To change this, sign in as a super admin and update the Device network access settings',
+        context: 'Error message description',
+      },
     },
   };
 
