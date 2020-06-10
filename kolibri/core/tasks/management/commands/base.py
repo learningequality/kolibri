@@ -50,6 +50,9 @@ class ProgressTracker:
         if self.progressbar:
             # Click only enforces integers on the total (because it is implemented assuming a length)
             self.progressbar.update(increment)
+            if message:
+                self.progressbar.label = message
+
         self.progress += increment
         self.message = message
         self.extra_data = extra_data

@@ -28,6 +28,7 @@ export { default as ContentSummaryLogResource } from './contentSummaryLog';
 export { default as SessionResource } from './session';
 export { default as FacilityResource } from './facility';
 export { default as TaskResource } from './task';
+export { default as FacilityTaskResource } from './facilityTask';
 export { default as ChannelResource } from './channel';
 export { default as MasteryLogResource } from './masteryLog';
 export { default as ExamResource } from './exam';

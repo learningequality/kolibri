@@ -82,12 +82,21 @@ task_queue_name = "kolibri"
 
 priority_queue_name = "no_waiting"
 
+facility_queue_name = "facility"
+
 
 def __priority_queue():
     return Queue(priority_queue_name, connection=connection)
 
 
 priority_queue = SimpleLazyObject(__priority_queue)
+
+
+def __facility_queue():
+    return Queue(facility_queue_name, connection=connection)
+
+
+facility_queue = SimpleLazyObject(__facility_queue)
 
 
 def __queue():
@@ -108,4 +117,5 @@ def initialize_workers():
     logger.info("Starting scheduler workers.")
     regular_worker = Worker(task_queue_name, connection=connection, num_workers=1)
     priority_worker = Worker(priority_queue_name, connection=connection, num_workers=3)
-    return regular_worker, priority_worker
+    facility_worker = Worker(facility_queue_name, connection=connection, num_workers=1)
+    return regular_worker, priority_worker, facility_worker

@@ -2,6 +2,7 @@
 Utility methods for syncing.
 """
 import getpass
+from functools import wraps
 
 import requests
 from django.core.management.base import CommandError
@@ -10,7 +11,7 @@ from django.utils.six.moves import input
 from morango.models import Certificate
 from six.moves.urllib.parse import urljoin
 
-from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
@@ -140,7 +141,9 @@ def get_client_and_server_certs(
     username, password, dataset_id, nc, noninteractive=False
 ):
     # get servers certificates which server has a private key for
-    server_certs = nc.get_remote_certificates(dataset_id, scope_def_id=FULL_FACILITY)
+    server_certs = nc.get_remote_certificates(
+        dataset_id, scope_def_id=ScopeDefinitions.FULL_FACILITY
+    )
     if not server_certs:
         raise CommandError(
             "Server does not have any certificates for dataset_id: {}".format(
@@ -153,7 +156,7 @@ def get_client_and_server_certs(
     owned_certs = (
         Certificate.objects.filter(id=dataset_id)
         .get_descendants(include_self=True)
-        .filter(scope_definition_id=FULL_FACILITY)
+        .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
         .exclude(_private_key=None)
     )
 
@@ -170,7 +173,7 @@ def get_client_and_server_certs(
 
         client_cert = nc.certificate_signing_request(
             server_cert,
-            FULL_FACILITY,
+            ScopeDefinitions.FULL_FACILITY,
             {"dataset_id": dataset_id},
             userargs=username,
             password=password,
@@ -223,3 +226,41 @@ def create_superuser_and_provision_device(username, dataset_id, noninteractive=F
         DevicePermissions.objects.update_or_create(
             user=user, defaults={"is_superuser": True, "can_manage_content": True}
         )
+
+
+BYTES_PREFIXES = ("", "K", "M", "G", "T")
+PREFIX_FACTOR_BYTES = 1024.0
+
+
+def bytes_for_humans(size, suffix="B"):
+    """
+    Function to get bytes in more human readable format, untranslated, for logging purposes.
+    :type size: int
+    :type suffix: str
+    :rtype: str
+    """
+    for prefix in BYTES_PREFIXES:
+        if size < PREFIX_FACTOR_BYTES:
+            if prefix == "":
+                return "{}{}".format(size, suffix)
+            return "{:.2f}{}{}".format(size, prefix, suffix)
+        size /= PREFIX_FACTOR_BYTES
+    return "{:.2f}{}{}".format(size, "P", suffix)
+
+
+def run_once(f):
+    """
+    Runs a function once, useful for connection once to a signal
+    :type f: function
+    :rtype: function
+    """
+
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not wrapper.has_run:
+            result = f(*args, **kwargs)
+            wrapper.has_run = True
+            return result
+
+    wrapper.has_run = False
+    return wrapper
