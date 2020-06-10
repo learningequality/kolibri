@@ -23,6 +23,7 @@ from kolibri.core.content.constants.schema_versions import V020BETA1
 from kolibri.core.content.constants.schema_versions import V040BETA3
 from kolibri.core.content.constants.schema_versions import VERSION_1
 from kolibri.core.content.constants.schema_versions import VERSION_2
+from kolibri.core.content.constants.schema_versions import VERSION_3
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -580,6 +581,22 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
             ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").description,
             self.longdescription,
         )
+
+
+class Version3ImportTestCase(NaiveImportTestCase):
+    """
+    Integration test for import from no version import
+    """
+
+    name = VERSION_3
+
+    @classmethod
+    def tearDownClass(cls):
+        super(Version3ImportTestCase, cls).tearDownClass()
+
+    @classmethod
+    def setUpClass(cls):
+        super(Version3ImportTestCase, cls).setUpClass()
 
 
 class Version2ImportTestCase(NaiveImportTestCase):

@@ -364,6 +364,7 @@ class ContentNodeSerializer(DynamicFieldsModelSerializer):
         read_only=True, allow_null=True, many=True
     )
     lang = LanguageSerializer()
+    options = serializers.JSONField(default="{}")
 
     class Meta:
         model = ContentNode
@@ -384,6 +385,7 @@ class ContentNodeSerializer(DynamicFieldsModelSerializer):
             "license_owner",
             "num_coach_contents",
             "parent",
+            "options",
             "sort_order",
             "title",
         )
