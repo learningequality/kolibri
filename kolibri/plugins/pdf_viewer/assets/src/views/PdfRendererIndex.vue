@@ -411,6 +411,11 @@
   }
 
   .fullscreen-header {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 24;
     height: $controls-height;
     text-align: end;
   }
@@ -429,7 +434,7 @@
 
   .slide-enter,
   .slide-leave-to {
-    height: 0;
+    transform: translateY(-40px);
   }
 
 </style>
