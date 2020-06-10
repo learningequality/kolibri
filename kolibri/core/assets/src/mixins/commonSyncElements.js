@@ -63,8 +63,7 @@ export default {
     },
     startKdpSyncTask(facilityId) {
       return TaskResource.dataportalsync(facilityId).then(response => {
-        // TODO update for axios
-        return response.entity;
+        return response.data;
       });
     },
   },

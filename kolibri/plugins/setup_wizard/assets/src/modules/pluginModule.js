@@ -53,15 +53,15 @@ export default {
   actions: {
     getFacilityAdmins() {
       return client({
-        path: urls['kolibri:kolibri.plugins.setupWizard:facilityadminsList'](),
+        url: urls['kolibri:kolibri.plugins.setupWizard:facilityadminsList'](),
       }).then(response => {
-        return response.entity;
+        return response.data;
       });
     },
     grantSuperuserPermisions(store, data) {
       return client({
-        path: urls['kolibri:kolibri.plugins.setupWizard:grantsuperuserpermissionsList'](),
-        entity: {
+        url: urls['kolibri:kolibri.plugins.setupWizard:grantsuperuserpermissionsList'](),
+        data: {
           user_id: data.user_id,
           password: data.password,
         },

@@ -115,8 +115,8 @@
         this.modalShown = Modals.REGISTER_FACILITY;
       },
       sync() {
-        return this.startKdpSyncTask(this.theFacility.id).then(response => {
-          this.$store.commit('manageCSV/START_FACILITY_SYNC', response.data);
+        return this.startKdpSyncTask(this.theFacility.id).then(task => {
+          this.$store.commit('manageCSV/START_FACILITY_SYNC', task);
         });
       },
       handleValidateSuccess({ name, token }) {
