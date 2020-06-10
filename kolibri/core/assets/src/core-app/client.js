@@ -47,9 +47,10 @@ baseClient.interceptors.response.use(
       }
       // On every error, check to see if the status code is one of our designated
       // disconnection status codes.
-    } else if (errorCodes.includes(error.response.status)) {
-      // If so, set our heartbeat module to start monitoring the disconnection state
-      heartbeat.monitorDisconnect(error.response.status);
+      if (errorCodes.includes(error.response.status)) {
+        // If so, set our heartbeat module to start monitoring the disconnection state
+        heartbeat.monitorDisconnect(error.response.status);
+      }
     }
     return Promise.reject(error);
   }
