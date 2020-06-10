@@ -21,7 +21,6 @@ from django.db.models.query import F
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
@@ -148,24 +147,12 @@ class FacilityUserFilter(FilterSet):
         method="filter_member_of", queryset=Collection.objects.all()
     )
 
-    is_admin = BooleanFilter(method="filter_is_admin")
-
     def filter_member_of(self, queryset, name, value):
         return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
 
-    def filter_is_admin(self, queryset, name, value):
-        if value is True:
-            return queryset.filter(
-                Q(devicepermissions__is_superuser=True)
-                | Q(roles__kind__contains="admin")
-            )
-        else:
-            return queryset.filter(Q(devicepermissions__is_superuser=True))
-            # return queryset.exclude(Q(is_superuser=True) | Q(kind="admin"))
-
     class Meta:
         model = FacilityUser
-        fields = ["member_of", "is_admin"]
+        fields = ["member_of"]
 
 
 class FacilityUserViewSet(ValuesViewset):

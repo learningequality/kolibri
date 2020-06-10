@@ -674,16 +674,6 @@ class FacilityUserFilterTestCase(APITestCase):
         self.assertEqual(data[1]["id"], self.admin_1.id)
         self.assertEqual(data[2]["id"], self.user_1.id)
 
-    def test_user_is_admin_filter(self):
-        response = self.client.get(
-            reverse("kolibri:core:facilityuser-list"), {"is_admin": True}
-        )
-        data = self._sort_by_username(response.data)
-        self.assertEqual(len(data), 3)
-        self.assertEqual(data[0]["id"], self.superuser.id)
-        self.assertEqual(data[1]["id"], self.admin_1.id)
-        self.assertEqual(data[2]["id"], self.admin_2.id)
-
 
 class LoginLogoutTestCase(APITestCase):
     def setUp(self):
