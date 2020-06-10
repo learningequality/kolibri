@@ -91,8 +91,8 @@
         // Returns 'true' only if method is 'GET' and code is '404'.
         // Doesn't handle case where 'DELETE' or 'PATCH' request returns '404'.
         return (
-          get(this.errorObject, 'response.status') === 404 &&
-          get(this.errorObject, 'request.method') === 'get'
+          get(this.errorObject, 'status') === 404 &&
+          get(this.errorObject, 'config.method') === 'get'
         );
       },
       exitButtonLabel() {

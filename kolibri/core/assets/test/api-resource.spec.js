@@ -658,7 +658,7 @@ describe('Collection', function() {
         });
         it('should call the client with the DELETE method', function(done) {
           collection.delete().then(() => {
-            expect(client.mock.calls[0][0].method).toEqual('DELETE');
+            expect(client.mock.calls[0][0].method).toEqual('delete');
             done();
           });
         });
@@ -1224,7 +1224,7 @@ describe('Model', function() {
           model.synced = false;
           model.new = false;
           model.save(payload).then(() => {
-            expect(client.mock.calls[0][0].method).toEqual('PATCH');
+            expect(client.mock.calls[0][0].method).toEqual('patch');
             done();
           });
         });
@@ -1269,7 +1269,7 @@ describe('Model', function() {
         });
         it('should call the client with the DELETE method', function(done) {
           model.delete().then(() => {
-            expect(client.mock.calls[0][0].method).toEqual('DELETE');
+            expect(client.mock.calls[0][0].method).toEqual('delete');
             done();
           });
         });
