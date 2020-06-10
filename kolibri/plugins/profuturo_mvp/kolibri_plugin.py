@@ -9,10 +9,12 @@ from kolibri.core.hooks import FrontEndBaseSyncHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
+from kolibri.utils.conf import OPTIONS
 
 
 class ProfuturoPlugin(KolibriPluginBase):
     kolibri_option_defaults = "option_defaults"
+    kolibri_options = "options"
 
 
 @register_hook
@@ -88,3 +90,9 @@ class TrackingAsset(webpack_hooks.WebpackBundleHook):
 @register_hook
 class TrackingInclusionHook(FrontEndBaseSyncHook):
     bundle_class = TrackingAsset
+
+    @property
+    def bundle_html(self):
+        if OPTIONS["ProFuturo"]["HOTJAR"]:
+            return super(TrackingInclusionHook, self).bundle_html
+        return ""
