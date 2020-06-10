@@ -76,7 +76,7 @@
     ConfirmationRegisterModal,
     RegisterFacilityModal,
   } from 'kolibri.coreVue.componentSets.sync';
-  import { TaskResource } from 'kolibri.resources';
+  import { FacilityTaskResource } from 'kolibri.resources';
   import { Modals } from '../../../constants';
   import PrivacyModal from './PrivacyModal';
 
@@ -106,7 +106,7 @@
         this.displayModal(Modals.REGISTER_FACILITY);
       },
       sync(facility) {
-        TaskResource.dataportalsync(facility.id).then(response => {
+        FacilityTaskResource.dataportalsync(facility.id).then(response => {
           this.$store.commit('manageCSV/START_FACILITY_SYNC', response.data);
         });
       },

@@ -6,7 +6,7 @@ from morango.constants.api_urls import NONCE
 from morango.models import Certificate
 from six.moves.urllib.parse import urljoin
 
-from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.utils import conf
 
 
@@ -21,7 +21,7 @@ def registerfacility(token, facility):
     # get owned certificate for this facility
     client_cert = (
         facility.dataset.get_owned_certificates()
-        .filter(scope_definition_id=FULL_FACILITY)
+        .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
         .first()
     )
 

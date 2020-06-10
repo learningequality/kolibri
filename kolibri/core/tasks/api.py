@@ -10,16 +10,25 @@ from django.apps.registry import AppRegistryNotReady
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.uploadedfile import UploadedFile
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.http.response import Http404
 from django.http.response import HttpResponseBadRequest
 from django.utils.translation import get_language_from_request
 from django.utils.translation import gettext_lazy as _
+from morango.sync.controller import MorangoProfileController
 from rest_framework import serializers
+from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
+from rest_framework.exceptions import APIException
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import NotAuthenticated
+from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from six import string_types
 
+from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
+from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.permissions import CanExportLogs
@@ -31,11 +40,17 @@ from kolibri.core.content.utils.channels import read_channel_metadata_from_db_fi
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.upgrade import diff_stats
+from kolibri.core.device.permissions import NotProvisionedCanGet
+from kolibri.core.device.permissions import NotProvisionedCanPost
 from kolibri.core.discovery.models import NetworkLocation
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
+from kolibri.core.discovery.utils.network.errors import URLParseError
 from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import facility_queue
 from kolibri.core.tasks.main import priority_queue
 from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.utils import get_current_job
@@ -156,23 +171,26 @@ def validate_deletion_task(request, task_description):
     return task
 
 
-class TasksViewSet(viewsets.ViewSet):
-    def get_permissions(self):
+class BaseViewSet(viewsets.ViewSet):
+    queues = []
+
+    @property
+    def permission_classes(self):
         # task permissions shared between facility management and device management
         if self.action in ["list", "deletefinishedtasks"]:
-            permission_classes = [CanManageContent | CanExportLogs]
-        # exclusive permission for facility management
+            return [CanManageContent | CanExportLogs]
         elif self.action == "startexportlogcsv":
-            permission_classes = [CanExportLogs]
+            return [CanExportLogs]
         elif self.action in ["importusersfromcsv", "exportuserstocsv"]:
-            permission_classes = [CanImportUsers]
+            return [CanImportUsers]
+
         # this was the default before, so leave as is for any other endpoints
-        else:
-            permission_classes = [CanManageContent]
-        return [permission() for permission in permission_classes]
+        return [CanManageContent]
 
     def list(self, request):
-        jobs_response = [_job_to_response(j) for j in queue.jobs + priority_queue.jobs]
+        jobs_response = [
+            _job_to_response(j) for _queue in self.queues for j in _queue.jobs
+        ]
 
         return Response(jobs_response)
 
@@ -181,20 +199,91 @@ class TasksViewSet(viewsets.ViewSet):
         pass
 
     def retrieve(self, request, pk=None):
-        try:
-            task = _job_to_response(queue.fetch_job(pk))
-            return Response(task)
-        except JobNotFound:
+        for _queue in self.queues:
             try:
-                task = _job_to_response(priority_queue.fetch_job(pk))
+                task = _job_to_response(_queue.fetch_job(pk))
+                break
             except JobNotFound:
-                raise Http404("Task with {pk} not found".format(pk=pk))
+                continue
+        else:
+            raise Http404("Task with {pk} not found".format(pk=pk))
+
+        return Response(task)
 
     def destroy(self, request, pk=None):
         # unimplemented for now.
         pass
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
+    def canceltask(self, request):
+        """
+        Cancel a task with its task id given in the task_id parameter.
+        """
+
+        if "task_id" not in request.data:
+            raise serializers.ValidationError("The 'task_id' field is required.")
+        if not isinstance(request.data["task_id"], string_types):
+            raise serializers.ValidationError("The 'task_id' should be a string.")
+
+        for _queue in self.queues:
+            try:
+                _queue.cancel(request.data["task_id"])
+                break
+            except JobNotFound:
+                continue
+
+        return Response({})
+
+    @action(methods=["post"], detail=False)
+    def cleartasks(self, request):
+        """
+        Cancels all running tasks.
+        """
+
+        for _queue in self.queues:
+            _queue.empty()
+
+        return Response({})
+
+    @action(methods=["post"], detail=False)
+    def cleartask(self, request):
+        # Given a single task ID, clear it from the queue
+        task_id = request.data.get("task_id")
+        if not task_id:
+            return Response({})
+
+        for _queue in self.queues:
+            _queue.clear_job(task_id)
+
+        return Response({"task_id": task_id})
+
+    @action(methods=["post"], detail=False)
+    def deletefinishedtasks(self, request):
+        """
+        Delete all tasks that have succeeded, failed, or been cancelled.
+        """
+        task_id = request.data.get("task_id")
+        if task_id:
+            for _queue in self.queues:
+                _queue.clear_job(task_id)
+        else:
+            for _queue in self.queues:
+                _queue.clear()
+        return Response({})
+
+
+class TasksViewSet(BaseViewSet):
+    queues = [queue, priority_queue]
+
+    @property
+    def permission_classes(self):
+        # exclusive permission for facility management
+        if self.action == "startexportlogcsv":
+            return [CanExportLogs]
+
+        return super(TasksViewSet, self).permission_classes
+
+    @action(methods=["post"], detail=False)
     def startchannelupdate(self, request):
 
         sourcetype = request.data.get("sourcetype", None)
@@ -235,7 +324,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def startremotebulkimport(self, request):
         if not isinstance(request.data, list):
             raise serializers.ValidationError(
@@ -263,7 +352,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def startremotechannelimport(self, request):
 
         task = validate_remote_import_task(request, request.data)
@@ -284,7 +373,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def startremotecontentimport(self, request):
 
         task = validate_remote_import_task(request, request.data)
@@ -308,7 +397,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def startdiskbulkimport(self, request):
         if not isinstance(request.data, list):
             raise serializers.ValidationError(
@@ -336,7 +425,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def startdiskchannelimport(self, request):
         task = validate_local_import_task(request, request.data)
 
@@ -356,7 +445,7 @@ class TasksViewSet(viewsets.ViewSet):
         resp = _job_to_response(priority_queue.fetch_job(job_id))
         return Response(resp)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def startdiskcontentimport(self, request):
         task = validate_local_import_task(request, request.data)
 
@@ -380,7 +469,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def startbulkdelete(self, request):
         if not isinstance(request.data, list):
             raise serializers.ValidationError(
@@ -409,7 +498,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def startdeletechannel(self, request):
         """
         Delete a channel and all its associated content from the server
@@ -438,7 +527,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def startdiskbulkexport(self, request):
         if not isinstance(request.data, list):
             raise serializers.ValidationError(
@@ -465,7 +554,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def startdiskexport(self, request):
         """
         Export a channel to a local drive, and copy content to the drive.
@@ -491,87 +580,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
-    @list_route(methods=["post"])
-    def startdataportalsync(self, request):
-        """
-        Initiate a PUSH sync with Kolibri Data Portal.
-        """
-        task = {
-            "facility": request.data["facility"],
-            "type": "SYNCDATAPORTAL",
-            "started_by": request.user.pk,
-        }
-
-        job_id = queue.enqueue(
-            call_command,
-            "sync",
-            facility=task["facility"],
-            noninteractive=True,
-            extra_metadata=task,
-            track_progress=False,
-            cancellable=False,
-        )
-        # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(queue.fetch_job(job_id))
-
-        return Response(resp)
-
-    @list_route(methods=["post"])
-    def canceltask(self, request):
-        """
-        Cancel a task with its task id given in the task_id parameter.
-        """
-
-        if "task_id" not in request.data:
-            raise serializers.ValidationError("The 'task_id' field is required.")
-        if not isinstance(request.data["task_id"], string_types):
-            raise serializers.ValidationError("The 'task_id' should be a string.")
-        try:
-            queue.cancel(request.data["task_id"])
-        except JobNotFound:
-            try:
-                priority_queue.cancel(request.data["task_id"])
-            except JobNotFound:
-                pass
-
-        return Response({})
-
-    @list_route(methods=["post"])
-    def cleartasks(self, request):
-        """
-        Cancels all running tasks.
-        """
-
-        queue.empty()
-        priority_queue.empty()
-        return Response({})
-
-    @list_route(methods=["post"])
-    def cleartask(self, request):
-        # Given a single task ID, clear it from the queue
-        task_id = request.data.get("task_id")
-        if task_id:
-            queue.clear_job(task_id)
-            priority_queue.clear_job(task_id)
-            return Response({"task_id": task_id})
-        else:
-            return Response({})
-
-    @list_route(methods=["post"])
-    def deletefinishedtasks(self, request):
-        """
-        Delete all tasks that have succeeded, failed, or been cancelled.
-        """
-        task_id = request.data.get("task_id")
-        if task_id:
-            queue.clear_job(task_id)
-            priority_queue.clear_job(task_id)
-        else:
-            queue.clear()
-            priority_queue.clear()
-        return Response({})
-
-    @list_route(methods=["get"])
+    @action(methods=["get"], detail=False)
     def localdrive(self, request):
         drives = get_mounted_drives_with_channel_info()
 
@@ -581,7 +590,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(out)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def importusersfromcsv(self, request):
         """
         Import users, classes, roles and roles assignemnts from a csv file.
@@ -657,7 +666,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def exportuserstocsv(self, request):
         """
         Export users, classes, roles and roles assignemnts to a csv file.
@@ -687,7 +696,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def startexportlogcsv(self, request):
         """
         Dumps in csv format the required logs.
@@ -742,7 +751,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(resp)
 
-    @list_route(methods=["post"])
+    @action(methods=["post"], detail=False)
     def channeldiffstats(self, request):
         job_metadata = {}
         channel_id = request.data.get("channel_id")
@@ -803,6 +812,161 @@ class TasksViewSet(viewsets.ViewSet):
         resp = _job_to_response(priority_queue.fetch_job(job_id))
 
         return Response(resp)
+
+
+class FacilityTasksViewSet(BaseViewSet):
+    queues = [facility_queue]
+
+    @property
+    def permission_classes(self):
+        permission_classes = super(FacilityTasksViewSet, self).permission_classes
+
+        if self.action in ["list", "retrieve"]:
+            return [p | NotProvisionedCanGet for p in permission_classes]
+
+        return [p | NotProvisionedCanPost for p in permission_classes]
+
+    @action(methods=["post"], detail=False)
+    def startdataportalsync(self, request):
+        """
+        Initiate a PUSH sync with Kolibri Data Portal.
+        """
+        job_data = validate_prepare_sync_job(
+            request, extra_metadata=prepare_sync_task(request, type="SYNCDATAPORTAL")
+        )
+        job_id = facility_queue.enqueue(call_command, "sync", **job_data)
+
+        resp = _job_to_response(facility_queue.fetch_job(job_id))
+        return Response(resp)
+
+    @action(methods=["post"], detail=False)
+    def startdataportalbulksync(self, request):
+        """
+        Initiate a PUSH sync with Kolibri Data Portal for ALL registered facilities.
+        """
+        responses = []
+        facilities = Facility.objects.filter(dataset__registered=True).values_list(
+            "dataset_id", flat=True
+        )
+
+        for facility_id in facilities:
+            request.data.update(facility=facility_id)
+            responses.append(self.startdataportalsync(request).data)
+
+        return Response(responses)
+
+    @action(methods=["post"], detail=False)
+    def startpeerfacilityimport(self, request):
+        """
+        Initiate a PULL of a specific facility from another device.
+        """
+        job_data = validate_and_prepare_peer_sync_job(
+            request,
+            no_push=True,
+            extra_metadata=prepare_sync_task(request, type="SYNCPEER/PULL"),
+        )
+
+        job_id = facility_queue.enqueue(call_command, "sync", **job_data)
+
+        resp = _job_to_response(facility_queue.fetch_job(job_id))
+        return Response(resp)
+
+    @action(methods=["post"], detail=False)
+    def startpeerfacilitysync(self, request):
+        """
+        Initiate a SYNC (PULL + PUSH) of a specific facility from another device.
+        """
+        job_data = validate_and_prepare_peer_sync_job(
+            request, extra_metadata=prepare_sync_task(request, type="SYNCPEER/FULL"),
+        )
+        job_id = facility_queue.enqueue(call_command, "sync", **job_data)
+
+        resp = _job_to_response(facility_queue.fetch_job(job_id))
+        return Response(resp)
+
+
+class ResourceGoneError(APIException):
+    """
+    API error for when a peer no longer is online
+    """
+
+    status_code = status.HTTP_410_GONE
+    default_detail = "Unable to connect"
+
+
+def prepare_sync_task(request, **kwargs):
+    facility_id = request.data.get("facility")
+    task_data = dict(
+        facility=facility_id,
+        started_by=request.user.pk,
+        sync_state=FacilitySyncState.PENDING,
+        bytes_sent=0,
+        bytes_received=0,
+    )
+
+    task_data.update(kwargs)
+    return task_data
+
+
+def validate_prepare_sync_job(request, **kwargs):
+    # ensure we have the facility
+    try:
+        facility_id = request.data.get("facility")
+        if not facility_id:
+            raise KeyError()
+    except KeyError:
+        raise ParseError("Missing `facility` parameter")
+
+    job_data = dict(
+        facility=facility_id,
+        chunk_size=50,
+        noninteractive=True,
+        extra_metadata=dict(),
+        track_progress=True,
+        cancellable=True,
+    )
+
+    job_data.update(kwargs)
+    return job_data
+
+
+def validate_and_prepare_peer_sync_job(request, **kwargs):
+    # validate the baseurl
+    try:
+        address = request.data.get("baseurl")
+        if not address:
+            raise KeyError()
+
+        baseurl = NetworkClient(address=address).base_url
+    except KeyError:
+        raise ParseError("Missing `baseurl` parameter")
+    except URLParseError:
+        raise ParseError("Invalid URL")
+    except NetworkLocationNotFound:
+        raise ResourceGoneError()
+
+    job_data = validate_prepare_sync_job(request, baseurl=baseurl, **kwargs)
+
+    facility_id = job_data.get("facility")
+    username = request.data.get("username", None)
+    password = request.data.get("password", None)
+
+    controller = MorangoProfileController("facilitydata")
+    network_connection = controller.create_network_connection(baseurl)
+
+    # try to get the certificate, which will save it if successful
+    try:
+        # username and password are not required for this to succeed unless there is no cert
+        get_client_and_server_certs(
+            username, password, facility_id, network_connection, noninteractive=True
+        )
+    except CommandError as e:
+        if not username and not password:
+            raise NotAuthenticated()
+        else:
+            raise AuthenticationFailed(e)
+
+    return job_data
 
 
 def _remoteimport(
