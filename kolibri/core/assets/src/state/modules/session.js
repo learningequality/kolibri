@@ -39,8 +39,8 @@ export default {
     canManageContent(state) {
       return state.can_manage_content;
     },
-    canAccessUnassignedContent(state) {
-      return state.can_access_unassigned_content;
+    canAccessUnassignedContent(state, getters) {
+      return state.can_access_unassigned_content && getters.allowRemoteAccess;
     },
     isSuperuser(state) {
       return state.kind.includes(UserKinds.SUPERUSER);

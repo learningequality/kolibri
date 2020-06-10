@@ -20,6 +20,7 @@ export default {
       list: [],
       currentId: null,
     },
+    allowRemoteAccess: false,
     // facility
     facilityConfig: {},
     facilities: [],

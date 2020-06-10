@@ -14,11 +14,9 @@ describe('AppError component', () => {
   it('shows page not found errors and buttons if the error has status code 404', async () => {
     const { wrapper, store } = makeWrapper();
     const error = {
-      status: {
-        code: 404,
-      },
-      request: {
-        method: 'GET',
+      status: 404,
+      config: {
+        method: 'get',
       },
     };
     store.state.core.error = JSON.stringify(error);
@@ -30,11 +28,9 @@ describe('AppError component', () => {
   it('shows default errors and buttons if the error does not have status code 404', async () => {
     const { wrapper, store } = makeWrapper();
     const error = {
-      status: {
-        code: 400,
-      },
-      request: {
-        method: 'GET',
+      status: 400,
+      config: {
+        method: 'get',
       },
     };
     store.state.core.error = JSON.stringify(error);

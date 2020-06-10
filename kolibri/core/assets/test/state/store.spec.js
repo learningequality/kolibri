@@ -69,12 +69,14 @@ describe('Vuex store/actions for core module', () => {
         createModel: () => ({
           save: () =>
             Promise.reject({
-              entity: [
-                {
-                  id: constants.LoginErrors.INVALID_CREDENTIALS,
-                },
-              ],
-              status: { code: 401 },
+              response: {
+                data: [
+                  {
+                    id: constants.LoginErrors.INVALID_CREDENTIALS,
+                  },
+                ],
+                status: 401,
+              },
             }),
         }),
       });

@@ -20,6 +20,7 @@
         :kind="content.kind"
         :lang="content.lang"
         :files="content.files"
+        :options="content.options"
         :available="content.available"
         :extraFields="extraFields"
         :progress="summaryProgress"

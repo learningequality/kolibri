@@ -76,7 +76,7 @@ function showResourceSelectionPage(store, params) {
               })
             );
             ContentNodeResource.fetchDescendants(Array.from(ancestorIds)).then(nodes => {
-              nodes.entity.forEach(node => {
+              nodes.data.forEach(node => {
                 // exclude topics from total resource calculation
                 if (node.kind !== ContentNodeKinds.TOPIC) {
                   ancestorCounts[node.ancestor_id].total++;

@@ -33,3 +33,7 @@ export function pageSessionId(state) {
 export function demoBannerVisible(state, getters, rootState) {
   return state.demoBannerVisible && rootState.pageName === 'SIGN_IN';
 }
+
+export function allowRemoteAccess(state) {
+  return state.allowRemoteAccess;
+}

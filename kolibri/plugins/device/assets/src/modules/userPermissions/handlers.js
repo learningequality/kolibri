@@ -25,7 +25,7 @@ function fetchUserPermissions(userId) {
       });
     })
     .catch(function onPermissionsFailure(error) {
-      if (error.status.code === 404) {
+      if (error.response.status === 404) {
         return userPromise.then(function onUserSuccess(user) {
           return {
             permissions: {
@@ -74,7 +74,7 @@ export function showUserPermissionsPage(store, userId) {
     })
     .catch(error => {
       if (samePage()) {
-        if (error.status.code === 404) {
+        if (error.response.status === 404) {
           setAppBarTitle(translator.$tr('invalidUserTitle'));
           setUserPermissionsState({ user: null, permissions: {} });
         }

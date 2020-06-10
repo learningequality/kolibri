@@ -80,7 +80,7 @@
               }
             })
             .catch(error => {
-              if (error.status.code === 404) {
+              if (error.response.status === 404) {
                 this.tokenLookupFailed = true;
               } else {
                 this.tokenNetworkError = true;

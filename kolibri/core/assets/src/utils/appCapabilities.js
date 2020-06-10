@@ -34,7 +34,7 @@ export default {
         return Promise.reject();
       }
       return client.post({
-        path: urlFunction(),
+        url: urlFunction(),
         method: 'POST',
         params: { filename, message },
       });

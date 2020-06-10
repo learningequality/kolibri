@@ -252,7 +252,7 @@
       },
       onTaskSuccess(task) {
         this.bottomBarDisabled = false;
-        this.watchedTaskType = task.entity.type;
+        this.watchedTaskType = task.data.type;
         this.notifyAndWatchTask(task);
       },
       onTaskFailure() {
@@ -306,7 +306,7 @@
           .then(this.setUpPage)
           .catch(error => {
             // If entire channel is deleted, redirect
-            if (error.status.code === 404) {
+            if (error.response.status === 404) {
               this.$router.replace({ name: PageNames.MANAGE_CONTENT_PAGE });
             } else {
               this.$store.dispatch('handleApiError', error);

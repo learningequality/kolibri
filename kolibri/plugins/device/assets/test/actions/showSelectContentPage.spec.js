@@ -34,7 +34,7 @@ describe('loadChannelMetadata action', () => {
       { id: 'channel_1', name: 'Installed Channel', root: 'channel_1_root', available: true },
     ]);
     hackStoreWatcher(store);
-    const taskEntity = { entity: { id: 'task_1' } };
+    const taskEntity = { data: { id: 'task_1' } };
     TaskResource.cancelTask = jest.fn().mockResolvedValue();
     TaskResource.startDiskChannelImport.mockResolvedValue(taskEntity);
     TaskResource.startRemoteChannelImport.mockResolvedValue(taskEntity);

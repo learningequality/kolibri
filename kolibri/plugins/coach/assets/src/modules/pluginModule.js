@@ -77,11 +77,7 @@ export default {
     handleCoachPageError(store, errorObject) {
       const authErrorCodes = [401, 403, 404, 407];
       logging.error(errorObject);
-      if (
-        errorObject.status &&
-        errorObject.status.code &&
-        authErrorCodes.includes(errorObject.status.code)
-      ) {
+      if (errorObject.response.status && authErrorCodes.includes(errorObject.response.status)) {
         store.dispatch('handleApiError', '');
       } else {
         store.dispatch('handleApiError', errorObject);
