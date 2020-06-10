@@ -365,7 +365,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri-design-system/lib/styles/definitions';
+  @import '~kolibri.styles.definitions';
   $controls-height: 40px;
 
   .pdf-renderer {
