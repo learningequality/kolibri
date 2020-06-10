@@ -1,11 +1,12 @@
-from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.constants import user_kinds
-from kolibri.core.device.models import DevicePermissions
 from rest_framework.exceptions import NotFound
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.viewsets import GenericViewSet
-from rest_framework.response import Response
 from rest_framework.permissions import BasePermission
+from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet
+
+from kolibri.core.auth.constants import user_kinds
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.device.models import DevicePermissions
 
 
 # Basic class that makes these endpoints unusable if device is provisioned

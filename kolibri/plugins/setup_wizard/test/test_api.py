@@ -4,8 +4,9 @@ from __future__ import unicode_literals
 
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase
-from kolibri.core.auth.test.helpers import provision_device
+
 from kolibri.core.auth.test.helpers import create_dummy_facility_data
+from kolibri.core.auth.test.helpers import provision_device
 
 
 class FacilityAdminViewTest(APITestCase):
@@ -34,10 +35,10 @@ class GrantSuperuserPermissionsViewTest(APITestCase):
     def setUp(self):
         facility_data = create_dummy_facility_data(classroom_count=1)
         self.admin = facility_data["facility_admin"]
-        self.admin.set_password('password')
+        self.admin.set_password("password")
         self.admin.save()
         self.coach = facility_data["classroom_coaches"][0]
-        self.coach.set_password('password')
+        self.coach.set_password("password")
         self.coach.save()
 
     def _make_request(self, data):
@@ -51,7 +52,9 @@ class GrantSuperuserPermissionsViewTest(APITestCase):
 
     def test_fails_if_device_provisioned(self):
         provision_device()
-        response = self._make_request({"user_id": self.admin.id, "password": "password"})
+        response = self._make_request(
+            {"user_id": self.admin.id, "password": "password"}
+        )
         self.assertEqual(response.status_code, 403)
 
     def test_fails_if_user_not_found(self):
@@ -61,13 +64,19 @@ class GrantSuperuserPermissionsViewTest(APITestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_fails_if_password_invalid(self):
-        response = self._make_request({"user_id": self.admin.id, "password": "passward"})
+        response = self._make_request(
+            {"user_id": self.admin.id, "password": "passward"}
+        )
         self.assertEqual(response.status_code, 403)
 
     def test_fails_if_user_not_admin(self):
-        response = self._make_request({"user_id": self.coach.id, "password": "password"})
+        response = self._make_request(
+            {"user_id": self.coach.id, "password": "password"}
+        )
         self.assertEqual(response.status_code, 403)
 
     def test_successfully_adds_device_permissions(self):
-        response = self._make_request({"user_id": self.admin.id, "password": "password"})
+        response = self._make_request(
+            {"user_id": self.admin.id, "password": "password"}
+        )
         self.assertEqual(response.status_code, 200)

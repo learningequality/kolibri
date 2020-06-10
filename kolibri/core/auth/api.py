@@ -21,11 +21,11 @@ from django.db.models.query import F
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
-from django_filters.rest_framework import BooleanFilter
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
