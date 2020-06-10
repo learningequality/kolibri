@@ -314,7 +314,12 @@
       },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
-        if (this.error && this.error.response.status && this.error.response.status == 403) {
+        if (
+          this.error &&
+          this.error.response &&
+          this.error.response.status &&
+          this.error.response.status == 403
+        ) {
           return true;
         }
         return !this.authorized;

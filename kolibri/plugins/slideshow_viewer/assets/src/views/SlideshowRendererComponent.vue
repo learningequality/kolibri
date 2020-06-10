@@ -170,7 +170,7 @@
             use the manifest JSON to get all slide images and metadata.
           */
           const url = defaultFile.storage_url;
-          const method = 'GET';
+          const method = 'get';
           client({ url, method }).then(({ data }) => {
             this.setSlides(data);
           });

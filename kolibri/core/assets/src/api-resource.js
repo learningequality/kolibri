@@ -138,11 +138,11 @@ export class Model {
             if (!this.new || exists) {
               // If this Model is not new, then can do a PATCH against the Model
               url = this.url;
-              clientObj = { url: url, method: 'PATCH', data: payload, params: this.getParams };
+              clientObj = { url: url, method: 'patch', data: payload, params: this.getParams };
             } else {
               // Otherwise, must POST to the Collection endpoint to create the Model
               url = this.resource.collectionUrl();
-              clientObj = { url: url, data: payload, params: this.getParams };
+              clientObj = { url: url, method: 'post', data: payload, params: this.getParams };
             }
             // Do a save on the URL.
             this.resource.client(clientObj).then(
@@ -196,7 +196,7 @@ export class Model {
             reject('Can not delete model that we do not have an id for');
           } else {
             // Otherwise, DELETE the Model
-            const clientObj = { url: this.url, method: 'DELETE', params: this.getParams };
+            const clientObj = { url: this.url, method: 'delete', params: this.getParams };
             this.resource.client(clientObj).then(
               () => {
                 // delete this instance
@@ -377,7 +377,7 @@ export class Collection {
           this.synced = false;
           const url = this.resource.collectionUrl();
           const payload = data.length ? data : this.data;
-          const clientObj = { url: url, data: payload };
+          const clientObj = { url: url, data: payload, method: 'post' };
           // Do a save on the URL.
           this.resource.client(clientObj).then(
             response => {
@@ -432,7 +432,7 @@ export class Collection {
             // Otherwise, DELETE the Collection
             const clientObj = {
               url: this.resource.collectionUrl(),
-              method: 'DELETE',
+              method: 'delete',
               params: this.getParams,
             };
             this.resource.client(clientObj).then(
@@ -882,7 +882,7 @@ export class Resource {
       throw TypeError('A listName must be specified');
     }
     let data, params;
-    if (method === 'GET') {
+    if (method.toLowerCase() === 'get') {
       params = args;
     } else {
       data = args;
@@ -903,7 +903,7 @@ export class Resource {
    * @return {Promise}         Promise that resolves with the request
    */
   getListEndpoint(listName, params = {}) {
-    return this.accessEndpoint('GET', listName, params);
+    return this.accessEndpoint('get', listName, params);
   }
 
   /**
@@ -913,7 +913,7 @@ export class Resource {
    * @return {Promise}         Promise that resolves with the request
    */
   postListEndpoint(listName, params = {}) {
-    return this.accessEndpoint('POST', listName, params);
+    return this.accessEndpoint('post', listName, params);
   }
 
   /**
@@ -925,7 +925,7 @@ export class Resource {
    * @return {Promise}         Promise that resolves with the request
    */
   postListEndpointMultipart(listName, params = {}) {
-    return this.accessEndpoint('POST', listName, params, true);
+    return this.accessEndpoint('post', listName, params, true);
   }
 
   /**

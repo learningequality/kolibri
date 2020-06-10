@@ -60,7 +60,7 @@ const client = options => {
     options &&
     typeof options === 'object' &&
     !Array.isArray(options) &&
-    (!options.method || options.method === 'GET')
+    (!options.method || options.method.toLowerCase() === 'get')
   ) {
     if (!options.params) {
       options.params = {};

@@ -18,7 +18,7 @@ describe('AppError component', () => {
         code: 404,
       },
       request: {
-        method: 'GET',
+        method: 'get',
       },
     };
     store.state.core.error = JSON.stringify(error);
@@ -34,7 +34,7 @@ describe('AppError component', () => {
         code: 400,
       },
       request: {
-        method: 'GET',
+        method: 'get',
       },
     };
     store.state.core.error = JSON.stringify(error);

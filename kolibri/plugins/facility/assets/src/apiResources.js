@@ -7,7 +7,7 @@ export const PortalResource = new Resource({
     const url = urls['kolibri:core:portal-validate-token']();
     return this.client({
       url,
-      method: 'GET',
+      method: 'get',
       params: { token },
     });
   },
@@ -15,7 +15,7 @@ export const PortalResource = new Resource({
     const url = urls['kolibri:core:portal-register']();
     return this.client({
       url,
-      method: 'POST',
+      method: 'post',
       data: { facility_id, token },
     });
   },
