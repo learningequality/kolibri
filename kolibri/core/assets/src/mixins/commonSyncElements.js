@@ -1,5 +1,5 @@
 import some from 'lodash/some';
-import { StaticNetworkLocationResource, TaskResource } from 'kolibri.resources';
+import { StaticNetworkLocationResource, FacilityTaskResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 
 // Strings that might be shared among syncing-related UIs across plugins.
@@ -63,18 +63,18 @@ export default {
       }).save();
     },
     startKdpSyncTask(facilityId) {
-      return TaskResource.dataportalsync(facilityId).then(response => {
+      return FacilityTaskResource.dataportalsync(facilityId).then(response => {
         return response.data;
       });
     },
     fetchKdpSyncTasks() {
-      return TaskResource.fetchCollection({ force: true }).then(tasks => {
+      return FacilityTaskResource.fetchCollection({ force: true }).then(tasks => {
         return tasks.filter(task => (task.type = 'SYNCDATAPORTAL'));
       });
     },
     cleanupKdpSyncTasks(tasks, cb) {
       if (some(tasks, { type: 'SYNCDATAPORTAL', status: 'COMPLETED' })) {
-        return TaskResource.deleteFinishedTasks().then(() => {
+        return FacilityTaskResource.deleteFinishedTasks().then(() => {
           if (cb) {
             cb();
           }

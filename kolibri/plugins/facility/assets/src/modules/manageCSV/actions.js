@@ -1,5 +1,5 @@
 import logger from 'kolibri.lib.logging';
-import { TaskResource } from 'kolibri.resources';
+import { TaskResource, FacilityTaskResource } from 'kolibri.resources';
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import { TaskStatuses, TaskTypes } from '../../constants';
@@ -95,10 +95,16 @@ function startExportUsers(store) {
 }
 
 function refreshTaskList(store) {
-  return TaskResource.fetchCollection({
-    force: true,
-  })
-    .then(newTasks => {
+  return Promise.all([
+    TaskResource.fetchCollection({
+      force: true,
+    }),
+    FacilityTaskResource.fetchCollection({
+      force: true,
+    }),
+  ])
+    .then(([newTasks, newFacilityTasks]) => {
+      console.log(newTasks);
       checkTaskStatus(
         store,
         newTasks,
@@ -117,7 +123,7 @@ function refreshTaskList(store) {
       );
       checkTaskStatus(
         store,
-        newTasks,
+        newFacilityTasks,
         TaskTypes.SYNCDATAPORTAL,
         store.state.facilityTaskId,
         'START_FACILITY_SYNC',

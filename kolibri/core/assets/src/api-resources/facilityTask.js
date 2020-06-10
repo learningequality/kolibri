@@ -17,4 +17,8 @@ export default new Resource({
   dataportalbulksync() {
     return this.postListEndpoint('startdataportalbulksync');
   },
+
+  deleteFinishedTasks() {
+    return this.postListEndpoint('deletefinishedtasks');
+  },
 });
