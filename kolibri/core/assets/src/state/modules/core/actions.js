@@ -242,8 +242,8 @@ export function kolibriLoginWithNewPassword(store, payload) {
     .then(() => {
       const path = `/api/auth/facilityuser/${user.id}/`;
       const method = 'PATCH';
-      const entity = { password };
-      client({ path, method, entity }).then(() => {
+      const data = { password };
+      client({ path, method, data }).then(() => {
         // OIDC redirect
         if (sessionPayload.next) {
           redirectBrowser(sessionPayload.next);
@@ -354,10 +354,9 @@ export function saveDismissedNotification(store, notification_id) {
 export function getRemoteAccessPermission(store) {
   return client({
     method: 'POST',
-    path: urls['kolibri:kolibri.plugins.device:allowremoteaccess'](),
+    url: urls['kolibri:kolibri.plugins.device:allowremoteaccess'](),
   }).then(response => {
-    const data = response.entity;
-    store.commit('SET_REMOTE_BROWSER_PERMISSION', data.allowed);
+    store.commit('SET_REMOTE_BROWSER_PERMISSION', response.data.allowed);
   });
 }
 

@@ -20,7 +20,7 @@ export function getDeviceInfo() {
     data.content_storage_free_space = bytesForHumans(data.content_storage_free_space);
     data.device_name = nameResponse.data.name;
 
-    if (infoResponse.headers.Server.includes('0.0.0.0')) {
+    if (infoResponse.headers.server.includes('0.0.0.0')) {
       if (isEmbeddedWebView) {
         data.server_type = 'Kolibri app server';
       } else {
