@@ -13,7 +13,6 @@
     "fontfaceobserver": "^2.0.13",
     "frame-throttle": "^3.0.0",
     "intl": "^1.2.4",
-    "js-cookie": "^2.1.2",
     "knuth-shuffle-seeded": "^1.0.6",
     "kolibri-design-system": "github:nucleogenesis/kolibri-design-system-1#big-keen-ui-vendoring",
     "lockr": "0.8.4",
