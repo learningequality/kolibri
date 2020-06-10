@@ -72,7 +72,7 @@
     $trs: {
       deviceNameExplanation: {
         message:
-          'Giving this device a unique and meaningful name can help you and others in your network to recognize it',
+          'Give a unique and meaningful name to this device so you and others in your network can easily recognize it',
         context: 'Explanation of what the device name is',
       },
     },

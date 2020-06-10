@@ -67,6 +67,7 @@ describe('learn plugin index page', () => {
   };
   const setCanAccessUnassignedContent = canAccess => {
     store.state.core.session.can_access_unassigned_content = canAccess;
+    store.state.core.allowRemoteAccess = canAccess;
   };
 
   beforeEach(() => {

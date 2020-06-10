@@ -42,7 +42,7 @@ const syncStrings = createTranslator('CommonSyncStrings', {
   distinctFacilityNameExplanation: {
     message: "This facility is different from '{facilities}'. These facilities will not sync.",
     context:
-      'Explanation that is shown if two facilities with the same name but different IDs are on the device',
+      'When two facilities have the same name but different IDs, they will not be able to sync',
   },
 });
 

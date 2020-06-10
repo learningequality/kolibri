@@ -62,7 +62,7 @@
       },
       descriptionParagraph1: {
         message:
-          'Kolibri can use facilities to manage larger groups of users. This can be useful in schools, educational programs and other group learning settings.',
+          'In Kolibri, you can use a facility to manage a large group of users, like a school, an educational program or any other group learning setting. You can also have multiple facilities on the same device.',
         context: 'First paragraph of description',
       },
       descriptionParagraph2: {

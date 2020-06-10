@@ -30,5 +30,5 @@ Table of contents
   development_workflow
   release_process
   i18n
-  manual_testing
+  manual_testing/index
   changelog

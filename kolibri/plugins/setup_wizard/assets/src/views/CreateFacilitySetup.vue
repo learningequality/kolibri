@@ -88,7 +88,7 @@
     },
     $trs: {
       newFacilityStepTitle: {
-        message: 'New facility - {step, number} of {total, number}',
+        message: 'New facility - step {step, number} of {total, number}',
         context: 'Title that goes on top of the screen to indicate the current step',
       },
     },

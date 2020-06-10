@@ -14,8 +14,8 @@ FILE_WRITE_ERROR = 9
 
 MESSAGES = {
     UNEXPECTED_EXCEPTION: _("Unexpected exception [{}]: {}"),
-    TOO_LONG: _("'{}' is too long"),
-    INVALID: _("Not a valid '{}'"),
+    TOO_LONG: _("Content of cell '{}' is too long"),
+    INVALID: _("Content of cell '{}' is not valid"),
     DUPLICATED_USERNAME: _("Duplicated Username"),
     INVALID_USERNAME: _(
         "Username only can contain characters, numbers and underscores"

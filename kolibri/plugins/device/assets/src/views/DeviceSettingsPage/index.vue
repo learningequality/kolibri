@@ -45,6 +45,16 @@
         :checked="allowPeerUnlistedChannelImport"
         @change="allowPeerUnlistedChannelImport = $event"
       />
+      <KCheckbox
+        v-if="isAppContext"
+        :checked="allowOtherBrowsersToConnect"
+        @change="allowOtherBrowsersToConnect = $event"
+      >
+        <span> {{ $tr('allowExternalConnectionsApp') }}
+          <p>{{ $tr('allowExternalConnectionsAppDescription') }}</p>
+
+        </span>
+      </KCheckbox>
       <p>
         <label>{{ $tr('landingPageLabel') }}</label>
         <KRadioButton
@@ -103,6 +113,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -130,7 +141,7 @@
         allowGuestAccess: null,
         allowLearnerUnassignedResourceAccess: null,
         allowPeerUnlistedChannelImport: null,
-
+        allowOtherBrowsersToConnect: null,
         saveStatus: null,
         landingPageChoices: LandingPageChoices,
         browserDefaultOption: {
@@ -140,6 +151,7 @@
       };
     },
     computed: {
+      ...mapGetters(['isAppContext']),
       facilities() {
         return this.$store.getters.facilities;
       },
@@ -177,6 +189,7 @@
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
           allowPeerUnlistedChannelImport,
+          allowOtherBrowsersToConnect,
         } = settings;
 
         const match = find(this.languageOptions, { value: languageId });
@@ -191,6 +204,7 @@
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
           allowPeerUnlistedChannelImport,
+          allowOtherBrowsersToConnect,
         });
       });
     },
@@ -215,6 +229,7 @@
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
           allowPeerUnlistedChannelImport,
+          allowOtherBrowsersToConnect,
         } = this;
 
         this.resetSaveStatus();
@@ -224,6 +239,7 @@
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
           allowPeerUnlistedChannelImport,
+          allowOtherBrowsersToConnect,
         })
           .then(() => {
             this.saveStatus = 'SUCCESS';
@@ -253,6 +269,17 @@
       unlistedChannels: 'Allow other computers on this network to import my unlisted channels',
       lockedContent: 'Learners should only see resources assigned to them in classes',
       configureFacilitySettingsHeader: 'Configure facility settings',
+      allowExternalConnectionsApp: {
+        message: 'Allow others in the network to access Kolibri on this device using a browser',
+        context:
+          'Description of a device setting option. This option is visible only When Kolibri runs on an Android app',
+      },
+      allowExternalConnectionsAppDescription: {
+        message:
+          'If learners are allowed to sign in with no password on this device, enabling this may allow external devices to view the user data, which could be a potential security concern.',
+        context:
+          'Warns the user of the potential security risk if this setting is enabled together with users accesing without password',
+      },
     },
   };
 

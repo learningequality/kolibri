@@ -121,6 +121,7 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
             "allow_guest_access",
             "allow_peer_unlisted_channel_import",
             "allow_learner_unassigned_resource_access",
+            "allow_other_browsers_to_connect",
         )
 
     def create(self, validated_data):
