@@ -495,7 +495,7 @@ All changes should be thoroughly tested and vetted before being merged in. Our p
  * Localization
  * Consistency
 
-For more information, see the next section on :doc:`/manual_testing`.
+For more information, see the next section on :doc:`/manual_testing/index`.
 
 
 Submitting a pull request

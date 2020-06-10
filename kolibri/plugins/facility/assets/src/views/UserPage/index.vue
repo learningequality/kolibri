@@ -198,11 +198,14 @@
       },
       handleManageUserSelection(selection, user) {
         if (selection.value === Modals.EDIT_USER) {
-          this.$router.push(
-            this.$router.getRoute('USER_EDIT_PAGE', {
-              id: user.id,
-            })
-          );
+          const params = {
+            id: user.id,
+          };
+
+          if (this.$store.getters.inMultipleFacilityPage) {
+            params.facility_id = this.$store.getters.activeFacilityId;
+          }
+          this.$router.push(this.$router.getRoute('USER_EDIT_PAGE', params));
         } else {
           this.selectedUser = user;
           this.modalShown = selection.value;
