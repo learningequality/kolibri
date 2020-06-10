@@ -35,7 +35,7 @@ export function updateAvailableQuestions(store) {
   if (Object.keys(selectedExercises).length > 0) {
     if (MAX_QUESTIONS > Object.keys(selectedExercises).length) {
       return ContentNodeResource.fetchNodeAssessments(Object.keys(selectedExercises)).then(resp => {
-        store.commit('SET_AVAILABLE_QUESTIONS', resp.entity);
+        store.commit('SET_AVAILABLE_QUESTIONS', resp.data);
       });
     } else {
       store.commit('SET_AVAILABLE_QUESTIONS', MAX_QUESTIONS);
@@ -116,7 +116,7 @@ function _getTopicsWithExerciseDescendants(topicIds = []) {
 
     topicsNumAssessmentDescendantsPromise.then(response => {
       const topicsWithExerciseDescendants = [];
-      response.entity.forEach(descendantAssessments => {
+      response.data.forEach(descendantAssessments => {
         if (descendantAssessments.num_assessments > 0) {
           topicsWithExerciseDescendants.push({
             id: descendantAssessments.id,
@@ -132,7 +132,7 @@ function _getTopicsWithExerciseDescendants(topicIds = []) {
           descendant_kind: ContentNodeKinds.EXERCISE,
         }
       ).then(response => {
-        response.entity.forEach(exercise => {
+        response.data.forEach(exercise => {
           const topic = topicsWithExerciseDescendants.find(t => t.id === exercise.ancestor_id);
           topic.exercises.push(exercise);
         });

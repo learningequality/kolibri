@@ -60,10 +60,10 @@ export default {
       });
     },
     startWatchingTask(taskResponse) {
-      if (Array.isArray(taskResponse.entity)) {
-        this.$store.commit('manageContent/SET_WATCHED_TASK_ID', taskResponse.entity[0].id);
+      if (Array.isArray(taskResponse.data)) {
+        this.$store.commit('manageContent/SET_WATCHED_TASK_ID', taskResponse.data[0].id);
       } else {
-        this.$store.commit('manageContent/SET_WATCHED_TASK_ID', taskResponse.entity.id);
+        this.$store.commit('manageContent/SET_WATCHED_TASK_ID', taskResponse.data.id);
       }
     },
   },
