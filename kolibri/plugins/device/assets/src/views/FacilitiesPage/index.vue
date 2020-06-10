@@ -1,10 +1,6 @@
 <template>
 
   <div>
-
-    <pre>
-      {{ JSON.stringify(syncTaskIds, null, 2) }}
-    </pre>
     <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
       <template #options>
         <KButton
@@ -35,7 +31,10 @@
       <tbody slot="tbody">
         <tr v-for="(facility, idx) in facilities" :key="idx">
           <td>
-            <FacilityNameAndSyncStatus :facility="facility" />
+            <FacilityNameAndSyncStatus
+              :facility="facility"
+              :isSyncing="facilityIsSyncing(facility)"
+            />
           </td>
           <td class="button-col">
             <div>
@@ -108,6 +107,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { FacilityResource } from 'kolibri.resources';
   import {
@@ -146,7 +146,7 @@
       SyncAllFacilitiesModal,
       TasksBar,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonSyncElements],
     props: {},
     data() {
       return {
@@ -158,7 +158,7 @@
         facilityForRegister: null,
         kdpProject: null,
         facilitiesTasks: [],
-        syncTaskIds: [],
+        tasks: [],
       };
     },
     computed: {
@@ -177,7 +177,7 @@
     },
     beforeMount() {
       this.fetchFacilites();
-      // TODO start polling for tasks
+      this.pollSyncTasks();
     },
     methods: {
       facilityCanBeRemoved() {
@@ -222,9 +222,26 @@
         this.facilityForRegister = null;
         this.kdpProject = null;
       },
-      handleStartSyncSuccess(taskId) {
-        this.syncTaskIds = [...this.syncTaskIds, taskId];
+      handleStartSyncSuccess() {
+        this.pollSyncTasks();
         this.facilityForSync = null;
+      },
+      pollSyncTasks() {
+        this.fetchKdpSyncTasks()
+          .then(tasks => {
+            this.tasks = tasks;
+            return this.cleanupKdpSyncTasks(this.tasks, this.fetchFacilites);
+          })
+          .then(() => {
+            if (this.tasks.length > 0) {
+              setTimeout(() => {
+                return this.pollSyncTasks();
+              }, 2000);
+            }
+          });
+      },
+      facilityIsSyncing(facility) {
+        return Boolean(this.tasks.find(task => task.facility === facility.id));
       },
     },
     $trs: {
