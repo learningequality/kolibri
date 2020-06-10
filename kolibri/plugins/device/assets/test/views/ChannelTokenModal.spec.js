@@ -112,7 +112,7 @@ describe('channelTokenModal component', () => {
     });
 
     it('if the token does not point to a channel (404 code), shows a validation message', async () => {
-      const tokenPayload = { status: { code: 404 } };
+      const tokenPayload = { response: { status: 404 } };
       const { lookupTokenStub } = getElements(wrapper);
       const lookupStub = lookupTokenStub();
       lookupStub.mockRejectedValue(tokenPayload);
@@ -124,7 +124,7 @@ describe('channelTokenModal component', () => {
     });
 
     it('shows an ui-alert error if there is a generic network error (other error code)', async () => {
-      const tokenPayload = { status: { code: 500 } };
+      const tokenPayload = { response: { status: 500 } };
       const { tokenTextbox, networkErrorAlert, lookupTokenStub } = getElements(wrapper);
       const textbox = tokenTextbox();
       const lookupStub = lookupTokenStub();

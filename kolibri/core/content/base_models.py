@@ -129,6 +129,9 @@ class ContentNode(MPTTModel):
     available = models.BooleanField(default=False)
     lang = models.ForeignKey("Language", blank=True, null=True)
 
+    # A JSON Dictionary of properties to configure loading, rendering, etc. the file
+    options = JSONField(default={}, blank=True, null=True)
+
     class Meta:
         abstract = True
 

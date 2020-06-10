@@ -15,8 +15,8 @@ function startImportUsers(store, file, deleting, validate, commitStart) {
   if (!store.getters.importingOrValidating) {
     let promise = TaskResource.import_users_from_csv(params);
     return promise.then(task => {
-      store.commit(commitStart, task.entity);
-      return task.entity.id;
+      store.commit(commitStart, task.data);
+      return task.data.id;
     });
   }
 }

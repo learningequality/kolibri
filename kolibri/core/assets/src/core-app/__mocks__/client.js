@@ -1,6 +1,6 @@
 let returnedPayload = {};
 
-const client = () => Promise.resolve({ entity: returnedPayload });
+const client = () => Promise.resolve({ data: returnedPayload });
 
 client.__setPayload = payload => {
   returnedPayload = payload;

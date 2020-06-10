@@ -116,7 +116,7 @@
       },
       sync() {
         return this.startKdpSyncTask(this.theFacility.id).then(response => {
-          this.$store.commit('manageCSV/START_FACILITY_SYNC', response.entity);
+          this.$store.commit('manageCSV/START_FACILITY_SYNC', response.data);
         });
       },
       handleValidateSuccess({ name, token }) {

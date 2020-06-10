@@ -46,11 +46,11 @@ function setImportExportFileSizeAndResourceCount(store) {
     postArgs.export = true;
   }
   return client({
-    path: urls['kolibri:kolibri.plugins.device:importexportsizeview'](),
+    url: urls['kolibri:kolibri.plugins.device:importexportsizeview'](),
     method: 'POST',
-    entity: postArgs,
+    data: postArgs,
   }).then(response => {
-    const { file_size, resource_count } = response.entity;
+    const { file_size, resource_count } = response.data;
     store.commit('SET_TRANSFER_SIZE', {
       transferFileSize: file_size,
       transferResourceCount: resource_count,

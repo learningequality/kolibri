@@ -7,16 +7,16 @@ import sortLanguages from 'kolibri.utils.sortLanguages';
 export default {
   methods: {
     switchLanguage(code) {
-      const path = urls['kolibri:core:set_language']();
-      const entity = { language: code, next: window.location.href };
+      const url = urls['kolibri:core:set_language']();
+      const data = { language: code, next: window.location.href };
       httpClient({
         method: 'POST',
-        path,
-        entity,
+        url,
+        data,
       }).then(response => {
         // Endpoint returns a URL to redirect to.
         // Redirect to it.
-        redirectBrowser(response.entity);
+        redirectBrowser(response.data);
       });
     },
   },

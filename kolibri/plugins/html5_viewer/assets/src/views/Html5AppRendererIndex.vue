@@ -3,6 +3,7 @@
   <CoreFullscreen
     ref="html5Renderer"
     class="html5-renderer"
+    :style="{ height: iframeHeight, width: iframeWidth }"
     @changeFullscreen="isInFullscreen = $event"
   >
 
@@ -76,6 +77,12 @@
         const iOSorIE11 = iOS || IE11Test.test(navigator.userAgent);
         // Skip hashi on requests for these browsers
         return this.defaultFile.storage_url + (iOSorIE11 ? '?SKIP_HASHI=true' : '');
+      },
+      iframeHeight() {
+        return (this.options && this.options.height) || '500px';
+      },
+      iframeWidth() {
+        return (this.options && this.options.width) || 'auto';
       },
       sandbox() {
         return plugin_data.html5_sandbox_tokens;

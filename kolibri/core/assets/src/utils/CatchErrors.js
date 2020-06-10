@@ -8,7 +8,7 @@
  * @returns {(Array|null)} An array of error constants or null.
  */
 export default function CatchErrors(errorObj, errorConstants) {
-  const errors = errorObj.entity;
+  const errors = errorObj.response.data;
   if (errors && Array.isArray(errors)) {
     const recognizedErrors = [];
     errors.forEach(error => {

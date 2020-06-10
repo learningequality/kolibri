@@ -166,7 +166,7 @@ def set_all_class_defaults(Base):
                     # with a default value may not exist
                     if column is not None:
                         # The column does exist, set up a default by creating a SQLALchemy ColumnDefault object
-                        default = ColumnDefault(field.default)
+                        default = ColumnDefault(field.get_prep_value(field.default))
                         # Set the default of this column to our new default
                         column.default = default
                         # This is necessary, but I can't find the part of the SQLAlchemy source code that
