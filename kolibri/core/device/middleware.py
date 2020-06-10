@@ -1,9 +1,12 @@
 from django.conf import settings
 from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 from django.urls import is_valid_path
 from django.utils import translation
 
 from .translation import get_language_from_request_and_is_from_path
+from kolibri.core.device.hooks import SetupHook
+from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.utils.conf import OPTIONS
 
 
@@ -79,3 +82,16 @@ class KolibriLocaleMiddleware(object):
                 response["Content-Language"] = language
 
         return response
+
+
+class ProvisioningErrorHandler(object):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def process_exception(self, request, exception):
+        if isinstance(exception, DeviceNotProvisioned) and SetupHook.provision_url():
+            return redirect(SetupHook.provision_url())
+        return None
+
+    def __call__(self, request):
+        return self.get_response(request)

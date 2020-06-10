@@ -129,10 +129,8 @@ class RootURLRedirectView(View):
         Redirects user based on the highest role they have for which a redirect is defined.
         """
         # If it has not been provisioned and we have something that can handle setup, redirect there.
-        if not is_provisioned():
-            SETUP_WIZARD_URLS = [hook.url for hook in SetupHook.registered_hooks]
-            if SETUP_WIZARD_URLS:
-                return redirect(SETUP_WIZARD_URLS[0])
+        if not is_provisioned() and SetupHook.provision_url:
+            return redirect(SetupHook.provision_url())
 
         if request.user.is_authenticated():
             url = None
