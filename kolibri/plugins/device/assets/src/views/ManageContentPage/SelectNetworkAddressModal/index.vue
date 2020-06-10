@@ -40,7 +40,8 @@
       ...mapMutations('manageContent/wizard', {
         resetContentWizardState: 'RESET_STATE',
       }),
-      handleSelectAddressSubmit(addressId) {
+      handleSelectAddressSubmit(address) {
+        const addressId = address.id;
         if (this.manageMode) {
           this.$emit('submit', { addressId });
         } else {
