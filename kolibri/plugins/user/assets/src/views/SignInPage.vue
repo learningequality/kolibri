@@ -552,7 +552,11 @@
       },
     },
     $trs: {
-      changeLabel: 'Change',
+      changeLabel: {
+        message: 'Change',
+        context:
+          '(verb) Link to change the facility to sign in when the device has more than one facility',
+      },
       signInError: 'Incorrect username or password',
       signInToFacilityLabel: "Sign into '{facility}'",
       requiredForCoachesAdmins: 'Password is required for coaches and admins',

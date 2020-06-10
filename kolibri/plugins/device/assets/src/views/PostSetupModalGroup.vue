@@ -92,7 +92,8 @@
     $trs: {
       chooseAnotherSourceLabel: {
         message: 'Choose another source',
-        context: 'Button that takes user the traditional content import workflow',
+        context:
+          'Button that opens the modal to choose source for content import workflow from Studio or an attached local drive',
       },
     },
   };

@@ -170,7 +170,7 @@
         context: 'Prompt that goes above the password input',
       },
       createSuperAdminOption: {
-        message: 'Create  new super admin',
+        message: 'Create new super admin',
         context: 'Option in a select input',
       },
       accountFacilityExplanation: {
