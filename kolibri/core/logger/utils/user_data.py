@@ -34,6 +34,13 @@ from kolibri.core.logger.models import MasteryLog
 logger = logging.getLogger(__name__)
 
 
+#####################
+# When modifying here, run these tests for sanity:
+#   pytest kolibri/core/analytics/test/test_utils.py
+#   pytest kolibri/core/logger/utils/user_data.py
+#####################
+
+
 def logger_info(message):
     # Encapsulate logging in an exception handler to capture encoding errors:
     # * UnicodeEncodeError
@@ -46,7 +53,7 @@ def logger_info(message):
 
 def get_or_create_facilities(**options):
     n_facilities = options["n_facilities"]
-    device_name = options["device_name"]
+    device_name = options.get("device_name", "")
 
     n_on_device = Facility.objects.all().count()
     n_to_create = n_facilities - n_on_device
@@ -71,7 +78,7 @@ def get_or_create_classrooms(**options):
     facility = options["facility"]
     n_on_device = Classroom.objects.filter(parent=facility).count()
     n_to_create = n_classes - n_on_device
-    device_name = options["device_name"]
+    device_name = options.get("device_name", "")
 
     if n_to_create > 0:
         logger_info(
@@ -98,7 +105,7 @@ def get_or_create_classroom_users(**options):
     n_users = options["n_users"]
     user_data = options["user_data"]
     facility = options["facility"]
-    device_name = options["device_name"]
+    device_name = options.get("device_name", "")
 
     # The headers in the user_data.csv file that we use to generate user Full Names
     # Note, we randomly pick from these to give deliberately varied (and sometimes idiosyncratic)
@@ -448,7 +455,7 @@ def create_exams_for_classrooms(**options):
     num_exams = options["exams"]
     facility = options["facility"]
     now = options["now"]
-    device_name = options["device_name"]
+    device_name = options.get("device_name", "")
 
     if not channels:
         return
@@ -550,7 +557,7 @@ def create_exams_for_classrooms(**options):
 #     channels = options["channels"]
 #     num_groups = options["num_groups"]
 #     now = options["now"]
-#     device_name = options["device_name"]
+#     device_name = options.get("device_name", "")
 
 #     coaches = facility.get_coaches()
 #     if coaches:
