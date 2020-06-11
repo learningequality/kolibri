@@ -180,7 +180,7 @@ class FacilityUserViewSet(ValuesViewset):
         "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
     }
 
-    def consolidate(self, items):
+    def consolidate(self, items, queryset):
         output = []
         items = sorted(items, key=lambda x: x["id"])
         for key, group in groupby(items, lambda x: x["id"]):
@@ -346,7 +346,7 @@ class ClassroomViewSet(ValuesViewset):
             )
         )
 
-    def consolidate(self, items):
+    def consolidate(self, items, queryset):
         output = []
         items = sorted(items, key=lambda x: x["id"])
         coach_ids = list(
