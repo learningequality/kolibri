@@ -9,7 +9,6 @@ from django.core.urlresolvers import reverse
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
-from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
@@ -61,7 +60,6 @@ from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQSum
 
 logger = logging.getLogger(__name__)
@@ -236,62 +234,46 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
-def map_assessmentmetadata(obj):
-    assessmentmetadata = {}
-    assessmentmetadata["assessment_item_ids"] = obj.pop("assessment_item_ids")
-    assessmentmetadata["number_of_assessments"] = obj.pop("number_of_assessments")
-    assessmentmetadata["mastery_model"] = obj.pop("mastery_model")
-    assessmentmetadata["randomize"] = obj.pop("randomize")
-    assessmentmetadata["is_manipulable"] = obj.pop("is_manipulable")
-    if all(map(lambda x: x is None, assessmentmetadata.values())):
+def map_lang(obj):
+    keys = ["id", "lang_code", "lang_subcode", "lang_name", "lang_direction"]
+
+    lower_case = set(["id", "lang_code", "lang_subcode"])
+
+    output = {}
+
+    for key in keys:
+        output[key] = obj.pop("lang__" + key)
+        if key in lower_case and output[key]:
+            output[key] = output[key].lower()
+
+    if not any(output.values()):
+        # All keys are null so return None
         return None
-    return assessmentmetadata
+
+    return output
 
 
-def map_files(obj):
-    keys = [
-        "id",
-        "checksum",
-        "priority",
-        "available",
-        "file_size",
-        "extension",
-        "preset",
-        "lang",
-        "supplementary",
-        "thumbnail",
-    ]
-
-    def map_file(file):
-        url_lookup = {
-            "available": file["available"],
-            "id": file["checksum"],
-            "extension": file["extension"],
-        }
-        download_filename = models.get_download_filename(
-            obj["title"],
-            models.PRESET_LOOKUP.get(file["preset"], _("Unknown format")),
-            file["extension"],
-        )
-        file["download_url"] = reverse(
-            "kolibri:core:downloadcontent",
-            kwargs={
-                "filename": get_content_file_name(url_lookup),
-                "new_filename": download_filename,
-            },
-        )
-        file["storage_url"] = get_local_content_storage_file_url(url_lookup)
-        return file
-
-    return list(
-        map(
-            map_file,
-            (
-                dict(zip(keys, file_tuple))
-                for file_tuple in zip(*(obj.pop("file_" + key) for key in keys))
-            ),
-        )
+def map_file(file, obj):
+    url_lookup = {
+        "available": file["available"],
+        "id": file["checksum"],
+        "extension": file["extension"],
+    }
+    download_filename = models.get_download_filename(
+        obj["title"],
+        models.PRESET_LOOKUP.get(file["preset"], _("Unknown format")),
+        file["extension"],
     )
+    file["download_url"] = reverse(
+        "kolibri:core:downloadcontent",
+        kwargs={
+            "filename": get_content_file_name(url_lookup),
+            "new_filename": download_filename,
+        },
+    )
+    file["storage_url"] = get_local_content_storage_file_url(url_lookup)
+    file["lang"] = map_lang(file)
+    return file
 
 
 @method_decorator(cache_forever, name="dispatch")
@@ -309,7 +291,12 @@ class ContentNodeViewset(ValuesViewset):
         "content_id",
         "description",
         "kind",
-        "lang",
+        # Language keys
+        "lang__id",
+        "lang__lang_code",
+        "lang__lang_subcode",
+        "lang__lang_name",
+        "lang__lang_direction",
         "license_description",
         "license_name",
         "license_owner",
@@ -318,65 +305,65 @@ class ContentNodeViewset(ValuesViewset):
         "parent",
         "sort_order",
         "title",
-        "assessment_item_ids",
-        "number_of_assessments",
-        "mastery_model",
-        "randomize",
-        "is_manipulable",
-        "file_id",
-        "file_checksum",
-        "file_priority",
-        "file_available",
-        "file_file_size",
-        "file_extension",
-        "file_preset",
-        "file_lang",
-        "file_supplementary",
-        "file_thumbnail",
     )
 
-    field_map = {"assessmentmetadata": map_assessmentmetadata, "files": map_files}
+    field_map = {
+        "lang": map_lang,
+    }
 
     read_only = True
 
-    def annotate_queryset(self, queryset):
-        queryset = annotate_array_aggregate(
-            queryset,
-            file_checksum="files__local_file__id",
-            file_id="files__id",
-            file_priority="files__priority",
-            file_available="files__local_file__available",
-            file_file_size="files__local_file__file_size",
-            file_extension="files__local_file__extension",
-            file_preset="files__preset",
-            file_lang="files__lang",
-            file_supplementary="files__supplementary",
-            file_thumbnail="files__thumbnail",
-        )
-        assessmentmetadata_query = models.AssessmentMetaData.objects.filter(
-            contentnode=OuterRef("id")
-        ).order_by()
-        return queryset.annotate(
-            assessment_item_ids=Subquery(
-                assessmentmetadata_query.values_list("assessment_item_ids", flat=True)[
-                    :1
-                ]
-            ),
-            number_of_assessments=Subquery(
-                assessmentmetadata_query.values_list(
-                    "number_of_assessments", flat=True
-                )[:1]
-            ),
-            mastery_model=Subquery(
-                assessmentmetadata_query.values_list("mastery_model", flat=True)[:1]
-            ),
-            randomize=Subquery(
-                assessmentmetadata_query.values_list("randomize", flat=True)[:1]
-            ),
-            is_manipulable=Subquery(
-                assessmentmetadata_query.values_list("is_manipulable", flat=True)[:1]
-            ),
-        )
+    def consolidate(self, items, queryset):
+        assessmentmetadata = {
+            a["contentnode"]: a
+            for a in models.AssessmentMetaData.objects.filter(
+                contentnode__in=queryset
+            ).values(
+                "assessment_item_ids",
+                "number_of_assessments",
+                "mastery_model",
+                "randomize",
+                "is_manipulable",
+                "contentnode",
+            )
+        }
+
+        files = {}
+
+        for f in models.File.objects.filter(contentnode__in=queryset).values(
+            "id",
+            "contentnode",
+            "local_file__id",
+            "priority",
+            "local_file__available",
+            "local_file__file_size",
+            "local_file__extension",
+            "preset",
+            "lang__id",
+            "lang__lang_code",
+            "lang__lang_subcode",
+            "lang__lang_name",
+            "lang__lang_direction",
+            "supplementary",
+            "thumbnail",
+        ):
+            if f["contentnode"] not in files:
+                files[f["contentnode"]] = []
+            f["checksum"] = f.pop("local_file__id")
+            f["available"] = f.pop("local_file__available")
+            f["file_size"] = f.pop("local_file__file_size")
+            f["extension"] = f.pop("local_file__extension")
+            files[f["contentnode"]].append(f)
+
+        output = []
+
+        for item in items:
+            item["assessmentmetadata"] = assessmentmetadata.get("id")
+            item["files"] = list(
+                map(lambda x: map_file(x, item), files.get(item["id"], []))
+            )
+            output.append(item)
+        return output
 
     def get_queryset(self):
         return models.ContentNode.objects.filter(available=True)
