@@ -1,6 +1,7 @@
 import requests
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 
 from .models import DynamicNetworkLocation
 from .models import NetworkLocation
@@ -25,15 +26,34 @@ class StaticNetworkLocationViewSet(NetworkLocationViewSet):
 
 
 class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
-    """
-    Given a NetworkLocation ID, returns a list of Facilities that are on
-    that NetworkLocation, for the purposes of syncing
-    """
+    # TODO Tighten the first permission to be for superusers only
+    permission_classes = [CanManageContent | NotProvisionedHasPermission]
 
     def retrieve(self, request, pk=None):
-        base_url = "http://192.168.1.8:8000/"
-        facility_url = "{}api/public/v1/facility".format(base_url)
-        response = requests.get(facility_url)
+        """
+        Given a NetworkLocation ID, returns a list of Facilities that are on
+        that NetworkLocation, for the purposes of syncing
+        """
+
+        # Step 1: Retrieve NetworkLocation Model and get base_url
+        try:
+            peer_device = NetworkLocation.objects.get(id=pk)
+            base_url = peer_device.base_url
+        except (Exception, NetworkLocation.DoesNotExist):
+            raise NotFound()
+
+        # Step 2: Make request to the /facility endpoint
+        response = requests.get("{}api/public/v1/facility".format(base_url))
         response.raise_for_status()
-        facilities_data = response.json()
-        return Response(facilities_data)
+
+        # Step 3: Respond with the list of facilities, and append device info
+        # for convenience
+        facilities = response.json()
+
+        return Response(
+            {
+                "device_id": peer_device.id,
+                "baseurl": base_url,
+                "facilities": facilities,
+            }
+        )
