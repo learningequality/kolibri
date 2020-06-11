@@ -185,7 +185,7 @@ class FacilityUserViewSet(ValuesViewset):
         "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
     }
 
-    @list_route(methods=["get"],)
+    @list_route(methods=["get"])
     def users_for_facilities(self, request):
         facility_ids = dict(request.GET)["member_of"]
 
