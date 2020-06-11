@@ -13,11 +13,6 @@ import requests
 
 sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "..")))
 
-os.environ.setdefault(
-    "RUN_TIME_PLUGINS",
-    os.path.realpath(os.path.join(os.path.dirname(__file__), "default_plugins.txt")),
-)
-
 plugins_cache = {}
 
 
@@ -66,7 +61,7 @@ def set_default_settings_module():
             f.write(default_settings_template.format(path=default_settings_path))
 
 
-run_time_plugin_template = "plugins = {plugins}\n"
+run_time_plugin_template = "DEFAULT_PLUGINS = {plugins}\n"
 
 
 def set_run_time_plugins():
