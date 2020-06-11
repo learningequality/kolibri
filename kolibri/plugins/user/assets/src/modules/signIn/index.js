@@ -15,7 +15,6 @@ export default {
       state.hasMultipleFacilities = null;
     },
     SET_SELECTED_FACILITY_USERS(state, payload) {
-      console.log(payload);
       state.usersForSelectedFacilities = payload;
     },
   },
