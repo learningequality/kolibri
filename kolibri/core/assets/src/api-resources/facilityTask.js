@@ -18,7 +18,18 @@ export default new Resource({
     return this.postListEndpoint('startdataportalbulksync');
   },
 
+  /**
+   * @return {Promise}
+   */
   deleteFinishedTasks() {
     return this.postListEndpoint('deletefinishedtasks');
+  },
+
+  /**
+   * @param {string} facility
+   * @return {Promise}
+   */
+  deleteFacility(facility) {
+    return this.postListEndpoint('deletefacility', { facility });
   },
 });
