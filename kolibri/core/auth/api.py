@@ -29,6 +29,8 @@ from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.decorators import list_route
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from .constants import collection_kinds
@@ -48,6 +50,7 @@ from .serializers import ClassroomSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
 from .serializers import FacilityUserSerializer
+from .serializers import FacilityUsersForFacilitiesSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
@@ -182,6 +185,20 @@ class FacilityUserViewSet(ValuesViewset):
         "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
     }
 
+    @list_route(methods=["get"],)
+    def users_for_facilities(self, request):
+        facility_ids = dict(request.GET)["member_of"]
+
+        # The GET params come as an array with one comma-separated str if
+        # there are more than 1 facility_id being requested
+        if "," in facility_ids[0]:
+            facility_ids = facility_ids[0].split(",")
+
+        users = FacilityUser.objects.filter(facility__in=facility_ids)
+        serialized = FacilityUsersForFacilitiesSerializer(users)
+        return Response(JSONRenderer().render(serialized.data))
+
+    
     def consolidate(self, items, queryset):
         output = []
         items = sorted(items, key=lambda x: x["id"])
