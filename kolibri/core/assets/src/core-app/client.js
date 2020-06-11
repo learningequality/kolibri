@@ -2,6 +2,7 @@
  * Module for REST API client
  */
 
+import axios from 'axios';
 import qs from 'qs';
 import heartbeat from 'kolibri.heartbeat';
 import logger from 'kolibri.lib.logging';
@@ -14,14 +15,16 @@ export const logging = logger.getLogger(__filename);
 const baseClient = clientFactory();
 
 // Disconnection handler interceptor
-baseClient.interceptors.request.use(function(request) {
+baseClient.interceptors.request.use(function(config) {
   if (!store.getters.connected) {
     // If the vuex state records that we are not currently connected then cancel all
     // outgoing requests.
-    request.abort();
-    return Promise.reject(request);
+    const CancelToken = axios.CancelToken;
+    const source = CancelToken.source();
+    config.cancelToken = source.token;
+    source.cancel('Request cancelled as currently disconnected from Kolibri');
   }
-  return request;
+  return config;
 });
 
 // Login timeout detection interceptor and disconnection monitoring
