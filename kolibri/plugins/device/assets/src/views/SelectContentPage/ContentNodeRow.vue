@@ -39,6 +39,7 @@
     <td class="message">
       {{ message }}
     </td>
+    <ChannelUpdateAnnotations v-if="false" />
   </tr>
 
 </template>
@@ -49,12 +50,14 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import ChannelUpdateAnnotations from './ChannelUpdateAnnotations';
 
   export default {
     name: 'ContentNodeRow',
     components: {
       CoachContentLabel,
       ContentIcon,
+      ChannelUpdateAnnotations,
     },
     props: {
       node: {

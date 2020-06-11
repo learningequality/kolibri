@@ -1,7 +1,7 @@
 <template>
 
   <span v-if="isSpecified && birthYear">
-    {{ displayText }}
+    {{ birthYear }}
   </span>
   <KEmptyPlaceholder v-else />
 

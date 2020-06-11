@@ -95,7 +95,6 @@ export default [
     path: '/:facility_id?/data',
     handler: () => {
       store.dispatch('preparePage', { isAsync: false });
-      store.commit('manageSync/RESET_STATE');
     },
   },
   {

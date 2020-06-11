@@ -11,9 +11,11 @@
       v-if="step === Steps.PERMISSIONS_CHANGE"
       newRole="superadmin"
     />
+
     <SelectAddressForm
       v-else-if="step === Steps.SELECT_SOURCE_FACILITY_PEER"
       :title="getCommonSyncString('selectSourceTitle')"
+      hideSavedAddresses
       @submit="handleSubmit"
       @cancel="$emit('cancel')"
     >
@@ -85,7 +87,10 @@
             this.$emit('cancel');
           }
         } else if (this.step === Steps.SELECT_SOURCE_FACILITY_PEER) {
-          this.$router.push(availableChannelsPageLink({ addressId: data.id }));
+          this.$emit('cancel');
+          let newRoute = availableChannelsPageLink({ addressId: data.id });
+          newRoute.query.setup = true;
+          this.$router.push(newRoute);
         }
       },
     },

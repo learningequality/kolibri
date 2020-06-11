@@ -18,48 +18,48 @@
           <th>{{ $tr('facility') }}</th>
         </tr>
       </thead>
-      <transition-group slot="tbody" tag="tbody" name="list">
-        <tr v-for="facility in facilities" :key="facility.id">
+      <tbody slot="tbody">
+        <tr>
           <td>
-            <FacilityNameAndSyncStatus :facility="facility" />
+            <FacilityNameAndSyncStatus :facility="theFacility" />
           </td>
           <td class="button-col">
-            <KButtonGroup style="margin-top: 8px;">
+            <KButtonGroup style="margin-top: 8px; overflow: visible">
               <KButton
                 appearance="raised-button"
                 :text="$tr('register')"
                 :disabled="facilityTaskId !== ''"
-
-                @click="register(facility)"
+                @click="register()"
               />
               <KButton
                 appearance="raised-button"
                 :text="$tr('sync')"
-
-                :disabled="facilityTaskId !== '' || !facility.dataset.registered"
-                @click="sync(facility)"
+                :disabled="facilityTaskId !== '' || !theFacility.dataset.registered"
+                @click="sync()"
               />
             </KButtonGroup>
           </td>
         </tr>
-      </transition-group>
+      </tbody>
     </CoreTable>
 
     <PrivacyModal
       v-if="modalShown === Modals.PRIVACY"
-      @cancel="displayModal(false)"
+      @cancel="displayModal(null)"
     />
 
     <RegisterFacilityModal
       v-if="modalShown === Modals.REGISTER_FACILITY"
-      @cancel="displayModal(false)"
       @success="handleValidateSuccess"
+      @cancel="displayModal(null)"
     />
     <ConfirmationRegisterModal
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
-      v-bind="{ projectName, targetFacility, token }"
-      @cancel="displayModal(false)"
+      :targetFacility="theFacility"
+      :projectName="projectName"
+      :token="token"
       @success="handleConfirmationSuccess"
+      @cancel="displayModal(null)"
     />
 
   </KPageContainer>
@@ -69,14 +69,15 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import find from 'lodash/find';
+  import { mapState } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import {
     FacilityNameAndSyncStatus,
     ConfirmationRegisterModal,
     RegisterFacilityModal,
   } from 'kolibri.coreVue.componentSets.sync';
-  import { FacilityTaskResource } from 'kolibri.resources';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { Modals } from '../../../constants';
   import PrivacyModal from './PrivacyModal';
 
@@ -89,37 +90,43 @@
       RegisterFacilityModal,
       ConfirmationRegisterModal,
     },
+    mixins: [commonSyncElements],
+    data() {
+      return {
+        projectName: '',
+        token: '',
+        modalShown: null,
+      };
+    },
     computed: {
-      ...mapState('manageSync', ['modalShown', 'projectName', 'targetFacility', 'token']),
       ...mapState('manageCSV', ['facilityTaskId']),
       Modals: () => Modals,
-      facilities() {
-        return this.$store.state.manageCSV.facilities.filter(
-          ({ id }) => id === this.$store.getters.activeFacilityId
-        );
+      theFacility() {
+        return find(this.$store.state.manageCSV.facilities, {
+          id: this.$store.getters.activeFacilityId,
+        });
       },
     },
     methods: {
-      ...mapActions('manageSync', ['displayModal']),
-      register(facility) {
-        this.$store.commit('manageSync/SET_TARGET_FACILITY', facility);
-        this.displayModal(Modals.REGISTER_FACILITY);
+      displayModal(modal) {
+        this.modalShown = modal;
       },
-      sync(facility) {
-        FacilityTaskResource.dataportalsync(facility.id).then(response => {
-          this.$store.commit('manageCSV/START_FACILITY_SYNC', response.data);
+      register() {
+        this.modalShown = Modals.REGISTER_FACILITY;
+      },
+      sync() {
+        this.startKdpSyncTask(this.theFacility.id).then(task => {
+          this.$store.commit('manageCSV/START_FACILITY_SYNC', task);
         });
       },
-      handleValidateSuccess(payload) {
-        const { projectName, token } = payload;
-        this.$store.commit('manageSync/SET_PROJECT_NAME', projectName);
-        this.$store.commit('manageSync/SET_TOKEN', token);
-        this.displayModal(Modals.CONFIRMATION_REGISTER);
+      handleValidateSuccess({ name, token }) {
+        this.projectName = name;
+        this.token = token;
+        this.modalShown = Modals.CONFIRMATION_REGISTER;
       },
       handleConfirmationSuccess(payload) {
-        const { targetFacility } = payload;
-        this.$store.commit('manageCSV/SET_REGISTERED', targetFacility);
-        this.displayModal(false);
+        this.$store.commit('manageCSV/SET_REGISTERED', payload);
+        this.modalShown = null;
       },
     },
     $trs: {

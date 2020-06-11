@@ -51,6 +51,22 @@ export default {
     error: false,
   },
   actions: {
+    getFacilityAdmins() {
+      return client({
+        url: urls['kolibri:kolibri.plugins.setupWizard:facilityadminsList'](),
+      }).then(response => {
+        return response.data;
+      });
+    },
+    grantSuperuserPermisions(store, data) {
+      return client({
+        url: urls['kolibri:kolibri.plugins.setupWizard:grantsuperuserpermissionsList'](),
+        data: {
+          user_id: data.user_id,
+          password: data.password,
+        },
+      });
+    },
     provisionDevice(store) {
       const onboardingData = store.state.onboardingData;
 

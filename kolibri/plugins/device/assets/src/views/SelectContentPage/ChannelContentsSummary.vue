@@ -45,6 +45,9 @@
         <td>{{ $tr('resourceCount', { count: channel.on_device_resources || 0 }) }}</td>
         <td>{{ bytesForHumans(channel.on_device_file_size || 0) }}</td>
       </tr>
+      <tr v-if="false">
+        <th>{{ $tr('newOrUpdatedLabel') }}</th>
+      </tr>
     </table>
   </section>
 
@@ -89,6 +92,11 @@
       totalSizeRow: 'Total size',
       version: 'Version {version, number, integer}',
       unlistedChannelTooltip: 'Unlisted channel',
+      newOrUpdatedLabel: {
+        message: 'New or updated',
+        context:
+          'Table header for the number and size of resources that will be added to a channel after upgrading',
+      },
     },
   };
 

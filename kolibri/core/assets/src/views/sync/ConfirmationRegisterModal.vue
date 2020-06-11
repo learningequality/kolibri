@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('registerFacility')"
-    :submitText="$tr('register')"
+    :submitText="registerText"
     :cancelText="cancelText"
     @submit="registerFacility"
     @cancel="$emit('cancel')"
@@ -56,6 +56,9 @@
           ? this.coreString('closeAction')
           : this.coreString('cancelAction');
       },
+      registerText() {
+        return this.alreadyRegistered ? null : this.$tr('register');
+      },
     },
     methods: {
       registerFacility() {
@@ -71,6 +74,7 @@
               data: { registered: true },
               exists: true,
             }).then(() => {
+              this.$emit('success', this.targetFacility);
               this.submitting = false;
             });
           })
