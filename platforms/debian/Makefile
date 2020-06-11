@@ -6,7 +6,7 @@ clean:
 # Doesn't have to run if you bring in your own tarball.
 build_src/%.tar.gz:
 	mkdir -p build_src
-	pip3 download --no-binary :all: -d build_src kolibri
+	pip download --no-binary :all: -d build_src kolibri
 
 
 # Need a reliable name so `make` knows what to look for.
