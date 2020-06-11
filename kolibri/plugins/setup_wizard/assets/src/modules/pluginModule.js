@@ -84,7 +84,11 @@ export default {
 
       store.commit('SET_LOADING', true);
 
-      return client({ url: urls['kolibri:core:deviceprovision'](), data: onboardingData }).then(
+      return client({
+        url: urls['kolibri:core:deviceprovision'](),
+        data: onboardingData,
+        method: 'post',
+      }).then(
         response => {
           superuser.facility = response.data.facility.id;
           store.dispatch('kolibriLogin', superuser);
