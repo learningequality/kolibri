@@ -4,6 +4,9 @@ steps:
     if: build.source == "trigger_job"
   - label: ":debian:"
     command: .buildkite/build.sh
+
+  - wait
+
   - label: Test ubuntu:focal
     env:
       DOCKER_IMAGES: ubuntu:focal
