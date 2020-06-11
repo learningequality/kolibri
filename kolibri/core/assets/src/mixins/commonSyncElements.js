@@ -1,4 +1,6 @@
 import some from 'lodash/some';
+import client from 'kolibri.client';
+import urls from 'kolibri.urls';
 import { StaticNetworkLocationResource, FacilityTaskResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 
@@ -62,6 +64,13 @@ export default {
         base_url,
         nickname: device_name,
       }).save();
+    },
+    fetchNetworkLocationFacilities(locationId) {
+      return client({
+        url: urls['kolibri:core:networklocation_facilities-detail'](locationId),
+      }).then(response => {
+        return response.data;
+      });
     },
     startKdpSyncTask(facilityId) {
       return FacilityTaskResource.dataportalsync(facilityId).then(response => {

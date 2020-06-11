@@ -63,23 +63,15 @@
     },
     mixins: [commonCoreStrings, commonSyncElements],
     props: {
-      facilities: {
-        type: Array,
-        required: true,
-      },
       device: {
         type: Object,
         required: true,
       },
     },
     data() {
-      let selectedFacilityId = '';
-
-      if (this.facilities.length === 1) {
-        selectedFacilityId = this.facilities[0].id;
-      }
       return {
-        selectedFacilityId,
+        selectedFacilityId: '',
+        facilities: [],
         shouldValidate: false,
       };
     },
@@ -97,6 +89,24 @@
           second: this.device.address,
         });
       },
+    },
+    beforeMount() {
+      this.fetchNetworkLocationFacilities(this.$route.query.address_id)
+        .then(data => {
+          this.facilities = [...data.facilities];
+          this.$emit('update:device', {
+            name: data.device_name,
+            id: data.device_id,
+            address: data.device_address,
+          });
+          if (this.facilities.length === 1) {
+            this.selectedFacilityId = this.facilities[0].id;
+          }
+        })
+        .catch(error => {
+          // TODO handle disconnected peers error more gracefully
+          this.$store.dispatch('showError', error);
+        });
     },
     methods: {
       handleSubmit() {

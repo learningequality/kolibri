@@ -9,7 +9,7 @@
     <KPageContainer>
       <component
         :is="currentComponent"
-        v-bind="{ ...setupData }"
+        :device.sync="device"
         @click_next="goToNextStep"
       />
     </KPageContainer>
@@ -38,17 +38,6 @@
 
   const TOTAL_STEPS = 4;
 
-  const fakeFacilities = [
-    {
-      id: 'D81C',
-      name: 'Atkinson Hall',
-    },
-    {
-      id: '2A59',
-      name: 'Price Center',
-    },
-  ];
-
   // Template for the 'Import Facility' workflow, which manages the title
   // and back/forth flow for this group of steps.
   export default {
@@ -61,19 +50,7 @@
     mixins: [commonSetupElements, commonSyncElements],
     data() {
       return {
-        setupData: {
-          device: {
-            name: 'LINUX 3',
-            address: 'localhost:8008',
-            id: 'EE31',
-          },
-          // All facilities
-          facilities: fakeFacilities,
-          // Facility chosen at 2 SelectFacilityForm
-          facility: {
-            ...fakeFacilities[0],
-          },
-        },
+        device: {},
       };
     },
     computed: {

@@ -39,12 +39,12 @@ class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
         try:
             peer_device = NetworkLocation.objects.get(id=pk)
             base_url = peer_device.base_url
+
+            # Step 2: Make request to the /facility endpoint
+            response = requests.get("{}api/public/v1/facility".format(base_url))
+            response.raise_for_status()
         except (Exception, NetworkLocation.DoesNotExist):
             raise NotFound()
-
-        # Step 2: Make request to the /facility endpoint
-        response = requests.get("{}api/public/v1/facility".format(base_url))
-        response.raise_for_status()
 
         # Step 3: Respond with the list of facilities, and append device info
         # for convenience
@@ -53,7 +53,8 @@ class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
         return Response(
             {
                 "device_id": peer_device.id,
-                "baseurl": base_url,
+                "device_name": peer_device.nickname or peer_device.device_name,
+                "device_address": base_url,
                 "facilities": facilities,
             }
         )

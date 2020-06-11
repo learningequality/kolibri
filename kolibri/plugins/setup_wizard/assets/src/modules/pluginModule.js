@@ -122,6 +122,10 @@ export default {
         defaults.learner_can_login_with_no_password
       );
     },
+    showError(store, errorMsg) {
+      store.commit('SET_ERROR', true);
+      store.dispatch('handleApiError', errorMsg);
+    },
   },
   mutations: {
     START_SETUP(state) {
