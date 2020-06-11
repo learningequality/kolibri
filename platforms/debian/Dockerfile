@@ -1,10 +1,9 @@
-FROM alpine as make_dist
+FROM python:3-alpine as make_dist
 
 RUN apk update && apk add \
     make \
     bash \
-    tar \
-    python3
+    tar
 
 # If build_src is alredy present, shouldn't need to redownload
 COPY build_src build_src
