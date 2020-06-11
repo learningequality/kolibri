@@ -94,8 +94,9 @@
       unlistedChannelTooltip: 'Unlisted channel',
       newOrUpdatedLabel: {
         message: 'New or updated',
-        context: 'Table header for the number and size of resources that will be added to a channel after upgrading'
-      }
+        context:
+          'Table header for the number and size of resources that will be added to a channel after upgrading',
+      },
     },
   };
 
