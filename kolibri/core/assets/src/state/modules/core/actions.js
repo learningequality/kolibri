@@ -179,6 +179,10 @@ export function handleApiError(store, errorObject) {
   let error = errorObject;
   if (typeof errorObject === 'object' && !(errorObject instanceof Error)) {
     error = JSON.stringify(errorObject, null, 2);
+  } else if (errorObject.response) {
+    // Reassign object properties here as Axios error objects have built in
+    // pretty printing support which messes with this.
+    error = JSON.stringify(errorObject.response, null, 2);
   } else if (errorObject instanceof Error) {
     error = errorObject.toString();
   }
@@ -238,8 +242,8 @@ export function kolibriLoginWithNewPassword(store, payload) {
     .then(() => {
       const path = `/api/auth/facilityuser/${user.id}/`;
       const method = 'PATCH';
-      const entity = { password };
-      client({ path, method, entity }).then(() => {
+      const data = { password };
+      client({ path, method, data }).then(() => {
         // OIDC redirect
         if (sessionPayload.next) {
           redirectBrowser(sessionPayload.next);
@@ -350,10 +354,9 @@ export function saveDismissedNotification(store, notification_id) {
 export function getRemoteAccessPermission(store) {
   return client({
     method: 'POST',
-    path: urls['kolibri:kolibri.plugins.device:allowremoteaccess'](),
+    url: urls['kolibri:kolibri.plugins.device:allowremoteaccess'](),
   }).then(response => {
-    const data = response.entity;
-    store.commit('SET_REMOTE_BROWSER_PERMISSION', data.allowed);
+    store.commit('SET_REMOTE_BROWSER_PERMISSION', response.data.allowed);
   });
 }
 

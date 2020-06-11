@@ -34,7 +34,7 @@ xdescribe('AddAddressForm', () => {
   it('shows a URL formatting error if API responds with one', async () => {
     const { els, wrapper } = makeWrapper();
     createAddress.mockRejectedValue({
-      entity: [
+      data: [
         {
           id: ERROR_CONSTANTS.NETWORK_LOCATION_NOT_FOUND,
         },
@@ -54,7 +54,7 @@ xdescribe('AddAddressForm', () => {
   it('shows a server unavailable error if API responds with one', async () => {
     const { els, wrapper } = makeWrapper();
     createAddress.mockRejectedValue({
-      entity: [{ id: ERROR_CONSTANTS.INVALID_NETWORK_LOCATION_FORMAT }],
+      data: [{ id: ERROR_CONSTANTS.INVALID_NETWORK_LOCATION_FORMAT }],
     });
     expect(els.addressTextbox().props().invalid).toEqual(false);
     try {

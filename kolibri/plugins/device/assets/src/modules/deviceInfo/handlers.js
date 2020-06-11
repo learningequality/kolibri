@@ -10,17 +10,17 @@ import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
  */
 export function getDeviceInfo() {
   const requests = [
-    client({ path: urls['kolibri:core:deviceinfo']() }),
-    client({ path: urls['kolibri:core:devicename']() }),
+    client({ url: urls['kolibri:core:deviceinfo']() }),
+    client({ url: urls['kolibri:core:devicename']() }),
   ];
   return Promise.all(requests).then(([infoResponse, nameResponse]) => {
-    const data = infoResponse.entity;
+    const data = infoResponse.data;
     data.server_time = new Date(data.server_time);
     data.free_space = data.content_storage_free_space;
     data.content_storage_free_space = bytesForHumans(data.content_storage_free_space);
-    data.device_name = nameResponse.entity.name;
+    data.device_name = nameResponse.data.name;
 
-    if (infoResponse.headers.Server.includes('0.0.0.0')) {
+    if (infoResponse.headers.server.includes('0.0.0.0')) {
       if (isEmbeddedWebView) {
         data.server_type = 'Kolibri app server';
       } else {

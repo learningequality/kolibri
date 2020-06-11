@@ -99,9 +99,9 @@
     methods: {
       postNewOrder(channelIds) {
         return client({
-          path: urls['kolibri:kolibri.plugins.device:devicechannelorder'](),
+          url: urls['kolibri:kolibri.plugins.device:devicechannelorder'](),
           method: 'POST',
-          entity: channelIds,
+          data: channelIds,
         });
       },
       fetchChannels() {

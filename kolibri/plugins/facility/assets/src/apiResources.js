@@ -4,19 +4,19 @@ import urls from 'kolibri.urls';
 export const PortalResource = new Resource({
   name: 'portal',
   validateToken(token) {
-    const path = urls['kolibri:core:portal-validate-token']();
+    const url = urls['kolibri:core:portal-validate-token']();
     return this.client({
-      path,
-      method: 'GET',
+      url,
+      method: 'get',
       params: { token },
     });
   },
   registerFacility({ facility_id, token }) {
-    const path = urls['kolibri:core:portal-register']();
+    const url = urls['kolibri:core:portal-register']();
     return this.client({
-      path,
-      method: 'POST',
-      entity: { facility_id, token },
+      url,
+      method: 'post',
+      data: { facility_id, token },
     });
   },
 });

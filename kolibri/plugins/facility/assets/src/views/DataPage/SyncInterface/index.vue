@@ -107,7 +107,7 @@
       },
       sync(facility) {
         TaskResource.dataportalsync(facility.id).then(response => {
-          this.$store.commit('manageCSV/START_FACILITY_SYNC', response.entity);
+          this.$store.commit('manageCSV/START_FACILITY_SYNC', response.data);
         });
       },
       handleValidateSuccess(payload) {

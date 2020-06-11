@@ -256,7 +256,7 @@ describe('Collection', function() {
         });
         describe('and the returned data is an array', function() {
           beforeEach(function() {
-            response = { entity: [{ testing: 'testing' }] };
+            response = { data: [{ testing: 'testing' }] };
             client = jest.fn().mockResolvedValue(response);
             resource.client = client;
           });
@@ -281,10 +281,10 @@ describe('Collection', function() {
               done();
             });
           });
-          it('should call set with the response entity', function(done) {
+          it('should call set with the response data', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
-              expect(setSpy).toHaveBeenCalledWith(response.entity);
+              expect(setSpy).toHaveBeenCalledWith(response.data);
               done();
             });
           });
@@ -315,7 +315,7 @@ describe('Collection', function() {
         describe('and the returned data is paginated', function() {
           beforeEach(function() {
             response = {
-              entity: {
+              data: {
                 results: [{ testing: 'testing' }],
                 count: 1,
                 next: false,
@@ -347,10 +347,10 @@ describe('Collection', function() {
               done();
             });
           });
-          it('should call set with the response entity results', function(done) {
+          it('should call set with the response data results', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
-              expect(setSpy).toHaveBeenCalledWith(response.entity.results);
+              expect(setSpy).toHaveBeenCalledWith(response.data.results);
               done();
             });
           });
@@ -453,7 +453,7 @@ describe('Collection', function() {
     });
     describe('if called with force true and synced is true', function() {
       it('should call the client once', function(done) {
-        response = { entity: [{ testing: 'testing' }] };
+        response = { data: [{ testing: 'testing' }] };
         client = jest.fn().mockResolvedValue(response);
         resource.client = client;
         collection.synced = true;
@@ -465,7 +465,7 @@ describe('Collection', function() {
     });
     xdescribe('if called once', function() {
       it('should add a promise to the promises property', async function() {
-        response = { entity: [{ testing: 'testing' }] };
+        response = { data: [{ testing: 'testing' }] };
         client = jest.fn().mockResolvedValue();
         collection.synced = false;
         const promise = collection.fetch();
@@ -475,7 +475,7 @@ describe('Collection', function() {
     });
     xdescribe('if called twice', function() {
       it('should add two promises to the promises property', async function() {
-        response = { entity: [{ testing: 'testing' }] };
+        response = { data: [{ testing: 'testing' }] };
         client = jest.fn().mockResolvedValue();
         collection.synced = false;
         const promise1 = collection.fetch();
@@ -511,7 +511,7 @@ describe('Collection', function() {
         });
         describe('and the returned data is an array', function() {
           beforeEach(function() {
-            response = { entity: [{ testing: 'testing' }] };
+            response = { data: [{ testing: 'testing' }] };
             client = jest.fn().mockResolvedValue(response);
             resource.client = client;
           });
@@ -523,9 +523,9 @@ describe('Collection', function() {
             await collection.save();
             expect(setSpy).toHaveBeenCalledTimes(1);
           });
-          it('should call set with the response entity', async function() {
+          it('should call set with the response data', async function() {
             await collection.save();
-            expect(setSpy).toHaveBeenCalledWith(response.entity);
+            expect(setSpy).toHaveBeenCalledWith(response.data);
           });
           it('should set synced to true', async function() {
             await collection.save();
@@ -599,7 +599,7 @@ describe('Collection', function() {
     });
     xdescribe('if called once', function() {
       it('should add a promise to the promises property', async function() {
-        response = { entity: [{ testing: 'testing' }] };
+        response = { data: [{ testing: 'testing' }] };
         client = jest.fn().mockResolvedValue();
         collection.synced = false;
         const promise = await collection.save();
@@ -609,7 +609,7 @@ describe('Collection', function() {
     });
     xdescribe('if called twice', function() {
       it('should add two promises to the promises property', async function() {
-        response = { entity: [{ testing: 'testing' }] };
+        response = { data: [{ testing: 'testing' }] };
         client = jest.fn().mockResolvedValue();
         collection.synced = false;
         const promise1 = collection.save();
@@ -658,7 +658,7 @@ describe('Collection', function() {
         });
         it('should call the client with the DELETE method', function(done) {
           collection.delete().then(() => {
-            expect(client.mock.calls[0][0].method).toEqual('DELETE');
+            expect(client.mock.calls[0][0].method).toEqual('delete');
             done();
           });
         });
@@ -723,7 +723,7 @@ describe('Collection', function() {
     });
     xdescribe('if called once', function() {
       it('should add a promise to the promises property', async function() {
-        response = { entity: [{ testing: 'testing' }] };
+        response = { data: [{ testing: 'testing' }] };
         client = jest.fn();
         client.mockResolvedValue();
         collection.synced = false;
@@ -734,7 +734,7 @@ describe('Collection', function() {
     });
     xdescribe('if called twice', function() {
       it('should add two promises to the promises property', async function() {
-        response = { entity: [{ testing: 'testing' }] };
+        response = { data: [{ testing: 'testing' }] };
         client = jest.fn();
         client.mockResolvedValue();
         collection.synced = false;
@@ -812,7 +812,7 @@ describe('Model', function() {
       modelUrl: () => 'modelUrl',
       collectionUrl: () => 'collectionUrl',
       idKey: 'id',
-      client: () => Promise.resolve({ entity: {} }),
+      client: () => Promise.resolve({ data: {} }),
       removeModel: () => {},
     };
     data = { test: 'test', id: 'testing' };
@@ -893,7 +893,7 @@ describe('Model', function() {
       describe('and the fetch is successful', function() {
         beforeEach(function() {
           setSpy = jest.spyOn(model, 'set');
-          response = { entity: { testing: 'testing' } };
+          response = { data: { testing: 'testing' } };
           client = jest.fn().mockResolvedValue(response);
           resource.client = client;
         });
@@ -912,10 +912,10 @@ describe('Model', function() {
             done();
           });
         });
-        it('should call set with the response entity', function(done) {
+        it('should call set with the response data', function(done) {
           model.synced = false;
           model.fetch().then(() => {
-            expect(setSpy).toHaveBeenCalledWith(response.entity);
+            expect(setSpy).toHaveBeenCalledWith(response.data);
             done();
           });
         });
@@ -977,7 +977,7 @@ describe('Model', function() {
     });
     describe('if called with force true and synced is true', function() {
       it('should call the client once', function(done) {
-        response = { entity: [{ testing: 'testing' }] };
+        response = { data: [{ testing: 'testing' }] };
         client = jest.fn();
         client.mockResolvedValue(response);
         resource.client = client;
@@ -990,7 +990,7 @@ describe('Model', function() {
     });
     xdescribe('if called once', function() {
       it('should add a promise to the promises property', async function() {
-        response = { entity: [{ testing: 'testing' }] };
+        response = { data: [{ testing: 'testing' }] };
         client = jest.fn();
         client.mockResolvedValue();
         resource.client = client;
@@ -1002,7 +1002,7 @@ describe('Model', function() {
     });
     xdescribe('if called twice', function() {
       it('should add two promises to the promises property', async function() {
-        response = { entity: [{ testing: 'testing' }] };
+        response = { data: [{ testing: 'testing' }] };
         client = jest.fn();
         client.mockResolvedValue();
         resource.client = client;
@@ -1030,9 +1030,9 @@ describe('Model', function() {
       it('should should call the client once', function(done) {
         model.synced = true;
         const payload = { somethingNew: 'new' };
-        const entity = {};
-        Object.assign(entity, model.attributes, payload);
-        const response = { entity };
+        const data = {};
+        Object.assign(data, model.attributes, payload);
+        const response = { data };
         const client = jest.fn();
         client.mockResolvedValue(response);
         resource.client = client;
@@ -1044,9 +1044,9 @@ describe('Model', function() {
       it('should should call set once with the changed attributes', function(done) {
         model.synced = true;
         const payload = { somethingNew: 'new' };
-        const entity = {};
-        Object.assign(entity, model.attributes, payload);
-        const response = { entity };
+        const data = {};
+        Object.assign(data, model.attributes, payload);
+        const response = { data };
         const client = jest.fn();
         client.mockResolvedValue(response);
         resource.client = client;
@@ -1062,7 +1062,7 @@ describe('Model', function() {
         beforeEach(function() {
           setSpy = jest.spyOn(model, 'set');
           payload = { somethingNew: 'new' };
-          response = { entity: payload };
+          response = { data: payload };
           client = jest.fn();
           client.mockResolvedValue(response);
           resource.client = client;
@@ -1084,10 +1084,10 @@ describe('Model', function() {
             done();
           });
         });
-        it('should call set with the response entity', function(done) {
+        it('should call set with the response data', function(done) {
           model.synced = false;
           model.save(payload).then(() => {
-            expect(setSpy).toHaveBeenCalledWith(response.entity);
+            expect(setSpy).toHaveBeenCalledWith(response.data);
             done();
           });
         });
@@ -1110,7 +1110,7 @@ describe('Model', function() {
         beforeEach(function() {
           setSpy = jest.spyOn(model, 'set');
           payload = { somethingNew: 'new' };
-          response = { entity: payload };
+          response = { data: payload };
           client = jest.fn();
           client.mockResolvedValue(response);
           resource.client = client;
@@ -1135,7 +1135,7 @@ describe('Model', function() {
         it('should call the client with the collection url', function(done) {
           model.synced = false;
           model.save(payload).then(() => {
-            expect(client.mock.calls[0][0]['path']).toEqual(resource.collectionUrl());
+            expect(client.mock.calls[0][0]['url']).toEqual(resource.collectionUrl());
             done();
           });
         });
@@ -1184,7 +1184,7 @@ describe('Model', function() {
       describe('and model has no id', function() {
         it('should call the client with no explicit method', function(done) {
           payload = { somethingNew: 'new' };
-          response = { entity: payload };
+          response = { data: payload };
           client = jest.fn();
           client.mockResolvedValue(response);
           resource.client = client;
@@ -1199,7 +1199,7 @@ describe('Model', function() {
         describe('but returns with an id', function() {
           it('should call the resource addModel method', function(done) {
             payload = { somethingNew: 'new' };
-            response = { entity: { id: 'test' } };
+            response = { data: { id: 'test' } };
             client = jest.fn();
             client.mockResolvedValue(response);
             resource.client = client;
@@ -1217,14 +1217,14 @@ describe('Model', function() {
       describe('and model is not new', function() {
         it('should call the client with a PATCH method', function(done) {
           payload = { somethingNew: 'new' };
-          response = { entity: payload };
+          response = { data: payload };
           client = jest.fn();
           client.mockResolvedValue(response);
           resource.client = client;
           model.synced = false;
           model.new = false;
           model.save(payload).then(() => {
-            expect(client.mock.calls[0][0].method).toEqual('PATCH');
+            expect(client.mock.calls[0][0].method).toEqual('patch');
             done();
           });
         });
@@ -1256,7 +1256,7 @@ describe('Model', function() {
       describe('and the delete is successful', function() {
         beforeEach(function() {
           resource.removeModel = jest.fn();
-          response = { entity: { testing: 'testing' } };
+          response = { data: { testing: 'testing' } };
           client = jest.fn();
           client.mockResolvedValue(response);
           resource.client = client;
@@ -1269,7 +1269,7 @@ describe('Model', function() {
         });
         it('should call the client with the DELETE method', function(done) {
           model.delete().then(() => {
-            expect(client.mock.calls[0][0].method).toEqual('DELETE');
+            expect(client.mock.calls[0][0].method).toEqual('delete');
             done();
           });
         });
@@ -1338,7 +1338,7 @@ describe('Model', function() {
     });
     describe('if called once', function() {
       it('should add a promise to the promises property', function() {
-        response = { entity: [{ testing: 'testing' }] };
+        response = { data: [{ testing: 'testing' }] };
         client = jest.fn();
         client.mockResolvedValue();
         const promise = model.delete();
@@ -1347,7 +1347,7 @@ describe('Model', function() {
     });
     describe('if called twice', function() {
       it('should add two promises to the promises property', function() {
-        response = { entity: [{ testing: 'testing' }] };
+        response = { data: [{ testing: 'testing' }] };
         client = jest.fn();
         client.mockResolvedValue();
         const promise1 = model.delete();

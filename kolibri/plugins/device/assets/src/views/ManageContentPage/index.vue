@@ -188,7 +188,7 @@
             .catch(err => {
               // Silently handle double-deletions
               // TODO make double-deletion return a 404 error
-              if (get(err, 'entity[0]') === 'This channel does not exist') {
+              if (get(err, 'data[0]') === 'This channel does not exist') {
                 this.refreshChannelList();
               } else {
                 this.createTaskFailedSnackbar();

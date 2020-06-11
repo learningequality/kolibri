@@ -14,8 +14,8 @@ function startCSVExport(store, logtype, creating, commitStart) {
   if (!creating) {
     let promise = TaskResource.startexportlogcsv(params);
     return promise.then(task => {
-      store.commit(commitStart, task.entity);
-      return task.entity.id;
+      store.commit(commitStart, task.data);
+      return task.data.id;
     });
   }
 }
@@ -40,12 +40,12 @@ function startSessionCSVExport(store) {
 
 function getExportedLogsInfo(store) {
   return client({
-    path: urls['kolibri:core:exportedlogsinfo'](
+    url: urls['kolibri:core:exportedlogsinfo'](
       store.rootGetters.activeFacilityId,
       store.rootGetters.currentFacilityName
     ),
   }).then(response => {
-    const data = response.entity;
+    const data = response.data;
     let sessionTimeStamp = null;
     if (data.session != null) {
       sessionTimeStamp = new Date(data.session * 1000);
@@ -88,8 +88,8 @@ function startExportUsers(store) {
   if (!store.getters.exportingUsers) {
     let promise = TaskResource.export_users_to_csv({});
     return promise.then(task => {
-      store.commit('START_EXPORT_USERS', task.entity);
-      return task.entity.id;
+      store.commit('START_EXPORT_USERS', task.data);
+      return task.data.id;
     });
   }
 }
