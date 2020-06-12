@@ -424,9 +424,15 @@ class FacilityTaskHelperTestCase(TestCase):
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
     @patch("kolibri.core.tasks.api.get_client_and_server_certs")
+    @patch("kolibri.core.tasks.api.get_dataset_id")
     def test_validate_and_prepare_peer_sync_job(
-        self, get_client_and_server_certs, NetworkClient, MorangoProfileController
+        self,
+        get_dataset_id,
+        get_client_and_server_certs,
+        NetworkClient,
+        MorangoProfileController,
     ):
+        dataset_id = 456
         req = Mock(
             spec=Request,
             data=dict(
@@ -443,6 +449,8 @@ class FacilityTaskHelperTestCase(TestCase):
         network_connection = Mock()
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
+
+        get_dataset_id.return_value = dataset_id
         get_client_and_server_certs.return_value = None
 
         expected = dict(
@@ -464,8 +472,12 @@ class FacilityTaskHelperTestCase(TestCase):
             "https://some.server.test/"
         )
 
+        get_dataset_id.assert_called_with(
+            "https://some.server.test/", identifier=123, noninteractive=True
+        )
+
         get_client_and_server_certs.assert_called_with(
-            "tester", "mypassword", 123, network_connection, noninteractive=True
+            "tester", "mypassword", dataset_id, network_connection, noninteractive=True
         )
 
     def test_validate_and_prepare_peer_sync_job__no_baseurl(self):
@@ -496,31 +508,9 @@ class FacilityTaskHelperTestCase(TestCase):
 
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
-    @patch("kolibri.core.tasks.api.get_client_and_server_certs")
-    def test_validate_and_prepare_peer_sync_job__not_authenticated(
-        self, get_client_and_server_certs, NetworkClient, MorangoProfileController
-    ):
-        req = Mock(
-            spec=Request,
-            data=dict(facility=123, baseurl="https://some.server.test/extra/stuff",),
-        )
-
-        client = NetworkClient.return_value
-        client.base_url = "https://some.server.test/"
-
-        network_connection = Mock()
-        controller = MorangoProfileController.return_value
-        controller.create_network_connection.return_value = network_connection
-        get_client_and_server_certs.side_effect = CommandError()
-
-        with self.assertRaises(NotAuthenticated):
-            validate_and_prepare_peer_sync_job(req, extra_metadata=dict(type="test"))
-
-    @patch("kolibri.core.tasks.api.MorangoProfileController")
-    @patch("kolibri.core.tasks.api.NetworkClient")
-    @patch("kolibri.core.tasks.api.get_client_and_server_certs")
-    def test_validate_and_prepare_peer_sync_job__authentication_failed(
-        self, get_client_and_server_certs, NetworkClient, MorangoProfileController
+    @patch("kolibri.core.tasks.api.get_dataset_id")
+    def test_validate_and_prepare_peer_sync_job__unknown_facility(
+        self, get_dataset_id, NetworkClient, MorangoProfileController
     ):
         req = Mock(
             spec=Request,
@@ -538,6 +528,70 @@ class FacilityTaskHelperTestCase(TestCase):
         network_connection = Mock()
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
+
+        get_dataset_id.side_effect = CommandError()
+
+        with self.assertRaises(AuthenticationFailed):
+            validate_and_prepare_peer_sync_job(req, extra_metadata=dict(type="test"))
+
+    @patch("kolibri.core.tasks.api.MorangoProfileController")
+    @patch("kolibri.core.tasks.api.NetworkClient")
+    @patch("kolibri.core.tasks.api.get_client_and_server_certs")
+    @patch("kolibri.core.tasks.api.get_dataset_id")
+    def test_validate_and_prepare_peer_sync_job__not_authenticated(
+        self,
+        get_dataset_id,
+        get_client_and_server_certs,
+        NetworkClient,
+        MorangoProfileController,
+    ):
+        req = Mock(
+            spec=Request,
+            data=dict(facility=123, baseurl="https://some.server.test/extra/stuff",),
+        )
+
+        client = NetworkClient.return_value
+        client.base_url = "https://some.server.test/"
+
+        network_connection = Mock()
+        controller = MorangoProfileController.return_value
+        controller.create_network_connection.return_value = network_connection
+
+        get_dataset_id.return_value = 456
+        get_client_and_server_certs.side_effect = CommandError()
+
+        with self.assertRaises(NotAuthenticated):
+            validate_and_prepare_peer_sync_job(req, extra_metadata=dict(type="test"))
+
+    @patch("kolibri.core.tasks.api.MorangoProfileController")
+    @patch("kolibri.core.tasks.api.NetworkClient")
+    @patch("kolibri.core.tasks.api.get_client_and_server_certs")
+    @patch("kolibri.core.tasks.api.get_dataset_id")
+    def test_validate_and_prepare_peer_sync_job__authentication_failed(
+        self,
+        get_dataset_id,
+        get_client_and_server_certs,
+        NetworkClient,
+        MorangoProfileController,
+    ):
+        req = Mock(
+            spec=Request,
+            data=dict(
+                facility=123,
+                baseurl="https://some.server.test/extra/stuff",
+                username="tester",
+                password="mypassword",
+            ),
+        )
+
+        client = NetworkClient.return_value
+        client.base_url = "https://some.server.test/"
+
+        network_connection = Mock()
+        controller = MorangoProfileController.return_value
+        controller.create_network_connection.return_value = network_connection
+
+        get_dataset_id.return_value = 456
         get_client_and_server_certs.side_effect = CommandError()
 
         with self.assertRaises(AuthenticationFailed):
