@@ -1,8 +1,4 @@
-import {
-  ContentNodeResource,
-  ContentNodeSlimResource,
-  ContentNodeProgressResource,
-} from 'kolibri.resources';
+import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
 import { LearnerLessonResource } from '../../apiResources';
 import { ClassesPageNames } from '../../constants';
 
@@ -14,7 +10,7 @@ export function showLessonPlaylist(store, { lessonId }) {
         store.commit('SET_PAGE_NAME', ClassesPageNames.LESSON_PLAYLIST);
         store.commit('lessonPlaylist/SET_CURRENT_LESSON', lesson);
         if (lesson.resources.length) {
-          return ContentNodeSlimResource.fetchCollection({
+          return ContentNodeResource.fetchCollection({
             getParams: {
               ids: lesson.resources.map(resource => resource.contentnode_id),
             },
@@ -70,7 +66,7 @@ export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
         }
         const nextResource = lesson.resources[index + 1];
         const nextResourcePromise = nextResource
-          ? ContentNodeSlimResource.fetchModel({
+          ? ContentNodeResource.fetchModel({
               id: nextResource.contentnode_id,
             })
           : Promise.resolve();

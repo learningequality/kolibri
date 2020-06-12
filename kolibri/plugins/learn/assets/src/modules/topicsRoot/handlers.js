@@ -1,4 +1,4 @@
-import { ContentNodeSlimResource } from 'kolibri.resources';
+import { ContentNodeResource } from 'kolibri.resources';
 import { PageNames } from '../../constants';
 import { _collectionState } from '../coreLearn/utils';
 
@@ -12,7 +12,7 @@ export function showChannels(store) {
         return;
       }
       const channelRootIds = channels.map(channel => channel.root);
-      ContentNodeSlimResource.fetchCollection({
+      ContentNodeResource.fetchCollection({
         getParams: { ids: channelRootIds, user_kind: store.getters.getUserKind },
       }).then(channelCollection => {
         // we want them to be in the same order as the channels list

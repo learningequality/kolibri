@@ -1,6 +1,6 @@
 import {
   ContentNodeGranularResource,
-  ContentNodeSlimResource,
+  ContentNodeResource,
   RemoteChannelResource,
   TaskResource,
 } from 'kolibri.resources';
@@ -39,7 +39,7 @@ export function fetchNodeWithAncestors(nodeId) {
       },
       force: true,
     }),
-    ContentNodeSlimResource.fetchAncestors(nodeId),
+    ContentNodeResource.fetchAncestors(nodeId),
   ]).then(([node, ancestors]) => {
     return { ...node, ancestors: [...ancestors] };
   });

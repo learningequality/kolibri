@@ -87,7 +87,7 @@ class ValuesViewset(viewsets.ModelViewSet):
                 item[key] = value
         return item
 
-    def consolidate(self, items):
+    def consolidate(self, items, queryset):
         return items
 
     def _serialize_queryset(self, queryset):
@@ -96,7 +96,8 @@ class ValuesViewset(viewsets.ModelViewSet):
 
     def serialize(self, queryset):
         return self.consolidate(
-            list(map(self._map_fields, self._serialize_queryset(queryset) or []))
+            list(map(self._map_fields, self._serialize_queryset(queryset) or [])),
+            queryset,
         )
 
     def list(self, request, *args, **kwargs):
