@@ -87,16 +87,10 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
 
 
 class FacilitySerializer(serializers.ModelSerializer):
-    dataset = FacilityDatasetSerializer(read_only=True)
-
     class Meta:
         model = Facility
-        extra_kwargs = {"id": {"read_only": True}, "dataset": {"read_only": True}}
-        fields = (
-            "id",
-            "name",
-            "dataset",
-        )
+        extra_kwargs = {"id": {"read_only": True}}
+        fields = ("id", "name")
 
 
 class PublicFacilitySerializer(serializers.ModelSerializer):

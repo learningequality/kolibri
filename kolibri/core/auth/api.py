@@ -152,7 +152,6 @@ class FacilityDatasetViewSet(ValuesViewset):
         "location",
         "registered",
         "preset",
-        "num_users_in_facility",
     )
 
     field_map = {"allow_guest_access": lambda x: allow_guest_access()}
@@ -334,14 +333,55 @@ class FacilityViewSet(ValuesViewset):
     values = (
         "id",
         "name",
-        "dataset",
         "num_classrooms",
         "num_users",
         "last_synced",
+        # dataset keys
+        "dataset__id",
+        "dataset__learner_can_edit_username",
+        "dataset__learner_can_edit_name",
+        "dataset__learner_can_edit_password",
+        "dataset__learner_can_sign_up",
+        "dataset__learner_can_delete_account",
+        "dataset__learner_can_login_with_no_password",
+        "dataset__show_download_button_in_learn",
+        "dataset__description",
+        "dataset__location",
+        "dataset__registered",
+        "dataset__preset",
     )
+
+    def _map_dataset(facility):
+        dataset = {}
+        dataset["id"] = facility.pop("dataset__id")
+        dataset["learner_can_edit_username"] = facility.pop(
+            "dataset__learner_can_edit_username"
+        )
+        dataset["learner_can_edit_name"] = facility.pop(
+            "dataset__learner_can_edit_name"
+        )
+        dataset["learner_can_edit_password"] = facility.pop(
+            "dataset__learner_can_edit_password"
+        )
+        dataset["learner_can_sign_up"] = facility.pop("dataset__learner_can_sign_up")
+        dataset["learner_can_delete_account"] = facility.pop(
+            "dataset__learner_can_delete_account"
+        )
+        dataset["learner_can_login_with_no_password"] = facility.pop(
+            "dataset__learner_can_login_with_no_password"
+        )
+        dataset["show_download_button_in_learn"] = facility.pop(
+            "dataset__show_download_button_in_learn"
+        )
+        dataset["description"] = facility.pop("dataset__description")
+        dataset["location"] = facility.pop("dataset__location")
+        dataset["registered"] = facility.pop("dataset__registered")
+        dataset["preset"] = facility.pop("dataset__preset")
+        return dataset
 
     field_map = {
         "default": lambda x: Facility.get_default_facility().id == x["id"],
+        "dataset": _map_dataset,
     }
 
     def get_queryset(self, prefetch=True):

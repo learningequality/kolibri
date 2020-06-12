@@ -25,7 +25,7 @@ export default {
 
       FacilityUserResource.getListEndpoint('users_for_facilities', getParams)
         .then(response => {
-          store.commit('SET_SELECTED_FACILITY_USERS', JSON.parse(response.data));
+          store.commit('SET_SELECTED_FACILITY_USERS', response.data);
         })
         .catch(e => {
           console.error(e);
