@@ -51,8 +51,9 @@
         @change="allowOtherBrowsersToConnect = $event"
       >
         <span> {{ $tr('allowExternalConnectionsApp') }}
-          <p>{{ $tr('allowExternalConnectionsAppDescription') }}</p>
-
+          <p v-if="allowOtherBrowsersToConnect">
+            {{ $tr('allowExternalConnectionsAppDescription') }}
+          </p>
         </span>
       </KCheckbox>
       <p>
