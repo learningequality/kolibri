@@ -19,8 +19,6 @@ from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
-from django.db.models import TextField
-from django.db.models.functions import Cast
 from django.db.models.query import F
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
@@ -333,31 +331,17 @@ class FacilityViewSet(ValuesViewset):
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
 
-    def _last_synced(instance):
-        return (
-            Facility.objects.filter(id=instance["id"])
-            .annotate(casted_dataset_id=Cast("dataset_id", TextField()))
-            .annotate(
-                last_synced=Subquery(
-                    TransferSession.objects.filter(filter=instance["dataset"])
-                    .order_by("-last_activity_timestamp")
-                    .values("last_activity_timestamp")[:1]
-                )
-            )
-            .values_list("last_synced", flat=True)[0]
-        )
-
     values = (
         "id",
         "name",
         "dataset",
         "num_classrooms",
         "num_users",
+        "last_synced",
     )
 
     field_map = {
         "default": lambda x: Facility.get_default_facility().id == x["id"],
-        "last_synced": _last_synced,
     }
 
     def get_queryset(self, prefetch=True):
@@ -369,13 +353,23 @@ class FacilityViewSet(ValuesViewset):
         return queryset
 
     def annotate_queryset(self, queryset):
-        return queryset.annotate(
-            num_users=SQCount(
-                FacilityUser.objects.filter(facility=OuterRef("id")), field="id"
+        return (
+            queryset.annotate(
+                num_users=SQCount(
+                    FacilityUser.objects.filter(facility=OuterRef("id")), field="id"
+                )
             )
-        ).annotate(
-            num_classrooms=SQCount(
-                Classroom.objects.filter(parent=OuterRef("id")), field="id"
+            .annotate(
+                num_classrooms=SQCount(
+                    Classroom.objects.filter(parent=OuterRef("id")), field="id"
+                )
+            )
+            .annotate(
+                last_synced=Subquery(
+                    TransferSession.objects.filter(filter=OuterRef("dataset"))
+                    .order_by("-last_activity_timestamp")
+                    .values("last_activity_timestamp")
+                )
             )
         )
 
