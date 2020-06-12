@@ -29,6 +29,7 @@ from six import string_types
 
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.management.utils import get_client_and_server_certs
+from kolibri.core.auth.management.utils import get_dataset_id
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.permissions import CanExportLogs
@@ -956,9 +957,14 @@ def validate_and_prepare_peer_sync_job(request, **kwargs):
 
     # try to get the certificate, which will save it if successful
     try:
+        # make sure we get the dataset ID
+        dataset_id = get_dataset_id(
+            baseurl, identifier=facility_id, noninteractive=True
+        )
+
         # username and password are not required for this to succeed unless there is no cert
         get_client_and_server_certs(
-            username, password, facility_id, network_connection, noninteractive=True
+            username, password, dataset_id, network_connection, noninteractive=True
         )
     except CommandError as e:
         if not username and not password:
