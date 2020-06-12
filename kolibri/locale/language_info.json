@@ -1,5 +1,12 @@
 [
   {
+    "crowdin_code": "ach-ug",
+    "intl_code": "ach-ug",
+    "language_name": "In-context translation",
+    "english_name": "In-context translation",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "ar",
     "intl_code": "ar",
     "language_name": "العَرَبِيَّة‎‎",
