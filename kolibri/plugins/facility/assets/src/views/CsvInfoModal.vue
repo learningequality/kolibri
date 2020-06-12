@@ -205,6 +205,23 @@
       gender: 'Gender',
       enrolled: 'Learner enrollment',
       assigned: 'Coach assignment',
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      // stub out some extra strings
+      downloadSample: 'Download a sample CSV file',
+      exampleUser: {
+        message: 'Example User {number}',
+        context: 'Placeholder sample data for a fake user, e.g. "Example Name 1234"',
+      },
+      exampleUsername: {
+        message: 'user-{number}',
+        context:
+          'Placeholder sample data for a fake username. Must be a valid Kolibri username. e.g. "user-1234"',
+      },
+      exampleClass: {
+        message: 'Example Class - {letter}',
+        context: 'Placeholder sample data for a fake class name, e.g. "Example Class - A"',
+      },
+      /* eslint-enable */
     },
   };
 
