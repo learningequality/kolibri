@@ -2,6 +2,7 @@
  * Module for REST API client
  */
 
+import axios from 'axios';
 import qs from 'qs';
 import heartbeat from 'kolibri.heartbeat';
 import logger from 'kolibri.lib.logging';
@@ -14,14 +15,16 @@ export const logging = logger.getLogger(__filename);
 const baseClient = clientFactory();
 
 // Disconnection handler interceptor
-baseClient.interceptors.request.use(function(request) {
+baseClient.interceptors.request.use(function(config) {
   if (!store.getters.connected) {
     // If the vuex state records that we are not currently connected then cancel all
     // outgoing requests.
-    request.abort();
-    return Promise.reject(request);
+    const CancelToken = axios.CancelToken;
+    const source = CancelToken.source();
+    config.cancelToken = source.token;
+    source.cancel('Request cancelled as currently disconnected from Kolibri');
   }
-  return request;
+  return config;
 });
 
 // Login timeout detection interceptor and disconnection monitoring
@@ -80,14 +83,33 @@ const client = options => {
       logging.warn('option path is deprecated, please use url option instead');
     }
   }
+  if (typeof options === 'string') {
+    options = { url: options };
+    logging.warn(
+      'passing the URL as the only argument is deprecated, please use url option instead'
+    );
+  }
+
   const headers = { ...(options.headers || {}) };
   if (options.multipart) {
     headers['Content-Type'] = 'multipart/form-data';
   }
-  return baseClient.request({
-    ...options,
-    headers,
-  });
+  return baseClient
+    .request({
+      ...options,
+      headers,
+    })
+    .then(response => {
+      return {
+        get entity() {
+          logging.warn(
+            'entity is deprecated for accessing response data, please use the data key instead'
+          );
+          return response.data;
+        },
+        ...response,
+      };
+    });
 };
 
 export default client;
