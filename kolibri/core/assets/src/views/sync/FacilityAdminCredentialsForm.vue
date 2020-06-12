@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <p v-if="singleFacility" class="facility-name">
+    <p v-if="singleFacility && facility.name" class="facility-name">
       {{ formatNameAndId(facility.name, facility.id) }}
     </p>
     <p>
@@ -21,6 +21,7 @@
       :isValid.sync="usernameValid"
       :shouldValidate="shouldValidate"
       :autofocus="true"
+      :disabled="$attrs.disabled"
     />
     <PasswordTextbox
       ref="password"
@@ -28,6 +29,7 @@
       :isValid.sync="passwordValid"
       :shouldValidate="shouldValidate"
       :showConfirmationInput="false"
+      :disabled="$attrs.disabled"
     />
   </div>
 
@@ -52,6 +54,9 @@
       device: {
         type: Object,
         required: true,
+        validator(val) {
+          return val.name && val.id && val.baseurl;
+        },
       },
       facility: {
         type: Object,
@@ -74,14 +79,15 @@
     },
     computed: {
       prompt() {
+        const deviceName = this.device.name;
         if (this.singleFacility) {
           return this.$tr('adminCredentialsPromptOneFacility', {
-            device: this.device.device_name,
+            device: deviceName,
           });
         } else {
           return this.$tr('adminCredentialsPromptMultipleFacilities', {
             facility: this.facility.name,
-            device: this.device.device_name,
+            device: deviceName,
           });
         }
       },
@@ -91,31 +97,38 @@
     },
     methods: {
       // @public. Returns Promise<Boolean>
-      submitCredentials() {
+      startImport() {
         this.shouldValidate = true;
         if (this.formIsValid) {
+          // return Promise.resolve(true);
           return this.startPeerImportTask({
+            facility_name: this.facility.name,
             facility: this.facility.id,
-            baseurl: this.device.base_url,
+            baseurl: this.device.baseurl,
             username: this.username,
             password: this.password,
           })
-            .then(() => {
-              return true;
+            .then(task => {
+              return task.id;
             })
             .catch(() => {
               this.error = true;
-              this.$refs.username.focus();
+              this.refocusForm();
               return false;
             });
         } else {
-          if (!this.usernameValid) {
-            this.$refs.username.focus();
-          } else {
-            this.$refs.password.focus();
-          }
+          this.refocusForm();
           return Promise.resolve(false);
         }
+      },
+      refocusForm() {
+        this.$nextTick().then(() => {
+          if (!this.usernameValid || this.error) {
+            this.$refs.username.focus();
+          } else if (!this.passwordValid) {
+            this.$refs.password.focus();
+          }
+        });
       },
     },
     $trs: {

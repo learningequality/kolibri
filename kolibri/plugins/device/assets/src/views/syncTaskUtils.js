@@ -29,6 +29,7 @@ const syncTaskStatusToStepMap = {
 
 const genericStatusToDescriptionMap = {
   [TaskStatuses.PENDING]: getTaskString('taskWaitingStatus'),
+  [TaskStatuses.QUEUED]: getTaskString('taskWaitingStatus'),
   [TaskStatuses.COMPLETED]: getTaskString('taskFinishedStatus'),
   [TaskStatuses.CANCELED]: getTaskString('taskCanceledStatus'),
   [TaskStatuses.CANCELING]: getTaskString('taskCancelingStatus'),
@@ -54,12 +55,17 @@ function formatNameWithId(name, id) {
 export function syncFacilityTaskDisplayInfo(task) {
   let statusMsg;
   let bytesTransferredMsg = '';
+  let deviceNameMsg = '';
 
-  const facilityName = formatNameWithId(task.facility_name, task.facility_id);
-  const deviceNameMsg = coreString('quotedPhrase', {
-    phrase: formatNameWithId(task.device_name, task.device_id),
-  });
-  const syncStep = syncTaskStatusToStepMap[task.status];
+  const facilityName = formatNameWithId(task.facility_name, task.facility);
+
+  // Device info isn't shown on the Setup Wizard version of panel
+  if (task.device_name) {
+    deviceNameMsg = coreString('quotedPhrase', {
+      phrase: formatNameWithId(task.device_name, task.device_id),
+    });
+  }
+  const syncStep = syncTaskStatusToStepMap[task.sync_state];
   const statusDescription =
     syncStatusToDescriptionMap[task.status] || getTaskString('taskUnknownStatus');
 
@@ -124,8 +130,12 @@ export function importFacilityTaskDisplayInfo(task) {
   info.headingMsg = '';
   if (task.status === TaskStatuses.FAILED) {
     info.deviceNameMsg = getTaskString('importFailedStatus', { facilityName: task.facility_name });
+    info.statusMsg = getTaskString('taskFailedStatus');
+    info.isRunning = false;
   } else if (task.status === TaskStatuses.COMPLETED) {
     info.deviceNameMsg = getTaskString('importSuccessStatus', { facilityName: task.facility_name });
+    info.statusMsg = getTaskString('taskFinishedStatus');
+    info.isRunning = false;
   } else {
     info.deviceNameMsg = '';
   }

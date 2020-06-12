@@ -61,6 +61,9 @@ class Command(AsyncCommand):
             type=str,
             help="password of superuser on server we are syncing with",
         )
+        parser.add_argument(
+            "--no-provision", help="do not create a facility and temporary superuser",
+        )
         # parser.add_argument("--scope-id", type=str, default=FULL_FACILITY)
 
     def handle_async(self, *args, **options):
@@ -74,6 +77,7 @@ class Command(AsyncCommand):
             no_push,
             no_pull,
             noninteractive,
+            no_provision,
         ) = (
             options["baseurl"],
             options["facility"],
@@ -83,6 +87,7 @@ class Command(AsyncCommand):
             options["no_push"],
             options["no_pull"],
             options["noninteractive"],
+            options["no_provision"],
         )
 
         PORTAL_SYNC = baseurl == DATA_PORTAL_SYNCING_BASE_URL
@@ -188,10 +193,12 @@ class Command(AsyncCommand):
             with db_task_write_lock:
                 sync_client.initiate_push(Filter(dataset_id))
 
-        with db_task_write_lock:
-            create_superuser_and_provision_device(
-                username, dataset_id, noninteractive=noninteractive
-            )
+        if not no_provision:
+            with db_task_write_lock:
+                create_superuser_and_provision_device(
+                    username, dataset_id, noninteractive=noninteractive
+                )
+
         sync_client.close_sync_session()
 
         if self.job:

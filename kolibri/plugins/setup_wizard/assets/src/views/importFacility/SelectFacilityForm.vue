@@ -3,42 +3,42 @@
   <OnboardingForm
     :header="header"
     :description="formDescription"
-    :disabled="selectedFacilityId === ''"
-    @submit="handleSubmit"
+    :disabled="selectedFacilityId === '' || formDisabled"
+    @submit="handleCredentialsSubmit"
   >
-    <div>
-      <!-- Only one Facility -->
-      <template v-if="facilities.length === 1">
-        <FacilityAdminCredentialsForm
-          ref="credentials"
-          :facility="facilities[0]"
-          :device="device"
-          :singleFacility="true"
-          :shouldValidate="shouldValidate"
-        />
-      </template>
+    <!-- Only one Facility -->
+    <template v-if="singleFacility">
+      <FacilityAdminCredentialsForm
+        ref="credentialsForm"
+        :facility="facilities[0]"
+        :device="device"
+        :singleFacility="true"
+        :shouldValidate="shouldValidate"
+      />
+    </template>
 
-      <!-- Multiple Facilities -->
-      <template v-else>
+    <!-- Multiple Facilities -->
+    <template v-else>
 
-        <RadioButtonGroup
-          :items="facilities"
-          :currentValue.sync="selectedFacilityId"
-          :itemLabel="x => formatNameAndId(x.name, x.id)"
-          :itemValue="x => x.id"
-        >
-          <template #underbutton="{ selected }">
-            <FacilityAdminCredentialsForm
-              v-if="selectedFacilityId === selected.id"
-              ref="credentials"
-              :facility="selected"
-              :device="device"
-              :shouldValidate="shouldValidate"
-            />
-          </template>
-        </RadioButtonGroup>
-      </template>
-    </div>
+      <RadioButtonGroup
+        :items="facilities"
+        :currentValue.sync="selectedFacilityId"
+        :itemLabel="x => formatNameAndId(x.name, x.id)"
+        :itemValue="x => x.id"
+        :disabled="formDisabled"
+      >
+        <template #underbutton="{ selected }">
+          <FacilityAdminCredentialsForm
+            v-if="selectedFacilityId === selected.id"
+            ref="credentialsForm"
+            :facility="selected"
+            :device="device"
+            :shouldValidate="shouldValidate"
+            :disabled="formDisabled"
+          />
+        </template>
+      </RadioButtonGroup>
+    </template>
   </OnboardingForm>
 
 </template>
@@ -66,6 +66,9 @@
       device: {
         type: Object,
         required: true,
+        validator(val) {
+          return val.name && val.id && val.baseurl;
+        },
       },
     },
     data() {
@@ -73,33 +76,43 @@
         selectedFacilityId: '',
         facilities: [],
         shouldValidate: false,
+        formDisabled: false,
       };
     },
     computed: {
+      singleFacility() {
+        return this.facilities.length === 1;
+      },
       header() {
-        if (this.facilities.length > 1) {
-          return this.getCommonSyncString('selectFacilityTitle');
-        } else {
+        if (this.singleFacility) {
           return this.getCommonSyncString('importFacilityAction');
+        } else {
+          return this.getCommonSyncString('selectFacilityTitle');
         }
       },
       formDescription() {
-        return this.$tr('commaSeparatedPair', {
-          first: this.formatNameAndId(this.device.name, this.device.id),
-          second: this.device.address,
-        });
+        if (this.device.name) {
+          return this.$tr('commaSeparatedPair', {
+            first: this.formatNameAndId(this.device.name, this.device.id),
+            second: this.device.baseurl,
+          });
+        }
+        return '';
+      },
+      selectedFacility() {
+        return this.facilities.find(f => f.id === this.selectedFacilityId);
       },
     },
     beforeMount() {
-      this.fetchNetworkLocationFacilities(this.$route.query.address_id)
+      this.fetchNetworkLocationFacilities(this.$route.query.device_id)
         .then(data => {
           this.facilities = [...data.facilities];
           this.$emit('update:device', {
             name: data.device_name,
             id: data.device_id,
-            address: data.device_address,
+            baseurl: data.device_address,
           });
-          if (this.facilities.length === 1) {
+          if (this.singleFacility) {
             this.selectedFacilityId = this.facilities[0].id;
           }
         })
@@ -109,18 +122,27 @@
         });
     },
     methods: {
-      handleSubmit() {
-        // Credentials form implement authentication logic and returns a Promise<Boolean>
-        this.callSubmitCredentials().then(isSuccess => {
-          if (isSuccess) {
+      handleCredentialsSubmit() {
+        this.formDisabled = true;
+        this.callSubmitCredentials().then(data => {
+          if (data) {
+            this.$emit('update:facility', {
+              name: this.selectedFacility.name,
+              id: this.selectedFacility.id,
+              username: data.username,
+              password: data.password,
+            });
             this.$emit('click_next');
+          } else {
+            this.formDisabled = false;
           }
         });
       },
       callSubmitCredentials() {
-        const $credentials = this.$refs.credentials;
-        if ($credentials) {
-          return $credentials.submitCredentials();
+        const $credentialsForm = this.$refs.credentialsForm;
+        if ($credentialsForm) {
+          // The form makes the call to the startpeerfacilityimport endpoint
+          return $credentialsForm.startImport();
         } else {
           return Promise.resolve(false);
         }

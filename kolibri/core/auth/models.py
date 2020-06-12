@@ -586,13 +586,14 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, password):
+    def create_superuser(self, username, password, facility=None):
 
         # import here to avoid circularity
         from kolibri.core.device.models import DevicePermissions
 
         # get the default facility
-        facility = Facility.get_default_facility()
+        if facility is None:
+            facility = Facility.get_default_facility()
 
         if self.filter(username__iexact=username, facility=facility).exists():
             raise ValidationError("An account with that username already exists")
@@ -609,7 +610,9 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         facility.add_role(superuser, role_kinds.ADMIN)
 
         # make the user into a superuser on this device
-        DevicePermissions.objects.create(user=superuser, is_superuser=True)
+        DevicePermissions.objects.create(
+            user=superuser, is_superuser=True, can_manage_content=True
+        )
 
 
 def validate_birth_year(value):

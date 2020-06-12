@@ -38,4 +38,9 @@ export default new Resource({
   startdataportalbulksync() {
     return this.postListEndpoint('startdataportalbulksync');
   },
+  canceltask(taskId) {
+    return this.postListEndpoint('canceltask', {
+      task_id: taskId,
+    });
+  },
 });

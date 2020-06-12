@@ -4,7 +4,9 @@ from rest_framework import routers
 
 from .api import FacilityAdminView
 from .api import GrantSuperuserPermissionsView
-from .api import StartFacilityImportTaskView
+from .api import SetupWizardFacilityImportTaskView
+from .api import CreateSuperuserAfterFacilityImportView
+from .api import ProvisionDeviceAfterFacilityImportView
 
 router = routers.DefaultRouter()
 
@@ -15,9 +17,17 @@ router.register(
     base_name="grantsuperuserpermissions",
 )
 router.register(
-    r"startfacilityimporttask",
-    StartFacilityImportTaskView,
-    base_name="startfacilityimporttask",
+    r"tasks", SetupWizardFacilityImportTaskView, base_name="tasks",
+)
+router.register(
+    r"createsuperuser",
+    CreateSuperuserAfterFacilityImportView,
+    base_name="createsuperuser",
+)
+router.register(
+    r"provisionafterimport",
+    ProvisionDeviceAfterFacilityImportView,
+    base_name="provisionafterimport",
 )
 
 urlpatterns = [url(r"^", include(router.urls))]

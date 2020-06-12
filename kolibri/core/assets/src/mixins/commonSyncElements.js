@@ -83,15 +83,19 @@ export default {
       });
     },
     startPeerImportTask(data) {
-      const { facility, baseurl, username, password } = data;
+      const { facility, facility_name, baseurl, username, password } = data;
       return FacilityTaskResource.startpeerfacilityimport({
         facility,
+        facility_name,
         baseurl,
         username,
         password,
       }).then(response => {
         return response.data;
       });
+    },
+    cancelSyncTask(taskId) {
+      return FacilityTaskResource.canceltask(taskId);
     },
     fetchKdpSyncTasks() {
       return FacilityTaskResource.fetchCollection({ force: true }).then(tasks => {

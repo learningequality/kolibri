@@ -5,7 +5,6 @@ from rest_framework import serializers
 
 from kolibri.core.auth.constants.facility_presets import choices
 from kolibri.core.auth.constants.facility_presets import mappings
-from kolibri.core.auth.constants.role_kinds import ADMIN
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import FacilitySerializer
@@ -13,6 +12,7 @@ from kolibri.core.auth.serializers import FacilityUserSerializer
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import provision_device
+from kolibri.core.device.utils import create_superuser
 
 
 class DevicePermissionsSerializer(serializers.ModelSerializer):
@@ -83,15 +83,11 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                 if value is not None:
                     setattr(facility.dataset, key, value)
             facility.dataset.save()
-            superuser_data = validated_data.pop("superuser")
-            superuser_data["facility"] = facility
-            superuser = FacilityUserSerializer(data=superuser_data).create(
-                superuser_data
-            )
-            superuser.set_password(superuser_data["password"])
-            superuser.save()
-            facility.add_role(superuser, ADMIN)
-            DevicePermissions.objects.create(user=superuser, is_superuser=True, can_manage_content=True)
+
+            # Create superuser
+            superuser = create_superuser(validated_data["superuser"], facility=facility)
+
+            # Create device settings
             language_id = validated_data.pop("language_id")
             allow_guest_access = validated_data.pop("allow_guest_access")
             if allow_guest_access is None:

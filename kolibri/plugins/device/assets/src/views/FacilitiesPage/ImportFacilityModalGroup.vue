@@ -116,7 +116,7 @@
         this.step = Steps.CREDENTIALS;
       },
       handleCredentialsSubmit() {
-        this.$refs.credentialsForm.submitCredentials().then(taskId => {
+        this.$refs.credentialsForm.startImport().then(taskId => {
           if (taskId) {
             this.$emit('success', taskId);
           }

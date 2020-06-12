@@ -75,6 +75,42 @@ def set_device_settings(**kwargs):
         raise DeviceNotProvisioned
 
 
+def create_superuser(user_data, facility):
+    from .models import DevicePermissions
+    from kolibri.core.auth.models import FacilityUser
+    from django.core.exceptions import ValidationError
+
+    username = user_data.get("username")
+    password = user_data.get("password")
+    full_name = user_data.get("full_name")
+
+    # Code copied from FacilityUserModelManager (create_superuser method doesn't work)
+    if FacilityUser.objects.filter(
+        username__iexact=username, facility=facility
+    ).exists():
+        raise ValidationError("An account with that username already exists")
+
+    superuser = FacilityUser.objects.create(
+        full_name=full_name or username,
+        username=username,
+        password=password,
+        facility=facility,
+    )
+
+    superuser.full_clean()
+    superuser.set_password(password)
+    superuser.save()
+
+    # make the user a facility admin
+    facility.add_admin(superuser)
+
+    # make the user into a superuser on this device
+    DevicePermissions.objects.create(
+        user=superuser, is_superuser=True, can_manage_content=True
+    )
+    return superuser
+
+
 def provision_device(device_name=None, **kwargs):
     from .models import DeviceSettings
 

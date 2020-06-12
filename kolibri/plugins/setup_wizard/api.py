@@ -1,12 +1,17 @@
 from rest_framework.exceptions import NotFound
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from kolibri.core.auth.constants import user_kinds
+from kolibri.core.device.utils import provision_device
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import FacilityUserModelManager
+from kolibri.core.auth.models import Facility
 from kolibri.core.device.models import DevicePermissions
+from kolibri.core.tasks.api import FacilityTasksViewSet
 
 
 # Basic class that makes these endpoints unusable if device is provisioned
@@ -22,7 +27,7 @@ class FacilityAdminView(GenericViewSet):
     Returns basic data about admins from the just-imported Facility
     """
 
-    permission_classes = (HasPermissionDuringSetup,)
+    permission_classes = ()
 
     def list(self, request):
         # The filter is very loose, since we are assuming that the only
@@ -70,18 +75,62 @@ class GrantSuperuserPermissionsView(GenericViewSet):
         return Response({"user_id": user_id})
 
 
-class StartFacilityImportTaskView(GenericViewSet):
+class CreateSuperuserAfterFacilityImportView(GenericViewSet):
+    permission_classes = (HasPermissionDuringSetup,)
+
+    def create(self, request):
+        """
+        Creates a superuser in the facility that was just imported
+        """
+        from kolibri.core.device.utils import create_superuser
+
+        # Get the imported facility (assuming its the only one at this point)
+        the_facility = Facility.objects.get()
+
+        try:
+            superuser = create_superuser(request.data, facility=the_facility)
+            return Response({"username": superuser.username})
+
+        except (Exception,):
+            raise ValidationError(detail="duplicate", code="duplicate_username")
+
+
+class SetupWizardFacilityImportTaskView(FacilityTasksViewSet):
     """
-    Given a Device ID, Facility ID, and admin credentials, start
-    a Facility Import task
+    An open version of FacilityTasksViewSet for the purposes of managing the
+    import-facility task during setup
     """
+
+    # TODO remove other methods
+    permission_classes = (HasPermissionDuringSetup,)
+
+
+class ProvisionDeviceAfterFacilityImportView(GenericViewSet):
 
     permission_classes = (HasPermissionDuringSetup,)
 
     def create(self, request):
-        # Step 1: Send all of the info over to the facility-import endpoint
+        """
+        After importing a Facility and designating/creating a super admins,
+        provision the device using that facility
+        """
 
-        # If it fails, returns a 400
+        # TODO validate the data
+        device_name = request.data.get("device_name", "")
+        language_id = request.data.get("language_id", "")
 
-        # Step 2: If it succeeds, return 200. UI will continue to the progress page
-        return Response(request.data)
+        # Get the imported facility (assuming its the only one at this point)
+        the_facility = Facility.objects.get()
+
+        # Use the facility's preset to determine whether to allow guest access
+        allow_guest_access = the_facility.dataset.preset != "formal"
+
+        # Finally: Call provision_device
+        provision_device(
+            device_name=device_name,
+            language_id=language_id,
+            default_facility=the_facility,
+            allow_guest_access=allow_guest_access,
+        )
+
+        return Response({})

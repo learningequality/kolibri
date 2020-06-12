@@ -22,7 +22,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.exceptions import NotAuthenticated
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from six import string_types
@@ -864,6 +864,7 @@ class FacilityTasksViewSet(BaseViewSet):
         job_data = validate_and_prepare_peer_sync_job(
             request,
             no_push=True,
+            no_provision=True,
             extra_metadata=prepare_sync_task(request, type="SYNCPEER/PULL"),
         )
 
@@ -897,8 +898,10 @@ class ResourceGoneError(APIException):
 
 def prepare_sync_task(request, **kwargs):
     facility_id = request.data.get("facility")
+    # facility_name = request.data.get("facility_name")
     task_data = dict(
         facility=facility_id,
+        # facility_name=facility_name,
         started_by=request.user.pk,
         sync_state=FacilitySyncState.PENDING,
         bytes_sent=0,
@@ -968,7 +971,7 @@ def validate_and_prepare_peer_sync_job(request, **kwargs):
         )
     except CommandError as e:
         if not username and not password:
-            raise NotAuthenticated()
+            raise PermissionDenied()
         else:
             raise AuthenticationFailed(e)
 

@@ -10,6 +10,8 @@
       <component
         :is="currentComponent"
         :device.sync="device"
+        :facility.sync="facility"
+        :superuser.sync="superuser"
         @click_next="goToNextStep"
       />
     </KPageContainer>
@@ -49,8 +51,26 @@
     },
     mixins: [commonSetupElements, commonSyncElements],
     data() {
+      // Global state for the import process
       return {
-        device: {},
+        // Peer device
+        device: {
+          name: '',
+          id: '',
+          baseurl: '',
+        },
+        // Facility info and credentials
+        facility: {
+          name: '',
+          id: '',
+          username: '',
+          password: '',
+        },
+        // Superuser credentials
+        superuser: {
+          username: '',
+          password: '',
+        },
       };
     },
     computed: {
@@ -71,6 +91,16 @@
         // TODO disable backwards navigation at the router level
         return this.currentStep > 1;
       },
+    },
+    beforeRouteUpdate(to, from, next) {
+      // If trying to go backwards, prevent navigation and move the history back
+      // to previous location
+      if (Number(from.params.step) >= 2 && Number(to.params.step <= 2)) {
+        window.history.forward();
+        return;
+      } else {
+        next();
+      }
     },
     methods: {
       goToNextStep() {
@@ -96,9 +126,11 @@
         }
       },
       finalizeOnboardingData() {
-        // DELETE
-        this.$store.commit('SET_FACILITY_PRESET', 'informal');
-        this.$store.dispatch('provisionDevice');
+        this.$store.dispatch('provisionDeviceAfterImport', {
+          username: this.superuser.username,
+          password: this.superuser.password,
+          facility: this.facility.id,
+        });
       },
     },
     $trs: {

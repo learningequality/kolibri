@@ -24,6 +24,7 @@
         :value.sync="username"
         :isValid.sync="usernameValid"
         :shouldValidate="formSubmitted"
+        :isUniqueValidator="uniqueUsernameValidator"
       />
 
       <PasswordTextbox
@@ -77,6 +78,10 @@
         type: Boolean,
         default: false,
       },
+      uniqueUsernameValidator: {
+        type: Function,
+        required: false,
+      },
     },
     data() {
       const { superuser } = this.$store.state.onboardingData;
@@ -114,7 +119,11 @@
               username: this.username,
               password: this.password,
             });
-            this.$emit('click_next');
+            this.$emit('click_next', {
+              full_name: this.fullName,
+              username: this.username,
+              password: this.password,
+            });
           } else {
             this.focusOnInvalidField();
           }

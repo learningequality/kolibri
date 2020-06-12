@@ -57,11 +57,11 @@
       goToCreate() {
         this.$router.push({ path: '/create_facility/1' });
       },
-      goToImport(addressId) {
+      goToImport(deviceId) {
         this.$router.push({
           path: '/import_facility/1',
           query: {
-            address_id: addressId,
+            device_id: deviceId,
           },
         });
       },

@@ -9,6 +9,7 @@
     :loaderType="loaderType"
     :showCircularLoader="taskInfo.isRunning"
     :buttonSet="buttonSet"
+    @cancel="$emit('cancel')"
   />
 
 </template>
@@ -47,7 +48,7 @@
         return this.task.type === 'REMOVE_FACILITY';
       },
       isImportTask() {
-        return this.task.type === 'IMPORT_FACILITY';
+        return this.task.type === 'SYNCPEER/PULL';
       },
       taskInfo() {
         if (this.isSyncTask) {
@@ -57,7 +58,7 @@
         } else if (this.isImportTask) {
           return importFacilityTaskDisplayInfo(this.task);
         }
-        return null;
+        return {};
       },
       loaderType() {
         return 'determinate';

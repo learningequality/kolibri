@@ -3,15 +3,18 @@
   <OnboardingForm
     :header="header"
   >
-    <FacilityTaskPanel :task="loadingTask" />
-
+    <FacilityTaskPanel
+      v-if="loadingTask.status"
+      :task="loadingTask"
+      @cancel="cancelTask"
+    />
     <template #buttons>
       <!-- This span is to make sure slot contents get rendered -->
       <KButton
         v-if="loadingTask.status === 'COMPLETED'"
         primary
         :text="coreString('continueAction')"
-        @click="$emit('click_next')"
+        @click="handleClickContinue"
       />
       <template v-else-if="loadingTask.status === 'FAILED'">
         <KButton
@@ -20,7 +23,7 @@
           @click="retryImport"
         />
         <KButton
-          :text="coreString('starOverAction')"
+          :text="coreString('startOverAction')"
           appearance="flat-button"
           @click="startOver"
         />
@@ -35,24 +38,9 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import FacilityTaskPanel from '../../../../../device/assets/src/views/FacilitiesPage/FacilityTaskPanel.vue';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-
-  // TODO remove these functions since they're just for generating examples
-  function makeSyncTask(status) {
-    return {
-      type: 'IMPORT_FACILITY',
-      status,
-      device_name: 'generic device',
-      device_id: 'dev123',
-      facility_name: 'Atkinson Hall',
-      facility_id: 'fac123',
-      started_by_username: '',
-      bytes_sent: 1000000,
-      bytes_received: 500000000,
-      percentage: 0.6,
-    };
-  }
 
   export default {
     name: 'LoadingTaskPage',
@@ -60,41 +48,76 @@
       FacilityTaskPanel,
       OnboardingForm,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonSyncElements],
     props: {
       facility: {
+        type: Object,
+        required: true,
+      },
+      device: {
         type: Object,
         required: true,
       },
     },
     data() {
       return {
-        loadingTask: makeSyncTask('COMPLETED'),
-        statuses: ['COMPLETED', 'PULLING', 'PENDING'],
+        loadingTask: {},
       };
     },
     computed: {
       header() {
-        return this.$tr('loadingFacilityTitle', { facility: this.facility.name });
+        return this.$tr('loadingFacilityTitle', { facility: this.facilityName });
+      },
+      facilityName() {
+        return this.facility.name;
       },
     },
-    mounted() {
-      this.simulateTask();
+    beforeMount() {
+      this.startPolling();
     },
     methods: {
-      simulateTask() {
-        if (this.statuses.length === 0) return;
-        this.loadingTask = makeSyncTask(this.statuses.pop());
+      startPolling() {
+        this.$store.dispatch('getImportTasks').then(tasks => {
+          this.loadingTask = {
+            ...tasks[0],
+            facility_name: this.facilityName,
+          };
+        });
+        if (this.loadingTask.status) {
+          return;
+        }
         setTimeout(() => {
-          this.simulateTask();
-        }, 1000);
+          this.startPolling();
+        }, 2000);
       },
       retryImport() {
-        this.statuses = ['COMPLETED', 'PULLING', 'PENDING'];
-        this.simulateTask();
+        this.$store
+          .dispatch('clearImportTasks')
+          .then(() => {
+            return this.startPeerImportTask({
+              facility_name: this.facilityName,
+              facility: this.facility.id,
+              baseurl: this.device.baseurl,
+              username: this.facility.username,
+              password: this.facility.password,
+            });
+          })
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+          })
+          .then(() => {
+            this.startPolling();
+          });
+      },
+      cancelTask() {
+        return this.cancelSyncTask(this.loadingTask.id);
       },
       startOver() {
         this.$router.replace('/');
+      },
+      handleClickContinue() {
+        this.$store.dispatch('clearImportTasks');
+        this.$emit('click_next');
       },
     },
     $trs: {

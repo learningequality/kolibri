@@ -4,6 +4,7 @@
     v-if="!loading"
     :header="$tr('header')"
     :description="$tr('description')"
+    :uniqueUsernameValidator="uniqueUsernameValidator"
     @click_next="handleClickNext"
   >
     <template v-slot:aboveform>
@@ -23,7 +24,7 @@
       />
 
       <!-- Prompt that shows when full superuser form is showing -->
-      <p v-if="!existingUser">
+      <p v-if="!importedUserIsSelected">
         {{ $tr('accountFacilityExplanation', { facility: facility.name }) }}
       </p>
     </template>
@@ -33,7 +34,7 @@
       is selected
    -->
     <template
-      v-if="existingUser"
+      v-if="importedUserIsSelected"
       v-slot:form
     >
       <p>
@@ -92,7 +93,7 @@
       };
     },
     computed: {
-      existingUser() {
+      importedUserIsSelected() {
         return this.selected.value !== CREATE_NEW_SUPER_ADMIN;
       },
       dropdownOptions() {
@@ -118,6 +119,9 @@
       this.fetchFacilityAdmins();
     },
     methods: {
+      uniqueUsernameValidator(username) {
+        return !this.facilityAdmins.find(admin => admin.username === username);
+      },
       fetchFacilityAdmins() {
         this.$store
           .dispatch('getFacilityAdmins')
@@ -136,29 +140,48 @@
           this.$refs.password.resetAndFocus();
         }
       },
-      grantPermissions(data) {
+      grantPermissions() {
         this.error = false;
-        return this.$store.dispatch('grantSuperuserPermisions', data);
-      },
-      handleClickNext() {
-        this.shouldValidate = true;
-        if (this.existingUser) {
-          if (this.passwordValid) {
-            this.grantPermissions({
-              user_id: this.selected.value,
+        if (!this.passwordValid) {
+          this.$refs.password.focus();
+          return;
+        }
+        this.$store
+          .dispatch('grantSuperuserPermissions', {
+            user_id: this.selected.value,
+            password: this.password,
+          })
+          .then(() => {
+            this.$emit('update:superuser', {
+              username: this.selected.label,
               password: this.password,
-            })
-              .then(() => {
-                this.$emit('click_next');
-              })
-              .catch(() => {
-                this.error = true;
-              });
-          } else {
-            this.$refs.password.focus();
-          }
+            });
+            this.$emit('click_next');
+          })
+          .catch(() => {
+            this.error = true;
+          });
+      },
+      createSuperuser(data) {
+        return this.$store
+          .dispatch('createSuperuser', data)
+          .then(() => {
+            this.$emit('update:superuser', {
+              username: data.username,
+              password: data.password,
+            });
+            this.$emit('click_next');
+          })
+          .catch(() => {
+            this.error = true;
+          });
+      },
+      handleClickNext(data) {
+        this.shouldValidate = true;
+        if (this.importedUserIsSelected) {
+          this.grantPermissions();
         } else {
-          this.$emit('click_next');
+          this.createSuperuser(data);
         }
       },
     },
