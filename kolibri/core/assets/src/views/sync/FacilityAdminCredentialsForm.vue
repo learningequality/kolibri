@@ -41,10 +41,6 @@
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
 
-  function mockResponse(fail = false) {
-    return fail ? Promise.reject() : Promise.resolve();
-  }
-
   export default {
     name: 'FacilityAdminCredentialsForm',
     components: {
@@ -80,12 +76,12 @@
       prompt() {
         if (this.singleFacility) {
           return this.$tr('adminCredentialsPromptOneFacility', {
-            device: this.device.name,
+            device: this.device.device_name,
           });
         } else {
           return this.$tr('adminCredentialsPromptMultipleFacilities', {
             facility: this.facility.name,
-            device: this.device.name,
+            device: this.device.device_name,
           });
         }
       },
@@ -98,12 +94,18 @@
       submitCredentials() {
         this.shouldValidate = true;
         if (this.formIsValid) {
-          return mockResponse()
+          return this.startPeerImportTask({
+            facility: this.facility.id,
+            baseurl: this.device.base_url,
+            username: this.username,
+            password: this.password,
+          })
             .then(() => {
               return true;
             })
             .catch(() => {
               this.error = true;
+              this.$refs.username.focus();
               return false;
             });
         } else {
@@ -121,8 +123,11 @@
       adminCredentialsPromptMultipleFacilities: {
         message:
           "Enter the username and password for a facility admin of '{facility}' or a super admin of '{device}'",
-        context:
-          '\n        Menu description text: users must provide the facility admin credentials\n        for a selected source facility, or super admin credentials for the source\n        device, before they are able to import\n      ',
+        context: `
+            Menu description text: users must provide the facility admin credentials
+            for a selected source facility, or super admin credentials for the source
+            device, before they are able to import
+          `,
       },
       adminCredentialsPromptOneFacility: {
         message:

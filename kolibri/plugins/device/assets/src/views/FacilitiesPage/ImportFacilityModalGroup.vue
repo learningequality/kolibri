@@ -5,7 +5,7 @@
     <SelectAddressModalGroup
       v-if="atSelectAddress"
       @cancel="$emit('cancel')"
-      @submit="handleSubmit"
+      @submit="handleAddressSubmit"
     />
 
     <!-- Select Facility Step -->
@@ -14,9 +14,12 @@
       :title="getCommonSyncString('selectFacilityTitle')"
       :submitText="coreString('continueAction')"
       :cancelText="coreString('cancelAction')"
-      @submit="handleSubmit"
+      @submit="handleFacilitySubmit"
       @cancel="$emit('cancel')"
     >
+      <p>
+        {{ deviceInfoMsg }}
+      </p>
       <RadioButtonGroup
         v-if="atSelectFacility"
         :items="facilities"
@@ -33,10 +36,11 @@
       :title="getCommonSyncString('adminCredentialsTitle')"
       :submitText="coreString('continueAction')"
       :cancelText="coreString('cancelAction')"
-      @submit="handleSubmit"
+      @submit="handleCredentialsSubmit"
       @cancel="$emit('cancel')"
     >
       <FacilityAdminCredentialsForm
+        ref="credentialsForm"
         v-bind="{ facility, device }"
       />
     </KModal>
@@ -55,20 +59,11 @@
     RadioButtonGroup,
   } from 'kolibri.coreVue.componentSets.sync';
 
-  const SELECT_ADDRESS = 'SELECT_ADDRESS';
-  const SELECT_FACILITY = 'SELECT_FACILITY';
-  const CREDENTIALS = 'CREDENTIALS';
-
-  const fakeFacilities = [
-    {
-      id: 'D81C',
-      name: 'Atkinson Hall',
-    },
-    {
-      id: '2A59',
-      name: 'Price Center',
-    },
-  ];
+  const Steps = Object.freeze({
+    SELECT_ADDRESS: 'SELECT_ADDRESS',
+    SELECT_FACILITY: 'SELECT_FACILITY',
+    CREDENTIALS: 'CREDENTIALS',
+  });
 
   export default {
     name: 'ImportFacilityModalGroup',
@@ -81,45 +76,50 @@
     props: {},
     data() {
       return {
-        step: SELECT_ADDRESS,
-        facility: {
-          name: 'York Hall',
-          id: '81b2',
-        },
-        device: {
-          name: 'LINUX 3',
-          id: 'ee31',
-        },
-        facilities: fakeFacilities,
+        step: Steps.SELECT_ADDRESS,
+        facility: null,
+        device: null,
+        facilities: [],
         selectedFacilityId: '',
-        address: {},
       };
     },
     computed: {
       atSelectAddress() {
-        return this.step === SELECT_ADDRESS;
+        return this.step === Steps.SELECT_ADDRESS;
       },
       atSelectFacility() {
-        return this.step === SELECT_FACILITY;
+        return this.step === Steps.SELECT_FACILITY;
       },
       atCredentials() {
-        return this.step === CREDENTIALS;
+        return this.step === Steps.CREDENTIALS;
+      },
+      deviceInfoMsg() {
+        if (this.atSelectFacility) {
+          return this.coreString('commaSeparatedPair', {
+            item1: this.formatNameAndId(this.device.device_name, this.device.id),
+            item2: this.device.base_url,
+          });
+        }
+        return '';
       },
     },
     methods: {
-      handleSubmit(data = {}) {
-        if (this.atSelectAddress) {
-          this.address = { ...data };
-          this.step = SELECT_FACILITY;
-        } else if (this.atSelectFacility) {
-          this.step = CREDENTIALS;
-        } else if (this.atCredentials) {
-          this.authenticateCredentials();
-        }
+      handleAddressSubmit(device) {
+        this.device = { ...device };
+        this.step = Steps.SELECT_FACILITY;
+        this.fetchNetworkLocationFacilities(this.device.id).then(data => {
+          this.facilities = [...data.facilities];
+        });
       },
-      authenticateCredentials() {
-        return Promise.resolve().then(() => {
-          this.$emit('cancel');
+      handleFacilitySubmit() {
+        this.facility = this.facilities.find(facility => facility.id === this.selectedFacilityId);
+        this.step = Steps.CREDENTIALS;
+      },
+      handleCredentialsSubmit() {
+        this.$refs.credentialsForm.submitCredentials().then(taskId => {
+          if (taskId) {
+            this.$emit('success', taskId);
+          }
         });
       },
     },

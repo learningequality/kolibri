@@ -91,7 +91,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             superuser.set_password(superuser_data["password"])
             superuser.save()
             facility.add_role(superuser, ADMIN)
-            DevicePermissions.objects.create(user=superuser, is_superuser=True)
+            DevicePermissions.objects.create(user=superuser, is_superuser=True, can_manage_content=True)
             language_id = validated_data.pop("language_id")
             allow_guest_access = validated_data.pop("allow_guest_access")
             if allow_guest_access is None:

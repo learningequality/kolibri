@@ -77,9 +77,30 @@ export default {
         return response.data;
       });
     },
+    startPeerSyncTask(data) {
+      return FacilityTaskResource.startpeerfacilitysync(data).then(response => {
+        return response.data;
+      });
+    },
+    startPeerImportTask(data) {
+      const { facility, baseurl, username, password } = data;
+      return FacilityTaskResource.startpeerfacilityimport({
+        facility,
+        baseurl,
+        username,
+        password,
+      }).then(response => {
+        return response.data;
+      });
+    },
     fetchKdpSyncTasks() {
       return FacilityTaskResource.fetchCollection({ force: true }).then(tasks => {
         return tasks.filter(task => (task.type = 'SYNCDATAPORTAL'));
+      });
+    },
+    fetchImportTasks() {
+      return FacilityTaskResource.fetchCollection({ force: true }).then(tasks => {
+        return tasks.filter(task => (task.type = 'SYNCPEER/PULL'));
       });
     },
     cleanupKdpSyncTasks(tasks, cb) {

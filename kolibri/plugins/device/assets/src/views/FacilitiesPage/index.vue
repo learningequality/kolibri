@@ -70,7 +70,7 @@
 
     <ImportFacilityModalGroup
       v-if="showImportModal"
-      @submit="showImportModal = false"
+      @success="handleStartImportSuccess"
       @cancel="showImportModal = false"
     />
 
@@ -225,6 +225,10 @@
       handleStartSyncSuccess() {
         this.pollSyncTasks();
         this.facilityForSync = null;
+      },
+      handleStartImportSuccess() {
+        this.pollSyncTasks();
+        this.showImportModal = false;
       },
       pollSyncTasks() {
         this.fetchKdpSyncTasks()
