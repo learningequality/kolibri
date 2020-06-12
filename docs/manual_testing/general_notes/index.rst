@@ -93,11 +93,64 @@ Generating user data
 
 For manual testing, it is sometimes helpful to have generated user data, particularly for Coach and Admin facing functionality.
 
-In order to do this, a management command is available::
+In order to do this, a management command is available
 
-  kolibri manage generateuserdata
+.. code-block:: bash
 
-This will generate user data for the each currently existing channel on the system. Use the `--help` flag for options.
+    kolibri manage generateuserdata
+
+This will generate user data for each channel on the system.  To see available options, use
+
+.. code-block:: bash
+
+    kolibri manage help generateuserdata
+
+
+Examples for Kolibri with imported channels
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The command ``kolibri manage generateuserdata`` (without any arguments) creates 1 facility, with 2 classes, and 20 users each class.  It will then create sample data up to maximum of 2 channels. Then it will create 5 lessons per class, 2 exams, and randomize the number of interactions per channel for learners.
+
+Create 2 facilities, with 2 classes per facility, with 20 learners per class.
+
+.. code-block:: bash
+
+    kolibri manage generateuserdata --facilities 2 --classes 2 --users 20
+
+Same as above, but prepend their names with "VM1" - useful for testing P2P syncing features.
+
+.. code-block:: bash
+
+    kolibri manage generateuserdata --facilities 2 --classes 2 --users 20 --device-name VM1
+
+Create 2 facilities, with 2 classes per facility, with 20 learners per class, 2 interactions per learner.
+
+.. code-block:: bash
+
+    kolibri manage generateuserdata --facilities 2 --classes 2 --users 20 --num-content-items 2
+
+
+Examples for a fresh Kolibri install (no imported channels)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For a fresh Kolibri installation, use this to automatically create superusers and skip on-boarding.  The super user username is ``superuser`` and password is ``password``.
+
+.. code-block:: bash
+
+    kolibri manage generateuserdata --no-onboarding
+
+Create 2 facilities, with 2 classes per facility, with 20 learners per class, 2 interactions per learner.
+
+.. code-block:: bash
+
+    kolibri manage generateuserdata --facilities 2 --classes 2 --users 20 --num-content-items 2
+
+Notes
+~~~~~
+
+1. If there are existing facilities, it will only create the remaining ones.  So if you already have one facility, specifying ``--facilities 2`` will create one more facility and its subsequent sample data.
+1. Use the `--max-channels` option to limit the number of channels for learners to interact with.  This saves a lot of time specially on large data samples.
+1. The ``--no-onboarding`` argument creates a super user for each facility with username ``superuser`` and password ``password``.
 
 
 Collecting client and server errors using Sentry
