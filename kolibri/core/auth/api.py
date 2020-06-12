@@ -18,6 +18,9 @@ from django.db import transaction
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
+from django.db.models import Subquery
+from django.db.models import TextField
+from django.db.models.functions import Cast
 from django.db.models.query import F
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
@@ -26,6 +29,7 @@ from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
+from morango.models import TransferSession
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
@@ -154,13 +158,6 @@ class FacilityDatasetViewSet(ValuesViewset):
     )
 
     field_map = {"allow_guest_access": lambda x: allow_guest_access()}
-
-    def annotate_queryset(self, queryset):
-        return queryset.annotate(
-            num_users_in_facility=SQCount(
-                FacilityUser.objects.filter(facility=OuterRef("collection")), field="id"
-            )
-        )
 
     def get_queryset(self):
         queryset = FacilityDataset.objects.filter(
@@ -330,11 +327,38 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     filter_fields = ["user", "collection", "kind", "user_ids"]
 
 
-class FacilityViewSet(viewsets.ModelViewSet):
+class FacilityViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
+
+    def _last_synced(instance):
+        return (
+            Facility.objects.filter(id=instance["id"])
+            .annotate(casted_dataset_id=Cast("dataset_id", TextField()))
+            .annotate(
+                last_synced=Subquery(
+                    TransferSession.objects.filter(filter=instance["dataset"])
+                    .order_by("-last_activity_timestamp")
+                    .values("last_activity_timestamp")[:1]
+                )
+            )
+            .values_list("last_synced", flat=True)[0]
+        )
+
+    values = (
+        "id",
+        "name",
+        "dataset",
+        "num_classrooms",
+        "num_users",
+    )
+
+    field_map = {
+        "default": lambda x: Facility.get_default_facility().id == x["id"],
+        "last_synced": _last_synced,
+    }
 
     def get_queryset(self, prefetch=True):
         queryset = Facility.objects.all()
@@ -343,6 +367,17 @@ class FacilityViewSet(viewsets.ModelViewSet):
             # to prevent n queries when n facilities are queried
             return queryset.select_related("dataset")
         return queryset
+
+    def annotate_queryset(self, queryset):
+        return queryset.annotate(
+            num_users=SQCount(
+                FacilityUser.objects.filter(facility=OuterRef("id")), field="id"
+            )
+        ).annotate(
+            num_classrooms=SQCount(
+                Classroom.objects.filter(parent=OuterRef("id")), field="id"
+            )
+        )
 
 
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):

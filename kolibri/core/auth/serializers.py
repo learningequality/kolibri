@@ -2,11 +2,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from django.db.models import OuterRef
-from django.db.models import Subquery
-from django.db.models import TextField
-from django.db.models.functions import Cast
-from morango.models import TransferSession
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -93,38 +88,15 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
 
 class FacilitySerializer(serializers.ModelSerializer):
     dataset = FacilityDatasetSerializer(read_only=True)
-    default = serializers.SerializerMethodField()
-    last_synced = serializers.SerializerMethodField()
-    num_classrooms = serializers.SerializerMethodField()
 
     class Meta:
         model = Facility
         extra_kwargs = {"id": {"read_only": True}, "dataset": {"read_only": True}}
-        fields = ("id", "name", "dataset", "default", "last_synced", "num_classrooms")
-
-    def get_default(self, instance):
-        return instance == Facility.get_default_facility()
-
-    def get_last_synced(self, instance):
-
-        # when facilities are synced, the dataset_id is used as the filter
-        last_synced = (
-            TransferSession.objects.filter(filter=OuterRef("casted_dataset_id"))
-            .order_by("-last_activity_timestamp")
-            .values("last_activity_timestamp")[:1]
+        fields = (
+            "id",
+            "name",
+            "dataset",
         )
-
-        # get last synced date
-        last_synced_date = (
-            Facility.objects.filter(id=instance.id)
-            .annotate(casted_dataset_id=Cast("dataset_id", TextField()))
-            .annotate(last_synced=Subquery(last_synced))
-            .values_list("last_synced", flat=True)
-        )
-        return last_synced_date[0]
-
-    def get_num_classrooms(self, instance):
-        return Classroom.objects.filter(parent=instance).count()
 
 
 class PublicFacilitySerializer(serializers.ModelSerializer):
