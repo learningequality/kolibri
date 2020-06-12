@@ -21,10 +21,11 @@ export default {
   actions: {
     fetchUsersForFacilities(store, payload) {
       const getParams = { member_of: payload };
+      console.log(payload);
 
       FacilityUserResource.getListEndpoint('users_for_facilities', getParams)
         .then(response => {
-          store.commit('SET_SELECTED_FACILITY_USERS', JSON.parse(response.data)['users']);
+          store.commit('SET_SELECTED_FACILITY_USERS', JSON.parse(response.data));
         })
         .catch(e => {
           console.error(e);

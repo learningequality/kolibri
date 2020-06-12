@@ -372,7 +372,7 @@ export function getFacilityConfig(store, facilityId) {
     return Promise.resolve(redirectBrowser());
   }
   let datasetPromise;
-  if (selectedFacility && typeof selectedFacility.dataset === 'object') {
+  if (selectedFacility && typeof selectedFacility.dataset !== 'object') {
     datasetPromise = Promise.resolve([selectedFacility.dataset]);
   } else {
     datasetPromise = FacilityDatasetResource.fetchCollection({
