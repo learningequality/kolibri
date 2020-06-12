@@ -15,6 +15,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models.query import F
@@ -30,7 +31,6 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from .constants import collection_kinds
@@ -50,13 +50,14 @@ from .serializers import ClassroomSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
 from .serializers import FacilityUserSerializer
-from .serializers import FacilityUsersForFacilitiesSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ValuesViewset
+from kolibri.core.decorators import MissingRequiredParamsException
+from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.logger.models import UserSessionLog
@@ -131,10 +132,35 @@ class KolibriAuthPermissions(permissions.BasePermission):
             return False
 
 
-class FacilityDatasetViewSet(viewsets.ModelViewSet):
+class FacilityDatasetViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
     serializer_class = FacilityDatasetSerializer
+
+    values = (
+        "id",
+        "learner_can_edit_username",
+        "learner_can_edit_name",
+        "learner_can_edit_password",
+        "learner_can_sign_up",
+        "learner_can_delete_account",
+        "learner_can_login_with_no_password",
+        "show_download_button_in_learn",
+        "description",
+        "location",
+        "registered",
+        "preset",
+        "num_users_in_facility",
+    )
+
+    field_map = {"allow_guest_access": lambda x: allow_guest_access()}
+
+    def annotate_queryset(self, queryset):
+        return queryset.annotate(
+            num_users_in_facility=SQCount(
+                FacilityUser.objects.filter(facility=OuterRef("collection")), field="id"
+            )
+        )
 
     def get_queryset(self):
         queryset = FacilityDataset.objects.filter(
@@ -187,16 +213,25 @@ class FacilityUserViewSet(ValuesViewset):
 
     @list_route(methods=["get"])
     def users_for_facilities(self, request):
-        facility_ids = dict(request.GET)["member_of"]
+        if "member_of" not in request.GET:
+            raise MissingRequiredParamsException(
+                "member_of is required for this endpoint"
+            )
 
-        # The GET params come as an array with one comma-separated str if
-        # there are more than 1 facility_id being requested
-        if "," in facility_ids[0]:
-            facility_ids = facility_ids[0].split(",")
+        facility_ids = request.GET["member_of"].split(",")
 
-        users = FacilityUser.objects.filter(facility__in=facility_ids)
-        serialized = FacilityUsersForFacilitiesSerializer(users)
-        return Response(JSONRenderer().render(serialized.data))
+        users = (
+            FacilityUser.objects.filter(facility__in=facility_ids)
+            .annotate(is_learner=Exists(Role.objects.filter(user=OuterRef("id"))))
+            .values("id", "username", "facility_id", "is_learner", "password")
+        )
+
+        def sanitize_users(user):
+            password = user.pop("password")
+            user["needs_password"] = password == "NOT_SPECIFIED" or not password
+            return user
+
+        return Response(list(map(sanitize_users, users)))
 
     
     def consolidate(self, items, queryset):

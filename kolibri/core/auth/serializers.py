@@ -19,7 +19,6 @@ from .models import LearnerGroup
 from .models import Membership
 from .models import Role
 from kolibri.core import error_constants
-from kolibri.core.device.utils import allow_guest_access
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -74,9 +73,6 @@ class MembershipSerializer(serializers.ModelSerializer):
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):
-    allow_guest_access = serializers.SerializerMethodField()
-    num_users_in_facility = serializers.SerializerMethodField()
-
     class Meta:
         model = FacilityDataset
         fields = (
@@ -90,39 +86,9 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
             "show_download_button_in_learn",
             "description",
             "location",
-            "allow_guest_access",
             "registered",
             "preset",
-            "num_users_in_facility",
         )
-
-    def get_allow_guest_access(self, instance):
-        return allow_guest_access()
-
-    def get_num_users_in_facility(self, instance):
-        facility = Facility.objects.get(dataset_id=instance.id)
-        return FacilityUser.objects.filter(facility=facility).count()
-
-
-class FacilityUsersForFacilitiesSerializer(serializers.Serializer):
-    users = serializers.SerializerMethodField()
-
-    class Meta:
-        fields = "users"
-
-    def get_users(self, users):
-        def sanitize_users(user):
-            return {
-                "id": user.id,
-                "username": user.username,
-                "facility_id": user.facility_id,
-                "is_learner": len(user.get_roles_for_user(user)) == 0,
-                "needs_password": (
-                    user.password == "NOT_SPECIFIED" or not user.password
-                ),
-            }
-
-        return list(map(sanitize_users, users))
 
 
 class FacilitySerializer(serializers.ModelSerializer):
