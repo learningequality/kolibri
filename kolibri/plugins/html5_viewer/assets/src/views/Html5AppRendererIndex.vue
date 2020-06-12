@@ -103,7 +103,7 @@
             bottom: 0,
           };
         }
-        return { height: '560px' };
+        return { height: '620px', 'min-width': '980px' };
       },
     },
     watch: {
