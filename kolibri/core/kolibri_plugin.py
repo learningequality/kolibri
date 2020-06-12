@@ -18,6 +18,7 @@ from django_js_reverse.rjsmin import jsmin
 import kolibri
 from kolibri.core.content.utils.paths import get_content_storage_url
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.theme_hook import ThemeHook
@@ -107,6 +108,8 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             "fullCSSFileBasic": full_file.format(
                 static_root, language_code, "basic", kolibri.__version__
             ),
+            "allowRemoteAccess": allow_other_browsers_to_connect()
+            or not interface.enabled,
             "appCapabilities": interface.capabilities,
             "contentCacheKey": ContentCacheKey.get_cache_key(),
             "languageGlobals": self.language_globals(),

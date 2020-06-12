@@ -60,7 +60,7 @@ def allow_peer_unlisted_channel_import():
 
 
 def allow_other_browsers_to_connect():
-    return get_device_setting("allow_other_browsers_to_connect", False)
+    return get_device_setting("allow_other_browsers_to_connect", True)
 
 
 def set_device_settings(**kwargs):
