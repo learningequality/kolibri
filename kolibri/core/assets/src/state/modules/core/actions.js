@@ -357,15 +357,6 @@ export function saveDismissedNotification(store, notification_id) {
     });
 }
 
-export function getRemoteAccessPermission(store) {
-  return client({
-    method: 'POST',
-    url: urls['kolibri:kolibri.plugins.device:allowremoteaccess'](),
-  }).then(response => {
-    store.commit('SET_REMOTE_BROWSER_PERMISSION', response.data.allowed);
-  });
-}
-
 export function getFacilities(store) {
   return FacilityResource.fetchCollection().then(facilities => {
     store.commit('CORE_SET_FACILITIES', [...facilities]);

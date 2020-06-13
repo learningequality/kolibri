@@ -1,4 +1,4 @@
-import { ContentNodeSlimResource, ContentNodeProgressResource } from 'kolibri.resources';
+import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniq from 'lodash/uniq';
@@ -8,7 +8,7 @@ import { contentState } from '../coreLearn/utils';
 
 // User-agnostic recommendations
 function _getPopular(store) {
-  return ContentNodeSlimResource.fetchPopular({
+  return ContentNodeResource.fetchPopular({
     user_kind: store.getters.getUserKind,
   });
 }
@@ -16,7 +16,7 @@ function _getPopular(store) {
 // User-specific recommendations
 function _getNextSteps(store) {
   if (store.getters.isUserLoggedIn) {
-    return ContentNodeSlimResource.fetchNextSteps({
+    return ContentNodeResource.fetchNextSteps({
       user_kind: store.getters.getUserKind,
     });
   }
@@ -25,7 +25,7 @@ function _getNextSteps(store) {
 
 function _getResume(store) {
   if (store.getters.isUserLoggedIn) {
-    return ContentNodeSlimResource.fetchResume({
+    return ContentNodeResource.fetchResume({
       user_kind: store.getters.getUserKind,
     });
   }

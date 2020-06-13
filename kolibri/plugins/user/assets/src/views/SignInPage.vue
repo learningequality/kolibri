@@ -90,7 +90,9 @@
           />{{ coreString('goBackAction') }}
         </KButton>
 
-        <p>{{ $tr("greetUser", { user: selectedListUser.username }) }}</p>
+        <p v-if="selectedListUser.username">
+          {{ $tr("greetUser", { user: selectedListUser.username }) }}
+        </p>
 
         <form ref="form" class="login-form" @submit.prevent="signIn">
           <UiAlert

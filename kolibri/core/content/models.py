@@ -54,15 +54,24 @@ class ContentTag(base_models.ContentTag):
 
 
 class ContentNodeQueryset(TreeQuerySet, FilterByUUIDQuerysetMixin):
-    def dedupe_by_content_id(self):
+    def dedupe_by_content_id(self, use_distinct=True):
+        # Cannot use distinct if queryset is also going to use annotate,
+        # so optional use_distinct flag can be used to fallback to a subquery
         # remove duplicate content nodes based on content_id
-        if connection.vendor == "sqlite":
-            # adapted from https://code.djangoproject.com/ticket/22696
-            deduped_ids = (
-                self.values("content_id")
-                .annotate(node_id=Min("id"))
-                .values_list("node_id", flat=True)
-            )
+        if connection.vendor == "sqlite" or not use_distinct:
+            if connection.vendor == "postgresql":
+                # Create a subquery of all contentnodes deduped by content_id
+                # to avoid calling distinct on an annotated queryset.
+                deduped_ids = self.model.objects.order_by("content_id").distinct(
+                    "content_id"
+                )
+            else:
+                # adapted from https://code.djangoproject.com/ticket/22696
+                deduped_ids = (
+                    self.values("content_id")
+                    .annotate(node_id=Min("id"))
+                    .values_list("node_id", flat=True)
+                )
             return self.filter_by_uuids(deduped_ids)
 
         # when using postgres, we can call distinct on a specific column
@@ -137,6 +146,15 @@ class Language(base_models.Language):
         return self.lang_name or ""
 
 
+def get_download_filename(title, preset, extension):
+    """
+    Return a valid filename to be downloaded as.
+    """
+    filename = "{} ({}).{}".format(title, preset, extension)
+    valid_filename = get_valid_filename(filename)
+    return valid_filename
+
+
 class File(base_models.File):
     """
     The second to bottom layer of the contentDB schema, defines the basic building brick for content.
@@ -168,10 +186,9 @@ class File(base_models.File):
         """
         Return a valid filename to be downloaded as.
         """
-        title = self.contentnode.title
-        filename = "{} ({}).{}".format(title, self.get_preset(), self.get_extension())
-        valid_filename = get_valid_filename(filename)
-        return valid_filename
+        return get_download_filename(
+            self.contentnode.title, self.get_preset(), self.get_extension()
+        )
 
     def get_download_url(self):
         """

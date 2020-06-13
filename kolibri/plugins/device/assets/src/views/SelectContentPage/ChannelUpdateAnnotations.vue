@@ -35,7 +35,7 @@
       newResourcesInTopic: {
         message: '{count} {count, plural, one {new} other {new}}',
         context:
-          'Label that is shown on topics with resources that were added after upgrading the channel',
+          "Refers to 'resources'; will appear as a label displayed on topics with new resources that were added after upgrading the channel",
       },
       inQueueForImport: {
         message: 'In queue for import',

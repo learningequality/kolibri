@@ -113,8 +113,7 @@
       ...mapState(['pageName']),
       userIsAuthorized() {
         return (
-          (plugin_data.allowGuestAccess && this.$store.getters.allowRemoteAccess) ||
-          this.isUserLoggedIn
+          (plugin_data.allowGuestAccess && this.$store.getters.allowAccess) || this.isUserLoggedIn
         );
       },
       currentPage() {
