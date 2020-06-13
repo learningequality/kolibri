@@ -7,13 +7,13 @@ import django.conf.locale
 
 from .base import *  # noqa isort:skip @UnusedWildImport
 
-LANGUAGES = [("ach-ug", "In context translation")]  # noqa
+LANGUAGES = [("ach-ug", "In-context translation")]  # noqa
 
 EXTRA_LANG_INFO = {
     "ach-ug": {
         "bidi": False,
         "code": "ach-ug",
-        "name": "In context translation",
+        "name": "In-context translation",
         "name_local": "Language Name",
     }
 }
