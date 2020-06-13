@@ -613,7 +613,7 @@ export default class SCORM extends BaseShim {
   }
 
   __calculateProgress() {
-    const score = this.data.cmi.core.score;
+    const score = getByKeyPath(this.data, 'cmi.core.score', SCHEMA, self.userData);
     if (score) {
       // If min and max are not set, raw will be a value in the range 0-100. Source:
       // https://support.scorm.com/hc/en-us/articles/206166466-cmi-score-raw-whole-numbers-
@@ -622,7 +622,7 @@ export default class SCORM extends BaseShim {
       const raw = Number(isNaN(score.raw) ? min : score.raw);
       return Math.max(Math.min((raw - min) / (max - min), 1), 0);
     }
-    const lessonStatus = this.data.cmi.core.lesson_status;
+    const lessonStatus = getByKeyPath(this.data, 'cmi.core.lesson_status', SCHEMA, self.userData);
     if (Object.prototype.hasOwnProperty.call(statusProgressMap, lessonStatus)) {
       return statusProgressMap[lessonStatus];
     }
