@@ -30,5 +30,5 @@
   "TranscriptCue.textLabel": "Văn bản chú thích đánh dấu bản chép lại",
   "TranscriptCue.timeLabel": "Thời gian bắt đầu đánh dấu bản chép lại",
   "TranscriptCue.title": "Tìm đến {startTime}",
-  "TranscriptMenuItem.transcript": "Bản chép lại"
+  "TranscriptMenuItem.transcript": "Chuyển thành văn bản"
 }
