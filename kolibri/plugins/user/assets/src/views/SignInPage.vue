@@ -566,6 +566,13 @@
       greetUser: 'Hi, {user}',
       needToMakeNewPasswordLabel: 'Hi, {user}. You need to set a new password for your account.',
       nextLabel: 'Next',
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      // stub out some extra strings
+      signingInToFacilityAsUserLabel: "Signing into '{facility}' as '{user}'",
+      changeUser: 'Change user',
+      changeFacility: 'Change facility',
+      multiFacilitySignInError: 'Incorrect username, password, or facility',
+      /* eslint-enable */
     },
   };
 
