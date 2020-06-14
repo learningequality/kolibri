@@ -51,7 +51,11 @@
         @change="allowOtherBrowsersToConnect = $event"
       >
         <span> {{ $tr('allowExternalConnectionsApp') }}
-          <p v-if="allowOtherBrowsersToConnect">
+          <p
+            v-if="allowOtherBrowsersToConnect"
+            class="description"
+            :style="{ color: $themeTokens.annotation }"
+          >
             {{ $tr('allowExternalConnectionsAppDescription') }}
           </p>
         </span>
@@ -291,6 +295,11 @@
 
   .save-button {
     margin-left: 0;
+  }
+  .description {
+    width: 100%;
+    font-size: 12px;
+    line-height: normal;
   }
 
   .ul-reset {
