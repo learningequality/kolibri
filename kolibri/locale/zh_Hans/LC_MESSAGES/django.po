@@ -263,4 +263,3 @@ msgstr "OpenID提供方授权"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "请求许可"
-

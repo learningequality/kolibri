@@ -263,4 +263,3 @@ msgstr "Open Id 제공자 권한"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "권한 요청"
-
