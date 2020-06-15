@@ -80,7 +80,7 @@ def read_channel_metadata_from_db_file(channeldbpath):
     from kolibri.core.content.models import ChannelMetadata
 
     source = Bridge(sqlite_file_path=channeldbpath)
-
+    import ipdb; ipdb.set_trace()
     ChannelMetadataClass = source.get_class(ChannelMetadata)
 
     source_channel_metadata = source.session.query(ChannelMetadataClass).all()[0]
@@ -123,6 +123,7 @@ def get_channels_for_data_folder(datafolder):
             "id": channel.id,
             "name": channel.name,
             "description": channel.description,
+            "tagline": channel.tagline,
             "thumbnail": channel.thumbnail,
             "version": channel.version,
             "root": channel.root_id,

@@ -223,6 +223,7 @@ class ChannelMetadata(models.Model):
     id = UUIDField(primary_key=True)
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True)
+    tagline = models.CharField(max_length=150, blank=True, null=True)
     author = models.CharField(max_length=400, blank=True)
     version = models.IntegerField(default=0)
     thumbnail = models.TextField(blank=True)

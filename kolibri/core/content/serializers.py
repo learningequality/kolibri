@@ -55,6 +55,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
         fields = (
             "author",
             "description",
+            "tagline",
             "id",
             "last_updated",
             "lang_code",
@@ -106,6 +107,7 @@ class PublicChannelSerializer(serializers.ModelSerializer):
             "language",
             "included_languages",
             "description",
+            "tagline",
             "total_resource_count",
             "version",
             "published_size",
