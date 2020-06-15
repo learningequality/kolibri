@@ -44,7 +44,7 @@
     </div>
 
     <div
-      v-if="progress !== undefined"
+      v-if="progress !== undefined && progress !== 0"
       class="progress-bar-wrapper"
       :style="{ backgroundColor: $themePalette.grey.v_200 }"
     >

@@ -1,0 +1,80 @@
+<template>
+
+  <KFixedGrid numCols="2">
+    <KFixedGridItem
+      v-for="content in contents"
+      :key="content.id"
+      :span="windowIsLarge ? 1 : 2"
+    >
+      <ChannelCard
+        :isMobile="windowIsSmall"
+        :title="content.title"
+        :thumbnail="content.thumbnail"
+        :kind="content.kind"
+        :tagline="content.description"
+        :progress="content.progress || 0"
+        :numCoachContents="content.num_coach_contents"
+        :link="genContentLink(content.id, content.kind)"
+        :contentId="content.content_id"
+        :copiesCount="content.copies_count"
+        @openCopiesModal="openCopiesModal"
+      />
+    </KFixedGridItem>
+
+    <CopiesModal
+      v-if="modalIsOpen"
+      :uniqueId="uniqueId"
+      :sharedContentId="sharedContentId"
+      @submit="modalIsOpen = false"
+    />
+  </KFixedGrid>
+
+</template>
+
+
+<script>
+
+  import { validateLinkObject } from 'kolibri.utils.validators';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import ChannelCard from './ChannelCard';
+  import CopiesModal from './CopiesModal';
+
+  export default {
+    name: 'ChannelCardGroupGrid',
+    components: {
+      ChannelCard,
+      CopiesModal,
+    },
+    mixins: [responsiveWindowMixin],
+    props: {
+      contents: {
+        type: Array,
+        required: true,
+      },
+      genContentLink: {
+        type: Function,
+        validator(value) {
+          return validateLinkObject(value(1, 'exercise'));
+        },
+        default: () => {},
+        required: false,
+      },
+    },
+    data: () => ({
+      modalIsOpen: false,
+      sharedContentId: null,
+      uniqueId: null,
+    }),
+    methods: {
+      openCopiesModal(contentId) {
+        this.sharedContentId = contentId;
+        this.uniqueId = this.contents.find(content => content.content_id === contentId).id;
+        this.modalIsOpen = true;
+      },
+    },
+  };
+
+</script>
+
+
+<style lang="scss" scoped></style>

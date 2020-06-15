@@ -5,7 +5,7 @@
       :title="coreString('channelsLabel')"
       class="visuallyhidden"
     />
-    <ContentCardGroupGrid
+    <ChannelCardGroupGrid
       v-if="channels.length"
       class="grid"
       :contents="channels"
@@ -22,7 +22,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import PageHeader from './PageHeader';
-  import ContentCardGroupGrid from './ContentCardGroupGrid';
+  import ChannelCardGroupGrid from './ChannelCardGroupGrid';
 
   export default {
     name: 'ChannelsPage',
@@ -33,7 +33,7 @@
     },
     components: {
       PageHeader,
-      ContentCardGroupGrid,
+      ChannelCardGroupGrid,
     },
     mixins: [commonCoreStrings],
     computed: {
