@@ -227,7 +227,6 @@ class FacilityUserViewSet(ValuesViewset):
 
         return Response(list(map(sanitize_users, users)))
 
-    
     def consolidate(self, items, queryset):
         output = []
         items = sorted(items, key=lambda x: x["id"])
