@@ -209,18 +209,20 @@
   }
 
   .subtitle {
-    margin: 0;
-  }
-
-  .subtitle {
     position: absolute;
     top: 38px;
     right: $margin;
     left: $margin;
+    margin: 0;
     overflow: hidden;
     font-size: 14px;
     text-overflow: ellipsis;
     white-space: nowrap;
+
+    .no-footer {
+      top: unset;
+      bottom: $margin;
+    }
   }
 
   .card-footer {

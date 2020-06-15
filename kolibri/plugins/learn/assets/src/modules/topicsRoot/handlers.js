@@ -25,7 +25,7 @@ export function showChannels(store) {
               // Namely thumbnail, description and tagline (so far)
               node.thumbnail = channel.thumbnail;
               node.description = channel.description;
-              node.tagline = node.tagline;
+              node.tagline = channel.tagline;
               return node;
             }
           })
