@@ -330,13 +330,9 @@ class FacilityViewSet(ValuesViewset):
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
 
-    values = (
-        "id",
-        "name",
-        "num_classrooms",
-        "num_users",
-        "last_synced",
-        # dataset keys
+    facility_values = ["id", "name", "num_classrooms", "num_users", "last_synced"]
+
+    dataset_keys = [
         "dataset__id",
         "dataset__learner_can_edit_username",
         "dataset__learner_can_edit_name",
@@ -349,34 +345,17 @@ class FacilityViewSet(ValuesViewset):
         "dataset__location",
         "dataset__registered",
         "dataset__preset",
-    )
+    ]
 
-    def _map_dataset(facility):
+    values = tuple(facility_values + dataset_keys)
+
+    # map function to pop() all of the dataset__ items into an dict
+    # then assign that new dict to the `dataset` key of the facility
+    def _map_dataset(facility, dataset_keys=dataset_keys):
         dataset = {}
-        dataset["id"] = facility.pop("dataset__id")
-        dataset["learner_can_edit_username"] = facility.pop(
-            "dataset__learner_can_edit_username"
-        )
-        dataset["learner_can_edit_name"] = facility.pop(
-            "dataset__learner_can_edit_name"
-        )
-        dataset["learner_can_edit_password"] = facility.pop(
-            "dataset__learner_can_edit_password"
-        )
-        dataset["learner_can_sign_up"] = facility.pop("dataset__learner_can_sign_up")
-        dataset["learner_can_delete_account"] = facility.pop(
-            "dataset__learner_can_delete_account"
-        )
-        dataset["learner_can_login_with_no_password"] = facility.pop(
-            "dataset__learner_can_login_with_no_password"
-        )
-        dataset["show_download_button_in_learn"] = facility.pop(
-            "dataset__show_download_button_in_learn"
-        )
-        dataset["description"] = facility.pop("dataset__description")
-        dataset["location"] = facility.pop("dataset__location")
-        dataset["registered"] = facility.pop("dataset__registered")
-        dataset["preset"] = facility.pop("dataset__preset")
+        for dataset_key in dataset_keys:
+            stripped_key = dataset_key.replace("dataset__", "")
+            dataset[stripped_key] = facility.pop(dataset_key)
         return dataset
 
     field_map = {
