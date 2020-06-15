@@ -365,7 +365,11 @@
       const facilityIdsToFetch = this.facilities
         .filter(f => f.num_users <= MAX_USERS_FOR_LISTING_VIEW)
         .map(f => f.id);
-      this.$store.dispatch('signIn/fetchUsersForFacilities', facilityIdsToFetch);
+
+      // Only fetch if there are facilities to fetch for
+      if (facilityIdsToFetch.length) {
+        this.$store.dispatch('signIn/fetchUsersForFacilities', facilityIdsToFetch);
+      }
     },
     mounted() {
       /*
