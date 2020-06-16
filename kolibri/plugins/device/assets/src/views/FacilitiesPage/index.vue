@@ -3,15 +3,17 @@
   <div>
     <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
       <template #options>
-        <KButton
-          :text="$tr('syncAllAction')"
-          @click="showSyncAllModal = true"
-        />
-        <KButton
-          :text="$tr('importFacilityAction')"
-          primary
-          @click="showImportModal = true"
-        />
+        <KButtonGroup>
+          <KButton
+            :text="$tr('syncAllAction')"
+            @click="showSyncAllModal = true"
+          />
+          <KButton
+            :text="$tr('importFacilityAction')"
+            primary
+            @click="showImportModal = true"
+          />
+        </KButtonGroup>
       </template>
     </HeaderWithOptions>
 
@@ -37,18 +39,18 @@
             />
           </td>
           <td class="button-col">
-            <div>
+            <KButtonGroup>
               <KButton
                 :text="coreString('syncAction')"
                 @click="facilityForSync = facility"
               />
               <KDropdownMenu
                 :text="coreString('optionsLabel')"
-                :options="options"
+                :options="options(facility)"
                 appearance="flat-button"
                 @select="handleOptionSelect($event.value, facility)"
               />
-            </div>
+            </KButtonGroup>
           </td>
         </tr>
       </tbody>
@@ -161,12 +163,18 @@
         tasks: [],
       };
     },
-    computed: {
-      options() {
+    computed: {},
+    beforeMount() {
+      this.fetchFacilites();
+      this.pollSyncTasks();
+    },
+    methods: {
+      options(facility) {
         return [
           {
             label: this.coreString('registerAction'),
             value: Options.REGISTER,
+            disabled: facility.dataset.registered,
           },
           {
             label: this.coreString('removeAction'),
@@ -174,12 +182,6 @@
           },
         ];
       },
-    },
-    beforeMount() {
-      this.fetchFacilites();
-      this.pollSyncTasks();
-    },
-    methods: {
       facilityCanBeRemoved() {
         // TODO return false if user is in the facility (determine from session)
         return true;

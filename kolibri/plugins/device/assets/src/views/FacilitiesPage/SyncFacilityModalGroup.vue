@@ -45,7 +45,7 @@
     },
     data() {
       return {
-        step: Steps.SELECT_SOURCE,
+        step: this.facilityForSync.dataset.registered ? Steps.SELECT_SOURCE : Steps.SELECT_ADDRESS,
       };
     },
     computed: {
