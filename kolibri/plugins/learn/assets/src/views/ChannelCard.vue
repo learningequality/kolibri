@@ -24,13 +24,12 @@
         v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
         :showContentIcon="false"
       />
-      <p
+      <TextTruncator
         v-if="tagline"
         class="text"
-        dir="auto"
-      >
-        {{ tagline }}
-      </p>
+        :text="tagline"
+        :maxHeight="220 - maxTitleHeight * 2"
+      />
     </div>
     <div class="card-footer">
       <CoachContentLabel

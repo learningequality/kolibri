@@ -72,11 +72,7 @@
         this.modalIsOpen = true;
       },
       getTagLine(content) {
-        const truncated_description =
-          content.description.length > 150
-            ? content.description.substr(0, 147) + '...'
-            : content.description;
-        return content.tagline || truncated_description;
+        return content.tagline || content.description;
       },
     },
   };
