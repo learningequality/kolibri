@@ -4,46 +4,26 @@
     <!-- Select Network Address Step -->
     <SelectAddressModalGroup
       v-if="atSelectAddress"
-      @cancel="$emit('cancel')"
       @submit="handleAddressSubmit"
+      @cancel="closeModal"
     />
 
     <!-- Select Facility Step -->
-    <KModal
+    <SelectFacilityModal
       v-else-if="atSelectFacility"
-      :title="getCommonSyncString('selectFacilityTitle')"
-      :submitText="coreString('continueAction')"
-      :cancelText="coreString('cancelAction')"
+      :device="device"
       @submit="handleFacilitySubmit"
-      @cancel="$emit('cancel')"
-    >
-      <p>
-        {{ deviceInfoMsg }}
-      </p>
-      <RadioButtonGroup
-        v-if="atSelectFacility"
-        :items="facilities"
-        :currentValue.sync="selectedFacilityId"
-        :itemLabel="x => formatNameAndId(x.name, x.id)"
-        :itemValue="x => x.id"
-        :facilities="facilities"
-      />
-    </KModal>
+      @cancel="closeModal"
+    />
 
     <!-- Admin Credentials Step -->
-    <KModal
+    <FacilityAdminCredentialsModal
       v-else-if="atCredentials"
-      :title="getCommonSyncString('adminCredentialsTitle')"
-      :submitText="coreString('continueAction')"
-      :cancelText="coreString('cancelAction')"
+      :facility="facility"
+      :device="device"
       @submit="handleCredentialsSubmit"
-      @cancel="$emit('cancel')"
-    >
-      <FacilityAdminCredentialsForm
-        ref="credentialsForm"
-        v-bind="{ facility, device }"
-      />
-    </KModal>
+      @cancel="closeModal"
+    />
   </div>
 
 </template>
@@ -53,11 +33,9 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import {
-    SelectAddressModalGroup,
-    FacilityAdminCredentialsForm,
-    RadioButtonGroup,
-  } from 'kolibri.coreVue.componentSets.sync';
+  import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
+  import SelectFacilityModal from './SelectFacilityModal';
+  import FacilityAdminCredentialsModal from './FacilityAdminCredentialsModal';
 
   const Steps = Object.freeze({
     SELECT_ADDRESS: 'SELECT_ADDRESS',
@@ -69,18 +47,15 @@
     name: 'ImportFacilityModalGroup',
     components: {
       SelectAddressModalGroup,
-      RadioButtonGroup,
-      FacilityAdminCredentialsForm,
+      SelectFacilityModal,
+      FacilityAdminCredentialsModal,
     },
     mixins: [commonCoreStrings, commonSyncElements],
-    props: {},
     data() {
       return {
         step: Steps.SELECT_ADDRESS,
-        facility: null,
-        device: null,
-        facilities: [],
-        selectedFacilityId: '',
+        facility: {},
+        device: {},
       };
     },
     computed: {
@@ -93,34 +68,25 @@
       atCredentials() {
         return this.step === Steps.CREDENTIALS;
       },
-      deviceInfoMsg() {
-        if (this.atSelectFacility) {
-          return this.coreString('commaSeparatedPair', {
-            item1: this.formatNameAndId(this.device.device_name, this.device.id),
-            item2: this.device.base_url,
-          });
-        }
-        return '';
-      },
     },
     methods: {
-      handleAddressSubmit(device) {
-        this.device = { ...device };
+      handleAddressSubmit(address) {
+        this.device = {
+          id: address.id,
+          name: address.device_name,
+          baseurl: address.base_url,
+        };
         this.step = Steps.SELECT_FACILITY;
-        this.fetchNetworkLocationFacilities(this.device.id).then(data => {
-          this.facilities = [...data.facilities];
-        });
       },
-      handleFacilitySubmit() {
-        this.facility = this.facilities.find(facility => facility.id === this.selectedFacilityId);
+      handleFacilitySubmit(facility) {
+        this.facility = facility;
         this.step = Steps.CREDENTIALS;
       },
-      handleCredentialsSubmit() {
-        this.$refs.credentialsForm.startImport().then(taskId => {
-          if (taskId) {
-            this.$emit('success', taskId);
-          }
-        });
+      handleCredentialsSubmit(taskId) {
+        this.$emit('success', taskId);
+      },
+      closeModal() {
+        this.$emit('cancel');
       },
     },
   };
