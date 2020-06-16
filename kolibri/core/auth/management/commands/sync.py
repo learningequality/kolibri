@@ -14,6 +14,7 @@ from ..utils import create_superuser_and_provision_device
 from ..utils import get_baseurl
 from ..utils import get_client_and_server_certs
 from ..utils import get_dataset_id
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.constants.morango_sync import State
 from kolibri.core.auth.management.utils import get_facility
@@ -101,7 +102,7 @@ class Command(AsyncCommand):
             call_command("loaddata", "scopedefinitions")
 
         # try to connect to server
-        controller = MorangoProfileController("facilitydata")
+        controller = MorangoProfileController(PROFILE_FACILITY_DATA)
         network_connection = controller.create_network_connection(baseurl)
 
         # if instance_ids are equal, this means device is trying to sync with itself, which we don't allow

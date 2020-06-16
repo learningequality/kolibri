@@ -12,6 +12,7 @@ from rest_framework.exceptions import ParseError
 from rest_framework.request import Request
 from rest_framework.test import APITestCase
 
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
@@ -378,6 +379,83 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         )
         facility_queue.enqueue.assert_called_with(call_command, "sync", **prepared_data)
 
+    def test_startdeletefacility(self, facility_queue):
+        user = self._setup_device()
+        facility2 = Facility.objects.create(name="facility2")
+
+        extra_metadata = dict(
+            facility=facility2.id, started_by=user.pk, type="DELETEFACILITY",
+        )
+        prepared_data = dict(
+            facility=facility2.id,
+            noninteractive=True,
+            extra_metadata=extra_metadata,
+            track_progress=True,
+            cancellable=False,
+        )
+
+        facility_queue.enqueue.return_value = 123
+        fake_job_data = dict(
+            job_id=123,
+            state="testing",
+            cancellable=False,
+            extra_metadata=dict(this_is_extra=True),
+        )
+        fake_job_data["extra_metadata"].update(extra_metadata)
+        facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
+
+        response = self.client.post(
+            reverse("kolibri:core:facilitytask-startdeletefacility"),
+            dict(facility=facility2.id),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertJobResponse(fake_job_data, response)
+
+        facility_queue.enqueue.assert_called_with(
+            call_command, "deletefacility", **prepared_data
+        )
+
+    def test_startdeletefacility__sole_facility(self, facility_queue):
+        self._setup_device()
+
+        response = self.client.post(
+            reverse("kolibri:core:facilitytask-startdeletefacility"),
+            dict(facility=self.facility.id),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual("SOLE_FACILITY", response.data.get("code"))
+
+    def test_startdeletefacility__not_superuser(self, facility_queue):
+        DeviceSettings.objects.create(is_provisioned=True)
+        facility1 = Facility.objects.create(name="facility1")
+        Facility.objects.create(name="facility2")
+
+        user = FacilityUser.objects.create(username="superuser", facility=facility1)
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(
+            reverse("kolibri:core:facilitytask-startdeletefacility"),
+            dict(facility=facility1.id),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_startdeletefacility__facility_member(self, facility_queue):
+        self._setup_device()
+        Facility.objects.create(name="facility2")
+
+        response = self.client.post(
+            reverse("kolibri:core:facilitytask-startdeletefacility"),
+            dict(facility=self.facility.id),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual("FACILITY_MEMBER", response.data.get("code"))
+
 
 class FacilityTaskHelperTestCase(TestCase):
     def test_prepare_sync_task(self):
@@ -467,7 +545,7 @@ class FacilityTaskHelperTestCase(TestCase):
         )
         self.assertEqual(expected, actual)
 
-        MorangoProfileController.assert_called_with("facilitydata")
+        MorangoProfileController.assert_called_with(PROFILE_FACILITY_DATA)
         controller.create_network_connection.assert_called_with(
             "https://some.server.test/"
         )

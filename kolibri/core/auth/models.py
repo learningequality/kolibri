@@ -45,6 +45,7 @@ from mptt.models import TreeForeignKey
 
 from .constants import collection_kinds
 from .constants import facility_presets
+from .constants import morango_sync
 from .constants import role_kinds
 from .constants import user_kinds
 from .errors import InvalidRoleKind
@@ -85,7 +86,7 @@ def _has_permissions_class(obj):
 
 class FacilityDataSyncableModel(SyncableModel):
 
-    morango_profile = "facilitydata"
+    morango_profile = morango_sync.PROFILE_FACILITY_DATA
 
     class Meta:
         abstract = True
@@ -169,7 +170,7 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
     such as ``FacilityUsers``, ``Collections``, and other data associated with those users and collections.
     """
 
-    dataset = models.ForeignKey(FacilityDataset)
+    dataset = models.ForeignKey(FacilityDataset, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -665,7 +666,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     objects = FacilityUserModelManager()
 
-    facility = models.ForeignKey("Facility")
+    facility = models.ForeignKey("Facility", on_delete=models.CASCADE)
 
     is_facility_user = True
 
@@ -1208,7 +1209,11 @@ class Role(AbstractFacilityDataModel):
     permissions = own | role
 
     user = models.ForeignKey(
-        "FacilityUser", related_name="roles", blank=False, null=False
+        "FacilityUser",
+        related_name="roles",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield

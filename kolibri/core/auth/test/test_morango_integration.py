@@ -15,6 +15,7 @@ from morango.sync.controller import MorangoProfileController
 from rest_framework import status
 from six.moves.urllib.parse import urljoin
 
+from ..constants.morango_sync import PROFILE_FACILITY_DATA
 from ..models import Classroom
 from ..models import Facility
 from ..models import FacilityDataset
@@ -47,7 +48,7 @@ class FacilityDatasetCertificateTestCase(TestCase):
 
 class DateTimeTZFieldTestCase(TestCase):
     def setUp(self):
-        self.controller = MorangoProfileController("facilitydata")
+        self.controller = MorangoProfileController(PROFILE_FACILITY_DATA)
         InstanceIDModel.get_or_create_current_instance()
 
     def test_deserializing_field(self):
@@ -127,7 +128,7 @@ class EcosystemTestCase(TestCase):
         return resp
 
     def assertServerQuerysetEqual(self, s1, s2, dataset_id):
-        models = syncable_models.get_models("facilitydata")
+        models = syncable_models.get_models(PROFILE_FACILITY_DATA)
         models.pop(
             0
         )  # remove FacilityDataset because __str__() does not point to correct db alias

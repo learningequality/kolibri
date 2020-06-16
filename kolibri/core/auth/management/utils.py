@@ -6,6 +6,7 @@ from functools import wraps
 
 import requests
 from django.core.management.base import CommandError
+from django.db.models.signals import post_delete
 from django.urls import reverse
 from django.utils.six.moves import input
 from morango.models import Certificate
@@ -20,6 +21,21 @@ from kolibri.core.device.utils import provision_device
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
+
+
+class DisablePostDeleteSignal(object):
+    """
+    Helper that disables the post_delete signal temporarily when deleting, so Morango doesn't
+    create DeletedModels objects for what we're deleting
+    """
+
+    def __enter__(self):
+        self.receivers = post_delete.receivers
+        post_delete.receivers = []
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        post_delete.receivers = self.receivers
+        self.receivers = None
 
 
 def _interactive_client_facility_selection():

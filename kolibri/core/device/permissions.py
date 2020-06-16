@@ -42,3 +42,8 @@ class UserHasAnyDevicePermissions(DenyAll):
         from .models import device_permissions_fields
 
         return any(getattr(request.user, field) for field in device_permissions_fields)
+
+
+class IsSuperuser(DenyAll):
+    def has_permission(self, request, view):
+        return request.user.is_superuser
