@@ -21,7 +21,6 @@ Feature: Learner engages content channels
     When I click on the <content_item> card
     Then I see the <content_item> page
       And I see the video start playing automatically
-      # bug in Firefox, issue reported
       And I see the *Next resource* heading and content item under the player
     When video finishes
     Then I see the status icon is yellow star

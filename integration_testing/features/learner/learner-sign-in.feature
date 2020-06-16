@@ -1,7 +1,9 @@
 Feature: Learner sign-in
-    Learners should be able to sign in to access Kolibri
-    If the simplified sign-in setting is on, learner should be able to login only with the username
-    If the learner account is registered correctly, they should arrive at the *Learn > Classes* page upon sign-in if assigned to a class, or *Learn > Channels* if not in any class.
+    Learners need to be able to sign in to access Kolibri
+    If the simplified sign-in setting is on, learner needs be able to login only with the username
+    If the learner account is registered correctly, they need to arrive at the *Learn > Classes* page upon sign-in if assigned to a class, or *Learn > Channels* if not in any class.
+
+    # scenario valid for 'desktop' mode on all OSes; make sure to separately test the app-mode sign in
 
   Background:
     Given that I am on the Kolibri sign-in page
