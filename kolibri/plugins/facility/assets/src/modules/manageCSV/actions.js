@@ -104,7 +104,6 @@ function refreshTaskList(store) {
     }),
   ])
     .then(([newTasks, newFacilityTasks]) => {
-      console.log(newTasks);
       checkTaskStatus(
         store,
         newTasks,
