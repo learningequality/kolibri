@@ -263,4 +263,3 @@ msgstr "اوپن آیڈی فراہم کنندہ کی اجازت"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "اجازت کی درخواست"
-

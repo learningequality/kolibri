@@ -263,4 +263,3 @@ msgstr "ओपन आईडी प्रदाता प्राधिकरण
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "अनुमति का अनुरोध करें"
-

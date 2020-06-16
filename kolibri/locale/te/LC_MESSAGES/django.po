@@ -263,4 +263,3 @@ msgstr "OpenID ప్రదాత అధికారికం"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "అనుమతి కోసం అభ్యర్థించు"
-
