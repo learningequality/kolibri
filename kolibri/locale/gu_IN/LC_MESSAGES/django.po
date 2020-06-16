@@ -263,4 +263,3 @@ msgstr "ઓપન આઈડી પ્રોવાઇડર અધિકૃતત
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "પરવાનગી માટે વિનંતી"
-

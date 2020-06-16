@@ -263,4 +263,3 @@ msgstr "crwdns276368:0crwdne276368:0"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "crwdns276370:0crwdne276370:0"
-

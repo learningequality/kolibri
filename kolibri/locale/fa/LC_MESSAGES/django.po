@@ -263,4 +263,3 @@ msgstr "مجوز ارائه‌دهنده‌ی شناسه‌ی باز"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "درخواست مجوز"
-
