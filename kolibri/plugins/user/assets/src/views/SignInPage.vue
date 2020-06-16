@@ -568,7 +568,8 @@
       nextLabel: 'Next',
       /* eslint-disable kolibri/vue-no-unused-translations */
       // stub out some extra strings
-      signingInToFacilityAsUserLabel: "Signing into '{facility}' as '{user}'",
+      signingInToFacilityAsUserLabel: "Signing in to '{facility}' as '{user}'",
+      signingInAsUserLabel: "Signing in as '{user}'",
       changeUser: 'Change user',
       changeFacility: 'Change facility',
       multiFacilitySignInError: 'Incorrect username, password, or facility',
