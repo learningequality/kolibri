@@ -11,7 +11,7 @@
         :title="content.title"
         :thumbnail="content.thumbnail"
         :kind="content.kind"
-        :tagline="content.description"
+        :tagline="getTagLine(content)"
         :progress="content.progress || 0"
         :numCoachContents="content.num_coach_contents"
         :link="genContentLink(content.id, content.kind)"
@@ -70,6 +70,13 @@
         this.sharedContentId = contentId;
         this.uniqueId = this.contents.find(content => content.content_id === contentId).id;
         this.modalIsOpen = true;
+      },
+      getTagLine(content) {
+        const truncated_description =
+          content.description.length > 150
+            ? content.description.substr(0, 147) + '...'
+            : content.description;
+        return content.tagline || truncated_description;
       },
     },
   };
