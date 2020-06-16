@@ -5,47 +5,69 @@
     class="card"
     :style="{ backgroundColor: $themeTokens.surface, color: $themeTokens.text }"
   >
-    <div
-      class="card-heading"
-      :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
-    >
-      <h3 class="title" dir="auto">
-        <TextTruncator
-          :text="title"
-          :maxHeight="maxTitleHeight"
+
+    <KGrid :gridStyle="{ marginLeft: 0, marginRight: 0 }">
+
+      <KGridItem
+        class="card-heading"
+        :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
+        :layout4="{ span: 4 }"
+        :layout8="{ span: 8 }"
+        :layout12="{ span: 12 }"
+      >
+        <h3 class="title" dir="auto">
+          <TextTruncator
+            :text="title"
+            :maxHeight="50"
+          />
+        </h3>
+      </KGridItem>
+
+      <div class="card-content">
+        <KGridItem
+          :layout4="{ span: 1 }"
+          :layout8="{ span: 2 }"
+          :layout12="{ span: 3 }"
+        >
+          <CardThumbnail
+            class="thumbnail"
+            v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
+            :showTooltip="false"
+            :showContentIcon="false"
+          />
+        </KGridItem>
+
+        <KGridItem
+          :layout4="{ span: 3 }"
+          :layout8="{ span: 6 }"
+          :layout12="{ span: 9 }"
+        >
+          <TextTruncator
+            v-if="tagline"
+            class="text"
+            :text="tagline"
+            :maxHeight="150"
+            :showTooltip="false"
+          />
+        </KGridItem>
+      </div>
+
+      <KGridItem
+        class="card-footer"
+        :layout4="{ span: 4 }"
+        :layout8="{ span: 8 }"
+        :layout12="{ span: 12 }"
+      >
+        <CoachContentLabel
+          v-if="isUserLoggedIn && !isLearner"
+          class="coach-content-label"
+          :value="numCoachContents"
+          :isTopic="isTopic"
         />
-      </h3>
-    </div>
+      </KGridItem>
 
-    <div class="card-content">
+    </KGrid>
 
-      <CardThumbnail
-        class="thumbnail"
-        v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
-        :showContentIcon="false"
-      />
-      <TextTruncator
-        v-if="tagline"
-        class="text"
-        :text="tagline"
-        :maxHeight="220 - maxTitleHeight * 2"
-      />
-    </div>
-    <div class="card-footer">
-      <CoachContentLabel
-        v-if="isUserLoggedIn && !isLearner"
-        class="coach-content-label"
-        :value="numCoachContents"
-        :isTopic="isTopic"
-      />
-      <KButton
-        v-if="copiesCount > 1"
-        appearance="basic-link"
-        class="copies"
-        :text="$tr('copies', { num: copiesCount })"
-        @click.prevent="$emit('openCopiesModal', contentId)"
-      />
-    </div>
   </router-link>
 
 </template>
@@ -73,10 +95,6 @@
         required: true,
       },
       tagline: {
-        type: String,
-        required: false,
-      },
-      subtitle: {
         type: String,
         required: false,
       },
@@ -117,34 +135,12 @@
         type: Boolean,
         default: false,
       },
-      contentId: {
-        type: String,
-        required: false,
-      },
-      copiesCount: {
-        type: Number,
-        required: false,
-      },
     },
     computed: {
       ...mapGetters(['isLearner', 'isUserLoggedIn']),
       isTopic() {
         return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
       },
-      maxTitleHeight() {
-        if (this.hasFooter && this.subtitle) {
-          return 20;
-        } else if (this.hasFooter || this.subtitle) {
-          return 40;
-        }
-        return 60;
-      },
-      hasFooter() {
-        return this.numCoachContents > 0 || this.copiesCount > 1;
-      },
-    },
-    $trs: {
-      copies: '{ num, number} locations',
     },
   };
 
@@ -183,45 +179,29 @@
   }
 
   .card-heading {
-    padding: 0 $margin;
+    padding: 0 $margin !important;
     border-bottom: 2px solid #cecece;
   }
 
   .card-content {
     width: 100%;
+    // Height set to ensure consistent text height
+    // calculated from 150
+    height: 172px;
     padding: $margin;
   }
 
   .thumbnail {
     position: relative;
     display: inline-block;
-    width: 38.2%; // golden ratio
   }
 
   .text {
     position: relative;
     display: inline-block;
-    width: 61.8%; // golden ratio
     padding: 0 0 0 $margin;
     margin: 0;
     vertical-align: top;
-  }
-
-  .subtitle {
-    position: absolute;
-    top: 38px;
-    right: $margin;
-    left: $margin;
-    margin: 0;
-    overflow: hidden;
-    font-size: 14px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    .no-footer {
-      top: unset;
-      bottom: $margin;
-    }
   }
 
   .card-footer {
@@ -232,14 +212,8 @@
     font-size: 12px;
   }
 
-  .subtitle.no-footer {
-    top: unset;
-    bottom: $margin;
-  }
-
-  .copies {
-    display: inline-block;
-    float: right;
+  /deep/.card-thumbnail-wrapper {
+    max-width: 100%;
   }
 
 </style>

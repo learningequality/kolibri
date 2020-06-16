@@ -15,7 +15,18 @@
 
     <TotalPoints slot="totalPointsMenuItem" />
 
-    <div>
+    <!--
+      Topics pages have a different heading style which
+      includes passing the breadcrumbs
+    -->
+    <div v-if="currentPageIsTopic">
+      <component :is="currentPage">
+        <Breadcrumbs slot="breadcrumbs" />
+      </component>
+      <router-view />
+    </div>
+
+    <div v-else>
       <Breadcrumbs v-if="pageName !== 'TOPICS_CONTENT'" />
       <component :is="currentPage" v-if="currentPage" />
       <router-view />
@@ -118,6 +129,13 @@
       },
       currentPage() {
         return pageNameToComponentMap[this.pageName] || null;
+      },
+      currentPageIsTopic() {
+        console.log(PageNames.TOPICS_TOPIC);
+        return [
+          pageNameToComponentMap[PageNames.TOPICS_TOPIC],
+          pageNameToComponentMap[PageNames.TOPICS_CHANNEL],
+        ].includes(this.currentPage);
       },
       immersivePageProps() {
         if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
