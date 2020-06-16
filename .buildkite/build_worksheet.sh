@@ -13,27 +13,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-PIP_CMD="$PIP_PATH install gspread==3.1.0"
+PIP_CMD="$PIP_PATH install -r requirements/build_test_worksheet.txt"
 echo "Running $PIP_CMD..."
 $PIP_CMD
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't install '$PIP_CMD'."
-    exit 1
-fi
-
-PIP_CMD="$PIP_PATH install --upgrade oauth2client"
-echo "Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't install '$PIP_CMD'."
-    exit 1
-fi
-
-PIP_CMD="$PIP_PATH install PyOpenSSL"
-echo "Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't install '$PIP_CMD'."
+    echo ".. Abort!  Can't install all deps in '$PIP_CMD'."
     exit 1
 fi
 
