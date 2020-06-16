@@ -2,6 +2,8 @@ Feature: Coach sign-in
   Coach should be able to sign in to access Kolibri
   If the coach account is registered correctly, they should arrive at the *Coach > Classes* page upon sign-in
 
+  # scenario valid for 'desktop' mode on all OSes; make sure to separately test the app-mode sign in
+
   Background:
     Given that I am on the Kolibri sign-in page
         And there is registered coach <username> with password <password>
