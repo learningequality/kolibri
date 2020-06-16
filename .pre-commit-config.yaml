@@ -9,7 +9,7 @@ repos:
     -   id: check-added-large-files
     -   id: debug-statements
     -   id: end-of-file-fixer
-        exclude: '^.+?\.json$'
+        exclude: '^.+?(\.json|\.po)$'
 -   repo: https://github.com/asottile/reorder_python_imports
     rev: v1.3.3
     hooks:
