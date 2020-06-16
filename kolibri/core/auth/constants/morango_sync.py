@@ -1,6 +1,9 @@
 from __future__ import unicode_literals
 
 
+PROFILE_FACILITY_DATA = "facilitydata"
+
+
 class ScopeDefinitions(object):
     """
     Class contains morango scope definition constants for certificates.
