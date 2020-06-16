@@ -66,7 +66,8 @@
 
     <SyncAllFacilitiesModal
       v-if="showSyncAllModal"
-      @submit="showSyncAllModal = false"
+      :facilities="facilities"
+      @success="handleSyncAllSuccess"
       @cancel="showSyncAllModal = false"
     />
 
@@ -227,6 +228,10 @@
       handleStartSyncSuccess() {
         this.pollSyncTasks();
         this.facilityForSync = null;
+      },
+      handleSyncAllSuccess() {
+        this.pollSyncTasks();
+        this.showSyncAllModal = false;
       },
       handleStartImportSuccess() {
         this.pollSyncTasks();

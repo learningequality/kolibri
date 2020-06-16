@@ -847,7 +847,7 @@ class FacilityTasksViewSet(BaseViewSet):
         """
         responses = []
         facilities = Facility.objects.filter(dataset__registered=True).values_list(
-            "dataset_id", flat=True
+            "id", flat=True
         )
 
         for facility_id in facilities:
