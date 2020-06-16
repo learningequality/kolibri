@@ -276,7 +276,7 @@
       maxMainWidth: {
         type: Number,
         required: false,
-        default: 1100,
+        default: 1000,
       },
     },
     data() {
