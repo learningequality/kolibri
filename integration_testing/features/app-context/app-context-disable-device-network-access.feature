@@ -5,6 +5,8 @@ Background:
 	Given that the device setting *Allow others in the network to access Kolibri on this device using a browser* is unchecked
 		And I use an external device to connect to the Kolibri app server and access Kolibri
 
+		# You don't need to be in an external device: use an incongnito window, or any other browser where the cookie for the App user is not set
+
 Scenario: Attempt to connect to the Kolibri app server from an external devices
   When I type the Kolibri app server URL address on my external device browser
   Then I see this message on the Kolibri sign in page: *Access to Kolibri has been restricted for external devices. To change this, sign in as a super admin and enable 'Allow others in the network to access Kolibri on this device using a browser', located in Device settings*

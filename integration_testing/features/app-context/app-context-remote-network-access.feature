@@ -7,6 +7,9 @@ Feature: Access Kolibri app server remotely
 	Scenario: Sign in directly after entering the username
 		Given that the signing in without password is enabled in *Facility > Settings*
 		When I try to access the Kolibri server app from a browser on an external device
+
+		# You don't need to be in an external device: use an incongnito window, or any other browser where the cookie for the App user is not set
+		
 		Then I see the sign in page with just the username input feild
 			And I type my username
 			And I click or tap *Sign in*
