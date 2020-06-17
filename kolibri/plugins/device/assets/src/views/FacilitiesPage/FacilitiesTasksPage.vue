@@ -23,7 +23,7 @@
     </p>
     <div>
       <FacilityTaskPanel
-        v-for="(task, idx) in tasks"
+        v-for="(task, idx) in visibleTasks"
         :key="idx"
         class="task-panel"
         :style="{ borderBottomColor: $themePalette.grey.v_200 }"
@@ -68,7 +68,12 @@
         return Boolean(this.tasks.find(taskIsClearable));
       },
       visibleTasks() {
-        return this.tasks.map();
+        return this.tasks.map(x => {
+          if (x.type === 'SYNCPEER/PULL') {
+            x.type = 'SYNCPEER/FULL';
+          }
+          return x;
+        });
       },
     },
     beforeMount() {

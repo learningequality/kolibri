@@ -5,6 +5,7 @@
     :title="getCommonSyncString('adminCredentialsTitle')"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
+    :submitDisabled="formDisabled"
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
@@ -12,6 +13,7 @@
       ref="credentialsForm"
       :facility="facility"
       :device="device"
+      :disabled="formDisabled"
     />
   </KModal>
 
@@ -41,14 +43,19 @@
       },
     },
     data() {
-      return {};
+      return {
+        formDisabled: false,
+      };
     },
     computed: {},
     methods: {
       handleSubmit() {
+        this.formDisabled = true;
         this.$refs.credentialsForm.startImport().then(taskId => {
           if (taskId) {
             this.$emit('submit', taskId);
+          } else {
+            this.formDisabled = false;
           }
         });
       },

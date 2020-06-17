@@ -69,7 +69,9 @@ export function syncFacilityTaskDisplayInfo(task) {
   const statusDescription =
     syncStatusToDescriptionMap[task.status] || getTaskString('taskUnknownStatus');
 
-  if (syncStep) {
+  if (task.status === TaskStatuses.COMPLETED) {
+    statusMsg = getTaskString('taskFinishedStatus');
+  } else if (syncStep) {
     statusMsg = getTaskString('syncStepAndDescription', {
       step: syncStep,
       total: 7,
@@ -123,14 +125,12 @@ export function removeFacilityTaskDisplayInfo(task) {
   };
 }
 
+// For the SetupWizard Import Task
 export function importFacilityTaskDisplayInfo(task) {
   // Basically takes the sync output and removes things
   const info = syncFacilityTaskDisplayInfo(task);
-  // info.bytesTransferredMsg = '';
-  // NOTE: We're re-using the "syncFacilityLabel" for import facility tasks
-  // TODO: Add a separate label for import tasks and use the commented-out code
-  // const facilityName = formatNameWithId(task.facility_name, task.facility);
-  // info.headingMsg = getTaskString('syncFacilityTaskLabel', { facilityName });
+  info.bytesTransferredMsg = '';
+  info.headingMsg = '';
 
   if (task.status === TaskStatuses.FAILED) {
     info.deviceNameMsg = getTaskString('importFailedStatus', { facilityName: task.facility_name });
