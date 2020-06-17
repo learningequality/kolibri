@@ -18,6 +18,7 @@ from kolibri.core.tasks.api import FacilityTasksViewSet
 class HasPermissionDuringSetup(BasePermission):
     def has_permission(self, request, view):
         from kolibri.core.device.utils import device_provisioned
+
         return not device_provisioned()
 
 
@@ -26,6 +27,7 @@ class FacilityImportViewSet(ViewSet):
     A group of endpoints that are used by the SetupWizard to import a facility
     and create a superuser
     """
+
     permission_classes = (HasPermissionDuringSetup,)
 
     @decorators.action(methods=["get"], detail=False)
@@ -119,6 +121,7 @@ class SetupWizardFacilityImportTaskView(FacilityTasksViewSet):
     An open version of FacilityTasksViewSet for the purposes of managing the
     import-facility task during setup
     """
+
     permission_classes = (HasPermissionDuringSetup,)
 
     # Remove all the endpoints we don't want in setup wizard

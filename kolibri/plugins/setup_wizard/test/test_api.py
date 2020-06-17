@@ -15,7 +15,9 @@ class GetFacilityAdminsTest(APITestCase):
 
     def _make_request(self):
         return self.client.get(
-            reverse("kolibri:kolibri.plugins.setup_wizard:importfacility-facilityadmins"),
+            reverse(
+                "kolibri:kolibri.plugins.setup_wizard:importfacility-facilityadmins"
+            ),
             format="json",
         )
 

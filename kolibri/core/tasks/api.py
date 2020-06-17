@@ -935,7 +935,7 @@ class FacilityTasksViewSet(BaseViewSet):
                 facility_name=facility_name,
                 started_by=request.user.pk,
                 started_by_username=request.user.username,
-                type="DELETEFACILITY"
+                type="DELETEFACILITY",
             ),
         )
 
