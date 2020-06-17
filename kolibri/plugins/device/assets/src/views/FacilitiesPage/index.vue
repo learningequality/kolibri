@@ -40,16 +40,18 @@
           </td>
           <td class="button-col">
             <div>
-              <KButton
-                :text="coreString('syncAction')"
-                @click="facilityForSync = facility"
-              />
-              <KDropdownMenu
-                :text="coreString('optionsLabel')"
-                :options="options"
-                appearance="flat-button"
-                @select="handleOptionSelect($event.value, facility)"
-              />
+              <KButtonGroup>
+                <KButton
+                  :text="coreString('syncAction')"
+                  @click="facilityForSync = facility"
+                />
+                <KDropdownMenu
+                  :text="coreString('optionsLabel')"
+                  :options="options"
+                  appearance="flat-button"
+                  @select="handleOptionSelect($event.value, facility)"
+                />
+              </KButtonGroup>
             </div>
           </td>
         </tr>
