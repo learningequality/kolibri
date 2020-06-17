@@ -19,8 +19,24 @@ function taskFacilityMatch(task, facility) {
   return task.facility === facility.id;
 }
 
-function fetchTasks() {
-  return FacilityTaskResource.fetchCollection({ force: true });
+function retryKdpSync(task) {
+  const facilityId = task.facility;
+  return FacilityTaskResource.cleartask(task.id).then(() => {
+    return FacilityTaskResource.dataportalsync(facilityId);
+  });
+}
+
+function retryPeerSync(task) {
+  const retryData = {
+    facility: task.facility,
+    facility_name: task.facility_name,
+    device_name: task.device_name,
+    device_id: task.device_id,
+    baseurl: task.baseurl,
+  };
+  return FacilityTaskResource.cleartask(task.id).then(() => {
+    return FacilityTaskResource.startpeerfacilitysync(retryData);
+  });
 }
 
 export default {
@@ -32,7 +48,7 @@ export default {
   },
   methods: {
     pollFacilityTasks() {
-      fetchTasks().then(tasks => {
+      FacilityTaskResource.fetchCollection({ force: true }).then(tasks => {
         this.facilityTasks = tasks;
         if (this.isPolling) {
           setTimeout(() => {
@@ -40,6 +56,23 @@ export default {
           }, 2000);
         }
       });
+    },
+    manageFacilityTask(action, task) {
+      if (action === 'cancel') {
+        return FacilityTaskResource.canceltask(task.id);
+      } else if (action === 'clear') {
+        return FacilityTaskResource.cleartask(task.id);
+      } else if (action === 'retry') {
+        if (task.type === TaskTypes.SYNCDATAPORTAL) {
+          return retryKdpSync(task);
+        } else if (task.type === TaskTypes.SYNCPEERFULL) {
+          return retryPeerSync(task);
+        } else {
+          return Promise.resolve();
+        }
+      } else {
+        return Promise.resolve();
+      }
     },
     clearCompletedFacilityTasks() {
       return FacilityTaskResource.deleteFinishedTasks();
@@ -54,12 +87,8 @@ export default {
   computed: {
     facilityIsSyncing() {
       return function isSyncing(facility) {
-        return Boolean(
-          this.facilityTasks.find(
-            task =>
-              isSyncTask(task) && taskFacilityMatch(task, facility) && !taskIsClearable(task.status)
-          )
-        );
+        const syncTasks = this.facilityTasks.filter(t => isSyncTask(t) && !taskIsClearable(t));
+        return Boolean(syncTasks.find(task => taskFacilityMatch(task, facility)));
       };
     },
     facilityIsDeleting() {

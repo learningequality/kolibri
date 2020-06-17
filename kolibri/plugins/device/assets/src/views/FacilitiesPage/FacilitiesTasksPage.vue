@@ -18,16 +18,17 @@
       </template>
     </HeaderWithOptions>
 
-    <p v-if="tasks.length === 0">
+    <p v-if="false">
       {{ $tr('emptyTasksMessage') }}
     </p>
     <div>
       <FacilityTaskPanel
-        v-for="(task, idx) in visibleTasks"
+        v-for="(task, idx) in facilityTasks"
         :key="idx"
         class="task-panel"
         :style="{ borderBottomColor: $themePalette.grey.v_200 }"
         :task="task"
+        @click="handlePanelClick($event, task)"
       />
     </div>
 
@@ -44,6 +45,7 @@
   import HeaderWithOptions from '../HeaderWithOptions';
   import { taskIsClearable } from '../../constants';
   import FacilityTaskPanel from './FacilityTaskPanel';
+  import facilityTasksQueue from './facilityTasksQueue';
 
   export default {
     name: 'FacilitiesTasksPage',
@@ -56,51 +58,31 @@
       FacilityTaskPanel,
       HeaderWithOptions,
     },
-    mixins: [commonCoreStrings, commonTaskStrings, commonSyncElements],
+    mixins: [commonCoreStrings, commonTaskStrings, commonSyncElements, facilityTasksQueue],
     props: {},
     data() {
       return {
-        tasks: [],
+        // (facilityTasksQueue) facilityTasks
       };
     },
     computed: {
       someClearableTasks() {
-        return Boolean(this.tasks.find(taskIsClearable));
+        return Boolean(this.facilityTasks.find(taskIsClearable));
       },
-      visibleTasks() {
-        return this.tasks.map(x => {
-          if (x.type === 'SYNCPEER/PULL') {
-            x.type = 'SYNCPEER/FULL';
-          }
-          return x;
-        });
-      },
-    },
-    beforeMount() {
-      this.pollSyncTasks();
     },
     methods: {
       handleClickClearAll() {
-        this.deleteFinishedTasks().then(() => {
-          this.pollSyncTasks();
-        });
+        this.clearCompletedFacilityTasks();
       },
-      pollSyncTasks() {
-        this.fetchKdpSyncTasks()
-          .then(tasks => {
-            this.tasks = tasks;
-          })
-          .then(() => {
-            if (this.tasks.length > 0) {
-              setTimeout(() => {
-                return this.pollSyncTasks();
-              }, 2000);
-            }
-          });
+      handlePanelClick(action, task) {
+        this.manageFacilityTask(action, task).catch(() => {
+          // handle errors silently
+        });
       },
     },
     $trs: {
       backToFacilitiesLabel: 'Back to facilities',
+      // TODO un-comment p-tag above for 0.14.1 release
       emptyTasksMessage: 'There are no tasks to display',
     },
   };

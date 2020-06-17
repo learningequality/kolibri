@@ -47,6 +47,11 @@ export default new Resource({
       task_id: taskId,
     });
   },
+  cleartask(taskId) {
+    return this.postListEndpoint('cleartask', {
+      task_id: taskId,
+    });
+  },
   /**
    * @param {string} facility
    * @return {Promise}

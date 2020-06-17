@@ -1,4 +1,3 @@
-import some from 'lodash/some';
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import { StaticNetworkLocationResource, FacilityTaskResource } from 'kolibri.resources';
@@ -93,31 +92,6 @@ export default {
       }).then(response => {
         return response.data;
       });
-    },
-    cancelFacilityTask(taskId) {
-      return FacilityTaskResource.canceltask(taskId);
-    },
-    fetchKdpSyncTasks() {
-      return FacilityTaskResource.fetchCollection({ force: true }).then(tasks => {
-        return tasks;
-      });
-    },
-    deleteFinishedTasks() {
-      return FacilityTaskResource.deleteFinishedTasks();
-    },
-    fetchImportTasks() {
-      return FacilityTaskResource.fetchCollection({ force: true }).then(tasks => {
-        return tasks.filter(task => (task.type = 'SYNCPEER/PULL'));
-      });
-    },
-    cleanupKdpSyncTasks(tasks, cb) {
-      if (some(tasks, { type: 'SYNCDATAPORTAL', status: 'COMPLETED' })) {
-        return FacilityTaskResource.deleteFinishedTasks().then(() => {
-          if (cb) {
-            cb();
-          }
-        });
-      }
     },
   },
 };

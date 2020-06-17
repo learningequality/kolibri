@@ -9,9 +9,9 @@
     :loaderType="loaderType"
     :showCircularLoader="taskInfo.isRunning"
     :buttonSet="buttonSet"
-    @cancel="$emit('cancel')"
-    @clear="$emit('clear')"
-    @retry="$emit('retry')"
+    @cancel="$emit('click', 'cancel')"
+    @clear="$emit('click', 'clear')"
+    @retry="$emit('click', 'retry')"
   />
 
 </template>
@@ -49,15 +49,19 @@
       isDeleteTask() {
         return this.task.type === 'DELETEFACILITY';
       },
+      isSetupImportTask() {
+        // HACK infer that we're in the setup wizard because the started_by field is null
+        return !this.task.started_by && this.task.type === 'SYNCPEER/PULL';
+      },
       isImportTask() {
         return this.task.type === 'SYNCPEER/PULL';
       },
       taskInfo() {
-        if (this.isSyncTask) {
+        if (this.isSyncTask || this.isImportTask) {
           return syncFacilityTaskDisplayInfo(this.task);
         } else if (this.isDeleteTask) {
           return removeFacilityTaskDisplayInfo(this.task);
-        } else if (this.isImportTask) {
+        } else if (this.isSetupImportTask) {
           return importFacilityTaskDisplayInfo(this.task);
         }
         return {};
@@ -78,10 +82,19 @@
         return this.taskInfo.bytesTransferredMsg;
       },
       buttonSet() {
+        // Delete
+        if (this.isSyncTask) {
+          return 'retry';
+        }
         if (this.taskInfo.canCancel) {
           return 'cancel';
         } else if (this.taskInfo.canClear) {
-          return this.taskInfo.canRetry ? 'retry' : 'clear';
+          // Import tasks can't be retried since we don't save the username/password
+          if (this.isImportTask) {
+            return 'clear';
+          } else {
+            return this.taskInfo.canRetry ? 'retry' : 'clear';
+          }
         } else {
           return '';
         }
