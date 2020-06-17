@@ -10,6 +10,8 @@
     :showCircularLoader="taskInfo.isRunning"
     :buttonSet="buttonSet"
     @cancel="$emit('cancel')"
+    @clear="$emit('clear')"
+    @retry="$emit('retry')"
   />
 
 </template>

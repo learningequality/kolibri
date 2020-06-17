@@ -18,8 +18,8 @@
     </HeaderWithOptions>
 
     <TasksBar
-      v-if="tasks.length > 0"
-      :tasks="tasks"
+      v-if="facilityTasks.length > 0"
+      :tasks="facilityTasks"
       :taskManagerLink="{ name: 'FACILITIES_TASKS_PAGE' }"
       @clearall="handleClickClearAll"
     />
@@ -31,7 +31,7 @@
         </tr>
       </thead>
       <tbody slot="tbody">
-        <tr v-for="(facility, idx) in visibleFacilities" :key="idx">
+        <tr v-for="(facility, idx) in facilities" :key="idx">
           <td>
             <FacilityNameAndSyncStatus
               :facility="facility"
@@ -46,7 +46,7 @@
               />
               <KDropdownMenu
                 :text="coreString('optionsLabel')"
-                :options="options(facility)"
+                :options="facilityOptions(facility)"
                 appearance="flat-button"
                 @select="handleOptionSelect($event.value, facility)"
               />
@@ -123,6 +123,7 @@
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
   import SyncFacilityModalGroup from './SyncFacilityModalGroup';
   import ImportFacilityModalGroup from './ImportFacilityModalGroup';
+  import facilityTaskQueue from './facilityTasksQueue';
 
   const Options = Object.freeze({
     REGISTER: 'REGISTER',
@@ -148,7 +149,7 @@
       SyncAllFacilitiesModal,
       TasksBar,
     },
-    mixins: [commonCoreStrings, commonSyncElements],
+    mixins: [commonCoreStrings, commonSyncElements, facilityTaskQueue],
     props: {},
     data() {
       return {
@@ -159,19 +160,14 @@
         facilityForRemoval: null,
         facilityForRegister: null,
         kdpProject: null,
-        tasks: [],
         taskIdsToWatch: [],
+        // (facilityTaskQueue) facilityTasks
       };
     },
-    computed: {
-      visibleFacilities() {
-        return this.facilities.filter(this.facilityIsListed);
-      },
-    },
     watch: {
-      tasks(newVal) {
-        for (let idx in newVal) {
-          const task = newVal[idx];
+      facilityTasks(newTasks) {
+        for (let index in newTasks) {
+          const task = newTasks[index];
           if (this.taskIdsToWatch.includes(task.id)) {
             if (task.status === 'COMPLETED') {
               this.fetchFacilites();
@@ -183,13 +179,9 @@
     },
     beforeMount() {
       this.fetchFacilites();
-      this.pollSyncTasks();
-    },
-    beforeDestroy() {
-      this.tasks = [];
     },
     methods: {
-      options(facility) {
+      facilityOptions(facility) {
         return [
           {
             label: this.coreString('registerAction'),
@@ -215,7 +207,7 @@
         });
       },
       handleClickClearAll() {
-        Promise.all([this.fetchFacilites(), this.deleteFinishedTasks()]);
+        Promise.all([this.fetchFacilites(), this.clearCompletedFacilityTasks()]);
       },
       handleValidateSuccess({ name, token }) {
         this.kdpProject = { name, token };
@@ -229,56 +221,23 @@
         this.kdpProject = null;
       },
       handleStartSyncSuccess() {
-        this.pollSyncTasks();
         this.facilityForSync = null;
       },
       handleSyncAllSuccess() {
-        this.pollSyncTasks();
         this.showSyncAllModal = false;
       },
       handleStartImportSuccess(taskId) {
         this.taskIdsToWatch.push(taskId);
-        this.pollSyncTasks();
         this.showImportModal = false;
       },
       handleRemoveSuccess() {
         const facilityName = this.facilityForRemoval.name;
         this.facilityForRemoval = null;
-        this.pollSyncTasks();
         this.$store.dispatch(
           'createSnackbar',
           this.$tr('facilityRemovedSnackbar', {
             facilityName,
           })
-        );
-      },
-      pollSyncTasks() {
-        this.fetchKdpSyncTasks()
-          .then(tasks => {
-            this.tasks = tasks;
-          })
-          .then(() => {
-            if (this.$route.name === 'FACILITIES_PAGE' && this.tasks.length > 0) {
-              console.log(this.$route.name);
-              setTimeout(() => {
-                return this.pollSyncTasks();
-              }, 2000);
-            }
-          });
-      },
-      facilityIsSyncing(facility) {
-        return Boolean(
-          this.tasks.find(
-            task =>
-              task.type === 'SYNCDATAPORTAL' &&
-              task.facility === facility.id &&
-              task.status !== 'COMPLETED'
-          )
-        );
-      },
-      facilityIsListed(facility) {
-        return !this.tasks.find(
-          task => task.type === 'DELETEFACILITY' && task.facility === facility.id
         );
       },
     },
