@@ -176,5 +176,7 @@ def automatically_updated_resource_ids(destination, channel_id):
     return (
         ContentNode.objects.filter_by_uuids(contentnode_ids, validate=False)
         .filter(available=True, channel_id=channel_id)
+        # Exclude topics from here to prevent erroneous imports of their children
+        .exclude(kind=content_kinds.TOPIC)
         .values_list("id", flat=True)
     )
