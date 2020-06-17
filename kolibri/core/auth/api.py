@@ -19,6 +19,7 @@ from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
+from django.db.models import TextField
 from django.db.models.functions import Cast
 from django.db.models.query import F
 from django.utils.decorators import method_decorator
@@ -29,7 +30,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
 from morango.models import TransferSession
-from morango.models import UUIDField
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
@@ -373,6 +373,9 @@ class FacilityViewSet(ValuesViewset):
         return queryset
 
     def annotate_queryset(self, queryset):
+        # Patch from https://github.com/django/django/commit/c412926a2e359afb40738d8177c9f3bef80ee04e
+        # https://code.djangoproject.com/ticket/29142
+        F.relabeled_clone = lambda self, relabels: self
         return (
             queryset.annotate(
                 num_users=SQCount(
@@ -387,7 +390,7 @@ class FacilityViewSet(ValuesViewset):
             .annotate(
                 last_synced=Subquery(
                     TransferSession.objects.filter(
-                        filter=Cast(OuterRef("dataset"), UUIDField)
+                        filter=Cast(OuterRef("dataset"), TextField())
                     )
                     .order_by("-last_activity_timestamp")
                     .values("last_activity_timestamp")
