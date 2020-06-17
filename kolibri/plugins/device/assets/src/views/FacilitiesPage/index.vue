@@ -3,15 +3,17 @@
   <div>
     <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
       <template #options>
-        <KButton
-          :text="$tr('syncAllAction')"
-          @click="showSyncAllModal = true"
-        />
-        <KButton
-          :text="$tr('importFacilityAction')"
-          primary
-          @click="showImportModal = true"
-        />
+        <KButtonGroup>
+          <KButton
+            :text="$tr('syncAllAction')"
+            @click="showSyncAllModal = true"
+          />
+          <KButton
+            :text="$tr('importFacilityAction')"
+            primary
+            @click="showImportModal = true"
+          />
+        </KButtonGroup>
       </template>
     </HeaderWithOptions>
 
