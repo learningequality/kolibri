@@ -8,7 +8,6 @@ from django.db.models import Q
 from morango.models import Buffer
 from morango.models import Certificate
 from morango.models import DatabaseMaxCounter
-from morango.models import InstanceIDModel
 from morango.models import RecordMaxCounter
 from morango.models import RecordMaxCounterBuffer
 from morango.models import Store
@@ -289,8 +288,6 @@ class Command(AsyncCommand):
         )
 
     def _get_morango_models(self, dataset_id):
-        instance, _ = InstanceIDModel.get_or_create_current_instance()
-
         querysets = [
             DatabaseMaxCounter.objects.filter(partition__startswith=dataset_id),
         ]
