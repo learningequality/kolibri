@@ -24,7 +24,7 @@ docker run \
 CID=$(cat $CIDFILE)
 
 # Now that we know a container was created, remove it on exit
-trap "docker rm $CID" exit
+trap "rm build_test_iid && docker rm $CID" exit
 
 docker cp \
   $CID:/kolibri/.buildkite/spreadsheet-link.txt \
