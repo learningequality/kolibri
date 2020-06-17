@@ -36,6 +36,7 @@
             <FacilityNameAndSyncStatus
               :facility="facility"
               :isSyncing="facilityIsSyncing(facility)"
+              :isDeleting="facilityIsDeleting(facility)"
             />
           </td>
           <td class="button-col">
@@ -165,6 +166,7 @@
       };
     },
     watch: {
+      // Update facilities whenever a watched task completes
       facilityTasks(newTasks) {
         for (let index in newTasks) {
           const task = newTasks[index];
@@ -230,7 +232,8 @@
         this.taskIdsToWatch.push(taskId);
         this.showImportModal = false;
       },
-      handleRemoveSuccess() {
+      handleRemoveSuccess(taskId) {
+        this.taskIdsToWatch.push(taskId);
         const facilityName = this.facilityForRemoval.name;
         this.facilityForRemoval = null;
         this.$store.dispatch(

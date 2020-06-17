@@ -33,6 +33,7 @@ export default new Resource({
    * @param {string} password - password for admin (not needed if previously-imported)
    */
   startpeerfacilityimport(...args) {
+    // TODO clear out tasks for this facility from the queue before starting
     return this.postListEndpoint('startpeerfacilityimport', ...args);
   },
   startpeerfacilitysync(...args) {
@@ -51,6 +52,8 @@ export default new Resource({
    * @return {Promise}
    */
   deleteFacility(facilityId) {
-    return this.postListEndpoint('startdeletefacility', { facility: facilityId });
+    return this.postListEndpoint('startdeletefacility', { facility: facilityId }).then(response => {
+      return response.data;
+    });
   },
 });

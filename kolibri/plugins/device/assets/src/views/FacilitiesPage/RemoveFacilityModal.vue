@@ -87,7 +87,7 @@
         if (this.canRemove) {
           FacilityTaskResource.deleteFacility(this.facility.id)
             .then(data => {
-              this.$emit('success', data);
+              this.$emit('success', data.id);
             })
             .catch(error => {
               this.$store.dispatch('handleApiError', error);
