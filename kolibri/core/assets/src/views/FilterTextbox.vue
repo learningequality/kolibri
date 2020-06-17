@@ -20,6 +20,7 @@
       :placeholder="placeholder"
       :aria-label="placeholder"
       :autofocus="autofocus"
+      @keyup="throttledEmitInput($event.target.value)"
     >
 
     <KIconButton
@@ -72,12 +73,18 @@
       throttleInput: {
         type: Number,
         required: false,
+        default: 15,
       },
     },
     computed: {
       throttledEmitInput() {
         return throttle(val => {
-          this.$emit('input', val);
+          // This will also be triggered on keyUp for Android
+          // where the keyboard may not trigger a `model.set` call
+          // and thereby not triggering this
+          if (val !== this.value) {
+            this.$emit('input', val);
+          }
         }, this.throttleInput);
       },
       model: {
