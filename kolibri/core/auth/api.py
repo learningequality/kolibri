@@ -19,6 +19,7 @@ from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
+from django.db.models.functions import Cast
 from django.db.models.query import F
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
@@ -28,6 +29,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
 from morango.models import TransferSession
+from morango.models import UUIDField
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
@@ -384,7 +386,9 @@ class FacilityViewSet(ValuesViewset):
             )
             .annotate(
                 last_synced=Subquery(
-                    TransferSession.objects.filter(filter=OuterRef("dataset"))
+                    TransferSession.objects.filter(
+                        filter=Cast(OuterRef("dataset"), UUIDField)
+                    )
                     .order_by("-last_activity_timestamp")
                     .values("last_activity_timestamp")
                 )
