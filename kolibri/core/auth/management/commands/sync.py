@@ -63,7 +63,7 @@ class Command(AsyncCommand):
             help="password of superuser on server we are syncing with",
         )
         parser.add_argument(
-            "--no-provision", help="do not create a facility and temporary superuser",
+            "--no-provision", action="store_true", help="do not create a facility and temporary superuser",
         )
         # parser.add_argument("--scope-id", type=str, default=FULL_FACILITY)
 

@@ -42,7 +42,7 @@
     },
     computed: {
       isSyncTask() {
-        return this.task.type === 'SYNC_FACILITY';
+        return this.task.type === 'SYNCDATAPORTAL';
       },
       isRemoveTask() {
         return this.task.type === 'REMOVE_FACILITY';

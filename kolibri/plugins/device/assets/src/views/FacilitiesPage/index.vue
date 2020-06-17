@@ -18,8 +18,8 @@
     </HeaderWithOptions>
 
     <TasksBar
-      v-if="facilitiesTasks.length > 0"
-      :tasks="facilitiesTasks"
+      v-if="tasks.length > 0"
+      :tasks="tasks"
       :taskManagerLink="{ name: 'FACILITIES_TASKS_PAGE' }"
       @clearall="handleClickClearAll"
     />
@@ -31,7 +31,7 @@
         </tr>
       </thead>
       <tbody slot="tbody">
-        <tr v-for="(facility, idx) in facilities" :key="idx">
+        <tr v-for="(facility, idx) in visibleFacilities" :key="idx">
           <td>
             <FacilityNameAndSyncStatus
               :facility="facility"
@@ -58,9 +58,8 @@
 
     <RemoveFacilityModal
       v-if="Boolean(facilityForRemoval)"
-      :canRemove="facilityCanBeRemoved(facilityForRemoval)"
       :facility="facilityForRemoval"
-      @submit="handleSubmitRemoval"
+      @success="handleRemoveSuccess"
       @cancel="facilityForRemoval = null"
     />
 
@@ -160,14 +159,34 @@
         facilityForRemoval: null,
         facilityForRegister: null,
         kdpProject: null,
-        facilitiesTasks: [],
         tasks: [],
+        taskIdsToWatch: [],
       };
     },
-    computed: {},
+    computed: {
+      visibleFacilities() {
+        return this.facilities.filter(this.facilityIsListed);
+      },
+    },
+    watch: {
+      tasks(newVal) {
+        for (let idx in newVal) {
+          const task = newVal[idx];
+          if (this.taskIdsToWatch.includes(task.id)) {
+            if (task.status === 'COMPLETED') {
+              this.fetchFacilites();
+              this.taskIdsToWatch = this.taskIdsToWatch.filter(x => x !== task.id);
+            }
+          }
+        }
+      },
+    },
     beforeMount() {
       this.fetchFacilites();
       this.pollSyncTasks();
+    },
+    beforeDestroy() {
+      this.tasks = [];
     },
     methods: {
       options(facility) {
@@ -183,27 +202,11 @@
           },
         ];
       },
-      facilityCanBeRemoved() {
-        // TODO return false if user is in the facility (determine from session)
-        return true;
-      },
       handleOptionSelect(option, facility) {
         if (option === Options.REMOVE) {
           this.facilityForRemoval = facility;
         } else if (option === Options.REGISTER) {
           this.facilityForRegister = facility;
-        }
-      },
-      handleSubmitRemoval() {
-        if (this.facilityForRemoval) {
-          const facilityName = this.facilityForRemoval.name;
-          this.facilityForRemoval = null;
-          this.$store.dispatch(
-            'createSnackbar',
-            this.$tr('facilityRemovedSnackbar', {
-              facilityName,
-            })
-          );
         }
       },
       fetchFacilites() {
@@ -212,7 +215,7 @@
         });
       },
       handleClickClearAll() {
-        this.facilitiesTasks = [];
+        this.deleteFinishedTasks();
       },
       handleValidateSuccess({ name, token }) {
         this.kdpProject = { name, token };
@@ -233,18 +236,30 @@
         this.pollSyncTasks();
         this.showSyncAllModal = false;
       },
-      handleStartImportSuccess() {
+      handleStartImportSuccess(taskId) {
+        this.taskIdsToWatch.push(taskId);
         this.pollSyncTasks();
         this.showImportModal = false;
+      },
+      handleRemoveSuccess() {
+        const facilityName = this.facilityForRemoval.name;
+        this.facilityForRemoval = null;
+        this.pollSyncTasks();
+        this.$store.dispatch(
+          'createSnackbar',
+          this.$tr('facilityRemovedSnackbar', {
+            facilityName,
+          })
+        );
       },
       pollSyncTasks() {
         this.fetchKdpSyncTasks()
           .then(tasks => {
             this.tasks = tasks;
-            return this.cleanupKdpSyncTasks(this.tasks, this.fetchFacilites);
           })
           .then(() => {
-            if (this.tasks.length > 0) {
+            if (this.$route.name === 'FACILITIES_PAGE' && this.tasks.length > 0) {
+              console.log(this.$route.name);
               setTimeout(() => {
                 return this.pollSyncTasks();
               }, 2000);
@@ -252,7 +267,19 @@
           });
       },
       facilityIsSyncing(facility) {
-        return Boolean(this.tasks.find(task => task.facility === facility.id));
+        return Boolean(
+          this.tasks.find(
+            task =>
+              task.type === 'SYNCDATAPORTAL' &&
+              task.facility === facility.id &&
+              task.status !== 'COMPLETED'
+          )
+        );
+      },
+      facilityIsListed(facility) {
+        return !this.tasks.find(
+          task => task.type === 'DELETEFACILITY' && task.facility === facility.id
+        );
       },
     },
     $trs: {

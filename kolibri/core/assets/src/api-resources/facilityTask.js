@@ -50,7 +50,7 @@ export default new Resource({
    * @param {string} facility
    * @return {Promise}
    */
-  deleteFacility(facility) {
-    return this.postListEndpoint('deletefacility', { facility });
+  deleteFacility(facilityId) {
+    return this.postListEndpoint('startdeletefacility', { facility: facilityId });
   },
 });

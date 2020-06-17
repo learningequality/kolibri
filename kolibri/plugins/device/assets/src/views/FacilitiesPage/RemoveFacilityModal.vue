@@ -41,17 +41,15 @@
 
 <script>
 
+  import { FacilityTaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
 
   export default {
     name: 'RemoveFacilityModal',
     components: {},
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonSyncElements],
     props: {
-      canRemove: {
-        type: Boolean,
-        required: true,
-      },
       facility: {
         type: Object,
         required: true,
@@ -78,16 +76,22 @@
         return this.canRemove ? this.coreString('cancelAction') : this.coreString('closeAction');
       },
       facilityName() {
-        return this.coreString('nameWithIdInParens', {
-          name: this.facility.name,
-          id: this.facility.id.slice(0, 4),
-        });
+        return this.formatNameAndId(this.facility.name, this.facility.id);
+      },
+      canRemove() {
+        return this.$store.state.core.session.facility_id !== this.facility.id;
       },
     },
     methods: {
       handleSubmit() {
         if (this.canRemove) {
-          this.$emit('submit');
+          FacilityTaskResource.deleteFacility(this.facility.id)
+            .then(data => {
+              this.$emit('success', data);
+            })
+            .catch(error => {
+              this.$store.dispatch('handleApiError', error);
+            });
         } else {
           this.$emit('cancel');
         }

@@ -99,8 +99,11 @@ export default {
     },
     fetchKdpSyncTasks() {
       return FacilityTaskResource.fetchCollection({ force: true }).then(tasks => {
-        return tasks.filter(task => (task.type = 'SYNCDATAPORTAL'));
+        return tasks;
       });
+    },
+    deleteFinishedTasks() {
+      return FacilityTaskResource.deleteFinishedTasks();
     },
     fetchImportTasks() {
       return FacilityTaskResource.fetchCollection({ force: true }).then(tasks => {
