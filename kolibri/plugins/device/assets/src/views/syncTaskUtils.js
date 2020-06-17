@@ -67,7 +67,9 @@ export function syncFacilityTaskDisplayInfo(task) {
   }
   const syncStep = syncTaskStatusToStepMap[task.sync_state];
   const statusDescription =
-    syncStatusToDescriptionMap[task.status] || getTaskString('taskUnknownStatus');
+    syncStatusToDescriptionMap[task.status] ||
+    syncStatusToDescriptionMap[task.sync_state] ||
+    getTaskString('taskUnknownStatus');
 
   if (task.status === TaskStatuses.COMPLETED) {
     statusMsg = getTaskString('taskFinishedStatus');
@@ -110,7 +112,7 @@ export const removeStatusToDescriptionMap = {
 
 // Consolidates logic on how Remove-Facility Tasks should be displayed
 export function removeFacilityTaskDisplayInfo(task) {
-  const facilityName = formatNameWithId(task.facility_name, task.facility_id);
+  const facilityName = formatNameWithId(task.facility_name, task.facility);
   const statusDescription =
     removeStatusToDescriptionMap[task.status] || getTaskString('taskUnknownStatus');
 
@@ -118,9 +120,9 @@ export function removeFacilityTaskDisplayInfo(task) {
     headingMsg: getTaskString('removeFacilityTaskLabel', { facilityName }),
     statusMsg: statusDescription,
     startedByMsg: getTaskString('taskStartedByLabel', { username: task.started_by_username }),
-    isRunning: task.status === 'REMOVING_FACILITY',
+    isRunning: task.status === 'RUNNING',
     canClear: taskIsClearable(task),
-    canCancel: !taskIsClearable(task) && task.status !== 'REMOVING_FACILITY',
+    canCancel: !taskIsClearable(task) && task.status !== 'RUNNING',
     canRetry: task.status === TaskStatuses.FAILED,
   };
 }

@@ -102,6 +102,8 @@
         if (this.formIsValid) {
           // return Promise.resolve(true);
           return this.startPeerImportTask({
+            device_name: this.device.name,
+            device_id: this.device.id,
             facility_name: this.facility.name,
             facility: this.facility.id,
             baseurl: this.device.baseurl,

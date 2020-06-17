@@ -44,8 +44,8 @@
       isSyncTask() {
         return this.task.type === 'SYNCDATAPORTAL' || this.task.type === 'SYNCPEER/FULL';
       },
-      isRemoveTask() {
-        return this.task.type === 'REMOVE_FACILITY';
+      isDeleteTask() {
+        return this.task.type === 'DELETEFACILITY';
       },
       isImportTask() {
         return this.task.type === 'SYNCPEER/PULL';
@@ -53,7 +53,7 @@
       taskInfo() {
         if (this.isSyncTask) {
           return syncFacilityTaskDisplayInfo(this.task);
-        } else if (this.isRemoveTask) {
+        } else if (this.isDeleteTask) {
           return removeFacilityTaskDisplayInfo(this.task);
         } else if (this.isImportTask) {
           return importFacilityTaskDisplayInfo(this.task);

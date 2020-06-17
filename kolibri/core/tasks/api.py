@@ -922,6 +922,7 @@ class FacilityTasksViewSet(BaseViewSet):
                 dict(code="FACILITY_MEMBER", message="User is member of facility",)
             )
 
+        facility_name = Facility.objects.get(id=facility_id).name
         job_id = facility_queue.enqueue(
             call_command,
             "deletefacility",
@@ -930,7 +931,11 @@ class FacilityTasksViewSet(BaseViewSet):
             noninteractive=True,
             cancellable=False,
             extra_metadata=dict(
-                facility=facility_id, started_by=request.user.pk, type="DELETEFACILITY"
+                facility=facility_id,
+                facility_name=facility_name,
+                started_by=request.user.pk,
+                started_by_username=request.user.username,
+                type="DELETEFACILITY"
             ),
         )
 
@@ -949,11 +954,19 @@ class ResourceGoneError(APIException):
 
 def prepare_sync_task(request, **kwargs):
     facility_id = request.data.get("facility")
-    # facility_name = request.data.get("facility_name")
+    # Extra metadata that can be passed from the client
+    facility_name = request.data.get("facility_name", "")
+    device_name = request.data.get("device_name", "")
+    device_id = request.data.get("device_id", "")
+    baseurl = request.data.get("baseurl", "")
     task_data = dict(
         facility=facility_id,
-        # facility_name=facility_name,
+        facility_name=facility_name,
+        device_name=device_name,
+        device_id=device_id,
+        baseurl=baseurl,
         started_by=request.user.pk,
+        started_by_username=request.user.username,
         sync_state=FacilitySyncState.PENDING,
         bytes_sent=0,
         bytes_received=0,

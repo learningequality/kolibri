@@ -215,7 +215,7 @@
         });
       },
       handleClickClearAll() {
-        this.deleteFinishedTasks();
+        Promise.all([this.fetchFacilites(), this.deleteFinishedTasks()]);
       },
       handleValidateSuccess({ name, token }) {
         this.kdpProject = { name, token };

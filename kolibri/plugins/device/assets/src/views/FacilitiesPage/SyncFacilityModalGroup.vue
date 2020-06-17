@@ -78,6 +78,9 @@
       startPeerSync(peerData) {
         this.startPeerSyncTask({
           facility: this.facilityForSync.id,
+          facility_name: this.facilityForSync.name,
+          device_name: peerData.device_name,
+          device_id: peerData.id,
           baseurl: peerData.base_url,
         }).then(task => {
           this.$emit('success', task.id);
