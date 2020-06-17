@@ -1,10 +1,6 @@
 import pickBy from 'lodash/pickBy';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
-import {
-  ContentNodeResource,
-  ContentNodeSlimResource,
-  ContentNodeSearchResource,
-} from 'kolibri.resources';
+import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
@@ -51,7 +47,7 @@ function showResourceSelectionPage(store, params) {
           getResourceAncestors = [];
         } else {
           getResourceAncestors = store.state.lessonSummary.workingResources.map(resourceId =>
-            ContentNodeSlimResource.fetchAncestors(resourceId)
+            ContentNodeResource.fetchAncestors(resourceId)
           );
         }
 
@@ -137,7 +133,7 @@ export function showLessonResourceSelectionTopicPage(store, params) {
     const loadRequirements = [
       ContentNodeResource.fetchModel({ id: topicId }),
       ContentNodeResource.fetchCollection({ getParams: { parent: topicId } }),
-      ContentNodeSlimResource.fetchAncestors(topicId),
+      ContentNodeResource.fetchAncestors(topicId),
     ];
 
     return Promise.all(loadRequirements).then(([topicNode, childNodes, ancestors]) => {

@@ -4,14 +4,14 @@
     <SelectSyncSourceModal
       v-if="atSelectSource"
       @submit="handleSubmit"
-      @cancel="$emit('cancel')"
+      @cancel="closeModal()"
     />
 
     <SelectAddressModalGroup
       v-else-if="atSelectAddress"
       :fetchAddressArgs="''"
       @submit="handleSubmit"
-      @cancel="$emit('cancel')"
+      @cancel="closeModal()"
     />
   </div>
 
@@ -25,8 +25,10 @@
   import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
   import SelectSyncSourceModal from './SelectSyncSourceModal';
 
-  const SELECT_SOURCE = 'SELECT_SOURCE';
-  const SELECT_ADDRESS = 'SELECT_ADDRESS';
+  const Steps = Object.freeze({
+    SELECT_SOURCE: 'SELECT_SOURCE',
+    SELECT_ADDRESS: 'SELECT_ADDRESS',
+  });
 
   export default {
     name: 'SyncFacilityModalGroup',
@@ -35,25 +37,30 @@
       SelectAddressModalGroup,
     },
     mixins: [commonCoreStrings, commonSyncElements],
-    props: {},
+    props: {
+      facilityForSync: {
+        type: Object,
+        required: true,
+      },
+    },
     data() {
       return {
-        step: SELECT_SOURCE,
+        step: Steps.SELECT_SOURCE,
       };
     },
     computed: {
       atSelectSource() {
-        return this.step === SELECT_SOURCE;
+        return this.step === Steps.SELECT_SOURCE;
       },
       atSelectAddress() {
-        return this.step === SELECT_ADDRESS;
+        return this.step === Steps.SELECT_ADDRESS;
       },
     },
     methods: {
       handleSubmit(data) {
         if (this.atSelectSource) {
           if (data.source === 'PEER') {
-            this.step = SELECT_ADDRESS;
+            this.step = Steps.SELECT_ADDRESS;
           } else {
             this.startSync();
           }
@@ -61,9 +68,12 @@
           this.startSync();
         }
       },
+      closeModal() {
+        this.$emit('close');
+      },
       startSync() {
-        return Promise.resolve().then(() => {
-          this.$emit('cancel');
+        this.startKdpSyncTask(this.facilityForSync.id).then(task => {
+          this.$emit('success', task.id);
         });
       },
     },

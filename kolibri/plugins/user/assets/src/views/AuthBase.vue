@@ -6,7 +6,7 @@
         <div class="main-cell table-cell">
           <!-- remote access disabled -->
           <div
-            v-if="!$store.getters.allowRemoteAccess"
+            v-if="!$store.getters.allowAccess"
             class="box"
             :style="{ backgroundColor: $themePalette.grey.v_100 }"
           >
@@ -67,6 +67,16 @@
             </p>
 
             <slot></slot>
+
+            <p class="create">
+              <KRouterLink
+                v-if="canSignUp"
+                :text="$tr('createAccountAction')"
+                :to="signUpPage"
+                :primary="true"
+                appearance="flat-button"
+              />
+            </p>
 
             <div slot="options">
               <component :is="component" v-for="component in loginOptions" :key="component.name" />
@@ -135,6 +145,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -142,6 +153,7 @@
   import loginComponents from 'kolibri.utils.loginComponents';
   import urls from 'kolibri.urls';
   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
+  import { PageNames } from '../constants';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -155,6 +167,7 @@
       };
     },
     computed: {
+      ...mapGetters(['facilityConfig']),
       backgroundImageStyle() {
         if (this.$kolibriBranding.signIn.background) {
           const scrimOpacity =
@@ -171,6 +184,15 @@
       guestURL() {
         return urls['kolibri:core:guest']();
       },
+      canSignUp() {
+        return this.facilityConfig.learner_can_sign_up;
+      },
+      signUpPage() {
+        if (this.nextParam) {
+          return { name: PageNames.SIGN_UP, query: { next: this.nextParam } };
+        }
+        return { name: PageNames.SIGN_UP };
+      },
       loginOptions() {
         // POC, in the future sorting of different login options can be implemented
         return [...loginComponents];
@@ -186,7 +208,6 @@
       showGuestAccess() {
         return plugin_data.allowGuestAccess && !this.oidcProviderFlow;
       },
-
       versionMsg() {
         return this.$tr('poweredBy', { version: __version });
       },
@@ -196,6 +217,7 @@
     },
     $trs: {
       accessAsGuest: 'Explore without account',
+      createAccountAction: 'Create an account',
       oidcGenericExplanation:
         'Kolibri is an e-learning platform. You can also use your Kolibri account to log in to some third-party applications.',
       // Disable the rule here because we will keep this unused string in case we need it later on
@@ -269,8 +291,7 @@
   }
 
   .create {
-    margin-top: 32px;
-    margin-bottom: 8px;
+    margin: 24px auto 16px;
   }
 
   .guest {

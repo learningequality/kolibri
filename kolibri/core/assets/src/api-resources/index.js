@@ -15,7 +15,6 @@ export const DynamicNetworkLocationResource = new Resource({
 export { default as ClassroomResource } from './classroom';
 export { default as ContentNodeResource } from './contentNode';
 export { default as ContentNodeGranularResource } from './contentNodeGranular';
-export { default as ContentNodeSlimResource } from './contentNodeSlim';
 export { default as ContentNodeSearchResource } from './contentNodeSearch';
 export { default as FacilityUserResource } from './facilityUser';
 export { default as FacilityUsernameResource } from './facilityUsername';
@@ -28,6 +27,7 @@ export { default as ContentSummaryLogResource } from './contentSummaryLog';
 export { default as SessionResource } from './session';
 export { default as FacilityResource } from './facility';
 export { default as TaskResource } from './task';
+export { default as FacilityTaskResource } from './facilityTask';
 export { default as ChannelResource } from './channel';
 export { default as MasteryLogResource } from './masteryLog';
 export { default as ExamResource } from './exam';

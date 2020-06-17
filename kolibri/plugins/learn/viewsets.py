@@ -34,7 +34,7 @@ class LearnerClassroomViewset(ValuesViewset):
         else:
             return Classroom.objects.filter(membership__user=self.request.user)
 
-    def consolidate(self, items):
+    def consolidate(self, items, queryset):
         lessons = (
             Lesson.objects.filter(
                 lesson_assignments__collection__membership__user=self.request.user,

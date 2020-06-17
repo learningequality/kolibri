@@ -169,15 +169,27 @@
       yearInfo: 'A four-digit year, greater than 1900',
       listClassesEnrolled: 'Classes to enroll the user in as a learner:',
       listClassesEnrolledL1: 'Can be any type of user',
-      listClassesEnrolledL2: 'Write the class names separated by commas',
-      listClassesEnrolledL3:
-        'If an existing class does not match by name, a new class with that name will be created',
+      listClassesEnrolledL2: {
+        message: 'Write the class names separated by commas',
+        context:
+          'Refers to values in a column of the CSV (comma separated values) file used to import users. When a user is assigned to coach multiple classes, the class names in this field must be separated by commas.',
+      },
+      listClassesEnrolledL3: {
+        message:
+          'If an existing class does not match by name, a new class with that name will be created',
+        context:
+          'Refers to values in a column of the CSV (comma separated values) file used to import users. When a CSV file contains a class name that is not present in the database, import command will create it.',
+      },
       listClassesAssigned: {
         message: 'Classes to which the user will be assigned as a coach:',
         context:
           'Description of a column in the CSV (comma separated values) file used to import and export users. Values in this column indicate classes where a coach user will be assigned to.',
       },
-      listClassesAssignedL1: 'Do not use for learner users',
+      listClassesAssignedL1: {
+        message: 'Do not use for learner users',
+        context:
+          'Refers to values in a column of the CSV (comma separated values) file used to import and export users.',
+      },
       listClassesAssignedL2: 'List of class names, separated by commas',
       listClassesAssignedL3: 'If an existing class does not match by name, it will be created',
       columnNameHeader: 'Column',
@@ -193,6 +205,23 @@
       gender: 'Gender',
       enrolled: 'Learner enrollment',
       assigned: 'Coach assignment',
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      // stub out some extra strings
+      downloadSample: 'Download a sample CSV file',
+      exampleUser: {
+        message: 'Example User {number}',
+        context: 'Placeholder sample data for a fake user, e.g. "Example Name 1234"',
+      },
+      exampleUsername: {
+        message: 'user-{number}',
+        context:
+          'Placeholder sample data for a fake username. Must be a valid Kolibri username. e.g. "user-1234"',
+      },
+      exampleClass: {
+        message: 'Example Class - {letter}',
+        context: 'Placeholder sample data for a fake class name, e.g. "Example Class - A"',
+      },
+      /* eslint-enable */
     },
   };
 

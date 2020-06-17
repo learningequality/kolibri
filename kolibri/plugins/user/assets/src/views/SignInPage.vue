@@ -90,7 +90,9 @@
           />{{ coreString('goBackAction') }}
         </KButton>
 
-        <p>{{ $tr("greetUser", { user: selectedListUser.username }) }}</p>
+        <p v-if="selectedListUser.username">
+          {{ $tr("greetUser", { user: selectedListUser.username }) }}
+        </p>
 
         <form ref="form" class="login-form" @submit.prevent="signIn">
           <UiAlert
@@ -552,7 +554,11 @@
       },
     },
     $trs: {
-      changeLabel: 'Change',
+      changeLabel: {
+        message: 'Change',
+        context:
+          '(verb) Link to change the facility to sign in when the device has more than one facility',
+      },
       signInError: 'Incorrect username or password',
       signInToFacilityLabel: "Sign into '{facility}'",
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
@@ -560,6 +566,14 @@
       greetUser: 'Hi, {user}',
       needToMakeNewPasswordLabel: 'Hi, {user}. You need to set a new password for your account.',
       nextLabel: 'Next',
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      // stub out some extra strings
+      signingInToFacilityAsUserLabel: "Signing in to '{facility}' as '{user}'",
+      signingInAsUserLabel: "Signing in as '{user}'",
+      changeUser: 'Change user',
+      changeFacility: 'Change facility',
+      multiFacilitySignInError: 'Incorrect username, password, or facility',
+      /* eslint-enable */
     },
   };
 

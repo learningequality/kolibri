@@ -1,11 +1,9 @@
-from django.core.cache import cache
 from django.db.models import Manager
 from django.db.models import Sum
 from django.db.models.query import RawQuerySet
 from le_utils.constants import content_kinds
 from rest_framework import serializers
 
-from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
@@ -57,6 +55,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
         fields = (
             "author",
             "description",
+            "tagline",
             "id",
             "last_updated",
             "lang_code",
@@ -108,6 +107,7 @@ class PublicChannelSerializer(serializers.ModelSerializer):
             "language",
             "included_languages",
             "description",
+            "tagline",
             "total_resource_count",
             "version",
             "published_size",
@@ -169,22 +169,6 @@ class FileSerializer(serializers.ModelSerializer):
             "supplementary",
             "thumbnail",
             "download_url",
-        )
-
-
-class AssessmentMetaDataSerializer(serializers.ModelSerializer):
-
-    assessment_item_ids = serializers.JSONField(default="[]")
-    mastery_model = serializers.JSONField(default="{}")
-
-    class Meta:
-        model = AssessmentMetaData
-        fields = (
-            "assessment_item_ids",
-            "number_of_assessments",
-            "mastery_model",
-            "randomize",
-            "is_manipulable",
         )
 
 
@@ -289,132 +273,6 @@ def get_content_progress_fractions(nodes, user):
         for log in summary_logs.values("content_id", "progress")
     }
     return overall_progress
-
-
-class ContentNodeListSerializer(serializers.ListSerializer):
-    def to_representation(self, data):
-
-        # Dealing with nested relationships, data can be a Manager,
-        # so, first get a queryset from the Manager if needed
-        data = data.all() if isinstance(data, Manager) else data
-
-        # initialize cache key
-        cache_key = None
-
-        # ensure that we are filtering by the parent only
-        # this allows us to only cache results on the learn page
-        from .api import ContentNodeFilter
-
-        parent_filter_only = set(self.context["request"].GET.keys()).intersection(
-            ContentNodeFilter.Meta.fields
-        ) == set(["parent"])
-
-        # Cache parent look ups only
-        if parent_filter_only:
-            cache_key = "contentnode_list_{parent}".format(
-                parent=self.context["request"].GET.get("parent")
-            )
-
-            if cache.get(cache_key):
-                return cache.get(cache_key)
-
-        if not data:
-            return data
-
-        if (
-            "request" not in self.context
-            or not self.context["request"].user.is_facility_user
-        ):
-            progress_dict = {}
-        else:
-            user = self.context["request"].user
-            # Don't annotate topic progress as too expensive
-            progress_dict = get_content_progress_fractions(data, user)
-
-        result = []
-        topic_only = True
-
-        # Allow results to be limited after all queryset filtering has occurred
-        if self.limit:
-            data = data[: self.limit]
-
-        for item in data:
-            obj = self.child.to_representation(
-                item,
-                progress_fraction=progress_dict.get(item.content_id),
-                annotate_progress_fraction=False,
-            )
-            topic_only = topic_only and obj.get("kind") == content_kinds.TOPIC
-            result.append(obj)
-
-        # Only store if all nodes are topics, because we don't annotate progress on them
-        # This has the happy side effect of not caching our dynamically calculated
-        # recommendation queries, which might change for the same user over time
-        # because they do not return topics
-        if topic_only and parent_filter_only:
-            cache.set(cache_key, result, 60 * 10)
-
-        return result
-
-
-class ContentNodeSerializer(DynamicFieldsModelSerializer):
-    parent = serializers.PrimaryKeyRelatedField(read_only=True)
-    files = FileSerializer(many=True, read_only=True)
-    assessmentmetadata = AssessmentMetaDataSerializer(
-        read_only=True, allow_null=True, many=True
-    )
-    lang = LanguageSerializer()
-    options = serializers.JSONField(default="{}")
-
-    class Meta:
-        model = ContentNode
-        fields = (
-            "id",
-            "assessmentmetadata",
-            "author",
-            "available",
-            "channel_id",
-            "coach_content",
-            "content_id",
-            "description",
-            "files",
-            "kind",
-            "lang",
-            "license_description",
-            "license_name",
-            "license_owner",
-            "num_coach_contents",
-            "parent",
-            "options",
-            "sort_order",
-            "title",
-        )
-        list_serializer_class = ContentNodeListSerializer
-
-    def __new__(cls, *args, **kwargs):
-        # This is overwritten to provide a ListClassSerializer for many=True
-        limit = kwargs.pop("limit", None)
-        new = super(ContentNodeSerializer, cls).__new__(cls, *args, **kwargs)
-        new.limit = limit
-        return new
-
-    def to_representation(
-        self, instance, progress_fraction=None, annotate_progress_fraction=True
-    ):
-        if progress_fraction is None and annotate_progress_fraction:
-            if (
-                "request" not in self.context
-                or not self.context["request"].user.is_facility_user
-            ):
-                # Don't try to annotate for a non facility user
-                progress_fraction = 0.0
-            else:
-                user = self.context["request"].user
-                if instance.kind != content_kinds.TOPIC:
-                    progress_fraction = get_content_progress_fraction(instance, user)
-        value = super(ContentNodeSerializer, self).to_representation(instance)
-        value["progress_fraction"] = progress_fraction
-        return value
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):

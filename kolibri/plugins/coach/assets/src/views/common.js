@@ -96,7 +96,7 @@ export const CoachCoreBase = {
         const { facility_id, name } = this.$store.state.classSummary;
         if (
           facility_id &&
-          this.$store.state.core.facilities.length > 0 &&
+          this.$store.state.core.facilities.length > 1 &&
           this.$store.getters.isSuperuser
         ) {
           const match = find(this.$store.state.core.facilities, { id: facility_id }) || {};

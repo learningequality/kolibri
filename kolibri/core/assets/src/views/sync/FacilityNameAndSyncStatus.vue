@@ -21,7 +21,7 @@
     </div>
     <div>
       <span>
-        <template v-if="facility.syncing">
+        <template v-if="facility.syncing || isSyncing">
           <KCircularLoader class="loader" :size="16" :delay="false" />
           {{ $tr('syncing') }}
         </template>
@@ -46,17 +46,7 @@
 <script>
 
   import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
-  import has from 'lodash/has';
-  import every from 'lodash/every';
   import { now } from 'kolibri.utils.serverClock';
-
-  const facilityFields = [
-    'name',
-    'dataset.registered',
-    'syncing',
-    'last_sync_failed',
-    'last_synced',
-  ];
 
   export default {
     name: 'FacilityNameAndSyncStatus',
@@ -68,9 +58,10 @@
       facility: {
         type: Object,
         required: true,
-        validator(value) {
-          return every(facilityFields, field => has(value, field));
-        },
+      },
+      isSyncing: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {

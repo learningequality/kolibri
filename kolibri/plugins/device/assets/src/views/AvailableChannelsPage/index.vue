@@ -204,7 +204,10 @@
       },
       multipleMode() {
         const { multiple } = this.$route.query;
-        return multiple === true || multiple === 'true';
+        return this.setupMode || multiple === true || multiple === 'true';
+      },
+      setupMode() {
+        return Boolean(this.$route.query.setup);
       },
       documentTitle() {
         switch (this.transferType) {
@@ -252,6 +255,13 @@
         this.setAppBarTitle(this.toolbarTitle(this.transferType));
       }
     },
+    mounted() {
+      // If arriving here from the PostSetupModalGroup/WelcomeModal,
+      // then select all the channels automatically
+      if (this.setupMode) {
+        this.selectedChannels = [...this.allChannels];
+      }
+    },
     methods: {
       ...mapMutations('coreBase', {
         setAppBarTitle: 'SET_APP_BAR_TITLE',
@@ -276,14 +286,16 @@
       toggleMultipleMode() {
         let newQuery;
         if (this.multipleMode) {
-          newQuery = omit(this.$route.query, ['multiple']);
+          // Remove the 'setup' query param if switching to single-channel mode.
+          // When the user returns, none of the channels will be selected
+          newQuery = omit(this.$route.query, ['multiple', 'setup']);
         } else {
           newQuery = {
             ...this.$route.query,
             multiple: true,
           };
         }
-        this.$router.push({ query: newQuery });
+        return this.$router.push({ query: newQuery });
       },
       handleSubmitToken(channel) {
         if (this.multipleMode) {

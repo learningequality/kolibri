@@ -26,18 +26,19 @@ __version__ = str(get_version(VERSION))
 #: Define it here to avoid introspection malarkey, and to allow for
 #: import in setup.py for creating a list of plugin entry points.
 INTERNAL_PLUGINS = [
-    "kolibri.plugins.facility",
+    "kolibri.plugins.app",
+    "kolibri.plugins.coach",
+    "kolibri.plugins.default_theme",
+    "kolibri.plugins.demo_server",
     "kolibri.plugins.device",
-    "kolibri.plugins.learn",
-    "kolibri.plugins.pdf_viewer",
+    "kolibri.plugins.epub_viewer",
     "kolibri.plugins.h5p_viewer",
     "kolibri.plugins.html5_viewer",
+    "kolibri.plugins.facility",
+    "kolibri.plugins.learn",
     "kolibri.plugins.media_player",
+    "kolibri.plugins.pdf_viewer",
     "kolibri.plugins.setup_wizard",
-    "kolibri.plugins.coach",
-    "kolibri.plugins.user",
-    "kolibri.plugins.epub_viewer",
-    "kolibri.plugins.default_theme",
     "kolibri.plugins.slideshow_viewer",
-    "kolibri.plugins.app",
+    "kolibri.plugins.user",
 ]

@@ -1,4 +1,5 @@
-import { StaticNetworkLocationResource } from 'kolibri.resources';
+import some from 'lodash/some';
+import { StaticNetworkLocationResource, FacilityTaskResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 
 // Strings that might be shared among syncing-related UIs across plugins.
@@ -40,9 +41,10 @@ const syncStrings = createTranslator('CommonSyncStrings', {
     context: 'Label for a button used to import a facility on the device',
   },
   distinctFacilityNameExplanation: {
-    message: "This facility is different from '{facilities}'. These facilities will not sync.",
+    message:
+      "This facility is different from '{facilities}'. These facilities will not be synced with each other.",
     context:
-      'When two facilities have the same name but different IDs, they will not be able to sync',
+      'When two facilities have the same name but different IDs, they will just sync in parallel and not be integrated with each other in any way.',
   },
 });
 
@@ -60,6 +62,25 @@ export default {
         base_url,
         nickname: device_name,
       }).save();
+    },
+    startKdpSyncTask(facilityId) {
+      return FacilityTaskResource.dataportalsync(facilityId).then(response => {
+        return response.data;
+      });
+    },
+    fetchKdpSyncTasks() {
+      return FacilityTaskResource.fetchCollection({ force: true }).then(tasks => {
+        return tasks.filter(task => (task.type = 'SYNCDATAPORTAL'));
+      });
+    },
+    cleanupKdpSyncTasks(tasks, cb) {
+      if (some(tasks, { type: 'SYNCDATAPORTAL', status: 'COMPLETED' })) {
+        return FacilityTaskResource.deleteFinishedTasks().then(() => {
+          if (cb) {
+            cb();
+          }
+        });
+      }
     },
   },
 };

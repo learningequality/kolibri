@@ -45,6 +45,7 @@ from mptt.models import TreeForeignKey
 
 from .constants import collection_kinds
 from .constants import facility_presets
+from .constants import morango_sync
 from .constants import role_kinds
 from .constants import user_kinds
 from .errors import InvalidRoleKind
@@ -67,8 +68,7 @@ from .permissions.general import IsFromSameFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
 from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
-from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
-from kolibri.core.auth.constants.morango_scope_definitions import SINGLE_USER
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.device.utils import allow_learner_unassigned_resource_access
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
@@ -86,7 +86,7 @@ def _has_permissions_class(obj):
 
 class FacilityDataSyncableModel(SyncableModel):
 
-    morango_profile = "facilitydata"
+    morango_profile = morango_sync.PROFILE_FACILITY_DATA
 
     class Meta:
         abstract = True
@@ -140,7 +140,7 @@ class FacilityDataset(FacilityDataSyncableModel):
         # if we don't already have a source ID, get one by generating a new root certificate, and using its ID
         if not self._morango_source_id:
             self._morango_source_id = Certificate.generate_root_certificate(
-                FULL_FACILITY
+                ScopeDefinitions.FULL_FACILITY
             ).id
         return self._morango_source_id
 
@@ -170,7 +170,7 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
     such as ``FacilityUsers``, ``Collections``, and other data associated with those users and collections.
     """
 
-    dataset = models.ForeignKey(FacilityDataset)
+    dataset = models.ForeignKey(FacilityDataset, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -663,7 +663,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     objects = FacilityUserModelManager()
 
-    facility = models.ForeignKey("Facility")
+    facility = models.ForeignKey("Facility", on_delete=models.CASCADE)
 
     is_facility_user = True
 
@@ -702,10 +702,10 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         if scope_params.get("dataset_id") != self.dataset_id:
             # if the request isn't for the same facility as this user, abort
             return False
-        if scope_definition_id == FULL_FACILITY:
+        if scope_definition_id == ScopeDefinitions.FULL_FACILITY:
             # if request is for full-facility syncing, return True only if user is a Facility Admin
             return self.has_role_for_collection(role_kinds.ADMIN, self.facility)
-        elif scope_definition_id == SINGLE_USER:
+        elif scope_definition_id == ScopeDefinitions.SINGLE_USER:
             # for single-user syncing, return True if this user *is* target user, or is admin for target user
             target_user = FacilityUser.objects.get(id=scope_params.get("user_id"))
             if self == target_user:
@@ -1206,7 +1206,11 @@ class Role(AbstractFacilityDataModel):
     permissions = own | role
 
     user = models.ForeignKey(
-        "FacilityUser", related_name="roles", blank=False, null=False
+        "FacilityUser",
+        related_name="roles",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield

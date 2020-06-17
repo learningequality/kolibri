@@ -1,7 +1,6 @@
 <template>
 
   <div>
-
     <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
       <template #options>
         <KButton
@@ -32,7 +31,10 @@
       <tbody slot="tbody">
         <tr v-for="(facility, idx) in facilities" :key="idx">
           <td>
-            <FacilityNameAndSyncStatus :facility="facility" />
+            <FacilityNameAndSyncStatus
+              :facility="facility"
+              :isSyncing="facilityIsSyncing(facility)"
+            />
           </td>
           <td class="button-col">
             <div>
@@ -54,7 +56,7 @@
 
     <RemoveFacilityModal
       v-if="Boolean(facilityForRemoval)"
-      :canRemove="facilityForRemoval.canRemove"
+      :canRemove="facilityCanBeRemoved(facilityForRemoval)"
       :facility="facilityForRemoval"
       @submit="handleSubmitRemoval"
       @cancel="facilityForRemoval = null"
@@ -72,16 +74,30 @@
       @cancel="showImportModal = false"
     />
 
-    <RegisterFacilityModal
-      v-if="Boolean(facilityForRegister)"
-      :facility="facilityForRegister"
-      @cancel="facilityForRegister = null"
-    />
+    <!-- NOTE similar code for KDP Registration in SyncInterface -->
+    <template v-if="Boolean(facilityForRegister)">
+      <RegisterFacilityModal
+        v-if="!kdpProject"
+        :facility="facilityForRegister"
+        @success="handleValidateSuccess"
+        @cancel="clearRegistrationState"
+      />
+
+      <ConfirmationRegisterModal
+        v-else
+        :targetFacility="facilityForRegister"
+        :projectName="kdpProject.name"
+        :token="kdpProject.token"
+        @success="handleConfirmationSuccess"
+        @cancel="clearRegistrationState"
+      />
+    </template>
 
     <SyncFacilityModalGroup
       v-if="Boolean(facilityForSync)"
-      @submit="facilityForSync = null"
-      @cancel="facilityForSync = null"
+      :facilityForSync="facilityForSync"
+      @close="facilityForSync = null"
+      @success="handleStartSyncSuccess"
     />
   </div>
 
@@ -91,17 +107,25 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import { FacilityResource } from 'kolibri.resources';
   import {
     FacilityNameAndSyncStatus,
     RegisterFacilityModal,
+    ConfirmationRegisterModal,
   } from 'kolibri.coreVue.componentSets.sync';
-  import TasksBar from '../ManageContentPage/TasksBar.vue';
+  import TasksBar from '../ManageContentPage/TasksBar';
   import HeaderWithOptions from '../HeaderWithOptions';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
   import SyncFacilityModalGroup from './SyncFacilityModalGroup';
   import ImportFacilityModalGroup from './ImportFacilityModalGroup';
+
+  const Options = Object.freeze({
+    REGISTER: 'REGISTER',
+    REMOVE: 'REMOVE',
+  });
 
   export default {
     name: 'FacilitiesPage',
@@ -111,6 +135,7 @@
       };
     },
     components: {
+      ConfirmationRegisterModal,
       CoreTable,
       HeaderWithOptions,
       FacilityNameAndSyncStatus,
@@ -121,23 +146,19 @@
       SyncAllFacilitiesModal,
       TasksBar,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonSyncElements],
     props: {},
     data() {
       return {
         showSyncAllModal: false,
         showImportModal: false,
+        facilities: [],
         facilityForSync: null,
         facilityForRemoval: null,
         facilityForRegister: null,
-        facilitiesTasks: [
-          {
-            status: 'COMPLETED',
-          },
-          {
-            status: 'RUNNING',
-          },
-        ],
+        kdpProject: null,
+        facilitiesTasks: [],
+        tasks: [],
       };
     },
     computed: {
@@ -145,73 +166,28 @@
         return [
           {
             label: this.coreString('registerAction'),
-            value: 'REGISTER',
+            value: Options.REGISTER,
           },
           {
             label: this.coreString('removeAction'),
-            value: 'REMOVE',
+            value: Options.REMOVE,
           },
-        ];
-      },
-      facilities() {
-        return [
-          {
-            name: 'Atkinson Hall (d81c)',
-            id: 'D81C',
-            syncing: false,
-            dataset: {
-              registered: false,
-            },
-            last_sync_failed: false,
-            last_synced: null,
-            canRemove: true,
-          },
-          {
-            name: 'Atkinson Hall (d81c)',
-            id: 'D81C',
-            syncing: true,
-            dataset: {
-              registered: true,
-            },
-            last_sync_failed: false,
-            last_synced: null,
-            canRemove: true,
-          },
-          {
-            name: 'Atkinson Hall (d81c)',
-            id: 'D81C',
-            syncing: false,
-            dataset: {
-              registered: true,
-            },
-            last_sync_failed: false,
-            last_synced: 1588036798109,
-            canRemove: true,
-          },
-          {
-            name: 'Atkinson Hall (d81c)',
-            id: 'D81C',
-            syncing: false,
-            dataset: {
-              registered: true,
-            },
-            last_sync_failed: true,
-            last_synced: 1588036798109,
-            canRemove: true,
-          },
-          // {
-          //   name: 'Cannot remove',
-          //   id: '4321',
-          //   canRemove: false,
-          // },
         ];
       },
     },
+    beforeMount() {
+      this.fetchFacilites();
+      this.pollSyncTasks();
+    },
     methods: {
+      facilityCanBeRemoved() {
+        // TODO return false if user is in the facility (determine from session)
+        return true;
+      },
       handleOptionSelect(option, facility) {
-        if (option === 'REMOVE') {
+        if (option === Options.REMOVE) {
           this.facilityForRemoval = facility;
-        } else if (option === 'REGISTER') {
+        } else if (option === Options.REGISTER) {
           this.facilityForRegister = facility;
         }
       },
@@ -227,8 +203,45 @@
           );
         }
       },
+      fetchFacilites() {
+        return FacilityResource.fetchCollection({ force: true }).then(facilities => {
+          this.facilities = [...facilities];
+        });
+      },
       handleClickClearAll() {
         this.facilitiesTasks = [];
+      },
+      handleValidateSuccess({ name, token }) {
+        this.kdpProject = { name, token };
+      },
+      handleConfirmationSuccess() {
+        this.fetchFacilites();
+        this.clearRegistrationState();
+      },
+      clearRegistrationState() {
+        this.facilityForRegister = null;
+        this.kdpProject = null;
+      },
+      handleStartSyncSuccess() {
+        this.pollSyncTasks();
+        this.facilityForSync = null;
+      },
+      pollSyncTasks() {
+        this.fetchKdpSyncTasks()
+          .then(tasks => {
+            this.tasks = tasks;
+            return this.cleanupKdpSyncTasks(this.tasks, this.fetchFacilites);
+          })
+          .then(() => {
+            if (this.tasks.length > 0) {
+              setTimeout(() => {
+                return this.pollSyncTasks();
+              }, 2000);
+            }
+          });
+      },
+      facilityIsSyncing(facility) {
+        return Boolean(this.tasks.find(task => task.facility === facility.id));
       },
     },
     $trs: {

@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-28 21:57-0700\n"
-"PO-Revision-Date: 2020-05-29 05:04\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2020-06-11 09:07-0700\n"
+"PO-Revision-Date: 2020-06-13 01:24\n"
+"Last-Translator: \n"
 "Language-Team: Chewa\n"
 "Language: ny_MW\n"
 "MIME-Version: 1.0\n"
@@ -12,8 +12,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: ny\n"
-"X-Crowdin-File: /for-profuturo-only/django.po\n"
+"X-Crowdin-File: /test-release-v0.14.x/django.po\n"
+"X-Crowdin-File-ID: 3806\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Facility"
@@ -31,6 +33,51 @@ msgstr "Gulu lophunzirira pamodzi"
 msgid "Ad hoc learners group"
 msgstr "Gulu la lapadera la ophunzira"
 
+#: kolibri/core/auth/constants/commands_errors.py:17
+msgid "Unexpected exception [{}]: {}"
+msgstr ""
+
+#: kolibri/core/auth/constants/commands_errors.py:20
+msgctxt "Error report message when the allowed number of digits has been exceeded."
+msgid "Content of cell '{}' is too long"
+msgstr ""
+
+#: kolibri/core/auth/constants/commands_errors.py:24
+msgctxt "Error report message when the cell contains an improper data format."
+msgid "Content of cell '{}' is not valid"
+msgstr ""
+
+#: kolibri/core/auth/constants/commands_errors.py:26
+msgid "Duplicated username"
+msgstr ""
+
+#: kolibri/core/auth/constants/commands_errors.py:28
+#: kolibri/core/auth/management/commands/bulkimportusers.py:84
+msgid "Username only can contain characters, numbers and underscores"
+msgstr ""
+
+#: kolibri/core/auth/constants/commands_errors.py:30
+msgid "The column '{}' is required"
+msgstr ""
+
+#: kolibri/core/auth/constants/commands_errors.py:31
+msgid "Mix of valid and/or invalid header labels found in first row"
+msgstr ""
+
+#: kolibri/core/auth/constants/commands_errors.py:33
+msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
+msgstr ""
+
+#: kolibri/core/auth/constants/commands_errors.py:35
+#: kolibri/core/auth/management/commands/bulkimportusers.py:98
+msgid "Error trying to read csv file: {}"
+msgstr ""
+
+#: kolibri/core/auth/constants/commands_errors.py:36
+#: kolibri/core/auth/management/commands/bulkimportusers.py:99
+msgid "Error trying to write csv file: {}"
+msgstr ""
+
 #: kolibri/core/auth/management/commands/bulkexportusers.py:43
 #: kolibri/core/auth/management/commands/bulkexportusers.py:125
 msgid "Database ID ({})"
@@ -39,17 +86,17 @@ msgstr ""
 #: kolibri/core/auth/management/commands/bulkexportusers.py:44
 #: kolibri/core/auth/management/commands/bulkexportusers.py:126
 msgid "Username ({})"
-msgstr "Dzina lolowera ({})"
+msgstr ""
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:45
 #: kolibri/core/auth/management/commands/bulkexportusers.py:127
 msgid "Password ({})"
-msgstr "Pasiwedi ({})"
+msgstr ""
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:46
 #: kolibri/core/auth/management/commands/bulkexportusers.py:128
 msgid "Full name ({})"
-msgstr "Dzina lonse ({})"
+msgstr ""
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:51
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
@@ -59,17 +106,17 @@ msgstr ""
 #: kolibri/core/auth/management/commands/bulkexportusers.py:54
 #: kolibri/core/auth/management/commands/bulkexportusers.py:136
 msgid "Identifier ({})"
-msgstr "Chozindikiritsa ({})"
+msgstr ""
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:55
 #: kolibri/core/auth/management/commands/bulkexportusers.py:137
 msgid "Birth year ({})"
-msgstr "Chaka chobadwa ({})"
+msgstr ""
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:56
 #: kolibri/core/auth/management/commands/bulkexportusers.py:138
 msgid "Gender ({})"
-msgstr "Mwanuna kapena Mkazi ({})"
+msgstr ""
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:61
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
@@ -101,59 +148,49 @@ msgctxt "Error message that might appear when there's a programming error import
 msgid "Unexpected error [{}]: {}"
 msgstr ""
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:77
-msgid "Value in column '{}' is too many characters"
-msgstr ""
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:78
-msgid "Invalid value in column '{}'"
-msgstr ""
-
 #: kolibri/core/auth/management/commands/bulkimportusers.py:79
-msgid "Username is duplicated"
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "Value in column '{}' has too many characters"
 msgstr ""
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:81
-msgid "Username only can contain characters, numbers and underscores"
+msgid "Invalid value in column '{}'"
 msgstr ""
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:85
+#: kolibri/core/auth/management/commands/bulkimportusers.py:82
+msgid "Username is duplicated"
+msgstr ""
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:88
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
 msgstr ""
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:89
+#: kolibri/core/auth/management/commands/bulkimportusers.py:92
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Invalid header label found in the first row"
 msgstr ""
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:92
-msgid "No default facility exists. Make sure to provision this device before importing"
+#: kolibri/core/auth/management/commands/bulkimportusers.py:96
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
 msgstr ""
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:94
-msgid "Error trying to read csv file: {}"
-msgstr ""
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:95
-msgid "Error trying to write csv file: {}"
-msgstr ""
-
-#: kolibri/core/auth/management/commands/bulkimportusers.py:97
+#: kolibri/core/auth/management/commands/bulkimportusers.py:101
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
 msgstr ""
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:100
-msgid "Cannot update update '{}' because no user with that database ID exists in this facility"
+#: kolibri/core/auth/management/commands/bulkimportusers.py:104
+msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
 msgstr ""
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:102
+#: kolibri/core/auth/management/commands/bulkimportusers.py:106
 msgid "Database ID is not valid"
 msgstr ""
 
 #: kolibri/core/content/api.py:149
-msgid "Content"
-msgstr "Zimene zilipo"
+msgid "Resource"
+msgstr "Zophunzirira"
 
 #: kolibri/core/content/api.py:910
 msgid "The requested channel does not exist on the content server"
@@ -167,25 +204,25 @@ msgstr "Fomati yosadziwika"
 msgid "Language is not supported by Kolibri"
 msgstr "Chilankhulo chimenechi sichili pa Kolibri"
 
-#: kolibri/core/logger/csv_export.py:195
+#: kolibri/core/logger/csv_export.py:207
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
 msgstr ""
 
-#: kolibri/core/logger/csv_export.py:204
+#: kolibri/core/logger/csv_export.py:217
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
 msgstr ""
 
-#: kolibri/core/tasks/api.py:54
+#: kolibri/core/tasks/api.py:71
 msgid "There was a network error."
 msgstr "Panali vuto la netiweki."
 
-#: kolibri/core/tasks/api.py:56
+#: kolibri/core/tasks/api.py:73
 msgid "There was a disk access error."
 msgstr "Panali vuto potsekula disiki."
 
-#: kolibri/core/tasks/api.py:58
+#: kolibri/core/tasks/api.py:75
 msgid "There was an unknown error."
 msgstr "Panali vuto losadziwika bwino."
 
@@ -210,7 +247,7 @@ msgstr "Kuti muthe kugwiritsa ntchito Kolibri, mufunika kugwiritsa ntchito Firef
 msgid "You can also try updating your current browser."
 msgstr "Mungayesenso kupanga apudeti bulawuza imene mukugwiritsa ntchito panopo."
 
-#: kolibri/core/views.py:174
+#: kolibri/core/views.py:157
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Palibe tsamba limene latseguka. N'kutheka kuti simunaike bwino Kolibri"
 

@@ -1,11 +1,15 @@
 <template>
 
   <SuperuserCredentialsForm
+    v-if="!loading"
     :header="$tr('header')"
     :description="$tr('description')"
     @click_next="handleClickNext"
   >
     <template v-slot:aboveform>
+      <p v-if="error" class="error">
+        {{ coreString('invalidCredentialsError') }}
+      </p>
       <p>
         {{ $tr('chooseAdminPrompt', {
           facility: facility.name
@@ -63,23 +67,6 @@
 
   const CREATE_NEW_SUPER_ADMIN = 'CREATE_NEW_SUPER_ADMIN';
 
-  const fakeAdmins = [
-    {
-      id: '1234',
-      username: 'superadmin',
-    },
-    {
-      id: '2345',
-      username: 'otheradmin1',
-    },
-    {
-      id: '3456',
-      username: 'otheradmin2',
-    },
-  ];
-
-  // TODO
-  // - Required field validation for simple password
   export default {
     name: 'SelectSuperAdminAccountForm',
     components: {
@@ -99,6 +86,8 @@
         password: '',
         passwordValid: false,
         shouldValidate: false,
+        loading: true,
+        error: false,
         facilityAdmins: [],
       };
     },
@@ -130,11 +119,16 @@
     },
     methods: {
       fetchFacilityAdmins() {
-        return Promise.resolve(fakeAdmins).then(() => {
-          this.facilityAdmins = [...fakeAdmins];
-          this.selected = { ...this.dropdownOptions[0] };
-          this.loading = false;
-        });
+        this.$store
+          .dispatch('getFacilityAdmins')
+          .then(admins => {
+            this.facilityAdmins = [...admins];
+            this.selected = { ...this.dropdownOptions[0] };
+            this.loading = false;
+          })
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+          });
       },
       resetFormAndRefocus() {
         this.shouldValidate = false;
@@ -142,10 +136,27 @@
           this.$refs.password.resetAndFocus();
         }
       },
+      grantPermissions(data) {
+        this.error = false;
+        return this.$store.dispatch('grantSuperuserPermisions', data);
+      },
       handleClickNext() {
         this.shouldValidate = true;
-        if (this.existingUser && !this.passwordValid) {
-          this.$refs.password.focus();
+        if (this.existingUser) {
+          if (this.passwordValid) {
+            this.grantPermissions({
+              user_id: this.selected.value,
+              password: this.password,
+            })
+              .then(() => {
+                this.$emit('click_next');
+              })
+              .catch(() => {
+                this.error = true;
+              });
+          } else {
+            this.$refs.password.focus();
+          }
         } else {
           this.$emit('click_next');
         }
@@ -170,7 +181,7 @@
         context: 'Prompt that goes above the password input',
       },
       createSuperAdminOption: {
-        message: 'Create  new super admin',
+        message: 'Create new super admin',
         context: 'Option in a select input',
       },
       accountFacilityExplanation: {
@@ -188,6 +199,10 @@
   .select {
     max-width: 400px;
     margin: 24px 0;
+  }
+
+  .error {
+    color: red;
   }
 
 </style>

@@ -5,10 +5,10 @@ from random import sample
 
 import requests
 from django.core.cache import cache
+from django.core.urlresolvers import reverse
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
-from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
@@ -22,6 +22,7 @@ from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
 from rest_framework import mixins
@@ -51,6 +52,7 @@ from kolibri.core.content.utils.importability_annotation import (
     get_channel_stats_from_studio,
 )
 from kolibri.core.content.utils.paths import get_channel_lookup_url
+from kolibri.core.content.utils.paths import get_content_file_name
 from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.content.utils.stopwords import stopwords_set
@@ -153,6 +155,7 @@ class ContentNodeFilter(IdFilter):
     in_exam = CharFilter(method="filter_in_exam")
     exclude_content_ids = CharFilter(method="filter_exclude_content_ids")
     kind_in = CharFilter(method="filter_kind_in")
+    parent = UUIDFilter("parent")
 
     class Meta:
         model = models.ContentNode
@@ -231,50 +234,139 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
+def map_lang(obj):
+    keys = ["id", "lang_code", "lang_subcode", "lang_name", "lang_direction"]
+
+    lower_case = set(["id", "lang_code", "lang_subcode"])
+
+    output = {}
+
+    for key in keys:
+        output[key] = obj.pop("lang__" + key)
+        if key in lower_case and output[key]:
+            output[key] = output[key].lower()
+
+    if not any(output.values()):
+        # All keys are null so return None
+        return None
+
+    return output
+
+
+def map_file(file, obj):
+    url_lookup = {
+        "available": file["available"],
+        "id": file["checksum"],
+        "extension": file["extension"],
+    }
+    download_filename = models.get_download_filename(
+        obj["title"],
+        models.PRESET_LOOKUP.get(file["preset"], _("Unknown format")),
+        file["extension"],
+    )
+    file["download_url"] = reverse(
+        "kolibri:core:downloadcontent",
+        kwargs={
+            "filename": get_content_file_name(url_lookup),
+            "new_filename": download_filename,
+        },
+    )
+    file["storage_url"] = get_local_content_storage_file_url(url_lookup)
+    file["lang"] = map_lang(file)
+    return file
+
+
 @method_decorator(cache_forever, name="dispatch")
-class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.ContentNodeSerializer
+class ContentNodeViewset(ValuesViewset):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeFilter
     pagination_class = OptionalPageNumberPagination
 
-    def prefetch_related(self, queryset):
-        return queryset.prefetch_related(
-            "assessmentmetadata", "files", "files__local_file"
-        ).select_related("lang")
+    values = (
+        "id",
+        "author",
+        "available",
+        "channel_id",
+        "coach_content",
+        "content_id",
+        "description",
+        "kind",
+        # Language keys
+        "lang__id",
+        "lang__lang_code",
+        "lang__lang_subcode",
+        "lang__lang_name",
+        "lang__lang_direction",
+        "license_description",
+        "license_name",
+        "license_owner",
+        "num_coach_contents",
+        "options",
+        "parent",
+        "sort_order",
+        "title",
+    )
 
-    def get_queryset(self, prefetch=True):
-        queryset = models.ContentNode.objects.filter(available=True)
-        if prefetch:
-            return self.prefetch_related(queryset)
-        return queryset
+    field_map = {
+        "lang": map_lang,
+    }
 
-    def get_object(self, prefetch=True):
-        """
-        Returns the object the view is displaying.
-        You may want to override this if you need to provide non-standard
-        queryset lookups.  Eg if objects are referenced using multiple
-        keyword arguments in the url conf.
-        """
-        queryset = self.filter_queryset(self.get_queryset(prefetch=prefetch))
+    read_only = True
 
-        # Perform the lookup filtering.
-        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+    def consolidate(self, items, queryset):
+        assessmentmetadata = {
+            a["contentnode"]: a
+            for a in models.AssessmentMetaData.objects.filter(
+                contentnode__in=queryset
+            ).values(
+                "assessment_item_ids",
+                "number_of_assessments",
+                "mastery_model",
+                "randomize",
+                "is_manipulable",
+                "contentnode",
+            )
+        }
 
-        assert lookup_url_kwarg in self.kwargs, (
-            "Expected view %s to be called with a URL keyword argument "
-            'named "%s". Fix your URL conf, or set the `.lookup_field` '
-            "attribute on the view correctly."
-            % (self.__class__.__name__, lookup_url_kwarg)
-        )
+        files = {}
 
-        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
-        obj = get_object_or_404(queryset, **filter_kwargs)
+        for f in models.File.objects.filter(contentnode__in=queryset).values(
+            "id",
+            "contentnode",
+            "local_file__id",
+            "priority",
+            "local_file__available",
+            "local_file__file_size",
+            "local_file__extension",
+            "preset",
+            "lang__id",
+            "lang__lang_code",
+            "lang__lang_subcode",
+            "lang__lang_name",
+            "lang__lang_direction",
+            "supplementary",
+            "thumbnail",
+        ):
+            if f["contentnode"] not in files:
+                files[f["contentnode"]] = []
+            f["checksum"] = f.pop("local_file__id")
+            f["available"] = f.pop("local_file__available")
+            f["file_size"] = f.pop("local_file__file_size")
+            f["extension"] = f.pop("local_file__extension")
+            files[f["contentnode"]].append(f)
 
-        # May raise a permission denied
-        self.check_object_permissions(self.request, obj)
+        output = []
 
-        return obj
+        for item in items:
+            item["assessmentmetadata"] = assessmentmetadata.get("id")
+            item["files"] = list(
+                map(lambda x: map_file(x, item), files.get(item["id"], []))
+            )
+            output.append(item)
+        return output
+
+    def get_queryset(self):
+        return models.ContentNode.objects.filter(available=True)
 
     @list_route(methods=["get"])
     def descendants(self, request):
@@ -419,67 +511,9 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
             {"kind": next_item.kind, "id": next_item.id, "title": next_item.title}
         )
 
-
-def process_thumbnail(obj):
-    file = {}
-    file["id"] = obj.pop("file_id")
-    file["extension"] = obj.pop("file_extension")
-    file["available"] = obj.pop("file_available")
-    file["thumbnail"] = obj.pop("file_thumbnail")
-    file["storage_url"] = get_local_content_storage_file_url(file)
-    if file["id"] is not None:
-        return [file]
-    else:
-        return []
-
-
-@method_decorator(cache_forever, name="dispatch")
-class ContentNodeSlimViewset(ValuesViewset):
-    filter_backends = (DjangoFilterBackend,)
-    filter_class = ContentNodeFilter
-    pagination_class = OptionalPageNumberPagination
-    values = (
-        "id",
-        "parent",
-        "description",
-        "channel_id",
-        "content_id",
-        "kind",
-        "title",
-        "num_coach_contents",
-        "file_thumbnail",
-        "file_id",
-        "file_extension",
-        "file_available",
-    )
-
-    field_map = {"files": process_thumbnail}
-
-    def annotate_queryset(self, queryset):
-        thumbnail_query = models.File.objects.filter(
-            contentnode=OuterRef("id"), thumbnail=True
-        ).order_by()
-        return queryset.annotate(
-            file_thumbnail=Subquery(
-                thumbnail_query.values_list("thumbnail", flat=True)[:1]
-            ),
-            file_id=Subquery(
-                thumbnail_query.values_list("local_file__id", flat=True)[:1]
-            ),
-            file_extension=Subquery(
-                thumbnail_query.values_list("local_file__extension", flat=True)[:1]
-            ),
-            file_available=Subquery(
-                thumbnail_query.values_list("local_file__available", flat=True)[:1]
-            ),
-        )
-
-    def get_queryset(self):
-        return models.ContentNode.objects.filter(available=True)
-
     @detail_route(methods=["get"])
     def ancestors(self, request, **kwargs):
-        cache_key = "contentnode_slim_ancestors_{pk}".format(pk=kwargs.get("pk"))
+        cache_key = "contentnode_ancestors_{pk}".format(pk=kwargs.get("pk"))
 
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
@@ -622,7 +656,7 @@ class ContentNodeSlimViewset(ValuesViewset):
             most_popular = queryset.filter_by_content_ids(
                 list(content_counts_sorted[:20]), validate=False
             )
-            queryset = most_popular.dedupe_by_content_id()
+            queryset = most_popular.dedupe_by_content_id(use_distinct=False)
 
         data = self.serialize(queryset)
 
@@ -673,7 +707,7 @@ class ContentNodeSlimViewset(ValuesViewset):
                 resume = queryset.filter_by_content_ids(
                     list(content_ids[:10]), validate=False
                 )
-                queryset = resume.dedupe_by_content_id()
+                queryset = resume.dedupe_by_content_id(use_distinct=False)
 
         return Response(self.serialize(queryset))
 
@@ -692,7 +726,7 @@ def union(queries):
 
 
 @query_params_required(search=str, max_results=int, max_results__default=30)
-class ContentNodeSearchViewset(ContentNodeSlimViewset):
+class ContentNodeSearchViewset(ContentNodeViewset):
     def search(self, value, max_results, filter=True):
         """
         Implement various filtering strategies in order to get a wide range of search results.
@@ -949,6 +983,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         resp = {
             "id": studioresp["id"],
             "description": studioresp.get("description"),
+            "tagline": studioresp.get("tagline", None),
             "name": studioresp["name"],
             "lang_code": studioresp.get("language"),
             "lang_name": channel_lang_name,

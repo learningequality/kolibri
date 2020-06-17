@@ -37,9 +37,7 @@ export function getCopies(store, contentId) {
 
 export function setFacilitiesAndConfig(store) {
   return store.dispatch('getFacilities').then(() => {
-    return store.dispatch('getFacilityConfig').then(() => {
-      store.dispatch('getRemoteAccessPermission');
-    });
+    return store.dispatch('getFacilityConfig');
   });
 }
 

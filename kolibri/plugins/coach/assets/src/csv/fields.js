@@ -10,10 +10,20 @@ import { coachStrings } from '../views/common/commonCoachStrings';
 
 const FieldsMixinStrings = createTranslator('FieldsMixinStrings', {
   allLearners: 'All learners',
-  recipientType: 'Recipient type',
-  groupsAndIndividuals: 'Groups and individuals',
+  recipientType: {
+    message: 'Assigned to',
+    context: 'Column header for the quiz report exported as CSV',
+  },
+  groupsAndIndividuals: {
+    message: 'Both individual learners and groups',
+    context:
+      'One of the options in the quiz report exported as CSV indicating that a quiz or a lesson has been assigned to both individual learners and groups.',
+  },
   wholeClass: 'Whole class',
-  questionsCorrect: 'Correct questions',
+  questionsCorrect: {
+    message: 'Questions answered correctly',
+    context: 'Column header for the quiz report exported as CSV',
+  },
   questionsTotal: 'Total questions',
   questionsAnswered: 'Answered questions',
 });

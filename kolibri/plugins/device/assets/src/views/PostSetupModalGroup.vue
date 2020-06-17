@@ -11,9 +11,11 @@
       v-if="step === Steps.PERMISSIONS_CHANGE"
       newRole="superadmin"
     />
+
     <SelectAddressForm
       v-else-if="step === Steps.SELECT_SOURCE_FACILITY_PEER"
       :title="getCommonSyncString('selectSourceTitle')"
+      hideSavedAddresses
       @submit="handleSubmit"
       @cancel="$emit('cancel')"
     >
@@ -85,14 +87,18 @@
             this.$emit('cancel');
           }
         } else if (this.step === Steps.SELECT_SOURCE_FACILITY_PEER) {
-          this.$router.push(availableChannelsPageLink({ addressId: data.id }));
+          this.$emit('cancel');
+          let newRoute = availableChannelsPageLink({ addressId: data.id });
+          newRoute.query.setup = true;
+          this.$router.push(newRoute);
         }
       },
     },
     $trs: {
       chooseAnotherSourceLabel: {
         message: 'Choose another source',
-        context: 'Button that takes user the traditional content import workflow',
+        context:
+          'Button that opens the modal to choose source for content import workflow from Studio or an attached local drive',
       },
     },
   };

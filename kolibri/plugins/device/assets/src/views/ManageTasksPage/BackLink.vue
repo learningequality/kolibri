@@ -2,12 +2,12 @@
 
   <!-- TODO: move this to be a core KBackLink -->
   <span class="offset">
-    <router-link :to="go">
+    <router-link :to="to">
       <KLabeledIcon
         icon="back"
         :label="text"
         :color="$themeTokens.primary"
-        style="text-decoration: underline;"
+        :style="`text-decoration: underline; color: ${$themeTokens.primary}`"
       />
     </router-link>
   </span>
@@ -27,11 +27,6 @@
       to: {
         type: Object,
         required: true,
-      },
-    },
-    methods: {
-      go() {
-        this.$router.push(this.to);
       },
     },
   };

@@ -77,10 +77,7 @@ def set_env():
             )
         ]
 
-    try:
-        from .build_config.default_settings import settings_path
-    except ImportError:
-        settings_path = "kolibri.deployment.default.settings.base"
+    from .build_config.default_settings import settings_path
 
     # Set default env
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_path)

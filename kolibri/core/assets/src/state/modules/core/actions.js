@@ -33,6 +33,7 @@ import {
   UPDATE_MODAL_DISMISSED,
 } from '../../../constants';
 import samePageCheckGenerator from '../../../utils/samePageCheckGenerator';
+import errorCodes from './../../../disconnectionErrorCodes.js';
 
 const logging = logger.getLogger(__filename);
 const intervalTime = 5000; // Frequency at which time logging is updated
@@ -180,6 +181,11 @@ export function handleApiError(store, errorObject) {
   if (typeof errorObject === 'object' && !(errorObject instanceof Error)) {
     error = JSON.stringify(errorObject, null, 2);
   } else if (errorObject.response) {
+    if (errorCodes.includes(errorObject.response.status)) {
+      // Do not log errors for disconnections, as it disrupts the user experience
+      // and should already be being handled by our disconnection overlay.
+      return;
+    }
     // Reassign object properties here as Axios error objects have built in
     // pretty printing support which messes with this.
     error = JSON.stringify(errorObject.response, null, 2);
@@ -349,15 +355,6 @@ export function saveDismissedNotification(store, notification_id) {
     .catch(error => {
       store.dispatch('handleApiError', error);
     });
-}
-
-export function getRemoteAccessPermission(store) {
-  return client({
-    method: 'POST',
-    url: urls['kolibri:kolibri.plugins.device:allowremoteaccess'](),
-  }).then(response => {
-    store.commit('SET_REMOTE_BROWSER_PERMISSION', response.data.allowed);
-  });
 }
 
 export function getFacilities(store) {
