@@ -29,9 +29,8 @@ def get_tag_name():
     else:
         return "develop"
 
-SHEET_TAG = get_tag_name()
 
-SHEET_TAG = os.getenv("BUILDKITE_TAG")
+SHEET_TAG = get_tag_name()
 SHEET_TPL_COLUMN = "B"
 SHEET_TPL_START_VALUE = 5
 SHEET_INDEX = 0
