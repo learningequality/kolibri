@@ -11,24 +11,26 @@
     </p>
 
     <template #buttons>
-      <KButton
-        class="left-button"
-        :text="$tr('createNewFacilityAction')"
-        appearance="raised-button"
-        primary
-        @click="goToCreate"
-      />
-      <KButton
-        :text="$tr('importFacilityAction')"
-        appearance="flat-button"
-        @click="showModal = true"
-      />
+      <KButtonGroup>
+        <KButton
+          class="left-button"
+          :text="$tr('createNewFacilityAction')"
+          appearance="raised-button"
+          primary
+          @click="startNewFacilityFlow"
+        />
+        <KButton
+          :text="$tr('importFacilityAction')"
+          appearance="flat-button"
+          @click="showAddressModal = true"
+        />
+      </KButtonGroup>
     </template>
 
     <SelectAddressModalGroup
-      v-if="showModal"
-      @submit="handleSubmit"
-      @cancel="showModal = false"
+      v-if="showAddressModal"
+      @submit="startFacilityImportFlow"
+      @cancel="showAddressModal = false"
     />
   </OnboardingForm>
 
@@ -50,23 +52,20 @@
     mixins: [commonSyncElements],
     data() {
       return {
-        showModal: false,
+        showAddressModal: false,
       };
     },
     methods: {
-      goToCreate() {
+      startNewFacilityFlow() {
         this.$router.push({ path: '/create_facility/1' });
       },
-      goToImport(deviceId) {
+      startFacilityImportFlow(address) {
         this.$router.push({
           path: '/import_facility/1',
           query: {
-            device_id: deviceId,
+            device_id: address.id,
           },
         });
-      },
-      handleSubmit(address) {
-        this.goToImport(address.id);
       },
     },
     $trs: {

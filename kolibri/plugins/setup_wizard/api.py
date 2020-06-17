@@ -1,14 +1,14 @@
+from rest_framework import decorators
 from rest_framework.exceptions import NotFound
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import ViewSet
 
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.device.utils import provision_device
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.models import FacilityUserModelManager
 from kolibri.core.auth.models import Facility
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.tasks.api import FacilityTasksViewSet
@@ -18,18 +18,18 @@ from kolibri.core.tasks.api import FacilityTasksViewSet
 class HasPermissionDuringSetup(BasePermission):
     def has_permission(self, request, view):
         from kolibri.core.device.utils import device_provisioned
-
         return not device_provisioned()
 
 
-class FacilityAdminView(GenericViewSet):
+class FacilityImportViewSet(ViewSet):
     """
-    Returns basic data about admins from the just-imported Facility
+    A group of endpoints that are used by the SetupWizard to import a facility
+    and create a superuser
     """
+    permission_classes = (HasPermissionDuringSetup,)
 
-    permission_classes = ()
-
-    def list(self, request):
+    @decorators.action(methods=["get"], detail=False)
+    def facilityadmins(self, request):
         # The filter is very loose, since we are assuming that the only
         # users are from the new facility
         queryset = FacilityUser.objects.filter(roles__kind__contains="admin")
@@ -38,34 +38,28 @@ class FacilityAdminView(GenericViewSet):
         ]
         return Response(response_data)
 
-
-class GrantSuperuserPermissionsView(GenericViewSet):
-    """
-    Given a FacilityUser and their credentials, creates a DevicePermissions
-    record with is_superuser = True
-    """
-
-    permission_classes = (HasPermissionDuringSetup,)
-
-    def create(self, request):
+    @decorators.action(methods=["post"], detail=False)
+    def grantsuperuserpermissions(self, request):
+        """
+        Given a user ID and credentials, create a superuser DevicePermissions record
+        """
         user_id = request.data.get("user_id", "")
         password = request.data.get("password", "")
 
-        # Step 1: Get the Facility User object
+        # Get the Facility User object
         try:
             facilityuser = FacilityUser.objects.get(id=user_id)
         except (Exception, FacilityUser.DoesNotExist):
             raise NotFound()
 
-        # Step 2: Test for password and admin role
+        # Test for password and admin role
         if (
             not facilityuser.check_password(password)
             or user_kinds.ADMIN not in facilityuser.session_data["kind"]
         ):
             raise PermissionDenied()
 
-        # Step 3: If it succeeds, create a DevicePermissions model for
-        # the user
+        # If it succeeds, create a DevicePermissions model for the user
         DevicePermissions.objects.update_or_create(
             user=facilityuser,
             defaults={"is_superuser": True, "can_manage_content": True},
@@ -74,13 +68,11 @@ class GrantSuperuserPermissionsView(GenericViewSet):
         # Finally: return a simple 200 so UI can continue on
         return Response({"user_id": user_id})
 
-
-class CreateSuperuserAfterFacilityImportView(GenericViewSet):
-    permission_classes = (HasPermissionDuringSetup,)
-
-    def create(self, request):
+    @decorators.action(methods=["post"], detail=False)
+    def createsuperuser(self, request):
         """
-        Creates a superuser in the facility that was just imported
+        Given a username, full name and password, create a superuser attached
+        to the facility that was imported
         """
         from kolibri.core.device.utils import create_superuser
 
@@ -94,22 +86,8 @@ class CreateSuperuserAfterFacilityImportView(GenericViewSet):
         except (Exception,):
             raise ValidationError(detail="duplicate", code="duplicate_username")
 
-
-class SetupWizardFacilityImportTaskView(FacilityTasksViewSet):
-    """
-    An open version of FacilityTasksViewSet for the purposes of managing the
-    import-facility task during setup
-    """
-
-    # TODO remove other methods
-    permission_classes = (HasPermissionDuringSetup,)
-
-
-class ProvisionDeviceAfterFacilityImportView(GenericViewSet):
-
-    permission_classes = (HasPermissionDuringSetup,)
-
-    def create(self, request):
+    @decorators.action(methods=["post"], detail=False)
+    def provisiondevice(self, request):
         """
         After importing a Facility and designating/creating a super admins,
         provision the device using that facility
@@ -134,3 +112,17 @@ class ProvisionDeviceAfterFacilityImportView(GenericViewSet):
         )
 
         return Response({})
+
+
+class SetupWizardFacilityImportTaskView(FacilityTasksViewSet):
+    """
+    An open version of FacilityTasksViewSet for the purposes of managing the
+    import-facility task during setup
+    """
+    permission_classes = (HasPermissionDuringSetup,)
+
+    # Remove all the endpoints we don't want in setup wizard
+    startdataportalsync = property()
+    startdataportalbulksync = property()
+    startpeerfacilitysync = property()
+    startdeletefacility = property()

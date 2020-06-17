@@ -99,6 +99,9 @@
       someClearableTasks() {
         return Boolean(this.tasks.find(taskIsClearable));
       },
+      visibleTasks() {
+        return this.tasks.map()
+      },
     },
     beforeMount() {
       this.pollSyncTasks();

@@ -46,6 +46,7 @@
 
 <script>
 
+  import isString from 'lodash/isString';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import {
@@ -67,7 +68,7 @@
         type: Object,
         required: true,
         validator(val) {
-          return val.name && val.id && val.baseurl;
+          return isString(val.name) && isString(val.id) && isString(val.baseurl);
         },
       },
     },

@@ -3,6 +3,7 @@ import urls from 'kolibri.urls';
 import { currentLanguage, createTranslator } from 'kolibri.utils.i18n';
 import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
 import { Presets, permissionPresets } from '../constants';
+import { FacilityImportResource } from '../api';
 
 const SetupStrings = createTranslator('SetupStrings', {
   personalFacilityName: {
@@ -51,50 +52,6 @@ export default {
     error: false,
   },
   actions: {
-    getFacilityAdmins() {
-      return client({
-        url: urls['kolibri:kolibri.plugins.setup_wizard:facilityadmins-list'](),
-      }).then(response => {
-        return response.data;
-      });
-    },
-    grantSuperuserPermissions(store, data) {
-      return client({
-        method: 'post',
-        url: urls['kolibri:kolibri.plugins.setup_wizard:grantsuperuserpermissions-list'](),
-        data: {
-          user_id: data.user_id,
-          password: data.password,
-        },
-      });
-    },
-    createSuperuser(store, data) {
-      return client({
-        method: 'post',
-        url: urls['kolibri:kolibri.plugins.setup_wizard:createsuperuser-list'](),
-        data: {
-          username: data.username,
-          full_name: data.full_name,
-          password: data.password,
-        },
-      });
-    },
-    getImportTasks() {
-      return client({
-        method: 'get',
-        url: urls['kolibri:kolibri.plugins.setup_wizard:tasks-list'](),
-      }).then(response => {
-        return response.data;
-      });
-    },
-    clearImportTasks() {
-      return client({
-        method: 'post',
-        url: urls['kolibri:kolibri.plugins.setup_wizard:tasks_cleartasks'](),
-      }).then(response => {
-        return response.data;
-      });
-    },
     logIntoImportedFacility(store, credentials) {
       store.dispatch('kolibriLogin', {
         username: credentials.username,
@@ -104,13 +61,9 @@ export default {
     },
     provisionDeviceAfterImport(store, credentials) {
       const onboardingData = store.state.onboardingData;
-      return client({
-        method: 'post',
-        url: urls['kolibri:kolibri.plugins.setup_wizard:provisionafterimport-list'](),
-        data: {
-          device_name: onboardingData.device_name,
-          language_id: onboardingData.language_id,
-        },
+      return FacilityImportResource.provisiondevice({
+        device_name: onboardingData.device_name,
+        language_id: onboardingData.language_id,
       }).then(() => {
         store.dispatch('kolibriLogin', credentials);
       });

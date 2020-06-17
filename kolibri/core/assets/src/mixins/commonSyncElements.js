@@ -94,7 +94,7 @@ export default {
         return response.data;
       });
     },
-    cancelSyncTask(taskId) {
+    cancelFacilityTask(taskId) {
       return FacilityTaskResource.canceltask(taskId);
     },
     fetchKdpSyncTasks() {

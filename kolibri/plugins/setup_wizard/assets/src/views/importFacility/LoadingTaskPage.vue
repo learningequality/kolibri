@@ -41,6 +41,7 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import FacilityTaskPanel from '../../../../../device/assets/src/views/FacilitiesPage/FacilityTaskPanel.vue';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
+  import { SetupTasksResource } from '../../api';
 
   export default {
     name: 'LoadingTaskPage',
@@ -77,7 +78,7 @@
     },
     methods: {
       startPolling() {
-        this.$store.dispatch('getImportTasks').then(tasks => {
+        SetupTasksResource.fetchCollection({ force: true }).then(tasks => {
           this.loadingTask = {
             ...tasks[0],
             facility_name: this.facilityName,
@@ -91,8 +92,7 @@
         }, 2000);
       },
       retryImport() {
-        this.$store
-          .dispatch('clearImportTasks')
+        this.clearTasks()
           .then(() => {
             return this.startPeerImportTask({
               facility_name: this.facilityName,
@@ -110,13 +110,16 @@
           });
       },
       cancelTask() {
-        return this.cancelSyncTask(this.loadingTask.id);
+        return SetupTasksResource.canceltask(this.loadingTask.id);
       },
       startOver() {
         this.$router.replace('/');
       },
+      clearTasks() {
+        return SetupTasksResource.cleartasks();
+      },
       handleClickContinue() {
-        this.$store.dispatch('clearImportTasks');
+        this.clearTasks();
         this.$emit('click_next');
       },
     },

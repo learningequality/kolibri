@@ -65,6 +65,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import SuperuserCredentialsForm from '../onboarding-forms/SuperuserCredentialsForm';
+  import { FacilityImportResource } from '../../api';
 
   const CREATE_NEW_SUPER_ADMIN = 'CREATE_NEW_SUPER_ADMIN';
 
@@ -123,8 +124,7 @@
         return !this.facilityAdmins.find(admin => admin.username === username);
       },
       fetchFacilityAdmins() {
-        this.$store
-          .dispatch('getFacilityAdmins')
+        return FacilityImportResource.facilityadmins()
           .then(admins => {
             this.facilityAdmins = [...admins];
             this.selected = { ...this.dropdownOptions[0] };
@@ -140,48 +140,45 @@
           this.$refs.password.resetAndFocus();
         }
       },
-      grantPermissions() {
+      handleClickNextImportedUser() {
         this.error = false;
         if (!this.passwordValid) {
           this.$refs.password.focus();
           return;
         }
-        this.$store
-          .dispatch('grantSuperuserPermissions', {
-            user_id: this.selected.value,
-            password: this.password,
-          })
+        return FacilityImportResource.grantsuperuserpermissions({
+          user_id: this.selected.value,
+          password: this.password,
+        })
           .then(() => {
-            this.$emit('update:superuser', {
-              username: this.selected.label,
-              password: this.password,
-            });
-            this.$emit('click_next');
+            this.updateSuperuserAndClickNext(this.selected.label, this.password);
           })
           .catch(() => {
             this.error = true;
           });
       },
-      createSuperuser(data) {
-        return this.$store
-          .dispatch('createSuperuser', data)
+      handleClickNextNewUser(data) {
+        return FacilityImportResource.createsuperuser(data)
           .then(() => {
-            this.$emit('update:superuser', {
-              username: data.username,
-              password: data.password,
-            });
-            this.$emit('click_next');
+            this.updateSuperuserAndClickNext(data.username, data.password);
           })
           .catch(() => {
             this.error = true;
           });
+      },
+      updateSuperuserAndClickNext(username, password) {
+        this.$emit('update:superuser', {
+          username,
+          password,
+        });
+        this.$emit('click_next');
       },
       handleClickNext(data) {
         this.shouldValidate = true;
         if (this.importedUserIsSelected) {
-          this.grantPermissions();
+          this.handleClickNextImportedUser();
         } else {
-          this.createSuperuser(data);
+          this.handleClickNextNewUser(data);
         }
       },
     },
