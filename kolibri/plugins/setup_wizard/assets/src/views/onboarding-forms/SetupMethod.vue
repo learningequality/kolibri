@@ -11,18 +11,20 @@
     </p>
 
     <template #buttons>
-      <KButton
-        class="left-button"
-        :text="$tr('createNewFacilityAction')"
-        appearance="raised-button"
-        primary
-        @click="goToCreate"
-      />
-      <KButton
-        :text="$tr('importFacilityAction')"
-        appearance="flat-button"
-        @click="showModal = true"
-      />
+      <KButtonGroup>
+        <KButton
+          class="left-button"
+          :text="$tr('createNewFacilityAction')"
+          appearance="raised-button"
+          primary
+          @click="goToCreate"
+        />
+        <KButton
+          :text="$tr('importFacilityAction')"
+          appearance="flat-button"
+          @click="showModal = true"
+        />
+      </KButtonGroup>
     </template>
 
     <SelectAddressModalGroup
