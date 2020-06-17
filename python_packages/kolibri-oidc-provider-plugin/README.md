@@ -38,6 +38,7 @@ Either add it to `$KOLIBRI_HOME/options.ini` a new section:
 [OIDCProvider]
 REQUIRE_CONSENT = False
 ```
+Or supply the `REQUIRE_CONSENT` option setting in an environment variable called `KOLIBRI_OIDC_REQUIRE_CONSENT`.
 
 ## Creating new authorization clients
 This plugin adds a management command, `oidccreateclient`, to create new clients that can use Kolibri to authenticate and authorize their users.
