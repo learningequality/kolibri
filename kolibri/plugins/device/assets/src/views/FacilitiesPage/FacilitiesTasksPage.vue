@@ -42,41 +42,9 @@
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import HeaderWithOptions from '../HeaderWithOptions';
-  import { syncStatusToDescriptionMap, removeStatusToDescriptionMap } from '../syncTaskUtils';
   import { taskIsClearable } from '../../constants';
   import FacilityTaskPanel from './FacilityTaskPanel';
 
-  // TODO remove these functions since they're just for generating examples
-  // function makeSyncTask(status) {
-  //   return {
-  //     type: 'SYNC_FACILITY',
-  //     status,
-  //     device_name: 'fcorp.local',
-  //     device_id: '4a9a',
-  //     facility_name: 'Atkinson Hall',
-  //     facility_id: 'D81C',
-  //     started_by_username: 'jb',
-  //     bytes_sent: 1000000,
-  //     bytes_received: 500000000,
-  //     percentage: 0.6,
-  //   };
-  // }
-  //
-  // function makeRemoveTask(status) {
-  //   return {
-  //     type: 'REMOVE_FACILITY',
-  //     status,
-  //     facility_name: 'Atkinson Hall',
-  //     facility_id: 'D81C',
-  //     started_by_username: 'jb',
-  //     percentage: 0.7,
-  //   };
-  // }
-  // const syncExamples = [
-  //   ...Object.keys(syncStatusToDescriptionMap).map(makeSyncTask),
-  //   ...Object.keys(removeStatusToDescriptionMap).map(makeRemoveTask),
-  // ];
-  //
   export default {
     name: 'FacilitiesTasksPage',
     metaInfo() {
@@ -100,7 +68,7 @@
         return Boolean(this.tasks.find(taskIsClearable));
       },
       visibleTasks() {
-        return this.tasks.map()
+        return this.tasks.map();
       },
     },
     beforeMount() {
@@ -108,7 +76,9 @@
     },
     methods: {
       handleClickClearAll() {
-        this.deleteFinishedTasks();
+        this.deleteFinishedTasks().then(() => {
+          this.pollSyncTasks();
+        });
       },
       pollSyncTasks() {
         this.fetchKdpSyncTasks()

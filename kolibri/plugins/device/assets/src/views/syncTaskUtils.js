@@ -94,7 +94,7 @@ export function syncFacilityTaskDisplayInfo(task) {
     startedByMsg: getTaskString('taskStartedByLabel', { username: task.started_by_username }),
     bytesTransferredMsg,
     deviceNameMsg,
-    isRunning: Boolean(syncStep),
+    isRunning: Boolean(syncStep) && !canClear,
     canClear,
     canCancel: !canClear,
     canRetry: task.status === TaskStatuses.FAILED,
@@ -126,8 +126,12 @@ export function removeFacilityTaskDisplayInfo(task) {
 export function importFacilityTaskDisplayInfo(task) {
   // Basically takes the sync output and removes things
   const info = syncFacilityTaskDisplayInfo(task);
-  info.bytesTransferredMsg = '';
-  info.headingMsg = '';
+  // info.bytesTransferredMsg = '';
+  // NOTE: We're re-using the "syncFacilityLabel" for import facility tasks
+  // TODO: Add a separate label for import tasks and use the commented-out code
+  // const facilityName = formatNameWithId(task.facility_name, task.facility);
+  // info.headingMsg = getTaskString('syncFacilityTaskLabel', { facilityName });
+
   if (task.status === TaskStatuses.FAILED) {
     info.deviceNameMsg = getTaskString('importFailedStatus', { facilityName: task.facility_name });
     info.statusMsg = getTaskString('taskFailedStatus');
