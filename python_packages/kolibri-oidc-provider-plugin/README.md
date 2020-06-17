@@ -50,6 +50,7 @@ The command has these options:
 Usage examples:
 
 `kolibri manage oidccreateclient  --name=myapp --clientid=myclient.app --redirect-uri="http://localhost:9000/openidconnect/api/callback/;https://mysite.com/auth;http://mysite.com/auth/"`
-``kolibri manage oidccreateclient --name=portable_chile --clientid=portable.chile --redirect-uri=https://www.tuoportunidad.org/cms/openid-connect-authorize`
+or
+`kolibri manage oidccreateclient --name=portable_chile --clientid=portable.chile --redirect-uri=https://www.tuoportunidad.org/cms/openid-connect-authorize`
 
 
