@@ -35,8 +35,6 @@ CMD git clone https://github.com/learningequality/kolibri-installer-windows.git 
       cp /kolibridist/kolibri-$KOLIBRI_VERSION*.whl . && \
       export KOLIBRI_BUILD_VERSION=$KOLIBRI_VERSION && \
       make && \
-      curl -sS https://www.python.org/ftp/python/3.6.8/python-3.6.8.exe --output "python-setup/python-3.6.8.exe" && \
-      curl -sS https://www.python.org/ftp/python/3.6.8/python-3.6.8-amd64.exe --output "python-setup/python-3.6.8-amd64.exe" && \
       wine inno-compiler/ISCC.exe installer-source/KolibriSetupScript.iss && \
       mv *.exe kolibri-$KOLIBRI_VERSION-unsigned.exe && \
       cp *.exe /kolibridist/
