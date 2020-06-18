@@ -1,8 +1,8 @@
 <template>
 
-  <div class="wrapper" :style="{ marginTop: windowIsSmall ? '340px' : '280px' }">
+  <div>
 
-    <div class="hero-heading">
+    <div class="header">
 
       <KGrid>
         <KGridItem
@@ -15,12 +15,11 @@
         </KGridItem>
 
         <KGridItem
-          class="title"
           :layout4="{ span: 4 }"
           :layout8="{ span: 8 }"
           :layout12="{ span: 12 }"
         >
-          <h3>
+          <h3 class="title">
             <TextTruncator
               :text="topicOrChannel.title"
               :maxHeight="90"
@@ -170,22 +169,14 @@
 
 <style lang="scss" scoped>
 
-  .hero-heading {
-    position: absolute;
-    top: 112px;
-    right: 0;
-    left: 0;
-    width: 100%;
-    padding: 24px;
-    background: white;
+  .header {
+    margin-bottom: 40px;
   }
 
   .title {
-    h3 {
-      margin-top: 0;
-      margin-bottom: 16px;
-      font-size: 2rem;
-    }
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 2rem;
   }
 
   .text {
