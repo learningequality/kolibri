@@ -2,8 +2,8 @@ from django.conf.urls import include
 from django.conf.urls import url
 from rest_framework import routers
 
-from .api import SetupWizardFacilityImportTaskView
 from .api import FacilityImportViewSet
+from .api import SetupWizardFacilityImportTaskView
 
 router = routers.DefaultRouter()
 

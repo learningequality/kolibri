@@ -18,7 +18,7 @@
       </template>
     </HeaderWithOptions>
 
-    <p v-if="false">
+    <p v-if="facilityTasks.length === 0">
       {{ $tr('emptyTasksMessage') }}
     </p>
     <div>
@@ -82,7 +82,6 @@
     },
     $trs: {
       backToFacilitiesLabel: 'Back to facilities',
-      // TODO un-comment p-tag above for 0.14.1 release
       emptyTasksMessage: 'There are no tasks to display',
     },
   };

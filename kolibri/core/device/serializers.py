@@ -11,8 +11,8 @@ from kolibri.core.auth.serializers import FacilitySerializer
 from kolibri.core.auth.serializers import FacilityUserSerializer
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
-from kolibri.core.device.utils import provision_device
 from kolibri.core.device.utils import create_superuser
+from kolibri.core.device.utils import provision_device
 
 
 class DevicePermissionsSerializer(serializers.ModelSerializer):

@@ -7,10 +7,10 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
 from kolibri.core.auth.constants import user_kinds
-from kolibri.core.device.utils import provision_device
-from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.utils import provision_device
 from kolibri.core.tasks.api import FacilityTasksViewSet
 
 

@@ -22,8 +22,8 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.exceptions import APIException
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ParseError
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from six import string_types

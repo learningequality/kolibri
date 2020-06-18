@@ -7,8 +7,8 @@ from mock import call
 from mock import Mock
 from mock import patch
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ParseError
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.test import APITestCase
 
@@ -316,8 +316,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
 
         req_data = dict(
-            facility=self.facility.id,
-            baseurl="https://some.server.test/extra/stuff",
+            facility=self.facility.id, baseurl="https://some.server.test/extra/stuff",
         )
 
         response = self.client.post(
@@ -375,8 +374,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
 
         req_data = dict(
-            facility=self.facility.id,
-            baseurl="https://some.server.test/extra/stuff",
+            facility=self.facility.id, baseurl="https://some.server.test/extra/stuff",
         )
 
         response = self.client.post(

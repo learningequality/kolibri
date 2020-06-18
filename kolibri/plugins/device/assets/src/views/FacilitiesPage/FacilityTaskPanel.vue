@@ -57,12 +57,14 @@
         return this.task.type === 'SYNCPEER/PULL';
       },
       taskInfo() {
+        if (this.isSetupImportTask) {
+          return importFacilityTaskDisplayInfo(this.task);
+        }
         if (this.isSyncTask || this.isImportTask) {
           return syncFacilityTaskDisplayInfo(this.task);
-        } else if (this.isDeleteTask) {
+        }
+        if (this.isDeleteTask) {
           return removeFacilityTaskDisplayInfo(this.task);
-        } else if (this.isSetupImportTask) {
-          return importFacilityTaskDisplayInfo(this.task);
         }
         return {};
       },
@@ -82,10 +84,6 @@
         return this.taskInfo.bytesTransferredMsg;
       },
       buttonSet() {
-        // Delete
-        if (this.isSyncTask) {
-          return 'retry';
-        }
         if (this.taskInfo.canCancel) {
           return 'cancel';
         } else if (this.taskInfo.canClear) {
