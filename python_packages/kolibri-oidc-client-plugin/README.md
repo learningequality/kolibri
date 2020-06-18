@@ -12,7 +12,7 @@ This package provides Kolibri users with the ability to authenticate against an 
 
 ## How can I install this plugin?
 
-1. Inside your Kolibri virtual environment: `pip install kolibri_oidc_client_plugin`
+1. Inside your Kolibri virtual environment: `pip install kolibri-oidc-client-plugin`
 
 2. Activate the plugin: `kolibri plugin enable kolibri_oidc_client_plugin`
 
