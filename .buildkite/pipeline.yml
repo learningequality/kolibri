@@ -54,9 +54,6 @@ steps:
     depends_on:
       - deb-build
 
-  - label: Build Windows installer
-    command: .buildkite/build_windows_installer.sh
-
   - wait
 
   - label: Upload Release Artifacts
