@@ -16,7 +16,7 @@ class GetFacilityAdminsTest(APITestCase):
     def _make_request(self):
         return self.client.get(
             reverse(
-                "kolibri:kolibri.plugins.setup_wizard:importfacility-facilityadmins"
+                "kolibri:kolibri.plugins.setup_wizard:facilityimport-facilityadmins"
             ),
             format="json",
         )
@@ -46,7 +46,7 @@ class GrantSuperuserPermissionsTest(APITestCase):
     def _make_request(self, data):
         return self.client.post(
             reverse(
-                "kolibri:kolibri.plugins.setup_wizard:importfacility-grantsuperuserpermissions"
+                "kolibri:kolibri.plugins.setup_wizard:facilityimport-grantsuperuserpermissions"
             ),
             data,
             format="json",
