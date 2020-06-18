@@ -8,7 +8,6 @@
  */
 module.exports = function() {
   const data = [];
-  data.push(require('vue-intl/locale-data/ach.js'));
   data.push(require('vue-intl/locale-data/ar.js'));
   data.push(require('vue-intl/locale-data/bg.js'));
   data.push(require('vue-intl/locale-data/bn.js'));

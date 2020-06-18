@@ -8,12 +8,6 @@
  */
 module.exports = function(locale) {
   switch (locale) {
-    case 'ach-ug':
-      return new Promise(function(resolve) {
-        require.ensure(['intl/locale-data/jsonp/ach-UG.js'], function(require) {
-          resolve(() => require('intl/locale-data/jsonp/ach-UG.js'));
-        });
-      });
     case 'ar':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/ar.js'], function(require) {
