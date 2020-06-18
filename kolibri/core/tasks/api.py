@@ -954,23 +954,25 @@ class ResourceGoneError(APIException):
 
 def prepare_sync_task(request, **kwargs):
     facility_id = request.data.get("facility")
-    # Extra metadata that can be passed from the client
-    facility_name = request.data.get("facility_name", "")
-    device_name = request.data.get("device_name", "")
-    device_id = request.data.get("device_id", "")
-    baseurl = request.data.get("baseurl", "")
     task_data = dict(
         facility=facility_id,
-        facility_name=facility_name,
-        device_name=device_name,
-        device_id=device_id,
-        baseurl=baseurl,
         started_by=request.user.pk,
         started_by_username=request.user.username,
         sync_state=FacilitySyncState.PENDING,
         bytes_sent=0,
         bytes_received=0,
     )
+
+    task_type = kwargs.get("type")
+    if task_type in ["SYNCPEER/PULL", "SYNCPEER/FULL"]:
+        # Extra metadata that can be passed from the client
+        extra_task_data = dict(
+            facility_name=request.data.get("facility_name", ""),
+            device_name=request.data.get("device_name", ""),
+            device_id=request.data.get("device_id", ""),
+            baseurl=request.data.get("baseurl", ""),
+        )
+        task_data.update(extra_task_data)
 
     task_data.update(kwargs)
     return task_data
