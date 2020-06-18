@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-11 09:07-0700\n"
-"PO-Revision-Date: 2020-06-13 01:24\n"
+"PO-Revision-Date: 2020-06-18 16:34\n"
 "Last-Translator: \n"
 "Language-Team: Persian\n"
 "Language: fa_IR\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: fa\n"
-"X-Crowdin-File: /test-release-v0.14.x/django.po\n"
+"X-Crowdin-File: /release-v0.14.x/django.po\n"
 "X-Crowdin-File-ID: 3806\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
@@ -35,17 +35,17 @@ msgstr ""
 
 #: kolibri/core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr ""
+msgstr "استثنای پیش‌بینی نشده [{}]: {}"
 
 #: kolibri/core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
-msgstr ""
+msgstr "محتوای سلول '{}' خیلی بلند است"
 
 #: kolibri/core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr ""
+msgstr "محتوای سلول '{}' صحیح نیست"
 
 #: kolibri/core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
@@ -86,37 +86,37 @@ msgstr ""
 #: kolibri/core/auth/management/commands/bulkexportusers.py:44
 #: kolibri/core/auth/management/commands/bulkexportusers.py:126
 msgid "Username ({})"
-msgstr ""
+msgstr "نام کاربری ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:45
 #: kolibri/core/auth/management/commands/bulkexportusers.py:127
 msgid "Password ({})"
-msgstr ""
+msgstr "رمز عبور ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:46
 #: kolibri/core/auth/management/commands/bulkexportusers.py:128
 msgid "Full name ({})"
-msgstr ""
+msgstr "نام کامل ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:51
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "نوع کاربر ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:54
 #: kolibri/core/auth/management/commands/bulkexportusers.py:136
 msgid "Identifier ({})"
-msgstr ""
+msgstr "شناسه ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:55
 #: kolibri/core/auth/management/commands/bulkexportusers.py:137
 msgid "Birth year ({})"
-msgstr ""
+msgstr "سال تولد ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:56
 #: kolibri/core/auth/management/commands/bulkexportusers.py:138
 msgid "Gender ({})"
-msgstr ""
+msgstr "جنسیت ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:61
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
@@ -131,7 +131,7 @@ msgstr ""
 #: kolibri/core/auth/management/commands/bulkexportusers.py:133
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "نوع کاربر ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:143
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
@@ -263,3 +263,4 @@ msgstr "مجوز ارائه‌دهنده‌ی شناسه‌ی باز"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "درخواست مجوز"
+

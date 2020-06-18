@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-11 09:07-0700\n"
-"PO-Revision-Date: 2020-06-13 01:24\n"
+"PO-Revision-Date: 2020-06-18 16:34\n"
 "Last-Translator: \n"
 "Language-Team: Yoruba\n"
 "Language: yo_NG\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: yo\n"
-"X-Crowdin-File: /test-release-v0.14.x/django.po\n"
+"X-Crowdin-File: /release-v0.14.x/django.po\n"
 "X-Crowdin-File-ID: 3806\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
@@ -263,3 +263,4 @@ msgstr "Ìfúnláṣẹ Olùpèsè OpenID"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "Bèèrè fún Àyè"
+

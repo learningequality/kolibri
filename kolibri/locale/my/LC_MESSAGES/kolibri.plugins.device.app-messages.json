@@ -27,7 +27,7 @@
   "ChannelTokenModal.networkErrorMessage": "တုံကင်ကို ချိတ်ဆက်၍ မရပါ",
   "ChannelTokenModal.tokenExplanation": "Kolibri စတူဒီယိုမှစာရင်းမသွင်းထားသောချန်နယ်များအားချန်နယ်တိုကင်ဖြင့်ပြန်ဖွင့်သည်။",
   "ChannelUpdateAnnotations.inQueueForImport": "",
-  "ChannelUpdateAnnotations.newResource": "",
+  "ChannelUpdateAnnotations.newResource": "အသစ်",
   "ChannelUpdateAnnotations.newResourcesInTopic": "",
   "ChannelUpdateModal.channelUpdateExplanation": "",
   "ChannelUpdateModal.title": "",

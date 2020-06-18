@@ -27,7 +27,7 @@
   "ChannelTokenModal.networkErrorMessage": "无法连接到令牌",
   "ChannelTokenModal.tokenExplanation": "频道令牌解锁 Kolibri Studio 未列出的频道",
   "ChannelUpdateAnnotations.inQueueForImport": "",
-  "ChannelUpdateAnnotations.newResource": "",
+  "ChannelUpdateAnnotations.newResource": "新",
   "ChannelUpdateAnnotations.newResourcesInTopic": "",
   "ChannelUpdateModal.channelUpdateExplanation": "您选择导入的一些频道将自动更新到最新版本。您想继续吗？",
   "ChannelUpdateModal.title": "频道更新",

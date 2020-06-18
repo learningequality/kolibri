@@ -27,7 +27,7 @@
   "ChannelTokenModal.networkErrorMessage": "टोकन से जुड़ने में असमर्थ",
   "ChannelTokenModal.tokenExplanation": "चैनल टोकन कोलिब्री स्टूडियो से असूचीबद्ध चैनल खोलते हैं",
   "ChannelUpdateAnnotations.inQueueForImport": "",
-  "ChannelUpdateAnnotations.newResource": "",
+  "ChannelUpdateAnnotations.newResource": "नया",
   "ChannelUpdateAnnotations.newResourcesInTopic": "",
   "ChannelUpdateModal.channelUpdateExplanation": "आयात के लिए आपने चुने हुए कुछ चैनल अपने आप ही नवीनतम संस्करण में बदल दिये जायेंगे। क्या आप जारी रखना चाहते हैं?",
   "ChannelUpdateModal.title": "चैनल अपडेट",

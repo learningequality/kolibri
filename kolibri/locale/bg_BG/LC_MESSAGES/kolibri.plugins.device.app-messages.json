@@ -27,7 +27,7 @@
   "ChannelTokenModal.networkErrorMessage": "Невъзможност за свързване с токена",
   "ChannelTokenModal.tokenExplanation": "Идентификаторите отключват скритите канали от Студио Колибри",
   "ChannelUpdateAnnotations.inQueueForImport": "",
-  "ChannelUpdateAnnotations.newResource": "",
+  "ChannelUpdateAnnotations.newResource": "Нов",
   "ChannelUpdateAnnotations.newResourcesInTopic": "",
   "ChannelUpdateModal.channelUpdateExplanation": "",
   "ChannelUpdateModal.title": "",
