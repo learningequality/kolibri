@@ -3,15 +3,17 @@
   <div>
     <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
       <template #options>
-        <KButton
-          :text="$tr('syncAllAction')"
-          @click="showSyncAllModal = true"
-        />
-        <KButton
-          :text="$tr('importFacilityAction')"
-          primary
-          @click="showImportModal = true"
-        />
+        <KButtonGroup>
+          <KButton
+            :text="$tr('syncAllAction')"
+            @click="showSyncAllModal = true"
+          />
+          <KButton
+            :text="$tr('importFacilityAction')"
+            primary
+            @click="showImportModal = true"
+          />
+        </KButtonGroup>
       </template>
     </HeaderWithOptions>
 
@@ -38,16 +40,18 @@
           </td>
           <td class="button-col">
             <div>
-              <KButton
-                :text="coreString('syncAction')"
-                @click="facilityForSync = facility"
-              />
-              <KDropdownMenu
-                :text="coreString('optionsLabel')"
-                :options="options"
-                appearance="flat-button"
-                @select="handleOptionSelect($event.value, facility)"
-              />
+              <KButtonGroup>
+                <KButton
+                  :text="coreString('syncAction')"
+                  @click="facilityForSync = facility"
+                />
+                <KDropdownMenu
+                  :text="coreString('optionsLabel')"
+                  :options="options"
+                  appearance="flat-button"
+                  @select="handleOptionSelect($event.value, facility)"
+                />
+              </KButtonGroup>
             </div>
           </td>
         </tr>
