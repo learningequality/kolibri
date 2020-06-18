@@ -51,8 +51,6 @@
 
   const ManageTasksPageStrings = crossComponentTranslator(ManageTasksPage);
 
-
-
   export default {
     name: 'FacilitiesTasksPage',
     metaInfo() {
@@ -76,8 +74,9 @@
         return Boolean(this.facilityTasks.find(taskIsClearable));
       },
       emptyTasksMessage() {
-        return ManageTasksPageStrings.$tr('emptyTasksMessage')
-      }
+        // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
+        return ManageTasksPageStrings.$tr('emptyTasksMessage');
+      },
     },
     methods: {
       handleClickClearAll() {
