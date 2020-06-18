@@ -409,6 +409,7 @@
 
   .controls {
     position: relative;
+    top: 8px;
     z-index: 0; // Hide icons with transition
     width: 24px;
     height: 24px;
