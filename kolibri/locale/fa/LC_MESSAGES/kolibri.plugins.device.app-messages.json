@@ -27,7 +27,7 @@
   "ChannelTokenModal.networkErrorMessage": "نمی‌توانید به علامت رمزی وارد شوید",
   "ChannelTokenModal.tokenExplanation": "رمز عبور قفلِ کانال‌های لیست‌ نشده را از استودیو Kolibri باز کرد",
   "ChannelUpdateAnnotations.inQueueForImport": "",
-  "ChannelUpdateAnnotations.newResource": "",
+  "ChannelUpdateAnnotations.newResource": "جدید",
   "ChannelUpdateAnnotations.newResourcesInTopic": "",
   "ChannelUpdateModal.channelUpdateExplanation": "",
   "ChannelUpdateModal.title": "",

@@ -42,7 +42,7 @@
   "CoachContentLabel.topicTitle": "Tó wà nínú rẹ̀. {count, number, integer} {count, plural, one {Èròjà iṣẹ́ olùkọ́} other {awon Èròjà iṣẹ́ olùkọ́}}",
   "CommonCoreStrings.adminLabel": "Alábójútó",
   "CommonCoreStrings.allClassesLabel": "Gbogbo àwọn kílààsì",
-  "CommonCoreStrings.allFacilitiesLabel": "",
+  "CommonCoreStrings.allFacilitiesLabel": "All facilities",
   "CommonCoreStrings.allLabel": "Gbogbo",
   "CommonCoreStrings.allLessonsLabel": "Gbogbo àwọn ẹkọ",
   "CommonCoreStrings.birthYearLabel": "Odún ìbí",

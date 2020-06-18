@@ -82,7 +82,7 @@
   "SearchPage.showingResultsFor": "{totalResults, plural, one {{totalResults} zapezeka} other {{totalResults} zapezeka}} pa mawu akuti '{searchTerm}'",
   "TopicsPage.documentTitleForChannel": "Mitu - { channelTitle }",
   "TopicsPage.documentTitleForTopic": "{ topicTitle } - { channelTitle }",
-  "TotalPoints.pointsTooltip": "Mwapeza mapointsi{ points, number }",
+  "TotalPoints.pointsTooltip": "Mwapeza mapoyinsi { points, number } ",
   "UpdateYourProfileModal.skipUpdateProfileAction": "Dumphani",
   "UpdateYourProfileModal.title": "Konzani tsamba lanu poyika zinthu zatsopano",
   "UpdateYourProfileModal.updateProfileExplanation": "Uthenga wina sukupezeka pa tsamba lanu. Mukufuna kulikonza poyika zatsopano?"

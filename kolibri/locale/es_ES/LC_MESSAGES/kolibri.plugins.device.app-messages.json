@@ -27,7 +27,7 @@
   "ChannelTokenModal.networkErrorMessage": "No se ha podido conectar con el token",
   "ChannelTokenModal.tokenExplanation": "Tokens desbloquean acceso a los canales privados en Kolibri Studio",
   "ChannelUpdateAnnotations.inQueueForImport": "",
-  "ChannelUpdateAnnotations.newResource": "",
+  "ChannelUpdateAnnotations.newResource": "Nuevo",
   "ChannelUpdateAnnotations.newResourcesInTopic": "",
   "ChannelUpdateModal.channelUpdateExplanation": "Algunos de canales seleccionados para importar se actualizarán automáticamente a la última versión. ¿Deseas continuar?",
   "ChannelUpdateModal.title": "Actualizar canales",

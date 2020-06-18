@@ -27,7 +27,7 @@
   "ChannelTokenModal.networkErrorMessage": "Không thể kết nối đến mã thông báo",
   "ChannelTokenModal.tokenExplanation": "Mã thông báo kênh mở khóa những kênh không được liệt kê từ Kolibri Studio",
   "ChannelUpdateAnnotations.inQueueForImport": "",
-  "ChannelUpdateAnnotations.newResource": "",
+  "ChannelUpdateAnnotations.newResource": "Mới",
   "ChannelUpdateAnnotations.newResourcesInTopic": "",
   "ChannelUpdateModal.channelUpdateExplanation": "Một số kênh bạn đã chọn để nhập sẽ được tự động cập nhật lên phiên bản mới nhất. Bạn có muốn tiếp tục không?",
   "ChannelUpdateModal.title": "Cập nhật kênh",

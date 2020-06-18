@@ -27,7 +27,7 @@
   "ChannelTokenModal.networkErrorMessage": "టోకెన్‌కు అనుసంధానం చేయలేకుంది",
   "ChannelTokenModal.tokenExplanation": "ఛానల్ టోకెన్‌లు Kolibri స్టూడియో నుండి జాబితా చేయబడని ఛానల్‌లని అన్‌లాక్ చేస్తాయి",
   "ChannelUpdateAnnotations.inQueueForImport": "",
-  "ChannelUpdateAnnotations.newResource": "",
+  "ChannelUpdateAnnotations.newResource": "కొత్తవి",
   "ChannelUpdateAnnotations.newResourcesInTopic": "",
   "ChannelUpdateModal.channelUpdateExplanation": "",
   "ChannelUpdateModal.title": "",
