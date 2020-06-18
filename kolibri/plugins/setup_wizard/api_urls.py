@@ -2,22 +2,14 @@ from django.conf.urls import include
 from django.conf.urls import url
 from rest_framework import routers
 
-from .api import FacilityAdminView
-from .api import GrantSuperuserPermissionsView
-from .api import StartFacilityImportTaskView
+from .api import FacilityImportViewSet
+from .api import SetupWizardFacilityImportTaskView
 
 router = routers.DefaultRouter()
 
-router.register(r"facilityadmins", FacilityAdminView, base_name="facilityadmins")
+router.register(r"facilityimport", FacilityImportViewSet, base_name="facilityimport")
 router.register(
-    r"grantsuperuserpermissions",
-    GrantSuperuserPermissionsView,
-    base_name="grantsuperuserpermissions",
-)
-router.register(
-    r"startfacilityimporttask",
-    StartFacilityImportTaskView,
-    base_name="startfacilityimporttask",
+    r"tasks", SetupWizardFacilityImportTaskView, base_name="tasks",
 )
 
 urlpatterns = [url(r"^", include(router.urls))]

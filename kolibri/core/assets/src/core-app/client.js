@@ -100,15 +100,15 @@ const client = options => {
       headers,
     })
     .then(response => {
-      return {
-        get entity() {
+      Object.defineProperty(response, 'entity', {
+        get() {
           logging.warn(
             'entity is deprecated for accessing response data, please use the data key instead'
           );
           return response.data;
         },
-        ...response,
-      };
+      });
+      return response;
     });
 };
 

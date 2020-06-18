@@ -9,13 +9,15 @@ from kolibri.core.auth.test.helpers import create_dummy_facility_data
 from kolibri.core.auth.test.helpers import provision_device
 
 
-class FacilityAdminViewTest(APITestCase):
+class GetFacilityAdminsTest(APITestCase):
     def setUp(self):
         create_dummy_facility_data(classroom_count=1)
 
     def _make_request(self):
         return self.client.get(
-            reverse("kolibri:kolibri.plugins.setup_wizard:facilityadmins-list"),
+            reverse(
+                "kolibri:kolibri.plugins.setup_wizard:facilityimport-facilityadmins"
+            ),
             format="json",
         )
 
@@ -31,7 +33,7 @@ class FacilityAdminViewTest(APITestCase):
         self.assertEqual(sorted_admins[1]["username"], "facadmin")
 
 
-class GrantSuperuserPermissionsViewTest(APITestCase):
+class GrantSuperuserPermissionsTest(APITestCase):
     def setUp(self):
         facility_data = create_dummy_facility_data(classroom_count=1)
         self.admin = facility_data["facility_admin"]
@@ -44,7 +46,7 @@ class GrantSuperuserPermissionsViewTest(APITestCase):
     def _make_request(self, data):
         return self.client.post(
             reverse(
-                "kolibri:kolibri.plugins.setup_wizard:grantsuperuserpermissions-list"
+                "kolibri:kolibri.plugins.setup_wizard:facilityimport-grantsuperuserpermissions"
             ),
             data,
             format="json",

@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <p v-if="singleFacility" class="facility-name">
+    <p v-if="singleFacility && facility.name" class="facility-name">
       {{ formatNameAndId(facility.name, facility.id) }}
     </p>
     <p>
@@ -21,6 +21,7 @@
       :isValid.sync="usernameValid"
       :shouldValidate="shouldValidate"
       :autofocus="true"
+      :disabled="$attrs.disabled"
     />
     <PasswordTextbox
       ref="password"
@@ -28,6 +29,7 @@
       :isValid.sync="passwordValid"
       :shouldValidate="shouldValidate"
       :showConfirmationInput="false"
+      :disabled="$attrs.disabled"
     />
   </div>
 
@@ -41,10 +43,6 @@
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
 
-  function mockResponse(fail = false) {
-    return fail ? Promise.reject() : Promise.resolve();
-  }
-
   export default {
     name: 'FacilityAdminCredentialsForm',
     components: {
@@ -56,6 +54,9 @@
       device: {
         type: Object,
         required: true,
+        validator(val) {
+          return val.name && val.id && val.baseurl;
+        },
       },
       facility: {
         type: Object,
@@ -78,14 +79,15 @@
     },
     computed: {
       prompt() {
+        const deviceName = this.device.name;
         if (this.singleFacility) {
           return this.$tr('adminCredentialsPromptOneFacility', {
-            device: this.device.name,
+            device: deviceName,
           });
         } else {
           return this.$tr('adminCredentialsPromptMultipleFacilities', {
             facility: this.facility.name,
-            device: this.device.name,
+            device: deviceName,
           });
         }
       },
@@ -95,25 +97,40 @@
     },
     methods: {
       // @public. Returns Promise<Boolean>
-      submitCredentials() {
+      startImport() {
         this.shouldValidate = true;
         if (this.formIsValid) {
-          return mockResponse()
-            .then(() => {
-              return true;
+          // return Promise.resolve(true);
+          return this.startPeerImportTask({
+            device_name: this.device.name,
+            device_id: this.device.id,
+            facility_name: this.facility.name,
+            facility: this.facility.id,
+            baseurl: this.device.baseurl,
+            username: this.username,
+            password: this.password,
+          })
+            .then(task => {
+              return task.id;
             })
             .catch(() => {
               this.error = true;
+              this.refocusForm();
               return false;
             });
         } else {
-          if (!this.usernameValid) {
-            this.$refs.username.focus();
-          } else {
-            this.$refs.password.focus();
-          }
+          this.refocusForm();
           return Promise.resolve(false);
         }
+      },
+      refocusForm() {
+        this.$nextTick().then(() => {
+          if (!this.usernameValid || this.error) {
+            this.$refs.username.focus();
+          } else if (!this.passwordValid) {
+            this.$refs.password.focus();
+          }
+        });
       },
     },
     $trs: {
@@ -121,8 +138,11 @@
       adminCredentialsPromptMultipleFacilities: {
         message:
           "Enter the username and password for a facility admin of '{facility}' or a super admin of '{device}'",
-        context:
-          '\n        Menu description text: users must provide the facility admin credentials\n        for a selected source facility, or super admin credentials for the source\n        device, before they are able to import\n      ',
+        context: `
+            Menu description text: users must provide the facility admin credentials
+            for a selected source facility, or super admin credentials for the source
+            device, before they are able to import
+          `,
       },
       adminCredentialsPromptOneFacility: {
         message:

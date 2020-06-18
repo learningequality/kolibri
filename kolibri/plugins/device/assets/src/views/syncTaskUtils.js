@@ -29,6 +29,7 @@ const syncTaskStatusToStepMap = {
 
 const genericStatusToDescriptionMap = {
   [TaskStatuses.PENDING]: getTaskString('taskWaitingStatus'),
+  [TaskStatuses.QUEUED]: getTaskString('taskWaitingStatus'),
   [TaskStatuses.COMPLETED]: getTaskString('taskFinishedStatus'),
   [TaskStatuses.CANCELED]: getTaskString('taskCanceledStatus'),
   [TaskStatuses.CANCELING]: getTaskString('taskCancelingStatus'),
@@ -54,16 +55,25 @@ function formatNameWithId(name, id) {
 export function syncFacilityTaskDisplayInfo(task) {
   let statusMsg;
   let bytesTransferredMsg = '';
+  let deviceNameMsg = '';
 
-  const facilityName = formatNameWithId(task.facility_name, task.facility_id);
-  const deviceNameMsg = coreString('quotedPhrase', {
-    phrase: formatNameWithId(task.device_name, task.device_id),
-  });
-  const syncStep = syncTaskStatusToStepMap[task.status];
+  const facilityName = formatNameWithId(task.facility_name, task.facility);
+
+  // Device info isn't shown on the Setup Wizard version of panel
+  if (task.device_name) {
+    deviceNameMsg = coreString('quotedPhrase', {
+      phrase: formatNameWithId(task.device_name, task.device_id),
+    });
+  }
+  const syncStep = syncTaskStatusToStepMap[task.sync_state];
   const statusDescription =
-    syncStatusToDescriptionMap[task.status] || getTaskString('taskUnknownStatus');
+    syncStatusToDescriptionMap[task.status] ||
+    syncStatusToDescriptionMap[task.sync_state] ||
+    getTaskString('taskUnknownStatus');
 
-  if (syncStep) {
+  if (task.status === TaskStatuses.COMPLETED) {
+    statusMsg = getTaskString('taskFinishedStatus');
+  } else if (syncStep) {
     statusMsg = getTaskString('syncStepAndDescription', {
       step: syncStep,
       total: 7,
@@ -88,7 +98,7 @@ export function syncFacilityTaskDisplayInfo(task) {
     startedByMsg: getTaskString('taskStartedByLabel', { username: task.started_by_username }),
     bytesTransferredMsg,
     deviceNameMsg,
-    isRunning: Boolean(syncStep),
+    isRunning: Boolean(syncStep) && !canClear,
     canClear,
     canCancel: !canClear,
     canRetry: task.status === TaskStatuses.FAILED,
@@ -102,7 +112,7 @@ export const removeStatusToDescriptionMap = {
 
 // Consolidates logic on how Remove-Facility Tasks should be displayed
 export function removeFacilityTaskDisplayInfo(task) {
-  const facilityName = formatNameWithId(task.facility_name, task.facility_id);
+  const facilityName = formatNameWithId(task.facility_name, task.facility);
   const statusDescription =
     removeStatusToDescriptionMap[task.status] || getTaskString('taskUnknownStatus');
 
@@ -110,22 +120,28 @@ export function removeFacilityTaskDisplayInfo(task) {
     headingMsg: getTaskString('removeFacilityTaskLabel', { facilityName }),
     statusMsg: statusDescription,
     startedByMsg: getTaskString('taskStartedByLabel', { username: task.started_by_username }),
-    isRunning: task.status === 'REMOVING_FACILITY',
+    isRunning: task.status === 'RUNNING',
     canClear: taskIsClearable(task),
-    canCancel: !taskIsClearable(task) && task.status !== 'REMOVING_FACILITY',
+    canCancel: !taskIsClearable(task) && task.status !== 'RUNNING',
     canRetry: task.status === TaskStatuses.FAILED,
   };
 }
 
+// For the SetupWizard Import Task
 export function importFacilityTaskDisplayInfo(task) {
   // Basically takes the sync output and removes things
   const info = syncFacilityTaskDisplayInfo(task);
   info.bytesTransferredMsg = '';
   info.headingMsg = '';
+
   if (task.status === TaskStatuses.FAILED) {
     info.deviceNameMsg = getTaskString('importFailedStatus', { facilityName: task.facility_name });
+    info.statusMsg = getTaskString('taskFailedStatus');
+    info.isRunning = false;
   } else if (task.status === TaskStatuses.COMPLETED) {
     info.deviceNameMsg = getTaskString('importSuccessStatus', { facilityName: task.facility_name });
+    info.statusMsg = getTaskString('taskFinishedStatus');
+    info.isRunning = false;
   } else {
     info.deviceNameMsg = '';
   }

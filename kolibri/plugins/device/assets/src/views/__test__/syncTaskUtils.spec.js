@@ -9,11 +9,13 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
   function makeTask(status) {
     return {
       type: 'SYNC_FACILITY',
+      // HACK: dumping sync_state enums into 'status' field, which isn't realistic
       status,
+      sync_state: status,
       device_name: 'generic device',
       device_id: 'dev123',
       facility_name: 'generic facility',
-      facility_id: 'fac123',
+      facility: 'fac123',
       started_by_username: 'generic user',
       bytes_sent: 1000000,
       bytes_received: 500000000,
@@ -28,7 +30,7 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
       device_name: 'invariant device',
       device_id: 'dev123',
       facility_name: 'invariant facility',
-      facility_id: 'fac123',
+      facility: 'fac123',
       started_by_username: 'invariant user',
     };
 
@@ -121,10 +123,10 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
 describe('syncTaskUtils.removeFacilityTaskDisplayInfo', () => {
   function makeTask(status) {
     return {
-      type: 'REMOVE_FACILITY',
+      type: 'DELETEFACILITY',
       status,
       facility_name: 'removed facility',
-      facility_id: 'fac123',
+      facility: 'fac123',
       started_by_username: 'removing user',
     };
   }
@@ -163,7 +165,7 @@ describe('syncTaskUtils.removeFacilityTaskDisplayInfo', () => {
     ['CANCELED', false, true, false],
     ['CANCELING', true, false, false],
     ['FAILED', false, true, true],
-    ['REMOVING_FACILITY', false, false, false],
+    ['RUNNING', false, false, false],
     ['COMPLETED', false, true, false],
   ];
 

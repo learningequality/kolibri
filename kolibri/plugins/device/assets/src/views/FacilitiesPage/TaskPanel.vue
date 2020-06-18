@@ -72,7 +72,8 @@
       </p>
     </div>
 
-    <div class="buttons" :class="{ 'button-lift': Boolean(loaderType) }">
+    <KButtonGroup :class="{ 'button-lift': Boolean(loaderType) }">
+
       <KButton
         v-if="buttonSet === 'cancel'"
         :disabled="taskIsCanceling"
@@ -93,7 +94,7 @@
         primary
         @click="$emit('retry')"
       />
-    </div>
+    </KButtonGroup>
   </div>
 
 </template>

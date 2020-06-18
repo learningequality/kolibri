@@ -4,6 +4,7 @@
     v-if="!loading"
     :header="$tr('header')"
     :description="$tr('description')"
+    :uniqueUsernameValidator="uniqueUsernameValidator"
     @click_next="handleClickNext"
   >
     <template v-slot:aboveform>
@@ -23,7 +24,7 @@
       />
 
       <!-- Prompt that shows when full superuser form is showing -->
-      <p v-if="!existingUser">
+      <p v-if="!importedUserIsSelected">
         {{ $tr('accountFacilityExplanation', { facility: facility.name }) }}
       </p>
     </template>
@@ -33,7 +34,7 @@
       is selected
    -->
     <template
-      v-if="existingUser"
+      v-if="importedUserIsSelected"
       v-slot:form
     >
       <p>
@@ -64,6 +65,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import SuperuserCredentialsForm from '../onboarding-forms/SuperuserCredentialsForm';
+  import { FacilityImportResource } from '../../api';
 
   const CREATE_NEW_SUPER_ADMIN = 'CREATE_NEW_SUPER_ADMIN';
 
@@ -92,7 +94,7 @@
       };
     },
     computed: {
-      existingUser() {
+      importedUserIsSelected() {
         return this.selected.value !== CREATE_NEW_SUPER_ADMIN;
       },
       dropdownOptions() {
@@ -118,9 +120,11 @@
       this.fetchFacilityAdmins();
     },
     methods: {
+      uniqueUsernameValidator(username) {
+        return !this.facilityAdmins.find(admin => admin.username === username);
+      },
       fetchFacilityAdmins() {
-        this.$store
-          .dispatch('getFacilityAdmins')
+        return FacilityImportResource.facilityadmins()
           .then(admins => {
             this.facilityAdmins = [...admins];
             this.selected = { ...this.dropdownOptions[0] };
@@ -136,29 +140,45 @@
           this.$refs.password.resetAndFocus();
         }
       },
-      grantPermissions(data) {
+      handleClickNextImportedUser() {
         this.error = false;
-        return this.$store.dispatch('grantSuperuserPermisions', data);
+        if (!this.passwordValid) {
+          this.$refs.password.focus();
+          return;
+        }
+        return FacilityImportResource.grantsuperuserpermissions({
+          user_id: this.selected.value,
+          password: this.password,
+        })
+          .then(() => {
+            this.updateSuperuserAndClickNext(this.selected.label, this.password);
+          })
+          .catch(() => {
+            this.error = true;
+          });
       },
-      handleClickNext() {
+      handleClickNextNewUser(data) {
+        return FacilityImportResource.createsuperuser(data)
+          .then(() => {
+            this.updateSuperuserAndClickNext(data.username, data.password);
+          })
+          .catch(() => {
+            this.error = true;
+          });
+      },
+      updateSuperuserAndClickNext(username, password) {
+        this.$emit('update:superuser', {
+          username,
+          password,
+        });
+        this.$emit('click_next');
+      },
+      handleClickNext(data) {
         this.shouldValidate = true;
-        if (this.existingUser) {
-          if (this.passwordValid) {
-            this.grantPermissions({
-              user_id: this.selected.value,
-              password: this.password,
-            })
-              .then(() => {
-                this.$emit('click_next');
-              })
-              .catch(() => {
-                this.error = true;
-              });
-          } else {
-            this.$refs.password.focus();
-          }
+        if (this.importedUserIsSelected) {
+          this.handleClickNextImportedUser();
         } else {
-          this.$emit('click_next');
+          this.handleClickNextNewUser(data);
         }
       },
     },

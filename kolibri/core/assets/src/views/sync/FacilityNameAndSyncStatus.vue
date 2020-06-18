@@ -25,6 +25,10 @@
           <KCircularLoader class="loader" :size="16" :delay="false" />
           {{ $tr('syncing') }}
         </template>
+        <template v-else-if="isDeleting">
+          <KCircularLoader class="loader" :size="16" :delay="false" />
+          {{ getTaskString('removingFacilityStatus') }}
+        </template>
         <template v-else>
           <span v-if="facility.last_sync_failed" class="sync-message">
             {{ $tr('syncFailed') }}
@@ -47,19 +51,24 @@
 
   import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
   import { now } from 'kolibri.utils.serverClock';
+  import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
 
   export default {
     name: 'FacilityNameAndSyncStatus',
     components: {
       UiIcon,
     },
-    mixins: [],
+    mixins: [taskStrings],
     props: {
       facility: {
         type: Object,
         required: true,
       },
       isSyncing: {
+        type: Boolean,
+        default: false,
+      },
+      isDeleting: {
         type: Boolean,
         default: false,
       },
