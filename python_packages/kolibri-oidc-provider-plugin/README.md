@@ -12,33 +12,13 @@ This package provides a plugin to convert a  Kolibri server into a OIDC provider
 
 ## How can I install this plugin?
 
-1. Inside your Kolibri virtual environment: `pip install kolibri_oidc_provider_plugin`
+1. Inside your Kolibri virtual environment: `pip install kolibri-oidc-provider-plugin`
 
 2. Activate the plugin: `kolibri plugin enable kolibri_oidc_provider_plugin`
 
 3. Restart Kolibri
 
-4. Create authorization clients that will use the provider, as explained below
-
-
-## Plugin configuration
-
-This plugin is based on the [Django OpenID Connect Provider library](https://github.com/juanifioren/django-oidc-provider/).
-
-that can set to work as a standard OpenID Connect provider, so most of the library options have already been set and are not optional.
-
-
-### Require consent setting
-
-The standard OIDC protocol requires the user to grant permissions the first time an OIDC provider is used. In some special cases the implementation might need to avoid this extra step for the users. This plugin has an optional setting to skip the permission request. To use it:
-
-Either add it to `$KOLIBRI_HOME/options.ini` a new section:
-
-```ini
-[OIDCProvider]
-REQUIRE_CONSENT = False
-```
-Or supply the `REQUIRE_CONSENT` option setting in an environment variable called `KOLIBRI_OIDC_REQUIRE_CONSENT`.
+4. Create server RSA Keys and  authorization clients that will use the provider, as explained below
 
 
 ## Creating server RSA Keys
@@ -79,3 +59,23 @@ Clients created using the `oidccreateclient` command will have these settings (i
 - Algorithm to sign the jwt = `RS256`
 
 All the server endpoints are available via the `OpenID Provider Discovery` url in the server provider address http://server/.well-known/openid-configuration , for example, if running Kolibri locally, at http://localhost:8080/.well-known/openid-configuration
+
+
+## Plugin configuration
+
+This plugin is based on the [Django OpenID Connect Provider library](https://github.com/juanifioren/django-oidc-provider/).
+
+that can set to work as a standard OpenID Connect provider, so most of the library options have already been set and are not optional.
+
+
+### Require consent setting
+
+The standard OIDC protocol requires the user to grant permissions the first time an OIDC provider is used. In some special cases the implementation might need to avoid this extra step for the users. This plugin has an optional setting to skip the permission request. To use it:
+
+Either add it to `$KOLIBRI_HOME/options.ini` a new section:
+
+```ini
+[OIDCProvider]
+REQUIRE_CONSENT = False
+```
+Or supply the `REQUIRE_CONSENT` option setting in an environment variable called `KOLIBRI_OIDC_REQUIRE_CONSENT`.
