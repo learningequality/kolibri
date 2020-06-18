@@ -2,46 +2,32 @@
 
 set -euo pipefail
 
-SCRIPTPATH=$(pwd)
-PIP_PATH="$SCRIPTPATH/env/bin/pip"
-PYTHON_PATH="$SCRIPTPATH/env/bin/python"
+docker build \
+  --iidfile build_test_iid \
+  -t testing_worksheet \
+  -f docker/build_test_worksheet.dockerfile \
+  .
 
-echo "Now creating virtualenv..."
-virtualenv -p python3 env
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't create virtualenv."
-    exit 1
-fi
+CIDFILE=build_test_cid
 
-PIP_CMD="$PIP_PATH install gspread==3.1.0"
-echo "Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't install '$PIP_CMD'."
-    exit 1
-fi
+# If any error occurs, remove the CIDFILE that's about to be generated
+trap "rm $CIDFILE" err
 
-PIP_CMD="$PIP_PATH install --upgrade oauth2client"
-echo "Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't install '$PIP_CMD'."
-    exit 1
-fi
+docker run \
+  --cidfile $CIDFILE \
+  -e GOOGLE_SPREADSHEET_CREDENTIALS \
+  -e BUILDKITE_TAG \
+  -e BUILDKITE_PULL_REQUEST_BASE_BRANCH \
+  -v $GOOGLE_SPREADSHEET_CREDENTIALS:$GOOGLE_SPREADSHEET_CREDENTIALS \
+  $(cat ./build_test_iid)
 
-PIP_CMD="$PIP_PATH install PyOpenSSL"
-echo "Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't install '$PIP_CMD'."
-    exit 1
-fi
+CID=$(cat $CIDFILE)
 
-PYTHON_CMD="$PYTHON_PATH .buildkite/create_integration_testing_worksheet.py"
-$PYTHON_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't execute '$PYTHON_CMD'."
-    exit 1
-fi
+# Now that we know a container was created, remove it on exit
+trap "rm build_test_iid && docker rm $CID" exit
+
+docker cp \
+  $CID:/kolibri/.buildkite/spreadsheet-link.txt \
+  $PWD/.buildkite/
 
 buildkite-agent artifact upload '.buildkite/spreadsheet-link.txt'
