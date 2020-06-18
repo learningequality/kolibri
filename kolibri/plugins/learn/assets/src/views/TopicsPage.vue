@@ -2,21 +2,81 @@
 
   <div>
 
-    <PageHeader
-      :title="topic.title"
-      :progress="calculateProgress"
-      contentType="topic"
-    />
+    <div class="header">
 
-    <TextTruncator
-      v-if="topic.description"
-      :text="topic.description"
-      :maxHeight="90"
-      :showTooltip="false"
-      :showViewMore="true"
-      dir="auto"
-      class="page-description"
-    />
+      <KGrid>
+        <KGridItem
+          class="breadcrumbs"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 8 }"
+          :layout12="{ span: 12 }"
+        >
+          <slot name="breadcrumbs"></slot>
+        </KGridItem>
+
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 8 }"
+          :layout12="{ span: 12 }"
+        >
+          <h3 class="title">
+            <TextTruncator
+              :text="topicOrChannel.title"
+              :maxHeight="90"
+              :showTooltip="false"
+              dir="auto"
+            />
+          </h3>
+        </KGridItem>
+
+        <KGridItem
+          v-if="topicOrChannel['thumbnail']"
+          class="thumbnail"
+          :layout4="{ span: 1 }"
+          :layout8="{ span: 2 }"
+          :layout12="{ span: 2 }"
+        >
+          <CardThumbnail
+            class="thumbnail"
+            :thumbnail="topicOrChannel['thumbnail']"
+            :isMobile="windowIsSmall"
+            :showTooltip="false"
+            kind="channel"
+            :showContentIcon="false"
+          />
+        </KGridItem>
+
+        <!-- tagline or description -->
+        <KGridItem
+          v-if="getTagline"
+          class="text"
+          :layout4="{ span: topicOrChannel['thumbnail'] ? 3 : 4 }"
+          :layout8="{ span: topicOrChannel['thumbnail'] ? 6 : 8 }"
+          :layout12="{ span: topicOrChannel['thumbnail'] ? 10 : 12 }"
+        >
+          <TextTruncator
+            :text="getTagline"
+            :maxHeight="100"
+            :showTooltip="false"
+            dir="auto"
+          />
+        </KGridItem>
+
+        <KGridItem
+          class="footer"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 8 }"
+          :layout12="{ span: 12 }"
+        >
+          <ProgressIcon
+            v-if="calculateProgress !== undefined"
+            class="progress-icon"
+            :progress="calculateProgress"
+          />
+        </KGridItem>
+      </KGrid>
+
+    </div>
 
     <ContentCardGroupGrid
       v-if="contents.length"
@@ -33,10 +93,12 @@
 
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { PageNames } from '../constants';
-  import PageHeader from './PageHeader';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
+  import CardThumbnail from './ContentCard/CardThumbnail';
 
   export default {
     name: 'TopicsPage',
@@ -55,14 +117,23 @@
       return { title };
     },
     components: {
-      PageHeader,
+      CardThumbnail,
       ContentCardGroupGrid,
+      ProgressIcon,
       TextTruncator,
     },
+    mixins: [responsiveWindowMixin],
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
       channelTitle() {
         return this.channel.title;
+      },
+      topicOrChannel() {
+        // Get the channel if we're root, topic if not
+        return this.isRoot ? this.channel : this.topic;
+      },
+      getTagline() {
+        return this.topicOrChannel['tagline'] || this.topicOrChannel['description'] || null;
       },
       calculateProgress() {
         // calculate progress across all topics
@@ -98,10 +169,24 @@
 
 <style lang="scss" scoped>
 
-  .page-description {
-    margin-top: 1em;
-    margin-bottom: 1em;
+  .header {
+    margin-bottom: 40px;
+  }
+
+  .title {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 2rem;
+  }
+
+  .text {
+    padding-left: 16px;
+    margin-bottom: 16px;
     line-height: 1.5em;
+  }
+
+  /deep/.card-thumbnail-wrapper {
+    max-width: 100%;
   }
 
 </style>

@@ -20,7 +20,12 @@ export function showChannels(store) {
           .map(channel => {
             const node = _collectionState(channelCollection).find(n => n.channel_id === channel.id);
             if (node) {
+              // The `channel` comes with additional data that is
+              // not returned from the ContentNodeResource.
+              // Namely thumbnail, description and tagline (so far)
               node.thumbnail = channel.thumbnail;
+              node.description = channel.description;
+              node.tagline = channel.tagline;
               return node;
             }
           })
