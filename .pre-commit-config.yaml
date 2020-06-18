@@ -4,7 +4,6 @@ repos:
     rev: v2.0.0
     hooks:
     -   id: trailing-whitespace
-    -   id: flake8
     -   id: check-yaml
     -   id: check-added-large-files
     -   id: debug-statements
