@@ -126,6 +126,7 @@ class Command(BaseCommand):
         num_exams = options["num_exams"]
         max_channels = options["max_channels"]
         device_name = options["device_name"]
+        verbosity = options.get("verbosity", 1)
         # TODO(cpauya):
         # num_groups = options["num_groups"]
         # channel_token = options["channel_token"]
@@ -145,13 +146,14 @@ class Command(BaseCommand):
         now = timezone.now()
 
         facilities = utils.get_or_create_facilities(
-            n_facilities=n_facilities, device_name=device_name
+            n_facilities=n_facilities, device_name=device_name, verbosity=verbosity
         )
 
         # Device needs to be provisioned before adding superusers
         if no_onboarding:
             utils.logger_info(
-                "Provisioning device. Onboarding will be skipped after starting server."
+                "Provisioning device. Onboarding will be skipped after starting server.",
+                verbosity=verbosity,
             )
             provision_device()
 
@@ -160,12 +162,16 @@ class Command(BaseCommand):
                 utils.logger_info(
                     'Creating superuser "superuser" with password "password" at facility {facility}.'.format(
                         facility=facility.name
-                    )
+                    ),
+                    verbosity=verbosity,
                 )
                 create_superuser(facility=facility)
 
             classrooms = utils.get_or_create_classrooms(
-                n_classes=n_classes, facility=facility, device_name=device_name
+                n_classes=n_classes,
+                facility=facility,
+                device_name=device_name,
+                verbosity=verbosity,
             )
 
             # TODO(cpauya):
@@ -181,7 +187,8 @@ class Command(BaseCommand):
 
             if not channels:
                 utils.logger_info(
-                    "No channels found, cannot add channel activities for learners."
+                    "No channels found, cannot add channel activities for learners.",
+                    verbosity=verbosity,
                 )
 
             # Get all the user data at once so that it is distinct across classrooms
@@ -197,6 +204,7 @@ class Command(BaseCommand):
                     user_data=classroom_user_data,
                     facility=facility,
                     device_name=device_name,
+                    verbosity=verbosity,
                 )
 
                 # Iterate through the slice of the facility_user_data specific to this classroom
@@ -209,20 +217,25 @@ class Command(BaseCommand):
                         n_content_items = int(base_data["Age"])
 
                     # Loop over all local channels to generate data for each channel
-                    utils.logger_info("    Learner {learner}...".format(learner=user))
+                    utils.logger_info(
+                        "    Learner {learner}...".format(learner=user),
+                        verbosity=verbosity,
+                    )
                     for channel in channels:
                         # TODO(cpauya): check for issue as per Richard's report
                         # REF: https://github.com/learningequality/kolibri/pull/6983#issuecomment-638980072
                         utils.logger_info(
                             "      ==> Adding {channel} channel activity for learner {learner}...".format(
                                 channel=channel, learner=user
-                            )
+                            ),
+                            verbosity=verbosity,
                         )
                         utils.add_channel_activity_for_user(
                             n_content_items=n_content_items,
                             channel=channel,
                             user=user,
                             now=now,
+                            verbosity=verbosity,
                         )
 
                 # create lessons
@@ -232,6 +245,7 @@ class Command(BaseCommand):
                     channels=ChannelMetadata.objects.all(),
                     lessons=num_lessons,
                     now=now,
+                    verbosity=verbosity,
                 )
 
                 # create exams
@@ -242,6 +256,7 @@ class Command(BaseCommand):
                     exams=num_exams,
                     now=now,
                     device_name=device_name,
+                    verbosity=verbosity,
                 )
 
                 # # TODO(cpauya): create groups

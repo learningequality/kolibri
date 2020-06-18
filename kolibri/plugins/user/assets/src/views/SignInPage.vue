@@ -5,7 +5,7 @@
     <AuthBase>
 
       <!-- Multi-facility selection -->
-      <div v-if="hasMultipleFacilities || showFacilityName" style="margin-bottom: 8px;">
+      <div v-if="hasMultipleFacilities || showFacilityName" style="margin: 16px 0;">
         <span v-if="showFacilityName" style="margin-right: 8px;">
           {{ $tr("signInToFacilityLabel", { facility: selectedFacility.name }) }}
         </span>
@@ -25,11 +25,11 @@
         <KButton
           appearance="basic-link"
           text=""
+          style="margin-bottom: 16px;"
           @click="unselectListUser"
         >
-          <mat-svg
-            name="arrow_back"
-            category="navigation"
+          <KIcon
+            :icon="back"
             :style="{
               fill: $themeTokens.primary,
               height: '1.125em',
@@ -74,6 +74,7 @@
         <KButton
           appearance="basic-link"
           text=""
+          style="margin-bottom: 16px;"
           @click="unselectListUser"
         >
           <mat-svg
@@ -90,7 +91,7 @@
           />{{ coreString('goBackAction') }}
         </KButton>
 
-        <p v-if="selectedListUser.username">
+        <p v-if="selectedListUser.username" style="padding: 8px 0;">
           {{ $tr("greetUser", { user: selectedListUser.username }) }}
         </p>
 
@@ -601,7 +602,7 @@
 
   .login-btn {
     width: calc(100% - 16px);
-    margin-top: 8px;
+    margin-top: 16px;
   }
 
   .create {

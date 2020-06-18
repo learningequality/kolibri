@@ -72,20 +72,22 @@
       </div>
 
       <div class="buttons">
-        <KButton
-          :disabled="saveDisabled"
-          :text="$tr('saveButton')"
-          :primary="true"
-          appearance="raised-button"
-          @click="save()"
-        />
-        <KButton
-          :disabled="uiBlocked"
-          :text="coreString('cancelAction')"
-          :primary="false"
-          appearance="flat-button"
-          @click="goBack()"
-        />
+        <KButtonGroup>
+          <KButton
+            :disabled="saveDisabled"
+            :text="$tr('saveButton')"
+            :primary="true"
+            appearance="raised-button"
+            @click="save()"
+          />
+          <KButton
+            :disabled="uiBlocked"
+            :text="coreString('cancelAction')"
+            :primary="false"
+            appearance="flat-button"
+            @click="goBack()"
+          />
+        </KButtonGroup>
       </div>
       <div v-if="saveFailed">
         {{ $tr('saveFailureNotification') }}
