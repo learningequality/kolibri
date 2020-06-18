@@ -40,20 +40,42 @@ REQUIRE_CONSENT = False
 ```
 Or supply the `REQUIRE_CONSENT` option setting in an environment variable called `KOLIBRI_OIDC_REQUIRE_CONSENT`.
 
+
+## Creating server RSA Keys
+Previously to use the server authentication, an internal RSA Key must be created using the commands:
+`kolibri manage migrate`
+`kolibri manage creatersakey`
+
 ## Creating new authorization clients
 This plugin adds a management command, `oidccreateclient`, to create new clients that can use Kolibri to authenticate and authorize their users.
 The command has these options:
-* `name` : Name of the oidc client application. It can be text with less than 100 chars
-* `clientid`: OIDC client identifier: It must be a string without spaces nor punctuation marks, with less than 255 chars
-* `redirect-uri`: Url where the user will be redirected after the authentication is granted. If the authentication request does not include exactly this same url authentication will fail. More than one url can be added using this option
-* `clientsecret`: OIDC secret. If the command is executed without providing one, it will generate and output it.
+* `name`: (Required) Name of the oidc client application. It can be text with less than 100 chars.
+* `clientid`: (Required) OIDC client identifier: It must be a string without spaces nor punctuation marks, with less than 255 chars. This is a required parameter.
+* `redirect-uri`: (Required) Url where the user will be redirected after the authentication is granted. If the authentication request does not include exactly this same url authentication will fail. More than one url can be added using this option
+* `clientsecret`: OIDC secret. If the command is executed without providing one, it will generate it and output it in the system prompt. It must be a 32 chars hexadecimal value (It's recommended not to provide one and use the secret this commands generates as it's created according to the [best practices](https://www.oauth.com/oauth2-servers/client-registration/client-id-secret/))
 
 Usage examples:
+`kolibri manage oidccreateclient  --name=myapp --clientid=myclient.app --redirect-uri="http://localhost:9000/openidconnect/api/callback/"`
 
-`kolibri manage oidccreateclient  --name=myapp --clientid=myclient.app --redirect-uri="http://localhost:9000/openidconnect/api/callback/;https://mysite.com/auth;http://mysite.com/auth/"`
+or, if the site needs to use different redirect uris in the client server:
 
-or
+```
+kolibri manage oidccreateclient --name=myapp --clientid=myclient.app --redirect-uri="http://localhost:9000/oidc/callback/
+http://localhost:9000/oidc/callback
+https://mysite.com/auth/
+http://mysite.com/auth/"
+```
 
-`kolibri manage oidccreateclient --name=portable_chile --clientid=portable.chile --redirect-uri=https://www.tuoportunidad.org/cms/openid-connect-authorize`
 
 
+### Created clients parameters
+
+Clients created using the `oidccreateclient` command will have these settings (in addition to the parameters added when creating the client). Some of them might be needed when configuring the client server:
+
+- Response_type: `code`
+- Scope: `openid profile email`
+- Client_type = `public`
+- Allowed_responses = `code`, `id_token` or `id_token token`
+- Algorithm to sign the jwt = `RS256`
+
+All the server endpoints are available via the `OpenID Provider Discovery` url in the server provider address http://server/.well-known/openid-configuration , for example, if running Kolibri locally, at http://localhost:8080/.well-known/openid-configuration

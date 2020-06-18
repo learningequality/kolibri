@@ -67,7 +67,7 @@ class Command(BaseCommand):
                 reuse_consent=True,
                 require_consent=False,
                 _redirect_uris=options["redirect_uri"],
-                _scope="openid profile",
+                _scope="openid profile email",
             )
             new_client.save()
             new_client.response_types = response_codes
