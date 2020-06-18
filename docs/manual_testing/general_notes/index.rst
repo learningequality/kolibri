@@ -133,24 +133,27 @@ Create 2 facilities, with 2 classes per facility, with 20 learners per class, 2 
 Examples for a fresh Kolibri install (no imported channels)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For a fresh Kolibri installation, use this to automatically create superusers and skip on-boarding.  The super user username is ``superuser`` and password is ``password``.
+For a fresh Kolibri installation, use this to automatically create superusers and skip on-boarding (setup wizard).  The superuser username is ``superuser`` and password is ``password``.
 
 .. code-block:: bash
 
     kolibri manage generateuserdata --no-onboarding
 
-Create 2 facilities, with 2 classes per facility, with 20 learners per class, 2 interactions per learner.
+Create 2 facilities, with 2 classes per facility, with 20 learners per class.
 
 .. code-block:: bash
 
-    kolibri manage generateuserdata --facilities 2 --classes 2 --users 20 --num-content-items 2
+    kolibri manage generateuserdata --facilities 2 --classes 2 --users 20 --no-onboarding
+
 
 Notes
 ~~~~~
 
 1. If there are existing facilities, it will only create the remaining ones.  So if you already have one facility, specifying ``--facilities 2`` will create one more facility and its subsequent sample data.
-1. Use the `--max-channels` option to limit the number of channels for learners to interact with.  This saves a lot of time specially on large data samples.
-1. The ``--no-onboarding`` argument creates a super user for each facility with username ``superuser`` and password ``password``.
+
+2. Use the `--max-channels` option to limit the number of channels for learners to interact with.  This saves a lot of time specially on large data samples.
+
+3. The ``--no-onboarding`` argument creates a super user for each facility with username ``superuser`` and password ``password``.
 
 
 Collecting client and server errors using Sentry

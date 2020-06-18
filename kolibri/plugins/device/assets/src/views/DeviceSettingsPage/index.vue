@@ -51,8 +51,13 @@
         @change="allowOtherBrowsersToConnect = $event"
       >
         <span> {{ $tr('allowExternalConnectionsApp') }}
-          <p>{{ $tr('allowExternalConnectionsAppDescription') }}</p>
-
+          <p
+            v-if="allowOtherBrowsersToConnect"
+            class="description"
+            :style="{ color: $themeTokens.annotation }"
+          >
+            {{ $tr('allowExternalConnectionsAppDescription') }}
+          </p>
         </span>
       </KCheckbox>
       <p>
@@ -290,6 +295,11 @@
 
   .save-button {
     margin-left: 0;
+  }
+  .description {
+    width: 100%;
+    font-size: 12px;
+    line-height: normal;
   }
 
   .ul-reset {

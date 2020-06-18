@@ -5,7 +5,7 @@
     <AuthBase>
 
       <!-- Multi-facility selection -->
-      <div v-if="hasMultipleFacilities || showFacilityName" style="margin-bottom: 8px;">
+      <div v-if="hasMultipleFacilities || showFacilityName" style="margin: 16px 0;">
         <span v-if="showFacilityName" style="margin-right: 8px;">
           {{ $tr("signInToFacilityLabel", { facility: selectedFacility.name }) }}
         </span>
@@ -25,11 +25,11 @@
         <KButton
           appearance="basic-link"
           text=""
+          style="margin-bottom: 16px;"
           @click="unselectListUser"
         >
-          <mat-svg
-            name="arrow_back"
-            category="navigation"
+          <KIcon
+            :icon="back"
             :style="{
               fill: $themeTokens.primary,
               height: '1.125em',
@@ -74,6 +74,7 @@
         <KButton
           appearance="basic-link"
           text=""
+          style="margin-bottom: 16px;"
           @click="unselectListUser"
         >
           <mat-svg
@@ -90,7 +91,7 @@
           />{{ coreString('goBackAction') }}
         </KButton>
 
-        <p v-if="selectedListUser.username">
+        <p v-if="selectedListUser.username" style="padding: 8px 0;">
           {{ $tr("greetUser", { user: selectedListUser.username }) }}
         </p>
 
@@ -147,9 +148,8 @@
               :autofocus="true"
               :invalid="passwordIsInvalid"
               :invalidText="passwordIsInvalidText"
-              :floatingLabel="!autoFilledByChromeAndNotEdited"
+              :floatingLabel="false"
               @blur="passwordBlurred = true"
-              @input="handlePasswordChanged"
             />
           </transition>
           <div>
@@ -270,7 +270,6 @@
         usernameBlurred: false,
         passwordBlurred: false,
         formSubmitted: false,
-        autoFilledByChromeAndNotEdited: false,
         selectedListUser: null,
         needsToCreatePassword: false,
         createdPassword: '',
@@ -335,10 +334,6 @@
         return '';
       },
       passwordIsInvalid() {
-        // prevent validation from showing when we only think that the password is empty
-        if (this.autoFilledByChromeAndNotEdited) {
-          return false;
-        }
         return Boolean(this.passwordIsInvalidText);
       },
       formIsValid() {
@@ -368,26 +363,6 @@
       username(newVal) {
         this.setSuggestionTerm(newVal);
       },
-    },
-    mounted() {
-      /*
-        Chrome has non-standard behavior with auto-filled text fields where
-        the value shows up as an empty string even though there is text in
-        the field:
-          https://bugs.chromium.org/p/chromium/issues/detail?id=669724
-        As super-brittle hack to detect the presence of auto-filled text and
-        work-around it, we look for a change in background color as described
-        here:
-          https://stackoverflow.com/a/35783761
-      */
-      setTimeout(() => {
-        const bgColor = window.getComputedStyle(this.$refs.username.$el.querySelector('input'))
-          .backgroundColor;
-
-        if (bgColor === 'rgb(250, 255, 189)') {
-          this.autoFilledByChromeAndNotEdited = true;
-        }
-      }, 250);
     },
     methods: {
       ...mapActions(['kolibriLogin', 'kolibriLoginWithNewPassword', 'clearLoginError']),
@@ -544,9 +519,6 @@
           this.$refs.password.focus();
         }
       },
-      handlePasswordChanged() {
-        this.autoFilledByChromeAndNotEdited = false;
-      },
       suggestionStyle(i) {
         return {
           backgroundColor: this.highlightedIndex === i ? this.$themePalette.grey.v_200 : '',
@@ -568,7 +540,8 @@
       nextLabel: 'Next',
       /* eslint-disable kolibri/vue-no-unused-translations */
       // stub out some extra strings
-      signingInToFacilityAsUserLabel: "Signing into '{facility}' as '{user}'",
+      signingInToFacilityAsUserLabel: "Signing in to '{facility}' as '{user}'",
+      signingInAsUserLabel: "Signing in as '{user}'",
       changeUser: 'Change user',
       changeFacility: 'Change facility',
       multiFacilitySignInError: 'Incorrect username, password, or facility',
@@ -629,7 +602,7 @@
 
   .login-btn {
     width: calc(100% - 16px);
-    margin-top: 8px;
+    margin-top: 16px;
   }
 
   .create {

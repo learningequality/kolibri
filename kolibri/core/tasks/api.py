@@ -16,17 +16,19 @@ from django.http.response import HttpResponseBadRequest
 from django.utils.translation import get_language_from_request
 from django.utils.translation import gettext_lazy as _
 from morango.sync.controller import MorangoProfileController
+from rest_framework import decorators
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import NotAuthenticated
 from rest_framework.exceptions import ParseError
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from six import string_types
 
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.auth.models import Facility
@@ -40,6 +42,7 @@ from kolibri.core.content.utils.channels import read_channel_metadata_from_db_fi
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.upgrade import diff_stats
+from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.permissions import NotProvisionedCanGet
 from kolibri.core.device.permissions import NotProvisionedCanPost
 from kolibri.core.discovery.models import NetworkLocation
@@ -214,7 +217,7 @@ class BaseViewSet(viewsets.ViewSet):
         # unimplemented for now.
         pass
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def canceltask(self, request):
         """
         Cancel a task with its task id given in the task_id parameter.
@@ -234,7 +237,7 @@ class BaseViewSet(viewsets.ViewSet):
 
         return Response({})
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def cleartasks(self, request):
         """
         Cancels all running tasks.
@@ -245,7 +248,7 @@ class BaseViewSet(viewsets.ViewSet):
 
         return Response({})
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def cleartask(self, request):
         # Given a single task ID, clear it from the queue
         task_id = request.data.get("task_id")
@@ -257,7 +260,7 @@ class BaseViewSet(viewsets.ViewSet):
 
         return Response({"task_id": task_id})
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def deletefinishedtasks(self, request):
         """
         Delete all tasks that have succeeded, failed, or been cancelled.
@@ -283,7 +286,7 @@ class TasksViewSet(BaseViewSet):
 
         return super(TasksViewSet, self).permission_classes
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startchannelupdate(self, request):
 
         sourcetype = request.data.get("sourcetype", None)
@@ -324,7 +327,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startremotebulkimport(self, request):
         if not isinstance(request.data, list):
             raise serializers.ValidationError(
@@ -352,7 +355,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startremotechannelimport(self, request):
 
         task = validate_remote_import_task(request, request.data)
@@ -373,7 +376,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startremotecontentimport(self, request):
 
         task = validate_remote_import_task(request, request.data)
@@ -397,7 +400,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startdiskbulkimport(self, request):
         if not isinstance(request.data, list):
             raise serializers.ValidationError(
@@ -425,7 +428,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startdiskchannelimport(self, request):
         task = validate_local_import_task(request, request.data)
 
@@ -445,7 +448,7 @@ class TasksViewSet(BaseViewSet):
         resp = _job_to_response(priority_queue.fetch_job(job_id))
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startdiskcontentimport(self, request):
         task = validate_local_import_task(request, request.data)
 
@@ -469,7 +472,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startbulkdelete(self, request):
         if not isinstance(request.data, list):
             raise serializers.ValidationError(
@@ -498,7 +501,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startdeletechannel(self, request):
         """
         Delete a channel and all its associated content from the server
@@ -527,7 +530,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startdiskbulkexport(self, request):
         if not isinstance(request.data, list):
             raise serializers.ValidationError(
@@ -554,7 +557,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startdiskexport(self, request):
         """
         Export a channel to a local drive, and copy content to the drive.
@@ -580,7 +583,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @action(methods=["get"], detail=False)
+    @decorators.action(methods=["get"], detail=False)
     def localdrive(self, request):
         drives = get_mounted_drives_with_channel_info()
 
@@ -590,7 +593,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(out)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def importusersfromcsv(self, request):
         """
         Import users, classes, roles and roles assignemnts from a csv file.
@@ -666,7 +669,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def exportuserstocsv(self, request):
         """
         Export users, classes, roles and roles assignemnts to a csv file.
@@ -696,7 +699,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startexportlogcsv(self, request):
         """
         Dumps in csv format the required logs.
@@ -751,7 +754,7 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def channeldiffstats(self, request):
         job_metadata = {}
         channel_id = request.data.get("channel_id")
@@ -826,7 +829,7 @@ class FacilityTasksViewSet(BaseViewSet):
 
         return [p | NotProvisionedCanPost for p in permission_classes]
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startdataportalsync(self, request):
         """
         Initiate a PUSH sync with Kolibri Data Portal.
@@ -839,7 +842,7 @@ class FacilityTasksViewSet(BaseViewSet):
         resp = _job_to_response(facility_queue.fetch_job(job_id))
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startdataportalbulksync(self, request):
         """
         Initiate a PUSH sync with Kolibri Data Portal for ALL registered facilities.
@@ -855,7 +858,7 @@ class FacilityTasksViewSet(BaseViewSet):
 
         return Response(responses)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startpeerfacilityimport(self, request):
         """
         Initiate a PULL of a specific facility from another device.
@@ -871,7 +874,7 @@ class FacilityTasksViewSet(BaseViewSet):
         resp = _job_to_response(facility_queue.fetch_job(job_id))
         return Response(resp)
 
-    @action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False)
     def startpeerfacilitysync(self, request):
         """
         Initiate a SYNC (PULL + PUSH) of a specific facility from another device.
@@ -880,6 +883,54 @@ class FacilityTasksViewSet(BaseViewSet):
             request, extra_metadata=prepare_sync_task(request, type="SYNCPEER/FULL"),
         )
         job_id = facility_queue.enqueue(call_command, "sync", **job_data)
+
+        resp = _job_to_response(facility_queue.fetch_job(job_id))
+        return Response(resp)
+
+    @decorators.permission_classes([IsSuperuser])
+    @decorators.action(methods=["post"], detail=False)
+    def startdeletefacility(self, request):
+        """
+        Initiate a task to delete a facility
+        """
+        try:
+            facility_id = request.data.get("facility")
+            if not facility_id:
+                raise KeyError()
+        except KeyError:
+            raise ParseError(
+                dict(code="INVALID_FACILITY", message="Missing `facility` parameter",)
+            )
+
+        if not Facility.objects.filter(id=facility_id).exists():
+            raise ValidationError(
+                dict(code="INVALID_FACILITY", message="Facility doesn't exist",)
+            )
+
+        if not Facility.objects.exclude(id=facility_id).exists():
+            raise ValidationError(
+                dict(
+                    code="SOLE_FACILITY",
+                    message="Cannot delete the sole facility on the device",
+                )
+            )
+
+        if request.user.is_facility_user and request.user.facility_id == facility_id:
+            raise ValidationError(
+                dict(code="FACILITY_MEMBER", message="User is member of facility",)
+            )
+
+        job_id = facility_queue.enqueue(
+            call_command,
+            "deletefacility",
+            facility=facility_id,
+            track_progress=True,
+            noninteractive=True,
+            cancellable=False,
+            extra_metadata=dict(
+                facility=facility_id, started_by=request.user.pk, type="DELETEFACILITY"
+            ),
+        )
 
         resp = _job_to_response(facility_queue.fetch_job(job_id))
         return Response(resp)
@@ -951,7 +1002,7 @@ def validate_and_prepare_peer_sync_job(request, **kwargs):
     username = request.data.get("username", None)
     password = request.data.get("password", None)
 
-    controller = MorangoProfileController("facilitydata")
+    controller = MorangoProfileController(PROFILE_FACILITY_DATA)
     network_connection = controller.create_network_connection(baseurl)
 
     # try to get the certificate, which will save it if successful

@@ -311,7 +311,7 @@
 
   .search-buttons-wrapper {
     display: table-cell;
-    width: 78px;
+    width: 80px;
     height: 36px;
     text-align: right;
     vertical-align: middle;

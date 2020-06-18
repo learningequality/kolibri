@@ -33,8 +33,8 @@ KEY_DEFAULT_FONT = "default_font"
 IN_CTXT_LANG = {
     KEY_CROWDIN_CODE: "ach",
     KEY_INTL_CODE: "ach-ug",
-    KEY_LANG_NAME: "In context translation",
-    KEY_ENG_NAME: "In context translation",
+    KEY_LANG_NAME: "In-context translation",
+    KEY_ENG_NAME: "In-context translation",
     KEY_DEFAULT_FONT: "NotoSans",
 }
 

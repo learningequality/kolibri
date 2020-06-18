@@ -15,6 +15,7 @@ from morango.sync.controller import MorangoProfileController
 from requests.exceptions import ConnectionError
 from six.moves.urllib.parse import urljoin
 
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
@@ -134,7 +135,7 @@ class Command(AsyncCommand):
         if not ScopeDefinition.objects.filter():
             call_command("loaddata", "scopedefinitions")
 
-        controller = MorangoProfileController("facilitydata")
+        controller = MorangoProfileController(PROFILE_FACILITY_DATA)
         with self.start_progress(total=7) as progress_update:
             try:
                 network_connection = controller.create_network_connection(

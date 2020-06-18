@@ -1,6 +1,6 @@
+import importlib
 import logging
 import os
-import pickle
 
 from django.apps import apps
 from django.conf import settings
@@ -176,21 +176,53 @@ def set_all_class_defaults(Base):
             pass
 
 
-SCHEMA_PATH_TEMPLATE = os.path.join(
-    os.path.dirname(__file__), "../fixtures/{name}_content_schema"
+__SQLALCHEMY_CLASSES_PATH = (
+    "contentschema",
+    "versions",
 )
+
+__SQLALCHEMY_CLASSES_MODULE_NAME = "content_schema_{name}"
+
+SQLALCHEMY_CLASSES_PATH_TEMPLATE = os.path.join(
+    os.path.dirname(__file__),
+    "..",
+    *(__SQLALCHEMY_CLASSES_PATH + (__SQLALCHEMY_CLASSES_MODULE_NAME + ".py",))
+)
+
+SQLALCHEMY_CLASSES_MODULE_PATH_TEMPLATE = ".".join(
+    tuple(__name__.split(".")[:-2])
+    + __SQLALCHEMY_CLASSES_PATH
+    + (__SQLALCHEMY_CLASSES_MODULE_NAME,)
+)
+
+
+def coerce_version_name_to_valid_module_path(name):
+    # Only required to support the legacy schema versions that
+    # use Kolibri versions explicitly in their name.
+    return name.replace(".", "").replace("-", "")
+
+
+def load_metadata(name):
+    module = importlib.import_module(
+        SQLALCHEMY_CLASSES_MODULE_PATH_TEMPLATE.format(
+            name=coerce_version_name_to_valid_module_path(name)
+        )
+    )
+    return module.Base.metadata
 
 
 def prepare_bases():
 
     for name in CONTENT_DB_SCHEMA_VERSIONS + [CURRENT_SCHEMA_VERSION]:
-
-        with open(SCHEMA_PATH_TEMPLATE.format(name=name), "rb") as f:
-            metadata = pickle.load(f)
-        cascade_relationships = name == CURRENT_SCHEMA_VERSION
-        BASES[name] = prepare_base(
-            metadata, cascade_relationships=cascade_relationships
-        )
+        try:
+            metadata = load_metadata(name)
+            BASES[name] = prepare_base(metadata, name=name)
+        except ImportError:
+            logger.error(
+                "Tried to load content schema version {} but valid schema import was not found".format(
+                    name
+                )
+            )
 
 
 def get_model_from_cls(cls):
@@ -208,13 +240,13 @@ def get_field_from_model_by_column(model, column):
     return next((f for f in model._meta.fields if f.column == column), None)
 
 
-def prepare_base(metadata, cascade_relationships=False):
+def prepare_base(metadata, name=None):
     """
     Create a Base mapping for models for a particular schema version of the content app
     A Base mapping defines the mapping from database tables to the SQLAlchemy ORM and is
     our main entrypoint for interacting with content databases and the content app tables
     of the default database.
-    If cascade_relationships is True, then also attempt to use Django model information
+    If name is CURRENT_SCHEMA_VERSION, then also attempt to use Django model information
     to setup proper relationship cascade behaviour to allow deletion in SQLAlchemy.
     """
     # Set up the base mapping using the automap_base method, using the metadata passed in
@@ -232,7 +264,7 @@ def prepare_base(metadata, cascade_relationships=False):
             base, direction, return_fn, attrname, local_cls, referred_cls, **kw
         )
 
-    if cascade_relationships:
+    if name == CURRENT_SCHEMA_VERSION:
         Base.prepare(generate_relationship=_gen_relationship)
     else:
         Base.prepare()

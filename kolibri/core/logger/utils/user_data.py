@@ -41,24 +41,35 @@ logger = logging.getLogger(__name__)
 #####################
 
 
-def logger_info(message):
+def logger_info(message, verbosity=1):
     # Encapsulate logging in an exception handler to capture encoding errors:
-    # * UnicodeEncodeError
-    # TODO(cpauya): Don't just pass on everything, capture only encoding-related issues.
+    # Sadly, simply wrapping the printing code in an exception handler
+    # doesn't work on Windows, see: https://github.com/learningequality/kolibri/issues/7077
     try:
-        logger.info(message)
+        # MUST: Follow the verbosity mechanism of Django's management commands
+        # https://docs.djangoproject.com/en/1.11/ref/django-admin/#cmdoption-verbosity
+        # and only show when it's > 0.
+        # print("====> verbosity %s" % verbosity)
+        if verbosity > 0:
+            # REF: [Python, Unicode, and the Windows console](https://stackoverflow.com/a/32176732/845481)
+            print(message)
     except Exception:
+        # TODO(cpauya): Don't just pass on everything, capture only specific ones.
         pass
 
 
 def get_or_create_facilities(**options):
     n_facilities = options["n_facilities"]
     device_name = options.get("device_name", "")
+    verbosity = options.get("verbosity", 1)
 
     n_on_device = Facility.objects.all().count()
     n_to_create = n_facilities - n_on_device
     if n_to_create > 0:
-        print("Generating {n} facility object(s)".format(n=n_to_create))
+        logger_info(
+            "Generating {n} facility object(s)".format(n=n_to_create),
+            verbosity=verbosity,
+        )
         for i in range(0, n_to_create):
             facility_name = "Facility{i}".format(i=i + 1)
             if device_name:
@@ -68,7 +79,7 @@ def get_or_create_facilities(**options):
             facility.dataset.location = device_name
             facility.dataset.save()
             if created:
-                logger_info("==> CREATED FACILITY {f}".format(f=facility))
+                logger_info("==> CREATED FACILITY {f}".format(f=facility), verbosity)
 
     return Facility.objects.all()[0:n_facilities]
 
@@ -79,12 +90,14 @@ def get_or_create_classrooms(**options):
     n_on_device = Classroom.objects.filter(parent=facility).count()
     n_to_create = n_classes - n_on_device
     device_name = options.get("device_name", "")
+    verbosity = options.get("verbosity", 1)
 
     if n_to_create > 0:
         logger_info(
             "Generating {n} classroom object(s) for facility: {name}".format(
                 n=n_to_create, name=facility.name
-            )
+            ),
+            verbosity,
         )
         for i in range(0, n_to_create):
             class_name = "Class{i}{a}".format(i=i + 1, a=random.choice("ABCD"))
@@ -96,7 +109,7 @@ def get_or_create_classrooms(**options):
                 parent=facility, name=class_name,
             )
             if created:
-                logger_info("==> CREATED Class {c}".format(c=classroom))
+                logger_info("==> CREATED Class {c}".format(c=classroom), verbosity)
     return Classroom.objects.filter(parent=facility)[0:n_classes]
 
 
@@ -106,6 +119,7 @@ def get_or_create_classroom_users(**options):
     user_data = options["user_data"]
     facility = options["facility"]
     device_name = options.get("device_name", "")
+    verbosity = options.get("verbosity", 1)
 
     # The headers in the user_data.csv file that we use to generate user Full Names
     # Note, we randomly pick from these to give deliberately varied (and sometimes idiosyncratic)
@@ -125,7 +139,8 @@ def get_or_create_classroom_users(**options):
         logger_info(
             "Generating {n} user object(s) for class: {classroom} in facility: {facility}".format(
                 n=n_to_create, classroom=classroom, facility=facility
-            )
+            ),
+            verbosity=verbosity,
         )
         for i in range(0, n_to_create):
             # Get the first base data that does not have a matching user already
@@ -171,16 +186,18 @@ def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
     channel = options["channel"]
     user = options["user"]
     now = options["now"]
+    verbosity = options.get("verbosity", 1)
 
     channel_id = channel.id
     default_channel_content = ContentNode.objects.exclude(
         kind=content_kinds.TOPIC
     ).filter(channel_id=channel_id)
 
-    logger.debug(
+    logger_info(
         "Generating {i} user interaction(s) for user: {user} for channel: {channel}".format(
             i=n_content_items, user=user, channel=channel.name
-        )
+        ),
+        verbosity=verbosity,
     )
     # Generate a content interaction history for this many content items
     for i in range(0, n_content_items):
