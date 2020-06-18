@@ -19,7 +19,7 @@
     </HeaderWithOptions>
 
     <p v-if="facilityTasks.length === 0">
-      {{ $tr('emptyTasksMessage') }}
+      {{ emptyTasksMessage }}
     </p>
     <div>
       <FacilityTaskPanel
@@ -42,10 +42,16 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import HeaderWithOptions from '../HeaderWithOptions';
   import { taskIsClearable } from '../../constants';
+  import ManageTasksPage from '../ManageTasksPage';
   import FacilityTaskPanel from './FacilityTaskPanel';
   import facilityTasksQueue from './facilityTasksQueue';
+
+  const ManageTasksPageStrings = crossComponentTranslator(ManageTasksPage);
+
+
 
   export default {
     name: 'FacilitiesTasksPage',
@@ -69,6 +75,9 @@
       someClearableTasks() {
         return Boolean(this.facilityTasks.find(taskIsClearable));
       },
+      emptyTasksMessage() {
+        return ManageTasksPageStrings.$tr('emptyTasksMessage')
+      }
     },
     methods: {
       handleClickClearAll() {
@@ -82,7 +91,6 @@
     },
     $trs: {
       backToFacilitiesLabel: 'Back to facilities',
-      emptyTasksMessage: 'There are no tasks to display',
     },
   };
 
