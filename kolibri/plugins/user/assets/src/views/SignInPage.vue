@@ -371,27 +371,6 @@
         this.$store.dispatch('signIn/fetchUsersForFacilities', facilityIdsToFetch);
       }
     },
-    mounted() {
-      /*
-        Chrome has non-standard behavior with auto-filled text fields where
-        the value shows up as an empty string even though there is text in
-        the field:
-          https://bugs.chromium.org/p/chromium/issues/detail?id=669724
-        As super-brittle hack to detect the presence of auto-filled text and
-        work-around it, we look for a change in background color as described
-        here:
-          https://stackoverflow.com/a/35783761
-      */
-      setTimeout(() => {
-        const bgColor = window.getComputedStyle(this.$refs.username.$el.querySelector('input'))
-          .backgroundColor;
-
-        if (bgColor === 'rgb(250, 255, 189)') {
-        }
-      }, 250);
-    },
-          this.autoFilledByChromeAndNotEdited = true;
-        }
     methods: {
       ...mapActions(['kolibriLogin', 'kolibriLoginWithNewPassword', 'clearLoginError']),
       unselectListUser() {
