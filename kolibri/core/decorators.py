@@ -316,14 +316,6 @@ def query_params_required(**kwargs):
     return _params
 
 
-def calculate_spa_etag(*args, **kwargs):
-    return hashlib.md5(
-        kolibri_version.encode("utf-8")
-        + str(ContentCacheKey.get_cache_key()).encode("utf-8")
-        + str(ThemeHook.cacheKey()).encode("utf-8")
-    ).hexdigest()
-
-
 def cache_no_user_data(view_func):
     """
     Set appropriate Vary on headers on a view that specify there is
@@ -336,10 +328,20 @@ def cache_no_user_data(view_func):
     on a per user basis.
     """
 
-    @etag(calculate_spa_etag)
-    def inner_func(*args, **kwargs):
+    def calculate_spa_etag(*args, **kwargs):
         request = args[0]
         del request.session
+        response = view_func(*args, **kwargs)
+        response.render()
+        return hashlib.md5(
+            kolibri_version.encode("utf-8")
+            + str(ContentCacheKey.get_cache_key()).encode("utf-8")
+            + str(ThemeHook.cacheKey()).encode("utf-8")
+            + str(response._container[0]).encode("utf-8")
+        ).hexdigest()
+
+    @etag(calculate_spa_etag)
+    def inner_func(*args, **kwargs):
         response = view_func(*args, **kwargs)
         patch_response_headers(response, cache_timeout=15)
         response["Vary"] = "accept-encoding, accept"
