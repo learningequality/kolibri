@@ -6,7 +6,7 @@ RUN apk update && apk add \
     tar
 
 # If build_src is alredy present, shouldn't need to redownload
-COPY build_src build_src
+COPY build_src/ build_src/
 COPY Makefile .
 
 RUN make clean && make dist/kolibri_archive.tar.gz dist/VERSION
