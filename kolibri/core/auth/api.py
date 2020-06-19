@@ -373,10 +373,6 @@ class FacilityViewSet(ValuesViewset):
         return queryset
 
     def annotate_queryset(self, queryset):
-        # Fixes issue using OuterRef within Cast() that is patched in later Django version
-        # Patch from https://github.com/django/django/commit/c412926a2e359afb40738d8177c9f3bef80ee04e
-        # https://code.djangoproject.com/ticket/29142
-        F.relabeled_clone = lambda self, relabels: self
         return (
             queryset.annotate(
                 num_users=SQCount(
