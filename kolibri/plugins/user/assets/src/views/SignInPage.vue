@@ -296,7 +296,7 @@
         );
       },
       shouldShowPasswordForm() {
-        return Boolean(this.selectedListUser);
+        return Boolean(this.selectedListUser) && !this.usernameIsInvalid;
       },
       suggestions() {
         // Filter suggestions on the client side so we don't hammer the server
