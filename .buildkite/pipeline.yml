@@ -11,4 +11,6 @@ steps:
 
   - label: Upload Release Artifacts
     command: .buildkite/setup_and_upload_artifact.sh && docker image prune -f -a
+    agents:
+        vader=true
     if: build.tag != null
