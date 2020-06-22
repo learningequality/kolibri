@@ -51,6 +51,10 @@ else:
     LOCAL_KOLIBRI_HOME = os.environ.get("LOCAL_KOLIBRI_HOME", DEFAULT_KOLIBRI_HOME)
 
 
+class KolibriAPIError(Exception):
+    pass
+
+
 def init_gettext():
     gettext.bindtextdomain(config.GETTEXT_PACKAGE, config.LOCALE_DIR)
     gettext.textdomain(config.GETTEXT_PACKAGE)
@@ -89,22 +93,26 @@ def get_current_language():
 
 def is_kolibri_responding():
     # Check if Kolibri is responding to http requests at the expected URL.
-    info = kolibri_api_get_json("/api/public/info", default=dict())
-    return info.get("application") == "kolibri"
+    try:
+        info = kolibri_api_get_json("/api/public/info")
+    except KolibriAPIError:
+        return False
+    else:
+        return info.get("application") == "kolibri"
 
 
-def kolibri_api_get_json(path, query={}, default=None):
+def kolibri_api_get_json(path, query={}):
     request_url = KOLIBRI_URL_SPLIT._replace(path=path, query=urlencode(query))
     request = Request(urlunsplit(request_url))
 
     try:
         response = urlopen(request)
     except URLError as error:
-        return default
+        raise KolibriAPIError(error)
 
     try:
         data = json.load(response)
     except json.JSONDecodeError as error:
-        return default
+        raise KolibriAPIError(error)
 
     return data

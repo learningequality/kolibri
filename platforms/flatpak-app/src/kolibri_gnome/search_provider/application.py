@@ -1,8 +1,7 @@
-import functools
-from gi.repository import Gdk, Gio, GLib
+from gi.repository import Gio, GLib
 
 from .. import config
-from ..globals import IS_KOLIBRI_LOCAL, is_kolibri_responding
+from ..globals import IS_KOLIBRI_LOCAL
 from .utils import gapplication_hold
 
 
@@ -41,8 +40,13 @@ class DbusMethodJob(object):
 
     def run(self, cancellable=None):
         with gapplication_hold(self.__application):
-            result = self.__method(*self.__args, cancellable=cancellable)
-            self.__return_value(result)
+            try:
+                result = self.__method(*self.__args, cancellable=cancellable)
+                self.__return_value(result)
+            except Exception as error:
+                self.__return_error(
+                    Gio.io_error_quark(), Gio.IOErrorEnum.FAILED, str(error)
+                )
 
     def run_async(self, job, cancellable, user_data):
         self.run(cancellable=cancellable)
@@ -81,21 +85,35 @@ class SearchProvider(object):
     </node>
     """
 
-    def __init__(self, application):
+    class NoSearchHandlersError(Exception):
+        pass
+
+    def __init__(self, application, search_handlers=tuple()):
         self.__application = application
+        self.__search_handlers = search_handlers
         self.__registration_ids = []
         self.__method_outargs = {}
         self.__existing_jobs = dict()
 
-    @staticmethod
-    def is_available():
-        raise NotImplementedError()
+    def get_search_results(self, *args):
+        for search_handler in self.__search_handlers:
+            try:
+                result = search_handler.get_search_results(*args)
+            except search_handler.SearchHandlerFailed:
+                pass
+            else:
+                return result
+        raise self.NoSearchHandlersError("No search handlers available")
 
-    def get_search_results(self, search):
-        raise NotImplementedError()
-
-    def get_node_data(self, node_id):
-        raise NotImplementedError()
+    def get_node_data(self, *args):
+        for search_handler in self.__search_handlers:
+            try:
+                result = search_handler.get_node_data(*args)
+            except search_handler.SearchHandlerFailed:
+                pass
+            else:
+                return result
+        raise self.NoSearchHandlersError("No search handlers available")
 
     def register_on_connection(self, connection, object_path):
         info = Gio.DBusNodeInfo.new_for_xml(self.INTERFACE_XML)
@@ -195,18 +213,24 @@ class SearchProvider(object):
             }
 
 
-class LocalSearchProvider(SearchProvider):
-    def __init__(self, *args, **kwargs):
-        from kolibri.dist import django
-
-        django.setup()
-        super().__init__(*args, **kwargs)
-
-    @staticmethod
-    def is_available():
-        return IS_KOLIBRI_LOCAL
+class SearchHandler(object):
+    class SearchHandlerFailed(Exception):
+        pass
 
     def get_search_results(self, search):
+        raise NotImplementedError()
+
+    def get_node_data(self, node_id):
+        raise NotImplementedError()
+
+
+class LocalSearchHandler(SearchHandler):
+    def __init__(self):
+        self.__did_django_setup = False
+
+    def get_search_results(self, search):
+        self.__do_django_setup()
+
         from kolibri.core.content.api import ContentNodeSearchViewset
         from kolibri.dist.rest_framework.test import APIRequestFactory
 
@@ -216,6 +240,8 @@ class LocalSearchProvider(SearchProvider):
         return response.data.get("results", [])
 
     def get_node_data(self, node_id):
+        self.__do_django_setup()
+
         from kolibri.core.content.api import ContentNodeViewset
         from kolibri.dist.rest_framework.test import APIRequestFactory
 
@@ -224,29 +250,14 @@ class LocalSearchProvider(SearchProvider):
         response = node_view(request, pk=node_id)
         return response.data
 
+    def __do_django_setup(self):
+        if self.__did_django_setup:
+            return
 
-class RemoteSearchProvider(SearchProvider):
-    @staticmethod
-    def is_available():
-        return is_kolibri_responding()
+        from kolibri.dist import django
 
-    def get_search_results(self, search):
-        from ..globals import kolibri_api_get_json
-
-        response = kolibri_api_get_json(
-            "/api/content/contentnode_search",
-            query={"search": search, "max_results": 10},
-            default=dict(),
-        )
-        return response.get("results", [])
-
-    def get_node_data(self, node_id):
-        from ..globals import kolibri_api_get_json
-
-        response = kolibri_api_get_json(
-            "/api/content/contentnode/{}".format(node_id), default=dict()
-        )
-        return response
+        django.setup()
+        self.__did_django_setup = True
 
 
 class Application(Gio.Application):
@@ -260,22 +271,17 @@ class Application(Gio.Application):
         self.connect("activate", self.__on_activate)
 
     def do_dbus_register(self, dbus_connection, object_path):
-        if RemoteSearchProvider.is_available():
-            self.__search_provider = RemoteSearchProvider(self)
-        elif LocalSearchProvider.is_available():
-            self.__search_provider = LocalSearchProvider(self)
+        if IS_KOLIBRI_LOCAL:
+            search_handlers = [LocalSearchHandler()]
         else:
-            self.__search_provider = None
-
-        if self.__search_provider:
-            self.__search_provider.register_on_connection(dbus_connection, object_path)
-
+            search_handlers = []
+        self.__search_provider = SearchProvider(self, search_handlers)
+        self.__search_provider.register_on_connection(dbus_connection, object_path)
         return True
 
     def do_dbus_unregister(self, dbus_connection, object_path):
         if self.__search_provider:
             self.__search_provider.unregister_on_connection(dbus_connection)
-
         return True
 
     def __on_activate(self, application):
