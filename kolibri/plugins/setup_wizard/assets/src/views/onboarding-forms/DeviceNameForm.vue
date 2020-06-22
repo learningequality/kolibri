@@ -33,7 +33,7 @@
     mixins: [commonCoreStrings],
     data() {
       return {
-        value: this.$store.state.onboardingData.deviceName || '',
+        value: this.$store.state.onboardingData.device_name || '',
         shouldValidate: false,
       };
     },
