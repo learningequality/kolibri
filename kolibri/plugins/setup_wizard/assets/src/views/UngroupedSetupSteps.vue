@@ -5,9 +5,11 @@
       :removeNavIcon="removeNavIcon"
       @click_back="goToLastStep"
     />
-    <KPageContainer>
-      <router-view @click_next="goToNextStep" />
-    </KPageContainer>
+    <div class="main">
+      <KPageContainer>
+        <router-view @click_next="goToNextStep" />
+      </KPageContainer>
+    </div>
   </div>
 
 </template>
@@ -62,4 +64,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .main {
+    margin: 16px;
+  }
+
+</style>
