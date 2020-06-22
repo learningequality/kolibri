@@ -1,9 +1,7 @@
-import functools
-import operator
-from gi.repository import Gdk, Gio, GLib
+from gi.repository import Gio, GLib
 
 from .. import config
-from ..globals import IS_KOLIBRI_LOCAL, is_kolibri_responding
+from ..globals import IS_KOLIBRI_LOCAL
 from .utils import gapplication_hold
 
 
@@ -262,33 +260,6 @@ class LocalSearchHandler(SearchHandler):
         self.__did_django_setup = True
 
 
-class RemoteSearchHandler(SearchHandler):
-    def get_search_results(self, search):
-        from ..globals import KolibriAPIError, kolibri_api_get_json
-
-        try:
-            response = kolibri_api_get_json(
-                "/api/content/contentnode_search",
-                query={"search": search, "max_results": 10},
-            )
-        except KolibriAPIError:
-            raise self.SearchHandlerFailed("Kolibri API not responding")
-        else:
-            return response.get("results", [])
-
-    def get_node_data(self, node_id):
-        from ..globals import KolibriAPIError, kolibri_api_get_json
-
-        try:
-            response = kolibri_api_get_json(
-                "/api/content/contentnode/{}".format(node_id)
-            )
-        except KolibriAPIError:
-            raise self.SearchHandlerFailed("Kolibri API not responding")
-        else:
-            return response
-
-
 class Application(Gio.Application):
     def __init__(self):
         super().__init__(
@@ -301,9 +272,9 @@ class Application(Gio.Application):
 
     def do_dbus_register(self, dbus_connection, object_path):
         if IS_KOLIBRI_LOCAL:
-            search_handlers = [RemoteSearchHandler(), LocalSearchHandler()]
+            search_handlers = [LocalSearchHandler()]
         else:
-            search_handlers = [RemoteSearchHandler()]
+            search_handlers = []
         self.__search_provider = SearchProvider(self, search_handlers)
         self.__search_provider.register_on_connection(dbus_connection, object_path)
         return True
