@@ -58,6 +58,13 @@
     cursor: pointer;
   }
 
+  // Overwrite KICon styles to make it compatible with UIIcon
+  /deep/ svg {
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+
   .pos-rel {
     position: relative;
   }
