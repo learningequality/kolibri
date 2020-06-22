@@ -73,7 +73,7 @@
       handleAddressSubmit(address) {
         this.device = {
           id: address.id,
-          name: address.device_name,
+          name: address.nickname || address.device_name,
           baseurl: address.base_url,
         };
         this.step = Steps.SELECT_FACILITY;
