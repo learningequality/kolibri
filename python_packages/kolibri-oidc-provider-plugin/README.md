@@ -1,4 +1,6 @@
 
+# Please, DON'T install this plugin yet unless you're running Kolibri in a development environment using the `develop` branch
+
 # Kolibri OpenID Connect Provider plugin
 
 ## What is this?
