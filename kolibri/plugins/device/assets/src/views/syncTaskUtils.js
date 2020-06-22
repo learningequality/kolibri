@@ -107,7 +107,7 @@ export function syncFacilityTaskDisplayInfo(task) {
 
 export const removeStatusToDescriptionMap = {
   ...genericStatusToDescriptionMap,
-  REMOVING_FACILITY: getTaskString('removingFacilityStatus'),
+  [TaskStatuses.RUNNING]: getTaskString('removingFacilityStatus'),
 };
 
 // Consolidates logic on how Remove-Facility Tasks should be displayed
