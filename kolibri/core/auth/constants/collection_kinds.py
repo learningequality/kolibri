@@ -12,8 +12,8 @@ ADHOCLEARNERSGROUP = "adhoclearnersgroup"
 
 # the ordering of kinds in the following tuple corresponds to their level in the hierarchy tree
 choices = (
-    (FACILITY, _("Facility")),
-    (CLASSROOM, _("Classroom")),
-    (LEARNERGROUP, _("Learner group")),
-    (ADHOCLEARNERSGROUP, _("Ad hoc learners group")),
+    (FACILITY, "Facility"),
+    (CLASSROOM, "Classroom"),
+    (LEARNERGROUP, "Named learner group within a class"),
+    (ADHOCLEARNERSGROUP, "Ad hoc learner group within a class"),
 )
