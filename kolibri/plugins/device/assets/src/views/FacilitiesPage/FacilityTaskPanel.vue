@@ -1,6 +1,6 @@
 <template>
 
-  <TaskPanel
+  <FacilityTaskPanelDetails
     :statusMsg="statusMsg"
     :headingMsg="headingMsg"
     :underHeadingMsg="underHeadingMsg"
@@ -26,12 +26,12 @@
     importFacilityTaskDisplayInfo,
   } from '../syncTaskUtils';
   import { TaskTypes } from '../../constants';
-  import TaskPanel from './TaskPanel';
+  import FacilityTaskPanelDetails from './FacilityTaskPanelDetails';
 
   export default {
     name: 'FacilityTaskPanel',
     components: {
-      TaskPanel,
+      FacilityTaskPanelDetails,
     },
     mixins: [commonCoreStrings],
     props: {

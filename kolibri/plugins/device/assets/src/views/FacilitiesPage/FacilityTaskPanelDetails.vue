@@ -108,7 +108,7 @@
   import { TaskStatuses } from '../../constants';
 
   export default {
-    name: 'TaskPanel',
+    name: 'FacilityTaskPanelDetails',
     mixins: [commonCoreStrings, responsiveWindowMixin, commonTaskStrings],
     props: {
       task: {
