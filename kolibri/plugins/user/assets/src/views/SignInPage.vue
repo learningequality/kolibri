@@ -390,13 +390,15 @@
         // have a username in our data()
         if (user) {
           this.username = user.username;
-        } else {
+        } else if (this.username !== '') {
           user = this.usersForCurrentFacility.find(u => u.username === this.username) || {
             needs_password: false,
             username: this.username,
             facility: '',
           };
         }
+        if (!user) return;
+
         // If the user is a learner and we don't require passwords sign them in
         if (this.simpleSignIn && user.is_learner) {
           this.signIn();
