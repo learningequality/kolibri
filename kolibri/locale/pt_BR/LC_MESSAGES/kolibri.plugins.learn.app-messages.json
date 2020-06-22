@@ -25,7 +25,7 @@
   "ChannelsPage.documentTitle": "Todos os canais",
   "ClassAssignmentsPage.documentTitle": "Tarefas atribuídas à classe",
   "CommonLearnStrings.learnLabel": "Aprender",
-  "CommonLearnStrings.recommendedLabel": "Recomendado",
+  "CommonLearnStrings.recommendedLabel": "Conteúdos Recomendados",
   "ContentCard.copies": "Encontrado em { num, number} canais",
   "ContentPage.author": "Autor: {author}",
   "ContentPage.copyrightHolder": "Detentor dos direitos autorais: {copyrightHolder}",

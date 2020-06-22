@@ -4,7 +4,7 @@
   "AuthBase.oidcSpecificExplanation": "Láti orí ìkànnì '{orukọ ìkànnì}' míràn láti já síbì. Ìkànnì ìkẹ́kọ̀ọ́ orí íntánẹ́ẹ̀tì ni Kolibri jẹ́. O sì lè fi àkántì Kolibri rẹ wọlé sí '{orukọ ìkànnì}'.",
   "AuthBase.poweredBy": "Kolibri {version}",
   "AuthBase.poweredByKolibri": "Kolibri lò ṣe onìgbọ̀wọ eyí",
-  "AuthBase.restrictedAccess": "",
+  "AuthBase.restrictedAccess": "Ìráàyè sí Kolibri ti di ìhámọ́ fún àwọn ẹ̀rọ tí-òde ",
   "AuthBase.restrictedAccessDescription": "",
   "AuthBase.whatsThis": "Kí lèyí?",
   "AuthSelect.createAccountAction": "Ṣẹ̀dá Àkọọ́lẹ̀",
