@@ -26,12 +26,6 @@ echo "Now excuting  upload artifacts script..."
 mkdir -p dist
 buildkite-agent artifact download 'dist/*' dist/
 
-{
-    buildkite-agent artifact download '*.exe' dist/ --step "Sign Windows installer"
-} || {
-    echo "No signed Windows installer found"
-}
-
 $PYTHON_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Can't execute '$PYTHON_CMD'."
