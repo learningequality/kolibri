@@ -1,7 +1,7 @@
 import coreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
-import { taskIsClearable, TaskStatuses } from '../constants';
+import { taskIsClearable, TaskStatuses, TaskTypes } from '../constants';
 
 const SyncTaskStatuses = {
   SESSION_CREATION: 'SESSION_CREATION',
@@ -76,7 +76,7 @@ export function syncFacilityTaskDisplayInfo(task) {
   } else if (syncStep) {
     statusMsg = getTaskString('syncStepAndDescription', {
       step: syncStep,
-      total: 7,
+      total: task.type === TaskTypes.SYNCPEERPULL ? 4 : 7,
       description: statusDescription,
     });
   } else {
