@@ -69,9 +69,7 @@
         return availableLanguages[currentLanguage];
       },
       numVisibleLanguages() {
-        if (this.windowBreakpoint <= 2) {
-          return 2;
-        }
+        // At windowBreakpoint = 0, only the "More languages" button will show
         return this.windowBreakpoint;
       },
       numSelectableLanguages() {
