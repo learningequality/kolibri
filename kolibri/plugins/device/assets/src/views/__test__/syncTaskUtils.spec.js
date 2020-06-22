@@ -149,7 +149,7 @@ describe('syncTaskUtils.removeFacilityTaskDisplayInfo', () => {
     ['CANCELED', 'Canceled'],
     ['CANCELING', 'Canceling'],
     ['FAILED', 'Failed'],
-    ['REMOVING_FACILITY', 'Removing facility'],
+    ['RUNNING', 'Removing facility'],
   ];
 
   test.each(simpleStatusesMsgTests)('statusMsg is correct with %s status', (status, msg) => {
