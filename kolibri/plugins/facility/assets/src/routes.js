@@ -23,7 +23,7 @@ import { PageNames } from './constants';
 export default [
   // Routes for multi-facility case
   {
-    name: 'AllFacilitiesPage',
+    name: PageNames.ALL_FACILITIES_PAGE,
     path: '/facilities',
     component: AllFacilitiesPage,
     handler() {

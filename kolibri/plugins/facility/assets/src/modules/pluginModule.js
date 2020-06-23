@@ -83,7 +83,7 @@ export default {
           params,
         },
         AllFacilitiesPage: {
-          name: 'AllFacilitiesPage',
+          name: PageNames.ALL_FACILITIES_PAGE,
         },
       };
     },

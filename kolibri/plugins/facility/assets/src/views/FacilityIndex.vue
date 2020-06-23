@@ -3,13 +3,10 @@
   <CoreBase
     :authorized="userIsAuthorized"
     :authorizationErrorDetails="$tr('adminOrSuperuser')"
-    :showSubNav="userIsAuthorized && !immersivePageProps.immersivePage"
+    :showSubNav="showSubNav"
     v-bind="immersivePageProps"
   >
-    <template
-      v-if="pageName !== 'AllFacilitiesPage'"
-      v-slot:sub-nav
-    >
+    <template v-slot:sub-nav>
       <FacilityTopNav />
     </template>
 
@@ -46,6 +43,12 @@
       ...mapState('classAssignMembers', ['class']),
       pageName() {
         return this.$route.name;
+      },
+      showSubNav() {
+        if (this.pageName === PageNames.ALL_FACILITIES_PAGE) {
+          return false;
+        }
+        return this.userIsAuthorized && !this.immersivePageProps.immersivePage;
       },
       immersivePageProps() {
         let immersivePagePrimary = false;
@@ -97,7 +100,7 @@
           // Superusers can view any facility
           return true;
         } else if (this.isAdmin) {
-          if (this.pageName === 'AllFacilitiesPage') {
+          if (this.pageName === PageNames.ALL_FACILITIES_PAGE) {
             return false;
           }
           // Admins can only see the facility they belong to
