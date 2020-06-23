@@ -118,7 +118,7 @@ export default [
     // Redirect to AllFacilitiesPage if a superuser and device has > 1 facility
     beforeEnter(to, from, next) {
       if (store.getters.userIsMultiFacilityAdmin) {
-        next({ name: 'AllFacilitiesPage' });
+        next(store.getters.facilityPageLinks.AllFacilitiesPage);
       } else {
         next(store.getters.facilityPageLinks.ManageClassPage);
       }

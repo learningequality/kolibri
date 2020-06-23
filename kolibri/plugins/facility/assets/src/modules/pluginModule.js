@@ -82,6 +82,9 @@ export default {
           name: PageNames.USER_EDIT_PAGE,
           params,
         },
+        AllFacilitiesPage: {
+          name: 'AllFacilitiesPage',
+        },
       };
     },
   },

@@ -5,7 +5,7 @@
     <p>
       <KRouterLink
         v-if="userIsMultiFacilityAdmin"
-        :to="{ name: 'AllFacilitiesPage' }"
+        :to="facilityPageLinks.AllFacilitiesPage"
         icon="back"
         :text="coreString('allFacilitiesLabel')"
       />
@@ -143,7 +143,7 @@
     },
     computed: {
       ...mapState('classManagement', ['modalShown', 'classes']),
-      ...mapGetters(['userIsMultiFacilityAdmin']),
+      ...mapGetters(['userIsMultiFacilityAdmin', 'facilityPageLinks']),
       noClassesExist() {
         return this.classes.length === 0;
       },
@@ -202,7 +202,7 @@
         return null;
       },
       classEditLink(classId) {
-        const link = cloneDeep(this.$store.getters.facilityPageLinks.ClassEditPage);
+        const link = cloneDeep(this.facilityPageLinks.ClassEditPage);
         link.params.id = classId;
         return link;
       },
