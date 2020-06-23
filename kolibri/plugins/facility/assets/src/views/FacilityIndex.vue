@@ -69,12 +69,7 @@
           this.pageName === PageNames.USER_EDIT_PAGE ||
           this.pageName === PageNames.USER_CREATE_PAGE
         ) {
-          immersivePageRoute = {
-            name: PageNames.USER_MGMT_PAGE,
-            params: {
-              facility_id: this.activeFacilityId,
-            },
-          };
+          immersivePageRoute = this.$store.getters.facilityPageLinks.UserPage;
           appBarTitle = this.coreString('usersLabel');
         } else if (this.pageName === PageNames.IMPORT_CSV_PAGE) {
           immersivePageRoute = this.$router.getRoute(PageNames.DATA_EXPORT_PAGE);

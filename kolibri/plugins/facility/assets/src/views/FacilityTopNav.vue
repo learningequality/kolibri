@@ -13,7 +13,7 @@
     </NavbarLink>
     <NavbarLink
       :title="coreString('usersLabel')"
-      :link="linkify(PageNames.USER_MGMT_PAGE)"
+      :link="$store.getters.facilityPageLinks.UserPage"
     >
       <KIcon
         icon="people"

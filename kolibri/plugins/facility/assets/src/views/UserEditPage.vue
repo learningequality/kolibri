@@ -272,11 +272,7 @@
         };
       },
       goToUserManagementPage() {
-        const params = {};
-        if (this.$store.getters.inMultipleFacilityPage) {
-          params.facility_id = this.$store.getters.activeFacilityId;
-        }
-        this.$router.push(this.$router.getRoute('USER_MGMT_PAGE', params));
+        this.$router.push(this.$store.getters.facilityPageLinks.UserPage);
       },
       usernameIsUnique(value) {
         const match = this.facilityUsers.find(
