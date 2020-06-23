@@ -1,5 +1,5 @@
 {
-  "CreateFacilitySetup.newFacilityStepTitle": "",
+  "CreateFacilitySetup.newFacilityStepTitle": "नई सुविधा - चरण {step, number} का {total, number}",
   "CreateLearnerAccountForm.header": "किसी को भी अपना पाठक खाता स्वयं बनाने की अनुमति दें?",
   "CreateLearnerAccountForm.noOptionLabel": "नहीं। व्यवस्थापक/एडमिन को सभी उपयोगकर्ताओं के खाते बनाने होंगे",
   "DefaultLanguageForm.languageFormHeader": "कृपया कोलिब्री के लिए पूर्वनिर्धारित भाषा का चयन करें",

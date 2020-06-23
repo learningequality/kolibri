@@ -5,7 +5,7 @@
   "AuthBase.poweredBy": "कोलिब्री {version}",
   "AuthBase.poweredByKolibri": "कोलिब्री द्वारा संचालित",
   "AuthBase.restrictedAccess": "बाह्य उपकरणांसाठी कोलिब्रीचा वापर प्रतिबंधित आहे",
-  "AuthBase.restrictedAccessDescription": "हे बदलण्यासाठी, सुपर ऍडमिन म्हणून साईन इन करा आणि उपकरणाच्या नेटवर्कमधील वापराची सेटिंग्ज बदला",
+  "AuthBase.restrictedAccessDescription": "हे बदलण्यासाठी, सुपर अॅडमिन म्हणून साईन इन करा आणि उपकरणाच्या नेटवर्कमधील वापराची सेटिंग्ज बदला",
   "AuthBase.whatsThis": "हे काय आहे?",
   "AuthSelect.createAccountAction": "खाते उघडा",
   "AuthSelect.newUserPrompt": "आपण नवीन युझर आहात का?",

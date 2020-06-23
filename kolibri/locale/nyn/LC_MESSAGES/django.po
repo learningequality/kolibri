@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-11 09:07-0700\n"
-"PO-Revision-Date: 2020-06-22 00:57\n"
+"PO-Revision-Date: 2020-06-23 23:19\n"
 "Last-Translator: \n"
 "Language-Team: Chewa\n"
 "Language: ny_MW\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Facility"
-msgstr "Bungwe"
+msgstr "Malo"
 
 #: kolibri/core/auth/constants/collection_kinds.py:16
 msgid "Classroom"
@@ -202,7 +202,7 @@ msgstr "Fomati yosadziwika"
 
 #: kolibri/core/device/serializers.py:42
 msgid "Language is not supported by Kolibri"
-msgstr "Chilankhulo chimenechi sichili pa Kolibri"
+msgstr "Chinenero chimenechi sichili pa Kolibri"
 
 #: kolibri/core/logger/csv_export.py:207
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
@@ -258,7 +258,7 @@ msgstr ""
 
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
 msgid "OpenID Provider Authorization"
-msgstr "Kuvomereza kuti musakatule masamba a webusayiti"
+msgstr "Kuvomereza kuti mutsegule masamba a webusaiti"
 
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
