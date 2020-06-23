@@ -117,7 +117,7 @@ export default [
     path: '/',
     // Redirect to AllFacilitiesPage if a superuser and device has > 1 facility
     beforeEnter(to, from, next) {
-      if (store.state.core.facilities.length > 1 && store.getters.isSuperuser) {
+      if (store.getters.inMultipleFacilityPage) {
         next({ name: 'AllFacilitiesPage' });
       } else {
         next(store.getters.facilityPageLinks.ManageClassPage);
