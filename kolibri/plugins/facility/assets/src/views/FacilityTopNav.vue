@@ -3,7 +3,7 @@
   <Navbar>
     <NavbarLink
       :title="coreString('classesLabel')"
-      :link="linkify(PageNames.CLASS_MGMT_PAGE)"
+      :link="$store.getters.facilityPageLinks.ManageClassPage"
     >
       <KIcon
         icon="domain"

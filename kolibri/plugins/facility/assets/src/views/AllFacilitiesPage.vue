@@ -33,6 +33,7 @@
 <script>
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import cloneDeep from 'lodash/cloneDeep';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
@@ -53,12 +54,9 @@
     },
     methods: {
       facilityLink(facility) {
-        return {
-          name: 'CLASS_MGMT_PAGE',
-          params: {
-            facility_id: facility.id,
-          },
-        };
+        const link = cloneDeep(this.$store.getters.facilityPageLinks.ManageClassPage);
+        link.params.facility_id = facility.id;
+        return link;
       },
     },
   };

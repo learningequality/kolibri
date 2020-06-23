@@ -120,7 +120,7 @@ export default [
       if (store.state.core.facilities.length > 1 && store.getters.isSuperuser) {
         next({ name: 'AllFacilitiesPage' });
       } else {
-        next({ name: PageNames.CLASS_MGMT_PAGE });
+        next(store.getters.facilityPageLinks.ManageClassPage);
       }
     },
   },

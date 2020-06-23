@@ -5,7 +5,7 @@
     <p>
       <KRouterLink
         :text="coreString('allClassesLabel')"
-        :to="{ name: 'CLASS_MGMT_PAGE' }"
+        :to="$store.getters.facilityPageLinks.ManageClassPage"
         icon="back"
       />
     </p>
