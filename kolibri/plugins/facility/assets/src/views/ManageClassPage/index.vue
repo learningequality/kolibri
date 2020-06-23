@@ -4,7 +4,7 @@
 
     <p>
       <KRouterLink
-        v-if="inMultipleFacilityPage"
+        v-if="userIsMultiFacilityAdmin"
         :to="{ name: 'AllFacilitiesPage' }"
         icon="back"
         :text="coreString('allFacilitiesLabel')"
@@ -143,7 +143,7 @@
     },
     computed: {
       ...mapState('classManagement', ['modalShown', 'classes']),
-      ...mapGetters(['inMultipleFacilityPage']),
+      ...mapGetters(['userIsMultiFacilityAdmin']),
       noClassesExist() {
         return this.classes.length === 0;
       },
@@ -167,7 +167,7 @@
         this.refreshCoreFacilities();
       },
       refreshCoreFacilities() {
-        if (this.inMultipleFacilityPage) {
+        if (this.userIsMultiFacilityAdmin) {
           // Update the core facilities object to update classroom number
           this.$store.dispatch('getFacilities');
         }

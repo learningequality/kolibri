@@ -49,7 +49,7 @@
     },
     mixins: [commonCoreStrings],
     computed: {
-      ...mapGetters(['facilityPageLinks', 'inMultipleFacilityPage']),
+      ...mapGetters(['facilityPageLinks', 'userIsMultiFacilityAdmin']),
       facilities() {
         return this.$store.state.core.facilities;
       },
@@ -57,7 +57,7 @@
     beforeMount() {
       // Redirect to single-facility landing page if user/device isn't supposed
       // to manage multiple facilities
-      if (!this.inMultipleFacilityPage) {
+      if (!this.userIsMultiFacilityAdmin) {
         this.$router.replace(this.facilityPageLinks.ManageClassPage);
       }
     },

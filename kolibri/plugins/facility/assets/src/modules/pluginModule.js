@@ -37,7 +37,8 @@ export default {
       // or the currentFacilityId value from core.session
       return rootState.route.params.facility_id || rootGetters.currentFacilityId;
     },
-    inMultipleFacilityPage(state, getters, rootState, rootGetters) {
+    // An "Multi-Facility Admin" is a superuser for a device with 2+ facilities
+    userIsMultiFacilityAdmin(state, getters, rootState, rootGetters) {
       return Boolean(rootGetters.isSuperuser && rootState.core.facilities.length > 1);
     },
     currentFacilityName(state, getters, rootState) {
@@ -48,7 +49,7 @@ export default {
       // Use this getter to get Link objects that have the optional 'facility_id'
       // parameter if we're in a multi-facility situation
       const params = {};
-      if (getters.inMultipleFacilityPage) {
+      if (getters.userIsMultiFacilityAdmin) {
         params.facility_id = getters.activeFacilityId;
       }
       return {

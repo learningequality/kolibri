@@ -39,7 +39,7 @@
       ...mapGetters([
         'isAdmin',
         'isSuperuser',
-        'inMultipleFacilityPage',
+        'userIsMultiFacilityAdmin',
         'currentFacilityName',
         'activeFacilityId',
       ]),
@@ -80,7 +80,7 @@
             appBarTitle,
           };
         }
-        if (this.inMultipleFacilityPage) {
+        if (this.userIsMultiFacilityAdmin) {
           appBarTitle = this.$tr('facilityLabelWithName', {
             facilityName: this.currentFacilityName,
           });
