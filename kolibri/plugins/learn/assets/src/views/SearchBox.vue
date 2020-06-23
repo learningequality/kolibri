@@ -57,7 +57,7 @@
     >
       <div class="ib">
         <KIcon
-          icon="filter_list"
+          icon="filterList"
           class="filter-icon"
           style="width: 24px; height: 24px;"
         />
