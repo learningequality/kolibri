@@ -49,7 +49,7 @@
     // As a minimal precaution, we restart the entire wizard if a user refreshes in the middle
     // and loses saved state
     beforeMount() {
-      if (!this.$store.state.started) {
+      if (!this.$store.state.started && this.$route.path !== '/') {
         this.$router.replace('/');
       }
     },
