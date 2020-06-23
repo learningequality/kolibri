@@ -38,11 +38,50 @@ export default {
       return rootState.route.params.facility_id || rootGetters.currentFacilityId;
     },
     inMultipleFacilityPage(state, getters, rootState, rootGetters) {
-      return rootGetters.isSuperuser && rootState.route.params.facility_id;
+      return Boolean(rootGetters.isSuperuser && rootState.core.facilities.length > 1);
     },
     currentFacilityName(state, getters, rootState) {
       const match = find(rootState.core.facilities, { id: getters.activeFacilityId });
       return match ? match.name : '';
+    },
+    facilityPageLinks(state, getters) {
+      // Use this getter to get Link objects that have the optional 'facility_id'
+      // parameter if we're in a multi-facility situation
+      const params = {};
+      if (getters.inMultipleFacilityPage) {
+        params.facility_id = getters.activeFacilityId;
+      }
+      return {
+        // Keys are the names of the components in routes.js
+        ManageClassPage: {
+          name: PageNames.CLASS_MGMT_PAGE,
+          params,
+        },
+        UserPage: {
+          name: PageNames.USER_MGMT_PAGE,
+          params,
+        },
+        ClassEditPage: {
+          name: PageNames.CLASS_EDIT_MGMT_PAGE,
+          params,
+        },
+        CoachClassAssignmentPage: {
+          name: PageNames.CLASS_ASSIGN_COACH,
+          params,
+        },
+        LearnerClassEnrollmentPage: {
+          name: PageNames.CLASS_ENROLL_LEARNER,
+          params,
+        },
+        UserCreatePage: {
+          name: PageNames.USER_CREATE_PAGE,
+          params,
+        },
+        UserEditPage: {
+          name: PageNames.USER_EDIT_PAGE,
+          params,
+        },
+      };
     },
   },
   modules: {
