@@ -56,12 +56,7 @@
           this.pageName === PageNames.CLASS_ENROLL_LEARNER ||
           this.pageName === PageNames.CLASS_ASSIGN_COACH
         ) {
-          immersivePageRoute = {
-            name: PageNames.CLASS_EDIT_MGMT_PAGE,
-            params: {
-              facility_id: this.activeFacilityId,
-            },
-          };
+          immersivePageRoute = this.$store.getters.facilityPageLinks.ClassEditPage;
           if (this.class) {
             appBarTitle = this.class.name || '';
           }

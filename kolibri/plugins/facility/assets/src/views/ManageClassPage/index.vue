@@ -57,7 +57,7 @@
             <KLabeledIcon icon="classroom">
               <KRouterLink
                 :text="classroom.name"
-                :to="classEditLink(classroom.id, $route.params.facility_id)"
+                :to="classEditLink(classroom.id)"
               />
             </KLabeledIcon>
           </td>
@@ -117,20 +117,11 @@
   import { mapState, mapActions } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import orderBy from 'lodash/orderBy';
+  import cloneDeep from 'lodash/cloneDeep';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { Modals, PageNames } from '../../constants';
+  import { Modals } from '../../constants';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
-
-  function classEditLink(classId, facilityId) {
-    return {
-      name: PageNames.CLASS_EDIT_MGMT_PAGE,
-      params: {
-        id: classId,
-        facility_id: facilityId,
-      },
-    };
-  }
 
   export default {
     name: 'ManageClassPage',
@@ -190,7 +181,11 @@
         }
         return null;
       },
-      classEditLink,
+      classEditLink(classId) {
+        const link = cloneDeep(this.$store.getters.facilityPageLinks.ClassEditPage);
+        link.params.id = classId;
+        return link;
+      },
       openDeleteClassModal(classModel) {
         this.currentClassDelete = classModel;
         this.displayModal(Modals.DELETE_CLASS);
