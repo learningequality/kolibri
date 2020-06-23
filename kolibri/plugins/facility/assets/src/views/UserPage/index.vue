@@ -18,7 +18,7 @@
           :primary="true"
           appearance="raised-button"
           class="move-down"
-          :to="newUserLink"
+          :to="$store.getters.facilityPageLinks.UserCreatePage"
         />
       </KGridItem>
     </KGrid>
@@ -125,14 +125,6 @@
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
           { label: this.$tr('superAdmins'), value: UserKinds.SUPERUSER },
         ];
-      },
-      newUserLink() {
-        return {
-          name: 'USER_CREATE_PAGE',
-          params: {
-            facility_id: this.$route.params.facility_id,
-          },
-        };
       },
     },
     beforeMount() {
