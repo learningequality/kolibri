@@ -4,7 +4,7 @@
 
     <p>
       <KRouterLink
-        v-if="$store.getters.inMultipleFacilityPage"
+        v-if="inMultipleFacilityPage"
         :to="{ name: 'AllFacilitiesPage' }"
         icon="back"
         :text="coreString('allFacilitiesLabel')"
@@ -97,14 +97,16 @@
 
     <ClassDeleteModal
       v-if="modalShown === Modals.DELETE_CLASS"
-      :classid="currentClassDelete.id"
-      :classname="currentClassDelete.name"
+      :classid="classForDeletion.id"
+      :classname="classForDeletion.name"
       @cancel="closeModal"
+      @success="handleDeleteSuccess()"
     />
     <ClassCreateModal
       v-if="modalShown === Modals.CREATE_CLASS"
       :classes="sortedClassrooms"
       @cancel="closeModal"
+      @success="handleCreateSuccess()"
     />
 
   </KPageContainer>
@@ -114,7 +116,7 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState, mapActions, mapGetters } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import orderBy from 'lodash/orderBy';
   import cloneDeep from 'lodash/cloneDeep';
@@ -136,9 +138,12 @@
       ClassDeleteModal,
     },
     mixins: [commonCoreStrings],
-    data: () => ({ currentClassDelete: null }),
+    data() {
+      return { classForDeletion: null };
+    },
     computed: {
       ...mapState('classManagement', ['modalShown', 'classes']),
+      ...mapGetters(['inMultipleFacilityPage']),
       noClassesExist() {
         return this.classes.length === 0;
       },
@@ -151,6 +156,21 @@
       ...mapActions('classManagement', ['displayModal']),
       closeModal() {
         this.displayModal(false);
+      },
+      handleCreateSuccess() {
+        this.closeModal();
+        this.refreshCoreFacilities();
+      },
+      handleDeleteSuccess() {
+        this.closeModal();
+        this.classForDeletion = null;
+        this.refreshCoreFacilities();
+      },
+      refreshCoreFacilities() {
+        if (this.inMultipleFacilityPage) {
+          // Update the core facilities object to update classroom number
+          this.$store.dispatch('getFacilities');
+        }
       },
       // Duplicated in class-list-page
       coachNames(classroom) {
@@ -187,7 +207,7 @@
         return link;
       },
       openDeleteClassModal(classModel) {
-        this.currentClassDelete = classModel;
+        this.classForDeletion = classModel;
         this.displayModal(Modals.DELETE_CLASS);
       },
     },
