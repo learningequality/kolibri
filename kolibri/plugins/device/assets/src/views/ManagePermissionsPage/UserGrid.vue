@@ -38,7 +38,7 @@
           <td class="btn-col">
             <KButton
               appearance="flat-button"
-              :text="permissionsButtonText(user.username)"
+              :text="permissionsButtonText(user)"
               style="margin-top: 6px;"
               @click="goToUserPermissionsPage(user.id)"
             />
@@ -54,7 +54,7 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapGetters } from 'vuex';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
@@ -79,10 +79,7 @@
       },
     },
     computed: {
-      ...mapGetters(['facilities']),
-      ...mapState({
-        isCurrentUser: state => username => state.core.session.username === username,
-      }),
+      ...mapGetters(['facilities', 'currentUserId']),
       emptyMessage() {
         return this.$tr('noUsersMatching', { searchFilter: this.filterText });
       },
@@ -91,17 +88,20 @@
       },
     },
     methods: {
+      isCurrentUser(user) {
+        return this.currentUserId === user.id;
+      },
       userFacility(facId) {
         return this.facilities.find(fac => fac.id === facId).name || '';
       },
-      fullNameLabel({ username, full_name }) {
-        if (this.isCurrentUser(username)) {
-          return this.$tr('selfUsernameLabel', { full_name });
+      fullNameLabel(user) {
+        if (this.isCurrentUser(user)) {
+          return this.$tr('selfUsernameLabel', { full_name: user.full_name });
         }
-        return full_name;
+        return user.full_name;
       },
-      permissionsButtonText(username) {
-        if (this.isCurrentUser(username)) {
+      permissionsButtonText(user) {
+        if (this.isCurrentUser(user)) {
           return this.$tr('viewPermissions');
         }
         return this.$tr('editPermissions');
