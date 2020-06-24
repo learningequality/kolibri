@@ -18,9 +18,9 @@ from kolibri.core.analytics.models import PingbackNotificationDismissed
 from kolibri.core.auth.management.utils import DisablePostDeleteSignal
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.auth.models import AdHocGroup
-from kolibri.core.auth.models import cache
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Collection
+from kolibri.core.auth.models import dataset_cache
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
@@ -205,7 +205,7 @@ class Command(AsyncCommand):
                 count, stats = delete_group.delete(update_progress)
                 total_deleted += count
                 # clear related cache
-                cache.clear()
+                dataset_cache.clear()
 
             # if count doesn't match, something doesn't seem right
             if total_count != total_deleted:

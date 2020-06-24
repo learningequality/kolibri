@@ -19,6 +19,7 @@ from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.constants.morango_sync import State
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.auth.management.utils import run_once
+from kolibri.core.auth.models import dataset_cache
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.utils import conf
@@ -102,6 +103,8 @@ class Command(AsyncCommand):
         # call this in case user directly syncs without migrating database
         if not ScopeDefinition.objects.filter():
             call_command("loaddata", "scopedefinitions")
+
+        dataset_cache.clear()
 
         # try to connect to server
         controller = MorangoProfileController(PROFILE_FACILITY_DATA)
@@ -386,5 +389,6 @@ class Command(AsyncCommand):
         if noninteractive or tracker.progressbar is None:
             signal_group.started.connect(started)
 
+        signal_group.started.connect(dataset_cache.clear)
         signal_group.started.connect(handler)
         signal_group.completed.connect(handler)
