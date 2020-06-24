@@ -388,16 +388,20 @@
       setSelectedListUser(user) {
         // If we get a user - then use it's username, otherwise, we should already
         // have a username in our data()
+        if (this.usernameIsInvalid) {
+          this.$refs.username.updateText();
+          this.$refs.username.focus();
+          return;
+        }
         if (user) {
           this.username = user.username;
-        } else if (this.username !== '') {
+        } else {
           user = this.usersForCurrentFacility.find(u => u.username === this.username) || {
             needs_password: false,
             username: this.username,
             facility: '',
           };
         }
-        if (!user) return;
 
         // If the user is a learner and we don't require passwords sign them in
         if (this.simpleSignIn && user.is_learner) {
