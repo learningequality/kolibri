@@ -20,7 +20,7 @@
       <KIconButton
         v-if="!exportDisabled"
         ref="exportButton"
-        icon="get_app"
+        icon="download"
         :aria-label="coachString('exportCSVAction')"
         @click.prevent="$emit('export')"
       />
