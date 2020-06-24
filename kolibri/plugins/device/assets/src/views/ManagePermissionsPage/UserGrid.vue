@@ -32,7 +32,7 @@
           </td>
           <td v-if="hasMultipleFacilities">
             <span dir="auto" class="maxwidth">
-              {{ userFacility(user.facility) }}
+              {{ memoizedFacilityName(user.facility) }}
             </span>
           </td>
           <td class="btn-col">
@@ -56,6 +56,7 @@
 
   import { mapGetters } from 'vuex';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
+  import memoize from 'lodash/memoize';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -86,13 +87,18 @@
       hasMultipleFacilities() {
         return this.facilities.length > 1;
       },
+      // Use a memoized version of the facilityName function to avoid
+      // doing extra traversals of 'facilities' array
+      memoizedFacilityName() {
+        return memoize(this.facilityName);
+      },
     },
     methods: {
+      facilityName(facilityId) {
+        return this.facilities.find(facility => facility.id === facilityId).name || '';
+      },
       isCurrentUser(user) {
         return this.currentUserId === user.id;
-      },
-      userFacility(facId) {
-        return this.facilities.find(fac => fac.id === facId).name || '';
       },
       fullNameLabel(user) {
         if (this.isCurrentUser(user)) {
