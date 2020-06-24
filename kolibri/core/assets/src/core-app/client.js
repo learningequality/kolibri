@@ -96,7 +96,6 @@ const client = options => {
     options.transformRequest = function(data) {
       const fd = new FormData();
       Object.keys(data).forEach(item => {
-        console.log(item);
         fd.append(item, data[item]);
       });
       return fd;
