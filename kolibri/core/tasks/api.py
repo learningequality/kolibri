@@ -989,7 +989,7 @@ def validate_prepare_sync_job(request, **kwargs):
 
     job_data = dict(
         facility=facility_id,
-        chunk_size=50,
+        chunk_size=100,
         noninteractive=True,
         extra_metadata=dict(),
         track_progress=True,

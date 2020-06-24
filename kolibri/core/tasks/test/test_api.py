@@ -190,7 +190,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             call_command,
             "sync",
             facility=self.facility.id,
-            chunk_size=50,
+            chunk_size=100,
             noninteractive=True,
             extra_metadata=dict(
                 facility=self.facility.id,
@@ -234,7 +234,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                     call_command,
                     "sync",
                     facility=facility2.id,
-                    chunk_size=50,
+                    chunk_size=100,
                     noninteractive=True,
                     extra_metadata=dict(
                         facility=facility2.id,
@@ -252,7 +252,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                     call_command,
                     "sync",
                     facility=facility3.id,
-                    chunk_size=50,
+                    chunk_size=100,
                     noninteractive=True,
                     extra_metadata=dict(
                         facility=facility3.id,
@@ -296,7 +296,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             baseurl="https://some.server.test/",
             facility=self.facility.id,
             no_push=True,
-            chunk_size=50,
+            chunk_size=100,
             noninteractive=True,
             extra_metadata=extra_metadata,
             track_progress=True,
@@ -354,7 +354,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         prepared_data = dict(
             baseurl="https://some.server.test/",
             facility=self.facility.id,
-            chunk_size=50,
+            chunk_size=100,
             noninteractive=True,
             extra_metadata=extra_metadata,
             track_progress=True,
@@ -494,7 +494,7 @@ class FacilityTaskHelperTestCase(TestCase):
 
         expected = dict(
             facility=123,
-            chunk_size=50,
+            chunk_size=100,
             noninteractive=True,
             track_progress=True,
             cancellable=True,
@@ -550,7 +550,7 @@ class FacilityTaskHelperTestCase(TestCase):
         expected = dict(
             baseurl="https://some.server.test/",
             facility=123,
-            chunk_size=50,
+            chunk_size=100,
             noninteractive=True,
             track_progress=True,
             cancellable=True,
