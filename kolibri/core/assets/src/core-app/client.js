@@ -93,6 +93,9 @@ const client = options => {
   const headers = { ...(options.headers || {}) };
   if (options.multipart) {
     headers['Content-Type'] = 'multipart/form-data';
+    const fd = new FormData();
+    Object.assign(fd, options.data);
+    options.data = fd;
   }
   return baseClient
     .request({
