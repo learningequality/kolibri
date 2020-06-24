@@ -5,9 +5,8 @@
       <h2 class="name">
         {{ facility.name }}
         <UiIcon v-if="facility.dataset.registered" ref="icon">
-          <mat-svg
-            name="verified_user"
-            category="action"
+          <KIcon
+            icon="registered"
             :style="{ fill: $themePalette.green.v_500 }"
           />
         </UiIcon>
