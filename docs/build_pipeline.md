@@ -15,7 +15,8 @@ How to find builds for tags?
 
 - Overview/Design Goals
 - Architecture
-  - Old and New
+  - Buildkite
+  - Arhitecture
   - High level "truths"
     - Each build is associated with a commit
       The Commit _might_ have a tag.
@@ -41,7 +42,7 @@ These goals are described at a high level, and carry some implicit meaning. Thes
 There is certainly overlap in those goals. For example, a faster build translates to a more convenient release process for our release managers, who must ensure that assets build after tagging a release (LINK. more on this later).
 
 ## Architecture
-Before describing the current architecture, it might be helpful to provide context by very briefly describing how Buildkite works, and describing at some length how the pipeline was set up prior to this most recent iteration.
+Before describing the current architecture, it might be helpful to provide context by giving an overview of how Buildkite works.
 
 ### Buildkite
 This entire section will not be describing any of LE's build pipelines in particular - only how Buildkite manages pipelines.
@@ -89,22 +90,3 @@ We could probably make those systems work if need be. By self hosting, however, 
   - Their form (envar vs JSON file, etc.)
 - Complete control of our dependencies, down to the OS/Kernel.
 - The ability to invest in the one-time-cost (as opposed to the ongoing cost of cloud-provided hosting) of physical hardware , customized to our workload.
-
-### Old Architecture
-The Kolibri pipeline in Buildkite evolved from single time-consuming step -- the python package generation -- on a single agent very quickly.
-
-For a long while, this was roughly the state of things:
-1. Build the Python Packages (10m)
-2. Build the Windows Installer (3m)
-3. Build the Debian Package (2m)
-4. Build the Android Installer (2m)
-5. Upload Artifacts (4m)
-6. Cleanup (1m)
-- Stop, Wait For User Input -
-7. Build Integration Testing Worksheet
-
-Some steps weren't included, and these aren't in exact order, but this structure had some issues:
-- Developing platform-specific wrappers for each platform was cumbersome and time-consuming
-- The jobs all happened in serial, with no parallelization
-
-Windows, Debian, and Android all lived in separate repositories, which had to be pulled every run.
