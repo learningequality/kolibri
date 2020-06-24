@@ -82,7 +82,7 @@ export default [
     path: '/',
     // Redirect to AllFacilitiesPage if a superuser and device has > 1 facility
     beforeEnter(to, from, next) {
-      if (store.getters.isSuperuser && store.state.core.facilities.length > 1) {
+      if (store.getters.userIsMultiFacilityAdmin) {
         next({ name: 'AllFacilitiesPage' });
       } else {
         next({ name: 'CoachClassListPage' });
