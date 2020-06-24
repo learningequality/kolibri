@@ -1,7 +1,7 @@
 steps:
   - block: "Build APK?"
     # The block step will only exist if the conditions below are true
-    if: build.env("LE_KOLIBRI_RELEASE") != null || build.env("LE_KOLIBRI_RELEASE") == "false"
+    if: build.env("LE_KOLIBRI_RELEASE") == "false"
 
   - label: "Build Dev Android APK (32bit) :tada:"
     command: ".buildkite/build.sh"
