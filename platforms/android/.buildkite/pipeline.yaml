@@ -1,7 +1,7 @@
 steps:
   - block: "Build APK?"
     # Block if this is triggered from Kolibri pipeline and is not a release
-    if: build.source == "trigger_job"
+    if: LE_KOLIBRI_RELEASE != "false"
 
   - label: "Build Dev Android APK (32bit) :tada:"
     command: ".buildkite/build.sh"
