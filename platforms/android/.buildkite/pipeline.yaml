@@ -1,7 +1,8 @@
 steps:
   - block: "Build APK?"
     # The block step will only exist if the conditions below are true
-    if: build.env("LE_KOLIBRI_RELEASE") == "false"
+    # Only run triggered by the Kolibri pipeline and it's not a release
+    if: build.env("LE_KOLIBRI_RELEASE") == "false" || build.env("LE_TRIGGERED_FROM_KOLIBRI_VERSION_TAG") == ""
 
   - label: "Build Dev Android APK (32bit) :tada:"
     command: ".buildkite/build.sh"
