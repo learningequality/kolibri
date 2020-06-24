@@ -474,6 +474,7 @@
           case 'Escape':
             this.showDropdown = false;
             break;
+          case 'NumpadEnter':
           case 'Enter':
             if (this.highlightedIndex < 0) {
               this.showDropdown = false;
