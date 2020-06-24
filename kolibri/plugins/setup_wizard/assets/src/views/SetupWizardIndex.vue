@@ -49,7 +49,7 @@
     // As a minimal precaution, we restart the entire wizard if a user refreshes in the middle
     // and loses saved state
     beforeMount() {
-      if (!this.$store.state.started) {
+      if (!this.$store.state.started && this.$route.path !== '/') {
         this.$router.replace('/');
       }
     },
@@ -99,13 +99,19 @@
 
   // Override KPageContainer styles
   /deep/ .page-container {
-    max-width: 650px;
-    padding: 36px;
+    // A little narrower than the default, but wide enough to fit whole
+    // language-switcher
+    max-width: 700px;
+    padding: 32px;
     margin: auto;
     overflow: visible;
+
+    &.small {
+      padding: 16px;
+    }
   }
 
-  .mobile {
+  /deep/ .mobile {
     margin-top: 40px;
     margin-bottom: 24px;
   }

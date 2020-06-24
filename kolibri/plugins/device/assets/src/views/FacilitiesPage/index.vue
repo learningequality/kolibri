@@ -120,6 +120,7 @@
   } from 'kolibri.coreVue.componentSets.sync';
   import TasksBar from '../ManageContentPage/TasksBar';
   import HeaderWithOptions from '../HeaderWithOptions';
+  import { TaskStatuses, TaskTypes } from '../../constants';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
   import SyncFacilityModalGroup from './SyncFacilityModalGroup';
@@ -171,8 +172,11 @@
         for (let index in newTasks) {
           const task = newTasks[index];
           if (this.taskIdsToWatch.includes(task.id)) {
-            if (task.status === 'COMPLETED') {
+            if (task.status === TaskStatuses.COMPLETED) {
               this.fetchFacilites();
+              if (task.type === TaskTypes.DELETEFACILITY) {
+                this.showFacilityRemovedSnackbar(task.facility_name);
+              }
               this.taskIdsToWatch = this.taskIdsToWatch.filter(x => x !== task.id);
             }
           }
@@ -228,20 +232,23 @@
       handleSyncAllSuccess() {
         this.showSyncAllModal = false;
       },
-      handleStartImportSuccess(taskId) {
-        this.taskIdsToWatch.push(taskId);
+      handleStartImportSuccess() {
+        this.$router.push({
+          name: 'FACILITIES_TASKS_PAGE',
+        });
         this.showImportModal = false;
       },
-      handleRemoveSuccess(taskId) {
-        this.taskIdsToWatch.push(taskId);
-        const facilityName = this.facilityForRemoval.name;
-        this.facilityForRemoval = null;
+      showFacilityRemovedSnackbar(facilityName) {
         this.$store.dispatch(
           'createSnackbar',
           this.$tr('facilityRemovedSnackbar', {
             facilityName,
           })
         );
+      },
+      handleRemoveSuccess(taskId) {
+        this.taskIdsToWatch.push(taskId);
+        this.facilityForRemoval = null;
       },
     },
     $trs: {

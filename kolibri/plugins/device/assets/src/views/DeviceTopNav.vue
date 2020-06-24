@@ -28,7 +28,11 @@
       :title="coreString('facilitiesLabel')"
       :link="$router.getRoute('FACILITIES_PAGE')"
     >
-      <mat-svg name="business" category="communication" />
+      <KIcon
+        icon="facility"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
     <NavbarLink
       :title="$tr('infoLabel')"

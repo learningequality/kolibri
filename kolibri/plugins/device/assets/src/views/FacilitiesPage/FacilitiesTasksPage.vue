@@ -2,7 +2,7 @@
 
   <div>
     <p>
-      <KRouterLink
+      <BackLink
         :to="{ name: 'FACILITIES_PAGE' }"
         :text="$tr('backToFacilitiesLabel')"
       />
@@ -46,6 +46,7 @@
   import HeaderWithOptions from '../HeaderWithOptions';
   import { taskIsClearable } from '../../constants';
   import ManageTasksPage from '../ManageTasksPage';
+  import BackLink from '../ManageTasksPage/BackLink';
   import FacilityTaskPanel from './FacilityTaskPanel';
   import facilityTasksQueue from './facilityTasksQueue';
 
@@ -61,6 +62,7 @@
     components: {
       FacilityTaskPanel,
       HeaderWithOptions,
+      BackLink,
     },
     mixins: [commonCoreStrings, commonTaskStrings, commonSyncElements, facilityTasksQueue],
     props: {},

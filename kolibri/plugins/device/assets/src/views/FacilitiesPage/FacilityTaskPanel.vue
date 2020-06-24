@@ -1,6 +1,6 @@
 <template>
 
-  <TaskPanel
+  <FacilityTaskPanelDetails
     :statusMsg="statusMsg"
     :headingMsg="headingMsg"
     :underHeadingMsg="underHeadingMsg"
@@ -25,12 +25,13 @@
     removeFacilityTaskDisplayInfo,
     importFacilityTaskDisplayInfo,
   } from '../syncTaskUtils';
-  import TaskPanel from './TaskPanel';
+  import { TaskTypes } from '../../constants';
+  import FacilityTaskPanelDetails from './FacilityTaskPanelDetails';
 
   export default {
     name: 'FacilityTaskPanel',
     components: {
-      TaskPanel,
+      FacilityTaskPanelDetails,
     },
     mixins: [commonCoreStrings],
     props: {
@@ -44,17 +45,19 @@
     },
     computed: {
       isSyncTask() {
-        return this.task.type === 'SYNCDATAPORTAL' || this.task.type === 'SYNCPEER/FULL';
+        return (
+          this.task.type === TaskTypes.SYNCDATAPORTAL || this.task.type === TaskTypes.SYNCPEERFULL
+        );
       },
       isDeleteTask() {
-        return this.task.type === 'DELETEFACILITY';
+        return this.task.type === TaskTypes.DELETEFACILITY;
       },
       isSetupImportTask() {
         // HACK infer that we're in the setup wizard because the started_by field is null
-        return !this.task.started_by && this.task.type === 'SYNCPEER/PULL';
+        return !this.task.started_by && this.task.type === TaskTypes.SYNCPEERPULL;
       },
       isImportTask() {
-        return this.task.type === 'SYNCPEER/PULL';
+        return this.task.type === TaskTypes.SYNCPEERPULL;
       },
       taskInfo() {
         if (this.isSetupImportTask) {

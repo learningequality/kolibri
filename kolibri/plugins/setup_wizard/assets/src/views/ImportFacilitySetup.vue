@@ -6,15 +6,17 @@
       :title="currentTitle"
       @click_back="goToLastStep"
     />
-    <KPageContainer>
-      <component
-        :is="currentComponent"
-        :device.sync="device"
-        :facility.sync="facility"
-        :superuser.sync="superuser"
-        @click_next="goToNextStep"
-      />
-    </KPageContainer>
+    <div class="main">
+      <KPageContainer>
+        <component
+          :is="currentComponent"
+          :device.sync="device"
+          :facility.sync="facility"
+          :superuser.sync="superuser"
+          @click_next="goToNextStep"
+        />
+      </KPageContainer>
+    </div>
   </div>
 
 </template>
@@ -144,4 +146,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .main {
+    margin: 16px;
+  }
+
+</style>

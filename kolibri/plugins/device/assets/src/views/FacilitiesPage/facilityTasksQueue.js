@@ -1,15 +1,7 @@
 // Mixin that can be used for a component to view and manage
 // the task queue
 import { FacilityTaskResource } from 'kolibri.resources';
-import { taskIsClearable } from '../../constants';
-
-const TaskTypes = Object.freeze({
-  SYCNDATAPORTAL: 'SYNCDATAPORTAL',
-  // TODO rename
-  SYNCPEERFULL: 'SYNCPEER/FULL',
-  SYNCPEERPULL: 'SYNCPEER/PULL',
-  DELETEFACILITY: 'DELETEFACILITY',
-});
+import { taskIsClearable, TaskTypes } from '../../constants';
 
 function isSyncTask(task) {
   return task.type === TaskTypes.SYNCDATAPORTAL || task.type === TaskTypes.SYNCPEERFULL;
