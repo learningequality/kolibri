@@ -51,19 +51,21 @@
       <KCheckbox :label="$tr('labelDelete')" @change="toggleDelete" />
     </p>
     <p>
-      <KButton
-        text="Cancel"
-        appearance="raised-button"
-        style="margin-left: 0;"
-        @click="$emit('cancel')"
-      />
-      <KButton
-        text="Next"
-        appearance="raised-button"
-        :disabled="fileToImport === null"
-        primary
-        @click="$emit('next', fileToImport, deleteUsers)"
-      />
+      <KButtonGroup>
+        <KButton
+          text="Cancel"
+          appearance="raised-button"
+          style="margin-left: 0;"
+          @click="$emit('cancel')"
+        />
+        <KButton
+          text="Next"
+          appearance="raised-button"
+          :disabled="fileToImport === null"
+          primary
+          @click="$emit('next', fileToImport, deleteUsers)"
+        />
+      </KButtonGroup>
     </p>
 
     <CsvInfoModal
