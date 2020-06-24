@@ -377,7 +377,10 @@ class Command(AsyncCommand):
         tracker = self.start_progress(total=2)
 
         def started(transfer_session):
-            if transfer_session.push == is_push:
+            dataset_cache.clear()
+            if transfer_session.push == is_push and (
+                noninteractive or tracker.progressbar is None
+            ):
                 logger.info(message)
 
         def handler(transfer_session):
@@ -389,6 +392,6 @@ class Command(AsyncCommand):
         if noninteractive or tracker.progressbar is None:
             signal_group.started.connect(started)
 
-        signal_group.started.connect(dataset_cache.clear)
+        signal_group.started.connect(started)
         signal_group.started.connect(handler)
         signal_group.completed.connect(handler)
