@@ -44,7 +44,7 @@
   "SelectSuperAdminAccountForm.accountFacilityExplanation": "हे खाते '{facility}' या सुविधेशी संबंधित राहील",
   "SelectSuperAdminAccountForm.chooseAdminPrompt": "'{facility}' मधून अॅडमिन निवडा किंवा नवीन सुपर अॅडमिन तयार करा.",
   "SelectSuperAdminAccountForm.createSuperAdminOption": "नवीन सुपर अॅडमिन तयार करा",
-  "SelectSuperAdminAccountForm.description": "या खात्याद्वारे आपण या उपकरणावरील सर्व सुविधा, मजकूर आणि युझर्सची खाती व्यवस्थापित करू शकता.",
+  "SelectSuperAdminAccountForm.description": "हे खाते वापरुन तुम्ही या उपकरणावरील सर्व सुविधा, मजकूर आणि युझर खात्यांचे व्यवस्थापन करू शकता.",
   "SelectSuperAdminAccountForm.enterPasswordPrompt": "'{username}' साठी पासवर्ड प्रविष्ट करा",
   "SelectSuperAdminAccountForm.header": "सुपर अॅडमिन खाते निवडा",
   "SetupMethod.createNewFacilityAction": "नवीन सुविधा",

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-11 09:07-0700\n"
-"PO-Revision-Date: 2020-06-18 16:34\n"
+"PO-Revision-Date: 2020-06-23 23:19\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Language: vi_VN\n"
@@ -169,24 +169,24 @@ msgstr "Cần có cột '{}'"
 #: kolibri/core/auth/management/commands/bulkimportusers.py:92
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Invalid header label found in the first row"
-msgstr ""
+msgstr "Hàng đầu tiên có chứa nhãn đầu đề không hợp lệ"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:96
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr ""
+msgstr "Không tìm thấy địa điểm mặc định. Hãy chắc chắn đã thiết lập địa điểm trên thiết bị trước khi nhập người dùng và lớp học"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:101
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr ""
+msgstr "Trường dữ liệu mật khẩu là bắt buộc. Để giữ nguyên mật khẩu của người dùng hiện tại, hãy nhập vào một dấu hoa thị (*)"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:104
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr ""
+msgstr "Không thể cập nhật thông tin cho người dùng mang mã số: '{}' vì không có người dùng mang mã cơ sở dữ liệu đó tại địa điểm này"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:106
 msgid "Database ID is not valid"
-msgstr ""
+msgstr "Mã cơ sở dữ liệu không hợp lệ"
 
 #: kolibri/core/content/api.py:149
 msgid "Resource"
@@ -207,12 +207,12 @@ msgstr "Kolibri không hỗ trợ ngôn ngữ này"
 #: kolibri/core/logger/csv_export.py:207
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
-msgstr ""
+msgstr "nhật_ký_nội_dung_phiên_làm_việc"
 
 #: kolibri/core/logger/csv_export.py:217
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
-msgstr ""
+msgstr "nhật_ký_nội_dung_phần_tóm_tắt"
 
 #: kolibri/core/tasks/api.py:71
 msgid "There was a network error."
@@ -254,7 +254,7 @@ msgstr "Không tìm thấy trang chuyển hướng phù hợp. Có thể Kolibri
 #: kolibri/plugins/facility/views.py:46
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users_{}"
-msgstr ""
+msgstr "người_dùng_{}"
 
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
 msgid "OpenID Provider Authorization"

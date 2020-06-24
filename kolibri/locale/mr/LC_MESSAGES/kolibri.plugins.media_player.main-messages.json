@@ -27,7 +27,7 @@
   "MediaPlayerTranscript.transcriptBeginning": "उताऱ्याची सुरुवात",
   "MediaPlayerTranscript.transcriptEnd": "उताऱ्याचा शेवट",
   "SubtitlesMenuItem.subtitles": "उपशीर्षक",
-  "TranscriptCue.textLabel": "उतारा सुरु करण्यासाठी मजकूर",
+  "TranscriptCue.textLabel": "उतारा दिसेल ते स्थान दाखवणारा मजकूर",
   "TranscriptCue.timeLabel": "उतारा सुरु करण्याची वेळ",
   "TranscriptCue.title": "{startTime} पर्यंत जा",
   "TranscriptMenuItem.transcript": "उतारा"

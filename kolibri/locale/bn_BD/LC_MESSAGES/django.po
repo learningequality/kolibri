@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-11 09:07-0700\n"
-"PO-Revision-Date: 2020-06-18 16:34\n"
+"PO-Revision-Date: 2020-06-23 23:19\n"
 "Last-Translator: \n"
 "Language-Team: Bengali\n"
 "Language: bn_BD\n"
@@ -31,162 +31,162 @@ msgstr "শিক্ষার্থী দল"
 
 #: kolibri/core/auth/constants/collection_kinds.py:18
 msgid "Ad hoc learners group"
-msgstr ""
+msgstr "অ্যাড হক শিক্ষার্থী দল"
 
 #: kolibri/core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr ""
+msgstr "অপ্রত্যাশিত ব্যতিক্রম [{}]: {}"
 
 #: kolibri/core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
-msgstr ""
+msgstr "'{}' কক্ষের বিষয়বস্তু খুব দীর্ঘ"
 
 #: kolibri/core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr ""
+msgstr "'{}' কক্ষের বিষয়বস্তু বৈধ নয়"
 
 #: kolibri/core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr ""
+msgstr "ইউসারনেম সদৃশ"
 
 #: kolibri/core/auth/constants/commands_errors.py:28
 #: kolibri/core/auth/management/commands/bulkimportusers.py:84
 msgid "Username only can contain characters, numbers and underscores"
-msgstr ""
+msgstr "ইউসারনেমে একমাত্র অক্ষর, সংখ্যা এবং আন্ডারস্কোর থাকতে পারে"
 
 #: kolibri/core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
-msgstr ""
+msgstr "'{}' কলামটি প্রয়োজন"
 
 #: kolibri/core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr ""
+msgstr "প্রথম সারিতে বৈধ এবং/বা অবৈধ হেডার লেবেলগুলি খুঁজে পাওয়া গেছে"
 
 #: kolibri/core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr ""
+msgstr "কোনও ডিফল্ট সুবিধাগুলি বর্তমান নেই। এই নির্দেশটি সক্রিয় করার আগে ডিভাইসটিতে একটা সুবিধা সংযুক্ত করা সুনিশ্চিত করুন"
 
 #: kolibri/core/auth/constants/commands_errors.py:35
 #: kolibri/core/auth/management/commands/bulkimportusers.py:98
 msgid "Error trying to read csv file: {}"
-msgstr ""
+msgstr "csv ফাইল পড়ার প্রচেষ্টায় ত্রুটি: {}"
 
 #: kolibri/core/auth/constants/commands_errors.py:36
 #: kolibri/core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to write csv file: {}"
-msgstr ""
+msgstr "csv ফাইল লেখার প্রচেষ্টায় ত্রুটি: {}"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:43
 #: kolibri/core/auth/management/commands/bulkexportusers.py:125
 msgid "Database ID ({})"
-msgstr ""
+msgstr "ডেটাবেস আই.ডি ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:44
 #: kolibri/core/auth/management/commands/bulkexportusers.py:126
 msgid "Username ({})"
-msgstr ""
+msgstr "ইউসারনেম ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:45
 #: kolibri/core/auth/management/commands/bulkexportusers.py:127
 msgid "Password ({})"
-msgstr ""
+msgstr "পাসওয়ার্ড ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:46
 #: kolibri/core/auth/management/commands/bulkexportusers.py:128
 msgid "Full name ({})"
-msgstr ""
+msgstr "পুরো নাম ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:51
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "ব্যবহারকারীর ধরন ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:54
 #: kolibri/core/auth/management/commands/bulkexportusers.py:136
 msgid "Identifier ({})"
-msgstr ""
+msgstr "শনাক্তকারী ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:55
 #: kolibri/core/auth/management/commands/bulkexportusers.py:137
 msgid "Birth year ({})"
-msgstr ""
+msgstr "জন্ম সাল ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:56
 #: kolibri/core/auth/management/commands/bulkexportusers.py:138
 msgid "Gender ({})"
-msgstr ""
+msgstr "লিঙ্গ ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:61
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr ""
+msgstr "শিক্ষার্থী তালিকাভুক্তি ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:68
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr ""
+msgstr "প্রশিক্ষকের কাজ ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:133
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "ব্যবহারকারীর ধরন ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:143
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr ""
+msgstr "শিক্ষার্থী তালিকাভুক্তি ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:150
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr ""
+msgstr "প্রশিক্ষকের কাজ ({})"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:75
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
-msgstr ""
+msgstr "অপ্রত্যাশিত ত্রুটি [{}]: {}"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:79
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
-msgstr ""
+msgstr "'{}' কলামের মানে অনেক বেশী অক্ষর আছে"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:81
 msgid "Invalid value in column '{}'"
-msgstr ""
+msgstr "'{}' কলামের মান অবৈধ"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:82
 msgid "Username is duplicated"
-msgstr ""
+msgstr "ইউসারনেম নকল করা"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:88
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
-msgstr ""
+msgstr "'{}' কলামটি প্রয়োজন"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:92
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Invalid header label found in the first row"
-msgstr ""
+msgstr "প্রথম সারিটিতে অবৈধ হেডার লেবেল পাওয়া গেছিল"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:96
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr ""
+msgstr "কোনও ডিফল্ট সুবিধা বর্তমান নেই। ব্যবহারকারীদের এবং শ্রেণীগুলিকে ইম্পোর্ট করার আগে ডিভাইসটিতে একটা সুবিধা সংযুক্ত করা সুনিশ্চিত করুন"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:101
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr ""
+msgstr "পাসওয়ার্ড ক্ষেত্রটি প্রয়োজন। বর্তমান ব্যবহারকারীরা পাসওয়ার্ড অপরিবর্তিত রাখতে চাইলে, একটা আস্টারিক্স (*) লিখুন"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:104
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr ""
+msgstr "আই.ডি সহ ব্যবহারকারী আপডেট করা যায়নি: '{}' কারণ এই সুবিধাতে সেই ডেটাবেস সহ কোনও ব্যবহারকারী বর্তমান নেই"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:106
 msgid "Database ID is not valid"
-msgstr ""
+msgstr "ডেটাবেস আই.ডি বৈধ নয়"
 
 #: kolibri/core/content/api.py:149
 msgid "Resource"
@@ -207,12 +207,12 @@ msgstr "ভাষাটি কলিব্রিতে ব্যবহারয�
 #: kolibri/core/logger/csv_export.py:207
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
-msgstr ""
+msgstr "কন্টেন্ট_সেশন_লগস"
 
 #: kolibri/core/logger/csv_export.py:217
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
-msgstr ""
+msgstr "কন্টেন্ত_সামারি_লগস"
 
 #: kolibri/core/tasks/api.py:71
 msgid "There was a network error."
@@ -254,7 +254,7 @@ msgstr "কোনও উপযুক্ত পুনর্নির্দেশ 
 #: kolibri/plugins/facility/views.py:46
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users_{}"
-msgstr ""
+msgstr "ব্যবহারকারীগণ_{}"
 
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
 msgid "OpenID Provider Authorization"

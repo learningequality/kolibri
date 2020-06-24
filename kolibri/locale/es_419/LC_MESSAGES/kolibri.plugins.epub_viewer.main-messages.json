@@ -14,7 +14,7 @@
   "SearchSideBar.overCertainNumberOfSearchResults": "Más de {num, number, integer} {num, plural, one {resultado} other {resultados}}",
   "SearchSideBar.searchThroughBook": "Buscar en el libro",
   "SearchSideBar.submitSearchQuery": "Iniciar búsqueda",
-  "SettingsButton.toggleSettingsSideBar": "Abre/Cierra la barra lateral de configuración",
+  "SettingsButton.toggleSettingsSideBar": "Abrir/Cerrar la barra lateral de configuración",
   "SettingsSideBar.decrease": "Reducir",
   "SettingsSideBar.increase": "Aumentar",
   "SettingsSideBar.setBeigeTheme": "Activar tema beige",
@@ -23,6 +23,6 @@
   "SettingsSideBar.setWhiteTheme": "Activar tema blanco",
   "SettingsSideBar.textSize": "Tamaño del texto",
   "SettingsSideBar.theme": "Tema",
-  "TocButton.toggleTocSideBar": "Abre/Cierra la barra lateral de contenido",
+  "TocButton.toggleTocSideBar": "Abre/Cierra la barra lateral con el índice de contenidos",
   "TopBar.toggleFullscreen": "Activar/Desactivar pantalla completa"
 }
