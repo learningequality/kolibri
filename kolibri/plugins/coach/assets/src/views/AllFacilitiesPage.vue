@@ -23,7 +23,7 @@
               <KLabeledIcon icon="facility">
                 <KRouterLink
                   :text="facility.name"
-                  :to="facilityLink(facility)"
+                  :to="coachClassListPageLink(facility)"
                 />
               </KLabeledIcon>
             </td>
@@ -58,13 +58,22 @@
         return this.$store.state.core.facilities;
       },
     },
+    beforeMount() {
+      // Redirect to single-facility landing page if user/device isn't supposed
+      // to manage multiple facilities
+      if (!this.$store.getters.userIsMultiFacilityAdmin) {
+        this.$router.replace(this.coachClassListPageLink());
+      }
+    },
     methods: {
-      facilityLink(facility) {
+      coachClassListPageLink(facility) {
+        const query = {};
+        if (facility) {
+          query.facility_id = facility.id;
+        }
         return {
           name: 'CoachClassListPage',
-          query: {
-            facility_id: facility.id,
-          },
+          query,
         };
       },
     },
