@@ -55,10 +55,6 @@ export default {
         return false;
       }
     },
-    // An "Multi-Facility Admin" is a superuser for a device with 2+ facilities
-    userIsMultiFacilityAdmin(state, getters, rootState, rootGetters) {
-      return Boolean(rootGetters.isSuperuser && rootState.core.facilities.length > 1);
-    },
   },
   actions: {
     setClassList(store, facilityId) {

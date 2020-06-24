@@ -37,10 +37,6 @@ export default {
       // or the currentFacilityId value from core.session
       return rootState.route.params.facility_id || rootGetters.currentFacilityId;
     },
-    // An "Multi-Facility Admin" is a superuser for a device with 2+ facilities
-    userIsMultiFacilityAdmin(state, getters, rootState, rootGetters) {
-      return Boolean(rootGetters.isSuperuser && rootState.core.facilities.length > 1);
-    },
     currentFacilityName(state, getters, rootState) {
       const match = find(rootState.core.facilities, { id: getters.activeFacilityId });
       return match ? match.name : '';
