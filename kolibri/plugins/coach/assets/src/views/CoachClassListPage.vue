@@ -17,6 +17,7 @@
           v-if="userIsMultiFacilityAdmin"
           :to="{ name: 'AllFacilitiesPage' }"
           :text="coreString('allFacilitiesLabel')"
+          icon="back"
         />
       </p>
       <h1>{{ coreString('classesLabel') }}</h1>
