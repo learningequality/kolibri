@@ -30,7 +30,7 @@
       :link="recommendedLink"
     >
       <KIcon
-        icon="forum"
+        icon="recommended"
         style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />
