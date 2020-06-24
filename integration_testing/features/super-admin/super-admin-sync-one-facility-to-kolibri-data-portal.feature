@@ -1,5 +1,5 @@
 Feature: Sync facility to Kolibri Data Portal
-  When connected to the internet, users that are registered to a Project in Kolibri Data Portal should be able to sync their facility data
+  When connected to the internet, users that are registered on a project in Kolibri Data Portal should be able to sync their facility data
 
   Background:
     Given I am signed in as a super admin
@@ -16,7 +16,7 @@ Feature: Sync facility to Kolibri Data Portal
     Then I see the list of facilities
       And I see a *Syncing* message under <facility>
       And I see an indeterminate spinner
-      And I see the *task manager* has a new task
+      And I see there is a new task in *Device > Tasks*
     When the <facility> is done syncing
       Then I see a message under the <facility> *Last synced: just now*
 
@@ -28,5 +28,5 @@ Feature: Sync facility to Kolibri Data Portal
 
 
 Examples:
-| facility  |
-|           |
+| facility |
+| MySchool |

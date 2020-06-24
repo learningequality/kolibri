@@ -3,12 +3,12 @@ Feature: Super admin goes through the 'Quick start' setup wizard
 
   Background:
     Given that Kolibri installation was successful
-        And the server is running for the first time
-        And the browser is opened at the IP address 127.0.0.1:8080
+      And the server is running for the first time
+      And the browser is opened at the IP address 127.0.0.1:8080
 
   Scenario: Select language
     Given that I am at the beginning of the setup wizard
-        And I see *Please select the default language for Kolibri*
+      And I see *Please select the default language for Kolibri*
     When I click the link *Español*
     Then the wizard language changes to Spanish
     When I click *More languages*

@@ -78,7 +78,8 @@ Feature: Managing facility tasks
       And I see *X of X task(s) complete*
       And I see a progress bar
     When I click *Clear completed*
-    Then I don't see *X of X task(s) complete* #this is not on *Tasks* page, but on *Facilities*
+    Then I don't see *X of X task(s) complete*
+    #this is not on *Tasks* page, but on *Facilities*
       And I don't see a progress bar
       And I don't see *Clear completed*
 

@@ -48,7 +48,6 @@ Feature: Import facility from a peer (post-setup)
     Then I see *Failed sync: just now* under the <facility> name
       And I see *Last successfully synced: <X> <time> ago under the failed sync message
 
-
 Examples:
 | facility | peer   |
 | MySchool | MyPeer |

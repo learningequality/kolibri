@@ -1,8 +1,6 @@
 Feature: Rename facility
   A facility admin or super admin can change the name of the facility, which propagates to other servers that have the same facility
 
-# Writing these stories from the perspective of a facility admin, and working under the assumption that all are also doable for a super admin as well
-
   Background:
     Given I am signed in as a facility admin
 
@@ -25,5 +23,5 @@ Feature: Rename facility
     Then the I see the new <facility> name on the other device
 
 Examples:
-| ???      | ??? |
-| ?????!?! |
+| facility |
+| MySchool |
