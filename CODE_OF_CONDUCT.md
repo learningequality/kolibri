@@ -126,7 +126,7 @@ safety and well-being of community members.
 
 The Code of Conduct team consists of:
 
- * Benjamin Bach (benjamin@learningequality.org)
+ * Laura Danforth (laura@learningequality.org)
  * Radina Matic (radina@learningequality.org)
  * Richard Tibbles (richard@learningequality.org)
 
