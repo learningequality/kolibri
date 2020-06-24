@@ -8,10 +8,10 @@ steps:
 
   - wait
 
-  - label: Test ubuntu:focal
-    env:
-      DOCKER_IMAGES: ubuntu:focal
-    command: .buildkite/test.sh
+  # - label: Test ubuntu:focal
+  #   env:
+  #     DOCKER_IMAGES: ubuntu:focal
+  #   command: .buildkite/test.sh
   - label: Test ubuntu:bionic
     env:
       DOCKER_IMAGES: ubuntu:bionic
