@@ -49,6 +49,8 @@ steps:
 
   - label: Upload Release Artifacts
     command: .buildkite/setup_and_upload_artifact.sh
+    agents:
+        vader=true
     if: build.tag != null
 
   - wait
