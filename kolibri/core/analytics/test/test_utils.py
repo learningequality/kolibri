@@ -200,6 +200,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
                 "learner_can_login_with_no_password": False,
                 "show_download_button_in_learn": True,
                 "allow_guest_access": True,
+                "registered": False,
             },
             "lc": 20,  # learners_count
             "llc": 20,  # learner_login_count
@@ -232,9 +233,15 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
                     for (gender, _) in demographics.choices
                     if FacilityUser.objects.filter(gender=gender).exists()
                 },
-            },
-            "dsnl": {},
+            },  # demographic_stats_learner
+            "dsnl": {},  # demographic_stats_non_learner
+            "crc": 1,  # class_count
+            "grc": 0,  # group_count
+            "sacnv": 20,  # sess_anon_count_no_visitor_id
+            "uwl": 20,  # users_with_logs
+            "vwl": 0,  # anon_visitors_with_logs
         }
+
         assert actual == expected
 
     def test_regression_4606_no_usersessions(self):
@@ -302,8 +309,11 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
                     for (gender, _) in demographics.choices
                     if FacilityUser.objects.filter(gender=gender).exists()
                 },
-            },
-            "dsnl": {},
+            },  # demographic_stats_learner
+            "dsnl": {},  # demographic_stats_non_learner
+            "sacnv": 20,  # sess_anon_count_no_visitor_id
+            "uwl": 20,  # users_with_logs
+            "vwl": 0,  # anon_visitors_with_logs
         }
         assert actual == expected
 
