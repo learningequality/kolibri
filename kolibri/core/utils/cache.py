@@ -36,13 +36,15 @@ class NamespacedCacheProxy(BaseCache):
         """
         :rtype: list
         """
-        return self.cache.get("__KEYS__", default=[])
+        key = self.make_key("__KEYS__")
+        return self.cache.get(key, default=[])
 
     def _set_keys(self, keys):
         """
         :type keys: list
         """
-        self.cache.set("__KEYS__", keys)
+        key = self.make_key("__KEYS__")
+        self.cache.set(key, keys)
 
     def add(self, key, *args, **kwargs):
         """
@@ -53,7 +55,7 @@ class NamespacedCacheProxy(BaseCache):
             keys = self._get_keys()
             if key not in keys:
                 keys.append(key)
-            result = self.cache.add(key, *args, **kwargs)
+            result = self.cache.add(self.make_key(key), *args, **kwargs)
             if result:
                 self._set_keys(keys)
 
@@ -65,7 +67,7 @@ class NamespacedCacheProxy(BaseCache):
         :rtype: any
         """
         with self._lock.reader():
-            return self.cache.get(key, *args, **kwargs)
+            return self.cache.get(self.make_key(key), *args, **kwargs)
 
     def set(self, key, *args, **kwargs):
         """
@@ -75,7 +77,7 @@ class NamespacedCacheProxy(BaseCache):
             keys = self._get_keys()
             if key not in keys:
                 keys.append(key)
-            self.cache.set(key, *args, **kwargs)
+            self.cache.set(self.make_key(key), *args, **kwargs)
             self._set_keys(keys)
 
     def delete(self, key, *args, **kwargs):
@@ -84,7 +86,7 @@ class NamespacedCacheProxy(BaseCache):
         """
         with self._lock.writer():
             keys = self._get_keys()
-            self.cache.delete(key, *args, **kwargs)
+            self.cache.delete(self.make_key(key), *args, **kwargs)
             self._set_keys([cached_key for cached_key in keys if cached_key != key])
 
     def clear(self):
@@ -93,5 +95,5 @@ class NamespacedCacheProxy(BaseCache):
         """
         with self._lock.writer():
             for key in self._get_keys():
-                self.cache.delete(key)
+                self.cache.delete(self.make_key(key))
             self._set_keys([])
