@@ -75,9 +75,11 @@ from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import set_device_settings
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
+from kolibri.core.utils.cache import NamespacedCacheProxy
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
+dataset_cache = NamespacedCacheProxy(cache, "dataset")
 
 
 def _has_permissions_class(obj):
@@ -186,13 +188,13 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         key = "{id}_{db_table}_dataset".format(
             id=getattr(self, field.attname), db_table=field.related_model._meta.db_table
         )
-        dataset_id = cache.get(key)
+        dataset_id = dataset_cache.get(key)
         if dataset_id is None:
             try:
                 dataset_id = getattr(self, related_obj_name).dataset_id
             except ObjectDoesNotExist as e:
                 raise ValidationError(e)
-            cache.set(key, dataset_id, 60 * 10)
+            dataset_cache.set(key, dataset_id, 60 * 10)
         return dataset_id
 
     def calculate_source_id(self):

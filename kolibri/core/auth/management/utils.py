@@ -40,7 +40,7 @@ class DisablePostDeleteSignal(object):
 
 def _interactive_client_facility_selection():
     facilities = Facility.objects.all().order_by("name")
-    message = "Please choose a facility to sync:\n"
+    message = "Please choose a facility:\n"
     for idx, facility in enumerate(facilities):
         message += "{}. {}\n".format(idx + 1, facility.name)
     idx = input(message)

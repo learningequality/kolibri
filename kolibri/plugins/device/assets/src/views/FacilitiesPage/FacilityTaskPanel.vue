@@ -21,12 +21,21 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import {
+    SyncTaskStatuses,
     syncFacilityTaskDisplayInfo,
     removeFacilityTaskDisplayInfo,
     importFacilityTaskDisplayInfo,
   } from '../syncTaskUtils';
   import { TaskTypes } from '../../constants';
   import FacilityTaskPanelDetails from './FacilityTaskPanelDetails';
+
+  const indeterminateSyncStatuses = [
+    SyncTaskStatuses.SESSION_CREATION,
+    SyncTaskStatuses.LOCAL_QUEUING,
+    SyncTaskStatuses.LOCAL_DEQUEUING,
+    SyncTaskStatuses.REMOTE_QUEUING,
+    SyncTaskStatuses.REMOTE_DEQUEUING,
+  ];
 
   export default {
     name: 'FacilityTaskPanel',
@@ -72,6 +81,11 @@
         return {};
       },
       loaderType() {
+        const { sync_state = '' } = this.task;
+        if (indeterminateSyncStatuses.find(s => s === sync_state)) {
+          return 'indeterminate';
+        }
+
         return 'determinate';
       },
       statusMsg() {
