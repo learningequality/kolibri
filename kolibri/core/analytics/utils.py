@@ -27,8 +27,10 @@ from .constants import nutrition_endpoints
 from .models import PingbackNotification
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import LocalFile
 from kolibri.core.device.utils import allow_guest_access
@@ -65,6 +67,7 @@ facility_settings = [
     "learner_can_delete_account",
     "learner_can_login_with_no_password",
     "show_download_button_in_learn",
+    "registered",
 ]
 
 
@@ -198,12 +201,21 @@ def extract_facility_statistics(facility):
 
     contsessions_user = contsessions.exclude(user=None)
     contsessions_anon = contsessions.filter(user=None)
+    contsessions_anon_no_visitor_id = contsessions_anon.filter(visitor_id=None)
+    contsessions_anon_with_visitor_id = contsessions_anon.exclude(visitor_id=None)
+
+    users_with_logs = contsessions_user.values("user_id").distinct().count()
+    anon_visitors_with_logs = (
+        contsessions_anon_with_visitor_id.values("visitor_id").distinct().count()
+    )
 
     # calculate learner stats
-    learner_stats = calculate_demographic_stats(dataset_id=dataset_id, learners=True)
+    learner_demographics = calculate_demographic_stats(
+        dataset_id=dataset_id, learners=True
+    )
 
     # calculate non-learner stats
-    non_learner_stats = calculate_demographic_stats(
+    non_learner_demographics = calculate_demographic_stats(
         dataset_id=dataset_id, learners=False
     )
 
@@ -221,6 +233,10 @@ def extract_facility_statistics(facility):
         "cc": coaches.count(),
         # coach_login_count
         "clc": usersessions.filter(user__roles__kind__in=[role_kinds.ADMIN, role_kinds.COACH]).distinct().count(),
+        # users_with_logs
+        "uwl": users_with_logs,
+        # anon_visitors_with_logs
+        "vwl": anon_visitors_with_logs,
         # first
         "f" : first_interaction_timestamp("%Y-%m-%d") if first_interaction_timestamp else None,
         # last
@@ -231,6 +247,10 @@ def extract_facility_statistics(facility):
         "sc": summarylogs.exclude(completion_timestamp=None).count(),
         # sess_kinds
         "sk": sesslogs_by_kind,
+        # class_count
+        "crc": Classroom.objects.filter(dataset_id=dataset_id).count(),
+        # group_count
+        "grc": LearnerGroup.objects.filter(dataset_id=dataset_id).count(),
         # lesson_count
         "lec": Lesson.objects.filter(dataset_id=dataset_id).count(),
         # exam_count
@@ -245,14 +265,16 @@ def extract_facility_statistics(facility):
         "suc": contsessions_user.count(),
         # sess_anon_count
         "sac": contsessions_anon.count(),
+        # sess_anon_count_no_visitor_id
+        "sacnv": contsessions_anon_no_visitor_id.count(),
         # sess_user_time
         "sut": int((contsessions_user.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
         # sess_anon_time
         "sat": int((contsessions_anon.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
         # demographic_stats_learner
-        "dsl": learner_stats,
+        "dsl": learner_demographics,
         # demographic_stats_non_learner
-        "dsnl": non_learner_stats,
+        "dsnl": non_learner_demographics,
     }
     # fmt: on
 
@@ -284,12 +306,21 @@ def extract_channel_statistics(channel):
 
     contsessions_user = sessionlogs.exclude(user=None)
     contsessions_anon = sessionlogs.filter(user=None)
+    contsessions_anon_no_visitor_id = contsessions_anon.filter(visitor_id=None)
+    contsessions_anon_with_visitor_id = contsessions_anon.exclude(visitor_id=None)
+
+    users_with_logs = contsessions_user.values("user_id").distinct().count()
+    anon_visitors_with_logs = (
+        contsessions_anon_with_visitor_id.values("visitor_id").distinct().count()
+    )
 
     # calculate learner stats
-    learner_stats = calculate_demographic_stats(channel_id=channel_id, learners=True)
+    learner_demographics = calculate_demographic_stats(
+        channel_id=channel_id, learners=True
+    )
 
     # calculate non-learner stats
-    non_learner_stats = calculate_demographic_stats(
+    non_learner_demographics = calculate_demographic_stats(
         channel_id=channel_id, learners=False
     )
 
@@ -317,14 +348,20 @@ def extract_channel_statistics(channel):
         "suc": contsessions_user.count(),
         # sess_anon_count
         "sac": contsessions_anon.count(),
+        # sess_anon_count_no_visitor_id
+        "sacnv": contsessions_anon_no_visitor_id.count(),
         # sess_user_time
         "sut": int((contsessions_user.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
         # sess_anon_time
         "sat": int((contsessions_anon.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
+        # users_with_logs
+        "uwl": users_with_logs,
+        # anon_visitors_with_logs
+        "vwl": anon_visitors_with_logs,
         # demographic_stats_learner
-        "dsl": learner_stats,
+        "dsl": learner_demographics,
         # demographic_stats_non_learner
-        "dsnl": non_learner_stats,
+        "dsnl": non_learner_demographics,
     }
     # fmt: on
 
