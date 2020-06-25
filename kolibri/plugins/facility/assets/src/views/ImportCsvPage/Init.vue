@@ -53,13 +53,13 @@
     <p>
       <KButtonGroup>
         <KButton
-          text="Cancel"
+          :text="coreString('cancelAction')"
           appearance="raised-button"
           style="margin-left: 0;"
           @click="$emit('cancel')"
         />
         <KButton
-          text="Next"
+          :text="coreString('continueAction')"
           appearance="raised-button"
           :disabled="fileToImport === null"
           primary
@@ -81,6 +81,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CsvInfoModal from '../CsvInfoModal';
 
   export default {
@@ -88,6 +89,7 @@
     components: {
       CsvInfoModal,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         showInfoModal: false,
