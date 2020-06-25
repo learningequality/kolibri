@@ -3,7 +3,7 @@ import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
 import { taskIsClearable, TaskStatuses } from '../constants';
 
-const SyncTaskStatuses = {
+export const SyncTaskStatuses = {
   SESSION_CREATION: 'SESSION_CREATION',
   REMOTE_QUEUING: 'REMOTE_QUEUING',
   PULLING: 'PULLING',
