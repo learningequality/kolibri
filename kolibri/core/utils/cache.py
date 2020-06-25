@@ -1,8 +1,15 @@
+import os
+import time
+
+try:
+    from thread import get_ident
+except ImportError:
+    from threading import get_ident
+
 from django.core.cache import caches
 from django.core.cache import InvalidCacheBackendError
 from django.core.cache.backends.base import BaseCache
 from django.utils.functional import SimpleLazyObject
-from django.utils.synch import RWLock
 
 
 def __get_process_cache():
@@ -13,7 +20,52 @@ def __get_process_cache():
 
 
 process_cache = SimpleLazyObject(__get_process_cache)
-_namespace_locks = {}
+
+
+class DiskCacheRLock(object):
+    """
+    Vendored from
+    https://github.com/grantjenks/python-diskcache/blob/2d1f43ea2be4c82a430d245de6260c3e18059ba1/diskcache/recipes.py
+    """
+
+    def __init__(self, cache, key, expire=None):
+        self._cache = cache
+        self._key = key
+        self._expire = expire
+
+    def acquire(self):
+        "Acquire lock by incrementing count using spin-lock algorithm."
+        pid = os.getpid()
+        tid = get_ident()
+        pid_tid = "{}-{}".format(pid, tid)
+
+        while True:
+            value, count = self._cache.get(self._key, (None, 0))
+            if pid_tid == value or count == 0:
+                self._cache.set(self._key, (pid_tid, count + 1), self._expire)
+                return
+            time.sleep(0.001)
+
+    def release(self):
+        "Release lock by decrementing count."
+        pid = os.getpid()
+        tid = get_ident()
+        pid_tid = "{}-{}".format(pid, tid)
+
+        value, count = self._cache.get(self._key, default=(None, 0))
+        is_owned = pid_tid == value and count > 0
+        assert is_owned, "cannot release un-acquired lock"
+        self._cache.set(self._key, (value, count - 1), self._expire)
+
+        # RLOCK leaves the db connection open after releasing the lock
+        # Let's ensure it's correctly closed
+        self._cache.close()
+
+    def __enter__(self):
+        self.acquire()
+
+    def __exit__(self, *exc_info):
+        self.release()
 
 
 class NamespacedCacheProxy(BaseCache):
@@ -30,7 +82,9 @@ class NamespacedCacheProxy(BaseCache):
         params.update(KEY_PREFIX=namespace)
         super(NamespacedCacheProxy, self).__init__(params)
         self.cache = cache
-        self._lock = _namespace_locks.setdefault(namespace, RWLock())
+        self._lock = DiskCacheRLock(
+            process_cache, "namespaced_cache_{}".format(namespace)
+        )
 
     def _get_keys(self):
         """
@@ -51,7 +105,7 @@ class NamespacedCacheProxy(BaseCache):
         :type key: str
         :rtype: bool
         """
-        with self._lock.writer():
+        with self._lock:
             keys = self._get_keys()
             if key not in keys:
                 keys.append(key)
@@ -66,14 +120,14 @@ class NamespacedCacheProxy(BaseCache):
         :type key: str
         :rtype: any
         """
-        with self._lock.reader():
+        with self._lock:
             return self.cache.get(self.make_key(key), *args, **kwargs)
 
     def set(self, key, *args, **kwargs):
         """
         :type key: str
         """
-        with self._lock.writer():
+        with self._lock:
             keys = self._get_keys()
             if key not in keys:
                 keys.append(key)
@@ -84,7 +138,7 @@ class NamespacedCacheProxy(BaseCache):
         """
         :type key: str
         """
-        with self._lock.writer():
+        with self._lock:
             keys = self._get_keys()
             self.cache.delete(self.make_key(key), *args, **kwargs)
             self._set_keys([cached_key for cached_key in keys if cached_key != key])
@@ -93,7 +147,7 @@ class NamespacedCacheProxy(BaseCache):
         """
         Clears only the cached keys in this namespace
         """
-        with self._lock.writer():
+        with self._lock:
             for key in self._get_keys():
                 self.cache.delete(self.make_key(key))
             self._set_keys([])
