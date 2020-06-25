@@ -5,7 +5,6 @@ import uuid
 
 from kolibri.core.tasks import compat
 from kolibri.core.utils.cache import DiskCacheRLock
-from kolibri.core.utils.cache import process_cache
 
 
 # An object on which to store data about the current job
@@ -121,4 +120,4 @@ class InfiniteLoopThread(compat.Thread):
         self.stop()
 
 
-db_task_write_lock = DiskCacheRLock(process_cache, "db_task_write_lock")
+db_task_write_lock = DiskCacheRLock("db_task_write_lock")

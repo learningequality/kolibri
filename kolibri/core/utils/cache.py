@@ -28,8 +28,8 @@ class DiskCacheRLock(object):
     https://github.com/grantjenks/python-diskcache/blob/2d1f43ea2be4c82a430d245de6260c3e18059ba1/diskcache/recipes.py
     """
 
-    def __init__(self, cache, key, expire=None):
-        self._cache = cache
+    def __init__(self, key, expire=None):
+        self._cache = process_cache
         self._key = key
         self._expire = expire
 
@@ -82,9 +82,7 @@ class NamespacedCacheProxy(BaseCache):
         params.update(KEY_PREFIX=namespace)
         super(NamespacedCacheProxy, self).__init__(params)
         self.cache = cache
-        self._lock = DiskCacheRLock(
-            process_cache, "namespaced_cache_{}".format(namespace)
-        )
+        self._lock = DiskCacheRLock("namespaced_cache_{}".format(namespace))
 
     def _get_keys(self):
         """
