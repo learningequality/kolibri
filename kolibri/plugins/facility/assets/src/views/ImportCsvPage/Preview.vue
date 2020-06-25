@@ -139,20 +139,21 @@
       </p>
     </template>
     <p v-else>
-      <KButton
-        :text="$tr('back')"
-        appearance="raised-button"
-        style="margin-left: 0;"
-        @click="reset"
-      />
-      <span v-if="!isError">
+      <KButtonGroup>
         <KButton
+          :text="$tr('back')"
+          appearance="raised-button"
+          style="margin-left: 0;"
+          @click="reset"
+        />
+        <KButton
+          v-if="!isError"
           :text="$tr('import')"
           appearance="raised-button"
           primary
           @click="startSavingUsers"
         />
-      </span>
+      </KButtonGroup>
     </p>
 
   </div>
