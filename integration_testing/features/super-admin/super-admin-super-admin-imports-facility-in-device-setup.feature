@@ -60,7 +60,7 @@ Feature: Super admin imports facility in device setup
     When I click *Continue*
     Then I see *Import facility - 3 of 4*
 
-  # to test this you will have to stop or disconnect the peer device   
+  # to test this you will have to stop or disconnect the peer device
   Scenario: Loading facility fails and user starts over
     Given I am on *Import facility - 2 of 4* step
       And I see *Loading '<facility>'*
@@ -78,7 +78,7 @@ Feature: Super admin imports facility in device setup
       And I click *Start over*
     Then I see *Please select the default language for Kolibri*
 
-  # to test this you will have to stop or disconnect the peer device   
+  # to test this you will have to stop or disconnect the peer device
   Scenario: Loading facility fails
     Given I am on *Import facility - 2 of 4*
       And I see *Loading '<facility>'*
@@ -137,7 +137,7 @@ Feature: Super admin imports facility in device setup
     Then I see *Responsibilities as an administrator
     When I click *Finish*
     Then I see *Welcome to Kolibri*
-  
+
   Scenario: Streamlined content import after importing facility
     Given I have successfully imported a facility during device setup
       And I see *Welcome to Kolibri*
