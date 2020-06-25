@@ -173,7 +173,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(this_is_extra=True,),
         )
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
@@ -190,7 +190,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             call_command,
             "sync",
             facility=self.facility.id,
-            chunk_size=100,
+            chunk_size=200,
             noninteractive=True,
             extra_metadata=dict(
                 facility=self.facility.id,
@@ -202,7 +202,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                 type="SYNCDATAPORTAL",
             ),
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
         )
 
     def test_startdataportalbulksync(self, facility_queue):
@@ -217,7 +217,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(this_is_extra=True,),
         )
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
@@ -234,7 +234,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                     call_command,
                     "sync",
                     facility=facility2.id,
-                    chunk_size=100,
+                    chunk_size=200,
                     noninteractive=True,
                     extra_metadata=dict(
                         facility=facility2.id,
@@ -246,13 +246,13 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                         type="SYNCDATAPORTAL",
                     ),
                     track_progress=True,
-                    cancellable=True,
+                    cancellable=False,
                 ),
                 call(
                     call_command,
                     "sync",
                     facility=facility3.id,
-                    chunk_size=100,
+                    chunk_size=200,
                     noninteractive=True,
                     extra_metadata=dict(
                         facility=facility3.id,
@@ -264,7 +264,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                         type="SYNCDATAPORTAL",
                     ),
                     track_progress=True,
-                    cancellable=True,
+                    cancellable=False,
                 ),
             ]
         )
@@ -296,11 +296,11 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             baseurl="https://some.server.test/",
             facility=self.facility.id,
             no_push=True,
-            chunk_size=100,
+            chunk_size=200,
             noninteractive=True,
             extra_metadata=extra_metadata,
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
         )
         validate_and_prepare_peer_sync_job.return_value = prepared_data.copy()
 
@@ -309,7 +309,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(this_is_extra=True,),
         )
         fake_job_data["extra_metadata"].update(extra_metadata)
@@ -354,11 +354,11 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         prepared_data = dict(
             baseurl="https://some.server.test/",
             facility=self.facility.id,
-            chunk_size=100,
+            chunk_size=200,
             noninteractive=True,
             extra_metadata=extra_metadata,
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
         )
         validate_and_prepare_peer_sync_job.return_value = prepared_data.copy()
 
@@ -367,7 +367,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(this_is_extra=True,),
         )
         fake_job_data["extra_metadata"].update(extra_metadata)
@@ -494,10 +494,10 @@ class FacilityTaskHelperTestCase(TestCase):
 
         expected = dict(
             facility=123,
-            chunk_size=100,
+            chunk_size=200,
             noninteractive=True,
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(type="test"),
         )
         actual = validate_prepare_sync_job(req, extra_metadata=dict(type="test"))
@@ -550,10 +550,10 @@ class FacilityTaskHelperTestCase(TestCase):
         expected = dict(
             baseurl="https://some.server.test/",
             facility=123,
-            chunk_size=100,
+            chunk_size=200,
             noninteractive=True,
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(type="test"),
         )
         actual = validate_and_prepare_peer_sync_job(
