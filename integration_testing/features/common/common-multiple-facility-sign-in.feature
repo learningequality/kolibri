@@ -5,7 +5,6 @@ Feature: Multiple facility sign in
     Given there is more than one facility on the device
       And I am on the sign in page
 
-
   Scenario: User accesses Kolibri for the first time on their browser and creates a new account
     Given I am viewing Kolibri for the first time in my current browser
       And there is no account that has signed in before on the device
@@ -130,7 +129,6 @@ Feature: Multiple facility sign in
       And I click *Sign in*
     Then I see the coach landing page
       And I see my username in the app bar
-
 
 Examples:
 | username | facility |

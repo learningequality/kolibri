@@ -79,3 +79,9 @@ Feature: Super admin goes through the setup wizard
         And I see the *Welcome to Kolibri!* modal
       When I click *OK*
         And I see the *Device > Channels* page
+
+    Scenario: Super admin account created in *Setup Wizard* does not see a notification to update profile
+      Given I completed the Setup Wizard
+        And I created my super admin account
+      When I am redirected to *Device > Channels* page
+      Then I don't see the *Update your profile* modal

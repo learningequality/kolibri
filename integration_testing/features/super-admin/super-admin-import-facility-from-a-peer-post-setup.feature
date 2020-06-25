@@ -31,22 +31,24 @@ Feature: Import facility from a peer (post-setup)
     Given there is more than one facility on the <peer> device
       And I am on *Select facility* modal
       And I see two or more facilities on that device
-    When I click *Continue*
+    When I select the facility I want to import
+      And I click *Continue*
     Then I am on the *Enter admin credentials* modal
     When I enter the <username> and <password> of a facility admin for the <facility> or a super admin for the <peer>
       And I click *Continue*
-    Then I see the <facility> appear in my *Facilities* list
+    Then I see the *Tasks* page
+      And I see the status message *Syncing '<facility>'*
       And I see an indeterminate spinner
-      And I see the status message *Syncing*
-      And I see the *task manager* has a new task
-    When the <facility> is done syncing
-    Then I see a message under the new facility name *Last synced: just now*
+    When the <facility> import is finished
+      And I click *Back to facilities*
+    Then I see the <facility> appear in my *Facilities* list
+      And I see a message under the new <facility> *Last synced: just now*
 
   Scenario: Import facility from a peer failed
     Given a sync task is running
     When the sync fails for a <facility>
     Then I see *Failed sync: just now* under the <facility> name
-      And I see *Last successfully synced: <X> <time> ago under the failed sync message
+      And I see *Last successful sync: <X> <time> ago under the failed sync message
 
 Examples:
 | facility | peer   |

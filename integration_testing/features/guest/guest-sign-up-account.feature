@@ -18,6 +18,11 @@ Feature: Guest signs up for an account
       And I click the *Finish* button
     Then I am signed in and I can see the *Learn > Channels* page
 
+  Scenario: Accounts created on *Create an account* page do not see a notification to update profile
+    Given I completed the account creation workflow
+    When I am redirected to the *Learn* page
+    Then I don't see the *Update your profile* modal
+
   Scenario: Username is already taken
     Given A user already exists with some username
       When I try to sign up for a new account with that same username
