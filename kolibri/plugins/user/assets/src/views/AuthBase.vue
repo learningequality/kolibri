@@ -68,7 +68,7 @@
 
             <slot></slot>
 
-            <p class="create">
+            <p v-if="!hideCreateAccount" class="create">
               <KRouterLink
                 v-if="canSignUp"
                 :text="$tr('createAccountAction')"
@@ -160,6 +160,13 @@
     name: 'AuthBase',
     components: { CoreLogo, LanguageSwitcherFooter, PrivacyInfoModal },
     mixins: [commonCoreStrings],
+    props: {
+      hideCreateAccount: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+    },
     data() {
       return {
         privacyModalVisible: false,

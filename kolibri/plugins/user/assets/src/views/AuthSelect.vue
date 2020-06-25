@@ -1,6 +1,6 @@
 <template>
 
-  <AuthBase>
+  <AuthBase :hideCreateAccount="true">
     <div class="auth-select">
       <div class="sign-up-prompt" style="margin-bottom: 24px;">
         <div>{{ $tr("newUserPrompt") }}</div>
