@@ -134,7 +134,7 @@ clean-staticdeps:
 	git checkout -- kolibri/dist # restore __init__.py
 
 staticdeps: clean-staticdeps
-	test "${SKIP_PY_CHECK}" = "1" || python --version 2>&1 | grep -q 2.7 || ( echo "Only intended to run on Python 2.7" && exit 1 )
+	test "${SKIP_PY_CHECK}" = "1" || python2 --version 2>&1 | grep -q 2.7 || ( echo "Only intended to run on Python 2.7" && exit 1 )
 	pip2 install -t kolibri/dist -r "requirements.txt"
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	rm -rf kolibri/dist/*.egg-info
@@ -142,7 +142,7 @@ staticdeps: clean-staticdeps
 	# Remove unnecessary python2-syntax'ed file
 	# https://github.com/learningequality/kolibri/issues/3152
 	rm -f kolibri/dist/kolibri_exercise_perseus_plugin/static/mathjax/kathjax.py
-	python build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
+	python2 build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
 	make test-namespaced-packages
 
 staticdeps-cext:
