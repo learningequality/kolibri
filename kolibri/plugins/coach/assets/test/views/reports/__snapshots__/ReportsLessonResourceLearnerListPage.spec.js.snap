@@ -36,7 +36,7 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
     <!---->
   </div>
   <!---->
-  <div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><circle cx="12" cy="12" r="10"></circle></svg></span> <span class="label" style="margin-left: 1.975em;"><span dir="auto" class="debug-warning">
+  <div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em;"><span dir="auto" class="debug-warning">
     0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
@@ -46,7 +46,7 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
 
 exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders a correct group tally 2`] = `
 <div class="single-line">
-  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><circle cx="12" cy="12" r="10"></circle></svg></span> <span class="label" style="margin-left: 1.975em;"><span dir="auto" class="debug-warning">
+  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em;"><span dir="auto" class="debug-warning">
     0 of 0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
@@ -112,7 +112,7 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
     <!---->
   </div>
   <!---->
-  <div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><circle cx="12" cy="12" r="10"></circle></svg></span> <span class="label" style="margin-left: 1.975em;"><span dir="auto" class="debug-warning">
+  <div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em;"><span dir="auto" class="debug-warning">
     0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
@@ -133,7 +133,7 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
     <!---->
   </div>
   <!---->
-  <div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><circle cx="12" cy="12" r="10"></circle></svg></span> <span class="label" style="margin-left: 1.975em;"><span dir="auto" class="debug-warning">
+  <div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em;"><span dir="auto" class="debug-warning">
     0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
@@ -143,7 +143,7 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
 
 exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders a correct group tally 3`] = `
 <div class="single-line">
-  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><circle cx="12" cy="12" r="10"></circle></svg></span> <span class="label" style="margin-left: 1.975em;"><span dir="auto" class="debug-warning">
+  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em;"><span dir="auto" class="debug-warning">
     0 of 0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->

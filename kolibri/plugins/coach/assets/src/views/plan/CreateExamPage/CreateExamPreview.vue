@@ -40,14 +40,14 @@
             class="number-field"
           />
           <KIconButton
-            icon="minus_sign"
+            icon="minus"
             aria-hidden="true"
             class="number-btn"
             :disabled="numQuestions === 1"
             @click="numQuestions -= 1"
           />
           <KIconButton
-            icon="plus_sign"
+            icon="plus"
             aria-hidden="true"
             class="number-btn"
             :disabled="numQuestions === maxQs"

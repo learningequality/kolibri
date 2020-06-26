@@ -141,6 +141,7 @@
         return this.lessonMap[this.$route.params.lessonId];
       },
       resource() {
+        console.log(this.contentMap[this.$route.params.resourceId]);
         return this.contentMap[this.$route.params.resourceId];
       },
       recipients() {
