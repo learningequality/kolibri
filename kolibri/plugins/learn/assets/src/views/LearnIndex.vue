@@ -49,7 +49,6 @@
 
   import { mapGetters, mapState } from 'vuex';
   import urls from 'kolibri.urls';
-  import { redirectBrowser } from 'kolibri.utils.redirectBrowser';
   import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -131,7 +130,6 @@
         return pageNameToComponentMap[this.pageName] || null;
       },
       currentPageIsTopic() {
-        console.log(PageNames.TOPICS_TOPIC);
         return [
           pageNameToComponentMap[PageNames.TOPICS_TOPIC],
           pageNameToComponentMap[PageNames.TOPICS_CHANNEL],
@@ -300,7 +298,10 @@
       },
       handleSubmitUpdateYourProfileModal() {
         if (this.userPluginUrl) {
-          const redirect = () => redirectBrowser(`${this.userPluginUrl()}#/profile/edit`);
+          const url = `${this.userPluginUrl()}#/profile/edit`;
+          const redirect = () => {
+            window.location.href = url;
+          };
           this.$store
             .dispatch('deferProfileUpdates', this.demographicInfo)
             .then(redirect, redirect);
