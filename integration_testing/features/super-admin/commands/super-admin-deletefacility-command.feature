@@ -1,4 +1,4 @@
-Feature: Super Admin deletes facility form the command line
+Feature: Super Admin deletes facility from the command line
     Super Admin needs to be able to delete a facility and all its associated data from the device
 
 # Make sure you have more than 1 facility on the device before executing the command!
@@ -6,7 +6,7 @@ Feature: Super Admin deletes facility form the command line
   Background:
     Given I have super admin account for Kolibri
       And there is a <facility> facility on the device
-      And I can run commands in the Terminal or the command prompt
+      And I can run 'kolibri manage' commands in the Terminal or the command prompt
 
   Scenario: Execute the deletefacility command and review that facility has been deleted
     When I run the 'kolibri manage deletefacility' command in the Terminal

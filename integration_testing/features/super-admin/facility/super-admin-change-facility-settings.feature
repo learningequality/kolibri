@@ -36,25 +36,25 @@ Feature: Admin changes facility settings
     Then I see the *Create an account* button on the sign-in page
 
   Scenario: Allow simplified sign-in
-    Given the *Require password for learners* checkbox is unchecked
-      And the *Allow learners to change their password when signed in* checkbox is disabled (grayed out)
-    When I check the *Require password for learners* checkbox
-    Then I see the *Allow learners to change their password when signed in* checkbox is now enabled
+    Given the *Require password for learners* checkbox is checked
+      And the *Allow learners to change their password when signed in* checkbox is enabled
+    When I uncheck the *Require password for learners* checkbox
+    Then I see the *Allow learners to change their password when signed in* checkbox is now disabled (grayed out)
     When I click the *Save changes* button
       And I sign out
     Then I don't see the *Password* field on the sign-in page
       And I'm able to sign-in as learner <learner> without a password
 
-  Scenario: Allow password change
+  Scenario: Allow password change for learners
     Given the *Require password for learners* checkbox is checked
-      And the *Allow learners to change their password when signed in* checkbox is checked
-    When I uncheck the *Allow learners to change their password when signed in* checkbox
+      And the *Allow learners to change their password when signed in* checkbox is disabled (grayed out)
+    When I check the *Allow learners to change their password when signed in* checkbox
       And I click the *Save changes* button
       And I sign out
       And I sign in as learner <learner>
       And I (as learner <learner>) open the user menu
       And I select *Profile*
-    Then I (as learner <learner>) don't see the *Change password* link
+    Then I (as learner <learner>) can see the *Change password* link
 
 
 
@@ -67,7 +67,7 @@ Feature: Admin changes facility settings
       And I click the *Save changes* button
     When I go to *Learn > Channels* page
       And browse any channel's topics until I open an single resource
-    Then I see the *Download content* button
+    Then I see the *Download resource* button
 
 Examples:
 | full_name | username | password |

@@ -1,5 +1,5 @@
 Feature: Sync all to Kolibri Data Portal
-  When connected to the internet, users that are registered to a Project in Kolibri Data Portal should be able to sync all facilities on their device at one time
+  When connected to the internet, users that are registered to a Project in Kolibri Data Portal (KDP) should be able to sync all facilities on their device at one time
 
   # Create at least 2 facilities and go through the scenarios in order, beginning with them not beiing registered on KDP
 
