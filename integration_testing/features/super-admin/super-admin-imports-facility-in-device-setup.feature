@@ -21,7 +21,7 @@ Feature: Super admin imports facility in device setup
       And I select a device
       And that device has more than one facility loaded
     When I click *Continue*
-    Then I see *Choose a facility*
+    Then I see *Select facility*
     When I select the facility I want to import
       And I click *Continue*
     Then I see *Import facility - 1 of 4*

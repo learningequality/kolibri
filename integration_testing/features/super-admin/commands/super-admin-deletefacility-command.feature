@@ -1,11 +1,11 @@
 Feature: Super Admin deletes facility form the command line
     Super Admin needs to be able to delete a facility and all its associated data from the device
 
+# Make sure you have more than 1 facility on the device before executing the command!
+
   Background:
     Given I have super admin account for Kolibri
       And there is a <facility> facility on the device
-      And there is at least one other facility on the device
-      And my super user account is not a member of <facility> facility
       And I can run commands in the Terminal or the command prompt
 
   Scenario: Execute the deletefacility command and review that facility has been deleted
@@ -22,12 +22,6 @@ Feature: Super Admin deletes facility form the command line
     Then I see the output *INFO Deletion complete*
     When I go to *Device > Facilities*
     Then I don't see the <facility> facility anymore
-
-  Scenario: Execute the deletefacility command when there is only one facility on the device
-    Given that <facility> facility is the only one on the device
-    When I run the 'kolibri manage deletefacility' command in the Terminal
-    Then I see the output *???*
-
 
 Examples:
 | facility |
