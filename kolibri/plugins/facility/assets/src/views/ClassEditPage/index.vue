@@ -5,7 +5,7 @@
     <p>
       <KRouterLink
         :text="coreString('allClassesLabel')"
-        :to="{ name: 'CLASS_MGMT_PAGE' }"
+        :to="$store.getters.facilityPageLinks.ManageClassPage"
         icon="back"
       />
     </p>
@@ -55,7 +55,7 @@
       >
         <KRouterLink
           :text="$tr('assignCoachesButtonLabel')"
-          :to="coachAssignmentLink"
+          :to="$store.getters.facilityPageLinks.CoachClassAssignmentPage"
           appearance="raised-button"
         />
       </KGridItem>
@@ -90,7 +90,7 @@
       >
         <KRouterLink
           :text="$tr('enrollLearnerButtonLabel')"
-          :to="learnerEnrollmentLink"
+          :to="$store.getters.facilityPageLinks.LearnerClassEnrollmentPage"
           :primary="true"
           appearance="raised-button"
         />
@@ -119,7 +119,7 @@
   import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserTable from '../UserTable';
-  import { PageNames, Modals } from '../../constants';
+  import { Modals } from '../../constants';
   import ClassRenameModal from './ClassRenameModal';
   import UserRemoveConfirmationModal from './UserRemoveConfirmationModal';
 
@@ -152,22 +152,6 @@
       ]),
       Modals() {
         return Modals;
-      },
-      learnerEnrollmentLink() {
-        return {
-          name: PageNames.CLASS_ENROLL_LEARNER,
-          params: {
-            facility_id: this.$route.params.facility_id,
-          },
-        };
-      },
-      coachAssignmentLink() {
-        return {
-          name: PageNames.CLASS_ASSIGN_COACH,
-          params: {
-            facility_id: this.$route.params.facility_id,
-          },
-        };
       },
     },
     methods: {

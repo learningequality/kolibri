@@ -1,7 +1,5 @@
 import logger from 'kolibri.lib.logging';
 import { TaskResource } from 'kolibri.resources';
-// import client from 'kolibri.client';
-// import urls from 'kolibri.urls';
 import { TaskStatuses, TaskTypes } from '../../constants';
 
 const logging = logger.getLogger(__filename);
@@ -9,6 +7,7 @@ const logging = logger.getLogger(__filename);
 function startImportUsers(store, file, deleting, validate, commitStart) {
   const params = {
     csvfile: file,
+    facility_id: store.rootGetters.activeFacilityId,
   };
   if (deleting) params['delete'] = 'true';
   if (validate) params['dryrun'] = 'true';

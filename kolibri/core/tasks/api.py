@@ -646,9 +646,9 @@ class TasksViewSet(BaseViewSet):
         delete = request.data.get("delete", None)
         dryrun = request.data.get("dryrun", None)
         userid = request.user.pk
-        facility = request.user.facility.id
+        facility_id = request.data.get("facility_id", None)
         job_type = "IMPORTUSERSFROMCSV"
-        job_metadata = {"type": job_type, "started_by": userid, "facility": facility}
+        job_metadata = {"type": job_type, "started_by": userid, "facility": facility_id}
         job_args = ["bulkimportusers"]
         if dryrun:
             job_args.append("--dryrun")
@@ -657,7 +657,7 @@ class TasksViewSet(BaseViewSet):
         job_args.append(filepath)
 
         job_kwd_args = {
-            "facility": facility,
+            "facility": facility_id,
             "userid": userid,
             "locale": locale,
             "extra_metadata": job_metadata,

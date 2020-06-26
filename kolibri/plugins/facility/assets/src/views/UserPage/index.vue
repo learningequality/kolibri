@@ -18,7 +18,7 @@
           :primary="true"
           appearance="raised-button"
           class="move-down"
-          :to="newUserLink"
+          :to="$store.getters.facilityPageLinks.UserCreatePage"
         />
       </KGridItem>
     </KGrid>
@@ -83,6 +83,7 @@
   import { mapState, mapGetters } from 'vuex';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import cloneDeep from 'lodash/cloneDeep';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
@@ -125,14 +126,6 @@
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
           { label: this.$tr('superAdmins'), value: UserKinds.SUPERUSER },
         ];
-      },
-      newUserLink() {
-        return {
-          name: 'USER_CREATE_PAGE',
-          params: {
-            facility_id: this.$route.params.facility_id,
-          },
-        };
       },
     },
     beforeMount() {
@@ -198,14 +191,9 @@
       },
       handleManageUserSelection(selection, user) {
         if (selection.value === Modals.EDIT_USER) {
-          const params = {
-            id: user.id,
-          };
-
-          if (this.$store.getters.inMultipleFacilityPage) {
-            params.facility_id = this.$store.getters.activeFacilityId;
-          }
-          this.$router.push(this.$router.getRoute('USER_EDIT_PAGE', params));
+          const link = cloneDeep(this.$store.getters.facilityPageLinks.UserEditPage);
+          link.params.id = user.id;
+          this.$router.push(link);
         } else {
           this.selectedUser = user;
           this.modalShown = selection.value;

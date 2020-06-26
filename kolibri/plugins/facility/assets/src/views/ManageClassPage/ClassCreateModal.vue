@@ -27,7 +27,6 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
@@ -76,12 +75,12 @@
       },
     },
     methods: {
-      ...mapActions('classManagement', ['createClass']),
       createNewClass() {
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
-          this.createClass(this.name).then(() => {
+          this.$store.dispatch('classManagement/createClass', this.name).then(() => {
+            this.$emit('success');
             this.showSnackbarNotification('classCreated');
           });
         } else {

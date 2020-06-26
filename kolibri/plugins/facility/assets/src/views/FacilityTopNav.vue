@@ -3,7 +3,7 @@
   <Navbar>
     <NavbarLink
       :title="coreString('classesLabel')"
-      :link="linkify(PageNames.CLASS_MGMT_PAGE)"
+      :link="$store.getters.facilityPageLinks.ManageClassPage"
     >
       <KIcon
         icon="domain"
@@ -13,7 +13,7 @@
     </NavbarLink>
     <NavbarLink
       :title="coreString('usersLabel')"
-      :link="linkify(PageNames.USER_MGMT_PAGE)"
+      :link="$store.getters.facilityPageLinks.UserPage"
     >
       <KIcon
         icon="people"
@@ -23,7 +23,7 @@
     </NavbarLink>
     <NavbarLink
       :title="$tr('settings')"
-      :link="linkify(PageNames.FACILITY_CONFIG_PAGE)"
+      :link="$store.getters.facilityPageLinks.FacilitiesConfigPage"
     >
       <KIcon
         icon="settings"
@@ -33,7 +33,7 @@
     </NavbarLink>
     <NavbarLink
       :title="$tr('data')"
-      :link="linkify(PageNames.DATA_EXPORT_PAGE)"
+      :link="$store.getters.facilityPageLinks.DataPage"
     >
       <KIcon
         icon="save"
@@ -51,7 +51,6 @@
   import Navbar from 'kolibri.coreVue.components.Navbar';
   import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { PageNames } from '../constants';
 
   export default {
     name: 'FacilityTopNav',
@@ -60,19 +59,6 @@
       NavbarLink,
     },
     mixins: [commonCoreStrings],
-    computed: {
-      PageNames: () => PageNames,
-    },
-    methods: {
-      linkify(name) {
-        return {
-          name,
-          params: {
-            facility_id: this.$route.params.facility_id,
-          },
-        };
-      },
-    },
     $trs: {
       data: 'Data',
       settings: 'Settings',

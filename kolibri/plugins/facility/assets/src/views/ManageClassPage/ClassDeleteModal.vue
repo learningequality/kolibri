@@ -16,7 +16,6 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
@@ -33,9 +32,9 @@
       },
     },
     methods: {
-      ...mapActions('classManagement', ['deleteClass']),
       classDelete() {
-        this.deleteClass(this.classid).then(() => {
+        this.$store.dispatch('classManagement/deleteClass', this.classid).then(() => {
+          this.$emit('success');
           this.showSnackbarNotification('classDeleted');
         });
       },

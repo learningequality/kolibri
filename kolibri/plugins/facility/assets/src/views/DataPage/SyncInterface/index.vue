@@ -19,7 +19,7 @@
         </tr>
       </thead>
       <tbody slot="tbody">
-        <tr>
+        <tr v-if="theFacility">
           <td>
             <FacilityNameAndSyncStatus :facility="theFacility" />
           </td>
