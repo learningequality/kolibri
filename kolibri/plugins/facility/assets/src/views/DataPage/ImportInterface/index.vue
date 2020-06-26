@@ -23,7 +23,7 @@
         :text="$tr('import')"
         appearance="raised-button"
         style="margin: 0 16px 0 0;"
-        :to="$router.getRoute('IMPORT_CSV_PAGE')"
+        :to="$store.getters.facilityPageLinks.ImportCsvPage"
       />
       <KButton
         :text="$tr('export')"

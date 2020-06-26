@@ -70,7 +70,7 @@
           immersivePageRoute = this.$store.getters.facilityPageLinks.UserPage;
           appBarTitle = this.coreString('usersLabel');
         } else if (this.pageName === PageNames.IMPORT_CSV_PAGE) {
-          immersivePageRoute = this.$router.getRoute(PageNames.DATA_EXPORT_PAGE);
+          immersivePageRoute = this.$store.getters.facilityPageLinks.DataPage;
           appBarTitle = this.$tr('importPageHeader');
         }
 

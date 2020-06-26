@@ -81,6 +81,18 @@ export default {
         AllFacilitiesPage: {
           name: PageNames.ALL_FACILITIES_PAGE,
         },
+        DataPage: {
+          name: PageNames.DATA_EXPORT_PAGE,
+          params,
+        },
+        FacilitiesConfigPage: {
+          name: PageNames.FACILITY_CONFIG_PAGE,
+          params,
+        },
+        ImportCsvPage: {
+          name: PageNames.IMPORT_CSV_PAGE,
+          params,
+        },
       };
     },
   },
