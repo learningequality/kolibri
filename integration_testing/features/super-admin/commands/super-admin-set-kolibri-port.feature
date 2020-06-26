@@ -15,7 +15,7 @@ Feature: Super admin set the Kolibri server port
 
   Scenario: Set the port with the "KOLIBRI_HTTP_PORT" environment variable
     When I set the <port> using the "KOLIBRI_HTTP_PORT" environment variable
-      And I run the `kolibri start` command in the terminal or command prompt
+      And I run the 'kolibri start' command in the terminal or command prompt
     Then I see that the Kolibri server is running on <port> port
 
 Examples:

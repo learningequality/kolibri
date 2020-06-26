@@ -66,8 +66,6 @@ Feature: Sync facility with a peer device
       And I click *Add*
     Then I see the error message *Could not connect to this network address*
 
-
-
 Examples:
-| facility |  |
-|          |
+| facility |
+| MySchool |

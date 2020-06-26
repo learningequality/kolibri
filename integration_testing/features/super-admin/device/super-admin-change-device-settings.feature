@@ -1,6 +1,5 @@
 Feature: Super admin changes device settings
-  Super admin needs to be able to change the setting to allow guest access, to restrict learner access to assigned class resources, and to change the landing page for unauthenticated users
-
+  Super admin needs to be able to change settings related to access to resources, unlisted channels and the default landing page
   Background:
     Given I am signed in to Kolibri as super admin user
       And I am on *Device > Settings* page
@@ -13,7 +12,8 @@ Feature: Super admin changes device settings
       And the *Landing page* option is set to the *Sign-in page*
       And the *Learners should only see resources assigned to them in classes* is unchecked
     When I check the *Allow users to access resources without signing in* checkbox
-      And I click the *Save* button
+    Then I see that the *Learners should only see resources assigned to them in classes* options is disabled (grayed out)
+    When I click the *Save* button
       And I sign out
     Then I see the *Continues as a guest* link on the sign-in page
     When I click *Continues as a guest*
@@ -24,7 +24,8 @@ Feature: Super admin changes device settings
       And the *Landing page* option is set to the *Sign-in page*
       And the *Learners should only see resources assigned to them in classes* is unchecked
     When I select *Learn page* for the *Landing page*
-      And I click the *Save* button
+    Then I see that both the *Allow users to access resources without signing in* and *Learners should only see resources assigned to them in classes* options are disabled (grayed out)
+    When I click the *Save* button
       And I sign out
     Then I see immediately see the *Learn > Channels* page
     When I sign-in as learner <username>

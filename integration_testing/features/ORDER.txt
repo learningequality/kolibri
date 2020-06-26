@@ -3,5 +3,7 @@ admin
 coach
 learner
 guest
+app-context
 common
 debian
+windows

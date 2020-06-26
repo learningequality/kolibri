@@ -41,7 +41,6 @@ Feature: New landing page for super admins in Facility plugin
       And I see *Facility* in the action bar
       And I see the *Facility* subtabs in the action bar
 
-
 Examples:
 | facility |
 | MySchool |

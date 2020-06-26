@@ -8,14 +8,14 @@ Feature: Super admin manages network peer locations
 
   Scenario: No peers are automatically discovered
     When there are no Kolibri peers around me
-    Then I see a loading spinner and *Searching* notification
+    Then I see a loading spinner
+    # No *Searching* notification any more?
       And I don't see any available addresses displayed in the modal
 
   Scenario: Connect to a Kolibri peer with content
     When there are Kolibri peers around me
       And peers have content available
-    Then I see a loading spinner and *Searching* notification
+    Then I see a loading spinner
+    # No *Searching* notification any more?
       And I see a list of found local Kolibri peers # below the manually entered network addresses, if any
-      And for each peer I see the IP address, port and peer ID
-
-# TO-DO: Add more complex scenarios for edge cases testing
+      And for each peer I see their device name, 4 digits peer ID, IP address and port

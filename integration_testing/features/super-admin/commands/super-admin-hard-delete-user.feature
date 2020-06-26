@@ -6,7 +6,7 @@ Feature: Super admin hard delete user
       And I have access to terminal on device
 
   Scenario: Delete user and all their data
-    When I type `kolibri manage deleteuser <username>` into the terminal
+    When I type 'kolibri manage deleteuser <username>' into the terminal
       And I press *Enter* key
     Then I see a confirmation message asking if I am sure I would like to delete the user data
     When I type "yes"
