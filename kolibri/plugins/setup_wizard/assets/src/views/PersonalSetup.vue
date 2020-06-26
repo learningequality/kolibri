@@ -10,6 +10,7 @@
         <SuperuserCredentialsForm
           ref="credentials"
           :isFinalStep="true"
+          :hidePrivacyLink="true"
           :description="$tr('adminAccountCreationDescriptionPersonal')"
           @click_next="finalizeOnboardingData"
         />

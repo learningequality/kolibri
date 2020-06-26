@@ -37,7 +37,7 @@
 
       <!-- NOTE: Demographic info forms were removed in PR #6053 -->
 
-      <PrivacyLinkAndModal />
+      <PrivacyLinkAndModal v-if="!hidePrivacyLink" />
 
       <div slot="footer" class="reminder">
         <div class="icon">
@@ -81,6 +81,10 @@
       uniqueUsernameValidator: {
         type: Function,
         required: false,
+      },
+      hidePrivacyLink: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
