@@ -158,7 +158,7 @@
       };
     },
     computed: {
-      ...mapGetters(['currentFacilityId', 'facilityConfig']),
+      ...mapGetters(['activeFacilityId', 'facilityConfig']),
       ...mapState('userManagement', ['facilityUsers']),
       showPasswordInput() {
         if (this.facilityConfig.learner_can_login_with_no_password) {
@@ -197,7 +197,7 @@
       },
     },
     beforeMount() {
-      this.getFacilityConfig(this.currentFacilityId).then(() => {
+      this.getFacilityConfig(this.activeFacilityId).then(() => {
         this.$store.dispatch('notLoading');
         this.loading = false;
       });
@@ -231,7 +231,6 @@
             birth_year: this.birthYear,
             role: {
               kind: this.newUserRole,
-              collection: this.currentFacilityId,
             },
             password,
           })
