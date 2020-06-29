@@ -171,7 +171,7 @@
       };
     },
     computed: {
-      ...mapGetters(['currentFacilityId', 'currentUserId']),
+      ...mapGetters(['currentUserId']),
       ...mapState('userManagement', ['facilityUsers']),
       formDisabled() {
         return this.status === 'BUSY';
@@ -303,7 +303,6 @@
         // their update separately
         if (!this.editingSuperAdmin && this.newUserKind !== this.userCopy.kind) {
           roleUpdates = {
-            collection: this.currentFacilityId,
             kind: this.newUserKind,
           };
         }

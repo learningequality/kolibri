@@ -6,7 +6,7 @@ import { filterAndSortUsers } from '../../userSearchUtils';
 
 export function showClassEditPage(store, classId) {
   store.dispatch('preparePage');
-  const facilityId = store.getters.currentFacilityId;
+  const facilityId = store.getters.activeFacilityId;
   const promises = [
     FacilityUserResource.fetchCollection({ getParams: { member_of: classId }, force: true }),
     ClassroomResource.fetchModel({ id: classId, force: true }),
