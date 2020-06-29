@@ -1,3 +1,9 @@
+kolibri-source (0.13.3-0ubuntu2) trusty; urgency=high
+
+  * debian/control: Added iproute2 dependency
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 29 Jun 2020 12:59:45 +0200
+
 kolibri-source (0.13.3-0ubuntu1) trusty; urgency=medium
 
   * Kolibri v0.13.3 is released! Read the changes here: https://github.com/learningequality/kolibri/blob/v0.13.3/CHANGELOG.md#0133
