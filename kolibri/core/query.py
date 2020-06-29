@@ -11,7 +11,7 @@ try:
         def convert_value(self, value, expression, connection, context):
             if not value:
                 return []
-            return filter(lambda x: x is not None, value)
+            return list(filter(lambda x: x is not None, value))
 
 
 except ImportError:
@@ -54,7 +54,7 @@ class GroupConcat(Aggregate):
             return []
         results = value.split(",")
         if self.result_field is not None:
-            return map(self.result_field.to_python, results)
+            return list(map(self.result_field.to_python, results))
         return results
 
 
