@@ -3,7 +3,7 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="arrow_back"
-    :immersivePageRoute="toolbarRoute"
+    :immersivePageRoute="returnBackRoute"
     :immersivePagePrimary="true"
     :appBarTitle="appBarTitle"
     :authorized="userIsAuthorized"
@@ -45,6 +45,9 @@
       },
       appBarTitle() {
         return this.currentContentNode.title;
+      },
+      returnBackRoute() {
+        return this.toolbarRoute;
       },
     },
     beforeDestroy() {

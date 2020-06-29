@@ -3,7 +3,7 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="arrow_back"
-    :immersivePageRoute="toolbarRoute"
+    :immersivePageRoute="returnBackRoute"
     :immersivePagePrimary="true"
     :appBarTitle="lessonNameLabel"
     :authorized="userIsAuthorized"
@@ -50,7 +50,7 @@
       },
     },
     computed: {
-      toolbarRoute() {
+      returnBackRoute() {
         if (this.$route.query && this.$route.query.last) {
           return this.backRouteForQuery(this.$route.query);
         }
