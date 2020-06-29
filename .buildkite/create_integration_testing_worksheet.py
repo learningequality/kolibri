@@ -64,8 +64,8 @@ G_ACCESS = gspread.authorize(
 
 
 def get_feature_name(str_arg):
-    str_name = str_arg.replace("-", " ").replace(".feature", " ").capitalize()
-    return str_name.strip()
+    str_name = str_arg.replace("-", " ").replace(".feature", " ").strip().split("/")[-1]
+    return str_name.capitalize()
 
 
 def get_role_name(str_arg):
