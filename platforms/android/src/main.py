@@ -24,7 +24,9 @@ if pew.ui.platform == "android":
 
     os.environ["KOLIBRI_HOME"] = get_home_folder()
     os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
-
+    # We can't use symlinks as at least some Android devices have the user storage
+    # and app data directories on different mount points.
+    os.environ['KOLIBRI_STATIC_USE_SYMLINKS'] = "False"
 
 def start_kolibri(port):
 
@@ -94,9 +96,7 @@ class Application(pew.ui.PEWApp):
             self.view.webview.webview.clearHistory()
 
     def wait_for_server(self):
-
         home_url = "http://localhost:{port}".format(port=KOLIBRI_PORT)
-
         # test url to see if server has started
         def running():
             try:

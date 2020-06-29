@@ -6,7 +6,6 @@ rm -r src/kolibri/dist/Cryptodome
 
 # remove some assorted additional plugins
 rm -r src/kolibri/plugins/demo_server
-rm -r src/kolibri/plugins/style_guide
 
 # remove python2-only stuff
 rm -r src/kolibri/dist/py2only
