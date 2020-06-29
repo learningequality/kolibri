@@ -329,6 +329,7 @@ def cache_no_user_data(view_func):
     """
 
     CACHE_TIMEOUT = 15
+    CACHE_KEY_TEMPLATE = "SPA_ETAG_CACHE_{}"
     _response = local()
 
     def render_and_cache(response, cache_key):
@@ -353,7 +354,7 @@ def cache_no_user_data(view_func):
         if not etag:
             response = view_func(*args, **kwargs)
             setattr(_response, "response", response)
-            etag = render_and_cache(response, request.path)
+            etag = render_and_cache(response, CACHE_KEY_TEMPLATE.format(request.path))
         return etag
 
     @etag(calculate_spa_etag)
@@ -364,7 +365,7 @@ def cache_no_user_data(view_func):
         if not response:
             response = view_func(*args, **kwargs)
 
-        render_and_cache(response, request.path)
+        render_and_cache(response, CACHE_KEY_TEMPLATE.format(request.path))
         patch_response_headers(response, cache_timeout=CACHE_TIMEOUT)
         response["Vary"] = "accept-encoding, accept"
         return response
