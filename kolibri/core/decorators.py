@@ -345,7 +345,7 @@ def cache_no_user_data(view_func):
         setattr(_response, "response", None)
 
         request = args[0]
-        etag = cache.get(request.path)
+        etag = cache.get(CACHE_KEY_TEMPLATE.format(request.path))
 
         # Doing this here - will also be the same in inner_func
         # required to delete the session for this to work as expected
