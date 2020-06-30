@@ -7,9 +7,5 @@ class LimitContentNegotiation(DefaultContentNegotiation):
         """
         Always return JSONRenderer unless for morango
         """
-        if request.path.startswith("/api/morango"):
-            return super(LimitContentNegotiation, self).select_renderer(
-                request, renderers, format_suffix=None
-            )
         renderer = JSONRenderer()
         return (renderer, renderer.media_type)
