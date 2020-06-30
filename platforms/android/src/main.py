@@ -28,6 +28,16 @@ if pew.ui.platform == "android":
     # and app data directories on different mount points.
     os.environ['KOLIBRI_STATIC_USE_SYMLINKS'] = "False"
 
+
+def get_init_url(next_url='/'):
+    # we need to initialize Kolibri to allow us to access the app key
+    from kolibri.utils.cli import initialize
+    initialize(skip_update=True)
+
+    from kolibri.plugins.app.utils import interface
+    return interface.get_initialize_url(next_url=next_url)
+
+
 def start_kolibri(port):
 
     os.environ["KOLIBRI_HTTP_PORT"] = str(port)
@@ -117,11 +127,11 @@ class Application(pew.ui.PEWApp):
         saved_state = self.view.get_view_state()
         logging.debug("Persisted View State: {}".format(self.view.get_view_state()))
 
+        next_url = '/'
         if "URL" in saved_state and saved_state["URL"].startswith(home_url):
-            start_url = saved_state["URL"]
-        else:
-            start_url = home_url
+            next_url = saved_state["URL"].replace(home_url, '')
 
+        start_url = home_url + get_init_url(next_url)
         pew.ui.run_on_main_thread(self.view.load_url, start_url)
 
     def get_main_window(self):

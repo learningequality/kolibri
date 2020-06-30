@@ -56,6 +56,7 @@ preseeded_kolibri_home:
 	rm -r src/preseeded_kolibri_home 2> /dev/null || true
 	pip uninstall kolibri 2> /dev/null || true
 	pip install --target tmpenv whl/*.whl
+	tmpenv/bin/kolibri plugin enable kolibri.plugins.app
 	tmpenv/bin/kolibri start --port=16294
 	sleep 1
 	tmpenv/bin/kolibri stop
