@@ -19,6 +19,7 @@ from sqlite3 import DatabaseError as SQLite3DatabaseError
 
 import click
 import django
+from django.contrib.staticfiles.finders import AppDirectoriesFinder
 from django.core.management import call_command
 from django.core.management import execute_from_command_line
 from django.core.management.base import handle_default_options
@@ -49,7 +50,7 @@ from kolibri.utils.logger import get_base_logging_config
 from kolibri.utils.sanity_checks import check_django_stack_ready
 from kolibri.utils.sanity_checks import DatabaseInaccessible
 from kolibri.utils.sanity_checks import DatabaseNotMigrated
-from kolibri.utils.system import CAN_USE_SYMLINKS
+from kolibri.utils.system import symlink_capability_check
 
 
 logger = logging.getLogger(__name__)
@@ -302,6 +303,20 @@ def _setup_django():
         raise
 
 
+def _can_symlink_static_files():
+    from django.conf import settings
+
+    finder = AppDirectoriesFinder()
+    for path, storage in finder.list([]):
+        # Get the first static file and use that as our source
+        source_path = storage.path(path)
+        break
+
+    # Check that we can make a symlink between this file, and the static root
+    # directory we are using.
+    return symlink_capability_check(source_path, settings.STATIC_ROOT)
+
+
 def initialize(skip_update=False):  # noqa: max-complexity=12
     """
     Currently, always called before running commands. This may change in case
@@ -360,6 +375,8 @@ def initialize(skip_update=False):  # noqa: max-complexity=12
         # our Kolibri version based update logic.
         updated = run_plugin_updates() or updated
 
+        check_django_stack_ready()
+
         if updated:
             logger.info("Copying updated static files")
             # Collect any static files
@@ -368,11 +385,14 @@ def initialize(skip_update=False):  # noqa: max-complexity=12
                 "verbosity": 0,
                 "clear": True,
             }
-            if CAN_USE_SYMLINKS:
+
+            if (
+                OPTIONS["Deployment"]["STATIC_USE_SYMLINKS"]
+                and _can_symlink_static_files()
+            ):
                 collectstatic_options["link"] = True
             call_command("collectstatic", **collectstatic_options)
 
-        check_django_stack_ready()
         try:
             sanity_checks.check_database_is_migrated()
         except DatabaseNotMigrated:
