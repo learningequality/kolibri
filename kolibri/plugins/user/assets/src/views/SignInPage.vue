@@ -179,7 +179,7 @@
             ref="username"
             v-model="username"
             autocomplete="username"
-            :autofocus="!hasMultipleFacilities"
+            :autofocus="true"
             :label="coreString('usernameLabel')"
             :invalid="usernameIsInvalid"
             :invalidText="usernameIsInvalidText"
