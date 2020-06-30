@@ -50,6 +50,11 @@
         required: false,
       },
     },
+    data() {
+      return {
+        justRemovedResource: false,
+      };
+    },
     computed: {
       returnBackRoute() {
         if (this.$route.query && this.$route.query.last) {
@@ -66,6 +71,9 @@
       ...mapState('lessonSummary', ['workingResources']),
       ...mapState('lessonSummary/resources', ['currentContentNode', 'preview', 'ancestors']),
       isSelected() {
+        if (this.justRemovedResource) {
+          return true;
+        }
         if (this.workingResources && this.currentContentNode && this.currentContentNode.id) {
           return this.workingResources.includes(this.currentContentNode.id);
         }
@@ -92,8 +100,11 @@
         });
       },
       handleRemoveResource(content) {
+        // We need to remove the resource immediately to prevent that occurs when removing
+        // the only resource
+        this.justRemovedResource = true;
+        this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', content.id);
         this.$router.push(this.returnBackRoute).then(() => {
-          this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', content.id);
           this.showSnackbarNotification('resourcesRemovedWithCount', { count: 1 });
         });
       },
