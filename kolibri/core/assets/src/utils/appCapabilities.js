@@ -28,7 +28,7 @@ export default {
     // It would be more elegant to use a proxy for this, but that would require
     // adding a polyfill for this specific usage, so this works just as well.
     return ({ filename, message }) => {
-      const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands-share_file'];
+      const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands-share-file'];
       if (!urlFunction) {
         logging.warn('Sharing a file is not supported on this platform');
         return Promise.reject();
