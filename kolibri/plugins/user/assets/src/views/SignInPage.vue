@@ -282,11 +282,12 @@
       ...mapState(['facilityId']), // backend's default facility on load
       ...mapState('signIn', ['hasMultipleFacilities', 'usersForSelectedFacilities']),
       ...mapState({
+        passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         busy: state => state.core.signInBusy,
       }),
       simpleSignIn() {
-        return this.facilityConfig.learner_can_login_with_no_password;
+        return this.facilityConfig.learner_can_login_with_no_password && !this.passwordMissing;
       },
       shouldShowUsersList() {
         return (

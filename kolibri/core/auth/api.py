@@ -218,7 +218,7 @@ class FacilityUserViewSet(ValuesViewset):
 
         users = (
             FacilityUser.objects.filter(facility__in=facility_ids)
-            .annotate(is_learner=Exists(Role.objects.filter(user=OuterRef("id"))))
+            .annotate(is_learner=~Exists(Role.objects.filter(user=OuterRef("id"))))
             .values("id", "username", "facility_id", "is_learner", "password")
         )
 
