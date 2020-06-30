@@ -287,7 +287,7 @@
         busy: state => state.core.signInBusy,
       }),
       simpleSignIn() {
-        return this.facilityConfig.learner_can_login_with_no_password && !this.passwordMissing;
+        return this.facilityConfig.learner_can_login_with_no_password;
       },
       shouldShowUsersList() {
         return (
@@ -297,7 +297,7 @@
         );
       },
       shouldShowPasswordForm() {
-        return Boolean(this.selectedListUser);
+        return Boolean(this.selectedListUser) || this.passwordMissing;
       },
       suggestions() {
         // Filter suggestions on the client side so we don't hammer the server
