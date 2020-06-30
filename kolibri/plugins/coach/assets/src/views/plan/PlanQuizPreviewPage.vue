@@ -28,6 +28,7 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
 
@@ -36,7 +37,7 @@
     components: {
       LessonContentPreviewPage,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoreStrings, commonCoach],
     computed: {
       ...mapState(['toolbarRoute']),
       ...mapState('examCreation', ['preview', 'selectedExercises', 'currentContentNode']),
@@ -54,25 +55,20 @@
       this.clearSnackbar();
     },
     methods: {
-      ...mapActions(['createSnackbar', 'clearSnackbar']),
+      ...mapActions(['clearSnackbar']),
       ...mapActions('examCreation', ['addToSelectedExercises', 'removeFromSelectedExercises']),
       handleAddResource(content) {
         this.$router.push(this.returnBackRoute).then(() => {
           this.addToSelectedExercises([content]);
-          this.createSnackbar(this.$tr('added', { item: this.currentContentNode.title }));
+          this.showSnackbarNotification('resourcesAddedWithCount', { count: 1 });
         });
       },
       handleRemoveResource(content) {
         this.$router.push(this.returnBackRoute).then(() => {
           this.removeFromSelectedExercises([content]);
-          this.createSnackbar(this.$tr('removed', { item: this.currentContentNode.title }));
+          this.showSnackbarNotification('resourcesRemovedWithCount', { count: 1 });
         });
       },
-    },
-    $trs: {
-      added: "Added '{item}'",
-      removed: "Removed '{item}'",
-      // createNewExamLabel: 'Create new quiz',
     },
   };
 

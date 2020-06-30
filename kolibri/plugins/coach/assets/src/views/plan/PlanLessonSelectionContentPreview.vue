@@ -28,15 +28,16 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
 
   export default {
     name: 'PlanLessonSelectionContentPreview',
     components: {
       LessonContentPreviewPage,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoreStrings, commonCoach],
     props: {
       // If set to true, will show the add/remove buttons.
       showSelectOptions: {
@@ -81,28 +82,24 @@
       this.clearSnackbar();
     },
     methods: {
-      ...mapActions(['createSnackbar', 'clearSnackbar']),
+      ...mapActions(['clearSnackbar']),
       ...mapActions('lessonSummary', ['addToResourceCache']),
       handleAddResource(content) {
         this.$router.push(this.returnBackRoute).then(() => {
           this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', content.id);
           this.addToResourceCache({ node: content });
-          this.createSnackbar(this.$tr('resourcesAddedSnackbarText', { count: 1 }));
+          this.showSnackbarNotification('resourcesAddedWithCount', { count: 1 });
         });
       },
       handleRemoveResource(content) {
         this.$router.push(this.returnBackRoute).then(() => {
           this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', content.id);
-          this.createSnackbar(this.$tr('resourcesRemovedSnackbarText', { count: 1 }));
+          this.showSnackbarNotification('resourcesRemovedWithCount', { count: 1 });
         });
       },
     },
     $trs: {
       lessonLabel: 'Lesson',
-      resourcesAddedSnackbarText:
-        'Added {count, number, integer} {count, plural, one {resource} other {resources}} to lesson',
-      resourcesRemovedSnackbarText:
-        'Removed {count, number, integer} {count, plural, one {resource} other {resources}} from lesson',
     },
   };
 
