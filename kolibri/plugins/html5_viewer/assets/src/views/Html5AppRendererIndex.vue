@@ -58,6 +58,8 @@
   const iOSTest = /ip[honead]{2,4}(?:.*os\s([\w]+)\slike\smac|;\sopera)/i;
   const IE11Test = /(trident).+rv[:\s]([\w.]+).+like\sgecko/i;
 
+  const defaultHeight = '560px';
+
   export default {
     name: 'Html5AppRendererIndex',
     components: {
@@ -79,7 +81,7 @@
         return this.defaultFile.storage_url + (iOSorIE11 ? '?SKIP_HASHI=true' : '');
       },
       iframeHeight() {
-        return (this.options && this.options.height) || '500px';
+        return (this.options && this.options.height) || defaultHeight;
       },
       iframeWidth() {
         return (this.options && this.options.width) || 'auto';
@@ -108,7 +110,7 @@
             bottom: 0,
           };
         }
-        return { height: '560px' };
+        return { height: this.iframeHeight };
       },
     },
     watch: {
