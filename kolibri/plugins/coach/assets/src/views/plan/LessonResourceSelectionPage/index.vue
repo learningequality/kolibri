@@ -285,9 +285,9 @@
           return;
         }
         if (difference > 0) {
-          this.showSnackbarNotification('resourcesAddedNoCount', { count: difference });
+          this.showSnackbarNotification('resourcesAddedWithCount', { count: difference });
         } else {
-          this.showSnackbarNotification('resourcesRemovedNoCount', { count: -difference });
+          this.showSnackbarNotification('resourcesRemovedWithCount', { count: -difference });
         }
       },
       showResourcesChangedError() {
