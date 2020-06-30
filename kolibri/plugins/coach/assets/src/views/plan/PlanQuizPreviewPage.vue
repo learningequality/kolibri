@@ -57,14 +57,14 @@
       ...mapActions(['createSnackbar', 'clearSnackbar']),
       ...mapActions('examCreation', ['addToSelectedExercises', 'removeFromSelectedExercises']),
       handleAddResource(content) {
-        this.addToSelectedExercises([content]);
         this.$router.push(this.returnBackRoute).then(() => {
+          this.addToSelectedExercises([content]);
           this.createSnackbar(this.$tr('added', { item: this.currentContentNode.title }));
         });
       },
       handleRemoveResource(content) {
-        this.removeFromSelectedExercises([content]);
         this.$router.push(this.returnBackRoute).then(() => {
+          this.removeFromSelectedExercises([content]);
           this.createSnackbar(this.$tr('removed', { item: this.currentContentNode.title }));
         });
       },
