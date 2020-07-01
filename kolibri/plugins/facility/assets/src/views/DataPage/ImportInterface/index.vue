@@ -77,7 +77,10 @@
       exportUsersStatus(val) {
         if (val == UsersExportStatuses.FINISHED) {
           window.open(
-            urls['kolibri:kolibri.plugins.facility:download_csv_file'](this.exportUsersFilename),
+            urls['kolibri:kolibri.plugins.facility:download_csv_file'](
+              this.exportUsersFilename,
+              this.$store.getters.activeFacilityId
+            ),
             '_blank'
           );
         }
