@@ -10,6 +10,7 @@ function makeWrapper() {
   store.state.core.facilities.push({
     id: '123',
     name: 'test facility',
+    dataset: {},
   });
   return mount(SignInPage, {
     store,

@@ -212,7 +212,7 @@
             :text="$tr('nextLabel')"
             :primary="true"
             :disabled="busy"
-            @click="setSelectedUsername()"
+            @click="signIn"
           />
         </div>
       </form>
@@ -378,9 +378,7 @@
       },
       // Sets the selected list user and/or logs them in
       setSelectedUsername(username) {
-        if (username) {
-          this.username = username;
-        }
+        this.username = username;
         // Try to sign in now to validate the username
         // and to check if we even need a password
         // or need to change a password
@@ -452,7 +450,7 @@
           case 'Enter':
             if (this.highlightedIndex < 0) {
               this.showDropdown = false;
-              this.setSelectedUsername();
+              this.signIn();
             } else {
               this.fillUsername(this.suggestions[this.highlightedIndex]);
               e.preventDefault();
