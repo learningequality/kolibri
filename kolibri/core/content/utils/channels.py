@@ -123,7 +123,7 @@ def get_channels_for_data_folder(datafolder):
             "id": channel.id,
             "name": channel.name,
             "description": channel.description,
-            "tagline": channel.tagline,
+            "tagline": getattr(channel, "tagline", ""),
             "thumbnail": channel.thumbnail,
             "version": channel.version,
             "root": channel.root_id,
