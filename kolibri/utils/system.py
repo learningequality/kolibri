@@ -20,14 +20,12 @@ import logging
 import os
 import signal
 import sys
-import tempfile
 import time
 
 import six
 from django.db import connections
 
 from .conf import KOLIBRI_HOME
-from .conf import OPTIONS
 from kolibri.utils.android import on_android
 
 logger = logging.getLogger(__name__)
@@ -239,27 +237,22 @@ else:
     _become_daemon_function = _windows_become_daemon
 
 
-def _symlink_capability_check():
+def symlink_capability_check(source_file, destination_folder):
     """
     Function to try to establish a symlink
+    between two locations
     return True if it succeeds, return False otherwise.
     """
-    # If STATIC_USE_SYMLINKS has been set to False, return False directly
-    if not OPTIONS["Deployment"]["STATIC_USE_SYMLINKS"]:
-        return False
 
-    fd, temp_target = tempfile.mkstemp()
-    temp_pathname = temp_target + ".lnk"
+    temp_pathname = os.path.join(destination_folder, os.path.basename(source_file))
+    try:
+        os.makedirs(os.path.dirname(temp_pathname))
+    except OSError:
+        pass
     can_do = True
     try:
-        os.symlink(temp_target, temp_pathname)
+        os.symlink(source_file, temp_pathname)
         os.remove(temp_pathname)
     except OSError:
         can_do = False
-    # Explicitly close the file so that we can remove it on windows
-    os.close(fd)
-    os.remove(temp_target)
     return can_do
-
-
-CAN_USE_SYMLINKS = _symlink_capability_check()
