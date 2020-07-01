@@ -33,8 +33,8 @@ describe('SuperuserCredentialsForm', () => {
       full_name: 'Schoolhouse Rock',
       username: 'schoolhouse_rock',
       password: 'password',
-      birth_year: 'NOT_SPECIFIED',
-      gender: 'NOT_SPECIFIED',
+      birth_year: 'DEFERRED',
+      gender: 'DEFERRED',
     });
     expect(wrapper.vm.$emit).toHaveBeenCalledWith('click_next', {
       full_name: 'Schoolhouse Rock',
