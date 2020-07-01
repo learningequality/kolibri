@@ -106,7 +106,7 @@
         if (this.isInFullscreen) {
           return {
             position: 'absolute',
-            top: '50px',
+            top: '37px',
             bottom: 0,
           };
         }
