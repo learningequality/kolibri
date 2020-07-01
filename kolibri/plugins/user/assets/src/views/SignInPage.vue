@@ -284,6 +284,8 @@
       ...mapState({
         passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
+        needsToCreatePassword: state =>
+          state.core.loginError === LoginErrors.PASSWORD_NOT_SPECIFIED,
         busy: state => state.core.signInBusy,
       }),
       simpleSignIn() {
@@ -382,7 +384,6 @@
           this.username = '';
           this.password = '';
           this.selectedListUser = null;
-          this.needsToCreatePassword = false;
         });
       },
       // Sets the selected list user and/or logs them in
@@ -404,12 +405,6 @@
           return;
         } else {
           this.selectedListUser = user;
-          if (user.needs_password) {
-            // If they need to make a password, force them to make it
-            this.needsToCreatePassword = true;
-          } else {
-            this.selectedListUser = user;
-          }
         }
       },
       updatePasswordAndSignIn() {

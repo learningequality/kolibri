@@ -88,6 +88,7 @@ export const MaxPointsPerContent = 500;
 export const LoginErrors = {
   PASSWORD_MISSING: 'PASSWORD_MISSING',
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+  PASSWORD_NOT_SPECIFIED: 'PASSWORD_NOT_SPECIFIED',
 };
 
 export const PermissionTypes = {

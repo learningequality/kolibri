@@ -1,4 +1,3 @@
-import client from 'kolibri.client';
 import debounce from 'lodash/debounce';
 import pick from 'lodash/pick';
 import logger from 'kolibri.lib.logging';
@@ -6,6 +5,7 @@ import {
   SessionResource,
   FacilityResource,
   FacilityDatasetResource,
+  FacilityUserResource,
   ContentSessionLogResource,
   ContentSummaryLogResource,
   MasteryLogResource,
@@ -237,7 +237,7 @@ export function kolibriLoginWithNewPassword(store, payload) {
   store.commit('CORE_SET_SIGN_IN_BUSY', true);
   Lockr.set(UPDATE_MODAL_DISMISSED, false);
 
-  const { username, password, facility, user } = payload;
+  const { username, password, facility } = payload;
 
   const sessionPayload = {
     username,
@@ -246,11 +246,9 @@ export function kolibriLoginWithNewPassword(store, payload) {
   };
 
   return SessionResource.saveModel({ data: sessionPayload })
-    .then(() => {
-      const path = `/api/auth/facilityuser/${user.id}/`;
-      const method = 'PATCH';
+    .then(session => {
       const data = { password };
-      client({ path, method, data }).then(() => {
+      FacilityUserResource.saveModel({ id: session.user_id, data, exists: true }).then(() => {
         // OIDC redirect
         if (sessionPayload.next) {
           redirectBrowser(sessionPayload.next);
@@ -289,7 +287,12 @@ export function kolibriLogin(store, sessionPayload) {
   store.commit('CORE_SET_SIGN_IN_BUSY', true);
   Lockr.set(UPDATE_MODAL_DISMISSED, false);
   return SessionResource.saveModel({ data: sessionPayload })
-    .then(() => {
+    .then(session => {
+      if (session.password_not_specified) {
+        store.commit('CORE_SET_SIGN_IN_BUSY', false);
+        store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.PASSWORD_NOT_SPECIFIED);
+        return;
+      }
       // OIDC redirect
       if (sessionPayload.next) {
         redirectBrowser(sessionPayload.next);

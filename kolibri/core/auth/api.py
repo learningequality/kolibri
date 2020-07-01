@@ -615,7 +615,7 @@ class SessionViewSet(viewsets.ViewSet):
             # while the "Require learners to log in with password" setting was disabled - but now
             # it is enabled again.
             login(request, unauthenticated_user)
-            return self.get_session_response(request)
+            return self.get_session_response(request, password_not_specified=True)
         elif (
             not password
             and FacilityUser.objects.filter(
@@ -649,7 +649,7 @@ class SessionViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         return self.get_session_response(request)
 
-    def get_session_response(self, request):
+    def get_session_response(self, request, password_not_specified=False):
         user = request.user
         session_key = "current"
         server_time = now()
@@ -688,5 +688,7 @@ class SessionViewSet(viewsets.ViewSet):
         if active and isinstance(user, FacilityUser):
             UserSessionLog.update_log(user)
 
+        if password_not_specified:
+            session.update({"password_not_specified": True})
         response = Response(session)
         return response
