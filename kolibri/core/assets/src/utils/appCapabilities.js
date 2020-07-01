@@ -33,10 +33,10 @@ export default {
         logging.warn('Sharing a file is not supported on this platform');
         return Promise.reject();
       }
-      return client.post({
+      return client({
         url: urlFunction(),
         method: 'POST',
-        params: { filename, message },
+        data: { filename, message },
       });
     };
   },
