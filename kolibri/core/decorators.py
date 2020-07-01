@@ -7,7 +7,9 @@ from __future__ import unicode_literals
 
 import hashlib
 import sys
+from threading import local
 
+from django.core.cache import cache
 from django.utils.cache import patch_response_headers
 from django.views.decorators.http import etag
 from rest_framework.exceptions import APIException
@@ -15,8 +17,6 @@ from rest_framework.views import APIView
 from six import string_types
 
 from kolibri import __version__ as kolibri_version
-from kolibri.core.device.models import ContentCacheKey
-from kolibri.core.theme_hook import ThemeHook
 
 TRUE_VALUES = ("1", "true")
 FALSE_VALUES = ("0", "false")
@@ -316,14 +316,6 @@ def query_params_required(**kwargs):
     return _params
 
 
-def calculate_spa_etag(*args, **kwargs):
-    return hashlib.md5(
-        kolibri_version.encode("utf-8")
-        + str(ContentCacheKey.get_cache_key()).encode("utf-8")
-        + str(ThemeHook.cacheKey()).encode("utf-8")
-    ).hexdigest()
-
-
 def cache_no_user_data(view_func):
     """
     Set appropriate Vary on headers on a view that specify there is
@@ -336,12 +328,45 @@ def cache_no_user_data(view_func):
     on a per user basis.
     """
 
+    CACHE_TIMEOUT = 15
+    CACHE_KEY_TEMPLATE = "SPA_ETAG_CACHE_{}"
+    _response = local()
+
+    def render_and_cache(response, cache_key):
+        response.render()
+        etag = hashlib.md5(
+            kolibri_version.encode("utf-8") + str(response.content).encode("utf-8")
+        ).hexdigest()
+        cache.set(cache_key, etag, CACHE_TIMEOUT)
+        return etag
+
+    def calculate_spa_etag(*args, **kwargs):
+        # Clear the local thread 'response' property
+        setattr(_response, "response", None)
+
+        request = args[0]
+        etag = cache.get(CACHE_KEY_TEMPLATE.format(request.path))
+
+        # Doing this here - will also be the same in inner_func
+        # required to delete the session for this to work as expected
+        del request.session
+
+        if not etag:
+            response = view_func(*args, **kwargs)
+            setattr(_response, "response", response)
+            etag = render_and_cache(response, CACHE_KEY_TEMPLATE.format(request.path))
+        return etag
+
     @etag(calculate_spa_etag)
     def inner_func(*args, **kwargs):
         request = args[0]
-        del request.session
-        response = view_func(*args, **kwargs)
-        patch_response_headers(response, cache_timeout=15)
+
+        response = getattr(_response, "response", None)
+        if not response:
+            response = view_func(*args, **kwargs)
+
+        render_and_cache(response, CACHE_KEY_TEMPLATE.format(request.path))
+        patch_response_headers(response, cache_timeout=CACHE_TIMEOUT)
         response["Vary"] = "accept-encoding, accept"
         return response
 

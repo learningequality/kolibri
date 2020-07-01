@@ -44,8 +44,11 @@
       pageName() {
         return this.$route.name;
       },
+      inAllFacilitiesPage() {
+        return this.pageName === PageNames.ALL_FACILITIES_PAGE;
+      },
       showSubNav() {
-        if (this.pageName === PageNames.ALL_FACILITIES_PAGE) {
+        if (this.inAllFacilitiesPage) {
           return false;
         }
         return this.userIsAuthorized && !this.immersivePageProps.immersivePage;
@@ -83,7 +86,7 @@
             appBarTitle,
           };
         }
-        if (this.userIsMultiFacilityAdmin) {
+        if (this.userIsMultiFacilityAdmin && !this.inAllFacilitiesPage) {
           appBarTitle = this.$tr('facilityLabelWithName', {
             facilityName: this.currentFacilityName,
           });
@@ -100,7 +103,7 @@
           // Superusers can view any facility
           return true;
         } else if (this.isAdmin) {
-          if (this.pageName === PageNames.ALL_FACILITIES_PAGE) {
+          if (this.inAllFacilitiesPage) {
             return false;
           }
           // Admins can only see the facility they belong to

@@ -266,7 +266,8 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                     track_progress=True,
                     cancellable=False,
                 ),
-            ]
+            ],
+            any_order=True,
         )
 
     @patch("kolibri.core.tasks.api.validate_and_prepare_peer_sync_job")
