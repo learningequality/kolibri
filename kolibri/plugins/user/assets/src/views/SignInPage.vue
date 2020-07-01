@@ -296,7 +296,7 @@
         );
       },
       shouldShowPasswordForm() {
-        return Boolean(this.selectedListUser);
+        return Boolean(this.selectedListUser) && !this.usernameIsInvalid;
       },
       suggestions() {
         // Filter suggestions on the client side so we don't hammer the server
@@ -388,6 +388,11 @@
       setSelectedListUser(user) {
         // If we get a user - then use it's username, otherwise, we should already
         // have a username in our data()
+        if (this.usernameIsInvalid) {
+          this.$refs.username.updateText();
+          this.$refs.username.focus();
+          return;
+        }
         if (user) {
           this.username = user.username;
         } else {
@@ -397,6 +402,7 @@
             facility: '',
           };
         }
+
         // If the user is a learner and we don't require passwords sign them in
         if (this.simpleSignIn && user.is_learner) {
           this.signIn();
