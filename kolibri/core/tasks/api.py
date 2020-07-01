@@ -675,9 +675,22 @@ class TasksViewSet(BaseViewSet):
         """
         Export users, classes, roles and roles assignemnts to a csv file.
 
+        :param: facility_id
         :returns: An object with the job information
+
         """
-        facility = request.user.facility.id
+        facility_id = request.data.get("facility_id", None)
+
+        try:
+            if facility_id:
+                facility = Facility.objects.get(pk=facility_id).id
+            else:
+                facility = request.user.facility
+        except Facility.DoesNotExist:
+            raise serializers.ValidationError(
+                "Facility with ID {} does not exist".format(facility_id)
+            )
+
         job_type = "EXPORTUSERSTOCSV"
         job_metadata = {
             "type": job_type,
@@ -707,6 +720,7 @@ class TasksViewSet(BaseViewSet):
         By default it will be dump contentsummarylog.
 
         :param: logtype: Kind of log to dump, summary or session
+        :param: facility
         :returns: An object with the job information
 
         """
