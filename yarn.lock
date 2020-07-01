@@ -8466,9 +8466,9 @@ knuth-shuffle-seeded@^1.0.6:
   dependencies:
     seed-random "~2.2.0"
 
-"kolibri-design-system@github:learningequality/kolibri-design-system#0.2.0-beta3":
-  version "0.2.0"
-  resolved "https://codeload.github.com/learningequality/kolibri-design-system/tar.gz/2a0fd6afa91f2e9c387fbeabc57a86975cba0536"
+"kolibri-design-system@github:learningequality/kolibri-design-system#v0.2.0-beta4":
+  version "0.2.0-beta4"
+  resolved "https://codeload.github.com/learningequality/kolibri-design-system/tar.gz/2a57295ff36ac072422727bfa86acb7449c54390"
   dependencies:
     "@babel/core" "^7.9.6"
     "@babel/preset-env" "^7.9.6"
