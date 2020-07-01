@@ -16,13 +16,31 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 6 }"
         >
-          <SelectOptions
-            v-if="displaySelectOptions"
-            class="ib select-options"
-            :isSelected="isSelected"
-            @addResource="$emit('addResource', content)"
-            @removeResource="$emit('removeResource', content)"
-          />
+          <template v-if="displaySelectOptions">
+            <template v-if="isSelected">
+              <mat-svg
+                class="selected-icon"
+                category="action"
+                name="check_circle"
+              />
+              {{ $tr('addedIndicator') }}
+            </template>
+
+            <KButton
+              v-if="isSelected"
+              :text="coreString('removeAction')"
+              :primary="true"
+              :disabled="disableSelectButton"
+              @click="removeResource"
+            />
+            <KButton
+              v-else
+              :text="$tr('addButtonLabel')"
+              :primary="true"
+              :disabled="disableSelectButton"
+              @click="addResource"
+            />
+          </template>
         </KGridItem>
       </KGrid>
       <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
@@ -87,7 +105,6 @@
   import markdownIt from 'markdown-it';
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
-  import SelectOptions from './SelectOptions';
 
   export default {
     name: 'LessonContentPreviewPage',
@@ -99,7 +116,6 @@
     components: {
       QuestionList,
       ContentArea,
-      SelectOptions,
       CoachContentLabel,
       InfoIcon,
       MultiPaneLayout,
@@ -133,6 +149,7 @@
     data() {
       return {
         selectedQuestionIndex: 0,
+        disableSelectButton: false,
       };
     },
     computed: {
@@ -173,6 +190,11 @@
         );
       },
     },
+    watch: {
+      isSelected() {
+        this.disableSelectButton = false;
+      },
+    },
     methods: {
       questionLabel(questionIndex) {
         if (!this.isExercise) {
@@ -181,12 +203,22 @@
         const questionNumber = questionIndex + 1;
         return this.coreString('questionNumberLabel', { questionNumber });
       },
+      addResource() {
+        this.disableSelectButton = true;
+        this.$emit('addResource', this.content);
+      },
+      removeResource() {
+        this.disableSelectButton = true;
+        this.$emit('removeResource', this.content);
+      },
     },
     $trs: {
       completionRequirements: 'Completion: {correct, number} out of {total, number} correct',
       authorDataHeader: 'Author',
       licenseDataHeader: 'License',
       copyrightHolderDataHeader: 'Copyright holder',
+      addedIndicator: 'Added',
+      addButtonLabel: 'Add',
     },
   };
 
@@ -194,6 +226,13 @@
 
 
 <style lang="scss" scoped>
+
+  .selected-icon {
+    position: relative;
+    top: 4px;
+    width: 20px;
+    height: 20px;
+  }
 
   .meta {
     margin-bottom: 16px;

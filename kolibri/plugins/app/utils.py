@@ -1,3 +1,5 @@
+from django.core.urlresolvers import reverse
+
 from kolibri.plugins.app.kolibri_plugin import App
 from kolibri.plugins.registry import registered_plugins
 
@@ -20,6 +22,19 @@ class AppInterface(object):
         for capability in CAPABILITES:
             if capability in kwargs:
                 self._capabilities[capability] = kwargs[capability]
+
+    def get_initialize_url(self, next_url=None):
+        if not self.enabled:
+            raise RuntimeError("App plugin is not enabled")
+        # Import here to prevent a circular import
+        from kolibri.core.device.models import DeviceAppKey
+
+        url = reverse(
+            "kolibri:kolibri.plugins.app:initialize", args=(DeviceAppKey.get_app_key(),)
+        )
+        if next_url is None:
+            return url
+        return url + "?next={}".format(next_url)
 
     @property
     def enabled(self):

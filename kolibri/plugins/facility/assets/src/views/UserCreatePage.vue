@@ -1,6 +1,6 @@
 <template>
 
-  <KPageContainer class="narrow-container">
+  <KPageContainer v-if="!loading" class="narrow-container">
 
     <form class="form" @submit.prevent="submitForm">
       <h1>
@@ -146,6 +146,7 @@
         gender: NOT_SPECIFIED,
         birthYear: NOT_SPECIFIED,
         idNumber: '',
+        loading: true,
         kind: {
           label: this.coreString('learnerLabel'),
           value: UserKinds.LEARNER,
@@ -154,12 +155,17 @@
         busy: false,
         formSubmitted: false,
         caughtErrors: [],
-        showPasswordInput: true,
       };
     },
     computed: {
-      ...mapGetters(['currentFacilityId', 'facilityConfig']),
+      ...mapGetters(['activeFacilityId', 'facilityConfig']),
       ...mapState('userManagement', ['facilityUsers']),
+      showPasswordInput() {
+        if (this.facilityConfig.learner_can_login_with_no_password) {
+          return this.kind.value !== UserKinds.LEARNER;
+        }
+        return true;
+      },
       newUserRole() {
         if (this.coachIsSelected) {
           return this.classCoachIsSelected ? UserKinds.ASSIGNABLE_COACH : UserKinds.COACH;
@@ -190,29 +196,14 @@
         ];
       },
     },
-    watch: {
-      kind(val) {
-        this.showPasswordInput =
-          val.value !== UserKinds.LEARNER ||
-          !this.facilityConfig.learner_can_login_with_no_password;
-        this.updatePasswordValues();
-      },
-    },
-    mounted() {
-      this.$store.dispatch('notLoading');
-      this.getFacilityConfig(this.currentFacilityId).then(() => {
-        this.showPasswordInput = !this.facilityConfig.learner_can_login_with_no_password;
-        this.updatePasswordValues();
+    beforeMount() {
+      this.getFacilityConfig(this.activeFacilityId).then(() => {
+        this.$store.dispatch('notLoading');
+        this.loading = false;
       });
     },
     methods: {
       ...mapActions(['getFacilityConfig']),
-      updatePasswordValues() {
-        if (!this.showPasswordInput) {
-          this.passwordValid = true;
-          if (this.password === '') this.password = 'NOT_SPECIFIED';
-        }
-      },
       goToUserManagementPage(onComplete) {
         this.$router.push(this.$store.getters.facilityPageLinks.UserPage, onComplete);
       },
@@ -223,8 +214,12 @@
       },
       submitForm() {
         this.formSubmitted = true;
+        let password = this.password;
         if (!this.formIsValid) {
           return this.focusOnInvalidField();
+        }
+        if (!this.showPasswordInput) {
+          password = 'NOT_SPECIFIED';
         }
         this.busy = true;
         this.$store
@@ -236,9 +231,8 @@
             birth_year: this.birthYear,
             role: {
               kind: this.newUserRole,
-              collection: this.currentFacilityId,
             },
-            password: this.password,
+            password,
           })
           .then(() => {
             this.handleSubmitSuccess();
