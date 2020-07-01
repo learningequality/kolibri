@@ -128,7 +128,7 @@
         />
       </BottomAppBar>
       <BottomAppBar v-else>
-        <KButtonGroup style="margin-top: 8px;">
+        <KButtonGroup>
           <KRouterLink
             appearance="flat-button"
             :text="coreString('goBackAction')"

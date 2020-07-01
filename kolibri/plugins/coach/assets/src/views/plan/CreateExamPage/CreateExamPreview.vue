@@ -100,7 +100,7 @@
       />
 
       <BottomAppBar style="z-index: 1062;">
-        <KButtonGroup style="margin-top: 8px;">
+        <KButtonGroup>
           <KRouterLink
             appearance="flat-button"
             :text="coreString('goBackAction')"
