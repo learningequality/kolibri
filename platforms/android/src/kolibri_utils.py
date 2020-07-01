@@ -2,6 +2,8 @@ import os
 import pew.ui
 import sys
 
+import android_utils
+
 
 def start_kolibri_server():
     from kolibri.utils.cli import main
@@ -11,7 +13,7 @@ def start_kolibri_server():
 
     # register app capabilities
     from kolibri.plugins.app.utils import interface
-    interface.register(share_file=True)
+    interface.register(share_file=android_utils.share_by_intent)
 
     print("Starting Kolibri server...")
     print("Port: {}".format(os.environ.get("KOLIBRI_HTTP_PORT", "(default)")))
