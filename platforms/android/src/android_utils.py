@@ -80,9 +80,9 @@ def send_whatsapp_message(msg):
     share_by_intent(msg=msg, app="com.whatsapp")
 
 
-def share_by_intent(path=None, filename=None, msg=None, app=None, mimetype=None):
+def share_by_intent(path=None, filename=None, message=None, app=None, mimetype=None):
 
-    assert path or msg or filename, "Must provide either a path, a filename, or a msg to share"
+    assert path or message or filename, "Must provide either a path, a filename, or a msg to share"
 
     sendIntent = Intent()
     sendIntent.setAction(Intent.ACTION_SEND)
@@ -96,10 +96,10 @@ def share_by_intent(path=None, filename=None, msg=None, app=None, mimetype=None)
         sendIntent.putExtra(Intent.EXTRA_STREAM, parcelable)
         sendIntent.setType(AndroidString(mimetype or "*/*"))
         sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    if msg:
+    if message:
         if not path:
             sendIntent.setType(AndroidString(mimetype or "text/plain"))
-        sendIntent.putExtra(Intent.EXTRA_TEXT, AndroidString(msg))
+        sendIntent.putExtra(Intent.EXTRA_TEXT, AndroidString(message))
     if app:
         sendIntent.setPackage(AndroidString(app))
     sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

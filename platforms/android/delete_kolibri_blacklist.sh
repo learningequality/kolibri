@@ -1,9 +1,3 @@
-# remove the OIDC dependencies, as we won't use them here
-rm -r src/kolibri/plugins/oidc_provider_plugin
-rm -r src/kolibri/dist/oidc_provider
-rm -r src/kolibri/dist/jwkest
-rm -r src/kolibri/dist/Cryptodome
-
 # remove some assorted additional plugins
 rm -r src/kolibri/plugins/demo_server
 
