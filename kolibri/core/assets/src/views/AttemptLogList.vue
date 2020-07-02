@@ -193,11 +193,9 @@
   }
 
   .svg-item {
-    width: 24px;
-    height: auto;
-    margin-top: -4px;
     margin-right: 12px;
-    vertical-align: middle;
+    margin-bottom: -4px;
+    font-size: 24px;
   }
 
   .attempt-item {
