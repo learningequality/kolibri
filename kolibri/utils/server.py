@@ -296,21 +296,28 @@ def configure_http_server(port):
         config={"/": {"tools.caching.on": False, "request.dispatch": dispatcher}},
     )
 
+    cherrypy_server_config = {
+        "server.socket_host": LISTEN_ADDRESS,
+        "server.socket_port": port,
+        "server.thread_pool": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
+        "server.socket_timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
+        "server.accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+        "server.accepted_queue_timeout": conf.OPTIONS["Server"][
+            "CHERRYPY_QUEUE_TIMEOUT"
+        ],
+    }
+
     # Configure the server
-    cherrypy.config.update(
-        {
-            "server.socket_host": LISTEN_ADDRESS,
-            "server.socket_port": port,
-            "server.thread_pool": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
-            "server.socket_timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
-            "server.accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
-            "server.accepted_queue_timeout": conf.OPTIONS["Server"][
-                "CHERRYPY_QUEUE_TIMEOUT"
-            ],
-        }
-    )
-    # Subscribe this server
+    cherrypy.config.update(cherrypy_server_config)
+
+    alt_port_server = cherrypy._cpserver.Server()
+    for key, value in cherrypy_server_config.items():
+        server_key = key.split(".")[1]
+        setattr(alt_port_server, server_key, value)
+    alt_port_server.socket_port = port + 1
+    # Subscribe these servers
     cherrypy.server.subscribe()
+    alt_port_server.subscribe()
 
 
 def run_server(port, serve_http=True):
