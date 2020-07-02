@@ -22,6 +22,7 @@ Please feel free to add your name to this list if you make a PR
 * Chao-Wen Tan (chaowentan)
 * Christian Memije (christianmemije)
 * Cyril Pauya (cpauya)
+* Jigish Gohil (cyberorg)
 * David Hu (divad12)
 * Derek Lobo (dlobo)
 * David Cañas (DXCanas)
