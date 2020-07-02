@@ -3,7 +3,7 @@
   <CoreFullscreen
     ref="html5Renderer"
     class="html5-renderer"
-    :style="{ height: iframeHeight, width: iframeWidth }"
+    :style="{ height: contentRendererHeight, width: iframeWidth }"
     @changeFullscreen="isInFullscreen = $event"
   >
 
@@ -58,7 +58,9 @@
   const iOSTest = /ip[honead]{2,4}(?:.*os\s([\w]+)\slike\smac|;\sopera)/i;
   const IE11Test = /(trident).+rv[:\s]([\w.]+).+like\sgecko/i;
 
-  const defaultHeight = '560px';
+  const defaultContentHeight = '560px';
+  const frameTopbarHeight = '37px';
+  const pxStringAdd = (x, y) => parseInt(x, 10) + parseInt(y, 10) + 'px';
 
   export default {
     name: 'Html5AppRendererIndex',
@@ -81,10 +83,13 @@
         return this.defaultFile.storage_url + (iOSorIE11 ? '?SKIP_HASHI=true' : '');
       },
       iframeHeight() {
-        return (this.options && this.options.height) || defaultHeight;
+        return (this.options && this.options.height) || defaultContentHeight;
       },
       iframeWidth() {
         return (this.options && this.options.width) || 'auto';
+      },
+      contentRendererHeight() {
+        return pxStringAdd(this.iframeHeight, frameTopbarHeight);
       },
       sandbox() {
         return plugin_data.html5_sandbox_tokens;
@@ -106,7 +111,7 @@
         if (this.isInFullscreen) {
           return {
             position: 'absolute',
-            top: '37px',
+            top: frameTopbarHeight,
             bottom: 0,
           };
         }
