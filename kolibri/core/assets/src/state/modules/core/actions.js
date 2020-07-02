@@ -284,15 +284,9 @@ export function kolibriLoginWithNewPassword(store, payload) {
  * @param {object} sessionPayload The session payload.
  */
 export function kolibriLogin(store, sessionPayload) {
-  store.commit('CORE_SET_SIGN_IN_BUSY', true);
   Lockr.set(UPDATE_MODAL_DISMISSED, false);
   return SessionResource.saveModel({ data: sessionPayload })
-    .then(session => {
-      if (session.password_not_specified) {
-        store.commit('CORE_SET_SIGN_IN_BUSY', false);
-        store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.PASSWORD_NOT_SPECIFIED);
-        return;
-      }
+    .then(() => {
       // OIDC redirect
       if (sessionPayload.next) {
         redirectBrowser(sessionPayload.next);
@@ -303,16 +297,18 @@ export function kolibriLogin(store, sessionPayload) {
       }
     })
     .catch(error => {
-      store.commit('CORE_SET_SIGN_IN_BUSY', false);
       const errorsCaught = CatchErrors(error, [
         ERROR_CONSTANTS.INVALID_CREDENTIALS,
         ERROR_CONSTANTS.MISSING_PASSWORD,
+        ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED,
       ]);
       if (errorsCaught) {
         if (errorsCaught.includes(ERROR_CONSTANTS.INVALID_CREDENTIALS)) {
-          store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.INVALID_CREDENTIALS);
+          return LoginErrors.INVALID_CREDENTIALS;
         } else if (errorsCaught.includes(ERROR_CONSTANTS.MISSING_PASSWORD)) {
-          store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.PASSWORD_MISSING);
+          return LoginErrors.PASSWORD_MISSING;
+        } else if (errorsCaught.includes(ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED)) {
+          return LoginErrors.PASSWORD_NOT_SPECIFIED;
         }
       } else {
         store.dispatch('handleApiError', error);

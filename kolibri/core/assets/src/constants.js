@@ -126,6 +126,7 @@ export const ERROR_CONSTANTS = {
   // 403 error constants
   PERMISSION_DENIED: 'PERMISSION_DENIED',
   NOT_AUTHENTICATED: 'NOT_AUTHENTICATED',
+  PASSWORD_NOT_SPECIFIED: 'PASSWORD_NOT_SPECIFIED',
 };
 
 export const DemographicConstants = {

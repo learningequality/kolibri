@@ -6,6 +6,7 @@
       :key="username"
       class="listed-user"
       style="width: 100%; text-align: left; margin-left: 0px;"
+      :disabled="busy"
       @click="$emit('userSelected', username)"
     >
 
@@ -27,6 +28,10 @@
       users: {
         type: Array,
         required: true,
+      },
+      busy: {
+        type: Boolean,
+        default: false,
       },
     },
   };

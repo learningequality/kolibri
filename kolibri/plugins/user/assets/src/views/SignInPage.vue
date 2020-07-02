@@ -44,10 +44,10 @@
         <PasswordTextbox
           ref="createPassword"
           :autofocus="true"
-          :disabled="updatingPassword"
+          :disabled="busy"
           :value.sync="createdPassword"
           :isValid.sync="createdPasswordConfirmation"
-          :shouldValidate="updatingPassword"
+          :shouldValidate="busy"
           @submitNewPassword="updatePasswordAndSignIn"
         />
         <KButton
@@ -55,7 +55,7 @@
           :primary="true"
           :text="coreString('continueAction')"
           style="margin: 24px auto 0; display:block;"
-          :disabled="updatingPassword"
+          :disabled="busy"
           @click="updatePasswordAndSignIn"
         />
 
@@ -161,6 +161,7 @@
       <UsersList
         v-else-if="showUsersList"
         :users="usernamesForCurrentFacility"
+        :busy="busy"
         @userSelected="setSelectedUsername"
       />
 
@@ -273,19 +274,22 @@
         formSubmitted: false,
         createdPassword: '',
         createdPasswordConfirmation: '',
-        updatingPassword: false,
+        busy: false,
+        loginError: null,
       };
     },
     computed: {
       ...mapGetters(['selectedFacility', 'isAppContext']),
       ...mapState('signIn', ['hasMultipleFacilities']),
-      ...mapState({
-        passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
-        invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
-        needsToCreatePassword: state =>
-          state.core.loginError === LoginErrors.PASSWORD_NOT_SPECIFIED,
-        busy: state => state.core.signInBusy,
-      }),
+      passwordMissing() {
+        return this.loginError === LoginErrors.PASSWORD_MISSING;
+      },
+      invalidCredentials() {
+        return this.loginError === LoginErrors.INVALID_CREDENTIALS;
+      },
+      needsToCreatePassword() {
+        return this.loginError === LoginErrors.PASSWORD_NOT_SPECIFIED;
+      },
       simpleSignIn() {
         return this.selectedFacility.dataset.learner_can_login_with_no_password;
       },
@@ -367,14 +371,13 @@
       }
     },
     methods: {
-      ...mapActions(['kolibriLogin', 'kolibriLoginWithNewPassword', 'clearLoginError']),
+      ...mapActions(['kolibriLogin', 'kolibriLoginWithNewPassword']),
       clearUser() {
         // Going back to the beginning - undo what we may have
         // changed so far and clearing the errors, if any
-        this.clearLoginError().then(() => {
-          this.username = '';
-          this.password = '';
-        });
+        this.username = '';
+        this.password = '';
+        this.loginError = null;
       },
       // Sets the selected list user and/or logs them in
       setSelectedUsername(username) {
@@ -385,7 +388,7 @@
         this.signIn();
       },
       updatePasswordAndSignIn() {
-        this.updatingPassword = true;
+        this.busy = true;
         const payload = {
           username: this.username,
           password: this.createdPassword,
@@ -483,6 +486,7 @@
         }
       },
       signIn() {
+        this.busy = true;
         const sessionPayload = {
           username: this.username,
           password: this.password,
@@ -494,7 +498,16 @@
           // Go to URL in 'redirect' query param, if arriving from AuthMessage
           sessionPayload['next'] = this.$route.query.redirect;
         }
-        this.kolibriLogin(sessionPayload).catch();
+        this.kolibriLogin(sessionPayload)
+          .then(err => {
+            if (err) {
+              this.loginError = err;
+            }
+            this.busy = false;
+          })
+          .catch(() => {
+            this.busy = false;
+          });
       },
       focusOnInvalidField() {
         if (this.usernameIsInvalid) {
