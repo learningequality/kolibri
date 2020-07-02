@@ -58,7 +58,7 @@
   const iOSTest = /ip[honead]{2,4}(?:.*os\s([\w]+)\slike\smac|;\sopera)/i;
   const IE11Test = /(trident).+rv[:\s]([\w.]+).+like\sgecko/i;
 
-  const defaultContentHeight = '560px';
+  const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
   const pxStringAdd = (x, y) => parseInt(x, 10) + parseInt(y, 10) + 'px';
 
