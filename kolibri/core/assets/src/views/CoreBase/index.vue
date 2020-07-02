@@ -102,7 +102,7 @@
 
     <GlobalSnackbar />
     <UpdateNotification
-      v-if="!loading && showNotification && !busy"
+      v-if="!loading && showNotification"
       :id="mostRecentNotification.id"
       :title="mostRecentNotification.title"
       :msg="mostRecentNotification.msg"
@@ -296,7 +296,6 @@
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
-        busy: state => state.core.signInBusy,
         notifications: state => state.core.notifications,
       }),
       headerHeight() {

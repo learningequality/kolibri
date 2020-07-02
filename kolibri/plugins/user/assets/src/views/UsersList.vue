@@ -2,16 +2,17 @@
 
   <div>
     <KButton
-      v-for="user in users"
-      :key="user.name"
+      v-for="username in users"
+      :key="username"
       class="listed-user"
       style="width: 100%; text-align: left; margin-left: 0px;"
-      @click="$emit('userSelected', user)"
+      :disabled="busy"
+      @click="$emit('userSelected', username)"
     >
 
       <KIcon icon="person" style="margin-right: 8px" />
 
-      {{ user.username }}
+      {{ username }}
 
     </KButton>
   </div>
@@ -27,6 +28,10 @@
       users: {
         type: Array,
         required: true,
+      },
+      busy: {
+        type: Boolean,
+        default: false,
       },
     },
   };

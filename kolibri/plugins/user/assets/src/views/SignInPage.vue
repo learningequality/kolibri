@@ -26,7 +26,7 @@
           appearance="basic-link"
           text=""
           style="margin-bottom: 16px;"
-          @click="unselectListUser"
+          @click="clearUser"
         >
           <KIcon
             :icon="back"
@@ -40,14 +40,14 @@
             }"
           />{{ coreString('goBackAction') }}
         </KButton>
-        <p>{{ $tr("needToMakeNewPasswordLabel", { user: selectedListUser.username }) }}</p>
+        <p>{{ $tr("needToMakeNewPasswordLabel", { user: username }) }}</p>
         <PasswordTextbox
           ref="createPassword"
           :autofocus="true"
-          :disabled="updatingPassword"
+          :disabled="busy"
           :value.sync="createdPassword"
           :isValid.sync="createdPasswordConfirmation"
-          :shouldValidate="updatingPassword"
+          :shouldValidate="busy"
           @submitNewPassword="updatePasswordAndSignIn"
         />
         <KButton
@@ -55,27 +55,19 @@
           :primary="true"
           :text="coreString('continueAction')"
           style="margin: 24px auto 0; display:block;"
-          :disabled="updatingPassword"
+          :disabled="busy"
           @click="updatePasswordAndSignIn"
         />
 
       </div>
 
-      <!-- This is the base list of users -->
-      <!-- Only shown in app context with <= 16 users in facility -->
-      <UsersList
-        v-else-if="shouldShowUsersList"
-        :users="usersForCurrentFacility"
-        @userSelected="setSelectedListUser"
-      />
-
       <!-- Password Form for selected user -->
-      <div v-else-if="shouldShowPasswordForm" style="text-align: left">
+      <div v-else-if="passwordMissing" style="text-align: left">
         <KButton
           appearance="basic-link"
           text=""
           style="margin-bottom: 16px;"
-          @click="unselectListUser"
+          @click="clearUser"
         >
           <mat-svg
             name="arrow_back"
@@ -91,11 +83,11 @@
           />{{ coreString('goBackAction') }}
         </KButton>
 
-        <p v-if="selectedListUser.username" style="padding: 8px 0;">
-          {{ $tr("greetUser", { user: selectedListUser.username }) }}
+        <p v-if="username" style="padding: 8px 0;">
+          {{ $tr("greetUser", { user: username }) }}
         </p>
 
-        <form ref="form" class="login-form" @submit.prevent="signIn">
+        <form ref="form" class="login-form" @submit.prevent="validateAndSignIn">
           <UiAlert
             v-if="invalidCredentials"
             type="error"
@@ -164,8 +156,17 @@
         </form>
       </div>
 
+      <!-- This is the base list of users -->
+      <!-- Only shown in app context with <= 16 users in facility -->
+      <UsersList
+        v-else-if="showUsersList"
+        :users="usernamesForCurrentFacility"
+        :busy="busy"
+        @userSelected="setSelectedUsername"
+      />
+
       <!-- End User Listing Flow -->
-      <form v-else ref="form" class="login-form" @submit.prevent="signIn">
+      <form v-else ref="form" class="login-form">
         <UiAlert
           v-if="invalidCredentials"
           type="error"
@@ -212,7 +213,7 @@
             :text="$tr('nextLabel')"
             :primary="true"
             :disabled="busy"
-            @click="setSelectedListUser(null)"
+            @click="signIn"
           />
         </div>
       </form>
@@ -264,39 +265,36 @@
         username: '',
         password: '',
         usernameSuggestions: [],
+        usernamesForCurrentFacility: [],
         suggestionTerm: '',
         showDropdown: true,
         highlightedIndex: -1,
         usernameBlurred: false,
         passwordBlurred: false,
         formSubmitted: false,
-        selectedListUser: null,
-        needsToCreatePassword: false,
         createdPassword: '',
         createdPasswordConfirmation: '',
-        updatingPassword: false,
+        busy: false,
+        loginError: null,
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig', 'facilities', 'selectedFacility', 'isAppContext']),
-      ...mapState(['facilityId']), // backend's default facility on load
-      ...mapState('signIn', ['hasMultipleFacilities', 'usersForSelectedFacilities']),
-      ...mapState({
-        invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
-        busy: state => state.core.signInBusy,
-      }),
+      ...mapGetters(['selectedFacility', 'isAppContext']),
+      ...mapState('signIn', ['hasMultipleFacilities']),
+      passwordMissing() {
+        return this.loginError === LoginErrors.PASSWORD_MISSING;
+      },
+      invalidCredentials() {
+        return this.loginError === LoginErrors.INVALID_CREDENTIALS;
+      },
+      needsToCreatePassword() {
+        return this.loginError === LoginErrors.PASSWORD_NOT_SPECIFIED;
+      },
       simpleSignIn() {
-        return this.facilityConfig.learner_can_login_with_no_password;
+        return this.selectedFacility.dataset.learner_can_login_with_no_password;
       },
-      shouldShowUsersList() {
-        return (
-          this.selectedFacility.num_users <= MAX_USERS_FOR_LISTING_VIEW &&
-          this.isAppContext &&
-          !this.selectedListUser
-        );
-      },
-      shouldShowPasswordForm() {
-        return Boolean(this.selectedListUser) && !this.usernameIsInvalid;
+      showUsersList() {
+        return this.selectedFacility.num_users <= MAX_USERS_FOR_LISTING_VIEW && this.isAppContext;
       },
       suggestions() {
         // Filter suggestions on the client side so we don't hammer the server
@@ -313,9 +311,6 @@
           }
         }
         return '';
-      },
-      usersForCurrentFacility() {
-        return this.usersForSelectedFacilities.filter(user => user.facility_id === this.facilityId);
       },
       usernameIsInvalid() {
         return Boolean(this.usernameIsInvalidText);
@@ -358,74 +353,53 @@
     },
     watch: {
       username(newVal) {
-        this.setSuggestionTerm(newVal);
+        if (this.simpleSignIn && !this.showUsersList) {
+          this.setSuggestionTerm(newVal);
+        }
       },
     },
     created() {
-      // Only get facilities that meet our criteria for listing the users
-      const facilityIdsToFetch = this.facilities
-        .filter(f => f.num_users <= MAX_USERS_FOR_LISTING_VIEW)
-        .map(f => f.id);
-
-      // Only fetch if there are facilities to fetch for
-      if (facilityIdsToFetch.length) {
-        this.$store.dispatch('signIn/fetchUsersForFacilities', facilityIdsToFetch);
+      // Only fetch if we should fetch for this facility
+      if (this.showUsersList) {
+        FacilityUsernameResource.fetchCollection({
+          getParams: {
+            facility: this.selectedFacility.id,
+          },
+        }).then(data => {
+          this.usernamesForCurrentFacility = data.map(u => u.username);
+        });
       }
     },
     methods: {
-      ...mapActions(['kolibriLogin', 'kolibriLoginWithNewPassword', 'clearLoginError']),
-      unselectListUser() {
+      ...mapActions(['kolibriLogin', 'kolibriSetUnspecifiedPassword']),
+      clearUser() {
         // Going back to the beginning - undo what we may have
         // changed so far and clearing the errors, if any
-        this.clearLoginError().then(() => {
-          this.username = '';
-          this.password = '';
-          this.selectedListUser = null;
-          this.needsToCreatePassword = false;
-        });
+        this.username = '';
+        this.password = '';
+        this.loginError = null;
       },
       // Sets the selected list user and/or logs them in
-      setSelectedListUser(user) {
-        // If we get a user - then use it's username, otherwise, we should already
-        // have a username in our data()
-        if (this.usernameIsInvalid) {
-          this.$refs.username.updateText();
-          this.$refs.username.focus();
-          return;
-        }
-        if (user) {
-          this.username = user.username;
-        } else {
-          user = this.usersForCurrentFacility.find(u => u.username === this.username) || {
-            needs_password: false,
-            username: this.username,
-            facility: '',
-          };
-        }
-
-        // If the user is a learner and we don't require passwords sign them in
-        if (this.simpleSignIn && user.is_learner) {
-          this.signIn();
-          return;
-        } else {
-          this.selectedListUser = user;
-          if (user.needs_password) {
-            // If they need to make a password, force them to make it
-            this.needsToCreatePassword = true;
-          } else {
-            this.selectedListUser = user;
-          }
-        }
+      setSelectedUsername(username) {
+        this.username = username;
+        // Try to sign in now to validate the username
+        // and to check if we even need a password
+        // or need to change a password
+        this.signIn();
       },
       updatePasswordAndSignIn() {
-        this.updatingPassword = true;
+        this.busy = true;
         const payload = {
           username: this.username,
           password: this.createdPassword,
-          facility: this.facilityId,
-          user: this.selectedListUser,
+          facility: this.selectedFacility.id,
         };
-        this.kolibriLoginWithNewPassword(payload).catch();
+        this.kolibriSetUnspecifiedPassword(payload).then(() => {
+          // Password successfully set
+          // Use this password now to sign in
+          this.password = this.createdPassword;
+          this.signIn();
+        });
       },
       setSuggestionTerm(newVal) {
         if (newVal !== null && typeof newVal !== 'undefined') {
@@ -450,7 +424,7 @@
       setSuggestions() {
         FacilityUsernameResource.fetchCollection({
           getParams: {
-            facility: this.facility,
+            facility: this.selectedFacility.id,
             search: this.suggestionTerm,
           },
         })
@@ -484,7 +458,7 @@
           case 'Enter':
             if (this.highlightedIndex < 0) {
               this.showDropdown = false;
-              this.setSelectedListUser(null);
+              this.signIn();
             } else {
               this.fillUsername(this.suggestions[this.highlightedIndex]);
               e.preventDefault();
@@ -508,24 +482,37 @@
         this.usernameBlurred = true;
         this.showDropdown = false;
       },
-      signIn() {
+      validateAndSignIn() {
         this.formSubmitted = true;
         if (this.formIsValid) {
-          const sessionPayload = {
-            username: this.username,
-            password: this.password,
-            facility: this.selectedFacility.id,
-          };
-          if (plugin_data.oidcProviderEnabled) {
-            sessionPayload['next'] = this.nextParam;
-          } else if (this.$route.query.redirect && !this.nextParam) {
-            // Go to URL in 'redirect' query param, if arriving from AuthMessage
-            sessionPayload['next'] = this.$route.query.redirect;
-          }
-          this.kolibriLogin(sessionPayload).catch();
+          this.signIn();
         } else {
           this.focusOnInvalidField();
         }
+      },
+      signIn() {
+        this.busy = true;
+        const sessionPayload = {
+          username: this.username,
+          password: this.password,
+          facility: this.selectedFacility.id,
+        };
+        if (plugin_data.oidcProviderEnabled) {
+          sessionPayload['next'] = this.nextParam;
+        } else if (this.$route.query.redirect && !this.nextParam) {
+          // Go to URL in 'redirect' query param, if arriving from AuthMessage
+          sessionPayload['next'] = this.$route.query.redirect;
+        }
+        this.kolibriLogin(sessionPayload)
+          .then(err => {
+            if (err) {
+              this.loginError = err;
+            }
+            this.busy = false;
+          })
+          .catch(() => {
+            this.busy = false;
+          });
       },
       focusOnInvalidField() {
         if (this.usernameIsInvalid) {

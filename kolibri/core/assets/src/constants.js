@@ -88,6 +88,7 @@ export const MaxPointsPerContent = 500;
 export const LoginErrors = {
   PASSWORD_MISSING: 'PASSWORD_MISSING',
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+  PASSWORD_NOT_SPECIFIED: 'PASSWORD_NOT_SPECIFIED',
 };
 
 export const PermissionTypes = {
@@ -125,6 +126,7 @@ export const ERROR_CONSTANTS = {
   // 403 error constants
   PERMISSION_DENIED: 'PERMISSION_DENIED',
   NOT_AUTHENTICATED: 'NOT_AUTHENTICATED',
+  PASSWORD_NOT_SPECIFIED: 'PASSWORD_NOT_SPECIFIED',
 };
 
 export const DemographicConstants = {
