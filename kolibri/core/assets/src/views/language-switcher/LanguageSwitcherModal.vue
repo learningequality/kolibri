@@ -4,7 +4,7 @@
     :title="$tr('changeLanguageModalHeader')"
     :submitText="coreString('confirmAction')"
     :cancelText="coreString('cancelAction')"
-    @cancel="$emit('cancel')"
+    @cancel="cancel"
     @submit="setLang"
   >
     <KGrid>
@@ -57,7 +57,15 @@
     },
     methods: {
       setLang() {
+        if (currentLanguage === this.selectedLanguage) {
+          this.cancel();
+          return;
+        }
+
         this.switchLanguage(this.selectedLanguage);
+      },
+      cancel() {
+        this.$emit('cancel');
       },
     },
     $trs: {

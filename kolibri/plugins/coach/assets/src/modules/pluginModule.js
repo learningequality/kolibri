@@ -55,9 +55,6 @@ export default {
         return false;
       }
     },
-    inMultipleFacilityPage(state, getters) {
-      return getters.isSuperuser && state.core.facilities.length > 1;
-    },
   },
   actions: {
     setClassList(store, facilityId) {

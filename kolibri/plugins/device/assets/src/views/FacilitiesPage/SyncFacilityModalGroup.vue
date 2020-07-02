@@ -3,14 +3,14 @@
   <div>
     <SelectSyncSourceModal
       v-if="atSelectSource"
-      @submit="handleSubmit"
+      @submit="handleSourceSubmit"
       @cancel="closeModal()"
     />
 
     <SelectAddressModalGroup
       v-else-if="atSelectAddress"
       :fetchAddressArgs="''"
-      @submit="handleSubmit"
+      @submit="handleAddressSubmit"
       @cancel="closeModal()"
     />
   </div>
@@ -45,7 +45,7 @@
     },
     data() {
       return {
-        step: Steps.SELECT_SOURCE,
+        step: this.facilityForSync.dataset.registered ? Steps.SELECT_SOURCE : Steps.SELECT_ADDRESS,
       };
     },
     computed: {
@@ -57,22 +57,32 @@
       },
     },
     methods: {
-      handleSubmit(data) {
-        if (this.atSelectSource) {
-          if (data.source === 'PEER') {
-            this.step = Steps.SELECT_ADDRESS;
-          } else {
-            this.startSync();
-          }
-        } else if (this.atSelectAddress) {
-          this.startSync();
+      handleSourceSubmit(data) {
+        if (data.source === 'PEER') {
+          this.step = Steps.SELECT_ADDRESS;
+        } else {
+          this.startKdpSync();
         }
+      },
+      handleAddressSubmit(data) {
+        this.startPeerSync(data);
       },
       closeModal() {
         this.$emit('close');
       },
-      startSync() {
+      startKdpSync() {
         this.startKdpSyncTask(this.facilityForSync.id).then(task => {
+          this.$emit('success', task.id);
+        });
+      },
+      startPeerSync(peerData) {
+        this.startPeerSyncTask({
+          facility: this.facilityForSync.id,
+          facility_name: this.facilityForSync.name,
+          device_name: peerData.device_name,
+          device_id: peerData.id,
+          baseurl: peerData.base_url,
+        }).then(task => {
           this.$emit('success', task.id);
         });
       },

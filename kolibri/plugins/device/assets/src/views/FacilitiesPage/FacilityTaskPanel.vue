@@ -1,6 +1,6 @@
 <template>
 
-  <TaskPanel
+  <FacilityTaskPanelDetails
     :statusMsg="statusMsg"
     :headingMsg="headingMsg"
     :underHeadingMsg="underHeadingMsg"
@@ -9,6 +9,9 @@
     :loaderType="loaderType"
     :showCircularLoader="taskInfo.isRunning"
     :buttonSet="buttonSet"
+    @cancel="$emit('click', 'cancel')"
+    @clear="$emit('click', 'clear')"
+    @retry="$emit('click', 'retry')"
   />
 
 </template>
@@ -18,16 +21,26 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import {
+    SyncTaskStatuses,
     syncFacilityTaskDisplayInfo,
     removeFacilityTaskDisplayInfo,
     importFacilityTaskDisplayInfo,
   } from '../syncTaskUtils';
-  import TaskPanel from './TaskPanel';
+  import { TaskTypes } from '../../constants';
+  import FacilityTaskPanelDetails from './FacilityTaskPanelDetails';
+
+  const indeterminateSyncStatuses = [
+    SyncTaskStatuses.SESSION_CREATION,
+    SyncTaskStatuses.LOCAL_QUEUING,
+    SyncTaskStatuses.LOCAL_DEQUEUING,
+    SyncTaskStatuses.REMOTE_QUEUING,
+    SyncTaskStatuses.REMOTE_DEQUEUING,
+  ];
 
   export default {
     name: 'FacilityTaskPanel',
     components: {
-      TaskPanel,
+      FacilityTaskPanelDetails,
     },
     mixins: [commonCoreStrings],
     props: {
@@ -41,25 +54,38 @@
     },
     computed: {
       isSyncTask() {
-        return this.task.type === 'SYNC_FACILITY';
+        return (
+          this.task.type === TaskTypes.SYNCDATAPORTAL || this.task.type === TaskTypes.SYNCPEERFULL
+        );
       },
-      isRemoveTask() {
-        return this.task.type === 'REMOVE_FACILITY';
+      isDeleteTask() {
+        return this.task.type === TaskTypes.DELETEFACILITY;
+      },
+      isSetupImportTask() {
+        // HACK infer that we're in the setup wizard because the started_by field is null
+        return !this.task.started_by && this.task.type === TaskTypes.SYNCPEERPULL;
       },
       isImportTask() {
-        return this.task.type === 'IMPORT_FACILITY';
+        return this.task.type === TaskTypes.SYNCPEERPULL;
       },
       taskInfo() {
-        if (this.isSyncTask) {
-          return syncFacilityTaskDisplayInfo(this.task);
-        } else if (this.isRemoveTask) {
-          return removeFacilityTaskDisplayInfo(this.task);
-        } else if (this.isImportTask) {
+        if (this.isSetupImportTask) {
           return importFacilityTaskDisplayInfo(this.task);
         }
-        return null;
+        if (this.isSyncTask || this.isImportTask) {
+          return syncFacilityTaskDisplayInfo(this.task);
+        }
+        if (this.isDeleteTask) {
+          return removeFacilityTaskDisplayInfo(this.task);
+        }
+        return {};
       },
       loaderType() {
+        const { sync_state = '' } = this.task;
+        if (indeterminateSyncStatuses.find(s => s === sync_state)) {
+          return 'indeterminate';
+        }
+
         return 'determinate';
       },
       statusMsg() {
@@ -78,7 +104,12 @@
         if (this.taskInfo.canCancel) {
           return 'cancel';
         } else if (this.taskInfo.canClear) {
-          return this.taskInfo.canRetry ? 'retry' : 'clear';
+          // Import tasks can't be retried since we don't save the username/password
+          if (this.isImportTask) {
+            return 'clear';
+          } else {
+            return this.taskInfo.canRetry ? 'retry' : 'clear';
+          }
         } else {
           return '';
         }

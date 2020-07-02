@@ -26,10 +26,39 @@ export default new Resource({
   },
 
   /**
+   * Params for import/sync request
+   * @param {string} baseurl - peer URL
+   * @param {string} facility - facility ID
+   * @param {string} username - username for admin (not needed if previously-imported)
+   * @param {string} password - password for admin (not needed if previously-imported)
+   */
+  startpeerfacilityimport(...args) {
+    // TODO clear out tasks for this facility from the queue before starting
+    return this.postListEndpoint('startpeerfacilityimport', ...args);
+  },
+  startpeerfacilitysync(...args) {
+    return this.postListEndpoint('startpeerfacilitysync', ...args);
+  },
+  startdataportalbulksync() {
+    return this.postListEndpoint('startdataportalbulksync');
+  },
+  canceltask(taskId) {
+    return this.postListEndpoint('canceltask', {
+      task_id: taskId,
+    });
+  },
+  cleartask(taskId) {
+    return this.postListEndpoint('cleartask', {
+      task_id: taskId,
+    });
+  },
+  /**
    * @param {string} facility
    * @return {Promise}
    */
-  deleteFacility(facility) {
-    return this.postListEndpoint('deletefacility', { facility });
+  deleteFacility(facilityId) {
+    return this.postListEndpoint('startdeletefacility', { facility: facilityId }).then(response => {
+      return response.data;
+    });
   },
 });

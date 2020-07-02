@@ -51,19 +51,21 @@
       <KCheckbox :label="$tr('labelDelete')" @change="toggleDelete" />
     </p>
     <p>
-      <KButton
-        text="Cancel"
-        appearance="raised-button"
-        style="margin-left: 0;"
-        @click="$emit('cancel')"
-      />
-      <KButton
-        text="Next"
-        appearance="raised-button"
-        :disabled="fileToImport === null"
-        primary
-        @click="$emit('next', fileToImport, deleteUsers)"
-      />
+      <KButtonGroup>
+        <KButton
+          :text="coreString('cancelAction')"
+          appearance="raised-button"
+          style="margin-left: 0;"
+          @click="$emit('cancel')"
+        />
+        <KButton
+          :text="coreString('continueAction')"
+          appearance="raised-button"
+          :disabled="fileToImport === null"
+          primary
+          @click="$emit('next', fileToImport, deleteUsers)"
+        />
+      </KButtonGroup>
     </p>
 
     <CsvInfoModal
@@ -79,6 +81,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CsvInfoModal from '../CsvInfoModal';
 
   export default {
@@ -86,6 +89,7 @@
     components: {
       CsvInfoModal,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         showInfoModal: false,

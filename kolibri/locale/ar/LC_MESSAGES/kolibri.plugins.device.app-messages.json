@@ -27,7 +27,7 @@
   "ChannelTokenModal.networkErrorMessage": "غير قادر على الاتصال بالرمز التعريفي للقناة",
   "ChannelTokenModal.tokenExplanation": "تفتح الرموز التعريفية قائمة القنوات التعليميّة غير المدرجة على استوديو كوليبري",
   "ChannelUpdateAnnotations.inQueueForImport": "",
-  "ChannelUpdateAnnotations.newResource": "",
+  "ChannelUpdateAnnotations.newResource": "جديد",
   "ChannelUpdateAnnotations.newResourcesInTopic": "",
   "ChannelUpdateModal.channelUpdateExplanation": "",
   "ChannelUpdateModal.title": "",

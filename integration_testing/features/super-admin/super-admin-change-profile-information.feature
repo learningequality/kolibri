@@ -26,7 +26,6 @@ Feature: Super admin changes their own profile information
     Then I see the *Changes saved* snackbar notification
       And I see my selected gender and birth year on the profile page
 
-
   Scenario: Super admin changes password
      When I click the “Change password” link
      Then I see the “Change password” modal

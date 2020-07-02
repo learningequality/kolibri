@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('syncAllFacilityDataHeader')"
-    @submit="$emit('submit')"
+    @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
     <p>
@@ -11,18 +11,34 @@
     <p>
       {{ $tr('mustBeConnectedToInternet') }}
     </p>
+
+
     <template v-slot:actions>
-      <KButton :text="coreString('cancelAction')" @click="$emit('cancel')" />
-      <KButton
-        :text="coreString('syncAction')"
-        :disabled="submitDisabled"
-        primary
-        type="submit"
-      />
-      <KTooltip v-if="submitDisabled">
-        {{ $tr('currentlyOfflineTooltip') }}
-        {{ $tr('noFacilitiesTooltip') }}
-      </KTooltip>
+      <KButtonGroup>
+        <KButton
+          :text="coreString('cancelAction')"
+          @click="$emit('cancel')"
+        />
+        <KButton
+          ref="syncbutton"
+          :text="coreString('syncAction')"
+          primary
+          type="submit"
+        />
+        <!-- TODO make tooltips appear when hovering over disabled buttons-->
+        <KTooltip
+          v-if="submitDisabled"
+          reference="syncbutton"
+          :refs="$refs"
+        >
+          <span v-if="noRegisteredFacilities">
+            {{ $tr('noFacilitiesTooltip') }}
+          </span>
+          <span v-else>
+            {{ $tr('currentlyOfflineTooltip') }}
+          </span>
+        </KTooltip>
+      </KButtonGroup>
     </template>
   </KModal>
 
@@ -31,22 +47,47 @@
 
 <script>
 
+  import some from 'lodash/some';
+  import { FacilityTaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'SyncAllFacilitiesModal',
-    components: {},
     mixins: [commonCoreStrings],
-    props: {},
-    data() {
-      return {};
+    props: {
+      facilities: {
+        type: Array,
+        required: true,
+      },
     },
     computed: {
       submitDisabled() {
-        return false;
+        // TODO implement a check for KDP being offline
+        return this.noRegisteredFacilities;
+      },
+      noRegisteredFacilities() {
+        return !some(this.facilities, fac => fac.dataset.registered);
       },
     },
-    methods: {},
+    methods: {
+      handleSubmit() {
+        // NOTE the button will not be visibly disabled, but does nothing
+        // when clicked
+        if (!this.submitDisabled) {
+          return this.startSyncAllTask();
+        }
+      },
+      startSyncAllTask() {
+        return FacilityTaskResource.dataportalbulksync()
+          .then(() => {
+            this.$emit('success');
+          })
+          .catch(error => {
+            // TODO handle failure gracefully
+            this.$store.dispatch('handleApiError', error);
+          });
+      },
+    },
     $trs: {
       syncAllFacilityDataHeader: {
         message: 'Sync all facility data',

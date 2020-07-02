@@ -3,6 +3,7 @@ import urls from 'kolibri.urls';
 import { currentLanguage, createTranslator } from 'kolibri.utils.i18n';
 import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
 import { Presets, permissionPresets } from '../constants';
+import { FacilityImportResource } from '../api';
 
 const SetupStrings = createTranslator('SetupStrings', {
   personalFacilityName: {
@@ -51,20 +52,20 @@ export default {
     error: false,
   },
   actions: {
-    getFacilityAdmins() {
-      return client({
-        url: urls['kolibri:kolibri.plugins.setupWizard:facilityadminsList'](),
-      }).then(response => {
-        return response.data;
+    logIntoImportedFacility(store, credentials) {
+      store.dispatch('kolibriLogin', {
+        username: credentials.username,
+        password: credentials.password,
+        facility: credentials.facility,
       });
     },
-    grantSuperuserPermisions(store, data) {
-      return client({
-        url: urls['kolibri:kolibri.plugins.setupWizard:grantsuperuserpermissionsList'](),
-        data: {
-          user_id: data.user_id,
-          password: data.password,
-        },
+    provisionDeviceAfterImport(store, credentials) {
+      const onboardingData = store.state.onboardingData;
+      return FacilityImportResource.provisiondevice({
+        device_name: onboardingData.device_name,
+        language_id: onboardingData.language_id,
+      }).then(() => {
+        store.dispatch('kolibriLogin', credentials);
       });
     },
     provisionDevice(store) {
@@ -121,6 +122,10 @@ export default {
         'SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD',
         defaults.learner_can_login_with_no_password
       );
+    },
+    showError(store, errorMsg) {
+      store.commit('SET_ERROR', true);
+      store.dispatch('handleApiError', errorMsg);
     },
   },
   mutations: {

@@ -91,7 +91,6 @@
           <KButton
             :text="coreString('cancelAction')"
             appearance="flat-button"
-
             @click="$emit('cancel')"
           />
           <KButton
@@ -99,7 +98,6 @@
             :primary="true"
             :disabled="submitDisabled"
             type="submit"
-            @click="handleSubmit"
           />
         </KButtonGroup>
       </KFixedGridItem>

@@ -75,7 +75,7 @@
         this.startValidating({ deleteUsers: deleteUsers, file: file });
       },
       done() {
-        this.$router.push(this.$router.getRoute('DATA_EXPORT_PAGE'));
+        this.$router.push(this.$store.getters.facilityPageLinks.DataPage);
       },
       startTaskPolling() {
         if (!this.intervalId) {

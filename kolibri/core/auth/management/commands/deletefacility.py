@@ -2,26 +2,25 @@ import logging
 from contextlib import contextmanager
 
 from django.contrib.admin.models import LogEntry
-from django.core.exceptions import FieldError
 from django.core.management.base import CommandError
 from django.db import transaction
 from django.db.models import Q
 from morango.models import Buffer
 from morango.models import Certificate
+from morango.models import DatabaseMaxCounter
 from morango.models import RecordMaxCounter
 from morango.models import RecordMaxCounterBuffer
 from morango.models import Store
 from morango.models import SyncSession
 from morango.models import TransferSession
-from morango.registry import syncable_models
 
 from kolibri.core.analytics.models import PingbackNotificationDismissed
-from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.management.utils import DisablePostDeleteSignal
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Collection
+from kolibri.core.auth.models import dataset_cache
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
@@ -205,6 +204,8 @@ class Command(AsyncCommand):
                 update_progress(increment=0, message="Deleting database objects")
                 count, stats = delete_group.delete(update_progress)
                 total_deleted += count
+                # clear related cache
+                dataset_cache.clear()
 
             # if count doesn't match, something doesn't seem right
             if total_count != total_deleted:
@@ -287,30 +288,20 @@ class Command(AsyncCommand):
         )
 
     def _get_morango_models(self, dataset_id):
-        models = syncable_models.get_models(PROFILE_FACILITY_DATA)
-        querysets = []
+        querysets = [
+            DatabaseMaxCounter.objects.filter(partition__startswith=dataset_id),
+        ]
 
-        for model in models:
-            try:
-                model_source_ids = set(
-                    model.objects.filter(dataset_id=dataset_id).values_list(
-                        "_morango_source_id", flat=True
-                    )
-                )
-            except FieldError:
-                continue
+        stores = Store.objects.filter(partition__startswith=dataset_id)
+        store_ids = stores.values_list("pk", flat=True)
 
-            for source_id_chunk in chunk(list(model_source_ids), 300):
-                stores = Store.objects.filter(
-                    profile=PROFILE_FACILITY_DATA,
-                    model_name=model.morango_model_name,
-                    source_id__in=source_id_chunk,
-                )
-                store_ids = stores.values_list("pk", flat=True)
-                querysets.append(
-                    RecordMaxCounter.objects.filter(store_model_id__in=store_ids)
-                )
-                querysets.append(stores)
+        for store_ids_chunk in chunk(list(store_ids), 300):
+            querysets.append(
+                RecordMaxCounter.objects.filter(store_model_id__in=store_ids_chunk)
+            )
+
+        # append after RecordMaxCounter
+        querysets.append(stores)
 
         certificates = self._get_certificates(dataset_id)
         certificate_ids = certificates.distinct().values_list("pk", flat=True)

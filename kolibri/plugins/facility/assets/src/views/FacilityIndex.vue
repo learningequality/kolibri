@@ -3,13 +3,10 @@
   <CoreBase
     :authorized="userIsAuthorized"
     :authorizationErrorDetails="$tr('adminOrSuperuser')"
-    :showSubNav="userIsAuthorized && !immersivePageProps.immersivePage"
+    :showSubNav="showSubNav"
     v-bind="immersivePageProps"
   >
-    <template
-      v-if="pageName !== 'AllFacilitiesPage'"
-      v-slot:sub-nav
-    >
+    <template v-slot:sub-nav>
       <FacilityTopNav />
     </template>
 
@@ -39,13 +36,22 @@
       ...mapGetters([
         'isAdmin',
         'isSuperuser',
-        'inMultipleFacilityPage',
+        'userIsMultiFacilityAdmin',
         'currentFacilityName',
         'activeFacilityId',
       ]),
       ...mapState('classAssignMembers', ['class']),
       pageName() {
         return this.$route.name;
+      },
+      inAllFacilitiesPage() {
+        return this.pageName === PageNames.ALL_FACILITIES_PAGE;
+      },
+      showSubNav() {
+        if (this.inAllFacilitiesPage) {
+          return false;
+        }
+        return this.userIsAuthorized && !this.immersivePageProps.immersivePage;
       },
       immersivePageProps() {
         let immersivePagePrimary = false;
@@ -56,12 +62,7 @@
           this.pageName === PageNames.CLASS_ENROLL_LEARNER ||
           this.pageName === PageNames.CLASS_ASSIGN_COACH
         ) {
-          immersivePageRoute = {
-            name: PageNames.CLASS_EDIT_MGMT_PAGE,
-            params: {
-              facility_id: this.activeFacilityId,
-            },
-          };
+          immersivePageRoute = this.$store.getters.facilityPageLinks.ClassEditPage;
           if (this.class) {
             appBarTitle = this.class.name || '';
           }
@@ -69,15 +70,10 @@
           this.pageName === PageNames.USER_EDIT_PAGE ||
           this.pageName === PageNames.USER_CREATE_PAGE
         ) {
-          immersivePageRoute = {
-            name: PageNames.USER_MGMT_PAGE,
-            params: {
-              facility_id: this.activeFacilityId,
-            },
-          };
+          immersivePageRoute = this.$store.getters.facilityPageLinks.UserPage;
           appBarTitle = this.coreString('usersLabel');
         } else if (this.pageName === PageNames.IMPORT_CSV_PAGE) {
-          immersivePageRoute = this.$router.getRoute(PageNames.DATA_EXPORT_PAGE);
+          immersivePageRoute = this.$store.getters.facilityPageLinks.DataPage;
           appBarTitle = this.$tr('importPageHeader');
         }
 
@@ -90,7 +86,7 @@
             appBarTitle,
           };
         }
-        if (this.inMultipleFacilityPage) {
+        if (this.userIsMultiFacilityAdmin && !this.inAllFacilitiesPage) {
           appBarTitle = this.$tr('facilityLabelWithName', {
             facilityName: this.currentFacilityName,
           });
@@ -107,7 +103,7 @@
           // Superusers can view any facility
           return true;
         } else if (this.isAdmin) {
-          if (this.pageName === 'AllFacilitiesPage') {
+          if (this.inAllFacilitiesPage) {
             return false;
           }
           // Admins can only see the facility they belong to

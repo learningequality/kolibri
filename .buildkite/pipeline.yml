@@ -24,7 +24,7 @@ steps:
       env:
         LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
         LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
-        LE_TRIGGERED_FROM_KOLIBRI_VERSION_TAG: "${BUILDKITE_TAG}"
+        LE_KOLIBRI_RELEASE: "${BUILDKITE_TAG:-false}"
 
   - label: Build Windows installer
     command: .buildkite/build_windows_installer.sh
@@ -54,13 +54,12 @@ steps:
     depends_on:
       - deb-build
 
-  - label: Build Windows installer
-    command: .buildkite/build_windows_installer.sh
-
   - wait
 
   - label: Upload Release Artifacts
     command: .buildkite/setup_and_upload_artifact.sh
+    agents:
+        vader=true
     if: build.tag != null
 
   - wait

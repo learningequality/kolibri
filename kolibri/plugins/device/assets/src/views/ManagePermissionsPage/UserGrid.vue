@@ -32,13 +32,13 @@
           </td>
           <td v-if="hasMultipleFacilities">
             <span dir="auto" class="maxwidth">
-              {{ userFacility(user.facility) }}
+              {{ memoizedFacilityName(user.facility) }}
             </span>
           </td>
           <td class="btn-col">
             <KButton
               appearance="flat-button"
-              :text="permissionsButtonText(user.username)"
+              :text="permissionsButtonText(user)"
               style="margin-top: 6px;"
               @click="goToUserPermissionsPage(user.id)"
             />
@@ -54,8 +54,9 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapGetters } from 'vuex';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
+  import memoize from 'lodash/memoize';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -79,29 +80,34 @@
       },
     },
     computed: {
-      ...mapGetters(['facilities']),
-      ...mapState({
-        isCurrentUser: state => username => state.core.session.username === username,
-      }),
+      ...mapGetters(['facilities', 'currentUserId']),
       emptyMessage() {
         return this.$tr('noUsersMatching', { searchFilter: this.filterText });
       },
       hasMultipleFacilities() {
         return this.facilities.length > 1;
       },
+      // Use a memoized version of the facilityName function to avoid
+      // doing extra traversals of 'facilities' array
+      memoizedFacilityName() {
+        return memoize(this.facilityName);
+      },
     },
     methods: {
-      userFacility(facId) {
-        return this.facilities.find(fac => fac.id === facId).name || '';
+      facilityName(facilityId) {
+        return this.facilities.find(facility => facility.id === facilityId).name || '';
       },
-      fullNameLabel({ username, full_name }) {
-        if (this.isCurrentUser(username)) {
-          return this.$tr('selfUsernameLabel', { full_name });
+      isCurrentUser(user) {
+        return this.currentUserId === user.id;
+      },
+      fullNameLabel(user) {
+        if (this.isCurrentUser(user)) {
+          return this.$tr('selfUsernameLabel', { full_name: user.full_name });
         }
-        return full_name;
+        return user.full_name;
       },
-      permissionsButtonText(username) {
-        if (this.isCurrentUser(username)) {
+      permissionsButtonText(user) {
+        if (this.isCurrentUser(user)) {
           return this.$tr('viewPermissions');
         }
         return this.$tr('editPermissions');

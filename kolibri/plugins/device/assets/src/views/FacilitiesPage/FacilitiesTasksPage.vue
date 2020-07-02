@@ -2,7 +2,7 @@
 
   <div>
     <p>
-      <KRouterLink
+      <BackLink
         :to="{ name: 'FACILITIES_PAGE' }"
         :text="$tr('backToFacilitiesLabel')"
       />
@@ -11,19 +11,24 @@
     <HeaderWithOptions :headerText="coreString('tasksLabel')">
       <template #options>
         <KButton
+          v-if="someClearableTasks"
           :text="getTaskString('clearCompletedTasksAction')"
           @click="handleClickClearAll"
         />
       </template>
     </HeaderWithOptions>
 
+    <p v-if="facilityTasks.length === 0">
+      {{ emptyTasksMessage }}
+    </p>
     <div>
       <FacilityTaskPanel
-        v-for="(task, idx) in tasks"
+        v-for="(task, idx) in facilityTasks"
         :key="idx"
         class="task-panel"
         :style="{ borderBottomColor: $themePalette.grey.v_200 }"
         :task="task"
+        @click="handlePanelClick($event, task)"
       />
     </div>
 
@@ -36,40 +41,16 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import HeaderWithOptions from '../HeaderWithOptions';
-  import { syncStatusToDescriptionMap, removeStatusToDescriptionMap } from '../syncTaskUtils';
+  import { taskIsClearable } from '../../constants';
+  import ManageTasksPage from '../ManageTasksPage';
+  import BackLink from '../ManageTasksPage/BackLink';
   import FacilityTaskPanel from './FacilityTaskPanel';
+  import facilityTasksQueue from './facilityTasksQueue';
 
-  // TODO remove these functions since they're just for generating examples
-  function makeSyncTask(status) {
-    return {
-      type: 'SYNC_FACILITY',
-      status,
-      device_name: 'fcorp.local',
-      device_id: '4a9a',
-      facility_name: 'Atkinson Hall',
-      facility_id: 'D81C',
-      started_by_username: 'jb',
-      bytes_sent: 1000000,
-      bytes_received: 500000000,
-      percentage: 0.6,
-    };
-  }
-
-  function makeRemoveTask(status) {
-    return {
-      type: 'REMOVE_FACILITY',
-      status,
-      facility_name: 'Atkinson Hall',
-      facility_id: 'D81C',
-      started_by_username: 'jb',
-      percentage: 0.7,
-    };
-  }
-  const syncExamples = [
-    ...Object.keys(syncStatusToDescriptionMap).map(makeSyncTask),
-    ...Object.keys(removeStatusToDescriptionMap).map(makeRemoveTask),
-  ];
+  const ManageTasksPageStrings = crossComponentTranslator(ManageTasksPage);
 
   export default {
     name: 'FacilitiesTasksPage',
@@ -81,16 +62,33 @@
     components: {
       FacilityTaskPanel,
       HeaderWithOptions,
+      BackLink,
     },
-    mixins: [commonCoreStrings, commonTaskStrings],
+    mixins: [commonCoreStrings, commonTaskStrings, commonSyncElements, facilityTasksQueue],
     props: {},
+    data() {
+      return {
+        // (facilityTasksQueue) facilityTasks
+      };
+    },
     computed: {
-      tasks() {
-        return syncExamples;
+      someClearableTasks() {
+        return Boolean(this.facilityTasks.find(taskIsClearable));
+      },
+      emptyTasksMessage() {
+        // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
+        return ManageTasksPageStrings.$tr('emptyTasksMessage');
       },
     },
     methods: {
-      handleClickClearAll() {},
+      handleClickClearAll() {
+        this.clearCompletedFacilityTasks();
+      },
+      handlePanelClick(action, task) {
+        this.manageFacilityTask(action, task).catch(() => {
+          // handle errors silently
+        });
+      },
     },
     $trs: {
       backToFacilitiesLabel: 'Back to facilities',

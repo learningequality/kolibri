@@ -5,7 +5,7 @@
     <AuthBase>
 
       <!-- Multi-facility selection -->
-      <div v-if="hasMultipleFacilities || showFacilityName" style="margin-bottom: 8px;">
+      <div v-if="hasMultipleFacilities || showFacilityName" style="margin: 16px 0;">
         <span v-if="showFacilityName" style="margin-right: 8px;">
           {{ $tr("signInToFacilityLabel", { facility: selectedFacility.name }) }}
         </span>
@@ -25,11 +25,11 @@
         <KButton
           appearance="basic-link"
           text=""
+          style="margin-bottom: 16px;"
           @click="unselectListUser"
         >
-          <mat-svg
-            name="arrow_back"
-            category="navigation"
+          <KIcon
+            :icon="back"
             :style="{
               fill: $themeTokens.primary,
               height: '1.125em',
@@ -74,6 +74,7 @@
         <KButton
           appearance="basic-link"
           text=""
+          style="margin-bottom: 16px;"
           @click="unselectListUser"
         >
           <mat-svg
@@ -90,7 +91,7 @@
           />{{ coreString('goBackAction') }}
         </KButton>
 
-        <p v-if="selectedListUser.username">
+        <p v-if="selectedListUser.username" style="padding: 8px 0;">
           {{ $tr("greetUser", { user: selectedListUser.username }) }}
         </p>
 
@@ -147,9 +148,8 @@
               :autofocus="true"
               :invalid="passwordIsInvalid"
               :invalidText="passwordIsInvalidText"
-              :floatingLabel="!autoFilledByChromeAndNotEdited"
+              :floatingLabel="false"
               @blur="passwordBlurred = true"
-              @input="handlePasswordChanged"
             />
           </transition>
           <div>
@@ -270,7 +270,6 @@
         usernameBlurred: false,
         passwordBlurred: false,
         formSubmitted: false,
-        autoFilledByChromeAndNotEdited: false,
         selectedListUser: null,
         needsToCreatePassword: false,
         createdPassword: '',
@@ -279,9 +278,9 @@
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig', 'selectedFacility', 'isAppContext']),
+      ...mapGetters(['facilityConfig', 'facilities', 'selectedFacility', 'isAppContext']),
       ...mapState(['facilityId']), // backend's default facility on load
-      ...mapState('signIn', ['hasMultipleFacilities']),
+      ...mapState('signIn', ['hasMultipleFacilities', 'usersForSelectedFacilities']),
       ...mapState({
         invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
         busy: state => state.core.signInBusy,
@@ -291,22 +290,19 @@
       },
       shouldShowUsersList() {
         return (
-          this.usersForCurrentFacility.length <= MAX_USERS_FOR_LISTING_VIEW &&
+          this.selectedFacility.num_users <= MAX_USERS_FOR_LISTING_VIEW &&
           this.isAppContext &&
           !this.selectedListUser
         );
       },
       shouldShowPasswordForm() {
-        return Boolean(this.selectedListUser);
+        return Boolean(this.selectedListUser) && !this.usernameIsInvalid;
       },
       suggestions() {
         // Filter suggestions on the client side so we don't hammer the server
         return this.usernameSuggestions.filter(sug =>
           sug.toLowerCase().startsWith(this.username.toLowerCase())
         );
-      },
-      allUsers() {
-        return plugin_data.deviceUsers || [];
       },
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
@@ -319,7 +315,7 @@
         return '';
       },
       usersForCurrentFacility() {
-        return this.allUsers.filter(user => user.facility_id === this.facilityId);
+        return this.usersForSelectedFacilities.filter(user => user.facility_id === this.facilityId);
       },
       usernameIsInvalid() {
         return Boolean(this.usernameIsInvalidText);
@@ -335,10 +331,6 @@
         return '';
       },
       passwordIsInvalid() {
-        // prevent validation from showing when we only think that the password is empty
-        if (this.autoFilledByChromeAndNotEdited) {
-          return false;
-        }
         return Boolean(this.passwordIsInvalidText);
       },
       formIsValid() {
@@ -369,25 +361,16 @@
         this.setSuggestionTerm(newVal);
       },
     },
-    mounted() {
-      /*
-        Chrome has non-standard behavior with auto-filled text fields where
-        the value shows up as an empty string even though there is text in
-        the field:
-          https://bugs.chromium.org/p/chromium/issues/detail?id=669724
-        As super-brittle hack to detect the presence of auto-filled text and
-        work-around it, we look for a change in background color as described
-        here:
-          https://stackoverflow.com/a/35783761
-      */
-      setTimeout(() => {
-        const bgColor = window.getComputedStyle(this.$refs.username.$el.querySelector('input'))
-          .backgroundColor;
+    created() {
+      // Only get facilities that meet our criteria for listing the users
+      const facilityIdsToFetch = this.facilities
+        .filter(f => f.num_users <= MAX_USERS_FOR_LISTING_VIEW)
+        .map(f => f.id);
 
-        if (bgColor === 'rgb(250, 255, 189)') {
-          this.autoFilledByChromeAndNotEdited = true;
-        }
-      }, 250);
+      // Only fetch if there are facilities to fetch for
+      if (facilityIdsToFetch.length) {
+        this.$store.dispatch('signIn/fetchUsersForFacilities', facilityIdsToFetch);
+      }
     },
     methods: {
       ...mapActions(['kolibriLogin', 'kolibriLoginWithNewPassword', 'clearLoginError']),
@@ -405,6 +388,11 @@
       setSelectedListUser(user) {
         // If we get a user - then use it's username, otherwise, we should already
         // have a username in our data()
+        if (this.usernameIsInvalid) {
+          this.$refs.username.updateText();
+          this.$refs.username.focus();
+          return;
+        }
         if (user) {
           this.username = user.username;
         } else {
@@ -414,6 +402,7 @@
             facility: '',
           };
         }
+
         // If the user is a learner and we don't require passwords sign them in
         if (this.simpleSignIn && user.is_learner) {
           this.signIn();
@@ -491,6 +480,7 @@
           case 'Escape':
             this.showDropdown = false;
             break;
+          case 'NumpadEnter':
           case 'Enter':
             if (this.highlightedIndex < 0) {
               this.showDropdown = false;
@@ -543,9 +533,6 @@
         } else if (this.passwordIsInvalid) {
           this.$refs.password.focus();
         }
-      },
-      handlePasswordChanged() {
-        this.autoFilledByChromeAndNotEdited = false;
       },
       suggestionStyle(i) {
         return {
@@ -630,7 +617,7 @@
 
   .login-btn {
     width: calc(100% - 16px);
-    margin-top: 8px;
+    margin-top: 16px;
   }
 
   .create {

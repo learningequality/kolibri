@@ -27,7 +27,7 @@
   "ChannelTokenModal.networkErrorMessage": "Sizikutheka kulumikiza ku tokeni",
   "ChannelTokenModal.tokenExplanation": "Matokeni a tchanelo amatsekula matchanelo omwe sali pa m'ndandanda pa Kolibri Studio",
   "ChannelUpdateAnnotations.inQueueForImport": "",
-  "ChannelUpdateAnnotations.newResource": "",
+  "ChannelUpdateAnnotations.newResource": "Yatsopano",
   "ChannelUpdateAnnotations.newResourcesInTopic": "",
   "ChannelUpdateModal.channelUpdateExplanation": "Tchanero chomwe mwasankha kuti mutenge chisinthidwa kukhala chatsopano. Tipitirize?",
   "ChannelUpdateModal.title": "Ikani zatsopano mu tchanelo",

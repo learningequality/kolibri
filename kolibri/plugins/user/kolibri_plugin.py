@@ -24,23 +24,9 @@ class UserAsset(webpack_hooks.WebpackBundleHook):
 
     @property
     def plugin_data(self):
-        from kolibri.core.auth.models import FacilityUser
-
-        def sanitize_users(user):
-            return {
-                "id": user.id,
-                "username": user.username,
-                "facility_id": user.facility_id,
-                "is_learner": len(user.get_roles_for_user(user)) == 0,
-                "needs_password": (
-                    user.password == "NOT_SPECIFIED" or not user.password
-                ),
-            }
-
         return {
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),
             "allowGuestAccess": get_device_setting("allow_guest_access"),
-            "deviceUsers": list(map(sanitize_users, FacilityUser.objects.all())),
         }
 
 

@@ -5,14 +5,17 @@
       :removeNavIcon="false"
       @click_back="goToLastStep"
     />
-    <KPageContainer>
-      <SuperuserCredentialsForm
-        ref="credentials"
-        :isFinalStep="true"
-        :description="$tr('adminAccountCreationDescriptionPersonal')"
-        @click_next="finalizeOnboardingData"
-      />
-    </KPageContainer>
+    <div class="main">
+      <KPageContainer>
+        <SuperuserCredentialsForm
+          ref="credentials"
+          :isFinalStep="true"
+          :hidePrivacyLink="true"
+          :description="$tr('adminAccountCreationDescriptionPersonal')"
+          @click_next="finalizeOnboardingData"
+        />
+      </KPageContainer>
+    </div>
   </div>
 
 </template>
@@ -72,4 +75,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .main {
+    margin: 16px;
+  }
+
+</style>

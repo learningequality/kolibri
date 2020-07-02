@@ -26,7 +26,11 @@ const generateVueIntlItems = language => {
    * we strip off the territory code if it's there.
    */
   const vue_intl_code = language.intl_code.split('-')[0];
-  return `data.push(require('vue-intl/locale-data/${vue_intl_code}.js'));`;
+
+  // Exclude ach-ug language that is defined in language_info.json
+  if (vue_intl_code !== 'ach') {
+    return `data.push(require('vue-intl/locale-data/${vue_intl_code}.js'));`;
+  }
 };
 
 const vueIntlFooter = `
@@ -87,7 +91,9 @@ const generateIntlItems = language => {
     filename += codes[4];
   }
 
-  return `
+  // Exclude ach-ug language that is defined in language_info.json
+  if (language.intl_code !== 'ach-ug') {
+    return `
     case '${language.intl_code}':
       return new Promise(function(resolve) {
         require.ensure(
@@ -97,6 +103,7 @@ const generateIntlItems = language => {
           }
         );
       });`;
+  }
 };
 
 const intlFooter = `

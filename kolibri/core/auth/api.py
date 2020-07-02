@@ -15,8 +15,12 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
+from django.db.models import Subquery
+from django.db.models import TextField
+from django.db.models.functions import Cast
 from django.db.models.query import F
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
@@ -25,10 +29,12 @@ from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
+from morango.models import TransferSession
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
 from .constants import collection_kinds
@@ -54,6 +60,8 @@ from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ValuesViewset
+from kolibri.core.decorators import MissingRequiredParamsException
+from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.logger.models import UserSessionLog
@@ -128,10 +136,27 @@ class KolibriAuthPermissions(permissions.BasePermission):
             return False
 
 
-class FacilityDatasetViewSet(viewsets.ModelViewSet):
+class FacilityDatasetViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
     serializer_class = FacilityDatasetSerializer
+
+    values = (
+        "id",
+        "learner_can_edit_username",
+        "learner_can_edit_name",
+        "learner_can_edit_password",
+        "learner_can_sign_up",
+        "learner_can_delete_account",
+        "learner_can_login_with_no_password",
+        "show_download_button_in_learn",
+        "description",
+        "location",
+        "registered",
+        "preset",
+    )
+
+    field_map = {"allow_guest_access": lambda x: allow_guest_access()}
 
     def get_queryset(self):
         queryset = FacilityDataset.objects.filter(
@@ -181,6 +206,28 @@ class FacilityUserViewSet(ValuesViewset):
     field_map = {
         "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
     }
+
+    @list_route(methods=["get"])
+    def users_for_facilities(self, request):
+        if "member_of" not in request.GET:
+            raise MissingRequiredParamsException(
+                "member_of is required for this endpoint"
+            )
+
+        facility_ids = request.GET["member_of"].split(",")
+
+        users = (
+            FacilityUser.objects.filter(facility__in=facility_ids)
+            .annotate(is_learner=Exists(Role.objects.filter(user=OuterRef("id"))))
+            .values("id", "username", "facility_id", "is_learner", "password")
+        )
+
+        def sanitize_users(user):
+            password = user.pop("password")
+            user["needs_password"] = password == "NOT_SPECIFIED" or not password
+            return user
+
+        return Response(list(map(sanitize_users, users)))
 
     def consolidate(self, items, queryset):
         output = []
@@ -278,11 +325,44 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     filter_fields = ["user", "collection", "kind", "user_ids"]
 
 
-class FacilityViewSet(viewsets.ModelViewSet):
+class FacilityViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
+
+    facility_values = ["id", "name", "num_classrooms", "num_users", "last_synced"]
+
+    dataset_keys = [
+        "dataset__id",
+        "dataset__learner_can_edit_username",
+        "dataset__learner_can_edit_name",
+        "dataset__learner_can_edit_password",
+        "dataset__learner_can_sign_up",
+        "dataset__learner_can_delete_account",
+        "dataset__learner_can_login_with_no_password",
+        "dataset__show_download_button_in_learn",
+        "dataset__description",
+        "dataset__location",
+        "dataset__registered",
+        "dataset__preset",
+    ]
+
+    values = tuple(facility_values + dataset_keys)
+
+    # map function to pop() all of the dataset__ items into an dict
+    # then assign that new dict to the `dataset` key of the facility
+    def _map_dataset(facility, dataset_keys=dataset_keys):
+        dataset = {}
+        for dataset_key in dataset_keys:
+            stripped_key = dataset_key.replace("dataset__", "")
+            dataset[stripped_key] = facility.pop(dataset_key)
+        return dataset
+
+    field_map = {
+        "default": lambda x: Facility.get_default_facility().id == x["id"],
+        "dataset": _map_dataset,
+    }
 
     def get_queryset(self, prefetch=True):
         queryset = Facility.objects.all()
@@ -291,6 +371,29 @@ class FacilityViewSet(viewsets.ModelViewSet):
             # to prevent n queries when n facilities are queried
             return queryset.select_related("dataset")
         return queryset
+
+    def annotate_queryset(self, queryset):
+        return (
+            queryset.annotate(
+                num_users=SQCount(
+                    FacilityUser.objects.filter(facility=OuterRef("id")), field="id"
+                )
+            )
+            .annotate(
+                num_classrooms=SQCount(
+                    Classroom.objects.filter(parent=OuterRef("id")), field="id"
+                )
+            )
+            .annotate(
+                last_synced=Subquery(
+                    TransferSession.objects.filter(
+                        filter=Cast(OuterRef("dataset"), TextField())
+                    )
+                    .order_by("-last_activity_timestamp")
+                    .values("last_activity_timestamp")
+                )
+            )
+        )
 
 
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):

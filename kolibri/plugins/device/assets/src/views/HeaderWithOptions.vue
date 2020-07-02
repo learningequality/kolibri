@@ -12,6 +12,7 @@
     <KGridItem
       :layout8="{ span: 4, alignment: 'right' }"
       :layout12="{ span: 6, alignment: 'right' }"
+      :style="{ padding: windowIsSmall ? '0 8px 16px' : '0' }"
       class="buttons"
     >
       <slot name="options"></slot>
@@ -23,8 +24,11 @@
 
 <script>
 
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+
   export default {
     name: 'HeaderWithOptions',
+    mixins: [responsiveWindowMixin],
     props: {
       headerText: {
         type: String,

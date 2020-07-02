@@ -75,9 +75,11 @@ from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import set_device_settings
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
+from kolibri.core.utils.cache import NamespacedCacheProxy
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
+dataset_cache = NamespacedCacheProxy(cache, "dataset")
 
 
 def _has_permissions_class(obj):
@@ -186,13 +188,13 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         key = "{id}_{db_table}_dataset".format(
             id=getattr(self, field.attname), db_table=field.related_model._meta.db_table
         )
-        dataset_id = cache.get(key)
+        dataset_id = dataset_cache.get(key)
         if dataset_id is None:
             try:
                 dataset_id = getattr(self, related_obj_name).dataset_id
             except ObjectDoesNotExist as e:
                 raise ValidationError(e)
-            cache.set(key, dataset_id, 60 * 10)
+            dataset_cache.set(key, dataset_id, 60 * 10)
         return dataset_id
 
     def calculate_source_id(self):
@@ -587,13 +589,14 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, password):
+    def create_superuser(self, username, password, facility=None):
 
         # import here to avoid circularity
         from kolibri.core.device.models import DevicePermissions
 
         # get the default facility
-        facility = Facility.get_default_facility()
+        if facility is None:
+            facility = Facility.get_default_facility()
 
         if self.filter(username__iexact=username, facility=facility).exists():
             raise ValidationError("An account with that username already exists")
@@ -610,7 +613,9 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         facility.add_role(superuser, role_kinds.ADMIN)
 
         # make the user into a superuser on this device
-        DevicePermissions.objects.create(user=superuser, is_superuser=True)
+        DevicePermissions.objects.create(
+            user=superuser, is_superuser=True, can_manage_content=True
+        )
 
 
 def validate_birth_year(value):

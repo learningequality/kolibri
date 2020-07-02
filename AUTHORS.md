@@ -66,3 +66,5 @@ Please feel free to add your name to this list if you make a PR
 * Brandon Nguyen (bransgithub)
 * Chris Castle (crcastle)
 * Julián Duque (julianduque)
+* Brian Kwon (br-kwon)
+* Jacob Pierce (nucleogenesis)

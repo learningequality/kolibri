@@ -138,6 +138,7 @@ function _channelListState(data) {
     id: channel.id,
     title: channel.name,
     description: channel.description,
+    tagline: channel.tagline,
     root_id: channel.root,
     last_updated: channel.last_updated,
     version: channel.version,
@@ -358,7 +359,7 @@ export function saveDismissedNotification(store, notification_id) {
 }
 
 export function getFacilities(store) {
-  return FacilityResource.fetchCollection().then(facilities => {
+  return FacilityResource.fetchCollection({ force: true }).then(facilities => {
     store.commit('CORE_SET_FACILITIES', [...facilities]);
   });
 }
@@ -372,7 +373,7 @@ export function getFacilityConfig(store, facilityId) {
     return Promise.resolve(redirectBrowser());
   }
   let datasetPromise;
-  if (selectedFacility && typeof selectedFacility.dataset === 'object') {
+  if (selectedFacility && typeof selectedFacility.dataset !== 'object') {
     datasetPromise = Promise.resolve([selectedFacility.dataset]);
   } else {
     datasetPromise = FacilityDatasetResource.fetchCollection({

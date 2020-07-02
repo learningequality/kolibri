@@ -15,7 +15,18 @@
 
     <TotalPoints slot="totalPointsMenuItem" />
 
-    <div>
+    <!--
+      Topics pages have a different heading style which
+      includes passing the breadcrumbs
+    -->
+    <div v-if="currentPageIsTopic">
+      <component :is="currentPage">
+        <Breadcrumbs slot="breadcrumbs" />
+      </component>
+      <router-view />
+    </div>
+
+    <div v-else>
       <Breadcrumbs v-if="pageName !== 'TOPICS_CONTENT'" />
       <component :is="currentPage" v-if="currentPage" />
       <router-view />
@@ -38,7 +49,6 @@
 
   import { mapGetters, mapState } from 'vuex';
   import urls from 'kolibri.urls';
-  import { redirectBrowser } from 'kolibri.utils.redirectBrowser';
   import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -118,6 +128,12 @@
       },
       currentPage() {
         return pageNameToComponentMap[this.pageName] || null;
+      },
+      currentPageIsTopic() {
+        return [
+          pageNameToComponentMap[PageNames.TOPICS_TOPIC],
+          pageNameToComponentMap[PageNames.TOPICS_CHANNEL],
+        ].includes(this.currentPage);
       },
       immersivePageProps() {
         if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
@@ -282,7 +298,10 @@
       },
       handleSubmitUpdateYourProfileModal() {
         if (this.userPluginUrl) {
-          const redirect = () => redirectBrowser(`${this.userPluginUrl()}#/profile/edit`);
+          const url = `${this.userPluginUrl()}#/profile/edit`;
+          const redirect = () => {
+            window.location.href = url;
+          };
           this.$store
             .dispatch('deferProfileUpdates', this.demographicInfo)
             .then(redirect, redirect);

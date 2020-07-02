@@ -13,7 +13,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-PIP_CMD="$PIP_PATH install -r requirements/pipeline.txt"
+PIP_CMD="$PIP_PATH install -r requirements/release_upload.txt"
 echo "Running $PIP_CMD..."
 $PIP_CMD
 if [ $? -ne 0 ]; then
@@ -25,12 +25,6 @@ PYTHON_CMD="$PYTHON_PATH .buildkite/upload_artifacts.py"
 echo "Now excuting  upload artifacts script..."
 mkdir -p dist
 buildkite-agent artifact download 'dist/*' dist/
-
-{
-    buildkite-agent artifact download '*.exe' dist/ --step "Sign Windows installer"
-} || {
-    echo "No signed Windows installer found"
-}
 
 $PYTHON_CMD
 if [ $? -ne 0 ]; then

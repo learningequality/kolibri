@@ -8,10 +8,17 @@ try:
     from django.contrib.postgres.aggregates import ArrayAgg
 
     class NotNullArrayAgg(ArrayAgg):
+        def __init__(self, *args, **kwargs):
+            self.result_field = kwargs.pop("result_field", None)
+            super(NotNullArrayAgg, self).__init__(*args, **kwargs)
+
         def convert_value(self, value, expression, connection, context):
             if not value:
                 return []
-            return filter(lambda x: x is not None, value)
+            results = list(filter(lambda x: x is not None, value))
+            if self.result_field is not None:
+                return list(map(self.result_field.to_python, results))
+            return results
 
 
 except ImportError:
@@ -54,7 +61,7 @@ class GroupConcat(Aggregate):
             return []
         results = value.split(",")
         if self.result_field is not None:
-            return map(self.result_field.to_python, results)
+            return list(map(self.result_field.to_python, results))
         return results
 
 
@@ -68,11 +75,16 @@ def get_source_field(model, field_path):
 
 
 def annotate_array_aggregate(queryset, **kwargs):
+    model = queryset.model
     if connection.vendor == "postgresql" and NotNullArrayAgg is not None:
         return queryset.annotate(
-            **{target: NotNullArrayAgg(source) for target, source in kwargs.items()}
+            **{
+                target: NotNullArrayAgg(
+                    source, result_field=get_source_field(model, source)
+                )
+                for target, source in kwargs.items()
+            }
         )
-    model = queryset.model
     # Call values on "pk" to insert a GROUP BY to ensure the GROUP CONCAT
     # is called by row and not across the entire queryset.
     return queryset.values("pk").annotate(

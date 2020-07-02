@@ -93,6 +93,13 @@ const client = options => {
   const headers = { ...(options.headers || {}) };
   if (options.multipart) {
     headers['Content-Type'] = 'multipart/form-data';
+    options.transformRequest = function(data) {
+      const fd = new FormData();
+      Object.keys(data).forEach(item => {
+        fd.append(item, data[item]);
+      });
+      return fd;
+    };
   }
   return baseClient
     .request({
@@ -100,15 +107,15 @@ const client = options => {
       headers,
     })
     .then(response => {
-      return {
-        get entity() {
+      Object.defineProperty(response, 'entity', {
+        get() {
           logging.warn(
             'entity is deprecated for accessing response data, please use the data key instead'
           );
           return response.data;
         },
-        ...response,
-      };
+      });
+      return response;
     });
 };
 

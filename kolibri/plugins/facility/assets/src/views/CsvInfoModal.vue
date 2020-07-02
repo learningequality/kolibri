@@ -210,16 +210,18 @@
       downloadSample: 'Download a sample CSV file',
       exampleUser: {
         message: 'Example User {number}',
-        context: 'Placeholder sample data for a fake user, e.g. "Example Name 1234"',
+        context:
+          'When downloading a sample CSV file, this string is used to generate some class names. These might be strings like "Example Name 1234", "Example Name 5678"',
       },
       exampleUsername: {
         message: 'user-{number}',
         context:
-          'Placeholder sample data for a fake username. Must be a valid Kolibri username. e.g. "user-1234"',
+          'When downloading a sample CSV file, this string is used to generate usernames. These must be valid Kolibri usernames (only letters, no spaces), for example "user-1234"',
       },
       exampleClass: {
         message: 'Example Class - {letter}',
-        context: 'Placeholder sample data for a fake class name, e.g. "Example Class - A"',
+        context:
+          'When downloading a sample CSV file, this string is used to generate some class names. These might be strings like "Example Class - A",  "Example Class - B",  and "Example Class - C"',
       },
       /* eslint-enable */
     },

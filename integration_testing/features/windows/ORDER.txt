@@ -1,0 +1,2 @@
+super-admin-windows-installer-setup-error-log.feature
+super-admin-windows-installer-translated-strings.feature

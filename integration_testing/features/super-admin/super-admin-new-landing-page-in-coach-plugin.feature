@@ -56,7 +56,6 @@ Feature: New landing page for super admins in Coach plugin
     Then I see the *Class Home* page
       And I see *Coach* in the action bar
 
-
 Examples:
 | facility | class   |
 | MySchool | MyClass |

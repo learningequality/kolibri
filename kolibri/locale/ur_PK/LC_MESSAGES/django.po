@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-11 09:07-0700\n"
-"PO-Revision-Date: 2020-06-13 01:24\n"
+"PO-Revision-Date: 2020-06-23 23:19\n"
 "Last-Translator: \n"
 "Language-Team: Urdu (Pakistan)\n"
 "Language: ur_PK\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: ur-PK\n"
-"X-Crowdin-File: /test-release-v0.14.x/django.po\n"
+"X-Crowdin-File: /release-v0.14.x/django.po\n"
 "X-Crowdin-File-ID: 3806\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
@@ -31,38 +31,38 @@ msgstr "شاگردوں کا گروہ"
 
 #: kolibri/core/auth/constants/collection_kinds.py:18
 msgid "Ad hoc learners group"
-msgstr ""
+msgstr "ایڈہاک لرنرز گروپ"
 
 #: kolibri/core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr ""
+msgstr "غیر متوقع اعتراض [{}]: {}"
 
 #: kolibri/core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
-msgstr ""
+msgstr "سیل '{}' کا مواد بہت لمبا ہے"
 
 #: kolibri/core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr ""
+msgstr "سیل '{}' کا مواد درست نہیں ہے"
 
 #: kolibri/core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr ""
+msgstr "ڈپلیکیٹڈ صارف نام"
 
 #: kolibri/core/auth/constants/commands_errors.py:28
 #: kolibri/core/auth/management/commands/bulkimportusers.py:84
 msgid "Username only can contain characters, numbers and underscores"
-msgstr ""
+msgstr "صارف نام میں صرف حرف ، نمبر اور انڈر سکور ہوسکتے ہیں"
 
 #: kolibri/core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
-msgstr ""
+msgstr "کالم '{}' ضروری ہے"
 
 #: kolibri/core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr ""
+msgstr "درست اور / یا غلط ہیڈر لیبلوں کی آمیزہ پہلی قطار میں پائے گئے"
 
 #: kolibri/core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
@@ -263,3 +263,4 @@ msgstr "اوپن آیڈی فراہم کنندہ کی اجازت"
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
 msgid "Request for Permission"
 msgstr "اجازت کی درخواست"
+

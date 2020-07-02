@@ -22,8 +22,8 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.exceptions import APIException
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.exceptions import NotAuthenticated
 from rest_framework.exceptions import ParseError
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from six import string_types
@@ -31,6 +31,7 @@ from six import string_types
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.management.utils import get_client_and_server_certs
+from kolibri.core.auth.management.utils import get_dataset_id
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.permissions import CanExportLogs
@@ -645,9 +646,9 @@ class TasksViewSet(BaseViewSet):
         delete = request.data.get("delete", None)
         dryrun = request.data.get("dryrun", None)
         userid = request.user.pk
-        facility = request.user.facility.id
+        facility_id = request.data.get("facility_id", None)
         job_type = "IMPORTUSERSFROMCSV"
-        job_metadata = {"type": job_type, "started_by": userid, "facility": facility}
+        job_metadata = {"type": job_type, "started_by": userid, "facility": facility_id}
         job_args = ["bulkimportusers"]
         if dryrun:
             job_args.append("--dryrun")
@@ -656,7 +657,7 @@ class TasksViewSet(BaseViewSet):
         job_args.append(filepath)
 
         job_kwd_args = {
-            "facility": facility,
+            "facility": facility_id,
             "userid": userid,
             "locale": locale,
             "extra_metadata": job_metadata,
@@ -849,7 +850,7 @@ class FacilityTasksViewSet(BaseViewSet):
         """
         responses = []
         facilities = Facility.objects.filter(dataset__registered=True).values_list(
-            "dataset_id", flat=True
+            "id", flat=True
         )
 
         for facility_id in facilities:
@@ -866,6 +867,7 @@ class FacilityTasksViewSet(BaseViewSet):
         job_data = validate_and_prepare_peer_sync_job(
             request,
             no_push=True,
+            no_provision=True,
             extra_metadata=prepare_sync_task(request, type="SYNCPEER/PULL"),
         )
 
@@ -920,6 +922,7 @@ class FacilityTasksViewSet(BaseViewSet):
                 dict(code="FACILITY_MEMBER", message="User is member of facility",)
             )
 
+        facility_name = Facility.objects.get(id=facility_id).name
         job_id = facility_queue.enqueue(
             call_command,
             "deletefacility",
@@ -928,7 +931,11 @@ class FacilityTasksViewSet(BaseViewSet):
             noninteractive=True,
             cancellable=False,
             extra_metadata=dict(
-                facility=facility_id, started_by=request.user.pk, type="DELETEFACILITY"
+                facility=facility_id,
+                facility_name=facility_name,
+                started_by=request.user.pk,
+                started_by_username=request.user.username,
+                type="DELETEFACILITY",
             ),
         )
 
@@ -950,10 +957,22 @@ def prepare_sync_task(request, **kwargs):
     task_data = dict(
         facility=facility_id,
         started_by=request.user.pk,
+        started_by_username=request.user.username,
         sync_state=FacilitySyncState.PENDING,
         bytes_sent=0,
         bytes_received=0,
     )
+
+    task_type = kwargs.get("type")
+    if task_type in ["SYNCPEER/PULL", "SYNCPEER/FULL"]:
+        # Extra metadata that can be passed from the client
+        extra_task_data = dict(
+            facility_name=request.data.get("facility_name", ""),
+            device_name=request.data.get("device_name", ""),
+            device_id=request.data.get("device_id", ""),
+            baseurl=request.data.get("baseurl", ""),
+        )
+        task_data.update(extra_task_data)
 
     task_data.update(kwargs)
     return task_data
@@ -970,11 +989,11 @@ def validate_prepare_sync_job(request, **kwargs):
 
     job_data = dict(
         facility=facility_id,
-        chunk_size=50,
+        chunk_size=200,
         noninteractive=True,
         extra_metadata=dict(),
         track_progress=True,
-        cancellable=True,
+        cancellable=False,
     )
 
     job_data.update(kwargs)
@@ -1007,13 +1026,18 @@ def validate_and_prepare_peer_sync_job(request, **kwargs):
 
     # try to get the certificate, which will save it if successful
     try:
+        # make sure we get the dataset ID
+        dataset_id = get_dataset_id(
+            baseurl, identifier=facility_id, noninteractive=True
+        )
+
         # username and password are not required for this to succeed unless there is no cert
         get_client_and_server_certs(
-            username, password, facility_id, network_connection, noninteractive=True
+            username, password, dataset_id, network_connection, noninteractive=True
         )
     except CommandError as e:
         if not username and not password:
-            raise NotAuthenticated()
+            raise PermissionDenied()
         else:
             raise AuthenticationFailed(e)
 

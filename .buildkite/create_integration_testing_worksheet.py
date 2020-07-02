@@ -20,8 +20,18 @@ SPREADSHEET_CREDENTIALS = os.getenv("GOOGLE_SPREADSHEET_CREDENTIALS")
 SPREADSHEET_TPL_KEY = "1kVhg0evo9EV2aDo10KdIIjwqsoT4rISR7dJzf6s_-RM"
 SPREADSHEET_TITLE = "Integration testing with Gherkin scenarios"
 
+
 # Use to get the Kolibri version, for the integration testing spreadsheet
-SHEET_TAG = os.getenv("BUILDKITE_TAG")
+def get_tag_name():
+    if os.getenv("BUILDKITE_TAG"):
+        return os.getenv("BUILDKITE_TAG")
+    elif os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH"):
+        return os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH")
+    else:
+        return "develop"
+
+
+SHEET_TAG = get_tag_name()
 SHEET_TPL_COLUMN = "B"
 SHEET_TPL_START_VALUE = 5
 SHEET_INDEX = 0
@@ -33,13 +43,6 @@ CELL_VALUE_SEPARATOR = "end_feature_index"
 
 if SHEET_PARENT_CONTAINER_ID == "" or SHEET_PARENT_CONTAINER_ID is None:
     SHEET_PARENT_CONTAINER_ID = "10bMsasxKvpi_9U1NU9rq7YBnFBiCkYrc"
-
-if SHEET_TAG == "" or SHEET_TAG is None:
-    buildkite_branch = os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH")
-    if buildkite_branch != "" or buildkite_branch is not None:
-        SHEET_TAG = buildkite_branch
-    else:
-        SHEET_TAG = "develop"
 
 if SPREADSHEET_CREDENTIALS == "" or SPREADSHEET_CREDENTIALS is None:
     logging.info("Spreadsheet credentials not exist")
@@ -61,8 +64,8 @@ G_ACCESS = gspread.authorize(
 
 
 def get_feature_name(str_arg):
-    str_name = str_arg.replace("-", " ").replace(".feature", " ").capitalize()
-    return str_name.strip()
+    str_name = str_arg.replace("-", " ").replace(".feature", " ").strip().split("/")[-1]
+    return str_name.capitalize()
 
 
 def get_role_name(str_arg):

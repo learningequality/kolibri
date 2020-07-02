@@ -6,13 +6,17 @@
       :title="currentTitle"
       @click_back="goToLastStep"
     />
-    <KPageContainer>
-      <component
-        :is="currentComponent"
-        v-bind="{ ...setupData }"
-        @click_next="goToNextStep"
-      />
-    </KPageContainer>
+    <div class="main">
+      <KPageContainer>
+        <component
+          :is="currentComponent"
+          :device.sync="device"
+          :facility.sync="facility"
+          :superuser.sync="superuser"
+          @click_next="goToNextStep"
+        />
+      </KPageContainer>
+    </div>
   </div>
 
 </template>
@@ -38,17 +42,6 @@
 
   const TOTAL_STEPS = 4;
 
-  const fakeFacilities = [
-    {
-      id: 'D81C',
-      name: 'Atkinson Hall',
-    },
-    {
-      id: '2A59',
-      name: 'Price Center',
-    },
-  ];
-
   // Template for the 'Import Facility' workflow, which manages the title
   // and back/forth flow for this group of steps.
   export default {
@@ -60,19 +53,25 @@
     },
     mixins: [commonSetupElements, commonSyncElements],
     data() {
+      // Global state for the import process
       return {
-        setupData: {
-          device: {
-            name: 'LINUX 3',
-            address: 'localhost:8008',
-            id: 'EE31',
-          },
-          // All facilities
-          facilities: fakeFacilities,
-          // Facility chosen at 2 SelectFacilityForm
-          facility: {
-            ...fakeFacilities[0],
-          },
+        // Peer device
+        device: {
+          name: '',
+          id: '',
+          baseurl: '',
+        },
+        // Facility info and credentials
+        facility: {
+          name: '',
+          id: '',
+          username: '',
+          password: '',
+        },
+        // Superuser credentials
+        superuser: {
+          username: '',
+          password: '',
         },
       };
     },
@@ -94,6 +93,16 @@
         // TODO disable backwards navigation at the router level
         return this.currentStep > 1;
       },
+    },
+    beforeRouteUpdate(to, from, next) {
+      // If trying to go backwards, prevent navigation and move the history back
+      // to previous location
+      if (Number(from.params.step) >= 2 && Number(to.params.step <= 2)) {
+        window.history.forward();
+        return;
+      } else {
+        next();
+      }
     },
     methods: {
       goToNextStep() {
@@ -119,9 +128,11 @@
         }
       },
       finalizeOnboardingData() {
-        // DELETE
-        this.$store.commit('SET_FACILITY_PRESET', 'informal');
-        this.$store.dispatch('provisionDevice');
+        this.$store.dispatch('provisionDeviceAfterImport', {
+          username: this.superuser.username,
+          password: this.superuser.password,
+          facility: this.facility.id,
+        });
       },
     },
     $trs: {
@@ -135,4 +146,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .main {
+    margin: 16px;
+  }
+
+</style>

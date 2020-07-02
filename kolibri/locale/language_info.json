@@ -1,6 +1,6 @@
 [
   {
-    "crowdin_code": "ach-ug",
+    "crowdin_code": "ach",
     "intl_code": "ach-ug",
     "language_name": "In-context translation",
     "english_name": "In-context translation",
@@ -41,7 +41,7 @@
     "english_name": "Spanish (Spain)",
     "default_font": "NotoSans"
   },
-    {
+  {
     "crowdin_code": "la",
     "intl_code": "es-419",
     "language_name": "Español",
@@ -90,7 +90,7 @@
     "english_name": "Italian",
     "default_font": "NotoSans"
   },
-    {
+  {
     "crowdin_code": "ko",
     "intl_code": "ko",
     "language_name": "한국어",

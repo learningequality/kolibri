@@ -358,7 +358,7 @@ class ContentNodeViewset(ValuesViewset):
         output = []
 
         for item in items:
-            item["assessmentmetadata"] = assessmentmetadata.get("id")
+            item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
             item["files"] = list(
                 map(lambda x: map_file(x, item), files.get(item["id"], []))
             )

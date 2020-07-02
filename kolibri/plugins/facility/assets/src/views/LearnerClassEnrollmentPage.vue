@@ -17,7 +17,6 @@
 
   import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { PageNames } from '../constants';
   import ClassEnrollForm from './ClassEnrollForm';
 
   export default {
@@ -40,9 +39,8 @@
     methods: {
       ...mapActions('classAssignMembers', ['enrollLearnersInClass']),
       enrollLearners(selectedUsers) {
-        // do this in action?
         this.enrollLearnersInClass({ classId: this.class.id, users: selectedUsers }).then(() => {
-          this.$router.push({ name: PageNames.CLASS_EDIT_MGMT_PAGE }).then(() => {
+          this.$router.push(this.$store.getters.facilityPageLinks.ClassEditPage).then(() => {
             this.showSnackbarNotification('learnersEnrolledNoCount', {
               count: selectedUsers.length,
             });

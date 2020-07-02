@@ -171,7 +171,7 @@
       };
     },
     computed: {
-      ...mapGetters(['currentFacilityId', 'currentUserId']),
+      ...mapGetters(['currentUserId']),
       ...mapState('userManagement', ['facilityUsers']),
       formDisabled() {
         return this.status === 'BUSY';
@@ -272,11 +272,7 @@
         };
       },
       goToUserManagementPage() {
-        const params = {};
-        if (this.$store.getters.inMultipleFacilityPage) {
-          params.facility_id = this.$store.getters.activeFacilityId;
-        }
-        this.$router.push(this.$router.getRoute('USER_MGMT_PAGE', params));
+        this.$router.push(this.$store.getters.facilityPageLinks.UserPage);
       },
       usernameIsUnique(value) {
         const match = this.facilityUsers.find(
@@ -307,7 +303,6 @@
         // their update separately
         if (!this.editingSuperAdmin && this.newUserKind !== this.userCopy.kind) {
           roleUpdates = {
-            collection: this.currentFacilityId,
             kind: this.newUserKind,
           };
         }

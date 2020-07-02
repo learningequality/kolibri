@@ -7,8 +7,8 @@ from mock import call
 from mock import Mock
 from mock import patch
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.exceptions import NotAuthenticated
 from rest_framework.exceptions import ParseError
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.test import APITestCase
 
@@ -173,14 +173,14 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(this_is_extra=True,),
         )
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
 
         response = self.client.post(
             reverse("kolibri:core:facilitytask-startdataportalsync"),
-            {"facility": self.facility.dataset_id},
+            {"facility": self.facility.id},
             format="json",
         )
         self.assertEqual(response.status_code, 200)
@@ -189,19 +189,20 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         facility_queue.enqueue.assert_called_with(
             call_command,
             "sync",
-            facility=self.facility.dataset_id,
-            chunk_size=50,
+            facility=self.facility.id,
+            chunk_size=200,
             noninteractive=True,
             extra_metadata=dict(
-                facility=self.facility.dataset_id,
+                facility=self.facility.id,
                 started_by=user.pk,
+                started_by_username=user.username,
                 sync_state="PENDING",
                 bytes_sent=0,
                 bytes_received=0,
                 type="SYNCDATAPORTAL",
             ),
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
         )
 
     def test_startdataportalbulksync(self, facility_queue):
@@ -216,7 +217,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(this_is_extra=True,),
         )
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
@@ -232,38 +233,41 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                 call(
                     call_command,
                     "sync",
-                    facility=facility2.dataset_id,
-                    chunk_size=50,
+                    facility=facility2.id,
+                    chunk_size=200,
                     noninteractive=True,
                     extra_metadata=dict(
-                        facility=facility2.dataset_id,
+                        facility=facility2.id,
                         started_by=user.pk,
+                        started_by_username=user.username,
                         sync_state="PENDING",
                         bytes_sent=0,
                         bytes_received=0,
                         type="SYNCDATAPORTAL",
                     ),
                     track_progress=True,
-                    cancellable=True,
+                    cancellable=False,
                 ),
                 call(
                     call_command,
                     "sync",
-                    facility=facility3.dataset_id,
-                    chunk_size=50,
+                    facility=facility3.id,
+                    chunk_size=200,
                     noninteractive=True,
                     extra_metadata=dict(
-                        facility=facility3.dataset_id,
+                        facility=facility3.id,
                         started_by=user.pk,
+                        started_by_username=user.username,
                         sync_state="PENDING",
                         bytes_sent=0,
                         bytes_received=0,
                         type="SYNCDATAPORTAL",
                     ),
                     track_progress=True,
-                    cancellable=True,
+                    cancellable=False,
                 ),
-            ]
+            ],
+            any_order=True,
         )
 
     @patch("kolibri.core.tasks.api.validate_and_prepare_peer_sync_job")
@@ -277,22 +281,27 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         user = self._setup_device()
 
         extra_metadata = dict(
-            facility=self.facility.dataset_id,
+            facility=self.facility.id,
             started_by=user.pk,
+            started_by_username=user.username,
             sync_state="PENDING",
             bytes_sent=0,
             bytes_received=0,
             type="SYNCPEER/PULL",
+            facility_name="",
+            device_name="",
+            device_id="",
+            baseurl="https://some.server.test/extra/stuff",
         )
         prepared_data = dict(
             baseurl="https://some.server.test/",
-            facility=self.facility.dataset_id,
+            facility=self.facility.id,
             no_push=True,
-            chunk_size=50,
+            chunk_size=200,
             noninteractive=True,
             extra_metadata=extra_metadata,
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
         )
         validate_and_prepare_peer_sync_job.return_value = prepared_data.copy()
 
@@ -301,15 +310,14 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(this_is_extra=True,),
         )
         fake_job_data["extra_metadata"].update(extra_metadata)
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
 
         req_data = dict(
-            facility=self.facility.dataset_id,
-            baseurl="https://some.server.test/extra/stuff",
+            facility=self.facility.id, baseurl="https://some.server.test/extra/stuff",
         )
 
         response = self.client.post(
@@ -321,7 +329,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         self.assertJobResponse(fake_job_data, response)
 
         validate_and_prepare_peer_sync_job.assert_has_calls(
-            [call(ANY, no_push=True, extra_metadata=extra_metadata,)]
+            [call(ANY, no_push=True, no_provision=True, extra_metadata=extra_metadata,)]
         )
         facility_queue.enqueue.assert_called_with(call_command, "sync", **prepared_data)
 
@@ -332,21 +340,26 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         user = self._setup_device()
 
         extra_metadata = dict(
-            facility=self.facility.dataset_id,
+            facility=self.facility.id,
             started_by=user.pk,
+            started_by_username=user.username,
             sync_state="PENDING",
             bytes_sent=0,
             bytes_received=0,
             type="SYNCPEER/FULL",
+            facility_name="",
+            device_name="",
+            device_id="",
+            baseurl="https://some.server.test/extra/stuff",
         )
         prepared_data = dict(
             baseurl="https://some.server.test/",
-            facility=self.facility.dataset_id,
-            chunk_size=50,
+            facility=self.facility.id,
+            chunk_size=200,
             noninteractive=True,
             extra_metadata=extra_metadata,
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
         )
         validate_and_prepare_peer_sync_job.return_value = prepared_data.copy()
 
@@ -355,15 +368,14 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(this_is_extra=True,),
         )
         fake_job_data["extra_metadata"].update(extra_metadata)
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
 
         req_data = dict(
-            facility=self.facility.dataset_id,
-            baseurl="https://some.server.test/extra/stuff",
+            facility=self.facility.id, baseurl="https://some.server.test/extra/stuff",
         )
 
         response = self.client.post(
@@ -384,7 +396,11 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         facility2 = Facility.objects.create(name="facility2")
 
         extra_metadata = dict(
-            facility=facility2.id, started_by=user.pk, type="DELETEFACILITY",
+            facility=facility2.id,
+            facility_name=facility2.name,
+            started_by=user.pk,
+            started_by_username=user.username,
+            type="DELETEFACILITY",
         )
         prepared_data = dict(
             facility=facility2.id,
@@ -459,12 +475,13 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
 
 class FacilityTaskHelperTestCase(TestCase):
     def test_prepare_sync_task(self):
-        user = Mock(spec=FacilityUser, pk=456)
+        user = Mock(spec=FacilityUser, pk=456, username="abc")
         req = Mock(spec=Request, data=dict(facility=123), user=user)
 
         expected = dict(
             facility=123,
             started_by=456,
+            started_by_username="abc",
             sync_state="PENDING",
             bytes_sent=0,
             bytes_received=0,
@@ -478,10 +495,10 @@ class FacilityTaskHelperTestCase(TestCase):
 
         expected = dict(
             facility=123,
-            chunk_size=50,
+            chunk_size=200,
             noninteractive=True,
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(type="test"),
         )
         actual = validate_prepare_sync_job(req, extra_metadata=dict(type="test"))
@@ -502,9 +519,15 @@ class FacilityTaskHelperTestCase(TestCase):
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
     @patch("kolibri.core.tasks.api.get_client_and_server_certs")
+    @patch("kolibri.core.tasks.api.get_dataset_id")
     def test_validate_and_prepare_peer_sync_job(
-        self, get_client_and_server_certs, NetworkClient, MorangoProfileController
+        self,
+        get_dataset_id,
+        get_client_and_server_certs,
+        NetworkClient,
+        MorangoProfileController,
     ):
+        dataset_id = 456
         req = Mock(
             spec=Request,
             data=dict(
@@ -521,15 +544,17 @@ class FacilityTaskHelperTestCase(TestCase):
         network_connection = Mock()
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
+
+        get_dataset_id.return_value = dataset_id
         get_client_and_server_certs.return_value = None
 
         expected = dict(
             baseurl="https://some.server.test/",
             facility=123,
-            chunk_size=50,
+            chunk_size=200,
             noninteractive=True,
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(type="test"),
         )
         actual = validate_and_prepare_peer_sync_job(
@@ -542,8 +567,12 @@ class FacilityTaskHelperTestCase(TestCase):
             "https://some.server.test/"
         )
 
+        get_dataset_id.assert_called_with(
+            "https://some.server.test/", identifier=123, noninteractive=True
+        )
+
         get_client_and_server_certs.assert_called_with(
-            "tester", "mypassword", 123, network_connection, noninteractive=True
+            "tester", "mypassword", dataset_id, network_connection, noninteractive=True
         )
 
     def test_validate_and_prepare_peer_sync_job__no_baseurl(self):
@@ -574,31 +603,9 @@ class FacilityTaskHelperTestCase(TestCase):
 
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
-    @patch("kolibri.core.tasks.api.get_client_and_server_certs")
-    def test_validate_and_prepare_peer_sync_job__not_authenticated(
-        self, get_client_and_server_certs, NetworkClient, MorangoProfileController
-    ):
-        req = Mock(
-            spec=Request,
-            data=dict(facility=123, baseurl="https://some.server.test/extra/stuff",),
-        )
-
-        client = NetworkClient.return_value
-        client.base_url = "https://some.server.test/"
-
-        network_connection = Mock()
-        controller = MorangoProfileController.return_value
-        controller.create_network_connection.return_value = network_connection
-        get_client_and_server_certs.side_effect = CommandError()
-
-        with self.assertRaises(NotAuthenticated):
-            validate_and_prepare_peer_sync_job(req, extra_metadata=dict(type="test"))
-
-    @patch("kolibri.core.tasks.api.MorangoProfileController")
-    @patch("kolibri.core.tasks.api.NetworkClient")
-    @patch("kolibri.core.tasks.api.get_client_and_server_certs")
-    def test_validate_and_prepare_peer_sync_job__authentication_failed(
-        self, get_client_and_server_certs, NetworkClient, MorangoProfileController
+    @patch("kolibri.core.tasks.api.get_dataset_id")
+    def test_validate_and_prepare_peer_sync_job__unknown_facility(
+        self, get_dataset_id, NetworkClient, MorangoProfileController
     ):
         req = Mock(
             spec=Request,
@@ -616,6 +623,70 @@ class FacilityTaskHelperTestCase(TestCase):
         network_connection = Mock()
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
+
+        get_dataset_id.side_effect = CommandError()
+
+        with self.assertRaises(AuthenticationFailed):
+            validate_and_prepare_peer_sync_job(req, extra_metadata=dict(type="test"))
+
+    @patch("kolibri.core.tasks.api.MorangoProfileController")
+    @patch("kolibri.core.tasks.api.NetworkClient")
+    @patch("kolibri.core.tasks.api.get_client_and_server_certs")
+    @patch("kolibri.core.tasks.api.get_dataset_id")
+    def test_validate_and_prepare_peer_sync_job__not_authenticated(
+        self,
+        get_dataset_id,
+        get_client_and_server_certs,
+        NetworkClient,
+        MorangoProfileController,
+    ):
+        req = Mock(
+            spec=Request,
+            data=dict(facility=123, baseurl="https://some.server.test/extra/stuff",),
+        )
+
+        client = NetworkClient.return_value
+        client.base_url = "https://some.server.test/"
+
+        network_connection = Mock()
+        controller = MorangoProfileController.return_value
+        controller.create_network_connection.return_value = network_connection
+
+        get_dataset_id.return_value = 456
+        get_client_and_server_certs.side_effect = CommandError()
+
+        with self.assertRaises(PermissionDenied):
+            validate_and_prepare_peer_sync_job(req, extra_metadata=dict(type="test"))
+
+    @patch("kolibri.core.tasks.api.MorangoProfileController")
+    @patch("kolibri.core.tasks.api.NetworkClient")
+    @patch("kolibri.core.tasks.api.get_client_and_server_certs")
+    @patch("kolibri.core.tasks.api.get_dataset_id")
+    def test_validate_and_prepare_peer_sync_job__authentication_failed(
+        self,
+        get_dataset_id,
+        get_client_and_server_certs,
+        NetworkClient,
+        MorangoProfileController,
+    ):
+        req = Mock(
+            spec=Request,
+            data=dict(
+                facility=123,
+                baseurl="https://some.server.test/extra/stuff",
+                username="tester",
+                password="mypassword",
+            ),
+        )
+
+        client = NetworkClient.return_value
+        client.base_url = "https://some.server.test/"
+
+        network_connection = Mock()
+        controller = MorangoProfileController.return_value
+        controller.create_network_connection.return_value = network_connection
+
+        get_dataset_id.return_value = 456
         get_client_and_server_certs.side_effect = CommandError()
 
         with self.assertRaises(AuthenticationFailed):

@@ -4,7 +4,7 @@
 
     <h3>{{ coreString('searchLabel') }}</h3>
 
-    <SearchBox ref="searchBox" :filters="contents.length > 0" />
+    <SearchBox ref="searchBox" :filters="true" />
 
     <p v-if="!searchTerm">
       {{ $tr('noSearch') }}

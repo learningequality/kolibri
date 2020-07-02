@@ -69,6 +69,8 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
         }
         if (isRoot) {
           topic.description = currentChannel.description;
+          topic.tagline = currentChannel.tagline;
+          topic.thumbnail = currentChannel.thumbnail;
         }
         store.commit('topicsTree/SET_STATE', {
           isRoot,

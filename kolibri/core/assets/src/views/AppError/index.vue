@@ -13,18 +13,20 @@
     </p>
 
     <p>
-      <KButton
-        v-if="!isPageNotFound"
-        :text="$tr('pageReloadPrompt')"
-        :primary="true"
-        @click="reloadPage"
-      />
-      <KButton
-        :primary="isPageNotFound"
-        appearance="raised-button"
-        :text="exitButtonLabel"
-        @click="handleClickBackToHome"
-      />
+      <KButtonGroup>
+        <KButton
+          v-if="!isPageNotFound"
+          :text="$tr('pageReloadPrompt')"
+          :primary="true"
+          @click="reloadPage"
+        />
+        <KButton
+          :primary="isPageNotFound"
+          appearance="raised-button"
+          :text="exitButtonLabel"
+          @click="handleClickBackToHome"
+        />
+      </KButtonGroup>
     </p>
 
     <p v-if="!isPageNotFound">

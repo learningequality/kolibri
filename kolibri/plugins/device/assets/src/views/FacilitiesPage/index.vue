@@ -3,21 +3,23 @@
   <div>
     <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
       <template #options>
-        <KButton
-          :text="$tr('syncAllAction')"
-          @click="showSyncAllModal = true"
-        />
-        <KButton
-          :text="$tr('importFacilityAction')"
-          primary
-          @click="showImportModal = true"
-        />
+        <KButtonGroup>
+          <KButton
+            :text="$tr('syncAllAction')"
+            @click="showSyncAllModal = true"
+          />
+          <KButton
+            :text="$tr('importFacilityAction')"
+            primary
+            @click="showImportModal = true"
+          />
+        </KButtonGroup>
       </template>
     </HeaderWithOptions>
 
     <TasksBar
-      v-if="facilitiesTasks.length > 0"
-      :tasks="facilitiesTasks"
+      v-if="facilityTasks.length > 0"
+      :tasks="facilityTasks"
       :taskManagerLink="{ name: 'FACILITIES_TASKS_PAGE' }"
       @clearall="handleClickClearAll"
     />
@@ -34,21 +36,22 @@
             <FacilityNameAndSyncStatus
               :facility="facility"
               :isSyncing="facilityIsSyncing(facility)"
+              :isDeleting="facilityIsDeleting(facility)"
             />
           </td>
           <td class="button-col">
-            <div>
+            <KButtonGroup>
               <KButton
                 :text="coreString('syncAction')"
                 @click="facilityForSync = facility"
               />
               <KDropdownMenu
                 :text="coreString('optionsLabel')"
-                :options="options"
+                :options="facilityOptions(facility)"
                 appearance="flat-button"
                 @select="handleOptionSelect($event.value, facility)"
               />
-            </div>
+            </KButtonGroup>
           </td>
         </tr>
       </tbody>
@@ -56,21 +59,21 @@
 
     <RemoveFacilityModal
       v-if="Boolean(facilityForRemoval)"
-      :canRemove="facilityCanBeRemoved(facilityForRemoval)"
       :facility="facilityForRemoval"
-      @submit="handleSubmitRemoval"
+      @success="handleRemoveSuccess"
       @cancel="facilityForRemoval = null"
     />
 
     <SyncAllFacilitiesModal
       v-if="showSyncAllModal"
-      @submit="showSyncAllModal = false"
+      :facilities="facilities"
+      @success="handleSyncAllSuccess"
       @cancel="showSyncAllModal = false"
     />
 
     <ImportFacilityModalGroup
       v-if="showImportModal"
-      @submit="showImportModal = false"
+      @success="handleStartImportSuccess"
       @cancel="showImportModal = false"
     />
 
@@ -117,10 +120,12 @@
   } from 'kolibri.coreVue.componentSets.sync';
   import TasksBar from '../ManageContentPage/TasksBar';
   import HeaderWithOptions from '../HeaderWithOptions';
+  import { TaskStatuses, TaskTypes } from '../../constants';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
   import SyncFacilityModalGroup from './SyncFacilityModalGroup';
   import ImportFacilityModalGroup from './ImportFacilityModalGroup';
+  import facilityTaskQueue from './facilityTasksQueue';
 
   const Options = Object.freeze({
     REGISTER: 'REGISTER',
@@ -146,7 +151,7 @@
       SyncAllFacilitiesModal,
       TasksBar,
     },
-    mixins: [commonCoreStrings, commonSyncElements],
+    mixins: [commonCoreStrings, commonSyncElements, facilityTaskQueue],
     props: {},
     data() {
       return {
@@ -157,32 +162,43 @@
         facilityForRemoval: null,
         facilityForRegister: null,
         kdpProject: null,
-        facilitiesTasks: [],
-        tasks: [],
+        taskIdsToWatch: [],
+        // (facilityTaskQueue) facilityTasks
       };
     },
-    computed: {
-      options() {
+    watch: {
+      // Update facilities whenever a watched task completes
+      facilityTasks(newTasks) {
+        for (let index in newTasks) {
+          const task = newTasks[index];
+          if (this.taskIdsToWatch.includes(task.id)) {
+            if (task.status === TaskStatuses.COMPLETED) {
+              this.fetchFacilites();
+              if (task.type === TaskTypes.DELETEFACILITY) {
+                this.showFacilityRemovedSnackbar(task.facility_name);
+              }
+              this.taskIdsToWatch = this.taskIdsToWatch.filter(x => x !== task.id);
+            }
+          }
+        }
+      },
+    },
+    beforeMount() {
+      this.fetchFacilites();
+    },
+    methods: {
+      facilityOptions(facility) {
         return [
           {
             label: this.coreString('registerAction'),
             value: Options.REGISTER,
+            disabled: facility.dataset.registered,
           },
           {
             label: this.coreString('removeAction'),
             value: Options.REMOVE,
           },
         ];
-      },
-    },
-    beforeMount() {
-      this.fetchFacilites();
-      this.pollSyncTasks();
-    },
-    methods: {
-      facilityCanBeRemoved() {
-        // TODO return false if user is in the facility (determine from session)
-        return true;
       },
       handleOptionSelect(option, facility) {
         if (option === Options.REMOVE) {
@@ -191,25 +207,13 @@
           this.facilityForRegister = facility;
         }
       },
-      handleSubmitRemoval() {
-        if (this.facilityForRemoval) {
-          const facilityName = this.facilityForRemoval.name;
-          this.facilityForRemoval = null;
-          this.$store.dispatch(
-            'createSnackbar',
-            this.$tr('facilityRemovedSnackbar', {
-              facilityName,
-            })
-          );
-        }
-      },
       fetchFacilites() {
         return FacilityResource.fetchCollection({ force: true }).then(facilities => {
           this.facilities = [...facilities];
         });
       },
       handleClickClearAll() {
-        this.facilitiesTasks = [];
+        Promise.all([this.fetchFacilites(), this.clearCompletedFacilityTasks()]);
       },
       handleValidateSuccess({ name, token }) {
         this.kdpProject = { name, token };
@@ -223,25 +227,28 @@
         this.kdpProject = null;
       },
       handleStartSyncSuccess() {
-        this.pollSyncTasks();
         this.facilityForSync = null;
       },
-      pollSyncTasks() {
-        this.fetchKdpSyncTasks()
-          .then(tasks => {
-            this.tasks = tasks;
-            return this.cleanupKdpSyncTasks(this.tasks, this.fetchFacilites);
-          })
-          .then(() => {
-            if (this.tasks.length > 0) {
-              setTimeout(() => {
-                return this.pollSyncTasks();
-              }, 2000);
-            }
-          });
+      handleSyncAllSuccess() {
+        this.showSyncAllModal = false;
       },
-      facilityIsSyncing(facility) {
-        return Boolean(this.tasks.find(task => task.facility === facility.id));
+      handleStartImportSuccess() {
+        this.$router.push({
+          name: 'FACILITIES_TASKS_PAGE',
+        });
+        this.showImportModal = false;
+      },
+      showFacilityRemovedSnackbar(facilityName) {
+        this.$store.dispatch(
+          'createSnackbar',
+          this.$tr('facilityRemovedSnackbar', {
+            facilityName,
+          })
+        );
+      },
+      handleRemoveSuccess(taskId) {
+        this.taskIdsToWatch.push(taskId);
+        this.facilityForRemoval = null;
       },
     },
     $trs: {

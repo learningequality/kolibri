@@ -27,7 +27,7 @@
   "ChannelTokenModal.networkErrorMessage": "토큰에 연결할 수 없습니다",
   "ChannelTokenModal.tokenExplanation": "채널 암호는 Kolibri 스튜디오에서 조회되지 않는 채널을 보여줍니다.",
   "ChannelUpdateAnnotations.inQueueForImport": "",
-  "ChannelUpdateAnnotations.newResource": "",
+  "ChannelUpdateAnnotations.newResource": "신규",
   "ChannelUpdateAnnotations.newResourcesInTopic": "",
   "ChannelUpdateModal.channelUpdateExplanation": "",
   "ChannelUpdateModal.title": "",

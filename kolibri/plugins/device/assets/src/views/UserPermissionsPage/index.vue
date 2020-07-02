@@ -72,20 +72,22 @@
       </div>
 
       <div class="buttons">
-        <KButton
-          :disabled="saveDisabled"
-          :text="$tr('saveButton')"
-          :primary="true"
-          appearance="raised-button"
-          @click="save()"
-        />
-        <KButton
-          :disabled="uiBlocked"
-          :text="coreString('cancelAction')"
-          :primary="false"
-          appearance="flat-button"
-          @click="goBack()"
-        />
+        <KButtonGroup>
+          <KButton
+            :disabled="saveDisabled"
+            :text="$tr('saveButton')"
+            :primary="true"
+            appearance="raised-button"
+            @click="save()"
+          />
+          <KButton
+            :disabled="uiBlocked"
+            :text="coreString('cancelAction')"
+            :primary="false"
+            appearance="flat-button"
+            @click="goBack()"
+          />
+        </KButtonGroup>
       </div>
       <div v-if="saveFailed">
         {{ $tr('saveFailureNotification') }}
@@ -126,17 +128,14 @@
       };
     },
     computed: {
-      ...mapGetters(['facilities']),
+      ...mapGetters(['facilities', 'currentUserId']),
       ...mapState('userPermissions', ['user', 'permissions']),
-      ...mapState({
-        currentUsername: state => state.core.session.username,
-      }),
       // IDEA Make this a core getter? Need audit
       facilityName() {
         return this.facilities.find(facility => facility.id === this.user.facility).name;
       },
       isCurrentUser() {
-        return this.currentUsername === this.user.username;
+        return this.currentUserId === this.user.id;
       },
       superuserDisabled() {
         return this.uiBlocked || this.isCurrentUser;

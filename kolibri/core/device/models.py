@@ -149,7 +149,7 @@ class DeviceAppKey(models.Model):
     @classmethod
     def update_app_key(cls):
         app_key, created = cls.objects.get_or_create()
-        app_key.key = uuid4()
+        app_key.key = uuid4().hex
         app_key.save()
         cache.set(APP_KEY_CACHE_KEY, app_key.key, 5000)
         return app_key
