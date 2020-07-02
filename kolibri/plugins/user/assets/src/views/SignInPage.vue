@@ -371,7 +371,7 @@
       }
     },
     methods: {
-      ...mapActions(['kolibriLogin', 'kolibriLoginWithNewPassword']),
+      ...mapActions(['kolibriLogin', 'kolibriSetUnspecifiedPassword']),
       clearUser() {
         // Going back to the beginning - undo what we may have
         // changed so far and clearing the errors, if any
@@ -394,7 +394,12 @@
           password: this.createdPassword,
           facility: this.selectedFacility.id,
         };
-        this.kolibriLoginWithNewPassword(payload).catch();
+        this.kolibriSetUnspecifiedPassword(payload).then(() => {
+          // Password successfully set
+          // Use this password now to sign in
+          this.password = this.createdPassword;
+          this.signIn();
+        });
       },
       setSuggestionTerm(newVal) {
         if (newVal !== null && typeof newVal !== 'undefined') {

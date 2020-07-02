@@ -21,6 +21,7 @@ from django.db.models import Subquery
 from django.db.models import TextField
 from django.db.models.functions import Cast
 from django.db.models.query import F
+from django.http import Http404
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -32,6 +33,7 @@ from morango.models import TransferSession
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
+from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -545,6 +547,34 @@ class SignUpViewSet(viewsets.ViewSet):
             return Response(serialized_user.data, status=status.HTTP_201_CREATED)
 
 
+class SetNonSpecifiedPasswordView(views.APIView):
+    def post(self, request):
+        username = request.data.get("username", "")
+        password = request.data.get("password", "")
+        facility_id = request.data.get("facility", None)
+
+        if not username or not password or not facility_id:
+            return Response(
+                "Must specify username, password, and facility",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        error_message = "Suitable user does not exist"
+
+        try:
+            user = FacilityUser.objects.get(username=username, facility=facility_id)
+        except ObjectDoesNotExist:
+            raise Http404(error_message)
+
+        if user.password != "NOT_SPECIFIED":
+            raise Http404(error_message)
+
+        user.set_password(password)
+        user.save()
+
+        return Response()
+
+
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class SessionViewSet(viewsets.ViewSet):
     def create(self, request):
@@ -584,8 +614,18 @@ class SessionViewSet(viewsets.ViewSet):
             # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
             # while the "Require learners to log in with password" setting was disabled - but now
             # it is enabled again.
-            login(request, unauthenticated_user)
-            return self.get_session_response(request, password_not_specified=True)
+            return Response(
+                [
+                    {
+                        "id": error_constants.PASSWORD_NOT_SPECIFIED,
+                        "metadata": {
+                            "field": "password",
+                            "message": "Username is valid, but password needs to be set before login.",
+                        },
+                    }
+                ],
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         elif (
             not password
             and FacilityUser.objects.filter(
@@ -619,7 +659,7 @@ class SessionViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         return self.get_session_response(request)
 
-    def get_session_response(self, request, password_not_specified=False):
+    def get_session_response(self, request):
         user = request.user
         session_key = "current"
         server_time = now()
@@ -657,9 +697,6 @@ class SessionViewSet(viewsets.ViewSet):
         # Can only record user session log data for FacilityUsers.
         if active and isinstance(user, FacilityUser):
             UserSessionLog.update_log(user)
-
-        if password_not_specified:
-            session.update({"password_not_specified": True})
 
         response = Response(session)
         return response
