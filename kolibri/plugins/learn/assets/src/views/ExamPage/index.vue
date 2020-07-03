@@ -44,7 +44,7 @@
           </KPageContainer>
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
-            <KButtonGroup style="margin-top: 8px;">
+            <KButtonGroup>
               <UiIconButton
                 v-if="windowBreakpoint === 0"
                 :aria-label="$tr('nextQuestion')"
