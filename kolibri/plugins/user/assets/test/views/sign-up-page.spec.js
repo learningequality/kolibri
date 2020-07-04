@@ -15,7 +15,10 @@ router.getRoute = () => {
 
 function makeWrapper() {
   const store = makeStore();
-  store.state.core.facilities = [{ id: 1, name: 'facility' }];
+  store.state.core.facilities = [
+    { id: 1, name: 'Facility 1' },
+    { id: 2, name: 'Facility 2' },
+  ];
   store.state.facilityId = 1;
   return mount(SignUpPage, {
     store,
@@ -32,6 +35,16 @@ function makeWrapper() {
 describe('signUpPage component', () => {
   it('smoke test', () => {
     const wrapper = makeWrapper();
-    expect(wrapper.exists()).toEqual(true);
+    expect(wrapper.exists()).toBeTruthy();
+  });
+});
+
+describe('multiFacility signUpPage component', () => {
+  it('right facility', async () => {
+    const wrapper = makeWrapper();
+    const facilityLabel = wrapper.find('[data-test="facilityLabel"]').element;
+    expect(facilityLabel.textContent).toMatch(/Facility 1/);
+    await wrapper.vm.$store.commit('SET_FACILITY_ID', 2);
+    expect(facilityLabel.textContent).toMatch(/Facility 2/);
   });
 });

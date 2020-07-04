@@ -44,7 +44,7 @@
             <h2>
               {{ coreString('facilityLabel') }}
             </h2>
-            <p>
+            <p data-test="facilityLabel">
               {{ selectedFacility.name }}
             </p>
           </template>
