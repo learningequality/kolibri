@@ -76,9 +76,9 @@ export default class BaseStorage extends BaseShim {
     }
   }
 
-  iframeInitialize() {
+  iframeInitialize(contentWindow) {
     this.__setShimInterface();
-    Object.defineProperty(window, this.nameSpace, {
+    Object.defineProperty(contentWindow, this.nameSpace, {
       value: this.shim,
       configurable: true,
     });

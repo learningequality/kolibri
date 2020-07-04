@@ -22,29 +22,29 @@ describe('Hashi iframeClient', () => {
       }).then(() => {
         expect(hashi.mediator.sendMessage).toHaveBeenCalledWith({
           nameSpace,
-          event: events.READY,
+          event: events.IFRAMEREADY,
           data: true,
         });
       });
     });
-    it('should bind a listener to a ready event to call the executePage callback', () => {
-      expect(hashi.mediator.__messageHandlers[nameSpace][events.READY].length).toBe(1);
+    it('should bind a listener to a ready event to call the createIframe callback', () => {
+      expect(hashi.mediator.__messageHandlers[nameSpace][events.MAINREADY].length).toBe(1);
     });
-    it('should call the executePage method when the ready event is triggered', () => {
-      const executePage = jest.fn();
-      hashi.mediator.__messageHandlers[nameSpace][events.READY] = [executePage];
+    it('should call the createIframe method when the main ready event is triggered', () => {
+      const createIframe = jest.fn();
+      hashi.mediator.__messageHandlers[nameSpace][events.MAINREADY] = [createIframe];
       hashi.mediator.sendMessage = jest.fn();
       return new Promise(resolve => {
         hashi.mediator.registerMessageHandler({
           nameSpace,
-          event: events.READY,
+          event: events.MAINREADY,
           callback: () => {
             resolve();
           },
         });
-        hashi.mediator.sendLocalMessage({ nameSpace, event: events.READY });
+        hashi.mediator.sendLocalMessage({ nameSpace, event: events.MAINREADY });
       }).then(() => {
-        expect(executePage).toHaveBeenCalled();
+        expect(createIframe).toHaveBeenCalled();
       });
     });
   });

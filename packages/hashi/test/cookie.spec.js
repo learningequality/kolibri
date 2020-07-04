@@ -54,11 +54,11 @@ describe('The hashi cookie shim', () => {
   });
   describe('iframeInitialize method', () => {
     it('should assign a property with a getter of the cookie __getCookies method to document.cookie', () => {
-      cookie.iframeInitialize();
+      cookie.iframeInitialize(window);
       expect(Object.getOwnPropertyDescriptor(document, 'cookie').get).toEqual(cookie.__getCookies);
     });
     it('should assign a property with a setter of the cookie __setItem method to document.cookie', () => {
-      cookie.iframeInitialize();
+      cookie.iframeInitialize(window);
       expect(Object.getOwnPropertyDescriptor(document, 'cookie').set).toEqual(cookie.__setItem);
     });
   });

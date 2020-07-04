@@ -68,8 +68,8 @@ export default class Cookie extends BaseShim {
     }
   }
 
-  iframeInitialize() {
-    Object.defineProperty(document, this.nameSpace, {
+  iframeInitialize(contentWindow) {
+    Object.defineProperty(contentWindow.document, this.nameSpace, {
       get: this.__getCookies,
       set: this.__setItem,
       // By definition, the interfaces we are overwriting are configurable
